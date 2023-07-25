@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.attachment;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
+import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -43,12 +44,8 @@ public class JyAttachmentDetailDao extends BaseDao<JyAttachmentDetailEntity> {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryOneByBiz", bizId);
     }
 
-    public List<JyAttachmentDetailEntity> queryPageListByCondition(Map<String, Object> paramsMap) {
-        return this.getSqlSession().selectList(NAMESPACE + ".queryPageListByCondition", paramsMap);
-    }
-
-    public Long queryTotalCondition(String bizId) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryTotalCondition", bizId);
-    }
+	public List<JyAttachmentDetailEntity> queryDataListByCondition(JyAttachmentDetailQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryDataListByCondition", query);
+	}
     
 }

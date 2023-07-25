@@ -92,7 +92,7 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理TmsTransWorkCarArriveConsumer 执行到达状态 存在 逻辑，内容{}", JsonHelper.toJson(mqBody));
             }
-            //初始化实际到达时间 紧急代替flink加工暂不关心返回值
+            //初始化实际到达时间
             jyBizTaskUnloadVehicleService.initActualArriveTime(taskUnloadVehicleEntity.getBizId(),DateHelper.parseAllFormatDateTime(mqBody.getArriveTime()));
 
             if(!jyBizTaskUnloadVehicleService.changeStatus(convert(taskUnloadVehicleEntity,mqBody))){

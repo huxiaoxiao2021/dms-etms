@@ -613,6 +613,10 @@
         <jmq:listener topic="${jmq.topic.strand.transportReject}" listener="transportRejectAddCarApplyConsumer"/>
     </jmq:consumer>
 
+    <!--  线上化管理-任务配置  -->
+    <jmq:consumer id="jmq.workGridManagerTaskConfigMqConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.workGridManagerTaskConfigMq}" listener="workGridManagerTaskConfigMqConsumer"/>
+    </jmq:consumer>
     <!-- 德邦返调度消息处理 -->
     <jmq:consumer id="jmq.debonReturnScheduleConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.debon.return.schedule}" listener="debonReturnScheduleConsumer"/>

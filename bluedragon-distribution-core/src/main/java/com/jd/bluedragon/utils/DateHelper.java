@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.statistics.jsr166e.ThreadLocalRandom;
 
 import java.text.DateFormat;
 import java.text.MessageFormat;
@@ -35,6 +36,10 @@ public class DateHelper {
      * 1小时的分钟数
      */
     public static final long ONE_HOUR_MINUTES = 60;
+    /**
+     * 1分钟的秒数
+     */
+    public static final int ONE_MINUTE_SECONDS = 60;    
     /**
      * 五分钟秒数
      */
@@ -767,6 +772,59 @@ public class DateHelper {
         calendar.set(Calendar.SECOND, 0);
         return calendar.getTime();
     }
-
-
+    /**
+     * 判断是否同一天
+     * @param time
+     * @param time1
+     * @return
+     */
+	public static boolean isSameDay(Date time, Date time1) {
+		if(time == null
+				|| time1 == null) {
+			return false;
+		}
+		return DateHelper.formatDate(time).equals(DateHelper.formatDate(time1));
+	}
+	/**
+	 * 
+	 * @param time
+	 * @param beforeSeconds
+	 * @param rangeMaxSeconds
+	 * @return
+	 */
+    public static Date getBeforeTime(Date time,int beforeSeconds, int rangeMaxSeconds){
+		Date beforeTime = time;
+		int advSeconds = 0;
+		if(beforeSeconds > 0) {
+			advSeconds = beforeSeconds;
+		}
+		if(rangeMaxSeconds > 0) {
+			advSeconds += ThreadLocalRandom.current().nextInt(rangeMaxSeconds);
+		}
+		if(advSeconds > 0) {
+			beforeTime = DateHelper.add(time,Calendar.SECOND , -advSeconds);
+		}
+		return beforeTime;
+    }
+	/**
+	 * 
+	 * @param time
+	 * @param afterSeconds
+	 * @param rangeMaxSeconds
+	 * @return
+	 */
+    public static Date getAfterTime(Date time,int afterSeconds, int rangeMaxSeconds){
+		Date afterTime = time;
+		int delaySeconds = 0;
+		if(afterSeconds > 0) {
+			delaySeconds = afterSeconds;
+		}
+		if(rangeMaxSeconds > 0) {
+			delaySeconds += ThreadLocalRandom.current().nextInt(rangeMaxSeconds);
+		}
+		if(delaySeconds > 0) {
+			afterTime = DateHelper.add(time,Calendar.SECOND , delaySeconds);
+		}
+		return afterTime;
+    }   
 }

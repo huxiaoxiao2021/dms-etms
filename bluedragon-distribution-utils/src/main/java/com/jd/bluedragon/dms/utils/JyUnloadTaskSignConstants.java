@@ -33,4 +33,11 @@ public interface JyUnloadTaskSignConstants {
     int POSITION_3 = 3;
     char CHAR_3_1 = '1';
 
+    /**
+     * 特安服务
+     */
+    int POSITION_4 = 4;
+    char CHAR_4_1 = '1';
+
+
 }

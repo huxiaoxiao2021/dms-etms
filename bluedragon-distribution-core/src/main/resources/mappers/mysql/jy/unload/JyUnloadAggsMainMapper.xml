@@ -183,6 +183,18 @@
         </if>
         GROUP BY product_type
     </select>
+
+    <select id="queryShouldScanByBizIds" parameterType="java.util.List" resultMap="jyUnloadAggsMap">
+        SELECT biz_id,product_type,SUM(should_scan_count) should_scan_count
+        from jy_unload_aggs
+        WHERE yn = 1 and biz_id in
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY biz_id, product_type
+    </select>
+
     <select id="queryExcepScanStatistics" parameterType="JyUnloadAggsEntity"
             resultType="com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto">
         SELECT

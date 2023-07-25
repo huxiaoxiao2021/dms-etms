@@ -17,6 +17,7 @@ public enum JyBizTaskUnloadOrderTypeEnum {
     RANKING(3, "排名"),
     DESEAL_CAR_TIME(4, "解封车时间"),
     UNLOAD_PROGRESS(5, "卸车进度"),
+    PRIORITY_FRACTION(6, "优先积分"),
     ;
 
     private Integer code;

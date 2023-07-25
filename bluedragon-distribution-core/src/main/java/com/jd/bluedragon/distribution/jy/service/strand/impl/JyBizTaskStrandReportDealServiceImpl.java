@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizStrandScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizStrandTaskStatusEnum;
@@ -25,6 +26,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
+import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dto.strand.JyStrandTaskPageCondition;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
@@ -42,6 +44,7 @@ import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
@@ -200,6 +203,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
                 JyAttachmentDetailEntity annexEntity = new JyAttachmentDetailEntity();
                 annexEntity.setBizId(taskEntity.getBizId());
                 annexEntity.setSiteCode(request.getSiteCode());
+                annexEntity.setBizType(JyAttachmentBizTypeEnum.TASK_STRAND_REPORT.getCode());
                 annexEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
                 annexEntity.setCreateUserErp(request.getOperateUserErp());
                 annexEntity.setUpdateUserErp(request.getOperateUserErp());
@@ -890,12 +894,13 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
 
     private List<String> queryProveUrl(String bizId, Integer siteCode) {
         List<String> list = Lists.newArrayList();
-        Map<String, Object> paramsMap = Maps.newHashMap();
-        paramsMap.put("bizId", bizId);
-        paramsMap.put("siteCode", siteCode);
-        paramsMap.put("offset", 0);
-        paramsMap.put("pageSize", 100);
-        List<JyAttachmentDetailEntity> attachmentList = jyAttachmentDetailService.queryPageListByCondition(paramsMap);
+        JyAttachmentDetailQuery query = new JyAttachmentDetailQuery();
+        query.setBizType(JyAttachmentBizTypeEnum.TASK_STRAND_REPORT.getCode());
+        query.setSiteCode(siteCode);
+        query.setBizId(bizId);
+        query.setPageNumber(1);
+        query.setPageSize(DmsConstants.PAGE_SIZE_DEFAULT_ATTACHMENT_QUERY);
+        List<JyAttachmentDetailEntity> attachmentList = jyAttachmentDetailService.queryDataListByCondition(query);
         if(CollectionUtils.isNotEmpty(attachmentList)){
             for (JyAttachmentDetailEntity temp : attachmentList) {
                 list.add(temp.getAttachmentUrl());

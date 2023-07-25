@@ -377,5 +377,5 @@ public interface WaybillQueryManager{
 	 * @param waybillCode
 	 * @return
 	 */
-	JdResult<List<WaybillFenceDto>> getWaybillFenceInfoByWaybillCode(String waybillCode);	
+	JdResult<List<WaybillFenceDto>> getWaybillFenceInfoByWaybillCode(String waybillCode);
 }

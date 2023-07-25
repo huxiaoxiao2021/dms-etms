@@ -40,10 +40,11 @@
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="biz_source" property="bizSource" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="ref_work_grid_key" property="refWorkGridKey" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
-	
+
 	<resultMap id="UserSignRecordReportVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo" >
-		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />	
+		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="war_zone_code" property="warZoneCode" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -61,25 +62,25 @@
 		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />		
+		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="standard_num" property="standardNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="plan_attend_num" property="planAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="attend_num" property="attendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="now_attend_num" property="nowAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />		
+		<result column="now_attend_num" property="nowAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 	</resultMap>
-	
+
 	<resultMap id="UserSignRecordReportSumVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo" >
 		<result column="standard_num_sum" property="standardNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="plan_attend_num_sum" property="planAttendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="attend_num_sum" property="attendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="now_attend_num_sum" property="nowAttendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />				
+		<result column="now_attend_num_sum" property="nowAttendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 	</resultMap>
-	
+
 	<resultMap id="UserSignNoticeVo" type="com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo" >
 		<result column="standard_num_sum" property="standardNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="grid_count" property="gridCount" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="station_count" property="stationCount" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="area_count" property="areaCount" javaType="java.lang.Integer" jdbcType="INTEGER" />				
+		<result column="area_count" property="areaCount" javaType="java.lang.Integer" jdbcType="INTEGER" />
 	</resultMap>
 	<resultMap id="UserSignNoticeWaveItemVo" type="com.jd.bluedragon.distribution.station.domain.UserSignNoticeWaveItemVo" >
 		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
@@ -90,9 +91,9 @@
 		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="attend_num_sum" property="attendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
-	</resultMap>		
-	
-		
+	</resultMap>
+
+
 	<resultMap id="UserSignRecordData" type="com.jd.bluedragon.common.dto.station.UserSignRecordData" >
 		<result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -131,7 +132,16 @@
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
-		
+
+
+	<resultMap id="baseUserSignMap" type="com.jd.bluedragon.distribution.station.domain.BaseUserSignRecordVo">
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="user_code" property="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_code_encrypt" property="userCode" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
+		<result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_name_encrypt" property="userName" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
+	</resultMap>
+
 	<sql id="Base_Column_List" >
 		r.id,r.org_code,r.site_code,r.war_zone_code,r.war_zone_name,r.user_code,r.user_code_encrypt,r.user_name,r.user_name_encrypt,r.wave_code,r.job_code,
 		r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
@@ -146,7 +156,7 @@
         r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
         r.ref_station_key,r.create_user,r.create_user_name,r.update_user,r.update_user_name,
         r.create_time,r.update_time,r.yn,r.ts,r.biz_source
-    </sql>	
+    </sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord" useGeneratedKeys="true" keyProperty="id">
 		insert into user_sign_record
@@ -257,7 +267,7 @@
 					#{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesPlainTextHandle},
 					#{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle},
 					#{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle},
-				</if>				
+				</if>
 				<if test="waveCode != null" >
 					#{waveCode,jdbcType=TINYINT},
 				</if>
@@ -337,7 +347,7 @@
 					user_name = #{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesPlainTextHandle},
 					user_name_encrypt = #{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle},
 					user_name_index = #{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle},
-				</if>				
+				</if>
 				<if test="waveCode != null" >
 					wave_code = #{waveCode,jdbcType=TINYINT},
 				</if>
@@ -398,7 +408,7 @@
 
 	<update id="deleteById" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord">
 		update user_sign_record
-			set 
+			set
 			<if test="updateUser != null" >
 				update_user = #{updateUser,jdbcType=VARCHAR},
 			</if>
@@ -419,10 +429,10 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			(select t.* from user_sign_record t 
+			(select t.* from user_sign_record t
 			  where t.yn = 1 and t.id = #{id,jdbcType=BIGINT}
 			) r
-			<include refid="joinSql"/>			
+			<include refid="joinSql"/>
 		limit 1
 	</select>
 
@@ -430,7 +440,7 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			(select t.* from user_sign_record t force index(`idx_sign_date`) 
+			(select t.* from user_sign_record t force index(`idx_sign_date`)
 	          <include refid="queryConditionMain"/>
 	        ) r
 		<include refid="joinSql"/>
@@ -438,13 +448,13 @@
 		order by r.ts desc
 		<if test="pageNumber > 0">
             limit #{offset}, #{limit}
-        </if>		
+        </if>
 	</select>
 	<select id="queryListForExport" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
         select
             <include refid="Base_Column_List"/>
         from
-            (select t.* from user_sign_record t force index(`idx_sign_date`) 
+            (select t.* from user_sign_record t force index(`idx_sign_date`)
               <include refid="queryConditionMain"/>
             ) r
         <include refid="joinSql"/>
@@ -452,13 +462,13 @@
 		order by r.id
 		<if test="pageNumber > 0">
             limit #{offset}, #{limit}
-        </if>		
+        </if>
 	</select>
 	<select id="queryCount" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultType="long">
 		select
 			count(1)
 		from
-            (select t.* from user_sign_record t force index(`idx_sign_date`) 
+            (select t.* from user_sign_record t force index(`idx_sign_date`)
               <include refid="queryConditionMain"/>
             ) r
         <include refid="joinSql"/>
@@ -466,10 +476,10 @@
 	</select>
     <sql id="queryConditionMain">
         <where>
-            t.yn = 1 
+            t.yn = 1
         <if test="signDate != null" >
             and t.sign_date = #{signDate,jdbcType=DATE}
-        </if>       
+        </if>
         <if test="orgCode != null" >
             and t.org_code = #{orgCode,jdbcType=INTEGER}
         </if>
@@ -487,12 +497,12 @@
         </if>
         <if test="signDateEnd != null" >
             and t.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
-        </if>               
+        </if>
         </where>
     </sql>
 	<sql id="queryConditionRef">
 		<where>
-			1 = 1 
+			1 = 1
 		<if test="gridNo != null and gridNo != ''" >
 			and g.grid_no = #{gridNo,jdbcType=VARCHAR}
 		</if>
@@ -504,18 +514,18 @@
 		</if>
 		<if test="workCode != null and workCode != ''" >
 			and s.work_code = #{workCode,jdbcType=VARCHAR}
-		</if>				
+		</if>
 		</where>
 	</sql>
-	
+
 	<sql id="joinSql">
    		left outer join work_station s on r.ref_station_key = s.business_key and s.yn = 1
 		left outer join work_station_grid g on r.ref_grid_key = g.business_key and g.yn = 1
 		left outer join work_station_attend_plan p on r.ref_grid_key = p.ref_grid_key and r.wave_code = p.wave_code and p.yn = 1
-	</sql>	
-	
+	</sql>
+
 	<select id="queryReportList" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordReportVo">
-		select 
+		select
 			r.sign_date,r.wave_code,g.org_code,g.org_name,g.site_code,g.site_name,
 			g.floor,g.grid_no,g.grid_code,g.grid_name,
 			s.area_code,s.area_name,s.work_code,s.work_name,
@@ -545,13 +555,13 @@
             limit #{offset}, #{limit}
         </if>
 	</select>
-	
+
 	<select id="queryReportCount" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultType="long">
-		select 
+		select
 			count(1)
 		from
 			(select t.sign_date,t.ref_grid_key,t.wave_code,max(t.ref_plan_key) ref_plan_key,max(t.ref_station_key) ref_station_key
-			from  user_sign_record t force index(`idx_sign_date`) 
+			from  user_sign_record t force index(`idx_sign_date`)
 			<include refid="queryReportConditionMain"/>
    			group by t.sign_date,t.ref_grid_key,t.wave_code) r
  			<include refid="joinSql"/>
@@ -571,19 +581,19 @@
 				</otherwise>
 			</choose>
 		from
-			user_sign_record t force index(`idx_sign_in_time`) 
+			user_sign_record t force index(`idx_sign_in_time`)
 		<include refid="queryReportConditionMainNow"/>
 		group by
 			t.ref_grid_key,t.wave_code
 		) r2 on r.ref_grid_key = r2.ref_grid_key and r.wave_code = r2.wave_code
 	</sql>
 	<select id="queryReportSum" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordReportSumVo">
-	select sum(u.standard_num_sum) standard_num_sum, 
-		   sum(u.plan_attend_num_sum) plan_attend_num_sum, 
+	select sum(u.standard_num_sum) standard_num_sum,
+		   sum(u.plan_attend_num_sum) plan_attend_num_sum,
 		   sum(u.attend_num_sum) attend_num_sum,
 		   sum(u.now_attend_num_sum) now_attend_num_sum
 		from(
-			select 
+			select
 				0 standard_num_sum,
 				sum(case when p.plan_attend_num is null then 0 else p.plan_attend_num end) plan_attend_num_sum,
 				sum(r.attend_num) attend_num_sum,
@@ -602,20 +612,20 @@
 				  <include refid="queryReportConditionMain"/>
 		   			group by t.sign_date,t.ref_grid_key,wave_code) r
 					left outer join work_station s on r.ref_station_key = s.business_key and s.yn = 1
-					left outer join work_station_grid g on r.ref_grid_key = g.business_key and g.yn = 1						
+					left outer join work_station_grid g on r.ref_grid_key = g.business_key and g.yn = 1
 		 			left outer join work_station_attend_plan p on r.ref_grid_key = p.ref_grid_key and r.wave_code = p.wave_code and p.yn = 1
 		 			<include refid="joinNowSql"/>
 			)
-			<include refid="queryReportConditionRef"/>	
+			<include refid="queryReportConditionRef"/>
 			union all
-			select 
+			select
 				sum(case when g.standard_num is null then 0 else g.standard_num end) standard_num_sum,
 				0 plan_attend_num_sum,
 				0 attend_num_sum,
 				0 now_attend_num_sum
 			from
 				(select t.ref_grid_key,max(t.ref_station_key) ref_station_key
-				from  user_sign_record t force index(`idx_sign_date`) 
+				from  user_sign_record t force index(`idx_sign_date`)
 				<include refid="queryReportConditionMain"/>
 	   			group by t.ref_grid_key) r
 				left outer join work_station_grid g on r.ref_grid_key = g.business_key and g.yn = 1
@@ -628,7 +638,7 @@
 			t.yn = 1
 			and t.sign_in_time >= #{nowDateStart,jdbcType=TIMESTAMP}
 			and t.sign_in_time &lt;= #{nowDateEnd,jdbcType=TIMESTAMP}
-			and t.sign_out_time IS NULL					
+			and t.sign_out_time IS NULL
 		<if test="orgCode != null" >
 			and t.org_code = #{orgCode,jdbcType=INTEGER}
 		</if>
@@ -637,21 +647,21 @@
 		</if>
 		<if test="waveCode != null" >
 			and t.wave_code = #{waveCode,jdbcType=TINYINT}
-		</if>		
+		</if>
 		</where>
-	</sql>	
+	</sql>
 	<sql id="queryReportConditionMain">
 		<where>
 			t.yn = 1
 		<if test="signDate != null" >
 			and t.sign_date = #{signDate,jdbcType=DATE}
-		</if>		
+		</if>
 		<if test="orgCode != null" >
 			and t.org_code = #{orgCode,jdbcType=INTEGER}
 		</if>
 		<if test="siteCode != null" >
 			and t.site_code = #{siteCode,jdbcType=INTEGER}
-		</if>	
+		</if>
 		<if test="waveCode != null" >
 			and t.wave_code = #{waveCode,jdbcType=TINYINT}
 		</if>
@@ -674,7 +684,7 @@
 		</if>
 		<if test="floor != null" >
 			and floor = #{floor,jdbcType=INTEGER}
-		</if>		
+		</if>
 		<if test="areaCode != null and areaCode != ''" >
 			and area_code = #{areaCode,jdbcType=VARCHAR}
 		</if>
@@ -684,27 +694,27 @@
 		</where>
 	</sql>
 	<select id="queryUserSignNoticeVo" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignNoticeVo">
-		select 
+		select
 				sum(case when g.standard_num is null then 0 else g.standard_num end) standard_num_sum,
 				count(distinct r.ref_grid_key) grid_count,
 				count(distinct r.ref_station_key) station_count,
 				count(distinct s.area_code) area_count
 			from
 				(select t.ref_grid_key,max(t.ref_station_key) ref_station_key
-				from  user_sign_record t force index(`idx_sign_date`) 
+				from  user_sign_record t force index(`idx_sign_date`)
 				<include refid="queryNoticeCondition"/>
 	   			group by t.ref_grid_key) r
 				left outer join work_station_grid g on r.ref_grid_key = g.business_key and g.yn = 1
 				left outer join work_station s on r.ref_station_key = s.business_key and s.yn = 1
 	</select>
 	<select id="queryUserSignNoticeWaveItems" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignNoticeWaveItemVo">
-		select 
+		select
 			r.wave_code,
 				sum(case when p.plan_attend_num is null then 0 else p.plan_attend_num end) plan_attend_num_sum,
 				sum(case when r.attend_num is null then 0 else r.attend_num end) attend_num_sum
 			from
 				(select t.ref_grid_key,t.wave_code,count(distinct t.user_code) attend_num
-				from  user_sign_record t force index(`idx_sign_date`) 
+				from  user_sign_record t force index(`idx_sign_date`)
 					<include refid="queryNoticeCondition"/>
 	   			group by t.ref_grid_key,t.wave_code) r
 				left outer join work_station_attend_plan p on r.ref_grid_key = p.ref_grid_key and r.wave_code = p.wave_code and p.yn = 1
@@ -712,18 +722,18 @@
 			order by r.wave_code
 	</select>
 	<select id="queryUserSignNoticeJobItems" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignNoticeJobItemVo">
-		select 
+		select
 				r.wave_code,
 				r.job_code,
 				sum(case when r.attend_num is null then 0 else r.attend_num end) attend_num_sum
 			from
 				(select t.ref_grid_key,t.wave_code,t.job_code,count(distinct t.user_code) attend_num
-				from  user_sign_record t force index(`idx_sign_date`) 
+				from  user_sign_record t force index(`idx_sign_date`)
 					<include refid="queryNoticeCondition"/>
 	   			group by t.ref_grid_key,t.wave_code,t.job_code) r
 			group by r.wave_code,r.job_code
 			order by r.wave_code,r.job_code
-	</select>		
+	</select>
 	<sql id="queryNoticeCondition">
 		<where>
 			t.yn = 1
@@ -733,10 +743,10 @@
 		</if>
 		<if test="siteCode != null" >
 			and t.site_code = #{siteCode,jdbcType=INTEGER}
-		</if>	
+		</if>
 		</where>
 	</sql>
-	
+
 	<select id="queryLastSignRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
 		select
 			<include refid="Base_Column_List"/>
@@ -812,15 +822,15 @@
 			</choose>
 				and t.sign_out_time is null
 			<if test="siteCode != null" >
-				and	t.site_code = #{siteCode,jdbcType=INTEGER}	
-			</if>			
+				and	t.site_code = #{siteCode,jdbcType=INTEGER}
+			</if>
 			<if test="signDate != null" >
 				and t.sign_date = #{signDate,jdbcType=DATE}
 			</if>
 			order by t.sign_in_time desc
 			limit 1
-			) r			
-		<include refid="joinSql"/>			
+			) r
+		<include refid="joinSql"/>
 		limit 1
 	</select>
 	<select id="queryListWithPosition" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultMap="UserSignRecordData">
@@ -847,13 +857,13 @@
 			t.yn = 1
 			and t.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
 			and t.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}
-			and t.sign_in_time &lt;= #{signInTimeEnd,jdbcType=TIMESTAMP}			
+			and t.sign_in_time &lt;= #{signInTimeEnd,jdbcType=TIMESTAMP}
 		<if test="signDate != null" >
 			and t.sign_date = #{signDate,jdbcType=DATE}
-		</if>		
+		</if>
 		</where>
-	</sql>	
-	
+	</sql>
+
 	<select id="queryLastUserSignRecordData" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultMap="UserSignRecordData">
 		select
 			<include refid="Base_Column_List"/>
@@ -869,8 +879,8 @@
 					</otherwise>
 				</choose>
 				<if test="siteCode != null" >
-					and	t.site_code = #{siteCode,jdbcType=INTEGER}	
-				</if>		
+					and	t.site_code = #{siteCode,jdbcType=INTEGER}
+				</if>
 				<if test="signDate != null" >
 					and t.sign_date = #{signDate,jdbcType=DATE}
 				</if>
@@ -889,19 +899,19 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			(select t.* from user_sign_record t 
+			(select t.* from user_sign_record t
 				where t.yn = 1 and t.id = #{id,jdbcType=BIGINT}
 			) r
-			<include refid="joinSql"/>			
+			<include refid="joinSql"/>
 		limit 1
 	</select>
     <select id="queryUserSignRecordDataByIds" parameterType="java.util.List" resultMap="UserSignRecordData">
         select
             <include refid="Base_Column_List"/>
         from
-            (select t.* from user_sign_record t 
-                where t.yn = 1 
-                  and t.id in 
+            (select t.* from user_sign_record t
+                where t.yn = 1
+                  and t.id in
                 <foreach collection="list" item="item" open="(" close=")" separator=",">
 		            #{item,jdbcType=BIGINT}
 		        </foreach>
@@ -917,7 +927,7 @@
           and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
           and r.sign_out_time is null
         order by id
-    </select> 
+    </select>
     <select id="queryListByOperateUser" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultMap="UserSignRecordData">
         select
             <include refid="Main_Column_List"/>
@@ -1041,4 +1051,30 @@
             where r.id = #{refRecordId,jdbcType=BIGINT}
         limit 1
     </select>
+	<select id="listSignRecordByTime" resultMap="UserSignRecord">
+		SELECT
+			r.id,r.org_code,r.site_code,r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
+			r.ref_station_key
+		FROM user_sign_record r
+		WHERE r.sign_date BETWEEN #{signDateStart} AND #{signDateEnd}
+		AND r.site_code = #{siteCode}
+		AND r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+		AND TIMESTAMPDIFF(HOUR, r.sign_in_time, r.sign_out_time) >1
+		GROUP BY r.sign_date;
+	</select>
+
+
+	<select id="querySignInUserByCondition" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="baseUserSignMap">
+		select site_code,user_code,user_code_encrypt,user_name,user_name_encrypt
+		from  user_sign_record
+		where yn =1
+		AND ref_grid_key =#{refGridKey}
+		AND <![CDATA[ sign_in_time >= #{signInTime,jdbcType=TIMESTAMP}  ]]>
+		group by user_code_index
+		<if test="pageNumber > 0">
+			limit #{offset}, #{limit}
+		</if>
+
+	</select>
+
 </mapper>

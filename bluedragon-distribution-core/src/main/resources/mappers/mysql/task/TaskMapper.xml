@@ -208,9 +208,10 @@
 		50
 	</select>
 
-	<update id="updateBySelective" parameterType="task">
+	<update id="updateBySelectiveWithBody" parameterType="task">
 		UPDATE ${tableName}
 		<set>
+		       body = #{body,jdbcType=VARCHAR},
 			<if test="executeCount != null">
 				execute_count = #{executeCount},
 			</if>
@@ -226,7 +227,24 @@
 		</set>
 		WHERE task_id = #{id}
 	</update>
-
+    <update id="updateBySelective" parameterType="task">
+        UPDATE ${tableName}
+        <set>
+            <if test="executeCount != null">
+                execute_count = #{executeCount},
+            </if>
+            <if test="executeTime != null">
+                execute_time = #{executeTime},
+            </if>
+            <if test="status != null">
+                task_status = #{status},
+            </if>
+            <if test="yn != null">
+                yn = #{yn},
+            </if>
+        </set>
+        WHERE task_id = #{id}
+    </update>
 	<select id="findSendTasks" resultMap="task" parameterType="map">
 		SELECT task_id, task_type, box_code, create_site_code,
 		receive_site_code, body,
@@ -503,6 +521,51 @@
         <if test="type != null">
             AND task_type = #{type}
         </if>
+        <if test="ownSigns != null and ownSigns.size > 0">
+            AND own_sign in
+            <foreach collection="ownSigns" item="ownSign" open="(" close=")" separator=",">
+                #{ownSign}
+            </foreach>
+        </if>
+        <if test="queueIds != null">
+            AND queue_id in
+            <foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+                #{queueId}
+            </foreach>
+        </if>
+        LIMIT #{fetchNum}
+    </select>
+    <select id="findLastTaskByQuery" resultMap="task" parameterType="com.jd.bluedragon.distribution.task.domain.TaskQuery">
+        <![CDATA[
+        SELECT task_id, task_type, box_code, create_site_code, receive_site_code, body, execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
+        FROM ${tableName}
+        WHERE yn = 1  
+          AND keyword1 = #{keyword1,jdbcType=VARCHAR} ]]>
+        <if test="keyword2 != null and keyword2 != '' ">
+            AND keyword2 = #{keyword2}
+        </if>
+        <if test="status != null">
+            AND task_status = #{status}
+        </if>
+        <if test="statusList != null">
+            AND task_status in
+            <foreach collection="statusList" item="statusItem" open="(" close=")" separator=",">
+                #{statusItem}
+            </foreach>
+        </if>
+        order by task_id desc
+        LIMIT 1
+    </select>
+    <!-- 查询列表-延迟任务 -->
+    <select id="findListForDelayTask" resultMap="task" parameterType="map">
+        <![CDATA[
+        SELECT task_id, task_type, box_code, create_site_code, receive_site_code, body, execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
+        FROM ${tableName}
+        WHERE yn = 1 AND execute_count < 10
+            AND (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3, 4)  ]]>
+        <if test="type != null">
+            AND task_type = #{type}
+        </if>
         <if test="ownSign != null">
             AND own_sign = #{ownSign,jdbcType=VARCHAR}
         </if>
@@ -513,5 +576,5 @@
             </foreach>
         </if>
         LIMIT #{fetchNum}
-    </select>
+    </select>       
 </mapper>
