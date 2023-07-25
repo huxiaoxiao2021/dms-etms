@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.businessCode.dao;
 import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributePo;
 import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 
 import java.util.List;
@@ -66,4 +67,21 @@ public class BusinessCodeDao {
     public void setSequenceGenAdaptor(SequenceGenAdaptor sequenceGenAdaptor) {
         this.sequenceGenAdaptor = sequenceGenAdaptor;
     }
+
+    /**
+     * 查询code中可能key的value集合
+     * @param code
+     * @param attributeKey
+     * @return
+     */
+    public List<String> findAttributeValueByCodeAndPossibleKey(String code, String attributeKey) {
+        if(StringUtils.isBlank(code)) {
+            return null;
+        }
+        BusinessCodeAttributePo param = new BusinessCodeAttributePo();
+        param.setCode(code);
+        param.setAttributeKey(attributeKey);
+        return sqlSession.selectList(NAMESPACE + ".findAttributeValueByCodeAndPossibleKey", param);
+    }
+
 }

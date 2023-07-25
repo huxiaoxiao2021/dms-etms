@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDetailDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="collection_code" property="collectionCode" jdbcType="VARCHAR" />
+    <result column="site_id" property="siteId" jdbcType="BIGINT" />
+    <result column="scan_code" property="scanCode" jdbcType="VARCHAR" />
+    <result column="scan_code_type" property="scanCodeType" jdbcType="VARCHAR" />
+    <result column="agg_code" property="aggCode" jdbcType="VARCHAR" />
+    <result column="agg_code_type" property="aggCodeType" jdbcType="VARCHAR" />
+    <result column="collected_mark" property="collectedMark" jdbcType="VARCHAR" />
+    <result column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, collection_code, site_id, scan_code, scan_code_type, agg_code, agg_code_type, 
+    collected_mark, operate_time, create_time, yn
+  </sql>
+
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo" >
+    insert into jy_collect_record_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="collectionCode != null" >
+        collection_code,
+      </if>
+      <if test="siteId != null" >
+        site_id,
+      </if>
+      <if test="scanCode != null" >
+        scan_code,
+      </if>
+      <if test="scanCodeType != null" >
+        scan_code_type,
+      </if>
+      <if test="aggCode != null" >
+        agg_code,
+      </if>
+      <if test="aggCodeType != null" >
+        agg_code_type,
+      </if>
+      <if test="collectedMark != null" >
+        collected_mark,
+      </if>
+      <if test="operateTime != null" >
+        operate_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+        yn
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="collectionCode != null" >
+        #{collectionCode,jdbcType=VARCHAR},
+      </if>
+      <if test="siteId != null" >
+        #{siteId,jdbcType=BIGINT},
+      </if>
+      <if test="scanCode != null" >
+        #{scanCode,jdbcType=VARCHAR},
+      </if>
+      <if test="scanCodeType != null" >
+        #{scanCodeType,jdbcType=VARCHAR},
+      </if>
+      <if test="aggCode != null" >
+        #{aggCode,jdbcType=VARCHAR},
+      </if>
+      <if test="aggCodeType != null" >
+        #{aggCodeType,jdbcType=VARCHAR},
+      </if>
+      <if test="collectedMark != null" >
+        #{collectedMark,jdbcType=VARCHAR},
+      </if>
+      <if test="operateTime != null" >
+        #{operateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      1
+    </trim>
+  </insert>
+
+  <!-- 按包取消扫描处理：删除给操作时间，避免删除操作时间之后的数据 -->
+  <update id="deleteByScanCode" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition" >
+    update jy_collect_record_detail
+    set yn = 0
+    where   yn = 1
+    and site_id = #{siteId,jdbcType=BIGINT}
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
+    and scan_code = #{scanCode,jdbcType=VARCHAR}
+    and operate_time &lt;=  #{endOperateTime,jdbcType=TIMESTAMP}
+    <if test="collectionCodeList != null and collectionCodeList.size() > 0" >
+      and collection_code in
+      <foreach collection="collectionCodeList" open="(" item="item" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
+  </update>
+
+  <!-- 按单取消扫描处理：删除给操作时间，避免删除操作时间之后的数据 -->
+  <update id="deleteByAggCode" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition" >
+    update jy_collect_record_detail
+    set yn = 0
+    where   yn = 1
+    and site_id = #{siteId,jdbcType=BIGINT}
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
+    and operate_time &lt;=  #{endOperateTime,jdbcType=TIMESTAMP}
+    and collection_code = #{collectionCode,jdbcType=VARCHAR}
+  </update>
+
+  <select id="findAggCodeByScanCode" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+    jy_collect_record_detail
+    where    yn = 1
+      and site_id = #{siteId,jdbcType=BIGINT}
+      and collection_code = #{collectionCode, jdbcType=VARCHAR}
+      and scan_code = #{scanCode, jdbcType=VARCHAR}
+  </select>
+
+
+  <!-- 查collectionCode+任务+运单号下已扫包裹数量 -->
+  <select id="countScanCodeNumNumByCollectedMarkAndAggCode"
+          parameterType="com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo"
+          resultType="java.lang.Integer">
+    select	count(*)
+    from jy_collect_record_detail
+    where yn = 1
+    and site_id = #{siteId}
+    and collection_code = #{collectionCode, jdbcType=VARCHAR}
+    <if test="aggCode != null" >
+      and agg_code = #{aggCode,jdbcType=VARCHAR}
+    </if>
+  </select>
+
+
+
+  <select id="findPageByCondition" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+    jy_collect_record_detail
+    where    yn = 1
+    and site_id = #{siteId,jdbcType=BIGINT}
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
+    <if test="collectionCode != null" >
+      and collection_code = #{collectionCode, jdbcType=VARCHAR}
+    </if>
+    <if test="collectionCodeList != null and collectionCodeList.size() > 0" >
+      and collection_code in
+      <foreach collection="collectionCodeList" open="(" item="item" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
+    <if test="scanCode != null" >
+      and scan_code = #{scanCode, jdbcType=VARCHAR}
+    </if>
+    <if test="endOperateTime != null" >
+      and  operate_time &lt;=  #{endOperateTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="startOperateTime != null" >
+      and  operate_time &gt;=  #{startOperateTime,jdbcType=TIMESTAMP}
+    </if>
+    limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}
+
+  </select>
+
+</mapper>

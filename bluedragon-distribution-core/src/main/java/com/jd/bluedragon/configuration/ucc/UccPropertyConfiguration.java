@@ -1368,6 +1368,22 @@ public class UccPropertyConfiguration {
     private String exceptionSubmitCheckWaybillInterceptTypes;
 
     /**
+     * 接货仓发货岗查询发货明细表，默认limit最大值
+     */
+    private Integer JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    /**
+     * 接货仓发货岗混扫任务下流向数量配置： 当前ucc配置，而且改为PC报表控制
+     * ,38:10,,10186:15,,,  配置：38场地支持10个流向， 10186支持15个流向
+     */
+    private String JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    /**
+     * 拣运扫描没有限制最大数量，取消可能存在巨大值，当取消特大时，需要关注是否为异常
+     */
+    private Integer JyBuQiWaybillCodeMaxSum;
+
+
+
+    /**
      * 批量生成批次号时：最大数量限制
      */
     private Integer batchGenerateSendCodeMaxNum;
@@ -3555,6 +3571,30 @@ public class UccPropertyConfiguration {
 
     public void setCompleteExpDayNumLimit(int completeExpDayNumLimit) {
         this.completeExpDayNumLimit = completeExpDayNumLimit;
+    }
+
+    public Integer getJyWarehouseSendVehicleDetailQueryDefaultLimitSize() {
+        return JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    }
+
+    public void setJyWarehouseSendVehicleDetailQueryDefaultLimitSize(Integer jyWarehouseSendVehicleDetailQueryDefaultLimitSize) {
+        JyWarehouseSendVehicleDetailQueryDefaultLimitSize = jyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    }
+
+    public String getJyWarehouseSendVehicleMixScanTaskFlowNumConfig() {
+        return JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    }
+
+    public void setJyWarehouseSendVehicleMixScanTaskFlowNumConfig(String jyWarehouseSendVehicleMixScanTaskFlowNumConfig) {
+        JyWarehouseSendVehicleMixScanTaskFlowNumConfig = jyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    }
+
+    public Integer getJyBuQiWaybillCodeMaxSum() {
+        return JyBuQiWaybillCodeMaxSum;
+    }
+
+    public void setJyBuQiWaybillCodeMaxSum(Integer jyBuQiWaybillCodeMaxSum) {
+        JyBuQiWaybillCodeMaxSum = jyBuQiWaybillCodeMaxSum;
     }
 
     public double getVehicleIntegralPriorityFraction() {

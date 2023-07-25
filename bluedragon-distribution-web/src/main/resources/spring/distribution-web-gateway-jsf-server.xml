@@ -645,4 +645,12 @@
 
 
 
+    <bean id="jyWarehouseSendGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyWarehouseSendGatewayServiceImpl" />
+    <jsf:provider id="jsfJyWarehouseSendGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyWarehouseSendGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

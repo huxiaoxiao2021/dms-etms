@@ -198,4 +198,10 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public List<JyBizTaskSendVehicleEntity> findByTransWork(JyBizTaskSendVehicleEntity entity) {
         return this.getSqlSession().selectList(NAMESPACE + ".findByTransWork", entity);
     }
+    
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> bizIds) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("bizIds", bizIds);
+        return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByBizIds", params);
+    }
 }

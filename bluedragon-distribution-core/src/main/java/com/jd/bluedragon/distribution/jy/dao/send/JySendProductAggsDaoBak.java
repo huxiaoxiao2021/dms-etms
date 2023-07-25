@@ -26,6 +26,11 @@ class JySendProductAggsDaoBak extends BaseDao<JySendProductAggsEntity>  implemen
         return this.getSqlSession().selectOne(NAMESPACE + ".getToScanCountSum", query);
     }
 
+    @Override
+    public List<JySendProductAggsEntity> getToScanNumByEndSiteList(JySendProductAggsEntityQuery query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getToScanNumByEndSiteList", query);
+    }
+
     public int updateByBizProduct(JySendProductAggsEntity entity){
         return this.getSqlSession().update(NAMESPACE + ".updateByBizProduct", entity);
     }

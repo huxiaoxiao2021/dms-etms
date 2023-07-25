@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -8,15 +9,12 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.BaseSendVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SealedVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
@@ -33,18 +31,21 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDest
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
-import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.dto.send.request.BindVehicleDetailTaskReq;
 import com.jd.bluedragon.common.dto.send.request.CancelSendTaskReq;
 import com.jd.bluedragon.common.dto.send.request.CreateVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.DeleteVehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.request.TransferSendTaskReq;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
-import com.jd.bluedragon.common.dto.send.response.*;
+import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
 import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
@@ -53,10 +54,9 @@ import com.jd.bluedragon.common.dto.send.response.VehicleDetailTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
+import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
-import com.jd.bluedragon.common.dto.send.request.*;
-import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.task.CalculateOperateProgressTask;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -87,7 +87,9 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
+import com.jd.bluedragon.distribution.jy.constants.JyCollectScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
+import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.send.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -97,6 +99,8 @@ import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.send.*;
+import com.jd.bluedragon.distribution.jy.service.collectNew.enums.JyCollectionMqBizSourceEnum;
+import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
@@ -137,9 +141,6 @@ import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
-import com.jd.tms.jdi.dto.CommonDto;
-import com.jd.tms.jdi.dto.JdiSealCarQueryDto;
-import com.jd.tms.jdi.dto.JdiSealCarResponseDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.tms.jdi.dto.TransWorkFuzzyQueryParam;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
@@ -152,7 +153,6 @@ import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
 import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicReq;
 import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicResp;
-import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
@@ -164,13 +164,13 @@ import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -234,7 +234,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
 
     @Autowired
-    private JySendAggsService sendAggService;
+    public JySendAggsService sendAggService;
 
     @Autowired
     private JySendSealCodeService sendSealCodeService;
@@ -343,6 +343,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private JySendOrUnloadDataReadDuccConfigManager jyDuccConfigManager;
+    @Autowired
+    @Qualifier("jyScanCollectProducer")
+    private DefaultJMQProducer jyScanCollectProducer;
+    @Autowired
+    private JyScanCollectStrategy jyScanCollectStrategy;
 
     @Autowired
     private WaybillCommonService waybillCommonService;
@@ -793,7 +798,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param bizId
      * @return
      */
-    private String getJyScheduleTaskId(String bizId) {
+    public String getJyScheduleTaskId(String bizId) {
         JyScheduleTaskReq req = new JyScheduleTaskReq();
         req.setBizId(bizId);
         req.setTaskType(JyScheduleTaskTypeEnum.SEND.getCode());
@@ -1073,6 +1078,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             curSendDest.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskPlanTimeBeginDay()));
             curSendDest.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), uccConfig.getJySendTaskPlanTimeEndDay()));
             curSendDest.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
+
+            //接货仓发货岗绑定不限制线路类型，分拣发货岗绑定只查干支
+            if(!JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
+                List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
+                curSendDest.setLineTypeList(lineTypeList);
+            }
             // 统计发货任务数量
             Integer taskCount = taskSendVehicleService.countSendTaskByDest(curSendDest);
             VehicleTaskResp taskResp = new VehicleTaskResp();
@@ -1238,6 +1249,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay()));
             queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
             queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskCreateTimeBeginDay()));
+            //仅关注干支
+            List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
+            queryDetail.setLineTypeList(lineTypeList);
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(queryDetail,
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
@@ -1364,6 +1378,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay()));
             queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
             queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskCreateTimeBeginDay()));
+            //仅关注干支
+            List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
+            queryDetail.setLineTypeList(lineTypeList);
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(queryDetail,
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
@@ -1646,6 +1663,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if (!sendResultToJdResp(result, sendResult)) {
                 return result;
             }
+
+            sendCollectDealMQ(request, sendCode);
 
             // 包裹首次扫描逻辑
             boolean firstScanFlag = this.dealTaskFirstScan(request, taskSend, curSendDetail);
@@ -2001,7 +2020,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param allDestId
      * @return
      */
-    private SendFindDestInfoDto matchSendDest(SendScanRequest request, SendKeyTypeEnum sendType,
+    public SendFindDestInfoDto matchSendDest(SendScanRequest request, SendKeyTypeEnum sendType,
                                               JyBizTaskSendVehicleEntity taskSend, Set<Long> allDestId, JdVerifyResponse<SendScanResponse> response) {
         String barCode = request.getBarCode();
         long siteCode = request.getCurrentOperate().getSiteCode();
@@ -2448,7 +2467,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return false;
         }
 
-
         Integer existSendDetail = taskSendVehicleDetailService.countByCondition(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
         if (!NumberHelper.gt0(existSendDetail)) {
             // 无任务发货未确认目的地信息
@@ -2835,7 +2853,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         return carComeEnum;
     }
-    private Long dealMinus(Number a, Number b) {
+    public Long dealMinus(Number a, Number b) {
         return NumberHelper.gt(a, b) ? a.longValue() - b.longValue() : 0L;
     }
 
@@ -2992,6 +3010,208 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         progress.setDestTotal(this.getDestTotal(taskSend.getBizId()));
         progress.setSealedTotal(this.getSealedDestTotal(taskSend.getBizId()));
         progress.setLoadRateUpperLimit(uccConfig.getJySendTaskLoadRateUpperLimit());
+    }
+
+    /**
+     * 混扫任务发货统计及装载率
+     * @param res
+     * @param mixScanTaskDetailDtoList
+     * @param mixScanTaskFlowReq
+     */
+    public void setMixScanTaskSendProgressData(MixScanTaskFlowDetailRes res, List<MixScanTaskDetailDto> mixScanTaskDetailDtoList, MixScanTaskFlowDetailReq mixScanTaskFlowReq) {
+
+        List<String> taskDetailBizs = new ArrayList<>();
+        int focusCount = 0;
+        for (MixScanTaskDetailDto taskDetailDto : mixScanTaskDetailDtoList) {
+            taskDetailBizs.add(taskDetailDto.getSendVehicleDetailBizId());
+            if (taskDetailDto.getFocus() == FocusEnum.FOCUS.getCode()) {
+                focusCount++;
+            }
+        }
+
+        List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetails =
+                taskSendVehicleDetailService.findSendVehicleDetailByBizIds(mixScanTaskFlowReq.getCurrentOperate().getSiteCode(), taskDetailBizs);
+        if (CollectionUtils.isEmpty(sendVehicleDetails)) {
+            throw new JyBizException("未获取到发货任务信息");
+        }
+        List<String> taskBizIds = new ArrayList<>();
+        sendVehicleDetails.forEach(item -> taskBizIds.add(item.getSendVehicleBizId()));
+        HashMap<String, JyBizTaskSendVehicleDetailEntity> sendVehicleDetailMap = getSendVehicleDetailMap(sendVehicleDetails);
+
+        try {
+            // 获取统计数据
+            List<JySendAggsEntity> sendAggsList = sendAggService.findBySendVehicleDetailBizs(taskDetailBizs);
+            HashMap<String, JySendAggsEntity> aggsMag = getAggsMag(sendAggsList);
+
+            // 查询车型
+            List<JyBizTaskSendVehicleEntity> taskSendList = taskSendVehicleService.findSendTaskByBizIds(taskBizIds);
+            HashMap<String,JyBizTaskSendVehicleEntity> basicVehicleTypeMap = getTaskSendVehicleMap(taskSendList);
+
+            // 批量根据主任务id获取目的地站点
+            List<JyBizTaskSendVehicleDetailEntity> detailEntityList = taskSendVehicleDetailService.findDetailBySendVehicleBizIds(taskBizIds);
+            HashMap<String, List<Long>> taskEndSiteMap = new HashMap<>();
+            HashSet<Long> endSiteSet = new HashSet<>();
+            for (JyBizTaskSendVehicleDetailEntity entity : detailEntityList) {
+                endSiteSet.add(entity.getEndSiteId());
+                List<Long> endSiteList = taskEndSiteMap.get(entity.getSendVehicleBizId());
+                if (CollectionUtils.isEmpty(endSiteList)) {
+                    taskEndSiteMap.put(entity.getSendVehicleBizId(), new ArrayList<>());
+                    endSiteList = taskEndSiteMap.get(entity.getSendVehicleBizId());
+                }
+                endSiteList.add(entity.getEndSiteId());
+            }
+
+            // 根据始发目的地查询带扫数据
+            JySendProductAggsEntityQuery query = new JySendProductAggsEntityQuery();
+            query.setEndSiteIds(new ArrayList<>(endSiteSet));
+            query.setOperateSiteId(Long.valueOf(mixScanTaskFlowReq.getCurrentOperate().getSiteCode()));
+            List<JySendProductAggsEntity> toScanAggList =
+                    jySendProductAggsService.getToScanNumByEndSiteList(query);
+            HashMap<Long,Integer> toScanSumMap = getToScanMap(toScanAggList);
+
+            // 组装数据
+            HashMap<Integer, BasicVehicleTypeDto> basicVehicleTypeDtoMap = new HashMap<>();
+            int count = focusCount;
+            List<MixScanTaskFlowAgg> flowAggs = mixScanTaskDetailDtoList.stream().map(item -> {
+                MixScanTaskFlowAgg flowAgg = new MixScanTaskFlowAgg();
+                BeanUtils.copyProperties(item, flowAgg);
+                JySendAggsEntity sendAgg = aggsMag.get(item.getSendVehicleDetailBizId());
+                JyBizTaskSendVehicleDetailEntity detail = sendVehicleDetailMap.get(item.getSendVehicleDetailBizId());
+                if (detail != null) {
+                    JyBizTaskSendVehicleEntity bizTaskSendVehicle = basicVehicleTypeMap.get(detail.getSendVehicleBizId());
+                    Integer vehicleType = bizTaskSendVehicle.getVehicleType();
+                    BasicVehicleTypeDto basicVehicleTypeDto = basicVehicleTypeDtoMap.get(vehicleType);
+
+                    if (basicVehicleTypeDto == null) {
+                        BasicVehicleTypeDto basicVehicle = basicQueryWSManager.getVehicleTypeByVehicleType(vehicleType);
+                        basicVehicleTypeDtoMap.put(vehicleType, basicVehicle);
+                        basicVehicleTypeDto = basicVehicle;
+                    }
+
+                    if (basicVehicleTypeDto != null) {
+                        if(basicVehicleTypeDto.getVolume() != null) {
+                            flowAgg.setVolume(BigDecimal.valueOf(basicVehicleTypeDto.getVolume()));
+                        }
+                        if(basicVehicleTypeDto.getWeight() != null) {
+                            flowAgg.setWeight(BigDecimal.valueOf(basicVehicleTypeDto.getWeight()));
+                        }
+                        if (sendAgg != null) {
+                            if (uccConfig.getLoadProgressByVehicleVolume()){
+                                flowAgg.setLoadRate(calculateLoadRate(bizTaskSendVehicle, basicVehicleTypeDto, sendAgg));
+                            }
+                            else {
+                                flowAgg.setLoadRate(this.dealLoadRate(sendAgg.getTotalScannedWeight(), this.convertTonToKg(BigDecimal.valueOf(basicVehicleTypeDto.getWeight()))));
+                            }
+                        }
+                    }
+
+                    // 带扫数据组装
+                    long toScanCountSum = 0L;
+                    List<Long> endSiteList = taskEndSiteMap.get(detail.getSendVehicleBizId());
+                    if (!CollectionUtils.isNotEmpty(endSiteList)) {
+                        for (Long endSiteCode : endSiteList) {
+                            Integer toScanSum = toScanSumMap.getOrDefault(endSiteCode, 0);
+                            toScanCountSum += toScanSum.longValue();
+                        }
+                    }
+                    flowAgg.setToScanCount(toScanCountSum);
+                    flowAgg.setSendVehicleBizId(bizTaskSendVehicle.getBizId());
+                    flowAgg.setManualCreatedFlag(bizTaskSendVehicle.manualCreatedTask());
+                    // 查询车牌
+                    flowAgg.setVehicleNumber(getVehicleNumber(bizTaskSendVehicle));
+                    flowAgg.setTaskName(bizTaskSendVehicle.getTaskName());
+                    flowAgg.setBizNo(bizTaskSendVehicle.getBizNo());
+
+                    // 调度任务ID
+                    flowAgg.setTaskId(getJyScheduleTaskId(bizTaskSendVehicle.getBizId()));
+                }
+
+                if (sendAgg != null) {
+                    flowAgg.setLoadVolume(sendAgg.getTotalScannedVolume());
+                    flowAgg.setLoadWeight(sendAgg.getTotalScannedWeight());
+                    flowAgg.setScannedPackCount(sendAgg.getTotalScannedCount().longValue());
+                    flowAgg.setScannedBoxCount(sendAgg.getTotalScannedBoxCodeCount().longValue());
+                    flowAgg.setInterceptedPackCount(sendAgg.getTotalInterceptCount().longValue());
+                    flowAgg.setForceSendPackCount(sendAgg.getTotalForceSendCount().longValue());
+                }
+                flowAgg.setFocusCount(count);
+                return flowAgg;
+            }).collect(Collectors.toList());
+            res.setMixScanTaskFlowDtoList(flowAggs);
+        }catch (Exception e) {
+            log.error("接货仓发货岗查询统计数据异常：{}",JsonHelper.toJson(mixScanTaskDetailDtoList),e);
+            throw new JyBizException("接货仓发货岗查询统计数据异常");
+        }
+
+    }
+
+    /**
+     * 获取派车任务车牌号
+     * @param entity
+     * @return
+     */
+    public String getVehicleNumber(JyBizTaskSendVehicleEntity entity){
+        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(entity.getTransWorkCode());
+        if(!Objects.isNull(transWorkBillDto) && StringUtils.isNotBlank(transWorkBillDto.getVehicleNumber())) {
+            return transWorkBillDto.getVehicleNumber();
+        }
+        if(log.isInfoEnabled()) {
+            log.info("根据派车任务编码【{}】获取车牌号为空,派车任务信息={}，运输返回={}", entity.getTransWorkCode(), JsonHelper.toJson(entity), JsonHelper.toJson(transWorkBillDto));
+        }
+        return "未知车牌号";
+    }
+
+    private HashMap<String, JyBizTaskSendVehicleDetailEntity> getSendVehicleDetailMap(List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetails) {
+        HashMap<String, JyBizTaskSendVehicleDetailEntity> map = new HashMap<>();
+        if (CollectionUtils.isEmpty(sendVehicleDetails)) {
+            return map;
+        }
+        sendVehicleDetails.forEach(item -> map.put(item.getBizId(),item));
+        return map;
+    }
+
+    private HashMap<Long, Integer> getToScanMap(List<JySendProductAggsEntity> toScanAggList) {
+        HashMap<Long, Integer> map = new HashMap<>();
+        if (CollectionUtils.isEmpty(toScanAggList)) {
+            return map;
+        }
+        for (JySendProductAggsEntity entity : toScanAggList) {
+            map.put(entity.getReceiveSiteId(),entity.getShouldScanCount());
+        }
+        return map;
+    }
+
+    private HashMap<String, JyBizTaskSendVehicleEntity> getTaskSendVehicleSendingMap(List<JyBizTaskSendVehicleEntity> taskSendList) {
+        HashMap<String, JyBizTaskSendVehicleEntity> map = new HashMap<>();
+        if (CollectionUtils.isEmpty(taskSendList)) {
+            return map;
+        }
+        taskSendList.forEach(item -> {
+            if (JyBizTaskSendStatusEnum.SENDING.getCode().equals(item.getVehicleStatus())) {
+                map.put(item.getBizId(),item);
+            }
+        });
+        return map;
+    }
+
+    private HashMap<String, JyBizTaskSendVehicleEntity> getTaskSendVehicleMap(List<JyBizTaskSendVehicleEntity> taskSendList) {
+        HashMap<String, JyBizTaskSendVehicleEntity> map = new HashMap<>();
+        if (CollectionUtils.isEmpty(taskSendList)) {
+            return map;
+        }
+        taskSendList.forEach(item -> map.put(item.getBizId(),item));
+        return map;
+    }
+
+    public HashMap<String, JySendAggsEntity> getAggsMag(List<JySendAggsEntity> sendAggs) {
+        HashMap<String, JySendAggsEntity> map = new HashMap<>();
+        if (CollectionUtils.isEmpty(sendAggs)) {
+            return map;
+        }
+        for (JySendAggsEntity sendAgg : sendAggs) {
+            map.put(sendAgg.getBizId(),sendAgg);
+        }
+        return map;
     }
 
     Integer getVehicleVolume(JyBizTaskSendVehicleEntity taskSend,VehicleVolumeDicResp vehicleVolumeDicResp){
@@ -3957,5 +4177,85 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return operateProgress;
         }
         return null;
+    }
+
+    /**
+     * 发送发货集齐消息
+     * @param request
+     */
+    private void sendCollectDealMQ(SendScanRequest request, String sendCode) {
+        if(!JyFuncCodeEnum.isFocusCollect(request.getPost())) {
+            log.info("JySendVehicleServiceImpl.岗位类型={}【{}】不关注集齐处理，参数={}", request.getPost(),
+                    JyFuncCodeEnum.getDescByCode(request.getPost()), JsonHelper.toJson(request));
+            return;
+        }
+        JyScanCollectMqDto mqDto = new JyScanCollectMqDto();
+        mqDto.setOperatorErp(request.getUser().getUserErp());
+        mqDto.setOperatorName(request.getUser().getUserName());
+        mqDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+        mqDto.setOperateSiteName(request.getCurrentOperate().getSiteName());
+        mqDto.setOperateTime(request.getCurrentOperate().getOperateTime().getTime());
+        //
+        mqDto.setMainTaskBizId(request.getSendVehicleBizId());
+        mqDto.setDetailTaskBizId(request.getSendVehicleDetailBizId());
+        //
+        mqDto.setSendCode(sendCode);
+        mqDto.setJyPostType(request.getPost());
+        mqDto.setBarCode(request.getBarCode());
+        mqDto.setBarCodeType(this.getBarCodeType(request.getBarCode()));
+        if(JyCollectScanCodeTypeEnum.PACKAGE.getCode().equals(mqDto.getBarCodeType())) {
+            mqDto.setPackageCode(mqDto.getBarCode());
+            mqDto.setWaybillCode(WaybillUtil.getWaybillCode(mqDto.getBarCode()));
+        }
+        mqDto.setCodeType(mqDto.getBarCodeType());
+        mqDto.setBizSource(JyCollectionMqBizSourceEnum.PRODUCE_NODE_PDA_SCAN.getCode());
+        //运单号+操作任务+岗位类型+触发节点
+        String businessId = jyScanCollectStrategy.getScanBusinessId(mqDto);
+        String msg = JsonHelper.toJson(mqDto);
+        if(log.isInfoEnabled()) {
+            log.info("JySendVehicleServiceImpl.sendCollectDealMQ:发货岗集齐处理：businessId={}，msg={}", businessId, msg);
+        }
+        jyScanCollectProducer.sendOnFailPersistent(businessId, msg);
+    }
+
+    public String getBarCodeType(String scanCode){
+        if (WaybillUtil.isWaybillCode(scanCode)) {
+            return JyCollectScanCodeTypeEnum.WAYBILL.getCode();
+        } else if (BusinessUtil.isBoardCode(scanCode)) {
+            return JyCollectScanCodeTypeEnum.BOARD.getCode();
+        } else if (WaybillUtil.isPackageCode(scanCode)) {
+            return JyCollectScanCodeTypeEnum.PACKAGE.getCode();
+        } else if (BusinessHelper.isBoxcode(scanCode)) {
+            return JyCollectScanCodeTypeEnum.BOX.getCode();
+        }
+        return Strings.EMPTY;
+    }
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.updateStatusByDetailBizIds", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean updateStatusByDetailBizIds(MixScanTaskCompleteReq request, List<String> detailBizIds) {
+        List<JyBizTaskSendVehicleDetailEntity> sendDetailList = taskSendVehicleDetailService
+                .findSendVehicleDetailByBizIds(request.getCurrentOperate().getSiteCode(), detailBizIds);
+
+        HashMap<String, JyBizTaskSendVehicleDetailEntity> sendDetailMap = new HashMap<>();
+        List<String> sendVehicleBizIds = new ArrayList<>();
+        for (JyBizTaskSendVehicleDetailEntity detailEntity : sendDetailList) {
+            sendDetailMap.put(detailEntity.getBizId(), detailEntity);
+            sendVehicleBizIds.add(detailEntity.getSendVehicleBizId());
+        }
+        List<JyBizTaskSendVehicleEntity> sendTaskByBizIds = taskSendVehicleService.findSendTaskByBizIds(sendVehicleBizIds);
+        // 过滤待发货状态的数据
+        HashMap<String, JyBizTaskSendVehicleEntity> sendTaskMap = getTaskSendVehicleSendingMap(sendTaskByBizIds);
+
+        for (JyBizTaskSendVehicleDetailEntity detailEntity : sendDetailList) {
+            JyBizTaskSendVehicleEntity taskSendVehicle = sendTaskMap.get(detailEntity.getSendVehicleBizId());
+            JyBizTaskSendVehicleDetailEntity sendVehicleDetail = sendDetailMap.get(detailEntity.getBizId());
+            if (taskSendVehicle != null ) {
+                if (!transactionManager.updateTaskStatus(taskSendVehicle, sendVehicleDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL)) {
+                    throw new JyBizException("完成混扫任务失败！");
+                }
+            }
+
+        }
+        return true;
     }
 }
