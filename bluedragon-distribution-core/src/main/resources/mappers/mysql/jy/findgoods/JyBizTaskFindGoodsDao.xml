@@ -311,6 +311,7 @@
     where yn = 1
       and work_grid_key = #{workGridKey}
       and create_time &gt; #{createTimeBegin}
+      and task_status = #{taskStatus}
   </select>
 
   <update id="updatePhotoStatus" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoods">
