@@ -24,7 +24,13 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.laf.config.ConfiguratorManager;
 import com.jd.laf.config.Property;
 import com.jd.ql.dms.print.utils.StringHelper;
-
+/**
+ * 1、同步配置，ducc提供的工具
+ * 2、发布uat,检查ducc加载配置是否和ucc一致
+ * 3、切换
+ * @author wuyoude
+ *
+ */
 public class TestDucc {
 	public static void main(String args[]) throws Exception {
 		String tmpConfigPath = new File("").getCanonicalPath();
@@ -44,7 +50,7 @@ public class TestDucc {
 		 ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
 		 "/distribution-core-context-ducc-test.xml");
 		 ConfiguratorManager configuratorManager = (ConfiguratorManager)appContext.getBean("configuratorManager") ;
-		 DuccPropertyConfiguration duccDefault = (DuccPropertyConfiguration)appContext.getBean("duccPropertyConfiguration") ;
+		 DuccPropertyConfig duccDefault = (DuccPropertyConfig)appContext.getBean("duccPropertyConfig") ;
 		 UccPropertyConfiguration ucc = (UccPropertyConfiguration)appContext.getBean("uccPropertyConfiguration") ;
 		 DuccPropertyConfig ducc = (DuccPropertyConfig)appContext.getBean("duccPropertyConfig") ;
 		 com.jd.coo.ucc.client.config.UccPropertyConfig uccConfig = (com.jd.coo.ucc.client.config.UccPropertyConfig)appContext.getBean("propertyConfig") ;

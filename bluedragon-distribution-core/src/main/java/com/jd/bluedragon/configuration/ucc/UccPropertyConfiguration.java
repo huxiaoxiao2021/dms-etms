@@ -2,6 +2,7 @@ package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
+import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Created by xumei3 on 2017/12/15.
  */
-public class UccPropertyConfiguration {
+public class UccPropertyConfiguration extends DuccPropertyConfig{
 
     /** 开启的多级异步缓冲组件的任务类型列表 **/
     private String asynbufferEnabledTaskType;

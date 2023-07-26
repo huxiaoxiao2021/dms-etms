@@ -1,5 +1,7 @@
 package com.jd.bluedragon.configuration.ucc;
 
+import com.jd.bluedragon.configuration.ducc.DuccHystrixRoutePropertyConfig;
+
 /**
  * 配置解释 https://cf.jd.com/pages/viewpage.action?pageId=575172590
  * @program: bluedragon-distribution
@@ -7,7 +9,7 @@ package com.jd.bluedragon.configuration.ucc;
  * @author: xumigen
  * @create: 2021-08-10 17:33
  **/
-public class HystrixRouteUccPropertyConfiguration {
+public class HystrixRouteUccPropertyConfiguration extends DuccHystrixRoutePropertyConfig{
 
 
     private int executionTimeoutInMilliseconds;

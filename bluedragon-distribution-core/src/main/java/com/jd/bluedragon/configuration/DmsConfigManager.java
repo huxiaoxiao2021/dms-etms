@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.configuration.ducc.DuccHystrixRoutePropertyConfig;
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
-import com.jd.bluedragon.configuration.ducc.DuccPropertyConfiguration;
-import com.jd.bluedragon.configuration.ducc.HystrixRouteDuccPropertyConfiguration;
+import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 
 @Service("dmsConfigManager")
@@ -21,27 +21,30 @@ public class DmsConfigManager {
 	private UccPropertyConfiguration uccPropertyConfiguration;
 	
 	@Autowired
-	@Qualifier("duccPropertyConfiguration")
-	private DuccPropertyConfiguration duccPropertyConfiguration;
+	@Qualifier("duccHystrixRoutePropertyConfig")
+	private DuccHystrixRoutePropertyConfig duccHystrixRoutePropertyConfig;
 	
 	@Autowired
-	@Qualifier("hystrixRouteDuccPropertyConfiguration")
-	private HystrixRouteDuccPropertyConfiguration hystrixRouteDuccPropertyConfiguration;
-
+	@Qualifier("hystrixRouteUccPropertyConfiguration")
+	private HystrixRouteUccPropertyConfiguration hystrixRouteUccPropertyConfiguration;
+	
+	public DuccPropertyConfig getDuccPropertyConfig() {
+		if(!duccPropertyConfig.isUseDucc()) {
+			return uccPropertyConfiguration;
+		}
+		return duccPropertyConfig;
+	}
 	public UccPropertyConfiguration getUccPropertyConfiguration() {
 		return uccPropertyConfiguration;
 	}
-	
-	public DuccPropertyConfiguration getDuccPropertyConfiguration() {
-		return duccPropertyConfiguration;
+	public DuccHystrixRoutePropertyConfig getDuccHystrixRoutePropertyConfig() {
+		if(!duccPropertyConfig.isUseDucc()) {
+			return hystrixRouteUccPropertyConfiguration;
+		}
+		return duccHystrixRoutePropertyConfig;
 	}
-	
-	public DuccPropertyConfig getDuccPropertyConfig() {
-		return duccPropertyConfig;
+	public HystrixRouteUccPropertyConfiguration getHystrixRouteUccPropertyConfiguration() {
+		return hystrixRouteUccPropertyConfiguration;
 	}
 
-	public HystrixRouteDuccPropertyConfiguration getHystrixRouteDuccPropertyConfiguration() {
-		return hystrixRouteDuccPropertyConfiguration;
-	}
-	
 }
