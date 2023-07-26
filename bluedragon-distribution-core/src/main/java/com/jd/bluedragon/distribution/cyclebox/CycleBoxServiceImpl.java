@@ -483,6 +483,14 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         if(log.isInfoEnabled()){
             log.info("isSuspiciousOperation param:{} , sends:{}",JsonHelper.toJson(querySendParam),JsonHelper.toJson(sends));
         }
+        if(sends==null
+                || sends.isEmpty()
+                || sends.size() < Constants.CONSTANT_NUMBER_TWO){
+            if(log.isInfoEnabled()){
+                log.info("isSuspiciousOperation sends size < 2 ,{},{}",JsonHelper.toJson(request),JsonHelper.toJson(boxMaterialRelations));
+            }
+            return false;
+        }
         Collections.sort(sends, (o1, o2) -> -DateHelper.compare(o1.getOperateTime(), o2.getOperateTime()));
         Integer lastReceiveSiteCode = null;
         for (SendM sendM : sends) {
