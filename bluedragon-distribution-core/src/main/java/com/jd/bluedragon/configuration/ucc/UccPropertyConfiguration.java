@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Created by xumei3 on 2017/12/15.
  */
-public class UccPropertyConfiguration extends DuccPropertyConfig{
+public class UccPropertyConfiguration{
 
     /** 开启的多级异步缓冲组件的任务类型列表 **/
     private String asynbufferEnabledTaskType;
@@ -3268,8 +3268,8 @@ public class UccPropertyConfiguration extends DuccPropertyConfig{
         this.volumeExcessIssueSites = volumeExcessIssueSites;
     }
 
-    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
-        return autoCloseJyBizTaskConfigObj;
+    public String getAutoCloseJyBizTaskConfig() {
+        return autoCloseJyBizTaskConfig;
     }
 
     public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
@@ -3626,5 +3626,45 @@ public class UccPropertyConfiguration extends DuccPropertyConfig{
 
 	public void setVirtualBoardCanUseSiteList(List<String> virtualBoardCanUseSiteList) {
 		this.virtualBoardCanUseSiteList = virtualBoardCanUseSiteList;
+	}
+
+	public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
+		return autoCloseJyBizTaskConfigObj;
+	}
+
+	public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {
+		this.autoCloseJyBizTaskConfigObj = autoCloseJyBizTaskConfigObj;
+	}
+
+	public List<String> getExceptionSubmitCheckSiteList() {
+		return exceptionSubmitCheckSiteList;
+	}
+
+	public void setExceptionSubmitCheckSiteList(List<String> exceptionSubmitCheckSiteList) {
+		this.exceptionSubmitCheckSiteList = exceptionSubmitCheckSiteList;
+	}
+
+	public List<String> getExceptionSubmitCheckWaybillInterceptTypeList() {
+		return exceptionSubmitCheckWaybillInterceptTypeList;
+	}
+
+	public void setExceptionSubmitCheckWaybillInterceptTypeList(List<String> exceptionSubmitCheckWaybillInterceptTypeList) {
+		this.exceptionSubmitCheckWaybillInterceptTypeList = exceptionSubmitCheckWaybillInterceptTypeList;
+	}
+
+	public void setDpSpringSiteCodeList(List<Integer> dpSpringSiteCodeList) {
+		this.dpSpringSiteCodeList = dpSpringSiteCodeList;
+	}
+
+	public void setJyWorkAppAutoRefreshConfigList(List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList) {
+		this.jyWorkAppAutoRefreshConfigList = jyWorkAppAutoRefreshConfigList;
+	}
+
+	public void setDewuCustomerCodeList(List<String> dewuCustomerCodeList) {
+		this.dewuCustomerCodeList = dewuCustomerCodeList;
+	}
+
+	public void setTeAnSiteWhitelistStrList(List<String> teAnSiteWhitelistStrList) {
+		this.teAnSiteWhitelistStrList = teAnSiteWhitelistStrList;
 	}
 }

@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
 
 @Component("duccPropertyConfig")
@@ -1007,6 +1010,372 @@ public class DuccPropertyConfig {
 	 */
 	@Value("${duccPropertyConfig.writeUnloadFromTys:false}")
 	private boolean writeUnloadFromTys;
+	/**
+	 *
+	 */
+	@Value("${duccPropertyConfig.aggsDataSource:jyCore}")
+	private String aggsDataSource;
+
+	@Value("${duccPropertyConfig.allianceBusinessSwitch:true}")
+	private boolean allianceBusinessSwitch;
+
+	/**
+	 *三无任务指派数量限制
+	 */
+	@Value("${duccPropertyConfig.assignExpTaskQuantityLimit:50}")
+	private int assignExpTaskQuantityLimit;
+
+	@Value("${duccPropertyConfig.autoCloseJyBizTaskConfig:{}}")
+	private String autoCloseJyBizTaskConfig;
+
+	private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
+
+	/**
+	 *
+	 */
+	@Value("${duccPropertyConfig.autoPackageSendInspectionSiteCodes:3}")
+	private String autoPackageSendInspectionSiteCodes;
+
+	@Value("${duccPropertyConfig.batchGenerateSendCodeMaxNum:100}")
+	private Integer batchGenerateSendCodeMaxNum;
+
+	@Value("${duccPropertyConfig.batchQueryEndSiteLimit:30}")
+	private int batchQueryEndSiteLimit;
+
+	/**
+	 *
+	 */
+	@Value("${duccPropertyConfig.batchSendForbiddenSwitch:false}")
+	private boolean batchSendForbiddenSwitch;
+
+	/**
+	 *组板路由校验-是否开启路由校验开关
+	 */
+	@Value("${duccPropertyConfig.boardCombinationRouterSwitch:false}")
+	private boolean boardCombinationRouterSwitch;
+
+	@Value("${duccPropertyConfig.boardListQuerySwitch:true}")
+	private Boolean boardListQuerySwitch;
+
+	/**
+	 *大宗包裹最小数量
+	 */
+	@Value("${duccPropertyConfig.bulkScanPackageMinCount:100}")
+	private Integer bulkScanPackageMinCount;
+
+	@Value("${duccPropertyConfig.checkTeAnSwitch:true}")
+	private boolean checkTeAnSwitch;
+
+	@Value("${duccPropertyConfig.cloudOssInsertSwitch:false}")
+	private boolean cloudOssInsertSwitch;
+
+	/**
+	 *完成状态的异常任务获取天数限制
+	 */
+	@Value("${duccPropertyConfig.completeExpDayNumLimit:15}")
+	private int completeExpDayNumLimit;
+
+	@Value("${duccPropertyConfig.createBoardBySendFlowSwitch:true}")
+	private boolean createBoardBySendFlowSwitch;
+
+	@Value("${duccPropertyConfig.cttGroupSendFLowLimit:10}")
+	private Integer cttGroupSendFLowLimit;
+
+	/**
+	 *
+	 */
+	@Value("${duccPropertyConfig.czOrgForbiddenList:''}")
+	private String czOrgForbiddenList;
+
+	@Value("${duccPropertyConfig.czQuerySwitch:true}")
+	private boolean czQuerySwitch;
+
+	@Value("${duccPropertyConfig.czSiteForbiddenList:''}")
+	private String czSiteForbiddenList;
+
+	/**
+	 *拦截传站-网点类型黑名单
+	 */
+	@Value("${duccPropertyConfig.czSiteTypeForbiddenList:''}")
+	private String czSiteTypeForbiddenList;
+
+	private List<String> dewuCustomerCodeList = new ArrayList<>();
+
+	@Value("${duccPropertyConfig.dewuCustomerCodes:-1}")
+	private String dewuCustomerCodes;
+
+	/**
+	 *德邦春节模式场地
+	 */
+	@Value("${duccPropertyConfig.dpSpringSiteCode:-1}")
+	private String dpSpringSiteCode;
+
+	private List<Integer> dpSpringSiteCodeList;
+
+	/**
+	 *交接至德邦校验开关
+	 */
+	@Value("${duccPropertyConfig.dpTransferSwitch:true}")
+	private boolean dpTransferSwitch;
+
+	/**
+	 *易冻品校验开关
+	 */
+	@Value("${duccPropertyConfig.easyFreezeSwitch:true}")
+	private boolean easyFreezeSwitch;
+
+	@Value("${duccPropertyConfig.exScrapApproveLevelCountLimit:50,100}")
+	private String exScrapApproveLevelCountLimit;
+
+	private List<String> exceptionSubmitCheckSiteList;
+
+	/**
+	 *异常处理检查场地名单
+	 */
+	@Value("${duccPropertyConfig.exceptionSubmitCheckSites:}")
+	private String exceptionSubmitCheckSites;
+
+	private List<String> exceptionSubmitCheckWaybillInterceptTypeList;
+
+	/**
+	 *异常处理检查运单拦截类型
+	 */
+	@Value("${duccPropertyConfig.exceptionSubmitCheckWaybillInterceptTypes:}")
+	private String exceptionSubmitCheckWaybillInterceptTypes;
+
+	@Value("${duccPropertyConfig.forceSendSiteList:''}")
+	private String forceSendSiteList;
+
+	@Value("${duccPropertyConfig.ignoreTysTrackSwitch:false}")
+	private boolean ignoreTysTrackSwitch;
+
+	/**
+	 *网格工种签到限制开关
+	 */
+	@Value("${duccPropertyConfig.jobTypeLimitSwitch:false}")
+	private boolean jobTypeLimitSwitch;
+
+	@Value("${duccPropertyConfig.jyArtificialStrandTaskCloseTime:28800000}")
+	private Long jyArtificialStrandTaskCloseTime;
+
+	@Value("${duccPropertyConfig.jyCollectSiteWhitelist:}")
+	private String jyCollectSiteWhitelist;
+
+	@Value("${duccPropertyConfig.jyComboardCountLimit:100}")
+	private Integer jyComboardCountLimit;
+
+	/**
+	 *板列表查询sql执行开关
+	 */
+	@Value("${duccPropertyConfig.jyComboardListBoardSqlSwitch:true}")
+	private Boolean jyComboardListBoardSqlSwitch;
+
+	@Value("${duccPropertyConfig.jyComboardRefreshTimerInterval:30}")
+	private Integer jyComboardRefreshTimerInterval;
+
+	@Value("${duccPropertyConfig.jyComboardScanUserBeginDay:1}")
+	private Integer jyComboardScanUserBeginDay;
+
+	@Value("${duccPropertyConfig.jyComboardSealBoardListLimit:3}")
+	private Integer jyComboardSealBoardListLimit;
+
+	/**
+	 *封车板数选择上限
+	 */
+	@Value("${duccPropertyConfig.jyComboardSealBoardListSelectLimit:3}")
+	private Integer jyComboardSealBoardListSelectLimit;
+
+	/**
+	 *组板封车岗查询待封车板时间限制
+	 */
+	@Value("${duccPropertyConfig.jyComboardSealQueryBoardListTime:'2'}")
+	private String jyComboardSealQueryBoardListTime;
+
+	/**
+	 *组板岗场地笼车查询分页参数
+	 */
+	@Value("${duccPropertyConfig.jyComboardSiteCTTPageSize:5000}")
+	private Integer jyComboardSiteCTTPageSize;
+
+	@Value("${duccPropertyConfig.jyComboardTaskCreateTimeBeginDay:7}")
+	private Integer jyComboardTaskCreateTimeBeginDay;
+
+	@Value("${duccPropertyConfig.jyComboardTaskSealTimeBeginDay:2}")
+	private Integer jyComboardTaskSealTimeBeginDay;
+
+	/**
+	 *
+	 */
+	@Value("${duccPropertyConfig.jyCzSendTaskPlanTimeBeginDay:0}")
+	private Integer jyCzSendTaskPlanTimeBeginDay;
+
+	@Value("${duccPropertyConfig.jyCzSendTaskPlanTimeEndDay:1}")
+	private Integer jyCzSendTaskPlanTimeEndDay;
+
+	@Value("${duccPropertyConfig.jyStrandScanNumLimit:200}")
+	private Integer jyStrandScanNumLimit;
+
+	@Value("${duccPropertyConfig.jySysStrandTaskCloseTime:14400000}")
+	private Long jySysStrandTaskCloseTime;
+
+	/**
+	 *发货运输车辆靠台验证码允许访问上几次验证码个数
+	 */
+	@Value("${duccPropertyConfig.jyTransportSendVehicleValidateDockAllowRefreshTimes:2}")
+	private Integer jyTransportSendVehicleValidateDockAllowRefreshTimes;
+
+	/**
+	 *发货运输车辆靠台验证刷新间隔
+	 */
+	@Value("${duccPropertyConfig.jyTransportSendVehicleValidateDockRefreshTime:10}")
+	private Integer jyTransportSendVehicleValidateDockRefreshTime;
+
+	@Value("${duccPropertyConfig.jyUnSealTaskLastHourTime:6}")
+	private Long jyUnSealTaskLastHourTime;
+
+	@Value("${duccPropertyConfig.jyUnloadCarListDoneQueryDayFilter:5}")
+	private Integer jyUnloadCarListDoneQueryDayFilter;
+
+	@Value("${duccPropertyConfig.jyWorkAppAutoRefreshConfig:''}")
+	private String jyWorkAppAutoRefreshConfig;
+
+	private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList;
+
+	@Value("${duccPropertyConfig.loadCarEvaluateSwitch:true}")
+	private boolean loadCarEvaluateSwitch;
+
+	/**
+	 *
+	 */
+	@Value("${duccPropertyConfig.loadProgressByVehicleVolume:false}")
+	private boolean loadProgressByVehicleVolume;
+
+	/**
+	 *设备两次合格间隔时间（用于抽检下发校验，默认8h，毫秒）
+	 */
+	@Value("${duccPropertyConfig.machineCalibrateIntervalTimeOfSpotCheck:28800000}")
+	private Long machineCalibrateIntervalTimeOfSpotCheck;
+
+	/**
+	 *dws设备校完成后更新非超标抽检记录设备状态开关
+	 */
+	@Value("${duccPropertyConfig.machineCalibrateSpotCheckSwitch:true}")
+	private boolean machineCalibrateSpotCheckSwitch;
+
+	/**
+	 *设备校准任务时长，默认8h（毫秒）
+	 */
+	@Value("${duccPropertyConfig.machineCalibrateTaskDuration:10800000}")
+	private Long machineCalibrateTaskDuration;
+
+	/**
+	 *设备任务强制创建的间隔时间，默认2h（毫秒）
+	 */
+	@Value("${duccPropertyConfig.machineCalibrateTaskForceCreateIntervalTime:720000}")
+	private Long machineCalibrateTaskForceCreateIntervalTime;
+
+	@Value("${duccPropertyConfig.machineCalibrateTaskQueryRange:172800000}")
+	private Long machineCalibrateTaskQueryRange;
+
+	@Value("${duccPropertyConfig.needIsolateBoardByGroupCodeSiteList:''}")
+	private String needIsolateBoardByGroupCodeSiteList;
+
+	@Value("${duccPropertyConfig.needValidateBatchCodeHasSealed:false}")
+	private boolean needValidateBatchCodeHasSealed;
+
+	@Value("${duccPropertyConfig.offLineAllowedSites:''}")
+	private String offLineAllowedSites;
+
+	@Value("${duccPropertyConfig.onlineGetTaskSimpleCodeThreshold:50}")
+	private int onlineGetTaskSimpleCodeThreshold;
+
+	private List<Integer> operateProgressRegionList = new ArrayList<>();
+
+	/**
+	 *
+	 */
+	@Value("${duccPropertyConfig.operateProgressRegions:10}")
+	private String operateProgressRegions;
+
+	@Value("${duccPropertyConfig.pdaLoginSkipSwitch:false}")
+	private Boolean pdaLoginSkipSwitch;
+
+	@Value("${duccPropertyConfig.pdaVersionSwitch:true}")
+	private boolean pdaVersionSwitch;
+
+	/**
+	 *是否是所有包裹补打后再取消拦截
+	 */
+	@Value("${duccPropertyConfig.printCompeteAllPackageUpdateCancel:true}")
+	private boolean printCompeteAllPackageUpdateCancel;
+
+	/**
+	 *是否处理重复运单取消拦截
+	 */
+	@Value("${duccPropertyConfig.printCompeteUpdateCancel:false}")
+	private boolean printCompeteUpdateCancel;
+
+	/**
+	 *生成装车进度数据消息的开关
+	 */
+	@Value("${duccPropertyConfig.productOperateProgressSwitch:false}")
+	private boolean productOperateProgressSwitch;
+
+	@Value("${duccPropertyConfig.reComboardSwitch:true}")
+	private boolean reComboardSwitch;
+
+	@Value("${duccPropertyConfig.reComboardTimeLimit:3}")
+	private Long reComboardTimeLimit;
+
+	@Value("${duccPropertyConfig.spotCheckIssueRelyOMachineStatus:true}")
+	private boolean spotCheckIssueRelyOMachineStatus;
+
+	@Value("${duccPropertyConfig.spotCheckIssueRelyOnMachineStatusSiteSwitch:ALL}")
+	private String spotCheckIssueRelyOnMachineStatusSiteSwitch;
+
+	/**
+	 *
+	 */
+	@Value("${duccPropertyConfig.supportMutilScan:false}")
+	private boolean supportMutilScan;
+
+	@Value("${duccPropertyConfig.syncJyCZSealStatusSwitch:false}")
+	private boolean syncJyCZSealStatusSwitch;
+
+	@Value("${duccPropertyConfig.syncScheduleTaskSwitch:true}")
+	private boolean syncScheduleTaskSwitch;
+
+	@Value("${duccPropertyConfig.teAnSiteWhitelist:}")
+	private String teAnSiteWhitelist;
+
+	private List<String> teAnSiteWhitelistStrList;
+
+	/**
+	 *集齐服务开关（true: 降级）
+	 */
+	@Value("${duccPropertyConfig.tysUnloadCarCollectDemoteSwitch:false}")
+	private Boolean tysUnloadCarCollectDemoteSwitch;
+
+	@Value("${duccPropertyConfig.unloadTaskBoardMaxCount:100}")
+	private Integer unloadTaskBoardMaxCount;
+
+	@Value("${duccPropertyConfig.uploadOverWeightSwitch:true}")
+	private boolean uploadOverWeightSwitch;
+
+	/**
+	 *车型优先分数默认值
+	 */
+	@Value("${duccPropertyConfig.vehicleIntegralPriorityFraction:200.0}")
+	private double vehicleIntegralPriorityFraction;
+
+	@Value("${duccPropertyConfig.volumeExcessIssueSites:910}")
+	private String volumeExcessIssueSites;
+
+	/**
+	 *转运验货拦截包裹号是否在运单系统存在（true:拦截， false不拦截）
+	 */
+	@Value("${duccPropertyConfig.waybillSysNonExistPackageInterceptSwitch:true}")
+	private Boolean waybillSysNonExistPackageInterceptSwitch;
 	
 	public boolean isUseDucc() {
 		return useDucc;
@@ -2465,5 +2834,925 @@ public class DuccPropertyConfig {
 
 	public void setVirtualBoardCanUseSiteList(List<String> virtualBoardCanUseSiteList) {
 		this.virtualBoardCanUseSiteList = virtualBoardCanUseSiteList;
+	}
+
+	public String getAddiOwnNumberConf() {
+		return addiOwnNumberConf;
+	}
+
+	public void setAddiOwnNumberConf(String addiOwnNumberConf) {
+		this.addiOwnNumberConf = addiOwnNumberConf;
+	}
+
+	public String getBusinessLogQueryPageSwitch() {
+		return businessLogQueryPageSwitch;
+	}
+
+	public void setBusinessLogQueryPageSwitch(String businessLogQueryPageSwitch) {
+		this.businessLogQueryPageSwitch = businessLogQueryPageSwitch;
+	}
+
+	public boolean isCheckSignAndReturn() {
+		return checkSignAndReturn;
+	}
+
+	public void setCheckSignAndReturn(boolean checkSignAndReturn) {
+		this.checkSignAndReturn = checkSignAndReturn;
+	}
+
+	public boolean isChuguanPurchaseAndSaleSwitch() {
+		return chuguanPurchaseAndSaleSwitch;
+	}
+
+	public void setChuguanPurchaseAndSaleSwitch(boolean chuguanPurchaseAndSaleSwitch) {
+		this.chuguanPurchaseAndSaleSwitch = chuguanPurchaseAndSaleSwitch;
+	}
+
+	public Integer getCreateSendTaskExecuteCount() {
+		return createSendTaskExecuteCount;
+	}
+
+	public void setCreateSendTaskExecuteCount(Integer createSendTaskExecuteCount) {
+		this.createSendTaskExecuteCount = createSendTaskExecuteCount;
+	}
+
+	public Integer getCreateSendTasktimeOut() {
+		return createSendTasktimeOut;
+	}
+
+	public void setCreateSendTasktimeOut(Integer createSendTasktimeOut) {
+		this.createSendTasktimeOut = createSendTasktimeOut;
+	}
+
+	public String getDeliverySendAsyncSite() {
+		return deliverySendAsyncSite;
+	}
+
+	public void setDeliverySendAsyncSite(String deliverySendAsyncSite) {
+		this.deliverySendAsyncSite = deliverySendAsyncSite;
+	}
+
+	public int getDeliverySendTaskSleepMills() {
+		return deliverySendTaskSleepMills;
+	}
+
+	public void setDeliverySendTaskSleepMills(int deliverySendTaskSleepMills) {
+		this.deliverySendTaskSleepMills = deliverySendTaskSleepMills;
+	}
+
+	public boolean isEnableGoodsAreaOfTysScan() {
+		return enableGoodsAreaOfTysScan;
+	}
+
+	public void setEnableGoodsAreaOfTysScan(boolean enableGoodsAreaOfTysScan) {
+		this.enableGoodsAreaOfTysScan = enableGoodsAreaOfTysScan;
+	}
+
+	public boolean isFilterSendCodeSwitch() {
+		return filterSendCodeSwitch;
+	}
+
+	public void setFilterSendCodeSwitch(boolean filterSendCodeSwitch) {
+		this.filterSendCodeSwitch = filterSendCodeSwitch;
+	}
+
+	public List<String> getNeedInterceptUrlList() {
+		return needInterceptUrlList;
+	}
+
+	public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
+		this.needInterceptUrlList = needInterceptUrlList;
+	}
+
+	public String getNeedInterceptUrls() {
+		return needInterceptUrls;
+	}
+
+	public void setNeedInterceptUrls(String needInterceptUrls) {
+		this.needInterceptUrls = needInterceptUrls;
+	}
+
+	public Integer getOldSendSplitPageSize() {
+		return oldSendSplitPageSize;
+	}
+
+	public void setOldSendSplitPageSize(Integer oldSendSplitPageSize) {
+		this.oldSendSplitPageSize = oldSendSplitPageSize;
+	}
+
+	public boolean isRestApiOuthSwitch() {
+		return restApiOuthSwitch;
+	}
+
+	public void setRestApiOuthSwitch(boolean restApiOuthSwitch) {
+		this.restApiOuthSwitch = restApiOuthSwitch;
+	}
+
+	public int getSealStatusBatchSizeLimit() {
+		return sealStatusBatchSizeLimit;
+	}
+
+	public void setSealStatusBatchSizeLimit(int sealStatusBatchSizeLimit) {
+		this.sealStatusBatchSizeLimit = sealStatusBatchSizeLimit;
+	}
+
+	public int getSealTaskForceFallback() {
+		return sealTaskForceFallback;
+	}
+
+	public void setSealTaskForceFallback(int sealTaskForceFallback) {
+		this.sealTaskForceFallback = sealTaskForceFallback;
+	}
+
+	public String getSealTaskHystrixProps() {
+		return sealTaskHystrixProps;
+	}
+
+	public void setSealTaskHystrixProps(String sealTaskHystrixProps) {
+		this.sealTaskHystrixProps = sealTaskHystrixProps;
+	}
+
+	public boolean isSyncJySealStatusSwitch() {
+		return syncJySealStatusSwitch;
+	}
+
+	public void setSyncJySealStatusSwitch(boolean syncJySealStatusSwitch) {
+		this.syncJySealStatusSwitch = syncJySealStatusSwitch;
+	}
+
+	public String getAggsDataSource() {
+		return aggsDataSource;
+	}
+
+	public void setAggsDataSource(String aggsDataSource) {
+		this.aggsDataSource = aggsDataSource;
+	}
+
+	public boolean isAllianceBusinessSwitch() {
+		return allianceBusinessSwitch;
+	}
+
+	public void setAllianceBusinessSwitch(boolean allianceBusinessSwitch) {
+		this.allianceBusinessSwitch = allianceBusinessSwitch;
+	}
+
+	public int getAssignExpTaskQuantityLimit() {
+		return assignExpTaskQuantityLimit;
+	}
+
+	public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
+		this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
+	}
+
+	public String getAutoCloseJyBizTaskConfig() {
+		return autoCloseJyBizTaskConfig;
+	}
+
+    public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
+        this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
+        if(StringUtils.isNotBlank(this.autoCloseJyBizTaskConfig)){
+            autoCloseJyBizTaskConfigObj = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
+        }
+    }
+
+	public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
+		return autoCloseJyBizTaskConfigObj;
+	}
+
+	public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {
+		this.autoCloseJyBizTaskConfigObj = autoCloseJyBizTaskConfigObj;
+	}
+
+	public String getAutoPackageSendInspectionSiteCodes() {
+		return autoPackageSendInspectionSiteCodes;
+	}
+
+	public void setAutoPackageSendInspectionSiteCodes(String autoPackageSendInspectionSiteCodes) {
+		this.autoPackageSendInspectionSiteCodes = autoPackageSendInspectionSiteCodes;
+	}
+
+	public Integer getBatchGenerateSendCodeMaxNum() {
+		return batchGenerateSendCodeMaxNum;
+	}
+
+	public void setBatchGenerateSendCodeMaxNum(Integer batchGenerateSendCodeMaxNum) {
+		this.batchGenerateSendCodeMaxNum = batchGenerateSendCodeMaxNum;
+	}
+
+	public int getBatchQueryEndSiteLimit() {
+		return batchQueryEndSiteLimit;
+	}
+
+	public void setBatchQueryEndSiteLimit(int batchQueryEndSiteLimit) {
+		this.batchQueryEndSiteLimit = batchQueryEndSiteLimit;
+	}
+
+	public boolean isBatchSendForbiddenSwitch() {
+		return batchSendForbiddenSwitch;
+	}
+
+	public void setBatchSendForbiddenSwitch(boolean batchSendForbiddenSwitch) {
+		this.batchSendForbiddenSwitch = batchSendForbiddenSwitch;
+	}
+
+	public boolean isBoardCombinationRouterSwitch() {
+		return boardCombinationRouterSwitch;
+	}
+
+	public void setBoardCombinationRouterSwitch(boolean boardCombinationRouterSwitch) {
+		this.boardCombinationRouterSwitch = boardCombinationRouterSwitch;
+	}
+
+	public Boolean getBoardListQuerySwitch() {
+		return boardListQuerySwitch;
+	}
+
+	public void setBoardListQuerySwitch(Boolean boardListQuerySwitch) {
+		this.boardListQuerySwitch = boardListQuerySwitch;
+	}
+
+	public Integer getBulkScanPackageMinCount() {
+		return bulkScanPackageMinCount;
+	}
+
+	public void setBulkScanPackageMinCount(Integer bulkScanPackageMinCount) {
+		this.bulkScanPackageMinCount = bulkScanPackageMinCount;
+	}
+
+	public boolean isCheckTeAnSwitch() {
+		return checkTeAnSwitch;
+	}
+
+	public void setCheckTeAnSwitch(boolean checkTeAnSwitch) {
+		this.checkTeAnSwitch = checkTeAnSwitch;
+	}
+
+	public boolean isCloudOssInsertSwitch() {
+		return cloudOssInsertSwitch;
+	}
+
+	public void setCloudOssInsertSwitch(boolean cloudOssInsertSwitch) {
+		this.cloudOssInsertSwitch = cloudOssInsertSwitch;
+	}
+
+	public int getCompleteExpDayNumLimit() {
+		return completeExpDayNumLimit;
+	}
+
+	public void setCompleteExpDayNumLimit(int completeExpDayNumLimit) {
+		this.completeExpDayNumLimit = completeExpDayNumLimit;
+	}
+
+	public boolean isCreateBoardBySendFlowSwitch() {
+		return createBoardBySendFlowSwitch;
+	}
+
+	public void setCreateBoardBySendFlowSwitch(boolean createBoardBySendFlowSwitch) {
+		this.createBoardBySendFlowSwitch = createBoardBySendFlowSwitch;
+	}
+
+	public Integer getCttGroupSendFLowLimit() {
+		return cttGroupSendFLowLimit;
+	}
+
+	public void setCttGroupSendFLowLimit(Integer cttGroupSendFLowLimit) {
+		this.cttGroupSendFLowLimit = cttGroupSendFLowLimit;
+	}
+
+	public String getCzOrgForbiddenList() {
+		return czOrgForbiddenList;
+	}
+
+	public void setCzOrgForbiddenList(String czOrgForbiddenList) {
+		this.czOrgForbiddenList = czOrgForbiddenList;
+	}
+
+	public boolean isCzQuerySwitch() {
+		return czQuerySwitch;
+	}
+
+	public void setCzQuerySwitch(boolean czQuerySwitch) {
+		this.czQuerySwitch = czQuerySwitch;
+	}
+
+	public String getCzSiteForbiddenList() {
+		return czSiteForbiddenList;
+	}
+
+	public void setCzSiteForbiddenList(String czSiteForbiddenList) {
+		this.czSiteForbiddenList = czSiteForbiddenList;
+	}
+
+	public String getCzSiteTypeForbiddenList() {
+		return czSiteTypeForbiddenList;
+	}
+
+	public void setCzSiteTypeForbiddenList(String czSiteTypeForbiddenList) {
+		this.czSiteTypeForbiddenList = czSiteTypeForbiddenList;
+	}
+
+	public List<String> getDewuCustomerCodeList() {
+		return dewuCustomerCodeList;
+	}
+
+	public void setDewuCustomerCodeList(List<String> dewuCustomerCodeList) {
+		this.dewuCustomerCodeList = dewuCustomerCodeList;
+	}
+
+	public String getDewuCustomerCodes() {
+		return dewuCustomerCodes;
+	}
+
+	public void setDewuCustomerCodes(String dewuCustomerCodes) {
+		this.dewuCustomerCodes = dewuCustomerCodes;
+        if(StringUtils.isNotBlank(dewuCustomerCodes)){
+            this.dewuCustomerCodeList = Arrays.asList(dewuCustomerCodes.split(Constants.SEPARATOR_COMMA));
+        }
+	}
+
+	public String getDpSpringSiteCode() {
+		return dpSpringSiteCode;
+	}
+
+	public void setDpSpringSiteCode(String dpSpringSiteCode) {
+		this.dpSpringSiteCode = dpSpringSiteCode;
+        List<String> dpSpringSiteCodeList = new ArrayList<>();
+        if(StringUtils.isNotBlank(dpSpringSiteCode)){
+            final String[] split = dpSpringSiteCode.split(Constants.SEPARATOR_COMMA);
+            dpSpringSiteCodeList = Arrays.asList(split);
+        }
+        for (String siteCodeStr : dpSpringSiteCodeList) {
+            this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
+        }		
+		
+	}
+
+	public List<Integer> getDpSpringSiteCodeList() {
+		return dpSpringSiteCodeList;
+	}
+
+	public void setDpSpringSiteCodeList(List<Integer> dpSpringSiteCodeList) {
+		this.dpSpringSiteCodeList = dpSpringSiteCodeList;
+	}
+
+	public boolean isDpTransferSwitch() {
+		return dpTransferSwitch;
+	}
+
+	public void setDpTransferSwitch(boolean dpTransferSwitch) {
+		this.dpTransferSwitch = dpTransferSwitch;
+	}
+
+	public boolean isEasyFreezeSwitch() {
+		return easyFreezeSwitch;
+	}
+
+	public void setEasyFreezeSwitch(boolean easyFreezeSwitch) {
+		this.easyFreezeSwitch = easyFreezeSwitch;
+	}
+
+	public String getExScrapApproveLevelCountLimit() {
+		return exScrapApproveLevelCountLimit;
+	}
+
+	public void setExScrapApproveLevelCountLimit(String exScrapApproveLevelCountLimit) {
+		this.exScrapApproveLevelCountLimit = exScrapApproveLevelCountLimit;
+	}
+
+	public List<String> getExceptionSubmitCheckSiteList() {
+		return exceptionSubmitCheckSiteList;
+	}
+
+	public void setExceptionSubmitCheckSiteList(List<String> exceptionSubmitCheckSiteList) {
+		this.exceptionSubmitCheckSiteList = exceptionSubmitCheckSiteList;
+	}
+
+	public String getExceptionSubmitCheckSites() {
+		return exceptionSubmitCheckSites;
+	}
+
+	public void setExceptionSubmitCheckSites(String exceptionSubmitCheckSites) {
+		this.exceptionSubmitCheckSites = exceptionSubmitCheckSites;
+        if(exceptionSubmitCheckSites == null){
+            exceptionSubmitCheckSiteList = new ArrayList<>();
+            return;
+        }
+        exceptionSubmitCheckSiteList = Arrays.asList(exceptionSubmitCheckSites.split(Constants.SEPARATOR_COMMA));		
+	}
+
+	public List<String> getExceptionSubmitCheckWaybillInterceptTypeList() {
+		return exceptionSubmitCheckWaybillInterceptTypeList;
+	}
+
+	public void setExceptionSubmitCheckWaybillInterceptTypeList(List<String> exceptionSubmitCheckWaybillInterceptTypeList) {
+		this.exceptionSubmitCheckWaybillInterceptTypeList = exceptionSubmitCheckWaybillInterceptTypeList;
+	}
+
+	public String getExceptionSubmitCheckWaybillInterceptTypes() {
+		return exceptionSubmitCheckWaybillInterceptTypes;
+	}
+
+	public void setExceptionSubmitCheckWaybillInterceptTypes(String exceptionSubmitCheckWaybillInterceptTypes) {
+		this.exceptionSubmitCheckWaybillInterceptTypes = exceptionSubmitCheckWaybillInterceptTypes;
+        if(exceptionSubmitCheckWaybillInterceptTypes == null){
+            exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
+            return;
+        }
+        exceptionSubmitCheckWaybillInterceptTypeList = Arrays.asList(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA));		
+	}
+
+	public String getForceSendSiteList() {
+		return forceSendSiteList;
+	}
+
+	public void setForceSendSiteList(String forceSendSiteList) {
+		this.forceSendSiteList = forceSendSiteList;
+	}
+
+	public boolean isIgnoreTysTrackSwitch() {
+		return ignoreTysTrackSwitch;
+	}
+
+	public void setIgnoreTysTrackSwitch(boolean ignoreTysTrackSwitch) {
+		this.ignoreTysTrackSwitch = ignoreTysTrackSwitch;
+	}
+
+	public boolean isJobTypeLimitSwitch() {
+		return jobTypeLimitSwitch;
+	}
+
+	public void setJobTypeLimitSwitch(boolean jobTypeLimitSwitch) {
+		this.jobTypeLimitSwitch = jobTypeLimitSwitch;
+	}
+
+	public Long getJyArtificialStrandTaskCloseTime() {
+		return jyArtificialStrandTaskCloseTime;
+	}
+
+	public void setJyArtificialStrandTaskCloseTime(Long jyArtificialStrandTaskCloseTime) {
+		this.jyArtificialStrandTaskCloseTime = jyArtificialStrandTaskCloseTime;
+	}
+
+	public String getJyCollectSiteWhitelist() {
+		return jyCollectSiteWhitelist;
+	}
+
+	public void setJyCollectSiteWhitelist(String jyCollectSiteWhitelist) {
+		this.jyCollectSiteWhitelist = jyCollectSiteWhitelist;
+	}
+
+	public Integer getJyComboardCountLimit() {
+		return jyComboardCountLimit;
+	}
+
+	public void setJyComboardCountLimit(Integer jyComboardCountLimit) {
+		this.jyComboardCountLimit = jyComboardCountLimit;
+	}
+
+	public Boolean getJyComboardListBoardSqlSwitch() {
+		return jyComboardListBoardSqlSwitch;
+	}
+
+	public void setJyComboardListBoardSqlSwitch(Boolean jyComboardListBoardSqlSwitch) {
+		this.jyComboardListBoardSqlSwitch = jyComboardListBoardSqlSwitch;
+	}
+
+	public Integer getJyComboardRefreshTimerInterval() {
+		return jyComboardRefreshTimerInterval;
+	}
+
+	public void setJyComboardRefreshTimerInterval(Integer jyComboardRefreshTimerInterval) {
+		this.jyComboardRefreshTimerInterval = jyComboardRefreshTimerInterval;
+	}
+
+	public Integer getJyComboardScanUserBeginDay() {
+		return jyComboardScanUserBeginDay;
+	}
+
+	public void setJyComboardScanUserBeginDay(Integer jyComboardScanUserBeginDay) {
+		this.jyComboardScanUserBeginDay = jyComboardScanUserBeginDay;
+	}
+
+	public Integer getJyComboardSealBoardListLimit() {
+		return jyComboardSealBoardListLimit;
+	}
+
+	public void setJyComboardSealBoardListLimit(Integer jyComboardSealBoardListLimit) {
+		this.jyComboardSealBoardListLimit = jyComboardSealBoardListLimit;
+	}
+
+	public Integer getJyComboardSealBoardListSelectLimit() {
+		return jyComboardSealBoardListSelectLimit;
+	}
+
+	public void setJyComboardSealBoardListSelectLimit(Integer jyComboardSealBoardListSelectLimit) {
+		this.jyComboardSealBoardListSelectLimit = jyComboardSealBoardListSelectLimit;
+	}
+
+	public String getJyComboardSealQueryBoardListTime() {
+		return jyComboardSealQueryBoardListTime;
+	}
+
+	public void setJyComboardSealQueryBoardListTime(String jyComboardSealQueryBoardListTime) {
+		this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
+	}
+
+	public Integer getJyComboardSiteCTTPageSize() {
+		return jyComboardSiteCTTPageSize;
+	}
+
+	public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
+		this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
+	}
+
+	public Integer getJyComboardTaskCreateTimeBeginDay() {
+		return jyComboardTaskCreateTimeBeginDay;
+	}
+
+	public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
+		this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
+	}
+
+	public Integer getJyComboardTaskSealTimeBeginDay() {
+		return jyComboardTaskSealTimeBeginDay;
+	}
+
+	public void setJyComboardTaskSealTimeBeginDay(Integer jyComboardTaskSealTimeBeginDay) {
+		this.jyComboardTaskSealTimeBeginDay = jyComboardTaskSealTimeBeginDay;
+	}
+
+	public Integer getJyCzSendTaskPlanTimeBeginDay() {
+		return jyCzSendTaskPlanTimeBeginDay;
+	}
+
+	public void setJyCzSendTaskPlanTimeBeginDay(Integer jyCzSendTaskPlanTimeBeginDay) {
+		this.jyCzSendTaskPlanTimeBeginDay = jyCzSendTaskPlanTimeBeginDay;
+	}
+
+	public Integer getJyCzSendTaskPlanTimeEndDay() {
+		return jyCzSendTaskPlanTimeEndDay;
+	}
+
+	public void setJyCzSendTaskPlanTimeEndDay(Integer jyCzSendTaskPlanTimeEndDay) {
+		this.jyCzSendTaskPlanTimeEndDay = jyCzSendTaskPlanTimeEndDay;
+	}
+
+	public Integer getJyStrandScanNumLimit() {
+		return jyStrandScanNumLimit;
+	}
+
+	public void setJyStrandScanNumLimit(Integer jyStrandScanNumLimit) {
+		this.jyStrandScanNumLimit = jyStrandScanNumLimit;
+	}
+
+	public Long getJySysStrandTaskCloseTime() {
+		return jySysStrandTaskCloseTime;
+	}
+
+	public void setJySysStrandTaskCloseTime(Long jySysStrandTaskCloseTime) {
+		this.jySysStrandTaskCloseTime = jySysStrandTaskCloseTime;
+	}
+
+	public Integer getJyTransportSendVehicleValidateDockAllowRefreshTimes() {
+		return jyTransportSendVehicleValidateDockAllowRefreshTimes;
+	}
+
+	public void setJyTransportSendVehicleValidateDockAllowRefreshTimes(
+			Integer jyTransportSendVehicleValidateDockAllowRefreshTimes) {
+		this.jyTransportSendVehicleValidateDockAllowRefreshTimes = jyTransportSendVehicleValidateDockAllowRefreshTimes;
+	}
+
+	public Integer getJyTransportSendVehicleValidateDockRefreshTime() {
+		return jyTransportSendVehicleValidateDockRefreshTime;
+	}
+
+	public void setJyTransportSendVehicleValidateDockRefreshTime(Integer jyTransportSendVehicleValidateDockRefreshTime) {
+		this.jyTransportSendVehicleValidateDockRefreshTime = jyTransportSendVehicleValidateDockRefreshTime;
+	}
+
+	public Long getJyUnSealTaskLastHourTime() {
+		return jyUnSealTaskLastHourTime;
+	}
+
+	public void setJyUnSealTaskLastHourTime(Long jyUnSealTaskLastHourTime) {
+		this.jyUnSealTaskLastHourTime = jyUnSealTaskLastHourTime;
+	}
+
+	public Integer getJyUnloadCarListDoneQueryDayFilter() {
+		return jyUnloadCarListDoneQueryDayFilter;
+	}
+
+	public void setJyUnloadCarListDoneQueryDayFilter(Integer jyUnloadCarListDoneQueryDayFilter) {
+		this.jyUnloadCarListDoneQueryDayFilter = jyUnloadCarListDoneQueryDayFilter;
+	}
+
+	public String getJyWorkAppAutoRefreshConfig() {
+		return jyWorkAppAutoRefreshConfig;
+	}
+
+	public void setJyWorkAppAutoRefreshConfig(String jyWorkAppAutoRefreshConfig) {
+		this.jyWorkAppAutoRefreshConfig = jyWorkAppAutoRefreshConfig;
+        if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
+            final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
+            if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
+                jyWorkAppAutoRefreshConfigList = clientAutoRefreshConfigList;
+            }
+        }		
+	}
+
+	public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
+		return jyWorkAppAutoRefreshConfigList;
+	}
+
+	public void setJyWorkAppAutoRefreshConfigList(List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList) {
+		this.jyWorkAppAutoRefreshConfigList = jyWorkAppAutoRefreshConfigList;
+	}
+
+	public boolean isLoadCarEvaluateSwitch() {
+		return loadCarEvaluateSwitch;
+	}
+
+	public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
+		this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
+	}
+
+	public boolean isLoadProgressByVehicleVolume() {
+		return loadProgressByVehicleVolume;
+	}
+
+	public void setLoadProgressByVehicleVolume(boolean loadProgressByVehicleVolume) {
+		this.loadProgressByVehicleVolume = loadProgressByVehicleVolume;
+	}
+
+	public Long getMachineCalibrateIntervalTimeOfSpotCheck() {
+		return machineCalibrateIntervalTimeOfSpotCheck;
+	}
+
+	public void setMachineCalibrateIntervalTimeOfSpotCheck(Long machineCalibrateIntervalTimeOfSpotCheck) {
+		this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
+	}
+
+	public boolean isMachineCalibrateSpotCheckSwitch() {
+		return machineCalibrateSpotCheckSwitch;
+	}
+
+	public void setMachineCalibrateSpotCheckSwitch(boolean machineCalibrateSpotCheckSwitch) {
+		this.machineCalibrateSpotCheckSwitch = machineCalibrateSpotCheckSwitch;
+	}
+
+	public Long getMachineCalibrateTaskDuration() {
+		return machineCalibrateTaskDuration;
+	}
+
+	public void setMachineCalibrateTaskDuration(Long machineCalibrateTaskDuration) {
+		this.machineCalibrateTaskDuration = machineCalibrateTaskDuration;
+	}
+
+	public Long getMachineCalibrateTaskForceCreateIntervalTime() {
+		return machineCalibrateTaskForceCreateIntervalTime;
+	}
+
+	public void setMachineCalibrateTaskForceCreateIntervalTime(Long machineCalibrateTaskForceCreateIntervalTime) {
+		this.machineCalibrateTaskForceCreateIntervalTime = machineCalibrateTaskForceCreateIntervalTime;
+	}
+
+	public Long getMachineCalibrateTaskQueryRange() {
+		return machineCalibrateTaskQueryRange;
+	}
+
+	public void setMachineCalibrateTaskQueryRange(Long machineCalibrateTaskQueryRange) {
+		this.machineCalibrateTaskQueryRange = machineCalibrateTaskQueryRange;
+	}
+
+	public String getNeedIsolateBoardByGroupCodeSiteList() {
+		return needIsolateBoardByGroupCodeSiteList;
+	}
+
+	public void setNeedIsolateBoardByGroupCodeSiteList(String needIsolateBoardByGroupCodeSiteList) {
+		this.needIsolateBoardByGroupCodeSiteList = needIsolateBoardByGroupCodeSiteList;
+	}
+
+	public boolean isNeedValidateBatchCodeHasSealed() {
+		return needValidateBatchCodeHasSealed;
+	}
+
+	public void setNeedValidateBatchCodeHasSealed(boolean needValidateBatchCodeHasSealed) {
+		this.needValidateBatchCodeHasSealed = needValidateBatchCodeHasSealed;
+	}
+
+	public String getOffLineAllowedSites() {
+		return offLineAllowedSites;
+	}
+
+	public void setOffLineAllowedSites(String offLineAllowedSites) {
+		this.offLineAllowedSites = offLineAllowedSites;
+	}
+
+	public int getOnlineGetTaskSimpleCodeThreshold() {
+		return onlineGetTaskSimpleCodeThreshold;
+	}
+
+	public void setOnlineGetTaskSimpleCodeThreshold(int onlineGetTaskSimpleCodeThreshold) {
+		this.onlineGetTaskSimpleCodeThreshold = onlineGetTaskSimpleCodeThreshold;
+	}
+
+	public List<Integer> getOperateProgressRegionList() {
+		return operateProgressRegionList;
+	}
+
+	public void setOperateProgressRegionList(List<Integer> operateProgressRegionList) {
+		this.operateProgressRegionList = operateProgressRegionList;
+	}
+
+	public String getOperateProgressRegions() {
+		return operateProgressRegions;
+	}
+
+	public void setOperateProgressRegions(String operateProgressRegions) {
+		this.operateProgressRegions = operateProgressRegions;
+	       if (operateProgressRegions!=null && !"".equals(operateProgressRegions)){
+	            List<Integer> operateProgressRegionList = new ArrayList<>();
+	            if (operateProgressRegions.contains(",")){
+	                String[] regionArr =operateProgressRegions.split(",");
+	                for (String region:regionArr){
+	                    operateProgressRegionList.add(Integer.valueOf(region));
+	                }
+	            }
+	            else {
+	                operateProgressRegionList.add(Integer.valueOf(operateProgressRegions));
+	            }
+	            if (CollectionUtils.isNotEmpty(operateProgressRegionList)){
+	                this.operateProgressRegionList =operateProgressRegionList;
+	                Collections.sort(this.operateProgressRegionList);
+	            }
+	        }		
+	}
+
+	public Boolean getPdaLoginSkipSwitch() {
+		return pdaLoginSkipSwitch;
+	}
+
+	public void setPdaLoginSkipSwitch(Boolean pdaLoginSkipSwitch) {
+		this.pdaLoginSkipSwitch = pdaLoginSkipSwitch;
+	}
+
+	public boolean isPdaVersionSwitch() {
+		return pdaVersionSwitch;
+	}
+
+	public void setPdaVersionSwitch(boolean pdaVersionSwitch) {
+		this.pdaVersionSwitch = pdaVersionSwitch;
+	}
+
+	public boolean isPrintCompeteAllPackageUpdateCancel() {
+		return printCompeteAllPackageUpdateCancel;
+	}
+
+	public void setPrintCompeteAllPackageUpdateCancel(boolean printCompeteAllPackageUpdateCancel) {
+		this.printCompeteAllPackageUpdateCancel = printCompeteAllPackageUpdateCancel;
+	}
+
+	public boolean isPrintCompeteUpdateCancel() {
+		return printCompeteUpdateCancel;
+	}
+
+	public void setPrintCompeteUpdateCancel(boolean printCompeteUpdateCancel) {
+		this.printCompeteUpdateCancel = printCompeteUpdateCancel;
+	}
+
+	public boolean isProductOperateProgressSwitch() {
+		return productOperateProgressSwitch;
+	}
+
+	public void setProductOperateProgressSwitch(boolean productOperateProgressSwitch) {
+		this.productOperateProgressSwitch = productOperateProgressSwitch;
+	}
+
+	public boolean isReComboardSwitch() {
+		return reComboardSwitch;
+	}
+
+	public void setReComboardSwitch(boolean reComboardSwitch) {
+		this.reComboardSwitch = reComboardSwitch;
+	}
+
+	public Long getReComboardTimeLimit() {
+		return reComboardTimeLimit;
+	}
+
+	public void setReComboardTimeLimit(Long reComboardTimeLimit) {
+		this.reComboardTimeLimit = reComboardTimeLimit;
+	}
+
+	public boolean isSpotCheckIssueRelyOMachineStatus() {
+		return spotCheckIssueRelyOMachineStatus;
+	}
+
+	public void setSpotCheckIssueRelyOMachineStatus(boolean spotCheckIssueRelyOMachineStatus) {
+		this.spotCheckIssueRelyOMachineStatus = spotCheckIssueRelyOMachineStatus;
+	}
+
+	public String getSpotCheckIssueRelyOnMachineStatusSiteSwitch() {
+		return spotCheckIssueRelyOnMachineStatusSiteSwitch;
+	}
+
+	public void setSpotCheckIssueRelyOnMachineStatusSiteSwitch(String spotCheckIssueRelyOnMachineStatusSiteSwitch) {
+		this.spotCheckIssueRelyOnMachineStatusSiteSwitch = spotCheckIssueRelyOnMachineStatusSiteSwitch;
+	}
+
+	public boolean isSupportMutilScan() {
+		return supportMutilScan;
+	}
+
+	public void setSupportMutilScan(boolean supportMutilScan) {
+		this.supportMutilScan = supportMutilScan;
+	}
+
+	public boolean isSyncJyCZSealStatusSwitch() {
+		return syncJyCZSealStatusSwitch;
+	}
+
+	public void setSyncJyCZSealStatusSwitch(boolean syncJyCZSealStatusSwitch) {
+		this.syncJyCZSealStatusSwitch = syncJyCZSealStatusSwitch;
+	}
+
+	public boolean isSyncScheduleTaskSwitch() {
+		return syncScheduleTaskSwitch;
+	}
+
+	public void setSyncScheduleTaskSwitch(boolean syncScheduleTaskSwitch) {
+		this.syncScheduleTaskSwitch = syncScheduleTaskSwitch;
+	}
+
+	public String getTeAnSiteWhitelist() {
+		return teAnSiteWhitelist;
+	}
+
+	public void setTeAnSiteWhitelist(String teAnSiteWhitelist) {
+		this.teAnSiteWhitelist = teAnSiteWhitelist;
+        if(teAnSiteWhitelist == null){
+        	teAnSiteWhitelistStrList = new ArrayList<>();
+        }
+        teAnSiteWhitelistStrList =  Arrays.asList(teAnSiteWhitelist.split(Constants.SEPARATOR_COMMA));		
+	}
+
+	public List<String> getTeAnSiteWhitelistStrList() {
+		return teAnSiteWhitelistStrList;
+	}
+
+	public void setTeAnSiteWhitelistStrList(List<String> teAnSiteWhitelistStrList) {
+		this.teAnSiteWhitelistStrList = teAnSiteWhitelistStrList;
+	}
+
+	public Boolean getTysUnloadCarCollectDemoteSwitch() {
+		return tysUnloadCarCollectDemoteSwitch;
+	}
+
+	public void setTysUnloadCarCollectDemoteSwitch(Boolean tysUnloadCarCollectDemoteSwitch) {
+		this.tysUnloadCarCollectDemoteSwitch = tysUnloadCarCollectDemoteSwitch;
+	}
+
+	public Integer getUnloadTaskBoardMaxCount() {
+		return unloadTaskBoardMaxCount;
+	}
+
+	public void setUnloadTaskBoardMaxCount(Integer unloadTaskBoardMaxCount) {
+		this.unloadTaskBoardMaxCount = unloadTaskBoardMaxCount;
+	}
+
+	public boolean isUploadOverWeightSwitch() {
+		return uploadOverWeightSwitch;
+	}
+
+	public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
+		this.uploadOverWeightSwitch = uploadOverWeightSwitch;
+	}
+
+	public double getVehicleIntegralPriorityFraction() {
+		return vehicleIntegralPriorityFraction;
+	}
+
+	public void setVehicleIntegralPriorityFraction(double vehicleIntegralPriorityFraction) {
+		this.vehicleIntegralPriorityFraction = vehicleIntegralPriorityFraction;
+	}
+
+	public String getVolumeExcessIssueSites() {
+		return volumeExcessIssueSites;
+	}
+
+	public void setVolumeExcessIssueSites(String volumeExcessIssueSites) {
+		this.volumeExcessIssueSites = volumeExcessIssueSites;
+	}
+
+	public Boolean getWaybillSysNonExistPackageInterceptSwitch() {
+		return waybillSysNonExistPackageInterceptSwitch;
+	}
+
+	public void setWaybillSysNonExistPackageInterceptSwitch(Boolean waybillSysNonExistPackageInterceptSwitch) {
+		this.waybillSysNonExistPackageInterceptSwitch = waybillSysNonExistPackageInterceptSwitch;
+	}
+
+	public void setHideSpecialStartSitePrintReplaceSymbolMaxLength(int hideSpecialStartSitePrintReplaceSymbolMaxLength) {
+		this.hideSpecialStartSitePrintReplaceSymbolMaxLength = hideSpecialStartSitePrintReplaceSymbolMaxLength;
 	}	
 }

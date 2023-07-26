@@ -27,22 +27,19 @@ public class DmsConfigManager {
 	@Autowired
 	@Qualifier("hystrixRouteUccPropertyConfiguration")
 	private HystrixRouteUccPropertyConfiguration hystrixRouteUccPropertyConfiguration;
-	
+
 	public DuccPropertyConfig getDuccPropertyConfig() {
-		if(!duccPropertyConfig.isUseDucc()) {
-			return uccPropertyConfiguration;
-		}
 		return duccPropertyConfig;
 	}
+
 	public UccPropertyConfiguration getUccPropertyConfiguration() {
 		return uccPropertyConfiguration;
 	}
+
 	public DuccHystrixRoutePropertyConfig getDuccHystrixRoutePropertyConfig() {
-		if(!duccPropertyConfig.isUseDucc()) {
-			return hystrixRouteUccPropertyConfiguration;
-		}
 		return duccHystrixRoutePropertyConfig;
 	}
+
 	public HystrixRouteUccPropertyConfiguration getHystrixRouteUccPropertyConfiguration() {
 		return hystrixRouteUccPropertyConfiguration;
 	}

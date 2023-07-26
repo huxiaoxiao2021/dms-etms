@@ -3,7 +3,6 @@ package com.jd.bluedragon.config;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
-import com.jd.bluedragon.configuration.ducc.DuccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.test.utils.FileHelper;
@@ -50,14 +48,12 @@ public class TestDucc {
 		 ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
 		 "/distribution-core-context-ducc-test.xml");
 		 ConfiguratorManager configuratorManager = (ConfiguratorManager)appContext.getBean("configuratorManager") ;
-		 DuccPropertyConfig duccDefault = (DuccPropertyConfig)appContext.getBean("duccPropertyConfig") ;
 		 UccPropertyConfiguration ucc = (UccPropertyConfiguration)appContext.getBean("uccPropertyConfiguration") ;
+		 UccPropertyConfiguration duccDefault = ucc;
 		 DuccPropertyConfig ducc = (DuccPropertyConfig)appContext.getBean("duccPropertyConfig") ;
 		 com.jd.coo.ucc.client.config.UccPropertyConfig uccConfig = (com.jd.coo.ucc.client.config.UccPropertyConfig)appContext.getBean("propertyConfig") ;
 		 
 		 while(true) {
-			Property property1 = configuratorManager.getProperty("uccPropertyConfiguration.asynbufferEnabledTaskType");
-			System.out.println("uccPropertyConfiguration.asynbufferEnabledTaskType:" + property1.getString());
 			
 			 System.err.println("ducc-getProperties:"+JsonHelper.toJson(configuratorManager.getProperties()));
 			 
@@ -69,7 +65,9 @@ public class TestDucc {
 			 
 			 StringBuffer sfNeedCheck = new StringBuffer();
 			 StringBuffer sfCodes = new StringBuffer();
-			 List<Field> fieldList = ObjectHelper.getAllFieldsList(UccPropertyConfiguration.class);
+			 StringBuffer sfCodes1 = new StringBuffer();
+			 List<Field> fieldList = ObjectHelper.getDeclaredFieldsList(UccPropertyConfiguration.class);
+			 Map<String, Field> duccKeyMap = ObjectHelper.getDeclaredFields(DuccPropertyConfig.class);
 			 Collections.sort(fieldList,new Comparator<Field>() {
 				@Override
 				public int compare(Field o1, Field o2) {
@@ -80,12 +78,11 @@ public class TestDucc {
 				 Class t =field.getType();
 				 String typeName = t.getSimpleName();
 				 String fieldName = field.getName();
-				 
+				 StringBuffer sfCodes0 = new StringBuffer();
 				 Object uccValue = ObjectHelper.getValue(ucc, field.getName());
 				 Object duccValue = ObjectHelper.getValue(ducc, field.getName());
 				 Object defaultValue = ObjectHelper.getValue(duccDefault, field.getName());
 				 
-
 				 if(!typeName.toLowerCase().contains("lis")) {
 //					 String key = "duccPropertyConfig."+field.getName();
 					 String key = "uccPropertyConfiguration."+field.getName();
@@ -93,26 +90,28 @@ public class TestDucc {
 						 DuccItem duccItem = duccMap.get(key);
 						 
 						 /** 开启的多级异步缓冲组件的任务类型列表 **/
-						 sfCodes.append("\t/**\n");
-						 sfCodes.append("\t *"+duccItem.description+"\n");
-						 sfCodes.append("\t */\n");
+						 sfCodes0.append("\t/**\n");
+						 sfCodes0.append("\t *"+duccItem.description+"\n");
+						 sfCodes0.append("\t */\n");
 					 }
 					 if(defaultValue != null) {
-						 sfCodes.append("\t@Value(\"${duccPropertyConfig."+fieldName +":"+defaultValue+ "}\")\n");
+						 sfCodes0.append("\t@Value(\"${duccPropertyConfig."+fieldName +":"+defaultValue+ "}\")\n");
 					 }else {
-						 sfCodes.append("\t@Value(\"${duccPropertyConfig."+fieldName + ":''}\")\n");
+						 sfCodes0.append("\t@Value(\"${duccPropertyConfig."+fieldName + ":''}\")\n");
 					 }
-					 sfCodes.append("\tprivate "+typeName +" "+fieldName+ ";\n\n");
+					 sfCodes0.append("\tprivate "+typeName +" "+fieldName+ ";\n\n");
 				 }else {
 					 ParameterizedType type = (ParameterizedType)field.getGenericType();
 					 if(type != null) {
 						 Class a =(Class)type.getActualTypeArguments()[0];
-						 sfCodes.append("\tprivate "+typeName +"<"+a.getSimpleName()+"> "+fieldName+ ";\n\n");
+						 sfCodes0.append("\tprivate "+typeName +"<"+a.getSimpleName()+"> "+fieldName+ ";\n\n");
 					 }else {
-						 sfCodes.append("\tprivate "+typeName +" "+fieldName+ ";\n\n");
+						 sfCodes0.append("\tprivate "+typeName +" "+fieldName+ ";\n\n");
 					 }
-					 
-					 
+				 }
+				 sfCodes.append(sfCodes0.toString());
+				 if(!duccKeyMap.containsKey(fieldName)) {
+					 sfCodes1.append(sfCodes0.toString());
 				 }
 				 boolean checkResult = ObjectUtils.equals(uccValue, duccValue);
 				 if(!checkResult) {
@@ -146,6 +145,9 @@ public class TestDucc {
 			 System.err.println(sfCodes.toString());
 			 System.err.println("\nsfCodes-e");
 			 
+			 System.err.println("sfCodes1-s\n");
+			 System.err.println(sfCodes1.toString());
+			 System.err.println("\nsfCodes1-e");			 
 			 
 			 log.debug("log-test:debug-msg");
 			 log.info("log-test:info-msg");

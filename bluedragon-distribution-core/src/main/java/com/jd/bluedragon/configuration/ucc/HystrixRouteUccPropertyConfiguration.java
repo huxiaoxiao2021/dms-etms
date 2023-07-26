@@ -9,7 +9,7 @@ import com.jd.bluedragon.configuration.ducc.DuccHystrixRoutePropertyConfig;
  * @author: xumigen
  * @create: 2021-08-10 17:33
  **/
-public class HystrixRouteUccPropertyConfiguration extends DuccHystrixRoutePropertyConfig{
+public class HystrixRouteUccPropertyConfiguration{
 
 
     private int executionTimeoutInMilliseconds;
