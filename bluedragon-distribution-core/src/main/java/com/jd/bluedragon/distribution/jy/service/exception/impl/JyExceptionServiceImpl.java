@@ -699,6 +699,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<ExpTaskDto> queryByBarcode(ExpReceiveReq req) {
+        JdCResponse<ExpTaskDto> validateResult = this.validateExpReceiveReq(req);
+        if (validateResult != null) return validateResult;
 
         String bizId = getBizId(req.getBarCode(), req.getSiteId());
         JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
@@ -710,6 +712,24 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("您未领取该条码任务!" + req.getBarCode());
         }
         return JdCResponse.ok(taskDto);
+    }
+
+    /**
+     * 校验扫码请求参数
+     * @param req
+     * @return
+     */
+    private JdCResponse<ExpTaskDto> validateExpReceiveReq(ExpReceiveReq req) {
+        if (req == null) {
+            return JdCResponse.fail("参数不能为空!");
+        }
+        if (StringUtils.isBlank(req.getBarCode())) {
+            return JdCResponse.fail("条形码不能为空!");
+        }
+        if (req.getSiteId() == null) {
+            return JdCResponse.fail("场地id不能为空!");
+        }
+        return null;
     }
 
     /**
@@ -1599,7 +1619,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setStatus(entity.getStatus());
         dto.setProcessingStatus(entity.getProcessingStatus());
         if(Objects.nonNull(entity.getType())
-                && JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType())){
+                && (JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType())
+                || JyBizTaskExceptionTypeEnum.DAMAGE.getCode().equals(entity.getType()))){
             ExpTaskByIdReq req = new ExpTaskByIdReq();
             req.setBizId(entity.getBizId());
             JdCResponse<ExpScrappedDetailDto> response = jyScrappedExceptionService.getTaskDetailOfscrapped(req);
