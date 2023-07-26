@@ -10,7 +10,9 @@ public enum JyBizTaskExceptionTypeEnum {
 
     SANWU(0, "三无"),
     SCRAPPED(1, "报废"),
-    //DAMAGED(2, "破损"),
+    DAMAGE(2, "破损"),
+
+
     ;
 
     private Integer code;

@@ -22,8 +22,7 @@ public abstract class JyExceptionStrategy {
 
     public abstract Integer getExceptionType();
 
-    public abstract  JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity exceptionEntity, ExpUploadScanReq req, PositionDetailRecord position
-            , JyExpSourceEnum source,  String bizId);
+
 
 
 }
