@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpScrappedDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
 import com.jd.lsb.flow.domain.HistoryApprove;
 
@@ -23,6 +24,13 @@ public interface JyScrappedExceptionService {
     JdCResponse<List<JyExceptionScrappedTypeDto>> getJyExceptionScrappedTypeList();
 
     /**
+     *
+     * 获取异常包裹类型列表接口
+     */
+    JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList();
+
+
+    /**
      * 处理任务接口-报废
      */
     JdCResponse<Boolean> processTaskOfscrapped(ExpScrappedDetailReq req);
@@ -31,7 +39,7 @@ public interface JyScrappedExceptionService {
 
     /**
      * 审批结果处理
-     * 
+     *
      * @param historyApprove
      */
     void dealApproveResult(HistoryApprove historyApprove);

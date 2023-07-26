@@ -140,6 +140,12 @@ public class JyExceptionServiceTest {
     }
 
     @Test
+    public void getJyExceptionPackageTypeListTest(){
+        JdCResponse<List<JyExceptionPackageTypeDto>> list = jyScrappedExceptionService.getJyExceptionPackageTypeList();
+        Assert.assertEquals(list.isSucceed(),true);
+    }
+
+    @Test
     public void processTaskOfscrappedTest(){
         ExpScrappedDetailReq req = new ExpScrappedDetailReq();
         req.setUserErp("wuyoude");

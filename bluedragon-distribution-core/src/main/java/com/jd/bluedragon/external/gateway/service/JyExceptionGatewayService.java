@@ -75,6 +75,12 @@ public interface JyExceptionGatewayService {
     JdCResponse<List<JyExceptionScrappedTypeDto>> getJyExceptionScrappedTypeList();
 
     /**
+     * 获取破损包裹类型集合
+     * @return
+     */
+    JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList();
+
+    /**
      * 报废处理任务接口
      * @param req
      * @return

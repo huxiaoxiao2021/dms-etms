@@ -180,9 +180,17 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     }
 
     @Override
+    @Deprecated
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.getJyExceptionScrappedTypeList", mState = {JProEnum.TP})
     public JdCResponse<List<JyExceptionScrappedTypeDto>> getJyExceptionScrappedTypeList() {
         return jyScrappedExceptionService.getJyExceptionScrappedTypeList();
+    }
+
+    @Override
+    @Deprecated
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.getJyExceptionPackageTypeList", mState = {JProEnum.TP})
+    public JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList() {
+        return jyScrappedExceptionService.getJyExceptionPackageTypeList();
     }
 
     @Override

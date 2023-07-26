@@ -10,6 +10,7 @@ import com.jd.bluedragon.common.dto.jyexpection.request.ExpScrappedDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -146,6 +147,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     }
 
     @Override
+    @Deprecated
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.getJyExceptionScrappedTypeList", mState = {JProEnum.TP})
     public JdCResponse<List<JyExceptionScrappedTypeDto>> getJyExceptionScrappedTypeList() {
         JdCResponse<List<JyExceptionScrappedTypeDto>> result = new JdCResponse<>();
@@ -165,6 +167,55 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         result.setData(dtoList);
         result.toSucceed("请求成功!");
         return result;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.getJyExceptionPackageTypeList", mState = {JProEnum.TP})
+    public JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList() {
+        JdCResponse<List<JyExceptionPackageTypeDto>> result = new JdCResponse<>();
+        List<JyExceptionPackageTypeDto> dtoList = new ArrayList<>();
+        //保存异常包裹为第一层级
+        Arrays.stream(JyExceptionPackageType.ExceptionPackageTypeEnum.values()).forEach(type -> {
+            if (JyExceptionPackageType.ExceptionPackageTypeEnum.DAMAGE.getCode().equals(type.getCode())) {
+                dtoList.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getDamagedTypeList()));
+            } else {
+                dtoList.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName()));
+            }
+        });
+        result.setData(dtoList);
+        result.toSucceed("请求成功!");
+        return result;
+    }
+
+    /**
+     * 获取破损类型列表
+     */
+    private List<JyExceptionPackageTypeDto> getDamagedTypeList() {
+        List<JyExceptionPackageTypeDto> list = new ArrayList<>();
+        Arrays.stream(JyExceptionPackageType.DamagedTypeEnum.values()).forEach(type -> {
+            if (JyExceptionPackageType.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode().equals(type.getCode())) {
+                list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getOutPackingDamagedRepairTypeList()));
+            } else if (JyExceptionPackageType.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode().equals(type.getCode())) {
+                list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getOutPackingDamagedRepairTypeList()));
+            }
+        });
+        return list;
+    }
+    /**
+     * 获取外包装破损修复类型列表
+     */
+    private List<JyExceptionPackageTypeDto> getOutPackingDamagedRepairTypeList(){
+        List<JyExceptionPackageTypeDto> list = new ArrayList<>();
+        Arrays.stream(JyExceptionPackageType.DamagedTypeEnum.values()).forEach(type -> list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName())));
+        return list;
+    }
+    /**
+     * 获取内破外破修复类型列表
+     */
+    private List<JyExceptionPackageTypeDto> getInsideOutsideDamagedRepairTypeList(){
+        List<JyExceptionPackageTypeDto> list = new ArrayList<>();
+        Arrays.stream(JyExceptionPackageType.InsideOutsideDamagedRepairTypeEnum.values()).forEach(type -> list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName())));
+        return list;
     }
 
     @Override
