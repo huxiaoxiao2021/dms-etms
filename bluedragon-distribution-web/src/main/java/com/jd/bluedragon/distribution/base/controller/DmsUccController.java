@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
-import com.jd.bluedragon.configuration.ducc.DuccPropertyConfiguration;
-import com.jd.bluedragon.configuration.ducc.HystrixRouteDuccPropertyConfiguration;
+import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
 import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -50,8 +49,8 @@ public class DmsUccController {
      */
     @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/ducc")
-    public @ResponseBody DuccPropertyConfiguration ducc() {
-        return dmsConfigManager.getDuccPropertyConfiguration();
+    public @ResponseBody DuccPropertyConfig ducc() {
+        return dmsConfigManager.getDuccPropertyConfig();
     } 
     /**
      * 获取ducc
@@ -65,7 +64,7 @@ public class DmsUccController {
     	StringBuffer sf = new StringBuffer();
 		 for(Field field: ObjectHelper.getAllFieldsList(UccPropertyConfiguration.class)) {
 			 Object uccValue = ObjectHelper.getValue(dmsConfigManager.getUccPropertyConfiguration(), field.getName());
-			 Object duccValue = ObjectHelper.getValue(dmsConfigManager.getDuccPropertyConfiguration(), field.getName());
+			 Object duccValue = ObjectHelper.getValue(dmsConfigManager.getDuccPropertyConfig(), field.getName());
 			 boolean checkResult = ObjectUtils.equals(uccValue, duccValue);
 			 if(checkResult) {
 				 log.info(field.getName()+":equal");
@@ -77,7 +76,7 @@ public class DmsUccController {
 		 sf.append("\n");
 		 for(Field field: ObjectHelper.getAllFieldsList(HystrixRouteUccPropertyConfiguration.class)) {
 			 Object uccValue = ObjectHelper.getValue(ucc1, field.getName());
-			 Object duccValue = ObjectHelper.getValue(dmsConfigManager.getHystrixRouteDuccPropertyConfiguration(), field.getName());
+			 Object duccValue = ObjectHelper.getValue(dmsConfigManager.getDuccHystrixRoutePropertyConfig(), field.getName());
 			 boolean checkResult = ObjectUtils.equals(uccValue, duccValue);
 			 if(checkResult) {
 				 log.info(field.getName()+":equal");
