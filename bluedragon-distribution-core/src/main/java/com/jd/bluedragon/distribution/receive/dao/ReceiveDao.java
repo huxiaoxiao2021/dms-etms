@@ -34,4 +34,13 @@ public class ReceiveDao extends BaseDao<Receive> {
 		int totalCount = (Integer)((obj == null) ? 0 : obj);
 		return totalCount;
 	}
+
+	/**
+	 * 根据箱号和场地获取收货信息
+	 * @param paramMap
+	 * @return
+	 */
+	public Receive findLastByBoxCodeAndSiteCode(Receive paramMap){
+		return  this.getSqlSession().selectOne(namespace + ".findLastByBoxCodeAndSiteCode", paramMap);
+	}
 }
