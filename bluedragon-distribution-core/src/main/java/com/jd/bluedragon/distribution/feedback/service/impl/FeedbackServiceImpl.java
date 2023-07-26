@@ -175,4 +175,8 @@ public class FeedbackServiceImpl implements FeedbackService {
         return String.valueOf(System.currentTimeMillis()) + String.valueOf(random.nextInt(1000) + String.valueOf(index)) + "." + extFileName;
     }
 
+    public boolean createFeedbackWithUrls(FeedbackDto dto) {
+        return feedBackApiManager.createFeedBack(dto);
+    }
+
 }
