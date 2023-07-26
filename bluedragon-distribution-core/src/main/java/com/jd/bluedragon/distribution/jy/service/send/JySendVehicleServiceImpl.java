@@ -3529,7 +3529,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @author fanggang7
      * @time 2023-07-26 10:00:32 周三
      */
-    public com.jd.dms.java.utils.sdk.base.Result<List<SendVehicleProductTypeAgg>> getProductToScanInfoList(SendAbnormalRequest request){
+    public com.jd.dms.java.utils.sdk.base.Result<List<SendVehicleProductTypeAgg>> getSpecialProductTypeToScanList(SendAbnormalRequest request){
         com.jd.dms.java.utils.sdk.base.Result<List<SendVehicleProductTypeAgg>> result = com.jd.dms.java.utils.sdk.base.Result.success();
         log.info("JyBizTaskCloseUnloadTaskServiceImpl.getProductToScanInfoList param {}", JSON.toJSONString(request));
 

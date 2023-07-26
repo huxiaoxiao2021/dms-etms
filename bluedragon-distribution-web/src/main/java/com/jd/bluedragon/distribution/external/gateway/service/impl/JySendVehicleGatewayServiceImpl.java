@@ -234,8 +234,8 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
      * @time 2023-07-26 10:00:32 周三
      */
     @Override
-    public JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfoList(SendAbnormalRequest request) {
-        return retJdCResponse(jySendVehicleService.getProductToScanInfo(request));
+    public JdCResponse<List<SendVehicleProductTypeAgg>> getSpecialProductTypeToScanList(SendAbnormalRequest request) {
+        return retJdCResponse(jySendVehicleService.getSpecialProductTypeToScanList(request));
     }
 
 

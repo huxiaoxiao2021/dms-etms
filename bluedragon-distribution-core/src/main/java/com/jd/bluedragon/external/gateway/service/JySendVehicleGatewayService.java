@@ -5,11 +5,8 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
-import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
 import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
-import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
-import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 
 import java.util.List;
 
@@ -184,7 +181,7 @@ public interface JySendVehicleGatewayService {
      * @author fanggang7
      * @time 2023-07-26 10:00:32 周三
      */
-    JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfoList(SendAbnormalRequest request);
+    JdCResponse<List<SendVehicleProductTypeAgg>> getSpecialProductTypeToScanList(SendAbnormalRequest request);
 
 
 

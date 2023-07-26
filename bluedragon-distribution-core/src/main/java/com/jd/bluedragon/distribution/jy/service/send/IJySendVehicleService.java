@@ -9,15 +9,12 @@ import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.dto.send.DeleteVehicleTaskCheckResp;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 import com.jd.dms.java.utils.sdk.base.Result;
 
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -269,7 +266,7 @@ public interface IJySendVehicleService {
      * @author fanggang7
      * @time 2023-07-26 10:00:32 周三
      */
-    Result<List<SendVehicleProductTypeAgg>> getProductToScanInfoList(SendAbnormalRequest request);
+    Result<List<SendVehicleProductTypeAgg>> getSpecialProductTypeToScanList(SendAbnormalRequest request);
 
 
     /**
