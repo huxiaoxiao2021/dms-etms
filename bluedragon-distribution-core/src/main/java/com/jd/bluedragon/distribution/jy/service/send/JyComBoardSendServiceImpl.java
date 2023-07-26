@@ -1099,7 +1099,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       return new InvokeResult<>(CODE_ERROR,"服务器开小差，请联系分拣小秘！");
     } catch(JyBizException e) {
       ComboardScanResp resp = assembleComboardResp(request);
-      resp.setWeakInterceptFlag(checkWeakIntercept(request));
+      resp.setInterceptFlag(checkIntercept(request));
       if (ObjectHelper.isNotNull(e.getCode())){
         if (BOARD_HAS_BEEN_FULL_CODE==e.getCode()){
           return new InvokeResult(e.getCode(), e.getMessage(),resp);
@@ -1115,8 +1115,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
-  private boolean checkWeakIntercept(ComboardScanReq request) {
-    if (ucc.getWeakInterceptBlackList().equals(Constants.TOTAL_URL_INTERCEPTOR) || checkContainsCurrentSite(request)){
+  //是否需要强拦截提醒
+  private boolean checkIntercept(ComboardScanReq request) {
+    if (ucc.getInterceptBlackList().equals(Constants.TOTAL_URL_INTERCEPTOR) || checkContainsCurrentSite(request)){
       return true;
     }
     return false;
@@ -1125,11 +1126,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private boolean checkContainsCurrentSite(ComboardScanReq request) {
     if (ObjectHelper.isNotNull(request.getCurrentOperate().getSiteCode())){
       List<String> siteList =new ArrayList<>();
-      if (ucc.getWeakInterceptBlackList().contains(Constants.SEPARATOR_COMMA)){
-        siteList =Arrays.asList(ucc.getWeakInterceptBlackList().split(Constants.SEPARATOR_COMMA));
+      if (ucc.getInterceptBlackList().contains(Constants.SEPARATOR_COMMA)){
+        siteList =Arrays.asList(ucc.getInterceptBlackList().split(Constants.SEPARATOR_COMMA));
       }
       else {
-        siteList.add(ucc.getWeakInterceptBlackList());
+        siteList.add(ucc.getInterceptBlackList());
       }
       if (!CollectionUtils.isEmpty(siteList) && siteList.contains(String.valueOf(request.getCurrentOperate().getSiteCode()))){
         return true;

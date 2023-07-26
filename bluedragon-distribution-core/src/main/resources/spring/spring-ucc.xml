@@ -291,7 +291,7 @@
 		<property name="batchGenerateSendCodeMaxNum" value="${batchGenerateSendCodeMaxNum:100}"/>
 		<property name="batchQueryEndSiteLimit" value="${batchQueryEndSiteLimit:30}"/>
 		<property name="vehicleIntegralPriorityFraction" value="${vehicleIntegralPriorityFraction:200}"/>
-		<property name="weakInterceptBlackList" value="${weakInterceptBlackList:''}"/>
+		<property name="interceptBlackList" value="${interceptBlackList:'*'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -572,7 +572,7 @@
 				<value>uccPropertyConfiguration.batchQueryEndSiteLimit</value>
 				<value>uccPropertyConfiguration.vehicleIntegralPriorityFraction</value>
 				<value>uccPropertyConfiguration.assignExpTaskQuantityLimit</value>
-				<value>uccPropertyConfiguration.weakInterceptBlackList</value>
+				<value>uccPropertyConfiguration.interceptBlackList</value>
 			</list>
 		</property>
 	</bean>
