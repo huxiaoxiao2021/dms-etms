@@ -10,10 +10,7 @@ public class ExpUploadScanReq extends ExpBaseReq {
 
     private String bizId;
 
-    /**
-     * 异常类型0：三无 1：报废 2：报废
-     */
-    private Integer type;
+
 
 
     // 近期扫描的 包裹号
@@ -51,11 +48,5 @@ public class ExpUploadScanReq extends ExpBaseReq {
         this.bizId = bizId;
     }
 
-    public Integer getType() {
-        return type;
-    }
 
-    public void setType(Integer type) {
-        this.type = type;
-    }
 }

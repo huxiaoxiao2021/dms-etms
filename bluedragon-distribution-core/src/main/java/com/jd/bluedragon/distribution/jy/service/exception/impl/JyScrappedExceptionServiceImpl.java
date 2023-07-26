@@ -112,38 +112,38 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         return JyBizTaskExceptionTypeEnum.SCRAPPED.getCode();
     }
 
-    @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
-    public JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity,ExpUploadScanReq req, PositionDetailRecord position
-            , JyExpSourceEnum source, String bizId) {
-
-        logger.info("报废上报信息req-{} 岗位码信息position-{} bizId-{}", JSON.toJSONString(req), JSON.toJSONString(position), bizId);
-        if (!checkBarCode(req.getBarCode())) {
-            return JdCResponse.fail("请扫描正确的运单号或包裹号!");
-        }
-        String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
-        //校验生鲜单号 自营OR外单
-        String msg = checkFresh(waybillCode,req.getUserErp());
-        if (StringUtils.isNotBlank(msg)) {
-            return JdCResponse.fail(msg);
-        }
-        taskEntity.setBarCode(waybillCode);
-        taskEntity.setType(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode());
-
-        JyExceptionScrappedPO scrappedPo = new JyExceptionScrappedPO();
-        scrappedPo.setBizId(bizId);
-        scrappedPo.setWaybillCode(waybillCode);
-        scrappedPo.setExceptionType(JyExceptionScrappedTypeEnum.SCRAPPED_FRESH.getCode());
-        scrappedPo.setSiteCode(position.getSiteCode());
-        scrappedPo.setSiteName(position.getSiteName());
-        scrappedPo.setCreateErp(req.getUserErp());
-        scrappedPo.setCreateTime(new Date());
-        logger.info("写入生鲜报废异常提报-taskEntity-{} -expEntity-{}",
-                JSON.toJSONString(scrappedPo));
-        jyExceptionScrappedDao.insertSelective(scrappedPo);
-
-        return JdCResponse.ok();
-    }
+//    @Override
+//    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
+//    public JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity,ExpUploadScanReq req, PositionDetailRecord position
+//            , JyExpSourceEnum source, String bizId) {
+//
+//        logger.info("报废上报信息req-{} 岗位码信息position-{} bizId-{}", JSON.toJSONString(req), JSON.toJSONString(position), bizId);
+//        if (!checkBarCode(req.getBarCode())) {
+//            return JdCResponse.fail("请扫描正确的运单号或包裹号!");
+//        }
+//        String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
+//        //校验生鲜单号 自营OR外单
+//        String msg = checkFresh(waybillCode,req.getUserErp());
+//        if (StringUtils.isNotBlank(msg)) {
+//            return JdCResponse.fail(msg);
+//        }
+//        taskEntity.setBarCode(waybillCode);
+//        taskEntity.setType(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode());
+//
+//        JyExceptionScrappedPO scrappedPo = new JyExceptionScrappedPO();
+//        scrappedPo.setBizId(bizId);
+//        scrappedPo.setWaybillCode(waybillCode);
+//        scrappedPo.setExceptionType(JyExceptionScrappedTypeEnum.SCRAPPED_FRESH.getCode());
+//        scrappedPo.setSiteCode(position.getSiteCode());
+//        scrappedPo.setSiteName(position.getSiteName());
+//        scrappedPo.setCreateErp(req.getUserErp());
+//        scrappedPo.setCreateTime(new Date());
+//        logger.info("写入生鲜报废异常提报-taskEntity-{} -expEntity-{}",
+//                JSON.toJSONString(scrappedPo));
+//        jyExceptionScrappedDao.insertSelective(scrappedPo);
+//
+//        return JdCResponse.ok();
+//    }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.getJyExceptionScrappedTypeList", mState = {JProEnum.TP})
