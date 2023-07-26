@@ -226,5 +226,17 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
         return retJdCResponse(jySendVehicleService.getProductToScanInfo(request));
     }
 
+    /**
+     * 根据发货任务获取特殊产品类型数量
+     * @param request 请求参数
+     * @return 待扫列表统计
+     * @author fanggang7
+     * @time 2023-07-26 10:00:32 周三
+     */
+    @Override
+    public JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfoList(SendAbnormalRequest request) {
+        return retJdCResponse(jySendVehicleService.getProductToScanInfo(request));
+    }
+
 
 }

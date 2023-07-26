@@ -262,6 +262,15 @@ public interface IJySendVehicleService {
      */
     InvokeResult<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
 
+    /**
+     * 根据发货任务获取特殊产品类型数量
+     * @param request 请求参数
+     * @return 待扫列表统计
+     * @author fanggang7
+     * @time 2023-07-26 10:00:32 周三
+     */
+    Result<List<SendVehicleProductTypeAgg>> getProductToScanInfoList(SendAbnormalRequest request);
+
 
     /**
      * 推送特安待扫包裹明细数据到场地负责人

@@ -40,6 +40,15 @@ public enum JySendVehicleProductTypeEnum {
         return "";
     }
 
+    public static JySendVehicleProductTypeEnum getEnumByCode(String code) {
+        for (JySendVehicleProductTypeEnum value : JySendVehicleProductTypeEnum.values()) {
+            if(value.getCode().equals(code)){
+                return value;
+            }
+        }
+        return null;
+    }
+
     public String getCode() {
         return code;
     }

@@ -3522,6 +3522,70 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return invokeResult;
     }
 
+    /**
+     * 根据发货任务获取特殊产品类型数量
+     * @param request 请求参数
+     * @return 待扫列表统计
+     * @author fanggang7
+     * @time 2023-07-26 10:00:32 周三
+     */
+    public com.jd.dms.java.utils.sdk.base.Result<List<SendVehicleProductTypeAgg>> getProductToScanInfoList(SendAbnormalRequest request){
+        com.jd.dms.java.utils.sdk.base.Result<List<SendVehicleProductTypeAgg>> result = com.jd.dms.java.utils.sdk.base.Result.success();
+        log.info("JyBizTaskCloseUnloadTaskServiceImpl.getProductToScanInfoList param {}", JSON.toJSONString(request));
+
+        try {
+            final List<SendVehicleProductTypeAgg> dataList = new ArrayList<>();
+            result.setData(dataList);
+            if (request.getCurrentOperate() == null || StringUtils.isBlank(request.getSendVehicleBizId())) {
+                result.toFail("参数错误");
+                return result;
+            }
+
+            // 场地白名单
+            if(!uccConfig.matchTeAnSiteWhitelist(request.getCurrentOperate().getSiteCode())){
+                log.warn("此站点-{}-不在特安白名单配置中,直接返回!",request.getCurrentOperate().getSiteCode());
+                return result;
+            }
+
+            JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+            query.setSendVehicleBizId(request.getSendVehicleBizId());
+            List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
+
+            if(CollectionUtils.isNotEmpty(receiveIds)){
+                JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
+                aggsEntityQuery.setOperateSiteId((long) request.getCurrentOperate().getSiteCode());
+                aggsEntityQuery.setEndSiteIds(receiveIds);
+                log.info("获取特殊保障产品类型待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
+                final List<JySendVehicleProductType> sendVehicleProductTypeList = jySendProductAggsService.getSendVehicleProductTypeList(aggsEntityQuery);
+                log.info("获取特殊保障产品类型待扫数据--{}", JsonHelper.toJson(sendVehicleProductTypeList));
+                if(CollectionUtils.isNotEmpty(sendVehicleProductTypeList)){
+                    List<SendVehicleProductTypeAgg> dataNoOrderList = new ArrayList<>();
+                    for (JySendVehicleProductType jySendVehicleProductType : sendVehicleProductTypeList) {
+                        SendVehicleProductTypeAgg sendVehicleProductTypeAgg = new SendVehicleProductTypeAgg();
+                        sendVehicleProductTypeAgg.setCount(jySendVehicleProductType.getProductwaitScanCount());
+                        sendVehicleProductTypeAgg.setProductType(jySendVehicleProductType.getProductType());
+                        sendVehicleProductTypeAgg.setProductTypeName(JySendVehicleProductTypeEnum.getNameByCode(jySendVehicleProductType.getProductType()));
+                        final JySendVehicleProductTypeEnum typeEnum = JySendVehicleProductTypeEnum.getEnumByCode(jySendVehicleProductType.getProductType());
+                        sendVehicleProductTypeAgg.setOrder(typeEnum != null ? typeEnum.getDisplayOrder() : 0);
+                        dataNoOrderList.add(sendVehicleProductTypeAgg);
+                    }
+
+                    final List<SendVehicleProductTypeAgg> dataOrderList = dataNoOrderList.stream().sorted(new Comparator<SendVehicleProductTypeAgg>() {
+                        @Override
+                        public int compare(SendVehicleProductTypeAgg o1, SendVehicleProductTypeAgg o2) {
+                            return o1.getOrder().compareTo(o2.getOrder());
+                        }
+                    }).collect(Collectors.toList());
+                    dataList.addAll(dataOrderList);
+                }
+            }
+        } catch (Exception e) {
+            log.error("JyBizTaskCloseUnloadTaskServiceImpl. getProductToScanInfoList {}", JsonHelper.toJson(request), e);
+            result.toFail("系统异常");
+        }
+        return result;
+    }
+
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.noticeToCanTEANPackage",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
