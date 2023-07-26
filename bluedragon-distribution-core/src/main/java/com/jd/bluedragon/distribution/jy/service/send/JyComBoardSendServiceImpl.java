@@ -1707,7 +1707,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     SendKeyTypeEnum sendType = getSendType(request.getBarCode());
     SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     sendStatusCheck(request, sendType, sendResult, sendM);
-    if (request.getForceSendFlag()){
+    if (request.getForceSendFlag() || request.getNeedSkipWeakIntercept()){
       return;
     }
     sendInterceptChain(request, sendM, sendType);
@@ -1889,7 +1889,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void comboardCheckChain(ComboardScanReq request) {
-    if (request.getForceSendFlag()){
+    if (request.getForceSendFlag() || request.getNeedSkipWeakIntercept()){
       return;
     }
     if (WaybillUtil.isPackageCode(request.getBarCode()) || WaybillUtil.isWaybillCode(request.getBarCode())) {
