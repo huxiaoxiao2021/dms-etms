@@ -11,7 +11,7 @@ public class JyExceptionPackageType {
      */
     public enum ExceptionPackageTypeEnum {
         SCRAPPED_FRESH(1, "生鲜报废"),
-        DAMAGE(2, "外包装破损");
+        DAMAGE(2, "破损修复");
         private Integer code;
         private String name;
 
