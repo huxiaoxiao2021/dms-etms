@@ -1439,7 +1439,7 @@ public class UccPropertyConfiguration {
         return interceptBlackList;
     }
 
-    public void setWeakInterceptBlackList(String interceptBlackList) {
+    public void setInterceptBlackList(String interceptBlackList) {
         this.interceptBlackList = interceptBlackList;
     }
 
