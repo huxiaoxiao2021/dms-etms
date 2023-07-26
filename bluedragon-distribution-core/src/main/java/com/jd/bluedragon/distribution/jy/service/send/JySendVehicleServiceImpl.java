@@ -3558,9 +3558,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 log.info("获取特殊保障产品类型待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
                 final List<JySendVehicleProductType> sendVehicleProductTypeList = jySendProductAggsService.getSendVehicleProductTypeList(aggsEntityQuery);
                 log.info("获取特殊保障产品类型待扫数据--{}", JsonHelper.toJson(sendVehicleProductTypeList));
+                List<String> needShowProductTypeList = new ArrayList<>(Arrays.asList(JySendVehicleProductTypeEnum.TEAN.getCode(), JySendVehicleProductTypeEnum.AIR_TRANSPORT.getCode(), JySendVehicleProductTypeEnum.FRESH_SPECIAL.getCode()));
                 if(CollectionUtils.isNotEmpty(sendVehicleProductTypeList)){
                     List<SendVehicleProductTypeAgg> dataNoOrderList = new ArrayList<>();
                     for (JySendVehicleProductType jySendVehicleProductType : sendVehicleProductTypeList) {
+                        if(!needShowProductTypeList.contains(jySendVehicleProductType.getProductType())){
+                            continue;
+                        }
                         SendVehicleProductTypeAgg sendVehicleProductTypeAgg = new SendVehicleProductTypeAgg();
                         sendVehicleProductTypeAgg.setCount(jySendVehicleProductType.getProductwaitScanCount());
                         sendVehicleProductTypeAgg.setProductType(jySendVehicleProductType.getProductType());
