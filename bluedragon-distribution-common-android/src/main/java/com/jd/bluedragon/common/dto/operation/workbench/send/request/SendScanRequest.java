@@ -88,6 +88,17 @@ public class SendScanRequest implements Serializable {
      */
     private ValidateIgnore validateIgnore;
 
+    /**
+     * 岗位类型
+     * JyFuncCodeEnum
+     */
+    private String post;
+
+    /**
+     * 前置下一流向
+     */
+    private Long preNextSiteCode;
+
     public User getUser() {
         return user;
     }
@@ -222,5 +233,21 @@ public class SendScanRequest implements Serializable {
 
     public void setTaskName(String taskName) {
         this.taskName = taskName;
+    }
+
+    public Long getPreNextSiteCode() {
+        return preNextSiteCode;
+    }
+
+    public void setPreNextSiteCode(Long preNextSiteCode) {
+        this.preNextSiteCode = preNextSiteCode;
+    }
+
+    public String getPost() {
+        return post;
+    }
+
+    public void setPost(String post) {
+        this.post = post;
     }
 }

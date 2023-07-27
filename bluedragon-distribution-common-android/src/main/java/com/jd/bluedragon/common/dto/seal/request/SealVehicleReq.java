@@ -133,6 +133,11 @@ public class SealVehicleReq extends BaseReq implements Serializable {
 
     private String billCode;
 
+    /**
+     * 入口类型
+     * JyFuncCodeEnum
+     */
+    private String funcType;
 
     public String getSendVehicleBizId() {
         return sendVehicleBizId;
@@ -317,4 +322,12 @@ public class SealVehicleReq extends BaseReq implements Serializable {
 	public void setScannedBatchCodes(List<String> scannedBatchCodes) {
 		this.scannedBatchCodes = scannedBatchCodes;
 	}
+
+    public String getFuncType() {
+        return funcType;
+    }
+
+    public void setFuncType(String funcType) {
+        this.funcType = funcType;
+    }
 }

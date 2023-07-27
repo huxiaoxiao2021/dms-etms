@@ -50,6 +50,7 @@ public class DmsConstants {
     public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
 
     public static final String CODE_PREFIX_WORK_STATION = "GX";
+    public static final String CODE_PREFIX_WORK_GRID = "CDWG";    
     public static final String CODE_PREFIX_WORK_STATION_GRID = "CDGX";
     public static final String CODE_PREFIX_WORK_STATION_ATTEND_PLAN = "CDGXPL";
     public static final String CODE_PREFIX_POSITION = "GW";

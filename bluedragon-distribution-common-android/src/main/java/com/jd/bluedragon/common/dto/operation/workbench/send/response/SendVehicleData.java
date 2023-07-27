@@ -23,6 +23,11 @@ public class SendVehicleData<T> implements Serializable {
      */
     private List<T> data;
 
+    /**
+     * 混扫任务内最大流向数量
+     */
+    private Integer mixScanTaskSiteFlowMaxNum;
+
     public Integer getVehicleStatus() {
         return vehicleStatus;
     }
@@ -37,5 +42,13 @@ public class SendVehicleData<T> implements Serializable {
 
     public void setData(List<T> data) {
         this.data = data;
+    }
+
+    public Integer getMixScanTaskSiteFlowMaxNum() {
+        return mixScanTaskSiteFlowMaxNum;
+    }
+
+    public void setMixScanTaskSiteFlowMaxNum(Integer mixScanTaskSiteFlowMaxNum) {
+        this.mixScanTaskSiteFlowMaxNum = mixScanTaskSiteFlowMaxNum;
     }
 }

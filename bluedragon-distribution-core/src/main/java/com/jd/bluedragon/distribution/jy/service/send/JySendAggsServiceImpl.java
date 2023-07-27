@@ -72,4 +72,14 @@ public class JySendAggsServiceImpl implements JySendAggsService {
         Profiler.registerInfoEnd(info);
         return sendAggExistAbnormal;
     }
+
+    @Override
+    public List<JySendAggsEntity> findBySendVehicleDetailBizs(List<String> bizIds) {
+        JySendAggsDaoStrategy jySendAggsDao = jySendAggsSpecialDao.getJySendAggsDao();
+        String keyword = jySendAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendAggsServiceImpl"+keyword+".findBySendVehicleDetailBizs");
+        List<JySendAggsEntity> sendAggsEntityList = jySendAggsDao.findBySendVehicleDetailBizs(bizIds);
+        Profiler.registerInfoEnd(info);
+        return sendAggsEntityList;
+    }
 }

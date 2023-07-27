@@ -19,4 +19,5 @@ public interface JySendProductAggsDaoStrategy {
 
     Long getToScanCountSum(JySendProductAggsEntityQuery query);
 
+    List<JySendProductAggsEntity> getToScanNumByEndSiteList(JySendProductAggsEntityQuery query);
 }

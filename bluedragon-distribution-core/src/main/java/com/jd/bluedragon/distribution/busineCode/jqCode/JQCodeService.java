@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
 import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 
 import java.util.Map;
 
@@ -32,4 +33,20 @@ public interface JQCodeService {
      */
     String createJQCode(Map<CollectionConditionKeyEnum, Object> collectionConditionKeyMap,
         CollectionBusinessTypeEnum collectionBusinessTypeEnum, BusinessCodeFromSourceEnum fromSource, String createUser);
+
+
+    /**
+     * 拣运app岗位处理集齐获取 collectionCode  （批次维度）
+     * @param jyFuncCodeEnum  岗位类型（必填）
+     * @param userErp  操作人（选填）
+     * @return
+     */
+    String getOrGenJyScanTaskSendCodeCollectionCode(JyFuncCodeEnum jyFuncCodeEnum, String sendCode, String userErp);
+
+    /**
+     * 获取condition
+     * @param jyFuncCodeEnum
+     * @return
+     */
+    String getJyScanSendCodeCollectionCondition(JyFuncCodeEnum jyFuncCodeEnum, String sendCode);
 }
