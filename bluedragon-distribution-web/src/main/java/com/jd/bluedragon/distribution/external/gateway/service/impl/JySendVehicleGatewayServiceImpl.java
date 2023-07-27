@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.external.gateway.service.JySendVehicleGatewayService;
+import com.jd.bluedragon.utils.converter.ResultConverter;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -235,7 +236,7 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
      */
     @Override
     public JdCResponse<List<SendVehicleProductTypeAgg>> getSpecialProductTypeToScanList(SendAbnormalRequest request) {
-        return retJdCResponse(jySendVehicleService.getSpecialProductTypeToScanList(request));
+        return ResultConverter.convertResultToJdcResponse(jySendVehicleService.getSpecialProductTypeToScanList(request));
     }
 
 
