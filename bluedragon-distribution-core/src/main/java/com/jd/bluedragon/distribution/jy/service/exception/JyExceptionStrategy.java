@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTypeCheckReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSourceEnum;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
@@ -23,6 +24,6 @@ public abstract class JyExceptionStrategy {
     public abstract Integer getExceptionType();
 
 
-
+    public abstract JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req);
 
 }

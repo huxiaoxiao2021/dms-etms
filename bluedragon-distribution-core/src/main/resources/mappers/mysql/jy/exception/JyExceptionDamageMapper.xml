@@ -8,6 +8,12 @@
     <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
     <result column="package_code" property="packageCode" jdbcType="VARCHAR" />
     <result column="save_type" property="saveType" jdbcType="BIT" />
+    <result column="length_repair_before" property="lengthRepairBefore" jdbcType="DECIMAL" />
+    <result column="length_repair_after" property="lengthRepairAfter" jdbcType="DECIMAL" />
+    <result column="height_repair_before" property="heightRepairBefore" jdbcType="DECIMAL" />
+    <result column="height_repair_after" property="heightRepairAfter" jdbcType="DECIMAL" />
+    <result column="width_repair_before" property="widthRepairBefore" jdbcType="DECIMAL" />
+    <result column="width_repair_after" property="widthRepairAfter" jdbcType="DECIMAL" />
     <result column="weight_repair_before" property="weightRepairBefore" jdbcType="DECIMAL" />
     <result column="weight_repair_after" property="weightRepairAfter" jdbcType="DECIMAL" />
     <result column="damage_type" property="damageType" jdbcType="BIT" />
@@ -21,8 +27,9 @@
     <result column="yn" property="yn" jdbcType="BIT" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, site_code, site_name, biz_id, package_code, save_type, weight_repair_before, 
-    weight_repair_after, damage_type, repair_type,
+    id, site_code, site_name, biz_id, package_code, save_type, length_repair_before,
+    length_repair_after, height_repair_before, height_repair_after, width_repair_before,
+    width_repair_after,weight_repair_before, weight_repair_after, damage_type, repair_type,
     feed_back_type, create_erp, create_time, update_erp, update_time, ts, yn
   </sql>
   <select id="selectOneByBizId" resultMap="BaseResultMap" parameterType="java.lang.String" >
@@ -53,6 +60,24 @@
       </if>
       <if test="saveType != null" >
         save_type,
+      </if>
+      <if test="lengthRepairBefore != null" >
+        length_repair_before,
+      </if>
+      <if test="lengthRepairAfter != null" >
+        length_repair_after,
+      </if>
+      <if test="heightRepairBefore != null" >
+        height_repair_before,
+      </if>
+      <if test="heightRepairAfter != null" >
+        height_repair_after,
+      </if>
+      <if test="widthRepairBefore != null" >
+        width_repair_before,
+      </if>
+      <if test="widthRepairAfter != null" >
+        width_repair_after,
       </if>
       <if test="weightRepairBefore != null" >
         weight_repair_before,
@@ -107,6 +132,24 @@
       <if test="saveType != null" >
         #{saveType,jdbcType=BIT},
       </if>
+      <if test="lengthRepairBefore != null" >
+        #{lengthRepairBefore,jdbcType=DECIMAL},
+      </if>
+      <if test="lengthRepairAfter != null" >
+        #{lengthRepairAfter,jdbcType=DECIMAL},
+      </if>
+      <if test="heightRepairBefore != null" >
+        #{heightRepairBefore,jdbcType=DECIMAL},
+      </if>
+      <if test="heightRepairAfter != null" >
+        #{heightRepairAfter,jdbcType=DECIMAL},
+      </if>
+      <if test="widthRepairBefore != null" >
+        #{widthRepairBefore,jdbcType=DECIMAL},
+      </if>
+      <if test="widthRepairAfter != null" >
+        #{widthRepairAfter,jdbcType=DECIMAL},
+      </if>
       <if test="weightRepairBefore != null" >
         #{weightRepairBefore,jdbcType=DECIMAL},
       </if>
@@ -159,6 +202,24 @@
       </if>
       <if test="saveType != null" >
         save_type = #{saveType,jdbcType=BIT},
+      </if>
+      <if test="lengthRepairBefore != null" >
+        length_repair_before = #{lengthRepairBefore,jdbcType=DECIMAL},
+      </if>
+      <if test="lengthRepairAfter != null" >
+        length_repair_after = #{lengthRepairAfter,jdbcType=DECIMAL},
+      </if>
+      <if test="heightRepairBefore != null" >
+        height_repair_before = #{heightRepairBefore,jdbcType=DECIMAL},
+      </if>
+      <if test="heightRepairAfter != null" >
+        height_repair_after = #{heightRepairAfter,jdbcType=DECIMAL},
+      </if>
+      <if test="widthRepairBefore != null" >
+        width_repair_before = #{widthRepairBefore,jdbcType=DECIMAL},
+      </if>
+      <if test="widthRepairAfter != null" >
+        width_repair_after = #{widthRepairAfter,jdbcType=DECIMAL},
       </if>
       <if test="weightRepairBefore != null" >
         weight_repair_before = #{weightRepairBefore,jdbcType=DECIMAL},

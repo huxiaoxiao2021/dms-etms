@@ -183,8 +183,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         //三无异常处理逻辑
-        if (!(BusinessUtil.isSanWuCode(req.getBarCode()) || WaybillUtil.isPackageCode(req.getBarCode()))) {
-            return JdCResponse.fail("请扫描三无号或包裹号!");
+        if (!(BusinessUtil.isSanWuCode(req.getBarCode()) || WaybillUtil.isWaybillCode(req.getBarCode()))) {
+            return JdCResponse.fail("请扫描三无号或运单号!");
         }
 
 
@@ -211,11 +211,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             }
             JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
 
-            JdCResponse<Object> response = jySanwuExceptionService.uploadScan(taskEntity,req, position, source, bizId);
-            if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
-                return response;
+            //因为三无单可提前判断，可对三无数据提前处理
+            if(BusinessUtil.isSanWuCode(req.getBarCode())){
+                JdCResponse<Object> response = jySanwuExceptionService.uploadScan(taskEntity,req, position, source, bizId);
+                if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
+                    return response;
+                }
             }
-
             taskEntity.setBizId(bizId);
             taskEntity.setSource(source.getCode());
             taskEntity.setSiteCode(new Long(position.getSiteCode()));
@@ -1307,6 +1309,27 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         return response;
     }
 
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionServiceImpl.exceptionTaskCheckByExceptionType", mState = {JProEnum.TP})
+    public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("exceptionTaskCheckByExceptionType-入参-{}",JSON.toJSONString(req));
+        }
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        try{
+            if(req == null || req.getType() == null || StringUtils.isBlank(req.getBarCode())){
+                response.toFail("入参不能为空!");
+                return response;
+            }
+            JyExceptionStrategy strategy = jyExceptionStrategyFactory.getStrategy(req.getType());
+            return strategy.exceptionTaskCheckByExceptionType(req);
+
+        }catch (Exception e){
+            logger.error("根据异常类型校验单号异常-param-{}",JSON.toJSONString(req),e);
+            response.toError("根据异常类型校验单号异常!");
+            return response;
+        }
+    }
 
 
     private void sendScheduleTaskStatusMsg(String bizId, String userErp,

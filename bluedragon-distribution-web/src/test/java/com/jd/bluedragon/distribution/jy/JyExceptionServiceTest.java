@@ -50,7 +50,7 @@ public class JyExceptionServiceTest {
 
 
         req.setBarCode("JDVA00255154794");
-        req.setType(1);
+        //req.setType(1);
 
         JdCResponse<Object> response = jyExceptionService.uploadScan(req);
         System.out.println(JSON.toJSONString(response));
