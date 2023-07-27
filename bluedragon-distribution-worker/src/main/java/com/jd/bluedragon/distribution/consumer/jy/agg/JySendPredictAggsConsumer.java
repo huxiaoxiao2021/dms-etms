@@ -28,9 +28,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * @Author: chenyaguo@jd.com
  * @Date: 2023/7/6 11:21
- * @Description: 发货波次预测汇总数据 消费
+ * @Description: 发货波次预测汇总数据 消费 @SendAggsChangeDataSources
  */
-@SendAggsChangeDataSources
+
 @Service("jySendPredictAggsConsumer")
 public class JySendPredictAggsConsumer extends MessageBaseConsumer {
 
