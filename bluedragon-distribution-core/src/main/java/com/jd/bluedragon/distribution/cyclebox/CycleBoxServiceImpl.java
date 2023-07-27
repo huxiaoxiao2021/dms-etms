@@ -515,7 +515,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         }
         if (boxMaterial != null) {
             Receive receive = receiveService.findLastByBoxCodeAndSiteCode(boxMaterial.getBoxCode(), request.getSiteCode());
-            if (receive == null || request.getId() == null) {
+            if (receive == null || receive.getBoxCode() == null) {
                 return true;
             }
             Box box = boxService.findBoxByCode(boxMaterial.getBoxCode());

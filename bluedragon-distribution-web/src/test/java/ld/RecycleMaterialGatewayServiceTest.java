@@ -27,8 +27,9 @@ public class RecycleMaterialGatewayServiceTest {
 
     @Test
     public void boxMaterialRelationAlter(){
-        String jsonStr = "{\"bindFlag\":1,\"boxCode\":\"BC1001230726220000300529\",\"currentOperate\":{\"siteCode\":910,\"siteName\":\"北京马驹桥分拣中心\"},\"groupSearch\":false,\"materialCode\":\"AD20230726000002\",\"user\":{\"userCode\":17331,\"userErp\":\"wuyoude\",\"userName\":\"吴有德\"}}";
+        String jsonStr = "{\"bindFlag\":1,\"boxCode\":\"BC1001230727230000500413\",\"currentOperate\":{\"siteCode\":40240,\"siteName\":\"北京马驹桥分拣中心\"},\"groupSearch\":false,\"materialCode\":\"AD20230727000004\",\"user\":{\"userCode\":17331,\"userErp\":\"wuyoude\",\"userName\":\"吴有德\"}}";
         BoxMaterialRelationJSFRequest request = JsonHelper.fromJsonUseGson(jsonStr,BoxMaterialRelationJSFRequest.class);
+        request.setForceFlag(Boolean.FALSE);
         JdVerifyResponse<Boolean> response = recycleMaterialGatewayService.boxMaterialRelationAlter(request);
         System.out.println(JsonHelper.toJson(response));
         //Assert.assertTrue(response.getData());
