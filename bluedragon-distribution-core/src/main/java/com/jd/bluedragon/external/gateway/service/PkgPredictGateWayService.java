@@ -2,6 +2,8 @@ package com.jd.bluedragon.external.gateway.service;
 
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleToScanPackageDetailResponse;
+import com.jd.bluedragon.common.dto.predict.request.SendPredictAggsQuery;
 import com.jd.bluedragon.common.dto.predict.request.WorkWaveInspectedNotSendDetailsReq;
 import com.jd.bluedragon.common.dto.predict.request.WorkWaveInspectedNotSendPackageCountReq;
 import com.jd.bluedragon.common.dto.predict.response.WorkWaveInspectedNotSendDetailsResponse;
@@ -30,6 +32,14 @@ public interface PkgPredictGateWayService {
      * 查询当前波次已验未发的包裹明细，分页
      */
     JdCResponse<WorkWaveInspectedNotSendDetailsResponse> queryCurrentWorkWaveInspectedNotSendPackagesByPage(WorkWaveInspectedNotSendDetailsReq req);
+
+
+    /**
+     * 查询波次待扫数据包裹列表（分页）
+     * @param query
+     * @return
+     */
+    JdCResponse<SendVehicleToScanPackageDetailResponse> getSendPredictToScanPackageList(SendPredictAggsQuery query);
 
 
 }

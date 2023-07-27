@@ -1,18 +1,27 @@
 package com.jd.bluedragon.distribution.jy.debon;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleCommonRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProductTypeAgg;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleToScanPackageDetailResponse;
+import com.jd.bluedragon.common.dto.predict.request.SendPredictAggsQuery;
 import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleRequest;
 import com.jd.bluedragon.distribution.jsf.domain.ReturnScheduleResult;
 import com.jd.bluedragon.distribution.jsf.service.WaybillReturnScheduleGateWayService;
 import com.jd.bluedragon.distribution.open.entity.OperatorInfo;
 import com.jd.bluedragon.distribution.open.entity.RequestProfile;
+import com.jd.bluedragon.external.gateway.service.JySendVehicleGatewayService;
+import com.jd.bluedragon.external.gateway.service.PkgPredictGateWayService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -51,6 +60,40 @@ public class DebonReturnScheduleGateWayServiceTest {
         request.setWaybillCode("JD0003420119555");
 
         JdResponse<ReturnScheduleResult> response = debonReturnScheduleGateWayService.returnScheduleSiteInfoByWaybill(request);
+        System.out.println(JSON.toJSONString(response));
+    }
+
+    @Autowired
+    private PkgPredictGateWayService pkgPredictGateWayService;
+
+    @Test
+    public void getSendPredictToScanPackageListTest(){
+
+        SendPredictAggsQuery query = new SendPredictAggsQuery();
+        query.setFlag(2);
+        query.setPageSize(10);
+        query.setPageNumber(1);
+        query.setSiteCode(2005);
+        query.setProductType("NONE");
+        JdCResponse<SendVehicleToScanPackageDetailResponse> response = pkgPredictGateWayService.getSendPredictToScanPackageList(query);
+        System.out.println(JSON.toJSONString(response));
+
+    }
+
+    @Autowired
+    private JySendVehicleGatewayService jySendVehicleGatewayService;
+
+    @Test
+    public void sendVehicleToScanAggByProductTest(){
+
+        SendVehicleCommonRequest request = new SendVehicleCommonRequest();
+        request.setSendVehicleBizId("SST22071400000047");
+
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(910);
+        request.setCurrentOperate(currentOperate);
+        request.setFlag(1);
+        JdCResponse<List<SendVehicleProductTypeAgg>> response = jySendVehicleGatewayService.getSendVehicleToScanAggByProduct(request);
         System.out.println(JSON.toJSONString(response));
     }
 }

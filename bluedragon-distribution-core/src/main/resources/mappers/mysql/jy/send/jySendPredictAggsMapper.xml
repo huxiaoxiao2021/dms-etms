@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendPredictAggsDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="u_id" property="uId" jdbcType="VARCHAR" />
+    <result column="site_id" property="siteId" jdbcType="BIGINT" />
+    <result column="plan_next_site_id" property="planNextSiteId" jdbcType="BIGINT" />
+    <result column="product_type" property="productType" jdbcType="VARCHAR" />
+    <result column="un_scan_count" property="unScanCount" jdbcType="INTEGER" />
+    <result column="flag" property="flag" jdbcType="BIT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, u_id, site_id, plan_next_site_id, product_type, un_scan_count, flag, create_time,
+    update_time, yn, ts
+  </sql>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from jy_send_predict_aggs
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO" >
+    insert into jy_send_predict_aggs
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="uId != null" >
+        u_id,
+      </if>
+      <if test="siteId != null" >
+        site_id,
+      </if>
+      <if test="planNextSiteId != null" >
+        plan_next_site_id,
+      </if>
+      <if test="productType != null" >
+        product_type,
+      </if>
+      <if test="unScanCount != null" >
+        un_scan_count,
+      </if>
+      <if test="flag != null" >
+        flag,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="uId != null" >
+        #{uId,jdbcType=VARCHAR},
+      </if>
+      <if test="siteId != null" >
+        #{siteId,jdbcType=BIGINT},
+      </if>
+      <if test="planNextSiteId != null" >
+        #{planNextSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="productType != null" >
+        #{productType,jdbcType=VARCHAR},
+      </if>
+      <if test="unScanCount != null" >
+        #{unScanCount,jdbcType=INTEGER},
+      </if>
+      <if test="flag != null" >
+        #{flag,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByBizProduct" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO" >
+    UPDATE
+    jy_send_predict_aggs
+    set  un_scan_count = #{unScanCount}
+    where yn= 1 and u_id = #{uId}
+  </update>
+
+  <select id="getunScanSumByCondition" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest" resultType="long">
+
+        select sum(un_scan_count)
+        from jy_send_predict_aggs
+        where yn =1
+        and site_id =  #{siteId,jdbcType=BIGINT}
+
+  </select>
+
+
+  <select id="getSendPredictProductTypeList" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest" resultType="com.jd.bluedragon.distribution.jy.send.JySendPredictProductType">
+    select product_type as productType,
+           sum(un_scan_count) as productwaitScanCount
+    from jy_send_predict_aggs
+    WHERE site_id = #{siteId}
+    AND flag =#{flag}
+    GROUP BY product_type
+  </select>
+</mapper>
