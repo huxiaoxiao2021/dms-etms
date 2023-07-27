@@ -67,8 +67,8 @@ public class IdentityScanGatewayServiceImpl implements IdentityScanGatewayServic
         JdCResponse<IdentityContentEntity> jdCResponse = new JdCResponse<>();
         jdCResponse.toSucceed();
 
-        if (!uccPropertyConfiguration.getIdentityRecogniseSiteSwitch().contains(Constants.STR_ALL)
-                && !uccPropertyConfiguration.getIdentityRecogniseSiteSwitch().contains(String.valueOf(recogniseRequest.getSiteCode()))) {
+        if (!uccPropertyConfiguration.getIdentityRecogniseSiteSwitchList().contains(Constants.STR_ALL)
+                && !uccPropertyConfiguration.getIdentityRecogniseSiteSwitchList().contains(String.valueOf(recogniseRequest.getSiteCode()))) {
             jdCResponse.toFail("该场地暂不支持身份证识别");
             return jdCResponse;
         }

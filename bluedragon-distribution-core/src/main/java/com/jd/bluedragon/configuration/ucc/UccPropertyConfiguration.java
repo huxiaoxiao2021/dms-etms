@@ -1154,6 +1154,8 @@ public class UccPropertyConfiguration{
      * 身份证识别切量开关，全量上线之后，可以删除
      */
     private String identityRecogniseSiteSwitch;
+    
+    private List<String> identityRecogniseSiteSwitchList;
     /**
      * 传摆发货-干支限制业务列表
      */
@@ -2783,14 +2785,16 @@ public class UccPropertyConfiguration{
         this.faceAbnormalReportConfig = faceAbnormalReportConfig;
     }
 
-    public List<String> getIdentityRecogniseSiteSwitch() {
-        return StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
-                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
-                : Collections.singletonList("0");
+    public String getIdentityRecogniseSiteSwitch() {
+        return identityRecogniseSiteSwitch;
     }
 
     public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
+        
+        identityRecogniseSiteSwitchList = (StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
+                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
+                : Collections.singletonList("0"));
     }
 
     public Integer getJySendTaskPlanTimeBeginDay() {
@@ -3397,14 +3401,6 @@ public class UccPropertyConfiguration{
 
     public void setJyWorkAppAutoRefreshConfig(String jyWorkAppAutoRefreshConfig) {
         this.jyWorkAppAutoRefreshConfig = jyWorkAppAutoRefreshConfig;
-        this.setJyWorkAppAutoRefreshConfigList(jyWorkAppAutoRefreshConfig);
-    }
-
-    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
-        return jyWorkAppAutoRefreshConfigList;
-    }
-
-    public void setJyWorkAppAutoRefreshConfigList(String jyWorkAppAutoRefreshConfig) {
         if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
             final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
             if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
@@ -3413,6 +3409,9 @@ public class UccPropertyConfiguration{
         }
     }
 
+    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
+        return jyWorkAppAutoRefreshConfigList;
+    }
     public ClientAutoRefreshConfig getJyWorkAppAutoRefreshConfigByBusinessType(String businessType) {
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
@@ -3484,18 +3483,14 @@ public class UccPropertyConfiguration{
 
     public void setExceptionSubmitCheckSites(String exceptionSubmitCheckSites) {
         this.exceptionSubmitCheckSites = exceptionSubmitCheckSites;
-        this.setExceptionSubmitCheckSiteList(exceptionSubmitCheckSites);
-    }
-
-    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
-
-    public void setExceptionSubmitCheckSiteList(String exceptionSubmitCheckSites) {
         if(exceptionSubmitCheckSites == null){
             exceptionSubmitCheckSiteList = new ArrayList<>();
             return;
         }
         exceptionSubmitCheckSiteList = Arrays.asList(exceptionSubmitCheckSites.split(Constants.SEPARATOR_COMMA));
     }
+
+    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
 
     public boolean matchExceptionSubmitCheckSite(int siteId) {
         if(StringUtils.isBlank(exceptionSubmitCheckSites)){
@@ -3516,18 +3511,14 @@ public class UccPropertyConfiguration{
 
     public void setExceptionSubmitCheckWaybillInterceptTypes(String exceptionSubmitCheckWaybillInterceptTypes) {
         this.exceptionSubmitCheckWaybillInterceptTypes = exceptionSubmitCheckWaybillInterceptTypes;
-        this.setExceptionSubmitCheckWaybillInterceptTypeList(exceptionSubmitCheckWaybillInterceptTypes);
-    }
-
-    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
-
-    public void setExceptionSubmitCheckWaybillInterceptTypeList(String exceptionSubmitCheckWaybillInterceptTypes) {
         if(exceptionSubmitCheckWaybillInterceptTypes == null){
             exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
             return;
         }
         exceptionSubmitCheckWaybillInterceptTypeList = Arrays.asList(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA));
     }
+
+    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
 
     public boolean matchExceptionSubmitCheckWaybillInterceptType(int interceptType) {
         if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
@@ -3666,5 +3657,13 @@ public class UccPropertyConfiguration{
 
 	public void setTeAnSiteWhitelistStrList(List<String> teAnSiteWhitelistStrList) {
 		this.teAnSiteWhitelistStrList = teAnSiteWhitelistStrList;
+	}
+
+	public List<String> getIdentityRecogniseSiteSwitchList() {
+		return identityRecogniseSiteSwitchList;
+	}
+
+	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
+		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
 	}
 }

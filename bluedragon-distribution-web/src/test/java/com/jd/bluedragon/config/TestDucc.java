@@ -42,6 +42,8 @@ public class TestDucc {
 				 duccMap.put(item.key, item);
 			 }
 		 }
+		 String uccStr = FileHelper.loadFile(rootConfigPath+"ucc-config-test.properties");
+		 UccPropertyConfiguration uccData = JsonHelper.fromJson(uccStr, UccPropertyConfiguration.class);
 		 
 		final Logger log = LoggerFactory.getLogger(TestDucc.class); 
 		
@@ -74,6 +76,8 @@ public class TestDucc {
 					return o1.getName().compareTo(o2.getName());
 				}
 			 });
+			 StringBuffer duccConfig = new StringBuffer();
+			 StringBuffer duccConfig1 = new StringBuffer();
 			 for(Field field: fieldList) {
 				 Class t =field.getType();
 				 String typeName = t.getSimpleName();
@@ -82,6 +86,8 @@ public class TestDucc {
 				 Object uccValue = ObjectHelper.getValue(ucc, field.getName());
 				 Object duccValue = ObjectHelper.getValue(ducc, field.getName());
 				 Object defaultValue = ObjectHelper.getValue(duccDefault, field.getName());
+				 
+				 Object duccConfigValue = ObjectHelper.getValue(uccData, field.getName());
 				 
 				 if(!typeName.toLowerCase().contains("lis")) {
 //					 String key = "duccPropertyConfig."+field.getName();
@@ -93,13 +99,23 @@ public class TestDucc {
 						 sfCodes0.append("\t/**\n");
 						 sfCodes0.append("\t *"+duccItem.description+"\n");
 						 sfCodes0.append("\t */\n");
+						 duccConfig.append("#"+duccItem.description+"\n");
 					 }
 					 if(defaultValue != null) {
 						 sfCodes0.append("\t@Value(\"${duccPropertyConfig."+fieldName +":"+defaultValue+ "}\")\n");
+						 duccConfig.append("duccPropertyConfig."+fieldName +"="+defaultValue+ "\n");
 					 }else {
 						 sfCodes0.append("\t@Value(\"${duccPropertyConfig."+fieldName + ":''}\")\n");
+						 duccConfig.append("duccPropertyConfig."+fieldName +"="+ "\n");
 					 }
 					 sfCodes0.append("\tprivate "+typeName +" "+fieldName+ ";\n\n");
+					 if(duccConfigValue != null) {
+						 duccConfig1.append("duccPropertyConfig."+fieldName +"="+duccConfigValue+ "\n");
+					 }else {
+						 duccConfig1.append("duccPropertyConfig."+fieldName +"="+ "\n");
+					 }
+					 
+					 
 				 }else {
 					 ParameterizedType type = (ParameterizedType)field.getGenericType();
 					 if(type != null) {
@@ -119,6 +135,7 @@ public class TestDucc {
 				 }
 			 }
 			 StringBuffer sf = new StringBuffer();
+			 
 			 for(String item:uccConfig.getWeakList()) {
 				 sf.append("<laf-config:listener-field key=\"");
 				 sf.append(item+"\" field=\"");
@@ -134,12 +151,20 @@ public class TestDucc {
 				 sf.append("/>\n");
 			 }
 			 System.err.println("duuc-config-s\n");
-			 System.err.println(sf.toString());
+			 System.err.println(duccConfig.toString());
 			 System.err.println("\nduuc-config-e");
+			 
+			 System.err.println("duuc-config1-s\n");
+			 System.err.println(duccConfig1.toString());
+			 System.err.println("\nduuc-config1-e");
 			 
 			 System.err.println("sfNeedCheck-s\n");
 			 System.err.println(sfNeedCheck.toString());
 			 System.err.println("\nsfNeedCheck-e");
+			 
+			 System.err.println("duuc-propeties-s\n");
+			 System.err.println(sf.toString());
+			 System.err.println("\nduuc-propeties--e");
 			 
 			 System.err.println("sfCodes-s\n");
 			 System.err.println(sfCodes.toString());

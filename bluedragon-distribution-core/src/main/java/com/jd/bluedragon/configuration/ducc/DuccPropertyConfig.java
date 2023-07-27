@@ -384,6 +384,8 @@ public class DuccPropertyConfig {
 	 */
 	@Value("${duccPropertyConfig.identityRecogniseSiteSwitch:''}")
 	private String identityRecogniseSiteSwitch;
+    
+    private List<String> identityRecogniseSiteSwitchList;
 
 	/**
 	 *单次插入数据库的条数
@@ -2575,14 +2577,15 @@ public class DuccPropertyConfig {
         this.faceAbnormalReportConfig = faceAbnormalReportConfig;
     }
 
-    public List<String> getIdentityRecogniseSiteSwitch() {
-        return StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
-                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
-                : Collections.singletonList("0");
+    public String getIdentityRecogniseSiteSwitch() {
+        return identityRecogniseSiteSwitch;
     }
 
     public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
+        this.identityRecogniseSiteSwitchList = StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
+                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
+                : Collections.singletonList("0");
     }
 
     public Integer getJySendTaskPlanTimeBeginDay() {
@@ -3754,5 +3757,13 @@ public class DuccPropertyConfig {
 
 	public void setHideSpecialStartSitePrintReplaceSymbolMaxLength(int hideSpecialStartSitePrintReplaceSymbolMaxLength) {
 		this.hideSpecialStartSitePrintReplaceSymbolMaxLength = hideSpecialStartSitePrintReplaceSymbolMaxLength;
+	}
+
+	public List<String> getIdentityRecogniseSiteSwitchList() {
+		return identityRecogniseSiteSwitchList;
+	}
+
+	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
+		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
 	}	
 }
