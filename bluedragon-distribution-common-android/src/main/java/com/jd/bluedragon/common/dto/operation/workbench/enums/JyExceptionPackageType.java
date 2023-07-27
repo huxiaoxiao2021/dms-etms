@@ -95,4 +95,24 @@ public class JyExceptionPackageType {
             return name;
         }
     }
+
+    public enum SaveTypeEnum {
+        DRAFT(0,"暂存"),SBUMIT(1,"提交");
+
+        private Integer code;
+        private String name;
+
+        SaveTypeEnum(Integer code, String name) {
+            this.code = code;
+            this.name = name;
+        }
+        public Integer getCode() {
+            return code;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
 }

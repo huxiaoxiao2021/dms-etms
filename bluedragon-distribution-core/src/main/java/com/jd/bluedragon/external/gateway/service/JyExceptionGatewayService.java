@@ -1,8 +1,30 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpBaseReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpReceiveReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpScrappedDetailReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpSignUserReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskAssignRequest;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskDetailReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsDetailReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
+import com.jd.bluedragon.common.dto.jyexpection.response.DmsBarCode;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpSignUserResp;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskStatisticsOfWaitReceiveDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 
 import java.util.List;
 
@@ -137,4 +159,9 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req);
+
+    /**
+     * 破损任务处理
+     */
+    JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req);
 }
