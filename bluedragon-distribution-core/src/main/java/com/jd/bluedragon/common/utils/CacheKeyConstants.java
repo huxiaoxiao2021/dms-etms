@@ -406,4 +406,17 @@ public class CacheKeyConstants {
      * 拣运-滞留扫描
      */
     public static final String CACHE_KEY_JY_STRAND_SCAN = JY_CACHE_PREFIX + "strandScan:%s";
+
+
+    /**
+     * 拣运波次发货统计锁key
+     */
+    public static final String JY_SEND_PREDICT_AGG_LOCK_KEY = JY_CACHE_PREFIX + "jySendPredictAggLock:%s";
+
+    /**
+     * 拣运波次发货统计锁key
+     */
+    public static final String JY_SEND_PREDICT_AGG_KEY = JY_CACHE_PREFIX + "jySendPredictAgg:%s";
+
+
 }

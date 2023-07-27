@@ -1982,4 +1982,11 @@ public class Constants {
      * 电商特惠产品编码
      */
     public static final String E_COMMERCE_SPECIAL_OFFER_SERVICE = "ed-m-0059";
+
+
+    public static Map<String, String> sendPredictaggstopic2DataSource =new HashMap<>();
+    static {
+        sendPredictaggstopic2DataSource.put("jy_send_predict_aggs","aggsMain");
+        sendPredictaggstopic2DataSource.put("jy_send_predict_aggs_slave","aggsSlave");
+    }
 }
