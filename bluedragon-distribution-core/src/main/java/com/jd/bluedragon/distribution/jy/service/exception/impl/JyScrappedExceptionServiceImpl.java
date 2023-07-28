@@ -8,6 +8,7 @@ import com.jd.bluedragon.FlowConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpScrappedDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTypeCheckReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
@@ -113,38 +114,62 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         return JyBizTaskExceptionTypeEnum.SCRAPPED.getCode();
     }
 
-//    @Override
-//    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
-//    public JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity,ExpUploadScanReq req, PositionDetailRecord position
-//            , JyExpSourceEnum source, String bizId) {
-//
-//        logger.info("报废上报信息req-{} 岗位码信息position-{} bizId-{}", JSON.toJSONString(req), JSON.toJSONString(position), bizId);
-//        if (!checkBarCode(req.getBarCode())) {
-//            return JdCResponse.fail("请扫描正确的运单号或包裹号!");
-//        }
-//        String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
-//        //校验生鲜单号 自营OR外单
-//        String msg = checkFresh(waybillCode,req.getUserErp());
-//        if (StringUtils.isNotBlank(msg)) {
-//            return JdCResponse.fail(msg);
-//        }
-//        taskEntity.setBarCode(waybillCode);
-//        taskEntity.setType(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode());
-//
-//        JyExceptionScrappedPO scrappedPo = new JyExceptionScrappedPO();
-//        scrappedPo.setBizId(bizId);
-//        scrappedPo.setWaybillCode(waybillCode);
-//        scrappedPo.setExceptionType(JyExceptionScrappedTypeEnum.SCRAPPED_FRESH.getCode());
-//        scrappedPo.setSiteCode(position.getSiteCode());
-//        scrappedPo.setSiteName(position.getSiteName());
-//        scrappedPo.setCreateErp(req.getUserErp());
-//        scrappedPo.setCreateTime(new Date());
-//        logger.info("写入生鲜报废异常提报-taskEntity-{} -expEntity-{}",
-//                JSON.toJSONString(scrappedPo));
-//        jyExceptionScrappedDao.insertSelective(scrappedPo);
-//
-//        return JdCResponse.ok();
-//    }
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.exceptionTaskCheckByExceptionType", mState = {JProEnum.TP})
+    public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req) {
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        String waybillCode = req.getBarCode();
+        //
+        //校验生鲜单号 自营OR外单
+        //根据运单获取waybillSign
+        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+                = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+        if (dataByChoice == null
+                || dataByChoice.getData() == null
+                || dataByChoice.getData().getWaybill() == null
+                || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+            logger.warn("查询运单waybillSign失败!-{}", waybillCode);
+            response.toFail("查询运单信息失败!");
+            response.setData(Boolean.FALSE);
+            return response;
+        }
+        Integer goodNumber = dataByChoice.getData().getWaybill().getGoodNumber();
+        //一单多件校验
+        if(!Objects.equals(goodNumber,1)){
+            response.toFail("一单多件禁止上报!");
+            response.setData(Boolean.FALSE);
+            return response;
+        }
+        String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
+        String sendPay = dataByChoice.getData().getWaybill().getSendPay();
+        //自营生鲜运单判断
+        if (BusinessUtil.isSelf(waybillSign)) {
+            if (BusinessUtil.isSelfSX(sendPay)) {
+                logger.info("自营生鲜运单");
+                if(!checkDelivery(waybillCode, req.getUserErp())){
+                    response.toFail("此运单妥投校验失败,不允许上报!");
+                    response.setData(Boolean.FALSE);
+                    return response;
+                }
+                response.toSucceed("请求成功!");
+                response.setData(Boolean.TRUE);
+                return response;
+            }
+        } else {//外单
+            if (BusinessUtil.isNotSelfSX(waybillSign)) {
+                logger.info("外单生鲜运单");
+                response.toSucceed("请求成功!");
+                response.setData(Boolean.TRUE);
+                return response;
+            }
+        }
+        response.toFail("非生鲜运单，请检查后再操作!");
+        response.setData(Boolean.FALSE);
+        return response;
+
+    }
+
+
 
     @Override
     @Deprecated
@@ -218,17 +243,42 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         return list;
     }
 
+    private boolean checkParam(ExpScrappedDetailReq req,JdCResponse<Boolean> response){
+
+        if(req == null){
+            response.toFail("入参不能为空!");
+            return false;
+        }
+        if(StringUtils.isBlank(req.getBizId())){
+            response.toFail("bizId不能为空!");
+            return false;
+        }
+        if(StringUtils.isBlank(req.getBarCode())){
+            response.toFail("barCode不能为空!");
+            return false;
+        }
+        if(req.getSaveType() == null){
+            response.toFail("saveType不能为空!");
+            return false;
+        }
+        if(StringUtils.isBlank(req.getPositionCode())){
+            response.toFail("positionCode不能为空!");
+            return false;
+        }
+        return true;
+    }
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.processTaskOfscrapped", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfscrapped(ExpScrappedDetailReq req) {
         logger.info("任务处理processTaskOfscrapped-{}",JSON.toJSONString(req));
         JdCResponse<Boolean> response = new JdCResponse<>();
+        if(!checkParam(req,response)){
+            return response;
+        }
         PositionDetailRecord position = getPosition(req.getPositionCode());
         if (position == null) {
             return JdCResponse.fail("岗位码有误!");
-        }
-        if(req.getSaveType() == null){
-            return JdCResponse.fail("保存状态有误!");
         }
         try {
             BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
@@ -245,23 +295,26 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
             JyExceptionScrappedPO po = new JyExceptionScrappedPO();
             po.setBizId(req.getBizId());
+            po.setWaybillCode(req.getBarCode());
+            po.setSiteCode(req.getSiteId());
+            po.setSiteName(baseStaffByErp.getSiteName());
             po.setExceptionType(req.getScrappedTypCode());
             po.setGoodsImageUrl(req.getGoodsImageUrl());
             po.setCertifyImageUrl(req.getCertifyImageUrl());
-            po.setUpdateErp(req.getUserErp());
-            po.setUpdateTime(new Date());
+            po.setCreateErp(req.getUserErp());
+            po.setCreateTime(new Date());
             po.setSaveType(req.getSaveType());
             if (JyExpSaveTypeEnum.SAVE.getCode().equals(req.getSaveType())) {
                 po.setSubmitTime(new Date());
             }
             //暂存的话，直接返回
             if(JyExpSaveTypeEnum.TEMP_SAVE.getCode().equals(req.getSaveType())){
-                logger.info("报废业务数据暂存更新数据--{}",JSON.toJSONString(po));
-                jyExceptionScrappedDao.updateByBizId(po);
+                logger.info("报废业务数据暂存数据--{}",JSON.toJSONString(po));
+                jyExceptionScrappedDao.insertSelective(po);
                 return JdCResponse.ok();
             }
             logger.info("报废业务数据提交数据--{}",JSON.toJSONString(po));
-            jyExceptionScrappedDao.updateByBizId(po);
+            jyExceptionScrappedDao.insertSelective(po);
             //修改状态为处理中、审批中
             JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
             update.setBizId(req.getBizId());
@@ -720,47 +773,6 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         return dto;
     }
 
-    /**
-     * 检验生鲜单号
-     *
-     * @param waybillCode
-     * @return
-     */
-    private String checkFresh(String waybillCode,String erp) {
-        //根据运单获取waybillSign
-        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
-                = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
-        if (dataByChoice == null
-                || dataByChoice.getData() == null
-                || dataByChoice.getData().getWaybill() == null
-                || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
-            logger.warn("查询运单waybillSign失败!-{}", waybillCode);
-            return "获取运单失败!";
-        }
-        Integer goodNumber = dataByChoice.getData().getWaybill().getGoodNumber();
-        //一单多件校验
-        if(!Objects.equals(goodNumber,1)){
-            return "一单多件禁止上报!";
-        }
-        String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
-        String sendPay = dataByChoice.getData().getWaybill().getSendPay();
-        //自营生鲜运单判断
-        if (BusinessUtil.isSelf(waybillSign)) {
-            if (BusinessUtil.isSelfSX(sendPay)) {
-                logger.info("自营生鲜运单");
-                if(!checkDelivery(waybillCode, erp)){
-                    return "此运单妥投校验失败,不允许上报!";
-                }
-                return "";
-            }
-        } else {//外单
-            if (BusinessUtil.isNotSelfSX(waybillSign)) {
-                logger.info("外单生鲜运单");
-                return "";
-            }
-        }
-        return "非生鲜运单，请检查后再操作!";
-    }
 
     /**
      * 校验单号是包裹号或者是运单号

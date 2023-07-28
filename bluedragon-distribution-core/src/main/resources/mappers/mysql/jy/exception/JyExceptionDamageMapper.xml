@@ -8,12 +8,6 @@
     <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
     <result column="package_code" property="packageCode" jdbcType="VARCHAR" />
     <result column="save_type" property="saveType" jdbcType="BIT" />
-    <result column="length_repair_before" property="lengthRepairBefore" jdbcType="DECIMAL" />
-    <result column="length_repair_after" property="lengthRepairAfter" jdbcType="DECIMAL" />
-    <result column="height_repair_before" property="heightRepairBefore" jdbcType="DECIMAL" />
-    <result column="height_repair_after" property="heightRepairAfter" jdbcType="DECIMAL" />
-    <result column="width_repair_before" property="widthRepairBefore" jdbcType="DECIMAL" />
-    <result column="width_repair_after" property="widthRepairAfter" jdbcType="DECIMAL" />
     <result column="weight_repair_before" property="weightRepairBefore" jdbcType="DECIMAL" />
     <result column="weight_repair_after" property="weightRepairAfter" jdbcType="DECIMAL" />
     <result column="damage_type" property="damageType" jdbcType="BIT" />

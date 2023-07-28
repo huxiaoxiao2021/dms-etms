@@ -724,12 +724,6 @@
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
 
-    <!--  jy_exception_damage 异常破损业务表  -->
-    <bean id="jyExceptionDamageDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDamageDao">
-        <property name="sqlSession" ref="sessionTemplate"/>
-        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
-    </bean>
-
     <!--  分拣箱号关联  -->
     <bean id="boxRelationDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.box.dao.impl.BoxRelationDaoImpl" />
@@ -947,6 +941,9 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
     <bean id="jyExceptionScrappedDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionScrappedDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyExceptionDamageDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDamageDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 
