@@ -73,12 +73,14 @@ public class SendAggsChooseDataSourceAspect {
             }else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)) {
                 Object[] args = point.getArgs();
                 if (ObjectHelper.isNotNull(args) && args.length > 0) {
-                    Message message = (Message) args[0];
-                    if (ObjectHelper.isNotNull(message.getTopic())) {
-                        String dateSourceKey = message.getTopic();
-                        String dateSourceName = Constants.sendPredictaggstopic2DataSource.get(dateSourceKey);
-                        DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dateSourceName);
-                        DynamicDataSourceHolders.putDataSource(dataSourceType);
+                    if((args[0].getClass().getName()).equals("com.jd.jmq.common.message.Message")){
+                        Message message = (Message) args[0];
+                        if (ObjectHelper.isNotNull(message.getTopic())) {
+                            String dateSourceKey = message.getTopic();
+                            String dateSourceName = Constants.sendPredictaggstopic2DataSource.get(dateSourceKey);
+                            DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dateSourceName);
+                            DynamicDataSourceHolders.putDataSource(dataSourceType);
+                        }
                     }
                 }
             }
