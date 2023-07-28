@@ -2933,6 +2933,16 @@ public class DuccPropertyConfig {
 
 	public void setNeedInterceptUrls(String needInterceptUrls) {
 		this.needInterceptUrls = needInterceptUrls;
+        if (needInterceptUrls!=null && !"".equals(needInterceptUrls)){
+            List<String> urlList=new ArrayList<>();
+            if (needInterceptUrls.contains(",")){
+                urlList = Arrays.asList(needInterceptUrls.split(","));
+            }
+            else {
+                urlList.add(needInterceptUrls);
+            }
+            this.needInterceptUrlList =urlList;
+        }		
 	}
 
 	public Integer getOldSendSplitPageSize() {

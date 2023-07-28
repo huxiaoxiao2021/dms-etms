@@ -1,8 +1,13 @@
 package com.jd.bluedragon.config;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,7 +25,6 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.test.utils.FileHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.laf.config.ConfiguratorManager;
-import com.jd.laf.config.Property;
 import com.jd.ql.dms.print.utils.StringHelper;
 /**
  * 1、同步配置，ducc提供的工具
@@ -42,8 +46,6 @@ public class TestDucc {
 				 duccMap.put(item.key, item);
 			 }
 		 }
-		 String uccStr = FileHelper.loadFile(rootConfigPath+"ucc-config-test.properties");
-		 UccPropertyConfiguration uccData = JsonHelper.fromJson(uccStr, UccPropertyConfiguration.class);
 		 
 		final Logger log = LoggerFactory.getLogger(TestDucc.class); 
 		
@@ -56,7 +58,9 @@ public class TestDucc {
 		 com.jd.coo.ucc.client.config.UccPropertyConfig uccConfig = (com.jd.coo.ucc.client.config.UccPropertyConfig)appContext.getBean("propertyConfig") ;
 		 
 		 while(true) {
-			
+			 String uccStr = FileHelper.loadFile(rootConfigPath+"ucc-config-test.properties");
+			 UccPropertyConfiguration uccData = JsonHelper.fromJson(uccStr, UccPropertyConfiguration.class);
+			 
 			 System.err.println("ducc-getProperties:"+JsonHelper.toJson(configuratorManager.getProperties()));
 			 
 			 System.err.println("ducc:"+JsonHelper.toJson(duccDefault));
@@ -102,17 +106,25 @@ public class TestDucc {
 						 duccConfig.append("#"+duccItem.description+"\n");
 					 }
 					 if(defaultValue != null) {
-						 sfCodes0.append("\t@Value(\"${duccPropertyConfig."+fieldName +":"+defaultValue+ "}\")\n");
-						 duccConfig.append("duccPropertyConfig."+fieldName +"="+defaultValue+ "\n");
+						 sfCodes0.append("\t@Value(\"${duccPropertyConfig."+fieldName +":"+toJson(duccConfigValue)+ "}\")\n");
+						 duccConfig.append("duccPropertyConfig."+fieldName +"="+toJson(duccConfigValue)+ "\n");
 					 }else {
 						 sfCodes0.append("\t@Value(\"${duccPropertyConfig."+fieldName + ":''}\")\n");
 						 duccConfig.append("duccPropertyConfig."+fieldName +"="+ "\n");
 					 }
 					 sfCodes0.append("\tprivate "+typeName +" "+fieldName+ ";\n\n");
 					 if(duccConfigValue != null) {
-						 duccConfig1.append("duccPropertyConfig."+fieldName +"="+duccConfigValue+ "\n");
+						 String val = toJson(duccConfigValue);
+						 if(val.startsWith("\"")) {
+							 val = val.substring(1, val.length());
+						 }
+						 if(val.endsWith("\"")) {
+							 val = val.substring(0, val.length()-1);
+						 }
+						 duccConfig1.append("duccPropertyConfig."+fieldName +"="+val+ "\n");
+						 
 					 }else {
-						 duccConfig1.append("duccPropertyConfig."+fieldName +"="+ "\n");
+						 duccConfig1.append("duccPropertyConfig."+fieldName +"=null"+ "\n");
 					 }
 					 
 					 
@@ -158,6 +170,8 @@ public class TestDucc {
 			 System.err.println(duccConfig1.toString());
 			 System.err.println("\nduuc-config1-e");
 			 
+			 FileHelper.save(duccConfig1.toString(), rootConfigPath+"duuc-config1.text", "UTF-8");
+			 
 			 System.err.println("sfNeedCheck-s\n");
 			 System.err.println(sfNeedCheck.toString());
 			 System.err.println("\nsfNeedCheck-e");
@@ -178,11 +192,70 @@ public class TestDucc {
 			 log.info("log-test:info-msg");
 			 log.warn("log-test:warn-msg");
 			 log.error("log-test:error-msg");
-			 
+			 System.err.println(toUccJson(uccData));
 			 Thread.sleep(5000);
 		 }
 
 		}
+	   public static String toUccJson(Object obj) throws Exception {
+			 List<Field> fieldList = ObjectHelper.getDeclaredFieldsList(obj.getClass());
+			 Collections.sort(fieldList,new Comparator<Field>() {
+				@Override
+				public int compare(Field o1, Field o2) {
+					return o1.getName().compareTo(o2.getName());
+				}
+			 });
+			 StringBuffer duccConfig1 = new StringBuffer();
+			 for(Field field: fieldList) {
+				 Class t =field.getType();
+				 String typeName = t.getSimpleName();
+				 String fieldName = field.getName();
+				 Object duccConfigValue = ObjectHelper.getValue(obj, field.getName());
+				 
+				 if(!typeName.toLowerCase().contains("lis")) {
+					 if(duccConfigValue != null) {
+						 String val = toJson(duccConfigValue);
+						 if(val.startsWith("\"")) {
+							 val = val.substring(1, val.length());
+						 }
+						 if(val.endsWith("\"")) {
+							 val = val.substring(0, val.length()-1);
+						 }
+						 duccConfig1.append("duccPropertyConfig."+fieldName +"="+val+ "\n");
+						 
+					 }else {
+						 duccConfig1.append("duccPropertyConfig."+fieldName +"=null"+ "\n");
+					 }
+				 }
+			 }
+			 return duccConfig1.toString();
+	   }
+	   public static String toJson(Object obj) throws Exception {
+	       
+
+	        // 1.字符串转为字节数组
+	        byte[] byteArray = JsonHelper.toJson(obj).getBytes(StandardCharsets.UTF_8);
+
+	        // 2.构造字节数组输入流
+	        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
+
+	        // 3.构造输入流读取器
+	        InputStreamReader inputStreamReader = new InputStreamReader(byteArrayInputStream); //, StandardCharsets.UTF_8);
+
+	        // 4.构造缓冲型读取器
+	        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+	        String line;
+	        StringBuilder stringBuilder = new StringBuilder();
+	        // 5.循环读取每行字符串，并做必要处理
+	        while ((line = bufferedReader.readLine()) != null) {
+	            // 去掉每行两端的空格，并重新拼接为一行
+	            stringBuilder.append(line.trim());
+	        }
+
+	        // 6.结果输出
+	        return stringBuilder.toString();
+	    }	
 	public static class DuccResult{
 		private List<DuccItem> data;
 
