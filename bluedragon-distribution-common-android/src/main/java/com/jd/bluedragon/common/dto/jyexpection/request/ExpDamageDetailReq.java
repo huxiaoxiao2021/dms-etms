@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.jyexpection.request;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 破损任务处理请求参数
@@ -11,17 +12,18 @@ public class ExpDamageDetailReq extends ExpBaseReq {
      */
     private String bizId;
     /**
-     * 物品照片， 多个逗号分隔
+     * 修复前、包装前）图片地址
      */
-    private String actualImageUrl;
+    private List<String> actualImageUrlList;
+    /**
+     * （修复后、包装后）图片地址， 多个逗号分隔
+     */
+    private List<String> dealImageUrlList;
     /**
      * 存储类型 0暂存 1提交
      */
     private Integer saveType;
-    /**
-     * 重量
-     */
-    private BigDecimal weight;
+
     /**
      * 破损类型（1：外包装破损 2：内破外破）
      */
@@ -30,7 +32,23 @@ public class ExpDamageDetailReq extends ExpBaseReq {
      * 修复类型（当破损类型为 1时  1：修复 2：更换包装 3：直接下传  当破损类型为2 时 1:无残余价值 2:内物轻微破损 3:内物严重破损）
      */
     private Integer repairType;
+    /**
+     * 修复前体积
+     */
+    private BigDecimal volumeRepairBefore;
+    /**
+     * 修复后体积
+     */
+    private BigDecimal volumeRepairAfter;
+    /**
+     * 修复前重量
+     */
+    private BigDecimal weightRepairBefore;
 
+    /**
+     * 修复后重量
+     */
+    private BigDecimal weightRepairAfter;
 
     public String getBizId() {
         return bizId;
@@ -40,28 +58,12 @@ public class ExpDamageDetailReq extends ExpBaseReq {
         this.bizId = bizId;
     }
 
-    public String getActualImageUrl() {
-        return actualImageUrl;
-    }
-
-    public void setActualImageUrl(String actualImageUrl) {
-        this.actualImageUrl = actualImageUrl;
-    }
-
     public Integer getSaveType() {
         return saveType;
     }
 
     public void setSaveType(Integer saveType) {
         this.saveType = saveType;
-    }
-
-    public BigDecimal getWeight() {
-        return weight;
-    }
-
-    public void setWeight(BigDecimal weight) {
-        this.weight = weight;
     }
 
     public Integer getDamageType() {
@@ -78,5 +80,53 @@ public class ExpDamageDetailReq extends ExpBaseReq {
 
     public void setRepairType(Integer repairType) {
         this.repairType = repairType;
+    }
+
+    public BigDecimal getVolumeRepairBefore() {
+        return volumeRepairBefore;
+    }
+
+    public void setVolumeRepairBefore(BigDecimal volumeRepairBefore) {
+        this.volumeRepairBefore = volumeRepairBefore;
+    }
+
+    public BigDecimal getVolumeRepairAfter() {
+        return volumeRepairAfter;
+    }
+
+    public void setVolumeRepairAfter(BigDecimal volumeRepairAfter) {
+        this.volumeRepairAfter = volumeRepairAfter;
+    }
+
+    public BigDecimal getWeightRepairBefore() {
+        return weightRepairBefore;
+    }
+
+    public void setWeightRepairBefore(BigDecimal weightRepairBefore) {
+        this.weightRepairBefore = weightRepairBefore;
+    }
+
+    public BigDecimal getWeightRepairAfter() {
+        return weightRepairAfter;
+    }
+
+    public void setWeightRepairAfter(BigDecimal weightRepairAfter) {
+        this.weightRepairAfter = weightRepairAfter;
+    }
+
+    public List<String> getDealImageUrlList() {
+        return dealImageUrlList;
+    }
+
+    public void setDealImageUrlList(List<String> dealImageUrlList) {
+        this.dealImageUrlList = dealImageUrlList;
+    }
+
+    public List<String> getActualImageUrlList() {
+        return actualImageUrlList;
+    }
+
+    public void setActualImageUrlList(List<String> actualImageUrlList) {
+        this.actualImageUrlList = actualImageUrlList;
     }
 }

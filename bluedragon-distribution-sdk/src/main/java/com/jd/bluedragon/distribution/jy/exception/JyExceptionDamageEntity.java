@@ -1,72 +1,80 @@
 package com.jd.bluedragon.distribution.jy.exception;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
  * 异常-破损 entity
  */
-public class JyExceptionDamageEntity {
+public class JyExceptionDamageEntity implements Serializable {
 
 
     /**
-     *
+     * 自增主键
      */
     private Long id;
 
     /**
-     *
+     * 业务id
      */
     private String bizId;
 
     /**
-     *
+     * 站点code
      */
     private Integer siteCode;
 
     /**
-     *
+     * 站点name
      */
     private String siteName;
 
 
     /**
-     *
+     * 包裹号
      */
     private String packageCode;
 
     /**
-     *
+     * 保存状态 0：暂存 1 ：提交待客服反馈 2，提交客服已反馈
      */
-    private Boolean saveType;
-
+    private Integer saveType;
     /**
-     *
+     * 修复前体积
+     */
+    private BigDecimal volumeRepairBefore;
+    /**
+     * 修复后体积
+     */
+    private BigDecimal volumeRepairAfter;
+    /**
+     * 修复前重量
      */
     private BigDecimal weightRepairBefore;
 
     /**
-     *
+     * 修复后重量
      */
     private BigDecimal weightRepairAfter;
 
     /**
-     *
+     * 破损类型（1：外包装破损 2：内破外破）
      */
-    private Boolean damageType;
+    private Integer damageType;
 
     /**
-     *
+     * 修复类型（当破损类型为 1：修复 2：更换包装 3：直接下传  当破损类型为2 时 1:无残余价值 2:内物轻微破损 3:内物严重破损）
      */
-    private Boolean repairType;
+    private Integer repairType;
 
     /**
-     *
+     * 客服反馈类型（1：修复下传 2：直接下传 3：更换包装下传 4：报废 5：逆向退回）
      */
-    private Boolean feedBackType;
+    private Integer feedBackType;
 
     /**
-     *
+     * 创建人erp
      */
     private String createErp;
 
@@ -86,14 +94,14 @@ public class JyExceptionDamageEntity {
     private Date updateTime;
 
     /**
-     *
+     * 时间戳
      */
     private Date ts;
 
     /**
-     *
+     * 删除标识: 1: 使用 0 删除
      */
-    private Boolean yn;
+    private Integer yn;
 
     public Long getId() {
         return id;
@@ -135,11 +143,11 @@ public class JyExceptionDamageEntity {
         this.packageCode = packageCode;
     }
 
-    public Boolean getSaveType() {
+    public Integer getSaveType() {
         return saveType;
     }
 
-    public void setSaveType(Boolean saveType) {
+    public void setSaveType(Integer saveType) {
         this.saveType = saveType;
     }
 
@@ -160,27 +168,27 @@ public class JyExceptionDamageEntity {
     }
 
 
-    public Boolean getDamageType() {
+    public Integer getDamageType() {
         return damageType;
     }
 
-    public void setDamageType(Boolean damageType) {
+    public void setDamageType(Integer damageType) {
         this.damageType = damageType;
     }
 
-    public Boolean getRepairType() {
+    public Integer getRepairType() {
         return repairType;
     }
 
-    public void setRepairType(Boolean repairType) {
+    public void setRepairType(Integer repairType) {
         this.repairType = repairType;
     }
 
-    public Boolean getFeedBackType() {
+    public Integer getFeedBackType() {
         return feedBackType;
     }
 
-    public void setFeedBackType(Boolean feedBackType) {
+    public void setFeedBackType(Integer feedBackType) {
         this.feedBackType = feedBackType;
     }
 
@@ -224,11 +232,27 @@ public class JyExceptionDamageEntity {
         this.ts = ts;
     }
 
-    public Boolean getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(Boolean yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public BigDecimal getVolumeRepairBefore() {
+        return volumeRepairBefore;
+    }
+
+    public void setVolumeRepairBefore(BigDecimal volumeRepairBefore) {
+        this.volumeRepairBefore = volumeRepairBefore;
+    }
+
+    public BigDecimal getVolumeRepairAfter() {
+        return volumeRepairAfter;
+    }
+
+    public void setVolumeRepairAfter(BigDecimal volumeRepairAfter) {
+        this.volumeRepairAfter = volumeRepairAfter;
     }
 }

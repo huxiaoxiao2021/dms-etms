@@ -8,6 +8,12 @@
     <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
     <result column="package_code" property="packageCode" jdbcType="VARCHAR" />
     <result column="save_type" property="saveType" jdbcType="BIT" />
+    <result column="length_repair_before" property="lengthRepairBefore" jdbcType="DECIMAL" />
+    <result column="length_repair_after" property="lengthRepairAfter" jdbcType="DECIMAL" />
+    <result column="height_repair_before" property="heightRepairBefore" jdbcType="DECIMAL" />
+    <result column="height_repair_after" property="heightRepairAfter" jdbcType="DECIMAL" />
+    <result column="width_repair_before" property="widthRepairBefore" jdbcType="DECIMAL" />
+    <result column="width_repair_after" property="widthRepairAfter" jdbcType="DECIMAL" />
     <result column="weight_repair_before" property="weightRepairBefore" jdbcType="DECIMAL" />
     <result column="weight_repair_after" property="weightRepairAfter" jdbcType="DECIMAL" />
     <result column="damage_type" property="damageType" jdbcType="BIT" />
@@ -21,12 +27,12 @@
     <result column="yn" property="yn" jdbcType="BIT" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, site_code, site_name, biz_id, package_code, save_type, weight_repair_before, 
+    id, site_code, site_name, biz_id, package_code, save_type, weight_repair_before,
     weight_repair_after, damage_type, repair_type,
     feed_back_type, create_erp, create_time, update_erp, update_time, ts, yn
   </sql>
   <select id="selectOneByBizId" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select 
+    select
     <include refid="Base_Column_List" />
     from jy_exception_damage
     where biz_id = #{bizId,jdbcType=VARCHAR} and yn =1 limit 1

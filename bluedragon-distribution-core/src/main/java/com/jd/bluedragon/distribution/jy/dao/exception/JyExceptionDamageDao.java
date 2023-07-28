@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.jy.dao.exception;
 
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDao;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionScrappedPO;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
@@ -25,12 +24,12 @@ public class JyExceptionDamageDao extends BaseDao<JyExceptionDamageEntity> {
     }
 
 
-    public int insertSelective(JyExceptionScrappedPO entity) {
+    public int insertSelective(JyExceptionDamageEntity entity) {
         entity.setId(this.generateId());
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
     }
 
-    public int updateByBizId(JyExceptionScrappedPO entity) {
+    public int updateByBizId(JyExceptionDamageEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
     }
 

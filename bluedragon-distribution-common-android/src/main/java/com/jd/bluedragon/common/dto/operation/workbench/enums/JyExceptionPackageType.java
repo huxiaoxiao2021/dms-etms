@@ -44,6 +44,7 @@ public class JyExceptionPackageType {
         public Integer getCode() {
             return code;
         }
+
         public String getName() {
             return name;
         }
@@ -64,9 +65,11 @@ public class JyExceptionPackageType {
             this.code = code;
             this.name = name;
         }
+
         public Integer getCode() {
             return code;
         }
+
         public String getName() {
             return name;
         }
@@ -87,6 +90,7 @@ public class JyExceptionPackageType {
             this.code = code;
             this.name = name;
         }
+
         public Integer getCode() {
             return code;
         }
@@ -97,7 +101,7 @@ public class JyExceptionPackageType {
     }
 
     public enum SaveTypeEnum {
-        DRAFT(0,"暂存"),SBUMIT(1,"提交");
+        DRAFT(0, "暂存"), SBUMIT_NOT_FEEBACK(1, "提交待反馈"), SBUMIT_FEEBACK(2, "提交已反馈");
 
         private Integer code;
         private String name;
@@ -106,6 +110,7 @@ public class JyExceptionPackageType {
             this.code = code;
             this.name = name;
         }
+
         public Integer getCode() {
             return code;
         }
