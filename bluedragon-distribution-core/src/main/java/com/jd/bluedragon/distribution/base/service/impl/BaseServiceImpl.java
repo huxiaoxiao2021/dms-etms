@@ -862,6 +862,21 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 			return baseMajorManager.getBaseSiteByDmsCode(siteCode);
 	}
 
+    /**
+     * 根据字符型编码查询场地数据，包含库房数据，支持 "spwms-605-603"这种查询
+     *
+     * @param siteCode 场地编码
+     * @return 场地信息
+     * @author fanggang7
+     * @time 2023-07-26 14:36:47 周三
+     */
+    @Override
+    public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeIncludeStore(String siteCode) {
+        if(NumberHelper.isNumber(siteCode))
+            return baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(siteCode));
+        else
+            return baseMajorManager.getBaseSiteByCodeIncludeStore(siteCode);
+    }
 
 	@Override
 	@Cache(key = "baseMajorManagerImpl.getDmsShortNameByCode@args0", memoryEnable = false,
