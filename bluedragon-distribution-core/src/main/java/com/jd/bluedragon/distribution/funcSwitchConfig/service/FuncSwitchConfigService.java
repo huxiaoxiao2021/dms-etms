@@ -161,4 +161,11 @@ public interface FuncSwitchConfigService {
      * @return  false 不拦截校验   true 拦截校验
      */
     boolean  getBcBoxFilterStatus(Integer menuCode,Integer siteCode);
+
+    /**
+     * 判断当前操作人是否可以使用模拟器
+     * @param condition
+     * @return
+     */
+    boolean getUseSimulatorStatus(FuncSwitchConfigCondition condition);
 }

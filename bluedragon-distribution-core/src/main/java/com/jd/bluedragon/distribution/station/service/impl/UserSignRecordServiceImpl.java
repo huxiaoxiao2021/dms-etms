@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
+import com.jd.bluedragon.common.dto.station.SimulatorCheckResp;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
@@ -17,6 +18,8 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
@@ -64,6 +67,8 @@ import org.springframework.stereotype.Service;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.*;
+
+import static com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum.FUNCTION_USE_SIMULATOR;
 
 /**
  * 人员签到表--Service接口实现
@@ -136,6 +141,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private WorkStationManager workStationManager;
 	@Autowired
 	private WorkStationGridManager workStationGridManager;
+	
+	@Autowired
+	private FuncSwitchConfigService funcSwitchConfigService;
 
 	/**
 	 * 插入一条数据
@@ -1651,6 +1659,18 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	public List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query) {
 		checkUserSignRecordQuery(query);
 		return userSignRecordDao.listSignRecordByTime(query);
+	}
+
+	@Override
+	public JdCResponse<SimulatorCheckResp> useSimulatorCheck(UserSignRequest userSignRequest) {
+		SimulatorCheckResp simulatorCheckResp = new SimulatorCheckResp();
+		FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
+		condition.setMenuCode(FUNCTION_USE_SIMULATOR.getCode());
+		condition.setYn(Constants.YN_YES);
+		condition.setOperateErp(userSignRequest.getOperateUserCode());
+		boolean status = funcSwitchConfigService.getUseSimulatorStatus(condition);
+		simulatorCheckResp.setUseSimulator(status);
+		return JdCResponse.ok(simulatorCheckResp);
 	}
 
 	private void checkUserSignRecordQuery(UserSignRecordQuery query) {

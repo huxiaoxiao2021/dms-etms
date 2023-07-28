@@ -1,12 +1,7 @@
 package com.jd.bluedragon.distribution.station.gateway;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.station.PositionData;
-import com.jd.bluedragon.common.dto.station.ScanForLoginRequest;
-import com.jd.bluedragon.common.dto.station.ScanUserData;
-import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
-import com.jd.bluedragon.common.dto.station.UserSignRecordData;
-import com.jd.bluedragon.common.dto.station.UserSignRequest;
+import com.jd.bluedragon.common.dto.station.*;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -127,4 +122,11 @@ public interface UserSignGatewayService {
 	 * @return
 	 */
 	JdCResponse<PositionData> queryPositionDataForLogin(ScanForLoginRequest scanRequest);
+
+	/**
+	 * 校验是否允许模拟器登录
+	 * @param userSignRequest
+	 * @return
+	 */
+	JdCResponse<SimulatorCheckResp> useSimulatorCheck(UserSignRequest userSignRequest);
 }
