@@ -296,7 +296,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             if(responseDTO == null || responseDTO.getResult() == null){
                 final PsStoreInfo storeInfo = this.getStoreByCode(siteCode);
                 if(storeInfo != null){
-                    dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(storeInfo.getDmsSiteId());
+                    dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(storeInfo.getDmsSiteId());
                     return dtoStaff;
                 }
             }
