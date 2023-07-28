@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2023/7/6 11:21
  * @Description: 发货波次预测汇总数据 消费
  */
+@SendAggsChangeDataSources
 @Service("jySendPredictAggsConsumer")
 public class JySendPredictAggsConsumer extends MessageBaseConsumer {
 
@@ -43,7 +44,6 @@ public class JySendPredictAggsConsumer extends MessageBaseConsumer {
     private Cluster redisClientOfJy;
 
     @Override
-    @SendAggsChangeDataSources
     public void consume(Message message) throws Exception {
         CallerInfo info = ProfilerHelper.registerInfo("DMS.WORKER.JySendPredictAggsConsumer.consume");
         logger.info("JySendPredictAggsConsumer consume -->{}", message.getText());
