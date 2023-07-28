@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.configuration.ducc.DuccHystrixRoutePropertyConfig;
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
 import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -70,10 +72,17 @@ public class DmsUccController {
     @RequestMapping(value = "/check")
     public @ResponseBody String check() throws Exception {
     	StringBuffer sf = new StringBuffer();
-		 for(Field field: ObjectHelper.getAllFieldsList(UccPropertyConfiguration.class)) {
+    	Map<String, Field> duccFilesMap = ObjectHelper.getDeclaredFields(DuccPropertyConfig.class);
+		 for(Field field: ObjectHelper.getDeclaredFieldsList(UccPropertyConfiguration.class)) {
 			 Object uccValue = ObjectHelper.getValue(dmsConfigManager.getUccPropertyConfiguration(), field.getName());
 			 Object duccValue = ObjectHelper.getValue(dmsConfigManager.getDuccPropertyConfig(), field.getName());
-			 boolean checkResult = ObjectUtils.equals(uccValue, duccValue);
+			 if(!duccFilesMap.containsKey(field.getName())) {
+				 sf.append(field.getName()+":ducc缺少字段\n");
+			 }
+			 else if(field.getDeclaringClass().equals(duccFilesMap.get(field.getName()).getDeclaringClass())){
+				 sf.append(field.getName()+":ducc类型不一致 ucc类型"+field.getDeclaringClass().getSimpleName()+" ducc类型"+duccFilesMap.get(field.getName()).getDeclaringClass().getDeclaringClass().getSimpleName()+"\n");
+			 }
+			 boolean checkResult = isSame(uccValue, duccValue);
 			 if(checkResult) {
 				 log.info(field.getName()+":equal");
 			 }else {
@@ -82,10 +91,10 @@ public class DmsUccController {
 			 }
 		 }
 		 sf.append("\n");
-		 for(Field field: ObjectHelper.getAllFieldsList(HystrixRouteUccPropertyConfiguration.class)) {
+		 for(Field field: ObjectHelper.getDeclaredFieldsList(HystrixRouteUccPropertyConfiguration.class)) {
 			 Object uccValue = ObjectHelper.getValue(ucc1, field.getName());
 			 Object duccValue = ObjectHelper.getValue(dmsConfigManager.getDuccHystrixRoutePropertyConfig(), field.getName());
-			 boolean checkResult = ObjectUtils.equals(uccValue, duccValue);
+			 boolean checkResult = isSame(uccValue, duccValue);
 			 if(checkResult) {
 				 log.info(field.getName()+":equal");
 			 }else {
@@ -95,6 +104,15 @@ public class DmsUccController {
 		 }		 
         return sf.toString();
     } 
+    private boolean isSame(Object o1,Object o2) {
+    	if(o1 == o2) {
+    		return true;
+    	}
+    	if(o1 == null && o2== null) {
+    		return true;
+    	}    	
+    	return JsonHelper.toJson(o1).equals(JsonHelper.toJson(o2));
+    }
     /**
      * 获取ucc
      * @return
