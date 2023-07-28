@@ -62,7 +62,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyDamageExceptionServiceImpl.exceptionTaskCheckByExceptionType", mState = {JProEnum.TP})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.exceptionTaskCheckByExceptionType", mState = {JProEnum.TP})
     public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req) {
 
         JdCResponse<Boolean> response = new JdCResponse<>();
@@ -76,12 +76,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     public void dealExpDamageInfoByAbnormalReportOutCall(QcReportOutCallJmqDto qcReportJmqDto) {
 
         try {
-            if(StringUtils.isBlank(qcReportJmqDto.getAbnormalDocumentNum())){
+            if (StringUtils.isBlank(qcReportJmqDto.getAbnormalDocumentNum())) {
                 logger.error("abnormalDocumentNum 为空！");
-                return ;
+                return;
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("根据质控异常提报mq处理破损数据异常!");
 
         }
@@ -93,14 +93,25 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     public JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req) {
         JyExceptionDamageEntity entity = new JyExceptionDamageEntity();
         try {
-            JyBizTaskExceptionEntity taskExceptionEntity = this.dealTaskInfo(req, entity);
+            JyExceptionDamageEntity oldEntity = jyExceptionDamageDao.selectOneByBizId(entity.getBizId());
             // 提交破损信息
-            if (JyExpStatusEnum.TO_PROCESS.getCode() == taskExceptionEntity.getStatus()) {
+            if (oldEntity == null || JyExceptionPackageType.FeedBackTypeEnum.DEFAULT.getCode().equals(oldEntity.getFeedBackType())) {
                 this.saveDamage(req, entity);
-            }
-            if (JyExpStatusEnum.PROCESSING.getCode() == taskExceptionEntity.getStatus()) {
+                // 1.修复下传
+            } else if (JyExceptionPackageType.FeedBackTypeEnum.REPAIR_HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
+                //2.直接下传
+            } else if (JyExceptionPackageType.FeedBackTypeEnum.HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
+                //3.更换包装下传
+            } else if (JyExceptionPackageType.FeedBackTypeEnum.REPLACE_PACKAGING_HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
+                //4.报废
+            } else if (JyExceptionPackageType.FeedBackTypeEnum.DESTROY.getCode().equals(oldEntity.getFeedBackType())) {
+                //5.逆向退回
+            } else if (JyExceptionPackageType.FeedBackTypeEnum.REVERSE_RETURN.getCode().equals(oldEntity.getFeedBackType())) {
 
+            } else {
+                return JdCResponse.fail("客服反馈类型匹配失败" + req.getBizId());
             }
+
 
         } catch (RuntimeException e) {
             return JdCResponse.fail(e.getMessage());
@@ -130,7 +141,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
     private void saveOrUpdate(JyExceptionDamageEntity entity) {
-        JyExceptionDamageEntity oldEntity = jyExceptionDamageDao.selectOneByBizId(entity.getBizId());
         if (entity.getId() == null) {
             jyExceptionDamageDao.insertSelective(entity);
         } else {

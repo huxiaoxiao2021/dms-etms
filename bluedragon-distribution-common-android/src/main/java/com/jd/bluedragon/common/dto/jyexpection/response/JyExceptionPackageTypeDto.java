@@ -15,6 +15,9 @@ public class JyExceptionPackageTypeDto implements Serializable {
      */
     private String name;
 
+
+    private Boolean disabled = true;
+
     /**
      * 子类型
      */
@@ -53,5 +56,13 @@ public class JyExceptionPackageTypeDto implements Serializable {
 
     public void setChildren(List<JyExceptionPackageTypeDto> children) {
         this.children = children;
+    }
+
+    public Boolean getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(Boolean disabled) {
+        this.disabled = disabled;
     }
 }

@@ -8,6 +8,8 @@
     <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
     <result column="package_code" property="packageCode" jdbcType="VARCHAR" />
     <result column="save_type" property="saveType" jdbcType="BIT" />
+    <result column="volume_repair_before" property="volumeRepairBefore" jdbcType="DECIMAL" />
+    <result column="volume_repair_after" property="volumeRepairAfter" jdbcType="DECIMAL" />
     <result column="weight_repair_before" property="weightRepairBefore" jdbcType="DECIMAL" />
     <result column="weight_repair_after" property="weightRepairAfter" jdbcType="DECIMAL" />
     <result column="damage_type" property="damageType" jdbcType="BIT" />
@@ -21,7 +23,7 @@
     <result column="yn" property="yn" jdbcType="BIT" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, site_code, site_name, biz_id, package_code, save_type, weight_repair_before,
+    id, site_code, site_name, biz_id, package_code, save_type, volume_repair_before, volume_repair_after, weight_repair_before,
     weight_repair_after, damage_type, repair_type,
     feed_back_type, create_erp, create_time, update_erp, update_time, ts, yn
   </sql>
@@ -53,6 +55,12 @@
       </if>
       <if test="saveType != null" >
         save_type,
+      </if>
+      <if test="volumeRepairBefore != null" >
+        volume_repair_before,
+      </if>
+      <if test="volumeRepairAfter != null" >
+        volume_repair_after,
       </if>
       <if test="weightRepairBefore != null" >
         weight_repair_before,
@@ -107,6 +115,12 @@
       <if test="saveType != null" >
         #{saveType,jdbcType=BIT},
       </if>
+      <if test="volumeRepairBefore != null" >
+        #{volumeRepairBefore,jdbcType=DECIMAL},
+      </if>
+      <if test="volumeRepairAfter != null" >
+        #{volumeRepairAfter,jdbcType=DECIMAL},
+      </if>
       <if test="weightRepairBefore != null" >
         #{weightRepairBefore,jdbcType=DECIMAL},
       </if>
@@ -159,6 +173,12 @@
       </if>
       <if test="saveType != null" >
         save_type = #{saveType,jdbcType=BIT},
+      </if>
+      <if test="volumeRepairBefore != null" >
+        volume_repair_before = #{volumeRepairBefore,jdbcType=DECIMAL},
+      </if>
+      <if test="volumeRepairAfter != null" >
+        volume_repair_after = #{volumeRepairAfter,jdbcType=DECIMAL},
       </if>
       <if test="weightRepairBefore != null" >
         weight_repair_before = #{weightRepairBefore,jdbcType=DECIMAL},
