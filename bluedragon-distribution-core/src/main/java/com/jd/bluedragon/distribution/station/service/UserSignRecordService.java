@@ -3,10 +3,7 @@ package com.jd.bluedragon.distribution.station.service;
 import java.util.List;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.station.SimulatorCheckResp;
-import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
-import com.jd.bluedragon.common.dto.station.UserSignRecordData;
-import com.jd.bluedragon.common.dto.station.UserSignRequest;
+import com.jd.bluedragon.common.dto.station.*;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
@@ -221,8 +218,8 @@ public interface UserSignRecordService {
 
 	/**
 	 * 校验是否允许模拟器登录
-	 * @param userSignRequest
+	 * @param simulatorCheckReq
 	 * @return
 	 */
-	JdCResponse<SimulatorCheckResp> useSimulatorCheck(UserSignRequest userSignRequest);
+	JdCResponse<SimulatorCheckResp> useSimulatorCheck(SimulatorCheckReq simulatorCheckReq);
 }

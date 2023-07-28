@@ -125,8 +125,8 @@ public interface UserSignGatewayService {
 
 	/**
 	 * 校验是否允许模拟器登录
-	 * @param userSignRequest
+	 * @param simulatorCheckReq
 	 * @return
 	 */
-	JdCResponse<SimulatorCheckResp> useSimulatorCheck(UserSignRequest userSignRequest);
+	JdCResponse<SimulatorCheckResp> useSimulatorCheck(SimulatorCheckReq simulatorCheckReq);
 }

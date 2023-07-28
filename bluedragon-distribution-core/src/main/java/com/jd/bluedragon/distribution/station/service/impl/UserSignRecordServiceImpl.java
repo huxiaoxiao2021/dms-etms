@@ -5,10 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
-import com.jd.bluedragon.common.dto.station.SimulatorCheckResp;
-import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
-import com.jd.bluedragon.common.dto.station.UserSignRecordData;
-import com.jd.bluedragon.common.dto.station.UserSignRequest;
+import com.jd.bluedragon.common.dto.station.*;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -1662,12 +1659,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 
 	@Override
-	public JdCResponse<SimulatorCheckResp> useSimulatorCheck(UserSignRequest userSignRequest) {
+	public JdCResponse<SimulatorCheckResp> useSimulatorCheck(SimulatorCheckReq simulatorCheckReq) {
 		SimulatorCheckResp simulatorCheckResp = new SimulatorCheckResp();
 		FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
 		condition.setMenuCode(FUNCTION_USE_SIMULATOR.getCode());
 		condition.setYn(Constants.YN_YES);
-		condition.setOperateErp(userSignRequest.getOperateUserCode());
+		condition.setOperateErp(simulatorCheckReq.getUserCode());
 		boolean status = funcSwitchConfigService.getUseSimulatorStatus(condition);
 		simulatorCheckResp.setUseSimulator(status);
 		return JdCResponse.ok(simulatorCheckResp);

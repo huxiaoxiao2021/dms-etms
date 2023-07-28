@@ -318,11 +318,11 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	}
 
 	@Override
-	public JdCResponse<SimulatorCheckResp> useSimulatorCheck(UserSignRequest userSignRequest) {
-		if (StringUtils.isEmpty(userSignRequest.getUserCode())) {
+	public JdCResponse<SimulatorCheckResp> useSimulatorCheck(SimulatorCheckReq simulatorCheckReq) {
+		if (StringUtils.isEmpty(simulatorCheckReq.getUserCode())) {
 			return JdCResponse.fail("未获取到登录人信息");
 		}
-		return userSignRecordService.useSimulatorCheck(userSignRequest);
+		return userSignRecordService.useSimulatorCheck(simulatorCheckReq);
 	}
 
 	private JdCResponse<UserSignRecordData> checkUserSignStatus(String positionCode,Integer jobCode,String userCode){
