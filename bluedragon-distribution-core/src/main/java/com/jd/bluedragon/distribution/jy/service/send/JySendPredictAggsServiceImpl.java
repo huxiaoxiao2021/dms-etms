@@ -15,7 +15,7 @@ import java.util.List;
  * @Date: 2023/7/6 11:05
  * @Description:
  */
-@SendAggsChangeDataSources
+
 @Service("jySendPredictAggsService")
 public class JySendPredictAggsServiceImpl implements JySendPredictAggsService{
 
@@ -24,11 +24,13 @@ public class JySendPredictAggsServiceImpl implements JySendPredictAggsService{
 
 
     @Override
+    @SendAggsChangeDataSources
     public Long getToScanCountSum(JySendPredictAggsRequest query) {
         return JySendPredictAggsDao.getunScanSumByCondition(query);
     }
 
     @Override
+    @SendAggsChangeDataSources
     public List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query) {
         return JySendPredictAggsDao.getSendPredictProductTypeList(query);
     }
