@@ -293,7 +293,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             return dtoStaff;
         } else{
             responseDTO = basicTraderAPI.getBaseTraderByCode(siteCode);
-            if(responseDTO == null){
+            if(responseDTO == null || responseDTO.getResult() == null){
                 final PsStoreInfo storeInfo = this.getStoreByCode(siteCode);
                 if(storeInfo != null){
                     dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(storeInfo.getDmsSiteId());
