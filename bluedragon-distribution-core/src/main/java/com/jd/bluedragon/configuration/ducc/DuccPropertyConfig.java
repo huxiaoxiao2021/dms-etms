@@ -948,7 +948,7 @@ public class DuccPropertyConfig {
 	@Value("${duccPropertyConfig.virtualBoardCanUseSite:-1}")
 	private String virtualBoardCanUseSite;
 
-	private List<String> virtualBoardCanUseSiteList;
+	private List<String> virtualBoardCanUseSiteList = new ArrayList<>();
 
 	/**
 	 *虚拟组板最多流向个数
@@ -1350,7 +1350,7 @@ public class DuccPropertyConfig {
 	@Value("${duccPropertyConfig.teAnSiteWhitelist:}")
 	private String teAnSiteWhitelist;
 
-	private List<String> teAnSiteWhitelistStrList;
+	private List<String> teAnSiteWhitelistStrList = new ArrayList<>();
 
 	/**
 	 *集齐服务开关（true: 降级）

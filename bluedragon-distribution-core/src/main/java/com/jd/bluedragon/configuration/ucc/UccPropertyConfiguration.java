@@ -2745,6 +2745,7 @@ public class UccPropertyConfiguration{
     }
 
     public void setDpSiteCodes(String dpSiteCodes) {
+    	this.dpSiteCodes = dpSiteCodes;
         if(StringUtils.isBlank(dpSiteCodes)){
             return;
         }
