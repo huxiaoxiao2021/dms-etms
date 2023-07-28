@@ -1972,4 +1972,8 @@ public class Constants {
      * 电商特惠产品编码
      */
     public static final String E_COMMERCE_SPECIAL_OFFER_SERVICE = "ed-m-0059";
+
+    public static final Long APP_ID = 8181L;
+
+    public static final Integer ORG_TYPE_ERP = 2;
 }
