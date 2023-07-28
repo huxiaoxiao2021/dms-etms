@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingData;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
@@ -21,6 +20,7 @@ import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.api.WaybillUpdateApi;
+import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.*;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
@@ -31,11 +31,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import com.jdl.lbs.presort.aoi.api.constant.SearchType;
-import com.jdl.lbs.presort.aoi.api.search.query.AoiBindExactSearchQuery;
-import com.jdl.lbs.presort.aoi.api.search.result.AoiBindRoadInfoDto;
-import com.jdl.lbs.presort.framework.core.vo.BaseResponseVo;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -107,6 +102,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         return waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
     }
 
+
+
+
     @Override
     public BaseEntity<BigWaybillDto> getDataByChoiceNoCache(String waybillCode, WChoice wChoice) {
         //拆分运单接口监控
@@ -141,6 +139,21 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             Profiler.registerInfoEnd(info);
 
         }
+    }
+
+    /**
+     * 查询运单商品明细(最多取两条商品明细)
+     *
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getGoodsDataByWayCodeLimit2", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseEntity<Page<Goods>> getPagedGoodsDataByWCode(String waybillCode, Page<Goods> page) {
+        Page<Goods> goods = new Page<>();
+        goods.setCurPage(1);
+        goods.setPageSize(2);
+        return waybillQueryApi.getPagedGoodsDataByWCode(waybillCode, goods);
     }
 
     @Override

@@ -65,7 +65,7 @@ $(function () {
             title: '运单号'
         }, {
             field: 'consignWare',
-            title: '托寄物品名'
+            title: '商品名称/托寄物品名'
         }];
         return oTableInit;
     };
