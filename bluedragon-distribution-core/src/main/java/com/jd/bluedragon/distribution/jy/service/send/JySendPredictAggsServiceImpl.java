@@ -33,12 +33,4 @@ public class JySendPredictAggsServiceImpl implements JySendPredictAggsService{
         return JySendPredictAggsDao.getSendPredictProductTypeList(query);
     }
 
-    @Override
-    public Boolean insertOrUpdateJySendPredictAggs(JySendPredictAggsPO entity) {
-        Boolean result = JySendPredictAggsDao.updateByBizProduct(entity) >0;
-        if(!result){
-            return JySendPredictAggsDao.insert(entity) > 0;
-        }
-        return result;
-    }
 }

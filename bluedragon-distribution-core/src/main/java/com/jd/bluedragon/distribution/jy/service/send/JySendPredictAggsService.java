@@ -30,5 +30,4 @@ public interface JySendPredictAggsService {
     List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query);
 
 
-    Boolean insertOrUpdateJySendPredictAggs(JySendPredictAggsPO entity);
 }
