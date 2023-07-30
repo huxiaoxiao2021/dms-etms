@@ -15,24 +15,18 @@ import java.util.List;
  * @Date: 2023/7/6 11:05
  * @Description:
  */
-
-@Service("jySendPredictAggsService")
-public class JySendPredictAggsServiceImpl implements JySendPredictAggsService{
+@Service("jySendPredictAggsWriteService")
+public class JySendPredictAggsWriteServiceImpl {
 
     @Autowired
     private JySendPredictAggsDao JySendPredictAggsDao;
 
 
-    @Override
-    @SendAggsChangeDataSources
-    public Long getToScanCountSum(JySendPredictAggsRequest query) {
-        return JySendPredictAggsDao.getunScanSumByCondition(query);
+    public Boolean insertOrUpdateJySendPredictAggs(JySendPredictAggsPO entity) {
+        Boolean result = JySendPredictAggsDao.updateByBizProduct(entity) >0;
+        if(!result){
+            return JySendPredictAggsDao.insert(entity) > 0;
+        }
+        return result;
     }
-
-    @Override
-    @SendAggsChangeDataSources
-    public List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query) {
-        return JySendPredictAggsDao.getSendPredictProductTypeList(query);
-    }
-    
 }
