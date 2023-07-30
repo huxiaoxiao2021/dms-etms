@@ -29,4 +29,5 @@ public interface JySendPredictAggsService {
      */
     List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query);
 
+
 }

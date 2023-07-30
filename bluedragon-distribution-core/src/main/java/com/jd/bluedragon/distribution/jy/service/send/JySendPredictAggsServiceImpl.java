@@ -32,5 +32,5 @@ public class JySendPredictAggsServiceImpl implements JySendPredictAggsService{
     public List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query) {
         return JySendPredictAggsDao.getSendPredictProductTypeList(query);
     }
-    
+
 }
