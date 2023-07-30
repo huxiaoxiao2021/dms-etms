@@ -5,6 +5,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.enums.ReadWriteTypeEnum;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.fastjson.JSON;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
@@ -72,12 +73,17 @@ public class SendAggsChooseDataSourceAspect {
                 }
             }else if (ReadWriteTypeEnum.WRITE.getType().equals(readWriteType)) {
                 Object[] args = point.getArgs();
+                logger.info("===================SendAggsChooseDataSourceAspect args=============={}", JSON.toJSONString(args));
                 if (ObjectHelper.isNotNull(args) && args.length > 0) {
+                    logger.info("===================SendAggsChooseDataSourceAspect className========={}", JSON.toJSONString(args[0].getClass().getName()));
                     if((args[0].getClass().getName()).equals("com.jd.jmq.common.message.Message")){
+                        logger.info("===================SendAggsChooseDataSourceAspect Message=========");
                         Message message = (Message) args[0];
+                        logger.info("===================SendAggsChooseDataSourceAspect message.getTopic()========={}",JSON.toJSONString((message.getTopic())));
                         if (ObjectHelper.isNotNull(message.getTopic())) {
                             String dateSourceKey = message.getTopic();
                             String dateSourceName = Constants.sendPredictaggstopic2DataSource.get(dateSourceKey);
+                            logger.info("===================SendAggsChooseDataSourceAspect dateSourceName ========={}",dateSourceName);
                             DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dateSourceName);
                             DynamicDataSourceHolders.putDataSource(dataSourceType);
                         }
