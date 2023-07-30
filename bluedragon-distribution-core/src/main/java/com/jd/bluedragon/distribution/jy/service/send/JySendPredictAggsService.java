@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO;
 import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest;
 import com.jd.bluedragon.distribution.jy.send.JySendPredictProductType;
 import com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery;
+import com.jd.jmq.common.message.Message;
 
 import java.util.List;
 
@@ -30,5 +31,5 @@ public interface JySendPredictAggsService {
     List<JySendPredictProductType> getSendPredictProductTypeList(JySendPredictAggsRequest query);
 
 
-    Boolean insertOrUpdateJySendPredictAggs(JySendPredictAggsPO entity);
+    void dealJySendPredictAggsMessage(Message message);
 }
