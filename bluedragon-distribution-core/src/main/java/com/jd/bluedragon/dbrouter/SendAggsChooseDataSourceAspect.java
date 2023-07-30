@@ -27,7 +27,7 @@ import com.jd.jmq.common.message.Message;
 
 @Component
 @Aspect
-@Order(-100)
+@Order(1)
 public class SendAggsChooseDataSourceAspect {
 
 
