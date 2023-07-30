@@ -37,7 +37,7 @@ public class JySendPredictAggsConsumer extends MessageBaseConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JySendPredictAggsConsumer.class);
 
     @Autowired
-    private JySendPredictAggsServiceImpl jySendPredictAggsService;
+    private JySendPredictAggsService jySendPredictAggsService;
 
     @Autowired
     @Qualifier("redisClientOfJy")
