@@ -8,6 +8,7 @@ import com.jd.bluedragon.dbrouter.SendAggsChangeDataSources;
 import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsDto;
 import com.jd.bluedragon.distribution.jy.send.JySendPredictAggsPO;
 import com.jd.bluedragon.distribution.jy.service.send.JySendPredictAggsService;
+import com.jd.bluedragon.distribution.jy.service.send.JySendPredictAggsWriteServiceImpl;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -37,7 +38,7 @@ public class JySendPredictAggsConsumer extends MessageBaseConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JySendPredictAggsConsumer.class);
 
     @Autowired
-    private JySendPredictAggsService jySendPredictAggsService;
+    private JySendPredictAggsWriteServiceImpl jySendPredictAggsWriteService;
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -77,7 +78,7 @@ public class JySendPredictAggsConsumer extends MessageBaseConsumer {
                 }
 
                 JySendPredictAggsPO po = coverToJySendPredictAggsPO(dto);
-                Boolean result = jySendPredictAggsService.insertOrUpdateJySendPredictAggs(po);
+                Boolean result = jySendPredictAggsWriteService.insertOrUpdateJySendPredictAggs(po);
                 if (result) {
                     // 消费成功，记录数据版本号
                     if (NumberHelper.gt0(dto.getVersion())) {
