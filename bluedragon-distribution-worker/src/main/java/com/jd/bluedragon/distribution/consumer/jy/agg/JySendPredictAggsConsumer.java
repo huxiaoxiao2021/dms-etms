@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2023/7/6 11:21
  * @Description: 发货波次预测汇总数据 消费
  */
-@SendAggsChangeDataSources
 @Service("jySendPredictAggsConsumer")
 public class JySendPredictAggsConsumer extends MessageBaseConsumer {
 
