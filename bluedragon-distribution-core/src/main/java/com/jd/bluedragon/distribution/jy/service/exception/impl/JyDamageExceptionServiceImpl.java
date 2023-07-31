@@ -33,6 +33,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -136,6 +137,49 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
         redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode);
         return JdCResponse.ok();
+    }
+
+    @Override
+    public JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req) {
+        if (req == null || StringUtils.isEmpty(req.getBizId())) {
+            return JdCResponse.fail("请求参数不能为空");
+        }
+        JyExceptionDamageEntity oldEntity = jyExceptionDamageDao.selectOneByBizId(req.getBizId());
+        if (oldEntity == null) {
+            return JdCResponse.ok();
+        }
+        JyExceptionDamageDto damageDetail = new JyExceptionDamageDto();
+        BeanUtils.copyProperties(oldEntity, damageDetail);
+
+        damageDetail.setDamageTypeName(JyExceptionPackageType.DamagedTypeEnum.getNameByCode(damageDetail.getDamageType()));
+        damageDetail.setRepairTypeName(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.getNameByCode(damageDetail.getRepairType()));
+        if (StringUtils.isEmpty(damageDetail.getRepairTypeName())) {
+            damageDetail.setRepairTypeName(JyExceptionPackageType.InsideOutsideDamagedRepairTypeEnum.getNameByCode(damageDetail.getRepairType()));
+        }
+        damageDetail.setFeedBackTypeName(JyExceptionPackageType.FeedBackTypeEnum.getNameByCode(damageDetail.getFeedBackType()));
+
+        // 查询修复前图片
+        damageDetail.setActualImageUrlList(this.getImageUrlList(oldEntity, JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_BEFORE.getCode()));
+        // 查询修复后图片
+        if (JyExceptionPackageType.FeedBackTypeEnum.REPLACE_PACKAGING_HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
+            damageDetail.setActualImageUrlList(this.getImageUrlList(oldEntity, JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_AFTER.getCode()));
+        }
+        return JdCResponse.ok(damageDetail);
+    }
+
+
+    private List<String> getImageUrlList(JyExceptionDamageEntity oldEntity, String bizType) {
+        JyAttachmentDetailQuery queryBefore = new JyAttachmentDetailQuery();
+        queryBefore.setBizId(oldEntity.getBizId());
+        queryBefore.setSiteCode(oldEntity.getSiteCode());
+        queryBefore.setBizType(bizType);
+        // 删除老数据
+        List<JyAttachmentDetailEntity> entityList = jyAttachmentDetailService.queryDataListByCondition(queryBefore);
+        if (!CollectionUtils.isEmpty(entityList)) {
+            return entityList.stream().map(JyAttachmentDetailEntity::getAttachmentUrl)
+                    .collect(Collectors.toList());
+        }
+        return null;
     }
 
     /**

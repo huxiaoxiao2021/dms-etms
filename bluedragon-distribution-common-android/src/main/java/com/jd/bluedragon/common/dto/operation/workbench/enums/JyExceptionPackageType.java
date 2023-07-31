@@ -7,9 +7,9 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
  */
 public class JyExceptionPackageType {
     // 客服反馈未处理数量
-    public static final String TO_PROCESS_DAMAGE_EXCEPTION="DMS:JYAPP:EXP:DAMAGE:TO:PROCESS:";
+    public static final String TO_PROCESS_DAMAGE_EXCEPTION = "DMS:JYAPP:EXP:DAMAGE:TO:PROCESS:";
     // 客服反馈新增未处理数量
-    public static final String TO_PROCESS_DAMAGE_EXCEPTION_ADD="DMS:JYAPP:EXP:DAMAGE:TO:PROCESS:ADD:";
+    public static final String TO_PROCESS_DAMAGE_EXCEPTION_ADD = "DMS:JYAPP:EXP:DAMAGE:TO:PROCESS:ADD:";
 
     /**
      * 异常包裹类型
@@ -53,6 +53,15 @@ public class JyExceptionPackageType {
         public String getName() {
             return name;
         }
+
+        public static String getNameByCode(Integer code) {
+            for (DamagedTypeEnum damagedType : DamagedTypeEnum.values()) {
+                if (damagedType.getCode().equals(code)) {
+                    return damagedType.getName();
+                }
+            }
+            return null;
+        }
     }
 
     /**
@@ -76,6 +85,15 @@ public class JyExceptionPackageType {
         public String getName() {
             return name;
         }
+
+        public static String getNameByCode(Integer code) {
+            for (OutPackingDamagedRepairTypeEnum repairType : OutPackingDamagedRepairTypeEnum.values()) {
+                if (repairType.getCode().equals(code)) {
+                    return repairType.getName();
+                }
+            }
+            return null;
+        }
     }
 
     /**
@@ -98,6 +116,15 @@ public class JyExceptionPackageType {
 
         public String getName() {
             return name;
+        }
+
+        public static String getNameByCode(Integer code) {
+            for (InsideOutsideDamagedRepairTypeEnum repairType : InsideOutsideDamagedRepairTypeEnum.values()) {
+                if (repairType.getCode().equals(code)) {
+                    return repairType.getName();
+                }
+            }
+            return null;
         }
     }
 
@@ -143,6 +170,15 @@ public class JyExceptionPackageType {
 
         public String getName() {
             return name;
+        }
+
+        public static String getNameByCode(Integer code) {
+            for (FeedBackTypeEnum type : FeedBackTypeEnum.values()) {
+                if (type.getCode().equals(code)) {
+                    return type.getName();
+                }
+            }
+            return null;
         }
     }
 }

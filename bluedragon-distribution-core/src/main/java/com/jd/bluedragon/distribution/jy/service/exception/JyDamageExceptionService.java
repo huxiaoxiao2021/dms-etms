@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
+import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 
 /**
@@ -31,8 +32,16 @@ public interface JyDamageExceptionService {
     /**
      * 读取破损异常为已读
      *
-     * @param siteCode
+     * @param positionCode
      * @return
      */
     JdCResponse<Boolean> readToProcessDamage(Integer positionCode);
+
+
+    /**
+     * 获取破损任务详情
+     * @param req
+     * @return
+     */
+    JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req);
 }

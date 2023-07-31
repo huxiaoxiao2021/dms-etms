@@ -26,6 +26,7 @@ import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedType
 import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 
 import java.util.List;
 
@@ -179,5 +180,10 @@ public interface JyExceptionGatewayService {
      */
     JdCResponse<Boolean> readToProcessDamage(Integer positionCode);
 
-
+    /**
+     * 获取破损任务详情
+     * @param req
+     * @return
+     */
+    JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req);
 }

@@ -16,7 +16,7 @@ public class ExpDamageDetailReq extends ExpBaseReq {
      */
     private List<String> actualImageUrlList;
     /**
-     * （修复后、包装后）图片地址， 多个逗号分隔
+     * （修复后、包装后）图片地址
      */
     private List<String> dealImageUrlList;
     /**
