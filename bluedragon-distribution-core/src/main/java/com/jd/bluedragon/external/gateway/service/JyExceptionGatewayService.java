@@ -20,6 +20,7 @@ import com.jd.bluedragon.common.dto.jyexpection.response.ExpSignUserResp;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskStatisticsOfWaitReceiveDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
@@ -164,4 +165,17 @@ public interface JyExceptionGatewayService {
      * 破损任务处理
      */
     JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req);
+
+    /**
+     * 获取带处理的破损异常数量
+     * @return
+     */
+    JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer siteCode);
+
+    /**
+     * 获取待处理和新增的破损异常数量
+     * @param siteCode
+     * @return
+     */
+    JdCResponse<Boolean> readToProcessDamage(Integer siteCode);
 }

@@ -264,7 +264,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param cycle
      * @param entity
      */
-    private void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
+    public void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
         String msg ="%s%s操作,状态变更为%s-%s";
         try{
             JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
@@ -1666,7 +1666,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     /**
      * 调用终端妥投接口
      */
-    private void delivered(String bizId){
+//    @Override
+    public void delivered(String bizId){
         JyBizTaskExceptionEntity exTaskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if(exTaskEntity == null){
             logger.warn("根据业务主键:{}未查询到异常任务数据!", bizId);

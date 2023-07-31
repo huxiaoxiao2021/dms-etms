@@ -16,13 +16,14 @@ public class JyExceptionPackageTypeDto implements Serializable {
     private String name;
 
 
-    private Boolean disabled = true;
+    private Boolean disabled = false;
 
     /**
      * 子类型
      */
     List<JyExceptionPackageTypeDto> children;
 
+    public JyExceptionPackageTypeDto(){}
     public JyExceptionPackageTypeDto(Integer code, String name) {
         this.code = code;
         this.name = name;

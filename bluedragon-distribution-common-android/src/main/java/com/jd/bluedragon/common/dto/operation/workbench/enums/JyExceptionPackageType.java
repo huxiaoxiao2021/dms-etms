@@ -6,6 +6,11 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
  * @Description: 异常包裹类型
  */
 public class JyExceptionPackageType {
+    // 客服反馈未处理数量
+    public static final String TO_PROCESS_DAMAGE_EXCEPTION="DMS:JYAPP:EXP:DAMAGE:TO:PROCESS:";
+    // 客服反馈新增未处理数量
+    public static final String TO_PROCESS_DAMAGE_EXCEPTION_ADD="DMS:JYAPP:EXP:DAMAGE:TO:PROCESS:ADD:";
+
     /**
      * 异常包裹类型
      */

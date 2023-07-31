@@ -20,7 +20,7 @@ public class ExpDamageDetailReq extends ExpBaseReq {
      */
     private List<String> dealImageUrlList;
     /**
-     * 存储类型 0暂存 1提交
+     * 保存状态 0：暂存 1 ：提交待客服反馈 2，提交客服已反馈
      */
     private Integer saveType;
 
