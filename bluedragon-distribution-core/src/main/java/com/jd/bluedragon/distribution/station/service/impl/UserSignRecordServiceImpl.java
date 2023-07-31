@@ -17,16 +17,15 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
-import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
@@ -51,7 +50,6 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.workStation.*;
 
 import com.jdl.basic.api.domain.workStation.WorkStation;
@@ -127,7 +125,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	@Value("${beans.userSignRecordService.deleteCheckHours:4}")
 	private double deleteCheckHours;
-
+	/**
+	 * 人资-自动签退（偏差当前时间：秒）
+	 */
+	@Value("${beans.userSignRecordService.autoSignOutByMqSenconds:30}")
+	private int autoSignOutByMqOffSenconds;
+	
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";
@@ -518,6 +521,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
         return result;
     }
+
 	@Override
 	public JdResult<Integer> autoHandleSignOutByAttendJmq(AttendDetailChangeTopicData mqData) {
 		JdResult<Integer> result = new JdResult<Integer>();
@@ -537,17 +541,23 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		Date actualOffTime = DateHelper.parseDateTime(mqData.getActualOffTime());
 		if(actualOffTime == null) {
-			log.warn("autoHandleSignOutByAttendJmq：签退时间【{}】格式不正确为空，无需处理！",mqData.getActualOffTime());
+			log.warn("autoHandleSignOutByAttendJmq：签退时间【{}】格式不正确，无需处理！",mqData.getActualOffTime());
 			return result;
 		}
+		Date curTime = new Date();
 		if(new Date().before(actualOffTime)) {
-			log.warn("autoHandleSignOutByAttendJmq：签退时间大于当前时间，无需处理！",mqData.getActualOffTime());
+			log.warn("autoHandleSignOutByAttendJmq：签退时间【{}】大于当前时间，无需处理！",mqData.getActualOffTime());
+			return result;
+		}
+		Date checkTime = DateHelper.add(curTime, Calendar.SECOND, -autoSignOutByMqOffSenconds);
+		if(checkTime.before(actualOffTime)) {
+			log.warn("autoHandleSignOutByAttendJmq：签退时间【{}】偏差当前时间超过{}秒，无需处理！",mqData.getActualOffTime(),autoSignOutByMqOffSenconds);
 			return result;
 		}
 		//根据erp+场地查询，已签未退的数据
 		UserSignRecordQuery query = new UserSignRecordQuery();
 		query.setUserCode(mqData.getUserErp());
-		UserSignRecord lastUnSignOutRecord = userSignRecordDao.queryLastUnSignOutRecordForAutoSignOut(query);
+		UserSignRecord lastUnSignOutRecord = userSignRecordDao.queryLastUnSignOutRecord(query);
 		if(lastUnSignOutRecord == null) {
 			log.info("autoHandleSignOutByAttendJmq：用户【{}】已签未退数据为空，无需处理！",mqData.getUserErp());
 			return result;
@@ -600,7 +610,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		//自动签退完发送咚咚通知
         NoticeUtils.noticeToTimelineWithNoUrl(MSG_FORMAT_AUTO_SIGN_OUT_TITLE, String.format(MSG_FORMAT_AUTO_SIGN_OUT_CONTENT, gridName,ownerUserErp), erpList);
 		return result;
-	}
+	}     
     /**
      * 根据条件查询-转成通知对象
      * @param query

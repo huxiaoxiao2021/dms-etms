@@ -1,31 +1,32 @@
-package com.jd.bluedragon.configuration.ucc;
+package com.jd.bluedragon.configuration.ducc;
 
-import com.jd.bluedragon.configuration.ducc.DuccHystrixRoutePropertyConfig;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
- * 配置解释 https://cf.jd.com/pages/viewpage.action?pageId=575172590
  * @program: bluedragon-distribution
  * @description: hystrix 动态配置
  * @author: xumigen
  * @create: 2021-08-10 17:33
  **/
-public class HystrixRouteUccPropertyConfiguration{
+@Component("duccHystrixRoutePropertyConfig")
+public class DuccHystrixRoutePropertyConfig{
 
-
+	@Value("${duccHystrixRoutePropertyConfig.executionTimeoutInMilliseconds:2000}")
     private int executionTimeoutInMilliseconds;
-
+	@Value("${duccHystrixRoutePropertyConfig.circuitBreakerEnabled:true}")
     private boolean fallbackEnabled;
-
+	@Value("${duccHystrixRoutePropertyConfig.fallbackEnabled:true}")
     private boolean circuitBreakerEnabled;
-
+	@Value("${duccHystrixRoutePropertyConfig.circuitBreakerErrorThresholdPercentage:100}")
     private int circuitBreakerErrorThresholdPercentage;
-
+	@Value("${duccHystrixRoutePropertyConfig.circuitBreakerForceOpen:false}")
     private boolean circuitBreakerForceOpen;
-
+	@Value("${duccHystrixRoutePropertyConfig.circuitBreakerSleepWindowInMilliseconds:120000}")
     private int circuitBreakerSleepWindowInMilliseconds;
-
+	@Value("${duccHystrixRoutePropertyConfig.maximumSize:4}")
     private int maximumSize;
-
+	@Value("${duccHystrixRoutePropertyConfig.circuitBreakerRequestVolumeThreshold:6}")
     private int circuitBreakerRequestVolumeThreshold;
 
 
