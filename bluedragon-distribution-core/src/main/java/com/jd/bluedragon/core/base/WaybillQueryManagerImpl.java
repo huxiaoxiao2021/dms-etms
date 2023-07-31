@@ -144,16 +144,11 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     /**
      * 查询运单商品明细(最多取两条商品明细)
      *
-     * @param waybillCode
-     * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getGoodsDataByWayCodeLimit2", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getPagedGoodsDataByWCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseEntity<Page<Goods>> getPagedGoodsDataByWCode(String waybillCode, Page<Goods> page) {
-        Page<Goods> goods = new Page<>();
-        goods.setCurPage(1);
-        goods.setPageSize(2);
-        return waybillQueryApi.getPagedGoodsDataByWCode(waybillCode, goods);
+        return waybillQueryApi.getPagedGoodsDataByWCode(waybillCode, page);
     }
 
     @Override
