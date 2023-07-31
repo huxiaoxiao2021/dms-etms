@@ -83,4 +83,17 @@
 			LIMIT #{startIndex, jdbcType=INTEGER} , #{pageSize}
 		</if>
 	</select>
+
+	<select id="findLastByBoxCodeAndSiteCode" resultMap="BaseResultMap" parameterType="Receive">
+		select
+		<include refid="Base_Column_List" />
+		from receive
+		where
+		yn = 1
+		and create_site_code = #{createSiteCode}
+		and box_code = #{boxCode}
+		order by update_time desc
+		limit 1
+
+	</select>
 </mapper>

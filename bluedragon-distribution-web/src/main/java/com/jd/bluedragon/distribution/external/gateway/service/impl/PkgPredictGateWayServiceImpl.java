@@ -165,23 +165,27 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
             com.jdl.jy.realtime.model.query.predict.SendPredictAggsQuery  predictAggsQuery = new com.jdl.jy.realtime.model.query.predict.SendPredictAggsQuery ();
             BeanUtils.copyProperties(query,predictAggsQuery);
             ServiceResult<List<SendPredictToScanPackage>> result = iPackagePredictAggsService.getSendPredictToScanPackageList(predictAggsQuery);
-            if(result == null || CollectionUtils.isEmpty(result.getData())){
+            if(log.isInfoEnabled()){
+                log.info("发货波次待扫包裹列表出参-{}", JSON.toJSONString(result));
+            }
+            if(result == null){
                 response.toFail("获取发货波次待扫包裹列表失败!");
                 return response;
             }
-            SendVehicleToScanPackageDetailResponse packageDetailResponse =new SendVehicleToScanPackageDetailResponse();
-            packageDetailResponse.setProductType(query.getProductType());
-            packageDetailResponse.setProductTypeName(JySendVehicleProductTypeEnum.getNameByCode(query.getProductType()));
-            List<SendVehicleToScanPackage> packages = new ArrayList<>();
-            for (SendPredictToScanPackage pg : result.getData()) {
-                SendVehicleToScanPackage toScanPackage =  new SendVehicleToScanPackage();
-                toScanPackage.setPackageCode(pg.getPackageCode());
-                toScanPackage.setProductType(pg.getProductType());
-                packages.add(toScanPackage);
+            if( CollectionUtils.isNotEmpty(result.getData())){
+                SendVehicleToScanPackageDetailResponse packageDetailResponse =new SendVehicleToScanPackageDetailResponse();
+                packageDetailResponse.setProductType(query.getProductType());
+                packageDetailResponse.setProductTypeName(JySendVehicleProductTypeEnum.getNameByCode(query.getProductType()));
+                List<SendVehicleToScanPackage> packages = new ArrayList<>();
+                for (SendPredictToScanPackage pg : result.getData()) {
+                    SendVehicleToScanPackage toScanPackage =  new SendVehicleToScanPackage();
+                    toScanPackage.setPackageCode(pg.getPackageCode());
+                    toScanPackage.setProductType(pg.getProductType());
+                    packages.add(toScanPackage);
+                }
+                packageDetailResponse.setPackageCodeList(packages);
+                response.setData(packageDetailResponse);
             }
-            packageDetailResponse.setPackageCodeList(packages);
-            response.setData(packageDetailResponse);
-
         }catch (Exception e){
             log.error("获取发货波次待扫包裹列表异常-param{}",JSON.toJSONString(query),e);
             response.toError("获取发货波次待扫包裹列表异常!");

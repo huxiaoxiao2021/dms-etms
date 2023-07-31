@@ -272,6 +272,41 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return dtoStaff;
     }
 
+    /**
+     * 根据字符型编码查询场地数据，包含库房数据，支持 "spwms-605-603"这种查询
+     *
+     * @param siteCode 场地编码
+     * @return 场地信息
+     * @author fanggang7
+     * @time 2023-07-26 14:36:47 周三
+     */
+    @Override
+    public BaseStaffSiteOrgDto getBaseSiteByCodeIncludeStore(String siteCode) {
+        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteByDmsCode(siteCode);
+        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
+        if (dtoStaff != null)
+            return dtoStaff;
+        else
+            dtoStaff = basicPrimaryWS.getBaseStoreByDmsCode(siteCode);
+
+        if (dtoStaff != null){
+            return dtoStaff;
+        } else{
+            responseDTO = basicTraderAPI.getBaseTraderByCode(siteCode);
+            if(responseDTO == null || responseDTO.getResult() == null){
+                final PsStoreInfo storeInfo = this.getStoreByCode(siteCode);
+                if(storeInfo != null){
+                    dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(storeInfo.getDmsSiteId());
+                    return dtoStaff;
+                }
+            }
+        }
+
+        if (responseDTO != null && responseDTO.getResult() != null)
+            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
+        return dtoStaff;
+    }
+
     @Cache(key = "baseMajorManagerImpl.getBaseDataDictById@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseDataDictById", mState = {JProEnum.TP, JProEnum.FunctionError})
