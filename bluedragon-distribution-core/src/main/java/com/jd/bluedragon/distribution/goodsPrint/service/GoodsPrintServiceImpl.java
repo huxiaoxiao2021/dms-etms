@@ -20,7 +20,6 @@ import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.gulfstream.dto.guangzhou.stock_query.Good;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -232,7 +231,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             pageInfo.setCurPage(1);
             BaseEntity<Page<Goods>> baseEntity = waybillQueryManager.getPagedGoodsDataByWCode(waybill.getWaybillCode(), pageInfo);
 
-            if (baseEntity != null && baseEntity.getData() != null && !baseEntity.getData().getResult().isEmpty()) {
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getResult() != null && !baseEntity.getData().getResult().isEmpty()) {
                 List<Goods> result = baseEntity.getData().getResult();
                 StringBuilder stringBuilder = new StringBuilder();
                 for (Goods goods : result) {
