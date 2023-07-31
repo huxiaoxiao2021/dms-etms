@@ -1666,7 +1666,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     /**
      * 调用终端妥投接口
      */
-//    @Override
+    @Override
     public void delivered(String bizId){
         JyBizTaskExceptionEntity exTaskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if(exTaskEntity == null){

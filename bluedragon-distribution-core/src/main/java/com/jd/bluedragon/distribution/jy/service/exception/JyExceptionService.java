@@ -135,4 +135,6 @@ public interface JyExceptionService {
     JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req);
 
     void recordLog(JyBizTaskExceptionCycleTypeEnum cycle, JyBizTaskExceptionEntity entity);
+
+    void delivered(String bizId);
 }
