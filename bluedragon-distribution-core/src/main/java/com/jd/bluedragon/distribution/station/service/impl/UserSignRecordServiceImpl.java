@@ -550,7 +550,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return result;
 		}
 		Date checkTime = DateHelper.add(curTime, Calendar.SECOND, -autoSignOutByMqOffSenconds);
-		if(checkTime.before(actualOffTime)) {
+		if(actualOffTime.before(checkTime)) {
 			log.warn("autoHandleSignOutByAttendJmq：签退时间【{}】偏差当前时间超过{}秒，无需处理！",mqData.getActualOffTime(),autoSignOutByMqOffSenconds);
 			return result;
 		}
