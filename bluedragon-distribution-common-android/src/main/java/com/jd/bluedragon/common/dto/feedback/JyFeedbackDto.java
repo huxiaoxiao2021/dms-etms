@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class JyFeedbackDto implements Serializable {
+    private static final long serialVersionUID = -4484605767365433951L;
     private Long appId;
     private String businessId;
     private Long typeId;

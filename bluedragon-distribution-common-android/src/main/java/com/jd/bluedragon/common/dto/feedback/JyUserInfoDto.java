@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.dto.feedback;
 import java.io.Serializable;
 
 public class JyUserInfoDto implements Serializable {
+    private static final long serialVersionUID = -4866999816006211921L;
     private Long appId;
     private String userAccount;
     private String userName;
