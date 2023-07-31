@@ -873,7 +873,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
     public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeIncludeStore(String siteCode) {
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteByCodeIncludeStore(siteCode);
         if(siteInfo == null && NumberHelper.isNumber(siteCode)){
-            siteInfo = baseMajorManager.getBaseSiteByCodeIncludeStore(siteCode);
+            siteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);
         }
         return siteInfo;
     }
