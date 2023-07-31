@@ -15,6 +15,7 @@ import com.jd.jdwl.feedback.dto.UserInfoDto;
 import com.jd.jdwl.feedback.vo.FeedbackVo;
 import com.jd.jdwl.feedback.vo.PageVo;
 import com.jd.jdwl.feedback.vo.ReplyVo;
+import com.jd.jdwl.feedback.vo.TypeVo;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.collections4.CollectionUtils;
@@ -131,7 +132,7 @@ public class FeedbackServiceImpl implements FeedbackService {
      * @param urlList
      * @return
      */
-    private FeedbackDto toUserFeedbackContent(FeedbackNew feedback, List<String> urlList) {
+    private FeedbackDto  toUserFeedbackContent(FeedbackNew feedback, List<String> urlList) {
         FeedbackDto userFeedbackContent = new FeedbackDto();
         userFeedbackContent.setAppId(feedback.getAppId());
         userFeedbackContent.setTypeId(feedback.getType());
@@ -175,4 +176,22 @@ public class FeedbackServiceImpl implements FeedbackService {
         return String.valueOf(System.currentTimeMillis()) + String.valueOf(random.nextInt(1000) + String.valueOf(index)) + "." + extFileName;
     }
 
+    public boolean createFeedbackWithUrls(FeedbackDto dto) {
+        return feedBackApiManager.createFeedBack(dto);
+    }
+
+    @Override
+    public List<TypeVo> queryFeedBackType(UserInfoDto userInfoDto) {
+        return feedBackApiManager.queryFeedbackTypeList(userInfoDto);
+    }
+
+    @Override
+    public PagerResult<FeedBackResponse> queryFeedback(FeedbackQueryDto queryDto) {
+        PageVo<FeedbackVo> feedbackVoPageVo = feedBackApiManager.queryFeedback(queryDto);
+        PagerResult<FeedBackResponse> result= new PagerResult<>();
+        if (feedbackVoPageVo == null){
+            return result;
+        }
+        return fillResponse(feedbackVoPageVo);
+    }
 }

@@ -662,4 +662,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <bean id="feedbackGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.FeedbackGatewayServiceImpl" />
+    <jsf:provider id="jsfFeedbackGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.FeedbackGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="feedbackGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
