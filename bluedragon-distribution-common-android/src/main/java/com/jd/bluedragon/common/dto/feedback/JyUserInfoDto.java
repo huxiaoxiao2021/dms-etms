@@ -9,6 +9,9 @@ public class JyUserInfoDto implements Serializable {
     private String userName;
     private Integer orgType;
 
+    public JyUserInfoDto() {
+    }
+
     public Long getAppId() {
         return appId;
     }

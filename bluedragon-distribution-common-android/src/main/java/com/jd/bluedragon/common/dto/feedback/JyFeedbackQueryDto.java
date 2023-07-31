@@ -13,6 +13,9 @@ public class JyFeedbackQueryDto implements Serializable {
     private Integer index;
     private Integer pageSize;
 
+    public JyFeedbackQueryDto() {
+    }
+
     public Long getAppId() {
         return appId;
     }

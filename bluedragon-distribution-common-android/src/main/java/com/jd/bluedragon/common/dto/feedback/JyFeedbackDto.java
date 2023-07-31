@@ -20,6 +20,9 @@ public class JyFeedbackDto implements Serializable {
     private Date replyTime;
     private Date finishTime;
 
+    public JyFeedbackDto() {
+    }
+
     public Long getAppId() {
         return appId;
     }
