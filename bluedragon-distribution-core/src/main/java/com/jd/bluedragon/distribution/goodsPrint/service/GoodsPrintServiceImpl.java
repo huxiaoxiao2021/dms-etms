@@ -16,10 +16,10 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -223,9 +223,28 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             if (BusinessUtil.isBoxcode(item.getBoxCode())) {
                 goodsPrintDto.setBoxCode(item.getBoxCode());
             }
-            if (waybill.getWaybillExt() != null && waybill.getWaybillExt().getConsignWare() != null) {
-                goodsPrintDto.setConsignWare(waybill.getWaybillExt().getConsignWare());
+
+
+            // 托寄物品名优先取商品名称（分号分隔拼接前2个商品名称）
+            Page<Goods> pageInfo = new Page<Goods>();
+            pageInfo.setPageSize(2);
+            pageInfo.setCurPage(1);
+            BaseEntity<Page<Goods>> baseEntity = waybillQueryManager.getPagedGoodsDataByWCode(waybill.getWaybillCode(), pageInfo);
+
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getResult() != null && !baseEntity.getData().getResult().isEmpty()) {
+                List<Goods> result = baseEntity.getData().getResult();
+                StringBuilder stringBuilder = new StringBuilder();
+                for (Goods goods : result) {
+                    stringBuilder.append(goods.getGoodName() == null ? "" : goods.getGoodName()).append(";");
+                }
+                goodsPrintDto.setConsignWare(stringBuilder.substring(0, stringBuilder.length() - 1));
+            } else {
+                // 查不到商品名称时取托寄物品名（原逻辑）
+                if (waybill.getWaybillExt() != null && waybill.getWaybillExt().getConsignWare() != null) {
+                    goodsPrintDto.setConsignWare(waybill.getWaybillExt().getConsignWare());
+                }
             }
+
             return goodsPrintDto;
         } catch (Exception e) {
             log.error("托寄物打印封装item[{}]",JsonHelper.toJson(item),e);
@@ -289,7 +308,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         headerMap.put("boxCode","箱号");
         headerMap.put("vendorId","订单号");
         headerMap.put("waybillCode","运单号");
-        headerMap.put("consignWare","托寄物品名");
+        headerMap.put("consignWare","商品名称/托寄物品名");
         return  headerMap;
     }
 
