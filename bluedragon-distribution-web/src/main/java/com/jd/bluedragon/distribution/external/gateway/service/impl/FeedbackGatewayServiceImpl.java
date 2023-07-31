@@ -79,13 +79,16 @@ public class FeedbackGatewayServiceImpl implements FeedbackGatewayService {
             response.toFail("用户erp不能为空！");
             return response;
         }
+        if (queryDto.getAppId() == null) {
+            response.toFail("AppId不能为空！");
+            return response;
+        }
         if (queryDto.getPageSize() == null) {
             queryDto.setPageSize(Constants.DEFAULT_PAGE_SIZE);
         }
         if (queryDto.getIndex() == null) {
             queryDto.setIndex(Constants.DEFAULT_PAGE_NO);
         }
-        queryDto.setAppId(Constants.APP_ID);
         PagerResult<FeedBackResponse> result = feedbackService.queryFeedback(queryDto);
         response.setData(result);
         return response;
