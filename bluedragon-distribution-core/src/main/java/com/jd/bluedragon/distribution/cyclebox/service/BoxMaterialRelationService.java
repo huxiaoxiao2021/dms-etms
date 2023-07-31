@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.cyclebox.service;
 
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 
+import java.util.List;
+
 public interface BoxMaterialRelationService {
 
     /**
@@ -38,6 +40,14 @@ public interface BoxMaterialRelationService {
      * @return
      */
     BoxMaterialRelation getDataByMaterialCode(String materialCode);
+
+
+    /**
+     * 根据集包袋编号查询固定条数数据
+     * @param materialCode
+     * @return
+     */
+    List<BoxMaterialRelation> getLimitDataByMaterialCode(String materialCode, Integer limit);
 
     int updateUnBindByMaterialCode(BoxMaterialRelation boxMaterialRelation);
 
