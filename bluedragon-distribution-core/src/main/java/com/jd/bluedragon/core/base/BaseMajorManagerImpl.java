@@ -16,10 +16,7 @@ import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
-import com.jd.bluedragon.utils.BaseContants;
-import com.jd.bluedragon.utils.BeanCopyUtil;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.coldchain.distribution.api.WaybillPackageContainerApi;
 import com.jd.coldchain.distribution.dto.BaseResponse;
 import com.jd.etms.basic.jsf.BasicSiteUpdateService;
@@ -281,6 +278,9 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
      * @time 2023-07-26 14:36:47 周三
      */
     @Override
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteByCodeIncludeStore@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByCodeIncludeStore", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getBaseSiteByCodeIncludeStore(String siteCode) {
         BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteByDmsCode(siteCode);
         ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
