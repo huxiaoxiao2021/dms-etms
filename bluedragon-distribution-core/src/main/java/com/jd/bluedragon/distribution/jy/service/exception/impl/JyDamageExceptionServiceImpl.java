@@ -105,53 +105,53 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.getToProcessDamageCount", mState = {JProEnum.TP})
-    public JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer siteCode) {
+    public JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer positionCode) {
         JyDamageExceptionToProcessCountDto toProcessCount = new JyDamageExceptionToProcessCountDto();
         // 获取待处理破损异常新增数量
-        String bizIdAddSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + siteCode);
+        String bizIdAddSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
         if (StringUtils.isEmpty(bizIdAddSetStr)) {
             toProcessCount.setToProcessAddCount(0);
         }
         Set<String> oldBizIdAddSet = Arrays.stream(bizIdAddSetStr.split(",")).collect(Collectors.toSet());
         toProcessCount.setToProcessAddCount(oldBizIdAddSet.size());
         // 获取待处理破损异常数量
-        String oldBizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + siteCode);
+        String oldBizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode);
         if (StringUtils.isEmpty(oldBizIdSetStr)) {
             toProcessCount.setToProcessCount(0);
             // 新增转未处理
-            redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + siteCode, String.join(",", oldBizIdAddSet));
+            redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode, String.join(",", oldBizIdAddSet));
             return JdCResponse.ok(toProcessCount);
         }
         Set<String> oldBizIdSet = Arrays.stream(oldBizIdSetStr.split(",")).collect(Collectors.toSet());
         toProcessCount.setToProcessCount(oldBizIdSet.size());
         // 新增转未处理
         oldBizIdSet.addAll(oldBizIdAddSet);
-        redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + siteCode, String.join(",", oldBizIdSet));
+        redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode, String.join(",", oldBizIdSet));
         return JdCResponse.ok(toProcessCount);
     }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.readToProcessDamage", mState = {JProEnum.TP})
-    public JdCResponse<Boolean> readToProcessDamage(Integer siteCode) {
-        redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + siteCode);
-        redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + siteCode);
+    public JdCResponse<Boolean> readToProcessDamage(Integer positionCode) {
+        redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
+        redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode);
         return JdCResponse.ok();
     }
 
     /**
      * 写入待处理破损异常
      */
-    private void writeToProcessDamage(Integer siteCode, String bizId) {
-        String bizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + siteCode);
+    private void writeToProcessDamage(Integer positionCode, String bizId) {
+        String bizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
         if (StringUtils.isEmpty(bizIdSetStr)) {
             Set<String> bizIdSet = new HashSet<>();
             bizIdSet.add(bizId);
-            redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + siteCode, String.join(",", bizIdSet));
+            redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode, String.join(",", bizIdSet));
             return;
         }
         Set<String> oldBizIdSet = Arrays.stream(bizIdSetStr.split(",")).collect(Collectors.toSet());
         oldBizIdSet.add(bizId);
-        redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + siteCode, String.join(",", oldBizIdSet));
+        redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode, String.join(",", oldBizIdSet));
     }
 
     @Override

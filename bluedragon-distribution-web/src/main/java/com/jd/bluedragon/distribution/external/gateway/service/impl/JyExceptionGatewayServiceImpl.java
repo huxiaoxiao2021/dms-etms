@@ -242,13 +242,13 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     }
 
     @Override
-    public JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer siteCode){
-        return jyDamageExceptionService.getToProcessDamageCount(siteCode);
+    public JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer positionCode){
+        return jyDamageExceptionService.getToProcessDamageCount(positionCode);
     }
 
     @Override
-    public JdCResponse<Boolean> readToProcessDamage(Integer siteCode) {
-        return jyDamageExceptionService.readToProcessDamage(siteCode);
+    public JdCResponse<Boolean> readToProcessDamage(Integer positionCode) {
+        return jyDamageExceptionService.readToProcessDamage(positionCode);
     }
 
 }

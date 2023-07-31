@@ -26,7 +26,7 @@ public interface JyDamageExceptionService {
      *
      * @return
      */
-    JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer siteCode);
+    JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer positionCode);
 
     /**
      * 读取破损异常为已读
@@ -34,5 +34,5 @@ public interface JyDamageExceptionService {
      * @param siteCode
      * @return
      */
-    JdCResponse<Boolean> readToProcessDamage(Integer siteCode);
+    JdCResponse<Boolean> readToProcessDamage(Integer positionCode);
 }

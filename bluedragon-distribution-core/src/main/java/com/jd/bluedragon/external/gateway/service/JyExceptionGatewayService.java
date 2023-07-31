@@ -167,15 +167,17 @@ public interface JyExceptionGatewayService {
     JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req);
 
     /**
-     * 获取带处理的破损异常数量
+     * 获取待处理和新增的破损异常数量
      * @return
      */
-    JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer siteCode);
+    JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer positionCode);
 
     /**
-     * 获取待处理和新增的破损异常数量
-     * @param siteCode
+     * 读取破损异常为已读
+     * @param positionCode
      * @return
      */
-    JdCResponse<Boolean> readToProcessDamage(Integer siteCode);
+    JdCResponse<Boolean> readToProcessDamage(Integer positionCode);
+
+
 }
