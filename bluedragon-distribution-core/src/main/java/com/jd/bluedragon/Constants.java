@@ -826,7 +826,7 @@ public class Constants {
     /**
      * 配置信息-自动签退处理的站点配置
      */
-    public static final String SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES = "sys.config.autoHandleSignOutSiteCodes";    
+    public static final String SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES = "sys.config.autoHandleSignOutSiteCodes";
     /**
      *  配置信息-青龙打印配置  qinglong.print.type.use
      *
@@ -1989,4 +1989,8 @@ public class Constants {
         sendPredictaggstopic2DataSource.put("jy_send_predict_aggs","aggsMain");
         sendPredictaggstopic2DataSource.put("jy_send_predict_aggs_slave","aggsSlave");
     }
+
+    public static final Long APP_ID = 8181L;
+
+    public static final Integer ORG_TYPE_ERP = 2;
 }

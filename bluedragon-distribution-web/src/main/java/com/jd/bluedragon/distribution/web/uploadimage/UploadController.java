@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,6 +49,30 @@ public class UploadController {
             }
         } catch (Exception e) {
             logger.error("uploadExceptionImage error", e);
+            jdCResponse.toError("图片上传时发生异常");
+        }
+        return jdCResponse;
+    }
+
+    @RequestMapping(value = "/batchUploadImage", method = {RequestMethod.GET, RequestMethod.POST})
+    @ResponseBody
+    public JdCResponse<List<String>> batchUploadImage(MultipartHttpServletRequest request, HttpServletResponse response) {
+        JdCResponse<List<String>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+        try {
+            List<MultipartFile> images = request.getFiles("file");
+            List<String> urls = new ArrayList<>();
+
+            if (images != null) {
+                for (MultipartFile image: images) {
+                    String url = abnormalReportingGatewayService.uploadExceptionMedia(image.getInputStream(), image.getOriginalFilename());
+                    if (StringUtils.isNotEmpty(url)) {
+                        urls.add(url);
+                    }
+                }
+            }
+            jdCResponse.setData(urls);
+        } catch (Exception e) {
+            logger.error("batchUploadExceptionImage error", e);
             jdCResponse.toError("图片上传时发生异常");
         }
         return jdCResponse;
