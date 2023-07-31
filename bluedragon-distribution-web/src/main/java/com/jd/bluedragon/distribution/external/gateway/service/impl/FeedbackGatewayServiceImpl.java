@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.feedback.JyFeedbackDto;
+import com.jd.bluedragon.common.dto.feedback.JyFeedbackQueryDto;
+import com.jd.bluedragon.common.dto.feedback.JyUserInfoDto;
 import com.jd.bluedragon.distribution.feedback.domain.FeedBackResponse;
 import com.jd.bluedragon.distribution.feedback.service.FeedbackService;
 import com.jd.bluedragon.external.gateway.service.FeedbackGatewayService;
@@ -11,6 +14,7 @@ import com.jd.jdwl.feedback.dto.UserInfoDto;
 import com.jd.jdwl.feedback.vo.TypeVo;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +26,7 @@ public class FeedbackGatewayServiceImpl implements FeedbackGatewayService {
     @Autowired
     private FeedbackService feedbackService;
     @Override
-    public JdCResponse<Boolean> createFeedbackWithUrls(FeedbackDto dto) {
+    public JdCResponse<Boolean> createFeedbackWithUrls(JyFeedbackDto dto) {
         JdCResponse<Boolean> response = new JdCResponse<>();
         response.toSucceed();
         if (dto.getAppId() == null) {
@@ -45,51 +49,61 @@ public class FeedbackGatewayServiceImpl implements FeedbackGatewayService {
             response.toFail("反馈人姓名不能为空！");
             return response;
         }
-        response.setData(feedbackService.createFeedbackWithUrls(dto));
+        if (StringUtils.isEmpty(dto.getContent())) {
+            response.toFail("反馈描述不能为空！");
+            return response;
+        }
+        FeedbackDto feedbackDto = new FeedbackDto();
+        BeanUtils.copyProperties(dto, feedbackDto);
+        response.setData(feedbackService.createFeedbackWithUrls(feedbackDto));
         return response;
     }
 
     @Override
-    public JdCResponse<List<TypeVo>> queryFeedBackType(UserInfoDto userInfoDto) {
+    public JdCResponse<List<TypeVo>> queryFeedBackType(JyUserInfoDto dto) {
         JdCResponse<List<TypeVo>> response = new JdCResponse<>();
         response.toSucceed();
-        if (userInfoDto.getAppId() == null) {
+        if (dto.getAppId() == null) {
             response.toFail("AppId不能为空！");
             return response;
         }
-        if (StringUtils.isEmpty(userInfoDto.getUserAccount())) {
+        if (StringUtils.isEmpty(dto.getUserAccount())) {
             response.toFail("用户erp不能为空！");
             return response;
         }
-        if (userInfoDto.getOrgType() == null) {
+        if (dto.getOrgType() == null) {
             response.toFail("orgType不能为空！");
             return response;
         }
-        userInfoDto.setOrgType(Constants.ORG_TYPE_ERP);
+        dto.setOrgType(Constants.ORG_TYPE_ERP);
+        UserInfoDto userInfoDto = new UserInfoDto();
+        BeanUtils.copyProperties(dto, userInfoDto);
         List<TypeVo> feedbackType = feedbackService.queryFeedBackType(userInfoDto);
         response.setData(feedbackType);
         return response;
     }
 
     @Override
-    public JdCResponse<PagerResult<FeedBackResponse>> queryFeedback(FeedbackQueryDto queryDto) {
+    public JdCResponse<PagerResult<FeedBackResponse>> queryFeedback(JyFeedbackQueryDto dto) {
         JdCResponse<PagerResult<FeedBackResponse>> response = new JdCResponse<>();
         response.toSucceed();
-        if (StringUtils.isEmpty(queryDto.getUserAccount())) {
+        if (StringUtils.isEmpty(dto.getUserAccount())) {
             response.toFail("用户erp不能为空！");
             return response;
         }
-        if (queryDto.getAppId() == null) {
+        if (dto.getAppId() == null) {
             response.toFail("AppId不能为空！");
             return response;
         }
-        if (queryDto.getPageSize() == null) {
-            queryDto.setPageSize(Constants.DEFAULT_PAGE_SIZE);
+        if (dto.getPageSize() == null) {
+            dto.setPageSize(Constants.DEFAULT_PAGE_SIZE);
         }
-        if (queryDto.getIndex() == null) {
-            queryDto.setIndex(Constants.DEFAULT_PAGE_NO);
+        if (dto.getIndex() == null) {
+            dto.setIndex(Constants.DEFAULT_PAGE_NO);
         }
-        PagerResult<FeedBackResponse> result = feedbackService.queryFeedback(queryDto);
+        FeedbackQueryDto feedbackQueryDto = new FeedbackQueryDto();
+        BeanUtils.copyProperties(dto, feedbackQueryDto);
+        PagerResult<FeedBackResponse> result = feedbackService.queryFeedback(feedbackQueryDto);
         response.setData(result);
         return response;
     }
