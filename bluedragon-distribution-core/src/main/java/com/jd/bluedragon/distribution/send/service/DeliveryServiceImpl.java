@@ -4241,6 +4241,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 	                dSendDetail.setCreateUserCode(newSendM.getCreateUserCode());
 	                dSendDetail.setBoardCode(newSendM.getBoardCode());
 	                dSendDetail.setBizSource(newSendM.getBizSource());
+                    dSendDetail.setOperatorId(newSendM.getOperatorId());
+                    dSendDetail.setOperatorTypeCode(newSendM.getOperatorTypeCode());
 	                sendDetailList.add(dSendDetail);
 	            }
 	        }

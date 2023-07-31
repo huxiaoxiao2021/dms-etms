@@ -107,6 +107,12 @@
 			<if test="excuteTime != null">
 				excute_time = #{excuteTime,jdbcType=TIMESTAMP},
 			</if>
+			<if test="operatorTypeCode != null">
+				operator_type_code = #{operatorTypeCode,jdbcType=INTEGER},
+			</if>
+			<if test="operatorId != null">
+				operator_id = #{operatorId,jdbcType=VARCHAR},
+			</if>
 			update_time = #{operateTime,jdbcType=TIMESTAMP},
 			is_loss = #{isLoss,jdbcType=INTEGER},
 			feature_type = #{featureType,jdbcType=INTEGER}
