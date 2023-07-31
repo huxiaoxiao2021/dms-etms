@@ -435,6 +435,18 @@ public class DmsConstants {
      */
     public static final String SYS_AUTO_USER_CODE = "system";    
     /**
+     * 用户编码-超时自动签退
+     */
+    public static final String USER_CODE_AUTO_SIGN_OUT_TIME_OUT = "sys.dms";
+    /**
+     * 用户编码-接收attend_detail_change_topic消息，自动签退标识
+     */
+    public static final String USER_CODE_AUTO_SIGN_OUT_FORM_RZ = "sys_attend_topic";
+    /**
+     * 用户名称-人脸识别
+     */
+    public static final String USER_NAME_AUTO_SIGN_OUT_FORM_RZ = "人脸识别";
+    /**
      * 暂存类型枚举值
      */
     public enum PreSellTypeEnum {
