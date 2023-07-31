@@ -142,7 +142,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     }
 
     /**
-     * 查询运单商品明细(最多取两条商品明细)
+     * 分页查询运单商品明细
      *
      */
     @Override
