@@ -101,11 +101,15 @@
   </update>
 
   <select id="getunScanSumByCondition" parameterType="com.jd.bluedragon.distribution.jy.send.JySendPredictAggsRequest" resultType="long">
-
         select sum(un_scan_count)
         from jy_send_predict_aggs
         where yn =1
         and site_id =  #{siteId,jdbcType=BIGINT}
+        AND plan_next_site_id in
+        <foreach item="id" index="index" collection="endSiteIds"
+                 open="(" separator="," close=")">
+          #{id}
+        </foreach>
 
   </select>
 
@@ -116,6 +120,11 @@
     from jy_send_predict_aggs
     WHERE site_id = #{siteId}
     AND flag =#{flag}
+    AND plan_next_site_id in
+    <foreach item="id" index="index" collection="endSiteIds"
+             open="(" separator="," close=")">
+      #{id}
+    </foreach>
     GROUP BY product_type
   </select>
 </mapper>

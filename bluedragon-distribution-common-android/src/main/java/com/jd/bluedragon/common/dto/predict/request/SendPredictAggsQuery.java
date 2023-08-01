@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.predict.request;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -28,6 +29,16 @@ public class SendPredictAggsQuery implements Serializable {
     private Integer pageNumber;
 
     private Integer pageSize;
+
+    /**
+     * 目的场地ids
+     */
+    private List<Long> endSiteIds;
+
+    /**
+     * 业务主键
+     */
+    private String sendVehicleBizId;
 
     public Integer getSiteCode() {
         return siteCode;
@@ -67,5 +78,21 @@ public class SendPredictAggsQuery implements Serializable {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public List<Long> getEndSiteIds() {
+        return endSiteIds;
+    }
+
+    public void setEndSiteIds(List<Long> endSiteIds) {
+        this.endSiteIds = endSiteIds;
+    }
+
+    public String getSendVehicleBizId() {
+        return sendVehicleBizId;
+    }
+
+    public void setSendVehicleBizId(String sendVehicleBizId) {
+        this.sendVehicleBizId = sendVehicleBizId;
     }
 }
