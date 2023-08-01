@@ -168,15 +168,17 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
                 return response;
             }
 
+            com.jdl.jy.realtime.model.query.predict.SendPredictAggsQuery  predictAggsQuery = new com.jdl.jy.realtime.model.query.predict.SendPredictAggsQuery ();
+            BeanUtils.copyProperties(query,predictAggsQuery);
             JyBizTaskSendVehicleDetailEntity querySendVehicleDetail = new JyBizTaskSendVehicleDetailEntity();
             querySendVehicleDetail.setSendVehicleBizId(query.getSendVehicleBizId());
             List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(querySendVehicleDetail);
             if(CollectionUtils.isNotEmpty(receiveIds)){
-
+                predictAggsQuery.setEndSiteIds(receiveIds);
             }
-
-            com.jdl.jy.realtime.model.query.predict.SendPredictAggsQuery  predictAggsQuery = new com.jdl.jy.realtime.model.query.predict.SendPredictAggsQuery ();
-            BeanUtils.copyProperties(query,predictAggsQuery);
+            if(log.isInfoEnabled()){
+                log.info("发货波次待扫包裹列表入参-{}", JSON.toJSONString(predictAggsQuery));
+            }
             ServiceResult<List<SendPredictToScanPackage>> result = iPackagePredictAggsService.getSendPredictToScanPackageList(predictAggsQuery);
             if(log.isInfoEnabled()){
                 log.info("发货波次待扫包裹列表出参-{}", JSON.toJSONString(result));
