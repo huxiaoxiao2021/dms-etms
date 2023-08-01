@@ -32,7 +32,7 @@ import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSiteQueryWS;
-import com.jd.ql.basic.ws.BasicStaffQueryWS;
+//import com.jd.ql.basic.ws.BasicStaffQueryWS;
 import com.jd.ql.dms.report.SiteQueryService;
 import com.jd.ql.dms.report.domain.*;
 import com.jd.ump.annotation.JProEnum;
@@ -96,8 +96,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Autowired
     private SecurityCheckerExecutor securityCheckerExecutor;
     
-    @Autowired
-    private BasicStaffQueryWS basicStaffQueryWS;
+//    @Autowired
+//    private BasicStaffQueryWS basicStaffQueryWS;
 
     /**
      * 站点ID
