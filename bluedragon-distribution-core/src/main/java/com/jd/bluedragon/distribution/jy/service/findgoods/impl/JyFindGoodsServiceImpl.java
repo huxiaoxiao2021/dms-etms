@@ -562,6 +562,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   @Override
   public boolean updateWaitFindPackage(UpdateWaitFindPackageStatusDto dto,
       FindGoodsTaskDto findGoodsTaskDto) {
+
     return false;
   }
 }

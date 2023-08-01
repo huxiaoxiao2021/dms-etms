@@ -202,5 +202,11 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
   }
 
   private void checkUpdateWaitFindPackageStatus(UpdateWaitFindPackageStatusDto dto) {
+    if (ObjectHelper.isEmpty(dto.getFindGoodsTaskBizId())){
+      throw new JyBizException("参数错误：缺失任务bizId！");
+    }
+    if (CollectionUtils.isEmpty(dto.getWaitFindPackageDtoList())){
+      throw new JyBizException("参数错误：缺失待更新包裹列表！");
+    }
   }
 }
