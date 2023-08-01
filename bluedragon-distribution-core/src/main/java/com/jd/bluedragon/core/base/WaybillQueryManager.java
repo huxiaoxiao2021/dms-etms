@@ -1,11 +1,8 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.SkuSn;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillExtPro;
+import com.jd.etms.waybill.common.Page;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
@@ -42,6 +39,15 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	BaseEntity<BigWaybillDto> getDataByChoiceNoCache(String waybillCode, WChoice wChoice);
+
+	/**
+	 * 分页查询运单商品明细
+	 *
+	 * @param waybillCode
+	 * @param page
+	 * @return
+	 */
+	BaseEntity<Page<Goods>> getPagedGoodsDataByWCode(String waybillCode, Page<Goods> page);
 
 	BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, WChoice  wChoice);
 
