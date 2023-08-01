@@ -56,7 +56,7 @@ public class FeedbackGatewayServiceImpl implements FeedbackGatewayService {
     }
 
     @Override
-    public JdCResponse<List<TypeVo>> queryFeedBackType(JyUserInfoDto dto) {
+    public JdCResponse<List<TypeVo>> queryFeedbackType(JyUserInfoDto dto) {
         JdCResponse<List<TypeVo>> response = new JdCResponse<>();
         response.toSucceed();
         if (dto.getAppId() == null) {
