@@ -76,18 +76,19 @@ public class DmsUccController {
 		 for(Field field: ObjectHelper.getDeclaredFieldsList(UccPropertyConfiguration.class)) {
 			 Object uccValue = ObjectHelper.getValue(dmsConfigManager.getUccPropertyConfiguration(), field.getName());
 			 Object duccValue = ObjectHelper.getValue(dmsConfigManager.getDuccPropertyConfig(), field.getName());
+			 String checkStr = "";
 			 if(!duccFilesMap.containsKey(field.getName())) {
-				 sf.append(field.getName()+":ducc缺少字段\n");
+				 checkStr ="ducc缺少字段";
 			 }
-			 else if(field.getDeclaringClass().equals(duccFilesMap.get(field.getName()).getDeclaringClass())){
-				 sf.append(field.getName()+":ducc类型不一致 ucc类型"+field.getDeclaringClass().getSimpleName()+" ducc类型"+duccFilesMap.get(field.getName()).getDeclaringClass().getDeclaringClass().getSimpleName()+"\n");
+			 else if(!field.getDeclaringClass().equals(duccFilesMap.get(field.getName()).getDeclaringClass())){
+				 checkStr = "ducc类型不一致 ucc类型"+field.getDeclaringClass().getSimpleName()+" ducc类型"+duccFilesMap.get(field.getName()).getDeclaringClass().getDeclaringClass().getSimpleName()+"";
 			 }
 			 boolean checkResult = isSame(uccValue, duccValue);
 			 if(checkResult) {
 				 log.info(field.getName()+":equal");
 			 }else {
 				 log.error(field.getName()+":no-equal"+",ucc="+uccValue +",ducc="+duccValue);
-				 sf.append(field.getName()+":no-equal"+" \nucc="+uccValue +"\nducc="+duccValue+"\n");
+				 sf.append(field.getName()+":no-equal"+checkStr+" \nucc="+uccValue +"\nducc="+duccValue+"\n");
 			 }
 		 }
 		 sf.append("\n");

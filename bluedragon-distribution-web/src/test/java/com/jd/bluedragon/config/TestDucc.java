@@ -141,7 +141,7 @@ public class TestDucc {
 				 if(!duccKeyMap.containsKey(fieldName)) {
 					 sfCodes1.append(sfCodes0.toString());
 				 }
-				 boolean checkResult = ObjectUtils.equals(uccValue, duccValue);
+				 boolean checkResult = isSame(uccValue, duccValue);
 				 if(!checkResult) {
 					 sfNeedCheck.append(fieldName+":值不相同"+" \nucc="+uccValue +"\nducc="+duccValue+"\n");
 				 }
@@ -197,6 +197,15 @@ public class TestDucc {
 		 }
 
 		}
+    private static boolean isSame(Object o1,Object o2) {
+    	if(o1 == o2) {
+    		return true;
+    	}
+    	if(o1 == null && o2== null) {
+    		return true;
+    	}    	
+    	return JsonHelper.toJson(o1).equals(JsonHelper.toJson(o2));
+    }	
 	   public static String toUccJson(Object obj) throws Exception {
 			 List<Field> fieldList = ObjectHelper.getDeclaredFieldsList(obj.getClass());
 			 Collections.sort(fieldList,new Comparator<Field>() {
