@@ -96,22 +96,6 @@ public class TaskBoard implements Serializable {
      * 数据库时间
      */
     private Date ts;
-    /**
-     * 省区编码
-     */
-    private String provinceAgencyCode;
-    /**
-     * 省区名称
-     */
-    private String provinceAgencyName;
-    /**
-     * 枢纽编码
-     */
-    private String areaHubCode;
-    /**
-     * 枢纽名称
-     */
-    private String areaHubName;
 
     public Long getId() {
         return id;
@@ -247,49 +231,5 @@ public class TaskBoard implements Serializable {
 
     public void setTs(Date ts) {
         this.ts = ts;
-    }
-
-    public String getProvinceAgencyCode() {
-        return provinceAgencyCode;
-    }
-
-    public void setProvinceAgencyCode(String provinceAgencyCode) {
-        if(provinceAgencyCode == null){
-            provinceAgencyCode = "";
-        }
-        this.provinceAgencyCode = provinceAgencyCode;
-    }
-
-    public String getProvinceAgencyName() {
-        return provinceAgencyName;
-    }
-
-    public void setProvinceAgencyName(String provinceAgencyName) {
-        if(provinceAgencyName == null){
-            provinceAgencyName = "";
-        }
-        this.provinceAgencyName = provinceAgencyName;
-    }
-
-    public String getAreaHubCode() {
-        return areaHubCode;
-    }
-
-    public void setAreaHubCode(String areaHubCode) {
-        if(areaHubCode == null){
-            areaHubCode = "";
-        }
-        this.areaHubCode = areaHubCode;
-    }
-
-    public String getAreaHubName() {
-        return areaHubName;
-    }
-
-    public void setAreaHubName(String areaHubName) {
-        if(areaHubName == null){
-            areaHubName = "";
-        }
-        this.areaHubName = areaHubName;
     }
 }
