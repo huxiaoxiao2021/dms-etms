@@ -1937,9 +1937,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
             request.setDestinationId(request.getEndSiteId());
             return;
           }
-          if (needForceSend(request.getCurrentOperate().getSiteCode())){
+          if (!BusinessUtil.isBoxcode(request.getBarCode()) && needForceSend(request.getCurrentOperate().getSiteCode())){
             BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getEndSiteId());
-            throw new JyBizException(COMBOARD_SCAN_FORCE_SEND_WARNING,"非本流向货物，是否强制发往【"+baseStaffSiteOrgDto.getSiteName()+"】？");
+            if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper.isNotNull(baseStaffSiteOrgDto.getSiteName())){
+              throw new JyBizException(COMBOARD_SCAN_FORCE_SEND_WARNING,"非本流向货物，是否强制发往【"+baseStaffSiteOrgDto.getSiteName()+"】？");
+            }
           }
           throw new JyBizException(NOT_BELONG_THIS_SENDFLOW_CODE,NOT_BELONG_THIS_SENDFLOW_MESSAGE);
         }
@@ -1985,9 +1987,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         request.setDestinationId(request.getEndSiteId());
         return;
       }
-      if (needForceSend(request.getCurrentOperate().getSiteCode())){
+      if (!BusinessUtil.isBoxcode(request.getBarCode()) && needForceSend(request.getCurrentOperate().getSiteCode())){
         BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getEndSiteId());
-        throw new JyBizException(COMBOARD_SCAN_FORCE_SEND_WARNING,"非本混扫任务流向货物，是否强制发往【"+baseStaffSiteOrgDto.getSiteName()+"】？");
+        if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper.isNotNull(baseStaffSiteOrgDto.getSiteName())){
+          throw new JyBizException(COMBOARD_SCAN_FORCE_SEND_WARNING,"非本混扫任务流向货物，是否强制发往【"+baseStaffSiteOrgDto.getSiteName()+"】？");
+        }
       }
       throw new JyBizException(NOT_BELONG_THIS_HUNSAO_TASK_CODE,NOT_BELONG_THIS_HUNSAO_TASK_MESSAGE);
     }
