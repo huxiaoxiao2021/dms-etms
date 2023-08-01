@@ -3130,11 +3130,17 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         Long toScanCountSum =0L;
         if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
+            JyBizTaskSendVehicleDetailEntity querySendVehicleDetail = new JyBizTaskSendVehicleDetailEntity();
+            querySendVehicleDetail.setSendVehicleBizId(taskSend.getBizId());
+            List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(querySendVehicleDetail);
             JySendPredictAggsRequest query = new JySendPredictAggsRequest();
             query.setSiteId(taskSend.getStartSiteId());
-            log.info("获取待扫数据入参--{}",JSON.toJSONString(query));
-            toScanCountSum = jySendPredictAggsService.getToScanCountSum(query);
-            log.info("获取待扫数据--{}",toScanCountSum);
+            if(CollectionUtils.isNotEmpty(receiveIds)){
+                query.setEndSiteIds(receiveIds);
+                log.info("获取待扫数据入参--{}",JSON.toJSONString(query));
+                toScanCountSum = jySendPredictAggsService.getToScanCountSum(query);
+                log.info("获取待扫数据--{}",toScanCountSum);
+            }
         }else {
             JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
             aggsEntityQuery.setBizId(taskSend.getBizId());
@@ -4072,19 +4078,27 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
             List<JySendVehicleProductType> sendVehicleProductTypeList = new ArrayList<>();
             if(jyDuccConfigManager.getJySendAggOldOrNewDataReadSwitch()){
+
+                JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+                query.setSendVehicleBizId(request.getSendVehicleBizId());
+                List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
+
                 JySendPredictAggsRequest aggsRequest = new JySendPredictAggsRequest();
                 aggsRequest.setSiteId(new Long(request.getCurrentOperate().getSiteCode()));
                 aggsRequest.setFlag(request.getFlag());
-                log.info("统计待扫产品类型和包裹总数入参-{}", JSON.toJSONString(aggsEntityQuery));
-                List<JySendPredictProductType> sendPredictProductTypeList = jySendPredictAggsService.getSendPredictProductTypeList(aggsRequest);
-                log.info("统计待扫产品类型和包裹总数结果-{}",JSON.toJSONString(sendVehicleProductTypeList));
-                if(CollectionUtils.isNotEmpty(sendPredictProductTypeList)){
-                    for (JySendPredictProductType item:sendPredictProductTypeList) {
-                        JySendVehicleProductType productType = new JySendVehicleProductType();
-                        productType.setProductType(item.getProductType());
-                        productType.setProductTypeName(item.getProductTypeName());
-                        productType.setProductwaitScanCount(item.getProductwaitScanCount());
-                        sendVehicleProductTypeList.add(productType);
+                if(CollectionUtils.isNotEmpty(receiveIds)) {
+                    aggsRequest.setEndSiteIds(receiveIds);
+                    log.info("统计待扫产品类型和包裹总数入参-{}", JSON.toJSONString(aggsEntityQuery));
+                    List<JySendPredictProductType> sendPredictProductTypeList = jySendPredictAggsService.getSendPredictProductTypeList(aggsRequest);
+                    log.info("统计待扫产品类型和包裹总数结果-{}", JSON.toJSONString(sendVehicleProductTypeList));
+                    if (CollectionUtils.isNotEmpty(sendPredictProductTypeList)) {
+                        for (JySendPredictProductType item : sendPredictProductTypeList) {
+                            JySendVehicleProductType productType = new JySendVehicleProductType();
+                            productType.setProductType(item.getProductType());
+                            productType.setProductTypeName(item.getProductTypeName());
+                            productType.setProductwaitScanCount(item.getProductwaitScanCount());
+                            sendVehicleProductTypeList.add(productType);
+                        }
                     }
                 }
             }else {

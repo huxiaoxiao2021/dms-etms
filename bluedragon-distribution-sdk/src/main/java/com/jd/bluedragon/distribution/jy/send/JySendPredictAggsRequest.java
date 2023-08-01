@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.send;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -28,6 +29,11 @@ public class JySendPredictAggsRequest implements Serializable {
      * 波次标识 1 当前波次 2 上波次
      */
     private Integer flag;
+
+    /**
+     * 目的场地ids
+     */
+    private List<Long> endSiteIds;
 
     public String getBizId() {
         return bizId;
@@ -59,5 +65,13 @@ public class JySendPredictAggsRequest implements Serializable {
 
     public void setFlag(Integer flag) {
         this.flag = flag;
+    }
+
+    public List<Long> getEndSiteIds() {
+        return endSiteIds;
+    }
+
+    public void setEndSiteIds(List<Long> endSiteIds) {
+        this.endSiteIds = endSiteIds;
     }
 }
