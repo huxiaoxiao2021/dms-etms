@@ -678,6 +678,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         CCInAndOutBoundMessage body = new CCInAndOutBoundMessage();
         body.setOrgId(String.valueOf(siteOrgDto.getOrgId()));
         body.setOrgName(siteOrgDto.getOrgName());
+        body.setProvinceAgencyCode(siteOrgDto.getProvinceAgencyCode());
+        body.setProvinceAgencyName(siteOrgDto.getProvinceAgencyName());
+        body.setAreaHubCode(siteOrgDto.getAreaCode());
+        body.setAreaHubName(siteOrgDto.getAreaName());
         body.setSiteId(String.valueOf(siteOrgDto.getSiteCode()));
         body.setSiteName(siteOrgDto.getSiteName());
         body.setOperateType(ColdChainOperateTypeEnum.DELIVERY.getType());

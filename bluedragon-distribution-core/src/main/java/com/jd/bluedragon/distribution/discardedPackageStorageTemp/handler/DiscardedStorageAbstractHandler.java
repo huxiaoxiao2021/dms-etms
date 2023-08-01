@@ -230,6 +230,10 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
         discardedPackageStorageTemp.setSiteCity(siteDto.getCityName());
         discardedPackageStorageTemp.setOrgCode(siteDto.getOrgId());
         discardedPackageStorageTemp.setOrgName(siteDto.getOrgName());
+        discardedPackageStorageTemp.setProvinceAgencyCode(siteDto.getProvinceAgencyCode());
+        discardedPackageStorageTemp.setProvinceAgencyName(siteDto.getProvinceAgencyName());
+        discardedPackageStorageTemp.setAreaHubCode(siteDto.getAreaCode());
+        discardedPackageStorageTemp.setAreaHubName(siteDto.getAreaName());
         Integer prevSiteCode = getPreSiteCode(packageCode, operateUser.getSiteCode());
         log.info("DiscardedStorageAbstractHandler.buildDiscardedPackageStorageTemp prevSiteCode {}", prevSiteCode);
         discardedPackageStorageTemp.setPrevSiteCode(prevSiteCode);

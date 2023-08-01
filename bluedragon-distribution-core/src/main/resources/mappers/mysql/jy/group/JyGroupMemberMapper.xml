@@ -15,6 +15,8 @@
         <result property="masterFlag" column="master_flag"/>
         <result property="status" column="status"/>
         <result property="orgCode" column="org_code"/>
+        <result property="provinceAgencyCode" column="province_agency_code"/>
+        <result property="areaHubCode" column="area_hub_code"/>
         <result property="siteCode" column="site_code"/>
         <result property="createUser" column="create_user"/>
         <result property="createUserName" column="create_user_name"/>
@@ -43,6 +45,8 @@
         <result property="masterFlag" column="master_flag"/>
         <result property="status" column="status"/>
         <result property="orgCode" column="org_code"/>
+        <result property="provinceAgencyCode" column="province_agency_code"/>
+        <result property="areaHubCode" column="area_hub_code"/>
         <result property="siteCode" column="site_code"/>
         <result property="createUser" column="create_user"/>
         <result property="createUserName" column="create_user_name"/>
@@ -76,6 +80,7 @@
         master_flag,
         status,
         org_code,
+        province_agency_code,area_hub_code,
         site_code,
         create_user,
         create_user_name,
@@ -105,6 +110,7 @@
                             master_flag,
                             status,
                             org_code,
+                            province_agency_code,area_hub_code,
                             site_code,
                             create_user,
                             create_user_name,
@@ -129,6 +135,7 @@
                             #{masterFlag},
                             #{status},
                             #{orgCode},
+                            #{provinceAgencyCode},#{areaHubCode},
                             #{siteCode},
                             #{createUser},
                             #{createUserName},
@@ -156,6 +163,7 @@
                             master_flag,
                             status,
                             org_code,
+                            province_agency_code,area_hub_code,
                             site_code,
                             create_user,
                             create_user_name,
@@ -182,6 +190,7 @@
                       #{item.masterFlag},
                       #{item.status},
                       #{item.orgCode},
+                      #{item.provinceAgencyCode},#{item.areaHubCode},
                       #{item.siteCode},
                       #{item.createUser},
                       #{item.createUserName},

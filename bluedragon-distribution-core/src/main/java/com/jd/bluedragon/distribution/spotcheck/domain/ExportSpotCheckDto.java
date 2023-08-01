@@ -15,6 +15,7 @@ public class ExportSpotCheckDto {
     private String merchantName;
     private String isTrustMerchant;
     private String reviewOrgName;
+    private String reviewProvinceAgencyName;
     private String reviewSiteName;
     private String siteTypeName;
     private String reviewErp;
@@ -22,6 +23,7 @@ public class ExportSpotCheckDto {
     private String reviewVolume;
     private String reviewLWH;
     private String contrastOrgName;
+    private String contrastProvinceAgencyName;
     private String contrastWarZoneName;
     private String contrastAreaName;
     private String contrastSiteName;
@@ -105,6 +107,14 @@ public class ExportSpotCheckDto {
         this.reviewOrgName = reviewOrgName;
     }
 
+    public String getReviewProvinceAgencyName() {
+        return reviewProvinceAgencyName;
+    }
+
+    public void setReviewProvinceAgencyName(String reviewProvinceAgencyName) {
+        this.reviewProvinceAgencyName = reviewProvinceAgencyName;
+    }
+
     public String getReviewSiteName() {
         return reviewSiteName;
     }
@@ -159,6 +169,14 @@ public class ExportSpotCheckDto {
 
     public void setContrastOrgName(String contrastOrgName) {
         this.contrastOrgName = contrastOrgName;
+    }
+
+    public String getContrastProvinceAgencyName() {
+        return contrastProvinceAgencyName;
+    }
+
+    public void setContrastProvinceAgencyName(String contrastProvinceAgencyName) {
+        this.contrastProvinceAgencyName = contrastProvinceAgencyName;
     }
 
     public String getContrastWarZoneName() {

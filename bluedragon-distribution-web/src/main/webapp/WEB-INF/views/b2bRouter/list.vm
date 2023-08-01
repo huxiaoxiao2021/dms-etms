@@ -15,6 +15,7 @@
 	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
 	<script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    #parse("system/common/baseImport.vm")
     <style type="text/css"></style>
 </head>
 
@@ -42,30 +43,29 @@
 						<tr>
                             <td align="right">始发网点：</td>
                             <td>
+                                <switchSiteDom id = "switchSiteDom_start">
                                 <input type="hidden"name ="originalSiteType" id="originalSiteType" value = "1" />
                                 <input type="text" name="originalSiteName" id="originalSiteName" v="require;length:30;" value="$!queryInfo.originalSiteName" maxlength="50" style="width:130px"/>
                                 <font class="star" style = "color:red">*</font>
                                 <input type="hidden" name="originalSiteCode" id="originalSiteCode" value="$!queryInfo.originalSiteCode"/>
+                                </switchSiteDom>
                             </td>
 
                             <td align="right">目的网点：</td>
                             <td>
-                                <select id="destinationSiteType" name="destinationSiteType" class="select20" style="width:70px" value="$!queryInfo.destinationSiteType">
-                                    <option value= 1 >转运</option>
-                                    <option value= 2 >仓库</option>
-                                </select>
+                                <switchSiteDom id = "switchSiteDom_dest">
                                 <input type="text" name="destinationSiteName" id="destinationSiteName" v="require;length:30;" value="$!queryInfo.destinationSiteName" maxlength="50" style="width:130px"/>
                                 <font class="star" style = "color:red">*</font>
                                 <input type="hidden" name="destinationSiteCode" id="destinationSiteCode" value="$!queryInfo.destinationSiteCode"/>
+                                </switchSiteDom>
                             </td>
-
-							<td>
+                            <td>
                                 <input type="button" id="search" name="search" value="查询" class="btn_c"  onclick="queryBtn(1)"/>
                                 <input type="button" id="add"    name="add"    value="新增" class="btn_c" onclick="addBtn()"/>
                                 <input type="button" id="change" name="change" value="修改" class="btn_c"  onclick="updateBtn()"/>
                                 <input type="button" id="delete" name="delete" value="删除" class="btn_c" onclick="deleteBtn()"/>
                                 <input type="button" id="import" name="import" value="导入" class="btn_c" onclick="importBtn()"/>
-							</td>
+                            </td>
 						</tr>
                     </tbody>
                 </table>

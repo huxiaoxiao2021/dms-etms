@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.inventory.service.impl;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
@@ -123,6 +122,8 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
         for(InventoryException inventoryException : list){
             InventoryExceptionExportDto body =  new InventoryExceptionExportDto();
             body.setOrgName(inventoryException.getOrgName());
+            body.setProvinceAgencyName(inventoryException.getProvinceAgencyName());
+            body.setAreaHubName(inventoryException.getAreaHubName());
             body.setInventorySiteName(inventoryException.getInventorySiteName());
             body.setInventoryTaskId(inventoryException.getInventoryTaskId());
             body.setInventoryScopeStr(InventoryScopeEnum.getDescByCode(inventoryException.getInventoryScope()));
@@ -148,6 +149,8 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
         Map<String,String> headerMap = new LinkedHashMap<>();
         //添加表头
         headerMap.put("orgName","区域");
+        headerMap.put("provinceAgencyName","省区名称");
+        headerMap.put("areaHubName","枢纽名称");
         headerMap.put("inventorySiteName","操作场地");
         headerMap.put("inventoryTaskId","任务码");
         headerMap.put("inventoryScopeStr","盘点范围");
@@ -382,6 +385,10 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
         if (inventoryTask != null) {
             inventoryException.setOrgId(inventoryTask.getOrgId());
             inventoryException.setOrgName(inventoryTask.getOrgName());
+            inventoryException.setProvinceAgencyCode(inventoryTask.getProvinceAgencyCode());
+            inventoryException.setProvinceAgencyName(inventoryTask.getProvinceAgencyName());
+            inventoryException.setAreaHubCode(inventoryTask.getAreaHubCode());
+            inventoryException.setAreaHubName(inventoryTask.getAreaHubName());
             inventoryException.setInventorySiteCode(inventoryTask.getCreateSiteCode());
             inventoryException.setInventorySiteName(inventoryTask.getCreateSiteName());
             inventoryException.setTaskCreateTime(inventoryTask.getCreateTime());

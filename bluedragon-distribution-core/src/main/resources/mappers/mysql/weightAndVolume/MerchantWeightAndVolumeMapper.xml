@@ -10,6 +10,10 @@
 		<result column="merchant_name" property="merchantName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_org_code" property="operateOrgCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="operate_org_name" property="operateOrgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_province_agency_code" property="operateProvinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_province_agency_name" property="operateProvinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_area_hub_code" property="operateAreaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_area_hub_name" property="operateAreaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_site_code" property="operateSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="operate_site_name" property="operateSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="create_erp" property="createErp" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -21,8 +25,9 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,merchant_id,merchant_code,merchant_name,operate_org_code,operate_org_name,operate_site_code,operate_site_name,
-		create_erp,create_user_name,create_time,update_time,is_delete,ts
+		id,merchant_id,merchant_code,merchant_name,operate_org_code,operate_org_name,
+		operate_province_agency_code,operate_province_agency_name,operate_area_hub_code,operate_area_hub_name,
+		operate_site_code,operate_site_name,create_erp,create_user_name,create_time,update_time,is_delete,ts
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetail">
@@ -46,6 +51,18 @@
 			</if>
 			<if test="operateOrgName != null">
 				operate_org_name,
+			</if>
+			<if test="operateProvinceAgencyCode != null">
+				operate_province_agency_code,
+			</if>
+			<if test="operateProvinceAgencyName != null">
+				operate_province_agency_name,
+			</if>
+			<if test="operateAreaHunCode != null">
+				operate_area_hub_code,
+			</if>
+			<if test="operateAreaHubName != null">
+				operate_area_hub_name,
 			</if>
 			<if test="operateSiteCode != null">
 				operate_site_code,
@@ -86,6 +103,18 @@
 			<if test="operateOrgName != null">
 				#{operateOrgName,jdbcType=VARCHAR},
 			</if>
+			<if test="operateProvinceAgencyCode != null">
+				#{operateProvinceAgencyCode,jdbcType=VARCHAR},
+			</if>
+			<if test="operateProvinceAgencyName != null">
+				#{operateProvinceAgencyName,jdbcType=VARCHAR},
+			</if>
+			<if test="operateAreaHubCode != null">
+				#{operateAreaHubCode,jdbcType=VARCHAR},
+			</if>
+			<if test="operateAreaHubName != null">
+				#{operateAreaHubName,jdbcType=VARCHAR},
+			</if>
 			<if test="operateSiteCode != null">
 				#{operateSiteCode,jdbcType=BIGINT},
 			</if>
@@ -109,8 +138,9 @@
 	<insert id="batchInsert" parameterType="List">
 		insert into merchant_weight_white_list
 		(
-		merchant_id,merchant_code,merchant_name,operate_org_code,operate_org_name,operate_site_code,operate_site_name,
-		create_erp,create_user_name,create_time,update_time,is_delete,ts
+		merchant_id,merchant_code,merchant_name,operate_org_code,operate_org_name,
+		operate_province_agency_code,operate_province_agency_name,operate_area_hub_code,operate_area_hub_name,
+		operate_site_code,operate_site_name,create_erp,create_user_name,create_time,update_time,is_delete,ts
 		)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">
@@ -120,6 +150,7 @@
 			#{item.merchantName,jdbcType=VARCHAR},
 			#{item.operateOrgCode,jdbcType=BIGINT},
 			#{item.operateOrgName,jdbcType=VARCHAR},
+			#{item.operateProvinceAgencyCode,jdbcType=VARCHAR},#{item.operateProvinceAgencyName,jdbcType=VARCHAR},#{item.operateAreaHubCode,jdbcType=VARCHAR},#{item.operateAreaHubName,jdbcType=VARCHAR},
 			#{item.operateSiteCode,jdbcType=BIGINT},
 			#{item.operateSiteName,jdbcType=VARCHAR},
 			#{item.createErp,jdbcType=VARCHAR},
@@ -148,6 +179,12 @@
 		</if>
 		<if test="orgCode != null">
 			and operate_org_code = #{orgCode,jdbcType=BIGINT}
+		</if>
+		<if test="provinceAgencyCode != null and provinceAgencyCode != ''">
+			and operate_province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+		</if>
+		<if test="areaHubCode != null and areaHubCode != ''">
+			and operate_area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
 		</if>
 		<if test="siteCode != null">
 			and operate_site_code = #{siteCode,jdbcType=BIGINT}

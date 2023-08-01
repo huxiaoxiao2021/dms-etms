@@ -46,7 +46,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -72,9 +71,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     private static final Integer PRE_SELL_RULE_TYPE = 2100;
     private static final String PRE_SELL_RULE_OPEN = "1";
     private static final String PRE_SELL_RULE_CONTENT = "预售暂存分拣规则，1表示开启";
-
-    @Value("${checkAuthoritySwitch:true}")
-    private boolean checkAuthoritySwitch;
 
     @Autowired
     private FuncSwitchConfigDao funcSwitchConfigDao;
@@ -133,6 +129,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             Date date = new Date();
             funcSwitchConfigDto.setCreateTime(date);
             funcSwitchConfigDto.setUpdateTime(date);
+            // 初始化大区、省区信息
+            initOrgAndProvinceInfo(funcSwitchConfigDto);
             int count = funcSwitchConfigDao.add(funcSwitchConfigDto);
 
             //调用分拣机拦截开关
@@ -157,6 +155,17 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         return jdResponse;
     }
 
+    private void initOrgAndProvinceInfo(FuncSwitchConfigDto funcSwitchConfigDto) {
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(funcSwitchConfigDto.getSiteCode());
+        funcSwitchConfigDto.setSiteName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getSiteName());
+        funcSwitchConfigDto.setOrgId(baseSite == null ? Constants.NUMBER_ZERO : baseSite.getOrgId());
+        funcSwitchConfigDto.setOrgName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getOrgName());
+        funcSwitchConfigDto.setProvinceAgencyCode(baseSite == null ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode());
+        funcSwitchConfigDto.setProvinceAgencyName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
+        funcSwitchConfigDto.setAreaHubCode(baseSite == null ? Constants.EMPTY_FILL : baseSite.getAreaCode());
+        funcSwitchConfigDto.setAreaHubName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getAreaName());
+    }
+
     /**
      * 批量新增
      * @param list
@@ -169,7 +178,10 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             jdResponse.toFail("参数为空!");
             return jdResponse;
         }
-
+        for (FuncSwitchConfigDto item : list) {
+            // 初始化大区、省区信息
+            initOrgAndProvinceInfo(item);
+        }
         int count = funcSwitchConfigDao.batchAdd(list);
         if(count != list.size()){
             jdResponse.toFail("批量新增部分成功!");
@@ -371,15 +383,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                     jdResponse.toFail(String.format("第%s行站点ID不存在,请重新录入!",rowIndex));
                     return;
                 }
-                if(!dto.getSiteName().equals(baseDto.getSiteName())){
-                    jdResponse.toFail(String.format("第%s行站点名称不正确,请重新录入!",rowIndex));
-                    return;
-                }
-                if(!dto.getOrgId().equals(baseDto.getOrgId())
-                        || !dto.getOrgName().equals(baseDto.getOrgName())){
-                    jdResponse.toFail(String.format("第%s行区域不正确,请重新录入!",rowIndex));
-                    return;
-                }
                 if(CollectionUtils.isNotEmpty(funcSwitchConfigDao.selectByFuncSwitchConfig(dto))){
                     jdResponse.toFail(String.format("第%s行已存在相同配置,请勿重复添加!",rowIndex));
                     return;
@@ -413,6 +416,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 Date date = new Date();
                 dto.setCreateTime(date);
                 dto.setUpdateTime(date);
+                // 初始化大区、省区信息
+                initOrgAndProvinceInfo(dto);
             }
             funcSwitchConfigDao.batchAdd(dataList);
             //调用分拣机开关接口

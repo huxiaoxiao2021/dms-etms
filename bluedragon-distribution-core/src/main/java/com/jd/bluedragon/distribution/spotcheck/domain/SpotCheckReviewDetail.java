@@ -64,6 +64,14 @@ public class SpotCheckReviewDetail implements Serializable {
      */
     private String reviewOrgName;
     /**
+     * 复核省区编码
+     */
+    private String reviewProvinceAgencyCode;
+    /**
+     * 复核省区名称
+     */
+    private String reviewProvinceAgencyName;
+    /**
      * 复核站点ID
      */
     private Integer reviewSiteCode;
@@ -183,6 +191,22 @@ public class SpotCheckReviewDetail implements Serializable {
 
     public void setReviewOrgName(String reviewOrgName) {
         this.reviewOrgName = reviewOrgName;
+    }
+
+    public String getReviewProvinceAgencyCode() {
+        return reviewProvinceAgencyCode;
+    }
+
+    public void setReviewProvinceAgencyCode(String reviewProvinceAgencyCode) {
+        this.reviewProvinceAgencyCode = reviewProvinceAgencyCode;
+    }
+
+    public String getReviewProvinceAgencyName() {
+        return reviewProvinceAgencyName;
+    }
+
+    public void setReviewProvinceAgencyName(String reviewProvinceAgencyName) {
+        this.reviewProvinceAgencyName = reviewProvinceAgencyName;
     }
 
     public Integer getReviewSiteCode() {

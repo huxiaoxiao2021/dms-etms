@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.common.dto.recyclematerial.request.BoxMaterialRelationJSFRequest;
 import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialRequest;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
@@ -17,6 +18,7 @@ import com.jd.bluedragon.distribution.rest.recyclematerial.RecycleMaterialResour
 import com.jd.bluedragon.external.gateway.service.RecycleMaterialGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.sdk.util.DateUtil;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -44,6 +46,9 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
     @Autowired
     private  CycleBoxService cycleBoxService;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     @Override
     @BusinessLog(sourceSys = 1,bizType = 2004,operateType = 20041)
     @JProfiler(jKey = "DMSWEB.RecycleMaterialGatewayServiceImpl.updateStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -55,10 +60,18 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
         vo.put("operatorErp", request.getOperatorErp());
         vo.put("siteCode", request.getCurrentOperate() != null ? request.getCurrentOperate().getSiteCode() : null);
         vo.put("siteName", request.getCurrentOperate() != null ? request.getCurrentOperate().getSiteName() : null);
+        // 根据站点查询大区、省区信息
+        if(request.getCurrentOperate() != null){
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(request.getCurrentOperate().getSiteCode());
+            vo.put("orgId", baseSite == null ? null : baseSite.getOrgId());
+            vo.put("orgName", baseSite == null ? null : baseSite.getOrgName());
+            vo.put("provinceAgencyCode", baseSite == null ? null : baseSite.getProvinceAgencyCode());
+            vo.put("provinceAgencyName", baseSite == null ? null : baseSite.getProvinceAgencyName());
+            vo.put("areaHubCode", baseSite == null ? null : baseSite.getAreaCode());
+            vo.put("areaHubName", baseSite == null ? null : baseSite.getAreaName());
+        }
         vo.put("operateTime", request.getCurrentOperate() != null ?
                 DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME) : null);
-        vo.put("orgId", request.getCurrentOperate() != null ? request.getCurrentOperate().getOrgId() : null);
-        vo.put("orgName", request.getCurrentOperate() != null ? request.getCurrentOperate().getOrgName() : null);
         vo.put("destSiteCode", request.getDestSiteCode() != null ? request.getDestSiteCode() : null);
         vo.put("destSiteName", request.getDestSiteName() != null ? request.getDestSiteName() : null);
 

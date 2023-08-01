@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.spotcheck;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 /**
@@ -8,6 +9,7 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
  * @author hujiping
  * @date 2021/12/6 4:24 下午
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SpotCheckReportQueryCondition extends BasePagerCondition {
 
     private static final long serialVersionUID = 1L;
@@ -90,6 +92,15 @@ public class SpotCheckReportQueryCondition extends BasePagerCondition {
     private Integer excessType;
     
     private String pictureAIDistinguishReason;
+
+    /**
+     * 省区编码
+     */
+    private String reviewProvinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String reviewAreaHubCode;
 
     public Long getReviewOrgCode() {
         return reviewOrgCode;
@@ -225,5 +236,21 @@ public class SpotCheckReportQueryCondition extends BasePagerCondition {
 
     public void setPictureAIDistinguishReason(String pictureAIDistinguishReason) {
         this.pictureAIDistinguishReason = pictureAIDistinguishReason;
+    }
+
+    public String getReviewProvinceAgencyCode() {
+        return reviewProvinceAgencyCode;
+    }
+
+    public void setReviewProvinceAgencyCode(String reviewProvinceAgencyCode) {
+        this.reviewProvinceAgencyCode = reviewProvinceAgencyCode;
+    }
+
+    public String getReviewAreaHubCode() {
+        return reviewAreaHubCode;
+    }
+
+    public void setReviewAreaHubCode(String reviewAreaHubCode) {
+        this.reviewAreaHubCode = reviewAreaHubCode;
     }
 }

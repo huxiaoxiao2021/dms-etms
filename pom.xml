@@ -40,13 +40,13 @@
 		<waybill.cache.version>1.0.3</waybill.cache.version>
 		<business-sdk.version>1.0.0-UAT-SNAPSHOT</business-sdk.version>
 		<dms-component-sdk.version>1.0.0-UAT-SNAPSHOT</dms-component-sdk.version>
-		<workbench.services.sdk.version>1.0.7-uat-SNAPSHOT</workbench.services.sdk.version>
         <jy.realtime.sdk.version>1.0.0-uat-SNAPSHOT</jy.realtime.sdk.version>
         <jy-basic-api.version>1.0.0-UAT-SNAPSHOT</jy-basic-api.version>
         <dms-java-utils-sdk.version>1.0.0-SNAPSHOT</dms-java-utils-sdk.version>
-		<jy_msp_api_version>1.0-SNAPSHOT</jy_msp_api_version>
-		<shorturl.rpc.version>0.0.6-SNAPSHOT</shorturl.rpc.version>
-		<jd.omdm.client.version>0.2.7-SNAPSHOT</jd.omdm.client.version>
+		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
+        <jy_msp_api_version>1.0-SNAPSHOT</jy_msp_api_version>
+        <shorturl.rpc.version>0.0.6-SNAPSHOT</shorturl.rpc.version>
+        <jd.omdm.client.version>0.2.7-SNAPSHOT</jd.omdm.client.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
@@ -343,7 +343,7 @@
 			<dependency>
 				<groupId>com.jdl.express.weight.report</groupId>
 				<artifactId>jdl-express-weight-report-api</artifactId>
-				<version>1.1.0-UAT-SNAPSHOT</version>
+				<version>1.1.4-20230518.073113-1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.jdl.basic</groupId>
