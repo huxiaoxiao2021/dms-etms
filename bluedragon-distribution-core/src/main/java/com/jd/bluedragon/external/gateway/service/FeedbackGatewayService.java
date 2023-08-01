@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface FeedbackGatewayService {
-    JdCResponse<List<TypeVo>> queryFeedBackType(JyUserInfoDto userInfoDto);
+    JdCResponse<List<TypeVo>> queryFeedbackType(JyUserInfoDto userInfoDto);
     JdCResponse<PagerResult<FeedBackResponse>> queryFeedback(JyFeedbackQueryDto queryDto);
     JdCResponse<Boolean> createFeedbackWithUrls(JyFeedbackDto dto);
 }
