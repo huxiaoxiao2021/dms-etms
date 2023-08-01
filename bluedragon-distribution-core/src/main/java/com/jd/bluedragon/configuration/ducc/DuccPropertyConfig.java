@@ -1241,7 +1241,7 @@ public class DuccPropertyConfig {
 	@Value("${duccPropertyConfig.jyWorkAppAutoRefreshConfig:''}")
 	private String jyWorkAppAutoRefreshConfig;
 
-	private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList;
+	private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
 
 	@Value("${duccPropertyConfig.loadCarEvaluateSwitch:true}")
 	private boolean loadCarEvaluateSwitch;
