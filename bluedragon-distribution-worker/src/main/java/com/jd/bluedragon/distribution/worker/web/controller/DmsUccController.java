@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.base.controller;
+package com.jd.bluedragon.distribution.worker.web.controller;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
