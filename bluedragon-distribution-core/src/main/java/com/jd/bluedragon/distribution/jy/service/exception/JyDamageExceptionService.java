@@ -53,4 +53,6 @@ public interface JyDamageExceptionService {
      * 获取异常包裹类型列表接口
      */
     JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList();
+
+    void writeToProcessDamage(Integer positionCode, String bizId);
 }

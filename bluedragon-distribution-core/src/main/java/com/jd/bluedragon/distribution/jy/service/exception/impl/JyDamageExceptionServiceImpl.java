@@ -355,6 +355,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.getTaskDetailOfDamage", mState = {JProEnum.TP})
     public JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req) {
         logger.info("getTaskDetailOfDamage req params:{}", JSON.toJSONString(req));
         if (req == null || StringUtils.isEmpty(req.getBizId())) {
@@ -403,7 +404,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     /**
      * 写入待处理破损异常
      */
-    private void writeToProcessDamage(Integer positionCode, String bizId) {
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.writeToProcessDamage", mState = {JProEnum.TP})
+    public void writeToProcessDamage(Integer positionCode, String bizId) {
+        logger.info("writeToProcessDamage positionCode:{}, bizId:{}", positionCode, bizId);
         String bizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
         if (StringUtils.isEmpty(bizIdSetStr)) {
             Set<String> bizIdSet = new HashSet<>();

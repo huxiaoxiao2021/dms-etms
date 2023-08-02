@@ -279,4 +279,9 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     public JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req){
         return jyDamageExceptionService.getTaskDetailOfDamage(req);
     }
+
+    @Override
+    public void writeToProcessDamage(Integer positionCode, String bizId){
+        jyDamageExceptionService.writeToProcessDamage(positionCode, bizId);
+    }
 }
