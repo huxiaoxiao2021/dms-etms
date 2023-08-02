@@ -10,6 +10,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehic
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.*;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.JdiQueryWSManager;
+import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -35,6 +37,9 @@ import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.dms.common.constants.CodeConstants;
+import com.jd.tms.jdi.dto.BigQueryOption;
+import com.jd.tms.jdi.dto.BigTransWorkItemDto;
+import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -97,6 +102,12 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
     @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
+
+    @Autowired
+    private JdiTransWorkWSManager jdiTransWorkWSManager;
+
+    @Autowired
+    private JdiQueryWSManager jdiQueryWSManager;
 
     @Autowired
     private UccPropertyConfiguration uccConfig;
@@ -1155,6 +1166,23 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                 final Result<Void> querySealCodeListResult = querySealCodeList(request, sealTaskInfo);
                 if (!querySealCodeListResult.isSuccess()) {
                     return result.toFail(querySealCodeListResult.getMessage(), querySealCodeListResult.getCode());
+                }
+            }
+
+            String transWorkItemCode = unloadVehicle.getTransWorkItemCode();
+            if (StringUtils.isNotBlank(transWorkItemCode)) {
+                BigQueryOption bigQueryOption = new BigQueryOption();
+                bigQueryOption.setQueryTransWorkItemDto(Boolean.TRUE);
+                BigTransWorkItemDto bigTransWorkItemDto = jdiTransWorkWSManager.queryTransWorkItemByOptionWithRead(transWorkItemCode, bigQueryOption);
+                if (bigTransWorkItemDto != null && bigTransWorkItemDto.getTransWorkItemDto() != null) {
+                    String transWorkCode = bigTransWorkItemDto.getTransWorkItemDto().getTransWorkCode();
+                    if (StringUtils.isNotBlank(transWorkCode)) {
+                        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(transWorkCode);
+                        if (transWorkBillDto != null) {
+                            sealTaskInfo.setDriverName(transWorkBillDto.getCarrierDriverName());
+                            sealTaskInfo.setDriverPhone(transWorkBillDto.getCarrierDriverPhone());
+                        }
+                    }
                 }
             }
 
