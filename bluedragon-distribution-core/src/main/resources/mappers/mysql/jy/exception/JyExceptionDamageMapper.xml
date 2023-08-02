@@ -258,7 +258,7 @@
     select  <include refid="Base_Column_List" />
     from jy_exception_damage
     where yn =1
-    and package_code=#{packageCode,jdbcType=VARCHAR}
+    and bar_code=#{barCode,jdbcType=VARCHAR}
     order by create_time limit 1
   </select>
 
