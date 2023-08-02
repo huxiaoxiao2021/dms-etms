@@ -406,7 +406,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.writeToProcessDamage", mState = {JProEnum.TP})
-    public void writeToProcessDamage(Integer positionCode, String bizId) {
+    public void writeToProcessDamage(String positionCode, String bizId) {
         logger.info("writeToProcessDamage positionCode:{}, bizId:{}", positionCode, bizId);
         String bizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
         if (StringUtils.isEmpty(bizIdSetStr)) {
@@ -501,11 +501,8 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      */
     private void saveDamage(ExpDamageDetailReq req, JyExceptionDamageDto entity) {
         logger.info("start saveDamage...");
+        this.validateSaveDamageParams(req, entity);
         this.dealTaskInfo(req, entity);
-        if (!JyExceptionPackageType.SaveTypeEnum.DRAFT.getCode().equals(req.getSaveType())
-                && !JyExceptionPackageType.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(req.getSaveType())) {
-            throw new RuntimeException("保存类型错误!" + req.getBizId());
-        }
         if (StringUtils.isNotBlank(req.getUserErp())) {
             this.validateOrSetErpInfo(req, entity);
         }
@@ -514,6 +511,15 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         this.saveOrUpdate(entity);
     }
 
+    private void validateSaveDamageParams(ExpDamageDetailReq req, JyExceptionDamageDto entity){
+        if (!JyExceptionPackageType.SaveTypeEnum.DRAFT.getCode().equals(req.getSaveType())
+                && !JyExceptionPackageType.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(req.getSaveType())) {
+            throw new RuntimeException("保存类型错误!" + req.getBizId());
+        }
+        if (entity !=null && JyExceptionPackageType.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(entity.getSaveType())) {
+            throw new RuntimeException("不能重复提交!" + req.getBizId());
+        }
+    }
     private void saveOrUpdate(JyExceptionDamageEntity entity) {
         logger.info("saveOrUpdate entity :{}", JSON.toJSONString(entity));
         if (entity.getId() == null) {

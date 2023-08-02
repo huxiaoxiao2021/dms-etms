@@ -187,5 +187,5 @@ public interface JyExceptionGatewayService {
      */
     JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req);
 
-    void writeToProcessDamage(Integer positionCode, String bizId);
+    void writeToProcessDamage(ExpDamageDetailReq req);
 }
