@@ -211,7 +211,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private WeightVolumeCondition  coverToWeightVolumeCondition(JyExceptionDamageEntity damageEntity){
 
         WeightVolumeCondition condition = new WeightVolumeCondition();
-        condition.setBarCode(damageEntity.getPackageCode());
+        condition.setBarCode(damageEntity.getBarCode());
         condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name());
         condition.setSourceCode(FromSourceEnum.DMS_CLIENT_PACKAGE_WEIGH_PRINT.name());
         condition.setWeight(damageEntity.getWeightRepairAfter() != null ? damageEntity.getWeightRepairAfter().doubleValue(): null);
@@ -592,7 +592,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private void copyTaskToEntity(JyBizTaskExceptionEntity task, JyExceptionDamageEntity entity) {
         entity.setBizId(task.getBizId());
         if (entity.getId() == null) {
-            entity.setPackageCode(task.getBarCode());
+            entity.setBarCode(task.getBarCode());
         }
     }
 

@@ -32,9 +32,9 @@ public class JyExceptionDamageEntity implements Serializable {
 
 
     /**
-     * 包裹号
+     * 异常包裹条码
      */
-    private String packageCode;
+    private String barCode;
 
     /**
      * 保存状态 0：暂存 1 ：提交待客服反馈 2，提交客服已反馈
@@ -79,6 +79,11 @@ public class JyExceptionDamageEntity implements Serializable {
     private String createErp;
 
     /**
+     * 创建人姓名
+     */
+    private String createStaffName;
+
+    /**
      *
      */
     private Date createTime;
@@ -87,6 +92,11 @@ public class JyExceptionDamageEntity implements Serializable {
      *
      */
     private String updateErp;
+
+    /**
+     * 修改人名称
+     */
+    private String updateStaffName;
 
     /**
      *
@@ -133,14 +143,6 @@ public class JyExceptionDamageEntity implements Serializable {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
-    }
-
-    public String getPackageCode() {
-        return packageCode;
-    }
-
-    public void setPackageCode(String packageCode) {
-        this.packageCode = packageCode;
     }
 
     public Integer getSaveType() {
@@ -254,5 +256,29 @@ public class JyExceptionDamageEntity implements Serializable {
 
     public void setVolumeRepairAfter(BigDecimal volumeRepairAfter) {
         this.volumeRepairAfter = volumeRepairAfter;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
+    }
+
+    public String getCreateStaffName() {
+        return createStaffName;
+    }
+
+    public void setCreateStaffName(String createStaffName) {
+        this.createStaffName = createStaffName;
+    }
+
+    public String getUpdateStaffName() {
+        return updateStaffName;
+    }
+
+    public void setUpdateStaffName(String updateStaffName) {
+        this.updateStaffName = updateStaffName;
     }
 }

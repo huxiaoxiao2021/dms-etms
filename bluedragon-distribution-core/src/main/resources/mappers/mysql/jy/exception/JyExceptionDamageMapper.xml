@@ -6,7 +6,7 @@
     <result column="site_code" property="siteCode" jdbcType="INTEGER" />
     <result column="site_name" property="siteName" jdbcType="VARCHAR" />
     <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
-    <result column="package_code" property="packageCode" jdbcType="VARCHAR" />
+    <result column="bar_code" property="barCode" jdbcType="VARCHAR" />
     <result column="save_type" property="saveType" jdbcType="BIT" />
     <result column="volume_repair_before" property="volumeRepairBefore" jdbcType="DECIMAL" />
     <result column="volume_repair_after" property="volumeRepairAfter" jdbcType="DECIMAL" />
@@ -16,16 +16,18 @@
     <result column="repair_type" property="repairType" jdbcType="BIT" />
     <result column="feed_back_type" property="feedBackType" jdbcType="BIT" />
     <result column="create_erp" property="createErp" jdbcType="VARCHAR" />
+    <result column="create_staff_name" property="createStaffName" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_erp" property="updateErp" jdbcType="VARCHAR" />
+    <result column="update_staff_name" property="updateStaffName" jdbcType="VARCHAR" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
     <result column="ts" property="ts" jdbcType="TIMESTAMP" />
     <result column="yn" property="yn" jdbcType="BIT" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, site_code, site_name, biz_id, package_code, save_type, volume_repair_before, volume_repair_after, weight_repair_before,
+    id, site_code, site_name, biz_id, bar_code, save_type, volume_repair_before, volume_repair_after, weight_repair_before,
     weight_repair_after, damage_type, repair_type,
-    feed_back_type, create_erp, create_time, update_erp, update_time, ts, yn
+    feed_back_type, create_erp, create_staff_name, create_time, update_erp, update_staff_name, update_time, ts, yn
   </sql>
   <select id="selectOneByBizId" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select
@@ -50,8 +52,8 @@
       <if test="bizId != null" >
         biz_id,
       </if>
-      <if test="packageCode != null" >
-        package_code,
+      <if test="barCode != null" >
+        bar_code,
       </if>
       <if test="saveType != null" >
         save_type,
@@ -80,11 +82,17 @@
       <if test="createErp != null" >
         create_erp,
       </if>
+      <if test="createStaffName != null" >
+        create_staff_name,
+      </if>
       <if test="createTime != null" >
         create_time,
       </if>
       <if test="updateErp != null" >
         update_erp,
+      </if>
+      <if test="updateStaffName != null" >
+        update_staff_name,
       </if>
       <if test="updateTime != null" >
         update_time,
@@ -109,8 +117,8 @@
       <if test="bizId != null" >
         #{bizId,jdbcType=VARCHAR},
       </if>
-      <if test="packageCode != null" >
-        #{packageCode,jdbcType=VARCHAR},
+      <if test="barCode != null" >
+        #{barCode,jdbcType=VARCHAR},
       </if>
       <if test="saveType != null" >
         #{saveType,jdbcType=BIT},
@@ -139,11 +147,17 @@
       <if test="createErp != null" >
         #{createErp,jdbcType=VARCHAR},
       </if>
+      <if test="createStaffName != null" >
+        #{createStaffName,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateErp != null" >
         #{updateErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateStaffName != null" >
+        #{updateStaffName,jdbcType=VARCHAR},
       </if>
       <if test="updateTime != null" >
         #{updateTime,jdbcType=TIMESTAMP},
@@ -168,8 +182,8 @@
       <if test="bizId != null" >
         biz_id = #{bizId,jdbcType=VARCHAR},
       </if>
-      <if test="packageCode != null" >
-        package_code = #{packageCode,jdbcType=VARCHAR},
+      <if test="barCode != null" >
+        bar_code = #{barCode,jdbcType=VARCHAR},
       </if>
       <if test="saveType != null" >
         save_type = #{saveType,jdbcType=BIT},
@@ -198,11 +212,17 @@
       <if test="createErp != null" >
         create_erp = #{createErp,jdbcType=VARCHAR},
       </if>
+      <if test="createStaffName != null" >
+        create_staff_name = #{createStaffName,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateErp != null" >
         update_erp = #{updateErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateStaffName != null" >
+        update_staff_name = #{uupdateStaffName,jdbcType=VARCHAR},
       </if>
       <if test="updateTime != null" >
         update_time = #{updateTime,jdbcType=TIMESTAMP},
@@ -231,7 +251,7 @@
   <select id="getDamageCountByBarCode" parameterType="java.lang.String" resultType="integer">
     select count(*) from jy_exception_damage
     where yn =1
-    and package_code=#{packageCode,jdbcType=VARCHAR}
+    and bar_code=#{barCode,jdbcType=VARCHAR}
   </select>
 
 </mapper>
