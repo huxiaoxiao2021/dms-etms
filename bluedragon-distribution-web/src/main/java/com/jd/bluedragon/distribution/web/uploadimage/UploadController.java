@@ -66,7 +66,7 @@ public class UploadController {
                 for (MultipartFile image: images) {
                     String url = abnormalReportingGatewayService.uploadExceptionMedia(image.getInputStream(), image.getOriginalFilename());
                     if (StringUtils.isNotEmpty(url)) {
-                        urls.add(url);
+                        urls.add(url.replace("http", "https"));
                     }
                 }
             }
