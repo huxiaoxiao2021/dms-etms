@@ -1,4 +1,13 @@
 $(function() {
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        'createSiteCode' : $("#loginUserCreateSiteCode").val(),
+        'siteTypes': null,
+        'changeBtnShow': false,
+        'provinceOrOrgMode' : 'province',
+        'onlySiteSelect' : true,
+        createSiteCodeReadOnly : true
+    });
 	var saveUrl = '/collect/collectGoodsPlace/save';
     var updateUrl = '/collect/collectGoodsPlace/update';
     var saveTypeUrl = '/collect/collectGoodsPlace/saveType';
@@ -201,7 +210,7 @@ $(function() {
                     }
                 });
 
-			    $('.edit-param').each(function () {
+			    $('#dataEditDiv .edit-param').each(function () {
 			    	var _k = this.id;
 			        if(_k){
 			        	$(this).val('');

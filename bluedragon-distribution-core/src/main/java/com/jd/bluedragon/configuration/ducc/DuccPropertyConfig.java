@@ -1112,7 +1112,7 @@ public class DuccPropertyConfig {
 	@Value("${duccPropertyConfig.dpSpringSiteCode:-1}")
 	private String dpSpringSiteCode;
 
-	private List<Integer> dpSpringSiteCodeList;
+	private List<Integer> dpSpringSiteCodeList = new ArrayList<>();
 
 	/**
 	 *交接至德邦校验开关
@@ -1241,7 +1241,7 @@ public class DuccPropertyConfig {
 	@Value("${duccPropertyConfig.jyWorkAppAutoRefreshConfig:''}")
 	private String jyWorkAppAutoRefreshConfig;
 
-	private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList;
+	private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
 
 	@Value("${duccPropertyConfig.loadCarEvaluateSwitch:true}")
 	private boolean loadCarEvaluateSwitch;

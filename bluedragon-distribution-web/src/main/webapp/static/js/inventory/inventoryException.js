@@ -3,6 +3,11 @@ $(function () {
     var exportUrl = '/inventoryException/toExport';
     var handleUrl = '/inventoryException/handle';
 
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        bootstrapMode:true
+    });
+    
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -83,6 +88,24 @@ $(function () {
         }, {
             field: 'orgId',
             title: '区域编号',
+            align: 'center',
+            visible: false
+        },{
+            field: 'provinceAgencyName',
+            title: '省区名称',
+            align: 'center'
+        }, {
+            field: 'provinceAgencyCode',
+            title: '省区编码',
+            align: 'center',
+            visible: false
+        },{
+            field: 'areaHubName',
+            title: '枢纽名称',
+            align: 'center'
+        }, {
+            field: 'areaHubCode',
+            title: '枢纽编码',
             align: 'center',
             visible: false
         }, {

@@ -16,6 +16,8 @@ import com.jd.bluedragon.common.dto.predict.request.WorkWaveInspectedNotSendPack
 import com.jd.bluedragon.common.dto.predict.response.WorkWaveInspectedNotSendDetailsResponse;
 import com.jd.bluedragon.common.dto.predict.response.WorkWaveInspectedNotSendPackageCountResponse;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleProductTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.external.gateway.service.PkgPredictGateWayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -44,6 +46,9 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
 
     @Autowired
     IPackagePredictAggsJsfService iPackagePredictAggsService;
+
+    @Autowired
+    private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
     
 
     @Override
@@ -162,8 +167,18 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
             if(!checkResult){
                 return response;
             }
+
             com.jdl.jy.realtime.model.query.predict.SendPredictAggsQuery  predictAggsQuery = new com.jdl.jy.realtime.model.query.predict.SendPredictAggsQuery ();
             BeanUtils.copyProperties(query,predictAggsQuery);
+            JyBizTaskSendVehicleDetailEntity querySendVehicleDetail = new JyBizTaskSendVehicleDetailEntity();
+            querySendVehicleDetail.setSendVehicleBizId(query.getSendVehicleBizId());
+            List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(querySendVehicleDetail);
+            if(CollectionUtils.isNotEmpty(receiveIds)){
+                predictAggsQuery.setEndSiteIds(receiveIds);
+            }
+            if(log.isInfoEnabled()){
+                log.info("发货波次待扫包裹列表入参-{}", JSON.toJSONString(predictAggsQuery));
+            }
             ServiceResult<List<SendPredictToScanPackage>> result = iPackagePredictAggsService.getSendPredictToScanPackageList(predictAggsQuery);
             if(log.isInfoEnabled()){
                 log.info("发货波次待扫包裹列表出参-{}", JSON.toJSONString(result));
@@ -204,6 +219,11 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
 
         if (query.getPageSize() < 0 || query.getPageNumber() < 1) {
             response.toFail("分页参数错误");
+            return false;
+        }
+
+        if (StringUtils.isBlank(query.getSendVehicleBizId())) {
+            response.toFail("请选择发车任务！");
             return false;
         }
         return true;

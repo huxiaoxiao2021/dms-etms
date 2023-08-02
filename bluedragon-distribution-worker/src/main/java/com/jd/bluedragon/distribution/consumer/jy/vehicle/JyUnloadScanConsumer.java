@@ -285,6 +285,8 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         startData.setSiteCode(unloadScanDto.getOperateSiteId().intValue());
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(startData.getSiteCode());
         startData.setOrgCode(baseSite != null ? baseSite.getOrgId() : -1);
+        startData.setProvinceAgencyCode(baseSite == null ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode());
+        startData.setAreaHubCode(baseSite == null ? Constants.EMPTY_FILL : baseSite.getAreaCode());
 
         startData.setCreateUser(unloadScanDto.getCreateUserErp());
         startData.setCreateUserName(unloadScanDto.getCreateUserName());

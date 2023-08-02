@@ -7,6 +7,10 @@
         <result property="packageCode" column="package_code"/>
         <result property="orgCode" column="org_code"/>
         <result property="orgName" column="org_name"/>
+        <result property="provinceAgencyCode" column="province_agency_code" />
+        <result property="provinceAgencyName" column="province_agency_name" />
+        <result property="areaHubCode" column="area_hub_code" />
+        <result property="areaHubName" column="area_hub_name" />
         <result property="siteCode" column="site_code"/>
         <result property="siteName" column="site_name"/>
         <result property="upstreamBoxCode" column="upstream_box_code"/>
@@ -33,7 +37,9 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `package_code`, `org_code`, `org_name`, `site_code`, `site_name`, `upstream_box_code`, `box_start_id`, `box_end_id`, `weight`, `length`, `width`, `height`, `report_type`, `operator_erp`, `operator_name`, `operate_time`, `report_img`, `create_time`, `update_time`, `create_user_erp`, `update_user_erp`, `create_user_name`, `update_user_name`, `yn`, `ts`
+        `id`, `package_code`, `org_code`, `org_name`, 
+        province_agency_code,province_agency_name,area_hub_code,area_hub_name,
+        `site_code`, `site_name`, `upstream_box_code`, `box_start_id`, `box_end_id`, `weight`, `length`, `width`, `height`, `report_type`, `operator_erp`, `operator_name`, `operate_time`, `report_img`, `create_time`, `update_time`, `create_user_erp`, `update_user_erp`, `create_user_name`, `update_user_name`, `yn`, `ts`
     </sql>
 
     <!-- 增加 -->
@@ -51,6 +57,18 @@
             </if>
             <if test="orgName != null and orgName != ''">
                 org_name,
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code,
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                province_agency_name,
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code,
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                area_hub_name,
             </if>
             <if test="siteCode != null">
                 site_code,
@@ -132,6 +150,18 @@
             <if test="orgName != null and orgName != ''">
                 #{orgName},
             </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                #{areaHubName,jdbcType=VARCHAR},
+            </if>
             <if test="siteCode != null">
                 #{siteCode},
             </if>
@@ -208,6 +238,7 @@
             package_code,
             org_code,
             org_name,
+            province_agency_code,province_agency_name,area_hub_code,area_hub_name,
             site_code,
             site_name,
             upstream_box_code,
@@ -238,6 +269,7 @@
                     #{item.packageCode},
                     #{item.orgCode},
                     #{item.orgName},
+                    #{item.provinceAgencyCode},#{item.provinceAgencyName},#{item.areaHubCode},#{item.areaHubName},
                     #{item.siteCode},
                     #{item.siteName},
                     #{item.upstreamBoxCode},
@@ -275,6 +307,18 @@
             </if>
             <if test="orgName != null and orgName != ''">
             org_name = #{orgName},
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                area_hub_name = #{areaHubName,jdbcType=VARCHAR},
             </if>
             <if test="siteCode != null ">
             site_code = #{siteCode},
@@ -359,6 +403,18 @@
                 </if>
                 <if test="item.orgName != null and item.orgName != ''">
                 org_name = #{item.orgName},
+                </if>
+                <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                    province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+                </if>
+                <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                    province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+                </if>
+                <if test="areaHubCode != null and areaHubCode != ''" >
+                    area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+                </if>
+                <if test="areaHubName != null and areaHubName != ''" >
+                    area_hub_name = #{areaHubName,jdbcType=VARCHAR},
                 </if>
                 <if test="item.siteCode != null">
                 site_code = #{item.siteCode},
@@ -474,6 +530,12 @@
         </if>
         <if test="orgCode != null and orgCode != ''">
         AND org_code = #{orgCode}
+        </if>
+        <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+            AND province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+        </if>
+        <if test="areaHubCode != null and areaHubCode != ''" >
+            AND area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
         </if>
         <if test="siteCode != null">
         AND site_code = #{siteCode}

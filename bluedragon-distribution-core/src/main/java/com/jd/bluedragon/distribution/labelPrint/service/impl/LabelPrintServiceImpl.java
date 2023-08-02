@@ -76,6 +76,10 @@ public class LabelPrintServiceImpl implements LabelPrintService {
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(request.getCreateSiteCode());
         farmarEntity.setOrgId(baseSite == null ? null : baseSite.getOrgId());
         farmarEntity.setOrgName(baseSite == null ? null : baseSite.getOrgName());
+        farmarEntity.setProvinceAgencyCode(baseSite == null ? null : baseSite.getProvinceAgencyCode());
+        farmarEntity.setProvinceAgencyName(baseSite == null ? null : baseSite.getProvinceAgencyName());
+        farmarEntity.setAreaHubCode(baseSite == null ? null : baseSite.getAreaCode());
+        farmarEntity.setAreaHubName(baseSite == null ? null : baseSite.getAreaName());
         return farmarEntity;
     }
 

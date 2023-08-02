@@ -1,20 +1,17 @@
 package com.jd.bluedragon.distribution.dock.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.dock.convert.DockInfoConverter;
 import com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao;
 import com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo;
 import com.jd.bluedragon.distribution.dock.entity.AllowedVehicleEntity;
 import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
 import com.jd.bluedragon.distribution.dock.entity.DockPageQueryCondition;
-import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.jmq.common.exception.JMQException;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.tms.basic.dto.BasicDictDto;
@@ -23,8 +20,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -51,6 +48,9 @@ public class DockInfoJsfServiceImpl implements DockService{
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     private static final Pattern dockCodePattern = Pattern.compile("^[0-9][0-9][0-9]$");
 
@@ -92,10 +92,6 @@ public class DockInfoJsfServiceImpl implements DockService{
             response.toError("未输入有效的站点ID");
             return response;
         }
-        if (Objects.isNull(dockInfoEntity.getOrgId())) {
-            response.toError("未输入有效的站点ID");
-            return response;
-        }
         if (Objects.isNull(dockInfoEntity.getDockCode()) || !checkDockCode(dockInfoEntity.getDockCode())) {
             response.toError("未输入有效的月台编号");
             return response;
@@ -133,19 +129,40 @@ public class DockInfoJsfServiceImpl implements DockService{
         dockInfoEntity.setHeight(NumberHelper.doubleFormat(dockInfoEntity.getHeight()));
 
         /* 相同场地内不允许出现多个dockCode同时生效 */
-        DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findByDockCode(DockInfoConverter.convertToPo(dockInfoEntity));
+        DockBaseInfoPo needDealItem = DockInfoConverter.convertToPo(dockInfoEntity);
+        fillBasicSiteInfo(needDealItem);
+        DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findByDockCode(needDealItem);
         if (!Objects.isNull(dockBaseInfoPo)
                 && Objects.equals(dockBaseInfoPo.getSiteCode(), dockInfoEntity.getSiteCode())
-                && Objects.equals(dockBaseInfoPo.getOrgId(), dockInfoEntity.getOrgId())
                 && Objects.equals(dockBaseInfoPo.getDockCode(), dockInfoEntity.getDockCode())
         ) {
             response.toError("已经存在相同的月台编号，请重新维护");
             return response;
         }
 
-        response.setData(dockBaseInfoDao.insert(DockInfoConverter.convertToPo(dockInfoEntity)));
+        response.setData(dockBaseInfoDao.insert(needDealItem));
 
         return response;
+    }
+
+    /**
+     * 补充省区信息
+     * 
+     * @param needDealItem
+     */
+    private void fillBasicSiteInfo(DockBaseInfoPo needDealItem) {
+        if(needDealItem.getSiteCode() != null){
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(needDealItem.getSiteCode());
+            needDealItem.setOrgId((baseSite == null || baseSite.getOrgId() == null) ? -1 : baseSite.getOrgId());
+            needDealItem.setProvinceAgencyCode((baseSite == null || StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) 
+                    ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode()));
+            needDealItem.setProvinceAgencyName((baseSite == null || StringUtils.isEmpty(baseSite.getProvinceAgencyName())
+                    ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName()));
+            needDealItem.setAreaHubCode((baseSite == null || StringUtils.isEmpty(baseSite.getAreaCode())
+                    ? Constants.EMPTY_FILL : baseSite.getAreaCode()));
+            needDealItem.setAreaHubName((baseSite == null || StringUtils.isEmpty(baseSite.getAreaName())
+                    ? Constants.EMPTY_FILL : baseSite.getAreaName()));
+        }
     }
 
     private static boolean checkDockCode(String dockCode) {
@@ -206,7 +223,9 @@ public class DockInfoJsfServiceImpl implements DockService{
             response.toError("缺少操作人信息");
             return response;
         }
-        response.setData(dockBaseInfoDao.update(DockInfoConverter.convertToPo(dockInfoEntity)));
+        DockBaseInfoPo needDealItem = DockInfoConverter.convertToPo(dockInfoEntity);
+        fillBasicSiteInfo(needDealItem);
+        response.setData(dockBaseInfoDao.update(needDealItem));
 
         return response;
     }
@@ -222,7 +241,9 @@ public class DockInfoJsfServiceImpl implements DockService{
             return response;
         }
 
-        DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findByDockCode(DockInfoConverter.convertToPo(dockInfoEntity));
+        DockBaseInfoPo needDealItem = DockInfoConverter.convertToPo(dockInfoEntity);
+        fillBasicSiteInfo(needDealItem);
+        DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findByDockCode(needDealItem);
         response.setData(DockInfoConverter.convertToEntity(dockBaseInfoPo));
 
         return response;

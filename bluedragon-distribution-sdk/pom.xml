@@ -48,6 +48,11 @@
 			<artifactId>dms-java-utils-sdk</artifactId>
 			<version>${dms-java-utils-sdk.version}</version>
 		</dependency>
+		<dependency>
+			<artifactId>jackson-databind</artifactId>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<version>2.10.0</version>
+		</dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.jd.transboard</groupId>-->
 <!--            <artifactId>transboard-api</artifactId>-->

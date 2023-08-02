@@ -1,12 +1,9 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
-import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.receive.domain.CanReceiveTypeEnum;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveTypeEnum;
-import com.jd.bluedragon.distribution.reverse.dao.ReverseReceiveDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
@@ -18,8 +15,6 @@ import com.jd.bluedragon.utils.SiteHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 /**
  * @author dudong

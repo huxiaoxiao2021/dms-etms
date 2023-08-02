@@ -21,6 +21,10 @@
         <result property="siteCity" column="site_city"/>
         <result property="orgCode" column="org_code"/>
         <result property="orgName" column="org_name"/>
+        <result property="provinceAgencyCode" column="province_agency_code" />
+        <result property="provinceAgencyName" column="province_agency_name" />
+        <result property="areaHubCode" column="area_hub_code" />
+        <result property="areaHubName" column="area_hub_name" />
         <result property="prevSiteCode" column="prev_site_code"/>
         <result property="prevSiteName" column="prev_site_name"/>
         <result property="prevProvinceCompanyCode" column="prev_province_company_code"/>
@@ -39,7 +43,9 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `waybill_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_name`, `prev_province_company_code`, `prev_province_company_name`, `create_time`, `update_time`, `yn`, `ts`, `operate_type`, `waybill_type`, `site_depart_type`, `package_sys_total`, `package_scan_total`, `submit_status`
+        `id`, `waybill_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, 
+        province_agency_code,province_agency_name,area_hub_code,area_hub_name,
+        `prev_site_code`, `prev_site_name`, `prev_province_company_code`, `prev_province_company_name`, `create_time`, `update_time`, `yn`, `ts`, `operate_type`, `waybill_type`, `site_depart_type`, `package_sys_total`, `package_scan_total`, `submit_status`
     </sql>
 
     <!-- 增加 -->
@@ -96,6 +102,18 @@
             </if>
             <if test="orgName != null and orgName != ''">
                 org_name,
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code,
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                province_agency_name,
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code,
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                area_hub_name,
             </if>
             <if test="prevSiteCode != null">
                 prev_site_code,
@@ -192,6 +210,18 @@
             <if test="orgName != null and orgName != ''">
                 #{orgName},
             </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                #{areaHubName,jdbcType=VARCHAR},
+            </if>
             <if test="prevSiteCode != null">
                 #{prevSiteCode},
             </if>
@@ -257,6 +287,7 @@
             site_city,
             org_code,
             org_name,
+            province_agency_code,province_agency_name,area_hub_code,area_hub_name,
             prev_site_code,
             prev_site_name,
             prev_province_company_code,
@@ -289,6 +320,7 @@
                     #{item.siteCity},
                     #{item.orgCode},
                     #{item.orgName},
+                    #{item.provinceAgencyCode},#{item.provinceAgencyName},#{item.areaHubCode},#{item.areaHubName},
                     #{item.prevSiteCode},
                     #{item.prevSiteName},
                     #{item.prevProvinceCompanyCode},
@@ -333,6 +365,18 @@
             </if>
             <if test="orgName != null and orgName != ''">
             org_name = #{orgName},
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                area_hub_name = #{areaHubName,jdbcType=VARCHAR},
             </if>
             <if test="prevSiteCode != null">
                 prev_site_code = #{prevSiteCode},
@@ -418,6 +462,18 @@
                 <if test="item.orgName != null and item.orgName != ''">
                 org_name = #{item.orgName},
                 </if>
+                <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                    province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+                </if>
+                <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                    province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+                </if>
+                <if test="areaHubCode != null and areaHubCode != ''" >
+                    area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+                </if>
+                <if test="areaHubName != null and areaHubName != ''" >
+                    area_hub_name = #{areaHubName,jdbcType=VARCHAR},
+                </if>
                 <if test="item.prevSiteCode != null">
                 prev_site_code = #{item.prevSiteCode},
                 </if>
@@ -493,6 +549,12 @@
         </if>
         <if test="orgCode != null">
             AND org_code = #{orgCode}
+        </if>
+        <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+            AND province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+        </if>
+        <if test="areaHubCode != null and areaHubCode != ''" >
+            AND area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
         </if>
         <if test="siteCode != null">
             AND site_code = #{siteCode}
@@ -587,6 +649,18 @@
             </if>
             <if test="orgName != null and orgName != ''">
             org_name = #{orgName},
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                area_hub_name = #{areaHubName,jdbcType=VARCHAR},
             </if>
             <if test="operateType != null ">
             operate_type = #{operateType},

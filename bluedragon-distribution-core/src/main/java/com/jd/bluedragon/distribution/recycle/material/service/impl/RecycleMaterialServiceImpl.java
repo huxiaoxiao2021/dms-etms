@@ -561,8 +561,9 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         RecycleBasketPrintInfo printInfo = new RecycleBasketPrintInfo();
         printInfo.setRecycleBasketCodes(codes);
         printInfo.setOrgName(baseStaffSiteOrgDto.getOrgName());
+        printInfo.setProvinceAgencyName(baseStaffSiteOrgDto.getProvinceAgencyName());
         printInfo.setCreateSiteName(baseStaffSiteOrgDto.getSiteName());
-        printInfo.setOrgAndSiteName(baseStaffSiteOrgDto.getOrgName() + "-" + baseStaffSiteOrgDto.getSiteName());
+        printInfo.setOrgAndSiteName(baseStaffSiteOrgDto.getProvinceAgencyName() + "-" + baseStaffSiteOrgDto.getSiteName());
         response.setData(printInfo);
         return response;
     }
@@ -581,6 +582,10 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             recycleMaterial.setTransStatus(TransStatusEnum.AT_THE_SITE.getCode());
             recycleMaterial.setOrgId(baseStaffSiteOrgDto.getOrgId());
             recycleMaterial.setOrgName(baseStaffSiteOrgDto.getOrgName());
+            recycleMaterial.setCurrentProvinceAgencyCode(baseStaffSiteOrgDto.getProvinceAgencyCode());
+            recycleMaterial.setCurrentProvinceAgencyName(baseStaffSiteOrgDto.getProvinceAgencyName());
+            recycleMaterial.setCurrentAreaHubCode(baseStaffSiteOrgDto.getAreaCode());
+            recycleMaterial.setCurrentAreaHubName(baseStaffSiteOrgDto.getAreaName());
             recycleMaterial.setCurrentSiteCode(baseStaffSiteOrgDto.getSiteCode());
             recycleMaterial.setCurrentSiteName(baseStaffSiteOrgDto.getSiteName());
             recycleMaterial.setOperationTime(new Date());
@@ -611,19 +616,21 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
         if(!recycleBasketEntity.getCreateSiteCode().equals(recycleMaterial.getCurrentSiteCode())){
             logger.error("周转筐补打根据编码:{}查到周转筐信息的", recycleBasketEntity.getRecycleBasketCode());
-            response.toFail("该周转筐目前所属[{}],和你绑定的分拣中心不一致，您不能操作补打！");
+            response.toFail("该周转筐目前所属场地和你绑定的分拣中心不一致，您不能操作补打！");
             return response;
         }
         RecycleBasketPrintInfo printInfo = new RecycleBasketPrintInfo();
         //查询最新的名称
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(recycleMaterial.getCurrentSiteCode());
         String siteName = recycleMaterial.getCurrentSiteName();
+        String provinceAgencyName = recycleMaterial.getCurrentProvinceAgencyName();
         if(baseStaffSiteOrgDto != null){
             siteName = baseStaffSiteOrgDto.getSiteName();
+            provinceAgencyName = baseStaffSiteOrgDto.getProvinceAgencyName();
         }
         printInfo.setCreateSiteName(siteName);
         printInfo.setOrgName(recycleMaterial.getOrgName());
-        printInfo.setOrgAndSiteName(recycleMaterial.getOrgName() + "-" + siteName);
+        printInfo.setOrgAndSiteName(provinceAgencyName + "-" + siteName);
         List<String> codes = new ArrayList<>();
         codes.add(recycleMaterial.getMaterialCode());
         printInfo.setRecycleBasketCodes(codes);

@@ -1,21 +1,15 @@
 package com.jd.bluedragon.core.base;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-import com.jd.fastjson.JSON;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.api.BasicTraderReturnAPI;
 import com.jd.ldop.basic.dto.*;
-import com.jd.ql.basic.domain.AirTransport;
-import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.BaseSiteGoods;
-import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.domain.ReverseCrossPackageTag;
-import com.jd.ql.basic.domain.SortCrossDetail;
+import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.ResultData;
@@ -44,7 +38,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	private Logger log = LoggerFactory.getLogger(BaseMinorManagerImpl.class);
 	
 	public static final String SEPARATOR_HYPHEN = "-";
-
+	
 	@Autowired
 	@Qualifier("basicTraderAPI")
 	private BasicTraderAPI basicTraderAPI;

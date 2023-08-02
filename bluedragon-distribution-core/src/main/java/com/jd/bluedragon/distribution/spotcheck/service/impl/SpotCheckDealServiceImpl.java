@@ -569,6 +569,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 ? null : MathUtils.keepScale(Double.parseDouble(reportInfo.getRecheckVolume()), 2));
         spotCheckContrastDetail.setContrastOrgId(reportInfo == null ? null : reportInfo.getDutyOrgId());
         spotCheckContrastDetail.setContrastOrgName(reportInfo == null ? null : reportInfo.getDutyOrgName());
+        spotCheckContrastDetail.setContrastProvinceAgencyCode(reportInfo == null ? null : reportInfo.getDutyProvinceAgencyCode());
+        spotCheckContrastDetail.setContrastProvinceAgencyName(reportInfo == null ? null : reportInfo.getDutyProvinceAgencyName());
         spotCheckContrastDetail.setContrastWarZoneCode(reportInfo == null ? null : reportInfo.getDutyProvinceCompanyCode());
         spotCheckContrastDetail.setContrastWarZoneName(reportInfo == null ? null : reportInfo.getDutyProvinceCompanyName());
         spotCheckContrastDetail.setContrastAreaCode(reportInfo == null ? null : reportInfo.getDutyAreaCode());

@@ -42,42 +42,29 @@
                             </div>
                         </div>
                         <div class="col-xs-8">
-                            <div class="col-xs-3">
-                                <div class="form-group">
-                                    <label class="control-label col-xs-4" for="site-select">区域 </label>
-                                    <div class=" col-xs-8">
+
+                            <div class="form-group">
+                                <label class="control-label col-xs-4" for="site-select">区域 </label>
+                                <switchSiteDom id="switchSiteDom">
+                                    <div class=" col-xs-2">
                                         <select id="areaId" class="form-control search-param " name="areaId"
                                                 value=""></select>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-2">
-                                <div class="form-group">
-                                    <label class="control-label col-xs-3" for="site-select">省 </label>
-                                    <div class=" col-xs-9">
+                                    <div class=" col-xs-2">
                                         <select id="provinceId" class="form-control search-param " name="provinceId"
                                                 value=""></select>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-3">
-                                <div class="form-group">
-                                    <label class="control-label col-xs-4" for="site-select">市 </label>
-                                    <div class=" col-xs-8">
+                                    <div class=" col-xs-2">
                                         <select id="cityId" class="form-control search-param " name="cityId"
                                                 value=""></select>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-4">
-                                <div class="form-group">
-                                    <label class="control-label col-xs-4" for="site-select">分拣中心 </label>
-                                    <div class=" col-xs-8">
+                                    <div class=" col-xs-2">
                                         <select id="siteCodeMain" class="form-control search-param " name="siteCode"
                                                 value=""></select>
                                     </div>
-                                </div>
+                                </switchSiteDom>
                             </div>
+
                         </div>
                     </div>
                 </div>

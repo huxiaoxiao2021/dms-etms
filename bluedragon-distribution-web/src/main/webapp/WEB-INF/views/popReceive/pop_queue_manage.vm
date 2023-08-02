@@ -9,6 +9,7 @@
 <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
 <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
 <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+#parse("system/common/baseImport.vm")
 </head>
 
 <script type="text/javascript">
@@ -19,6 +20,17 @@ return $(obj).html("<option value=''>请选择</option>");
 
 $(document).ready(function() {
 
+    $('#switchSiteDom').sitePluginSelect({
+        #if($!{defaultSiteCode})
+            'createSiteCode' : $!{defaultSiteCode},
+            'provinceAgencyCodeReadOnly' : true,
+            'areaHubCodeReadOnly' : true,
+            'createSiteCodeReadOnly' : true,
+        #end
+        'changeBtnShow': false,
+        'provinceOrOrgMode' : 'province',
+        'onlySiteAndProvinceSelect' : true
+    });
 
 
 
@@ -111,6 +123,7 @@ jQuery.ajax({
 			  </td>
 			  <th align="right">分拣中心：</th>
               <td colspan="3">
+                  <switchSiteDom id = "switchSiteDom">
 				<select class="select22" id="orgId" name="orgCode" >
                   #if( !$!{defaultOrgId})
                   <option value="">请选择</option>
@@ -139,6 +152,7 @@ jQuery.ajax({
                          </option>
                   #end
                 </select>
+                  </switchSiteDom>
 			  </td>
               <td colspan="2"></td>
             </tr>
