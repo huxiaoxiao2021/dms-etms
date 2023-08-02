@@ -3,8 +3,11 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
+
+import java.util.List;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -44,4 +47,10 @@ public interface JyDamageExceptionService {
      * @return
      */
     JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req);
+
+    /**
+     *
+     * 获取异常包裹类型列表接口
+     */
+    JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList();
 }

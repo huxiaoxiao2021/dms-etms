@@ -24,13 +24,6 @@ public interface JyScrappedExceptionService {
     JdCResponse<List<JyExceptionScrappedTypeDto>> getJyExceptionScrappedTypeList();
 
     /**
-     *
-     * 获取异常包裹类型列表接口
-     */
-    JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList();
-
-
-    /**
      * 处理任务接口-报废
      */
     JdCResponse<Boolean> processTaskOfscrapped(ExpScrappedDetailReq req);
