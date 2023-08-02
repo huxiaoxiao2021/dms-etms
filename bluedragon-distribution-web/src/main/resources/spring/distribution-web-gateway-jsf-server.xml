@@ -653,4 +653,13 @@
                   server="dmsjsf">
     </jsf:provider>
 
+
+    <bean id="jyAviationRailwaySendSealGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyAviationRailwaySendSealGatewayServiceImpl" />
+    <jsf:provider id="jsfJyAviationRailwaySendSealGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyAviationRailwaySendSealGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

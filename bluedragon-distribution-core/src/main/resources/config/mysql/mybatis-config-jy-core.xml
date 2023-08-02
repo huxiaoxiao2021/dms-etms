@@ -70,5 +70,9 @@
 
 		<mapper resource="mappers/mysql/jy/evaluate/JyEvaluateDimensionMapper.xml" />
 		<mapper resource="mappers/mysql/jy/evaluate/JyEvaluateRecordMapper.xml" />
+		<!-- 航空任务发货表 -->
+		<mapper resource="mappers/mysql/jy/task/JyBizTaskAviationSendMapper.xml" />
+		<!-- 拣运任务绑定表 -->
+		<mapper resource="mappers/mysql/jy/send/JyBizTaskBindMapper.xml" />
 	</mappers>
 </configuration>

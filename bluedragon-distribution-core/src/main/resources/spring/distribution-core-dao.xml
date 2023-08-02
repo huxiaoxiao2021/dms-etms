@@ -952,4 +952,12 @@
         <property name="sqlSessionFactory" ref="unDivSqlSessionFactory"></property>
         <property name="sqlSessionTemplate" ref="unDivSqlSessionTemplate"></property>
     </bean>
+
+
+    <bean id="jyBizTaskAviationSendDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskAviationSendDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskBindDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskBindDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
 </beans>
