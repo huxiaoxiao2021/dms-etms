@@ -41,6 +41,7 @@ import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.fastjson.JSON;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tp.common.utils.Objects;
@@ -311,9 +312,11 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.getToProcessDamageCount", mState = {JProEnum.TP})
     public JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer positionCode) {
+        logger.info("getToProcessDamageCount positionCode :{}", JSON.toJSONString(positionCode));
         JyDamageExceptionToProcessCountDto toProcessCount = new JyDamageExceptionToProcessCountDto();
         // 获取待处理破损异常新增数量
         String bizIdAddSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
+        logger.info("getToProcessDamageCount bizIdAddSetStr :{}",bizIdAddSetStr);
         if (StringUtils.isEmpty(bizIdAddSetStr)) {
             toProcessCount.setToProcessAddCount(0);
         }
@@ -321,6 +324,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         toProcessCount.setToProcessAddCount(oldBizIdAddSet.size());
         // 获取待处理破损异常数量
         String oldBizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode);
+        logger.info("getToProcessDamageCount oldBizIdSetStr :{}",oldBizIdSetStr);
         if (StringUtils.isEmpty(oldBizIdSetStr)) {
             toProcessCount.setToProcessCount(0);
             // 新增转未处理
@@ -345,10 +349,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     @Override
     public JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req) {
+        logger.info("getTaskDetailOfDamage req params:{}", JSON.toJSONString(req));
         if (req == null || StringUtils.isEmpty(req.getBizId())) {
             return JdCResponse.fail("请求参数不能为空");
         }
         JyExceptionDamageEntity oldEntity = jyExceptionDamageDao.selectOneByBizId(req.getBizId());
+        logger.info("getTaskDetailOfDamage oldEntity:{}", JSON.toJSONString(oldEntity));
         if (oldEntity == null) {
             return JdCResponse.ok();
         }
@@ -379,6 +385,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         queryBefore.setBizType(bizType);
         // 删除老数据
         List<JyAttachmentDetailEntity> entityList = jyAttachmentDetailService.queryDataListByCondition(queryBefore);
+        logger.info("getTaskDetailOfDamage getImageUrlList entityList:{}", JSON.toJSONString(entityList));
         if (!CollectionUtils.isEmpty(entityList)) {
             return entityList.stream().map(JyAttachmentDetailEntity::getAttachmentUrl)
                     .collect(Collectors.toList());
@@ -406,8 +413,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.processTaskOfDamage", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req) {
         JyExceptionDamageDto entity = new JyExceptionDamageDto();
+        logger.info("processTaskOfDamage req params:{}", JSON.toJSONString(req));
         try {
             JyExceptionDamageEntity oldEntity = jyExceptionDamageDao.selectOneByBizId(entity.getBizId());
+            logger.info("processTaskOfDamage oldEntity :{}", JSON.toJSONString(req));
             if (oldEntity != null) {
                 entity.setId(oldEntity.getId());
             }
@@ -439,6 +448,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
     private void finishFlow(ExpDamageDetailReq req, JyExceptionDamageDto entity) {
+        logger.info("finishFlow req params:{}", JSON.toJSONString(req));
         if (StringUtils.isNotBlank(req.getUserErp())) {
             this.validateOrSetErpInfo(req, entity);
         }
@@ -456,6 +466,8 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         update.setUpdateTime(new Date());
         jyBizTaskExceptionDao.updateByBizId(update);
         jyExceptionService.recordLog(JyBizTaskExceptionCycleTypeEnum.CLOSE, update);
+        logger.info("updateTask sucessfullly");
+
     }
 
     private void replacePackagingHandover(ExpDamageDetailReq req, JyExceptionDamageDto entity) {
@@ -476,6 +488,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      * @return
      */
     private void saveDamage(ExpDamageDetailReq req, JyExceptionDamageDto entity) {
+        logger.info("start saveDamage...");
         this.dealTaskInfo(req, entity);
         if (!JyExceptionPackageType.SaveTypeEnum.DRAFT.getCode().equals(req.getSaveType())
                 && !JyExceptionPackageType.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(req.getSaveType())) {
@@ -490,11 +503,14 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
     private void saveOrUpdate(JyExceptionDamageEntity entity) {
+        logger.info("saveOrUpdate entity :{}", JSON.toJSONString(entity));
         if (entity.getId() == null) {
             jyExceptionDamageDao.insertSelective(entity);
         } else {
             jyExceptionDamageDao.updateByBizId(entity);
         }
+        logger.info("saveOrUpdate entity sucessfully");
+
     }
 
     private void saveImages(ExpDamageDetailReq req, JyExceptionDamageEntity entity) {
@@ -520,6 +536,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             query.setBizType(bitType);
             // 删除老数据
             List<JyAttachmentDetailEntity> oldImageUrlList = jyAttachmentDetailService.queryDataListByCondition(query);
+            logger.info("saveImages oldImageUrlList :{}", JSON.toJSONString(oldImageUrlList));
             if (!CollectionUtils.isEmpty(oldImageUrlList)) {
                 oldImageUrlList.forEach(i -> jyAttachmentDetailService.delete(i));
             }
@@ -554,6 +571,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private void validateOrSetErpInfo(ExpDamageDetailReq req, JyExceptionDamageDto entity) {
         // 获取erp相关信息
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
+        logger.info("validateOrSetErpInfo baseStaffByErp :{}", JSON.toJSONString(baseStaffByErp));
         if (baseStaffByErp == null) {
             throw new RuntimeException("登录人ERP有误!" + req.getUserErp());
         }
@@ -570,6 +588,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private JyBizTaskExceptionEntity dealTaskInfo(ExpDamageDetailReq req, JyExceptionDamageEntity entity) {
         // 获取task相关信息
         JyBizTaskExceptionEntity bizEntity = jyBizTaskExceptionDao.findByBizId(req.getBizId());
+        logger.info("dealTaskInfo bizEntity :{}", JSON.toJSONString(bizEntity));
         if (bizEntity == null) {
             throw new RuntimeException("无相关任务!bizId=" + req.getBizId());
         }
@@ -583,10 +602,13 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             entity.setSiteName(baseStaffByErp.getSiteName());
             entity.setCreateErp(baseStaffByErp.getErp());
             entity.setCreateTime(new Date());
+            entity.setCreateStaffName(baseStaffByErp.getStaffName());
         }
         entity.setStaffName(baseStaffByErp.getStaffName());
         entity.setUpdateErp(baseStaffByErp.getErp());
         entity.setUpdateTime(new Date());
+        entity.setUpdateStaffName(baseStaffByErp.getStaffName());
+
     }
 
     private void copyTaskToEntity(JyBizTaskExceptionEntity task, JyExceptionDamageEntity entity) {
