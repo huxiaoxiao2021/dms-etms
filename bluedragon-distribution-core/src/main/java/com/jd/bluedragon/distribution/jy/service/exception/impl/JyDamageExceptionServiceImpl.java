@@ -513,8 +513,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private void saveOrUpdate(JyExceptionDamageEntity entity) {
         logger.info("saveOrUpdate entity :{}", JSON.toJSONString(entity));
         if (entity.getId() == null) {
+            logger.info("saveOrUpdate save...");
             jyExceptionDamageDao.insertSelective(entity);
         } else {
+            logger.info("saveOrUpdate update...");
             jyExceptionDamageDao.updateByBizId(entity);
         }
         logger.info("saveOrUpdate entity sucessfully");

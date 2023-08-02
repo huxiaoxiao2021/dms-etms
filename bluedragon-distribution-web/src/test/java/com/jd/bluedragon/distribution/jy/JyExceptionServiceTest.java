@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
 import com.jd.bluedragon.distribution.jy.exception.JyAssignExpTaskDto;
+import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
@@ -35,6 +36,9 @@ public class JyExceptionServiceTest {
 
     @Autowired
     private JyScrappedExceptionServiceImpl jyScrappedExceptionService;
+
+    @Autowired
+    private JyDamageExceptionService jyDamageExceptionService;
 
     @Test
     public void uploadScanTest() {
@@ -141,7 +145,7 @@ public class JyExceptionServiceTest {
 
     @Test
     public void getJyExceptionPackageTypeListTest(){
-        JdCResponse<List<JyExceptionPackageTypeDto>> list = jyScrappedExceptionService.getJyExceptionPackageTypeList();
+        JdCResponse<List<JyExceptionPackageTypeDto>> list = jyDamageExceptionService.getJyExceptionPackageTypeList();
         Assert.assertEquals(list.isSucceed(),true);
     }
 
