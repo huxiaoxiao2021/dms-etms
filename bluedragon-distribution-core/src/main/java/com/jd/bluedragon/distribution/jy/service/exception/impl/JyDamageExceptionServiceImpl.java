@@ -150,40 +150,45 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
             JyBizTaskExceptionEntity updateExp = new JyBizTaskExceptionEntity();
             updateExp.setBizId(bizId);
+            updateExp.setUpdateUserErp(qcReportJmqDto.getCreateUser());
+            updateExp.setUpdateTime(new Date());
+
+            JyExceptionDamageEntity entity = new JyExceptionDamageEntity();
+            entity.setBizId(bizId);
+            entity.setUpdateErp(qcReportJmqDto.getCreateUser());
+            entity.setUpdateTime(new Date());
+            //如果质控返回的数据能和任务匹配 把破损数据保存类型更新为saveType =2
+            entity.setSaveType(2);
+
             //判断当前单号是否是第一次上报 如果不是，则不发送消息给客服，按上次反馈执行
             Integer damageCount = jyExceptionDamageDao.getDamageCountByBarCode(barCode);
-            if(Objects.equals(damageCount,1)){//第一上报
+            //第一上报
+            if(Objects.equals(damageCount,1)){
                 //更新破损任务状态为 处理中-客服介入中
-
                 updateExp.setStatus(JyExpStatusEnum.PROCESSING.getCode());
                 updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_INTERVENTION.getCode());
-                updateExp.setUpdateUserErp(qcReportJmqDto.getCreateUser());
-                updateExp.setUpdateTime(new Date());
-                if(jyBizTaskExceptionDao.updateByBizId(updateExp)<1){
-                    logger.warn("破损任务数据更新失败！");
-                    return;
-                }
-                //如果质控返回的数据能和任务匹配 把破损数据保存类型更新为saveType =2
-                JyExceptionDamageEntity entity = new JyExceptionDamageEntity();
-                entity.setBizId(bizId);
-                entity.setSaveType(2);
-                if(jyExceptionDamageDao.updateByBizId(entity) < 1){
-                    logger.warn("破损数据更新失败！");
-                    return;
-                }
+
+
                 //发送破损消息通知客服
                 JyExpDamageNoticCustomerMQ damageNoticCustomerMQ = this.coverToDamageNoticCustomerMQ(exceptionEntity);
                 dmsDamageNoticeKFProducer.send(bizId, JsonHelper.toJson(damageNoticCustomerMQ));
             }else {
+                //更新破损任务状态为 已完成
+                updateExp.setStatus(JyExpStatusEnum.COMPLETE.getCode());
                 //第二次不发送消息给客服，按上次反馈执行
-               // jyExceptionDamageDao
-
+                JyExceptionDamageEntity earliestOne = jyExceptionDamageDao.getEarliestOneDamageRecordByBarCode(barCode);
+                if(earliestOne != null){
+                    entity.setFeedBackType(earliestOne.getFeedBackType());
+                }
             }
-
-
-
-
-
+            if(jyBizTaskExceptionDao.updateByBizId(updateExp)<1){
+                logger.warn("破损任务数据更新失败！");
+                return;
+            }
+            if(jyExceptionDamageDao.updateByBizId(entity) < 1){
+                logger.warn("破损数据更新失败！");
+                return;
+            }
             //称重
             this.dealExpDamageWiughtVolumeUpload(damageEntity);
             //滞留上报

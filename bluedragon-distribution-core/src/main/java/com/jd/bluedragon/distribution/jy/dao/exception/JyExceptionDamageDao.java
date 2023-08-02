@@ -46,4 +46,8 @@ public class JyExceptionDamageDao extends BaseDao<JyExceptionDamageEntity> {
         return this.getSqlSession().selectOne(NAMESPACE + ".getDamageCountByBarCode", barCode);
     }
 
+    public JyExceptionDamageEntity getEarliestOneDamageRecordByBarCode(String barCode){
+        return this.getSqlSession().selectOne(NAMESPACE + ".getEarliestOneDamageRecordByBarCode", barCode);
+    }
+
 }
