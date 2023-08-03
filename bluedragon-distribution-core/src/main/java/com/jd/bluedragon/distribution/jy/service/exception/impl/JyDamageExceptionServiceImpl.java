@@ -58,7 +58,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -78,21 +77,22 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     private final Logger logger = LoggerFactory.getLogger(JyDamageExceptionServiceImpl.class);
 
-    @Resource
+    @Autowired
     private JyExceptionDamageDao jyExceptionDamageDao;
 
-    @Resource
+    @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
 
-    @Resource
+    @Autowired
     private BaseMajorManager baseMajorManager;
 
-    @Resource
+    @Autowired
     private JyAttachmentDetailService jyAttachmentDetailService;
 
-    @Resource
+    @Autowired
     private JyExceptionService jyExceptionService;
 
+    @Autowired
     @Qualifier("redisClientCache")
     private Cluster redisClient;
 
@@ -426,7 +426,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         JyExceptionDamageDto entity = new JyExceptionDamageDto();
         logger.info("processTaskOfDamage req params:{}", JSON.toJSONString(req));
         try {
-            JyExceptionDamageEntity oldEntity = jyExceptionDamageDao.selectOneByBizId(entity.getBizId());
+            JyExceptionDamageEntity oldEntity = jyExceptionDamageDao.selectOneByBizId(req.getBizId());
             logger.info("processTaskOfDamage oldEntity :{}", JSON.toJSONString(oldEntity));
             if (oldEntity != null) {
                 entity.setId(oldEntity.getId());
