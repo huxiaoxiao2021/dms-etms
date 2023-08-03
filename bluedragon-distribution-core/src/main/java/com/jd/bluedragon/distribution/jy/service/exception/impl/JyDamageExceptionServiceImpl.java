@@ -44,9 +44,14 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.ASCPContants;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tp.common.utils.Objects;
@@ -116,6 +121,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Autowired
     private DMSWeightVolumeService dmsWeightVolumeService;
 
+
     public Integer getExceptionType() {
         return JyBizTaskExceptionTypeEnum.DAMAGE.getCode();
     }
@@ -123,13 +129,99 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.exceptionTaskCheckByExceptionType", mState = {JProEnum.TP})
     public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req) {
-
+        if(logger.isInfoEnabled()){
+            logger.info("选择异常类型时进行校验 入参-{}",JSON.toJSONString(req));
+        }
         JdCResponse<Boolean> response = new JdCResponse<>();
+        response.toSucceed("请求成功");
         String waybillCode = req.getBarCode();
         //todo  添加校验港澳单
 
+        //选择 外包装破损
+        if(Objects.equals(JyExceptionPackageType.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode(),req.getDamageType())){
+            //选择 更换包装
+            if(Objects.equals(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode(),req.getRepairType())){
+                if(!checkDamageChangePackageRepair(waybillCode,response)){
+                    return response;
+                }
+            }else {
+                logger.warn("其他修复方式。。。");
+            }
+        }
         return response;
     }
+
+    /**
+     * 检验更换包装逻辑
+     * @return
+     */
+    private boolean checkDamageChangePackageRepair(String waybillCode,JdCResponse<Boolean> response ){
+
+        //获取增值服务信息
+        BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+        logger.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
+        if (baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null) {
+            logger.warn("运单{}获取增值服务信息失败!",waybillCode);
+            response.toFail("运单获取增值服务信息失败");
+            return false;
+        }
+        List<WaybillVasDto> waybillVas = baseEntity.getData();
+        //校验是否是特安单
+        if(BusinessHelper.matchWaybillVasDto(Constants.TE_AN_SERVICE,waybillVas)){
+            response.toFail("特安运单不允许更换包装！");
+            return false;
+        }
+
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+        if(waybill == null){
+            logger.warn("运单{}获取运单信息失败!",waybillCode);
+            response.toFail("获取运单信息失败");
+            return false;
+        }
+        //校验是否是医药单
+        if(BusinessHelper.matchWaybillVasDto(Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY,waybillVas)
+            || BusinessUtil.isBMedicine(waybill.getWaybillSign())){
+            response.toFail("医药运单不允许更换包装！");
+            return false;
+        }
+        //自营生鲜运单判断
+        if (BusinessUtil.isSelf(waybill.getWaybillSign())) {
+            if (BusinessUtil.isSelfSX(waybill.getSendPay())) {
+                logger.info("自营生鲜运单");
+                response.toFail("自营生鲜运单不允许更换包装！");
+                return false;
+            }
+        } else {//外单
+            if (BusinessUtil.isNotSelfSX(waybill.getWaybillSign())) {
+                logger.info("外单生鲜运单");
+                response.toFail("外单生鲜运单不允许更换包装！");
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * 根据运单获取
+     * @param waybillCode
+     * @return
+     */
+    private String getWaybillSignByWaybillCode(String waybillCode){
+        //根据运单获取waybillSign
+        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+                = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+        if (dataByChoice == null
+                || dataByChoice.getData() == null
+                || dataByChoice.getData().getWaybill() == null
+                || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+            logger.warn("查询运单waybillSign失败!-{}", waybillCode);
+            return null;
+        }
+        return dataByChoice.getData().getWaybill().getWaybillSign();
+    }
+
+
 
     @Override
     @Transactional
@@ -481,6 +573,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         jyExceptionDamageDao.updateByBizId(damageEntity);
 
     }
+
 
 
     private List<String> getImageUrlList(JyExceptionDamageEntity oldEntity, String bizType) {

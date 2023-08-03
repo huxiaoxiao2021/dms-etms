@@ -12,7 +12,11 @@ public abstract class JyExceptionStrategy {
 
     public abstract Integer getExceptionType();
 
-
+    /**
+     * PDA选择不同的异常类型、破损类型、修复类型进行判断
+     * @param req
+     * @return
+     */
     public abstract JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req);
 
 }

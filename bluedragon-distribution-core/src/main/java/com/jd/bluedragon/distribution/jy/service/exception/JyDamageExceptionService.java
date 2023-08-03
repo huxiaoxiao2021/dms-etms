@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTypeCheckReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
@@ -61,4 +62,7 @@ public interface JyDamageExceptionService {
      * @param returnMQ
      */
     void dealCustomerReturnDamageResult(JyExpCustomerReturnMQ returnMQ);
+
+
+
 }
