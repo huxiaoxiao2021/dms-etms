@@ -385,13 +385,14 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         Set<String> oldBizIdSet = new HashSet<>();
         if (StringUtils.isEmpty(oldBizIdSetStr)) {
             toProcessCount.setToProcessCount(0);
-            // 新增转未处理
-            redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + gridId, String.join(",", oldBizIdAddSet));
+            if (!CollectionUtils.isEmpty(oldBizIdAddSet)) {
+                // 新增转未处理
+                redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + gridId, String.join(",", oldBizIdAddSet));
+            }
             return JdCResponse.ok(toProcessCount);
-        } else {
-            oldBizIdSet = Arrays.stream(oldBizIdSetStr.split(",")).collect(Collectors.toSet());
-            toProcessCount.setToProcessCount(oldBizIdSet.size());
         }
+        oldBizIdSet = Arrays.stream(oldBizIdSetStr.split(",")).collect(Collectors.toSet());
+        toProcessCount.setToProcessCount(oldBizIdSet.size());
         // 新增转未处理
         if (!CollectionUtils.isEmpty(oldBizIdAddSet)) {
             oldBizIdSet.addAll(oldBizIdAddSet);
@@ -415,6 +416,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     private String getGridRid(String positionCode) {
         PositionDetailRecord positionDetail = jyExceptionService.getPosition(positionCode);
+        logger.info("getGridRid positionDetail:{}", JSON.toJSONString(positionDetail));
         if (positionDetail == null) {
             return null;
         }
@@ -722,12 +724,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     private void copyErpToEntity(BaseStaffSiteOrgDto baseStaffByErp, JyExceptionDamageEntity entity) {
         if (entity.getId() == null) {
-            entity.setSiteCode(baseStaffByErp.getSiteCode());
-            entity.setSiteName(baseStaffByErp.getSiteName());
             entity.setCreateErp(baseStaffByErp.getAccountNumber());
             entity.setCreateTime(new Date());
             entity.setCreateStaffName(baseStaffByErp.getStaffName());
         }
+        entity.setSiteCode(baseStaffByErp.getSiteCode());
+        entity.setSiteName(baseStaffByErp.getSiteName());
         entity.setUpdateErp(baseStaffByErp.getAccountNumber());
         entity.setUpdateTime(new Date());
         entity.setUpdateStaffName(baseStaffByErp.getStaffName());
