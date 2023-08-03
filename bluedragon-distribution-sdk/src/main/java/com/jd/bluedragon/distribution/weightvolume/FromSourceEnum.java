@@ -92,5 +92,11 @@ public enum FromSourceEnum {
     /**
      * PDA称重
      */
-    DMS_PDA;
+    DMS_PDA,
+
+    /**
+     *  异常-破损称重
+     */
+
+    EXP_DAMAGE;
 }

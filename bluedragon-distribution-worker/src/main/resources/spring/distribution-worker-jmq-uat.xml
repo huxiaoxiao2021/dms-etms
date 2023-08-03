@@ -579,5 +579,10 @@
     <jmq:consumer id="jmq.jyCancelScanConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.cancel.scan}" listener="jyCancelScanConsumer"/>
     </jmq:consumer>
+
+    <!--  异常破损-客服回传消费  -->
+    <jmq:consumer id="jmq.dmsExpCustomerReturnConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.customerReturn}" listener="dmsExpCustomerReturnConsumer"/>
+    </jmq:consumer>
 </beans>
 
