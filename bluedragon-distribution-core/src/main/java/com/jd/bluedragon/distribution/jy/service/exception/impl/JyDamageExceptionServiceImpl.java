@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -26,15 +27,19 @@ import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDamageDao;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
+import com.jd.bluedragon.distribution.jy.enums.CustomerNotifyStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.CustomerReturnResultEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExpDamageNoticCustomerMQ;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -42,7 +47,6 @@ import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.fastjson.JSON;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tp.common.utils.Objects;
@@ -65,7 +69,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+
 
 /**
  * @Author: chenyaguo@jd.com
@@ -106,6 +113,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Autowired
     private StrandService strandService;
 
+    @Autowired
+    private DMSWeightVolumeService dmsWeightVolumeService;
+
     public Integer getExceptionType() {
         return JyBizTaskExceptionTypeEnum.DAMAGE.getCode();
     }
@@ -125,16 +135,19 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Transactional
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.dealExpDamageInfoByAbnormalReportOutCall", mState = {JProEnum.TP})
     public void dealExpDamageInfoByAbnormalReportOutCall(QcReportOutCallJmqDto qcReportJmqDto) {
+        if(StringUtils.isBlank(qcReportJmqDto.getAbnormalDocumentNum())){
+            logger.warn("abnormalDocumentNum 为空！");
+            return ;
+        }
 
+        String barCode = qcReportJmqDto.getAbnormalDocumentNum();
+        String bizId = getBizId(barCode,new Integer(qcReportJmqDto.getCreateDept()));
+        String existKey = "DMS.EXCEPTION.DAMAGE:" + bizId;
+        if (!redisClient.set(existKey, "1", 10, TimeUnit.SECONDS, false)) {
+            logger.error("该破损任务正在处理。。。。");
+            return ;
+        }
         try {
-            if (StringUtils.isBlank(qcReportJmqDto.getAbnormalDocumentNum())) {
-                logger.warn("abnormalDocumentNum 为空！");
-                return;
-            }
-
-            String barCode = qcReportJmqDto.getAbnormalDocumentNum();
-            String bizId = getBizId(barCode, new Integer(qcReportJmqDto.getCreateDept()));
-
             JyBizTaskExceptionEntity exceptionEntity = jyBizTaskExceptionDao.findByBizId(bizId);
             if (exceptionEntity == null) {
                 logger.warn("根据 {} 查询异常破损任务为空！", bizId);
@@ -156,51 +169,96 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             updateExp.setUpdateUserErp(qcReportJmqDto.getCreateUser());
             updateExp.setUpdateTime(new Date());
 
-            JyExceptionDamageEntity entity = new JyExceptionDamageEntity();
-            entity.setBizId(bizId);
-            entity.setUpdateErp(qcReportJmqDto.getCreateUser());
-            entity.setUpdateTime(new Date());
-            //如果质控返回的数据能和任务匹配 把破损数据保存类型更新为saveType =2
-            entity.setSaveType(2);
+            JyExceptionDamageEntity updateDamageEntity = new JyExceptionDamageEntity();
+            updateDamageEntity.setBizId(bizId);
+            updateDamageEntity.setUpdateErp(qcReportJmqDto.getCreateUser());
+            updateDamageEntity.setUpdateTime(new Date());
+            updateDamageEntity.setSaveType(2);
 
-            //判断当前单号是否是第一次上报 如果不是，则不发送消息给客服，按上次反馈执行
-            Integer damageCount = jyExceptionDamageDao.getDamageCountByBarCode(barCode);
-            //第一上报
-            if (Objects.equals(damageCount, 1)) {
-                //更新破损任务状态为 处理中-客服介入中
-                updateExp.setStatus(JyExpStatusEnum.PROCESSING.getCode());
-                updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_INTERVENTION.getCode());
-
-
-                //发送破损消息通知客服
-                JyExpDamageNoticCustomerMQ damageNoticCustomerMQ = this.coverToDamageNoticCustomerMQ(exceptionEntity);
-                dmsDamageNoticeKFProducer.send(bizId, JsonHelper.toJson(damageNoticCustomerMQ));
-            } else {
-                //更新破损任务状态为 已完成
-                updateExp.setStatus(JyExpStatusEnum.COMPLETE.getCode());
-                //第二次不发送消息给客服，按上次反馈执行
-                JyExceptionDamageEntity earliestOne = jyExceptionDamageDao.getEarliestOneDamageRecordByBarCode(barCode);
-                if (earliestOne != null) {
-                    entity.setFeedBackType(earliestOne.getFeedBackType());
+            boolean sendMQFlag = true;
+            //一单多包裹的情况下，若上报外破内破，不发送消息给客服，直接下传
+            if(checkManyPackageNumberByWaybillCode(barCode)){
+                if(Objects.equals(JyExceptionPackageType.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode(),exceptionEntity.getType())){
+                    updateDamageEntity.setFeedBackType(JyExceptionPackageType.FeedBackTypeEnum.HANDOVER.getCode());
+                    sendMQFlag =false;
+                }
+            }else {
+                //判断当前单号是否是第一次上报 如果不是，则不发送消息给客服，按上次反馈执行
+                Integer damageCount = jyExceptionDamageDao.getDamageCountByBarCode(barCode);
+                //第一上报
+                if(Objects.equals(damageCount,1)){
+                    //更新破损任务状态为 处理中-客服介入中
+                    updateExp.setStatus(JyExpStatusEnum.PROCESSING.getCode());
+                    updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_INTERVENTION.getCode());
+                }else {
+                    JyExceptionDamageEntity earliestOne = jyExceptionDamageDao.getEarliestOneDamageRecordByBarCode(barCode);
+                    //同一个单号，另一个场地也上报  如果上报同类型， 不发送消息给客服，按上次反馈执行
+                    if(earliestOne != null
+                            && !Objects.equals(qcReportJmqDto.getCreateDept(),earliestOne)
+                            && Objects.equals(damageEntity.getDamageType(),earliestOne.getDamageType())
+                            && Objects.equals(damageEntity.getRepairType(),earliestOne.getRepairType())
+                            ){
+                        //更新破损任务状态为 已完成
+                        updateExp.setStatus(JyExpStatusEnum.COMPLETE.getCode());
+                        updateDamageEntity.setFeedBackType(earliestOne.getFeedBackType());
+                        sendMQFlag =false;
+                    }else if (earliestOne != null
+                            && Objects.equals(JyExceptionPackageType.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode(),earliestOne.getDamageType())
+                            && Objects.equals(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode(),damageEntity.getRepairType())){
+                        //已上报内破外破的包裹号，第二次报备外包装需更换时，不发送消息给客服，按上次反馈执行
+                        sendMQFlag =false;
+                    }
                 }
             }
-            if (jyBizTaskExceptionDao.updateByBizId(updateExp) < 1) {
+
+            if(jyBizTaskExceptionDao.updateByBizId(updateExp)<1){
                 logger.warn("破损任务数据更新失败！");
                 return;
             }
-            if (jyExceptionDamageDao.updateByBizId(entity) < 1) {
+            if(jyExceptionDamageDao.updateByBizId(updateDamageEntity) < 1){
                 logger.warn("破损数据更新失败！");
                 return;
+            }
+
+            if(sendMQFlag){
+                //发送破损消息通知客服
+                JyExpDamageNoticCustomerMQ damageNoticCustomerMQ = this.coverToDamageNoticCustomerMQ(exceptionEntity);
+                dmsDamageNoticeKFProducer.send(bizId, JsonHelper.toJson(damageNoticCustomerMQ));
             }
             //称重
             this.dealExpDamageWiughtVolumeUpload(damageEntity);
             //滞留上报
             this.dealExpDamageStrandReport(exceptionEntity.getBarCode());
 
-
-        } catch (Exception e) {
+        }catch (Exception e){
             logger.warn("根据质控异常提报mq处理破损数据异常!");
+        }finally {
+            redisClient.del(existKey);
         }
+    }
+
+
+    /**
+     * 校验运单是否是多包裹运单
+     * @param waybillCode
+     * @return
+     */
+    private boolean checkManyPackageNumberByWaybillCode(String waybillCode){
+        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+                = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+        if (dataByChoice == null
+                || dataByChoice.getData() == null
+                || dataByChoice.getData().getWaybill() == null
+                || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+            logger.warn("查询运单waybillSign失败!-{}", waybillCode);
+            return false;
+        }
+        Integer goodNumber = dataByChoice.getData().getWaybill().getGoodNumber();
+        //一单多件校验
+        if(!Objects.equals(goodNumber,1)){
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -208,27 +266,38 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      *
      * @param
      */
-    private void dealExpDamageWiughtVolumeUpload(JyExceptionDamageEntity damageEntity) {
-
-        WeightVolumeCondition condition = coverToWeightVolumeCondition(damageEntity);
-
-
+    private void dealExpDamageWiughtVolumeUpload(JyExceptionDamageEntity damageEntity){
+        WeightVolumeEntity entity = coverToWeightVolumeCondition(damageEntity);
+        InvokeResult<Boolean> result = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
+        if(logger.isInfoEnabled()){
+            logger.info("处理破损运单称重结果-{}",JsonHelper.toJson(result));
+        }
     }
 
-    private WeightVolumeCondition coverToWeightVolumeCondition(JyExceptionDamageEntity damageEntity) {
-
-        WeightVolumeCondition condition = new WeightVolumeCondition();
-        condition.setBarCode(damageEntity.getBarCode());
-        condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name());
-        condition.setSourceCode(FromSourceEnum.DMS_CLIENT_PACKAGE_WEIGH_PRINT.name());
-        condition.setWeight(damageEntity.getWeightRepairAfter() != null ? damageEntity.getWeightRepairAfter().doubleValue() : null);
-        condition.setVolume(damageEntity.getVolumeRepairAfter() != null ? damageEntity.getVolumeRepairAfter().doubleValue() : null);
-        condition.setOperateSiteCode(damageEntity.getSiteCode());
-        condition.setOperateSiteName(damageEntity.getSiteName());
-        condition.setOperatorCode(damageEntity.getCreateErp());
-        //condition.setOperatorName();
-
-        return condition;
+    /**
+     * 构建称重信息
+     * @param damageEntity
+     * @return
+     */
+    private WeightVolumeEntity  coverToWeightVolumeCondition(JyExceptionDamageEntity damageEntity){
+        WeightVolumeEntity entity = new WeightVolumeEntity();
+        entity.setBarCode(damageEntity.getBarCode());
+        entity.setWaybillCode(damageEntity.getBarCode());
+        entity.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL);
+        entity.setSourceCode(FromSourceEnum.EXP_DAMAGE);
+        entity.setWeight(damageEntity.getWeightRepairAfter() != null ? damageEntity.getWeightRepairAfter().doubleValue(): null);
+        entity.setVolume(damageEntity.getVolumeRepairAfter() !=null ? damageEntity.getVolumeRepairAfter().doubleValue(): null);
+        entity.setOperateSiteCode(damageEntity.getSiteCode());
+        entity.setOperateSiteName(damageEntity.getSiteName());
+        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(damageEntity.getCreateErp());
+        if(baseStaff != null){
+            entity.setOperatorId(baseStaff.getStaffNo());
+            entity.setOperatorName(baseStaff.getStaffName());
+        }
+        entity.setOperatorCode(damageEntity.getCreateErp());
+        entity.setOperateTime(new Date());
+        logger.info("称重信息WeightVolumeEntity -{}",JsonHelper.toJson(entity));
+        return entity;
     }
 
     /**
@@ -244,7 +313,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         logger.info("破损调用运单滞留上报入参-{}", JsonHelper.toJson(request));
         InvokeResult<Boolean> report = strandService.report(request);
         logger.info("破损调用运单滞留上报结果-{}", JsonHelper.toJson(report));
-
     }
 
     /**
@@ -287,32 +355,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
         mq.setWaybillCode(entity.getBarCode());
         return mq;
-    }
-
-    /**
-     * 数据校验
-     *
-     * @param bizId
-     * @param erp
-     * @return
-     */
-    private boolean checkExpDamageInfo(String bizId, String erp) {
-        JyBizTaskExceptionEntity exceptionEntity = jyBizTaskExceptionDao.findByBizId(bizId);
-        if (exceptionEntity == null) {
-            logger.warn("根据 {} 查询异常破损任务为空！", bizId);
-            return false;
-        }
-        JyExceptionDamageEntity damageEntity = jyExceptionDamageDao.selectOneByBizId(bizId);
-        if (damageEntity == null) {
-            logger.warn("根据 {} 查询破损数据为空！", bizId);
-            return false;
-        }
-        final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(erp);
-        if (baseStaff == null) {
-            logger.warn("未找到此erp:{}信息", erp);
-            return false;
-        }
-        return true;
     }
 
 
@@ -383,6 +425,34 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             damageDetail.setActualImageUrlList(this.getImageUrlList(oldEntity, JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_AFTER.getCode()));
         }
         return JdCResponse.ok(damageDetail);
+    }
+
+    @Override
+    public void dealCustomerReturnDamageResult(JyExpCustomerReturnMQ returnMQ) {
+        String bizId = returnMQ.getExptId();
+        JyBizTaskExceptionEntity expTask = jyBizTaskExceptionDao.findByBizId(bizId);
+        if(expTask == null){
+            logger.error("此任务-{}-不存在",bizId);
+            return ;
+        }
+        //判断任务状态是否是处理中、客服介入中
+        if(!(Objects.equals(JyExpStatusEnum.PROCESSING,expTask.getStatus())
+            && Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITER_INTERVENTION,expTask.getProcessingStatus()))){
+            logger.error("此任务-{}-状态不正确",bizId);
+            return ;
+        }
+        //回传状态
+        String resultType = returnMQ.getResultType();
+        CustomerReturnResultEnum resultEnum = CustomerReturnResultEnum.convertApproveEnum(resultType);
+        JyExceptionDamageEntity damageEntity = new JyExceptionDamageEntity();
+        damageEntity.setBizId(bizId);
+        damageEntity.setFeedBackType(resultEnum.getType());
+        damageEntity.setUpdateTime(new Date());
+        if(logger.isInfoEnabled()){
+            logger.info("根据客服回传状态更新破损数据 入参-{}",JSON.toJSON(damageEntity));
+        }
+        jyExceptionDamageDao.updateByBizId(damageEntity);
+
     }
 
 

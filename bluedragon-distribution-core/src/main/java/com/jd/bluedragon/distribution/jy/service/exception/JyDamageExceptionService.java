@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
+import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 
 import java.util.List;
@@ -55,4 +56,10 @@ public interface JyDamageExceptionService {
     JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList();
 
     void writeToProcessDamage(String positionCode, String bizId);
+
+    /**
+     * 客服下发破损返回结果通知处理
+     * @param returnMQ
+     */
+    void dealCustomerReturnDamageResult(JyExpCustomerReturnMQ returnMQ);
 }

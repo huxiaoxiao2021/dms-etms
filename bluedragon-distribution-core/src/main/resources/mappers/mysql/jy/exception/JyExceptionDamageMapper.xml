@@ -29,13 +29,6 @@
     weight_repair_after, damage_type, repair_type,
     feed_back_type, create_erp, create_staff_name, create_time, update_erp, update_staff_name, update_time, ts, yn
   </sql>
-  <select id="selectOneByBizId" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select
-    <include refid="Base_Column_List" />
-    from jy_exception_damage
-    where biz_id = #{bizId,jdbcType=VARCHAR} and yn =1 limit 1
-  </select>
-
 
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity" >
     insert into jy_exception_damage
@@ -237,6 +230,12 @@
     where biz_id = #{bizId,jdbcType=VARCHAR}
   </update>
 
+  <select id="selectOneByBizId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from jy_exception_damage
+    where biz_id = #{bizId,jdbcType=VARCHAR} and yn =1 limit 1
+  </select>
 
   <select id="getTaskListOfDamage" resultMap="BaseResultMap">
     select
