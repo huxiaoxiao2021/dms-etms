@@ -56,8 +56,6 @@ public interface JyDamageExceptionService {
     JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList();
 
     void writeToProcessDamage(String bizId);
-    void writeToProcessDamage(String positionCode, String bizId);
-
     /**
      * 客服下发破损返回结果通知处理
      * @param returnMQ
