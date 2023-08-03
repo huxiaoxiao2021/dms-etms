@@ -30,7 +30,7 @@ public interface JyDamageExceptionService {
      *
      * @return
      */
-    JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer positionCode);
+    JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(String positionCode);
 
     /**
      * 读取破损异常为已读
@@ -38,7 +38,7 @@ public interface JyDamageExceptionService {
      * @param positionCode
      * @return
      */
-    JdCResponse<Boolean> readToProcessDamage(Integer positionCode);
+    JdCResponse<Boolean> readToProcessDamage(String positionCode);
 
 
     /**

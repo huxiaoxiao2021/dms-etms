@@ -171,14 +171,14 @@ public interface JyExceptionGatewayService {
      * 获取待处理和新增的破损异常数量
      * @return
      */
-    JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer positionCode);
+    JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(String positionCode);
 
     /**
      * 读取破损异常为已读
      * @param positionCode
      * @return
      */
-    JdCResponse<Boolean> readToProcessDamage(Integer positionCode);
+    JdCResponse<Boolean> readToProcessDamage(String positionCode);
 
     /**
      * 获取破损任务详情

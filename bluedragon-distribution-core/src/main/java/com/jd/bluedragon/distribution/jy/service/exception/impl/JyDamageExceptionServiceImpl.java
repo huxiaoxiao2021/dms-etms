@@ -318,8 +318,8 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.getToProcessDamageCount", mState = {JProEnum.TP})
-    public JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(Integer positionCode) {
-        logger.info("getToProcessDamageCount positionCode :{}", JSON.toJSONString(positionCode));
+    public JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(String positionCode) {
+        logger.info("getToProcessDamageCount positionCode :{}", positionCode);
         JyDamageExceptionToProcessCountDto toProcessCount = new JyDamageExceptionToProcessCountDto();
         // 获取待处理破损异常新增数量
         String bizIdAddSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
@@ -348,7 +348,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.readToProcessDamage", mState = {JProEnum.TP})
-    public JdCResponse<Boolean> readToProcessDamage(Integer positionCode) {
+    public JdCResponse<Boolean> readToProcessDamage(String positionCode) {
         redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
         redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode);
         return JdCResponse.ok();
