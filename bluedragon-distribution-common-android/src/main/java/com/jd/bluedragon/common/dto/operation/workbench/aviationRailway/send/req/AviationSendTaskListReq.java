@@ -1,10 +1,8 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * @Author zhengchengfa
@@ -14,5 +12,23 @@ import java.util.List;
 public class AviationSendTaskListReq extends BaseReq implements Serializable {
 
 
+    private Integer pageNo;
+    private Integer pageSize;
 
+
+    public Integer getPageNo() {
+        return pageNo;
+    }
+
+    public void setPageNo(Integer pageNo) {
+        this.pageNo = pageNo;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
 }

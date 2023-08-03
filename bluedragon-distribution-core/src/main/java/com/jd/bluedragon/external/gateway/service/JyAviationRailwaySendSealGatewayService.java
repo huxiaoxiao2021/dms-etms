@@ -1,8 +1,8 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.AviationSendTaskListReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendTaskListRes;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 
 import java.util.List;
@@ -29,5 +29,19 @@ public interface JyAviationRailwaySendSealGatewayService {
      */
     JdCResponse<AviationSendTaskListRes> pageFetchAviationSendTaskList(AviationSendTaskListReq request);
 
+
+    /**
+     * 摆渡发货任务上绑定航空发货任务
+     * @param request
+     * @return
+     */
+    JdCResponse<Void> sendTaskBinding(SendTaskBindReq request);
+
+    /**
+     * 已经绑定的任务进行删除
+     * @param request
+     * @return
+     */
+    JdCResponse<Void> sendTaskUnbinding(SendTaskUnbindReq request);
 
 }

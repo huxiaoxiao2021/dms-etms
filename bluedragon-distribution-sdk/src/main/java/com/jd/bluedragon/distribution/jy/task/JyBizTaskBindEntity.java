@@ -12,13 +12,17 @@ public class JyBizTaskBindEntity {
 
     private String bizId;
 
-    private String detailBizId;
-
     private String bindBizId;
 
     private String bindDetailBizId;
 
-    private Integer status;
+    private Integer operateSiteCode;
+
+    /**
+     * 绑定任务业务场景分类
+     * com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum
+     */
+    private Integer type;
 
     private String createUserErp;
 
@@ -52,14 +56,6 @@ public class JyBizTaskBindEntity {
         this.bizId = bizId;
     }
 
-    public String getDetailBizId() {
-        return detailBizId;
-    }
-
-    public void setDetailBizId(String detailBizId) {
-        this.detailBizId = detailBizId;
-    }
-
     public String getBindBizId() {
         return bindBizId;
     }
@@ -76,12 +72,20 @@ public class JyBizTaskBindEntity {
         this.bindDetailBizId = bindDetailBizId;
     }
 
-    public Integer getStatus() {
-        return status;
+    public Integer getOperateSiteCode() {
+        return operateSiteCode;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setOperateSiteCode(Integer operateSiteCode) {
+        this.operateSiteCode = operateSiteCode;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public String getCreateUserErp() {

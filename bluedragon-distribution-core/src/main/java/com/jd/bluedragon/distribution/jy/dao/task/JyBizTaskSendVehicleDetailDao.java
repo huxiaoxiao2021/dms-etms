@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
@@ -150,5 +151,17 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         params.put("detailBizList", detailBizList);
         params.put("status", status);
         return this.getSqlSession().update(NAMESPACE + ".updateStatusByDetailVehicleBizIds", params) > 0;
+    }
+
+
+
+    public List<JyBizTaskSendVehicleDetailEntity> findNoSealTaskByBizIds(List<String> bizIds) {
+        if(CollectionUtils.isEmpty(bizIds)) {
+            return null;
+        }
+        JyBizTaskSendVehicleDetailQueryEntity entity = new JyBizTaskSendVehicleDetailQueryEntity();
+        entity.setBizIdList(bizIds);
+        entity.setVehicleStatus(JyBizTaskSendStatusEnum.SEALED.getCode());
+        return this.getSqlSession().selectList(NAMESPACE + ".findNoSealTaskByBizIds", entity);
     }
 }

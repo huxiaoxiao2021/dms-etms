@@ -188,4 +188,9 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     public boolean updateStatusByDetailVehicleBizIds(List<String> detailBizList, Integer status) {
         return jyBizTaskSendVehicleDetailDao.updateStatusByDetailVehicleBizIds(detailBizList, status);
     }
+
+    @Override
+    public List<JyBizTaskSendVehicleDetailEntity> findNoSealTaskByBizIds(List<String> bizIds) {
+        return jyBizTaskSendVehicleDetailDao.findNoSealTaskByBizIds(bizIds);
+    }
 }

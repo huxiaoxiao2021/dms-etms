@@ -19,6 +19,8 @@ public class JyBizTaskSendVehicleDetailQueryEntity extends JyBizTaskSendVehicleD
 
 	private Integer pageSize;
 
+	private List<String> bizIdList;
+
 
 	public List<Long> getEndSiteIdList() {
 		return endSiteIdList;
@@ -34,5 +36,13 @@ public class JyBizTaskSendVehicleDetailQueryEntity extends JyBizTaskSendVehicleD
 
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+
+	public List<String> getBizIdList() {
+		return bizIdList;
+	}
+
+	public void setBizIdList(List<String> bizIdList) {
+		this.bizIdList = bizIdList;
 	}
 }
