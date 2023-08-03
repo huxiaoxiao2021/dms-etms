@@ -54,5 +54,5 @@ public interface JyDamageExceptionService {
      */
     JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList();
 
-    void writeToProcessDamage(String positionCode, String bizId);
+    void writeToProcessDamage(String bizId);
 }

@@ -1542,11 +1542,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     /**
      * 拼接唯一网格标识
      */
-    private String getGridRid(PositionDetailRecord data) {
+    public String getGridRid(PositionDetailRecord data) {
         return data.getSiteCode() + "-" + data.getFloor() + "-" + data.getGridCode();
     }
 
-    private PositionDetailRecord getPosition(String positionCode) {
+    public PositionDetailRecord getPosition(String positionCode) {
         if (StringUtils.isBlank(positionCode)) {
             return null;
         }

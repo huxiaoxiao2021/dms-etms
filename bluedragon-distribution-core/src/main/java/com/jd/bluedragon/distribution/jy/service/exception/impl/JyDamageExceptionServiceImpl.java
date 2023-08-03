@@ -48,6 +48,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tp.common.utils.Objects;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -320,9 +321,14 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.getToProcessDamageCount", mState = {JProEnum.TP})
     public JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(String positionCode) {
         logger.info("getToProcessDamageCount positionCode :{}", positionCode);
+        String gridId = this.getGridRid(positionCode);
+        if (StringUtils.isEmpty(gridId)) {
+            return JdCResponse.fail("网格码不存在");
+        }
+        logger.info("getToProcessDamageCount gridId :{}", gridId);
         JyDamageExceptionToProcessCountDto toProcessCount = new JyDamageExceptionToProcessCountDto();
         // 获取待处理破损异常新增数量
-        String bizIdAddSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
+        String bizIdAddSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + gridId);
         logger.info("getToProcessDamageCount bizIdAddSetStr :{}", bizIdAddSetStr);
         Set<String> oldBizIdAddSet = null;
         if (StringUtils.isEmpty(bizIdAddSetStr)) {
@@ -332,13 +338,13 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             toProcessCount.setToProcessAddCount(oldBizIdAddSet.size());
         }
         // 获取待处理破损异常数量
-        String oldBizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode);
+        String oldBizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + gridId);
         logger.info("getToProcessDamageCount oldBizIdSetStr :{}", oldBizIdSetStr);
         Set<String> oldBizIdSet = new HashSet<>();
         if (StringUtils.isEmpty(oldBizIdSetStr)) {
             toProcessCount.setToProcessCount(0);
             // 新增转未处理
-            redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode, String.join(",", oldBizIdAddSet));
+            redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + gridId, String.join(",", oldBizIdAddSet));
             return JdCResponse.ok(toProcessCount);
         } else {
             oldBizIdSet = Arrays.stream(oldBizIdSetStr.split(",")).collect(Collectors.toSet());
@@ -355,9 +361,22 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.readToProcessDamage", mState = {JProEnum.TP})
     public JdCResponse<Boolean> readToProcessDamage(String positionCode) {
-        redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
-        redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode);
+        String gridId = this.getGridRid(positionCode);
+        if (StringUtils.isEmpty(gridId)) {
+            return JdCResponse.fail("网格码不存在");
+        }
+        logger.info("readToProcessDamage gridId :{}", gridId);
+        redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + gridId);
+        redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + gridId);
         return JdCResponse.ok();
+    }
+
+    private String getGridRid(String positionCode) {
+        PositionDetailRecord positionDetail = jyExceptionService.getPosition(positionCode);
+        if (positionDetail == null) {
+            return null;
+        }
+        return jyExceptionService.getGridRid(positionDetail);
     }
 
     @Override
@@ -412,19 +431,24 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.writeToProcessDamage", mState = {JProEnum.TP})
-    public void writeToProcessDamage(String positionCode, String bizId) {
-        logger.info("writeToProcessDamage positionCode:{}, bizId:{}", positionCode, bizId);
-        String bizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
+    public void writeToProcessDamage(String bizId) {
+        logger.info("writeToProcessDamage bizId:{}", bizId);
+        JyBizTaskExceptionEntity entity = jyBizTaskExceptionDao.findByBizId(bizId);
+        if (entity == null) {
+            return;
+        }
+        logger.info("writeToProcessDamage getDistributionTarget:{}", entity.getDistributionTarget());
+        String bizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + entity.getDistributionTarget());
         logger.info("writeToProcessDamage bizIdSetStr:{}", bizIdSetStr);
         if (StringUtils.isEmpty(bizIdSetStr)) {
             Set<String> bizIdSet = new HashSet<>();
             bizIdSet.add(bizId);
-            redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode, String.join(",", bizIdSet));
+            redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + entity.getDistributionTarget(), String.join(",", bizIdSet));
             return;
         }
         Set<String> oldBizIdSet = Arrays.stream(bizIdSetStr.split(",")).collect(Collectors.toSet());
         oldBizIdSet.add(bizId);
-        redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode, String.join(",", oldBizIdSet));
+        redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + entity.getDistributionTarget(), String.join(",", oldBizIdSet));
         logger.info("writeToProcessDamage write successfully");
     }
 
@@ -467,7 +491,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         return JdCResponse.ok();
     }
 
-    private void finishFlow(ExpDamageDetailReq req, JyExceptionDamageDto entity) {
+    private void finishFlow(ExpDamageDetailReq req, JyExceptionDamageEntity entity) {
         logger.info("finishFlow req params:{}", JSON.toJSONString(req));
         if (StringUtils.isNotBlank(req.getUserErp())) {
             this.validateOrSetErpInfo(req, entity);
@@ -476,13 +500,13 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         this.updateTask(entity);
     }
 
-    private void updateTask(JyExceptionDamageDto entity) {
+    private void updateTask(JyExceptionDamageEntity entity) {
         JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
         update.setBizId(entity.getBizId());
         update.setStatus(JyExpStatusEnum.COMPLETE.getCode());
         update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
         update.setUpdateUserErp(entity.getUpdateErp());
-        update.setUpdateUserName(entity.getStaffName());
+        update.setUpdateUserName(entity.getUpdateStaffName());
         update.setUpdateTime(new Date());
         jyBizTaskExceptionDao.updateByBizId(update);
         jyExceptionService.recordLog(JyBizTaskExceptionCycleTypeEnum.CLOSE, update);
@@ -519,15 +543,16 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         this.saveOrUpdate(entity);
     }
 
-    private void validateSaveDamageParams(ExpDamageDetailReq req, JyExceptionDamageDto entity){
+    private void validateSaveDamageParams(ExpDamageDetailReq req, JyExceptionDamageDto entity) {
         if (!JyExceptionPackageType.SaveTypeEnum.DRAFT.getCode().equals(req.getSaveType())
                 && !JyExceptionPackageType.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(req.getSaveType())) {
             throw new RuntimeException("保存类型错误!" + req.getBizId());
         }
-        if (entity !=null && JyExceptionPackageType.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(entity.getSaveType())) {
+        if (entity != null && JyExceptionPackageType.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(entity.getSaveType())) {
             throw new RuntimeException("不能重复提交!" + req.getBizId());
         }
     }
+
     private void saveOrUpdate(JyExceptionDamageEntity entity) {
         logger.info("saveOrUpdate entity :{}", JSON.toJSONString(entity));
         if (entity.getId() == null) {
@@ -563,6 +588,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             query.setSiteCode(entity.getSiteCode());
             query.setBizType(bitType);
             // 删除老数据
+            logger.info("saveImages entity :{}", JSON.toJSONString(entity));
             List<JyAttachmentDetailEntity> oldImageUrlList = jyAttachmentDetailService.queryDataListByCondition(query);
             logger.info("saveImages oldImageUrlList :{}", JSON.toJSONString(oldImageUrlList));
             if (!CollectionUtils.isEmpty(oldImageUrlList)) {
@@ -596,7 +622,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      * @param entity
      * @return
      */
-    private void validateOrSetErpInfo(ExpDamageDetailReq req, JyExceptionDamageDto entity) {
+    private void validateOrSetErpInfo(ExpDamageDetailReq req, JyExceptionDamageEntity entity) {
         // 获取erp相关信息
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
         logger.info("validateOrSetErpInfo baseStaffByErp :{}", JSON.toJSONString(baseStaffByErp));
@@ -624,7 +650,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         return bizEntity;
     }
 
-    private void copyErpToEntity(BaseStaffSiteOrgDto baseStaffByErp, JyExceptionDamageDto entity) {
+    private void copyErpToEntity(BaseStaffSiteOrgDto baseStaffByErp, JyExceptionDamageEntity entity) {
         if (entity.getId() == null) {
             entity.setSiteCode(baseStaffByErp.getSiteCode());
             entity.setSiteName(baseStaffByErp.getSiteName());
@@ -632,7 +658,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             entity.setCreateTime(new Date());
             entity.setCreateStaffName(baseStaffByErp.getStaffName());
         }
-        entity.setStaffName(baseStaffByErp.getStaffName());
         entity.setUpdateErp(baseStaffByErp.getAccountNumber());
         entity.setUpdateTime(new Date());
         entity.setUpdateStaffName(baseStaffByErp.getStaffName());

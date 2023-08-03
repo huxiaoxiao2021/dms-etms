@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.ps.data.epf.dto.ExpefNotify;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
 
 import java.util.Date;
 import java.util.List;
@@ -137,4 +138,8 @@ public interface JyExceptionService {
     void recordLog(JyBizTaskExceptionCycleTypeEnum cycle, JyBizTaskExceptionEntity entity);
 
     void delivered(String bizId);
+
+    PositionDetailRecord getPosition(String positionCode);
+
+    String getGridRid(PositionDetailRecord data);
 }

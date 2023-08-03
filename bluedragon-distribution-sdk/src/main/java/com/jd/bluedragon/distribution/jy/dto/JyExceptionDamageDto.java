@@ -5,8 +5,6 @@ import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
 import java.util.List;
 
 public class JyExceptionDamageDto extends JyExceptionDamageEntity {
-    private String staffName;
-
     private String damageTypeName;
 
     private String repairTypeName;
@@ -21,15 +19,6 @@ public class JyExceptionDamageDto extends JyExceptionDamageEntity {
      * （修复后、包装后）图片地址
      */
     private List<String> dealImageUrlList;
-
-
-    public String getStaffName() {
-        return staffName;
-    }
-
-    public void setStaffName(String staffName) {
-        this.staffName = staffName;
-    }
 
     public String getDamageTypeName() {
         return damageTypeName;
