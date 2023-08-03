@@ -388,6 +388,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             if (!CollectionUtils.isEmpty(oldBizIdAddSet)) {
                 // 新增转未处理
                 redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + gridId, String.join(",", oldBizIdAddSet));
+                redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + gridId);
             }
             return JdCResponse.ok(toProcessCount);
         }
@@ -397,6 +398,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         if (!CollectionUtils.isEmpty(oldBizIdAddSet)) {
             oldBizIdSet.addAll(oldBizIdAddSet);
             redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode, String.join(",", oldBizIdSet));
+            redisClient.del(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + gridId);
         }
         return JdCResponse.ok(toProcessCount);
     }
@@ -506,10 +508,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     public void writeToProcessDamage(String bizId) {
         logger.info("writeToProcessDamage bizId:{}", bizId);
         JyBizTaskExceptionEntity entity = jyBizTaskExceptionDao.findByBizId(bizId);
+        logger.info("writeToProcessDamage entity:{}", entity);
         if (entity == null) {
             return;
         }
-        logger.info("writeToProcessDamage getDistributionTarget:{}", entity.getDistributionTarget());
         String bizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + entity.getDistributionTarget());
         logger.info("writeToProcessDamage bizIdSetStr:{}", bizIdSetStr);
         if (StringUtils.isEmpty(bizIdSetStr)) {
@@ -540,19 +542,20 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 this.saveDamage(req, entity);
             } else if (JyExceptionPackageType.FeedBackTypeEnum.REPAIR_HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
                 // 1.修复下传
-                this.finishFlow(req, entity);
+                this.repairOrReplacePackagingHandover(req, entity);
             } else if (JyExceptionPackageType.FeedBackTypeEnum.HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
                 //2.直接下传
                 this.finishFlow(req, entity);
             } else if (JyExceptionPackageType.FeedBackTypeEnum.REPLACE_PACKAGING_HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
                 //3.更换包装下传
-                this.replacePackagingHandover(req, entity);
+                this.repairOrReplacePackagingHandover(req, entity);
             } else if (JyExceptionPackageType.FeedBackTypeEnum.DESTROY.getCode().equals(oldEntity.getFeedBackType())) {
                 //4.报废
                 this.finishFlow(req, entity);
             } else if (JyExceptionPackageType.FeedBackTypeEnum.REVERSE_RETURN.getCode().equals(oldEntity.getFeedBackType())) {
                 //5.逆向退回
-                this.finishFlow(req, entity);
+//                该运单在提报场地操作换单打印成功后，任务状态变更为已完成
+//                this.finishFlow(req, entity);
             } else {
                 return JdCResponse.fail("客服反馈类型匹配失败" + req.getBizId());
             }
@@ -586,7 +589,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     }
 
-    private void replacePackagingHandover(ExpDamageDetailReq req, JyExceptionDamageDto entity) {
+    private void repairOrReplacePackagingHandover(ExpDamageDetailReq req, JyExceptionDamageDto entity) {
         if (StringUtils.isNotBlank(req.getUserErp())) {
             this.validateOrSetErpInfo(req, entity);
         }

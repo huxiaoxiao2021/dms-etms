@@ -215,7 +215,7 @@
         update_erp = #{updateErp,jdbcType=VARCHAR},
       </if>
       <if test="updateStaffName != null" >
-        update_staff_name = #{uupdateStaffName,jdbcType=VARCHAR},
+        update_staff_name = #{updateStaffName,jdbcType=VARCHAR},
       </if>
       <if test="updateTime != null" >
         update_time = #{updateTime,jdbcType=TIMESTAMP},
