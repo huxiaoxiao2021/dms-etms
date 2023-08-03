@@ -227,7 +227,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 dmsDamageNoticeKFProducer.send(bizId, JsonHelper.toJson(damageNoticCustomerMQ));
             }
             //称重
-            this.dealExpDamageWiughtVolumeUpload(damageEntity);
+            this.dealExpDamageWeightVolumeUpload(damageEntity,true);
             //滞留上报
             this.dealExpDamageStrandReport(exceptionEntity.getBarCode());
 
@@ -263,31 +263,24 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
     /**
-     * 处理破损运单称重
      *
-     * @param
-     */
-    private void dealExpDamageWiughtVolumeUpload(JyExceptionDamageEntity damageEntity){
-        WeightVolumeEntity entity = coverToWeightVolumeCondition(damageEntity);
-        InvokeResult<Boolean> result = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
-        if(logger.isInfoEnabled()){
-            logger.info("处理破损运单称重结果-{}",JsonHelper.toJson(result));
-        }
-    }
-
-    /**
-     * 构建称重信息
      * @param damageEntity
-     * @return
+     * @param before true: 处理前  false: 处理后
      */
-    private WeightVolumeEntity  coverToWeightVolumeCondition(JyExceptionDamageEntity damageEntity){
+    private void dealExpDamageWeightVolumeUpload(JyExceptionDamageEntity damageEntity,boolean before){
         WeightVolumeEntity entity = new WeightVolumeEntity();
         entity.setBarCode(damageEntity.getBarCode());
         entity.setWaybillCode(damageEntity.getBarCode());
         entity.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL);
         entity.setSourceCode(FromSourceEnum.EXP_DAMAGE);
-        entity.setWeight(damageEntity.getWeightRepairAfter() != null ? damageEntity.getWeightRepairAfter().doubleValue(): null);
-        entity.setVolume(damageEntity.getVolumeRepairAfter() !=null ? damageEntity.getVolumeRepairAfter().doubleValue(): null);
+        if(before){
+            entity.setWeight(damageEntity.getWeightRepairBefore() != null ? damageEntity.getWeightRepairBefore().doubleValue(): null);
+            entity.setVolume(damageEntity.getVolumeRepairBefore() !=null ? damageEntity.getVolumeRepairBefore().doubleValue(): null);
+        }else {
+            entity.setWeight(damageEntity.getWeightRepairAfter() != null ? damageEntity.getWeightRepairAfter().doubleValue(): null);
+            entity.setVolume(damageEntity.getVolumeRepairAfter() !=null ? damageEntity.getVolumeRepairAfter().doubleValue(): null);
+        }
+
         entity.setOperateSiteCode(damageEntity.getSiteCode());
         entity.setOperateSiteName(damageEntity.getSiteName());
         BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(damageEntity.getCreateErp());
@@ -297,9 +290,15 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
         entity.setOperatorCode(damageEntity.getCreateErp());
         entity.setOperateTime(new Date());
-        logger.info("称重信息WeightVolumeEntity -{}",JsonHelper.toJson(entity));
-        return entity;
+        if(logger.isInfoEnabled()){
+            logger.info("称重信息WeightVolumeEntity -{}",JsonHelper.toJson(entity));
+        }
+        InvokeResult<Boolean> result = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
+        if(logger.isInfoEnabled()){
+            logger.info("处理破损运单称重结果-{}",JsonHelper.toJson(result));
+        }
     }
+
 
     /**
      * 处理运单滞留上报信息
@@ -541,15 +540,21 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             } else if (JyExceptionPackageType.FeedBackTypeEnum.REPAIR_HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
                 // 1.修复下传
                 this.finishFlow(req, entity);
+                //称重
+                this.dealExpDamageWeightVolumeUploadAfterRepair(req,oldEntity);
             } else if (JyExceptionPackageType.FeedBackTypeEnum.HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
                 //2.直接下传
                 this.finishFlow(req, entity);
             } else if (JyExceptionPackageType.FeedBackTypeEnum.REPLACE_PACKAGING_HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
                 //3.更换包装下传
                 this.replacePackagingHandover(req, entity);
+                //称重
+                this.dealExpDamageWeightVolumeUploadAfterRepair(req,oldEntity);
             } else if (JyExceptionPackageType.FeedBackTypeEnum.DESTROY.getCode().equals(oldEntity.getFeedBackType())) {
                 //4.报废
                 this.finishFlow(req, entity);
+                //报废全程跟踪
+                this.sendScrapTraceOfDamage(req.getBizId());
             } else if (JyExceptionPackageType.FeedBackTypeEnum.REVERSE_RETURN.getCode().equals(oldEntity.getFeedBackType())) {
                 //5.逆向退回
                 this.finishFlow(req, entity);
@@ -563,7 +568,39 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         return JdCResponse.ok();
     }
 
-    private void finishFlow(ExpDamageDetailReq req, JyExceptionDamageEntity entity) {
+    /**
+     * 推送破损运单的报废全程跟踪
+     * @param bizId
+     */
+    private void sendScrapTraceOfDamage(String bizId){
+        JyBizTaskExceptionEntity exTaskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
+        if(exTaskEntity == null){
+            logger.warn("根据业务主键:{}未查询到异常任务数据!", bizId);
+            return;
+        }
+        if(logger.isInfoEnabled()){
+            logger.info("推送破损运单的报废全程跟踪--{}",bizId);
+        }
+        jyExceptionService.pushScrapTrace(exTaskEntity);
+    }
+
+    /**
+     * 破损修复后或更换包装后触发称重
+     * @param req
+     * @param entity
+     */
+    private void dealExpDamageWeightVolumeUploadAfterRepair(ExpDamageDetailReq req,JyExceptionDamageEntity entity){
+
+        entity.setVolumeRepairAfter(req.getVolumeRepairAfter());
+        entity.setWeightRepairAfter(req.getWeightRepairAfter());
+        if(logger.isInfoEnabled()){
+            logger.info("破损修复后或更换包装后触发称重-{}",JSON.toJSONString(entity));
+        }
+        dealExpDamageWeightVolumeUpload(entity,false);
+
+    }
+
+    private void finishFlow(ExpDamageDetailReq req, JyExceptionDamageDto entity) {
         logger.info("finishFlow req params:{}", JSON.toJSONString(req));
         if (StringUtils.isNotBlank(req.getUserErp())) {
             this.validateOrSetErpInfo(req, entity);

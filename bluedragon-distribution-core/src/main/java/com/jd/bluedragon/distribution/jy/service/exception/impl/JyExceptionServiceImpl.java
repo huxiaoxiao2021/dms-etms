@@ -1133,7 +1133,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 BusinessUtil.bdBlockerCompleteMQ(exTaskEntity.getBarCode(), DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_BAOFEI, DateHelper.formatDateTimeMs(new Date())));
     }
 
-    private void pushScrapTrace(JyBizTaskExceptionEntity exTaskEntity) {
+    @Override
+    public void pushScrapTrace(JyBizTaskExceptionEntity exTaskEntity) {
         WaybillStatus status=new WaybillStatus();
         status.setOperateType(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP);
         status.setRemark(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);

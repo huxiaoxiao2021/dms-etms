@@ -142,4 +142,6 @@ public interface JyExceptionService {
     PositionDetailRecord getPosition(String positionCode);
 
     String getGridRid(PositionDetailRecord data);
+
+    void pushScrapTrace(JyBizTaskExceptionEntity exTaskEntity);
 }
