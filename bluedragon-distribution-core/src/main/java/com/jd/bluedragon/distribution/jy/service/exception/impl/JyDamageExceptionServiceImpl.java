@@ -366,25 +366,31 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         // 获取待处理破损异常新增数量
         String bizIdAddSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
         logger.info("getToProcessDamageCount bizIdAddSetStr :{}", bizIdAddSetStr);
+        Set<String> oldBizIdAddSet = null;
         if (StringUtils.isEmpty(bizIdAddSetStr)) {
             toProcessCount.setToProcessAddCount(0);
+        } else {
+            oldBizIdAddSet = Arrays.stream(bizIdAddSetStr.split(",")).collect(Collectors.toSet());
+            toProcessCount.setToProcessAddCount(oldBizIdAddSet.size());
         }
-        Set<String> oldBizIdAddSet = Arrays.stream(bizIdAddSetStr.split(",")).collect(Collectors.toSet());
-        toProcessCount.setToProcessAddCount(oldBizIdAddSet.size());
         // 获取待处理破损异常数量
         String oldBizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode);
         logger.info("getToProcessDamageCount oldBizIdSetStr :{}", oldBizIdSetStr);
+        Set<String> oldBizIdSet = new HashSet<>();
         if (StringUtils.isEmpty(oldBizIdSetStr)) {
             toProcessCount.setToProcessCount(0);
             // 新增转未处理
             redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode, String.join(",", oldBizIdAddSet));
             return JdCResponse.ok(toProcessCount);
+        } else {
+            oldBizIdSet = Arrays.stream(oldBizIdSetStr.split(",")).collect(Collectors.toSet());
+            toProcessCount.setToProcessCount(oldBizIdSet.size());
         }
-        Set<String> oldBizIdSet = Arrays.stream(oldBizIdSetStr.split(",")).collect(Collectors.toSet());
-        toProcessCount.setToProcessCount(oldBizIdSet.size());
         // 新增转未处理
-        oldBizIdSet.addAll(oldBizIdAddSet);
-        redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode, String.join(",", oldBizIdSet));
+        if (!CollectionUtils.isEmpty(oldBizIdAddSet)) {
+            oldBizIdSet.addAll(oldBizIdAddSet);
+            redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION + positionCode, String.join(",", oldBizIdSet));
+        }
         return JdCResponse.ok(toProcessCount);
     }
 
@@ -479,6 +485,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     public void writeToProcessDamage(String positionCode, String bizId) {
         logger.info("writeToProcessDamage positionCode:{}, bizId:{}", positionCode, bizId);
         String bizIdSetStr = redisClient.get(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode);
+        logger.info("writeToProcessDamage bizIdSetStr:{}", bizIdSetStr);
         if (StringUtils.isEmpty(bizIdSetStr)) {
             Set<String> bizIdSet = new HashSet<>();
             bizIdSet.add(bizId);
@@ -488,6 +495,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         Set<String> oldBizIdSet = Arrays.stream(bizIdSetStr.split(",")).collect(Collectors.toSet());
         oldBizIdSet.add(bizId);
         redisClient.set(JyExceptionPackageType.TO_PROCESS_DAMAGE_EXCEPTION_ADD + positionCode, String.join(",", oldBizIdSet));
+        logger.info("writeToProcessDamage write successfully");
     }
 
     @Override
@@ -754,7 +762,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             if (JyExceptionPackageType.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode().equals(type.getCode())) {
                 list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getOutPackingDamagedRepairTypeList()));
             } else if (JyExceptionPackageType.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode().equals(type.getCode())) {
-                list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getOutPackingDamagedRepairTypeList()));
+                list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getInsideOutsideDamagedRepairTypeList()));
             }
         });
         return list;
@@ -765,7 +773,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      */
     private List<JyExceptionPackageTypeDto> getOutPackingDamagedRepairTypeList() {
         List<JyExceptionPackageTypeDto> list = new ArrayList<>();
-        Arrays.stream(JyExceptionPackageType.DamagedTypeEnum.values()).forEach(type -> list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName())));
+        Arrays.stream(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.values()).forEach(type -> list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName())));
         return list;
     }
 
