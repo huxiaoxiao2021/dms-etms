@@ -281,7 +281,8 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     }
 
     @Override
-    public void writeToProcessDamage(ExpDamageDetailReq req){
+    public JdCResponse<Boolean> writeToProcessDamage(ExpDamageDetailReq req){
         jyDamageExceptionService.writeToProcessDamage(req.getPositionCode(), req.getBizId());
+        return JdCResponse.ok();
     }
 }
