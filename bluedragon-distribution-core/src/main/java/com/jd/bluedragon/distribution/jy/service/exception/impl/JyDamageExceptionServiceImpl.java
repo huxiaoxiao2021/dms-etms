@@ -551,7 +551,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             } else if (JyExceptionPackageType.FeedBackTypeEnum.REPLACE_PACKAGING_HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
                 //3.更换包装下传
                 this.repairOrReplacePackagingHandover(req, entity);
-                this.replacePackagingHandover(req, entity);
                 //称重
                 this.dealExpDamageWeightVolumeUploadAfterRepair(req,oldEntity);
             } else if (JyExceptionPackageType.FeedBackTypeEnum.DESTROY.getCode().equals(oldEntity.getFeedBackType())) {
