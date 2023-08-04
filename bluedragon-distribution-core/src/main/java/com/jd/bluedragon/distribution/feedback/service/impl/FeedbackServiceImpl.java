@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.feedback.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.FeedBackApiManager;
 import com.jd.bluedragon.core.base.MrdFeedbackManager;
 import com.jd.bluedragon.distribution.basic.FileUtils;
@@ -136,7 +137,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         FeedbackDto userFeedbackContent = new FeedbackDto();
         userFeedbackContent.setAppId(feedback.getAppId());
         userFeedbackContent.setTypeId(feedback.getType());
-        userFeedbackContent.setContent(feedback.getContent());
+        userFeedbackContent.setContent(feedback.getUserAccount() + Constants.SEPARATOR_COLON + feedback.getContent());
         userFeedbackContent.setUserAccount(feedback.getUserAccount());
         userFeedbackContent.setUserName(feedback.getUserName());
         userFeedbackContent.setImg(urlList);
