@@ -29,6 +29,30 @@ public interface JyAviationRailwaySendSealGatewayService {
      */
     JdCResponse<AviationSendTaskListRes> pageFetchAviationSendTaskList(AviationSendTaskListReq request);
 
+    /**
+     * 查询当前场地始发机场
+     * @param request
+     * @return
+     */
+    JdCResponse<CurrentSiteStartAirportQueryRes> pageFetchCurrentSiteStartAirport(CurrentSiteStartAirportQueryReq request);
+
+
+    /**
+     * 获取运力编码列表
+     * todo zcf 确认接口是否分页, 如果分页，需要单独给个查最近运力的接口，
+     * todo zcf 入参业务字段待确认
+     * @param request
+     * @return
+     */
+    JdCResponse<TransportInfoQueryRes> fetchTransportCodeList(TransportCodeQueryReq request);
+
+
+    /**
+     * 自扫描运力编码时校验逻辑
+     * @param request
+     * @return
+     */
+    JdCResponse<TransportDataDto> scanAndCheckTransportInfo(ScanAndCheckTransportInfoReq request);
 
     /**
      * 摆渡发货任务上绑定航空发货任务
@@ -43,5 +67,33 @@ public interface JyAviationRailwaySendSealGatewayService {
      * @return
      */
     JdCResponse<Void> sendTaskUnbinding(SendTaskUnbindReq request);
+
+    /**
+     * 查询摆渡发货任务上绑定的航空发货任务
+     * @param request
+     * @return
+     */
+    JdCResponse<SendTaskBindQueryRes> fetchSendTaskBindingData(SendTaskBindQueryReq request);
+
+    /**
+     * 查询摆渡发货任务封车数据
+     * @param request
+     * @return
+     */
+    JdCResponse<ShuttleTaskSealCarQueryRes> fetchShuttleTaskSealCarInfo(ShuttleTaskSealCarQueryReq request);
+
+    /**
+     * 摆渡任务封车
+     * @param request
+     * @return
+     */
+    JdCResponse<Void> shuttleTaskSealCar(ShuttleTaskSealCarReq request);
+
+    /**
+     * 航空任务封车
+     * @param request
+     * @return
+     */
+    JdCResponse<Void> aviationTaskSealCar(AviationTaskSealCarReq request);
 
 }

@@ -29,8 +29,8 @@ public class JyAviationRailwaySendSealCacheService {
     /**
      * K:bizId V：erp
      */
-    public static final String LOCK_AVIATION_RAILWAY_TASK_SEAL_BIZID = "lock:aviationRailwayTaskSeal:bizId:%s";
-    public static final int LOCK_AVIATION_RAILWAY_TASK_SEAL_BIZID_TIMEOUT_SECONDS = 30;
+    public static final String LOCK_SHUTTLE_TASK_SEAL_BIZID = "lock:shuttleTaskSeal:bizId:%s";
+    public static final int LOCK_SHUTTLE_TASK_SEAL_BIZID_TIMEOUT_SECONDS = 30;
 
 
     @Autowired
@@ -41,27 +41,27 @@ public class JyAviationRailwaySendSealCacheService {
 
     /**
      * 并发锁
-     * 场景：摆渡任务绑定传摆任务
+     * 场景：摆渡任务封车、摆渡任务绑定、解绑航空任务
      * @param bizId  任务bizId
      */
-    public boolean lockTaskSealCarBizId(String bizId) {
+    public boolean lockShuttleTaskSealCarBizId(String bizId) {
         try {
-            String lockKey = this.getLockKeyTaskSealCarBizId(bizId);
+            String lockKey = this.getLockKeyShuttleTaskSealCarBizId(bizId);
             return jimDbLock.lock(lockKey,
                     DEFAULT_VALUE_1,
-                    JyAviationRailwaySendSealCacheService.LOCK_AVIATION_RAILWAY_TASK_SEAL_BIZID_TIMEOUT_SECONDS,
+                    JyAviationRailwaySendSealCacheService.LOCK_SHUTTLE_TASK_SEAL_BIZID_TIMEOUT_SECONDS,
                     TimeUnit.SECONDS);
         }catch (Exception e) {
             log.error("lockTaskBindBizId:任务绑定加锁失败:bizId={},errMsg={}", bizId, e.getMessage(), e);
             throw new JyBizException("任务绑定加锁失败");
         }
     }
-    public void unlockTaskSealCarBizId(String bizId) {
-        String lockKey = this.getLockKeyTaskSealCarBizId(bizId);
+    public void unlockShuttleTaskSealCarBizId(String bizId) {
+        String lockKey = this.getLockKeyShuttleTaskSealCarBizId(bizId);
         jimDbLock.releaseLock(lockKey, DEFAULT_VALUE_1);
     }
-    private String getLockKeyTaskSealCarBizId(String bizId) {
-        return String.format(JyAviationRailwaySendSealCacheService.LOCK_AVIATION_RAILWAY_TASK_SEAL_BIZID, bizId);
+    private String getLockKeyShuttleTaskSealCarBizId(String bizId) {
+        return String.format(JyAviationRailwaySendSealCacheService.LOCK_SHUTTLE_TASK_SEAL_BIZID, bizId);
     }
 
 

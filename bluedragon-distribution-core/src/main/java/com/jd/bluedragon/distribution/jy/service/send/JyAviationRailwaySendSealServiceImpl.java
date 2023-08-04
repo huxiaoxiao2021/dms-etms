@@ -1,10 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.AviationSendTaskListReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.SendTaskBindDto;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.SendTaskBindReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.SendTaskUnbindReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendTaskListRes;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
+import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -13,6 +11,8 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.tms.basic.dto.CommonDto;
+import com.jd.tms.basic.dto.TransportResourceDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -44,6 +44,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Autowired
     private JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
 
+    @Autowired
+    private CarrierQueryWSManager carrierQueryWSManager;
 
     @Override
     public InvokeResult<AviationSendTaskListRes> pageFetchAviationSendTaskList(AviationSendTaskListReq request) {
@@ -56,7 +58,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         InvokeResult<Void> res = new InvokeResult<>();
         res.success();
         //并发锁（和封车同一把锁，避免封车期间绑定并发问题）
-        if(!jyAviationRailwaySendSealCacheService.lockTaskSealCarBizId(request.getBizId())) {
+        if(!jyAviationRailwaySendSealCacheService.lockShuttleTaskSealCarBizId(request.getBizId())) {
             res.error("多人操作中，请重试");
             return res;
         }
@@ -112,7 +114,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             return res;
         }finally {
             //释放锁
-            jyAviationRailwaySendSealCacheService.unlockTaskSealCarBizId(request.getBizId());
+            jyAviationRailwaySendSealCacheService.unlockShuttleTaskSealCarBizId(request.getBizId());
         }
     }
 
@@ -142,7 +144,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         InvokeResult<Void> res = new InvokeResult<>();
         res.success();
         //并发锁（和封车同一把锁，避免封车期间并发问题）
-        if(!jyAviationRailwaySendSealCacheService.lockTaskSealCarBizId(request.getBizId())) {
+        if(!jyAviationRailwaySendSealCacheService.lockShuttleTaskSealCarBizId(request.getBizId())) {
             res.error("多人操作中，请重试");
             return res;
         }
@@ -180,8 +182,49 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             return res;
         }finally {
             //释放锁
-            jyAviationRailwaySendSealCacheService.unlockTaskSealCarBizId(request.getBizId());
+            jyAviationRailwaySendSealCacheService.unlockShuttleTaskSealCarBizId(request.getBizId());
         }
+    }
+
+    @Override
+    public InvokeResult<CurrentSiteStartAirportQueryRes> pageFetchCurrentSiteStartAirport(CurrentSiteStartAirportQueryReq request) {
+        //todo zcf
+        return null;
+    }
+
+    @Override
+    public InvokeResult<TransportInfoQueryRes> fetchTransportCodeList(TransportCodeQueryReq request) {
+        //todo zcf
+        return null;
+    }
+
+    @Override
+    public InvokeResult<TransportDataDto> scanAndCheckTransportInfo(ScanAndCheckTransportInfoReq request) {
+        //todo zcf
+
+
+        CommonDto<TransportResourceDto> dto = carrierQueryWSManager.getTransportResourceByTransCode(request.getTransportCode());
+
+
+        return null;
+    }
+
+    @Override
+    public InvokeResult<ShuttleTaskSealCarQueryRes> fetchShuttleTaskSealCarInfo(ShuttleTaskSealCarQueryReq request) {
+        //todo zcf
+        return null;
+    }
+
+    @Override
+    public InvokeResult<Void> shuttleTaskSealCar(ShuttleTaskSealCarReq request) {
+        //todo zcf
+        return null;
+    }
+
+    @Override
+    public InvokeResult<Void> aviationTaskSealCar(AviationTaskSealCarReq request) {
+        //todo zcf
+        return null;
     }
 
 

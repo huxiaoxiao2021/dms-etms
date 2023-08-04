@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.AviationSendTaskListReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.SendTaskBindReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.SendTaskUnbindReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendTaskListRes;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 /**
@@ -18,4 +16,16 @@ public interface JyAviationRailwaySendSealService {
     InvokeResult<Void> sendTaskBinding(SendTaskBindReq request);
 
     InvokeResult<Void> sendTaskUnbinding(SendTaskUnbindReq request);
+
+    InvokeResult<CurrentSiteStartAirportQueryRes> pageFetchCurrentSiteStartAirport(CurrentSiteStartAirportQueryReq request);
+
+    InvokeResult<TransportInfoQueryRes> fetchTransportCodeList(TransportCodeQueryReq request);
+
+    InvokeResult<TransportDataDto> scanAndCheckTransportInfo(ScanAndCheckTransportInfoReq request);
+
+    InvokeResult<ShuttleTaskSealCarQueryRes> fetchShuttleTaskSealCarInfo(ShuttleTaskSealCarQueryReq request);
+
+    InvokeResult<Void> shuttleTaskSealCar(ShuttleTaskSealCarReq request);
+
+    InvokeResult<Void> aviationTaskSealCar(AviationTaskSealCarReq request);
 }
