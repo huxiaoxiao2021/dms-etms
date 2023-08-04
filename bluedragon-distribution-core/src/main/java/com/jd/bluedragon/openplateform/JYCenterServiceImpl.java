@@ -336,7 +336,7 @@ public class JYCenterServiceImpl implements JYCenterService {
             return result;
         }
 
-        BaseStaffSiteOrgDto siteOrgDto2 = baseService.queryDmsBaseSiteByCodeIncludeStore(String.valueOf(receiveSiteCode));
+        BaseStaffSiteOrgDto siteOrgDto2 = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSiteCode));
         if (siteOrgDto2 == null) {
             result.confirmMessage("货物目的站点未在京东维护");
             return result;
@@ -458,7 +458,7 @@ public class JYCenterServiceImpl implements JYCenterService {
                 }
 
                 if (!siteMap.containsKey(receiveSiteCode)) {
-                    BaseStaffSiteOrgDto receiveSite = baseService.queryDmsBaseSiteByCodeIncludeStore(String.valueOf(receiveSiteCode));
+                    BaseStaffSiteOrgDto receiveSite = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSiteCode));
                     if (receiveSite == null) {
                         result.confirmMessage(String.format("批次号%s表示的货物目的站点%s未在京东维护", batchCode, receiveSite));
                         return result;
