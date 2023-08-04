@@ -328,7 +328,7 @@
 
             </value>
         </property>
-        <property name="tbNamePattern" value="bd_dms_core{0}.jy_collect_record"/>
+        <property name="tbNamePattern" value="bd_dms_spl{0}.jy_collect_record"/>
         <property name="tbRuleArray">
             <value>
                 return DmsJddlUtils.getDbPartitionIndex((#site_id, 1, 1024#).longValue());
