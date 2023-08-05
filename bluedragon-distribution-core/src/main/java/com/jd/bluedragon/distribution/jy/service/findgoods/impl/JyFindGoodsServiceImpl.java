@@ -562,7 +562,34 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   @Override
   public boolean updateWaitFindPackage(UpdateWaitFindPackageStatusDto dto,
       FindGoodsTaskDto findGoodsTaskDto) {
+    List<JyBizTaskFindGoodsDetail> findGoodsDetailList =assembleUpdateGoodsDetailList(dto,findGoodsTaskDto);
+    List<JyBizTaskFindGoodsDetail> hasBeenFinded =jyBizTaskFindGoodsDetailDao.listFindGoodsDetail(findGoodsDetailList);
+    if (CollectionUtils.isNotEmpty(hasBeenFinded)){
+      return jyBizTaskFindGoodsDetailDao.updateWaitFindPackage(hasBeenFinded) >0 ;
+    }
+    log.info("待更新的包裹不在要找的波次任务清单里面：{}",JsonHelper.toJson(findGoodsDetailList));
+    return true;
+  }
 
-    return false;
+  private List<JyBizTaskFindGoodsDetail> assembleUpdateGoodsDetailList(
+      UpdateWaitFindPackageStatusDto dto, FindGoodsTaskDto findGoodsTaskDto) {
+    Date now =new Date();
+    return dto.getWaitFindPackageDtoList().stream().map(waitFindPackageDto -> {
+      JyBizTaskFindGoodsDetail jyBizTaskFindGoodsDetail =new JyBizTaskFindGoodsDetail();
+      jyBizTaskFindGoodsDetail.setFindGoodsTaskBizId(findGoodsTaskDto.getBizId());
+      jyBizTaskFindGoodsDetail.setPackageCode(waitFindPackageDto.getPackageCode());
+      jyBizTaskFindGoodsDetail.setFindStatus(InventoryDetailStatusEnum.PDA_REAL_OPERATE.getCode());
+      jyBizTaskFindGoodsDetail.setFindType(waitFindPackageDto.getFindType());
+      jyBizTaskFindGoodsDetail.setSiteCode(Long.valueOf(dto.getCurrentOperate().getSiteCode()));
+      jyBizTaskFindGoodsDetail.setWaveStartTime(findGoodsTaskDto.getWaveStartTime());
+      jyBizTaskFindGoodsDetail.setWaveEndTime(findGoodsTaskDto.getWaveEndTime());
+      jyBizTaskFindGoodsDetail.setCreateUserErp("sys");
+      jyBizTaskFindGoodsDetail.setCreateUserName("系统更新");
+      jyBizTaskFindGoodsDetail.setUpdateUserErp("sys");
+      jyBizTaskFindGoodsDetail.setUpdateUserName("系统更新");
+      jyBizTaskFindGoodsDetail.setCreateTime(now);
+      jyBizTaskFindGoodsDetail.setUpdateTime(now);
+      return jyBizTaskFindGoodsDetail;
+    }).collect(Collectors.toList());
   }
 }
