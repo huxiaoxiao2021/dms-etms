@@ -54,6 +54,21 @@
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT},
       #{ts,jdbcType=TIMESTAMP})
   </insert>
+
+  <insert id="batchInsert">
+    insert into jy_biz_task_find_goods_detail (find_goods_task_biz_id, package_code,
+                                               site_code, wave_start_time, wave_end_time,
+                                               find_status, find_type, create_user_erp,
+                                               create_user_name, update_user_erp, update_user_name,
+                                               create_time, update_time)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+           ( #{item.findGoodsTaskBizId,jdbcType=VARCHAR}, #{item.packageCode,jdbcType=VARCHAR},
+            #{item.siteCode,jdbcType=BIGINT}, #{item.waveStartTime,jdbcType=VARCHAR}, #{item.waveEndTime,jdbcType=VARCHAR},
+            #{item.findStatus,jdbcType=TINYINT}, #{item.findType,jdbcType=TINYINT}, #{item.createUserErp,jdbcType=VARCHAR},
+            #{item.createUserName,jdbcType=VARCHAR}, #{item.updateUserErp,jdbcType=VARCHAR}, #{item.updateUserName,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=TIMESTAMP}, #{item.updateTime,jdbcType=TIMESTAMP})</foreach>
+  </insert>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetail">
     insert into jy_biz_task_find_goods_detail
     <trim prefix="(" suffix=")" suffixOverrides=",">
