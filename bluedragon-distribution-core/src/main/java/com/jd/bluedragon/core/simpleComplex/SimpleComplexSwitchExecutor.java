@@ -2,12 +2,13 @@ package com.jd.bluedragon.core.simpleComplex;
 
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.common.collect.Lists;
-import com.jdl.basic.common.utils.JsonHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +42,7 @@ public class SimpleComplexSwitchExecutor {
                 extractedMap((Map) result, switchType);
             }
             else {
-                String str = JsonHelper.toJSONString(result);
+                String str = JsonHelper.toJson(result);
                 if (str.startsWith("{") && str.endsWith("}")){
                     // 判断是对象
                     recursiveDealOfVO(result, switchType);
@@ -58,6 +59,7 @@ public class SimpleComplexSwitchExecutor {
         for (Field field : declaredFields) {
             field.setAccessible(true);
             Object fieldValue = field.get(result);
+            String str = JsonHelper.toJson(fieldValue);
             if ("serialVersionUID".equals(field.getName())){
                 continue;
             }
@@ -66,27 +68,28 @@ public class SimpleComplexSwitchExecutor {
                 if (Modifier.isFinal(field.getModifiers())) {
                     continue;
                 }
-                clz.getMethod("set" + captureName(field.getName()), String.class)
-                        .invoke(result, Objects.equals(switchType, SimpleComplexSwitchContext.SIMPLE_TYPE)
-                                ? complexToSimple((String) field.get(result))
-                                : simpleToComplex((String) field.get(result)));
+                executeReflectDeal(result, switchType, clz, field, str);
             }
-            else if(fieldValue instanceof List){
-                // list
-                extractedList((List) fieldValue, switchType);
-            }
-            else if(fieldValue instanceof Map){
-                // map
-                extractedMap((Map<?, ?>) fieldValue, switchType);
-            }
-            else {
-                String str = JsonHelper.toJSONString(fieldValue);
-                if (str.startsWith("{") && str.endsWith("}")){
+            else if(
+                    // list
+                    fieldValue instanceof List
+                    // map
+                    || fieldValue instanceof Map
                     // 判断是对象
-                    recursiveDealOfVO(fieldValue, switchType);
-                }
+                    || str.startsWith("{") && str.endsWith("}")
+            ){
+                executeReflectDeal(result, switchType, clz, field, str);
+            }else {
+                logger.warn("当前属性类型:{}暂不支持", field.getType().getName());
             }
         }
+    }
+
+    private void executeReflectDeal(Object result, Integer switchType, Class<?> clz, Field field, String str) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        clz.getMethod("set" + captureName(field.getName()), field.getType())
+                .invoke(result, Objects.equals(switchType, SimpleComplexSwitchContext.SIMPLE_TYPE)
+                        ? JsonHelper.fromJson(complexToSimple(str), field.getType())
+                        : JsonHelper.fromJson(simpleToComplex(str), field.getType()));
     }
 
     private List<Field> getAllFiled(Object result) {
