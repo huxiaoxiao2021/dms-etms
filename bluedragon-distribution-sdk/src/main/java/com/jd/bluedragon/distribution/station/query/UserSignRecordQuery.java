@@ -6,7 +6,7 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 /**
  * 人员签到表-查询条件实体类
- * 
+ *
  * @author wuyoude
  * @date 2021年12月30日 14:30:43
  *
@@ -72,7 +72,7 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	 * 工序名称
 	 */
 	private String workName;
-	
+
 	/**
 	 * 班次:1-白班 2-中班 3-晚班
 	 */
@@ -130,17 +130,17 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	 * 分页-pageSize
 	 */
 	private Integer pageSize;
-	
+
 	/**
 	 * 实时统计的日期-开始
 	 */
 	private Date nowDateStart;
-	
+
 	/**
 	 * 实时统计的日期-结束
 	 */
 	private Date nowDateEnd;
-	
+
 	private String refGridKey;
 
 	/**
@@ -157,7 +157,7 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	 * 枢纽编码
 	 */
 	private String areaHubCode;
-	
+
 	public Integer getOrgCode() {
 		return orgCode;
 	}

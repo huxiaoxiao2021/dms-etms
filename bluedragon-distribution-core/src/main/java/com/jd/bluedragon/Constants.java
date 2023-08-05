@@ -1993,4 +1993,20 @@ public class Constants {
     public static final Long APP_ID = 8181L;
 
     public static final Integer ORG_TYPE_ERP = 2;
+    /**
+     * PDA操作分页最大值保护
+     */
+    public static final Integer PDA_DEFAULT_PAGE_MAXSIZE = 100;
+
+
+    /**
+     * 找货任务互斥锁
+     */
+    public static final String JY_CREATE_FINDGOODS_TASK_LOCK_PREFIX  = "jy_findGoods_task_lock_%s_%s_%s_%s";
+
+    /**
+     * 找货任务互斥锁
+     */
+    public static final String JY_FINDGOODS_TASK_LOCK_PREFIX  = "jy_findGoods_task_lock_%s";
+
 }

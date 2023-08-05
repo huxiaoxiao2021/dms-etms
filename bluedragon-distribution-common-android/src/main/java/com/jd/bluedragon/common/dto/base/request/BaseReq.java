@@ -12,6 +12,10 @@ public class BaseReq implements Serializable {
     private String groupCode;
     private String requestId = UUID.randomUUID().toString().replace("-","");
     /**
+     * 岗位码
+     */
+    private String positionCode;
+    /**
      * 岗位类型
      * JyFuncCodeEnum
      */
@@ -49,6 +53,13 @@ public class BaseReq implements Serializable {
         this.requestId = requestId;
     }
 
+    public String getPositionCode() {
+        return positionCode;
+    }
+
+    public void setPositionCode(String positionCode) {
+        this.positionCode = positionCode;
+    }
     public String getPost() {
         return post;
     }
