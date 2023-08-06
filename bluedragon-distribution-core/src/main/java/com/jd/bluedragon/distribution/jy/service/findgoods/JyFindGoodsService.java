@@ -39,4 +39,6 @@ public interface JyFindGoodsService {
   boolean updateTaskStatistics(FindGoodsTaskDto findGoodsTaskDto);
 
   boolean updateWaitFindPackage(UpdateWaitFindPackageStatusDto dto, FindGoodsTaskDto findGoodsTaskDto);
+
+  boolean updateFindGoodsStatus(FindGoodsTaskDto findGoodsTaskDto);
 }

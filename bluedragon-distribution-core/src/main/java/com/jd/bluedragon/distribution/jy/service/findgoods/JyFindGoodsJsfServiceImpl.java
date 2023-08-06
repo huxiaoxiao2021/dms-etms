@@ -209,4 +209,25 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
       throw new JyBizException("参数错误：缺失待更新包裹列表！");
     }
   }
+
+  @Override
+  public InvokeResult updateFindGoodsStatus(FindGoodsTaskDto dto) {
+    checkUpdateFindGoodsTaskDto(dto);
+    FindGoodsTaskDto findGoodsTaskDto =jyFindGoodsService.findTaskByBizId(dto.getBizId());
+    if (ObjectHelper.isEmpty(findGoodsTaskDto)){
+      throw new JyBizException("未找到对应的找货任务！");
+    }
+    if (InventoryTaskStatusEnum.COMPLETE.getCode().equals(findGoodsTaskDto.getTaskStatus())){
+      throw new JyBizException("任务已结束，不允许再更改包裹状态！");
+    }
+    dto.setId(findGoodsTaskDto.getId());
+    boolean success =jyFindGoodsService.updateFindGoodsStatus(findGoodsTaskDto);
+    if (success){
+      return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+    }
+    return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
+  }
+
+  private void checkUpdateFindGoodsTaskDto(FindGoodsTaskDto findGoodsTaskDto) {
+  }
 }
