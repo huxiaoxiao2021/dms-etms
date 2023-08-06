@@ -32,6 +32,12 @@ public interface JyFindGoodsJsfService {
    */
   InvokeResult updateWaitFindPackageStatus(UpdateWaitFindPackageStatusDto dto);
 
+  /**
+   * 更新找货任务状态
+   * @return
+   */
+  InvokeResult updateFindGoodsStatus(FindGoodsTaskDto findGoodsTaskDto);
+
 
 
 

@@ -592,4 +592,13 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
       return jyBizTaskFindGoodsDetail;
     }).collect(Collectors.toList());
   }
+
+  @Override
+  public boolean updateFindGoodsStatus(FindGoodsTaskDto findGoodsTaskDto) {
+    JyBizTaskFindGoods jyBizTaskFindGoods =new JyBizTaskFindGoods();
+    jyBizTaskFindGoods.setId(findGoodsTaskDto.getId());
+    jyBizTaskFindGoods.setTaskStatus(findGoodsTaskDto.getTaskStatus());
+    jyBizTaskFindGoods.setUpdateTime(new Date());
+    return jyBizTaskFindGoodsDao.updateByPrimaryKeySelective(jyBizTaskFindGoods)>0;
+  }
 }
