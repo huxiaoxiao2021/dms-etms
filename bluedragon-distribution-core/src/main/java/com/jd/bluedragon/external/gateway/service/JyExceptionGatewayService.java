@@ -90,7 +90,7 @@ public interface JyExceptionGatewayService {
      * 获取破损包裹类型集合
      * @return
      */
-    JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList();
+    JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList(String barCode);
 
     /**
      * 报废处理任务接口

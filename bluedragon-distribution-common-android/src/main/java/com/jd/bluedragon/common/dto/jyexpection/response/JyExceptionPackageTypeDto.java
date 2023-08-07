@@ -29,6 +29,12 @@ public class JyExceptionPackageTypeDto implements Serializable {
         this.name = name;
     }
 
+    public JyExceptionPackageTypeDto(Integer code, String name, Boolean disabled) {
+        this.code = code;
+        this.name = name;
+        this.disabled = disabled;
+    }
+
     public JyExceptionPackageTypeDto(Integer code, String name, List<JyExceptionPackageTypeDto> children) {
         this.code = code;
         this.name = name;

@@ -203,8 +203,8 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.getJyExceptionPackageTypeList", mState = {JProEnum.TP})
-    public JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList() {
-        return jyDamageExceptionService.getJyExceptionPackageTypeList();
+    public JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList(String barCode) {
+        return jyDamageExceptionService.getJyExceptionPackageTypeList(barCode);
     }
 
     @Override

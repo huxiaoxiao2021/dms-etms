@@ -27,7 +27,6 @@ import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDamageDao;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
-import com.jd.bluedragon.distribution.jy.enums.CustomerNotifyStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.CustomerReturnResultEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
@@ -129,8 +128,8 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.exceptionTaskCheckByExceptionType", mState = {JProEnum.TP})
     public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req) {
-        if(logger.isInfoEnabled()){
-            logger.info("选择异常类型时进行校验 入参-{}",JSON.toJSONString(req));
+        if (logger.isInfoEnabled()) {
+            logger.info("选择异常类型时进行校验 入参-{}", JSON.toJSONString(req));
         }
         JdCResponse<Boolean> response = new JdCResponse<>();
         response.toSucceed("请求成功");
@@ -142,32 +141,33 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
     /**
-     * 检验更换包装逻辑 true: 运单通过校验  false:运单校验不通过
+     * 检验更换包装逻辑 true: 运单通过校验  false:运单校验不通过，不能更改包装
+     *
      * @return
      */
-    private boolean checkDamageChangePackageRepair(String waybillCode){
+    private boolean checkDamageChangePackageRepair(String waybillCode) {
 
         //获取增值服务信息
         BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
         logger.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
         if (baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null) {
-            logger.warn("运单{}获取增值服务信息失败!",waybillCode);
+            logger.warn("运单{}获取增值服务信息失败!", waybillCode);
             return false;
         }
         List<WaybillVasDto> waybillVas = baseEntity.getData();
         //校验是否是特安单
-        if(BusinessHelper.matchWaybillVasDto(Constants.TE_AN_SERVICE,waybillVas)){
+        if (BusinessHelper.matchWaybillVasDto(Constants.TE_AN_SERVICE, waybillVas)) {
             return false;
         }
 
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
-        if(waybill == null){
-            logger.warn("运单{}获取运单信息失败!",waybillCode);
+        if (waybill == null) {
+            logger.warn("运单{}获取运单信息失败!", waybillCode);
             return false;
         }
         //校验是否是医药单
-        if(BusinessHelper.matchWaybillVasDto(Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY,waybillVas)
-            || BusinessUtil.isBMedicine(waybill.getWaybillSign())){
+        if (BusinessHelper.matchWaybillVasDto(Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY, waybillVas)
+                || BusinessUtil.isBMedicine(waybill.getWaybillSign())) {
             return false;
         }
         //自营生鲜运单判断
@@ -188,10 +188,11 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     /**
      * 根据运单获取
+     *
      * @param waybillCode
      * @return
      */
-    private String getWaybillSignByWaybillCode(String waybillCode){
+    private String getWaybillSignByWaybillCode(String waybillCode) {
         //根据运单获取waybillSign
         com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
                 = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
@@ -204,7 +205,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
         return dataByChoice.getData().getWaybill().getWaybillSign();
     }
-
 
 
     @Override
@@ -262,12 +262,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             if (Objects.equals(damageCount, 1)) {
                 updateExp.setStatus(JyExpStatusEnum.PROCESSING.getCode());
                 //自营单上报破损时，非全部破损情况提交后，不与客服交互，任务状态变更为直接下传 （选择 外破内破-》无残余价值）
-                if(isSelfByWaybillCode(barCode)){
-                    if(!(Objects.equals(JyExceptionPackageType.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode(),damageEntity.getDamageType())
-                        && Objects.equals(JyExceptionPackageType.InsideOutsideDamagedRepairTypeEnum.WORTHLESS.getCode(),damageEntity.getRepairType()))){
+                if (isSelfByWaybillCode(barCode)) {
+                    if (!(Objects.equals(JyExceptionPackageType.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode(), damageEntity.getDamageType())
+                            && Objects.equals(JyExceptionPackageType.InsideOutsideDamagedRepairTypeEnum.WORTHLESS.getCode(), damageEntity.getRepairType()))) {
                         updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode());
                         updateDamageEntity.setFeedBackType(JyExceptionPackageType.FeedBackTypeEnum.HANDOVER.getCode());
-                        sendMQFlag=false;
+                        sendMQFlag = false;
                     }
                 }
             } else {
@@ -323,7 +323,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             //this.dealExpDamageStrandReport(exceptionEntity.getBarCode());
 
         } catch (Exception e) {
-            logger.error("根据质控异常提报mq处理破损数据异常!param-{}",JSON.toJSONString(qcReportJmqDto),e);
+            logger.error("根据质控异常提报mq处理破损数据异常!param-{}", JSON.toJSONString(qcReportJmqDto), e);
         } finally {
             redisClient.del(existKey);
         }
@@ -331,13 +331,14 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     /**
      * 校验自营订单
+     *
      * @param waybillCode
      * @return
      */
-    private Boolean isSelfByWaybillCode(String waybillCode){
+    private Boolean isSelfByWaybillCode(String waybillCode) {
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
-        if(waybill == null){
-            logger.warn("运单{}获取运单信息失败!",waybillCode);
+        if (waybill == null) {
+            logger.warn("运单{}获取运单信息失败!", waybillCode);
             return false;
         }
         return BusinessUtil.isSelf(waybill.getWaybillSign());
@@ -362,7 +363,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         Integer goodNumber = dataByChoice.getData().getWaybill().getGoodNumber();
         //一单多件校验
         if (!Objects.equals(goodNumber, 1)) {
-            logger.info("waybillCode-{},一单多件",waybillCode);
+            logger.info("waybillCode-{},一单多件", waybillCode);
             return true;
         }
         return false;
@@ -587,7 +588,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         jyExceptionDamageDao.updateByBizId(damageEntity);
 
     }
-
 
 
     private List<String> getImageUrlList(JyExceptionDamageEntity oldEntity, String bizType) {
@@ -915,13 +915,13 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.getJyExceptionPackageTypeList", mState = {JProEnum.TP})
-    public JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList() {
+    public JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList(String barCode) {
         JdCResponse<List<JyExceptionPackageTypeDto>> result = new JdCResponse<>();
         List<JyExceptionPackageTypeDto> dtoList = new ArrayList<>();
         //保存异常包裹为第一层级
         Arrays.stream(JyExceptionPackageType.ExceptionPackageTypeEnum.values()).forEach(type -> {
             if (JyExceptionPackageType.ExceptionPackageTypeEnum.DAMAGE.getCode().equals(type.getCode())) {
-                dtoList.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getDamagedTypeList()));
+                dtoList.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getDamagedTypeList(barCode)));
             } else {
                 dtoList.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName()));
             }
@@ -934,11 +934,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     /**
      * 获取破损类型列表
      */
-    private List<JyExceptionPackageTypeDto> getDamagedTypeList() {
+    private List<JyExceptionPackageTypeDto> getDamagedTypeList(String barCode) {
         List<JyExceptionPackageTypeDto> list = new ArrayList<>();
         Arrays.stream(JyExceptionPackageType.DamagedTypeEnum.values()).forEach(type -> {
             if (JyExceptionPackageType.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode().equals(type.getCode())) {
-                list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getOutPackingDamagedRepairTypeList()));
+
+                list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getOutPackingDamagedRepairTypeList(barCode)));
             } else if (JyExceptionPackageType.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode().equals(type.getCode())) {
                 list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getInsideOutsideDamagedRepairTypeList()));
             }
@@ -949,9 +950,17 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     /**
      * 获取外包装破损修复类型列表
      */
-    private List<JyExceptionPackageTypeDto> getOutPackingDamagedRepairTypeList() {
+    private List<JyExceptionPackageTypeDto> getOutPackingDamagedRepairTypeList(String barCode) {
         List<JyExceptionPackageTypeDto> list = new ArrayList<>();
-        Arrays.stream(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.values()).forEach(type -> list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName())));
+        list.add(new JyExceptionPackageTypeDto(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.REPAIR.getCode(),
+                JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.REPAIR.getName()));
+        if (StringUtils.isEmpty(barCode) || this.checkDamageChangePackageRepair(barCode)) {
+            list.add(new JyExceptionPackageTypeDto(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode(),
+                    JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getName(), true));
+        } else {
+            list.add(new JyExceptionPackageTypeDto(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.HANDOVER.getCode(),
+                    JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.HANDOVER.getName(), true));
+        }
         return list;
     }
 

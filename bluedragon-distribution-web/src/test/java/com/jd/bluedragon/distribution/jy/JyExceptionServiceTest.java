@@ -145,7 +145,7 @@ public class JyExceptionServiceTest {
 
     @Test
     public void getJyExceptionPackageTypeListTest(){
-        JdCResponse<List<JyExceptionPackageTypeDto>> list = jyDamageExceptionService.getJyExceptionPackageTypeList();
+        JdCResponse<List<JyExceptionPackageTypeDto>> list = jyDamageExceptionService.getJyExceptionPackageTypeList(null);
         Assert.assertEquals(list.isSucceed(),true);
     }
 
