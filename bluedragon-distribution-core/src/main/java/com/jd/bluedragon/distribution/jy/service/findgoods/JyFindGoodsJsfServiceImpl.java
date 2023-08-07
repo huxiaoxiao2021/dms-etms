@@ -149,9 +149,6 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
   }
 
   private void checkDistributPackageDto(DistributPackageDto dto) {
-    if (ObjectHelper.isEmpty(dto.getCurrentOperate())){
-      throw new JyBizException("参数错误：缺失场地信息");
-    }
     if (ObjectHelper.isEmpty(dto.getFindGoodsTaskBizId())){
       throw new JyBizException("参数错误：缺失任务bizId");
     }
