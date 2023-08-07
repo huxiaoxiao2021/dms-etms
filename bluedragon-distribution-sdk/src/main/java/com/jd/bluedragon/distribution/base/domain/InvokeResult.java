@@ -20,7 +20,7 @@ public class InvokeResult<T> implements Serializable {
     /**
      * 称重校验失败
      */
-    public static final int RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI=402;    
+    public static final int RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI=402;
     /**
      * 第三方接口异常
      */
@@ -198,7 +198,7 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int SEND_FLOE_CTT_CODE = 3042;
     public static final String SEND_FLOE_CTT_MESSAGE= "获取滑道笼车信息异常！";
-    
+
     public static final int SEND_FLOE_CTT_GROUP_CODE = 3043;
     public static final String SEND_FLOE_CTT_GROUP_MESSAGE= "未获取到相应的混扫任务信息！";
 
@@ -234,14 +234,14 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int SEND_FLOW_UNDER_GROUP_CODE = 3055;
     public static final String SEND_FLOW_UNDER_GROUP_MESSAGE = "获取当前混扫任务流向失败！";
-    
+
     public static final int CHECK_BARCODE_CODE = 3056;
     public static final String CHECK_BARCODE_MESSAGE = "请输入正确的箱号|包裹号|滑道笼车号|目的地ID";
 
 
     public static final int NOT_FIND_BOARD_INFO_CODE = 3057;
     public static final String NOT_FIND_BOARD_INFO_MESSAGE= "未找到对应的板信息！";
-    
+
     public static final int  CREATE_GROUP_CTT_DATA_CODE = 3058;
     public static final String CREATE_GROUP_CTT_DATA_MESSAGE = "保存本场地常用的笼车集合失败！";
 
@@ -250,10 +250,10 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int BOARD_HAVE_SEAL_CAR_CODE = 3060;
     public static final String BOARD_HAVE_SEAL_CAR_MESSAGE= "该批次已经封车，不能操作取消组板！";
-    
+
     public static final int DP_SPECIAL_CODE = 32003;
     public static final String DP_SPECIAL_HINT_MESSAGE= "您扫描的{0}订单是转德邦订单，请单独码放并放置德邦货区，谢谢。";
-    
+
 
 
     public static final int NOT_CONSISTENT_WHIT_CUR_SENDFLOW_CODE = 3061;
@@ -275,18 +275,29 @@ public class InvokeResult<T> implements Serializable {
     public static final int ONLINE_GET_TASK_SIMPLE_FAIL_CODE= 3066;
     public static final String ONLINE_GET_TASK_SIMPLE_FAIL_MESSAGE ="获取任务简码失败！";
 
+    public static final int REVOKE_TEAN_CODE = 346;
+    public static final String REVOKE_TEAN_MESSAGE = "特安件请注意分拣!";
+
+    public static final int COMBOARD_SCAN_WEAK_INTECEPTER_CODE= 3067;
+
     public static final int QUERY_EXCEPTION_REPORT_CODE = 343;
     public static final String QUERY_EXCEPTION_REPORT_MESSAGE = "查询异常提报数据失败！";
-    
+
     public static final int REVOKE_EXCEPTION_REPORT_CODE = 344;
     public static final String REVOKE_EXCEPTION_REPORT_MESSAGE = "撤销封签异常提报失败！";
 
     public static final int REVOKE_INTERCEPT_CONFIRM_CODE = 345;
     public static final String REVOKE_INTERCEPT_CONFIRM_MESSAGE = "此单原为客户取消订单，当前客户已撤回取消指令，无需操作逆向换单，是否仍要进行换单操作？";
 
-    public static final int REVOKE_TEAN_CODE = 346;
-    public static final String REVOKE_TEAN_MESSAGE = "特安件请注意分拣!";
+    public static final int PACKAGE_HASBEEN_SCAN = 3067;
+    public static final String PACKAGE_HASBEEN_SCAN_MESSAGE = "该包裹已集被扫描过，请勿重复扫描!";
 
+    public static final int NO_WAITFIND_DATA_CODE = 3068;
+    public static final String NO_WAITFIND_DATA_MESSAGE = "未查询到对应的波次找货数据!";
+
+
+    public static final int NO_FINDGOODS_TASK_DATA_CODE = 3069;
+    public static final String NO_FINDGOODS_TASK_DATA_MESSAGE = "未查询到对应的找货任务数据!";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

@@ -45,10 +45,15 @@ public class FeedbackGatewayServiceImpl implements FeedbackGatewayService {
             response.toFail("反馈人erp不能为空！");
             return response;
         }
+        if (StringUtils.isEmpty(dto.getUserName())) {
+            response.toFail("反馈人姓名不能为空！");
+            return response;
+        }
         if (StringUtils.isEmpty(dto.getContent())) {
             response.toFail("反馈描述不能为空！");
             return response;
         }
+        dto.setContent(dto.getUserAccount() + Constants.SEPARATOR_COLON + dto.getContent());
         FeedbackDto feedbackDto = new FeedbackDto();
         BeanUtils.copyProperties(dto, feedbackDto);
         response.setData(feedbackService.createFeedbackWithUrls(feedbackDto));

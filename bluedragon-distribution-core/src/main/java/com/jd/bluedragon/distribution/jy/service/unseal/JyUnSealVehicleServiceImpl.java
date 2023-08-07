@@ -11,6 +11,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehic
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.*;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.JdiQueryWSManager;
+import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -38,6 +40,9 @@ import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.dms.common.constants.CodeConstants;
+import com.jd.tms.jdi.dto.BigQueryOption;
+import com.jd.tms.jdi.dto.BigTransWorkItemDto;
+import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -101,6 +106,12 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
     @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
+
+    @Autowired
+    private JdiTransWorkWSManager jdiTransWorkWSManager;
+
+    @Autowired
+    private JdiQueryWSManager jdiQueryWSManager;
 
     @Autowired
     private UccPropertyConfiguration uccConfig;
@@ -452,7 +463,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         condition.setVehicleStatus(request.getVehicleStatus());
 
         // 如果是待解状态，先查询优先待解封任务列表
-        if (JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.equals(curQueryStatus)) {
+        if (Constants.NUMBER_ONE.equals(request.getVersion()) && JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.equals(curQueryStatus)) {
             setPriorityVehicleList(condition, request, curQueryStatus, unSealCarData);
             // 查询普通列表时，不能带优先标识
             condition.setPriorityFlag(Constants.NUMBER_ZERO);
@@ -1219,6 +1230,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             sealTaskInfo.setSealCarCode(unloadVehicle.getSealCarCode());
             sealTaskInfo.setVehicleNumber(unloadVehicle.getVehicleNumber());
             sealTaskInfo.setVehicleStatus(unloadVehicle.getVehicleStatus());
+            sealTaskInfo.setVehicleStatusName(ValueNameEnumUtils.getNameByValue(VehicleStatusEnum.class, sealTaskInfo.getVehicleStatus()));
             sealTaskInfo.setTransportCode(unloadVehicle.getTransWorkItemCode());
 
             // 查询积分排序
@@ -1245,6 +1257,11 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                 }
             }
 
+            // 查询司机信息
+            if(request.getQueryDriverInfo()){
+                this.queryDriverInfo(unloadVehicle.getTransWorkItemCode(), sealTaskInfo);
+            }
+
         } catch (Exception e) {
             log.error("JyUnSealVehicleServiceImpl.getUnSealTaskInfo param: {} ", JsonHelper.toJson(request), e);
             result.toFail("系统异常");
@@ -1263,6 +1280,24 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         return result;
     }
 
+    private void queryDriverInfo(String transWorkItemCode, SealTaskInfo sealTaskInfo) {
+        if (StringUtils.isNotBlank(transWorkItemCode)) {
+            BigQueryOption bigQueryOption = new BigQueryOption();
+            bigQueryOption.setQueryTransWorkItemDto(Boolean.TRUE);
+            BigTransWorkItemDto bigTransWorkItemDto = jdiTransWorkWSManager.queryTransWorkItemByOptionWithRead(transWorkItemCode, bigQueryOption);
+            if (bigTransWorkItemDto != null && bigTransWorkItemDto.getTransWorkItemDto() != null) {
+                String transWorkCode = bigTransWorkItemDto.getTransWorkItemDto().getTransWorkCode();
+                if (StringUtils.isNotBlank(transWorkCode)) {
+                    TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(transWorkCode);
+                    if (transWorkBillDto != null) {
+                        sealTaskInfo.setDriverName(transWorkBillDto.getCarrierDriverName());
+                        sealTaskInfo.setDriverPhone(transWorkBillDto.getCarrierDriverPhone());
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * 查询es统计相关信息
      */
@@ -1272,10 +1307,27 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         if(sealCarMonitor == null){
             return result.toFail("获取待解封车信息为空!");
         }
+        sealTaskInfo.setCarModel(sealCarMonitor.getCarModel());
+        sealTaskInfo.setStartSiteId(sealCarMonitor.getStartSiteId());
         sealTaskInfo.setStartSiteName(sealCarMonitor.getStartSiteName());
+        sealTaskInfo.setLineType(sealCarMonitor.getLineType());
+        sealTaskInfo.setLineTypeName(ValueNameEnumUtils.getNameByValue(LineTypeEnum.class, sealTaskInfo.getLineType()));
+        sealTaskInfo.setTransBookCode(sealCarMonitor.getTransBookCode());
+        if (StringUtils.isNotBlank(sealCarMonitor.getSendCodeList())) {
+            try {
+                sealTaskInfo.setBatchCodeList(Arrays.asList(sealCarMonitor.getSendCodeList().split(Constants.SEPARATOR_COMMA)));
+            }
+            catch (Exception e) {
+                log.error("transfer sendCodeList from es error.", e);
+            }
+        }
+        sealTaskInfo.setTotalCount(sealCarMonitor.getTotalCount());
         sealTaskInfo.setLocalCount(sealCarMonitor.getLocalCount());
         sealTaskInfo.setExternalCount(sealCarMonitor.getExternalCount());
-        sealTaskInfo.setTransportCode(sealCarMonitor.getTransportCode());
+        sealTaskInfo.setUnloadCount(sealCarMonitor.getUnloadCount());
+        sealTaskInfo.setSealCarTime(sealCarMonitor.getSealCarTime());
+        sealTaskInfo.setPredictionArriveTime(sealCarMonitor.getPredictionArriveTime());
+        sealTaskInfo.setActualArriveTime(sealCarMonitor.getActualArriveTime());
         return result;
     }
 
