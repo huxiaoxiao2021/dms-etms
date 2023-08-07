@@ -216,6 +216,10 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             response.toFail("positionCode不能为空!");
             return false;
         }
+        if(!Objects.equals(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode(),req.getScrappedTypCode())){
+            response.toFail("异常类型只能为报废类型!");
+            return false;
+        }
         return true;
     }
 
@@ -265,10 +269,13 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                 return JdCResponse.ok();
             }
             logger.info("报废业务数据提交数据--{}",JSON.toJSONString(po));
-            jyExceptionScrappedDao.insertSelective(po);
+            if(!(jyExceptionScrappedDao.updateByBizId(po)>0)){
+                jyExceptionScrappedDao.insertSelective(po);
+            }
             //修改状态为处理中、审批中
             JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
             update.setBizId(req.getBizId());
+            update.setType(req.getScrappedTypCode());
             update.setStatus(JyExpStatusEnum.PROCESSING.getCode());
             update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.APPROVING.getCode());
             update.setUpdateUserErp(req.getUserErp());

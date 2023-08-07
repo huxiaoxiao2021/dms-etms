@@ -280,6 +280,9 @@
     <update id="updateByBizId">
         UPDATE jy_biz_task_exception
         <set>
+            <if test="type != null">
+                type = #{type},
+            </if>
             <if test="distributionType != null">
                 distribution_type = #{distributionType},
             </if>

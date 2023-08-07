@@ -1,19 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpBaseReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpReceiveReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpScrappedDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpSignUserReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskAssignRequest;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.DmsBarCode;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpSignUserResp;
@@ -123,6 +111,13 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req);
+
+    /**
+     * 异常任务类型校验
+     * @param req
+     * @return
+     */
+    JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req);
 
 
     /**

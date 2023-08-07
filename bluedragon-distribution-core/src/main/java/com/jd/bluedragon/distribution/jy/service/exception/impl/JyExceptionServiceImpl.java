@@ -219,6 +219,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 }
             }
             taskEntity.setBizId(bizId);
+            taskEntity.setBarCode(req.getBarCode());
             taskEntity.setSource(source.getCode());
             taskEntity.setSiteCode(new Long(position.getSiteCode()));
             taskEntity.setSiteName(position.getSiteName());

@@ -4,19 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpBaseReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpReceiveReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpScrappedDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpSignUserReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskAssignRequest;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskStatisticsReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.DmsBarCode;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpSignUserResp;
@@ -232,6 +220,11 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @Override
     public JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req) {
         return jyExceptionService.checkExceptionPrincipal(req);
+    }
+
+    @Override
+    public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req) {
+        return jyExceptionService.exceptionTaskCheckByExceptionType(req);
     }
 
     @Override
