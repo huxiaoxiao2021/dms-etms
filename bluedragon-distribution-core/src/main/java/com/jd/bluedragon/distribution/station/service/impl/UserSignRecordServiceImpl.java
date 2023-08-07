@@ -559,7 +559,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		Date checkTime = DateHelper.add(curTime, Calendar.SECOND, -autoSignOutByMqOffSenconds);
 		if(actualOffTime.before(checkTime)) {
-			log.warn("autoHandleSignOutByAttendJmq：签退时间【{}】偏差当前时间超过{}秒，无需处理！",mqData.getActualOffTime(),autoSignOutByMqOffSenconds);
+			log.warn("autoHandleSignOutByAttendJmq：用户【{}】签退时间【{}】偏差当前时间超过{}秒，无需处理！",mqData.getUserErp(),mqData.getActualOffTime(),autoSignOutByMqOffSenconds);
 			return result;
 		}
 		//根据erp+场地查询，已签未退的数据
@@ -571,7 +571,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return result;
 		}
 		if(!actualOffTime.after(lastUnSignOutRecord.getSignInTime())) {
-			log.info("autoHandleSignOutByAttendJmq：用户【{}】打卡签退时间小于签到时间，无需处理！",mqData.getUserErp());
+			log.info("autoHandleSignOutByAttendJmq：用户【{}】打卡签退时间签退时间【{}】小于签到时间，无需处理！",mqData.getUserErp(),mqData.getActualOffTime());
 			return result;
 		}
         if (lastUnSignOutRecord.getSiteCode() == null) {
