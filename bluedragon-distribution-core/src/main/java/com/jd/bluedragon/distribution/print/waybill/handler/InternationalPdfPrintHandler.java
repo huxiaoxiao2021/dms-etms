@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 
 /**
  * 国际化PDF打印处理链
@@ -102,8 +101,7 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
         if(CollectionUtils.isNotEmpty(renderResultDTOS)){
             return renderResultDTOS.get(0).getUrl();
         }
-        return new Random().nextInt(2) == 1 ? "" :  "www.baidu.com";
-//        return null;
+        return null;
     }
 
     private void noticeToDD(WaybillPrintContext context) {
