@@ -324,20 +324,20 @@
     <include refid="Base_Column_List" />
     FROM
     jy_biz_task_find_goods_detail
-    WHERE find_goods_task_biz_id = #{findGoodsDetailList[0].findGoodsTaskBizId}
+    WHERE find_goods_task_biz_id = #{list[0].findGoodsTaskBizId}
     AND package_code in
-    <foreach collection="findGoodsDetailList" item="item" index="index" open="(" separator="," close=")">
+    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
       #{item.packageCode}
     </foreach>
     AND yn =1
   </select>
   <update id="updateWaitFindPackage">
     update jy_biz_task_find_goods_detail
-        set find_status =#{findGoodsDetailList[0].findStatus},
+        set find_status =#{list[0].findStatus},
           update_time =now()
-    where find_goods_task_biz_id = #{findGoodsDetailList[0].findGoodsTaskBizId}
+    where find_goods_task_biz_id = #{list[0].findGoodsTaskBizId}
     AND package_code in
-    <foreach collection="findGoodsDetailList" item="item" index="index" open="(" separator="," close=")">
+    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
       #{item.packageCode}
     </foreach>
     AND yn =1
