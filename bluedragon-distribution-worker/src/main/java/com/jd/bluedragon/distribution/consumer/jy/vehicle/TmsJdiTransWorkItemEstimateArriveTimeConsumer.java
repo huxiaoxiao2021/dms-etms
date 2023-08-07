@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
  * @author: ext.tiyong1
  * @create: 2023/8/3 周四 15:20
  **/
-@Service("tmsTransWorkItemEstimateArriveTimeConsumer")
+@Service("tmsJdiTransWorkItemEstimateArriveTimeConsumer")
 public class TmsJdiTransWorkItemEstimateArriveTimeConsumer extends MessageBaseConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(TmsJdiTransWorkItemEstimateArriveTimeConsumer.class);
