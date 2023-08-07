@@ -71,48 +71,7 @@ public class DmsUccController {
     @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/check")
     public @ResponseBody String check() throws Exception {
-    	StringBuffer sf = new StringBuffer();
-    	Map<String, Field> duccFilesMap = ObjectHelper.getDeclaredFields(DuccPropertyConfig.class);
-		 for(Field field: ObjectHelper.getDeclaredFieldsList(UccPropertyConfiguration.class)) {
-			 Object uccValue = ObjectHelper.getValue(dmsConfigManager.getUccPropertyConfiguration(), field.getName());
-			 Object duccValue = ObjectHelper.getValue(dmsConfigManager.getDuccPropertyConfig(), field.getName());
-			 String checkStr = "";
-			 if(!duccFilesMap.containsKey(field.getName())) {
-				 checkStr ="ducc缺少字段";
-			 }
-			 else if(!field.getDeclaringClass().equals(duccFilesMap.get(field.getName()).getDeclaringClass())){
-				 checkStr = "ducc类型不一致 ucc类型"+field.getDeclaringClass().getSimpleName()+" ducc类型"+duccFilesMap.get(field.getName()).getDeclaringClass().getDeclaringClass().getSimpleName()+"";
-			 }
-			 boolean checkResult = isSame(uccValue, duccValue);
-			 if(checkResult) {
-				 log.info(field.getName()+":equal");
-			 }else {
-				 log.error(field.getName()+":no-equal"+",ucc="+uccValue +",ducc="+duccValue);
-				 sf.append(field.getName()+":no-equal"+checkStr+" \nucc="+uccValue +"\nducc="+duccValue+"\n");
-			 }
-		 }
-		 sf.append("\n");
-		 for(Field field: ObjectHelper.getDeclaredFieldsList(HystrixRouteUccPropertyConfiguration.class)) {
-			 Object uccValue = ObjectHelper.getValue(ucc1, field.getName());
-			 Object duccValue = ObjectHelper.getValue(dmsConfigManager.getDuccHystrixRoutePropertyConfig(), field.getName());
-			 boolean checkResult = isSame(uccValue, duccValue);
-			 if(checkResult) {
-				 log.info(field.getName()+":equal");
-			 }else {
-				 log.error(field.getName()+":no-equal"+",ucc1="+uccValue +",ducc1="+duccValue);
-				 sf.append(field.getName()+":no-equal"+" \nucc1="+uccValue +"\nducc1="+duccValue+"\n");
-			 }
-		 }		 
-        return sf.toString();
-    }
-    private boolean isSame(Object o1,Object o2) {
-    	if(o1 == o2) {
-    		return true;
-    	}
-    	if(o1 == null && o2== null) {
-    		return true;
-    	}    	
-    	return JsonHelper.toJson(o1).equals(JsonHelper.toJson(o2));
+        return dmsConfigManager.check();
     }
     /**
      * 获取ucc

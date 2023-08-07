@@ -3,7 +3,6 @@ package com.jd.bluedragon.config;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -14,11 +13,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.ObjectUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -33,8 +38,18 @@ import com.jd.ql.dms.print.utils.StringHelper;
  * @author wuyoude
  *
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath*:distribution-core-context-ducc-test.xml"})
 public class TestDucc {
-	public static void main(String args[]) throws Exception {
+	
+	@Autowired
+	@Qualifier("dmsConfigManager")
+	private DmsConfigManager dmsConfigManager;
+	
+	@Test	
+	public void test() throws Exception {
+		String configFromA = dmsConfigManager.getDuccPropertyConfig().getConfigFrom();
+		
 		String tmpConfigPath = new File("").getCanonicalPath();
 		String rootConfigPath = tmpConfigPath+"\\src\\test\\resources\\files\\";
 //		String rootConfigPath = "/src/test/resources/files";
@@ -48,16 +63,18 @@ public class TestDucc {
 		 }
 		 
 		final Logger log = LoggerFactory.getLogger(TestDucc.class); 
-		
+		System.out.println("configFrom:\n"+dmsConfigManager.getDuccPropertyConfig().getConfigFrom());
 		 ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
 		 "/distribution-core-context-ducc-test.xml");
 		 ConfiguratorManager configuratorManager = (ConfiguratorManager)appContext.getBean("configuratorManager") ;
-		 UccPropertyConfiguration ucc = (UccPropertyConfiguration)appContext.getBean("uccPropertyConfiguration") ;
+		 UccPropertyConfiguration ucc = dmsConfigManager.getUccPropertyConfiguration();
 		 UccPropertyConfiguration duccDefault = ucc;
-		 DuccPropertyConfig ducc = (DuccPropertyConfig)appContext.getBean("duccPropertyConfig") ;
+		 DuccPropertyConfig ducc = dmsConfigManager.getDuccPropertyConfig() ;
 		 com.jd.coo.ucc.client.config.UccPropertyConfig uccConfig = (com.jd.coo.ucc.client.config.UccPropertyConfig)appContext.getBean("propertyConfig") ;
 		 
 		 while(true) {
+			 System.out.println("configFrom-before:\n"+configFromA);
+			 System.out.println("configFrom:\n"+dmsConfigManager.getDuccPropertyConfig().getConfigFrom());
 			 String uccStr = FileHelper.loadFile(rootConfigPath+"ucc-config-test.properties");
 			 UccPropertyConfiguration uccData = JsonHelper.fromJson(uccStr, UccPropertyConfiguration.class);
 			 
@@ -68,6 +85,8 @@ public class TestDucc {
 			 System.err.println("ucc:"+JsonHelper.toJson(ucc));
 			 
 			 System.err.println("ducc:"+JsonHelper.toJson(ducc));
+			 
+			 System.err.println("check:\n"+dmsConfigManager.check());
 			 
 			 StringBuffer sfNeedCheck = new StringBuffer();
 			 StringBuffer sfCodes = new StringBuffer();

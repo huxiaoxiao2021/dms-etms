@@ -353,7 +353,7 @@ public class DuccPropertyConfig {
 	@LafUcc
 	private boolean disablePdaOldLogin;
 
-	private List<Integer> dpSiteCodeList;
+	private List<Integer> dpSiteCodeList = new ArrayList<>();
 
 	/**
 	 *DP上海虚拟分拣中心
@@ -460,7 +460,7 @@ public class DuccPropertyConfig {
 	@LafUcc
 	private String identityRecogniseSiteSwitch;
     
-    private List<String> identityRecogniseSiteSwitchList;
+    private List<String> identityRecogniseSiteSwitchList = new ArrayList<>();
 
 	/**
 	 *单次插入数据库的条数
@@ -664,7 +664,7 @@ public class DuccPropertyConfig {
 	@LafUcc
 	private int multiplePackageSpotCheckSwitch;
 
-	private List<String> needInterceptUrlList;
+	private List<String> needInterceptUrlList = new ArrayList<>();
 
 	/**
 	 *
@@ -680,7 +680,7 @@ public class DuccPropertyConfig {
 	@LafUcc
 	private boolean needUseNewReverseApi;
 
-	private List<Integer> needValidateMainLineBizSourceCodes;
+	private List<Integer> needValidateMainLineBizSourceCodes = new ArrayList<>();
 
 	/**
 	 *传摆发货-干支限制业务列表[25,2]
@@ -721,7 +721,7 @@ public class DuccPropertyConfig {
 	@LafUcc
 	private int notSignedOutRecordRangeHours;
 
-	private List<Integer> notValidateTransTypeCodes;
+	private List<Integer> notValidateTransTypeCodes = new ArrayList<>();
 
 	@Value("${duccPropertyConfig.notValidateTransTypeCodesList:[3,4,10,11]}")
 	@LafUcc
@@ -1339,7 +1339,7 @@ public class DuccPropertyConfig {
 	@LafUcc
 	private String exScrapApproveLevelCountLimit;
 
-	private List<String> exceptionSubmitCheckSiteList;
+	private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
 
 	/**
 	 *异常处理检查场地名单
@@ -1348,7 +1348,7 @@ public class DuccPropertyConfig {
 	@LafUcc
 	private String exceptionSubmitCheckSites;
 
-	private List<String> exceptionSubmitCheckWaybillInterceptTypeList;
+	private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
 
 	/**
 	 *异常处理检查运单拦截类型
@@ -2812,6 +2812,7 @@ public class DuccPropertyConfig {
     }
 
     public void setDpSiteCodes(String dpSiteCodes) {
+    	this.dpSiteCodes=dpSiteCodes;
         if(StringUtils.isBlank(dpSiteCodes)){
             return;
         }
