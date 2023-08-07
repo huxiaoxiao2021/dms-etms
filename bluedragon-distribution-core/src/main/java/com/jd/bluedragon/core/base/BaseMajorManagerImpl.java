@@ -32,7 +32,7 @@ import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSiteQueryWS;
-//import com.jd.ql.basic.ws.BasicStaffQueryWS;
+import com.jd.ql.basic.ws.BasicStaffQueryWS;
 import com.jd.ql.dms.report.SiteQueryService;
 import com.jd.ql.dms.report.domain.*;
 import com.jd.ump.annotation.JProEnum;
@@ -96,8 +96,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Autowired
     private SecurityCheckerExecutor securityCheckerExecutor;
     
-//    @Autowired
-//    private BasicStaffQueryWS basicStaffQueryWS;
+    @Autowired
+    private BasicStaffQueryWS basicStaffQueryWS;
 
     /**
      * 站点ID
@@ -1011,13 +1011,13 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             baseStaffSiteDTO.setRole(role);
             // 当前页
             int pageIndex = 0;
-//            while (pageIndex ++ < 100){
-//                PageDto<List<BaseStaffSiteDTO>> singlePage = basicStaffQueryWS.queryBaseStaff(baseStaffSiteDTO, pageIndex);
-//                if(singlePage == null || CollectionUtils.isEmpty(singlePage.getData())){
-//                    break;
-//                }
-//                list.addAll(singlePage.getData());
-//            }
+            while (pageIndex ++ < 100){
+                PageDto<List<BaseStaffSiteDTO>> singlePage = basicStaffQueryWS.queryBaseStaff(baseStaffSiteDTO, pageIndex);
+                if(singlePage == null || CollectionUtils.isEmpty(singlePage.getData())){
+                    break;
+                }
+                list.addAll(singlePage.getData());
+            }
         }catch (Exception e){
             log.error("查询省区:{}下角色:{}的员工信息异常！",provinceAgencyCode, role, e);
             Profiler.functionError(callerInfo);

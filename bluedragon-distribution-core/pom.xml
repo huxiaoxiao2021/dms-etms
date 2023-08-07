@@ -2466,7 +2466,6 @@
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-facade</artifactId>
-			<version>2.0.15-online-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.validation</groupId>
@@ -2500,17 +2499,6 @@
             <groupId>com.jd.dms.utis</groupId>
         </dependency>
 
-		<dependency>
-			<groupId>com.jd.ql.basic</groupId>
-			<artifactId>ql-basic-facade</artifactId>
-			<version>2.0.15-online-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.validation</groupId>
-					<artifactId>validation-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
 		<!-- 3pl-api -->
 		<dependency>
 			<groupId>com.jd.ql.3pl</groupId>
