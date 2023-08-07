@@ -41,7 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@Service("jyFindGoodsJsfService")
 public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
 
   @Autowired
