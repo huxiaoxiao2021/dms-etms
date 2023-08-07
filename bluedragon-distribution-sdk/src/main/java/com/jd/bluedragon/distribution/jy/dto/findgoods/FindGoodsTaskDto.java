@@ -44,6 +44,16 @@ public class FindGoodsTaskDto implements Serializable {
 
   private String taskDate;
 
+  private boolean newCreateFlag;
+
+  public boolean getNewCreateFlag() {
+    return newCreateFlag;
+  }
+
+  public void setNewCreateFlag(boolean newCreateFlag) {
+    this.newCreateFlag = newCreateFlag;
+  }
+
   public String getTaskDate() {
     return taskDate;
   }

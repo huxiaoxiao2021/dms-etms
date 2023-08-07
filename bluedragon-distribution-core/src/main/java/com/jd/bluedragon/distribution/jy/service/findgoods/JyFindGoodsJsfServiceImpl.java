@@ -85,6 +85,7 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
       FindGoodsTaskDto findGoodsTaskDto = assembleFindGoodsTaskDto(dto);
       int rs = jyFindGoodsService.saveFindGoodsTask(findGoodsTaskDto);
       if (rs > 0) {
+        findGoodsTaskDto.setNewCreateFlag(true);
         return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, findGoodsTaskDto);
       }
       return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
