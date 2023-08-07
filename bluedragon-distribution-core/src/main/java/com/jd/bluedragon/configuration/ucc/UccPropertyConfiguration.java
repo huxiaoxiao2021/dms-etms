@@ -1178,7 +1178,7 @@ public class UccPropertyConfiguration{
      * 身份证识别切量开关，全量上线之后，可以删除
      */
     private String identityRecogniseSiteSwitch;
-    
+
     private List<String> identityRecogniseSiteSwitchList;
     /**
      * 传摆发货-干支限制业务列表
@@ -1498,6 +1498,15 @@ public class UccPropertyConfiguration{
         this.jyComboardRefreshTimerInterval = jyComboardRefreshTimerInterval;
     }
 
+    private String interceptBlackList;
+
+    public String getInterceptBlackList() {
+        return interceptBlackList;
+    }
+
+    public void setInterceptBlackList(String interceptBlackList) {
+        this.interceptBlackList = interceptBlackList;
+    }
     /**
      * 组板路由校验开关
      */
@@ -2901,7 +2910,7 @@ public class UccPropertyConfiguration{
 
     public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
-        
+
         identityRecogniseSiteSwitchList = (StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
                 Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
                 : Collections.singletonList("0"));
