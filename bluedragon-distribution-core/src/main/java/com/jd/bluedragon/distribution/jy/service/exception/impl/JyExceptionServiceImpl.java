@@ -197,7 +197,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (baseStaffByErp == null) {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
-        String bizId = getBizId(req.getBarCode(),req.getSiteId());
+        String bizId = getBizId(req.getBarCode(),position.getSiteCode());
         String existKey = "DMS.EXCEPTION.UPLOAD_SCAN:" + bizId;
         if (!redisClient.set(existKey, "1", 10, TimeUnit.SECONDS, false)) {
             return JdCResponse.fail("该异常上报正在提交,请稍后再试!");
