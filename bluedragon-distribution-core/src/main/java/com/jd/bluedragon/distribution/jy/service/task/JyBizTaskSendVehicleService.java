@@ -3,13 +3,18 @@ package com.jd.bluedragon.distribution.jy.service.task;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 
 import java.util.List;
 
 public interface JyBizTaskSendVehicleService {
+
+    /**
+     * 获取任务bizId
+     * @return
+     */
+    String genMainTaskBizId();
     /**
      * 根据bizId获取数据
      * @return
@@ -159,4 +164,11 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
     List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> bizIds);
+
+    /**
+     * 根据订舱号查询发货任务
+     * @param bookingCode
+     * @return
+     */
+    JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode);
 }

@@ -21,8 +21,10 @@ import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.CollectionHelper;
@@ -95,6 +97,11 @@ public class SendVehicleTransactionManager {
 
     @Value("${beans.sendVehicleTransactionManager.checkLineTypeDays:7}")
     private int checkLineTypeDays;
+
+    @Autowired
+    private JyBizTaskSendAviationPlanService jyBizTaskSendAviationPlanService;
+
+
 
     /**
      * 保存发货任务和发货流向
@@ -601,5 +608,42 @@ public class SendVehicleTransactionManager {
             log.error("needInterceptOfGZ:干支校验异常！{},{}",sendCode,menuCode, e);
         }
         return result;
+    }
+
+    /**
+     * 航空计划生成发货任务：保存发货任务、发货流向、航空发货计划
+     * @param aviationPlanEntity
+     * @param sendVehicleEntity
+     * @param sendVehicleDetailEntity
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.saveAviationPlanAndTaskSendAndDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean saveAviationPlanAndTaskSendAndDetail(JyBizTaskSendAviationPlanEntity aviationPlanEntity,
+                                                     JyBizTaskSendVehicleEntity sendVehicleEntity,
+                                                     JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity) {
+        if (!Objects.isNull(sendVehicleEntity)) {
+
+            logInfo("初始化派车单.{}", JsonHelper.toJson(sendVehicleEntity));
+
+            taskSendVehicleService.initTaskSendVehicle(sendVehicleEntity);
+
+            // 创建发货调度任务
+            createSendScheduleTask(sendVehicleEntity);
+        }
+        if (!Objects.isNull(sendVehicleDetailEntity)) {
+
+            logInfo("初始化派车单明细.{}", JsonHelper.toJson(sendVehicleDetailEntity));
+
+            if (taskSendVehicleDetailService.saveTaskSendDetail(sendVehicleDetailEntity) > 0) {
+                // 首次创建发货流向时，同时生成批次
+                saveSendCode(sendVehicleDetailEntity);
+            }
+        }
+        //航空计划
+        if(!Objects.isNull(aviationPlanEntity)) {
+            jyBizTaskSendAviationPlanService.initTaskSendVehicle(aviationPlanEntity);
+        }
+        return true;
     }
 }

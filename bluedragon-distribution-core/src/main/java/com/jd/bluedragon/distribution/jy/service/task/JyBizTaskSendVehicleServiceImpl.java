@@ -2,28 +2,27 @@ package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDao;
-import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @Service("jyBizTaskSendVehicleService")
 public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleService{
@@ -35,6 +34,16 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
 
     @Autowired
     private UccPropertyConfiguration ucc;
+    @Autowired
+    @Qualifier("redisJySendBizIdSequenceGen")
+    private JimdbSequenceGen redisJyBizIdSequenceGen;
+
+
+    @Override
+    public String genMainTaskBizId() {
+        String ownerKey = String.format(JyBizTaskSendVehicleEntity.BIZ_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
+        return ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
+    }
 
     @Override
     public JyBizTaskSendVehicleEntity findByBizId(String bizId) {
@@ -196,5 +205,10 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     @Override
     public List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> bizIds) {
         return jyBizTaskSendVehicleDao.findSendTaskByBizIds(bizIds);
+    }
+
+    @Override
+    public JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode) {
+        return jyBizTaskSendVehicleDao.findByBookingCode(bookingCode);
     }
 }

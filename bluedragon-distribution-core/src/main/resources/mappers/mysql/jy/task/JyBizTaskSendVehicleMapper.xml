@@ -46,11 +46,19 @@
         <result property="total" column="total"/>
     </resultMap>
 
+    <!-- todo 空铁需求：2023.08.07 发货表增加类型字段task_type（默认100：表示发车任务）， 根据业务场景使用不同类型隔离数据-->
+    <!-- todo 所有非指定bizId、非指定ID操作 都添加任务类型过滤，不同类型发货任务数据隔离  JySendTaskTypeEnum-->
+    <!-- todo 空铁需求上线前历史任务都是发车任务，发车任务查询条件过滤必须添加类型过滤  -->
+    <sql id="default_task_type_vehicle">
+       and task_type = 100
+    </sql>
+
     <sql id="Base_Column_List">
         id
         , biz_id,biz_no, trans_work_code, start_site_id, vehicle_number, vehicle_status, manual_created_flag, abnormal_flag,
         bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, last_plan_depart_time, last_seal_car_time,come_time,near_come_time,
-        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,task_name
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,task_name,
+        task_type, booking_code
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleEntity">
@@ -143,7 +151,13 @@
             <if test="taskName != null">
                 task_name,
             </if>
-            </trim>
+            <if test="taskType != null">
+                task_type,
+            </if>
+            <if test="bookingCode != null">
+                booking_code,
+            </if>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 #{id,jdbcType=BIGINT},
@@ -232,6 +246,12 @@
             <if test="taskName != null">
                 #{taskName,jdbcType=VARCHAR},
             </if>
+            <if test="taskType != null">
+                #{taskType,jdbcType=VARCHAR},
+            </if>
+            <if test="bookingCode != null">
+                #{bookingCode,jdbcType=VARCHAR},
+            </if>
         </trim>
     </insert>
 
@@ -318,6 +338,12 @@
             </if>
             <if test="ts != null">
                 ts = #{ts,jdbcType=TIMESTAMP},
+            </if>
+            <if test="taskType != null">
+                task_type = #{taskType,jdbcType=VARCHAR},
+            </if>
+            <if test="bookingCode != null">
+                booking_code = #{bookingCode,jdbcType=VARCHAR},
             </if>
         </set>
         where id = #{id,jdbcType=BIGINT}
@@ -407,6 +433,12 @@
             <if test="ts != null">
                 ts = #{ts,jdbcType=TIMESTAMP},
             </if>
+            <if test="taskType != null">
+                task_type = #{taskType,jdbcType=VARCHAR},
+            </if>
+            <if test="bookingCode != null">
+                booking_code = #{bookingCode,jdbcType=VARCHAR},
+            </if>
         </set>
         where biz_id = #{bizId}
     </update>
@@ -448,6 +480,7 @@
         WHERE yn = 1
           AND trans_work_code = #{transWorkCode, jdbcType=VARCHAR}
           AND start_site_id = #{startSiteId, jdbcType=BIGINT}
+          <include refid="default_task_type_vehicle"/>
         ORDER BY ts DESC limit 1
     </select>
 
@@ -458,6 +491,7 @@
         FROM jy_biz_task_send_vehicle
         WHERE yn = 1
           AND trans_work_code = #{transWorkCode, jdbcType=VARCHAR}
+          <include refid="default_task_type_vehicle"/>
     </select>
 
     <insert id="initTaskSendVehicle" parameterType="JyBizTaskSendVehicleEntity">
@@ -478,6 +512,12 @@
         </if>
         <if test="vehicleTypeName != null">
             vehicle_type_name,
+        </if>
+        <if test="taskType != null">
+            task_type,
+        </if>
+        <if test="bookingCode != null">
+            booking_code,
         </if>
         line_type,
         line_type_name,
@@ -502,6 +542,12 @@
         <if test="vehicleTypeName != null">
             #{vehicleTypeName},
         </if>
+        <if test="taskType != null">
+            #{taskType},
+        </if>
+        <if test="bookingCode != null">
+            #{bookingCode},
+        </if>
         #{lineType},
         #{lineTypeName},
         #{createUserErp},
@@ -517,6 +563,7 @@
         jy_biz_task_send_vehicle
         WHERE
         yn = 1
+        <include refid="default_task_type_vehicle"/>
         AND start_site_id = #{entity.startSiteId}
         <if test="lineTypeList != null and lineTypeList.size() > 0">
             AND line_type IN
@@ -543,6 +590,7 @@
         jy_biz_task_send_vehicle
         WHERE
         yn = 1
+        <include refid="default_task_type_vehicle"/>
         AND start_site_id = #{entity.startSiteId}
         <if test="entity.vehicleStatus != null">
             AND vehicle_status = #{entity.vehicleStatus}
@@ -567,7 +615,7 @@
         WHERE
 
         <include refid="taskQueryCondition"/>
-
+        <include refid="default_task_type_vehicle"/>
         <if test="sortType != null">
             ORDER BY
             <choose>
@@ -592,6 +640,7 @@
         FROM jy_biz_task_send_vehicle
         WHERE
         <include refid="taskQueryCondition"/>
+        <include refid="default_task_type_vehicle"/>
     </select>
 
     <sql id="taskQueryCondition">
@@ -699,6 +748,7 @@
         INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
         WHERE
         m.yn = 1
+        AND m.task_type = 100 <!-- 仅过滤发车任务 -->
         AND m.manual_created_flag = 0
         <!--AND m.line_type in (1,2)-->
         <if test="entity.lineTypeList != null and entity.lineTypeList.size() > 0">
@@ -744,6 +794,7 @@
                  FROM jy_biz_task_send_vehicle m
                           INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
                  WHERE m.yn = 1
+                    AND m.task_type = 100 <!-- 仅过滤发车任务 -->
                    AND m.manual_created_flag = 0
                    <!--AND m.line_type in (1,2)-->
                     <if test="lineTypeList != null and lineTypeList.size() > 0">
@@ -767,6 +818,7 @@
         <include refid="Base_Column_List"/>
         from jy_biz_task_send_vehicle
         where yn = 1
+        <include refid="default_task_type_vehicle"/>
         AND start_site_id = #{startSiteId}
         <if test="transWorkCodeList != null and transWorkCodeList.size() > 0">
             AND trans_work_code IN
@@ -804,5 +856,15 @@
         <foreach collection="bizIds" separator="," open="(" close=")" item="item">
             #{item}
         </foreach>
+    </select>
+
+
+    <select id="findByBookingCode" resultMap="jyBizTaskSendVehicleMap">
+        select <include refid="Base_Column_List"/>
+        from jy_biz_task_send_vehicle
+        where yn = 1
+            and booking_code = #{bookingCode}
+            and task_type = #{taskType}
+        limit 1
     </select>
 </mapper>

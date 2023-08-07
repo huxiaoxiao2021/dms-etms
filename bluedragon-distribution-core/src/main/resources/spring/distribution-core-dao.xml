@@ -954,7 +954,7 @@
     </bean>
 
 
-    <bean id="jyBizTaskAviationSendDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskAviationSendDao">
+    <bean id="jyBizTaskAviationSendDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendAviationPlanDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
     <bean id="jyBizTaskBindDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskBindDao">

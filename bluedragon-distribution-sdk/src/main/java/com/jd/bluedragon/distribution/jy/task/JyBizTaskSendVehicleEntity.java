@@ -158,6 +158,23 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 
 	private Long operateSiteCode;
 
+	/**
+	 * 任务分类
+	 * JySendTaskTypeEnum
+	 */
+	private Integer taskType;
+	/**
+	 * 订舱号
+	 */
+	private String bookingCode;
+
+
+
+
+
+
+
+
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
 	}
@@ -447,5 +464,22 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 
 	public void setOperateSiteCode(Long operateSiteCode) {
 		this.operateSiteCode = operateSiteCode;
+	}
+
+
+	public Integer getTaskType() {
+		return taskType;
+	}
+
+	public void setTaskType(Integer taskType) {
+		this.taskType = taskType;
+	}
+
+	public String getBookingCode() {
+		return bookingCode;
+	}
+
+	public void setBookingCode(String bookingCode) {
+		this.bookingCode = bookingCode;
 	}
 }

@@ -34,7 +34,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Autowired
     private JyAviationRailwaySendSealCacheService jyAviationRailwaySendSealCacheService;
     @Autowired
-    private JyBizTaskAviationSendService jyBizTaskAviationSendService;
+    private JyBizTaskSendAviationPlanService jyBizTaskSendAviationPlanService;
     @Autowired
     private JyBizTaskBindService jyBizTaskBindService;
     @Autowired

@@ -1,12 +1,11 @@
 package com.jd.bluedragon.distribution.jy.dao.task;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.task.enums.JySendTaskTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -203,5 +202,12 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         Map<String,Object> params = new HashMap<>();
         params.put("bizIds", bizIds);
         return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByBizIds", params);
+    }
+
+    public JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode) {
+        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
+        entity.setBookingCode(bookingCode);
+        entity.setTaskType(JySendTaskTypeEnum.AVIATION.getCode());
+        return this.getSqlSession().selectOne(NAMESPACE + ".findByBookingCode", entity);
     }
 }
