@@ -893,7 +893,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		statusList.add(WorkTaskStatusEnum.HANDLING.getCode());
 		int num = jyBizTaskWorkGridManagerService.autoCancelTaskForGridDelete(cancelData);
 		
-		logger.info("dealWorkGridModifyTask-网格[]删除，线上化任务-取消{}条",workGridModifyMqData.getGridData().getBusinessKey(),num);
+		logger.info("dealWorkGridModifyTask-网格[{}]删除，线上化任务-取消{}条",workGridModifyMqData.getGridData().getBusinessKey(),num);
 		return true;
 	}
 }
