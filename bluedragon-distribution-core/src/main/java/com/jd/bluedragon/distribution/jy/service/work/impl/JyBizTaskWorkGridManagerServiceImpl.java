@@ -163,4 +163,12 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	public int batchAddTask(List<JyBizTaskWorkGridManager> taskList) {
 		return jyBizTaskWorkGridManagerDao.batchAddTask(taskList);
 	}
+	@Override
+	public int autoCancelTaskForGridDelete(JyBizTaskWorkGridManagerBatchUpdate cancelData) {
+		if(cancelData == null
+				|| cancelData.getData() == null) {
+			return 0;
+		}		
+		return jyBizTaskWorkGridManagerDao.autoCancelTaskForGridDelete(cancelData);
+	}
 }
