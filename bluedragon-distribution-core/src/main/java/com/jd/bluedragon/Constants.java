@@ -1973,7 +1973,23 @@ public class Constants {
      */
     public static final String E_COMMERCE_SPECIAL_OFFER_SERVICE = "ed-m-0059";
 
+    /**
+     * 意见反馈APPID
+     */
     public static final Long APP_ID = 8181L;
 
+    /**
+     * 意见反馈ORG_TYPE_ERP参数
+     */
     public static final Integer ORG_TYPE_ERP = 2;
+
+    /**
+     * http字符串
+     */
+    public static final String HTTP_STR = "http";
+
+    /**
+     * https字符串
+     */
+    public static final String HTTPS_STR = "https";
 }
