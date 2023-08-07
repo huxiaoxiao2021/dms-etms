@@ -580,7 +580,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
       jyBizTaskFindGoodsDetail.setPackageCode(waitFindPackageDto.getPackageCode());
       jyBizTaskFindGoodsDetail.setFindStatus(InventoryDetailStatusEnum.PDA_REAL_OPERATE.getCode());
       jyBizTaskFindGoodsDetail.setFindType(waitFindPackageDto.getFindType());
-      jyBizTaskFindGoodsDetail.setSiteCode(Long.valueOf(dto.getCurrentOperate().getSiteCode()));
+      jyBizTaskFindGoodsDetail.setSiteCode(findGoodsTaskDto.getSiteCode());
       jyBizTaskFindGoodsDetail.setWaveStartTime(findGoodsTaskDto.getWaveStartTime());
       jyBizTaskFindGoodsDetail.setWaveEndTime(findGoodsTaskDto.getWaveEndTime());
       jyBizTaskFindGoodsDetail.setCreateUserErp("sys");
