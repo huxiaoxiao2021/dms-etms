@@ -94,13 +94,13 @@ public class JYCenterServiceImpl implements JYCenterService {
 
         //德邦融合的始发转化逻辑
         if (FromSourceEnum.DPRH.name().equals(jySendCodeRequest.getRequestProfile().getSysSource())) {
-            BaseStaffSiteOrgDto siteOrgDto = baseService.queryDmsBaseSiteByCode(jySendCodeRequest.getDepartSiteCode());
+            BaseStaffSiteOrgDto siteOrgDto = baseService.queryDmsBaseSiteByCodeIncludeStore(jySendCodeRequest.getDepartSiteCode());
             if (siteOrgDto == null) {
                 invokeResult.parameterError("批次始发站点未在京东维护");
                 return invokeResult;
             }
 
-            BaseStaffSiteOrgDto siteOrgDto1 = baseService.queryDmsBaseSiteByCode(jySendCodeRequest.getArriveSiteCode());
+            BaseStaffSiteOrgDto siteOrgDto1 = baseService.queryDmsBaseSiteByCodeIncludeStore(jySendCodeRequest.getArriveSiteCode());
             if (siteOrgDto1 == null) {
                 invokeResult.parameterError("批次目的站点未在京东维护");
                 return invokeResult;
@@ -228,7 +228,7 @@ public class JYCenterServiceImpl implements JYCenterService {
 
         BaseStaffSiteOrgDto receiveSiteDto = null;
         if(batchSortingPageRequest.getArriveSiteCode() != null){
-            receiveSiteDto = baseService.queryDmsBaseSiteByCode(batchSortingPageRequest.getArriveSiteCode());
+            receiveSiteDto = baseService.queryDmsBaseSiteByCodeIncludeStore(batchSortingPageRequest.getArriveSiteCode());
             if (receiveSiteDto == null) {
                 result.confirmMessage("货物目的站点未在京东维护");
                 return result;
@@ -240,7 +240,7 @@ public class JYCenterServiceImpl implements JYCenterService {
                 return result;
             }
 
-            receiveSiteDto = baseService.queryDmsBaseSiteByCode(boxRoutes[1]);
+            receiveSiteDto = baseService.queryDmsBaseSiteByCodeIncludeStore(boxRoutes[1]);
             if (receiveSiteDto == null) {
                 result.confirmMessage("货物目的站点未在京东维护");
                 return result;
