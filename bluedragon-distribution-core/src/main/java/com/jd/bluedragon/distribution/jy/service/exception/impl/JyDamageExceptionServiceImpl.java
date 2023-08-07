@@ -137,64 +137,48 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         String waybillCode = req.getBarCode();
         //todo  添加校验港澳单
 
-        //选择 外包装破损
-        if(Objects.equals(JyExceptionPackageType.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode(),req.getDamageType())){
-            //选择 更换包装
-            if(Objects.equals(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode(),req.getRepairType())){
-                if(!checkDamageChangePackageRepair(waybillCode,response)){
-                    return response;
-                }
-            }else {
-                logger.warn("其他修复方式。。。");
-            }
-        }
+
         return response;
     }
 
     /**
-     * 检验更换包装逻辑
+     * 检验更换包装逻辑 true: 运单通过校验  false:运单校验不通过
      * @return
      */
-    private boolean checkDamageChangePackageRepair(String waybillCode,JdCResponse<Boolean> response ){
+    private boolean checkDamageChangePackageRepair(String waybillCode){
 
         //获取增值服务信息
         BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
         logger.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
         if (baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null) {
             logger.warn("运单{}获取增值服务信息失败!",waybillCode);
-            response.toFail("运单获取增值服务信息失败");
             return false;
         }
         List<WaybillVasDto> waybillVas = baseEntity.getData();
         //校验是否是特安单
         if(BusinessHelper.matchWaybillVasDto(Constants.TE_AN_SERVICE,waybillVas)){
-            response.toFail("特安运单不允许更换包装！");
             return false;
         }
 
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
         if(waybill == null){
             logger.warn("运单{}获取运单信息失败!",waybillCode);
-            response.toFail("获取运单信息失败");
             return false;
         }
         //校验是否是医药单
         if(BusinessHelper.matchWaybillVasDto(Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY,waybillVas)
             || BusinessUtil.isBMedicine(waybill.getWaybillSign())){
-            response.toFail("医药运单不允许更换包装！");
             return false;
         }
         //自营生鲜运单判断
         if (BusinessUtil.isSelf(waybill.getWaybillSign())) {
             if (BusinessUtil.isSelfSX(waybill.getSendPay())) {
                 logger.info("自营生鲜运单");
-                response.toFail("自营生鲜运单不允许更换包装！");
                 return false;
             }
         } else {//外单
             if (BusinessUtil.isNotSelfSX(waybill.getWaybillSign())) {
                 logger.info("外单生鲜运单");
-                response.toFail("外单生鲜运单不允许更换包装！");
                 return false;
             }
         }
