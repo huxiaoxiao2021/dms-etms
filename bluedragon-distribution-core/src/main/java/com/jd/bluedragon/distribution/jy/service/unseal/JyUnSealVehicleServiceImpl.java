@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.ProductTypeAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
@@ -25,8 +26,10 @@ import com.jd.bluedragon.distribution.jy.manager.IJyUnSealVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.unload.JyUnloadAggsService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnSealDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
@@ -59,6 +62,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,6 +115,9 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
     @Autowired
     private UccPropertyConfiguration uccConfig;
+
+    @Autowired
+    private JyUnloadAggsService jyUnloadAggsService;
 
     /**
      * Hystrix 配置参考
@@ -447,6 +454,13 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         condition.setLineType(request.getLineType());
         condition.setVehicleStatus(request.getVehicleStatus());
 
+        // 如果是待解状态，先查询优先待解封任务列表
+        if (Constants.NUMBER_ONE.equals(request.getVersion()) && JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.equals(curQueryStatus)) {
+            setPriorityVehicleList(condition, request, curQueryStatus, unSealCarData);
+            // 查询普通列表时，不能带优先标识
+            condition.setPriorityFlag(Constants.NUMBER_ZERO);
+        }
+
         JyBizTaskUnloadOrderTypeEnum orderTypeEnum = setTaskOrderType(curQueryStatus);
 
         List<JyBizTaskUnloadVehicleEntity> vehiclePageList = jyBizTaskUnloadVehicleService.findByConditionOfPage(condition, orderTypeEnum, request.getPageNumber(), request.getPageSize(), null);
@@ -486,6 +500,71 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                     break;
             }
         }
+    }
+
+    private void setPriorityVehicleList(JyBizTaskUnloadVehicleEntity condition, SealVehicleTaskRequest request,
+                      JyBizTaskUnloadStatusEnum curQueryStatus, UnSealCarData unSealCarData) {
+        List<VehicleBaseInfo> priorityVehicleList = Lists.newArrayList();
+        unSealCarData.setPriorityData(priorityVehicleList);
+        // 组装优先列表查询参数
+        JyBizTaskUnloadVehicleEntity priorityCondition = new JyBizTaskUnloadVehicleEntity();
+        BeanUtils.copyProperties(condition, priorityCondition);
+        // 必须带有优先标识
+        priorityCondition.setPriorityFlag(Constants.NUMBER_ONE);
+        // 分页查询
+        List<JyBizTaskUnloadVehicleEntity> priorityVehiclePageList = jyBizTaskUnloadVehicleService.findByConditionOfPage(priorityCondition, JyBizTaskUnloadOrderTypeEnum.PRIORITY_FRACTION, request.getPageNumber(), request.getPageSize(), null);
+        if (CollectionUtils.isNotEmpty(priorityVehiclePageList)) {
+            // 批量查询各个产品类型的应卸总数 <bizId, 产品类型聚合列表>
+            Map<String, List<ProductTypeAgg>> productTypeAggMap = getProductTypeAggMap(priorityVehiclePageList);
+            for (JyBizTaskUnloadVehicleEntity entity : priorityVehiclePageList) {
+                // 初始化基础字段
+                VehicleBaseInfo vehicleBaseInfo = assembleVehicleBase(curQueryStatus, entity);
+                ToSealCarInfo toSealCarInfo = (ToSealCarInfo) vehicleBaseInfo;
+                // 实际到达时间
+                toSealCarInfo.setActualArriveTime(entity.getActualArriveTime());
+                // 各产品类型的应卸总数
+                List<ProductTypeAgg> productTypeAggList = productTypeAggMap.get(entity.getBizId());
+                toSealCarInfo.setProductTypeAggList(productTypeAggList == null ? new ArrayList<>() : productTypeAggList);
+                priorityVehicleList.add(toSealCarInfo);
+            }
+        }
+    }
+
+    private Map<String, List<ProductTypeAgg>> getProductTypeAggMap(List<JyBizTaskUnloadVehicleEntity> priorityVehiclePageList) {
+        // <bizId, 产品类型聚合列表>
+        Map<String, List<ProductTypeAgg>> productTypeAggMap = new HashMap<>(priorityVehiclePageList.size());
+        // bizId列表
+        List<String> bizIds = new ArrayList<>(priorityVehiclePageList.size());
+        for (JyBizTaskUnloadVehicleEntity entity : priorityVehiclePageList) {
+            bizIds.add(entity.getBizId());
+        }
+        // 批量查询各个产品类型的应卸总数
+        List<JyUnloadAggsEntity> unloadAggList = jyUnloadAggsService.queryShouldScanByBizIds(bizIds);
+        if (CollectionUtils.isEmpty(unloadAggList)) {
+            return productTypeAggMap;
+        }
+        for (JyUnloadAggsEntity aggEntity : unloadAggList) {
+            // bizId
+            String bizId = aggEntity.getBizId();
+            // 转换产品结果对象
+            ProductTypeAgg productTypeAgg = convertAggEntity(aggEntity);
+            // 产品聚合对象列表
+            List<ProductTypeAgg> productTypeAggList = productTypeAggMap.get(bizId);
+            if (productTypeAggList == null) {
+                productTypeAggList = new ArrayList<>();
+            }
+            productTypeAggList.add(productTypeAgg);
+            productTypeAggMap.put(bizId, productTypeAggList);
+        }
+        return productTypeAggMap;
+    }
+
+    private ProductTypeAgg convertAggEntity(JyUnloadAggsEntity aggEntity) {
+        ProductTypeAgg item = new ProductTypeAgg();
+        item.setProductType(aggEntity.getProductType());
+        item.setProductTypeName(UnloadProductTypeEnum.getNameByCode(item.getProductType()));
+        item.setCount(aggEntity.getShouldScanCount().longValue());
+        return item;
     }
 
     private BigDecimal setUnloadProgress(JyBizTaskUnloadVehicleEntity entity) {
