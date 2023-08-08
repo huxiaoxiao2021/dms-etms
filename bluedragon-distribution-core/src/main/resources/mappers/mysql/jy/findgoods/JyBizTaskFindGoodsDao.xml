@@ -284,6 +284,7 @@
       and work_grid_key = #{workGridKey}
       and create_time &gt; #{createTimeBegin}
       and task_status = 1
+    order by id desc
     limit 1
   </select>
 
