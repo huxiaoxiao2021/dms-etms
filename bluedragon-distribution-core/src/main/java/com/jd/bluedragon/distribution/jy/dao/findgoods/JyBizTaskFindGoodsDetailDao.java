@@ -53,4 +53,8 @@ public class JyBizTaskFindGoodsDetailDao extends BaseDao<JyBizTaskFindGoodsDetai
     public int batchInsert(List<JyBizTaskFindGoodsDetail> findGoodsDetailList) {
         return this.getSqlSession().insert(NAMESPACE + ".batchInsert", findGoodsDetailList);
     }
+
+    public int updateWaitFindPackage(List<JyBizTaskFindGoodsDetail> findGoodsDetailList) {
+        return this.getSqlSession().update(NAMESPACE + ".updateWaitFindPackage", findGoodsDetailList);
+    }
 }

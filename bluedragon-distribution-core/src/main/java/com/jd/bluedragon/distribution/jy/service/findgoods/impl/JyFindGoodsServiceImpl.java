@@ -498,7 +498,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
       jyBizTaskFindGoodsDetail.setPackageCode(waitFindPackageDto.getPackageCode());
       jyBizTaskFindGoodsDetail.setFindStatus(InventoryDetailStatusEnum.EXCEPTION.getCode());
       jyBizTaskFindGoodsDetail.setFindType(waitFindPackageDto.getFindType());
-      jyBizTaskFindGoodsDetail.setSiteCode(Long.valueOf(dto.getCurrentOperate().getSiteCode()));
+      jyBizTaskFindGoodsDetail.setSiteCode(findGoodsTaskDto.getSiteCode());
       jyBizTaskFindGoodsDetail.setWaveStartTime(findGoodsTaskDto.getWaveStartTime());
       jyBizTaskFindGoodsDetail.setWaveEndTime(findGoodsTaskDto.getWaveEndTime());
       jyBizTaskFindGoodsDetail.setCreateUserErp("sys");
@@ -562,6 +562,43 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   @Override
   public boolean updateWaitFindPackage(UpdateWaitFindPackageStatusDto dto,
       FindGoodsTaskDto findGoodsTaskDto) {
-    return false;
+    List<JyBizTaskFindGoodsDetail> findGoodsDetailList =assembleUpdateGoodsDetailList(dto,findGoodsTaskDto);
+    List<JyBizTaskFindGoodsDetail> hasBeenFinded =jyBizTaskFindGoodsDetailDao.listFindGoodsDetail(findGoodsDetailList);
+    if (CollectionUtils.isNotEmpty(hasBeenFinded)){
+      return jyBizTaskFindGoodsDetailDao.updateWaitFindPackage(hasBeenFinded) >0 ;
+    }
+    log.info("待更新的包裹不在要找的波次任务清单里面：{}",JsonHelper.toJson(findGoodsDetailList));
+    return true;
+  }
+
+  private List<JyBizTaskFindGoodsDetail> assembleUpdateGoodsDetailList(
+      UpdateWaitFindPackageStatusDto dto, FindGoodsTaskDto findGoodsTaskDto) {
+    Date now =new Date();
+    return dto.getWaitFindPackageDtoList().stream().map(waitFindPackageDto -> {
+      JyBizTaskFindGoodsDetail jyBizTaskFindGoodsDetail =new JyBizTaskFindGoodsDetail();
+      jyBizTaskFindGoodsDetail.setFindGoodsTaskBizId(findGoodsTaskDto.getBizId());
+      jyBizTaskFindGoodsDetail.setPackageCode(waitFindPackageDto.getPackageCode());
+      jyBizTaskFindGoodsDetail.setFindStatus(InventoryDetailStatusEnum.PDA_REAL_OPERATE.getCode());
+      jyBizTaskFindGoodsDetail.setFindType(waitFindPackageDto.getFindType());
+      jyBizTaskFindGoodsDetail.setSiteCode(findGoodsTaskDto.getSiteCode());
+      jyBizTaskFindGoodsDetail.setWaveStartTime(findGoodsTaskDto.getWaveStartTime());
+      jyBizTaskFindGoodsDetail.setWaveEndTime(findGoodsTaskDto.getWaveEndTime());
+      jyBizTaskFindGoodsDetail.setCreateUserErp("sys");
+      jyBizTaskFindGoodsDetail.setCreateUserName("系统更新");
+      jyBizTaskFindGoodsDetail.setUpdateUserErp("sys");
+      jyBizTaskFindGoodsDetail.setUpdateUserName("系统更新");
+      jyBizTaskFindGoodsDetail.setCreateTime(now);
+      jyBizTaskFindGoodsDetail.setUpdateTime(now);
+      return jyBizTaskFindGoodsDetail;
+    }).collect(Collectors.toList());
+  }
+
+  @Override
+  public boolean updateFindGoodsStatus(FindGoodsTaskDto findGoodsTaskDto) {
+    JyBizTaskFindGoods jyBizTaskFindGoods =new JyBizTaskFindGoods();
+    jyBizTaskFindGoods.setId(findGoodsTaskDto.getId());
+    jyBizTaskFindGoods.setTaskStatus(findGoodsTaskDto.getTaskStatus());
+    jyBizTaskFindGoods.setUpdateTime(new Date());
+    return jyBizTaskFindGoodsDao.updateByPrimaryKeySelective(jyBizTaskFindGoods)>0;
   }
 }
