@@ -219,7 +219,7 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
       throw new JyBizException("任务已结束，不允许再更改包裹状态！");
     }
     dto.setId(findGoodsTaskDto.getId());
-    boolean success =jyFindGoodsService.updateFindGoodsStatus(findGoodsTaskDto);
+    boolean success =jyFindGoodsService.updateFindGoodsStatus(dto);
     if (success){
       return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
     }
