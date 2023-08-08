@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @author hujiping
  * @date 2022/4/6 6:05 PM
  */
-@Service("jyWorkMapFuncConfigService")
+@Service("dockCodeAndPhoneService")
 public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
 
 
