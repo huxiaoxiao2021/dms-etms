@@ -48,4 +48,13 @@ public class JyWorkMapFuncConfigDao extends BaseDao<JyWorkMapFuncConfigEntity> {
     public List<JyWorkMapFuncConfigEntity> queryByCondition(JyWorkMapFuncConfigEntity entity) {
         return this.getSqlSession().selectList(NAMESPACE+".queryByCondition", entity);
     }
+
+    /**
+     * 根据funcCodeList查询
+     * @param FuncCodeList
+     * @return
+     */
+    public List<JyWorkMapFuncConfigEntity> queryByConditionList(List<String> FuncCodeList) {
+        return this.getSqlSession().selectList(NAMESPACE+".queryByConditionList", FuncCodeList);
+    }
 }

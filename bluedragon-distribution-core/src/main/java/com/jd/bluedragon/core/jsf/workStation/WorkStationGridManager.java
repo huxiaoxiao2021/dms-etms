@@ -2,6 +2,8 @@ package com.jd.bluedragon.core.jsf.workStation;
 
 import java.util.List;
 
+import com.jd.bluedragon.common.domain.DockCodeAndPhone;
+import com.jd.bluedragon.common.domain.DockCodeAndPhoneQuery;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridCountVo;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
@@ -55,4 +57,11 @@ public interface WorkStationGridManager {
      * @return
      */
 	List<WorkStationGrid> queryListForManagerSiteScan(WorkStationGridQuery workStationGridQuery);
+
+    /**
+     * 获取运输月台号和联系人
+     * @param dockCodeAndPhoneQuery
+     * @return Result<DockCodeAndPhone>
+     */
+    Result<DockCodeAndPhone> queryDockCodeAndPhone(DockCodeAndPhoneQuery dockCodeAndPhoneQuery);
 }

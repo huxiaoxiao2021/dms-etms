@@ -140,6 +140,11 @@ public class WorkStationGrid implements Serializable {
 	private String workName;
 
 	/**
+	 * 月台编号
+	 */
+	private String dockCode;
+
+	/**
 	 *
 	 * @param id
 	 */
@@ -539,5 +544,11 @@ public class WorkStationGrid implements Serializable {
 		return this.workName;
 	}
 
+	public String getDockCode() {
+		return dockCode;
+	}
 
+	public void setDockCode(String dockCode) {
+		this.dockCode = dockCode;
+	}
 }

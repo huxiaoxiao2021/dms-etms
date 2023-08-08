@@ -525,5 +525,30 @@
 			and	g.business_key = #{businessKey,jdbcType=VARCHAR}
 		order by g.id desc
 		limit 1			
-	</select>	
+	</select>
+	<select id="queryByRefStationKey"
+			resultType="com.jd.bluedragon.distribution.station.domain.WorkStationGrid">
+		select
+		g.business_key
+		from
+		work_station_grid g
+		<include refid="joinSql"/>
+		where g.yn = 1
+		and	s.ref_station_key in
+		<foreach collection="refStationKeyList" item="item" open="(" close=")" separator=",">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</select>
+	<select id="queryByRefGridKey" resultType="com.jd.bluedragon.distribution.station.domain.WorkStationGrid">
+		select
+		g.business_key
+		from
+		work_station_grid g
+		<include refid="joinSql"/>
+		where g.yn = 1
+		and	g.ref_grid_key in
+		<foreach collection="refGridKeyList" item="item" open="(" close=")" separator=",">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</select>
 </mapper>

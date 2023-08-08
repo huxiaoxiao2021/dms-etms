@@ -582,4 +582,11 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--  推送运输月台号和联系人  -->
+    <jsf:provider id="jsfWorkStationGridJsfManager"
+                  interface="com.jd.bluedragon.core.jsf.workStation.WorkStationGridJsfManager"
+                  alias="${dms.jsf.alias}"
+                  ref="workStationGridJsfManager"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
