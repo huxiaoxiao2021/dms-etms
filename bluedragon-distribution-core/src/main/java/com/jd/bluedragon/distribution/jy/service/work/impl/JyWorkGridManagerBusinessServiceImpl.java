@@ -203,6 +203,11 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			result.toFail("任务已超时，不能提交！");
 			return result;
 		}
+		//非待处理状态，不能提交
+		if(!WorkTaskStatusEnum.TODO.getCode().equals(oldData.getStatus())) {
+			result.toFail("任务状态已变更，不能提交！");
+			return result;
+		}		
 		JyBizTaskWorkGridManager updateTaskData = new JyBizTaskWorkGridManager();
 		updateTaskData.setStatus(WorkTaskStatusEnum.COMPLETE.getCode());
 		updateTaskData.setHandlerPositionCode("");
