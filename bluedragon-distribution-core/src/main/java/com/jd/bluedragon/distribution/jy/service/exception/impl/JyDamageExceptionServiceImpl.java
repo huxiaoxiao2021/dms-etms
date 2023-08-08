@@ -546,8 +546,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         BeanUtils.copyProperties(oldEntity, damageDetail);
 
         damageDetail.setDamageTypeName(JyExceptionPackageType.DamagedTypeEnum.getNameByCode(damageDetail.getDamageType()));
-        damageDetail.setRepairTypeName(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.getNameByCode(damageDetail.getRepairType()));
-        if (StringUtils.isEmpty(damageDetail.getRepairTypeName())) {
+        if (JyExceptionPackageType.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode().equals(damageDetail.getDamageType())) {
+            damageDetail.setRepairTypeName(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.getNameByCode(damageDetail.getRepairType()));
+        } else if (JyExceptionPackageType.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode().equals(damageDetail.getDamageType())) {
             damageDetail.setRepairTypeName(JyExceptionPackageType.InsideOutsideDamagedRepairTypeEnum.getNameByCode(damageDetail.getRepairType()));
         }
         damageDetail.setFeedBackTypeName(JyExceptionPackageType.FeedBackTypeEnum.getNameByCode(damageDetail.getFeedBackType()));
@@ -938,7 +939,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         List<JyExceptionPackageTypeDto> list = new ArrayList<>();
         Arrays.stream(JyExceptionPackageType.DamagedTypeEnum.values()).forEach(type -> {
             if (JyExceptionPackageType.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode().equals(type.getCode())) {
-
                 list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getOutPackingDamagedRepairTypeList(barCode)));
             } else if (JyExceptionPackageType.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode().equals(type.getCode())) {
                 list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName(), getInsideOutsideDamagedRepairTypeList()));
