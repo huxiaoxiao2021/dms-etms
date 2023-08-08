@@ -25,7 +25,7 @@ public class RecycleBasketPrintInfo implements Serializable {
     /**
      * 周转筐类型
      */
-    public String boxTypeName;
+    public String typeName;
 
     public String getCreateSiteName() {
         return createSiteName;
@@ -59,11 +59,11 @@ public class RecycleBasketPrintInfo implements Serializable {
         this.recycleBasketCodes = recycleBasketCodes;
     }
 
-    public String getBoxTypeName() {
-        return boxTypeName;
+    public String getTypeName() {
+        return typeName;
     }
 
-    public void setBoxTypeName(String boxTypeName) {
-        this.boxTypeName = boxTypeName;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 }

@@ -92,11 +92,11 @@ public class RecycleMaterialResource {
                 response = recycleMaterialService.getPrintInfo(recycleBasketEntity);
             }
             if (response != null && response.getData() != null) {
-                BoxTypeEnum boxTypeEnum = getFromCode(recycleBasketEntity.getBoxTypeCode());
+                BoxTypeEnum boxTypeEnum = getFromCode(recycleBasketEntity.getTypeCode());
                 if (boxTypeEnum != null) {
-                    response.getData().setBoxTypeName(boxTypeEnum.getName());
+                    response.getData().setTypeName(boxTypeEnum.getName());
                 }else {
-                    response.getData().setBoxTypeName("未知类型");
+                    response.getData().setTypeName("未知类型");
                 }
             }
         }catch (Exception e){
@@ -148,9 +148,9 @@ public class RecycleMaterialResource {
             }
         }
         
-        if (StringUtils.isEmpty(recycleBasketEntity.getBoxTypeCode()) 
-                || (!BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getBoxTypeCode()) 
-                && !BoxTypeEnum.BIG_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getBoxTypeCode()))) {
+        if (StringUtils.isEmpty(recycleBasketEntity.getTypeCode()) 
+                || (!BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getTypeCode()) 
+                && !BoxTypeEnum.BIG_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getTypeCode()))) {
             response.toFail("周转筐型号错误，请检查！");
             return response;
         }
