@@ -48,11 +48,6 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     private CarrierQueryWSManager carrierQueryWSManager;
 
     @Override
-    public InvokeResult<AviationSendTaskListRes> pageFetchAviationSendTaskList(AviationSendTaskListReq request) {
-        return null;
-    }
-
-    @Override
     public InvokeResult<Void> sendTaskBinding(SendTaskBindReq request) {
         final String methodDesc = "JyAviationRailwaySendSealServiceImpl:sendTaskBinding:任务绑定：";
         InvokeResult<Void> res = new InvokeResult<>();
@@ -187,7 +182,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     }
 
     @Override
-    public InvokeResult<CurrentSiteStartAirportQueryRes> pageFetchCurrentSiteStartAirport(CurrentSiteStartAirportQueryReq request) {
+    public InvokeResult<FilterConditionQueryRes> pageFetchCurrentSiteStartAirport(FilterConditionQueryReq request) {
         //todo zcf
         return null;
     }
@@ -223,6 +218,24 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
     @Override
     public InvokeResult<Void> aviationTaskSealCar(AviationTaskSealCarReq request) {
+        //todo zcf
+        return null;
+    }
+
+    @Override
+    public InvokeResult<AviationToSendAndSendingListRes> fetchAviationToSendAndSendingList(AviationSendTaskListReq request) {
+        //todo zcf
+        return null;
+    }
+
+    @Override
+    public InvokeResult<AviationSendTaskQueryRes> pageFetchAviationTaskByNextSite(AviationSendTaskQueryReq request) {
+        //todo zcf
+        return null;
+    }
+
+    @Override
+    public InvokeResult<AviationToSealAndSealedListRes> fetchAviationToSealAndSealedList(AviationSendTaskListReq request) {
         //todo zcf
         return null;
     }

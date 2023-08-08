@@ -7,9 +7,10 @@ import java.io.Serializable;
  * @Date 2023/8/2 16:43
  * @Description  航空发货任务基础数据
  */
-public class AviationToSendTaskDto extends AviationSendTaskDto implements Serializable {
+public class AviationSendTaskSealDto extends AviationSendTaskDto implements Serializable {
 
     private static final long serialVersionUID = -5005890642092421853L;
+
 
 
 }

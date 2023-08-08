@@ -23,18 +23,41 @@ public interface JyAviationRailwaySendSealGatewayService {
     JdCResponse<List<SelectOption>> scanTypeOptions();
 
     /**
-     * 分页获取-航空发货任务列表数据
+     * 航空发货列表数据查询： 待发货、已发货
      * @param request
      * @return
      */
-    JdCResponse<AviationSendTaskListRes> pageFetchAviationSendTaskList(AviationSendTaskListReq request);
+    JdCResponse<AviationToSendAndSendingListRes> fetchAviationToSendAndSendingList(AviationSendTaskListReq request);
 
     /**
-     * 查询当前场地始发机场
+     * 查询流向下航空任务列表数据
      * @param request
      * @return
      */
-    JdCResponse<CurrentSiteStartAirportQueryRes> pageFetchCurrentSiteStartAirport(CurrentSiteStartAirportQueryReq request);
+    JdCResponse<AviationSendTaskQueryRes> pageFetchAviationTaskByNextSite(AviationSendTaskQueryReq request);
+
+
+    /**
+     * 航空发货列表数据查询： 待封车、已封车
+     * @param request
+     * @return
+     */
+    JdCResponse<AviationToSealAndSealedListRes> fetchAviationToSealAndSealedList(AviationSendTaskListReq request);
+
+    /**
+     * 列表查询筛选条件查询
+     * @param request
+     * @return
+     */
+    JdCResponse<FilterConditionQueryRes> pageFetchFilterCondition(FilterConditionQueryReq request);
+
+
+    /**
+     * 任务状态统计
+     * @param request
+     * @return
+     */
+    JdCResponse<TaskStatusStatisticsRes> taskStatusStatistics(TaskStatusStatisticsReq request);
 
 
     /**

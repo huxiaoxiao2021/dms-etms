@@ -6,10 +6,10 @@ import java.io.Serializable;
 
 /**
  * @Author zhengchengfa
- * @Date 2023/8/2 15:59
+ * @Date 2023/8/8 17:48
  * @Description
  */
-public class AviationSendTaskListReq extends BaseReq implements Serializable {
+public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
 
     private static final long serialVersionUID = 4784612639942744950L;
 
@@ -19,19 +19,8 @@ public class AviationSendTaskListReq extends BaseReq implements Serializable {
      * 查询分页开始时间
      */
     private Long queryPageTime;
-    /**
-     * 列表状态：
-     * JyAviationRailwaySendVehicleStatusEnum
-     */
-    private Integer statusCode;
-    /**
-     * 筛选条件
-     */
-    private FilterConditionDto filterConditionDto;
-    /**
-     * 关键词
-     */
-    private String keyword;
+    private Integer nextSiteId;
+
 
     public Integer getPageNo() {
         return pageNo;
@@ -57,28 +46,11 @@ public class AviationSendTaskListReq extends BaseReq implements Serializable {
         this.queryPageTime = queryPageTime;
     }
 
-    public Integer getStatusCode() {
-        return statusCode;
+    public Integer getNextSiteId() {
+        return nextSiteId;
     }
 
-    public void setStatusCode(Integer statusCode) {
-        this.statusCode = statusCode;
+    public void setNextSiteId(Integer nextSiteId) {
+        this.nextSiteId = nextSiteId;
     }
-
-    public FilterConditionDto getFilterConditionDto() {
-        return filterConditionDto;
-    }
-
-    public void setFilterConditionDto(FilterConditionDto filterConditionDto) {
-        this.filterConditionDto = filterConditionDto;
-    }
-
-    public String getKeyword() {
-        return keyword;
-    }
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
-
 }

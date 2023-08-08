@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -11,13 +12,11 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
  */
 public interface JyAviationRailwaySendSealService {
     
-    InvokeResult<AviationSendTaskListRes> pageFetchAviationSendTaskList(AviationSendTaskListReq request);
-
     InvokeResult<Void> sendTaskBinding(SendTaskBindReq request);
 
     InvokeResult<Void> sendTaskUnbinding(SendTaskUnbindReq request);
 
-    InvokeResult<CurrentSiteStartAirportQueryRes> pageFetchCurrentSiteStartAirport(CurrentSiteStartAirportQueryReq request);
+    InvokeResult<FilterConditionQueryRes> pageFetchCurrentSiteStartAirport(FilterConditionQueryReq request);
 
     InvokeResult<TransportInfoQueryRes> fetchTransportCodeList(TransportCodeQueryReq request);
 
@@ -28,4 +27,10 @@ public interface JyAviationRailwaySendSealService {
     InvokeResult<Void> shuttleTaskSealCar(ShuttleTaskSealCarReq request);
 
     InvokeResult<Void> aviationTaskSealCar(AviationTaskSealCarReq request);
+
+    InvokeResult<AviationToSendAndSendingListRes> fetchAviationToSendAndSendingList(AviationSendTaskListReq request);
+
+    InvokeResult<AviationSendTaskQueryRes> pageFetchAviationTaskByNextSite(AviationSendTaskQueryReq request);
+
+    InvokeResult<AviationToSealAndSealedListRes> fetchAviationToSealAndSealedList(AviationSendTaskListReq request);
 }

@@ -9,10 +9,13 @@ import java.io.Serializable;
  * @Date 2023/8/4 15:30
  * @Description
  */
-public class CurrentSiteStartAirportQueryReq  extends BaseReq implements Serializable {
+public class FilterConditionQueryReq extends BaseReq implements Serializable {
 
     private static final long serialVersionUID = 4784612639942744950L;
 
+    /**
+     * 航空类型 可选，默认全部
+     */
     private Integer aviationType;
 
     private Integer pageNo;
