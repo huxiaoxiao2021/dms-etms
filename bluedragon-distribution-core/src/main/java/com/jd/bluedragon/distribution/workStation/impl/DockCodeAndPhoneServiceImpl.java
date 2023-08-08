@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.workStation.impl;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.jd.bluedragon.common.domain.DockCodeAndPhone;
-import com.jd.bluedragon.common.domain.DockCodeAndPhoneQuery;
+import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhone;
+import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQuery;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncConfigEntity;
 import com.jd.bluedragon.distribution.jy.dao.config.JyWorkMapFuncConfigDao;
@@ -68,6 +68,132 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
         DockCodeAndPhone dockCodeAndPhone = new DockCodeAndPhone();
         List<String> refStationKeyList = new ArrayList<>();
         //1、根据传入的类型去jy_work_map_func_config 拣运APP功能和工序映射表中查询出ref_work_key
+        refStationKeyList = getRefWorkKey(dockCodeAndPhoneQuery, refStationKeyList);
+        //2、根据ref_work_key去work_station 网格工序信息表中查询area_code，business_key
+        //3、根据传入的流向：发货地ID及名称、目的地ID及名称去work_grid_flow_direction  场地网格流向表 获取 ref_work_grid_key
+        List<String> refWorkGridKeyList = new ArrayList<>();
+        refWorkGridKeyList = getRefWorkGridKey(dockCodeAndPhoneQuery, refWorkGridKeyList);
+        //4、根据business_key和ref_work_grid_key去work_station_grid 场地网格工序信息表查询 获取到月台号 和 business_key
+        //获取月台号
+        List<String> dockCodes = new ArrayList<String>();
+        List<String> businessKeys = new ArrayList<String>();
+        List<String> finallyPhones = new ArrayList<String>();
+        getDockCOde(dockCodeAndPhone, refStationKeyList, refWorkGridKeyList, dockCodes, businessKeys, finallyPhones);
+        //5、根据business_key去user_sign_record 查询 erp
+        List<UserSignRecordFlow> userSignRecordFlows = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(businessKeys)) {
+            List<String> businessKeyList = businessKeys.stream().distinct().collect(Collectors.toList());
+            userSignRecordFlows = userSignRecordFlowDao.queryByRefGridKey(businessKeyList);
+        }
+        //6、根据erp查询电话号码
+        List<Map<String, String>> phoneList = new ArrayList<>();
+        Map<String, String> map = new HashMap<String, String>();
+        getPhone(dockCodeAndPhone, finallyPhones, userSignRecordFlows, map);
+        phoneList.add(map);
+        if (phoneList.size() > BaseContants.NUMBER_THREE) {
+            dockCodeAndPhone.setPhoneList(phoneList.subList(BaseContants.NUMBER_ONE, BaseContants.NUMBER_THREE));
+        } else {
+            dockCodeAndPhone.setPhoneList(phoneList);
+        }
+        return dockCodeAndPhone;
+    }
+
+    /**
+     * 根据erp查询电话号码
+     * @param dockCodeAndPhone
+     * @param finallyPhones
+     * @param userSignRecordFlows
+     * @param map
+     */
+
+    private void getPhone(DockCodeAndPhone dockCodeAndPhone, List<String> finallyPhones, List<UserSignRecordFlow> userSignRecordFlows, Map<String, String> map) {
+        if (CollectionUtils.isNotEmpty(userSignRecordFlows)) {
+            for (UserSignRecordFlow userSignRecordFlow : userSignRecordFlows) {
+                BaseStaffSiteOrgDto baseStaffIgnoreIsResignByErp = baseMajorManager.getBaseStaffIgnoreIsResignByErp(userSignRecordFlow.getUserCode());
+                map.put(userSignRecordFlow.getUserCode(), baseStaffIgnoreIsResignByErp.getMobilePhone1());
+            }
+        }
+        // 兜底逻辑：如果在岗人员为0人，则取网格对应的负责人姓名+手机号
+        if (CollectionUtils.isEmpty(dockCodeAndPhone.getPhoneList())) {
+            if (CollectionUtils.isNotEmpty(finallyPhones)) {
+                List<String> finallyPhoneList = finallyPhones.stream().distinct().collect(Collectors.toList());
+                for (String finallyPhone : finallyPhoneList) {
+                    BaseStaffSiteOrgDto baseStaffIgnoreIsResignByErp = baseMajorManager.getBaseStaffIgnoreIsResignByErp(finallyPhone);
+                    map.put(finallyPhone, baseStaffIgnoreIsResignByErp.getMobilePhone1());
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取月台号
+     * @param dockCodeAndPhone
+     * @param refStationKeyList
+     * @param refWorkGridKeyList
+     * @param dockCodes
+     * @param businessKeys
+     * @param finallyPhones
+     */
+    private void getDockCOde(DockCodeAndPhone dockCodeAndPhone, List<String> refStationKeyList, List<String> refWorkGridKeyList, List<String> dockCodes, List<String> businessKeys, List<String> finallyPhones) {
+        List<WorkStationGrid> workStationGrids = new ArrayList<WorkStationGrid>();
+        List<WorkStationGrid> workStationGridList = new ArrayList<WorkStationGrid>();
+        if (CollectionUtils.isNotEmpty(refStationKeyList)) {
+            workStationGrids = workStationGridDao.queryByRefStationKey(refStationKeyList);
+            if (CollectionUtils.isNotEmpty(workStationGrids)) {
+                workStationGrids.forEach(item -> {
+                    dockCodes.add(item.getDockCode());
+                    businessKeys.add(item.getBusinessKey());
+                    finallyPhones.add(item.getOwnerUserErp());
+                });
+            }
+        }
+        if (!CollectionUtils.isEmpty(refWorkGridKeyList)) {
+            workStationGridList = workStationGridDao.queryByRefGridKey(refWorkGridKeyList);
+            if (CollectionUtils.isNotEmpty(workStationGridList)) {
+                workStationGridList.forEach(item -> {
+                    dockCodes.add(item.getDockCode());
+                    businessKeys.add(item.getBusinessKey());
+                    finallyPhones.add(item.getOwnerUserErp());
+                });
+            }
+        }
+        if (!CollectionUtils.isEmpty(dockCodes)) {
+            List<String> dockCodeList = dockCodes.stream().distinct().collect(Collectors.toList());
+            if (dockCodeList.size() > BaseContants.NUMBER_FIVE) {
+                dockCodeAndPhone.setDockCodeList(dockCodeList.subList(BaseContants.NUMBER_ONE, BaseContants.NUMBER_FIVE));
+            } else {
+                dockCodeAndPhone.setDockCodeList(dockCodeList);
+            }
+        }
+    }
+
+    /**
+     * 根据传入的流向：发货地ID或目的地ID去work_grid_flow_direction  场地网格流向表 获取 ref_work_grid_key
+     * @param dockCodeAndPhoneQuery
+     * @param refWorkGridKeyList
+     * @return
+     */
+    private List<String> getRefWorkGridKey(DockCodeAndPhoneQuery dockCodeAndPhoneQuery, List<String> refWorkGridKeyList) {
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
+        if (dockCodeAndPhoneQuery.getSiteType().equals(BaseContants.NUMBER_ONE)) {
+            baseStaffSiteOrgDto = baseMajorManager.getBaseSiteByDmsCode(dockCodeAndPhoneQuery.getStartSiteID());
+        } else {
+            baseStaffSiteOrgDto = baseMajorManager.getBaseSiteByDmsCode(dockCodeAndPhoneQuery.getEndSiteID());
+        }
+        if (!ObjectHelper.isEmpty(baseStaffSiteOrgDto)) {
+            refWorkGridKeyList = workGridFlowDirectionJsfService.queryFlowDataForFlowSiteCode(dockCodeAndPhoneQuery.getSiteType(), baseStaffSiteOrgDto.getSiteCode()).getData();
+        }
+        return refWorkGridKeyList;
+    }
+
+    /**
+     * 去jy_work_map_func_config 拣运APP功能和工序映射表中查询出ref_work_key
+     *
+     * @param dockCodeAndPhoneQuery
+     * @param refStationKeyList
+     * @return
+     */
+    private List<String> getRefWorkKey(DockCodeAndPhoneQuery dockCodeAndPhoneQuery, List<String> refStationKeyList) {
         List<JyWorkMapFuncConfigEntity> jyWorkMapFuncConfigEntities = new ArrayList<JyWorkMapFuncConfigEntity>();
         JyWorkMapFuncConfigEntity jyWorkMapFuncConfigEntity = new JyWorkMapFuncConfigEntity();
         if (dockCodeAndPhoneQuery.getSiteType().equals(BaseContants.NUMBER_ONE)) {
@@ -82,95 +208,7 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
         if (CollectionUtils.isNotEmpty(jyWorkMapFuncConfigEntities)) {
             refStationKeyList = jyWorkMapFuncConfigEntities.stream().map(JyWorkMapFuncConfigEntity::getRefWorkKey).distinct().collect(Collectors.toList());
         }
-            //2、根据ref_work_key去work_station 网格工序信息表中查询area_code，business_key
-//        ArrayList<WorkStation> workStationlist = new ArrayList<>();
-//        if (!CollectionUtils.isEmpty(jyWorkMapFuncConfigEntities)) {
-//            for (JyWorkMapFuncConfigEntity workMapFuncConfigEntity : jyWorkMapFuncConfigEntities) {
-//                WorkStation workStation = workStationDao.queryByRealBusinessKey(workMapFuncConfigEntity.getRefWorkKey());
-//                workStationlist.add(workStation);
-//            }
-//        }
-//        List<String> refStationKeyList = workStationlist.stream().distinct().map(WorkStation::getBusinessKey).collect(Collectors.toList());
-            //3、根据传入的流向：发货地ID及名称、目的地ID及名称去work_grid_flow_direction  场地网格流向表 获取 ref_work_grid_key
-            List<String> refWorkGridKeyList = new ArrayList<>();
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
-            if (dockCodeAndPhoneQuery.getSiteType().equals(BaseContants.NUMBER_ONE)) {
-                baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(dockCodeAndPhoneQuery.getStartSiteID());
-            }else {
-                baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(dockCodeAndPhoneQuery.getEndSiteID());
-            }
-            if (!ObjectHelper.isEmpty(baseStaffSiteOrgDto)) {
-                refWorkGridKeyList = workGridFlowDirectionJsfService.queryFlowDataForFlowSiteCode(dockCodeAndPhoneQuery.getSiteType(), baseStaffSiteOrgDto.getSiteCode()).getData();
-            }
-            //4、根据business_key和ref_work_grid_key去work_station_grid 场地网格工序信息表查询 获取到月台号 和 business_key
-            //获取月台号
-            List<WorkStationGrid> workStationGrids = new ArrayList<WorkStationGrid>();
-            List<WorkStationGrid> workStationGridList = new ArrayList<WorkStationGrid>();
-            List<String> dockCodes = new ArrayList<String>();
-            List<String> businessKeys = new ArrayList<String>();
-            List<String> finallyPhones = new ArrayList<String>();
-            if (CollectionUtils.isNotEmpty(refStationKeyList)) {
-                workStationGrids = workStationGridDao.queryByRefStationKey(refStationKeyList);
-                if (CollectionUtils.isNotEmpty(workStationGrids)) {
-                    workStationGrids.forEach(item -> {
-                        dockCodes.add(item.getDockCode());
-                        businessKeys.add(item.getBusinessKey());
-                        finallyPhones.add(item.getOwnerUserErp());
-                    });
-                }
-            }
-            if (!CollectionUtils.isEmpty(refWorkGridKeyList)) {
-                workStationGridList = workStationGridDao.queryByRefGridKey(refWorkGridKeyList);
-                if (CollectionUtils.isNotEmpty(workStationGridList)) {
-                    workStationGridList.forEach(item -> {
-                        dockCodes.add(item.getDockCode());
-                        businessKeys.add(item.getBusinessKey());
-                        finallyPhones.add(item.getOwnerUserErp());
-                    });
-                }
-            }
-            if (!CollectionUtils.isEmpty(dockCodes)) {
-                List<String> dockCodeList = dockCodes.stream().distinct().collect(Collectors.toList());
-                if (dockCodeList.size()>BaseContants.NUMBER_FIVE){
-                    dockCodeAndPhone.setDockCodeList(dockCodeList.subList(BaseContants.NUMBER_ONE, BaseContants.NUMBER_FIVE));
-                }else {
-                    dockCodeAndPhone.setDockCodeList(dockCodeList);
-                }
-            }
-            //5、根据business_key去user_sign_record 查询 erp
-            List<UserSignRecordFlow> userSignRecordFlows = new ArrayList<>();
-            if (CollectionUtils.isNotEmpty(businessKeys)) {
-                List<String> businessKeyList = businessKeys.stream().distinct().collect(Collectors.toList());
-                userSignRecordFlows = userSignRecordFlowDao.queryByRefGridKey(businessKeyList);
-            }
-
-            //6、根据erp查询电话号码
-            List<Map<String, String>> phoneList = new ArrayList<>();
-            Map<String, String> map = new HashMap<String, String>();
-            if (CollectionUtils.isNotEmpty(userSignRecordFlows)) {
-                for (UserSignRecordFlow userSignRecordFlow : userSignRecordFlows) {
-                    BaseStaffSiteOrgDto baseStaffIgnoreIsResignByErp = baseMajorManager.getBaseStaffIgnoreIsResignByErp(userSignRecordFlow.getUserCode());
-                    map.put(userSignRecordFlow.getUserCode(), baseStaffIgnoreIsResignByErp.getMobilePhone1());
-                }
-            }
-            // 兜底逻辑：如果在岗人员为0人，则取网格对应的负责人姓名+手机号
-            if (CollectionUtils.isEmpty(dockCodeAndPhone.getPhoneList())) {
-                if (CollectionUtils.isNotEmpty(finallyPhones)) {
-                    List<String> finallyPhoneList = finallyPhones.stream().distinct().collect(Collectors.toList());
-                    for (String finallyPhone : finallyPhoneList) {
-                        BaseStaffSiteOrgDto baseStaffIgnoreIsResignByErp = baseMajorManager.getBaseStaffIgnoreIsResignByErp(finallyPhone);
-                        map.put(finallyPhone, baseStaffIgnoreIsResignByErp.getMobilePhone1());
-                    }
-                }
-            }
-            phoneList.add(map);
-            if (phoneList.size()>BaseContants.NUMBER_THREE){
-                dockCodeAndPhone.setPhoneList(phoneList.subList(BaseContants.NUMBER_ONE, BaseContants.NUMBER_THREE));
-            }else {
-                dockCodeAndPhone.setPhoneList(phoneList);
-            }
-
-        return dockCodeAndPhone;
+        return refStationKeyList;
     }
 
 }

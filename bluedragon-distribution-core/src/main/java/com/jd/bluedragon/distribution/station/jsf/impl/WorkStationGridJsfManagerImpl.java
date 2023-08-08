@@ -1,14 +1,13 @@
-package com.jd.bluedragon.core.jsf.workStation.impl;
+package com.jd.bluedragon.distribution.station.jsf.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.DockCodeAndPhone;
-import com.jd.bluedragon.common.domain.DockCodeAndPhoneQuery;
-import com.jd.bluedragon.core.jsf.workStation.WorkStationGridJsfManager;
+import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.workStation.api.WorkStationGridJsfManager;
 import com.jd.bluedragon.distribution.workStation.DockCodeAndPhoneService;
+import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhone;
+import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQuery;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.service.workStation.WorkStationGridJsfService;
-import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,11 +18,8 @@ import org.springframework.stereotype.Service;
  * @Description: 三定场地网格工序管理
  */
 @Slf4j
-@Service
+@Service("workStationGridJsfManager")
 public class WorkStationGridJsfManagerImpl implements WorkStationGridJsfManager {
-
-    @Autowired
-    private WorkStationGridJsfService basicWorkStationGridJsfService;
 
     @Autowired
     private DockCodeAndPhoneService dockCodeAndPhoneService;

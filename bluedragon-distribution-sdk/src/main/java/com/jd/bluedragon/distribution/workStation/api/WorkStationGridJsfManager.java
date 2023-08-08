@@ -1,8 +1,8 @@
-package com.jd.bluedragon.core.jsf.workStation;
+package com.jd.bluedragon.distribution.workStation.api;
 
-import com.jd.bluedragon.common.domain.DockCodeAndPhone;
-import com.jd.bluedragon.common.domain.DockCodeAndPhoneQuery;
-import com.jdl.basic.common.utils.Result;
+import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhone;
+import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQuery;
 
 /**
  * @Author: ext.lishaotan5@jd.com

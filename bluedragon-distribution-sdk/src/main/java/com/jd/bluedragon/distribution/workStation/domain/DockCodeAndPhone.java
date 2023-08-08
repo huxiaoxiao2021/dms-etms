@@ -1,4 +1,4 @@
-package com.jd.bluedragon.common.domain;
+package com.jd.bluedragon.distribution.workStation.domain;
 
 import java.io.Serializable;
 import java.util.List;

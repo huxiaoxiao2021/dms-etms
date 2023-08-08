@@ -3,8 +3,6 @@ package com.jd.bluedragon.core.jsf.workStation.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jd.bluedragon.common.domain.DockCodeAndPhone;
-import com.jd.bluedragon.common.domain.DockCodeAndPhoneQuery;
 import com.jd.bluedragon.distribution.workStation.DockCodeAndPhoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -122,16 +120,4 @@ public class WorkStationGridManagerImpl implements WorkStationGridManager {
         return result;
 	}
 
-    /**
-     * 获取运输月台号和联系人
-     * @param
-     * @return
-     */
-    @Override
-    public Result<DockCodeAndPhone> queryDockCodeAndPhone(DockCodeAndPhoneQuery dockCodeAndPhoneQuery) {
-        Result<DockCodeAndPhone> result = new Result<>();
-        DockCodeAndPhone dockCodeAndPhone = dockCodeAndPhoneService.queryDockCodeAndPhone(dockCodeAndPhoneQuery);
-        result.setData(dockCodeAndPhone);
-        return result;
-    }
 }

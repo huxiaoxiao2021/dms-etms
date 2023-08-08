@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.workStation;
 
 
-import com.jd.bluedragon.common.domain.DockCodeAndPhone;
-import com.jd.bluedragon.common.domain.DockCodeAndPhoneQuery;
+import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhone;
+import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQuery;
 
 /**
  * 获取运输月台号和联系人接口
