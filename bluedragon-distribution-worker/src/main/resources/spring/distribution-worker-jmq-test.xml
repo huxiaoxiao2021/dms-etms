@@ -670,5 +670,10 @@
     <jmq:consumer id="jmq.jyCancelScanConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.cancel.scan}" listener="jyCancelScanConsumer"/>
     </jmq:consumer>
+
+    <!--  运输派航空计划下发  -->
+    <jmq:consumer id="jmq.tmsAviationPlanConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.send.aviation.plan}" listener="tmsAviationPlanConsumer"/>
+    </jmq:consumer>
 </beans>
 

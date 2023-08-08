@@ -17,6 +17,8 @@ public class TransportCodeQueryReq extends BaseReq implements Serializable {
 
     private String detailBizId;
 
+    private Integer nextSiteCode;
+
     public String getBizId() {
         return bizId;
     }
@@ -31,5 +33,13 @@ public class TransportCodeQueryReq extends BaseReq implements Serializable {
 
     public void setDetailBizId(String detailBizId) {
         this.detailBizId = detailBizId;
+    }
+
+    public Integer getNextSiteCode() {
+        return nextSiteCode;
+    }
+
+    public void setNextSiteCode(Integer nextSiteCode) {
+        this.nextSiteCode = nextSiteCode;
     }
 }

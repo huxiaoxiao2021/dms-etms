@@ -14,27 +14,7 @@ public class TransportInfoQueryRes implements Serializable {
 
     private static final long serialVersionUID = 4784612639942744950L;
 
-    private String careTransportCode;
-
-    private String careDepartureTime;
-
     private List<TransportDataDto> transportDataDtoList;
-
-    public String getCareTransportCode() {
-        return careTransportCode;
-    }
-
-    public void setCareTransportCode(String careTransportCode) {
-        this.careTransportCode = careTransportCode;
-    }
-
-    public String getCareDepartureTime() {
-        return careDepartureTime;
-    }
-
-    public void setCareDepartureTime(String careDepartureTime) {
-        this.careDepartureTime = careDepartureTime;
-    }
 
     public List<TransportDataDto> getTransportInfoDtoList() {
         return transportDataDtoList;

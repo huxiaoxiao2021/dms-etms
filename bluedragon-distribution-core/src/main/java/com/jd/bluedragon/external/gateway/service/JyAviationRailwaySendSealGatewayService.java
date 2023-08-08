@@ -28,22 +28,19 @@ public interface JyAviationRailwaySendSealGatewayService {
      * @return
      */
     JdCResponse<AviationToSendAndSendingListRes> fetchAviationToSendAndSendingList(AviationSendTaskListReq request);
-
     /**
      * 查询流向下航空任务列表数据
      * @param request
      * @return
      */
     JdCResponse<AviationSendTaskQueryRes> pageFetchAviationTaskByNextSite(AviationSendTaskQueryReq request);
-
-
     /**
      * 航空发货列表数据查询： 待封车、已封车
+     * todo zcf
      * @param request
      * @return
      */
     JdCResponse<AviationToSealAndSealedListRes> fetchAviationToSealAndSealedList(AviationSendTaskListReq request);
-
     /**
      * 列表查询筛选条件查询
      * @param request
@@ -52,30 +49,28 @@ public interface JyAviationRailwaySendSealGatewayService {
     JdCResponse<FilterConditionQueryRes> pageFetchFilterCondition(FilterConditionQueryReq request);
 
 
-    /**
-     * 任务状态统计
-     * @param request
-     * @return
-     */
-    JdCResponse<TaskStatusStatisticsRes> taskStatusStatistics(TaskStatusStatisticsReq request);
+
+
+
 
 
     /**
      * 获取运力编码列表
      * todo zcf 确认接口是否分页, 如果分页，需要单独给个查最近运力的接口，
-     * todo zcf 入参业务字段待确认
+     * 入参业务字段待确认
      * @param request
      * @return
      */
     JdCResponse<TransportInfoQueryRes> fetchTransportCodeList(TransportCodeQueryReq request);
-
-
     /**
      * 自扫描运力编码时校验逻辑
      * @param request
      * @return
      */
     JdCResponse<TransportDataDto> scanAndCheckTransportInfo(ScanAndCheckTransportInfoReq request);
+
+
+
 
     /**
      * 摆渡发货任务上绑定航空发货任务
@@ -92,6 +87,7 @@ public interface JyAviationRailwaySendSealGatewayService {
     JdCResponse<Void> sendTaskUnbinding(SendTaskUnbindReq request);
 
     /**
+     * todo zcf
      * 查询摆渡发货任务上绑定的航空发货任务
      * @param request
      * @return
@@ -99,7 +95,7 @@ public interface JyAviationRailwaySendSealGatewayService {
     JdCResponse<SendTaskBindQueryRes> fetchSendTaskBindingData(SendTaskBindQueryReq request);
 
     /**
-     * 查询摆渡发货任务封车数据
+     * 查询摆渡发货任务封车详情
      * @param request
      * @return
      */
@@ -107,6 +103,7 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 摆渡任务封车
+     * todo zcf
      * @param request
      * @return
      */
@@ -114,6 +111,7 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 航空任务封车
+     * todo zcf
      * @param request
      * @return
      */

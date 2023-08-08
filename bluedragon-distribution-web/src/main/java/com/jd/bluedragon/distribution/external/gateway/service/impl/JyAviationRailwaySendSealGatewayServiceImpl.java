@@ -171,11 +171,6 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         }
     }
 
-    @Override
-    public JdCResponse<TaskStatusStatisticsRes> taskStatusStatistics(TaskStatusStatisticsReq request) {
-        //        todo zcf
-        return null;
-    }
 
     @Override
     public JdCResponse<TransportInfoQueryRes> fetchTransportCodeList(TransportCodeQueryReq request) {
