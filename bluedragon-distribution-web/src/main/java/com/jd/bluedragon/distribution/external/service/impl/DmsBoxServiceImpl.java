@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.box.BoxDto;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.external.service.DmsBoxService;
@@ -47,7 +48,7 @@ public class DmsBoxServiceImpl implements DmsBoxService {
         Response<List<String>> response= new Response();
         response.toSucceed();
         try {
-            response.setData(boxService.generateRecycleBasketCode(quantity));
+            response.setData(boxService.generateRecycleBasketCode(quantity, BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode()));
         }catch (Exception e){
             logger.error("周转筐生成编码异常:", e);
             response.toError("周转筐生成编码异常");

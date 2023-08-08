@@ -22,6 +22,11 @@ public class RecycleBasketPrintInfo implements Serializable {
      */
     private List<String> recycleBasketCodes;
 
+    /**
+     * 周转筐类型
+     */
+    public String boxTypeName;
+
     public String getCreateSiteName() {
         return createSiteName;
     }
@@ -52,5 +57,13 @@ public class RecycleBasketPrintInfo implements Serializable {
 
     public void setRecycleBasketCodes(List<String> recycleBasketCodes) {
         this.recycleBasketCodes = recycleBasketCodes;
+    }
+
+    public String getBoxTypeName() {
+        return boxTypeName;
+    }
+
+    public void setBoxTypeName(String boxTypeName) {
+        this.boxTypeName = boxTypeName;
     }
 }

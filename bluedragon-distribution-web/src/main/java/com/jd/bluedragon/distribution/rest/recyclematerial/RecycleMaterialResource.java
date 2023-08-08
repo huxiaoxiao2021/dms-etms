@@ -31,6 +31,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.Objects;
 
+import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.getFromCode;
+
 /**
  * 循环物资实操装态更新
  * @author shipeilin
@@ -89,6 +91,14 @@ public class RecycleMaterialResource {
                 // 打印/补打
                 response = recycleMaterialService.getPrintInfo(recycleBasketEntity);
             }
+            if (response != null && response.getData() != null) {
+                BoxTypeEnum boxTypeEnum = getFromCode(recycleBasketEntity.getBoxTypeCode());
+                if (boxTypeEnum != null) {
+                    response.getData().setBoxTypeName(boxTypeEnum.getName());
+                }else {
+                    response.getData().setBoxTypeName("未知类型");
+                }
+            }
         }catch (Exception e){
             log.error("周转筐获取打印信息异常,请求参数:{}", JsonHelper.toJson(recycleBasketEntity),e);
             response.toError("周转筐获取打印信息异常");
@@ -131,10 +141,18 @@ public class RecycleMaterialResource {
                 return response;
             }
             if(!BusinessUtil.isBoxcode(recycleBasketEntity.getRecycleBasketCode())
-                    || !recycleBasketEntity.getRecycleBasketCode().startsWith(BoxTypeEnum.RECYCLE_BASKET.getCode())){
+                    || (!recycleBasketEntity.getRecycleBasketCode().startsWith(BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode())
+                    && !recycleBasketEntity.getRecycleBasketCode().startsWith(BoxTypeEnum.BIG_RECYCLE_BASKET.getCode()))){
                  response.toFail("周转筐编码错误，请检查！");
                 return response;
             }
+        }
+        
+        if (StringUtils.isEmpty(recycleBasketEntity.getBoxTypeCode()) 
+                || (!BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getBoxTypeCode()) 
+                && !BoxTypeEnum.BIG_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getBoxTypeCode()))) {
+            response.toFail("周转筐型号错误，请检查！");
+            return response;
         }
         if(recycleBasketEntity.getQuantity() > 50){
             recycleBasketEntity.setQuantity(50);

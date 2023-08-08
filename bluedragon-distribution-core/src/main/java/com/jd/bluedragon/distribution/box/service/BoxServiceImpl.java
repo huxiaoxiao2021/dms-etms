@@ -62,8 +62,6 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.RECYCLE_BASKET;
-
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
 
@@ -273,9 +271,9 @@ public class BoxServiceImpl implements BoxService {
 	}
 
 	@Override
-	public List<String> generateRecycleBasketCode(int quantity){
+	public List<String> generateRecycleBasketCode(int quantity, String boxTypeCode){
 		Box param = new Box();
-		param.setType(BoxTypeEnum.RECYCLE_BASKET.getCode());
+		param.setType(boxTypeCode);
 		param.setQuantity(quantity);
 		return generateCode(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode());
 	}
