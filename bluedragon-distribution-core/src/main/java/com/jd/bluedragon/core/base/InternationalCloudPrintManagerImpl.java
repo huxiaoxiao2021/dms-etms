@@ -37,6 +37,7 @@ public class InternationalCloudPrintManagerImpl implements InternationalCloudPri
         CallerInfo callerInfo = ProfilerHelper.registerInfo("com.jd.bluedragon.core.base.InternationalCloudPrintManager.jdCloudPrint");
         try {
             // 系统来源：分拣
+            renderQuery.setAppKey(Constants.SYSTEM_CODE_OWON);
             renderQuery.setCallSystem(Constants.SYSTEM_CODE_OWON);
             PrintResultDTO printResultDTO = renderService.render4OuterReprint(renderQuery);
             if(printResultDTO == null){
