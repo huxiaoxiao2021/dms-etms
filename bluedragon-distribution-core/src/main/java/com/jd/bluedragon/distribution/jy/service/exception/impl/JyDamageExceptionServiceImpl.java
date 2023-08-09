@@ -273,7 +273,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             updateDamageEntity.setUpdateTime(new Date());
             updateDamageEntity.setSaveType(JyExceptionPackageType.SaveTypeEnum.SBUMIT_FEEBACK.getCode());
 
-            boolean sendMQFlag = sendMQNoticCustomerCheck(barCode, qcReportJmqDto,exceptionEntity, damageEntity, updateExp, updateDamageEntity);
+            //boolean sendMQFlag = sendMQNoticCustomerCheck(barCode, qcReportJmqDto,exceptionEntity, damageEntity, updateExp, updateDamageEntity);
             logger.info("最新的异常任务-{}",JSON.toJSONString(updateExp));
             logger.info("最新的破损数据-{}",JSON.toJSONString(updateDamageEntity));
 
@@ -287,16 +287,16 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 return;
             }
 
-            if (sendMQFlag) {
+            if (true) {
                 JyExpDamageNoticCustomerMQ damageNoticCustomerMQ = this.coverToDamageNoticCustomerMQ(exceptionEntity);
                 //发送破损消息通知客服
                 logger.info("发送破损消息通知客服-MQ-{}",JSON.toJSONString(damageNoticCustomerMQ));
                 dmsDamageNoticeKFProducer.send(bizId, JsonHelper.toJson(damageNoticCustomerMQ));
             }
             //称重
-            this.dealExpDamageWeightVolumeUpload(damageEntity, true);
+            //this.dealExpDamageWeightVolumeUpload(damageEntity, true);
             //滞留上报
-            this.dealExpDamageStrandReport(exceptionEntity.getBarCode());
+            //this.dealExpDamageStrandReport(exceptionEntity.getBarCode());
 
         } catch (Exception e) {
             logger.error("根据质控异常提报mq处理破损数据异常!param-{}",JSON.toJSONString(qcReportJmqDto),e);

@@ -730,7 +730,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         // 校验操作人的岗位 与 任务被分配岗位是否匹配
         String gridRid = getGridRid(position);
-        String bizId =getBizId(req.getBarCode(), req.getSiteId());
+        String bizId =getBizId(req.getBarCode(), position.getSiteCode());
         JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if (taskEntity == null) {
             return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
