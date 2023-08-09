@@ -1054,7 +1054,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         if (CollectionUtils.isEmpty(entityList)) {
             return new ArrayList<>();
         }
-        logger.info("getDamageDetailListByBizIds entityList :{}", JSON.toJSONString(bizIdList));
+        logger.info("getDamageDetailListByBizIds entityList :{}", JSON.toJSONString(entityList));
 //        return entityList.stream().collect(Collectors.toMap(JyExceptionDamageEntity::getBizId, entity -> entity));
         return entityList;
     }

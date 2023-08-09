@@ -161,7 +161,9 @@
         from
             jy_attachment_detail
         where yn = 1
-        and biz_id = #{bizId}
+        <if test="bizId != null">
+            and biz_id = #{bizId}
+        </if>
         <if test="bizIdList != null and bizIdList.size() > 0">
             and biz_id in
             <foreach collection="bizIdList" index="index" item="item" open="(" separator="," close=")">
