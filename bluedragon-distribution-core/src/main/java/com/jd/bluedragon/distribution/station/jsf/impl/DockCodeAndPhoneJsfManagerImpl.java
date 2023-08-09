@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
  * @Description: 三定场地网格工序管理
  */
 @Slf4j
-@Service("workStationGridJsfManager")
+@Service("dockCodeAndPhoneJsfService")
 public class DockCodeAndPhoneJsfManagerImpl implements DockCodeAndPhoneJsfService {
 
     @Autowired
