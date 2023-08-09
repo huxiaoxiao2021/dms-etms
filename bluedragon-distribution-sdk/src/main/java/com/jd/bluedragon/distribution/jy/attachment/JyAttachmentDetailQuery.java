@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.attachment;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 拣运-附件数据库-查询实体
@@ -16,6 +17,11 @@ public class JyAttachmentDetailQuery implements Serializable {
      * 业务主键
      */
     private String bizId;
+
+	/**
+	 * 业务主键列表
+	 */
+	private List<String> bizIdList;
 
     /**
      * 业务类型-区分业务场景
@@ -120,4 +126,11 @@ public class JyAttachmentDetailQuery implements Serializable {
 		this.pageSize = pageSize;
 	}
 
+	public List<String> getBizIdList() {
+		return bizIdList;
+	}
+
+	public void setBizIdList(List<String> bizIdList) {
+		this.bizIdList = bizIdList;
+	}
 }

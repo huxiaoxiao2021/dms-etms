@@ -2,28 +2,63 @@ package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.*;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
-import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpBaseReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpReceiveReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskDetailReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTypeCheckReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailCacheDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.TagDto;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyApproveStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionCycleTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionProcessStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTagEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTimeOutEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionPackageType;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSaveTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSourceEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DeliveryWSManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
+import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.enums.CustomerNotifyStatusEnum;
-import com.jd.bluedragon.distribution.jy.exception.*;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
+import com.jd.bluedragon.distribution.jy.exception.JyExScrapNoticeMQ;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionAgg;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
+import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategyFactory;
@@ -73,7 +108,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -166,6 +211,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Autowired
     private JySanwuExceptionService jySanwuExceptionService;
+
+    @Autowired
+    private JyDamageExceptionService jyDamageExceptionService;
 
     /**
      * 通用异常上报入口-扫描
@@ -586,6 +634,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                                 }
                             }
                         }
+                    } else if (Objects.equals(JyBizTaskExceptionTypeEnum.DAMAGE.getCode(), dto.getType())) {
+                        // 读取破损数据
+                        this.setDataForDamageList(dto,bizIds);
                     }
                 }
                 list.add(dto);
@@ -611,6 +662,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         logger.info("取件进行中的人数,gridKey={},erp={}", gridKey, req.getUserErp());
         return JdCResponse.ok(list);
+    }
+
+    private void setDataForDamageList(ExpTaskDto dto, List<String> bizIdList) {
+        List<JyExceptionDamageEntity> detailList = jyDamageExceptionService.getDamageDetailListByBizIds(bizIdList);
+        Map<String, JyExceptionDamageEntity> detailMap = detailList.stream().collect(Collectors.toMap(JyExceptionDamageEntity::getBizId, entity -> entity));
+        dto.setFeedBackTypeName(JyExceptionPackageType.FeedBackTypeEnum.getNameByCode(detailMap.get(dto.getBizId()).getFeedBackType()));
+
+        Boolean isCompleted = JyExpStatusEnum.COMPLETE.getCode() == dto.getStatus();
+        Map<String, List<JyAttachmentDetailEntity>> imageMap = jyDamageExceptionService.getDamageImageListByBizIds(detailList, isCompleted);
+        List<String> imageList = imageMap.get(dto.getBizId()).stream().map(JyAttachmentDetailEntity::getAttachmentUrl).collect(Collectors.toList());
+        dto.setImageUrls(String.join(";", imageList));
+        logger.info("setDataForDamageList dto:{}", JSON.toJSONString(dto));
     }
 
     /**

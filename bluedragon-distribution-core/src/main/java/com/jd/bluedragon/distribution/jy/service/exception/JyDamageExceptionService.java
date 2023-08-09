@@ -2,14 +2,16 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTypeCheckReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
+import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -63,6 +65,18 @@ public interface JyDamageExceptionService {
      */
     void dealCustomerReturnDamageResult(JyExpCustomerReturnMQ returnMQ);
 
+    /**
+     * 根据bizIdList 批量查询图片列表
+     *
+     * @return
+     */
+    Map<String, List<JyAttachmentDetailEntity>> getDamageImageListByBizIds(List<JyExceptionDamageEntity> detailList, Boolean isFinish);
 
-
+    /**
+     * 根据bizIdList 批量查询破损异常列表
+     *
+     * @param bizIdList
+     * @return
+     */
+    List<JyExceptionDamageEntity> getDamageDetailListByBizIds(List<String> bizIdList);
 }

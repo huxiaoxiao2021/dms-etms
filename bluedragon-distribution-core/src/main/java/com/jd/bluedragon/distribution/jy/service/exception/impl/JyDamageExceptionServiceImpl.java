@@ -71,8 +71,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -253,7 +255,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             updateDamageEntity.setBizId(bizId);
             updateDamageEntity.setUpdateErp(qcReportJmqDto.getCreateUser());
             updateDamageEntity.setUpdateTime(new Date());
-            updateDamageEntity.setSaveType(2);
+            updateDamageEntity.setSaveType(JyExceptionPackageType.SaveTypeEnum.SBUMIT_FEEBACK.getCode());
 
             boolean sendMQFlag = true;
 
@@ -971,5 +973,47 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         List<JyExceptionPackageTypeDto> list = new ArrayList<>();
         Arrays.stream(JyExceptionPackageType.InsideOutsideDamagedRepairTypeEnum.values()).forEach(type -> list.add(new JyExceptionPackageTypeDto(type.getCode(), type.getName())));
         return list;
+    }
+
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.getDamageImageListByBizIds", mState = {JProEnum.TP})
+    public Map<String, List<JyAttachmentDetailEntity>> getDamageImageListByBizIds(List<JyExceptionDamageEntity> detailList, Boolean isFinish) {
+        if (CollectionUtils.isEmpty(detailList)) {
+            return new HashMap<>();
+        }
+        List<String> bizIdList = detailList.stream().map(JyExceptionDamageEntity::getBizId).collect(Collectors.toList());
+        logger.info("getDamageImageListByBizIds bizIdList :{},detailList:{}", JSON.toJSONString(bizIdList), JSON.toJSONString(detailList));
+        JyAttachmentDetailQuery query = new JyAttachmentDetailQuery();
+        query.setBizIdList(bizIdList);
+        query.setSiteCode(detailList.get(0).getSiteCode());
+        if (isFinish) {
+            query.setBizType(JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_AFTER.getCode());
+        } else {
+            query.setBizType(JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_BEFORE.getCode());
+        }
+        query.setLimit(200);
+        List<JyAttachmentDetailEntity> entityList = jyAttachmentDetailService.queryDataListByCondition(query);
+        if (CollectionUtils.isEmpty(entityList)) {
+            return new HashMap<>();
+        }
+        logger.info("getDamageImageListByBizIds entityList :{}", JSON.toJSONString(entityList));
+        return entityList.stream().collect(Collectors.groupingBy(JyAttachmentDetailEntity::getBizId));
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.getDamageDetailListByBizIds", mState = {JProEnum.TP})
+    public List<JyExceptionDamageEntity> getDamageDetailListByBizIds(List<String> bizIdList) {
+        if (CollectionUtils.isEmpty(bizIdList)) {
+            return new ArrayList<>();
+        }
+        logger.info("getDamageDetailListByBizIds bizIdList :{}", JSON.toJSONString(bizIdList));
+        List<JyExceptionDamageEntity> entityList = jyExceptionDamageDao.getTaskListOfDamage(bizIdList);
+        if (CollectionUtils.isEmpty(entityList)) {
+            return new ArrayList<>();
+        }
+        logger.info("getDamageDetailListByBizIds entityList :{}", JSON.toJSONString(bizIdList));
+//        return entityList.stream().collect(Collectors.toMap(JyExceptionDamageEntity::getBizId, entity -> entity));
+        return entityList;
     }
 }
