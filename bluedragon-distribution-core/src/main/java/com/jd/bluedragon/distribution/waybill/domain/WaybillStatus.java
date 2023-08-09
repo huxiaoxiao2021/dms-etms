@@ -274,7 +274,7 @@ public class WaybillStatus {
      * 操作码：20700
      * topic:0_7600
      */
-    public static final Integer WAYBILL_TRACK_SECURITY_CHECK = 6500;
+    public static final Integer WAYBILL_TRACK_SECURITY_CHECK = 20700;
 
     /**
      * https://cf.jd.com/pages/viewpage.action?pageId=1050064709
