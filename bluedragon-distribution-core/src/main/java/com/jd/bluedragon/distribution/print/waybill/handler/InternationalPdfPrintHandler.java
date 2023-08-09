@@ -42,7 +42,7 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
         InterceptResult<String> interceptResult = context.getResult();
         // 目前只处理港澳类运单
         if(context.getWaybill().getWaybillExtVO() == null 
-                || BusinessUtil.isGAWaybill(context.getWaybill().getWaybillExtVO().getStartFlowDirection(), context.getWaybill().getWaybillExtVO().getEndFlowDirection())){
+                || !BusinessUtil.isGAWaybill(context.getWaybill().getWaybillExtVO().getStartFlowDirection(), context.getWaybill().getWaybillExtVO().getEndFlowDirection())){
             return interceptResult;
         }
         WaybillPrintRequest request = context.getRequest();
