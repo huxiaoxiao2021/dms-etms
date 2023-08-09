@@ -43,6 +43,11 @@ public class SealTaskInfoRequest implements Serializable {
      */
     private boolean queryRankOrder;
 
+    /**
+     * 是否查司机信息
+     */
+    private boolean queryDriverInfo;
+
     public User getUser() {
         return user;
     }
@@ -105,5 +110,13 @@ public class SealTaskInfoRequest implements Serializable {
 
     public void setQueryRankOrder(boolean queryRankOrder) {
         this.queryRankOrder = queryRankOrder;
+    }
+
+    public boolean getQueryDriverInfo() {
+        return queryDriverInfo;
+    }
+
+    public void setQueryDriverInfo(boolean queryDriverInfo) {
+        this.queryDriverInfo = queryDriverInfo;
     }
 }

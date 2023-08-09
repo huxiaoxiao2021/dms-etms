@@ -3544,12 +3544,15 @@ public class UccPropertyConfiguration {
         exceptionSubmitCheckWaybillInterceptTypeList = Arrays.asList(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA));
     }
 
-    public boolean matchExceptionSubmitCheckWaybillInterceptType(int interceptType) {
+    public boolean matchExceptionSubmitCheckWaybillInterceptType(Integer interceptType) {
         if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
             return false;
         }
         if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckWaybillInterceptTypes)){
             return true;
+        }
+        if(interceptType == null){
+            return false;
         }
         if(exceptionSubmitCheckWaybillInterceptTypeList.contains(String.valueOf(interceptType))){
             return true;
