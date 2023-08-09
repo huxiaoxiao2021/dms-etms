@@ -67,9 +67,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -944,6 +942,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
             waybillStatus.setOperateType(operateType);
             waybillStatus.setRemark(String.format("您的订单在【%s】已操作二次安检。", waybillStatus.getCreateSiteName()));
+
+            Map<String, Object> extendParamMap = new HashMap<>();
+            extendParamMap.put("traceDisplay", 0);
+            waybillStatus.setExtendParamMap(extendParamMap);
 
             // 添加到task表
             taskService.add(toTask(waybillStatus));
