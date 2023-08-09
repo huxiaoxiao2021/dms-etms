@@ -822,9 +822,15 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         logger.info("saveOrUpdate entity :{}", JSON.toJSONString(entity));
         if (entity.getId() == null) {
             logger.info("saveOrUpdate save...");
+            // 修改task类型为磨损
+            this.updateTaskExpType(entity);
             jyExceptionDamageDao.insertSelective(entity);
         } else {
             logger.info("saveOrUpdate update...");
+            // 破损提交状态修改为处理中
+            if (JyExceptionPackageType.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(entity.getSaveType())){
+                this.updateTaskExpStatusToProcessing(entity);
+            }
             this.clearNotNeedUpdateFiled(entity);
             jyExceptionDamageDao.updateByBizId(entity);
         }
@@ -832,6 +838,34 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     }
 
+    /**
+     * 修改task类型为磨损
+     * @param entity
+     */
+    private void updateTaskExpType(JyExceptionDamageEntity entity){
+        JyBizTaskExceptionEntity updateExp = new JyBizTaskExceptionEntity();
+        updateExp.setBizId(entity.getBizId());
+        updateExp.setType(JyBizTaskExceptionTypeEnum.DAMAGE.getCode());
+        updateExp.setUpdateUserErp(entity.getCreateErp());
+        updateExp.setUpdateTime(new Date());
+        jyBizTaskExceptionDao.updateByBizId(updateExp);
+    }
+
+    /**
+     * 破损提交状态修改为处理中
+     * @param entity
+     */
+    private void updateTaskExpStatusToProcessing(JyExceptionDamageEntity entity){
+        JyBizTaskExceptionEntity updateExp = new JyBizTaskExceptionEntity();
+        updateExp.setBizId(entity.getBizId());
+        updateExp.setType(JyBizTaskExceptionTypeEnum.DAMAGE.getCode());
+        updateExp.setUpdateUserErp(entity.getUpdateErp());
+        updateExp.setUpdateTime(new Date());
+        //更新破损任务状态为 处理中-客服介入中
+        updateExp.setStatus(JyExpStatusEnum.PROCESSING.getCode());
+        updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_INTERVENTION.getCode());
+        jyBizTaskExceptionDao.updateByBizId(updateExp);
+    }
     private void clearNotNeedUpdateFiled(JyExceptionDamageEntity entity) {
         entity.setSiteCode(null);
         entity.setSiteName(null);

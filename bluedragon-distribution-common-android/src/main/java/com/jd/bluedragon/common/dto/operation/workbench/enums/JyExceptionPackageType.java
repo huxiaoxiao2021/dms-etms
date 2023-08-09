@@ -152,7 +152,7 @@ public class JyExceptionPackageType {
      * 客服反馈类型（1：修复下传 2：直接下传 3：更换包装下传 4：报废 5：逆向退回）
      */
     public enum FeedBackTypeEnum {
-        DEFAULT(0, "默认值"), REPAIR_HANDOVER(1, "修复下传"), HANDOVER(2, "直接下传"),
+        DEFAULT(0, "待客服反馈"), REPAIR_HANDOVER(1, "修复下传"), HANDOVER(2, "直接下传"),
         REPLACE_PACKAGING_HANDOVER(3, "更换包装下传"), DESTROY(4, "报废"),
         REVERSE_RETURN(5, "逆向退回");
 
