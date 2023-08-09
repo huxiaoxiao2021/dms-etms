@@ -13,6 +13,7 @@ public enum WorkTaskStatusEnum {
     COMPLETE(3, "已完成"),
     OVER_TIME(4, "超时未完成"),
     CANCEL(5, "任务取消"),
+    CANCEL_GRID_DELETE(6, "任务取消(网格删除)"),
     ;
 	
 	private WorkTaskStatusEnum(Integer code, String name) {
