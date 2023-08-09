@@ -74,7 +74,7 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
     private String generateCloudPrintPdfUrl(WaybillPrintRequest request) {
 
         ReprintQueryRenderDTO renderQuery = new ReprintQueryRenderDTO();
-        renderQuery.setRequestId(request.getBarCode().concat(Constants.SEPARATOR_VERTICAL_LINE).concat(String.valueOf(System.currentTimeMillis())));
+        renderQuery.setRequestId(request.getBarCode().concat(Constants.SEPARATOR_HYPHEN).concat(String.valueOf(System.currentTimeMillis())));
         renderQuery.setOperator(request.getUserERP());
         renderQuery.setOperatorSiteId(request.getSiteCode());
         // 打印方式
