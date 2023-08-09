@@ -1401,7 +1401,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
     }
 
-
     private void sendScheduleTaskStatusMsg(String bizId, String userErp,
                                            JyScheduleTaskStatusEnum status, DefaultJMQProducer producer) {
         //通知任务调度系统状态修改

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.jy.exception;
 
 import com.jd.bluedragon.distribution.jy.enums.CustomerNotifyStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
+import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
@@ -51,4 +52,25 @@ public class DmsExCustomerNotifyConsumerTest {
             Assert.fail();
         }
     }
+
+    @Autowired
+    private DmsExpCustomerReturnConsumer dmsExpCustomerReturnConsumer;
+
+    @Test
+    public void dmsExpCustomerReturnConsumerTest() throws Exception{
+        Message message = new Message();
+        JyExpCustomerReturnMQ jyExCustomerNotifyMQ = new JyExpCustomerReturnMQ();
+        jyExCustomerNotifyMQ.setId("123");
+        jyExCustomerNotifyMQ.setBusinessId("408");
+        jyExCustomerNotifyMQ.setDesc("客服回传");
+        jyExCustomerNotifyMQ.setErpCode("chen");
+        jyExCustomerNotifyMQ.setEventNo("110");
+        jyExCustomerNotifyMQ.setExptId("JD0003421266039_910");
+        jyExCustomerNotifyMQ.setResultType("351");
+        jyExCustomerNotifyMQ.setSendTime("2023-01-01");
+        message.setText(JsonHelper.toJson(jyExCustomerNotifyMQ));
+
+        dmsExpCustomerReturnConsumer.consume(message);
+    }
+
 }

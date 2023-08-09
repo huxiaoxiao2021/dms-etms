@@ -296,7 +296,8 @@ public class JyExceptionServiceTest {
     @Test
     public void dealExpDamageInfoByAbnormalReportOutCallTest(){
         QcReportOutCallJmqDto dto = new QcReportOutCallJmqDto();
-        dto.setAbnormalDocumentNum("JDVA00255154794");
+        //dto.setAbnormalDocumentNum("JDVA00255154794");
+        dto.setAbnormalDocumentNum("JD0003421266039");
         dto.setAbnormalFirstId(20009l);
         dto.setAbnormalFirstName("外呼类");
         dto.setAbnormalSecondId(20051L);
