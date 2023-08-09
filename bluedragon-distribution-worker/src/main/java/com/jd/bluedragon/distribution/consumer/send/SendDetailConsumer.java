@@ -284,6 +284,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                         throw new RuntimeException("[dmsWorkSendDetail消费]存储RMA订单数据失败，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
                     }
                 }
+                // 杭州亚运会特殊全程跟踪处理
+                this.handleSecurityCheckWaybillTrace(sendDetail);
                 // 非城配运单，发车队通知调度系统发送MQ消息
                 this.dmsToVendorMQ(sendDetail, waybill);
                 // 构建并发送冷链发货MQ消息 - 运输计划相关
@@ -302,8 +304,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 this.doColdIntercept(waybill,sendDetail);
                 // 构建并发送MQ给邮管局消息
                 this.sendToEmsWaybillInfoMQ(sendDetail, waybill,waybillPickup);
-                // 杭州亚运会特殊全程跟踪处理
-                this.handleSecurityCheckWaybillTrace(sendDetail);
             } else {
                 log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
             }
