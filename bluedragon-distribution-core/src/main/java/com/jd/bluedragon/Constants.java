@@ -1972,4 +1972,9 @@ public class Constants {
      * 电商特惠产品编码
      */
     public static final String E_COMMERCE_SPECIAL_OFFER_SERVICE = "ed-m-0059";
+
+    /**
+     * 安检场地关系配置
+     */
+    public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
 }
