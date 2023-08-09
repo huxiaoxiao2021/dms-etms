@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.station.jsf.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.base.Result;
-import com.jd.bluedragon.distribution.workStation.api.WorkStationGridJsfManager;
 import com.jd.bluedragon.distribution.workStation.DockCodeAndPhoneService;
+import com.jd.bluedragon.distribution.workStation.api.DockCodeAndPhoneJsfService;
 import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhone;
 import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQuery;
 import com.jd.ump.annotation.JProEnum;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service("workStationGridJsfManager")
-public class WorkStationGridJsfManagerImpl implements WorkStationGridJsfManager {
+public class DockCodeAndPhoneJsfManagerImpl implements DockCodeAndPhoneJsfService {
 
     @Autowired
     private DockCodeAndPhoneService dockCodeAndPhoneService;

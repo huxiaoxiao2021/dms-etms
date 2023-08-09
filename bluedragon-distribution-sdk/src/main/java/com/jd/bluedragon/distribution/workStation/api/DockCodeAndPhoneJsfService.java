@@ -7,9 +7,9 @@ import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQuery;
 /**
  * @Author: ext.lishaotan5@jd.com
  * @Date: 2023/8/7 15:13
- * @Description:三定 获取运输月台号和联系人
+ * @Description: 获取运输月台号和联系人
  */
-public interface WorkStationGridJsfManager {
+public interface DockCodeAndPhoneJsfService {
 
     /**
      * 获取运输月台号和联系人
