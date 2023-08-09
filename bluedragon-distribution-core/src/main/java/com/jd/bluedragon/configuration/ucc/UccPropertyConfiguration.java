@@ -3403,7 +3403,7 @@ public class UccPropertyConfiguration {
     }
 
     public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
-        return jyWorkAppAutoRefreshConfigList;
+        return Lists.newArrayList(jyWorkAppAutoRefreshConfigList);
     }
 
     public void setJyWorkAppAutoRefreshConfigList(String jyWorkAppAutoRefreshConfig) {
