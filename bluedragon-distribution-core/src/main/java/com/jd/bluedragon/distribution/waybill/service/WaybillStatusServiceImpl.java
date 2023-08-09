@@ -918,6 +918,14 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 task.setYn(0);
             }
 
+            // 特殊安检
+            if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK).equals(task.getKeyword2())) {
+                toWaybillStatus(tWaybillStatus, bdTraceDto);
+                bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+                waybillQueryManager.sendBdTrace(bdTraceDto);
+                task.setYn(0);
+            }
+
 		}
 
 
