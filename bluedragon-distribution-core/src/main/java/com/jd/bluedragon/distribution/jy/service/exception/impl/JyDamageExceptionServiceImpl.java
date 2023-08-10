@@ -1035,7 +1035,11 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         if (StringUtils.isEmpty(barCode) || this.checkDamageChangePackageRepair(barCode)) {
             list.add(new JyExceptionPackageTypeDto(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode(),
                     JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getName(), true));
+            list.add(new JyExceptionPackageTypeDto(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.HANDOVER.getCode(),
+                    JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.HANDOVER.getName()));
         } else {
+            list.add(new JyExceptionPackageTypeDto(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode(),
+                    JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getName()));
             list.add(new JyExceptionPackageTypeDto(JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.HANDOVER.getCode(),
                     JyExceptionPackageType.OutPackingDamagedRepairTypeEnum.HANDOVER.getName(), true));
         }
