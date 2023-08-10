@@ -42,18 +42,4 @@ public class DmsBoxServiceImpl implements DmsBoxService {
         return boxResource.get(boxCode);
     }
 
-
-    @Override
-    public Response<List<String>> generateRecycleBasketCode(int quantity){
-        Response<List<String>> response= new Response();
-        response.toSucceed();
-        try {
-            response.setData(boxService.generateRecycleBasketCode(quantity, BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode()));
-        }catch (Exception e){
-            logger.error("周转筐生成编码异常:", e);
-            response.toError("周转筐生成编码异常");
-        }
-        return response;
-    }
-
 }

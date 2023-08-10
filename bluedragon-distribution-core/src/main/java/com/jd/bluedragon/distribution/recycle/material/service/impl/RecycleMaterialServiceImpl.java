@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.api.response.material.recyclingbox.Recycli
 import com.jd.bluedragon.distribution.api.response.material.warmbox.WarmBoxInOutResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.basic.ExcelUtils;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jss.JssService;
@@ -106,6 +107,9 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
     @Override
     @JProfiler(jKey = "dms.web.RecycleMaterialServiceImpl.getPrintInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<RecycleBasketPrintInfo> getPrintInfo(RecycleBasketEntity recycleBasketEntity) {
+        if (StringUtils.isEmpty(recycleBasketEntity.getTypeCode())) {
+            recycleBasketEntity.setTypeCode(BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode());
+        }
         // 首打印
         if(PrintTypeEnum.PRINT.getCode() == recycleBasketEntity.getPrintType()){
             return generateRecycleBasketPrintInfo(recycleBasketEntity);
