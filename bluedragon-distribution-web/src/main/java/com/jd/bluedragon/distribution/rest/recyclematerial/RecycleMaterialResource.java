@@ -148,9 +148,9 @@ public class RecycleMaterialResource {
             }
         }
         
-        if (StringUtils.isEmpty(recycleBasketEntity.getTypeCode()) 
-                || (!BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getTypeCode()) 
-                && !BoxTypeEnum.BIG_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getTypeCode()))) {
+        if (!StringUtils.isEmpty(recycleBasketEntity.getTypeCode()) 
+                && !BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getTypeCode()) 
+                && !BoxTypeEnum.BIG_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getTypeCode())) {
             response.toFail("周转筐型号错误，请检查！");
             return response;
         }
