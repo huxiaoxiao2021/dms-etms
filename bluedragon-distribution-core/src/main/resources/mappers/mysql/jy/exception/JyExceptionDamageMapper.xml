@@ -242,7 +242,7 @@
     <include refid="Base_Column_List" />
     from jy_exception_damage
     where biz_id in
-    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+    <foreach collection="bizIdList" index="index" item="item" open="(" separator="," close=")">
       #{item}
     </foreach>
   </select>

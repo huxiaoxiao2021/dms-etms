@@ -38,8 +38,8 @@ public class JyExceptionDamageDao extends BaseDao<JyExceptionDamageEntity> {
         return this.getSqlSession().selectOne(NAMESPACE + ".selectOneByBizId", bizId);
     }
 
-    public List<JyExceptionDamageEntity> getTaskListOfDamage(List<String> bizIds) {
-        return this.getSqlSession().selectList(NAMESPACE + ".getTaskListOfDamage", bizIds);
+    public List<JyExceptionDamageEntity> getTaskListOfDamage(List<String> bizIdList) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getTaskListOfDamage", bizIdList);
     }
 
     public Integer getDamageCountByBarCode(String barCode){

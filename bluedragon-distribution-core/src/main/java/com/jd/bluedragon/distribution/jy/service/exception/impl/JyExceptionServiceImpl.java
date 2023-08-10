@@ -634,11 +634,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                                 }
                             }
                         }
-                    } else if (Objects.equals(JyBizTaskExceptionTypeEnum.DAMAGE.getCode(), dto.getType())) {
-                        // 读取破损数据
-                        this.setDataForDamageList(dto,bizIds);
                     }
                 }
+                // 读取破损数据
+                this.setDataForDamageList(dto,bizIds);
                 list.add(dto);
             }
         }
@@ -669,9 +668,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         List<JyExceptionDamageEntity> detailList = jyDamageExceptionService.getDamageDetailListByBizIds(bizIdList);
         Map<String, JyExceptionDamageEntity> detailMap = detailList.stream().collect(Collectors.toMap(JyExceptionDamageEntity::getBizId, entity -> entity));
         JyExceptionDamageEntity damageEntity = detailMap.get(dto.getBizId());
+        logger.info("setDataForDamageList damageEntity:", bizIdList,JSON.toJSONString(damageEntity));
         if (damageEntity != null) {
+            if (Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(), dto.getStatus())) {
+                dto.setSaved(JyExceptionPackageType.SaveTypeEnum.DRAFT.getCode().equals(damageEntity.getSaveType()));
+                return;
+            }
             dto.setFeedBackTypeName(JyExceptionPackageType.FeedBackTypeEnum.getNameByCode(damageEntity.getFeedBackType()));
-            dto.setSaved(JyExceptionPackageType.SaveTypeEnum.DRAFT.getCode().equals(damageEntity.getSaveType()));
         }
         
         Boolean isCompleted = JyExpStatusEnum.COMPLETE.getCode() == dto.getStatus();
