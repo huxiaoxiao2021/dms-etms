@@ -237,13 +237,13 @@
     where biz_id = #{bizId,jdbcType=VARCHAR} and yn =1 limit 1
   </select>
 
-  <select id="getTaskListOfDamage" parameterType="java.util.List" resultMap="BaseResultMap">
+  <select id="getTaskListOfDamage" parameterType="list" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from jy_exception_damage
     where biz_id in
-    <foreach collection="bizIdList" index="index" item="item" open="(" separator="," close=")">
-      #{item}
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+      #{items,jdbcType=VARCHAR}
     </foreach>
   </select>
 
