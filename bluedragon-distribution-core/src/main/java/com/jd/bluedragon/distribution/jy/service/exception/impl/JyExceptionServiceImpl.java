@@ -665,20 +665,28 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     private void setDataForDamageList(ExpTaskDto dto, List<String> bizIdList) {
-        logger.info("setDataForDamageList bizIdList:{}", bizIdList);
+        logger.info("setDataForDamageList bizIdList:{}, dto:{}", bizIdList,JSON.toJSONString(dto));
         List<JyExceptionDamageEntity> detailList = jyDamageExceptionService.getDamageDetailListByBizIds(bizIdList);
         Map<String, JyExceptionDamageEntity> detailMap = detailList.stream().collect(Collectors.toMap(JyExceptionDamageEntity::getBizId, entity -> entity));
-        dto.setFeedBackTypeName(JyExceptionPackageType.FeedBackTypeEnum.getNameByCode(detailMap.get(dto.getBizId()).getFeedBackType()));
-
+        JyExceptionDamageEntity damageEntity = detailMap.get(dto.getBizId());
+        if (damageEntity != null) {
+            dto.setFeedBackTypeName(JyExceptionPackageType.FeedBackTypeEnum.getNameByCode(damageEntity.getFeedBackType()));
+            dto.setSaved(JyExceptionPackageType.SaveTypeEnum.DRAFT.getCode().equals(damageEntity.getSaveType()));
+        }
+        
         Boolean isCompleted = JyExpStatusEnum.COMPLETE.getCode() == dto.getStatus();
         Map<String, List<JyAttachmentDetailEntity>> imageMap = jyDamageExceptionService.getDamageImageListByBizIds(detailList, isCompleted);
         logger.info("setDataForDamageList imageMap:{}", JSON.toJSONString(imageMap));
-        List<String> imageList = imageMap.get(dto.getBizId()).stream().map(JyAttachmentDetailEntity::getAttachmentUrl).collect(Collectors.toList());
+        List<JyAttachmentDetailEntity> attachmentDetailEntityList = imageMap.get(dto.getBizId());
+        if (CollectionUtils.isEmpty(attachmentDetailEntityList)) {
+            return;
+        }
+        List<String> imageList = attachmentDetailEntityList.stream().map(JyAttachmentDetailEntity::getAttachmentUrl).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(imageList)){
             dto.setImageUrls(String.join(";", imageList));
         }
         logger.info("setDataForDamageList imageList:{}", JSON.toJSONString(imageList));
-        logger.info("setDataForDamageList dto:{}", JSON.toJSONString(dto));
+     
     }
 
     /**
