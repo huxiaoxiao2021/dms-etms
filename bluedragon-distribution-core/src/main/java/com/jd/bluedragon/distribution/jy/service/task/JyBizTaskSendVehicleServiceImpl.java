@@ -209,6 +209,13 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
 
     @Override
     public JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode) {
-        return jyBizTaskSendVehicleDao.findByBookingCode(bookingCode);
+        return jyBizTaskSendVehicleDao.findByBookingCode(bookingCode, false);
     }
+
+    @Override
+    public JyBizTaskSendVehicleEntity findByBookingCodeIgnoreYn(String bookingCode) {
+        return jyBizTaskSendVehicleDao.findByBookingCode(bookingCode, true);
+    }
+
+
 }

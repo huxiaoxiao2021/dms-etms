@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendAviationPlanDao;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,15 +18,45 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
 
     @Autowired
     private JyBizTaskSendAviationPlanDao jyBizTaskSendAviationPlanDao;
-
+    @Autowired
+    private JyBizTaskSendAviationPlanCacheService aviationPlanCacheService;
 
     @Override
     public int initTaskSendVehicle(JyBizTaskSendAviationPlanEntity entity) {
-        JyBizTaskSendAviationPlanEntity aviationPlanEntity = jyBizTaskSendAviationPlanDao.findByBizId(entity.getBizId());
-        if(!Objects.isNull(aviationPlanEntity)) {
+        if(!Objects.isNull(this.findByBizId(entity.getBizId()))) {
             return 0;
         }
         return jyBizTaskSendAviationPlanDao.insertSelective(entity);
     }
+
+    @Override
+    public JyBizTaskSendAviationPlanEntity findByBizId(String bizId) {
+        return jyBizTaskSendAviationPlanDao.findByBizId(bizId);
+    }
+
+    @Override
+    public int updateByBizId(JyBizTaskSendAviationPlanEntity entity) {
+        if(Objects.isNull(entity)) {
+            return 0;
+        }
+        return jyBizTaskSendAviationPlanDao.updateByBizId(entity);
+    }
+
+    @Override
+    public Boolean aviationPlanIntercept(String bizId) {
+        if(StringUtils.isBlank(bizId)) {
+            return null;
+        }
+        if(aviationPlanCacheService.existCacheAviationPlanCancel(bizId)) {
+            return true;
+        }
+        JyBizTaskSendAviationPlanEntity entity = this.findByBizId(bizId);
+        if(!Objects.isNull(entity) && !Objects.isNull(entity.getIntercept()) && entity.getIntercept().equals(1)) {
+            aviationPlanCacheService.saveCacheAviationPlanCancel(bizId);
+            return true;
+        }
+        return false;
+    }
+
 
 }

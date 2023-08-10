@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dao.task;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
@@ -204,10 +205,15 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByBizIds", params);
     }
 
-    public JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode) {
+    public JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode, Boolean ignoreYn) {
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBookingCode(bookingCode);
         entity.setTaskType(JySendTaskTypeEnum.AVIATION.getCode());
+        if(Boolean.TRUE.equals(ignoreYn)) {
+            entity.setYn(Constants.YN_NO);
+        }else {
+            entity.setYn(Constants.YN_YES);
+        }
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBookingCode", entity);
     }
 }

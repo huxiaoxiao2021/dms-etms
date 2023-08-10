@@ -52,8 +52,6 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
 
     private Integer airType;
 
-    private Integer bookedStatus;
-
     private String createUserErp;
 
     private String createUserName;
@@ -76,8 +74,12 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
 
     private String nextSiteName;
 
-
-
+    private Integer taskStatus;
+    /**
+     * 取消标识
+     */
+    private Integer intercept;
+    private Date interceptTime;
 
 
 
@@ -241,14 +243,6 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
         this.airType = airType;
     }
 
-    public Integer getBookedStatus() {
-        return bookedStatus;
-    }
-
-    public void setBookedStatus(Integer bookedStatus) {
-        this.bookedStatus = bookedStatus;
-    }
-
     public String getCreateUserErp() {
         return createUserErp;
     }
@@ -335,5 +329,29 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
 
     public void setNextSiteName(String nextSiteName) {
         this.nextSiteName = nextSiteName;
+    }
+
+    public Integer getTaskStatus() {
+        return taskStatus;
+    }
+
+    public void setTaskStatus(Integer taskStatus) {
+        this.taskStatus = taskStatus;
+    }
+
+    public Integer getIntercept() {
+        return intercept;
+    }
+
+    public void setIntercept(Integer intercept) {
+        this.intercept = intercept;
+    }
+
+    public Date getInterceptTime() {
+        return interceptTime;
+    }
+
+    public void setInterceptTime(Date interceptTime) {
+        this.interceptTime = interceptTime;
     }
 }

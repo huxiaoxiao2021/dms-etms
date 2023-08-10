@@ -8,14 +8,15 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanCacheService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
-import com.jd.bluedragon.distribution.jy.service.task.enums.JyAviationPlanBookedStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
@@ -48,6 +49,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
     public static final String JY_LOCK_AVIATION_PLAN_SEND_KEY = "jy:lock:aviationPlan:send:%s";
     public static final int JY_LOCK_AVIATION_PLAN_SEND_KEY_TIMEOUT_SECONDS = 120;
 
+    public static final String JY_CACHE_AVIATION_PLAN_CANCEL = "jy:cache:aviationPlan:bornCancel:%s";
 
 
     @Autowired
@@ -61,9 +63,11 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
     private JyBizTaskSendAviationPlanService jyBizTaskSendAviationPlanService;
     @Autowired
     private SendVehicleTransactionManager transactionManager;
-
+    @Autowired
+    private JyBizTaskSendAviationPlanCacheService aviationPlanCacheService;
     @Autowired
     private BaseMajorManager baseMajorManager;
+
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.tmsAviationPlanConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -86,12 +90,25 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         }
 
         mqBody.setBusinessId(message.getBusinessId());
+
         this.generateAviationSendPlanTask(mqBody);
         if (log.isInfoEnabled()) {
             log.info("tmsAviationPlanConsumer航空计划生成航空发货任务成功，businessId={}，订舱号={}", message.getBusinessId(), mqBody.getBookingCode());
         }
     }
 
+    /**
+     * 前置处理
+     * @param mqBody
+     */
+    private void fieldBeforeHandler(TmsAviationPlanDto mqBody) {
+        if(Objects.isNull(mqBody)) {
+            return;
+        }
+        if(Objects.isNull(mqBody.getBookingWeight())) {
+            mqBody.setBookingWeight(0d);
+        }
+    }
 
     /**
      * 生成航空发货任务
@@ -99,72 +116,74 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
      * @return
      */
     private void generateAviationSendPlanTask(TmsAviationPlanDto mqBody) {
-        //无效数据过滤
+        //无效数据
         if(invalidDataFilter(mqBody)) {
             log.warn("无效航空计划丢弃：{}", JsonHelper.toJson(mqBody));
             return;
         }
+        //可能为空的字段前置处理
+        fieldBeforeHandler(mqBody);
+
         //订舱号唯一：并发锁处理
-        if(!lockGenerateSendAviationPlan(mqBody.getBookingCode())) {
-            String warnMsg = String.format("航空计划发货任务生成-订舱号%s正在处理中!", mqBody.getBookingCode());
+        if(!this.lockGenerateSendAviationPlan(mqBody.getBookingCode())) {
+            String warnMsg = String.format("（并发锁需要重试）航空计划发货任务生成-订舱号%s正在处理中!", mqBody.getBookingCode());
             log.warn(warnMsg, JsonHelper.toJson(mqBody));
             throw new JyBizException(warnMsg);
         }
         try{
-            //新增航空计划
-            if(JyAviationPlanBookedStatusEnum.ADD.getCode().equals(mqBody.getBookedStatus())) {
-                this.addAviationPlanTask(mqBody);
-            }
-            //删除航空计划
-            else if(JyAviationPlanBookedStatusEnum.DISCARD.getCode().equals(mqBody.getBookedStatus())) {
-                this.discardAviationPlanTask(mqBody);
-            }
-            //修改航空计划
-            else if(JyAviationPlanBookedStatusEnum.UPDATE.getCode().equals(mqBody.getBookedStatus())) {
-                this.updateAviationPlanTask(mqBody);
+            JyBizTaskSendVehicleEntity existSendTaskMain = jyBizTaskSendVehicleService.findByBookingCode(mqBody.getBookingCode());
+            if(Objects.isNull(existSendTaskMain)) {
+                //0订舱量丢弃&记录缓存
+                if(!NumberHelper.gt0(mqBody.getBookingWeight())) {
+                    this.saveBornCancel(mqBody.getBookingCode());
+                    log.warn("航空计划订舱号【{}】首次消费订舱量0，直接丢弃，mqBody={}", JsonHelper.toJsonMs(mqBody));
+                    return;
+                }
+                //插入
+                if(log.isInfoEnabled()) {
+                    log.info("航空计划订舱号【{}】发货任务插入开始，mqBody={}", JsonHelper.toJsonMs(mqBody));
+                }
+                JyBizTaskSendAviationPlanEntity aviationPlanEntity = this.generateAviationPlanEntity(mqBody);
+                JyBizTaskSendVehicleEntity sendVehicleEntity = this.aviationPlanConvertSendTask(aviationPlanEntity);
+                JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity = this.aviationPlanConvertSendTaskDetail(aviationPlanEntity);
+                transactionManager.saveAviationPlanAndTaskSendAndDetail(aviationPlanEntity, sendVehicleEntity, sendVehicleDetailEntity);
+
+            }else {
+                //修改
+                JyBizTaskSendAviationPlanEntity queryEntity = jyBizTaskSendAviationPlanService.findByBizId(existSendTaskMain.getBizId());
+                if(!Objects.isNull(queryEntity)) {
+                    //同一订舱号约束变更仅变更订舱量，其他字段变更是生成新的订舱号任务，订舱量为0标识任务中途取消 2023年08月09日
+                    if(!NumberHelper.gt0(queryEntity.getBookingWeight()) || (!Objects.isNull(queryEntity.getIntercept())) && queryEntity.getIntercept().equals(1)) {
+                        log.warn("bizId={},订舱号={},该航空计划已经0订舱量取消处理，不在更新直接丢弃消息。消息体={}", existSendTaskMain.getBizId(), mqBody.getBookingCode(), JsonHelper.toJson(mqBody));
+                        return;
+                    }
+                    JyBizTaskSendAviationPlanEntity updateAviationPlan = new JyBizTaskSendAviationPlanEntity();
+                    updateAviationPlan.setBizId(existSendTaskMain.getBizId());
+                    Date curTime = new Date();
+                    updateAviationPlan.setUpdateTime(curTime);
+                    updateAviationPlan.setUpdateUserErp(Constants.SYS_NAME);
+                    updateAviationPlan.setUpdateUserName(Constants.SYS_NAME);
+                    boolean interceptCancel = false;
+                    updateAviationPlan.setBookingWeight(mqBody.getBookingWeight());
+                    if(!NumberHelper.gt0(mqBody.getBookingWeight())) {
+                        interceptCancel = true;
+                        updateAviationPlan.setIntercept(1);
+                        updateAviationPlan.setInterceptTime(curTime);
+                    }
+                    jyBizTaskSendAviationPlanService.updateByBizId(updateAviationPlan);
+                    if(interceptCancel){
+                        //取消缓存
+                        aviationPlanCacheService.saveCacheAviationPlanCancel(existSendTaskMain.getBizId());
+                    }
+                }else {
+                    //理论上发货主表不为空这里一定不为空, log记录
+                    log.error("航空发货数据异常，发货主表数据航空任务和航空发货计划数据差异了，发货任务bizId={},mqBody={}", existSendTaskMain.getBizId(), JsonHelper.toJson(mqBody));
+                }
             }
         }catch (Exception e) {
             //释放锁
             unlockGenerateSendAviationPlan(mqBody.getBookingCode());
         }
-
-    }
-
-
-    /**
-     * 修改航空任务
-     * @param mqBody
-     */
-    private void updateAviationPlanTask(TmsAviationPlanDto mqBody) {
-        //        todo zcf  考虑时间顺序、是否废除等逻辑
-    }
-
-    /**
-     * 废弃航空任务
-     * @param mqBody
-     */
-    private void discardAviationPlanTask(TmsAviationPlanDto mqBody) {
-//        todo zcf  不能直接删除， 任务进行中有废弃提示，走迁移流程
-    }
-
-    /**
-     * 生成航空计划
-     * @param mqBody
-     */
-    private void addAviationPlanTask(TmsAviationPlanDto mqBody) {
-        JyBizTaskSendVehicleEntity existSendTaskMain = jyBizTaskSendVehicleService.findByBookingCode(mqBody.getBookingCode());
-        if(!Objects.isNull(existSendTaskMain)) {
-            if(log.isInfoEnabled()) {
-                log.info("航空计划订舱号【{}】生成发货任务已存在，不做处理，mqBody={}", JsonHelper.toJsonMs(mqBody));
-            }
-            return;
-        }
-        //航空计划
-        JyBizTaskSendAviationPlanEntity aviationPlanEntity = this.generateAviationPlanEntity(mqBody);
-        JyBizTaskSendVehicleEntity sendVehicleEntity = this.aviationPlanConvertSendTask(aviationPlanEntity);
-        JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity = this.aviationPlanConvertSendTaskDetail(aviationPlanEntity);
-        transactionManager.saveAviationPlanAndTaskSendAndDetail(aviationPlanEntity, sendVehicleEntity, sendVehicleDetailEntity);
-
     }
 
 
@@ -194,7 +213,6 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         entity.setBookingWeight(mqBody.getBookingWeight());
         entity.setCargoType(mqBody.getCargoType());
         entity.setAirType(mqBody.getAirType());
-        entity.setBookedStatus(mqBody.getBookedStatus());
         //todo zcf 根据航空计划获取路由系统中流向场地信息： 待确认
 //        entity.setNextSiteCode();
 //        entity.setNextSiteId();
@@ -205,7 +223,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         entity.setCreateTime(new Date());
         entity.setUpdateTime(entity.getCreateTime());
         entity.setYn(Constants.YN_YES);
-
+        entity.setIntercept(0);
         return entity;
     }
 
@@ -249,13 +267,9 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
             log.error("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：订舱号为空，内容为【{}】", JsonHelper.toJson(mqBody));
             return true;
         }
-        if(Objects.isNull(JyAviationPlanBookedStatusEnum.getBookedStatusEnumByCode(mqBody.getBookedStatus()))) {
-            log.error("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：订舱状态无效，内容为【{}】", JsonHelper.toJson(mqBody));
-            return true;
-        }
-
         return false;
     }
+
 
     //订舱号并发锁获取
     private boolean lockGenerateSendAviationPlan(String bookingCode) {
@@ -274,5 +288,23 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
     private String getLockKeyGenerateSendAviationPlan(String bookingCode) {
         return String.format(TmsAviationPlanConsumer.JY_LOCK_AVIATION_PLAN_SEND_KEY, bookingCode);
     }
+
+
+
+    /**
+     * 订舱号生成0订舱量直接取消：  * 避免因JMQ消费乱序产生先取消后又生成新的航空计划数据
+     * @param bookingCode
+     * @return
+     */
+    private void saveBornCancel(String bookingCode){
+        redisClientOfJy.setEx(this.getBornCancelKey(bookingCode), "1", 24, TimeUnit.HOURS);
+    }
+    private boolean isBornCancel(String bookingCode) {
+        return StringUtils.isNotBlank(redisClientOfJy.get(this.getBornCancelKey(bookingCode)));
+    }
+    private String getBornCancelKey(String bookingCode) {
+        return String.format(JY_CACHE_AVIATION_PLAN_CANCEL, bookingCode);
+    }
+
 
 }

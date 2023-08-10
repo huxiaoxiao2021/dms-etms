@@ -51,7 +51,6 @@ public class TmsAviationPlanDto implements Serializable {
     private Double bookingWeight;//订舱货量
     private Integer cargoType;//货物类型
     private Integer airType;//航空类型
-    private Integer bookedStatus;//订舱状态
 
     public String getBusinessId() {
         return businessId;
@@ -197,11 +196,4 @@ public class TmsAviationPlanDto implements Serializable {
         this.airType = airType;
     }
 
-    public Integer getBookedStatus() {
-        return bookedStatus;
-    }
-
-    public void setBookedStatus(Integer bookedStatus) {
-        this.bookedStatus = bookedStatus;
-    }
 }

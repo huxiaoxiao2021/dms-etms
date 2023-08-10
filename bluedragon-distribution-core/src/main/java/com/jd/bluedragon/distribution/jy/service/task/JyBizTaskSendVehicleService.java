@@ -171,4 +171,11 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
     JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode);
+
+    /**
+     * 根据订舱号查询发货任务, 忽略yn
+     * @param bookingCode
+     * @return
+     */
+    JyBizTaskSendVehicleEntity findByBookingCodeIgnoreYn(String bookingCode);
 }
