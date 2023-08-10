@@ -20,6 +20,11 @@ public class JyExceptionDamageDto extends JyExceptionDamageEntity {
      */
     private List<String> dealImageUrlList;
 
+    /**
+     * 不区分修复前后图片地址
+     */
+    private List<String> imageUrlList;
+
     public String getDamageTypeName() {
         return damageTypeName;
     }
@@ -58,5 +63,13 @@ public class JyExceptionDamageDto extends JyExceptionDamageEntity {
 
     public void setDealImageUrlList(List<String> dealImageUrlList) {
         this.dealImageUrlList = dealImageUrlList;
+    }
+
+    public List<String> getImageUrlList() {
+        return imageUrlList;
+    }
+
+    public void setImageUrlList(List<String> imageUrlList) {
+        this.imageUrlList = imageUrlList;
     }
 }

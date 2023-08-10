@@ -40,11 +40,11 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DeliveryWSManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
-import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
+import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.enums.CustomerNotifyStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
@@ -52,7 +52,6 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExScrapNoticeMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionAgg;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
@@ -570,6 +569,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             JdCResponse<List<ExpScrappedDetailDto>> listOfscrappedResponse = jyScrappedExceptionService.getTaskListOfscrapped(bizIds);
             logger.info("listOfscrappedResponse -{}",JSON.toJSONString(listOfscrappedResponse));
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            // 读取破损数据
+            Map<String, JyExceptionDamageDto> damageDtoMap = getDamageDetailMapByBizTaskList(taskList, req.getStatus());
             for (JyBizTaskExceptionEntity entity : taskList) {
                 // 拼装dto
                 ExpTaskDto dto = getTaskDto(entity);
@@ -637,7 +639,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     }
                 }
                 // 读取破损数据
-                this.setDataForDamageList(dto,bizIds);
+                if(Objects.equals(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode(),dto.getType())){
+                    // 如果待处理只设置状态
+                    if (Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(), entity.getStatus())){
+                        dto.setSaved(true);
+                    } else {
+                        JyExceptionDamageDto damageDto = damageDtoMap.get(dto.getBizId());
+                        if (damageDto != null) {
+                            dto.setImageUrls(String.join(",", damageDto.getImageUrlList()));
+                            dto.setFeedBackTypeName(JyExceptionPackageType.FeedBackTypeEnum.getNameByCode(damageDto.getFeedBackType()));
+                        }
+                    }
+                }
                 list.add(dto);
             }
         }
@@ -662,34 +675,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         logger.info("取件进行中的人数,gridKey={},erp={}", gridKey, req.getUserErp());
         return JdCResponse.ok(list);
     }
-
-    private void setDataForDamageList(ExpTaskDto dto, List<String> bizIdList) {
-        logger.info("setDataForDamageList bizIdList:{}, dto:{}", bizIdList,JSON.toJSONString(dto));
-        List<JyExceptionDamageEntity> detailList = jyDamageExceptionService.getDamageDetailListByBizIds(bizIdList);
-        Map<String, JyExceptionDamageEntity> detailMap = detailList.stream().collect(Collectors.toMap(JyExceptionDamageEntity::getBizId, entity -> entity));
-        JyExceptionDamageEntity damageEntity = detailMap.get(dto.getBizId());
-        logger.info("setDataForDamageList damageEntity:", bizIdList,JSON.toJSONString(damageEntity));
-        if (damageEntity != null) {
-            if (Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(), dto.getStatus())) {
-                dto.setSaved(JyExceptionPackageType.SaveTypeEnum.DRAFT.getCode().equals(damageEntity.getSaveType()));
-                return;
-            }
-            dto.setFeedBackTypeName(JyExceptionPackageType.FeedBackTypeEnum.getNameByCode(damageEntity.getFeedBackType()));
-        }
-        
-        Boolean isCompleted = JyExpStatusEnum.COMPLETE.getCode() == dto.getStatus();
-        Map<String, List<JyAttachmentDetailEntity>> imageMap = jyDamageExceptionService.getDamageImageListByBizIds(detailList, isCompleted);
-        logger.info("setDataForDamageList imageMap:{}", JSON.toJSONString(imageMap));
-        List<JyAttachmentDetailEntity> attachmentDetailEntityList = imageMap.get(dto.getBizId());
-        if (CollectionUtils.isEmpty(attachmentDetailEntityList)) {
-            return;
-        }
-        List<String> imageList = attachmentDetailEntityList.stream().map(JyAttachmentDetailEntity::getAttachmentUrl).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(imageList)){
-            dto.setImageUrls(String.join(";", imageList));
-        }
-        logger.info("setDataForDamageList imageList:{}", JSON.toJSONString(imageList));
-     
+    
+    private Map<String, JyExceptionDamageDto> getDamageDetailMapByBizTaskList(List<JyBizTaskExceptionEntity> taskList, Integer status) {
+        List<String> bizIdList = taskList.stream().filter(t-> Objects.equals(JyBizTaskExceptionTypeEnum.DAMAGE.getCode(),t.getType()))
+                        .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
+        logger.info("setDataForDamageList bizIdList:{}, status:{}", JSON.toJSONString(bizIdList), status);
+        return jyDamageExceptionService.getDamageDetailMapByBizIds(bizIdList, status);
     }
 
     /**

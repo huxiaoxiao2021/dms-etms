@@ -66,17 +66,10 @@ public interface JyDamageExceptionService {
     void dealCustomerReturnDamageResult(JyExpCustomerReturnMQ returnMQ);
 
     /**
-     * 根据bizIdList 批量查询图片列表
-     *
-     * @return
-     */
-    Map<String, List<JyAttachmentDetailEntity>> getDamageImageListByBizIds(List<JyExceptionDamageEntity> detailList, Boolean isFinish);
-
-    /**
      * 根据bizIdList 批量查询破损异常列表
      *
      * @param bizIdList
      * @return
      */
-    List<JyExceptionDamageEntity> getDamageDetailListByBizIds(List<String> bizIdList);
+    Map<String, JyExceptionDamageDto> getDamageDetailMapByBizIds(List<String> bizIdList, Integer status);
 }

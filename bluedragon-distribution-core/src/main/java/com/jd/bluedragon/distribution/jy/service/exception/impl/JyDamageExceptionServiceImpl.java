@@ -226,7 +226,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Transactional
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.dealExpDamageInfoByAbnormalReportOutCall", mState = {JProEnum.TP})
     public void dealExpDamageInfoByAbnormalReportOutCall(QcReportOutCallJmqDto qcReportJmqDto) {
-        logger.info("dealExpDamageInfoByAbnormalReportOutCall -外呼通知内容-{}",JSON.toJSONString(qcReportJmqDto));
+        logger.info("dealExpDamageInfoByAbnormalReportOutCall -外呼通知内容-{}", JSON.toJSONString(qcReportJmqDto));
         if (StringUtils.isBlank(qcReportJmqDto.getAbnormalDocumentNum())) {
             logger.warn("abnormalDocumentNum 为空！");
             return;
@@ -241,7 +241,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
         try {
             JyBizTaskExceptionEntity exceptionEntity = jyBizTaskExceptionDao.findByBizId(bizId);
-            logger.info("{}-原有的异常任务内容-{}",bizId,JSON.toJSONString(exceptionEntity));
+            logger.info("{}-原有的异常任务内容-{}", bizId, JSON.toJSONString(exceptionEntity));
             if (exceptionEntity == null) {
                 logger.warn("根据 {} 查询异常破损任务为空！", bizId);
                 return;
@@ -252,7 +252,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 return;
             }
             JyExceptionDamageEntity damageEntity = jyExceptionDamageDao.selectOneByBizId(bizId);
-            logger.info("{}-原有的破损内容-{}",bizId,JSON.toJSONString(damageEntity));
+            logger.info("{}-原有的破损内容-{}", bizId, JSON.toJSONString(damageEntity));
             if (damageEntity == null) {
                 logger.warn("根据 {} 查询破损数据为空！", bizId);
                 return;
@@ -274,8 +274,8 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             updateDamageEntity.setSaveType(JyExceptionPackageType.SaveTypeEnum.SBUMIT_FEEBACK.getCode());
 
             //boolean sendMQFlag = sendMQNoticCustomerCheck(barCode, qcReportJmqDto,exceptionEntity, damageEntity, updateExp, updateDamageEntity);
-            logger.info("最新的异常任务-{}",JSON.toJSONString(updateExp));
-            logger.info("最新的破损数据-{}",JSON.toJSONString(updateDamageEntity));
+            logger.info("最新的异常任务-{}", JSON.toJSONString(updateExp));
+            logger.info("最新的破损数据-{}", JSON.toJSONString(updateDamageEntity));
 
 
             if (jyBizTaskExceptionDao.updateByBizId(updateExp) < 1) {
@@ -290,7 +290,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             if (true) {
                 JyExpDamageNoticCustomerMQ damageNoticCustomerMQ = this.coverToDamageNoticCustomerMQ(exceptionEntity);
                 //发送破损消息通知客服
-                logger.info("发送破损消息通知客服-MQ-{}",JSON.toJSONString(damageNoticCustomerMQ));
+                logger.info("发送破损消息通知客服-MQ-{}", JSON.toJSONString(damageNoticCustomerMQ));
                 dmsDamageNoticeKFProducer.send(bizId, JsonHelper.toJson(damageNoticCustomerMQ));
             }
             //称重
@@ -299,7 +299,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             //this.dealExpDamageStrandReport(exceptionEntity.getBarCode());
 
         } catch (Exception e) {
-            logger.error("根据质控异常提报mq处理破损数据异常!param-{}",JSON.toJSONString(qcReportJmqDto),e);
+            logger.error("根据质控异常提报mq处理破损数据异常!param-{}", JSON.toJSONString(qcReportJmqDto), e);
         } finally {
             redisClient.del(existKey);
         }
@@ -307,6 +307,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     /**
      * 检验条件是否满足给客服发送消息
+     *
      * @param barCode
      * @param qcReportJmqDto
      * @param damageEntity
@@ -314,13 +315,13 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      * @param updateDamageEntity
      * @return
      */
-    private boolean sendMQNoticCustomerCheck(String barCode,QcReportOutCallJmqDto qcReportJmqDto, JyBizTaskExceptionEntity exceptionEntity
-            ,JyExceptionDamageEntity damageEntity,JyBizTaskExceptionEntity updateExp,JyExceptionDamageEntity updateDamageEntity){
+    private boolean sendMQNoticCustomerCheck(String barCode, QcReportOutCallJmqDto qcReportJmqDto, JyBizTaskExceptionEntity exceptionEntity
+            , JyExceptionDamageEntity damageEntity, JyBizTaskExceptionEntity updateExp, JyExceptionDamageEntity updateDamageEntity) {
 
         //自营单上报破损时，非全部破损情况提交后，不与客服交互，任务状态变更为直接下传 （选择 外破内破-》无残余价值）
-        if(isSelfByWaybillCode(barCode)){
-            if(!(Objects.equals(JyExceptionPackageType.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode(),damageEntity.getDamageType())
-                    && Objects.equals(JyExceptionPackageType.InsideOutsideDamagedRepairTypeEnum.WORTHLESS.getCode(),damageEntity.getRepairType()))){
+        if (isSelfByWaybillCode(barCode)) {
+            if (!(Objects.equals(JyExceptionPackageType.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode(), damageEntity.getDamageType())
+                    && Objects.equals(JyExceptionPackageType.InsideOutsideDamagedRepairTypeEnum.WORTHLESS.getCode(), damageEntity.getRepairType()))) {
                 updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode());
                 updateDamageEntity.setFeedBackType(JyExceptionPackageType.FeedBackTypeEnum.HANDOVER.getCode());
                 logger.warn("自营单-非全部破损，不与客服交互!");
@@ -334,16 +335,16 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode());
                 updateDamageEntity.setFeedBackType(JyExceptionPackageType.FeedBackTypeEnum.HANDOVER.getCode());
                 logger.warn("一单多包裹的情况下，上报外破内破，不与客服交互！");
-                return  false;
+                return false;
             }
         }
 
         Integer damageCount = jyExceptionDamageDao.getDamageCountByBarCode(barCode);
-        logger.info("{}-提报的次数-{}",barCode,damageCount);
+        logger.info("{}-提报的次数-{}", barCode, damageCount);
         //非第一次上报
-        if(damageCount  != null && damageCount >1){
+        if (damageCount != null && damageCount > 1) {
             JyExceptionDamageEntity earliestOne = jyExceptionDamageDao.getEarliestOneDamageRecordByBarCode(barCode);
-            logger.info("{}-上次提报的内容-{}",barCode,JSON.toJSONString(earliestOne));
+            logger.info("{}-上次提报的内容-{}", barCode, JSON.toJSONString(earliestOne));
             //同一个单号，另一个场地也上报  如果上报同类型， 不发送消息给客服，按上次反馈执行
             if (earliestOne != null
                     && !Objects.equals(qcReportJmqDto.getCreateDept(), earliestOne)
@@ -828,7 +829,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         } else {
             logger.info("saveOrUpdate update...");
             // 破损提交状态修改为处理中
-            if (JyExceptionPackageType.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(entity.getSaveType())){
+            if (JyExceptionPackageType.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(entity.getSaveType())) {
                 this.updateTaskExpStatusToProcessing(entity);
             }
             this.clearNotNeedUpdateFiled(entity);
@@ -840,9 +841,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     /**
      * 修改task类型为磨损
+     *
      * @param entity
      */
-    private void updateTaskExpType(JyExceptionDamageEntity entity){
+    private void updateTaskExpType(JyExceptionDamageEntity entity) {
         JyBizTaskExceptionEntity updateExp = new JyBizTaskExceptionEntity();
         updateExp.setBizId(entity.getBizId());
         updateExp.setType(JyBizTaskExceptionTypeEnum.DAMAGE.getCode());
@@ -853,9 +855,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     /**
      * 破损提交状态修改为处理中
+     *
      * @param entity
      */
-    private void updateTaskExpStatusToProcessing(JyExceptionDamageEntity entity){
+    private void updateTaskExpStatusToProcessing(JyExceptionDamageEntity entity) {
         JyBizTaskExceptionEntity updateExp = new JyBizTaskExceptionEntity();
         updateExp.setBizId(entity.getBizId());
         updateExp.setType(JyBizTaskExceptionTypeEnum.DAMAGE.getCode());
@@ -866,6 +869,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_INTERVENTION.getCode());
         jyBizTaskExceptionDao.updateByBizId(updateExp);
     }
+
     private void clearNotNeedUpdateFiled(JyExceptionDamageEntity entity) {
         entity.setSiteCode(null);
         entity.setSiteName(null);
@@ -1056,9 +1060,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
 
-    @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.getDamageImageListByBizIds", mState = {JProEnum.TP})
-    public Map<String, List<JyAttachmentDetailEntity>> getDamageImageListByBizIds(List<JyExceptionDamageEntity> detailList, Boolean isFinish) {
+    private Map<String, List<JyAttachmentDetailEntity>> getDamageImageListByBizIds(List<JyExceptionDamageEntity> detailList, Boolean isCompleted) {
         if (CollectionUtils.isEmpty(detailList)) {
             return new HashMap<>();
         }
@@ -1067,7 +1069,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         JyAttachmentDetailQuery query = new JyAttachmentDetailQuery();
         query.setBizIdList(bizIdList);
         query.setSiteCode(detailList.get(0).getSiteCode());
-        if (isFinish) {
+        if (isCompleted) {
             query.setBizType(JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_AFTER.getCode());
         } else {
             query.setBizType(JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_BEFORE.getCode());
@@ -1083,17 +1085,36 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.getDamageDetailListByBizIds", mState = {JProEnum.TP})
-    public List<JyExceptionDamageEntity> getDamageDetailListByBizIds(List<String> bizIdList) {
-        if (CollectionUtils.isEmpty(bizIdList)) {
-            return new ArrayList<>();
+    public Map<String, JyExceptionDamageDto> getDamageDetailMapByBizIds(List<String> bizIdList, Integer status) {
+        Map<String, JyExceptionDamageDto> damageDtoMap = new HashMap<>();
+        if (CollectionUtils.isEmpty(bizIdList) || status == null) {
+            return damageDtoMap;
         }
         logger.info("getDamageDetailListByBizIds bizIdList :{}", JSON.toJSONString(bizIdList));
+        // 批量查询破损数据
         List<JyExceptionDamageEntity> entityList = jyExceptionDamageDao.getTaskListOfDamage(bizIdList);
         if (CollectionUtils.isEmpty(entityList)) {
-            return new ArrayList<>();
+            return damageDtoMap;
         }
         logger.info("getDamageDetailListByBizIds entityList :{}", JSON.toJSONString(entityList));
-//        return entityList.stream().collect(Collectors.toMap(JyExceptionDamageEntity::getBizId, entity -> entity));
-        return entityList;
+        // 批量查询图片数据
+        Boolean isCompleted = JyExpStatusEnum.COMPLETE.getCode() == status;
+        Map<String, List<JyAttachmentDetailEntity>> attachmentDetailEntityMap = this.getDamageImageListByBizIds(entityList, isCompleted);
+        if (CollectionUtils.isEmpty(attachmentDetailEntityMap)) {
+            return damageDtoMap;
+        }
+        logger.info("getDamageDetailListByBizIds attachmentDetailEntityMap :{}", JSON.toJSONString(attachmentDetailEntityMap));
+        for (JyExceptionDamageEntity entity : entityList) {
+            List<JyAttachmentDetailEntity> attachmentDetailEntityList = attachmentDetailEntityMap.get(entity.getBizId());
+            if (CollectionUtils.isEmpty(attachmentDetailEntityList)) continue;
+            List<String> imageList = attachmentDetailEntityList.stream().map(JyAttachmentDetailEntity::getAttachmentUrl).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(imageList)) continue;
+            JyExceptionDamageDto damageDto = new JyExceptionDamageDto();
+            BeanUtils.copyProperties(entity, damageDto);
+            damageDto.setImageUrlList(imageList);
+            damageDtoMap.put(entity.getBizId(), damageDto);
+        }
+        logger.info("getDamageDetailListByBizIds damageDtoMap :{}", JSON.toJSONString(damageDtoMap));
+        return damageDtoMap;
     }
 }
