@@ -102,6 +102,7 @@ import com.jd.bluedragon.distribution.jy.send.*;
 import com.jd.bluedragon.distribution.jy.service.collectNew.enums.JyCollectionMqBizSourceEnum;
 import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
+import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -357,6 +358,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    private JyDamageExceptionService jyDamageExceptionService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -1681,6 +1685,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             sendScanResponse.setCurScanDestName(baseSite.getSiteName());
 
             asyncProductOperateProgress(taskSend);
+
+            //如果是按运单发货，修改本场地提报的破损任务状态
+            if(Objects.equals(sendType,SendKeyTypeEnum.BY_WAYBILL)){
+                jyDamageExceptionService.dealDamageExpTaskStatus(barCode,request.getCurrentOperate().getSiteCode());
+            }
+
         } catch (EconomicNetException e) {
             log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
             result.toError(e.getMessage());

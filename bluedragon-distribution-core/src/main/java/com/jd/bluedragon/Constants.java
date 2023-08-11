@@ -1992,4 +1992,9 @@ public class Constants {
      * https字符串
      */
     public static final String HTTPS_STR = "https";
+
+    /**
+     * 异常运单任务缓存key
+     */
+    public static final String EXP_WAYBILL_CACHE_KEY_PREFIX ="exp.waybill.cache:";
 }

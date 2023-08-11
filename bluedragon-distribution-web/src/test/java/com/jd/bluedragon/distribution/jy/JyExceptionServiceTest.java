@@ -53,7 +53,7 @@ public class JyExceptionServiceTest {
        //req.setBarCode("SW2111111111");
         req.setSource(0);
 
-        req.setBarCode("JDVA00255154794");
+        req.setBarCode("JD0003421266039");
         //req.setType(1);
 
         JdCResponse<Object> response = jyExceptionService.uploadScan(req);
@@ -317,6 +317,12 @@ public class JyExceptionServiceTest {
         dto.setReportSystem("xiaoge");
 
         jyDamageExceptionService.dealExpDamageInfoByAbnormalReportOutCall(dto);
+    }
+
+    @Test
+    public void dealDamageExpTaskStatusTest(){
+
+        jyDamageExceptionService.dealDamageExpTaskStatus("JD0003421266039",910);
     }
 
 }

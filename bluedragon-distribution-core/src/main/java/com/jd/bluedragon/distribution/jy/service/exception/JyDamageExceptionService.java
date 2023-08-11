@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
+import com.jd.bluedragon.distribution.jy.exception.JyExpWaybillDeliveryDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 
 import java.util.List;
@@ -72,4 +73,10 @@ public interface JyDamageExceptionService {
      * @return
      */
     Map<String, JyExceptionDamageDto> getDamageDetailMapByBizIds(List<String> bizIdList, Integer status);
+
+    /**
+     * 根据运单妥投状态更新异常任务状态
+     * @param waybillCode
+     */
+    void dealDamageExpTaskStatus(String waybillCode,Integer siteCode);
 }

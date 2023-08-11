@@ -137,21 +137,21 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
         JdCResponse<Boolean> response = new JdCResponse<>();
         response.toSucceed("请求成功");
-//        String waybillCode = req.getBarCode();
-//        Waybill waybill = waybillService.getWaybillByWayCode(waybillCode);
-//        if(waybill == null || waybill.getWaybillExt() == null){
-//            response.toFail("运单接口调用失败!");
-//            response.setData(Boolean.FALSE);
-//            return response;
-//        }
-//        WaybillExt waybillExt = waybill.getWaybillExt();
-//        if((StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
-//                || (StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
-//            logger.info("港澳单-{}",waybill);
-//            response.toFail("港澳单不允许上报!");
-//            response.setData(Boolean.FALSE);
-//            return response;
-//        }
+        String waybillCode = req.getBarCode();
+        Waybill waybill = waybillService.getWaybillByWayCode(waybillCode);
+        if(waybill == null || waybill.getWaybillExt() == null){
+            response.toFail("运单接口调用失败!");
+            response.setData(Boolean.FALSE);
+            return response;
+        }
+        WaybillExt waybillExt = waybill.getWaybillExt();
+        if((StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
+                || (StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
+            logger.info("港澳单-{}",waybill);
+            response.toFail("港澳单不允许上报!");
+            response.setData(Boolean.FALSE);
+            return response;
+        }
         return response;
     }
 
@@ -273,11 +273,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             updateDamageEntity.setUpdateTime(new Date());
             updateDamageEntity.setSaveType(JyExceptionPackageType.SaveTypeEnum.SBUMIT_FEEBACK.getCode());
 
-            //boolean sendMQFlag = sendMQNoticCustomerCheck(barCode, qcReportJmqDto,exceptionEntity, damageEntity, updateExp, updateDamageEntity);
-            logger.info("最新的异常任务-{}", JSON.toJSONString(updateExp));
-            logger.info("最新的破损数据-{}", JSON.toJSONString(updateDamageEntity));
-
-
+            boolean sendMQFlag = sendMQNoticCustomerCheck(barCode, qcReportJmqDto,exceptionEntity, damageEntity, updateExp, updateDamageEntity);
+            logger.info("最新的异常任务-{}",JSON.toJSONString(updateExp));
+            logger.info("最新的破损数据-{}",JSON.toJSONString(updateDamageEntity));
             if (jyBizTaskExceptionDao.updateByBizId(updateExp) < 1) {
                 logger.warn("破损任务数据更新失败！");
                 return;
@@ -294,9 +292,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 dmsDamageNoticeKFProducer.send(bizId, JsonHelper.toJson(damageNoticCustomerMQ));
             }
             //称重
-            //this.dealExpDamageWeightVolumeUpload(damageEntity, true);
+            this.dealExpDamageWeightVolumeUpload(damageEntity, true);
             //滞留上报
-            //this.dealExpDamageStrandReport(exceptionEntity.getBarCode());
+            this.dealExpDamageStrandReport(exceptionEntity.getBarCode());
 
         } catch (Exception e) {
             logger.error("根据质控异常提报mq处理破损数据异常!param-{}", JSON.toJSONString(qcReportJmqDto), e);
@@ -435,13 +433,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
         entity.setOperatorCode(damageEntity.getCreateErp());
         entity.setOperateTime(new Date());
-        if (logger.isInfoEnabled()) {
-            logger.info("称重信息WeightVolumeEntity -{}", JsonHelper.toJson(entity));
-        }
+        logger.info("称重信息WeightVolumeEntity -{}", JsonHelper.toJson(entity));
         InvokeResult<Boolean> result = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
-        if (logger.isInfoEnabled()) {
-            logger.info("处理破损运单称重结果-{}", JsonHelper.toJson(result));
-        }
+        logger.info("处理破损运单称重结果-{}", JsonHelper.toJson(result));
     }
 
 
@@ -604,7 +598,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Override
     @Transactional
     public void dealCustomerReturnDamageResult(JyExpCustomerReturnMQ returnMQ) {
-        String bizId = returnMQ.getExptId();
+        String bizId =returnMQ.getExptId().split("_", 2)[1];
         JyBizTaskExceptionEntity expTask = jyBizTaskExceptionDao.findByBizId(bizId);
         if (expTask == null) {
             logger.error("此任务-{}-不存在", bizId);
@@ -750,9 +744,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
         entity.setVolumeRepairAfter(req.getVolumeRepairAfter());
         entity.setWeightRepairAfter(req.getWeightRepairAfter());
-        if (logger.isInfoEnabled()) {
-            logger.info("破损修复后或更换包装后触发称重-{}", JSON.toJSONString(entity));
-        }
+        logger.info("破损修复后或更换包装后触发称重-{}", JSON.toJSONString(entity));
         dealExpDamageWeightVolumeUpload(entity, false);
 
     }
@@ -1116,5 +1108,54 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
         logger.info("getDamageDetailListByBizIds damageDtoMap :{}", JSON.toJSONString(damageDtoMap));
         return damageDtoMap;
+    }
+
+    @Override
+    public void dealDamageExpTaskStatus(String waybillCode,Integer siteCode) {
+
+        try{
+            String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX + waybillCode;
+            String cacheValue = redisClient.get(cacheKey);
+            if(StringUtils.isBlank(cacheValue)){
+                return;
+            }
+            logger.info("破损运单命中-{}",waybillCode);
+            if(siteCode != null){
+                String bizId = getBizId(waybillCode, siteCode);
+                JyBizTaskExceptionEntity expTask = jyBizTaskExceptionDao.findByBizId(bizId);
+                if(expTask == null){
+                    return ;
+                }
+                updateExpStatusByCondition(expTask);
+            }else {
+                List<JyExceptionDamageEntity> recordList = jyExceptionDamageDao.getDamageRecordListByBarCode(waybillCode);
+                if(CollectionUtils.isEmpty(recordList)){
+                    return;
+                }
+                for (JyExceptionDamageEntity damageEntity:recordList) {
+                    JyBizTaskExceptionEntity expTask = jyBizTaskExceptionDao.findByBizId(damageEntity.getBizId());
+                    if(expTask == null){
+                        continue;
+                    }
+                    updateExpStatusByCondition(expTask);
+                }
+            }
+        }catch (Exception e){
+            logger.error("处理破损异常任务状态异常-{}",waybillCode,e);
+        }
+    }
+
+    private void updateExpStatusByCondition(JyBizTaskExceptionEntity expTask){
+
+        if(Objects.equals(JyExpStatusEnum.TO_PICK.getCode(),expTask.getStatus())
+                || Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(),expTask.getStatus())
+                || Objects.equals(JyExpStatusEnum.PROCESSING.getCode(),expTask.getStatus())){
+            JyBizTaskExceptionEntity updateTask = new JyBizTaskExceptionEntity();
+            updateTask.setBizId(expTask.getBizId());
+            updateTask.setStatus(JyExpStatusEnum.COMPLETE.getCode());
+            updateTask.setUpdateTime(new Date());
+            logger.info("运单操作妥投或发货-更新任务状态-{}",JSON.toJSONString(updateTask));
+            jyBizTaskExceptionDao.updateByBizId(updateTask);
+        }
     }
 }

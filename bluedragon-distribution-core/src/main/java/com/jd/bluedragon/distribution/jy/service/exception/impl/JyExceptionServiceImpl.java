@@ -297,6 +297,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             scheduleTaskAddProducer.sendOnFailPersistent(bizId, body);
             logger.info("异常岗-写入任务发送mq完成:body={}", body);
 
+            //如果是运单号，将运单号放入缓存 妥投时校验运单是否妥投
+            if(WaybillUtil.isWaybillCode(req.getBarCode())){
+                String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX+req.getBarCode();
+                redisClient.set(cacheKey, req.getBarCode(), 7, TimeUnit.DAYS, false);
+            }
+
         }catch (Exception e) {
             logger.error("写入异常提报数据出错了,request=" + JSON.toJSONString(req), e);
             return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");

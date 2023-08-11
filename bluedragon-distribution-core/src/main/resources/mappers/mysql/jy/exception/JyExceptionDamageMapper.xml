@@ -261,4 +261,12 @@
     order by create_time limit 1
   </select>
 
+  <select id="getDamageRecordListByBarCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List" />
+    from jy_exception_damage
+    where yn =1
+    and bar_code=#{barCode,jdbcType=VARCHAR}
+
+  </select>
+
 </mapper>
