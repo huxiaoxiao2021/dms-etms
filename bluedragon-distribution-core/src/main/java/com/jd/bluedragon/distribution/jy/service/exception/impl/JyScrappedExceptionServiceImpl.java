@@ -215,10 +215,6 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             response.toFail("bizId不能为空!");
             return false;
         }
-        if(StringUtils.isBlank(req.getBarCode())){
-            response.toFail("barCode不能为空!");
-            return false;
-        }
         if(req.getSaveType() == null){
             response.toFail("saveType不能为空!");
             return false;
@@ -261,7 +257,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
             JyExceptionScrappedPO po = new JyExceptionScrappedPO();
             po.setBizId(req.getBizId());
-            po.setWaybillCode(req.getBarCode());
+            po.setWaybillCode(bizEntity.getBarCode());
             po.setSiteCode(req.getSiteId());
             po.setSiteName(baseStaffByErp.getSiteName());
             po.setExceptionType(req.getScrappedTypCode());
