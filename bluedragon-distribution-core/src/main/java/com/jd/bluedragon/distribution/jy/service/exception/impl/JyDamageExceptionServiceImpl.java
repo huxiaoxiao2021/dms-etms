@@ -139,12 +139,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         response.toSucceed("请求成功");
         String waybillCode = req.getBarCode();
         Waybill waybill = waybillService.getWaybillByWayCode(waybillCode);
-        if(waybill == null || waybill.getWaybillExt() == null){
-            response.toFail("运单接口调用失败!");
-            response.setData(Boolean.FALSE);
-            return response;
-        }
-        if(waybill.getWaybillExt() != null){
+        if(waybill != null &&  waybill.getWaybillExt() != null){
             WaybillExt waybillExt = waybill.getWaybillExt();
             if((StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
                     || (StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
@@ -154,7 +149,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 return response;
             }
         }
-
         return response;
     }
 
