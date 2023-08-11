@@ -313,10 +313,10 @@ public class BoxServiceImpl implements BoxService {
 
 	private String generateRecycleMaterialPrefixNew(String systemType, Integer typeCode) {
 		StringBuilder preFix = new StringBuilder();
-		preFix.append(BoxTypeEnum.RECYCLE_BASKET.getCode())
+		return preFix.append(BoxTypeEnum.RECYCLE_BASKET.getCode())
 				.append("10").append(systemType)
-				.append(DateHelper.formatDate(new Date(),"yyMMdd"));
-		return preFix.append(typeCode).toString();
+				.append(DateHelper.formatDate(new Date(),"yyMMdd"))
+				.append(typeCode).toString();
 	}
 
     /**
