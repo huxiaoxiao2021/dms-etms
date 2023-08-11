@@ -128,23 +128,22 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         if (dataByChoice == null
                 || dataByChoice.getData() == null
                 || dataByChoice.getData().getWaybill() == null
-                || dataByChoice.getData().getWaybill().getWaybillExt() == null
                 || StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
             logger.warn("查询运单waybillSign失败!-{}", waybillCode);
             response.toFail("查询运单信息失败!");
             response.setData(Boolean.FALSE);
             return response;
         }
-
-        WaybillExt waybillExt = dataByChoice.getData().getWaybill().getWaybillExt();
-        if((StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) ||Objects.equals("MO",waybillExt.getStartFlowDirection())))
-                || (StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) ||Objects.equals("MO",waybillExt.getEndFlowDirection())))){
-            logger.info("港澳单-{}",waybillCode);
-            response.toFail("港澳单不允许上报!");
-            response.setData(Boolean.FALSE);
-            return response;
+        if( dataByChoice.getData().getWaybill().getWaybillExt() != null){
+            WaybillExt waybillExt = dataByChoice.getData().getWaybill().getWaybillExt();
+            if((StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) ||Objects.equals("MO",waybillExt.getStartFlowDirection())))
+                    || (StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) ||Objects.equals("MO",waybillExt.getEndFlowDirection())))){
+                logger.info("港澳单-{}",waybillCode);
+                response.toFail("港澳单不允许上报!");
+                response.setData(Boolean.FALSE);
+                return response;
+            }
         }
-
         Integer goodNumber = dataByChoice.getData().getWaybill().getGoodNumber();
         //一单多件校验
         if(!Objects.equals(goodNumber,1)){

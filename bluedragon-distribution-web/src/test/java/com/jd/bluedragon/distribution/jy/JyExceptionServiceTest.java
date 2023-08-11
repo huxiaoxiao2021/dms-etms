@@ -285,10 +285,9 @@ public class JyExceptionServiceTest {
 
         ExpTypeCheckReq req = new ExpTypeCheckReq();
 
-        req.setBarCode("JDVA00255154794");
+        req.setBarCode("JDX000253957820");
         req.setType(2);
-        req.setDamageType(1);
-        req.setRepairType(2);
+
         JdCResponse<Boolean> response = jyExceptionService.exceptionTaskCheckByExceptionType(req);
         System.out.println(JSON.toJSONString(response));
     }
