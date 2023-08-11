@@ -15,41 +15,41 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
     private Long id;
 
     private String bizId;
-
+    //订舱号
     private String bookingCode;
-
+    //始发分拣场地id
     private Integer startSiteId;
-
+    //始发分拣场地分拣编码
     private String startSiteCode;
-
+    //始发分拣场地名称
     private String startSiteName;
-
+    //航班号
     private String flightNumber;
-
+    //起飞时间
     private Date takeOffTime;
-
+    //降落时间
     private Date touchDownTime;
-
+    //航空公司编码
     private String airCompanyCode;
-
+    //航空公司名称
     private String airCompanyName;
-
+    //始发机场编码
     private String beginNodeCode;
-
+    //始发机场名称
     private String beginNodeName;
-
+    //目的机场编码
     private String endNodeCode;
-
+    //目的机场名称
     private String endNodeName;
-
+    //承运商编码
     private String carrierCode;
-
+    //承运商名称
     private String carrierName;
-
+    //订舱货量（单位：kg）
     private Double bookingWeight;
-
+    //货物类型
     private Integer cargoType;
-
+    //航空类型(1:散航；2-货机)
     private Integer airType;
 
     private String createUserErp;
@@ -67,16 +67,16 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
     private Integer yn;
 
     private Date ts;
-
+    //目的分拣场地id
     private Integer nextSiteId;
 
     private String nextSiteCode;
 
     private String nextSiteName;
-
+    //对标发货任务状态（0-待发货，1-发货中，2-待封车，3-已封车，4-已作废）
     private Integer taskStatus;
     /**
-     * 取消标识
+     * 取消标识（下发订舱量为0）
      */
     private Integer intercept;
     private Date interceptTime;

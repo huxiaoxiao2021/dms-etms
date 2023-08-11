@@ -1,6 +1,11 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.TaskStatusStatistics;
+import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition;
+
+import java.util.List;
 
 /**
  * @Author zhengchengfa
@@ -21,4 +26,8 @@ public interface JyBizTaskSendAviationPlanService {
      * @return
      */
     Boolean aviationPlanIntercept(String bizId);
+
+    List<AviationNextSiteStatisticsDto> queryNextSitesByStartSite(JyBizTaskSendAviationPlanQueryCondition param);
+
+    List<TaskStatusStatistics> statusStatistics(JyBizTaskSendAviationPlanQueryCondition condition);
 }

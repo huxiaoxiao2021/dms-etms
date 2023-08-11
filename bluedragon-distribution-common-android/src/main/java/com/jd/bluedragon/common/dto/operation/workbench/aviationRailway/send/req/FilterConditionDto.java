@@ -14,23 +14,23 @@ public class FilterConditionDto implements Serializable {
     /**
      * 订舱类型
      */
-    private String BookingType;
+    private Integer bookingType;
 
-    private Integer airportCode;
+    private String airportCode;
 
-    public String getBookingType() {
-        return BookingType;
+    public Integer getBookingType() {
+        return bookingType;
     }
 
-    public void setBookingType(String bookingType) {
-        BookingType = bookingType;
+    public void setBookingType(Integer bookingType) {
+        this.bookingType = bookingType;
     }
 
-    public Integer getAirportCode() {
+    public String getAirportCode() {
         return airportCode;
     }
 
-    public void setAirportCode(Integer airportCode) {
+    public void setAirportCode(String airportCode) {
         this.airportCode = airportCode;
     }
 }

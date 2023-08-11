@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
@@ -75,12 +76,15 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.fetchAviationToSendAndSendingList:航空发货分页查询服务：";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.fetchAviationToSendAndSendingList:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
-            baseParamValidateService.checkPdaPage(request.getPageNo(), request.getPageSize());
+            if(!JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(request.getStatusCode())
+                && !JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode().equals(request.getStatusCode())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "查询状态不合法", null);
+            }
 
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
@@ -121,7 +125,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
     }
 
     @Override
-    public JdCResponse<AviationToSealAndSealedListRes> fetchAviationToSealAndSealedList(AviationSendTaskListReq request) {
+    public JdCResponse<AviationToSealAndSealedListRes> fetchAviationToSealAndSealedList(AviationSendTaskSealListReq request) {
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }

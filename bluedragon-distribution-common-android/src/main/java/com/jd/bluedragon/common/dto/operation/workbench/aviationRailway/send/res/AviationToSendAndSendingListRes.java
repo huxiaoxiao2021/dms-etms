@@ -16,7 +16,7 @@ public class AviationToSendAndSendingListRes implements Serializable {
      * 任务状态
      */
     private Integer taskStatus;
-    private Integer taskStatusName;
+    private String taskStatusName;
 
     /**
      * 车辆状态数量统计
@@ -36,11 +36,11 @@ public class AviationToSendAndSendingListRes implements Serializable {
         this.taskStatus = taskStatus;
     }
 
-    public Integer getTaskStatusName() {
+    public String getTaskStatusName() {
         return taskStatusName;
     }
 
-    public void setTaskStatusName(Integer taskStatusName) {
+    public void setTaskStatusName(String taskStatusName) {
         this.taskStatusName = taskStatusName;
     }
 

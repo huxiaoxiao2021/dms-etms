@@ -1,11 +1,15 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.TaskStatusStatistics;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendAviationPlanDao;
+import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -57,6 +61,18 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
         }
         return false;
     }
+
+    @Override
+    public List<AviationNextSiteStatisticsDto> queryNextSitesByStartSite(JyBizTaskSendAviationPlanQueryCondition param) {
+        return null;
+    }
+
+    @Override
+    public List<TaskStatusStatistics> statusStatistics(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return null;
+    }
+
+
 
 
 }

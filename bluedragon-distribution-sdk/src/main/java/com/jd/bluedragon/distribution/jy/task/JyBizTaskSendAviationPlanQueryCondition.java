@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.task;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author zhengchengfa
@@ -11,5 +12,14 @@ public class JyBizTaskSendAviationPlanQueryCondition extends JyBizTaskSendAviati
 
     private static final long serialVersionUID = 4089383783438643445L;
 
+    private List<Integer> startSiteIdList;
 
+
+    public List<Integer> getStartSiteIdList() {
+        return startSiteIdList;
+    }
+
+    public void setStartSiteIdList(List<Integer> startSiteIdList) {
+        this.startSiteIdList = startSiteIdList;
+    }
 }
