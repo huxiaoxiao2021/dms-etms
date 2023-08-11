@@ -677,8 +677,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
     
     private Map<String, JyExceptionDamageDto> getDamageDetailMapByBizTaskList(List<JyBizTaskExceptionEntity> taskList, Integer status) {
-        List<String> bizIdList = taskList.stream().filter(t-> Objects.equals(JyBizTaskExceptionTypeEnum.DAMAGE.getCode(),t.getType()))
-                        .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
+        List<String> bizIdList = taskList.stream()
+                .filter(t-> (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), t.getStatus()) 
+                        || Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), t.getStatus())))
+                .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
         logger.info("setDataForDamageList bizIdList:{}, status:{}", JSON.toJSONString(bizIdList), status);
         return jyDamageExceptionService.getDamageDetailMapByBizIds(bizIdList, status);
     }
