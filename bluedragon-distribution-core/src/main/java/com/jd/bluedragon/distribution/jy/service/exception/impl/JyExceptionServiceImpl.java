@@ -639,7 +639,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     }
                 }
                 // 读取破损数据
-                if(Objects.equals(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode(),dto.getType())){
+                if(Objects.equals(JyBizTaskExceptionTypeEnum.DAMAGE.getCode(),dto.getType())){
                     // 如果待处理只设置状态
                     if (Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(), entity.getStatus())){
                         dto.setSaved(true);
