@@ -26,7 +26,7 @@ public class RecycleBasketEntity implements Serializable {
 
     public String recycleBasketCode;
     
-    public String typeCode;
+    public Integer typeCode;
 
     public Integer getCreateSiteCode() {
         return createSiteCode;
@@ -92,11 +92,11 @@ public class RecycleBasketEntity implements Serializable {
         this.recycleBasketCode = recycleBasketCode;
     }
 
-    public String getTypeCode() {
+    public Integer getTypeCode() {
         return typeCode;
     }
 
-    public void setTypeCode(String typeCode) {
+    public void setTypeCode(Integer typeCode) {
         this.typeCode = typeCode;
     }
 }

@@ -27,7 +27,7 @@ public interface BoxService {
     
     Box findBoxByBoxCode(Box box);
 
-    List<String> generateRecycleBasketCode(int quantity, String boxTypeCode);
+    List<String> generateRecycleBasketCode(int quantity, Integer typeCode);
 
     Integer updateVolumeByCode(Box box);
     /**  

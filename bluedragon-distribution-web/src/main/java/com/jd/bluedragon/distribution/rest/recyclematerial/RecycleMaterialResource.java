@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
+import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.bluedragon.distribution.recycle.material.domain.RecycleBasketAbolishRequest;
 import com.jd.bluedragon.distribution.recycle.material.domain.RecycleBasketEntity;
 import com.jd.bluedragon.distribution.recycle.material.domain.RecycleBasketPrintInfo;
@@ -31,7 +32,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.Objects;
 
-import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.getFromCode;
+import static com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum.getFromCode;
 
 /**
  * 循环物资实操装态更新
@@ -92,7 +93,7 @@ public class RecycleMaterialResource {
                 response = recycleMaterialService.getPrintInfo(recycleBasketEntity);
             }
             if (response != null && response.getData() != null) {
-                BoxTypeEnum boxTypeEnum = getFromCode(recycleBasketEntity.getTypeCode());
+                RecycleBasketTypeEnum boxTypeEnum = getFromCode(recycleBasketEntity.getTypeCode());
                 if (boxTypeEnum != null) {
                     response.getData().setTypeName(boxTypeEnum.getName());
                 }else {
@@ -141,19 +142,12 @@ public class RecycleMaterialResource {
                 return response;
             }
             if(!BusinessUtil.isBoxcode(recycleBasketEntity.getRecycleBasketCode())
-                    || (!recycleBasketEntity.getRecycleBasketCode().startsWith(BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode())
-                    && !recycleBasketEntity.getRecycleBasketCode().startsWith(BoxTypeEnum.BIG_RECYCLE_BASKET.getCode()))){
+                    || !recycleBasketEntity.getRecycleBasketCode().startsWith(BoxTypeEnum.RECYCLE_BASKET.getCode())){
                  response.toFail("周转筐编码错误，请检查！");
                 return response;
             }
         }
         
-        if (!StringUtils.isEmpty(recycleBasketEntity.getTypeCode()) 
-                && !BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getTypeCode()) 
-                && !BoxTypeEnum.BIG_RECYCLE_BASKET.getCode().equals(recycleBasketEntity.getTypeCode())) {
-            response.toFail("周转筐型号错误，请检查！");
-            return response;
-        }
         if(recycleBasketEntity.getQuantity() > 50){
             recycleBasketEntity.setQuantity(50);
         }

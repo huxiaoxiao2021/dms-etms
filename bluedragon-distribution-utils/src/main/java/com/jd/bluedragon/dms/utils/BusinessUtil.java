@@ -2598,10 +2598,7 @@ public class BusinessUtil {
     }
 
     public static void main(String[] args) {
-        String sw = "67890";
-        System.out.println(BusinessUtil.isSiteCode(sw));
-        System.out.println(BusinessUtil.isSanWuCode(sw));
-        System.out.println(BusinessUtil.getBarCodeType("BC1001220222260019400709"));
+        System.out.println(getRecycleBasketType("BC1001220222260019400709"));
     }
 
     public static boolean isTaskSimpleCode(String simpleCode) {
@@ -2764,4 +2761,17 @@ public class BusinessUtil {
         }
         return businessKey.startsWith(DmsConstants.CODE_PREFIX_WORK_STATION_GRID);
     }    
+    
+    public static RecycleBasketTypeEnum getRecycleBasketType(String code) {
+        if (!StringUtils.isEmpty(code) && isMatchBoxCode(code)) {
+            if (SMALL_RECYCLE_BASKET_TYPE.contains((int)code.charAt(12) - '0')) {
+                return RecycleBasketTypeEnum.SMALL;
+            }
+            if (RecycleBasketTypeEnum.BIG.getCode().equals((int) code.charAt(12) - '0')){
+                return RecycleBasketTypeEnum.BIG;
+            }
+        }
+        return null;
+    }
+    
 }

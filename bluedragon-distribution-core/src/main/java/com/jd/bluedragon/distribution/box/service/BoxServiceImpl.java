@@ -26,14 +26,12 @@ import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.ver.domain.Site;
-import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
@@ -58,7 +56,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -230,7 +227,7 @@ public class BoxServiceImpl implements BoxService {
      */
 	private List<Box> batchAddNewFromDMS(Box param, String systemType) {
         List<Box> boxes = Lists.newArrayList();
-		List<String> codes = generateCode(param, systemType);
+		List<String> codes = generateCode(param, systemType, null);
 		for(String code :codes){
 			Box box = new Box();
 			BeanHelper.copyProperties(box, param);
@@ -242,18 +239,26 @@ public class BoxServiceImpl implements BoxService {
 		return boxes;
 	}
 
-	private List<String> generateCode(Box param, String systemType){
+	private List<String> generateCode(Box param, String systemType, Integer typeCode){
 		String boxCodePrefix = null;
 		long[] seqNos = new long[0];
 		boolean dbOpen = isOpenDB();
 		try{
-			boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,dbOpen);
+			if (Objects.equals(BoxTypeEnum.RECYCLE_BASKET.getCode(),param.getType())) {
+				boxCodePrefix= this.generateRecycleMaterialPrefixNew(systemType, typeCode);
+			}else {
+				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,dbOpen);
+			}
 			seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),dbOpen);
 		}catch (Exception e){
 			log.error("箱号生成序列号异常",e);
 			if(!dbOpen){
 				//redis 异常
-				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,true);
+				if (Objects.equals(BoxTypeEnum.RECYCLE_BASKET.getCode(),param.getType())) {
+					boxCodePrefix= this.generateRecycleMaterialPrefixNew(systemType, typeCode);
+				}else {
+					boxCodePrefix = this.generateBoxCodePrefixNew(param, systemType, true);
+				}
 				seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),true);
 			}
 		}
@@ -271,11 +276,11 @@ public class BoxServiceImpl implements BoxService {
 	}
 
 	@Override
-	public List<String> generateRecycleBasketCode(int quantity, String boxTypeCode){
+	public List<String> generateRecycleBasketCode(int quantity, Integer typeCode){
 		Box param = new Box();
-		param.setType(boxTypeCode);
+		param.setType(BoxTypeEnum.RECYCLE_BASKET.getCode());
 		param.setQuantity(quantity);
-		return generateCode(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode());
+		return generateCode(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode(), typeCode);
 	}
 
 
@@ -304,6 +309,14 @@ public class BoxServiceImpl implements BoxService {
 		return preFix.append("10").append(systemType)
 				.append(DateHelper.formatDate(new Date(),"yyMMdd"))
 				.append(isDB?"2":"1").toString();
+	}
+
+	private String generateRecycleMaterialPrefixNew(String systemType, Integer typeCode) {
+		StringBuilder preFix = new StringBuilder();
+		preFix.append(BoxTypeEnum.RECYCLE_BASKET.getCode())
+				.append("10").append(systemType)
+				.append(DateHelper.formatDate(new Date(),"yyMMdd"));
+		return preFix.append(typeCode).toString();
 	}
 
     /**

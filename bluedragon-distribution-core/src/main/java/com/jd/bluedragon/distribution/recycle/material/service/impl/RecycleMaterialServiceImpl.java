@@ -14,7 +14,7 @@ import com.jd.bluedragon.distribution.api.response.material.recyclingbox.Recycli
 import com.jd.bluedragon.distribution.api.response.material.warmbox.WarmBoxInOutResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.basic.ExcelUtils;
-import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
+import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jss.JssService;
@@ -107,12 +107,12 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
     @Override
     @JProfiler(jKey = "dms.web.RecycleMaterialServiceImpl.getPrintInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<RecycleBasketPrintInfo> getPrintInfo(RecycleBasketEntity recycleBasketEntity) {
-        if (StringUtils.isEmpty(recycleBasketEntity.getTypeCode())) {
-            recycleBasketEntity.setTypeCode(BoxTypeEnum.SMALL_RECYCLE_BASKET.getCode());
+        if (recycleBasketEntity.getTypeCode() == null) {
+            recycleBasketEntity.setTypeCode(RecycleBasketTypeEnum.SMALL.getCode());
         }
         // 首打印
         if(PrintTypeEnum.PRINT.getCode() == recycleBasketEntity.getPrintType()){
-            return generateRecycleBasketPrintInfo(recycleBasketEntity);
+            return generateRecycleBasketPrintInfo(recycleBasketEntity, recycleBasketEntity.getTypeCode());
         }
         // 补打
         return getReprintInfo(recycleBasketEntity);
@@ -534,9 +534,9 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         return materialSend;
     }
     
-    private JdResponse<RecycleBasketPrintInfo> generateRecycleBasketPrintInfo(RecycleBasketEntity recycleBasketEntity){
+    private JdResponse<RecycleBasketPrintInfo> generateRecycleBasketPrintInfo(RecycleBasketEntity recycleBasketEntity, Integer typeCode){
         JdResponse<RecycleBasketPrintInfo> response = new JdResponse<>();
-        List<String> codes = boxService.generateRecycleBasketCode(recycleBasketEntity.getQuantity(), recycleBasketEntity.getTypeCode());
+        List<String> codes = boxService.generateRecycleBasketCode(recycleBasketEntity.getQuantity(), typeCode);
         if(CollectionUtils.isEmpty(codes)){
             logger.error("周转筐打印生成编码失败");
             response.toError("周转筐打印生成编码失败，请稍后重试，或联系分拣小秘!");
