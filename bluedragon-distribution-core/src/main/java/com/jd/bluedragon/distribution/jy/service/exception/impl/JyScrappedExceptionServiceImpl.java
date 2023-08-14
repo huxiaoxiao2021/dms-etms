@@ -691,11 +691,11 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         }
         try {
             JyExceptionScrappedPO PO = jyExceptionScrappedDao.selectOneByBizId(req.getBizId());
-            if (PO == null) {
-                return JdCResponse.fail("当前报废信息不存在!");
+            if (PO != null) {
+                ExpScrappedDetailDto dto = coverToScrappedDetailDto(PO);
+                return JdCResponse.ok(dto);
             }
-            ExpScrappedDetailDto dto = coverToScrappedDetailDto(PO);
-            return JdCResponse.ok(dto);
+            return JdCResponse.ok();
         } catch (Exception e) {
             logger.error("获取报废详情接口异常-{}", e.getMessage(), e);
             return JdCResponse.fail("获取报废详情异常!");
