@@ -269,16 +269,16 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
             if (JyExpSaveTypeEnum.SAVE.getCode().equals(req.getSaveType())) {
                 po.setSubmitTime(new Date());
             }
-            //暂存的话，直接返回
-            if(JyExpSaveTypeEnum.TEMP_SAVE.getCode().equals(req.getSaveType())){
-                logger.info("报废业务数据暂存数据--{}",JSON.toJSONString(po));
-                jyExceptionScrappedDao.insertSelective(po);
-                return JdCResponse.ok();
-            }
+
             logger.info("报废业务数据提交数据--{}",JSON.toJSONString(po));
             if(!(jyExceptionScrappedDao.updateByBizId(po)>0)){
                 jyExceptionScrappedDao.insertSelective(po);
             }
+            //暂存的话，直接返回
+            if(JyExpSaveTypeEnum.TEMP_SAVE.getCode().equals(req.getSaveType())){
+                return JdCResponse.ok();
+            }
+
             //修改状态为处理中、审批中
             JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
             update.setBizId(req.getBizId());
