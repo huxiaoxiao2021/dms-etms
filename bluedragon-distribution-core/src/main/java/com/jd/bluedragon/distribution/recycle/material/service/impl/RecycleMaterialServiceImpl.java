@@ -110,9 +110,14 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         if (recycleBasketEntity.getTypeCode() == null) {
             recycleBasketEntity.setTypeCode(RecycleBasketTypeEnum.SMALL.getCode());
         }
+
+        RecycleBasketTypeEnum typeEnum = RecycleBasketTypeEnum.BIG;
+        if (recycleBasketEntity.getTypeCode().equals(RecycleBasketTypeEnum.BIG.getCode())) {
+            typeEnum = RecycleBasketTypeEnum.BIG;
+        }
         // 首打印
         if(PrintTypeEnum.PRINT.getCode() == recycleBasketEntity.getPrintType()){
-            return generateRecycleBasketPrintInfo(recycleBasketEntity, recycleBasketEntity.getTypeCode());
+            return generateRecycleBasketPrintInfo(recycleBasketEntity, typeEnum);
         }
         // 补打
         return getReprintInfo(recycleBasketEntity);
@@ -534,9 +539,9 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         return materialSend;
     }
     
-    private JdResponse<RecycleBasketPrintInfo> generateRecycleBasketPrintInfo(RecycleBasketEntity recycleBasketEntity, Integer typeCode){
+    private JdResponse<RecycleBasketPrintInfo> generateRecycleBasketPrintInfo(RecycleBasketEntity recycleBasketEntity, RecycleBasketTypeEnum typeEnum){
         JdResponse<RecycleBasketPrintInfo> response = new JdResponse<>();
-        List<String> codes = boxService.generateRecycleBasketCode(recycleBasketEntity.getQuantity(), typeCode);
+        List<String> codes = boxService.generateRecycleBasketCode(recycleBasketEntity.getQuantity(), typeEnum);
         if(CollectionUtils.isEmpty(codes)){
             logger.error("周转筐打印生成编码失败");
             response.toError("周转筐打印生成编码失败，请稍后重试，或联系分拣小秘!");

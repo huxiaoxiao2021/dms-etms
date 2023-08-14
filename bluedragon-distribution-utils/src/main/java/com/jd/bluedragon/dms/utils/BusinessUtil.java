@@ -2598,7 +2598,7 @@ public class BusinessUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(getRecycleBasketType("BC1001220222260019400709"));
+        System.out.println(getRecycleBasketType("BC1001220222460019400709"));
     }
 
     public static boolean isTaskSimpleCode(String simpleCode) {
@@ -2760,14 +2760,22 @@ public class BusinessUtil {
             return false;
         }
         return businessKey.startsWith(DmsConstants.CODE_PREFIX_WORK_STATION_GRID);
-    }    
-    
+    }
+
+    /**
+     * 判断周转筐型号
+     * 通过第13位判断周转筐型号
+     * 1,2,3,对应小型 4对应大型
+     * @param code
+     * @return
+     */
     public static RecycleBasketTypeEnum getRecycleBasketType(String code) {
         if (!StringUtils.isEmpty(code) && isMatchBoxCode(code)) {
-            if (SMALL_RECYCLE_BASKET_TYPE.contains((int)code.charAt(12) - '0')) {
+            Integer type = Integer.valueOf(code.substring(12,13));
+            if (SMALL_RECYCLE_BASKET_TYPE.contains(type)) {
                 return RecycleBasketTypeEnum.SMALL;
             }
-            if (RecycleBasketTypeEnum.BIG.getCode().equals((int) code.charAt(12) - '0')){
+            if (RecycleBasketTypeEnum.BIG.getCode().equals(type)){
                 return RecycleBasketTypeEnum.BIG;
             }
         }

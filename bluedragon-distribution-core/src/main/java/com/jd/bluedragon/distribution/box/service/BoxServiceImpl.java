@@ -32,6 +32,7 @@ import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.ver.domain.Site;
+import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
@@ -239,13 +240,13 @@ public class BoxServiceImpl implements BoxService {
 		return boxes;
 	}
 
-	private List<String> generateCode(Box param, String systemType, Integer typeCode){
+	private List<String> generateCode(Box param, String systemType, RecycleBasketTypeEnum typeEnum){
 		String boxCodePrefix = null;
 		long[] seqNos = new long[0];
 		boolean dbOpen = isOpenDB();
 		try{
 			if (Objects.equals(BoxTypeEnum.RECYCLE_BASKET.getCode(),param.getType())) {
-				boxCodePrefix= this.generateRecycleMaterialPrefixNew(systemType, typeCode);
+				boxCodePrefix= this.generateRecycleMaterialPrefixNew(systemType, typeEnum);
 			}else {
 				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,dbOpen);
 			}
@@ -255,7 +256,7 @@ public class BoxServiceImpl implements BoxService {
 			if(!dbOpen){
 				//redis 异常
 				if (Objects.equals(BoxTypeEnum.RECYCLE_BASKET.getCode(),param.getType())) {
-					boxCodePrefix= this.generateRecycleMaterialPrefixNew(systemType, typeCode);
+					boxCodePrefix= this.generateRecycleMaterialPrefixNew(systemType, typeEnum);
 				}else {
 					boxCodePrefix = this.generateBoxCodePrefixNew(param, systemType, true);
 				}
@@ -276,11 +277,11 @@ public class BoxServiceImpl implements BoxService {
 	}
 
 	@Override
-	public List<String> generateRecycleBasketCode(int quantity, Integer typeCode){
+	public List<String> generateRecycleBasketCode(int quantity, RecycleBasketTypeEnum typeEnum){
 		Box param = new Box();
 		param.setType(BoxTypeEnum.RECYCLE_BASKET.getCode());
 		param.setQuantity(quantity);
-		return generateCode(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode(), typeCode);
+		return generateCode(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode(), typeEnum);
 	}
 
 
@@ -311,12 +312,12 @@ public class BoxServiceImpl implements BoxService {
 				.append(isDB?"2":"1").toString();
 	}
 
-	private String generateRecycleMaterialPrefixNew(String systemType, Integer typeCode) {
+	private String generateRecycleMaterialPrefixNew(String systemType, RecycleBasketTypeEnum typeEnum) {
 		StringBuilder preFix = new StringBuilder();
 		return preFix.append(BoxTypeEnum.RECYCLE_BASKET.getCode())
 				.append("10").append(systemType)
 				.append(DateHelper.formatDate(new Date(),"yyMMdd"))
-				.append(typeCode).toString();
+				.append(typeEnum.getCode()).toString();
 	}
 
     /**
