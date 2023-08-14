@@ -43,12 +43,12 @@ public class InternationalExamineFilter implements Filter {
             if(cancelWaybill == null){
                 return;
             }
-            if(Objects.equals(cancelWaybill.getInterceptType(), CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE)){
+            if(Objects.equals(cancelWaybill.getFeatureType(), CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE)){
                 // 港澳单报关审核中拦截
                 throw new SortingCheckException(Integer.valueOf(HintCodeConstants.EXCEPTION_GA_EXAMINE_INTERCEPT_TYPE),
                         HintService.getHint(HintCodeConstants.EXCEPTION_GA_EXAMINE_INTERCEPT_TYPE));
             }
-            if(Objects.equals(cancelWaybill.getInterceptType(), CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE_FAIL)){
+            if(Objects.equals(cancelWaybill.getFeatureType(), CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE_FAIL)){
                 // 港澳单报关审核失败拦截
                 throw new SortingCheckException(Integer.valueOf(HintCodeConstants.EXCEPTION_GA_EXAMINE_FAIL_INTERCEPT_TYPE),
                         HintService.getHint(HintCodeConstants.EXCEPTION_GA_EXAMINE_FAIL_INTERCEPT_TYPE));

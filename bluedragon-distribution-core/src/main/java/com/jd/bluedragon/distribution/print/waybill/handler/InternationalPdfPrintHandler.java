@@ -85,10 +85,12 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
                 ? CloudPrintConstants.TEMPLATE_SIZE_1005 : CloudPrintConstants.TEMPLATE_SIZE_1010);
         // 需打印数据
         ReprintDataDTO reprintDataDTO = new ReprintDataDTO();
-        reprintDataDTO.setBillCodeType(WaybillUtil.isWaybillCode(request.getBarCode()) 
+        // 打印单号
+        String printBarCode = StringUtils.isEmpty(request.getPackageBarCode()) ? request.getBarCode() : request.getPackageBarCode();
+        reprintDataDTO.setBillCodeType(WaybillUtil.isWaybillCode(printBarCode) 
                 ? CloudPrintConstants.BILL_CODE_TYPE_WAYBILL : CloudPrintConstants.BILL_CODE_TYPE_PACK);
-        reprintDataDTO.setBillCodeValue(request.getBarCode());
-        reprintDataDTO.setOrderNumber(request.getBarCode());
+        reprintDataDTO.setBillCodeValue(printBarCode);
+        reprintDataDTO.setOrderNumber(printBarCode);
         renderQuery.setPrintData(Lists.newArrayList(reprintDataDTO));
         // 输出方式
         OutputConfigDTO outputConfigDTO = new OutputConfigDTO();

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
@@ -66,10 +67,15 @@ public class SimpleComplexSwitchExecutor {
                 if (Modifier.isFinal(field.getModifiers())) {
                     continue;
                 }
-                clz.getMethod("set" + captureName(field.getName()), String.class)
-                        .invoke(result, Objects.equals(switchType, SimpleComplexSwitchContext.SIMPLE_TYPE)
-                                ? complexToSimple((String) field.get(result))
-                                : simpleToComplex((String) field.get(result)));
+                try {
+                    clz.getMethod("set" + captureName(field.getName()), String.class)
+                            .invoke(result, Objects.equals(switchType, SimpleComplexSwitchContext.SIMPLE_TYPE)
+                                    ? complexToSimple((String) field.get(result))
+                                    : simpleToComplex((String) field.get(result)));
+                }catch (NoSuchMethodException e){
+                    logger.error("当前字段:{}没有set方法!", field.getName());
+                }
+                
             }
             else if(fieldValue instanceof List){
                 // list
