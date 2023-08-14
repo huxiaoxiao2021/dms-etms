@@ -21,8 +21,10 @@ public class AviationToSealAndSealedListRes implements Serializable {
      * 车辆状态数量统计
      */
     private List<TaskStatusStatistics> taskStatusStatisticsList;
-
-    private List<AviationSendTaskDto> aviationSendTaskDtoList;
+    /**
+     * 封车列表数据（待封车、已封车）
+     */
+    private List<AviationSealListDto> toSealDtoList;
 
     public Integer getTaskStatus() {
         return taskStatus;
@@ -48,11 +50,11 @@ public class AviationToSealAndSealedListRes implements Serializable {
         this.taskStatusStatisticsList = taskStatusStatisticsList;
     }
 
-    public List<AviationSendTaskDto> getAviationSendTaskDtoList() {
-        return aviationSendTaskDtoList;
+    public List<AviationSealListDto> getToSealDtoList() {
+        return toSealDtoList;
     }
 
-    public void setAviationSendTaskDtoList(List<AviationSendTaskDto> aviationSendTaskDtoList) {
-        this.aviationSendTaskDtoList = aviationSendTaskDtoList;
+    public void setToSealDtoList(List<AviationSealListDto> toSealDtoList) {
+        this.toSealDtoList = toSealDtoList;
     }
 }

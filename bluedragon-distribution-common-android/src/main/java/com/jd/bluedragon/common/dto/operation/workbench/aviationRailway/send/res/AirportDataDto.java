@@ -11,14 +11,14 @@ public class AirportDataDto implements Serializable {
 
     private static final long serialVersionUID = -5005890642092421853L;
 
-    private Integer airportCode;
+    private String airportCode;
     private String airportName;
 
-    public Integer getAirportCode() {
+    public String getAirportCode() {
         return airportCode;
     }
 
-    public void setAirportCode(Integer airportCode) {
+    public void setAirportCode(String airportCode) {
         this.airportCode = airportCode;
     }
 

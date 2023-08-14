@@ -294,7 +294,7 @@
 		<property name="JyWarehouseSendVehicleDetailQueryDefaultLimitSize" value="${JyWarehouseSendVehicleDetailQueryDefaultLimitSize:30}"/>
 		<property name="JyWarehouseSendVehicleMixScanTaskFlowNumConfig" value="${JyWarehouseSendVehicleMixScanTaskFlowNumConfig:}"/>
 		<property name="JyBuQiWaybillCodeMaxSum" value="${JyBuQiWaybillCodeMaxSum:50000}"/>
-
+		<property name="aviationSendSealListNextSiteQueryLimit" value="${aviationSendSealListNextSiteQueryLimit:50}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -579,7 +579,7 @@
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleDetailQueryDefaultLimitSize</value>
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleMixScanTaskFlowNumConfig</value>
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
-
+				<value>uccPropertyConfiguration.aviationSendSealListNextSiteQueryLimit</value>
 
 			</list>
 		</property>

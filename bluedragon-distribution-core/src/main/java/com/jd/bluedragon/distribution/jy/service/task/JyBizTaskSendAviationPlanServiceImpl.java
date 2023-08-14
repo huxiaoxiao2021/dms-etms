@@ -1,14 +1,19 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.TaskStatusStatistics;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendAviationPlanDao;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition;
+import com.jd.bluedragon.utils.NumberHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,10 +25,17 @@ import java.util.Objects;
 @Service
 public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviationPlanService {
 
+    public static final Integer nextSiteListQueryPageLimitMax = 200;
+    public static final Integer nextSiteListQueryPageLimitDefault = 50;
+
+
     @Autowired
     private JyBizTaskSendAviationPlanDao jyBizTaskSendAviationPlanDao;
     @Autowired
     private JyBizTaskSendAviationPlanCacheService aviationPlanCacheService;
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
 
     @Override
     public int initTaskSendVehicle(JyBizTaskSendAviationPlanEntity entity) {
@@ -63,16 +75,42 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     }
 
     @Override
-    public List<AviationNextSiteStatisticsDto> queryNextSitesByStartSite(JyBizTaskSendAviationPlanQueryCondition param) {
-        return null;
+    public List<AviationNextSiteStatisticsDto> queryNextSitesByStartSite(JyBizTaskSendAviationPlanQueryCondition condition) {
+        JyBizTaskSendAviationPlanQueryCondition queryCondition = new JyBizTaskSendAviationPlanQueryCondition();
+        BeanUtils.copyProperties(condition, queryCondition);
+        Integer limit = uccPropertyConfiguration.getAviationSendSealListNextSiteQueryLimit();
+        if(!NumberHelper.gt0(limit) || limit > nextSiteListQueryPageLimitMax) {
+            limit = nextSiteListQueryPageLimitDefault;
+        }
+        queryCondition.setPageSize(limit);
+        return jyBizTaskSendAviationPlanDao.queryNextSitesByStartSite(queryCondition);
     }
 
     @Override
-    public List<TaskStatusStatistics> statusStatistics(JyBizTaskSendAviationPlanQueryCondition condition) {
-        return null;
+    public List<JyBizTaskAviationStatusStatistics> statusStatistics(JyBizTaskSendAviationPlanQueryCondition condition) {
+        JyBizTaskSendAviationPlanQueryCondition queryCondition = new JyBizTaskSendAviationPlanQueryCondition();
+        BeanUtils.copyProperties(condition, queryCondition);
+        return jyBizTaskSendAviationPlanDao.statusStatistics(queryCondition);
     }
 
+    @Override
+    public List<JyBizTaskSendAviationPlanEntity> pageFetchAviationTaskByNextSite(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return jyBizTaskSendAviationPlanDao.pageFetchAviationTaskByNextSite(condition);
+    }
 
+    @Override
+    public List<JyBizTaskAviationAirTypeStatistics> airTypeStatistics(Integer siteId) {
+        if(!NumberHelper.gt0(siteId)) {
+            return null;
+        }
+        List<JyBizTaskAviationAirTypeStatistics> res = new ArrayList<>();
+        return jyBizTaskSendAviationPlanDao.airTypeStatistics(siteId);
+    }
+
+    @Override
+    public List<JyBizTaskSendAviationPlanEntity> pageFindAirportInfoByCurrentSite(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return jyBizTaskSendAviationPlanDao.pageFindAirportInfoByCurrentSite(condition);
+    }
 
 
 }

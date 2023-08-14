@@ -1393,6 +1393,12 @@ public class UccPropertyConfiguration {
      */
     private double vehicleIntegralPriorityFraction;
 
+    /**
+     * 航空发货封车岗列表查询
+     */
+    private Integer aviationSendSealListNextSiteQueryLimit;
+
+
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
     }
@@ -3615,5 +3621,13 @@ public class UccPropertyConfiguration {
 
     public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
         this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
+    }
+
+    public Integer getAviationSendSealListNextSiteQueryLimit() {
+        return aviationSendSealListNextSiteQueryLimit;
+    }
+
+    public void setAviationSendSealListNextSiteQueryLimit(Integer aviationSendSealListNextSiteQueryLimit) {
+        this.aviationSendSealListNextSiteQueryLimit = aviationSendSealListNextSiteQueryLimit;
     }
 }

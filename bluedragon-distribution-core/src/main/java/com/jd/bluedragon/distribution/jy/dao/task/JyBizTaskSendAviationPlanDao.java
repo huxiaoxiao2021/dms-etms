@@ -1,7 +1,13 @@
 package com.jd.bluedragon.distribution.jy.dao.task;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition;
+
+import java.util.List;
 
 /**
  * @Author zhengchengfa
@@ -26,6 +32,26 @@ public class JyBizTaskSendAviationPlanDao extends BaseDao<JyBizTaskSendAviationP
 
     public int updateByBizId(JyBizTaskSendAviationPlanEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
+    }
+
+    public List<JyBizTaskAviationStatusStatistics> statusStatistics(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".statusStatistics", condition);
+    }
+
+    public List<AviationNextSiteStatisticsDto> queryNextSitesByStartSite(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryNextSitesByStartSite", condition);
+    }
+
+    public List<JyBizTaskSendAviationPlanEntity> pageFetchAviationTaskByNextSite(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".pageFetchAviationTaskByNextSite", condition);
+    }
+
+    public List<JyBizTaskAviationAirTypeStatistics> airTypeStatistics(Integer siteId) {
+        return this.getSqlSession().selectList(NAMESPACE + ".airTypeStatistics", siteId);
+    }
+
+    public List<JyBizTaskSendAviationPlanEntity> pageFindAirportInfoByCurrentSite(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".pageFindAirportInfoByCurrentSite", condition);
     }
 
 //

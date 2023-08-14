@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.BookingTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
@@ -8,11 +9,9 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.task.*;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -27,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,6 +57,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     private RouterService routerService;
     @Autowired
     private CarrierQueryWSManager carrierQueryWSManager;
+    @Autowired
+    private JySendAggsService jySendAggsService;
 
     @Override
     public InvokeResult<Void> sendTaskBinding(SendTaskBindReq request) {
@@ -194,9 +196,68 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
     @Override
     public InvokeResult<FilterConditionQueryRes> pageFetchCurrentSiteStartAirport(FilterConditionQueryReq request) {
-        //todo zcf
-        return null;
+
+        InvokeResult<FilterConditionQueryRes> res = new InvokeResult<>();
+        FilterConditionQueryRes resData = new FilterConditionQueryRes();
+        res.setData(resData);
+        //订舱类型统计
+        List<JyBizTaskAviationAirTypeStatistics>  statisticsList = jyBizTaskSendAviationPlanService.airTypeStatistics(request.getCurrentOperate().getSiteCode());
+        resData.setBookingTypeDtoList(this.convertAirType(statisticsList));
+
+        //当前场地始发机场
+        JyBizTaskSendAviationPlanQueryCondition condition = new JyBizTaskSendAviationPlanQueryCondition();
+        condition.setStartSiteId(request.getCurrentOperate().getSiteCode());
+        condition.setPageSize(request.getPageSize());
+        condition.setOffset((request.getPageNo() - 1) * request.getPageSize());
+        List<JyBizTaskSendAviationPlanEntity> entityList = jyBizTaskSendAviationPlanService.pageFindAirportInfoByCurrentSite(condition);
+        if(CollectionUtils.isNotEmpty(entityList)) {
+            List<AirportDataDto> airportDataDtoList = new ArrayList<>();
+            entityList.forEach(entity -> {
+                AirportDataDto dto = new AirportDataDto();
+                dto.setAirportCode(entity.getBeginNodeCode());
+                dto.setAirportName(entity.getBeginNodeName());
+                airportDataDtoList.add(dto);
+            });
+            resData.setAirportDataDtoList(airportDataDtoList);
+        }
+
+        return res;
     }
+
+    //机场类型转换
+    private List<BookingTypeDto> convertAirType(List<JyBizTaskAviationAirTypeStatistics> statisticsList) {
+        List<BookingTypeDto> res = new ArrayList<>();
+
+        BookingTypeDto bulkAircraft = new BookingTypeDto();
+        bulkAircraft.setCode(BookingTypeEnum.BULK_AIRCRAFT.getCode());
+        bulkAircraft.setDesc(BookingTypeEnum.BULK_AIRCRAFT.getName());
+        bulkAircraft.setCount(0);
+        res.add(bulkAircraft);
+
+        BookingTypeDto allCargo = new BookingTypeDto();
+        allCargo.setCode(BookingTypeEnum.ALL_CARGO_AIRCRAFT.getCode());
+        allCargo.setDesc(BookingTypeEnum.ALL_CARGO_AIRCRAFT.getName());
+        allCargo.setCount(0);
+        res.add(allCargo);
+
+        if(CollectionUtils.isEmpty(statisticsList)) {
+            return res;
+        }
+
+        Map<Integer,Integer> map = statisticsList.stream().collect(Collectors.toMap(
+                k -> k.getAirType(),
+                v -> v.getTotal()
+        ));
+
+        res.forEach(obj ->{
+            if(NumberHelper.gt0(map.get(obj.getCode()))) {
+                obj.setCount(map.get(obj.getCode()));
+            }
+        });
+
+        return res;
+    }
+
 
     @Override
     public InvokeResult<TransportInfoQueryRes> fetchTransportCodeList(TransportCodeQueryReq request) {
@@ -256,13 +317,13 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         this.parseKeyword(request.getKeyword(), request.getCurrentOperate().getSiteCode(),  condition);
 
 
-        List<TaskStatusStatistics> taskStatusStatisticsList = jyBizTaskSendAviationPlanService.statusStatistics(condition);
-        List<TaskStatusStatistics> taskStatusStatistics = this.fillStatusDefaultValue(taskStatusStatisticsList);
+        List<JyBizTaskAviationStatusStatistics> taskStatusStatisticsList = jyBizTaskSendAviationPlanService.statusStatistics(condition);
+        List<TaskStatusStatistics> taskStatusStatistics = this.convertFillStatusDefaultValue(taskStatusStatisticsList);
         resData.setTaskStatusStatisticsList(taskStatusStatistics);
 
         for (TaskStatusStatistics tss : taskStatusStatistics) {
             if(tss.getTaskStatus().equals(request.getStatusCode()) && NumberHelper.gt0(tss.getTotal())) {
-                //当前状态统计>0 再查明细
+                //当前状态统计>0 查具体流向
                 List<AviationNextSiteStatisticsDto> nextSiteListList = jyBizTaskSendAviationPlanService.queryNextSitesByStartSite(condition);
                 if(CollectionUtils.isNotEmpty(nextSiteListList)) {
                     List<AviationSendTaskNextSiteList> aviationSendTaskNextSiteLists = new ArrayList<>();
@@ -284,36 +345,33 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
         return res;
     }
-    private  List<TaskStatusStatistics> fillStatusDefaultValue(List<TaskStatusStatistics> param) {
+
+    //状态统计默认值处理
+    private  List<TaskStatusStatistics> convertFillStatusDefaultValue(List<JyBizTaskAviationStatusStatistics> dbQuery) {
 
         List<TaskStatusStatistics> statusAggList = new ArrayList<>();
         TaskStatusStatistics toSend = new TaskStatusStatistics();
         toSend.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode());
         toSend.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getName());
-        toSend.setTotal(LONG_ZERO);
+        toSend.setTotal(0);
         statusAggList.add(toSend);
 
         TaskStatusStatistics sending = new TaskStatusStatistics();
         toSend.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode());
         toSend.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SENDING.getName());
-        toSend.setTotal(LONG_ZERO);
+        toSend.setTotal(0);
         statusAggList.add(sending);
 
-        if(CollectionUtils.isEmpty(param)) {
-            return statusAggList;
-        }else {
-            //返回状态list补全，否则状态更新为0时PDA数据不会更新
-            Map<Integer, TaskStatusStatistics> map = new HashMap<>();
-            for (TaskStatusStatistics statusAgg : param) {
-                map.put(statusAgg.getTaskStatus(), statusAgg);
+        Map<Integer, Integer> map = dbQuery.stream().collect(Collectors.toMap(
+                k -> k.getTaskStatus(),
+                v -> v.getTotal()
+        ));
+        for (TaskStatusStatistics statistics : statusAggList) {
+            if(!Objects.isNull(map.get(statistics.getTaskStatus()))) {
+                statistics.setTotal(map.get(statistics.getTaskStatus()));
             }
-            for (TaskStatusStatistics statistics : statusAggList) {
-                if(Objects.isNull(map.get(statistics.getTaskStatus()))) {
-                    param.add(statistics);
-                }
-            }
-            return param;
         }
+        return statusAggList;
     }
 
 
@@ -331,7 +389,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 throw new JyBizException(String.format("没有找到{}的流向场地", keyword));
             }
             // 入参有则取入参的，没有则取路由
-            entity.setStartSiteId(Integer.valueOf(keyword));
+            entity.setNextSiteId(Integer.valueOf(keyword));
         }
         //航班号(拼音开头)
         else if(Character.isLetter(keyword.charAt(0))) {
@@ -339,7 +397,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
         //默认流向
         else {
-            entity.setStartSiteId(Integer.valueOf(keyword));
+            entity.setNextSiteId(Integer.valueOf(keyword));
         }
 
     }
@@ -361,8 +419,66 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
     @Override
     public InvokeResult<AviationSendTaskQueryRes> pageFetchAviationTaskByNextSite(AviationSendTaskQueryReq request) {
-        //todo zcf
-        return null;
+        InvokeResult<AviationSendTaskQueryRes> res = new InvokeResult<>();
+
+        JyBizTaskSendAviationPlanQueryCondition condition = new JyBizTaskSendAviationPlanQueryCondition();
+        condition.setStartSiteId(request.getCurrentOperate().getSiteCode());
+        condition.setNextSiteId(request.getNextSiteId());
+        condition.setTaskStatus(request.getStatusCode());
+        condition.setOffset((request.getPageNo() - 1) * request.getPageSize());
+        condition.setPageSize(request.getPageSize());
+        List<JyBizTaskSendAviationPlanEntity> taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
+
+        List<AviationSendTaskDto> sendTaskDtoList = this.convertAviationSendTaskDtoList(taskDtoList, request.getStatusCode());
+        if(CollectionUtils.isEmpty(sendTaskDtoList)) {
+            res.setMessage("查询为空");
+            return res;
+        }
+
+        AviationSendTaskQueryRes resData = new AviationSendTaskQueryRes();
+        res.setData(resData);
+        resData.setAviationSendTaskDtoList(sendTaskDtoList);
+        return res;
+
+    }
+    //航空任务结果转换
+    private List<AviationSendTaskDto> convertAviationSendTaskDtoList(List<JyBizTaskSendAviationPlanEntity> taskDtoList, Integer statusCode) {
+        if(CollectionUtils.isEmpty(taskDtoList)) {
+            return null;
+        }
+        List<String> bizIdList = new ArrayList<>();
+        List<AviationSendTaskDto> res = new ArrayList<>();
+        taskDtoList.forEach(dbQueryDto -> {
+            bizIdList.add(dbQueryDto.getBizId());
+
+            AviationSendTaskDto taskDto = new AviationSendTaskDto();
+            taskDto.setBizId(dbQueryDto.getBizId());
+            taskDto.setBookingCode(dbQueryDto.getBookingCode());
+            taskDto.setFlightNumber(dbQueryDto.getFlightNumber());
+            taskDto.setTakeOffTime(Objects.isNull(dbQueryDto.getTakeOffTime()) ? null : dbQueryDto.getTakeOffTime().getTime());
+            taskDto.setAirCompanyCode(dbQueryDto.getAirCompanyCode());
+            taskDto.setAirCompanyName(dbQueryDto.getAirCompanyName());
+            taskDto.setBeginNodeCode(dbQueryDto.getBeginNodeCode());
+            taskDto.setBeginNodeName(dbQueryDto.getBeginNodeName());
+            taskDto.setCarrierCode(dbQueryDto.getCarrierCode());
+            taskDto.setCarrierName(dbQueryDto.getCarrierName());
+            taskDto.setBookingWeight(dbQueryDto.getBookingWeight());
+            taskDto.setCargoType(dbQueryDto.getCargoType());
+            taskDto.setAirType(dbQueryDto.getAirType());
+            taskDto.setNextSiteId(dbQueryDto.getNextSiteId());
+            taskDto.setNextSiteName(dbQueryDto.getNextSiteName());
+            res.add(taskDto);
+        });
+        //发货中状态补充已扫重量
+        if(JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode().equals(statusCode)) {
+            List<JySendAggsEntity> aggs = jySendAggsService.getSendStatisticsByBizList(bizIdList);
+            Map<String, BigDecimal> map = aggs.stream().collect(Collectors.toMap(k -> k.getSendVehicleBizId(), v-> v.getTotalScannedWeight()));
+            res.forEach(obj -> {
+                BigDecimal totalScannedWeight = map.get(obj.getBizId());
+                obj.setScanWeight(Objects.isNull(totalScannedWeight) ? 0d : totalScannedWeight.doubleValue());
+            });
+        }
+        return res;
     }
 
     @Override

@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.send.JyAviationRailwaySendSealServiceImpl;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -110,7 +111,13 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
             baseParamValidateService.checkPdaPage(request.getPageNo(), request.getPageSize());
-
+            if(!NumberHelper.gt0(request.getNextSiteId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "流向场地不合法", null);
+            }
+            if(!JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(request.getStatusCode())
+                    && !JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode().equals(request.getStatusCode())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "查询状态不合法", null);
+            }
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
             }

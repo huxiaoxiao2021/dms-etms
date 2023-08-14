@@ -12,14 +12,43 @@ public class JyBizTaskSendAviationPlanQueryCondition extends JyBizTaskSendAviati
 
     private static final long serialVersionUID = 4089383783438643445L;
 
-    private List<Integer> startSiteIdList;
+    private List<Integer> nextSiteIdList;
 
+    private List<Integer> taskStatusList;
 
-    public List<Integer> getStartSiteIdList() {
-        return startSiteIdList;
+    private Integer pageSize;
+
+    private Integer offset;
+
+    public List<Integer> getNextSiteIdList() {
+        return nextSiteIdList;
     }
 
-    public void setStartSiteIdList(List<Integer> startSiteIdList) {
-        this.startSiteIdList = startSiteIdList;
+    public void setNextSiteIdList(List<Integer> nextSiteIdList) {
+        this.nextSiteIdList = nextSiteIdList;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public List<Integer> getTaskStatusList() {
+        return taskStatusList;
+    }
+
+    public void setTaskStatusList(List<Integer> taskStatusList) {
+        this.taskStatusList = taskStatusList;
     }
 }

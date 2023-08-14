@@ -36,7 +36,6 @@ public interface JyAviationRailwaySendSealGatewayService {
     JdCResponse<AviationSendTaskQueryRes> pageFetchAviationTaskByNextSite(AviationSendTaskQueryReq request);
     /**
      * 航空发货列表数据查询： 待封车、已封车
-     * todo zcf
      * @param request
      * @return
      */

@@ -20,6 +20,7 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
      */
     private Long queryPageTime;
     private Integer nextSiteId;
+    private Integer statusCode;
 
 
     public Integer getPageNo() {
@@ -52,5 +53,13 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
 
     public void setNextSiteId(Integer nextSiteId) {
         this.nextSiteId = nextSiteId;
+    }
+
+    public Integer getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(Integer statusCode) {
+        this.statusCode = statusCode;
     }
 }

@@ -1,7 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.TaskStatusStatistics;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition;
 
@@ -29,5 +30,11 @@ public interface JyBizTaskSendAviationPlanService {
 
     List<AviationNextSiteStatisticsDto> queryNextSitesByStartSite(JyBizTaskSendAviationPlanQueryCondition param);
 
-    List<TaskStatusStatistics> statusStatistics(JyBizTaskSendAviationPlanQueryCondition condition);
+    List<JyBizTaskAviationStatusStatistics> statusStatistics(JyBizTaskSendAviationPlanQueryCondition condition);
+
+    List<JyBizTaskSendAviationPlanEntity> pageFetchAviationTaskByNextSite(JyBizTaskSendAviationPlanQueryCondition condition);
+
+    List<JyBizTaskAviationAirTypeStatistics> airTypeStatistics(Integer siteCode);
+
+    List<JyBizTaskSendAviationPlanEntity> pageFindAirportInfoByCurrentSite(JyBizTaskSendAviationPlanQueryCondition condition);
 }
