@@ -539,9 +539,6 @@ public class SendPrintServiceImpl implements SendPrintService {
                 }
             }else if(StringUtils.isNotBlank(printHandoverListDto.getBoxCode()) && BusinessHelper.isBoxcode(printHandoverListDto.getBoxCode())){
                 //没有板号，或者板的体积为空，但是有箱号（box_code字段为箱号）
-                if(boxVolumeSet.contains(printHandoverListDto.getBoxCode())){
-                    continue;
-                }
                 boxVolumeSet.add(printHandoverListDto.getBoxCode());
 
                 totalOutVolumeDy += printHandoverListDto.getDmsOutVolumeStatic() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getDmsOutVolumeStatic();

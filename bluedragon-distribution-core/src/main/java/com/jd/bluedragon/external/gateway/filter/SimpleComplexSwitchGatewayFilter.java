@@ -6,7 +6,9 @@ import com.jd.jsf.gd.filter.AbstractFilter;
 import com.jd.jsf.gd.msg.RequestMessage;
 import com.jd.jsf.gd.msg.ResponseMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 
 import java.util.Map;
 import java.util.Objects;
@@ -18,13 +20,12 @@ import java.util.Objects;
  * @date 2023/7/27 7:55 PM
  */
 @Slf4j
-public class SimpleComplexSwitchGatewayFilter extends AbstractFilter {
+public class SimpleComplexSwitchGatewayFilter extends AbstractFilter implements BeanFactoryAware {
 
     private static final long serialVersionUID = -8946615210781876684L;
 
-    @Autowired
-    private SimpleComplexSwitchExecutor simpleComplexSwitchExecutor;
-    
+    private BeanFactory beanFactory;
+
     @Override
     public ResponseMessage invoke(RequestMessage request) {
 
@@ -46,7 +47,6 @@ public class SimpleComplexSwitchGatewayFilter extends AbstractFilter {
                 log.error("清除标识失败!");
             }
         }
-        
         return response;
     }
 
@@ -58,16 +58,25 @@ public class SimpleComplexSwitchGatewayFilter extends AbstractFilter {
     }
 
     private void complexToSimple(RequestMessage request, boolean needSwitchFlag) {
-        if(needSwitchFlag){
+        if(needSwitchFlag && request.getInvocationBody().getArgs() != null){
             for (Object arg : request.getInvocationBody().getArgs()) {
-                simpleComplexSwitchExecutor.recursiveDeal(arg, SimpleComplexSwitchContext.SIMPLE_TYPE);
+                getSimpleComplexSwitchExecutor().recursiveDeal(arg, SimpleComplexSwitchContext.SIMPLE_TYPE);
             }
         }
     }
 
     private void simpleToComplex(ResponseMessage response, boolean needSwitchFlag) {
         if(needSwitchFlag){
-            simpleComplexSwitchExecutor.recursiveDeal(response.getResponse(), SimpleComplexSwitchContext.COMPLEX_TYPE);
+            getSimpleComplexSwitchExecutor().recursiveDeal(response.getResponse(), SimpleComplexSwitchContext.COMPLEX_TYPE);
         }
+    }
+
+    private SimpleComplexSwitchExecutor getSimpleComplexSwitchExecutor() {
+        return (SimpleComplexSwitchExecutor) beanFactory.getBean("simpleComplexSwitchExecutor");
+    }
+    
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
     }
 }

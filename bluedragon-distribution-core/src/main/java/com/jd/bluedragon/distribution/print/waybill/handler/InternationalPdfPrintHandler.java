@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.CloudPrintConstants;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.InternationalCloudPrintManager;
-import com.jd.bluedragon.core.simpleComplex.SimpleComplexSwitchContext;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;

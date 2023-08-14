@@ -42,7 +42,8 @@ public class SimpleComplexSwitchRestAspect {
 
     private void complexToSimple(ProceedingJoinPoint pjp) {
         if(SimpleComplexSwitchContext.getRestThreadInfo() != null 
-                && Objects.equals(SimpleComplexSwitchContext.getRestThreadInfo().getSimpleComplexFlag(), SimpleComplexSwitchContext.COMPLEX)){
+                && Objects.equals(SimpleComplexSwitchContext.getRestThreadInfo().getSimpleComplexFlag(), SimpleComplexSwitchContext.COMPLEX)
+                && pjp.getArgs() != null){
             for (Object arg : pjp.getArgs()) {
                 simpleComplexSwitchExecutor.recursiveDeal(arg, SimpleComplexSwitchContext.SIMPLE_TYPE);
             }
