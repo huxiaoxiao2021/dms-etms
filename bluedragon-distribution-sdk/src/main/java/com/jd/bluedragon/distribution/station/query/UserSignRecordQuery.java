@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.station.query;
 
 import java.util.Date;
+import java.util.List;
 
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
@@ -148,6 +149,9 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	 */
 	private String userErp;
 
+	private List<String> businessKeyList;
+
+	private List<Integer> jobCodeList;
 	
 	public Integer getOrgCode() {
 		return orgCode;
@@ -324,5 +328,21 @@ public class UserSignRecordQuery extends BasePagerCondition {
 
 	public void setUserErp(String userErp) {
 		this.userErp = userErp;
+	}
+
+	public List<String> getBusinessKeyList() {
+		return businessKeyList;
+	}
+
+	public void setBusinessKeyList(List<String> businessKeyList) {
+		this.businessKeyList = businessKeyList;
+	}
+
+	public List<Integer> getJobCodeList() {
+		return jobCodeList;
+	}
+
+	public void setJobCodeList(List<Integer> jobCodeList) {
+		this.jobCodeList = jobCodeList;
 	}
 }

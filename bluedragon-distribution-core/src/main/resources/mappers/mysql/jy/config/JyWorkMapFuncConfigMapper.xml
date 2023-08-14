@@ -146,15 +146,4 @@
         </if>
     </select>
 
-    <select id="queryByConditionList" resultMap="jyWorkMapFuncConfigMap">
-        select
-        <include refid="Base_Column_List"/>
-        from
-        jy_work_map_func_config
-        where yn = 1
-        and func_code in
-        <foreach collection="FuncCodeList" item="item" open="（" separator="," close=")">
-            #{item}
-        </foreach>
-    </select>
 </mapper>

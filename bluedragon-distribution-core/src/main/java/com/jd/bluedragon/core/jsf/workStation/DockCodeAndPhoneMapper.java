@@ -1,10 +1,8 @@
-package com.jd.bluedragon.distribution.workStation;
+package com.jd.bluedragon.core.jsf.workStation;
 
-
-
-import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhone;
 import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQueryDTO;
 import com.jd.dms.java.utils.sdk.base.Result;
+import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 
 import java.util.List;
 
@@ -15,7 +13,7 @@ import java.util.List;
  * @author hujiping
  * @date 2022/4/6 6:04 PM
  */
-public interface DockCodeAndPhoneService {
+public interface DockCodeAndPhoneMapper {
 
     /**
      * 获取运输月台号
@@ -26,10 +24,10 @@ public interface DockCodeAndPhoneService {
     Result<List<String>> queryDockCodeByFlowDirection(DockCodeAndPhoneQueryDTO dockCodeAndPhoneQueryDTO);
 
     /**
-     * 获取联系人
+     * 根据月台号获取网格信息
      *
      * @param dockCodeAndPhoneQueryDTO
-     * @return JdResponse<DockCodeAndPhone>
+     * @return JdResponse<WorkStationGrid>
      */
-    Result<DockCodeAndPhone> queryPhoneByDockCodeForTms(DockCodeAndPhoneQueryDTO dockCodeAndPhoneQueryDTO);
+    Result<List<WorkStationGrid>> queryPhoneByDockCodeForTms(DockCodeAndPhoneQueryDTO dockCodeAndPhoneQueryDTO);
 }

@@ -1,25 +1,22 @@
 package com.jd.bluedragon.distribution.workStation.impl;
 
-
-import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.core.jsf.workStation.DockCodeAndPhoneMapper;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhone;
-import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQuery;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncConfigEntity;
-import com.jd.bluedragon.distribution.jy.dao.config.JyWorkMapFuncConfigDao;
-import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
-import com.jd.bluedragon.distribution.station.dao.UserSignRecordFlowDao;
-import com.jd.bluedragon.distribution.station.dao.WorkStationDao;
-import com.jd.bluedragon.distribution.station.dao.WorkStationGridDao;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow;
-import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.workStation.DockCodeAndPhoneService;
-import com.jd.bluedragon.utils.BaseContants;
+import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQueryDTO;
+import com.jd.bluedragon.distribution.workStation.domain.UserNameAndPhone;
+
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.print.utils.ObjectHelper;
-import com.jdl.basic.api.service.workStation.WorkGridFlowDirectionJsfService;
+import com.jdl.basic.api.domain.workStation.WorkStationGrid;
+import com.jdl.basic.common.utils.ObjectHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -32,183 +29,152 @@ import java.util.stream.Collectors;
  * @author hujiping
  * @date 2022/4/6 6:05 PM
  */
+@Slf4j
 @Service("dockCodeAndPhoneService")
 public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
-
-
     @Autowired
-    private JyWorkMapFuncConfigDao jyWorkMapFuncConfigDao;
-
-    @Autowired
-    private WorkStationDao workStationDao;
-
-    @Autowired
-    private WorkGridFlowDirectionJsfService workGridFlowDirectionJsfService;
-
-    @Autowired
-    private WorkStationGridDao workStationGridDao;
-
-    @Autowired
-    private UserSignRecordFlowDao userSignRecordFlowDao;
+    private UserSignRecordService userSignRecordService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private DockCodeAndPhoneMapper dockCodeAndPhoneQuery;
+
+    @Value("jobCodeList")
+    private List<Integer> jobCodeList;
+
+    @Value("pageSize")
+    private Integer pageSize;
+
     /**
-     * 获取运输月台号和联系人
+     * 获取运输月台号
      *
-     * @param
+     * @param dockCodeAndPhoneQueryDTO
      * @return
      */
     @Override
-    public DockCodeAndPhone queryDockCodeAndPhone(DockCodeAndPhoneQuery dockCodeAndPhoneQuery) {
-        if (StringUtils.isEmpty(dockCodeAndPhoneQuery.getStartSiteID()) || StringUtils.isEmpty(dockCodeAndPhoneQuery.getEndSiteID()) || null != dockCodeAndPhoneQuery.getSiteType()) {
-            throw new IllegalArgumentException("传入的必要参数为空，dockCodeAndPhoneQuery" + JSONObject.toJSON(dockCodeAndPhoneQuery));
+    public Result<List<String>> queryDockCodeByFlowDirection(DockCodeAndPhoneQueryDTO dockCodeAndPhoneQueryDTO) {
+        return dockCodeAndPhoneQuery.queryDockCodeByFlowDirection(dockCodeAndPhoneQueryDTO);
+    }
+
+    /**
+     * 获取联系人
+     *
+     * @param dockCodeAndPhoneQueryDTO
+     * @return JdResponse<DockCodeAndPhone>
+     */
+    @Override
+    public Result<DockCodeAndPhone> queryPhoneByDockCodeForTms(DockCodeAndPhoneQueryDTO dockCodeAndPhoneQueryDTO) {
+        Result<DockCodeAndPhone> result = new Result<>();
+        Result<List<WorkStationGrid>> listResult = dockCodeAndPhoneQuery.queryPhoneByDockCodeForTms(dockCodeAndPhoneQueryDTO);
+        if (!listResult.isSuccess()) {
+            result.setCode(listResult.getCode());
+            result.setMessage(listResult.getMessage());
+            return result;
         }
+        try {
+            if (CollectionUtils.isNotEmpty(listResult.getData())) {
+                List<String> erps = new ArrayList<>();
+                List<String> workStationGridList = listResult.getData().stream().map(WorkStationGrid::getBusinessKey).collect(Collectors.toList());
+                //5、根据business_key去user_sign_record 查询 erp
+                if (CollectionUtils.isNotEmpty(workStationGridList)) {
+                    UserSignRecordQuery userSignRecordQuery = new UserSignRecordQuery();
+                    userSignRecordQuery.setBusinessKeyList(workStationGridList);
+                    userSignRecordQuery.setJobCodeList(jobCodeList);
+                    userSignRecordQuery.setPageSize(pageSize);
+                    erps = userSignRecordService.queryByBusinessKeyForTms(userSignRecordQuery);
+                }
+                //6、根据erp查询电话号码
+                DockCodeAndPhone phone = getPhone(listResult.getData(), erps);
+                result.setData(phone);
+                result.toSuccess();
+
+            }
+            return result;
+        } catch (Exception e) {
+            log.error("获取联系人号数据异常 {}", e.getMessage(), e);
+            result.toFail("获取联系人数据异常!");
+        }
+        return result;
+    }
+
+    /**
+     * 根据erp查询电话号码
+     *
+     * @param erps
+     */
+    private DockCodeAndPhone getPhone(List<WorkStationGrid> listResult, List<String> erps) {
         DockCodeAndPhone dockCodeAndPhone = new DockCodeAndPhone();
-        List<String> refStationKeyList = new ArrayList<>();
-        //1、根据传入的类型去jy_work_map_func_config 拣运APP功能和工序映射表中查询出ref_work_key
-        refStationKeyList = getRefWorkKey(dockCodeAndPhoneQuery, refStationKeyList);
-        //2、根据ref_work_key去work_station 网格工序信息表中查询area_code，business_key
-        //3、根据传入的流向：发货地ID及名称、目的地ID及名称去work_grid_flow_direction  场地网格流向表 获取 ref_work_grid_key
-        List<String> refWorkGridKeyList = new ArrayList<>();
-        refWorkGridKeyList = getRefWorkGridKey(dockCodeAndPhoneQuery, refWorkGridKeyList);
-        //4、根据business_key和ref_work_grid_key去work_station_grid 场地网格工序信息表查询 获取到月台号 和 business_key
-        //获取月台号
-        List<String> dockCodes = new ArrayList<String>();
-        List<String> businessKeys = new ArrayList<String>();
-        List<String> finallyPhones = new ArrayList<String>();
-        getDockCOde(dockCodeAndPhone, refStationKeyList, refWorkGridKeyList, dockCodes, businessKeys, finallyPhones);
-        //5、根据business_key去user_sign_record 查询 erp
-        List<UserSignRecordFlow> userSignRecordFlows = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(businessKeys)) {
-            List<String> businessKeyList = businessKeys.stream().distinct().collect(Collectors.toList());
-            userSignRecordFlows = userSignRecordFlowDao.queryByRefGridKey(businessKeyList);
+        List<UserNameAndPhone> phoneList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(erps)) {
+            for (String erp : erps) {
+                if (pageSize.equals(phoneList.size())) {
+                    break;
+                }
+                if (getPhoneByErp(phoneList, erp)) {
+                    return null;
+                }
+            }
         }
-        //6、根据erp查询电话号码
-        List<Map<String, String>> phoneList = new ArrayList<>();
-        Map<String, String> map = new HashMap<String, String>();
-        getPhone(dockCodeAndPhone, finallyPhones, userSignRecordFlows, map);
-        phoneList.add(map);
-        if (phoneList.size() > BaseContants.NUMBER_THREE) {
-            dockCodeAndPhone.setPhoneList(phoneList.subList(BaseContants.NUMBER_ONE, BaseContants.NUMBER_THREE));
-        } else {
-            dockCodeAndPhone.setPhoneList(phoneList);
+        if (ObjectHelper.isEmpty(phoneList.size())) {
+            // 兜底逻辑：如果在岗人员为0人，则取网格对应的负责人姓名+手机号
+            List<String> ownerUserErps = listResult.stream().map(WorkStationGrid::getOwnerUserErp).distinct().collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(ownerUserErps)) {
+                for (String erp : ownerUserErps) {
+                    if (pageSize.equals(phoneList.size())) {
+                        break;
+                    }
+                    if (getPhoneByErp(phoneList, erp)) {
+                        return null;
+                    }
+                }
+            }
         }
         return dockCodeAndPhone;
     }
 
     /**
-     * 根据erp查询电话号码
-     * @param dockCodeAndPhone
-     * @param finallyPhones
-     * @param userSignRecordFlows
-     * @param map
-     */
-
-    private void getPhone(DockCodeAndPhone dockCodeAndPhone, List<String> finallyPhones, List<UserSignRecordFlow> userSignRecordFlows, Map<String, String> map) {
-        if (CollectionUtils.isNotEmpty(userSignRecordFlows)) {
-            for (UserSignRecordFlow userSignRecordFlow : userSignRecordFlows) {
-                BaseStaffSiteOrgDto baseStaffIgnoreIsResignByErp = baseMajorManager.getBaseStaffIgnoreIsResignByErp(userSignRecordFlow.getUserCode());
-                map.put(userSignRecordFlow.getUserCode(), baseStaffIgnoreIsResignByErp.getMobilePhone1());
-            }
-        }
-        // 兜底逻辑：如果在岗人员为0人，则取网格对应的负责人姓名+手机号
-        if (CollectionUtils.isEmpty(dockCodeAndPhone.getPhoneList())) {
-            if (CollectionUtils.isNotEmpty(finallyPhones)) {
-                List<String> finallyPhoneList = finallyPhones.stream().distinct().collect(Collectors.toList());
-                for (String finallyPhone : finallyPhoneList) {
-                    BaseStaffSiteOrgDto baseStaffIgnoreIsResignByErp = baseMajorManager.getBaseStaffIgnoreIsResignByErp(finallyPhone);
-                    map.put(finallyPhone, baseStaffIgnoreIsResignByErp.getMobilePhone1());
-                }
-            }
-        }
-    }
-
-    /**
-     * 获取月台号
-     * @param dockCodeAndPhone
-     * @param refStationKeyList
-     * @param refWorkGridKeyList
-     * @param dockCodes
-     * @param businessKeys
-     * @param finallyPhones
-     */
-    private void getDockCOde(DockCodeAndPhone dockCodeAndPhone, List<String> refStationKeyList, List<String> refWorkGridKeyList, List<String> dockCodes, List<String> businessKeys, List<String> finallyPhones) {
-        List<WorkStationGrid> workStationGrids = new ArrayList<WorkStationGrid>();
-        List<WorkStationGrid> workStationGridList = new ArrayList<WorkStationGrid>();
-        if (CollectionUtils.isNotEmpty(refStationKeyList)) {
-            workStationGrids = workStationGridDao.queryByRefStationKey(refStationKeyList);
-            if (CollectionUtils.isNotEmpty(workStationGrids)) {
-                workStationGrids.forEach(item -> {
-                    dockCodes.add(item.getDockCode());
-                    businessKeys.add(item.getBusinessKey());
-                    finallyPhones.add(item.getOwnerUserErp());
-                });
-            }
-        }
-        if (!CollectionUtils.isEmpty(refWorkGridKeyList)) {
-            workStationGridList = workStationGridDao.queryByRefGridKey(refWorkGridKeyList);
-            if (CollectionUtils.isNotEmpty(workStationGridList)) {
-                workStationGridList.forEach(item -> {
-                    dockCodes.add(item.getDockCode());
-                    businessKeys.add(item.getBusinessKey());
-                    finallyPhones.add(item.getOwnerUserErp());
-                });
-            }
-        }
-        if (!CollectionUtils.isEmpty(dockCodes)) {
-            List<String> dockCodeList = dockCodes.stream().distinct().collect(Collectors.toList());
-            if (dockCodeList.size() > BaseContants.NUMBER_FIVE) {
-                dockCodeAndPhone.setDockCodeList(dockCodeList.subList(BaseContants.NUMBER_ONE, BaseContants.NUMBER_FIVE));
-            } else {
-                dockCodeAndPhone.setDockCodeList(dockCodeList);
-            }
-        }
-    }
-
-    /**
-     * 根据传入的流向：发货地ID或目的地ID去work_grid_flow_direction  场地网格流向表 获取 ref_work_grid_key
-     * @param dockCodeAndPhoneQuery
-     * @param refWorkGridKeyList
+     * 通过员工erp获取员工电话
+     * @param phoneList
+     * @param erp
      * @return
      */
-    private List<String> getRefWorkGridKey(DockCodeAndPhoneQuery dockCodeAndPhoneQuery, List<String> refWorkGridKeyList) {
-        BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
-        if (dockCodeAndPhoneQuery.getSiteType().equals(BaseContants.NUMBER_ONE)) {
-            baseStaffSiteOrgDto = baseMajorManager.getBaseSiteByDmsCode(dockCodeAndPhoneQuery.getStartSiteID());
-        } else {
-            baseStaffSiteOrgDto = baseMajorManager.getBaseSiteByDmsCode(dockCodeAndPhoneQuery.getEndSiteID());
+    private boolean getPhoneByErp(List<UserNameAndPhone> phoneList, String erp) {
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(erp);
+        if (ObjectHelper.isEmpty(baseStaffSiteOrgDto)) {
+            return true;
         }
-        if (!ObjectHelper.isEmpty(baseStaffSiteOrgDto)) {
-            refWorkGridKeyList = workGridFlowDirectionJsfService.queryFlowDataForFlowSiteCode(dockCodeAndPhoneQuery.getSiteType(), baseStaffSiteOrgDto.getSiteCode()).getData();
-        }
-        return refWorkGridKeyList;
+        UserNameAndPhone userNameAndPhone = new UserNameAndPhone();
+        userNameAndPhone.setUserName(erp);
+        userNameAndPhone.setPhone(baseStaffSiteOrgDto.getMobilePhone1());
+        phoneList.add(userNameAndPhone);
+        return false;
     }
 
     /**
-     * 去jy_work_map_func_config 拣运APP功能和工序映射表中查询出ref_work_key
+     * 校验入参
      *
-     * @param dockCodeAndPhoneQuery
-     * @param refStationKeyList
-     * @return
+     * @param dockCodeAndPhoneQueryDTO
+     * @return JdResponse<DockCodeAndPhone>
      */
-    private List<String> getRefWorkKey(DockCodeAndPhoneQuery dockCodeAndPhoneQuery, List<String> refStationKeyList) {
-        List<JyWorkMapFuncConfigEntity> jyWorkMapFuncConfigEntities = new ArrayList<JyWorkMapFuncConfigEntity>();
-        JyWorkMapFuncConfigEntity jyWorkMapFuncConfigEntity = new JyWorkMapFuncConfigEntity();
-        if (dockCodeAndPhoneQuery.getSiteType().equals(BaseContants.NUMBER_ONE)) {
-            jyWorkMapFuncConfigEntity.setFuncCode(JyFuncCodeEnum.SEND_CAR_POSITION.getCode());
-            jyWorkMapFuncConfigEntities = jyWorkMapFuncConfigDao.queryByCondition(jyWorkMapFuncConfigEntity);
-        } else {
-            List<String> FuncCodeList = new ArrayList<>();
-            FuncCodeList.add(JyFuncCodeEnum.UNSEAL_CAR_POSITION.getCode());
-            FuncCodeList.add(JyFuncCodeEnum.UNLOAD_CAR_POSITION.getCode());
-            jyWorkMapFuncConfigEntities = jyWorkMapFuncConfigDao.queryByConditionList(FuncCodeList);
+
+    private Result<DockCodeAndPhone> checkInParam(DockCodeAndPhoneQueryDTO dockCodeAndPhoneQueryDTO) {
+        Result<DockCodeAndPhone> result = new Result();
+        if (StringUtils.isEmpty(dockCodeAndPhoneQueryDTO.getStartSiteID())) {
+            result.toFail("获取月台号数据异常!");
+            return result;
         }
-        if (CollectionUtils.isNotEmpty(jyWorkMapFuncConfigEntities)) {
-            refStationKeyList = jyWorkMapFuncConfigEntities.stream().map(JyWorkMapFuncConfigEntity::getRefWorkKey).distinct().collect(Collectors.toList());
+        if (StringUtils.isEmpty(dockCodeAndPhoneQueryDTO.getEndSiteID())) {
+            result.toFail("获取月台号数据异常!");
+            return result;
         }
-        return refStationKeyList;
+        if (null != dockCodeAndPhoneQueryDTO.getFlowDirectionType()) {
+            result.toFail("获取月台号数据异常!");
+            return result;
+        }
+        result.toSuccess();
+        return result;
     }
 
 }

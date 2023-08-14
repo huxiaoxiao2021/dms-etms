@@ -1,8 +1,12 @@
 package com.jd.bluedragon.distribution.workStation.api;
 
-import com.jd.bluedragon.distribution.api.response.base.Result;
+
 import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhone;
-import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQuery;
+import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQueryDTO;
+import com.jd.dms.java.utils.sdk.base.Result;
+
+import java.util.List;
+
 
 /**
  * @Author: ext.lishaotan5@jd.com
@@ -12,9 +16,18 @@ import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQuery;
 public interface DockCodeAndPhoneJsfService {
 
     /**
-     * 获取运输月台号和联系人
-     * @param dockCodeAndPhoneQuery
-     * @return Result<DockCodeAndPhone>
+     * 获取运输月台号
+     *
+     * @param dockCodeAndPhoneQueryDTO
+     * @return JdResponse<DockCodeAndPhone>
      */
-    Result<DockCodeAndPhone> queryDockCodeAndPhone(DockCodeAndPhoneQuery dockCodeAndPhoneQuery);
+    Result<List<String>> queryDockCodeByFlowDirection(DockCodeAndPhoneQueryDTO dockCodeAndPhoneQueryDTO);
+
+    /**
+     * 获取联系人
+     *
+     * @param dockCodeAndPhoneQueryDTO
+     * @return JdResponse<DockCodeAndPhone>
+     */
+    Result<DockCodeAndPhone> queryPhoneByDockCodeForTms(DockCodeAndPhoneQueryDTO dockCodeAndPhoneQueryDTO);
 }

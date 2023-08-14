@@ -3,7 +3,6 @@ package com.jd.bluedragon.core.jsf.workStation.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jd.bluedragon.distribution.workStation.DockCodeAndPhoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +30,6 @@ public class WorkStationGridManagerImpl implements WorkStationGridManager {
 
     @Autowired
     private WorkStationGridJsfService basicWorkStationGridJsfService;
-
-    @Autowired
-    private DockCodeAndPhoneService dockCodeAndPhoneService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationGridManagerImpl.queryByBusinessKey",mState={JProEnum.TP,JProEnum.FunctionError})
