@@ -75,6 +75,19 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      */
     private boolean forceSendFlag;
 
+    /**
+     * 是否跳过弱拦截
+     */
+    private boolean needSkipWeakIntercept;
+
+    public boolean getNeedSkipWeakIntercept() {
+        return needSkipWeakIntercept;
+    }
+
+    public void setNeedSkipWeakIntercept(boolean needSkipWeakIntercept) {
+        this.needSkipWeakIntercept = needSkipWeakIntercept;
+    }
+
     public boolean getForceSendFlag() {
         return forceSendFlag;
     }

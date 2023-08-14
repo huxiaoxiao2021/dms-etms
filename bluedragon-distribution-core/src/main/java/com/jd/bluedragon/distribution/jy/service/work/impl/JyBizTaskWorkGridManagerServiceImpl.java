@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -162,5 +163,14 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	@Override
 	public int batchAddTask(List<JyBizTaskWorkGridManager> taskList) {
 		return jyBizTaskWorkGridManagerDao.batchAddTask(taskList);
+	}
+	@Override
+	public int autoCancelTaskForGridDelete(JyBizTaskWorkGridManagerBatchUpdate cancelData) {
+		if(cancelData == null
+				|| cancelData.getData() == null
+				|| StringUtil.isBlank(cancelData.getData().getTaskRefGridKey())) {
+			return 0;
+		}
+		return jyBizTaskWorkGridManagerDao.autoCancelTaskForGridDelete(cancelData);
 	}
 }

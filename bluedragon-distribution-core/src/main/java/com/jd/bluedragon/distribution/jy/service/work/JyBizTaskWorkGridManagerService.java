@@ -84,5 +84,11 @@ public interface JyBizTaskWorkGridManagerService {
 	 * @param jyTask
 	 * @return
 	 */
-	int batchAddTask(List<JyBizTaskWorkGridManager> taskList);	
+	int batchAddTask(List<JyBizTaskWorkGridManager> taskList);
+	/**
+	 * 自动取消任务-由网格删除触发
+	 * @param data
+	 * @return
+	 */
+	int autoCancelTaskForGridDelete(JyBizTaskWorkGridManagerBatchUpdate data);	
 }
