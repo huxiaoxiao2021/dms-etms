@@ -12,6 +12,8 @@ import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.service.DmsBaseService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -23,6 +25,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum.FUNCTION_USE_SIMULATOR;
 
 /**
  * <p>
@@ -43,6 +47,9 @@ public class DmsBaseServiceImpl implements DmsBaseService {
 
 	@Autowired
     UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private FuncSwitchConfigService funcSwitchConfigService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.login", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -91,11 +98,29 @@ public class DmsBaseServiceImpl implements DmsBaseService {
         JdResult<com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse> result = userService
                 .sendHeartbeat(BeanUtils.copy(request, com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest.class));
 
+        com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse data = result.getData();
+        boolean canUseSimulatorFlag = false;
+        if (data != null) {
+            // 是否可以使用模拟器校验
+            canUseSimulatorFlag = useSimulatorCheck(data.getUserCode());
+        }
+        DmsClientHeartbeatResponse heartbeatData = JsonHelper.fromJson(JsonHelper.toJson(data), DmsClientHeartbeatResponse.class);
+        if (heartbeatData != null) {
+            heartbeatData.setUseSimulator(canUseSimulatorFlag);
+        }
         JdResult<DmsClientHeartbeatResponse> jdResult = new JdResult<>();
         jdResult.setCode(result.getCode());
         jdResult.setMessage(result.getMessage());
-        jdResult.setData(JsonHelper.fromJson(JsonHelper.toJson(result.getData()), DmsClientHeartbeatResponse.class));
+        jdResult.setData(heartbeatData);
         return jdResult;
+    }
+
+    public boolean useSimulatorCheck(String userErp) {
+        FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
+        condition.setMenuCode(FUNCTION_USE_SIMULATOR.getCode());
+        condition.setYn(Constants.YN_YES);
+        condition.setOperateErp(userErp);
+        return funcSwitchConfigService.getUseSimulatorStatus(condition);
     }
 
     /**

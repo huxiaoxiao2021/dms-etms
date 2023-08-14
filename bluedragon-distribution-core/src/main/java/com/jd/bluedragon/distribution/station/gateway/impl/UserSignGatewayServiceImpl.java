@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.station.gateway.impl;
 
 
-import com.jd.bluedragon.common.dto.station.*;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -20,6 +19,12 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.station.PositionData;
+import com.jd.bluedragon.common.dto.station.ScanForLoginRequest;
+import com.jd.bluedragon.common.dto.station.ScanUserData;
+import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
+import com.jd.bluedragon.common.dto.station.UserSignRecordData;
+import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
@@ -316,15 +321,6 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		}
 		return result ;
 	}
-
-	@Override
-	public JdCResponse<SimulatorCheckResp> useSimulatorCheck(SimulatorCheckReq simulatorCheckReq) {
-		if (StringUtils.isEmpty(simulatorCheckReq.getUserCode())) {
-			return JdCResponse.fail("未获取到登录人信息");
-		}
-		return userSignRecordService.useSimulatorCheck(simulatorCheckReq);
-	}
-
 	private JdCResponse<UserSignRecordData> checkUserSignStatus(String positionCode,Integer jobCode,String userCode){
 		JdCResponse<UserSignRecordData> result = new JdCResponse<UserSignRecordData>();
 		result.toSucceed();

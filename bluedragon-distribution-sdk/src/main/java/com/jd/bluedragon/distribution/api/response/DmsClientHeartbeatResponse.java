@@ -54,6 +54,11 @@ public class DmsClientHeartbeatResponse implements Serializable {
 	private BusinessConfigInfo businessConfigInfo;
 
 	/**
+	 * 是否可以使用模拟器
+	 */
+	private boolean useSimulator;
+
+	/**
 	 * @return the loginStatus
 	 */
 	public Integer getLoginStatus() {
@@ -185,5 +190,13 @@ public class DmsClientHeartbeatResponse implements Serializable {
 
 	public void setBusinessConfigInfo(BusinessConfigInfo businessConfigInfo) {
 		this.businessConfigInfo = businessConfigInfo;
+	}
+
+	public boolean getUseSimulator() {
+		return useSimulator;
+	}
+
+	public void setUseSimulator(boolean useSimulator) {
+		this.useSimulator = useSimulator;
 	}
 }
