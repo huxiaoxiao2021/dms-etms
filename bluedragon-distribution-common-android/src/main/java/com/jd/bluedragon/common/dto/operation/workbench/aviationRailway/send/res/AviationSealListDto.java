@@ -38,7 +38,7 @@ public class AviationSealListDto implements Serializable {
 
     private Double loadWeight;
     private Double loadVolume;
-    private Double loadItemNum;
+    private Integer loadItemNum;
     /**
      * 标准发车时间
      */
@@ -49,4 +49,108 @@ public class AviationSealListDto implements Serializable {
      */
     private String transportCode;
 
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
+
+    public String getBookingCode() {
+        return bookingCode;
+    }
+
+    public void setBookingCode(String bookingCode) {
+        this.bookingCode = bookingCode;
+    }
+
+    public String getFlightNumber() {
+        return flightNumber;
+    }
+
+    public void setFlightNumber(String flightNumber) {
+        this.flightNumber = flightNumber;
+    }
+
+    public Integer getCargoType() {
+        return cargoType;
+    }
+
+    public void setCargoType(Integer cargoType) {
+        this.cargoType = cargoType;
+    }
+
+    public Integer getAirType() {
+        return airType;
+    }
+
+    public void setAirType(Integer airType) {
+        this.airType = airType;
+    }
+
+    public Integer getNextSiteId() {
+        return nextSiteId;
+    }
+
+    public void setNextSiteId(Integer nextSiteId) {
+        this.nextSiteId = nextSiteId;
+    }
+
+    public String getNextSiteName() {
+        return nextSiteName;
+    }
+
+    public void setNextSiteName(String nextSiteName) {
+        this.nextSiteName = nextSiteName;
+    }
+
+    public Double getLoadWeight() {
+        return loadWeight;
+    }
+
+    public void setLoadWeight(Double loadWeight) {
+        this.loadWeight = loadWeight;
+    }
+
+    public Double getLoadVolume() {
+        return loadVolume;
+    }
+
+    public void setLoadVolume(Double loadVolume) {
+        this.loadVolume = loadVolume;
+    }
+
+    public Integer getLoadItemNum() {
+        return loadItemNum;
+    }
+
+    public void setLoadItemNum(Integer loadItemNum) {
+        this.loadItemNum = loadItemNum;
+    }
+
+    public Long getDepartureTime() {
+        return departureTime;
+    }
+
+    public void setDepartureTime(Long departureTime) {
+        this.departureTime = departureTime;
+    }
+
+    public String getDepartureTimeStr() {
+        return departureTimeStr;
+    }
+
+    public void setDepartureTimeStr(String departureTimeStr) {
+        this.departureTimeStr = departureTimeStr;
+    }
+
+    public String getTransportCode() {
+        return transportCode;
+    }
+
+    public void setTransportCode(String transportCode) {
+        this.transportCode = transportCode;
+    }
 }
