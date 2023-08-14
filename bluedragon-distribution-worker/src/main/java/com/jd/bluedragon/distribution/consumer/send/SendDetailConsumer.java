@@ -941,7 +941,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             waybillStatus.setOperateTime(new Date(operateTime));
 
             waybillStatus.setOperateType(operateType);
-            waybillStatus.setRemark(String.format("您的快件在【%s】已操作二次安检", waybillStatus.getCreateSiteName()));
+            waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检通过", waybillStatus.getCreateSiteName()));
 
             Map<String, Object> extendParamMap = new HashMap<>();
             extendParamMap.put("traceDisplay", 0);
