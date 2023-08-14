@@ -51,11 +51,6 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
                 && !Objects.equals(request.getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())){
             return interceptResult;
         }
-        // 只处理港澳请求
-        if(SimpleComplexSwitchContext.getRestThreadInfo() == null 
-                || !Objects.equals(SimpleComplexSwitchContext.getRestThreadInfo().getSimpleComplexFlag(), SimpleComplexSwitchContext.COMPLEX)){
-            return interceptResult;
-        }
         
         // 调用云打印获取pdf链接
         String pdfUrl = generateCloudPrintPdfUrl(request);
