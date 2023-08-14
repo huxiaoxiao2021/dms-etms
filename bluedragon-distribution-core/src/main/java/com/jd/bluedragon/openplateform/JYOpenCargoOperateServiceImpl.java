@@ -367,7 +367,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
                 return new InvokeResult(checkResponse.getCode(),checkResponse.getMessage(), null);
             }
 
-            ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
+            ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithOperateTime(sendM, true);
             log.info("取消发货结果：{}", JsonHelper.toJson(response));
 
         }
