@@ -31,7 +31,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskException
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTagEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTimeOutEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionPackageType;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSaveTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSourceEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
@@ -653,7 +653,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         JyExceptionDamageDto damageDto = damageDtoMap.get(dto.getBizId());
                         if (damageDto != null) {
                             dto.setImageUrls(String.join(";", damageDto.getImageUrlList()));
-                            dto.setFeedBackTypeName(JyExceptionPackageType.FeedBackTypeEnum.getNameByCode(damageDto.getFeedBackType()));
+                            dto.setFeedBackTypeName(JyExceptionDamageEnum.FeedBackTypeEnum.getNameByCode(damageDto.getFeedBackType()));
                         }
                     }
                 }

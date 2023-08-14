@@ -5,7 +5,7 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
  * @Date: 2023/07/26
  * @Description: 异常包裹类型
  */
-public class JyExceptionPackageType {
+public class JyExceptionDamageEnum {
     // 客服反馈未处理数量
     public static final String TO_PROCESS_DAMAGE_EXCEPTION = "DMS:JYAPP:EXP:DAMAGE:TO:PROCESS:";
     // 客服反馈新增未处理数量
