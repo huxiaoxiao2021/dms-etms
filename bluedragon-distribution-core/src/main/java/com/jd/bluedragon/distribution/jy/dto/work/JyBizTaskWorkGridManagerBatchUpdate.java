@@ -19,6 +19,10 @@ public class JyBizTaskWorkGridManagerBatchUpdate implements Serializable {
 	 * 分配任务列表
 	 */
 	private List<String> bizIdList;
+	/**
+	 * 状态列表
+	 */
+	private List<Integer> statusList;
 
 	public JyBizTaskWorkGridManager getData() {
 		return data;
@@ -34,6 +38,14 @@ public class JyBizTaskWorkGridManagerBatchUpdate implements Serializable {
 
 	public void setBizIdList(List<String> bizIdList) {
 		this.bizIdList = bizIdList;
+	}
+
+	public List<Integer> getStatusList() {
+		return statusList;
+	}
+
+	public void setStatusList(List<Integer> statusList) {
+		this.statusList = statusList;
 	}
 
 }
