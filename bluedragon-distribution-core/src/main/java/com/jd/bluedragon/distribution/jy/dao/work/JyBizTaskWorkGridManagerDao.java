@@ -65,5 +65,8 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 	public int batchAddTask(List<JyBizTaskWorkGridManager> taskList) {
 		return this.getSqlSession().update(NAMESPACE + ".batchInsert", taskList);
 	}
+	public int autoCancelTaskForGridDelete(JyBizTaskWorkGridManagerBatchUpdate cancelData) {
+		return this.getSqlSession().update(NAMESPACE + ".autoCancelTaskForGridDelete", cancelData);
+	}
 	
 }
