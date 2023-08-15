@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
+    <result column="site_code" property="siteCode" jdbcType="INTEGER" />
+    <result column="site_name" property="siteName" jdbcType="VARCHAR" />
+    <result column="bar_code" property="barCode" jdbcType="VARCHAR" />
+    <result column="contraband_type" property="contrabandType" jdbcType="BIT" />
+    <result column="feed_back_type" property="feedBackType" jdbcType="BIT" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="create_erp" property="createErp" jdbcType="VARCHAR" />
+    <result column="create_staff_name" property="createStaffName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_erp" property="updateErp" jdbcType="VARCHAR" />
+    <result column="update_staff_name" property="updateStaffName" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, biz_id, site_code, site_name, bar_code, contraband_type, feed_back_type, description, create_erp, 
+    create_staff_name, create_time, update_erp, update_staff_name, update_time, ts, yn
+  </sql>
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity" >
+    insert into jy_exception_contraband
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="bizId != null" >
+        biz_id,
+      </if>
+      <if test="siteCode != null" >
+        site_code,
+      </if>
+      <if test="siteName != null" >
+        site_name,
+      </if>
+      <if test="barCode != null" >
+        bar_code,
+      </if>
+      <if test="contrabandType != null" >
+        contraband_type,
+      </if>
+      <if test="feedBackType != null" >
+        feed_back_type,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="createErp != null" >
+        create_erp,
+      </if>
+      <if test="createStaffName != null" >
+        create_staff_name,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateErp != null" >
+        update_erp,
+      </if>
+      <if test="updateStaffName != null" >
+        update_staff_name,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="ts != null" >
+        ts,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="bizId != null" >
+        #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="siteCode != null" >
+        #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null" >
+        #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="barCode != null" >
+        #{barCode,jdbcType=VARCHAR},
+      </if>
+      <if test="contrabandType != null" >
+        #{contrabandType,jdbcType=BIT},
+      </if>
+      <if test="feedBackType != null" >
+        #{feedBackType,jdbcType=BIT},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createErp != null" >
+        #{createErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createStaffName != null" >
+        #{createStaffName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateErp != null" >
+        #{updateErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateStaffName != null" >
+        #{updateStaffName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ts != null" >
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity" >
+    update jy_exception_contraband
+    <set >
+      <if test="siteCode != null" >
+        site_code = #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null" >
+        site_name = #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="barCode != null" >
+        bar_code = #{barCode,jdbcType=VARCHAR},
+      </if>
+      <if test="contrabandType != null" >
+        contraband_type = #{contrabandType,jdbcType=BIT},
+      </if>
+      <if test="feedBackType != null" >
+        feed_back_type = #{feedBackType,jdbcType=BIT},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createErp != null" >
+        create_erp = #{createErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createStaffName != null" >
+        create_staff_name = #{createStaffName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateErp != null" >
+        update_erp = #{updateErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateStaffName != null" >
+        update_staff_name = #{updateStaffName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ts != null" >
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=BIT},
+      </if>
+    </set>
+    where biz_id = #{bizId,jdbcType=BIGINT}
+  </update>
+
+  <select id="selectByParams" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity" >
+    select
+    <include refid="Base_Column_List"/>
+    from jy_exception_contraband
+    where 1=1
+    <if test="siteCode != null">
+      and site_code = #{siteCode,jdbcType=INTEGER},
+    </if>
+    <if test="barCode != null">
+      and bar_code = #{barCode,jdbcType=VARCHAR},
+    </if>
+    <if test="contrabandType != null">
+      and contraband_type = #{contrabandType,jdbcType=BIT},
+    </if>
+  </select>
+</mapper>

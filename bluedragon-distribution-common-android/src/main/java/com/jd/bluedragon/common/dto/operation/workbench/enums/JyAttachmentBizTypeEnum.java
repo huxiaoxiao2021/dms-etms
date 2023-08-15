@@ -10,6 +10,8 @@ public enum JyAttachmentBizTypeEnum {
 
 	TASK_STRAND_REPORT("task_strand_report", "任务-滞留上报"),
 	TASK_WORK_GRID_MANAGER("task_work_grid_manager", "任务-线上管理化"),
+
+    CONTRABAND_UPLOAD_EXCEPTION("contraband_upload_exception","违禁品上报图片")
     ;
 
     private final String code;

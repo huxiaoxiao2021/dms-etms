@@ -131,4 +131,9 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req);
+
+    /**
+     * 违禁品任务处理
+     */
+    JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req);
 }

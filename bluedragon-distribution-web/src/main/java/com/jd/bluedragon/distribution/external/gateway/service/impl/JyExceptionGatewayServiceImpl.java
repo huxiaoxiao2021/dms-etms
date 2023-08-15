@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
+import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
@@ -33,6 +34,9 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
 
     @Autowired
     private JySanwuExceptionService jySanwuExceptionService;
+    
+    @Autowired
+    private JyContrabandExceptionService jyContrabandExceptionService;
 
     /**
      * 通用异常上报入口-扫描
@@ -227,4 +231,7 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
         return jySanwuExceptionService.getAssignExpTaskCount(req);
     }
 
+    public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {
+        return jyContrabandExceptionService.processTaskOfContraband(req);
+    }
 }
