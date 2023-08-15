@@ -799,6 +799,13 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
     private void validateSaveDamageParams(ExpDamageDetailReq req, JyExceptionDamageEntity oldEntity) {
+        JyBizTaskExceptionEntity expTask = jyBizTaskExceptionDao.findByBizId(req.getBizId());
+        if (expTask == null) {
+            throw new RuntimeException("bizId不存在!" + req.getBizId());
+        }
+        if (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(),expTask.getStatus())) {
+            throw new RuntimeException("任务在处理中不能重复提交!" + req.getBizId());
+        }
         if (!JyExceptionDamageEnum.SaveTypeEnum.DRAFT.getCode().equals(req.getSaveType())
                 && !JyExceptionDamageEnum.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(req.getSaveType())) {
             throw new RuntimeException("保存类型错误!" + req.getBizId());
@@ -818,9 +825,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         } else {
             logger.info("saveOrUpdate update...");
             // 破损提交状态修改为处理中
-            if (JyExceptionDamageEnum.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(entity.getSaveType())) {
-                this.updateTaskExpStatusToProcessing(entity);
-            }
+//            if (JyExceptionDamageEnum.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(entity.getSaveType())) {
+//                this.updateTaskExpStatusToProcessing(entity);
+//            }
             this.clearNotNeedUpdateFiled(entity);
             jyExceptionDamageDao.updateByBizId(entity);
         }
@@ -839,23 +846,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         updateExp.setType(JyBizTaskExceptionTypeEnum.DAMAGE.getCode());
         updateExp.setUpdateUserErp(entity.getCreateErp());
         updateExp.setUpdateTime(new Date());
-        jyBizTaskExceptionDao.updateByBizId(updateExp);
-    }
-
-    /**
-     * 破损提交状态修改为处理中
-     *
-     * @param entity
-     */
-    private void updateTaskExpStatusToProcessing(JyExceptionDamageEntity entity) {
-        JyBizTaskExceptionEntity updateExp = new JyBizTaskExceptionEntity();
-        updateExp.setBizId(entity.getBizId());
-        updateExp.setType(JyBizTaskExceptionTypeEnum.DAMAGE.getCode());
-        updateExp.setUpdateUserErp(entity.getUpdateErp());
-        updateExp.setUpdateTime(new Date());
-        //更新破损任务状态为 处理中-客服介入中
-        updateExp.setStatus(JyExpStatusEnum.PROCESSING.getCode());
-        updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_INTERVENTION.getCode());
         jyBizTaskExceptionDao.updateByBizId(updateExp);
     }
 
