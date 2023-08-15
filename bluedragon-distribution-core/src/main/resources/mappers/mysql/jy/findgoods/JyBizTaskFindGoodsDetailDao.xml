@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.findgoods.JyBizTaskFindGoodsDetailDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetail">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="find_goods_task_biz_id" jdbcType="VARCHAR" property="findGoodsTaskBizId" />
+    <result column="package_code" jdbcType="VARCHAR" property="packageCode" />
+    <result column="site_code" jdbcType="BIGINT" property="siteCode" />
+    <result column="wave_start_time" jdbcType="VARCHAR" property="waveStartTime" />
+    <result column="wave_end_time" jdbcType="VARCHAR" property="waveEndTime" />
+    <result column="find_status" jdbcType="INTEGER" property="findStatus" />
+    <result column="find_type" jdbcType="INTEGER" property="findType" />
+    <result column="find_user_erp" jdbcType="VARCHAR" property="findUserErp" />
+    <result column="find_user_name" jdbcType="VARCHAR" property="findUserName" />
+    <result column="last_find_grid_key" jdbcType="VARCHAR" property="lastFindGridKey" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
+    <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
+    <result column="update_user_erp" jdbcType="VARCHAR" property="updateUserErp" />
+    <result column="update_user_name" jdbcType="VARCHAR" property="updateUserName" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="INTEGER" property="yn" />
+    <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, find_goods_task_biz_id, package_code, site_code, wave_start_time, wave_end_time,
+    find_status, find_type, find_user_erp, find_user_name, last_find_grid_key, create_user_erp,
+    create_user_name, update_user_erp, update_user_name, create_time, update_time, yn,
+    ts
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_biz_task_find_goods_detail
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from jy_biz_task_find_goods_detail
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetail">
+    insert into jy_biz_task_find_goods_detail (id, find_goods_task_biz_id, package_code,
+      site_code, wave_start_time, wave_end_time,
+      find_status, find_type, find_user_erp,
+      find_user_name, last_find_grid_key, create_user_erp,
+      create_user_name, update_user_erp, update_user_name,
+      create_time, update_time, yn,
+      ts)
+    values (#{id,jdbcType=BIGINT}, #{findGoodsTaskBizId,jdbcType=VARCHAR}, #{packageCode,jdbcType=VARCHAR},
+      #{siteCode,jdbcType=BIGINT}, #{waveStartTime,jdbcType=VARCHAR}, #{waveEndTime,jdbcType=VARCHAR},
+      #{findStatus,jdbcType=TINYINT}, #{findType,jdbcType=TINYINT}, #{findUserErp,jdbcType=VARCHAR},
+      #{findUserName,jdbcType=VARCHAR}, #{lastFindGridKey,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR},
+      #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR},
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT},
+      #{ts,jdbcType=TIMESTAMP})
+  </insert>
+
+  <insert id="batchInsert">
+    insert into jy_biz_task_find_goods_detail (find_goods_task_biz_id, package_code,
+                                               site_code, wave_start_time, wave_end_time,
+                                               find_status, find_type, create_user_erp,
+                                               create_user_name, update_user_erp, update_user_name,
+                                               create_time, update_time)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+           ( #{item.findGoodsTaskBizId,jdbcType=VARCHAR}, #{item.packageCode,jdbcType=VARCHAR},
+            #{item.siteCode,jdbcType=BIGINT}, #{item.waveStartTime,jdbcType=VARCHAR}, #{item.waveEndTime,jdbcType=VARCHAR},
+            #{item.findStatus,jdbcType=TINYINT}, #{item.findType,jdbcType=TINYINT}, #{item.createUserErp,jdbcType=VARCHAR},
+            #{item.createUserName,jdbcType=VARCHAR}, #{item.updateUserErp,jdbcType=VARCHAR}, #{item.updateUserName,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=TIMESTAMP}, #{item.updateTime,jdbcType=TIMESTAMP})</foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetail">
+    insert into jy_biz_task_find_goods_detail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="findGoodsTaskBizId != null">
+        find_goods_task_biz_id,
+      </if>
+      <if test="packageCode != null">
+        package_code,
+      </if>
+      <if test="siteCode != null">
+        site_code,
+      </if>
+      <if test="waveStartTime != null">
+        wave_start_time,
+      </if>
+      <if test="waveEndTime != null">
+        wave_end_time,
+      </if>
+      <if test="findStatus != null">
+        find_status,
+      </if>
+      <if test="findType != null">
+        find_type,
+      </if>
+      <if test="findUserErp != null">
+        find_user_erp,
+      </if>
+      <if test="findUserName != null">
+        find_user_name,
+      </if>
+      <if test="lastFindGridKey != null">
+        last_find_grid_key,
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp,
+      </if>
+      <if test="createUserName != null">
+        create_user_name,
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp,
+      </if>
+      <if test="updateUserName != null">
+        update_user_name,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="yn != null">
+        yn,
+      </if>
+      <if test="ts != null">
+        ts,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="findGoodsTaskBizId != null">
+        #{findGoodsTaskBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="packageCode != null">
+        #{packageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="siteCode != null">
+        #{siteCode,jdbcType=BIGINT},
+      </if>
+      <if test="waveStartTime != null">
+        #{waveStartTime,jdbcType=VARCHAR},
+      </if>
+      <if test="waveEndTime != null">
+        #{waveEndTime,jdbcType=VARCHAR},
+      </if>
+      <if test="findStatus != null">
+        #{findStatus,jdbcType=TINYINT},
+      </if>
+      <if test="findType != null">
+        #{findType,jdbcType=TINYINT},
+      </if>
+      <if test="findUserErp != null">
+        #{findUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="findUserName != null">
+        #{findUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="lastFindGridKey != null">
+        #{lastFindGridKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetail">
+    update jy_biz_task_find_goods_detail
+    <set>
+      <if test="findGoodsTaskBizId != null">
+        find_goods_task_biz_id = #{findGoodsTaskBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="packageCode != null">
+        package_code = #{packageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="siteCode != null">
+        site_code = #{siteCode,jdbcType=BIGINT},
+      </if>
+      <if test="waveStartTime != null">
+        wave_start_time = #{waveStartTime,jdbcType=VARCHAR},
+      </if>
+      <if test="waveEndTime != null">
+        wave_end_time = #{waveEndTime,jdbcType=VARCHAR},
+      </if>
+      <if test="findStatus != null">
+        find_status = #{findStatus,jdbcType=TINYINT},
+      </if>
+      <if test="findType != null">
+        find_type = #{findType,jdbcType=TINYINT},
+      </if>
+      <if test="findUserErp != null">
+        find_user_erp = #{findUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="findUserName != null">
+        find_user_name = #{findUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="lastFindGridKey != null">
+        last_find_grid_key = #{lastFindGridKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetail">
+    update jy_biz_task_find_goods_detail
+    set find_goods_task_biz_id = #{findGoodsTaskBizId,jdbcType=VARCHAR},
+      package_code = #{packageCode,jdbcType=VARCHAR},
+      site_code = #{siteCode,jdbcType=BIGINT},
+      wave_start_time = #{waveStartTime,jdbcType=VARCHAR},
+      wave_end_time = #{waveEndTime,jdbcType=VARCHAR},
+      find_status = #{findStatus,jdbcType=TINYINT},
+      find_type = #{findType,jdbcType=TINYINT},
+      find_user_erp = #{findUserErp,jdbcType=VARCHAR},
+      find_user_name = #{findUserName,jdbcType=VARCHAR},
+      last_find_grid_key = #{lastFindGridKey,jdbcType=VARCHAR},
+      create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = #{yn,jdbcType=BIT},
+      ts = #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+
+  <select id="countInventoryDetail" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetailQueryDto" resultType="java.lang.Integer">
+    select count(*)
+    from jy_biz_task_find_goods_detail
+    where yn = 1
+      and find_goods_task_biz_id = #{findGoodsTaskBizId}
+      <if test="findType != null">
+        and find_type = #{findType}
+      </if>
+      <if test="statusList != null">
+        and find_status in
+          <foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+      </if>
+  </select>
+
+
+  <select id="findInventoryDetail" parameterType="com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoodsDetailQueryDto" resultMap="BaseResultMap">
+    select
+      <include refid="Base_Column_List" />
+    from
+      jy_biz_task_find_goods_detail
+    where yn = 1
+      and find_goods_task_biz_id = #{findGoodsTaskBizId}
+      and find_type = #{findType}
+      <if test="statusList != null">
+        and find_status in
+        <foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+    limit #{offset},#{pageSize}
+  </select>
+
+  <select id="findPackage" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+      jy_biz_task_find_goods_detail
+    WHERE
+      find_goods_task_biz_id = #{findGoodsTaskBizId}
+      AND package_code = #{packageCode}
+      AND yn = 1
+    limit 1
+  </select>
+  <select id="listFindGoodsDetail" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+    jy_biz_task_find_goods_detail
+    WHERE find_goods_task_biz_id = #{list[0].findGoodsTaskBizId}
+    AND package_code in
+    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+      #{item.packageCode}
+    </foreach>
+    AND yn =1
+  </select>
+  <update id="updateWaitFindPackage">
+    update jy_biz_task_find_goods_detail
+        set find_status =#{list[0].findStatus},
+          update_time =now()
+    where find_goods_task_biz_id = #{list[0].findGoodsTaskBizId}
+    AND package_code in
+    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+      #{item.packageCode}
+    </foreach>
+    AND yn =1
+  </update>
+</mapper>

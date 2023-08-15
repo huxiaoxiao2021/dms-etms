@@ -16,6 +16,10 @@ public class BaseReq implements Serializable {
      * JyFuncCodeEnum
      */
     private String post;
+    /**
+     * 岗位码
+     */
+    private String positionCode;
 
     public String getGroupCode() {
         return groupCode;
@@ -55,5 +59,12 @@ public class BaseReq implements Serializable {
 
     public void setPost(String post) {
         this.post = post;
+    }
+    public String getPositionCode() {
+        return positionCode;
+    }
+
+    public void setPositionCode(String positionCode) {
+        this.positionCode = positionCode;
     }
 }
