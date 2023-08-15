@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="collection_code" property="collectionCode" jdbcType="VARCHAR" />
+    <result column="site_id" property="siteId" jdbcType="BIGINT" />
+    <result column="agg_code" property="aggCode" jdbcType="VARCHAR" />
+    <result column="agg_code_type" property="aggCodeType" jdbcType="VARCHAR" />
+    <result column="should_collect_num" property="shouldCollectNum" jdbcType="INTEGER" />
+    <result column="real_collect_num" property="realCollectNum" jdbcType="INTEGER" />
+    <result column="is_collected" property="isCollected" jdbcType="BIT" />
+    <result column="custom_type" property="customType" jdbcType="VARCHAR" />
+    <result column="agg_mark" property="aggMark" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <resultMap id="collectStatistics" type="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordStatistics">
+    <result column="agg_code" property="aggCode" jdbcType="VARCHAR" />
+    <result column="should_collect_total_num" property="shouldCollectTotalNum" jdbcType="INTEGER" />
+    <result column="real_collect_total_num" property="realCollectTotalNum" jdbcType="INTEGER" />
+
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, collection_code, site_id, agg_code, agg_code_type, should_collect_num, real_collect_num, 
+    is_collected, custom_type, agg_mark, create_time, update_time, yn
+  </sql>
+
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo" >
+    insert into jy_collect_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="collectionCode != null" >
+        collection_code,
+      </if>
+      <if test="siteId != null" >
+        site_id,
+      </if>
+      <if test="aggCode != null" >
+        agg_code,
+      </if>
+      <if test="aggCodeType != null" >
+        agg_code_type,
+      </if>
+      <if test="shouldCollectNum != null" >
+        should_collect_num,
+      </if>
+      <if test="realCollectNum != null" >
+        real_collect_num,
+      </if>
+      <if test="isCollected != null" >
+        is_collected,
+      </if>
+      <if test="customType != null" >
+        custom_type,
+      </if>
+      <if test="aggMark != null" >
+        agg_mark,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+        yn
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="collectionCode != null" >
+        #{collectionCode,jdbcType=VARCHAR},
+      </if>
+      <if test="siteId != null" >
+        #{siteId,jdbcType=BIGINT},
+      </if>
+      <if test="aggCode != null" >
+        #{aggCode,jdbcType=VARCHAR},
+      </if>
+      <if test="aggCodeType != null" >
+        #{aggCodeType,jdbcType=VARCHAR},
+      </if>
+      <if test="shouldCollectNum != null" >
+        #{shouldCollectNum,jdbcType=INTEGER},
+      </if>
+      <if test="realCollectNum != null" >
+        #{realCollectNum,jdbcType=INTEGER},
+      </if>
+      <if test="isCollected != null" >
+        #{isCollected,jdbcType=BIT},
+      </if>
+      <if test="customType != null" >
+        #{customType,jdbcType=VARCHAR},
+      </if>
+      <if test="aggMark != null" >
+        #{aggMark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      1
+    </trim>
+  </insert>
+
+  <update id="updateByCondition" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo" >
+    update jy_collect_record
+    <set >
+      <if test="shouldCollectNum != null" >
+        should_collect_num = #{shouldCollectNum,jdbcType=INTEGER},
+      </if>
+      <if test="realCollectNum != null" >
+        real_collect_num = #{realCollectNum,jdbcType=INTEGER},
+      </if>
+      <if test="isCollected != null" >
+        is_collected = #{isCollected,jdbcType=BIT},
+      </if>
+      <if test="customType != null" >
+        custom_type = #{customType,jdbcType=VARCHAR},
+      </if>
+      <if test="aggMark != null" >
+        agg_mark = #{aggMark,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=BIT},
+      </if>
+    </set>
+    where  yn = 1
+    and site_id = #{siteId,jdbcType=BIGINT}
+    and collection_code = #{collectionCode,jdbcType=VARCHAR}
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
+  </update>
+
+  <!-- 查询拣运任务扫描记录 -->
+  <select id="findJyCollectRecordByAggCode" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_collect_record
+    where yn = 1
+    and site_id = #{siteId}
+    and collection_code = #{collectionCode}
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
+
+  </select>
+
+
+  <!-- 查询不齐运单  should_collect_num > 1(一单多件) & B网 -->
+  <select id="findPageBuQiByCollectionCodes" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition" resultMap="collectStatistics">
+    select
+     agg_code, should_collect_num should_collect_total_num, sum(real_collect_num) real_collect_total_num
+    from jy_collect_record
+    where yn = 1
+    and site_id = #{siteId}
+    and collection_code in
+      <foreach collection="collectionCodeList" open="(" item="item" separator="," close=")">
+        #{item}
+      </foreach>
+    and should_collect_num > 1
+    <if test="customType != null" >
+      and custom_type = #{customType,jdbcType=VARCHAR}
+    </if>
+    group by agg_code
+    having should_collect_total_num >= real_collect_total_num
+    limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}
+  </select>
+
+
+  <!-- 查询拣运任务扫描记录 -->
+  <select id="findPageByCondition" parameterType="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_collect_record
+    where yn = 1
+    and site_id = #{siteId}
+    and agg_code = #{aggCode,jdbcType=VARCHAR}
+    limit #{offset, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}
+
+  </select>
+</mapper>

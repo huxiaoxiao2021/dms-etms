@@ -4,29 +4,44 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailCacheDto;
+import com.jd.bluedragon.common.dto.jyexpection.request.*;
+import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionAssignDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
-import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
+import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
+import com.jd.bluedragon.distribution.station.domain.BaseUserSignRecordVo;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.common.utils.Result;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskChangeStatusReq;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskStatusEnum;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -37,13 +52,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service("jySanwuExceptionService")
-public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
+public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements JySanwuExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JySanwuExceptionServiceImpl.class);
     private static final String TASK_CACHE_PRE = "DMS:JYAPP:EXP:TASK_CACHE01:";
-
+    private static final String SPLIT = ",";
 
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
@@ -59,8 +75,28 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
     private IJyUnloadVehicleManager jyUnloadVehicleManager;
     @Autowired
     JyBizTaskSendVehicleDetailDao jyBizTaskSendVehicleDetailDao;
+
     @Autowired
-    private JyExceptionService jyExceptionService;
+    private PositionQueryJsfManager positionQueryJsfManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private UserSignRecordDao userSignRecordDao;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private JyBizTaskExceptionLogDao jyBizTaskExceptionLogDao;
+
+    @Autowired
+    @Qualifier("scheduleTaskChangeStatusProducer")
+    private DefaultJMQProducer scheduleTaskChangeStatusProducer;
+
+    @Autowired
+    private JyBizTaskExceptionAssignDao jyBizTaskExceptionAssignDao;
 
     @Override
     public Integer getExceptionType() {
@@ -76,7 +112,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
                                           JyExpSourceEnum source,  String bizId) {
         logger.info("三无上报信息req-{} 岗位码信息position-{} bizId-{}", JSON.toJSONString(req), JSON.toJSONString(position), bizId);
         if (!BusinessUtil.isSanWuCode(req.getBarCode())) {
-            return JdCResponse.fail("请扫描异常包裹的三无码或运单号!");
+            return JdCResponse.fail("请扫描异常包裹的三无码!");
         }
         //三无系统只处理大写字母
         req.setBarCode(req.getBarCode().toUpperCase());
@@ -236,5 +272,547 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy {
             return unloadDetail.getData().get(0).getSendCode();
         }
         return null;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.getExpTaskStatisticsOfWaitReceiveByPage", mState = {JProEnum.TP})
+    public JdCResponse<List<ExpTaskStatisticsOfWaitReceiveDto>> getExpTaskStatisticsOfWaitReceiveByPage(ExpTaskStatisticsReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("getExpTaskStatisticsOfWaitReceiveByPage获取待领取任务列表入参-{}",JSON.toJSONString(req));
+        }
+        JdCResponse<List<ExpTaskStatisticsOfWaitReceiveDto>> response = new JdCResponse<>();
+        response.toSucceed(JdCResponse.MESSAGE_SUCCESS);
+        if(!checkWaitReceiveSanwuParam(response,req)){
+            return response;
+        }
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            response.toFail("网格码有误!");
+            return response;
+        }
+        if (req.getPageNumber() == null || req.getPageNumber() <= 0) {
+            req.setPageNumber(1);
+        }
+        if (req.getPageSize() == null || req.getPageSize() <= 0) {
+            req.setPageSize(10);
+        }
+        try{
+            //补充其他字段值
+            req.setGridRid(getGridRid(position));
+            req.setStatus(JyExpStatusEnum.TO_PICK.getCode());
+            req.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+            if(logger.isInfoEnabled()){
+                logger.info("查询待取件统计数据入参:{}", JSON.toJSONString(req));
+            }
+            List<StatisticsTimeOutExpTaskDto> statistics = jyBizTaskExceptionDao.getStatisticsExceptionTaskList(req);
+            if(logger.isInfoEnabled()){
+                logger.info("查询待取件统计数据出参:{}", JSON.toJSONString(statistics));
+            }
+            if (CollectionUtils.isEmpty(statistics)) {
+                return response;
+            }
+            List<ExpTaskStatisticsOfWaitReceiveDto> waitReceiveDtos = new ArrayList<>();
+            for (StatisticsTimeOutExpTaskDto statisticOfGrid: statistics ) {
+                ExpTaskStatisticsOfWaitReceiveDto expTaskStatisticsOfWaitReceiveDto = getExpTaskOfWaitReceiveDto(statisticOfGrid);
+                waitReceiveDtos.add(expTaskStatisticsOfWaitReceiveDto);
+            }
+            response.setData(waitReceiveDtos);
+        }catch (Exception e){
+            logger.error("获取超时未领取任务异常-param-{}",JSON.toJSONString(req),e);
+            response.setMessage("获取超时未领取任务异常!");
+            response.setCode(JdCResponse.CODE_ERROR);
+        }
+        return response;
+    }
+
+    @Override
+    public JdCResponse<List<ExpTaskDto>> getWaitReceiveSanwuExpTaskByPage(ExpTaskStatisticsDetailReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("getWaitReceiveSanwuExpTaskByPage 获取待领取任务列表入参-{}",JSON.toJSONString(req));
+        }
+        JdCResponse<List<ExpTaskDto>> response = new JdCResponse<>();
+        response.toSucceed(JdCResponse.MESSAGE_SUCCESS);
+        if(!checkWaitReceiveSanwuExpTask(response,req)){
+            return response;
+        }
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            response.toFail("网格码有误!");
+            return response;
+        }
+        if (req.getPageNumber() == null || req.getPageNumber() <= 0) {
+            req.setPageNumber(1);
+        }
+        if (req.getPageSize() == null || req.getPageSize() <= 0) {
+            req.setPageSize(10);
+        }
+        try{
+            //补充其他字段值
+
+            req.setGridRid(getGridRid(position));
+            req.setStatus(JyExpStatusEnum.TO_PICK.getCode());
+            req.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+
+            if(logger.isInfoEnabled()){
+                logger.info("查询待取件任务列表数据入参:{}", JSON.toJSONString(req));
+            }
+            List<JyBizTaskExceptionEntity>  taskList = jyBizTaskExceptionDao.getStatisticsExceptionTaskDetailList(req);
+            if(logger.isInfoEnabled()){
+                logger.info("查询待取件任务列表出参:{}", JSON.toJSONString(taskList));
+            }
+            if (CollectionUtils.isEmpty(taskList)) {
+                return response;
+            }
+            List<ExpTaskDto> waitReceiveDtos = new ArrayList<>();
+            for (JyBizTaskExceptionEntity taskExceptionEntity: taskList ) {
+                ExpTaskDto taskDto = getTaskDto(taskExceptionEntity);
+                waitReceiveDtos.add(taskDto);
+            }
+            response.setData(waitReceiveDtos);
+        }catch (Exception e){
+            logger.error("获取超时未领取任务列表异常-param-{}",JSON.toJSONString(req),e);
+            response.setMessage("获取超时未领取任务列表异常!");
+            response.setCode(JdCResponse.CODE_ERROR);
+        }
+        return response;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.getExpSignInUserByPage", mState = {JProEnum.TP})
+    public JdCResponse<List<ExpSignUserResp>> getExpSignInUserByPage(ExpSignUserReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("getExpSignInUserByPage 获取异常岗签到用户入参-{}",JSON.toJSONString(req));
+        }
+        JdCResponse<List<ExpSignUserResp>> response = new JdCResponse<>();
+        response.toSucceed(JdCResponse.MESSAGE_SUCCESS);
+        UserSignRecordQuery query = new UserSignRecordQuery();
+        if (req.getPageNumber() == null || req.getPageNumber() <= 0) {
+            req.setPageNumber(1);
+        }
+        if (req.getPageSize() == null || req.getPageSize() <= 0) {
+            req.setPageSize(10);
+        }
+        query.setPageNumber(req.getPageNumber());
+        query.setPageSize(req.getPageSize());
+        if(StringUtils.isNotBlank(req.getExpUserErp())){
+            query.setUserErp(req.getExpUserErp());
+        }
+        List<ExpSignUserResp> expSignUserResps = new ArrayList<>();
+        try{
+            PositionDetailRecord position = getPosition(req.getPositionCode());
+            if (position == null || StringUtils.isBlank(position.getRefGridKey())) {
+                response.toFail("网格码有误!");
+                return response;
+            }
+            String refGridKey = position.getRefGridKey();
+            //获取当前零点时间
+            Date zeroTime = DateHelper.getCurrentDayWithOutTimes();
+            query.setRefGridKey(refGridKey);
+            query.setSignInTime(zeroTime);
+            if(logger.isInfoEnabled()){
+                logger.info("getExpSignInUserByPage 获取异常岗签到信息入参-{}",JSON.toJSONString(query));
+            }
+            List<BaseUserSignRecordVo> baseUserSignRecordVos = userSignRecordDao.querySignInUserByCondition(query);
+            if(logger.isInfoEnabled()){
+                logger.info("getExpSignInUserByPage 获取异常岗签到信息出参-{}",JSON.toJSONString(baseUserSignRecordVos));
+            }
+            if(CollectionUtils.isEmpty(baseUserSignRecordVos)){
+                response.toFail("获取当前岗位码【{"+req.getPositionCode()+"}】签到用户列表为空!");
+                return response;
+            }
+            baseUserSignRecordVos.stream().forEach(item ->{
+                ExpSignUserResp resp = new ExpSignUserResp();
+                resp.setExpUserName(item.getUserName());
+                resp.setExpUserErp(item.getUserCode());
+                expSignUserResps.add(resp);
+            });
+            response.setData(expSignUserResps);
+            return  response;
+        }catch (Exception e){
+            logger.error(" 获取异常岗签到用户信息异常-parm-{}-{}",JSON.toJSONString(req),e.getMessage(),e);
+            response.toError("获取异常岗签到用户信息异常!");
+            return response;
+        }
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.assignExpTask", mState = {JProEnum.TP})
+    public JdCResponse<Boolean> assignExpTask(ExpTaskAssignRequest req) {
+        if(logger.isInfoEnabled()){
+            logger.info("指派异常任务入参-{}",JSON.toJSONString(req));
+        }
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        response.toSucceed();
+        response.setData(Boolean.TRUE);
+        if(CollectionUtils.isEmpty(req.getBizIds()) && CollectionUtils.isEmpty(req.getExpTaskStatistics())){
+            response.toFail("指派任务不能为空!");
+            response.setData(Boolean.FALSE);
+            return response;
+        }
+        if(StringUtils.isBlank(req.getAssignHandlerErp())){
+            response.toFail("任务指派人不能为空!");
+            response.setData(Boolean.FALSE);
+            return response;
+        }
+        try{
+            PositionDetailRecord position = getPosition(req.getPositionCode());
+            if (position == null) {
+                response.toFail("网格码有误!");
+                return response;
+            }
+            BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getAssignHandlerErp());
+            if (baseStaffByErp == null) {
+                response.toFail("任务指派人不存在!");
+                response.setData(Boolean.FALSE);
+                return response;
+            }
+            //获取传入网格下的所有异常任务
+            List<String> allTaskBizids =  new ArrayList<>();
+            if(CollectionUtils.isNotEmpty(req.getExpTaskStatistics())){
+                for (int i = 0; i < req.getExpTaskStatistics().size(); i++) {
+                    ExpTaskStatisticsOfWaitReceiveDto expTaskStatisticsDto = req.getExpTaskStatistics().get(i);
+                    ExpTaskStatisticsDetailReq statisticsDetailReq = new ExpTaskStatisticsDetailReq();
+                    statisticsDetailReq.setFloor(expTaskStatisticsDto.getFloor());
+                    statisticsDetailReq.setGridNo(expTaskStatisticsDto.getGridNo());
+                    statisticsDetailReq.setGridCode(expTaskStatisticsDto.getGridCode());
+                    statisticsDetailReq.setAreaCode(expTaskStatisticsDto.getAreaCode());
+                    statisticsDetailReq.setGridRid(getGridRid(position));
+                    statisticsDetailReq.setStatus(JyExpStatusEnum.TO_PICK.getCode());
+                    statisticsDetailReq.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+                    List<JyBizTaskExceptionEntity> taskDetailList = jyBizTaskExceptionDao.getStatisticsExceptionTaskDetailList(statisticsDetailReq);
+
+                    List<String> taskDetailBizIds = taskDetailList.stream().map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
+                    allTaskBizids.addAll(taskDetailBizIds);
+                }
+            }
+            //
+            if(CollectionUtils.isNotEmpty(req.getBizIds())){
+                allTaskBizids.addAll(req.getBizIds());
+            }
+            //对任务进行去重
+            allTaskBizids = allTaskBizids.stream().collect(
+                    Collectors.collectingAndThen(Collectors.toCollection(
+                            () -> new TreeSet<>(Comparator.comparing(String::toString))), ArrayList::new));
+            //一次分配任务数量限制
+            int assignExpTaskQuantityLimit = uccPropertyConfiguration.getAssignExpTaskQuantityLimit();
+            if(assignExpTaskQuantityLimit < allTaskBizids.size()){
+                response.toFail("一次指派任务条数不能超过限制条数:"+assignExpTaskQuantityLimit+"!");
+                response.setData(Boolean.FALSE);
+                return response;
+            }
+
+            for (int i = 0; i < allTaskBizids.size(); i++) {
+                JyAssignExpTaskDto dto = coverToAssignExpTaskMQ(allTaskBizids.get(i),req.getAssignHandlerErp(),req.getUserErp());
+                logger.info("指派异常任务信息-{}",JSON.toJSONString(dto));
+                dealAssignTaskData(dto);
+            }
+            return response;
+        }catch(Exception e){
+            logger.error("任务指派异常!-param-{}",JSON.toJSONString(req),e);
+            response.toFail("任务指派异常!");
+            response.setData(Boolean.FALSE);
+            return response;
+        }
+    }
+
+    public void dealAssignTaskData(JyAssignExpTaskDto dto) {
+
+        if(logger.isInfoEnabled()){
+            logger.info("指派异常任务处理信息-{}",JSON.toJSONString(dto));
+        }
+        JyBizTaskExceptionEntity bizEntity = jyBizTaskExceptionDao.findByBizId(dto.getBizId());
+        if (bizEntity == null) {
+            logger.warn("当前异常任务不存在-{}",dto.getBizId());
+            return ;
+        }
+        if (!Objects.equals(JyExpStatusEnum.TO_PICK.getCode(), bizEntity.getStatus())) {
+            logger.warn("当前异常任务状态非待取件状态-{}",dto.getBizId());
+            return ;
+        }
+
+        //修改状态为 status处理中-processingStatus匹配中
+        JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
+        update.setBizId(dto.getBizId());
+        update.setStatus(JyExpStatusEnum.TO_PROCESS.getCode());
+        update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
+        update.setHandlerErp(dto.getAssignHandlerErp());
+        update.setUpdateUserErp(dto.getPrincipalErp());
+        update.setUpdateTime(new Date());
+        update.setProcessBeginTime(new Date());
+        update.setTags(StringHelper.append(bizEntity.getTags(),SPLIT+JyBizTaskExceptionTagEnum.ASSIGN.getCode()));
+
+        try{
+            jyBizTaskExceptionDao.updateByBizId(update);
+            recordLog(JyBizTaskExceptionCycleTypeEnum.RECEIVE,update);
+            //发送修改状态消息
+            sendScheduleTaskStatusMsg(dto.getBizId(), dto.getAssignHandlerErp(), JyScheduleTaskStatusEnum.STARTED, scheduleTaskChangeStatusProducer);
+            //将指派任务保存到指派任务表中
+            JyBizTaskExceptionAssignEntity assignEntity = coverTJyBizTaskExceptionAssignEntity(bizEntity, dto);
+            jyBizTaskExceptionAssignDao.insertSelective(assignEntity);
+        }catch (Exception e){
+            logger.error("指派异常任务处理异常!",e);
+        }
+
+
+    }
+
+    private JyBizTaskExceptionAssignEntity coverTJyBizTaskExceptionAssignEntity(JyBizTaskExceptionEntity bizEntity, JyAssignExpTaskDto mq){
+        JyBizTaskExceptionAssignEntity assignEntity = new JyBizTaskExceptionAssignEntity();
+        assignEntity.setBizId(mq.getBizId());
+        assignEntity.setSiteCode(bizEntity.getSiteCode());
+        assignEntity.setSiteName(bizEntity.getSiteName());
+        assignEntity.setDistributionTarget(bizEntity.getDistributionTarget());
+        assignEntity.setHandlerErp(mq.getAssignHandlerErp());
+        assignEntity.setCreateUserErp(mq.getPrincipalErp());
+        assignEntity.setCreateTime(new Date());
+        return assignEntity;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.getAssignExpTaskCount", mState = {JProEnum.TP})
+    public JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("getAssignExpTaskCount获取当前用户任务指派数量入参-{}",JSON.toJSONString(req));
+        }
+        JdCResponse<Integer> response = new JdCResponse<>();
+        response.toSucceed(JdCResponse.MESSAGE_SUCCESS);
+        if(StringUtils.isBlank(req.getUserErp()) || StringUtils.isBlank(req.getPositionCode())){
+            response.toFail("入参不能为空!");
+        }
+
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            response.toFail("网格码有误!");
+            return response;
+        }
+        try{
+            String gridRid = getGridRid(position);
+            ExpTaskStatisticsReq statisticsReq = new ExpTaskStatisticsReq();
+            statisticsReq.setGridRid(gridRid);
+            statisticsReq.setUserErp(req.getUserErp());
+            logger.info("获取指派任务数入参——{}!",JSON.toJSONString(statisticsReq));
+            List<JyBizTaskExceptionAssignEntity> assignExpTask = jyBizTaskExceptionAssignDao.getAssignExpTask(statisticsReq);
+            logger.info("获取指派任务数出参——{}!",JSON.toJSONString(assignExpTask));
+            if(CollectionUtils.isEmpty(assignExpTask)){
+                logger.warn("获取指派任务数为空!");
+                response.toFail("获取指派任务数为空!");
+                return response;
+            }
+            response.setData(assignExpTask.size());
+            List<Long> ids = assignExpTask.stream().map(JyBizTaskExceptionAssignEntity::getId).collect(Collectors.toList());
+            jyBizTaskExceptionAssignDao.updateByIds(ids);
+            return response;
+        }catch (Exception e){
+            logger.error("获取指派任务数异常!",e);
+            response.toError("获取指派任务数异常!");
+            return response;
+        }
+
+    }
+
+
+
+    private Boolean checkWaitReceiveSanwuExpTask(JdCResponse<List<ExpTaskDto>> response,ExpTaskStatisticsDetailReq req){
+        if(req == null){
+            response.toFail("入参不能为空!");
+            return false;
+        }
+        if(req.getSiteId() == null){
+            response.toFail("站点id不能为空!");
+            return false;
+        }
+        if(req.getFloor() == null){
+            response.toFail("楼层不能为空!");
+            return false;
+        }
+        if(StringUtils.isBlank(req.getGridCode())){
+            response.toFail("网格编号不能为空!");
+            return false;
+        }
+        if(StringUtils.isBlank(req.getGridNo())){
+            response.toFail("网格号不能为空!");
+            return false;
+        }
+        if(StringUtils.isBlank(req.getAreaCode())){
+            response.toFail("作业区编码不能为空!");
+            return false;
+        }
+        return true;
+    }
+
+    private JyAssignExpTaskDto coverToAssignExpTaskMQ(String bizId, String erp, String principalErp){
+        JyAssignExpTaskDto mq = new JyAssignExpTaskDto();
+        mq.setBizId(bizId);
+        mq.setAssignHandlerErp(erp);
+        mq.setPrincipalErp(principalErp);
+        return mq;
+    }
+
+    private ExpTaskStatisticsOfWaitReceiveDto getExpTaskOfWaitReceiveDto(StatisticsTimeOutExpTaskDto statisticOfGrid){
+        ExpTaskStatisticsOfWaitReceiveDto receiveDto = new ExpTaskStatisticsOfWaitReceiveDto();
+        receiveDto.setSiteCode(statisticOfGrid.getSiteCode());
+        receiveDto.setFloor(statisticOfGrid.getFloor());
+        receiveDto.setAreaName(statisticOfGrid.getAreaName());
+        receiveDto.setAreaCode(statisticOfGrid.getAreaCode());
+        receiveDto.setGridCode(statisticOfGrid.getGridCode());
+        receiveDto.setGridNo(statisticOfGrid.getGridNo());
+        receiveDto.setCount(statisticOfGrid.getTimeoutNum());
+        return receiveDto;
+    }
+
+    private ExpTaskStatisticsDetailReq coverToExpTaskStatisticsDetailReq(ExpTaskStatisticsReq req,StatisticsTimeOutExpTaskDto statisticOfGrid){
+        ExpTaskStatisticsDetailReq statisticsDetailReq = new ExpTaskStatisticsDetailReq();
+        statisticsDetailReq.setSiteId(req.getSiteId());
+        statisticsDetailReq.setType(req.getType());
+        statisticsDetailReq.setStatus(req.getStatus());
+        statisticsDetailReq.setFloor(statisticOfGrid.getFloor());
+        statisticsDetailReq.setGridCode(statisticOfGrid.getGridCode());
+        statisticsDetailReq.setGridNo(statisticOfGrid.getGridNo());
+        statisticsDetailReq.setAreaCode(statisticOfGrid.getAreaCode());
+        statisticsDetailReq.setGridRid(req.getGridRid());
+        statisticsDetailReq.setTimeOutTime(req.getTimeOutTime());
+        return statisticsDetailReq;
+    }
+
+    private Boolean checkWaitReceiveSanwuParam(JdCResponse<List<ExpTaskStatisticsOfWaitReceiveDto>>response, ExpTaskStatisticsReq req){
+        if(req == null){
+            response.toFail("入参不能为空!");
+            return false;
+        }
+        if(req.getSiteId() == null){
+            response.toFail("站点id不能为空!");
+            return false;
+        }
+        return true;
+    }
+
+    private PositionDetailRecord getPosition(String positionCode) {
+        if (StringUtils.isBlank(positionCode)) {
+            return null;
+        }
+        Result<PositionDetailRecord> positionResult = positionQueryJsfManager.queryOneByPositionCode(positionCode);
+        if (positionResult == null || positionResult.isFail() || positionResult.getData() == null) {
+            return null;
+        }
+        // 处理jsf泛型丢失问题z
+        return JSON.parseObject(JSON.toJSONString(positionResult.getData()), PositionDetailRecord.class);
+    }
+
+    /**
+     * 拼接唯一网格标识
+     */
+    private String getGridRid(PositionDetailRecord data) {
+        return data.getSiteCode() + "-" + data.getFloor() + "-" + data.getGridCode();
+    }
+
+
+    // bizTask转dto
+    private ExpTaskDto getTaskDto(JyBizTaskExceptionEntity entity) {
+        ExpTaskDto dto = new ExpTaskDto();
+        dto.setBizId(entity.getBizId());
+        dto.setSource(entity.getSource());
+        dto.setType(entity.getType());
+        dto.setBarCode(entity.getBarCode());
+        // 停留时间：当前时间-分配时间
+        dto.setStayTime(getStayTime(entity.getDistributionTime()));
+        dto.setTimeOut(entity.getTimeOut());
+        dto.setFloor(entity.getFloor());
+        dto.setGridCode(entity.getGridCode());
+        dto.setGridNo(entity.getGridNo());
+        dto.setAreaName(entity.getAreaName());
+        dto.setReporterName(entity.getCreateUserName());
+        dto.setTags(getTags(entity.getTags()));
+        dto.setStatus(entity.getStatus());
+        dto.setProcessingStatus(entity.getProcessingStatus());
+        return dto;
+    }
+
+
+
+    /**
+     * 格式化停留时间
+     */
+    private String getStayTime(Date createTime) {
+        if (createTime == null) {
+            return "";
+        }
+        long millis = System.currentTimeMillis() - createTime.getTime();
+        long hours = TimeUnit.MILLISECONDS.toHours(millis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis - TimeUnit.HOURS.toMillis(hours));
+        return hours + "时" + minutes + "分";
+    }
+
+    /**
+     * 格式化标签
+     */
+    private List<TagDto> getTags(String tags) {
+        List<TagDto> list = new ArrayList<>();
+        if (StringUtils.isBlank(tags)) {
+            return list;
+        }
+        String[] split = tags.split(SPLIT);
+        for (String s : split) {
+            JyBizTaskExceptionTagEnum tagEnum = JyBizTaskExceptionTagEnum.getByCode(s);
+            if (tagEnum == null) {
+                continue;
+            }
+            TagDto dto = new TagDto();
+            dto.setName(tagEnum.getName());
+            dto.setCode(tagEnum.ordinal());
+            dto.setStyle("info");
+            list.add(dto);
+        }
+        return list;
+    }
+
+
+    /**
+     * 操作日志记录
+     * @param cycle
+     * @param entity
+     */
+    private void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
+        String msg ="%s%s操作,状态变更为%s-%s";
+        try{
+            JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
+            JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
+            bizLog.setBizId(task.getBizId());
+            bizLog.setCycleType(cycle.getCode());
+            bizLog.setType(task.getType());
+            bizLog.setOperateTime(task.getUpdateTime()==null?task.getCreateTime():task.getUpdateTime());
+            bizLog.setOperateUser(StringUtils.isEmpty(task.getUpdateUserErp())?task.getCreateUserErp():task.getUpdateUserErp());
+            bizLog.setOperateUserName(StringUtils.isEmpty(task.getUpdateUserName())?task.getCreateUserName():task.getUpdateUserErp());
+
+            String status ="";
+            String processStatus="";
+            if(task.getStatus() != null && JyExpStatusEnum.getEnumByCode(task.getStatus()) != null){
+                status=JyExpStatusEnum.getEnumByCode(task.getStatus()).getText();
+            }
+            if(task.getProcessingStatus() != null && JyBizTaskExceptionProcessStatusEnum.valueOf(task.getProcessingStatus()) != null){
+                processStatus = JyBizTaskExceptionProcessStatusEnum.valueOf(task.getProcessingStatus()).getName();
+            }
+            String erp =StringUtils.isNotBlank(entity.getUpdateUserErp())?entity.getUpdateUserErp():"";
+            bizLog.setRemark(String.format(msg,erp,cycle.getName(),status,processStatus));
+            jyBizTaskExceptionLogDao.insertSelective(bizLog);
+        }catch (Exception e){
+            logger.error("保存日志信息出错 req-{}-{}",JSON.toJSONString(entity),e.getMessage(),e);
+        }
+    }
+
+    private void sendScheduleTaskStatusMsg(String bizId, String userErp,
+                                           JyScheduleTaskStatusEnum status, DefaultJMQProducer producer) {
+        //通知任务调度系统状态修改
+        JyScheduleTaskChangeStatusReq req = new JyScheduleTaskChangeStatusReq();
+        try{
+            req.setBizId(bizId);
+            req.setChangeTime(new Date());
+            req.setOpeUser(userErp);
+            req.setTaskStatus(status);
+            req.setTaskType(JyScheduleTaskTypeEnum.EXCEPTION);
+            producer.sendOnFailPersistent(bizId, JsonHelper.toJson(req));
+            logger.info("异常岗-任务领取发送状态更新发送mq完成:body={}", JsonHelper.toJson(req));
+        }catch (Exception e) {
+            logger.error("异常岗-任务领取发送状态更新发送mq失败,message:{} :  ", JsonHelper.toJson(req),e);
+        }
     }
 }

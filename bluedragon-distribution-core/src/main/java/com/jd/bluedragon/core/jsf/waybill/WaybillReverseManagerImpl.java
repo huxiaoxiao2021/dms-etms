@@ -105,7 +105,9 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     private static final String UMP_KEY_WBMS_PREFIX = "dmsWeb.jsf.client.wbms.reverseWaybillApi";
 
     private static final String UMP_KEY_RECEIVE_PREFIX = "dmsWeb.jsf.client.receive.";
-    
+
+    private static final String SUB_MSG_KEY = "submessage";
+
     @Autowired
     private LogEngine logEngine;
 
@@ -325,7 +327,11 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     			result.setData(rpcResult.getData());
     		}else if(rpcResult != null){
     			log.warn("调用运单换单查询接口失败reverseWaybillApi.queryWaybill,入参：{}  返回结果：{}",JsonHelper.toJson(dmsWaybillReverseDTO),JsonHelper.toJson(rpcResult));
-    			result.toFail(rpcResult.getMessage());
+                String errorMsg = rpcResult.getMessage();
+                if( rpcResult.getExt() != null ){
+                    errorMsg += Constants.SEPARATOR_COMMA + rpcResult.getExt().get(SUB_MSG_KEY);
+                }
+                result.toFail(errorMsg);
     		}else {
     			result.toFail("调用运单换单提交接口返回值为空！");
     		}
@@ -366,7 +372,11 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     			result.setData(rpcResult.getData());
     		}else if(rpcResult != null){
     			log.warn("调用运单换单提交接口失败reverseWaybillApi.submitWaybill,入参：{}  返回结果：{}",JsonHelper.toJson(dmsWaybillReverseDTO),JsonHelper.toJson(rpcResult));
-    			result.toFail(rpcResult.getMessage());
+                String errorMsg = rpcResult.getMessage();
+                if( rpcResult.getExt() != null ){
+                    errorMsg += Constants.SEPARATOR_COMMA + rpcResult.getExt().get(SUB_MSG_KEY);
+                }
+    			result.toFail(errorMsg);
     		}else {
     			result.toFail("调用运单换单提交接口返回值为空！");
     		}

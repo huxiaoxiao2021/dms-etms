@@ -145,12 +145,16 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             return true;
         }
         SealCarDto sealCarInfoBySealCarCodeOfTms = findSealCarInfoBySealCarCodeOfTms(tmsSealCarStatus.getSealCarCode());
+        Integer startSiteId = sealCarInfoBySealCarCodeOfTms.getStartSiteId();
+        Integer endSiteId = sealCarInfoBySealCarCodeOfTms.getEndSiteId();
         if(sealCarInfoBySealCarCodeOfTms == null){
-            logger.error("从运输未获取到封车信息,{}",JsonHelper.toJson(tmsSealCarStatus));
+            logger.error("从运输未获取到封车信息为空,{}",JsonHelper.toJson(tmsSealCarStatus));
             return false;
         }
-        Integer endSiteId = sealCarInfoBySealCarCodeOfTms.getEndSiteId();
-
+        if(startSiteId == null || endSiteId == null){
+            logger.error("从运输未获取到封车关键信息为空,{}",JsonHelper.toJson(tmsSealCarStatus));
+            return true;
+        }
         // 完结板操作
         closeBoard(sealCarInfoBySealCarCodeOfTms);
 
@@ -187,7 +191,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                 if(logger.isInfoEnabled()) {
                     logger.info("消费处理tms_seal_car_status 执行进围栏状态 存在 逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
                 }
-                //初始化实际到达时间 紧急代替flink加工暂不关心返回值
+                //初始化实际到达时间
                 jyBizTaskUnloadVehicleService.initActualArriveTime(tmsSealCarStatus.getSealCarCode(),DateHelper.parseAllFormatDateTime(tmsSealCarStatus.getOperateTime()));
 
                 return jyBizTaskUnloadVehicleService.changeStatus(convert2Entity4InRail(tmsSealCarStatus));
@@ -198,7 +202,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
                 }
                 boolean flag = jyUnSealVehicleService.createUnSealTask(convert4InRail(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
 
-                //初始化实际到达时间 紧急代替flink加工暂不关心返回值
+                //初始化实际到达时间
                 jyBizTaskUnloadVehicleService.initActualArriveTime(tmsSealCarStatus.getSealCarCode(),DateHelper.parseAllFormatDateTime(tmsSealCarStatus.getOperateTime()));
 
                 return flag;

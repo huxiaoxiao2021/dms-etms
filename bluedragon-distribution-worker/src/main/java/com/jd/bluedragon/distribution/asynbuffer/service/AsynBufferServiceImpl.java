@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameDispatchService;
@@ -113,7 +114,11 @@ public class AsynBufferServiceImpl implements AsynBufferService {
                         request.setOperateType(InspectionOperateTypeEnum.BOX.getCode());
                     }
                 }
-
+                //添加自动化设备信息
+                if(request.getOperatorTypeCode() == null && StringUtils.isNotBlank(request.getMachineCode())){
+                    request.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+                    request.setOperatorId(request.getMachineCode());
+                }
                 inspectionTaskExeStrategy.decideExecutor(request).process(request);
             }
         } catch (InspectionException inspectionEx) {

@@ -899,7 +899,10 @@ public class Constants {
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心
      */
     public static final String SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES="packageSend.board.com.cancel.auto.sites";
-
+    /**
+     * 配置信息-任务线上化任务-推送-功能开启的分拣中心
+     */
+    public static final String SYS_CONFIG_WORK_GRID_MANAGER_SITES="sys.config.task.workGridManager.sites";
     /**
      * 配置信息-新分拣开启的分拣中心
      */
@@ -1965,7 +1968,50 @@ public class Constants {
     //德邦默认操作站点名称
     public static final String OPERATE_SITE_NAME_DEBON = "system";
 
+    /**
+     * 电商特惠产品编码
+     */
+    public static final String E_COMMERCE_SPECIAL_OFFER_SERVICE = "ed-m-0059";
 
+    /**
+     * 意见反馈APPID
+     */
+    public static final Long APP_ID = 8181L;
+
+    /**
+     * 意见反馈ORG_TYPE_ERP参数
+     */
+    public static final Integer ORG_TYPE_ERP = 2;
+
+    /**
+     * http字符串
+     */
+    public static final String HTTP_STR = "http";
+
+    /**
+     * https字符串
+     */
+    public static final String HTTPS_STR = "https";
+    /**
+     * PDA操作分页最大值保护
+     */
+    public static final Integer PDA_DEFAULT_PAGE_MAXSIZE = 100;
+
+
+    /**
+     * 找货任务互斥锁
+     */
+    public static final String JY_CREATE_FINDGOODS_TASK_LOCK_PREFIX  = "jy_findGoods_task_lock_%s_%s_%s_%s";
+
+    /**
+     * 找货任务互斥锁
+     */
+    public static final String JY_FINDGOODS_TASK_LOCK_PREFIX  = "jy_findGoods_task_lock_%s";
+
+
+    /**
+     * 波次数据主备数据源映射
+     */
     public static Map<String, String> sendPredictaggstopic2DataSource =new HashMap<>();
     static {
         sendPredictaggstopic2DataSource.put("jy_send_predict_aggs","aggsMain");

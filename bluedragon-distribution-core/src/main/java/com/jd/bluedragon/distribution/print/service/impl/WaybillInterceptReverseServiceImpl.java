@@ -145,6 +145,7 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
         exchangeWaybillDto.setOperatorId(request.getUser().getUserCode());
         exchangeWaybillDto.setOperatorName(request.getUser().getUserName());
         exchangeWaybillDto.setOperateTime(DateHelper.formatDateTime(request.getCurrentOperate().getOperateTime()));
+        exchangeWaybillDto.setisTotalout(true);
         return exchangeWaybillDto;
     }
 

@@ -332,6 +332,13 @@
                   ref="userSignRecordFlowJsfService"
                   server="dmsjsf">
     </jsf:provider>
+    <!-- 任务线上化管理 -->
+    <jsf:provider id="workGridManagerReportJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.work.api.WorkGridManagerReportJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="workGridManagerReportJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
     <!-- 上岗码查询JSF服务 -->
     <jsf:provider id="positionQueryJsfServiceServer"
                   interface="com.jd.bluedragon.distribution.position.api.PositionQueryJsfService"
@@ -517,7 +524,7 @@
       ref="dmsComboardService"
       server="dmsjsf">
     </jsf:provider>
-    
+
     <!--  抽检服务   -->
     <jsf:provider id="jsfSpotCheckDealService"
                   interface="com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService"
@@ -533,7 +540,7 @@
                   ref="jyTransportSendVehicleService"
                   server="dmsjsf">
     </jsf:provider>
-    
+
 
     <!--  提供给逆向集约接口   -->
     <jsf:provider id="reverseIntensiveServiceJsf"
@@ -573,6 +580,13 @@
                   alias="${dms.jsf.alias}"
                   ref="dmsTimingHandlerService"
                   server="dmsjsf">
+    </jsf:provider>
+
+    <jsf:provider id="jyJsfFindGoodsService"
+      interface="com.jd.bluedragon.distribution.jy.api.JyFindGoodsJsfService"
+      alias="${dms.jsf.alias}"
+      ref="jyFindGoodsJsfService"
+      server="dmsjsf">
     </jsf:provider>
 
 </beans>

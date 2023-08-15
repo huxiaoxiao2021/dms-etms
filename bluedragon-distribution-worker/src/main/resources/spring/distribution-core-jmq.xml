@@ -899,4 +899,27 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!--逆向vmi推送消息 仅在worker中使用配置即可 -->
+    <bean id="outStoreVmiProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.out.big.store.down.stream.vmi.dtc}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!-- 拣运扫描集齐-新 -->
+    <bean id="jyScanCollectProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.scan.collect}" />
+        <property name="timeout" value="3000" />
+    </bean>
+    <!-- 拣运取消扫描集齐-新 -->
+    <bean id="jyCancelScanCollectProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.cancel.scan.collect}" />
+        <property name="timeout" value="3000" />
+    </bean>
+    <!-- 拣运取消扫描 -->
+    <bean id="jyCancelScanProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.cancel.scan}" />
+        <property name="timeout" value="3000" />
+    </bean>
+
+
 </beans>

@@ -1033,7 +1033,16 @@
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
-
+    <!--  三定场地网格管理服务  -->
+    <jsf:consumer id="workGridJsfService"
+                  interface="com.jdl.basic.api.service.workStation.WorkGridJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
     <!--  三定场地网格工序管理服务  -->
     <jsf:consumer id="basicWorkStationGridJsfService"
                   interface="com.jdl.basic.api.service.workStation.WorkStationGridJsfService"
@@ -1066,7 +1075,46 @@
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
-
+    <!--  任务管理-线上化task-jsf服务  -->
+    <jsf:consumer id="workGridManagerTaskJsfService"
+                  interface="com.jdl.basic.api.service.work.WorkGridManagerTaskJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!--  任务管理-线上化case-jsf服务  -->
+    <jsf:consumer id="workGridManagerCaseJsfService"
+                  interface="com.jdl.basic.api.service.work.WorkGridManagerCaseJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!--  任务管理-线上化task-config-jsf服务  -->
+    <jsf:consumer id="workGridManagerTaskConfigJsfService"
+                  interface="com.jdl.basic.api.service.work.WorkGridManagerTaskConfigJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!--  用户管理-jsf服务  -->
+    <jsf:consumer id="userJsfService"
+                  interface="com.jdl.basic.api.service.user.UserJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
     <!-- dms校验接口 -->
     <jsf:consumer id="sendHandoverJsfService" interface="com.jdl.basic.api.service.sendHandover.SendHandoverJsfService"
                   protocol="jsf" alias="${jsf.sendhandover.alias}" timeout="${jsf.sendhandover.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -1348,5 +1396,16 @@
     <!-- erp 妥投校验接口 杨金宇 -->
     <jsf:consumer id="waybillForceDeliveryApiService" interface="com.jd.ql.erp.jsf.WaybillForceDeliveryApi"
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 车型积分配置接口 -->
+    <jsf:consumer id="vehicleIntegralConfigJsfService"
+                  interface="com.jdl.basic.api.service.vehicle.VehicleIntegralConfigJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 </beans>

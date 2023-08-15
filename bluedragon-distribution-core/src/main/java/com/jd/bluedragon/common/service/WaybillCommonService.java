@@ -256,4 +256,11 @@ public interface WaybillCommonService {
 	boolean isMatchGetCrossOfAir(String waybillSign, String sendPay,Integer prepareSiteCode,Integer dmsSiteCode,String waybillCode);
 
 
+
+	/**
+	 * 获取预分拣站点id
+	 * @param waybillCode
+	 * @return
+	 */
+	InvokeResult<Integer> fetchOldSiteId(String waybillCode);
 }

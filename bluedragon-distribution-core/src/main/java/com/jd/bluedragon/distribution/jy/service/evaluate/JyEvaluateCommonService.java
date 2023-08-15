@@ -23,6 +23,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,6 +90,9 @@ public class JyEvaluateCommonService {
 
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.findSendTaskByTransWorkItemCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JyBizTaskSendVehicleDetailEntity findSendTaskByTransWorkItemCode(String transWorkItemCode) {
+        if (StringUtils.isBlank(transWorkItemCode)) {
+            return null;
+        }
         // 根据派车单号查询发货任务
         JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
         query.setTransWorkItemCode(transWorkItemCode);
@@ -131,6 +135,9 @@ public class JyEvaluateCommonService {
 
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.getSiteInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getSiteInfo(Integer siteCode) {
+        if (siteCode == null) {
+            return null;
+        }
         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(siteCode);
 //        if (siteOrgDto == null) {
 //            LOGGER.warn("JyEvaluateCommonService|查询任务所属区域返回空,siteCode={}", siteCode);

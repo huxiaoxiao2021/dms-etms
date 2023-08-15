@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -7,6 +8,7 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.task.UnloadVehicleMqDto;
 import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.manager.VehicleIntegralConfigJsfManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -17,6 +19,7 @@ import com.jd.jmq.common.message.Message;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.domain.vehicle.VehicleIntegralConfig;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -53,6 +56,9 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private VehicleIntegralConfigJsfManager vehicleIntegralConfigJsfManager;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -179,6 +185,14 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
             unloadVehicleEntity.setTeanFlag(mqDto.getTeanFlag());
         }
 
+        // 优先积分
+        if (mqDto.getPriorityFraction() != null) {
+            unloadVehicleEntity.setPriorityFraction(mqDto.getPriorityFraction());
+        }
+
+        // 处理优先标识
+        dealPriorityFlag(mqDto, unloadVehicleEntity);
+
         // 处理卸车任务标位
         unloadVehicleEntity.setTagsSign(TagSignHelper.initDefaultPlaceholder());
         dealTagSign(mqDto, unloadVehicleEntity);
@@ -190,6 +204,32 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
             logger.info("InitUnloadVehicleConsumer--convertEntityFromDto卸车任务初始化业务字段--unloadVehicleEntity={}", JsonHelper.toJson(unloadVehicleEntity));
         }
         return unloadVehicleEntity;
+    }
+
+    private void dealPriorityFlag(UnloadVehicleMqDto mqDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
+        // 车型
+        Integer vehicleType = mqDto.getVehicleType();
+        // 配置的积分
+        Double configFraction;
+        if (vehicleType != null) {
+            // 查询车型积分配置
+            VehicleIntegralConfig vehicleIntegralConfig = vehicleIntegralConfigJsfManager.findConfigByVehicleType(vehicleType);
+            if (vehicleIntegralConfig != null) {
+                // 配置的积分
+                configFraction = vehicleIntegralConfig.getPriorityFraction();
+            } else {
+                // ucc默认分数
+                configFraction = uccConfig.getVehicleIntegralPriorityFraction();
+            }
+        } else {
+            // ucc默认分数
+            configFraction = uccConfig.getVehicleIntegralPriorityFraction();
+        }
+        // 实际的积分
+        Double realFraction = mqDto.getPriorityFraction();
+        if (configFraction != null && realFraction != null && realFraction >= configFraction) {
+            unloadVehicleEntity.setPriorityFlag(Constants.NUMBER_ONE);
+        }
     }
 
     private void dealUnloadProgress(UnloadVehicleMqDto mqDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
@@ -238,6 +278,11 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
             }else if (SpotCheckTypeEnum.RANDOM.getCode().equals(mqDto.getCheckType())) {
                 unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_1, JyUnloadTaskSignConstants.CHAR_1_2));
             }
+        }
+
+        // 特安服务标识
+        if(mqDto.getTeanFlag() != null){
+            unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_4, JyUnloadTaskSignConstants.CHAR_4_1));
         }
 
         Map<String, Object> extendInfo = mqDto.getExtendInfo();

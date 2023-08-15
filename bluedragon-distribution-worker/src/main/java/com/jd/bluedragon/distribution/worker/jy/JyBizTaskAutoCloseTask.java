@@ -4,9 +4,11 @@ import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.JyBizTaskAutoCloseService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,6 +21,8 @@ import java.util.List;
  */
 @Slf4j
 public class JyBizTaskAutoCloseTask extends DBSingleScheduler {
+
+    protected String ownSigns;
 
     @Autowired
     private JyBizTaskAutoCloseService jyBizTaskAutoCloseService;
@@ -49,7 +53,11 @@ public class JyBizTaskAutoCloseTask extends DBSingleScheduler {
                 fetchNum = fetchNum * queueNum / queryCondition.size();
             }
 
-            List<Task> Tasks = taskService.findJyBizAutoCloseTasks(this.type, fetchNum, this.ownSign, queryCondition);
+            List<String> ownSignList = new ArrayList<>();
+            if(StringUtils.isNotBlank(ownSigns)){
+                ownSignList = Arrays.asList(ownSigns.split(","));
+            }
+            List<Task> Tasks = taskService.findJyBizAutoCloseTasks(this.type, fetchNum, ownSignList, queryCondition);
             for (Task task : Tasks) {
                 if (!isMyTask(queueNum, task.getId(), queryCondition)) {
                     continue;
@@ -60,5 +68,9 @@ public class JyBizTaskAutoCloseTask extends DBSingleScheduler {
             this.log.error("出现异常， 异常信息为：{}", e.getMessage(), e);
         }
         return tasks;
+    }
+
+    public void setOwnSigns(String ownSigns) {
+        this.ownSigns = ownSigns;
     }
 }

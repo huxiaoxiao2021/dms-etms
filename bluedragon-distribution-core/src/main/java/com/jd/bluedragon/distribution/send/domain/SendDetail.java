@@ -162,6 +162,68 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
      * 操作者id
      */
 	private String operatorId;
+
+    /**
+     * 操作场地-站点（分拣）类型
+     */
+    private Integer createSiteType;
+
+    /**
+     * 操作场地-站点（分拣）子站点类型
+     */
+    private Integer createSubType;
+
+    /**
+     * 操作场地-站点（分拣）三级类型
+     */
+    private Integer createThirdType;
+
+    /**
+     * 操作场地-分拣中心类型
+     */
+    private Integer createSortType;
+
+    /**
+     * 操作场地-分拣中心子类型
+     */
+    private Integer createSortSubType;
+
+    /**
+     * 操作场地-分拣中心三级类型
+     */
+    private Integer createSortThirdType;
+
+    /**
+     * 目的场地-站点（分拣）类型
+     */
+    private Integer receiveSiteType;
+
+    /**
+     * 目的场地-站点（分拣）子站点类型
+     */
+    private Integer receiveSubType;
+
+    /**
+     * 目的场地-站点（分拣）三级类型
+     */
+    private Integer receiveThirdType;
+
+    /**
+     * 目的场地-分拣中心类型
+     */
+    private Integer receiveSortType;
+
+    /**
+     * 目的场地-分拣中心子类型
+     */
+    private Integer receiveSortSubType;
+
+    /**
+     * 目的场地-分拣中心三级类型
+     */
+    private Integer receiveSortThirdType;
+
+
 	
     public String getSource() {
         return source;
@@ -652,4 +714,99 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
 		this.operatorId = operatorId;
 	}
 
+    public Integer getCreateSiteType() {
+        return createSiteType;
+    }
+
+    public void setCreateSiteType(Integer createSiteType) {
+        this.createSiteType = createSiteType;
+    }
+
+    public Integer getCreateSubType() {
+        return createSubType;
+    }
+
+    public void setCreateSubType(Integer createSubType) {
+        this.createSubType = createSubType;
+    }
+
+    public Integer getCreateThirdType() {
+        return createThirdType;
+    }
+
+    public void setCreateThirdType(Integer createThirdType) {
+        this.createThirdType = createThirdType;
+    }
+
+    public Integer getCreateSortType() {
+        return createSortType;
+    }
+
+    public void setCreateSortType(Integer createSortType) {
+        this.createSortType = createSortType;
+    }
+
+    public Integer getCreateSortSubType() {
+        return createSortSubType;
+    }
+
+    public void setCreateSortSubType(Integer createSortSubType) {
+        this.createSortSubType = createSortSubType;
+    }
+
+    public Integer getCreateSortThirdType() {
+        return createSortThirdType;
+    }
+
+    public void setCreateSortThirdType(Integer createSortThirdType) {
+        this.createSortThirdType = createSortThirdType;
+    }
+
+    public Integer getReceiveSiteType() {
+        return receiveSiteType;
+    }
+
+    public void setReceiveSiteType(Integer receiveSiteType) {
+        this.receiveSiteType = receiveSiteType;
+    }
+
+    public Integer getReceiveSubType() {
+        return receiveSubType;
+    }
+
+    public void setReceiveSubType(Integer receiveSubType) {
+        this.receiveSubType = receiveSubType;
+    }
+
+    public Integer getReceiveThirdType() {
+        return receiveThirdType;
+    }
+
+    public void setReceiveThirdType(Integer receiveThirdType) {
+        this.receiveThirdType = receiveThirdType;
+    }
+
+    public Integer getReceiveSortType() {
+        return receiveSortType;
+    }
+
+    public void setReceiveSortType(Integer receiveSortType) {
+        this.receiveSortType = receiveSortType;
+    }
+
+    public Integer getReceiveSortSubType() {
+        return receiveSortSubType;
+    }
+
+    public void setReceiveSortSubType(Integer receiveSortSubType) {
+        this.receiveSortSubType = receiveSortSubType;
+    }
+
+    public Integer getReceiveSortThirdType() {
+        return receiveSortThirdType;
+    }
+
+    public void setReceiveSortThirdType(Integer receiveSortThirdType) {
+        this.receiveSortThirdType = receiveSortThirdType;
+    }
 }
