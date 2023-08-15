@@ -9,6 +9,7 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERR
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_MESSAGE;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.inventory.InventoryTaskDto;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryTaskStatusEnum;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
@@ -32,6 +33,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.dms.wb.sdk.enums.task.biz.TaskBizStatusEnum;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections4.CollectionUtils;
@@ -67,6 +70,8 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
   }
 
   @Override
+  @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyFindGoodsJsfServiceImpl.createFindGoodsTask",
+      jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
   public InvokeResult<FindGoodsTaskDto> createFindGoodsTask(CreateFindGoodsTask dto) {
     checkCreateTaskDto(dto);
     //按场地+日期+波次
@@ -127,6 +132,8 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
 
   @Override
   @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+  @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyFindGoodsJsfServiceImpl.distributWaitFindPackage",
+      jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
   public InvokeResult distributWaitFindPackage(DistributPackageDto dto) {
     checkDistributPackageDto(dto);
     FindGoodsTaskDto findGoodsTaskDto =jyFindGoodsService.findTaskByBizId(dto.getFindGoodsTaskBizId());
@@ -177,6 +184,8 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
   }
 
   @Override
+  @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyFindGoodsJsfServiceImpl.updateWaitFindPackageStatus",
+      jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
   public InvokeResult updateWaitFindPackageStatus(UpdateWaitFindPackageStatusDto dto) {
     checkUpdateWaitFindPackageStatus(dto);
     FindGoodsTaskDto findGoodsTaskDto =jyFindGoodsService.findTaskByBizId(dto.getFindGoodsTaskBizId());
@@ -209,6 +218,8 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
   }
 
   @Override
+  @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyFindGoodsJsfServiceImpl.updateFindGoodsStatus",
+      jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
   public InvokeResult updateFindGoodsStatus(FindGoodsTaskDto dto) {
     checkUpdateFindGoodsTaskDto(dto);
     FindGoodsTaskDto findGoodsTaskDto =jyFindGoodsService.findTaskByBizId(dto.getBizId());
