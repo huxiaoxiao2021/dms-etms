@@ -117,9 +117,11 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             recycleBasketEntity.setTypeCode(RecycleBasketTypeEnum.SMALL.getCode());
         }
 
-        RecycleBasketTypeEnum typeEnum = RecycleBasketTypeEnum.BIG;
+        RecycleBasketTypeEnum typeEnum = null;
         if (recycleBasketEntity.getTypeCode().equals(RecycleBasketTypeEnum.BIG.getCode())) {
             typeEnum = RecycleBasketTypeEnum.BIG;
+        }else {
+            typeEnum = RecycleBasketTypeEnum.SMALL;
         }
         // 首打印
         if(PrintTypeEnum.PRINT.getCode() == recycleBasketEntity.getPrintType()){
