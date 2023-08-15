@@ -1579,6 +1579,11 @@ public class UccPropertyConfiguration {
      */
     private Integer jyTransportSendVehicleValidateDockAllowRefreshTimes;
 
+    /**
+     * 异常破损任务客服未反馈时间（小时）
+     */
+    private int jyExceptionDamageTaskCustomerNotReturnHours;
+
     private String aggsDataSource;
 
     public String getAggsDataSource() {
@@ -3625,5 +3630,13 @@ public class UccPropertyConfiguration {
 
     public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
         this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
+    }
+
+    public int getJyExceptionDamageTaskCustomerNotReturnHours() {
+        return jyExceptionDamageTaskCustomerNotReturnHours;
+    }
+
+    public void setJyExceptionDamageTaskCustomerNotReturnHours(int jyExceptionDamageTaskCustomerNotReturnHours) {
+        this.jyExceptionDamageTaskCustomerNotReturnHours = jyExceptionDamageTaskCustomerNotReturnHours;
     }
 }

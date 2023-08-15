@@ -268,4 +268,5 @@ public interface WaybillService {
      */
     InvokeResult<String> checkWaybillForPreSortOnSiteToDebon(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest,Waybill waybill);
 
+    boolean isHKorMOWaybill(String waybillCode);
 }

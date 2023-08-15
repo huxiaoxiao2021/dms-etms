@@ -3,13 +3,14 @@ package com.jd.bluedragon.distribution.jy.enums;
 /**
  * @Author: chenyaguo@jd.com
  * @Date: 2023/8/2 20:14
- * @Description: 客服回传装载结果
+ * @Description: 客服回传处理结果
  */
 public enum CustomerReturnResultEnum {
 
     UNKNOWN(0,"0", "未知"),
-    REPARI_DOWN(1,"350","修复下传"),
-    DIRECT_DOWN(2,"354","直接下传"),
+    REPARI_DOWN(1,"","修复下传"),
+    DIRECT_DOWN_1(2,"354","直接下传"),
+    DIRECT_DOWN_2(2,"355","直接下传"),
     CHANGE_PACKAGE_DOWN(3,"351","更换包装下传"),
     SCRAPPED(4,"353","报废"),
     REVERSE_FALLBACK(5,"352","逆向退回");

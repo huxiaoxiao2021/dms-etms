@@ -269,6 +269,7 @@
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 		<property name="assignExpTaskQuantityLimit" value="${assignExpTaskQuantityLimit:50}"/>
+		<property name="jyExceptionDamageTaskCustomerNotReturnHours" value="${jyExceptionDamageTaskCustomerNotReturnHours:48}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
@@ -580,6 +581,7 @@
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleDetailQueryDefaultLimitSize</value>
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleMixScanTaskFlowNumConfig</value>
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
+				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
 
 
 				<value>uccPropertyConfiguration.interceptBlackList</value>

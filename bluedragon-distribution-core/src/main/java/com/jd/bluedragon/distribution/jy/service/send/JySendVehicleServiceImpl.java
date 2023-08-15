@@ -1687,8 +1687,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             asyncProductOperateProgress(taskSend);
 
             //如果是按运单发货，修改本场地提报的破损任务状态
-            if(Objects.equals(sendType,SendKeyTypeEnum.BY_WAYBILL)){
-                jyDamageExceptionService.dealDamageExpTaskStatus(barCode,request.getCurrentOperate().getSiteCode());
+            if(Objects.equals(sendType,SendKeyTypeEnum.BY_WAYBILL) || Objects.equals(sendType,SendKeyTypeEnum.BY_PACKAGE) ){
+                String waybillCode = WaybillUtil.getWaybillCode(barCode);
+                jyDamageExceptionService.dealDamageExpTaskStatus(waybillCode,request.getCurrentOperate().getSiteCode());
             }
 
         } catch (EconomicNetException e) {

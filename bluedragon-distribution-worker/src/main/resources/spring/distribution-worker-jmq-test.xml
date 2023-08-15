@@ -681,9 +681,14 @@
         <jmq:listener topic="${jmq.topic.waybill.bd.dlok.flag}" listener="dmsExpWaybillDeliveryConsumer"/>
     </jmq:consumer>
 
+    <!--运单拒收-->
+    <jmq:consumer id="jmq.dmsExpWaybillRefuseConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybill.bd_refuse_flag}" listener="dmsExpWaybillRefuseConsumer"/>
+    </jmq:consumer>
+
     <!--  网格删除mq消费  -->
     <jmq:consumer id="jmq.workGridModifyMqConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.workGridModifyMq}" listener="workGridModifyMqConsumer"/>
-    </jmq:consumer>    
+    </jmq:consumer>
 </beans>
 

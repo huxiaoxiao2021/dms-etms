@@ -44,13 +44,13 @@ public class QcAbnormalReportOutCallReportConsumer extends MessageBaseConsumer {
         }
 
         final Result<Void> checkMqParamResult = qualityControlService.checkMqParam(qcReportJmqDto);
-        //处理异常破损数据
-        jyDamageExceptionService.dealExpDamageInfoByAbnormalReportOutCall(qcReportJmqDto);
-
         if(!checkMqParamResult.isSuccess()){
             log.warn("QcAbnormalReportReportConsumer 消息体参数不符合要求 {} message: {}", checkMqParamResult.getMessage(), message.getText());
             return;
         }
+
+        //处理异常破损数据
+        jyDamageExceptionService.dealExpDamageInfoByAbnormalReportOutCall(qcReportJmqDto);
 
         final Result<Boolean> result = qualityControlService.handleQcOutCallReportConsume(qcReportJmqDto);
         if(!result.isSuccess()){

@@ -183,4 +183,6 @@ public interface JyExceptionGatewayService {
     JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req);
 
     JdCResponse<Boolean> writeToProcessDamage(String bizId);
+
+
 }

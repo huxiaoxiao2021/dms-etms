@@ -79,4 +79,10 @@ public interface JyDamageExceptionService {
      * @param waybillCode
      */
     void dealDamageExpTaskStatus(String waybillCode,Integer siteCode);
+
+    /**
+     * 处理超48小时客服未反馈破损任务状态
+     * @param bizId
+     */
+    JdCResponse<Boolean> dealDamageExpTaskOverTwoDags(String bizId);
 }

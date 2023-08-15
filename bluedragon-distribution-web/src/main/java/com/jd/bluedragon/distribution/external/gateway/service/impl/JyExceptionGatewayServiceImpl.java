@@ -278,4 +278,5 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
         jyDamageExceptionService.writeToProcessDamage(bizId);
         return JdCResponse.ok();
     }
+
 }
