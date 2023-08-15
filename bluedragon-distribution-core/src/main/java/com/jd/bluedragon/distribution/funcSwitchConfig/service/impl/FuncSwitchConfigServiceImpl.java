@@ -939,17 +939,4 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         }
         return true;
     }
-
-    @Override
-    public boolean getUseSimulatorStatus(FuncSwitchConfigCondition condition) {
-        if (StringUtils.isEmpty(condition.getOperateErp()) || condition.getMenuCode() == null ){
-            return false;
-        }
-        List<FuncSwitchConfigDto> funcSwitchConfigDtos = funcSwitchConfigDao.queryByCondition(condition);
-        if (CollectionUtils.isEmpty(funcSwitchConfigDtos)) {
-            return false;
-        }
-        return true;
-    }
-
 }

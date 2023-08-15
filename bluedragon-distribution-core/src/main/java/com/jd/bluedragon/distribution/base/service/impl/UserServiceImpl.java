@@ -34,6 +34,8 @@ import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthRequest;
 import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.device.service.DeviceLocationService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -63,6 +65,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
 
 /**
  * 
@@ -103,6 +106,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 
     @Resource
     private DeviceLocationService deviceLocationService;
+
+	@Autowired
+	private FuncSwitchConfigService funcSwitchConfigService;
 
 	/**
 	 * 分拣客户端登录服务
@@ -408,10 +414,23 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 					businessConfigInfo.setJyDemotionConfigList(jyDemotionService.obtainJyDemotionConfig());
 					result.getData().setBusinessConfigInfo(businessConfigInfo);
 				}
-            }
+				// 是否可以使用模拟器检测
+				String userErp = result.getData().getUserCode();
+				Integer siteCode = Integer.valueOf(result.getData().getSiteCode());
+				boolean canUseSimulatorFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_USE_SIMULATOR.getCode(), siteCode, userErp);
+				if (result.getData().getBusinessConfigInfo() == null) {
+					BusinessConfigInfo businessConfigInfo = new BusinessConfigInfo();
+					result.getData().setBusinessConfigInfo(businessConfigInfo);
+				}
+				result.getData().getBusinessConfigInfo().setUseSimulatorFlag(canUseSimulatorFlag);
+			}
 		}
 		return result;
 	}
+
+
+
+
     /**
      * 校验账号是否有效
      * @param userCode
