@@ -51,6 +51,7 @@
 		<mapper resource="mappers/mysql/jy/exception/JyBizTaskExceptionMapper.xml"/>
 		<mapper resource="mappers/mysql/jy/exception/JyBizTaskExceptionLogMapper.xml"/>
 		<mapper resource="mappers/mysql/jy/exception/JyBizTaskExceptionAssignMapper.xml"/>
+		<mapper resource="mappers/mysql/jy/exception/JyExceptionContrabandMapper.xml"/>
 		<mapper resource="mappers/mysql/jy/task/JyBizTaskSendVehicleDetailMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendAttachmentMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendCodeMapper.xml" />
