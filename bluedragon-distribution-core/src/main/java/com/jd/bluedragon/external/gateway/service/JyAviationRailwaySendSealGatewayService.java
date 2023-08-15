@@ -39,7 +39,7 @@ public interface JyAviationRailwaySendSealGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<AviationToSealAndSealedListRes> fetchAviationToSealAndSealedList(AviationSendTaskSealListReq request);
+    JdCResponse<AviationToSealAndSealedListRes> pageFetchAviationToSealAndSealedList(AviationSendTaskSealListReq request);
     /**
      * 列表查询筛选条件查询
      * @param request
@@ -47,6 +47,12 @@ public interface JyAviationRailwaySendSealGatewayService {
      */
     JdCResponse<FilterConditionQueryRes> pageFetchFilterCondition(FilterConditionQueryReq request);
 
+    /**
+     * 摆渡发车任务列表查询
+     * @param request
+     * @return
+     */
+    JdCResponse<ShuttleSendTaskRes> pageFetchShuttleSendTaskList(ShuttleSendTaskReq request);
 
 
 

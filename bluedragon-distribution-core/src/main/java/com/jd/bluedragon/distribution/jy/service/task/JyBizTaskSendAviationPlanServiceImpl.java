@@ -112,5 +112,10 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
         return jyBizTaskSendAviationPlanDao.pageFindAirportInfoByCurrentSite(condition);
     }
 
+    @Override
+    public List<JyBizTaskSendAviationPlanEntity> pageQueryAviationPlanByCondition(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return jyBizTaskSendAviationPlanDao.pageQueryAviationPlanByCondition(condition);
+    }
+
 
 }

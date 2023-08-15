@@ -16,7 +16,7 @@ public class AviationToSealAndSealedListRes implements Serializable {
      * 任务状态
      */
     private Integer taskStatus;
-    private Integer taskStatusName;
+    private String taskStatusName;
     /**
      * 车辆状态数量统计
      */
@@ -24,7 +24,7 @@ public class AviationToSealAndSealedListRes implements Serializable {
     /**
      * 封车列表数据（待封车、已封车）
      */
-    private List<AviationSealListDto> toSealDtoList;
+    private List<AviationSealListDto> aviationSealListDtoList;
 
     public Integer getTaskStatus() {
         return taskStatus;
@@ -34,11 +34,11 @@ public class AviationToSealAndSealedListRes implements Serializable {
         this.taskStatus = taskStatus;
     }
 
-    public Integer getTaskStatusName() {
+    public String getTaskStatusName() {
         return taskStatusName;
     }
 
-    public void setTaskStatusName(Integer taskStatusName) {
+    public void setTaskStatusName(String taskStatusName) {
         this.taskStatusName = taskStatusName;
     }
 
@@ -50,11 +50,11 @@ public class AviationToSealAndSealedListRes implements Serializable {
         this.taskStatusStatisticsList = taskStatusStatisticsList;
     }
 
-    public List<AviationSealListDto> getToSealDtoList() {
-        return toSealDtoList;
+    public List<AviationSealListDto> getAviationSealListDtoList() {
+        return aviationSealListDtoList;
     }
 
-    public void setToSealDtoList(List<AviationSealListDto> toSealDtoList) {
-        this.toSealDtoList = toSealDtoList;
+    public void setAviationSealListDtoList(List<AviationSealListDto> aviationSealListDtoList) {
+        this.aviationSealListDtoList = aviationSealListDtoList;
     }
 }

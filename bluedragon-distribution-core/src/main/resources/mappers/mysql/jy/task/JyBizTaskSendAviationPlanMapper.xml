@@ -29,7 +29,6 @@
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
         <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
         <result column="yn" property="yn" jdbcType="INTEGER" />
-        <result column="ts" property="ts" jdbcType="TIMESTAMP" />
         <result column="next_site_id" property="nextSiteId" jdbcType="BIGINT" />
         <result column="next_site_code" property="nextSiteCode" jdbcType="VARCHAR" />
         <result column="next_site_name" property="nextSiteName" jdbcType="VARCHAR" />
@@ -56,7 +55,7 @@
         take_off_time, touch_down_time, air_company_code, air_company_name, begin_node_code,
         begin_node_name, end_node_code, end_node_name, carrier_code, carrier_name, booking_weight,
         cargo_type, air_type, create_user_erp, create_user_name, update_user_erp,
-        update_user_name, create_time, update_time, yn, ts, next_site_id, next_site_code,
+        update_user_name, create_time, update_time, yn, next_site_id, next_site_code,
         next_site_name,task_status,intercept,intercept_time
     </sql>
 <!--    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
@@ -342,9 +341,6 @@
     </select>
 
     <sql id="list_query_condition" >
-        <if test="takeOffTime != null" >
-            and take_off_time &gt;= #{takeOffTime}
-        </if>
         <if test="airType != null" >
             and air_type = #{airType}
         </if>
@@ -356,6 +352,9 @@
         </if>
         <if test="nextSiteId != null" >
             and next_site_id = #{nextSiteId}
+        </if>
+        <if test="takeOffTime != null" >
+            and take_off_time &gt;= #{takeOffTime}
         </if>
     </sql>
 
@@ -373,7 +372,7 @@
 
     <select id="queryNextSitesByStartSite" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="BaseResultMap">
         SELECT
-          task_status, count(*) total
+            next_site_id,next_site_name, count(*) total
         FROM
           jy_biz_task_send_aviation_plan
         WHERE
@@ -381,6 +380,8 @@
           and start_site_id = #{startSiteId}
           and task_status = #{taskStatus}
           <include refid="list_query_condition" />
+        group by
+            next_site_id,next_site_name
         limit #{pageSize}
     </select>
 
@@ -424,5 +425,19 @@
         limit #{offset},#{pageSize}
     </select>
 
+    <select id="pageQueryAviationPlanByCondition" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM
+            `jy_biz_task_send_aviation_plan
+        WHERE
+            yn = 1
+            and start_site_id = #{startSiteId}
+            and task_status = #{taskStatus}
+            <include refid="list_query_condition" />
+        order by
+            take_off_time
+        limit #{offset},#{pageSize}
+    </select>
 
 </mapper>

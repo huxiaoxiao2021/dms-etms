@@ -37,4 +37,6 @@ public interface JyBizTaskSendAviationPlanService {
     List<JyBizTaskAviationAirTypeStatistics> airTypeStatistics(Integer siteCode);
 
     List<JyBizTaskSendAviationPlanEntity> pageFindAirportInfoByCurrentSite(JyBizTaskSendAviationPlanQueryCondition condition);
+
+    List<JyBizTaskSendAviationPlanEntity> pageQueryAviationPlanByCondition(JyBizTaskSendAviationPlanQueryCondition condition);
 }

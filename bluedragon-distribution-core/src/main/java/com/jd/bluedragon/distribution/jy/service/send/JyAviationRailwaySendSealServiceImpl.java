@@ -30,8 +30,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.jd.bluedragon.Constants.LONG_ZERO;
-
 /**
  * @Author zhengchengfa
  * @Date 2023/8/2 14:55
@@ -303,22 +301,14 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         resData.setTaskStatus(request.getStatusCode());
         resData.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.getNameByCode(request.getStatusCode()));
 
-
-        JyBizTaskSendAviationPlanQueryCondition condition = new JyBizTaskSendAviationPlanQueryCondition();
-        condition.setStartSiteId(request.getCurrentOperate().getSiteCode());
-        condition.setTaskStatus(request.getStatusCode());
-        if(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(request.getStatusCode())) {
-            //起飞时间
-            condition.setTakeOffTime(DateHelper.newTimeRangeHoursAgo(new Date(), 24));
-        }
-        //条件筛选
-        this.parseQueryCondition(request.getFilterConditionDto(), condition);
-        //关键词搜索
-        this.parseKeyword(request.getKeyword(), request.getCurrentOperate().getSiteCode(),  condition);
-
+        JyBizTaskSendAviationPlanQueryCondition condition = this.convertListQueryCondition(
+                request.getCurrentOperate().getSiteCode(),
+                request.getStatusCode(),
+                request.getFilterConditionDto(),
+                request.getKeyword());
 
         List<JyBizTaskAviationStatusStatistics> taskStatusStatisticsList = jyBizTaskSendAviationPlanService.statusStatistics(condition);
-        List<TaskStatusStatistics> taskStatusStatistics = this.convertFillStatusDefaultValue(taskStatusStatisticsList);
+        List<TaskStatusStatistics> taskStatusStatistics = this.convertFillStatusDefaultValue(taskStatusStatisticsList, true);
         resData.setTaskStatusStatisticsList(taskStatusStatistics);
 
         for (TaskStatusStatistics tss : taskStatusStatistics) {
@@ -346,28 +336,67 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         return res;
     }
 
+
+    //列表查询条件转换
+    private JyBizTaskSendAviationPlanQueryCondition convertListQueryCondition(Integer siteCode, Integer statusCode, FilterConditionDto filterConditionDto, String keyword) {
+        JyBizTaskSendAviationPlanQueryCondition condition = new JyBizTaskSendAviationPlanQueryCondition();
+        condition.setStartSiteId(siteCode);
+        condition.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.getSendTaskStatusByCode(statusCode));
+        if(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(statusCode)) {
+            //起飞时间
+            condition.setTakeOffTime(DateHelper.newTimeRangeHoursAgo(new Date(), 24));
+        }
+        //条件筛选
+        this.parseQueryCondition(filterConditionDto, condition);
+        //关键词搜索
+        this.parseKeyword(keyword, siteCode,  condition);
+        return condition;
+    }
+
+
     //状态统计默认值处理
-    private  List<TaskStatusStatistics> convertFillStatusDefaultValue(List<JyBizTaskAviationStatusStatistics> dbQuery) {
-
+    private  List<TaskStatusStatistics> convertFillStatusDefaultValue(List<JyBizTaskAviationStatusStatistics> dbQuery, boolean flag) {
         List<TaskStatusStatistics> statusAggList = new ArrayList<>();
-        TaskStatusStatistics toSend = new TaskStatusStatistics();
-        toSend.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode());
-        toSend.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getName());
-        toSend.setTotal(0);
-        statusAggList.add(toSend);
+        if(flag) {
 
-        TaskStatusStatistics sending = new TaskStatusStatistics();
-        toSend.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode());
-        toSend.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SENDING.getName());
-        toSend.setTotal(0);
-        statusAggList.add(sending);
+            TaskStatusStatistics toSend = new TaskStatusStatistics();
+            toSend.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode());
+            toSend.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getName());
+            toSend.setTotal(0);
+            statusAggList.add(toSend);
+
+            TaskStatusStatistics sending = new TaskStatusStatistics();
+            toSend.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode());
+            toSend.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SENDING.getName());
+            toSend.setTotal(0);
+            statusAggList.add(sending);
+        }else {
+            TaskStatusStatistics trunkN = new TaskStatusStatistics();
+            trunkN.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_N.getCode());
+            trunkN.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_N.getName());
+            trunkN.setTotal(0);
+            statusAggList.add(trunkN);
+
+            TaskStatusStatistics trunkY = new TaskStatusStatistics();
+            trunkY.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getCode());
+            trunkY.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getName());
+            trunkY.setTotal(0);
+            statusAggList.add(trunkY);
+
+            TaskStatusStatistics shuttleY = new TaskStatusStatistics();
+            shuttleY.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_Y.getCode());
+            shuttleY.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_Y.getName());
+            shuttleY.setTotal(0);
+            statusAggList.add(shuttleY);
+        }
 
         Map<Integer, Integer> map = dbQuery.stream().collect(Collectors.toMap(
                 k -> k.getTaskStatus(),
                 v -> v.getTotal()
         ));
         for (TaskStatusStatistics statistics : statusAggList) {
-            if(!Objects.isNull(map.get(statistics.getTaskStatus()))) {
+            Integer taskStatus = JyAviationRailwaySendVehicleStatusEnum.getSendTaskStatusByCode(statistics.getTaskStatus());
+            if(!Objects.isNull(map.get(taskStatus))) {
                 statistics.setTotal(map.get(statistics.getTaskStatus()));
             }
         }
@@ -482,9 +511,124 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     }
 
     @Override
-    public InvokeResult<AviationToSealAndSealedListRes> fetchAviationToSealAndSealedList(AviationSendTaskSealListReq request) {
-        //todo zcf
-        return null;
+    public InvokeResult<AviationToSealAndSealedListRes> pageFetchAviationToSealAndSealedList(AviationSendTaskSealListReq request) {
+        InvokeResult<AviationToSealAndSealedListRes> res = new InvokeResult<>();
+        AviationToSealAndSealedListRes resData = new AviationToSealAndSealedListRes();
+        res.setData(resData);
+
+        resData.setTaskStatus(request.getStatusCode());
+        resData.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.getNameByCode(request.getStatusCode()));
+
+        JyBizTaskSendAviationPlanQueryCondition condition = this.convertListQueryCondition(
+                request.getCurrentOperate().getSiteCode(),
+                request.getStatusCode(),
+                request.getFilterConditionDto(),
+                request.getKeyword());
+        condition.setOffset((request.getPageNo() - 1) * request.getPageSize());
+        condition.setPageSize(request.getPageSize());
+
+        List<JyBizTaskAviationStatusStatistics> taskStatusStatisticsList = jyBizTaskSendAviationPlanService.statusStatistics(condition);
+        List<TaskStatusStatistics> taskStatusStatistics = this.convertFillStatusDefaultValue(taskStatusStatisticsList, false);
+        resData.setTaskStatusStatisticsList(taskStatusStatistics);
+
+        boolean existTaskFlag = false;
+        for (TaskStatusStatistics tss : taskStatusStatistics) {
+            if(tss.getTaskStatus().equals(request.getStatusCode()) && NumberHelper.gt0(tss.getTotal())) {
+                existTaskFlag = true;
+                break;
+            }
+        }
+
+        if(existTaskFlag) {
+            //当前状态统计>0 查具体流向
+            List<JyBizTaskSendAviationPlanEntity> aviationPlanEntityList = jyBizTaskSendAviationPlanService.pageQueryAviationPlanByCondition(condition);
+            if(CollectionUtils.isNotEmpty(aviationPlanEntityList)) {
+                List<AviationSealListDto> sealListDtoArrayList = new ArrayList<>();
+                List<String> bizIdList = new ArrayList<>();
+                aviationPlanEntityList.forEach(entity -> {
+                    bizIdList.add(entity.getBizId());
+                    sealListDtoArrayList.add(this.convertAviationSealListDto(entity));
+                });
+
+                //重量、体积、件数
+                this.fillAviationSealListStatistics(sealListDtoArrayList, bizIdList, request);
+
+                resData.setAviationSealListDtoList(sealListDtoArrayList);
+            }else {
+                if(log.isInfoEnabled()) {
+                    log.info("航空发货计划查询封车相关数据为空，request={},queryCondition={}", JsonHelper.toJson(request), JsonHelper.toJson(condition));
+                }
+            }
+        }
+        return res;
+    }
+
+
+    //封车列表查询结果集转换
+    private AviationSealListDto convertAviationSealListDto(JyBizTaskSendAviationPlanEntity entity) {
+        AviationSealListDto res = new AviationSealListDto();
+        res.setBizId(entity.getBizId());
+        res.setBookingCode(entity.getBookingCode());
+        res.setFlightNumber(entity.getFlightNumber());
+        res.setCargoType(entity.getCargoType());
+        res.setAirType(entity.getAirType());
+        res.setNextSiteId(entity.getNextSiteId());
+        res.setNextSiteName(entity.getNextSiteName());
+
+        //获取运力信息  todo zcf 待确认
+//        res.setDepartureTime();
+//        res.setDepartureTimeStr();
+//        res.setTransportCode();
+
+        return res;
+    }
+
+    private void fillAviationSealListStatistics(List<AviationSealListDto> sealListDtoList, List<String> bizIdList, AviationSendTaskSealListReq request) {
+        if(CollectionUtils.isEmpty(sealListDtoList) || CollectionUtils.isEmpty(bizIdList) || Objects.isNull(request)) {
+            return;
+        }
+        //未封查aggs统计数据
+        if(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_N.getCode().equals(request.getStatusCode())) {
+            List<JySendAggsEntity> aggs = jySendAggsService.getSendStatisticsByBizList(bizIdList);
+            Map<String, JySendAggsEntity> map = aggs.stream().collect(Collectors.toMap(k -> k.getSendVehicleBizId(), v -> v));
+            sealListDtoList.forEach(sealListDto -> {
+                Double weight = 0d;
+                Double volume = 0d;
+                Integer itemNum = 0;
+                JySendAggsEntity aggsEntity = map.get(sealListDto.getBizId());
+                if(!Objects.isNull(aggsEntity)) {
+                    if(!Objects.isNull(aggsEntity.getTotalScannedWeight())) {
+                        weight = aggsEntity.getTotalScannedWeight().doubleValue();
+                    }
+                    if(!Objects.isNull(aggsEntity.getTotalScannedVolume())) {
+                        volume = aggsEntity.getTotalScannedVolume().doubleValue();
+                    }
+                    if(!Objects.isNull(aggsEntity.getTotalScannedPackageCodeCount()) || !Objects.isNull(aggsEntity.getTotalScannedBoxCodeCount())) {
+                        int scanPackageNum = Objects.isNull(aggsEntity.getTotalScannedPackageCodeCount()) ? 0 : aggsEntity.getTotalScannedPackageCodeCount();
+                        int scanBoxNum = Objects.isNull(aggsEntity.getTotalScannedBoxCodeCount()) ? 0 : aggsEntity.getTotalScannedBoxCodeCount();
+                        itemNum = scanPackageNum + scanBoxNum;
+                    }
+                }
+                //
+                sealListDto.setWeight(weight);
+                sealListDto.setVolume(volume);
+                sealListDto.setItemNum(itemNum);
+            });
+
+        }
+        //已封查实际封车数据
+        else if(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getCode().equals(request.getStatusCode())) {
+            //todo zcf  查询真正封车之后的重量体积件数
+            sealListDtoList.forEach(sealListDto -> {
+                Double weight = 0d;
+                Double volume = 0d;
+                Integer itemNum = 0;
+                //
+                sealListDto.setWeight(weight);
+                sealListDto.setVolume(volume);
+                sealListDto.setItemNum(itemNum);
+            });
+        }
     }
 
 

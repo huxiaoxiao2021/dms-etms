@@ -132,7 +132,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
     }
 
     @Override
-    public JdCResponse<AviationToSealAndSealedListRes> fetchAviationToSealAndSealedList(AviationSendTaskSealListReq request) {
+    public JdCResponse<AviationToSealAndSealedListRes> pageFetchAviationToSealAndSealedList(AviationSendTaskSealListReq request) {
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
@@ -142,11 +142,14 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
             baseParamValidateService.checkPdaPage(request.getPageNo(), request.getPageSize());
-
+            if(!JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_N.getCode().equals(request.getStatusCode())
+                    && !JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getCode().equals(request.getStatusCode())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "查询状态不合法", null);
+            }
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
             }
-            return retJdCResponse(jyAviationRailwaySendSealService.fetchAviationToSealAndSealedList(request));
+            return retJdCResponse(jyAviationRailwaySendSealService.pageFetchAviationToSealAndSealedList(request));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -180,6 +183,12 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询始发机场服务异常", null);//500+非自定义异常
         }
+    }
+
+    @Override
+    public JdCResponse<ShuttleSendTaskRes> pageFetchShuttleSendTaskList(ShuttleSendTaskReq request) {
+        //todo zcf
+        return null;
     }
 
 

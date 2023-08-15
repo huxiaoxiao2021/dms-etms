@@ -36,9 +36,12 @@ public class AviationSealListDto implements Serializable {
     private Integer nextSiteId;
     private String nextSiteName;
 
-    private Double loadWeight;
-    private Double loadVolume;
-    private Integer loadItemNum;
+    private Double weight;
+    private Double volume;
+    /**
+     * 件数
+     */
+    private Integer itemNum;
     /**
      * 标准发车时间
      */
@@ -106,28 +109,28 @@ public class AviationSealListDto implements Serializable {
         this.nextSiteName = nextSiteName;
     }
 
-    public Double getLoadWeight() {
-        return loadWeight;
+    public Double getWeight() {
+        return weight;
     }
 
-    public void setLoadWeight(Double loadWeight) {
-        this.loadWeight = loadWeight;
+    public void setWeight(Double weight) {
+        this.weight = weight;
     }
 
-    public Double getLoadVolume() {
-        return loadVolume;
+    public Double getVolume() {
+        return volume;
     }
 
-    public void setLoadVolume(Double loadVolume) {
-        this.loadVolume = loadVolume;
+    public void setVolume(Double volume) {
+        this.volume = volume;
     }
 
-    public Integer getLoadItemNum() {
-        return loadItemNum;
+    public Integer getItemNum() {
+        return itemNum;
     }
 
-    public void setLoadItemNum(Integer loadItemNum) {
-        this.loadItemNum = loadItemNum;
+    public void setItemNum(Integer itemNum) {
+        this.itemNum = itemNum;
     }
 
     public Long getDepartureTime() {
