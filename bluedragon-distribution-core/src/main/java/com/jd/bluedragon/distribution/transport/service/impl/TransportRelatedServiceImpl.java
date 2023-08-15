@@ -32,7 +32,7 @@ public class TransportRelatedServiceImpl implements TransportRelatedService {
     private BaseMajorManager baseMajorManager;
 
     /**
-     * 校验运输任务
+     * 校验运输任务 todo
      *  left：code编码表示成功或失败
      *  right：表示原因
      * @param siteCode 场地ID

@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
@@ -24,6 +25,7 @@ import com.jd.bluedragon.distribution.jy.service.unload.UnloadVehicleTransaction
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
+import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -37,6 +39,7 @@ import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +48,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -93,6 +97,9 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private TransportRelatedService transportRelatedService;
 
     @Override
     @JProfiler(jKey = "DMS.WORKER.jyUnloadScanConsumer.consume",
@@ -214,31 +221,18 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
             updateTaskBusinessInfo(unloadScanDto);
         } else {
-            // 更新最后扫描事件缓存，每次续期4小时
-            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
-            if (autoCloseJyBizTaskConfig == null) {
-                logger.info("pushBizTaskAutoCloseTask no config, will not push auto close task");
-            } else {
-                final String unloadBizLastScanTimeKey = this.getUnloadBizLastScanTimeKey(unloadScanDto.getBizId());
-                redisClientOfJy.setEx(unloadBizLastScanTimeKey, unloadScanDto.getOperateTime().getTime() + "", 36, TimeUnit.HOURS);
-            }
-            // 方案2，更新任务执行时间
-            /*final List<Task> jyBizAutoCloseTask = taskService.findJyBizAutoCloseTask(JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode(), 1, BusinessHelper.getOwnSign(), unloadScanDto.getBizId(), JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode().toString());
-            if (CollectionUtils.isNotEmpty(jyBizAutoCloseTask)) {
-                final Task taskExist = jyBizAutoCloseTask.get(0);
-                Task taskUpdate = new Task();
-                taskUpdate.setId(taskExist.getId());
-                final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
-                if (autoCloseJyBizTaskConfig == null) {
-                    logger.info("pushBizTaskAutoCloseTask no config, will not push auto close task");
-                } else {
-                    // 以解封车时间为准
-                    final Date operateTime = unloadScanDto.getOperateTime();
-                    final long executeTimeMillSeconds = operateTime.getTime() + autoCloseJyBizTaskConfig.getUnloadingNotFinish() * 60 * 60 * 1000L;
-                    taskUpdate.setExecuteTime(new Date(executeTimeMillSeconds));
-                    taskService.updateBySelective(taskUpdate);
-                }
-            }*/
+            this.updateAutoCloseTaskCacheLastScanTime(unloadScanDto);
+        }
+    }
+
+    private void updateAutoCloseTaskCacheLastScanTime(UnloadScanDto unloadScanDto){
+        // 更新最后扫描事件缓存，每次续期4小时
+        final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+        if (autoCloseJyBizTaskConfig == null) {
+            logger.info("pushBizTaskAutoCloseTask no config, will not push auto close task");
+        } else {
+            final String unloadBizLastScanTimeKey = this.getUnloadBizLastScanTimeKey(unloadScanDto.getBizId());
+            redisClientOfJy.setEx(unloadBizLastScanTimeKey, unloadScanDto.getOperateTime().getTime() + "", 36, TimeUnit.HOURS);
         }
     }
 
@@ -250,7 +244,20 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             entity.setUnloadStartTime(unloadScanDto.getOperateTime());
             entity.setRefGroupCode(unloadScanDto.getGroupCode());
             entity.setUpdateTime(new Date());
+            // 处理是否只卸不装
+            this.handleOnlyLoadAttr(taskEntity);
             jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
+        }
+    }
+
+    /**
+     * 处理只卸不装属性
+     * @param taskEntity 任务数据
+     */
+    private void handleOnlyLoadAttr(JyBizTaskUnloadVehicleEntity taskEntity) {
+        final ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(taskEntity.getEndSiteId().intValue(), null, taskEntity.getSealCarCode(), null, taskEntity.getVehicleNumber());
+        if(Objects.equals(checkResult.left, TransWorkItemResponse.CODE_HINT)){
+            taskEntity.setOnlyUnloadNoLoad(Constants.YN_YES);
         }
     }
 

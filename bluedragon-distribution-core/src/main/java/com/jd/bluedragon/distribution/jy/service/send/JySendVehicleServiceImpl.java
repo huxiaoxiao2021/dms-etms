@@ -1,17 +1,15 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
-import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
-import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
@@ -70,7 +68,9 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jsf.vehicle.VehicleBasicManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
+import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -111,6 +111,7 @@ import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTas
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
@@ -124,6 +125,7 @@ import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
@@ -136,6 +138,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.ql.dms.common.constants.JyConstants;
@@ -164,6 +167,7 @@ import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -357,6 +361,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    private TransportRelatedService transportRelatedService;
+
+    @Autowired
+    private DefaultJMQProducer jyTaskSendDetailFirstSendProducer;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -1879,6 +1889,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             logInfo("发货任务流向[{}-{}]首次扫描, 任务状态变为“发货中”. {}", request.getSendVehicleBizId(), curSendDetail.getEndSiteId(),
                     JsonHelper.toJson(request));
             firstScanFlag = true;
+            // 发出首次扫描消息
+            this.sendJyTaskSendDetailFirstSendMq(request, taskSend, curSendDetail);
             updateSendVehicleStatus(request, taskSend, curSendDetail);
             if (ObjectHelper.isNotNull(request.getTaskName())) {
                 JyBizTaskSendVehicleEntity sendVehicleTask = new JyBizTaskSendVehicleEntity();
@@ -1890,6 +1902,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 sendVehicleTask.setUpdateUserName(request.getUser().getUserName());
                 taskSendVehicleService.updateSendVehicleTask(sendVehicleTask);
             }
+            // 记录是否只装不卸标识
+            this.handleOnlyLoadAttr(request, taskSend, curSendDetail);
         }
 
         // 发货任务首次扫描记录组员信息
@@ -1901,6 +1915,48 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             recordTaskMembers(request);
         }
         return firstScanFlag;
+    }
+
+    private void sendJyTaskSendDetailFirstSendMq(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail){
+        try {
+            JyTaskSendDetailFirstSendDto jyTaskSendDetailFirstSendDto = new JyTaskSendDetailFirstSendDto();
+            jyTaskSendDetailFirstSendDto.setBizId(taskSend.getBizId());
+            jyTaskSendDetailFirstSendDto.setSendVehicleBizId(curSendDetail.getSendVehicleBizId());
+            jyTaskSendDetailFirstSendDto.setManualCreate(taskSend.getManualCreatedFlag());
+            OperateUser operateUser = new OperateUser();
+            final User user = request.getUser();
+            operateUser.setUserId((long) user.getUserCode());
+            operateUser.setUserCode(user.getUserErp());
+            operateUser.setUserName(user.getUserName());
+            final CurrentOperate currentOperate = request.getCurrentOperate();
+            operateUser.setSiteCode(currentOperate.getSiteCode());
+            operateUser.setSiteName(currentOperate.getSiteName());
+            operateUser.setOrgId(currentOperate.getOrgId());
+            operateUser.setOrgName(currentOperate.getOrgName());
+            jyTaskSendDetailFirstSendDto.setOperateUser(operateUser);
+            jyTaskSendDetailFirstSendProducer.send(jyTaskSendDetailFirstSendDto.getSendVehicleBizId(), JsonHelper.toJson(jyTaskSendDetailFirstSendDto));
+        } catch (JMQException e) {
+            log.error("JySendVehicleServiceImpl.sendJyTaskSendDetailFirstSendMq {}", JsonHelper.toJson(request), e);
+        }
+    }
+
+    /**
+     * 处理只卸不装属性
+     * @param curSendDetail 任务数据
+     */
+    private void handleOnlyLoadAttr(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail) {
+        try {
+            final ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(curSendDetail.getStartSiteId().intValue(), taskSend.getTransWorkCode(), null, null, taskSend.getVehicleNumber());
+            if(Objects.equals(checkResult.left, TransWorkItemResponse.CODE_HINT)){
+                // 更新任务明细
+                final JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailUpdate = new JyBizTaskSendVehicleDetailEntity();
+                jyBizTaskSendVehicleDetailUpdate.setBizId(curSendDetail.getBizId());
+                jyBizTaskSendVehicleDetailUpdate.setOnlyLoadNoUnload(Constants.YN_YES);
+                taskSendVehicleDetailService.updateDateilTaskByVehicleBizId(jyBizTaskSendVehicleDetailUpdate);
+            }
+        } catch (Exception e) {
+            log.error("JySendVehicleServiceImpl.handleOnlyLoadAttr {}", JsonHelper.toJson(request), e);
+        }
     }
 
     private BoxMaterialRelationRequest getBoxMaterialRelationRequest(SendScanRequest request, String barCode) {
