@@ -58,7 +58,6 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             JyExceptionContrabandEntity entity = buildEntity(req);
             this.saveImages(req, entity);
             jyExceptionContrabandDao.insertSelective(entity);
-            
         } catch (Exception e) {
             logger.error("提交违禁品上报报错:", e);
             return JdCResponse.fail(e.getMessage());
