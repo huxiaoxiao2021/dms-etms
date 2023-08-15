@@ -82,7 +82,6 @@ public interface JyDamageExceptionService {
 
     /**
      * 处理超48小时客服未反馈破损任务状态
-     * @param bizId
      */
-    JdCResponse<Boolean> dealDamageExpTaskOverTwoDags(String bizId);
+    JdCResponse<Boolean> dealDamageExpTaskOverTwoDags();
 }

@@ -324,4 +324,9 @@ public class JyExceptionServiceTest {
         jyDamageExceptionService.dealDamageExpTaskStatus("JD0003421266039",910);
     }
 
+    @Test
+    public void dealDamageExpTaskOverTwoDagsTest(){
+        jyDamageExceptionService.dealDamageExpTaskOverTwoDags();
+    }
+
 }

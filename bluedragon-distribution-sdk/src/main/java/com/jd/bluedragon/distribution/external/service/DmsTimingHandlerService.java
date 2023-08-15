@@ -20,8 +20,7 @@ public interface DmsTimingHandlerService {
 
     /**
      *处理超48小时客服未反馈破损任务状态
-     * @param bizId
      */
-    void dealDamageExpTaskOverTwoDags(String bizId);
+    void dealDamageExpTaskOverTwoDags();
     
 }

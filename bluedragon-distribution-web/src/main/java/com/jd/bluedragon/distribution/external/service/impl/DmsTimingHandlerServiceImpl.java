@@ -53,7 +53,7 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
     @Override
     @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.dealDamageExpTaskOverTwoDags",
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public void dealDamageExpTaskOverTwoDags(String bizId) {
-        jyDamageExceptionService.dealDamageExpTaskOverTwoDags(bizId);
+    public void dealDamageExpTaskOverTwoDags() {
+        jyDamageExceptionService.dealDamageExpTaskOverTwoDags();
     }
 }

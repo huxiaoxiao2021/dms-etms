@@ -242,7 +242,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>2.0.13-SNAPSHOT</version>
+			<version>2.0.13-dev-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -2671,6 +2671,12 @@
 			<artifactId>abnormal-portal-api</artifactId>
 			<version>${abnormal-portal-api.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>com.jd.bluedragon</groupId>
+            <artifactId>bluedragon-distribution-sdk</artifactId>
+            <version>2.0.13-dev-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

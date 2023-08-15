@@ -486,6 +486,17 @@
         </if>
     </select>
 
+    <select id="getExceptionTaskListOverTime" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity" resultMap="jyBizTaskExceptionMap">
+        select <include refid="Base_Column_List"/>
+        FROM jy_biz_task_exception
+        WHERE yn = 1
+        and type = #{type}
+        and status = #{status}
+        and processing_status = #{processingStatus}
+        and  <![CDATA[   update_time < #{updateTime}  ]]>
+        order by update_time limit 500;
+    </select>
+
 
 
 
