@@ -125,6 +125,15 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public Integer countByCondition(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList, List<Integer> statuses) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
+        if (entity.getLineType() != null) {
+            List<Integer> lineType = new ArrayList<>();
+            if (JyLineTypeEnum.TRUNK_LINE.getCode().equals(entity.getLineType())
+                    ||JyLineTypeEnum.BRANCH_LINE.getCode().equals(entity.getLineType())){
+                lineType.add(JyLineTypeEnum.OTHER.getCode());
+            }
+            lineType.add(entity.getLineType());
+            params.put("lineTypeList", lineType.toArray());
+        }
         if(sendVehicleBizList != null && sendVehicleBizList.size() > 0){
             params.put("sendVehicleBizList", sendVehicleBizList.toArray());
         }

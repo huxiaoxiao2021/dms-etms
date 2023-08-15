@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.ShuttleQuerySourceEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
@@ -105,7 +106,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.pageFetchAviationTaskByNextSite:按流向查询航空任务服务：";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.pageFetchAviationTaskByNextSite:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -136,7 +137,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.fetchAviationToSealAndSealedList:查询封车待封车航空任务服务：";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.fetchAviationToSealAndSealedList:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -155,7 +156,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询封车待封车航空任务服务异常", null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询航空任务封车数据服务异常", null);//500+非自定义异常
         }
     }
 
@@ -164,7 +165,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.pageFetchCurrentSiteStartAirport:查询当前场地对应的始发机场服务：";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.pageFetchCurrentSiteStartAirport:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -181,14 +182,40 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询始发机场服务异常", null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询过滤条件服务异常", null);//500+非自定义异常
         }
     }
 
     @Override
     public JdCResponse<ShuttleSendTaskRes> pageFetchShuttleSendTaskList(ShuttleSendTaskReq request) {
-        //todo zcf
-        return null;
+        if(Objects.isNull(request)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.pageFetchShuttleSendTaskList:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
+            baseParamValidateService.checkPdaPage(request.getPageNo(), request.getPageSize());
+            if(Objects.isNull(ShuttleQuerySourceEnum.getSourceByCode(request.getShuttleQuerySource()))) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "查询source不合法", null);
+            }
+            if(StringUtils.isNotBlank(request.getKeyword()) && request.getKeyword().length() != 4) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "关键词搜素仅支持后4位车牌号", null);
+            }
+
+            //服务调用
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            }
+            return retJdCResponse(jyAviationRailwaySendSealService.pageFetchShuttleSendTaskList(request));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询摆渡发车任务数据服务异常", null);//500+非自定义异常
+        }
     }
 
 
@@ -197,7 +224,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.fetchTransportCodeList:获取运力编码列表服务：";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.fetchTransportCodeList:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -222,7 +249,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.scanAndCheckTransportInfo:扫描校验运力服务：";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.scanAndCheckTransportInfo:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -250,7 +277,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.sendTaskBinding:摆渡任务绑定空铁任务服务：";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.sendTaskBinding:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -286,7 +313,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.sendTaskUnbinding:摆渡任务解绑空铁任务服务：";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.sendTaskUnbinding:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -323,7 +350,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.fetchShuttleTaskSealCarInfo:摆渡任务封车信息查询服务：";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.fetchShuttleTaskSealCarInfo:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -351,7 +378,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.shuttleTaskSealCar:摆渡任务封车服务：";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.shuttleTaskSealCar:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -375,7 +402,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.aviationTaskSealCar:航空任务封车服务：";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.aviationTaskSealCar:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(

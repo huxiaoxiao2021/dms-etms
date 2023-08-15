@@ -49,6 +49,7 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 摆渡发车任务列表查询
+     * todo 逻辑待确认，发车任务确认最终展示的是一级还是二级列表
      * @param request
      * @return
      */

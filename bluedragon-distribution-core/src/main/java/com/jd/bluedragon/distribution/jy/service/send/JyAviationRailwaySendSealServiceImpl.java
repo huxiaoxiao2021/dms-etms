@@ -2,12 +2,15 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.BookingTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.ShuttleQuerySourceEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
+import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.task.*;
@@ -383,11 +386,6 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             trunkY.setTotal(0);
             statusAggList.add(trunkY);
 
-            TaskStatusStatistics shuttleY = new TaskStatusStatistics();
-            shuttleY.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_Y.getCode());
-            shuttleY.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_Y.getName());
-            shuttleY.setTotal(0);
-            statusAggList.add(shuttleY);
         }
 
         Map<Integer, Integer> map = dbQuery.stream().collect(Collectors.toMap(
@@ -562,6 +560,68 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
         return res;
     }
+
+    @Override
+    public InvokeResult<ShuttleSendTaskRes> pageFetchShuttleSendTaskList(ShuttleSendTaskReq request) {
+        InvokeResult<ShuttleSendTaskRes> res = new InvokeResult<>();
+        ShuttleSendTaskRes resData = new ShuttleSendTaskRes();
+        res.setData(resData);
+        //关键词解析bizId
+        List<String> bizIdList = null;
+        if(StringUtils.isNotBlank(request.getKeyword())) {
+            QueryTaskSendDto queryTaskSendDto = new QueryTaskSendDto();
+            queryTaskSendDto.setKeyword(request.getKeyword());
+            queryTaskSendDto.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+            bizIdList = super.resolveSearchKeyword(res, queryTaskSendDto);
+            if (!res.codeSuccess()) {
+                return res;
+            }
+        }
+        //查询条件
+        JyBizTaskSendVehicleEntity queryEntity = new JyBizTaskSendVehicleEntity();
+        queryEntity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+        queryEntity.setLineType(JyLineTypeEnum.SHUTTLE.getCode());
+
+        List<Integer> vehicleStatuses = null;
+        if(ShuttleQuerySourceEnum.SEAL_Y.getCode().equals(request.getShuttleQuerySource())) {
+            vehicleStatuses = Arrays.asList(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
+        } else if(ShuttleQuerySourceEnum.SEAL_N.getCode().equals(request.getShuttleQuerySource())) {
+            //todo zcf 确认车辆列表查询未封车的，  逻辑待确认，确认最终展示的是以及还是二级列表
+            vehicleStatuses = Arrays.asList(JyBizTaskSendStatusEnum.TO_SEND.getCode(), JyBizTaskSendStatusEnum.SENDING.getCode());
+        }
+        //状态统计
+        Integer count = taskSendVehicleService.countByCondition(queryEntity, bizIdList, vehicleStatuses);
+
+        if(count > 0) {
+            List<JyBizTaskSendVehicleEntity> sendTaskList = taskSendVehicleService.querySendTaskOfPage(
+                    queryEntity, bizIdList, null, request.getPageNo(), request.getPageSize(), vehicleStatuses);
+            if(CollectionUtils.isNotEmpty(sendTaskList)) {
+                List<ShuttleSendTaskDto> shuttleSendTaskDtoList = new ArrayList<>();
+                sendTaskList.forEach(sendTask -> {
+                    ShuttleSendTaskDto taskDto = new ShuttleSendTaskDto();
+                    taskDto.setBizId(sendTask.getBizId());
+                    taskDto.setVehicleNumber(sendTask.getVehicleNumber());
+                    //todo zcf 封车总件数和封车绑定总任务数待定
+//                    taskDto.setTotalItemNum();
+//                    taskDto.setTotalItemNum();
+                    shuttleSendTaskDtoList.add(taskDto);
+                });
+                resData.setShuttleSendTaskDtoList(shuttleSendTaskDtoList);
+            }
+        }
+        //统计值
+        int total = CollectionUtils.isEmpty(resData.getShuttleSendTaskDtoList()) ? 0 : count;
+        List<TaskStatusStatistics> statusAggList = new ArrayList<>();
+        TaskStatusStatistics shuttleY = new TaskStatusStatistics();
+        shuttleY.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_Y.getCode());
+        shuttleY.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_Y.getName());
+        shuttleY.setTotal(total);
+        statusAggList.add(shuttleY);
+        resData.setTaskStatusStatisticsList(statusAggList);
+
+        return res;
+    }
+
 
 
     //封车列表查询结果集转换
