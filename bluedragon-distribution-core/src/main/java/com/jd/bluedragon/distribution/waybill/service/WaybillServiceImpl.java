@@ -1141,8 +1141,8 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Override
     public CancelWaybill queryGAExamineCancelWaybill(String waybillCode) {
-        List<CancelWaybill> list = cancelWaybillDao.findWaybillCancelByCodeAndFeatureTypes(waybillCode, 
-                null, 
+        List<CancelWaybill> list = cancelWaybillDao.findWaybillCancelByCodeAndFeatureTypes(waybillCode,
+                CancelWaybill.BUSINESS_TYPE_LOCK, 
                 Lists.newArrayList(CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE, CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE_FAIL));
         if(CollectionUtils.isEmpty(list)){
             return null;
