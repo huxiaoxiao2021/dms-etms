@@ -12,14 +12,14 @@ public class BaseReq implements Serializable {
     private String groupCode;
     private String requestId = UUID.randomUUID().toString().replace("-","");
     /**
-     * 岗位码
-     */
-    private String positionCode;
-    /**
      * 岗位类型
      * JyFuncCodeEnum
      */
     private String post;
+    /**
+     * 岗位码
+     */
+    private String positionCode;
 
     public String getGroupCode() {
         return groupCode;
@@ -53,18 +53,18 @@ public class BaseReq implements Serializable {
         this.requestId = requestId;
     }
 
-    public String getPositionCode() {
-        return positionCode;
-    }
-
-    public void setPositionCode(String positionCode) {
-        this.positionCode = positionCode;
-    }
     public String getPost() {
         return post;
     }
 
     public void setPost(String post) {
         this.post = post;
+    }
+    public String getPositionCode() {
+        return positionCode;
+    }
+
+    public void setPositionCode(String positionCode) {
+        this.positionCode = positionCode;
     }
 }

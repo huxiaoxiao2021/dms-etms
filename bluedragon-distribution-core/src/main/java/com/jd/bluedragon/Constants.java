@@ -1984,12 +1984,6 @@ public class Constants {
     public static final String E_COMMERCE_SPECIAL_OFFER_SERVICE = "ed-m-0059";
 
 
-    public static Map<String, String> sendPredictaggstopic2DataSource =new HashMap<>();
-    static {
-        sendPredictaggstopic2DataSource.put("jy_send_predict_aggs","aggsMain");
-        sendPredictaggstopic2DataSource.put("jy_send_predict_aggs_slave","aggsSlave");
-    }
-
     /**
      * 意见反馈APPID
      */
@@ -2030,4 +2024,13 @@ public class Constants {
      * 安检场地关系配置
      */
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
+
+    /**
+     * 波次数据主备数据源映射
+     */
+    public static Map<String, String> sendPredictaggstopic2DataSource =new HashMap<>();
+    static {
+        sendPredictaggstopic2DataSource.put("jy_send_predict_aggs","aggsMain");
+        sendPredictaggstopic2DataSource.put("jy_send_predict_aggs_slave","aggsSlave");
+    }
 }
