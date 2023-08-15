@@ -701,5 +701,9 @@
         <jmq:listener topic="${jmq.topic.jy.send.predict.aggs.bak}" listener="jySendPredictAggsConsumer"/>
     </jmq:consumer>
 
+    <!--  网格删除mq消费  -->
+    <jmq:consumer id="jmq.workGridModifyMqConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.workGridModifyMq}" listener="workGridModifyMqConsumer"/>
+    </jmq:consumer>    
 </beans>
 

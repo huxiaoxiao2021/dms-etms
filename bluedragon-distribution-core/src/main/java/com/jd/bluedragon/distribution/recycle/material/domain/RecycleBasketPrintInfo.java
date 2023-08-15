@@ -27,6 +27,11 @@ public class RecycleBasketPrintInfo implements Serializable {
      */
     private String provinceAgencyName;
 
+    /**
+     * 周转筐类型
+     */
+    public String typeName;
+
     public String getCreateSiteName() {
         return createSiteName;
     }
@@ -65,5 +70,13 @@ public class RecycleBasketPrintInfo implements Serializable {
 
     public void setProvinceAgencyName(String provinceAgencyName) {
         this.provinceAgencyName = provinceAgencyName;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 }

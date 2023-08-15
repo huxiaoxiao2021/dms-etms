@@ -1976,7 +1976,7 @@ public class BusinessUtil {
         if (StringUtils.isBlank(materialCode)) {
             return false;
         }
-        return (materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 16) ||
+        return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15);
     }
     /**
@@ -2634,10 +2634,13 @@ public class BusinessUtil {
     }
 
     public static void main(String[] args) {
-        String sw = "67890";
-        System.out.println(BusinessUtil.isSiteCode(sw));
-        System.out.println(BusinessUtil.isSanWuCode(sw));
-        System.out.println(BusinessUtil.getBarCodeType("BC1001220222260019400709"));
+        System.out.println(BusinessUtil.isCollectionBag("AD12345678901234"));
+        System.out.println(BusinessUtil.isCollectionBag("ADAD123456789012"));
+        System.out.println(BusinessUtil.isCollectionBag("ADAC123456789012"));
+        System.out.println(BusinessUtil.isCollectionBag("ADAD1234567890123"));
+        System.out.println(BusinessUtil.isCollectionBag("ADAD12345678901C"));
+        System.out.println(BusinessUtil.isCollectionBag("AD1234567890123C"));
+        System.out.println(getRecycleBasketType("BC1001220222460019400709"));
     }
 
     public static boolean isTaskSimpleCode(String simpleCode) {
@@ -2799,5 +2802,26 @@ public class BusinessUtil {
             return false;
         }
         return businessKey.startsWith(DmsConstants.CODE_PREFIX_WORK_STATION_GRID);
-    }    
+    }
+
+    /**
+     * 判断周转筐型号
+     * 通过第13位判断周转筐型号
+     * 1,2,3,对应小型 4对应大型
+     * @param code
+     * @return
+     */
+    public static RecycleBasketTypeEnum getRecycleBasketType(String code) {
+        if (!StringUtils.isEmpty(code) && isMatchBoxCode(code)) {
+            Integer type = Integer.valueOf(code.substring(12,13));
+            if (SMALL_RECYCLE_BASKET_TYPE.contains(type)) {
+                return RecycleBasketTypeEnum.SMALL;
+            }
+            if (RecycleBasketTypeEnum.BIG.getCode().equals(type)){
+                return RecycleBasketTypeEnum.BIG;
+            }
+        }
+        return null;
+    }
+    
 }

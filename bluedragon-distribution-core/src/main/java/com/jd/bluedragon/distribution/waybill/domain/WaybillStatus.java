@@ -269,6 +269,14 @@ public class WaybillStatus {
     public static final Integer WAYBILL_STRAND_REPORT = 18000;
 
     /**
+     * 全称跟踪-杭州亚运会安检
+     * 节点状态码：-3020
+     * 操作码：20700
+     * topic:0_7600
+     */
+    public static final Integer WAYBILL_TRACK_SECURITY_CHECK = 22000;
+
+    /**
      * https://cf.jd.com/pages/viewpage.action?pageId=1050064709
      * 全程跟踪扩展字段-equipmentCode：设备编码
      */
