@@ -25,7 +25,7 @@ public class DockCodeAndPhoneQueryDTO implements Serializable {
 	/**
 	 * 月台号
 	 */
-	private Integer dockCode;
+	private String dockCode;
 
 	public String getStartSiteID() {
 		return startSiteID;
@@ -51,11 +51,11 @@ public class DockCodeAndPhoneQueryDTO implements Serializable {
 		this.flowDirectionType = flowDirectionType;
 	}
 
-	public Integer getDockCode() {
+	public String getDockCode() {
 		return dockCode;
 	}
 
-	public void setDockCode(Integer dockCode) {
+	public void setDockCode(String dockCode) {
 		this.dockCode = dockCode;
 	}
 }
