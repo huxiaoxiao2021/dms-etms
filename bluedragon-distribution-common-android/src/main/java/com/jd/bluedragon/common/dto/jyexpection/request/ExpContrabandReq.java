@@ -6,9 +6,9 @@ import java.util.List;
 public class ExpContrabandReq extends ExpBaseReq {
     private static final long serialVersionUID = 4826466489545798614L;
     /**
-     * 业务主键
+     * 包裹号
      */
-    private String packageCode;
+    private String barCode;
     /**
      * 修复前、包装前）图片地址
      */
@@ -17,17 +17,17 @@ public class ExpContrabandReq extends ExpBaseReq {
     /**
      * 违禁品类型（1：扣减 2.航空转陆运 3.退回）
      */
-    private Boolean contrabandType;
+    private Integer contrabandType;
 
     // 货物情况
     private String description;
 
-    public String getPackageCode() {
-        return packageCode;
+    public String getBarCode() {
+        return barCode;
     }
 
-    public void setPackageCode(String packageCode) {
-        this.packageCode = packageCode;
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
     }
 
     public List<String> getImageUrlList() {
@@ -38,11 +38,11 @@ public class ExpContrabandReq extends ExpBaseReq {
         this.imageUrlList = imageUrlList;
     }
 
-    public Boolean getContrabandType() {
+    public Integer getContrabandType() {
         return contrabandType;
     }
 
-    public void setContrabandType(Boolean contrabandType) {
+    public void setContrabandType(Integer contrabandType) {
         this.contrabandType = contrabandType;
     }
 

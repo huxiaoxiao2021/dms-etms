@@ -29,11 +29,11 @@ public class JyExceptionContrabandEntity implements Serializable {
     /**
      * 违禁品类型（1：扣减 2.航空转陆运 3.退回）
      */
-    private Boolean contrabandType;
+    private Integer contrabandType;
     /**
      * 客服反馈类型（1：更换包装下传 2：再派、未联系上、下传 3：破损已理赔、退回 4：报废 5：补单、补差）
      */
-    private Boolean feedBackType;
+    private Integer feedBackType;
 
     /**
      * 货物情况
@@ -96,19 +96,19 @@ public class JyExceptionContrabandEntity implements Serializable {
         this.barCode = barCode;
     }
 
-    public Boolean getContrabandType() {
+    public Integer getContrabandType() {
         return contrabandType;
     }
 
-    public void setContrabandType(Boolean contrabandType) {
+    public void setContrabandType(Integer contrabandType) {
         this.contrabandType = contrabandType;
     }
 
-    public Boolean getFeedBackType() {
+    public Integer getFeedBackType() {
         return feedBackType;
     }
 
-    public void setFeedBackType(Boolean feedBackType) {
+    public void setFeedBackType(Integer feedBackType) {
         this.feedBackType = feedBackType;
     }
 

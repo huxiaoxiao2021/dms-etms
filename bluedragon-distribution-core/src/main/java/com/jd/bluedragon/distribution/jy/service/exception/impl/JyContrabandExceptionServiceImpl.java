@@ -69,13 +69,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private JyExceptionContrabandEntity buildEntity(ExpContrabandReq req) {
         JyExceptionContrabandEntity entity = new JyExceptionContrabandEntity();
         entity.setContrabandType(req.getContrabandType());
-        String barCode = WaybillUtil.getWaybillCode(req.getPackageCode());
-        if (StringUtils.isEmpty(barCode)) {
-            throw new RuntimeException("包裹号没有匹配到运单号");
-        }
-        String bizId = barCode + "_" + entity.getSiteCode();
+        String bizId = req.getBarCode() + "_" + entity.getSiteCode();
         entity.setBizId(bizId);
-        entity.setBarCode(barCode);
+        entity.setBarCode(req.getBarCode());
         entity.setDescription(req.getDescription());
 
         BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
@@ -132,11 +128,11 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             throw new RuntimeException("违禁品类型不能为空");
         }
         boolean noneMatchContrabandType = Arrays.stream(JyExceptionContrabandEnum.ContrabandTypeEnum.values())
-                .noneMatch(o -> req.getContrabandType());
+                .noneMatch(o -> o.getCode().equals(req.getContrabandType()));
         if (noneMatchContrabandType) {
             throw new RuntimeException("违禁品类型错误");
         }
-        if (StringUtils.isEmpty(req.getPackageCode())) {
+        if (StringUtils.isEmpty(req.getBarCode())) {
             throw new RuntimeException("包裹号不能为空");
         }
         if (StringUtils.isEmpty(req.getUserErp())) {
@@ -145,7 +141,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
         JyExceptionContrabandEntity query = new JyExceptionContrabandEntity();
         query.setSiteCode(req.getSiteId());
-        query.setBarCode(req.getPackageCode());
+        query.setBarCode(req.getBarCode());
         query.setContrabandType(req.getContrabandType());
         List<JyExceptionContrabandEntity> list = jyExceptionContrabandDao.selectByParams(query);
         if (CollectionUtils.isEmpty(list)) {
