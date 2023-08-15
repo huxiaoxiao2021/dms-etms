@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.uploadimage;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
 import org.apache.commons.lang.StringUtils;
@@ -66,7 +67,7 @@ public class UploadController {
                 for (MultipartFile image: images) {
                     String url = abnormalReportingGatewayService.uploadExceptionMedia(image.getInputStream(), image.getOriginalFilename());
                     if (StringUtils.isNotEmpty(url)) {
-                        urls.add(url.replace("http", "https"));
+                        urls.add(url.replace(Constants.HTTP_STR, Constants.HTTPS_STR));
                     }
                 }
             }
