@@ -921,5 +921,10 @@
         <property name="timeout" value="3000" />
     </bean>
 
+    <!-- 拣运取消扫描 -->
+    <bean id="jyExceptionContrabandNoticProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.exception.contrabandNoticKF}" />
+        <property name="timeout" value="3000" />
+    </bean>
 
 </beans>

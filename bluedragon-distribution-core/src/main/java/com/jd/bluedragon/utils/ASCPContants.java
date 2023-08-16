@@ -17,7 +17,20 @@ public class ASCPContants {
     public static final int CODE_TYPE = 50;//业务类型标识
 
 
+    //违禁品业务类型标识
+    public static final int CONTRABAND_BUSINESS_ID =413;
+    //异常一级原因编码
+    public static final String CONTRABAND_EXPT_ONE_LEVEL ="4130100";
+    //异常一级原因名称
+    public static final String CONTRABAND_EXPT_ONE_LEVEL_NAME ="配送异常报备";
+    //异常二级原因编码
+    public static final String CONTRABAND_EXPT_TWO_LEVEL ="4130102";
+    //异常二级原因名称
+    public static final String CONTRABAND_EXPT_TWO_LEVEL_NAME ="违禁品退回";
 
+    public static final int WAYBILL_TYPE_SELF =1;
+
+    public static final int WAYBILL_TYPE_OTHER =5;
 
 
 }

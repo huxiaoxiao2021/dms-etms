@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpContrabandReq;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 
 /**
  * @Author: ext.xuwenrui
@@ -11,4 +12,6 @@ import com.jd.bluedragon.common.dto.jyexpection.request.ExpContrabandReq;
 
 public interface JyContrabandExceptionService {
     JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req);
+
+    void  dealContrabandUploadData(JyExceptionContrabandDto dto);
 }
