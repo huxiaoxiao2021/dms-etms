@@ -141,6 +141,12 @@
             yn = 1
             and biz_id = #{bizId}
             and site_code = #{siteCode}
+            <if test="bizType != null">
+                and biz_type = #{bizType}
+            </if>
+            <if test="bizSubType != null">
+                and biz_sub_type = #{bizSubType}
+            </if>
         </where>
     </update>
 
@@ -169,5 +175,18 @@
         </if>         
         order by create_time desc
         limit #{offset}, #{limit}
+    </select>
+
+
+    <select id="countByCondition" parameterType="com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery" resultType="java.lang.Integer">
+        select count(*)
+        from jy_attachment_detail
+        where yn = 1
+            and biz_id = #{bizId}
+            and site_code = #{siteCode}
+            and biz_type = #{bizType}
+            <if test="bizSubType != null">
+                and biz_sub_type = #{bizSubType}
+            </if>
     </select>
 </mapper>

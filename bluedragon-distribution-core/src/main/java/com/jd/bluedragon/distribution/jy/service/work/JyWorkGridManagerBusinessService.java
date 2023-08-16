@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTaskEditRequest;
 import com.jd.bluedragon.common.dto.work.ScanTaskPositionRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
+import com.jdl.basic.api.domain.workStation.WorkGridModifyMqData;
 
 /**
  * @ClassName: JyWorkGridManagerBusinessService
@@ -47,4 +48,10 @@ public interface JyWorkGridManagerBusinessService {
 	 * @return
 	 */
 	JdCResponse<Boolean> scanTaskPosition(ScanTaskPositionRequest request);
+	/**
+	 * 处理网格数据变更的任务数据
+	 * @param workGridModifyMqData
+	 * @return
+	 */
+	boolean dealWorkGridModifyTask(WorkGridModifyMqData workGridModifyMqData);
 }

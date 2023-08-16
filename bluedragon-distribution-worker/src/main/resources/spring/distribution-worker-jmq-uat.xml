@@ -579,6 +579,10 @@
     <jmq:consumer id="jmq.jyCancelScanConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.cancel.scan}" listener="jyCancelScanConsumer"/>
     </jmq:consumer>
+    <!--  网格删除mq消费  -->
+    <jmq:consumer id="jmq.workGridModifyMqConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.workGridModifyMq}" listener="workGridModifyMqConsumer"/>
+    </jmq:consumer>
     <!-- 拣运发货流向纬度首次扫描 -->
     <jmq:consumer id="jmq.jyTaskSendDetailFirstSendConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jyTaskSendDetailFirstSend}" listener="jyTaskSendDetailFirstSendConsumer"/>

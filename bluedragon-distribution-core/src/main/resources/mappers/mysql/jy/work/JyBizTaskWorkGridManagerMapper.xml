@@ -625,4 +625,18 @@
           and status = 0
           and task_batch_code = #{data.taskBatchCode,jdbcType=VARCHAR}
     </update>
+    <!-- 任务状态取消-网格删除 -->
+    <update id="autoCancelTaskForGridDelete" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate">
+        update jy_biz_task_work_grid_manager
+            set  status = #{data.status,jdbcType=TINYINT},
+                 update_user = #{data.updateUser,jdbcType=VARCHAR},
+                 update_user_name = #{data.updateUserName,jdbcType=VARCHAR},                 
+                 update_time = #{data.updateTime,jdbcType=TIMESTAMP}
+        where yn = 1
+          and status in
+	      <foreach collection="statusList" item="item" open="(" close=")" separator=",">
+	          #{item,jdbcType=TINYINT}
+	      </foreach>          
+          and task_ref_grid_key = #{data.taskRefGridKey,jdbcType=VARCHAR}
+    </update>
 </mapper>
