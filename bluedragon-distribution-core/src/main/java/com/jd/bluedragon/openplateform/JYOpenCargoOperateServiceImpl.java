@@ -357,7 +357,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
             if (!BusinessHelper.isBoxcode(entity.getBarcode())) {
                 sendM.setReceiveSiteCode(entity.getReceiveSiteId());
             }
-            sendM.setUpdateTime(new Date());
+            sendM.setUpdateTime(sendM.getOperateTime());
             sendM.setYn(0);
 
             DeliveryResponse checkResponse = deliveryService.dellCancelDeliveryCheckSealCar(sendM);
@@ -367,7 +367,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
                 return new InvokeResult(checkResponse.getCode(),checkResponse.getMessage(), null);
             }
 
-            ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
+            ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithOperateTime(sendM, true);
             log.info("取消发货结果：{}", JsonHelper.toJson(response));
 
         }
