@@ -103,4 +103,11 @@
 			CODE = #{code, jdbcType=VARCHAR} AND ATTRIBUTE_KEY = #{attributeKey, jdbcType=VARCHAR} AND IS_DELETE = 0
 	</update>
 
+	<select id="findAttributeValueByCodeAndPossibleKey" parameterType="BusinessCodeAttributePo" resultType="java.lang.String">
+		SELECT `ATTRIBUTE_VALUE`
+		FROM BUSINESS_CODE_ATTRIBUTE
+		WHERE  IS_DELETE = 0
+		  AND CODE = #{code, jdbcType=VARCHAR}
+		  AND ATTRIBUTE_KEY like concat(#{attributeKey}, '%')
+	</select>
 </mapper>

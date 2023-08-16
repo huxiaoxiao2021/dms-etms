@@ -275,6 +275,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
                 final Box box = boxService.findBoxByCode(entity.getBoxCode());
                 if(box == null){
                     Box boxAdd = new Box();
+                    boxAdd.setId(boxService.newBoxId());
                     boxAdd.setCode(entity.getBoxCode());
                     boxAdd.setType(Box.TYPE_DP);
                     boxAdd.setCreateSiteCode(entity.getCreateSiteId());
@@ -283,8 +284,10 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
                     boxAdd.setReceiveSiteName(entity.getReceiveSiteName());
                     boxAdd.setCreateTime(new Date(entity.getOperatorInfo().getOperateTime()));
                     boxAdd.setUpdateTime(boxAdd.getCreateTime());
-                    boxAdd.setCreateUserCode(entity.getOperatorInfo().getOperateUserId());
+                    boxAdd.setCreateUserCode(0);
                     boxAdd.setCreateUser(entity.getOperatorInfo().getOperateUserName());
+                    boxAdd.setUpdateUserCode(boxAdd.getCreateUserCode());
+                    boxAdd.setUpdateUser(boxAdd.getUpdateUser());
                     boxAdd.setTimes(1);
                     boxAdd.setStatus(Box.BOX_STATUS_SEND);
                     boxAdd.setTransportType(Box.BOX_TRANSPORT_TYPE_HIGHWAY);

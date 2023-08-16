@@ -15,7 +15,6 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.HashedMap;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +81,23 @@ public class FeedBackApiManagerImpl implements FeedBackApiManager {
             }
         }
         return result;
+    }
+
+    @Override
+    public List<TypeVo> queryFeedbackTypeList(UserInfoDto userInfoDto) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.FeedBackApiManagerImpl.queryFeedBackType", false, true);
+        Result<List<TypeVo>> feedback = null;
+        try {
+            feedback = typeApi.queryType(userInfoDto);
+        } catch (Exception e) {
+            Profiler.functionError(info);
+            Log.error("FeedBackApiManagerImpl.queryFeedBackType error",e);
+        }
+        if (feedback == null) {
+            log.info("FeedBackApiManagerImpl.queryFeedBackType begin param is {}", JSON.toJSONString(userInfoDto));
+            return null;
+        }
+        return feedback.getData();
     }
 
     @Override

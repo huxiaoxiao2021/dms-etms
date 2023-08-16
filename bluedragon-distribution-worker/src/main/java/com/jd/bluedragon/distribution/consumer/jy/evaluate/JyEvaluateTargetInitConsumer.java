@@ -138,6 +138,10 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
             if (sealCarDto != null) {
                 targetInitDto.setUnsealTime(sealCarDto.getDesealCarTime());
                 targetInitDto.setSealTime(sealCarDto.getSealCarTime());
+                if (StringUtils.isBlank(targetInitDto.getTargetSiteName())) {
+                    targetInitDto.setTargetSiteCode(sealCarDto.getStartSiteId());
+                    targetInitDto.setTargetSiteName(sealCarDto.getStartSiteName());
+                }
             }
         }
 

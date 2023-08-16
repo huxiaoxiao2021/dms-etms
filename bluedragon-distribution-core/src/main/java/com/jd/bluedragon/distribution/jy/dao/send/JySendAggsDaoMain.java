@@ -54,4 +54,9 @@ class JySendAggsDaoMain extends BaseDao<JySendAggsEntity> implements JySendAggsD
     public List<JySendAggsEntity> getSendStatisticsByBizList(List<String> sendVehicleBizId) {
         return this.getSqlSession().selectList(NAMESPACE + ".getSendStatisticsByBizList", sendVehicleBizId);
     }
+
+    @Override
+    public List<JySendAggsEntity> findBySendVehicleDetailBizs(List<String> bizIds) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findByBizIds", bizIds);
+    }
 }

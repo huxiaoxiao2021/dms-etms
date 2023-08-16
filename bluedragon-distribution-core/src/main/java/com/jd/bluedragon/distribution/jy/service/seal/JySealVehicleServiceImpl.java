@@ -1,12 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.seal;
 
-import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
-import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
-import com.jd.bluedragon.common.dto.comboard.response.*;
+import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
+import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
@@ -31,8 +29,6 @@ import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
-import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
-import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
@@ -40,11 +36,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
-import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
-import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
-import com.jd.bluedragon.distribution.jy.service.send.JySendAggsService;
-import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
-import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
+import com.jd.bluedragon.distribution.jy.service.send.*;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -57,7 +49,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
-import com.jd.bluedragon.utils.jddl.DmsJddlUtils;
 import com.jd.dbs.util.CollectionUtils;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.CommonDto;
@@ -68,17 +59,10 @@ import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.WeightVolSendCodeSumVo;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
-import com.jd.tms.jdi.dto.BigQueryOption;
-import com.jd.tms.jdi.dto.BigTransWorkItemDto;
-import com.jd.tms.jdi.dto.JdiSealCarQueryDto;
-import com.jd.tms.jdi.dto.JdiSealCarResponseDto;
-import com.jd.tms.jdi.dto.TransWorkItemDto;
+import com.jd.tms.jdi.dto.*;
 import com.jd.transboard.api.dto.BoardBoxInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-
-import java.text.MessageFormat;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +73,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
@@ -289,7 +275,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
-    public InvokeResult czSealVehicle(SealVehicleReq sealVehicleReq) {
+    public InvokeResult<Void> czSealVehicle(SealVehicleReq sealVehicleReq) {
         log.info("jy传站封车,sealVehicleReq:{}",JsonHelper.toJson(sealVehicleReq));
         String sealLockKey = String.format(Constants.JY_SEAL_LOCK_PREFIX, sealVehicleReq.getSendVehicleDetailBizId());
         if (!jimDbLock.lock(sealLockKey, sealVehicleReq.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
@@ -304,10 +290,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 throw new JyBizException("该流向已封车！");
             }
             //校验批次是否已经封车
-            if (ucc.getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= ucc.getJyComboardSealBoardListSelectLimit()){
-                for (String sendCode:sealVehicleReq.getBatchCodes()){
-                    if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
-                        throw new JyBizException("该批次:"+sendCode+"已经封车,请勿重复勾选");
+            if (sealVehicleReq.getFuncType() == null || sealVehicleReq.getFuncType().equals(JyFuncCodeEnum.COMBOARD_SEND_POSITION.getCode())) {
+                if (ucc.getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= ucc.getJyComboardSealBoardListSelectLimit()){
+                    for (String sendCode:sealVehicleReq.getBatchCodes()){
+                        if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
+                            throw new JyBizException("该批次:"+sendCode+"已经封车,请勿重复勾选");
+                        }
                     }
                 }
             }
@@ -339,8 +327,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 if (ObjectHelper.isNotNull(sealResp.getData())){
                     List<com.jd.etms.vos.dto.SealCarDto> successSealCarList =(List<com.jd.etms.vos.dto.SealCarDto>)sealResp.getData();
                     saveSealSendCode(successSealCarList.get(0).getBatchCodes(),sealVehicleReq);
-                    jyBizTaskComboardService.updateBoardStatusBySendCodeList(successSealCarList.get(0).getBatchCodes(),
-                        sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
+                    if (sealVehicleReq.getFuncType() == null || sealVehicleReq.getFuncType().equals(JyFuncCodeEnum.COMBOARD_SEND_POSITION.getCode())) {
+                        jyBizTaskComboardService.updateBoardStatusBySendCodeList(successSealCarList.get(0).getBatchCodes(),
+                                sealVehicleReq.getUser().getUserErp(),sealVehicleReq.getUser().getUserName(),ComboardStatusEnum.SEALED);
+                    }
                 }
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
             }

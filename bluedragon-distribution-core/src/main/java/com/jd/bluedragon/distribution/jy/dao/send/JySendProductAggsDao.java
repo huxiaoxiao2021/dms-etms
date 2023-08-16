@@ -24,6 +24,11 @@ class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity>  implements 
         return this.getSqlSession().selectOne(NAMESPACE + ".getToScanCountSum", query.getBizId());
     }
 
+    @Override
+    public List<JySendProductAggsEntity> getToScanNumByEndSiteList(JySendProductAggsEntityQuery query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getToScanNumByEndSiteList", query);
+    }
+
 
     public List<JySendProductAggsEntity> getSendAggsListByCondition(JySendProductAggsEntityQuery query) {
         return this.getSqlSession().selectList(NAMESPACE + ".getSendAggsListByCondition", query);

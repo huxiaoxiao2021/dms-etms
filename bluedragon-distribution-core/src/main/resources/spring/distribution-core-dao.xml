@@ -712,6 +712,18 @@
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
 
+
+    <!--  jy_collect_record 拣运扫描新集齐模型*主表  -->
+    <bean id="jyCollectRecordDao" class="com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
+    </bean>
+    <!--  jy_collect_record_detail 拣运扫描新集齐模型*明细表  -->
+    <bean id="jyCollectRecordDetailDao" class="com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDetailDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
+    </bean>
+
     <!--  分拣箱号关联  -->
     <bean id="boxRelationDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.box.dao.impl.BoxRelationDaoImpl" />
@@ -939,5 +951,13 @@
         <property name="mapperInterface" value="com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao"/>
         <property name="sqlSessionFactory" ref="unDivSqlSessionFactory"></property>
         <property name="sqlSessionTemplate" ref="unDivSqlSessionTemplate"></property>
+    </bean>
+
+
+    <bean id="jyBizTaskFindGoodsDao" class="com.jd.bluedragon.distribution.jy.dao.findgoods.JyBizTaskFindGoodsDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskFindGoodsDetailDao" class="com.jd.bluedragon.distribution.jy.dao.findgoods.JyBizTaskFindGoodsDetailDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 </beans>

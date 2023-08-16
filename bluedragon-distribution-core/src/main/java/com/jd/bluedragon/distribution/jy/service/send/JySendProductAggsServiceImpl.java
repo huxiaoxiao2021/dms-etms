@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -53,6 +54,16 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
     @Override
     public Boolean insertOrUpdateJySendProductAggsBak(JySendProductAggsEntity entity) {
         return jySendProductAggsSpecialDao.insertOrUpdateJySendProductAggsBak(entity);
+    }
+
+    @Override
+    public List<JySendProductAggsEntity> getToScanNumByEndSiteList(JySendProductAggsEntityQuery query) {
+        JySendProductAggsDaoStrategy jySendProductAggsDao = jySendProductAggsSpecialDao.getJySendProductAggsDao();
+        String keyword = jySendProductAggsDao.getClass().getSimpleName();
+        CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.JySendProductAggsServiceImpl"+keyword+".getToScanNumByEndSiteList");
+        List<JySendProductAggsEntity> toScanAggs = jySendProductAggsDao.getToScanNumByEndSiteList(query);
+        Profiler.registerInfoEnd(info);
+        return toScanAggs;
     }
 
 }

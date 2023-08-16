@@ -53,6 +53,11 @@ public class SealVehicleTaskRequest implements Serializable {
      */
     private String sealCarCode;
 
+    /**
+     * 版本号
+     */
+    private Integer version;
+
     public Integer getPageNumber() {
         return pageNumber;
     }
@@ -132,4 +137,13 @@ public class SealVehicleTaskRequest implements Serializable {
     public void setSealCarCode(String sealCarCode) {
         this.sealCarCode = sealCarCode;
     }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
 }

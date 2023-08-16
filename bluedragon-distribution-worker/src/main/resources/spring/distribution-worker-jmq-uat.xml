@@ -567,6 +567,21 @@
     <jmq:consumer id="jmq.dmsExCustomerNotifyConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.exception.customerNotify}" listener="dmsExCustomerNotifyConsumer"/>
     </jmq:consumer>
-
+    <!-- 拣运扫描集齐-新 -->
+    <jmq:consumer id="jmq.jyScanCollectConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.scan.collect}" listener="jyScanCollectConsumer"/>
+    </jmq:consumer>
+    <!-- 拣运取消扫描集齐 -->
+    <jmq:consumer id="jmq.jyCancelScanCollectConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.cancel.scan.collect}" listener="jyCancelScanCollectConsumer"/>
+    </jmq:consumer>
+    <!-- 拣运取消扫描 -->
+    <jmq:consumer id="jmq.jyCancelScanConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.cancel.scan}" listener="jyCancelScanConsumer"/>
+    </jmq:consumer>
+    <!--  网格删除mq消费  -->
+    <jmq:consumer id="jmq.workGridModifyMqConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.workGridModifyMq}" listener="workGridModifyMqConsumer"/>
+    </jmq:consumer>    
 </beans>
 

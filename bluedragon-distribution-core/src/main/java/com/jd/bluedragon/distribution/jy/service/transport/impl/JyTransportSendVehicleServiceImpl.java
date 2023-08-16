@@ -87,10 +87,10 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             if (siteStartInfo == null) {
                 return result.toFail(String.format("未查询到始发场地编码为%s的场地数据", requestDto.getBeginNodeCode()));
             }
-            final BaseStaffSiteOrgDto siteEndInfo = baseMajorManager.getBaseSiteByDmsCode(requestDto.getEndNodeCode());
+            /*final BaseStaffSiteOrgDto siteEndInfo = baseMajorManager.getBaseSiteByDmsCode(requestDto.getEndNodeCode());
             if (siteEndInfo == null) {
                 return result.toFail(String.format("未查询到目的场地编码为%s的场地数据", requestDto.getEndNodeCode()));
-            }
+            }*/
             final String validateStrGenerateCacheKey = this.getValidateGenerateCacheKey(requestDto.getValidateStr());
             final String validateStrCacheVal = redisClientOfJy.get(validateStrGenerateCacheKey);
             log.info("JyTransportSendVehicleServiceImpl.validateVehicleArriveDock param {}, val {}", requestDto.getValidateStr(), validateStrCacheVal);
