@@ -327,7 +327,10 @@ public class DmsConstants {
      * 微笑符号-****
      */
     public static final String  HIDE_STAR = "****";
-    public static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
+    public static final int PHONE_FIRST_NUMBER = 1;//收件人联系方式前几位需要显示
+
+    public static final int LANDLINE_FIRST_NUMBER = 2;//收件人联系方式为8位座机号要保留的位数
+    public static final int LANDLINE_NUMBER = 8;//收件人联系方式为8位座机号
     public static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
     public static final int PHONE_LEAST_NUMBER = PHONE_FIRST_NUMBER + PHONE_HIGHLIGHT_NUMBER;//隐藏处理的最小长度
     public static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代

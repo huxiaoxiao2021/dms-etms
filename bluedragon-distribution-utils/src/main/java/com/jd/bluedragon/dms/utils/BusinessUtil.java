@@ -2013,23 +2013,27 @@ public class BusinessUtil {
         return getHidePhone(phone,HIDE_SMILE);
     }
     /**
-     * 隐藏手机号：7位以上手机号返回前3位+hideStr+后四位，否则返回原值
+     * 隐藏手机号： 原 7位以上手机号返回前3位+hideStr+后四位，否则返回原值
+     *            新 8位以上手机号返回前1位+hideStr+后四位，否则返回后两位
      * @param phone 原手机号
      * @param hideStr 隐藏后替换字符串，传值为空时默认^_^
      * @return
      */
     public static String getHidePhone(String phone,String hideStr) {
         if(StringUtils.isNotBlank(phone)){
-        	String hidePlaceStr = hideStr;
-        	if(StringUtils.isBlank(hidePlaceStr)){
-        		hidePlaceStr = HIDE_SMILE;
-        	}
+            String hidePlaceStr = hideStr;
+            if(StringUtils.isBlank(hidePlaceStr)){
+                hidePlaceStr = HIDE_SMILE;
+            }
             //去除号码中间的空白字符
-        	String hidePhone = phone.replaceAll("\\s*", "");
-            if(hidePhone.length() >= PHONE_LEAST_NUMBER ){
+            String hidePhone = phone.replaceAll("\\s*", "");
+            if(hidePhone.length() > LANDLINE_NUMBER ){
                 return hidePhone.substring(0,PHONE_FIRST_NUMBER)
-                		+ hidePlaceStr
-                		+ hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
+                        + hidePlaceStr
+                        + hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
+            }else {
+                return  hidePlaceStr
+                        + hidePhone.substring(hidePhone.length() - LANDLINE_FIRST_NUMBER);
             }
         }
         return phone;
