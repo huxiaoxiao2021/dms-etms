@@ -67,12 +67,6 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     private JyExceptionContrabandEntity buildEntity(ExpContrabandReq req) {
         JyExceptionContrabandEntity entity = new JyExceptionContrabandEntity();
-        entity.setContrabandType(req.getContrabandType());
-        String bizId = req.getBarCode() + "_" + entity.getSiteCode();
-        entity.setBizId(bizId);
-        entity.setBarCode(req.getBarCode());
-        entity.setDescription(req.getDescription());
-
         BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
         if (baseStaff != null) {
             entity.setSiteCode(baseStaff.getSiteCode());
@@ -84,6 +78,12 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             entity.setUpdateStaffName(baseStaff.getAccountNumber());
             entity.setUpdateTime(entity.getCreateTime());
         }
+
+        entity.setContrabandType(req.getContrabandType());
+        String bizId = req.getBarCode() + "_" + entity.getSiteCode();
+        entity.setBizId(bizId);
+        entity.setBarCode(req.getBarCode());
+        entity.setDescription(req.getDescription());
         return entity;
     }
 
