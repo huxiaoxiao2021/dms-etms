@@ -45,7 +45,7 @@ public interface JyAviationRailwaySendSealGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<AviationSealedListRes> pageFetchAviationSealedList(AviationSendTaskSealListReq request);
+    JdCResponse<AviationSealedListRes> pageFetchAviationSealedList(AviationSealedListReq request);
     /**
      * 列表查询筛选条件查询
      * @param request

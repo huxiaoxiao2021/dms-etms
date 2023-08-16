@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -550,7 +551,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 });
 
                 //重量、体积、件数
-                this.fillAviationSealListStatistics(sealListDtoArrayList, bizIdList, request);
+                this.fillAviationSealListStatistics(sealListDtoArrayList, bizIdList, request.getStatusCode());
 
                 resData.setAviationSealListDtoList(sealListDtoArrayList);
             }else {
@@ -654,6 +655,62 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         return res;
     }
 
+    @Override
+    public InvokeResult<AviationSealedListRes> pageFetchAviationSealedList(AviationSealedListReq request) {
+        InvokeResult<AviationSealedListRes> res = new InvokeResult<>();
+        AviationSealedListRes resData = new AviationSealedListRes();
+        res.setData(resData);
+
+
+        JyBizTaskSendAviationPlanQueryCondition condition = new JyBizTaskSendAviationPlanQueryCondition();
+        condition.setStartSiteId(request.getCurrentOperate().getSiteCode());
+        condition.setTaskStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
+        this.parseKeyword(request.getKeyword(), request.getCurrentOperate().getSiteCode(),  condition);
+        condition.setOffset((request.getPageNo() - 1) * request.getPageSize());
+        condition.setPageSize(request.getPageSize());
+
+        //当前状态统计>0 查具体流向
+        List<JyBizTaskSendAviationPlanEntity> aviationPlanEntityList = jyBizTaskSendAviationPlanService.pageQueryAviationPlanByCondition(condition);
+        if(CollectionUtils.isNotEmpty(aviationPlanEntityList)) {
+            List<AviationSealListDto> sealListDtoList = new ArrayList<>();
+            List<String> bizIdList = new ArrayList<>();
+            aviationPlanEntityList.forEach(entity -> {
+                bizIdList.add(entity.getBizId());
+                AviationSealListDto sealListDto = this.convertAviationSealListDto(entity);
+                sealListDto.setBindFlag(false);
+                sealListDtoList.add(sealListDto);
+            });
+
+            //重量、体积、件数
+            this.fillAviationSealListStatistics(sealListDtoList, bizIdList, JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getCode());
+
+            //是否已绑定
+            this.bindFlagHandler(sealListDtoList, request.getSendVehicleBizId());
+
+            resData.setAviationSealListDtoList(sealListDtoList);
+        }
+        return res;
+    }
+    //任务添加页增加已绑定标签
+    private void bindFlagHandler(List<AviationSealListDto> sealListDtoList, String sendVehicleBizId) {
+        JyBizTaskBindEntityQueryCondition condition = new JyBizTaskBindEntityQueryCondition();
+        condition.setBizId(sendVehicleBizId);
+        condition.setType(TaskBindTypeEnum.BIND_TYPE_AVIATION.getCode());
+        List<JyBizTaskBindEntity> bindEntityList = jyBizTaskBindService.queryBindTaskList(condition);
+        if(CollectionUtils.isEmpty(bindEntityList)) {
+            return;
+        }
+        //K-bizId V 任意
+        Map<String, Integer> map = bindEntityList.stream().collect(Collectors.toMap(
+                k -> k.getBindBizId(),
+                v -> 1));
+        sealListDtoList.forEach(sealListDto -> {
+            if(!Objects.isNull(map.get(sealListDto.getBizId()))) {
+                sealListDto.setBindFlag(true);
+            }
+        });
+    }
+
 
     //封车列表查询结果集转换
     private AviationSealListDto convertAviationSealListDto(JyBizTaskSendAviationPlanEntity entity) {
@@ -674,12 +731,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         return res;
     }
 
-    private void fillAviationSealListStatistics(List<AviationSealListDto> sealListDtoList, List<String> bizIdList, AviationSendTaskSealListReq request) {
-        if(CollectionUtils.isEmpty(sealListDtoList) || CollectionUtils.isEmpty(bizIdList) || Objects.isNull(request)) {
+    private void fillAviationSealListStatistics(List<AviationSealListDto> sealListDtoList, List<String> bizIdList, Integer statusCode) {
+        if(CollectionUtils.isEmpty(sealListDtoList) || CollectionUtils.isEmpty(bizIdList) || Objects.isNull(statusCode)) {
             return;
         }
         //未封查aggs统计数据
-        if(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_N.getCode().equals(request.getStatusCode())) {
+        if(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_N.getCode().equals(statusCode)) {
             List<JySendAggsEntity> aggs = jySendAggsService.getSendStatisticsByBizList(bizIdList);
             Map<String, JySendAggsEntity> map = aggs.stream().collect(Collectors.toMap(k -> k.getSendVehicleBizId(), v -> v));
             sealListDtoList.forEach(sealListDto -> {
@@ -708,7 +765,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
         }
         //已封查实际封车数据
-        else if(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getCode().equals(request.getStatusCode())) {
+        else if(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getCode().equals(statusCode)) {
             //todo zcf  查询真正封车之后的重量体积件数
             sealListDtoList.forEach(sealListDto -> {
                 Double weight = 0d;
