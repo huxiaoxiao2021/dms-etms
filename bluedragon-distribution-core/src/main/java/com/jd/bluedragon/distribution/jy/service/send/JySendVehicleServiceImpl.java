@@ -2357,8 +2357,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         domain.setSendType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
         domain.setBizSource(SendBizSourceEnum.JY_APP_SEND.getCode());
         domain.setYn(1);
-        domain.setCreateTime(request.getCurrentOperate().getOperateTime());
-        domain.setOperateTime(request.getCurrentOperate().getOperateTime());
+        // 由于PDA时间可能不准，导致全程跟踪顺序错乱，此处修改为取服务器时间
+        Date date = new Date();
+        domain.setCreateTime(date);
+        domain.setOperateTime(date);
         domain.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
         domain.setOperatorId(request.getCurrentOperate().getOperatorId());
         return domain;
