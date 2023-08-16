@@ -19,6 +19,8 @@ public interface JyBizTaskSendAviationPlanService {
 
     JyBizTaskSendAviationPlanEntity findByBizId(String bizId);
 
+    List<JyBizTaskSendAviationPlanEntity> findByBizIdList(List<String> bizIdList);
+
     int updateByBizId(JyBizTaskSendAviationPlanEntity updateAviationPlan);
 
     /**

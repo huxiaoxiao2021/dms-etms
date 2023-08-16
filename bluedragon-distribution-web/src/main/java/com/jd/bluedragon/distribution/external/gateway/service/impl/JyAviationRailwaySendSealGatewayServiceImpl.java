@@ -161,6 +161,11 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
     }
 
     @Override
+    public JdCResponse<AviationSealedListRes> pageFetchAviationSealedList(AviationSendTaskSealListReq request) {
+        return null;
+    }
+
+    @Override
     public JdCResponse<FilterConditionQueryRes> pageFetchFilterCondition(FilterConditionQueryReq request) {
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
@@ -297,7 +302,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
             }
-            request.setType(TaskBindTypeEnum.BIND_TYPE_AVIATION_RAILWAY.getCode());
+            request.setType(TaskBindTypeEnum.BIND_TYPE_AVIATION.getCode());
             return retJdCResponse(jyAviationRailwaySendSealService.sendTaskBinding(request));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
@@ -329,7 +334,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
             }
-            request.setType(TaskBindTypeEnum.BIND_TYPE_AVIATION_RAILWAY.getCode());
+            request.setType(TaskBindTypeEnum.BIND_TYPE_AVIATION.getCode());
             return retJdCResponse(jyAviationRailwaySendSealService.sendTaskUnbinding(request));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
@@ -342,7 +347,30 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
 
     @Override
     public JdCResponse<SendTaskBindQueryRes> fetchSendTaskBindingData(SendTaskBindQueryReq request) {
-        return null;
+        if(Objects.isNull(request)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.fetchSendTaskBindingData:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
+            //业务参数校验
+            if(StringUtils.isBlank(request.getBizId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "发车任务bizId为空", null);
+            }
+            //服务调用
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            }
+            return retJdCResponse(jyAviationRailwaySendSealService.queryBindTaskList(request));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询绑定航空任务服务异常", null);//500+非自定义异常
+        }
     }
 
     @Override

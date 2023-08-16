@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
@@ -593,7 +594,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         Integer count = taskSendVehicleService.countByCondition(queryEntity, bizIdList, vehicleStatuses);
 
         if(count > 0) {
-            List<JyBizTaskSendVehicleEntity> sendTaskList = taskSendVehicleService.querySendTaskOfPage(
+            List<JyBizTaskSendVehicleEntity> sendTaskList = jyBizTaskSendVehicleService.querySendTaskOfPage(
                     queryEntity, bizIdList, null, request.getPageNo(), request.getPageSize(), vehicleStatuses);
             if(CollectionUtils.isNotEmpty(sendTaskList)) {
                 List<ShuttleSendTaskDto> shuttleSendTaskDtoList = new ArrayList<>();
@@ -622,6 +623,36 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         return res;
     }
 
+    @Override
+    public InvokeResult<SendTaskBindQueryRes> queryBindTaskList(SendTaskBindQueryReq request) {
+        InvokeResult<SendTaskBindQueryRes> res = new InvokeResult<>();
+        SendTaskBindQueryRes resData = new SendTaskBindQueryRes();
+        res.setData(resData);
+
+        JyBizTaskBindEntityQueryCondition condition = new JyBizTaskBindEntityQueryCondition();
+        condition.setBizId(request.getBizId());
+        condition.setOperateSiteCode(request.getCurrentOperate().getSiteCode());
+        condition.setType(TaskBindTypeEnum.BIND_TYPE_AVIATION.getCode());
+        List<JyBizTaskBindEntity> bindEntityList = jyBizTaskBindService.queryBindTaskList(condition);
+        if(CollectionUtils.isEmpty(bindEntityList)) {
+            res.setMessage("查询为空");
+            return res;
+        }
+        List<String> bindBizList = bindEntityList.stream().map(JyBizTaskBindEntity::getBindBizId).collect(Collectors.toList());
+
+        List<JyBizTaskSendAviationPlanEntity> aviationPlanEntityList = jyBizTaskSendAviationPlanService.findByBizIdList(bindBizList);
+
+        List<SendTaskBindQueryDto> sendTaskBindQueryDtoList = new ArrayList<>();
+        aviationPlanEntityList.forEach(entity -> {
+            SendTaskBindQueryDto queryDto = new SendTaskBindQueryDto();
+            queryDto.setBindBizId(entity.getBizId());
+            queryDto.setFlightNumber(entity.getFlightNumber());
+            queryDto.setBindDetailBizId(entity.getBookingCode());
+            sendTaskBindQueryDtoList.add(queryDto);
+        });
+        resData.setSendTaskBindDtoList(sendTaskBindQueryDtoList);
+        return res;
+    }
 
 
     //封车列表查询结果集转换

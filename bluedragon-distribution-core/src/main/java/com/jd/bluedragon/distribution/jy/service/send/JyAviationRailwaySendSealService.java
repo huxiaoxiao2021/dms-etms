@@ -35,4 +35,6 @@ public interface JyAviationRailwaySendSealService {
     InvokeResult<AviationToSealAndSealedListRes> pageFetchAviationToSealAndSealedList(AviationSendTaskSealListReq request);
 
     InvokeResult<ShuttleSendTaskRes> pageFetchShuttleSendTaskList(ShuttleSendTaskReq request);
+
+    InvokeResult<SendTaskBindQueryRes> queryBindTaskList(SendTaskBindQueryReq request);
 }

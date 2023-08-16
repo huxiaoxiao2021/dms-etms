@@ -12,4 +12,24 @@ import java.io.Serializable;
 public class SendTaskBindQueryReq extends BaseReq implements Serializable {
 
     private static final long serialVersionUID = 4784612639942744950L;
+
+    private String bizId;
+
+    private String vehicleNumber;
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
 }

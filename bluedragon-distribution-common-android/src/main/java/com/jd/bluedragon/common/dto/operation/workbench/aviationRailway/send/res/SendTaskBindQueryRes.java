@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author zhengchengfa
@@ -10,4 +11,15 @@ import java.io.Serializable;
 public class SendTaskBindQueryRes implements Serializable {
 
     private static final long serialVersionUID = 4784612639942744950L;
+
+    private List<SendTaskBindQueryDto> sendTaskBindQueryDtoList;
+
+
+    public List<SendTaskBindQueryDto> getSendTaskBindDtoList() {
+        return sendTaskBindQueryDtoList;
+    }
+
+    public void setSendTaskBindDtoList(List<SendTaskBindQueryDto> sendTaskBindQueryDtoList) {
+        this.sendTaskBindQueryDtoList = sendTaskBindQueryDtoList;
+    }
 }

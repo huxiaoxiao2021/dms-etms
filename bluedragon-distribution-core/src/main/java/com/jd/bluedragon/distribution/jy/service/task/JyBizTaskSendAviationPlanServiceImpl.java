@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition;
 import com.jd.bluedragon.utils.NumberHelper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,14 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     @Override
     public JyBizTaskSendAviationPlanEntity findByBizId(String bizId) {
         return jyBizTaskSendAviationPlanDao.findByBizId(bizId);
+    }
+
+    @Override
+    public List<JyBizTaskSendAviationPlanEntity> findByBizIdList(List<String> bizIdList) {
+        if(CollectionUtils.isEmpty(bizIdList)) {
+            return null;
+        }
+        return jyBizTaskSendAviationPlanDao.findByBizIdList(bizIdList);
     }
 
     @Override

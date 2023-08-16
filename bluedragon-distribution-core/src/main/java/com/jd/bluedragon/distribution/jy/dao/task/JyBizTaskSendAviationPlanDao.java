@@ -30,6 +30,11 @@ public class JyBizTaskSendAviationPlanDao extends BaseDao<JyBizTaskSendAviationP
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBizId", bizId);
     }
 
+    public List<JyBizTaskSendAviationPlanEntity> findByBizIdList(List<String> bizIdList) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findByBizIdList", bizIdList);
+    }
+
+
     public int updateByBizId(JyBizTaskSendAviationPlanEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
     }

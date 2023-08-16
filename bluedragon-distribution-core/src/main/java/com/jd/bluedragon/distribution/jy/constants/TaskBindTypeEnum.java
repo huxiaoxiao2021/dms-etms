@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.jy.constants;
 
 public enum TaskBindTypeEnum {
     //
-    BIND_TYPE_AVIATION_RAILWAY(1,"空铁发货任务绑定关系"),
+    BIND_TYPE_AVIATION(1,"空铁发货任务绑定关系"),
     ;
     private Integer code;
     private String msg;
