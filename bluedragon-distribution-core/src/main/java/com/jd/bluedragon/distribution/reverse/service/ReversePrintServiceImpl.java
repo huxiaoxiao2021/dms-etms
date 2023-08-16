@@ -845,7 +845,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
         //2.判断运单是否为弃件，如果是弃件禁止换单
-        if (waybillTraceManager.isWaybillWaste(wayBillCode)){
+        if (waybillTraceManager.isOpCodeWaste(wayBillCode)){
             result.setData(false);
             result.setMessage("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
             return result;
@@ -941,7 +941,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
         //2.判断运单是否为弃件，如果是弃件禁止换单
-        if (waybillTraceManager.isWaybillWaste(wayBillCode)){
+        if (waybillTraceManager.isOpCodeWaste(wayBillCode)){
             result.setData(false);
             result.setMessage("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
             return result;

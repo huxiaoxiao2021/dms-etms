@@ -1,7 +1,5 @@
 package com.jd.bluedragon;
 
-import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1136,6 +1134,10 @@ public class Constants {
      * 运单状态  弃件
      */
     public static final String WAYBILLTRACE_WASTE = "620";
+    /**
+     * 运单状态  弃件（港澳单节点）
+     */
+    public static final String WAYBILLTRACE_WASTE_GA = "750";
 
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";

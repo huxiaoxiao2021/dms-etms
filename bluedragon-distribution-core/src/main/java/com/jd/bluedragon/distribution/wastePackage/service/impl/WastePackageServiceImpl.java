@@ -135,7 +135,7 @@ public class WastePackageServiceImpl implements WastePackageService {
         }
 
         try {
-            if (!waybillTraceManager.isWaybillWaste(request.getWaybillCode())){
+            if (!waybillTraceManager.isOpCodeWaste(request.getWaybillCode())){
                 result.error("不是弃件，请勿操作弃件暂存");
                 return result;
             }
