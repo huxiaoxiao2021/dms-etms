@@ -1088,9 +1088,7 @@
 		<foreach collection="jobCodeList" item="item" open="(" separator="," close=")">
 			#{item,jdbcType=INTEGER}
 		</foreach>
-		AND sign_out_time = null
-		<if test="pageNumber > 0">
-			limit #{offset}, #{limit}
-		</if>
+		AND sign_out_time is null
+		limit #{offset}, #{limit}
 	</select>
 </mapper>

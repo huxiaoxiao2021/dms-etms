@@ -112,9 +112,8 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
                 if (pageSize.equals(phoneList.size())) {
                     break;
                 }
-                if (getPhoneByErp(phoneList, erp)) {
-                    return null;
-                }
+                UserNameAndPhone phoneByErp = getPhoneByErp(erp);
+                phoneList.add(phoneByErp);
             }
         }
         if (ObjectHelper.isEmpty(phoneList.size())) {
@@ -125,31 +124,29 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
                     if (pageSize.equals(phoneList.size())) {
                         break;
                     }
-                    if (getPhoneByErp(phoneList, erp)) {
-                        return null;
-                    }
+                    UserNameAndPhone phoneByErp = getPhoneByErp(erp);
+                    phoneList.add(phoneByErp);
                 }
             }
         }
+        dockCodeAndPhone.setPhoneList(phoneList);
         return dockCodeAndPhone;
     }
 
     /**
      * 通过员工erp获取员工电话
-     * @param phoneList
      * @param erp
      * @return
      */
-    private boolean getPhoneByErp(List<UserNameAndPhone> phoneList, String erp) {
+    private UserNameAndPhone getPhoneByErp(String erp) {
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(erp);
         if (ObjectHelper.isEmpty(baseStaffSiteOrgDto)) {
-            return true;
+            return null;
         }
         UserNameAndPhone userNameAndPhone = new UserNameAndPhone();
         userNameAndPhone.setUserName(erp);
         userNameAndPhone.setPhone(baseStaffSiteOrgDto.getMobilePhone1());
-        phoneList.add(userNameAndPhone);
-        return false;
+        return userNameAndPhone;
     }
 
     /**
