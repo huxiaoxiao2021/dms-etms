@@ -15,6 +15,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskException
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -123,6 +124,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
 
     public Integer getExceptionType() {
@@ -1107,11 +1111,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         JdCResponse response = new JdCResponse();
         response.toSucceed();
         //查询 处理中-客服介入中的超48小时的任务列表
+        int hours = uccPropertyConfiguration.getJyExceptionDamageTaskCustomerNotReturnHours();
         JyBizTaskExceptionEntity query = new JyBizTaskExceptionEntity();
         query.setType(JyBizTaskExceptionTypeEnum.DAMAGE.getCode());
         query.setStatus(JyExpStatusEnum.PROCESSING.getCode());
         query.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_INTERVENTION.getCode());
-        query.setUpdateTime(DateHelper.addHours(new Date(),-48));
+        query.setUpdateTime(DateHelper.addHours(new Date(),-hours));
         logger.info("查询超48小时破损任务入参-{}",JSON.toJSONString(query));
         List<JyBizTaskExceptionEntity> allExceptionTaskList = jyBizTaskExceptionDao.getExceptionTaskListOverTime(query);
         if(!CollectionUtils.isEmpty(allExceptionTaskList)){
