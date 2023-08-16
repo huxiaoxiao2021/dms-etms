@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.workStation.DockCodeAndPhoneService;
 import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhoneQueryDTO;
 import com.jd.bluedragon.distribution.workStation.domain.UserNameAndPhone;
 
+import com.jd.bluedragon.utils.BaseContants;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
@@ -116,7 +117,7 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
                 phoneList.add(phoneByErp);
             }
         }
-        if (ObjectHelper.isEmpty(phoneList.size())) {
+        if (phoneList.size() == BaseContants.NUMBER_ZERO) {
             // 兜底逻辑：如果在岗人员为0人，则取网格对应的负责人姓名+手机号
             List<String> ownerUserErps = listResult.stream().map(WorkStationGrid::getOwnerUserErp).distinct().collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(ownerUserErps)) {
@@ -147,31 +148,6 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
         userNameAndPhone.setUserName(erp);
         userNameAndPhone.setPhone(baseStaffSiteOrgDto.getMobilePhone1());
         return userNameAndPhone;
-    }
-
-    /**
-     * 校验入参
-     *
-     * @param dockCodeAndPhoneQueryDTO
-     * @return JdResponse<DockCodeAndPhone>
-     */
-
-    private Result<DockCodeAndPhone> checkInParam(DockCodeAndPhoneQueryDTO dockCodeAndPhoneQueryDTO) {
-        Result<DockCodeAndPhone> result = new Result();
-        if (StringUtils.isEmpty(dockCodeAndPhoneQueryDTO.getStartSiteID())) {
-            result.toFail("获取月台号数据异常!");
-            return result;
-        }
-        if (StringUtils.isEmpty(dockCodeAndPhoneQueryDTO.getEndSiteID())) {
-            result.toFail("获取月台号数据异常!");
-            return result;
-        }
-        if (null != dockCodeAndPhoneQueryDTO.getFlowDirectionType()) {
-            result.toFail("获取月台号数据异常!");
-            return result;
-        }
-        result.toSuccess();
-        return result;
     }
 
 }
