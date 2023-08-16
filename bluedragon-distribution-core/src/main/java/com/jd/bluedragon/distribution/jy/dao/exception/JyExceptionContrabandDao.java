@@ -25,6 +25,6 @@ public class JyExceptionContrabandDao extends BaseDao<JyExceptionContrabandEntit
     }
 
     public List<JyExceptionContrabandEntity> selectByParams(JyExceptionContrabandEntity entity) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".selectByParams", entity);
+        return this.getSqlSession().selectList(NAMESPACE + ".selectByParams", entity);
     }
 }

@@ -143,7 +143,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         query.setBarCode(req.getBarCode());
         query.setContrabandType(req.getContrabandType());
         List<JyExceptionContrabandEntity> list = jyExceptionContrabandDao.selectByParams(query);
-        if (CollectionUtils.isEmpty(list)) {
+        if (!CollectionUtils.isEmpty(list)) {
             throw new RuntimeException("请勿重复提交");
         }
     }
