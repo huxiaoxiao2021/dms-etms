@@ -357,7 +357,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
             if (!BusinessHelper.isBoxcode(entity.getBarcode())) {
                 sendM.setReceiveSiteCode(entity.getReceiveSiteId());
             }
-            sendM.setUpdateTime(new Date());
+            sendM.setUpdateTime(sendM.getOperateTime());
             sendM.setYn(0);
 
             DeliveryResponse checkResponse = deliveryService.dellCancelDeliveryCheckSealCar(sendM);
