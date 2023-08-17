@@ -266,7 +266,7 @@ public interface IJySendVehicleService {
      * @author fanggang7
      * @time 2023-07-26 10:00:32 周三
      */
-    Result<List<SendVehicleProductTypeAgg>> getSpecialProductTypeToScanList(SendAbnormalRequest request);
+    Result<SendVehicleToScanTipsDto> getSpecialProductTypeToScanList(SendVehicleToScanTipsRequest request);
 
 
     /**

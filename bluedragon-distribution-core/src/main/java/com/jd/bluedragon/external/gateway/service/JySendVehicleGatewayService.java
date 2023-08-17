@@ -181,8 +181,6 @@ public interface JySendVehicleGatewayService {
      * @author fanggang7
      * @time 2023-07-26 10:00:32 周三
      */
-    JdCResponse<List<SendVehicleProductTypeAgg>> getSpecialProductTypeToScanList(SendAbnormalRequest request);
-
-
+    JdCResponse<SendVehicleToScanTipsDto> getSpecialProductTypeToScanList(SendVehicleToScanTipsRequest request);
 
 }

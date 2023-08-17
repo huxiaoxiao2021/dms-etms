@@ -73,6 +73,7 @@ import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -1815,6 +1816,27 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         result.addInterceptBox(chainResp.getCode(), chainResp.getMessage());
                         return false;
                     }
+                }
+                if (CollectionUtils.isNotEmpty(chainResp.getMsgBoxes())) {
+                    List<JdVerifyResponse.MsgBox> msgBoxes = new ArrayList<>();
+                    for (InvokeWithMsgBoxResult.MsgBox msgBoxItem : chainResp.getMsgBoxes()) {
+                        MsgBoxTypeEnum type = MsgBoxTypeEnum.PROMPT;
+                        if(Objects.equals(msgBoxItem.getType(), InvokeWithMsgBoxResult.MsgBoxTypeEnum.WARNING)){
+                            type = MsgBoxTypeEnum.WARNING;
+                        }
+                        if(Objects.equals(msgBoxItem.getType(), InvokeWithMsgBoxResult.MsgBoxTypeEnum.CONFIRM)){
+                            type = MsgBoxTypeEnum.CONFIRM;
+                        }
+                        if(Objects.equals(msgBoxItem.getType(), InvokeWithMsgBoxResult.MsgBoxTypeEnum.INTERCEPT)){
+                            type = MsgBoxTypeEnum.INTERCEPT;
+                        }
+                        JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox(type, msgBoxItem.getCode(), msgBoxItem.getMsg());
+                        msgBoxes.add(msgBox);
+                    }
+                    if (result.getMsgBoxes() == null) {
+                        result.setMsgBoxes(new ArrayList<>());
+                    }
+                    result.getMsgBoxes().addAll(msgBoxes);
                 }
             }
         }
@@ -3751,22 +3773,24 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @author fanggang7
      * @time 2023-07-26 10:00:32 周三
      */
-    public com.jd.dms.java.utils.sdk.base.Result<List<SendVehicleProductTypeAgg>> getSpecialProductTypeToScanList(SendAbnormalRequest request){
-        com.jd.dms.java.utils.sdk.base.Result<List<SendVehicleProductTypeAgg>> result = com.jd.dms.java.utils.sdk.base.Result.success();
+    public com.jd.dms.java.utils.sdk.base.Result<SendVehicleToScanTipsDto> getSpecialProductTypeToScanList(SendVehicleToScanTipsRequest request){
+        com.jd.dms.java.utils.sdk.base.Result<SendVehicleToScanTipsDto> result = com.jd.dms.java.utils.sdk.base.Result.success();
         log.info("JyBizTaskCloseUnloadTaskServiceImpl.getProductToScanInfoList param {}", JSON.toJSONString(request));
 
         try {
-            final List<SendVehicleProductTypeAgg> dataList = new ArrayList<>();
-            result.setData(dataList);
-            if (request.getCurrentOperate() == null || StringUtils.isBlank(request.getSendVehicleBizId())) {
-                result.toFail("参数错误");
-                return result;
+            final com.jd.dms.java.utils.sdk.base.Result<Void> checkResult = this.checkParam4getSpecialProductTypeToScanList(request);
+            if(!checkResult.isSuccess()){
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
             }
 
-            // 场地白名单
-            if(!uccConfig.matchTeAnSiteWhitelist(request.getCurrentOperate().getSiteCode())){
-                log.warn("此站点-{}-不在特安白名单配置中,直接返回!",request.getCurrentOperate().getSiteCode());
-                return result;
+            final SendVehicleToScanTipsDto sendVehicleToScanTipsDto = new SendVehicleToScanTipsDto();
+            final List<SendVehicleProductTypeAgg> dataList = new ArrayList<>();
+            sendVehicleToScanTipsDto.setSpecialProductTypeToScanList(dataList);
+            result.setData(sendVehicleToScanTipsDto);
+
+            final JyBizTaskSendVehicleEntity taskSendVehicle = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
+            if(taskSendVehicle == null){
+                return result.toFail(String.format("未找到bizId为%s的任务数据", request.getSendVehicleBizId()));
             }
 
             JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
@@ -3808,6 +3832,26 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         } catch (Exception e) {
             log.error("JyBizTaskCloseUnloadTaskServiceImpl. getProductToScanInfoList {}", JsonHelper.toJson(request), e);
             result.toFail("系统异常");
+        }
+        return result;
+    }
+
+    private com.jd.dms.java.utils.sdk.base.Result<Void> checkParam4getSpecialProductTypeToScanList(SendVehicleToScanTipsRequest request){
+        com.jd.dms.java.utils.sdk.base.Result<Void> result = com.jd.dms.java.utils.sdk.base.Result.success();
+        if (request == null) {
+            return result.toFail("参数错误，参数不能为空");
+        }
+        if (StringUtils.isBlank(request.getSendVehicleBizId())) {
+            return result.toFail("参数错误，sendVehicleBizId不能为空");
+        }
+        if (StringUtils.isBlank(request.getSendDetailBizId())) {
+            return result.toFail("参数错误，sendDetailBizId不能为空");
+        }
+        if (request.getCurrentOperate() == null) {
+            return result.toFail("参数错误，currentOperate不能为空");
+        }
+        if (request.getUser() == null) {
+            return result.toFail("参数错误，user不能为空");
         }
         return result;
     }

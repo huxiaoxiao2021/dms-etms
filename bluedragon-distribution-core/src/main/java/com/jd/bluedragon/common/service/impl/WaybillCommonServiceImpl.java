@@ -8,7 +8,6 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -37,13 +36,13 @@ import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
+import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.utils.*;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.cache.util.WaybillConstants;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
@@ -2157,5 +2156,81 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             result.setMessage(StringUtils.isBlank(msg) ? "查运单获取预分拣场地服务失败" : msg);
             return result;
         }
+    }
+
+    /**
+     * 查询增值服务
+     * @param waybillCode 运单号
+     * @param waybillVasEnum 自定义增值服务枚举
+     * @return 是否包含增值服务
+     * @author fanggang7
+     * @time 2023-08-10 10:55:02 周四
+     */
+    @Override
+    public Result<Boolean> checkWaybillVas(String waybillCode, WaybillVasEnum waybillVasEnum) {
+        log.info("WaybillCommonServiceImpl_checkWaybillVas {} {}", waybillCode, waybillVasEnum);
+        Result<Boolean> result = Result.success(false);
+
+        try {
+            BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+            if(baseEntity == null){
+                log.error("WaybillCommonServiceImpl_checkWaybillVas getWaybillVasInfosByWaybillCode null {} {}", waybillCode, waybillVasEnum);
+                return result.toFail("查询运单增值服务数据为空");
+            }
+            if(baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()){
+                log.error("WaybillCommonServiceImpl_checkWaybillVas getWaybillVasInfosByWaybillCode fail {} {}", waybillCode, waybillVasEnum);
+                return result.toFail("查询运单增值服务数据失败");
+            }
+            if(CollectionUtils.isEmpty(baseEntity.getData())){
+                return result.setData(false);
+            }
+            final List<WaybillVasDto> waybillVasList = baseEntity.getData();
+            if(waybillVasEnum.equals(WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFEGUARD_COLD_FRESH_OPERATION)){
+                result = this.checkWaybillVas4SpecialSafeguardColdFresh(waybillCode, waybillVasEnum, waybillVasList);
+            }
+            return result;
+
+        } catch (Exception e) {
+            log.error("WaybillCommonServiceImpl_checkWaybillVas {} {}", waybillCode, waybillVasEnum, e);
+        }
+        return result;
+    }
+
+    private Result<Boolean> checkWaybillVas4SpecialSafeguardColdFresh(String waybillCode, WaybillVasEnum waybillVasEnum, List<WaybillVasDto> waybillVasList){
+        Result<Boolean> result = Result.success(false);
+        boolean matchVas = false;
+        for(WaybillVasDto waybillVasDto : waybillVasList){
+            if(Objects.equals(WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFEGUARD.getCode(), waybillVasDto.getVasNo())){
+                matchVas = true;
+                break;
+            }
+        }
+        if(!matchVas){
+            return result.setData(false);
+        }
+        // 查询增值服务扩展属性
+        final BaseEntity<WaybillVasDto> waybillVasWithExtendInfoResult = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFEGUARD.getCode());
+        if (waybillVasWithExtendInfoResult == null) {
+            log.error("WaybillCommonServiceImpl_checkWaybillVas getWaybillVasWithExtendInfoByWaybillCode null {} {}", waybillCode, WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFEGUARD.getCode());
+            return result.toFail("查询运单增值服务数据为空");
+        }
+        if(waybillVasWithExtendInfoResult.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()){
+            log.error("WaybillCommonServiceImpl_checkWaybillVas getWaybillVasWithExtendInfoByWaybillCode fail {} {}", waybillCode, waybillVasEnum);
+            return result.toFail("查询运单增值服务数据失败");
+        }
+        if (waybillVasWithExtendInfoResult.getData() == null) {
+            return result;
+        }
+        final WaybillVasDto waybillVasDto = waybillVasWithExtendInfoResult.getData();
+        final Map<String, String> extendMap = waybillVasDto.getExtendMap();
+        if(extendMap == null){
+            return result;
+        }
+        for (String key : extendMap.keySet()) {
+            if(Objects.equals(key, WaybillVasEnum.WaybillVasOtherParamEnum.GUARANTEE_TYPE_COLD_FRESH_OPERATION.getCode()) && Objects.equals(extendMap.get(key), WaybillVasEnum.WaybillVasOtherParamEnum.GUARANTEE_TYPE_COLD_FRESH_OPERATION.getValue())){
+                return result.setData(true);
+            }
+        }
+        return result;
     }
 }
