@@ -204,10 +204,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.dealExpDamageInfoByAbnormalReportOutCall", mState = {JProEnum.TP})
     public void dealExpDamageInfoByAbnormalReportOutCall(QcReportOutCallJmqDto qcReportJmqDto) {
         logger.info("dealExpDamageInfoByAbnormalReportOutCall -外呼通知内容-{}", JSON.toJSONString(qcReportJmqDto));
-        if (StringUtils.isBlank(qcReportJmqDto.getAbnormalDocumentNum())) {
-            logger.warn("abnormalDocumentNum 为空！");
-            return;
-        }
         String barCode = qcReportJmqDto.getAbnormalDocumentNum();
         String bizId = getBizId(barCode, new Integer(qcReportJmqDto.getCreateDept()));
         String existKey = "DMS.EXCEPTION.DAMAGE:" + bizId;
