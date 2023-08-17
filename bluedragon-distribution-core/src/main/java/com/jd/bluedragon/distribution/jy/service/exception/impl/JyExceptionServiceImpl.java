@@ -1362,7 +1362,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             logger.info("checkExceptionPrincipal-入参-{}",JSON.toJSONString(req));
         }
         JdCResponse<Boolean> response = new JdCResponse<>();
-        response.setCode(JdCResponse.CODE_FAIL);
+        response.toSucceed(JdCResponse.MESSAGE_SUCCESS);
         response.setData(Boolean.FALSE);
         if(req == null || StringUtils.isBlank(req.getPositionCode()) || StringUtils.isBlank(req.getUserErp())){
             return response.fail("入参不能为空!");
@@ -1390,7 +1390,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         String ownerUserErp = result.getData().getOwnerUserErp();
         //校验场地网格负责人
         if(Objects.equals(req.getUserErp(),ownerUserErp)){
-            response.setCode(JdCResponse.CODE_SUCCESS);
             response.setData(Boolean.TRUE);
         }
         return response;
