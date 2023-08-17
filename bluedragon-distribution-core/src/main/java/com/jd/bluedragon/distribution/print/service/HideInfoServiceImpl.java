@@ -205,29 +205,28 @@ public class HideInfoServiceImpl implements HideInfoService{
     private void hideConsignerTel(BasePrintWaybill waybill,int hideRule){
         String consignerTel = waybill.getConsignerTel();
         String consignerMobile = waybill.getConsignerMobile();
-        //进行隐藏要求tel/mobile至少有7位，<7位则不隐藏
-        int phoneLeastLength = StringHelper.PHONE_FIRST_NUMBER + StringHelper.PHONE_HIGHLIGHT_NUMBER;
-
+        //原 进行隐藏要求tel/mobile至少有7位，<7位则不隐藏
+        //新 8位以上的显示前一+笑脸+后四 8位一下的显示笑脸+后2
         if(StringUtils.isNotBlank(consignerTel)){
             //去除号码中间的空白字符
             consignerTel = consignerTel.replaceAll("\\s*", "");
 
-            if(consignerTel.length() >= phoneLeastLength ){
+            if(consignerTel.length() > StringHelper.LANDLINE_NUMBER ){
                 waybill.setConsignerTel(consignerTel.substring(0,StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE +
                         consignerTel.substring(consignerTel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
             }else{
-                waybill.setConsignerTel(consignerTel);
+                waybill.setConsignerTel(StringHelper.SMILE + consignerTel.substring(consignerTel.length() - StringHelper.LANDLINE_FIRST_NUMBER));
             }
         }
 
         if(StringUtils.isNotBlank(consignerMobile)){
             consignerMobile = consignerMobile.replaceAll("\\s*", "");
 
-            if(consignerMobile.length() >= phoneLeastLength ){
+            if(consignerMobile.length() > StringHelper.LANDLINE_NUMBER ){
                 waybill.setConsignerMobile(consignerMobile.substring(0,StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE +
                         consignerMobile.substring(consignerMobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
             }else{
-                waybill.setConsignerMobile(consignerMobile);
+                waybill.setConsignerMobile(StringHelper.SMILE + consignerMobile.substring(consignerMobile.length() - StringHelper.LANDLINE_FIRST_NUMBER));
             }
         }
 
@@ -308,25 +307,26 @@ public class HideInfoServiceImpl implements HideInfoService{
         //国内：一线城市座机：3位数区号+8位数座机电话号码=11位
         //国内：手机 11位
         //电话大于等于7位，则显示为：前3位+^_^+后4位。
+        //新 8位以上的显示前一+笑脸+后四 8位一下的显示笑脸+后2
         if(StringUtils.isNotBlank(firstMobile)){
-            if(firstMobile.length() >= StringHelper.PHONE_FIRST_NUMBER){
-                customerContacts.append(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE + lastMobile);
+            if(firstMobile.length() > StringHelper.LANDLINE_NUMBER){
+                customerContacts.append(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER)).append(StringHelper.SMILE).append(lastMobile);
                 waybill.setMobileFirst(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE );
             }else{
-                customerContacts.append(firstMobile + StringHelper.SMILE + lastMobile);
-                waybill.setMobileFirst(firstMobile + StringHelper.SMILE);
+                customerContacts.append(StringHelper.SMILE).append(firstMobile.substring(firstMobile.length() - StringHelper.LANDLINE_FIRST_NUMBER));
+                waybill.setMobileFirst(StringHelper.SMILE);
             }
         }
         if(StringUtils.isNotBlank(firstTel)){
             if(customerContacts.length() > 0){
                 customerContacts.append(",");
             }
-            if(firstTel.length() >= StringHelper.PHONE_FIRST_NUMBER){
+            if(firstTel.length() > StringHelper.LANDLINE_NUMBER){
                 customerContacts.append(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE + lastTel);
                 waybill.setTelFirst(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE);
             }else{
-                customerContacts.append(firstTel + StringHelper.SMILE + lastTel);
-                waybill.setTelFirst(firstTel + StringHelper.SMILE);
+                customerContacts.append(StringHelper.SMILE).append(firstTel.substring(firstTel.length() - StringHelper.LANDLINE_FIRST_NUMBER));
+                waybill.setTelFirst(StringHelper.SMILE);
             }
         }
         if(customerContacts.length() > 0){
