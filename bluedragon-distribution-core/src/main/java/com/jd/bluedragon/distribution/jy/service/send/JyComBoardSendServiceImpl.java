@@ -1657,6 +1657,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
       if (StringUtils.isNotBlank(request.getMaterialCode()) && BusinessHelper.isBoxcode(barCode)) {
         BoxMaterialRelationRequest req = getBoxMaterialRelationRequest(request, barCode);
+        //暂时忽略弱校验 等待晓峰修改后在支持
+        req.setForceFlag(Boolean.TRUE);
         InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(req);
         if (!bindMaterialRet.codeSuccess()) {
           throw new JyBizException("绑定集包袋失败：" + bindMaterialRet.getMessage());

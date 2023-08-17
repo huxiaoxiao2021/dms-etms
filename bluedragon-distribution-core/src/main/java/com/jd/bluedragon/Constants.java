@@ -2008,4 +2008,9 @@ public class Constants {
      */
     public static final String JY_FINDGOODS_TASK_LOCK_PREFIX  = "jy_findGoods_task_lock_%s";
 
+
+    /**
+     * 安检场地关系配置
+     */
+    public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
 }
