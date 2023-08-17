@@ -204,7 +204,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             return false;
         }
         String packageBarCode = context.getRequest().getPackageBarCode();
-        if(StringUtils.isNotEmpty(packageBarCode)){
+        if(WaybillUtil.isPackageCode(packageBarCode)){
             boolean packageCodeIsExist = false;
             for (DeliveryPackageD packageD : baseEntity.getData().getPackageList()) {
                 if(Objects.equals(packageD.getPackageBarcode(), packageBarCode)){
