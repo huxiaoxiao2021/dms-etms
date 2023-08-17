@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -17,6 +18,8 @@ public class JyReqBaseDto implements Serializable {
 
     private User user;
 
+    private String requestId = UUID.randomUUID().toString().replace("-","");
+
     public CurrentOperate getCurrentOperate() {
         return currentOperate;
     }
@@ -31,5 +34,13 @@ public class JyReqBaseDto implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 }

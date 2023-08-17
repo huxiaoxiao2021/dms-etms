@@ -1974,6 +1974,42 @@ public class Constants {
     public static final String E_COMMERCE_SPECIAL_OFFER_SERVICE = "ed-m-0059";
 
     /**
+     * 意见反馈APPID
+     */
+    public static final Long APP_ID = 8181L;
+
+    /**
+     * 意见反馈ORG_TYPE_ERP参数
+     */
+    public static final Integer ORG_TYPE_ERP = 2;
+
+    /**
+     * http字符串
+     */
+    public static final String HTTP_STR = "http";
+
+    /**
+     * https字符串
+     */
+    public static final String HTTPS_STR = "https";
+    /**
+     * PDA操作分页最大值保护
+     */
+    public static final Integer PDA_DEFAULT_PAGE_MAXSIZE = 100;
+
+
+    /**
+     * 找货任务互斥锁
+     */
+    public static final String JY_CREATE_FINDGOODS_TASK_LOCK_PREFIX  = "jy_findGoods_task_lock_%s_%s_%s_%s";
+
+    /**
+     * 找货任务互斥锁
+     */
+    public static final String JY_FINDGOODS_TASK_LOCK_PREFIX  = "jy_findGoods_task_lock_%s";
+
+
+    /**
      * 安检场地关系配置
      */
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
