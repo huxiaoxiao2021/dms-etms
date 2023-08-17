@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service("jySanwuExceptionService")
-public class JySanwuExceptionServiceImpl  implements JySanwuExceptionService {
+public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements JySanwuExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JySanwuExceptionServiceImpl.class);
     private static final String TASK_CACHE_PRE = "DMS:JYAPP:EXP:TASK_CACHE01:";
@@ -98,7 +98,17 @@ public class JySanwuExceptionServiceImpl  implements JySanwuExceptionService {
     @Autowired
     private JyBizTaskExceptionAssignDao jyBizTaskExceptionAssignDao;
 
+    @Override
+    public Integer getExceptionType() {
+        return JyBizTaskExceptionTypeEnum.SANWU.getCode();
+    }
 
+    @Override
+    public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req) {
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        response.toSucceed();
+        return response;
+    }
 
     /**
      * 通用异常上报入口-扫描
