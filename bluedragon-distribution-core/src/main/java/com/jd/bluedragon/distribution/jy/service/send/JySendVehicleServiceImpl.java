@@ -1663,7 +1663,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 BoxMaterialRelationRequest req = getBoxMaterialRelationRequest(request, barCode);
                 InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(req);
                 if (!bindMaterialRet.codeSuccess()) {
-                    result.toFail("绑定失败：" + bindMaterialRet.getMessage());
+                    if(HintCodeConstants.CYCLE_BOX_NOT_BELONG_ERROR.equals(String.valueOf(bindMaterialRet.getCode()))){
+                        result.toBizError();
+                        //此场景需要做弱提示
+                        result.addConfirmBox(bindMaterialRet.getCode(),bindMaterialRet.getMessage());
+                    }else{
+                        result.toFail("绑定失败：" + bindMaterialRet.getMessage());
+
+                    }
                     return result;
                 }
             }
@@ -1968,6 +1975,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         req.setSiteName(request.getCurrentOperate().getSiteName());
         req.setBoxCode(barCode);
         req.setMaterialCode(request.getMaterialCode());
+        req.setForceFlag(request.getForceSubmit());
         req.setBindFlag(Constants.CONSTANT_NUMBER_ONE); // 绑定
         return req;
     }
