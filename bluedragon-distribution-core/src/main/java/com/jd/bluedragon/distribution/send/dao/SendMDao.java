@@ -153,6 +153,15 @@ public  class SendMDao extends BaseDao<SendM>  {
 		return getSqlSession().selectList(SendMDao.namespace + ".batchQueryCancelSendMList", sendM);
 	}
 
+	/**
+	 * 根据场地和箱号列表获取已发货数据
+	 * @param sendM
+	 * @return
+	 */
+	public List<SendM> batchQuerySendMListBySiteAndBoxes(SendM sendM) {
+		return getSqlSession().selectList(SendMDao.namespace + ".batchQuerySendMListBySiteAndBoxes", sendM);
+	}
+
     /**
      * Update By wangtingwei@jd.com，提取创建站点作为查询条件，以便消除全节点数据库查询
      * @param sendCode 发货批次号

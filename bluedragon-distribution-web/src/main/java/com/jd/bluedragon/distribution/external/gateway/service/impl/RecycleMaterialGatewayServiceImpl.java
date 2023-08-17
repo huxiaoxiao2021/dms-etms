@@ -3,11 +3,14 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.common.dto.recyclematerial.request.BoxMaterialRelationJSFRequest;
 import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialRequest;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.distribution.rest.cyclebox.CycleBoxResource;
 import com.jd.bluedragon.distribution.rest.recyclematerial.RecycleMaterialResource;
@@ -37,6 +40,9 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
     @Autowired
     @Qualifier("cycleBoxResource")
     private CycleBoxResource cycleBoxResource;
+
+    @Autowired
+    private  CycleBoxService cycleBoxService;
 
     @Override
     @BusinessLog(sourceSys = 1,bizType = 2004,operateType = 20041)
@@ -92,9 +98,9 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
 
     @Override
     @JProfiler(jKey = "DMSWEB.RecycleMaterialGatewayServiceImpl.boxMaterialRelationAlter",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<Boolean> boxMaterialRelationAlter(BoxMaterialRelationJSFRequest request){
-        JdCResponse<Boolean> res = new JdCResponse<>();
-        res.toSucceed();
+    public JdVerifyResponse<Boolean> boxMaterialRelationAlter(BoxMaterialRelationJSFRequest request){
+        JdVerifyResponse<Boolean> res = new JdVerifyResponse<>();
+        res.toSuccess();
 
         if (null == request) {
             res.toFail("入参不能为空");
@@ -115,15 +121,19 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
         req.setBoxCode(request.getBoxCode());
         req.setMaterialCode(request.getMaterialCode());
         req.setBindFlag(request.getBindFlag());
+        req.setForceFlag(request.getForceFlag());
+        req.setReceiveSiteCode(request.getReceiveSiteCode());
 
-        InvokeResult result=cycleBoxResource.boxMaterialRelationAlter(req);
-        if (result.getCode()==InvokeResult.RESULT_SUCCESS_CODE){
-            res.setCode(JdCResponse.CODE_SUCCESS);
+        InvokeResult result=cycleBoxService.boxMaterialRelationAlter(req);
+        if (!result.codeSuccess()){
+            if(HintCodeConstants.CYCLE_BOX_NOT_BELONG_ERROR.equals(String.valueOf(result.getCode()))){
+                res.toBizError();
+                //此场景需要做弱提示
+                res.addConfirmBox(result.getCode(),result.getMessage());
+            }else{
+                res.toCustomError(result.getCode(),result.getMessage());
+            }
         }
-        else {
-            res.setCode(result.getCode());
-        }
-        res.setMessage(result.getMessage());
 
         return res;
     }
