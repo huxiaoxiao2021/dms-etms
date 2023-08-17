@@ -167,6 +167,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         List<WaybillVasDto> waybillVas = baseEntity.getData();
         //校验是否是特安单
         if (BusinessHelper.matchWaybillVasDto(Constants.TE_AN_SERVICE, waybillVas)) {
+            logger.warn("特安单!-{}", waybillCode);
             return false;
         }
 
@@ -178,17 +179,18 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         //校验是否是医药单
         if (BusinessHelper.matchWaybillVasDto(Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY, waybillVas)
                 || BusinessUtil.isBMedicine(waybill.getWaybillSign())) {
+            logger.info("医药单!-{}", waybillCode);
             return false;
         }
         //自营生鲜运单判断
         if (BusinessUtil.isSelf(waybill.getWaybillSign())) {
             if (BusinessUtil.isSelfSX(waybill.getSendPay())) {
-                logger.info("自营生鲜运单");
+                logger.info("自营生鲜运单-{}",waybillCode);
                 return false;
             }
         } else {//外单
             if (BusinessUtil.isNotSelfSX(waybill.getWaybillSign())) {
-                logger.info("外单生鲜运单");
+                logger.info("外单生鲜运单-{}",waybillCode);
                 return false;
             }
         }
