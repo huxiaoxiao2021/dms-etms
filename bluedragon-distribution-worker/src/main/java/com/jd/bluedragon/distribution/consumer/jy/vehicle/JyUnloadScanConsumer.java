@@ -245,7 +245,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             entity.setRefGroupCode(unloadScanDto.getGroupCode());
             entity.setUpdateTime(new Date());
             // 处理是否只卸不装
-            this.handleOnlyLoadAttr(taskEntity);
+            this.handleOnlyLoadAttr(entity);
             jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
         }
     }
