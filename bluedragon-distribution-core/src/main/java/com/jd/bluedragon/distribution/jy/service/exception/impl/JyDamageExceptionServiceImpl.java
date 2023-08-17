@@ -947,6 +947,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.getJyExceptionPackageTypeList", mState = {JProEnum.TP})
     public JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList(String barCode) {
+        if (StringUtils.isEmpty(barCode)) {
+            return JdCResponse.fail("barCode不能为空"); 
+        }
         JdCResponse<List<JyExceptionPackageTypeDto>> result = new JdCResponse<>();
         List<JyExceptionPackageTypeDto> dtoList = new ArrayList<>();
         //保存异常包裹为第一层级
@@ -984,16 +987,16 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         List<JyExceptionPackageTypeDto> list = new ArrayList<>();
         list.add(new JyExceptionPackageTypeDto(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPAIR.getCode(),
                 JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPAIR.getName()));
-        if (StringUtils.isEmpty(barCode) || this.checkDamageChangePackageRepair(barCode)) {
-            list.add(new JyExceptionPackageTypeDto(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode(),
-                    JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getName(), true));
-            list.add(new JyExceptionPackageTypeDto(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.HANDOVER.getCode(),
-                    JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.HANDOVER.getName()));
-        } else {
+        if (this.checkDamageChangePackageRepair(barCode)) {
             list.add(new JyExceptionPackageTypeDto(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode(),
                     JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getName()));
             list.add(new JyExceptionPackageTypeDto(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.HANDOVER.getCode(),
                     JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.HANDOVER.getName(), true));
+        } else {
+            list.add(new JyExceptionPackageTypeDto(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode(),
+                    JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getName(), true));
+            list.add(new JyExceptionPackageTypeDto(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.HANDOVER.getCode(),
+                    JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.HANDOVER.getName()));
         }
         return list;
     }
