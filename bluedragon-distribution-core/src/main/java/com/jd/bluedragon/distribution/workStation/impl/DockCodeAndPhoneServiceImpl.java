@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.workStation.domain.UserNameAndPhone;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.security.aces.mybatis.util.AcesFactory;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.common.utils.ObjectHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -88,9 +89,8 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
                 }
                 //6、根据erp查询电话号码
                 DockCodeAndPhone phone = getPhone(listResult.getData(), erps);
-                result.setData(phone);
                 result.toSuccess();
-
+                result.setData(phone);
             }
             return result;
         } catch (Exception e) {
@@ -113,8 +113,12 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
                 if (pageSize.equals(phoneList.size())) {
                     break;
                 }
-                UserNameAndPhone phoneByErp = getPhoneByErp(erp);
-                phoneList.add(phoneByErp);
+                //erp解密
+                String decrypt_erp = AcesFactory.getIns().decryptString(erp);
+                UserNameAndPhone phoneByErp = getPhoneByErp(decrypt_erp);
+                if (ObjectHelper.isNotEmpty(phoneByErp)) {
+                    phoneList.add(phoneByErp);
+                }
             }
         }
         if (phoneList.size() == BaseContants.NUMBER_ZERO) {
@@ -126,7 +130,9 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
                         break;
                     }
                     UserNameAndPhone phoneByErp = getPhoneByErp(erp);
-                    phoneList.add(phoneByErp);
+                    if (ObjectHelper.isNotEmpty(phoneByErp)) {
+                        phoneList.add(phoneByErp);
+                    }
                 }
             }
         }
@@ -136,6 +142,7 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
 
     /**
      * 通过员工erp获取员工电话
+     *
      * @param erp
      * @return
      */
