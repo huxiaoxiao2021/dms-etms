@@ -681,7 +681,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         logger.info("取件进行中的人数,gridKey={},erp={}", gridKey, req.getUserErp());
         return JdCResponse.ok(list);
     }
-    
+
+    /**
+     * 根据bizId 批量查询破损数据
+     * @param taskList
+     * @param status
+     * @return
+     */
     private Map<String, JyExceptionDamageDto> getDamageDetailMapByBizTaskList(List<JyBizTaskExceptionEntity> taskList, Integer status) {
         List<String> bizIdList = taskList.stream()
                 .filter(t-> Objects.equals(JyBizTaskExceptionTypeEnum.DAMAGE.getCode(),t.getType())
