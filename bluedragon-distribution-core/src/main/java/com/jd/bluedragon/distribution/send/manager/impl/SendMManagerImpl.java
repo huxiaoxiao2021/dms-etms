@@ -16,6 +16,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -129,5 +130,20 @@ public class SendMManagerImpl implements SendMManager {
         }
 
         return affectedRows;
+    }
+
+    /**
+     * 批量获取发货数据
+     * 超过最大时不返回数据
+     * @param sendM
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendMManagerImpl.batchQuerySendMList", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public List<SendM> batchQuerySendMListBySiteAndBoxes(SendM sendM) {
+        if(sendM.getBoxCodeList() != null && Constants.DB_IN_MAX_SIZE > sendM.getBoxCodeList().size()) {
+            return sendMDao.batchQuerySendMListBySiteAndBoxes(sendM);
+        }
+        return new ArrayList<>();
     }
 }

@@ -15,6 +15,14 @@ public interface ReceiveService {
 	 * @return
 	 */
 	public boolean addReceive(Receive receive);
+
+	/**
+	 * 获取最近一次收箱数据
+	 * @param boxCode 箱号
+	 * @param siteCode 操作场地
+	 * @return
+	 */
+	public Receive findLastByBoxCodeAndSiteCode(String boxCode,Integer siteCode);
 	/**
 	 * 收货
 	 * */
