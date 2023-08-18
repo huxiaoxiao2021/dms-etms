@@ -30,7 +30,6 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDest
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
@@ -56,8 +55,8 @@ import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
-import com.jd.bluedragon.common.task.CalculateOperateProgressTask;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.common.task.CalculateOperateProgressTask;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
@@ -70,7 +69,6 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -111,7 +109,6 @@ import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTas
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
@@ -125,6 +122,8 @@ import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.transport.dto.StopoverQueryDto;
+import com.jd.bluedragon.distribution.transport.enums.StopoverSiteUnloadAndLoadTypeEnum;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
@@ -167,7 +166,6 @@ import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1953,8 +1951,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      */
     private void handleOnlyLoadAttr(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail) {
         try {
-            final ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(curSendDetail.getStartSiteId().intValue(), taskSend.getTransWorkCode(), null, null, taskSend.getVehicleNumber());
-            if(Objects.equals(checkResult.left, TransWorkItemResponse.CODE_HINT)){
+            final StopoverQueryDto stopoverQueryDto = new StopoverQueryDto();
+            stopoverQueryDto.setSiteCode(curSendDetail.getStartSiteId().intValue());
+            stopoverQueryDto.setTransWorkCode(taskSend.getTransWorkCode());
+            stopoverQueryDto.setVehicleNumber(taskSend.getVehicleNumber());
+            final com.jd.dms.java.utils.sdk.base.Result<Integer> checkResult = transportRelatedService.queryStopoverLoadAndUnloadType(stopoverQueryDto);
+            log.info("handleOnlyLoadAttr result {}", JsonHelper.toJson(checkResult));
+            if(checkResult.isSuccess() && Objects.equals(checkResult.getData(), StopoverSiteUnloadAndLoadTypeEnum.ONLY_LOAD_NO_UNLOAD.getCode())){
+                log.info("handleOnlyLoadAttr match {}", JsonHelper.toJson(request));
                 // 更新任务明细
                 final JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailUpdate = new JyBizTaskSendVehicleDetailEntity();
                 jyBizTaskSendVehicleDetailUpdate.setBizId(curSendDetail.getBizId());
