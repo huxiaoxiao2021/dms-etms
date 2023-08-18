@@ -1963,7 +1963,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 final JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailUpdate = new JyBizTaskSendVehicleDetailEntity();
                 jyBizTaskSendVehicleDetailUpdate.setBizId(curSendDetail.getBizId());
                 jyBizTaskSendVehicleDetailUpdate.setOnlyLoadNoUnload(Constants.YN_YES);
-                taskSendVehicleDetailService.updateDateilTaskByVehicleBizId(jyBizTaskSendVehicleDetailUpdate);
+                taskSendVehicleDetailService.updateByBiz(jyBizTaskSendVehicleDetailUpdate);
             }
         } catch (Exception e) {
             log.error("JySendVehicleServiceImpl.handleOnlyLoadAttr {}", JsonHelper.toJson(request), e);
