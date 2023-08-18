@@ -25,6 +25,8 @@ import com.jd.bluedragon.distribution.jy.service.unload.UnloadVehicleTransaction
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
+import com.jd.bluedragon.distribution.transport.dto.StopoverQueryDto;
+import com.jd.bluedragon.distribution.transport.enums.StopoverSiteUnloadAndLoadTypeEnum;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -257,9 +259,13 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     private void handleOnlyLoadAttr(JyBizTaskUnloadVehicleEntity taskEntity, JyBizTaskUnloadVehicleEntity taskEntityUpdate) {
         try {
             logger.info("handleOnlyLoadAttr {}", JsonHelper.toJson(taskEntity));
-            final ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(taskEntity.getEndSiteId().intValue(), null, taskEntity.getSealCarCode(), null, taskEntity.getVehicleNumber());
+            final StopoverQueryDto stopoverQueryDto = new StopoverQueryDto();
+            stopoverQueryDto.setSiteCode(taskEntity.getEndSiteId().intValue());
+            stopoverQueryDto.setSealCarCode(taskEntity.getSealCarCode());
+            stopoverQueryDto.setVehicleNumber(taskEntity.getVehicleNumber());
+            final com.jd.dms.java.utils.sdk.base.Result<Integer> checkResult = transportRelatedService.queryStopoverLoadAndUnloadType(stopoverQueryDto);
             logger.info("handleOnlyLoadAttr result {}", JsonHelper.toJson(checkResult));
-            if(Objects.equals(checkResult.left, TransWorkItemResponse.CODE_HINT)){
+            if(checkResult.isSuccess() && Objects.equals(checkResult.getCode(), StopoverSiteUnloadAndLoadTypeEnum.ONLY_UNLOAD_NO_LOAD.getCode())){
                 taskEntityUpdate.setOnlyUnloadNoLoad(Constants.YN_YES);
                 logger.info("handleOnlyLoadAttr match {}", JsonHelper.toJson(taskEntityUpdate));
             }
