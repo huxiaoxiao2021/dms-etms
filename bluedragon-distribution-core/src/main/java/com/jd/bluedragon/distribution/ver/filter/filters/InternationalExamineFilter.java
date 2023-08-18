@@ -41,6 +41,7 @@ public class InternationalExamineFilter implements Filter {
             
             CancelWaybill cancelWaybill = waybillService.queryGAExamineCancelWaybill(request.getWaybillCode());
             if(cancelWaybill == null){
+                chain.doFilter(request, chain);
                 return;
             }
             if(Objects.equals(cancelWaybill.getFeatureType(), CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE)){
