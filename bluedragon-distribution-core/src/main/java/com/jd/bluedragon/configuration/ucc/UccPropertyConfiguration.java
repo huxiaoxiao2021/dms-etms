@@ -1451,6 +1451,16 @@ public class UccPropertyConfiguration {
 
     private String interceptBlackList;
 
+    private Integer sendFlowCountLimitUnderCtt;
+
+    public Integer getSendFlowCountLimitUnderCtt() {
+        return sendFlowCountLimitUnderCtt;
+    }
+
+    public void setSendFlowCountLimitUnderCtt(Integer sendFlowCountLimitUnderCtt) {
+        this.sendFlowCountLimitUnderCtt = sendFlowCountLimitUnderCtt;
+    }
+
     public String getInterceptBlackList() {
         return interceptBlackList;
     }
