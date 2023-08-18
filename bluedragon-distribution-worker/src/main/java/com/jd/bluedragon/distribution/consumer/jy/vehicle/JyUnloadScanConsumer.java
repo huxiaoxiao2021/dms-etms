@@ -245,7 +245,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             entity.setRefGroupCode(unloadScanDto.getGroupCode());
             entity.setUpdateTime(new Date());
             // 处理是否只卸不装
-            this.handleOnlyLoadAttr(entity);
+            this.handleOnlyLoadAttr(taskEntity, entity);
             jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
         }
     }
@@ -254,13 +254,14 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
      * 处理只卸不装属性
      * @param taskEntity 任务数据
      */
-    private void handleOnlyLoadAttr(JyBizTaskUnloadVehicleEntity taskEntity) {
+    private void handleOnlyLoadAttr(JyBizTaskUnloadVehicleEntity taskEntity, JyBizTaskUnloadVehicleEntity taskEntityUpdate) {
         try {
             logger.info("handleOnlyLoadAttr {}", JsonHelper.toJson(taskEntity));
             final ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(taskEntity.getEndSiteId().intValue(), null, taskEntity.getSealCarCode(), null, taskEntity.getVehicleNumber());
             logger.info("handleOnlyLoadAttr result {}", JsonHelper.toJson(checkResult));
             if(Objects.equals(checkResult.left, TransWorkItemResponse.CODE_HINT)){
-                taskEntity.setOnlyUnloadNoLoad(Constants.YN_YES);
+                taskEntityUpdate.setOnlyUnloadNoLoad(Constants.YN_YES);
+                logger.info("handleOnlyLoadAttr match {}", JsonHelper.toJson(taskEntityUpdate));
             }
         } catch (Exception e) {
             logger.info("handleOnlyLoadAttr exception {}", JsonHelper.toJson(taskEntity), e);
