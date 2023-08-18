@@ -1653,7 +1653,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 BoxMaterialRelationRequest req = getBoxMaterialRelationRequest(request, barCode);
                 InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(req);
                 if (!bindMaterialRet.codeSuccess()) {
-                    result.toFail("绑定失败：" + bindMaterialRet.getMessage());
+                    if(HintCodeConstants.CYCLE_BOX_NOT_BELONG_ERROR.equals(String.valueOf(bindMaterialRet.getCode()))){
+                        result.toBizError();
+                        //此场景需要做弱提示
+                        result.addConfirmBox(bindMaterialRet.getCode(),bindMaterialRet.getMessage());
+                    }else{
+                        result.toFail("绑定失败：" + bindMaterialRet.getMessage());
+
+                    }
                     return result;
                 }
             }
@@ -1912,6 +1919,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         req.setSiteName(request.getCurrentOperate().getSiteName());
         req.setBoxCode(barCode);
         req.setMaterialCode(request.getMaterialCode());
+        req.setForceFlag(request.getForceSubmit());
         req.setBindFlag(Constants.CONSTANT_NUMBER_ONE); // 绑定
         return req;
     }
@@ -2346,8 +2354,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         domain.setSendType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
         domain.setBizSource(SendBizSourceEnum.JY_APP_SEND.getCode());
         domain.setYn(1);
-        domain.setCreateTime(request.getCurrentOperate().getOperateTime());
-        domain.setOperateTime(request.getCurrentOperate().getOperateTime());
+        // 由于PDA时间可能不准，导致全程跟踪顺序错乱，此处修改为取服务器时间
+        Date date = new Date();
+        domain.setCreateTime(date);
+        domain.setOperateTime(date);
         domain.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
         domain.setOperatorId(request.getCurrentOperate().getOperatorId());
         return domain;

@@ -71,5 +71,7 @@
 
 		<mapper resource="mappers/mysql/jy/evaluate/JyEvaluateDimensionMapper.xml" />
 		<mapper resource="mappers/mysql/jy/evaluate/JyEvaluateRecordMapper.xml" />
+		<mapper resource="mappers/mysql/jy/findgoods/JyBizTaskFindGoodsDao.xml" />
+		<mapper resource="mappers/mysql/jy/findgoods/JyBizTaskFindGoodsDetailDao.xml" />
 	</mappers>
 </configuration>

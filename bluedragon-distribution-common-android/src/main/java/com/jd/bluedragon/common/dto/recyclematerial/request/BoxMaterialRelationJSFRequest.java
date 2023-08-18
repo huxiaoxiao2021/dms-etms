@@ -40,6 +40,16 @@ public class BoxMaterialRelationJSFRequest implements Serializable {
      */
     private boolean groupSearch;
 
+    /**
+     * 强制提交
+     */
+    private Boolean forceFlag;
+
+    /**
+     * 本次绑定时需要发货的目的地
+     */
+    private Integer receiveSiteCode;
+
     public boolean getGroupSearch() {
         return groupSearch;
     }
@@ -86,5 +96,21 @@ public class BoxMaterialRelationJSFRequest implements Serializable {
 
     public void setBindFlag(int bindFlag) {
         this.bindFlag = bindFlag;
+    }
+
+    public Boolean getForceFlag() {
+        return forceFlag;
+    }
+
+    public void setForceFlag(Boolean forceFlag) {
+        this.forceFlag = forceFlag;
+    }
+
+    public Integer getReceiveSiteCode() {
+        return receiveSiteCode;
+    }
+
+    public void setReceiveSiteCode(Integer receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
     }
 }
