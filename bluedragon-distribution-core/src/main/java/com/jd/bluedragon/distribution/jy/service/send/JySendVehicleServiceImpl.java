@@ -3801,6 +3801,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return result.toFail(String.format("未找到bizId为%s的任务数据", request.getSendVehicleBizId()));
             }
 
+            final Date lastPlanDepartTime = taskSendVehicle.getLastPlanDepartTime();
+            if (lastPlanDepartTime == null) {
+                sendVehicleToScanTipsDto.setNeedShowSpecialProductTypeToScanTips(false);
+            } else {
+                // 30分钟展示提示
+                if(lastPlanDepartTime.getTime() < (System.currentTimeMillis() + uccConfig.getJySendSpecialProductTypeToScanShowRemainMinutes() * 60 * 1000)){
+                    sendVehicleToScanTipsDto.setNeedShowSpecialProductTypeToScanTips(true);
+                }
+            }
+
             JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
             query.setSendVehicleBizId(request.getSendVehicleBizId());
             List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);

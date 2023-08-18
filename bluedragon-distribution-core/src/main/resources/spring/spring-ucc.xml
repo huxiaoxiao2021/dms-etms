@@ -63,7 +63,7 @@
 		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode:''}"/>
         <property name="sealVolumeCheckSites" value="${sealVolumeCheckSites:-1}"/>
         <property name="disablePdaOldLogin" value="${pda.disableOldLogin:false}"/>
-		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
+		<property name="switchVerToWebSites" value="${switchVerToWebSites:1}"/>
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
 		<property name="clientPrintQueryGapTime" value="${client.print.query.gap.time:10}"/>
@@ -72,9 +72,9 @@
         <property name="offlineLogGlobalSwitch" value="${offlineLogGlobalSwitch}" />
         <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
-		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites}" />
+		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites:1}" />
         <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
-		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
+		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites:1}" />
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
 		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
 		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
@@ -119,7 +119,7 @@
 		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
         <property name="siteEnableSendCodeEffectiveValidation" value="${siteEnableSendCodeEffectiveValidation:''}" />
         <property name="spotCheckIssueControl" value="${spotCheckIssueControl:true}"/>
-        <property name="itmsBizEnableSwitch" value="${itmsBizEnableSwitch:''}" />
+        <property name="itmsBizEnableSwitch" value="${itmsBizEnableSwitch:0}" />
         <property name="hideSpecialStartSitePrintSwitch" value="${hideSpecialStartSitePrintSwitch:0}"/> <!-- 隐藏特殊始发场地名称开关 0-关，1-开 -->
         <property name="hideSpecialStartSitPrintDestinationSiteList" value="${hideSpecialStartSitPrintDestinationSiteList:''}"/> <!-- 隐藏特殊始发场地目的场地名单 -->
 		<property name="hideSpecialStartSitePrintReplaceSymbol" value="${hideSpecialStartSitePrintReplaceSymbol:''}"/> <!-- 隐藏特殊始发场地字符串 0-关，1-开 -->
@@ -294,9 +294,8 @@
 		<property name="JyWarehouseSendVehicleDetailQueryDefaultLimitSize" value="${JyWarehouseSendVehicleDetailQueryDefaultLimitSize:30}"/>
 		<property name="JyWarehouseSendVehicleMixScanTaskFlowNumConfig" value="${JyWarehouseSendVehicleMixScanTaskFlowNumConfig:}"/>
 		<property name="JyBuQiWaybillCodeMaxSum" value="${JyBuQiWaybillCodeMaxSum:50000}"/>
-
-
 		<property name="interceptBlackList" value="${interceptBlackList:'*'}"/>
+		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -580,9 +579,8 @@
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleDetailQueryDefaultLimitSize</value>
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleMixScanTaskFlowNumConfig</value>
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
-
-
 				<value>uccPropertyConfiguration.interceptBlackList</value>
+				<value>uccPropertyConfiguration.jySendSpecialProductTypeToScanShowRemainMinutes</value>
 			</list>
 		</property>
 	</bean>

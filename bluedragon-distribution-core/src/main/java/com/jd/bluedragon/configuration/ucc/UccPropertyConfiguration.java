@@ -9,7 +9,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -1593,6 +1592,11 @@ public class UccPropertyConfiguration {
      */
     private String jyWorkAppAutoRefreshConfig;
     private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
+
+    /**
+     * 作业APP发货特殊产品类型提示，到指定剩余分钟数才提示
+     */
+    private Integer jySendSpecialProductTypeToScanShowRemainMinutes;
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -3625,5 +3629,13 @@ public class UccPropertyConfiguration {
 
     public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
         this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
+    }
+
+    public Integer getJySendSpecialProductTypeToScanShowRemainMinutes() {
+        return jySendSpecialProductTypeToScanShowRemainMinutes;
+    }
+
+    public void setJySendSpecialProductTypeToScanShowRemainMinutes(Integer jySendSpecialProductTypeToScanShowRemainMinutes) {
+        this.jySendSpecialProductTypeToScanShowRemainMinutes = jySendSpecialProductTypeToScanShowRemainMinutes;
     }
 }
