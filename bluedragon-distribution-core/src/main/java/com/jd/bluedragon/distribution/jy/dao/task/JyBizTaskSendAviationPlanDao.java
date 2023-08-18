@@ -63,6 +63,10 @@ public class JyBizTaskSendAviationPlanDao extends BaseDao<JyBizTaskSendAviationP
         return this.getSqlSession().selectList(NAMESPACE + ".pageQueryAviationPlanByCondition", condition);
     }
 
+    public int updateStatus(JyBizTaskSendAviationPlanEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateStatus", entity);
+    }
+
 //
 //    JyNizTaskSendAviationPlanEntity selectByPrimaryKey(Long id);
 //

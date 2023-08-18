@@ -68,9 +68,9 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     }
 
     @Override
-    public Boolean aviationPlanIntercept(String bizId) {
+    public boolean aviationPlanIntercept(String bizId) {
         if(StringUtils.isBlank(bizId)) {
-            return null;
+            return false;
         }
         if(aviationPlanCacheService.existCacheAviationPlanCancel(bizId)) {
             return true;
@@ -126,5 +126,8 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
         return jyBizTaskSendAviationPlanDao.pageQueryAviationPlanByCondition(condition);
     }
 
-
+    @Override
+    public int updateStatus(JyBizTaskSendAviationPlanEntity entity) {
+        return jyBizTaskSendAviationPlanDao.updateStatus(entity);
+    }
 }

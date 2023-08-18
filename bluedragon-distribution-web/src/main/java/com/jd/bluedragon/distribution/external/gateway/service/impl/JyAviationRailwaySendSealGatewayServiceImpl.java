@@ -143,6 +143,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
             baseParamValidateService.checkPdaPage(request.getPageNo(), request.getPageSize());
+
             if(!JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_N.getCode().equals(request.getStatusCode())
                     && !JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getCode().equals(request.getStatusCode())) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "查询状态不合法", null);
@@ -197,7 +198,6 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
-            baseParamValidateService.checkPdaPage(request.getPageNo(), request.getPageSize());
 
             //服务调用
             if(log.isInfoEnabled()) {
@@ -310,6 +310,9 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
             //业务参数校验
+            if(StringUtils.isBlank(request.getDetailBizId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "被绑任务detailBizId为空", null);
+            }
             if(StringUtils.isBlank(request.getBizId())) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "被绑任务bizId为空", null);
             }
@@ -317,7 +320,6 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "需绑任务信息为空", null);
             }
             if(request.getSendTaskBindDtoList().size() > 100) {
-                //todo 风险规避，PDA不限制数量
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "最多绑定100个任务", null);
             }
             //服务调用
@@ -452,11 +454,20 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.aviationTaskSealCar:";
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.aviationTaskSealCar:航空任务封车：";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
+            if(StringUtils.isBlank(request.getBizId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "任务bizId为空", null);
+            }
+            if(!NumberHelper.gt0(request.getWeight()) || !NumberHelper.gt0(request.getVolume()) || !NumberHelper.gt0(request.getItemNum())){
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "重量/体积/件数不能小于0", null);
+            }
+            if(StringUtils.isBlank(request.getTransportCode())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "运力编码不能为空", null);
+            }
             //服务调用
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));

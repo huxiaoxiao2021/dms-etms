@@ -17,6 +17,7 @@ public class SendTaskBindReq extends BaseReq implements Serializable {
      * 被绑定任务bizId
      */
     private String bizId;
+    private String detailBizId;
     /**
      * 需绑定或解绑任务bizId
      */
@@ -49,5 +50,13 @@ public class SendTaskBindReq extends BaseReq implements Serializable {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public String getDetailBizId() {
+        return detailBizId;
+    }
+
+    public void setDetailBizId(String detailBizId) {
+        this.detailBizId = detailBizId;
     }
 }

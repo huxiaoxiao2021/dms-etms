@@ -288,6 +288,21 @@
             update_time = #{updateTime}
         where yn = 1 and biz_id = #{bizId}
     </update>
+
+
+    <update id="updateStatus">
+        UPDATE
+            jy_biz_task_send_aviation_plan
+        set
+            task_status = #{taskStatus}
+            update_time = #{updateTime},
+            update_user_erp = #{updateUserErp},
+            update_user_name = #{updateUserName},
+        WHERE
+            yn = 1
+            AND biz_id = #{bizId}
+            AND start_site_id = #{startSiteId}
+    </update>
 <!--    <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity" >-->
 <!--        update jy_biz_task_send_aviation_plan-->
 <!--        set biz_id = #{bizId,jdbcType=VARCHAR},-->
@@ -433,7 +448,7 @@
             yn = 1
             and start_site_id = #{startSiteId}
         group by begin_node_code
-        limit #{offset},#{pageSize}
+        limit #{pageSize}
     </select>
 
     <select id="pageQueryAviationPlanByCondition" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="BaseResultMap">

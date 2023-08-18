@@ -24,11 +24,11 @@ public interface JyBizTaskSendAviationPlanService {
     int updateByBizId(JyBizTaskSendAviationPlanEntity updateAviationPlan);
 
     /**
-     * 航空计划始发中途拦截取消
+     * 航空计划始发中途拦截取消 true: 需要拦截
      * @param bizId
      * @return
      */
-    Boolean aviationPlanIntercept(String bizId);
+    boolean aviationPlanIntercept(String bizId);
 
     List<AviationNextSiteStatisticsDto> queryNextSitesByStartSite(JyBizTaskSendAviationPlanQueryCondition param);
 
@@ -41,4 +41,6 @@ public interface JyBizTaskSendAviationPlanService {
     List<JyBizTaskSendAviationPlanEntity> pageFindAirportInfoByCurrentSite(JyBizTaskSendAviationPlanQueryCondition condition);
 
     List<JyBizTaskSendAviationPlanEntity> pageQueryAviationPlanByCondition(JyBizTaskSendAviationPlanQueryCondition condition);
+
+    int updateStatus(JyBizTaskSendAviationPlanEntity entity);
 }

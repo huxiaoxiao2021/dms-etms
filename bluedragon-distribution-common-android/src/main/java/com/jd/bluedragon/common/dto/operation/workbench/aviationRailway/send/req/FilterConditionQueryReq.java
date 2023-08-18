@@ -13,35 +13,5 @@ public class FilterConditionQueryReq extends BaseReq implements Serializable {
 
     private static final long serialVersionUID = 4784612639942744950L;
 
-    /**
-     * 航空类型 可选，默认全部
-     */
-    private Integer aviationType;
 
-    private Integer pageNo;
-    private Integer pageSize;
-
-    public Integer getAviationType() {
-        return aviationType;
-    }
-
-    public void setAviationType(Integer aviationType) {
-        this.aviationType = aviationType;
-    }
-
-    public Integer getPageNo() {
-        return pageNo;
-    }
-
-    public void setPageNo(Integer pageNo) {
-        this.pageNo = pageNo;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
-    }
 }
