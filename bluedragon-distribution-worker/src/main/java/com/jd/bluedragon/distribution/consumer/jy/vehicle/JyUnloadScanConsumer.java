@@ -265,7 +265,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             stopoverQueryDto.setVehicleNumber(taskEntity.getVehicleNumber());
             final com.jd.dms.java.utils.sdk.base.Result<Integer> checkResult = transportRelatedService.queryStopoverLoadAndUnloadType(stopoverQueryDto);
             logger.info("handleOnlyLoadAttr result {}", JsonHelper.toJson(checkResult));
-            if(checkResult.isSuccess() && Objects.equals(checkResult.getCode(), StopoverSiteUnloadAndLoadTypeEnum.ONLY_UNLOAD_NO_LOAD.getCode())){
+            if(checkResult.isSuccess() && Objects.equals(checkResult.getData(), StopoverSiteUnloadAndLoadTypeEnum.ONLY_UNLOAD_NO_LOAD.getCode())){
                 taskEntityUpdate.setOnlyUnloadNoLoad(Constants.YN_YES);
                 logger.info("handleOnlyLoadAttr match {}", JsonHelper.toJson(taskEntityUpdate));
             }
