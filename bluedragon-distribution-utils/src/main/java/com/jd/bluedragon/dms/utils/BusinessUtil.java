@@ -2014,7 +2014,7 @@ public class BusinessUtil {
     }
     /**
      * 隐藏手机号： 原 7位以上手机号返回前3位+hideStr+后四位，否则返回原值
-     *            新 8位以上手机号返回前1位+hideStr+后四位，否则返回后两位
+     *            新 10位以上（不包括10）的显示前一+笑脸(6位以上)+后四 10位以下（包括10）的显示笑脸(6位)+剩余位数
      * @param phone 原手机号
      * @param hideStr 隐藏后替换字符串，传值为空时默认^_^
      * @return
@@ -2033,7 +2033,7 @@ public class BusinessUtil {
                         + hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
             }else {
                 return  hidePlaceStr
-                        + hidePhone.substring(hidePhone.length() - LANDLINE_FIRST_NUMBER);
+                        + hidePhone.substring(LANDLINE_FIRST_NUMBER);
             }
         }
         return phone;

@@ -21,9 +21,8 @@ public class StringHelper {
     public static final String  SMILE = "^_^";           //微笑符号
     public static final int PHONE_FIRST_NUMBER = 1;//收件人联系方式前几位需要显示
     public static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
-
-    public static final int LANDLINE_FIRST_NUMBER = 2;//收件人联系方式为8位座机号要保留的位数
-    public static final int LANDLINE_NUMBER = 8;//收件人联系方式为8位座机号
+    public static final int LANDLINE_FIRST_NUMBER = 6;//收件人联系方式为8位座机号要保留的位数
+    public static final int LANDLINE_NUMBER = 10;//收件人联系方式为3位区号+7位座机号
 
     public static String getRandomString() {
         Random random = new Random();
@@ -441,7 +440,7 @@ public class StringHelper {
         if(newPhone.length() > LANDLINE_NUMBER ){
             return newPhone.substring(0,PHONE_FIRST_NUMBER) + SMILE + newPhone.substring(newPhone.length() - PHONE_HIGHLIGHT_NUMBER);
         }else {
-            return  SMILE + newPhone.substring(newPhone.length() - LANDLINE_FIRST_NUMBER);
+            return  SMILE + newPhone.substring(LANDLINE_FIRST_NUMBER);
         }
     }
 
