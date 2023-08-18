@@ -255,11 +255,15 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
      * @param taskEntity 任务数据
      */
     private void handleOnlyLoadAttr(JyBizTaskUnloadVehicleEntity taskEntity) {
-        logger.info("handleOnlyLoadAttr {}", JsonHelper.toJson(taskEntity));
-        final ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(taskEntity.getEndSiteId().intValue(), null, taskEntity.getSealCarCode(), null, taskEntity.getVehicleNumber());
-        logger.info("handleOnlyLoadAttr result {}", JsonHelper.toJson(checkResult));
-        if(Objects.equals(checkResult.left, TransWorkItemResponse.CODE_HINT)){
-            taskEntity.setOnlyUnloadNoLoad(Constants.YN_YES);
+        try {
+            logger.info("handleOnlyLoadAttr {}", JsonHelper.toJson(taskEntity));
+            final ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(taskEntity.getEndSiteId().intValue(), null, taskEntity.getSealCarCode(), null, taskEntity.getVehicleNumber());
+            logger.info("handleOnlyLoadAttr result {}", JsonHelper.toJson(checkResult));
+            if(Objects.equals(checkResult.left, TransWorkItemResponse.CODE_HINT)){
+                taskEntity.setOnlyUnloadNoLoad(Constants.YN_YES);
+            }
+        } catch (Exception e) {
+            logger.info("handleOnlyLoadAttr exception {}", JsonHelper.toJson(taskEntity), e);
         }
     }
 
