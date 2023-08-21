@@ -290,17 +290,15 @@ public class HideInfoServiceImpl implements HideInfoService{
         String lastMobile = StringUtils.trimToEmpty(waybill.getMobileLast());
         String firstTel = StringUtils.trimToEmpty(waybill.getTelFirst());
         String lastTel = StringUtils.trimToEmpty(waybill.getTelLast());
-        if(StringUtils.isBlank(firstMobile) && StringUtils.isBlank(firstTel)){//没有设值或者手机号错填只有4位，需要进一步处理
-            boolean success = setPhone(waybill);
-            if(success){
-                firstMobile = StringUtils.trimToEmpty(waybill.getMobileFirst());
-                lastMobile = StringUtils.trimToEmpty(waybill.getMobileLast());
-                firstTel = StringUtils.trimToEmpty(waybill.getTelFirst());
-                lastTel = StringUtils.trimToEmpty(waybill.getTelLast());
-            }else{
-                log.warn("微笑面单手机号错误，运单号：{};手机号：{}",waybill.getWaybillCode(),waybill.getCustomerContacts());
-                return;
-            }
+        boolean success = setPhone(waybill);
+        if(success){
+            firstMobile = StringUtils.trimToEmpty(waybill.getMobileFirst());
+            lastMobile = StringUtils.trimToEmpty(waybill.getMobileLast());
+            firstTel = StringUtils.trimToEmpty(waybill.getTelFirst());
+            lastTel = StringUtils.trimToEmpty(waybill.getTelLast());
+        }else{
+            log.warn("微笑面单手机号错误，运单号：{};手机号：{}",waybill.getWaybillCode(),waybill.getCustomerContacts());
+            return;
         }
         StringBuilder customerContacts =new StringBuilder();
         //国内：普通城市座机、4位数区号+7位数座机电话号码=11位
@@ -371,7 +369,7 @@ public class HideInfoServiceImpl implements HideInfoService{
         if(acontacts.length == 2){
             tel = acontacts[1];
         }
-        if (StringUtils.isNotBlank(mobile) && mobile.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
+        if (StringUtils.isNotBlank(mobile)) {
             if (mobile.length() > StringHelper.LANDLINE_NUMBER) {
                 firstMobile = mobile.substring(0, mobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER);
                 waybill.setMobileFirst(firstMobile);
@@ -382,7 +380,7 @@ public class HideInfoServiceImpl implements HideInfoService{
                 waybill.setMobileLast(mobile.substring(StringHelper.LANDLINE_FIRST_NUMBER));
             }
         }
-        if (StringUtils.isNotBlank(tel) && tel.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
+        if (StringUtils.isNotBlank(tel)) {
             if (tel.length() > StringHelper.LANDLINE_NUMBER) {
                 firstTel = tel.substring(0, tel.length()-StringHelper.PHONE_HIGHLIGHT_NUMBER);
                 waybill.setTelFirst(firstTel);
