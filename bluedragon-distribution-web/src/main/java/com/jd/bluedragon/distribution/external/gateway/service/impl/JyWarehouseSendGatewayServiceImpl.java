@@ -781,6 +781,10 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             checkPage(mixScanTaskListQueryReq.getPageNo(), mixScanTaskListQueryReq.getPageSize());
             checkGroupCode(mixScanTaskListQueryReq.getGroupCode());
             MixScanTaskQueryRes result = this.getMixScanTaskPage(mixScanTaskListQueryReq);
+
+            if(CollectionUtils.isEmpty(result.getMixScanTaskDtoList()) && StringUtils.isNotBlank(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
+                response.toFail("该派车任务没有被添加到混扫任务中，请先添加");
+            }
             response.setData(result);
         } catch (JyBizException e) {
             log.info("查询混扫任务失败：{}", JsonHelper.toJson(mixScanTaskListQueryReq), e);
