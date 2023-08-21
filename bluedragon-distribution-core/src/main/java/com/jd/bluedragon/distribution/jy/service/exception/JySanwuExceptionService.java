@@ -18,6 +18,11 @@ import java.util.List;
  */
 public interface JySanwuExceptionService {
 
+
+
+    JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity, ExpUploadScanReq req, PositionDetailRecord position,
+                                   JyExpSourceEnum source,  String bizId);
+
     /**
      * 获取三无超时未领取统计列表
      * @param req

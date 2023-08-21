@@ -144,11 +144,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         return response;
     }
 
-    @Override
-    public JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity, ExpUploadScanReq req, PositionDetailRecord position, JyExpSourceEnum source, String bizId) {
-        JdCResponse<Object> response = new JdCResponse<>();
-        return response;
-    }
+
 
     /**
      * 检验更换包装逻辑 true: 运单通过校验  false:运单校验不通过，不能更改包装

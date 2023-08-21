@@ -211,6 +211,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     private WorkStationGridManager workStationGridManager;
 
+    @Autowired
+    private JySanwuExceptionService jySanwuExceptionService;
 
     @Autowired
     private JyDamageExceptionService jyDamageExceptionService;
@@ -264,17 +266,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
             //因为三无单可提前判断，可对三无数据提前处理
             if(BusinessUtil.isSanWuCode(req.getBarCode())){
-                req.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
-            }
-
-            if(req.getType() != null){
-                JyExceptionStrategy exceptionService = jyExceptionStrategyFactory.getStrategy(req.getType());
-                JdCResponse<Object> response = exceptionService.uploadScan(taskEntity,req, position, source, bizId);
+                JdCResponse<Object> response = jySanwuExceptionService.uploadScan(taskEntity,req, position, source, bizId);
                 if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
                     return response;
                 }
             }
-
             taskEntity.setBizId(bizId);
             taskEntity.setBarCode(req.getBarCode());
             taskEntity.setSource(source.getCode());

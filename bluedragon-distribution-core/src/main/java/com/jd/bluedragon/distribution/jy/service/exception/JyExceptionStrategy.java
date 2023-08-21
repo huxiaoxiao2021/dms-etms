@@ -34,8 +34,6 @@ public abstract class JyExceptionStrategy {
     public abstract JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req,Waybill waybill);
 
 
-    public abstract JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity, ExpUploadScanReq req, PositionDetailRecord position,
-                                          JyExpSourceEnum source, String bizId);
 
     /**
      * 港澳单校验逻辑

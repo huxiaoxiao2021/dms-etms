@@ -165,11 +165,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
     }
 
-    @Override
-    public JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity, ExpUploadScanReq req, PositionDetailRecord position, JyExpSourceEnum source, String bizId) {
-        JdCResponse<Object> response = new JdCResponse<>();
-        return response;
-    }
+
 
 
     @Override
