@@ -16,11 +16,24 @@ public class BusinessConfigInfo implements Serializable {
     // 拣运降级配置
     private List<JyDemotionConfigInfo> jyDemotionConfigList;
 
+    /**
+     * 是否可以使用模拟器
+     */
+    private boolean useSimulatorFlag;
+
     public List<JyDemotionConfigInfo> getJyDemotionConfigList() {
         return jyDemotionConfigList;
     }
 
     public void setJyDemotionConfigList(List<JyDemotionConfigInfo> jyDemotionConfigList) {
         this.jyDemotionConfigList = jyDemotionConfigList;
+    }
+
+    public boolean isUseSimulatorFlag() {
+        return useSimulatorFlag;
+    }
+
+    public void setUseSimulatorFlag(boolean useSimulatorFlag) {
+        this.useSimulatorFlag = useSimulatorFlag;
     }
 }

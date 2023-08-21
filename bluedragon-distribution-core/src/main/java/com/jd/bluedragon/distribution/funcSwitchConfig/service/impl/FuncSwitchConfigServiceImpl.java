@@ -939,5 +939,4 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         }
         return true;
     }
-
 }
