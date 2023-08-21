@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jsf.domain;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ public class BoardCombinationJsfResponse {
     /**
      * 消息盒子
      */
-    private List<InvokeWithMsgBoxResult.MsgBox> msgBoxes;
+    private List<InvokeWithMsgBoxResult.MsgBox> msgBoxes = new ArrayList<InvokeWithMsgBoxResult.MsgBox>();
 
     public BoardCombinationJsfResponse() {
     }

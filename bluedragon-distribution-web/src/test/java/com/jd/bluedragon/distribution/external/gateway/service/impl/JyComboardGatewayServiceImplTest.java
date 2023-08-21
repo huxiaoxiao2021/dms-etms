@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
@@ -380,7 +381,7 @@ public class JyComboardGatewayServiceImplTest {
         user.setUserErp("liwenji3");
         user.setUserCode(123456);
         scanReq.setUser(user);
-        JdCResponse re = jyComboardGatewayService.comboardScan(scanReq);
+        final JdVerifyResponse<ComboardScanResp> re = jyComboardGatewayService.comboardScan(scanReq);
         System.out.println(JsonHelper.toJson(re));
     }
 

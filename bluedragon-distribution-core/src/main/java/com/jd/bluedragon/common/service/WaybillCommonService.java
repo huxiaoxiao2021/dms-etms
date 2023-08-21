@@ -274,4 +274,14 @@ public interface WaybillCommonService {
      * @time 2023-08-10 10:55:02 周四
      */
     Result<Boolean> checkWaybillVas(String waybillCode, WaybillVasEnum waybillVasEnum);
+
+    /**
+     * 查询增值服务
+     * @param waybillCode 运单号
+     * @param waybillVasEnum 自定义增值服务枚举
+     * @return 是否包含增值服务
+     * @author fanggang7
+     * @time 2023-08-10 10:55:02 周四
+     */
+    Result<Boolean> checkWaybillVas(String waybillCode, WaybillVasEnum waybillVasEnum, List<WaybillVasDto> waybillVasDtoList);
 }

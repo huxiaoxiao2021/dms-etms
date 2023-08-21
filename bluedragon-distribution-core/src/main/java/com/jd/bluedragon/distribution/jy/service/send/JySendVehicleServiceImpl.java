@@ -127,6 +127,7 @@ import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
@@ -136,6 +137,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.CodeConstants;
@@ -1672,6 +1674,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return result;
             }
 
+            businessTips(request, result);
+
             sendCollectDealMQ(request, sendCode);
 
             // 包裹首次扫描逻辑
@@ -2581,12 +2585,43 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 }
             }
         }
-        TEANCheck(request,response);
 
         return true;
     }
 
+    private void businessTips(SendScanRequest request, JdVerifyResponse<SendScanResponse> response){
+        try {
+            // 只处理包裹号或运单号
+            if(!WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())){
+                log.warn("此单非包裹或运单号");
+                return;
+            }
+            String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
 
+            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+            // 1. 航空件类型
+            if(BusinessUtil.isAirLineMode(waybill.getWaybillSign())){
+                response.addPromptBox(InvokeResult.CODE_AIR_TRANSPORT, InvokeResult.CODE_AIR_TRANSPORT_MESSAGE);
+            }
+
+            // 2. 增值服务-特安
+            final List<WaybillVasDto> waybillVasList = waybillCommonService.getWaybillVasList(waybillCode);
+            if(CollectionUtils.isEmpty(waybillVasList)){
+                return;
+            }
+            final com.jd.dms.java.utils.sdk.base.Result<Boolean> specialSafetyCheckResult = waybillCommonService.checkWaybillVas(waybillCode, WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFETY, waybillVasList);
+            if(specialSafetyCheckResult.isSuccess() && specialSafetyCheckResult.getData()){
+                response.addWarningBox(InvokeResult.REVOKE_TEAN_CODE, InvokeResult.REVOKE_TEAN_MESSAGE);
+            }
+            // 3. 增值服务-生鲜特保
+            final com.jd.dms.java.utils.sdk.base.Result<Boolean> specialSafeColdFreshCheckResult = waybillCommonService.checkWaybillVas(waybillCode, WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFEGUARD_COLD_FRESH_OPERATION, waybillVasList);
+            if(specialSafeColdFreshCheckResult.isSuccess() && specialSafeColdFreshCheckResult.getData()){
+                response.addPromptBox(InvokeResult.CODE_FRESH_SPECIAL, InvokeResult.CODE_FRESH_SPECIAL_MESSAGE);
+            }
+        } catch (Exception e) {
+            log.error("businessTips param {}", JsonHelper.toJson(request), e);
+        }
+    }
 
     private void TEANCheck(SendScanRequest request, JdVerifyResponse<SendScanResponse> response){
         try {

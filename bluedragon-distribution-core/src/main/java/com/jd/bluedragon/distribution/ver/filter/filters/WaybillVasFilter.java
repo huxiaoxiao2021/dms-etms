@@ -46,7 +46,7 @@ public class WaybillVasFilter implements Filter {
         // 1. 航空件类型
         if(BusinessUtil.isAirLineMode(waybill.getWaybillSign())){
             logger.info("WaybillVasFilter 航空件 {}", JsonHelper.toJson(request));
-            request.getMsgBoxList().add(new InvokeWithMsgBoxResult.MsgBox(InvokeWithMsgBoxResult.MsgBoxTypeEnum.PROMPT, InvokeResult.CODE_AIR_TRANSPORT, "航空件"));
+            request.getMsgBoxList().add(new InvokeWithMsgBoxResult.MsgBox(InvokeWithMsgBoxResult.MsgBoxTypeEnum.PROMPT, InvokeResult.CODE_AIR_TRANSPORT, InvokeResult.CODE_AIR_TRANSPORT_MESSAGE));
         }
         // 2. 生鲜特保类型
         if (BusinessUtil.hasWaybillVas(waybill.getWaybillSign())) {
@@ -59,7 +59,7 @@ public class WaybillVasFilter implements Filter {
             }
             if(checkWaybillVasResult.getData()){
                 logger.info("WaybillVasFilter 生鲜特保件 {}", request.getPackageCode());
-                request.getMsgBoxList().add(new InvokeWithMsgBoxResult.MsgBox(InvokeWithMsgBoxResult.MsgBoxTypeEnum.PROMPT, InvokeResult.CODE_FRESH_SPECIAL, "生鲜特保件"));
+                request.getMsgBoxList().add(new InvokeWithMsgBoxResult.MsgBox(InvokeWithMsgBoxResult.MsgBoxTypeEnum.PROMPT, InvokeResult.CODE_FRESH_SPECIAL, InvokeResult.CODE_FRESH_SPECIAL_MESSAGE));
                 return;
             }
         }

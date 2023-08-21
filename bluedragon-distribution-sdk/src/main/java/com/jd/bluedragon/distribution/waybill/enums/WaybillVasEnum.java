@@ -15,6 +15,11 @@ import java.util.Map;
 public enum WaybillVasEnum {
 
     /**
+     * 特安
+     */
+    WAYBILL_VAS_SPECIAL_SAFETY("ed-a-0047", "特安"),
+
+    /**
      * 特殊保障
      */
     WAYBILL_VAS_SPECIAL_SAFEGUARD("specialSafeguard", "特殊保障"),

@@ -2233,4 +2233,61 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         return result;
     }
+
+    /**
+     * 查询增值服务
+     *
+     * @param waybillCode       运单号
+     * @param waybillVasEnum    自定义增值服务枚举
+     * @param waybillVasDtoList 增值服务列表
+     * @return 是否包含增值服务
+     * @author fanggang7
+     * @time 2023-08-10 10:55:02 周四
+     */
+    @Override
+    public Result<Boolean> checkWaybillVas(String waybillCode, WaybillVasEnum waybillVasEnum, List<WaybillVasDto> waybillVasDtoList) {
+        log.info("WaybillCommonServiceImpl_checkWaybillVas {} {}", waybillCode, waybillVasEnum);
+        Result<Boolean> result = Result.success(false);
+
+        try {
+            if(CollectionUtils.isEmpty(waybillVasDtoList)){
+                return result.setData(false);
+            }
+            // 生鲜特保
+            if(waybillVasEnum.equals(WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFEGUARD_COLD_FRESH_OPERATION)){
+                return this.checkWaybillVas4SpecialSafeguardColdFresh(waybillCode, waybillVasEnum, waybillVasDtoList);
+            }
+            // 特安
+            if(waybillVasEnum.equals(WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFETY)){
+                return this.checkWaybillVas4SpecialSafety(waybillCode, waybillVasEnum, waybillVasDtoList);
+            }
+            return result;
+
+        } catch (Exception e) {
+            log.error("WaybillCommonServiceImpl_checkWaybillVas {} {}", waybillCode, waybillVasEnum, e);
+        }
+        return result;
+    }
+
+    /**
+     * 特安增值类型判断
+     * @param waybillCode 运单号
+     * @param waybillVasEnum 增值服务枚举
+     * @param waybillVasList 增值服务列表
+     * @return 判断结果
+     */
+    private Result<Boolean> checkWaybillVas4SpecialSafety(String waybillCode, WaybillVasEnum waybillVasEnum, List<WaybillVasDto> waybillVasList){
+        Result<Boolean> result = Result.success(false);
+        boolean matchVas = false;
+        for(WaybillVasDto waybillVasDto : waybillVasList){
+            if(Objects.equals(WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFETY.getCode(), waybillVasDto.getVasNo())){
+                matchVas = true;
+                break;
+            }
+        }
+        if(!matchVas){
+            return result.setData(false);
+        }
+        return result;
+    }
 }
