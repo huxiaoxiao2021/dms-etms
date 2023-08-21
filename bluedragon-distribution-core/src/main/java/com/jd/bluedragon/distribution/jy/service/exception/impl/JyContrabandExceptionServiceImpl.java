@@ -68,8 +68,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
-    @Qualifier("jyExceptionContrabandNoticProducer")
-    private DefaultJMQProducer jyExceptionContrabandNoticProducer;
+    @Qualifier("jyExceptionContrabandNoticCustomerProducer")
+    private DefaultJMQProducer jyExceptionContrabandNoticCustomerProducer;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
@@ -104,7 +104,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         }
         JyExpContrabandNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(dto);
         try {
-            jyExceptionContrabandNoticProducer.send(dto.getBizId(), JsonHelper.toJson(mq));
+            jyExceptionContrabandNoticCustomerProducer.send(dto.getBizId(), JsonHelper.toJson(mq));
             logger.info("违禁品上报发送客服-{}",JsonHelper.toJson(mq));
         } catch (JMQException e) {
             e.printStackTrace();
