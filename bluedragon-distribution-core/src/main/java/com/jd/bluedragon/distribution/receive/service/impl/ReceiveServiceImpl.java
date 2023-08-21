@@ -513,4 +513,18 @@ public class ReceiveServiceImpl implements ReceiveService {
 		return receiveDao.add(ReceiveDao.namespace, receive)==1;
 	}
 
+	/**
+	 * 获取收箱数据
+	 * @param boxCode 箱号
+	 * @param siteCode 操作场地
+	 * @return
+	 */
+	@Override
+	public Receive findLastByBoxCodeAndSiteCode(String boxCode, Integer siteCode) {
+		Receive param = new Receive();
+		param.setBoxCode(boxCode);
+		param.setCreateSiteCode(siteCode);
+		return receiveDao.findLastByBoxCodeAndSiteCode(param);
+	}
+
 }

@@ -48,6 +48,9 @@ public enum ClientAutoRefreshBusinessTypeEnum {
      * 转运卸车扫描进度
      */
     TYS_UNLOAD_PROGRESS(7, "卸车扫描进度"),
+
+
+    FIND_GOODS_TASK_PROGRESS(8, "找货任务扫描进度"),
     ;
 
     public static Map<Integer, String> ENUM_MAP;

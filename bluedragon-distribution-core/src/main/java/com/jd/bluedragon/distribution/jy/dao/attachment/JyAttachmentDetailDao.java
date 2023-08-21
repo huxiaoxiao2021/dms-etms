@@ -47,5 +47,8 @@ public class JyAttachmentDetailDao extends BaseDao<JyAttachmentDetailEntity> {
 	public List<JyAttachmentDetailEntity> queryDataListByCondition(JyAttachmentDetailQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE + ".queryDataListByCondition", query);
 	}
-    
+    public Integer countByCondition(JyAttachmentDetailQuery condition) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countByCondition", condition);
+    }
+
 }

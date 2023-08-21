@@ -51,4 +51,11 @@ public interface PositionManager {
      * @return
      */
     String queryPositionCodeByRefGridKey(String refGridKey);
+
+    /**
+     * 根据岗位码查询网格码
+     * @param positionCode
+     * @return
+     */
+    Result<String> queryWorkGridKeyByPositionCode(String positionCode);
 }
