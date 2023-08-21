@@ -1908,7 +1908,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 taskSendVehicleService.updateSendVehicleTask(sendVehicleTask);
             }
             // 记录是否只装不卸标识
-            this.handleOnlyLoadAttr(request, taskSend, curSendDetail);
+            // this.handleOnlyLoadAttr(request, taskSend, curSendDetail);
         }
 
         // 发货任务首次扫描记录组员信息
@@ -1926,7 +1926,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         try {
             JyTaskSendDetailFirstSendDto jyTaskSendDetailFirstSendDto = new JyTaskSendDetailFirstSendDto();
             jyTaskSendDetailFirstSendDto.setBizId(taskSend.getBizId());
-            jyTaskSendDetailFirstSendDto.setSendVehicleBizId(curSendDetail.getSendVehicleBizId());
+            jyTaskSendDetailFirstSendDto.setSendVehicleDetailBizId(curSendDetail.getSendVehicleBizId());
             jyTaskSendDetailFirstSendDto.setManualCreate(taskSend.getManualCreatedFlag());
             OperateUser operateUser = new OperateUser();
             final User user = request.getUser();
@@ -1939,7 +1939,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             operateUser.setOrgId(currentOperate.getOrgId());
             operateUser.setOrgName(currentOperate.getOrgName());
             jyTaskSendDetailFirstSendDto.setOperateUser(operateUser);
-            jyTaskSendDetailFirstSendProducer.send(jyTaskSendDetailFirstSendDto.getSendVehicleBizId(), JsonHelper.toJson(jyTaskSendDetailFirstSendDto));
+            jyTaskSendDetailFirstSendProducer.send(jyTaskSendDetailFirstSendDto.getSendVehicleDetailBizId(), JsonHelper.toJson(jyTaskSendDetailFirstSendDto));
         } catch (JMQException e) {
             log.error("JySendVehicleServiceImpl.sendJyTaskSendDetailFirstSendMq {}", JsonHelper.toJson(request), e);
         }
@@ -4327,5 +4327,51 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         }
         return true;
+    }
+
+    /**
+     * 首次发货任务扫描处理只装不卸属性
+     *
+     * @param jyTaskSendDetailFirstSendDto 首次扫描数据
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2023-08-21 17:57:28 周一
+     */
+    @Override
+    public com.jd.dms.java.utils.sdk.base.Result<Boolean> handleOnlyLoadAttr(JyTaskSendDetailFirstSendDto jyTaskSendDetailFirstSendDto) {
+        log.info("JySendVehicleServiceImpl.handleOnlyLoadAttr param {}", JsonHelper.toJson(jyTaskSendDetailFirstSendDto));
+        com.jd.dms.java.utils.sdk.base.Result<Boolean> result = com.jd.dms.java.utils.sdk.base.Result.success();
+        try {
+            final JyBizTaskSendVehicleDetailEntity taskSendVehicleDetail = taskSendVehicleDetailService.findBySendVehicleBizId(jyTaskSendDetailFirstSendDto.getSendVehicleDetailBizId());
+            if(taskSendVehicleDetail == null){
+                return result;
+            }
+            final JyBizTaskSendVehicleEntity taskSendVehicle = taskSendVehicleService.findByBizId(jyTaskSendDetailFirstSendDto.getBizId());
+            if(taskSendVehicle == null){
+                return result;
+            }
+            final StopoverQueryDto stopoverQueryDto = new StopoverQueryDto();
+            stopoverQueryDto.setSiteCode(taskSendVehicleDetail.getStartSiteId() != null ? taskSendVehicleDetail.getStartSiteId().intValue() : 0);
+            stopoverQueryDto.setTransWorkCode(taskSendVehicle.getTransWorkCode());
+            stopoverQueryDto.setVehicleNumber(taskSendVehicle.getVehicleNumber());
+            final com.jd.dms.java.utils.sdk.base.Result<Integer> checkResult = transportRelatedService.queryStopoverLoadAndUnloadType(stopoverQueryDto);
+            log.info("handleOnlyLoadAttr result {}", JsonHelper.toJson(checkResult));
+            if(!checkResult.isSuccess()){
+                log.error("JySendVehicleServiceImpl.handleOnlyLoadAttr queryStopoverLoadAndUnloadType fail {} {}", JsonHelper.toJson(jyTaskSendDetailFirstSendDto), JsonHelper.toJson(checkResult));
+                return result.toFail("判断是否只装不卸失败");
+            }
+            if(Objects.equals(checkResult.getData(), StopoverSiteUnloadAndLoadTypeEnum.ONLY_LOAD_NO_UNLOAD.getCode())){
+                log.info("handleOnlyLoadAttr match {}", JsonHelper.toJson(jyTaskSendDetailFirstSendDto));
+                // 更新任务明细
+                final JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailUpdate = new JyBizTaskSendVehicleDetailEntity();
+                jyBizTaskSendVehicleDetailUpdate.setBizId(taskSendVehicleDetail.getBizId());
+                jyBizTaskSendVehicleDetailUpdate.setOnlyLoadNoUnload(Constants.YN_YES);
+                taskSendVehicleDetailService.updateByBiz(jyBizTaskSendVehicleDetailUpdate);
+            }
+        } catch (Exception e) {
+            result.toFail("JySendVehicleServiceImpl.handleOnlyLoadAttr exception");
+            log.error("JySendVehicleServiceImpl.handleOnlyLoadAttr exception {}", JsonHelper.toJson(jyTaskSendDetailFirstSendDto), e);
+        }
+        return result;
     }
 }

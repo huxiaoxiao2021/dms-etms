@@ -22,7 +22,7 @@ public class JyTaskSendDetailFirstSendDto implements Serializable {
     /**
      * 明细ID
      */
-    private String sendVehicleBizId;
+    private String sendVehicleDetailBizId;
 
     /**
      * 自建标识
@@ -45,12 +45,12 @@ public class JyTaskSendDetailFirstSendDto implements Serializable {
         this.bizId = bizId;
     }
 
-    public String getSendVehicleBizId() {
-        return sendVehicleBizId;
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
     }
 
-    public void setSendVehicleBizId(String sendVehicleBizId) {
-        this.sendVehicleBizId = sendVehicleBizId;
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
     }
 
     public Integer getManualCreate() {
