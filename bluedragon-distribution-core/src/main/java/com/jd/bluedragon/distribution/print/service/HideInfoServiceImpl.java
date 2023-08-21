@@ -369,26 +369,34 @@ public class HideInfoServiceImpl implements HideInfoService{
         if(acontacts.length == 2){
             tel = acontacts[1];
         }
-        if (StringUtils.isNotBlank(mobile)) {
+        if (StringUtils.isNotBlank(mobile) && mobile.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
             if (mobile.length() > StringHelper.LANDLINE_NUMBER) {
                 firstMobile = mobile.substring(0, mobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER);
                 waybill.setMobileFirst(firstMobile);
                 waybill.setMobileLast(mobile.substring(mobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
-            }else {
+            }else if (mobile.length() > StringHelper.LANDLINE_FIRST_NUMBER) {
                 firstMobile = mobile.substring(0, StringHelper.LANDLINE_FIRST_NUMBER);
                 waybill.setMobileFirst(firstMobile);
                 waybill.setMobileLast(mobile.substring(StringHelper.LANDLINE_FIRST_NUMBER));
+            }else {
+                firstMobile = mobile;
+                waybill.setMobileFirst(firstMobile);
+                waybill.setMobileLast("");
             }
         }
-        if (StringUtils.isNotBlank(tel)) {
+        if (StringUtils.isNotBlank(tel) && tel.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
             if (tel.length() > StringHelper.LANDLINE_NUMBER) {
-                firstTel = tel.substring(0, tel.length()-StringHelper.PHONE_HIGHLIGHT_NUMBER);
+                firstTel = tel.substring(0, tel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER);
                 waybill.setTelFirst(firstTel);
-                waybill.setTelLast(tel.substring( tel.length()-StringHelper.PHONE_HIGHLIGHT_NUMBER));
-            }else {
+                waybill.setTelLast(tel.substring(tel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
+            }else if (tel.length() > StringHelper.LANDLINE_FIRST_NUMBER){
                 firstTel = tel.substring(0, StringHelper.LANDLINE_FIRST_NUMBER);
                 waybill.setTelFirst(firstTel);
                 waybill.setTelLast(tel.substring(StringHelper.LANDLINE_FIRST_NUMBER));
+            }else {
+                firstTel = tel;
+                waybill.setTelFirst(firstTel);
+                waybill.setTelLast("");
             }
         }
         if(StringUtils.isBlank(firstMobile) && StringUtils.isBlank(firstTel) ){
