@@ -783,7 +783,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             MixScanTaskQueryRes result = this.getMixScanTaskPage(mixScanTaskListQueryReq);
 
             if(CollectionUtils.isEmpty(result.getMixScanTaskDtoList()) && StringUtils.isNotBlank(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
-                response.toFail("该派车任务没有被添加到混扫任务中，请先添加");
+                response.toFail("未搜索到混扫任务，如果是自建任务，需要先绑定到混扫任务中");
             }
             response.setData(result);
         } catch (JyBizException e) {
