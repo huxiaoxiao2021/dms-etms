@@ -19,6 +19,7 @@ public enum JyFuncCodeEnum {
     COMBOARD_SEAL_POSITION("COMBOARD_SEAL_POSITION","分拣组板封车岗"),
     PATROL_MANAGER_POSITION("PATROL_MANAGER_POSITION","任务线上化管理岗"),
     WAREHOUSE_SEND_POSITION("WAREHOUSE_SEND_POSITION", "接货仓发货封车岗"),
+    CONTRABAND_POSITION("CONTRABAND_POSITION","违禁品处理岗岗")
     ;
 
     private static final Map<String, String> FUNC_CODE_ENUM_MAP;
