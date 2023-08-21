@@ -922,7 +922,7 @@
     </bean>
 
     <!-- 异常-破损数据通知客服 -->
-    <bean id="dmsDamageNoticeKFProducer" parent="jmq4DmsWebDefaultJMQProducer">
+    <bean id="dmsDamageNoticeKFProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.exception.damageNoticKF}"/>
         <property name="timeout" value="3000"/>
     </bean>
