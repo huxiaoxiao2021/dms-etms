@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionServ
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -276,6 +277,12 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @Override
     public JdCResponse<Boolean> writeToProcessDamage(String bizId){
         jyDamageExceptionService.writeToProcessDamage(bizId);
+        return JdCResponse.ok();
+    }
+
+    @Override
+    public JdCResponse<Boolean> dealExpDamageInfoByAbnormalReportOutCall(QcReportOutCallJmqDto qcReportJmqDto) {
+        jyDamageExceptionService.dealExpDamageInfoByAbnormalReportOutCall(qcReportJmqDto);
         return JdCResponse.ok();
     }
 

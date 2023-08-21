@@ -1584,6 +1584,11 @@ public class UccPropertyConfiguration {
      */
     private int jyExceptionDamageTaskCustomerNotReturnHours;
 
+    /**
+     * 异常任务生成id开关
+     */
+    private boolean jyExceptionCreateBizIdSwitch;
+
     private String aggsDataSource;
 
     public String getAggsDataSource() {
@@ -3638,5 +3643,13 @@ public class UccPropertyConfiguration {
 
     public void setJyExceptionDamageTaskCustomerNotReturnHours(int jyExceptionDamageTaskCustomerNotReturnHours) {
         this.jyExceptionDamageTaskCustomerNotReturnHours = jyExceptionDamageTaskCustomerNotReturnHours;
+    }
+
+    public boolean isJyExceptionCreateBizIdSwitch() {
+        return jyExceptionCreateBizIdSwitch;
+    }
+
+    public void setJyExceptionCreateBizIdSwitch(boolean jyExceptionCreateBizIdSwitch) {
+        this.jyExceptionCreateBizIdSwitch = jyExceptionCreateBizIdSwitch;
     }
 }

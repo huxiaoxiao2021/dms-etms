@@ -15,6 +15,7 @@ import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 
 import java.util.List;
 
@@ -183,6 +184,14 @@ public interface JyExceptionGatewayService {
     JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req);
 
     JdCResponse<Boolean> writeToProcessDamage(String bizId);
+
+    /**
+     * 根据质控异常提报mq 处理破损异常
+     *
+     * @param qcReportJmqDto
+     * @return
+     */
+    JdCResponse<Boolean> dealExpDamageInfoByAbnormalReportOutCall(QcReportOutCallJmqDto qcReportJmqDto);
 
 
 }

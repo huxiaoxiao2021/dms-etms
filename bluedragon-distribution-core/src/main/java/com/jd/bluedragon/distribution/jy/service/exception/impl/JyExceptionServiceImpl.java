@@ -69,6 +69,7 @@ import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -76,6 +77,8 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -208,11 +211,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     private WorkStationGridManager workStationGridManager;
 
-    @Autowired
-    private JySanwuExceptionService jySanwuExceptionService;
 
     @Autowired
     private JyDamageExceptionService jyDamageExceptionService;
+
+    @Autowired
+    private WaybillService waybillService;
 
     /**
      * 通用异常上报入口-扫描
@@ -260,10 +264,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
             //因为三无单可提前判断，可对三无数据提前处理
             if(BusinessUtil.isSanWuCode(req.getBarCode())){
-                JdCResponse<Object> response = jySanwuExceptionService.uploadScan(taskEntity,req, position, source, bizId);
-                if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
-                    return response;
-                }
+                req.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+            }
+
+            JyExceptionStrategy exceptionService = jyExceptionStrategyFactory.getStrategy(req.getType());
+            JdCResponse<Object> response = exceptionService.uploadScan(taskEntity,req, position, source, bizId);
+            if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
+                return response;
             }
             taskEntity.setBizId(bizId);
             taskEntity.setBarCode(req.getBarCode());
@@ -300,7 +307,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             //如果是运单号，将运单号放入缓存 妥投时校验运单是否妥投
             if(WaybillUtil.isWaybillCode(req.getBarCode())){
                 String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX+req.getBarCode();
-                redisClient.set(cacheKey, req.getBarCode(), 7, TimeUnit.DAYS, false);
+                redisClient.set(cacheKey, "1", 7, TimeUnit.DAYS, false);
             }
 
         }catch (Exception e) {
@@ -1407,8 +1414,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 response.toFail("入参不能为空!");
                 return response;
             }
+            Waybill waybill = waybillService.getWaybillByWayCode(req.getBarCode());
+            if(waybill == null){
+                response.toFail("运单信息为空!");
+                return response;
+            }
             JyExceptionStrategy strategy = jyExceptionStrategyFactory.getStrategy(req.getType());
-            return strategy.exceptionTaskCheckByExceptionType(req);
+            return strategy.exceptionTaskCheckByExceptionType(req,waybill);
 
         }catch (Exception e){
             logger.error("根据异常类型校验单号异常-param-{}",JSON.toJSONString(req),e);
@@ -1646,10 +1658,19 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private String getBizId(String barCode,Integer siteId) {
         if(BusinessUtil.isSanWuCode(barCode)){
             return JyBizTaskExceptionTypeEnum.SANWU.name() + "_" + barCode;
-        }else{
-            return barCode+"_"+siteId;
+        }else {
+            boolean bizIdSwith = uccPropertyConfiguration.isJyExceptionCreateBizIdSwitch();
+            if(bizIdSwith){
+                String bizid = JyBizTaskExceptionTypeEnum.SCRAPPED.name() + "_" + barCode;
+                JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(bizid);
+                if(task != null){
+                    return bizid;
+                }
+            }
+            return  barCode+"_"+siteId;
         }
     }
+
 
 
     /**

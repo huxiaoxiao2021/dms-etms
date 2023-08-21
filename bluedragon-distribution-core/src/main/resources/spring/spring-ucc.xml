@@ -270,6 +270,7 @@
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 		<property name="assignExpTaskQuantityLimit" value="${assignExpTaskQuantityLimit:50}"/>
 		<property name="jyExceptionDamageTaskCustomerNotReturnHours" value="${jyExceptionDamageTaskCustomerNotReturnHours:48}"/>
+		<property name="jyExceptionCreateBizIdSwitch" value="${jyExceptionCreateBizIdSwitch:true}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
@@ -582,6 +583,7 @@
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleMixScanTaskFlowNumConfig</value>
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
 				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
+				<value>uccPropertyConfiguration.jyExceptionCreateBizIdSwitch</value>
 
 
 				<value>uccPropertyConfiguration.interceptBlackList</value>

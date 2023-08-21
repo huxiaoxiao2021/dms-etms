@@ -54,6 +54,5 @@ public interface JySanwuExceptionService {
      */
     JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req);
 
-    JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity exceptionEntity, ExpUploadScanReq req, PositionDetailRecord position
-            , JyExpSourceEnum source, String bizId);
+
 }

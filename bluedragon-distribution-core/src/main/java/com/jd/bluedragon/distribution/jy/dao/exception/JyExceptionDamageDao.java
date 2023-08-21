@@ -6,7 +6,10 @@ import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionScrappedPO;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 异常-破损 DAO
@@ -53,5 +56,14 @@ public class JyExceptionDamageDao extends BaseDao<JyExceptionDamageEntity> {
     public List<JyExceptionDamageEntity> getDamageRecordListByBarCode(String barCode) {
         return this.getSqlSession().selectList(NAMESPACE + ".getDamageRecordListByBarCode", barCode);
     }
+
+    public int updateDamageStatusByBizIds(Integer feedBackType,List<String> bizIds){
+        Map<String,Object> param =new HashMap<>();
+        param.put("feedBackType",feedBackType);
+        param.put("updateTime",new Date());
+        param.put("bizIds",bizIds);
+        return this.getSqlSession().update(NAMESPACE + ".updateDamageStatusByBizIds", param);
+    }
+
 
 }

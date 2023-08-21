@@ -493,9 +493,29 @@
         and type = #{type}
         and status = #{status}
         and processing_status = #{processingStatus}
-        and  <![CDATA[   update_time < #{updateTime}  ]]>
-        order by update_time limit 500;
+        and  <![CDATA[   ts  < #{updateTime}  ]]>
+        order by ts limit 500;
     </select>
+
+    <update id="updateExceptionTaskStatusByBizIds">
+        update jy_biz_task_exception
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="processingStatus != null">
+                processing_status = #{processingStatus}
+            </if>
+            update_time = #{updateTime}
+        </set>
+
+        where yn =1
+        AND biz_id in
+        <foreach item="id" index="index" collection="bizIds"
+                 open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 
 
 

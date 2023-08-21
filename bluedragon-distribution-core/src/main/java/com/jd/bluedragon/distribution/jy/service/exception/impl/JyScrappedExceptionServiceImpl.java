@@ -33,6 +33,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.lsb.flow.domain.ApprovalResult;
@@ -117,42 +118,26 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.exceptionTaskCheckByExceptionType", mState = {JProEnum.TP})
-    public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req) {
+    public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req, Waybill waybill) {
         JdCResponse<Boolean> response = new JdCResponse<>();
         String waybillCode = req.getBarCode();
         //
         //校验生鲜单号 自营OR外单
         //根据运单获取waybillSign
-        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
-                = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
-        if (dataByChoice == null
-                || dataByChoice.getData() == null
-                || dataByChoice.getData().getWaybill() == null
-                || StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
-            logger.warn("查询运单waybillSign失败!-{}", waybillCode);
-            response.toFail("查询运单信息失败!");
+        boolean hKorMOWaybill = isHKorMOWaybill(req.getBarCode(), waybill);
+        if(hKorMOWaybill){
+            response.toFail("港澳单不允许上报!");
             response.setData(Boolean.FALSE);
-            return response;
         }
-        if( dataByChoice.getData().getWaybill().getWaybillExt() != null){
-            WaybillExt waybillExt = dataByChoice.getData().getWaybill().getWaybillExt();
-            if((StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) ||Objects.equals("MO",waybillExt.getStartFlowDirection())))
-                    || (StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) ||Objects.equals("MO",waybillExt.getEndFlowDirection())))){
-                logger.info("港澳单-{}",waybillCode);
-                response.toFail("港澳单不允许上报!");
-                response.setData(Boolean.FALSE);
-                return response;
-            }
-        }
-        Integer goodNumber = dataByChoice.getData().getWaybill().getGoodNumber();
+        Integer goodNumber = waybill.getGoodNumber();
         //一单多件校验
         if(!Objects.equals(goodNumber,1)){
             response.toFail("一单多件禁止上报!");
             response.setData(Boolean.FALSE);
             return response;
         }
-        String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
-        String sendPay = dataByChoice.getData().getWaybill().getSendPay();
+        String waybillSign = waybill.getWaybillSign();
+        String sendPay = waybill.getSendPay();
         //自营生鲜运单判断
         if (BusinessUtil.isSelf(waybillSign)) {
             if (BusinessUtil.isSelfSX(sendPay)) {
@@ -180,6 +165,11 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
     }
 
+    @Override
+    public JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity, ExpUploadScanReq req, PositionDetailRecord position, JyExpSourceEnum source, String bizId) {
+        JdCResponse<Object> response = new JdCResponse<>();
+        return response;
+    }
 
 
     @Override
