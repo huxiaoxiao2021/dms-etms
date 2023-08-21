@@ -416,8 +416,12 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 				}
 				// 是否可以使用模拟器检测
 				String userErp = result.getData().getUserCode();
-				Integer siteCode = Integer.valueOf(result.getData().getSiteCode());
-				boolean canUseSimulatorFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_USE_SIMULATOR.getCode(), siteCode, userErp);
+				Integer siteId = null;
+				String siteCode = result.getData().getSiteCode();
+				if (StringUtils.isNotBlank(siteCode) && NumberHelper.isPositiveNumber(siteCode)) {
+					siteId = Integer.valueOf(siteCode);
+				}
+				boolean canUseSimulatorFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_USE_SIMULATOR.getCode(), siteId, userErp);
 				if (result.getData().getBusinessConfigInfo() == null) {
 					BusinessConfigInfo businessConfigInfo = new BusinessConfigInfo();
 					result.getData().setBusinessConfigInfo(businessConfigInfo);
