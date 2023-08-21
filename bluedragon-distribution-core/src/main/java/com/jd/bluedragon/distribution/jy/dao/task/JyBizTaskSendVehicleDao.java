@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizSendTaskAssociationDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
@@ -225,4 +226,17 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         }
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBookingCode", entity);
     }
+
+
+    public Integer countDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countDetailSendTaskByCondition", entity);
+    }
+    public  List<JyBizSendTaskAssociationDto>  pageFindDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity, Integer offset, Integer limit) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        params.put("offset", offset);
+        params.put("limit", limit);
+        return this.getSqlSession().selectList(NAMESPACE + ".pageFindDetailSendTaskByCondition", entity);
+    }
+
 }

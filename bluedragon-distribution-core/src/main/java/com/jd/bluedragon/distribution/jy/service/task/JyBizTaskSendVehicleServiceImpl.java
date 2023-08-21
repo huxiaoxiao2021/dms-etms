@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDao;
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizSendTaskAssociationDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
@@ -217,5 +218,25 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         return jyBizTaskSendVehicleDao.findByBookingCode(bookingCode, true);
     }
 
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.countDetailSendTaskByCondition",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public Integer countDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDao.countDetailSendTaskByCondition(entity);
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.pageFindDetailSendTaskByCondition",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public List<JyBizSendTaskAssociationDto> pageFindDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity, Integer pageNo, Integer pageSize) {
+
+        Integer limit = pageSize;
+        Integer offset = (pageNo - 1) * pageSize;
+        // 超过最大分页数据量 直接返回空数据
+        if (offset + limit > ucc.getJyTaskPageMax()) {
+            return new ArrayList<>();
+        }
+        return jyBizTaskSendVehicleDao.pageFindDetailSendTaskByCondition(entity, offset, limit);
+    }
 
 }

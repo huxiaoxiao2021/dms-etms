@@ -5,11 +5,13 @@
     <id column="id" property="id" jdbcType="BIGINT" />
     <result column="business_key" property="businessKey" jdbcType="VARCHAR" />
     <result column="business_key_type" property="businessKeyType" jdbcType="VARCHAR" />
+    <result column="source" property="source" jdbcType="VARCHAR" />
     <result column="operate_site_code" property="operateSiteCode" jdbcType="INTEGER" />
     <result column="weight" property="weight" jdbcType="DOUBLE" />
     <result column="volume" property="volume" jdbcType="DOUBLE" />
     <result column="item_num" property="itemNum" jdbcType="INTEGER" />
-    <result column="batch_code_num" property="batchCodeNum" jdbcType="INTEGER" />
+    <result column="seal_bind_aviation_task_num" property="sealBindAviationTaskNum" jdbcType="INTEGER" />
+    <result column="seal_batch_code_num" property="sealBatchCodeNum" jdbcType="INTEGER" />
     <result column="sub_business_num" property="subBusinessNum" jdbcType="INTEGER" />
     <result column="transport_code" property="transportCode" jdbcType="VARCHAR" />
     <result column="depart_time" property="departTime" jdbcType="TIMESTAMP" />
@@ -22,8 +24,8 @@
     <result column="yn" property="yn" jdbcType="BIT" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, business_key, business_key_type, operate_site_code, weight, volume, item_num,
-    batch_code_num, sub_business_num, create_user_erp, create_user_name, update_user_erp,
+    id, business_key, business_key_type, source, operate_site_code, weight, volume, item_num,
+    seal_bind_aviation_task_num, seal_batch_code_num, sub_business_num, create_user_erp, create_user_name, update_user_erp,
     update_user_name, create_time, update_time, yn, transport_code, depart_time
   </sql>
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
@@ -38,15 +40,15 @@
 <!--  </delete>-->
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity" >
     insert into jy_statistics_summary (
-      business_key, business_key_type, operate_site_code, weight, volume,
-    item_num, batch_code_num, sub_business_num, transport_code,
+      business_key, business_key_type, source, operate_site_code, weight, volume,
+    item_num, seal_batch_code_num, seal_bind_aviation_task_num, sub_business_num, transport_code,
     create_user_erp, create_user_name, update_user_erp,
     update_user_name, create_time, update_time,
     yn)
     values
-      #{businessKey}, #{businessKeyType},
+      #{businessKey}, #{businessKeyType}, #{source},
       #{operateSiteCode}, #{weight}, #{volume},
-      #{itemNum}, #{batchCodeNum}, #{subBusinessNum}, #{transportCode},
+      #{itemNum}, #{sealBatchCodeNum}, #{sealBindAviationTaskNum}, #{subBusinessNum}, #{transportCode},
       #{createUserErp}, #{createUserName}, #{updateUserErp},
       #{updateUserName}, #{createTime}, #{updateTime},
       #{yn,jdbcType=BIT})
@@ -60,6 +62,9 @@
       <if test="businessKeyType != null" >
         business_key_type,
       </if>
+      <if test="source != null" >
+        source,
+      </if>
       <if test="operateSiteCode != null" >
         operate_site_code,
       </if>
@@ -72,8 +77,11 @@
       <if test="itemNum != null" >
         item_num,
       </if>
-      <if test="batchCodeNum != null" >
-        batch_code_num,
+      <if test="sealBatchCodeNum != null" >
+        seal_batch_code_num,
+      </if>
+      <if test="sealBindAviationTaskNum != null" >
+        seal_bind_aviation_task_num,
       </if>
       <if test="subBusinessNum != null" >
         sub_business_num,
@@ -108,6 +116,9 @@
       <if test="businessKeyType != null" >
         #{businessKeyType},
       </if>
+      <if test="source != null" >
+        #{source},
+      </if>
       <if test="operateSiteCode != null" >
         #{operateSiteCode},
       </if>
@@ -120,8 +131,11 @@
       <if test="itemNum != null" >
         #{itemNum},
       </if>
-      <if test="batchCodeNum != null" >
-        #{batchCodeNum},
+      <if test="sealBatchCodeNum != null" >
+        #{sealBatchCodeNum},
+      </if>
+      <if test="sealBindAviationTaskNum != null" >
+        #{sealBindAviationTaskNum},
       </if>
       <if test="subBusinessNum != null" >
         #{subBusinessNum},
@@ -161,6 +175,7 @@
     WHERE
       yn = 1
       and business_key_type = #{businessKeyType}
+      and source = #{source}
       and operate_site_code = #{operateSiteCode}
       and businessKey IN
         <foreach collection="businessKeyList" item="item" index="index" open="(" separator="," close=")">
@@ -177,6 +192,7 @@
     WHERE
       yn = 1
       and business_key_type = #{businessKeyType}
+      and source = #{source}
       and operate_site_code = #{operateSiteCode}
       and business_key = #{businessKey}
     order by create_time desc

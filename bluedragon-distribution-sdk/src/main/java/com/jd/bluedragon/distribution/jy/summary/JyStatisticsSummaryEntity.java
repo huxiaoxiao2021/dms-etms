@@ -17,13 +17,24 @@ public class JyStatisticsSummaryEntity implements Serializable {
 
     private Integer operateSiteCode;
 
+    /**
+     * SummarySourceEnum
+     */
+    private String source;
+
     private Double weight;
 
     private Double volume;
 
     private Integer itemNum;
-
-    private Integer batchCodeNum;
+    /**
+     * 封车批次号数量
+     */
+    private Integer sealBatchCodeNum;
+    /**
+     * 封车内绑定任务数量
+     */
+    private Integer sealBindAviationTaskNum;
 
     private Integer subBusinessNum;
 
@@ -46,13 +57,15 @@ public class JyStatisticsSummaryEntity implements Serializable {
     private Integer yn;
 
 
+
     public JyStatisticsSummaryEntity() {
     }
 
-    public JyStatisticsSummaryEntity(String businessKey, String businessKeyType, Integer operateSiteCode) {
+    public JyStatisticsSummaryEntity(String businessKey, String businessKeyType, Integer operateSiteCode, String source) {
         this.businessKey = businessKey;
         this.businessKeyType = businessKeyType;
         this.operateSiteCode = operateSiteCode;
+        this.source = source;
         this.yn = 1;
     }
 
@@ -110,14 +123,6 @@ public class JyStatisticsSummaryEntity implements Serializable {
 
     public void setItemNum(Integer itemNum) {
         this.itemNum = itemNum;
-    }
-
-    public Integer getBatchCodeNum() {
-        return batchCodeNum;
-    }
-
-    public void setBatchCodeNum(Integer batchCodeNum) {
-        this.batchCodeNum = batchCodeNum;
     }
 
     public Integer getSubBusinessNum() {
@@ -198,5 +203,29 @@ public class JyStatisticsSummaryEntity implements Serializable {
 
     public void setDepartTime(Date departTime) {
         this.departTime = departTime;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public Integer getSealBatchCodeNum() {
+        return sealBatchCodeNum;
+    }
+
+    public void setSealBatchCodeNum(Integer sealBatchCodeNum) {
+        this.sealBatchCodeNum = sealBatchCodeNum;
+    }
+
+    public Integer getSealBindAviationTaskNum() {
+        return sealBindAviationTaskNum;
+    }
+
+    public void setSealBindAviationTaskNum(Integer sealBindAviationTaskNum) {
+        this.sealBindAviationTaskNum = sealBindAviationTaskNum;
     }
 }

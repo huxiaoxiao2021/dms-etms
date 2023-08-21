@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizSendTaskAssociationDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
@@ -26,6 +27,7 @@ import com.jd.bluedragon.distribution.jy.service.task.*;
 import com.jd.bluedragon.distribution.jy.summary.BusinessKeyTypeEnum;
 import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryCondition;
 import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
+import com.jd.bluedragon.distribution.jy.summary.SummarySourceEnum;
 import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
@@ -429,11 +431,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
         //航空任务封车汇总
         JyStatisticsSummaryEntity summaryEntity = new JyStatisticsSummaryEntity(
-                request.getBizId(), BusinessKeyTypeEnum.JY_SEND_TASK.getCode(), request.getCurrentOperate().getSiteCode());
+                request.getBizId(), BusinessKeyTypeEnum.JY_SEND_TASK.getCode(),
+                request.getCurrentOperate().getSiteCode(), SummarySourceEnum.SEAL.getCode());
         summaryEntity.setWeight(request.getWeight());
         summaryEntity.setVolume(request.getVolume());
         summaryEntity.setItemNum(request.getItemNum());
-        summaryEntity.setBatchCodeNum(batchCodes.size());
+        summaryEntity.setSealBatchCodeNum(batchCodes.size());
         summaryEntity.setSubBusinessNum(1);
         summaryEntity.setTransportCode(request.getTransportCode());
         summaryEntity.setCreateTime(time);
@@ -729,48 +732,82 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             }
         }
         //查询条件
-        JyBizTaskSendVehicleEntity queryEntity = new JyBizTaskSendVehicleEntity();
-        queryEntity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-        queryEntity.setLineType(JyLineTypeEnum.SHUTTLE.getCode());
-
-        List<Integer> vehicleStatuses = null;
+        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
+        detailEntity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+        detailEntity.setLineTypeList(Arrays.asList(JyLineTypeEnum.SHUTTLE.getCode()));
         if(ShuttleQuerySourceEnum.SEAL_Y.getCode().equals(request.getShuttleQuerySource())) {
-            vehicleStatuses = Arrays.asList(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
+            detailEntity.setStatusList(Arrays.asList(JyBizTaskSendStatusEnum.SEALED.getCode()));
         } else if(ShuttleQuerySourceEnum.SEAL_N.getCode().equals(request.getShuttleQuerySource())) {
-            //todo zcf 确认车辆列表查询未封车的，  逻辑待确认，确认最终展示的是以及还是二级列表
-            vehicleStatuses = Arrays.asList(JyBizTaskSendStatusEnum.TO_SEND.getCode(), JyBizTaskSendStatusEnum.SENDING.getCode());
+            detailEntity.setStatusList(Arrays.asList(
+                    JyBizTaskSendStatusEnum.TO_SEND.getCode(),
+                    JyBizTaskSendStatusEnum.SENDING.getCode(),
+                    JyBizTaskSendStatusEnum.TO_SEAL.getCode()));
         }
-        //状态统计
-        Integer count = taskSendVehicleService.countByCondition(queryEntity, bizIdList, vehicleStatuses);
-
+        if(CollectionUtils.isNotEmpty(bizIdList)) {
+            detailEntity.setBizIdList(bizIdList);
+        }
+        //
+        Integer count = taskSendVehicleService.countDetailSendTaskByCondition(detailEntity);
         if(count > 0) {
-            List<JyBizTaskSendVehicleEntity> sendTaskList = jyBizTaskSendVehicleService.querySendTaskOfPage(
-                    queryEntity, bizIdList, null, request.getPageNo(), request.getPageSize(), vehicleStatuses);
+            List<JyBizSendTaskAssociationDto> sendTaskList = jyBizTaskSendVehicleService.pageFindDetailSendTaskByCondition(detailEntity, request.getPageNo(), request.getPageSize());
             if(CollectionUtils.isNotEmpty(sendTaskList)) {
                 List<ShuttleSendTaskDto> shuttleSendTaskDtoList = new ArrayList<>();
+                List<String> detailBizId = new ArrayList<>();
+
                 sendTaskList.forEach(sendTask -> {
                     ShuttleSendTaskDto taskDto = new ShuttleSendTaskDto();
-                    taskDto.setBizId(sendTask.getBizId());
+                    taskDto.setBizId(sendTask.getSendVehicleBizId());
+                    taskDto.setDetailBizId(sendTask.getBizId());
                     taskDto.setVehicleNumber(sendTask.getVehicleNumber());
-                    //todo zcf 封车总件数和封车绑定总任务数待定
-//                    taskDto.setTotalItemNum();
-//                    taskDto.setTotalItemNum();
+                    taskDto.setNextSiteId(sendTask.getEndSiteId());
+                    taskDto.setNextSiteName(sendTask.getEndSiteName());
+                    taskDto.setTaskNum(0);
+                    taskDto.setTotalItemNum(0);
                     shuttleSendTaskDtoList.add(taskDto);
+                    detailBizId.add(taskDto.getDetailBizId());
                 });
+                //封车列表查询封车汇总数据
+                if(ShuttleQuerySourceEnum.SEAL_Y.getCode().equals(request.getShuttleQuerySource())) {
+                    //任务绑定信息查询， 流向维度传detailBizId
+                    Map<String, JyStatisticsSummaryEntity> map = this.shuttleSendTaskSummary(detailBizId, request.getCurrentOperate().getSiteCode());
+                    if(CollectionUtils.isNotEmpty(map.entrySet())) {
+                        shuttleSendTaskDtoList.forEach(dto -> {
+                        if(!Objects.isNull(map.get(dto.getDetailBizId()))) {
+                            JyStatisticsSummaryEntity summaryEntity = map.get(dto.getDetailBizId());
+                            dto.setTaskNum(summaryEntity.getSealBindAviationTaskNum());
+                            dto.setTotalItemNum(summaryEntity.getItemNum());
+                        }
+                        });
+                    }
+                }
                 resData.setShuttleSendTaskDtoList(shuttleSendTaskDtoList);
+            }else {
+                count = 0;
             }
         }
         //统计值
-        int total = CollectionUtils.isEmpty(resData.getShuttleSendTaskDtoList()) ? 0 : count;
         List<TaskStatusStatistics> statusAggList = new ArrayList<>();
-        TaskStatusStatistics shuttleY = new TaskStatusStatistics();
-        shuttleY.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_Y.getCode());
-        shuttleY.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_Y.getName());
-        shuttleY.setTotal(total);
-        statusAggList.add(shuttleY);
+        TaskStatusStatistics shuttle = new TaskStatusStatistics();
+        shuttle.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_Y.getCode());
+        shuttle.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_Y.getName());
+        shuttle.setTotal(count);
+        statusAggList.add(shuttle);
         resData.setTaskStatusStatisticsList(statusAggList);
 
         return res;
+    }
+
+    private Map<String, JyStatisticsSummaryEntity> shuttleSendTaskSummary(List<String> detailBizId, Integer siteId) {
+        //封车汇总记录
+        JyStatisticsSummaryCondition summaryCondition = new JyStatisticsSummaryCondition();
+        summaryCondition.setBusinessKeyType(BusinessKeyTypeEnum.JY_SEND_TASK_DETAIL.getCode());
+        summaryCondition.setSource(SummarySourceEnum.SEAL.getCode());
+        summaryCondition.setBusinessKeyList(detailBizId);
+        summaryCondition.setOperateSiteCode(siteId);
+        List<JyStatisticsSummaryEntity> summaryEntityList = statisticsSummaryService.queryByBusinessKeysAndType(summaryCondition);
+        //K-bizId V-汇总结果
+        Map<String, JyStatisticsSummaryEntity> map = summaryEntityList.stream().collect(Collectors.toMap(k -> k.getBusinessKey(), v -> v));
+        return map;
     }
 
     @Override
@@ -918,6 +955,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             //封车汇总记录
             JyStatisticsSummaryCondition summaryCondition = new JyStatisticsSummaryCondition();
             summaryCondition.setBusinessKeyType(BusinessKeyTypeEnum.JY_SEND_TASK.getCode());
+            summaryCondition.setSource(SummarySourceEnum.SEAL.getCode());
             summaryCondition.setBusinessKeyList(bizIdList);
             summaryCondition.setOperateSiteCode(siteCode);
             List<JyStatisticsSummaryEntity> summaryEntityList = statisticsSummaryService.queryByBusinessKeysAndType(summaryCondition);
