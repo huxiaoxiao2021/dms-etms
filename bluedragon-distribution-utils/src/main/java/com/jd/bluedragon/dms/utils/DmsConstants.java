@@ -494,4 +494,11 @@ public class DmsConstants {
         add(3);
     }};
 
+    /**
+     * 香港澳门区域国标
+     */
+    public static final List<String> HK_MO_REGION = new ArrayList<String>(){{
+        add("HK");
+        add("MO");
+    }};
 }

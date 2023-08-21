@@ -1,7 +1,5 @@
 package com.jd.bluedragon;
 
-import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1140,6 +1138,10 @@ public class Constants {
      * 运单状态  弃件
      */
     public static final String WAYBILLTRACE_WASTE = "620";
+    /**
+     * 运单状态  弃件（港澳单节点）
+     */
+    public static final String WAYBILLTRACE_WASTE_GA = "750";
 
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
@@ -2033,4 +2035,11 @@ public class Constants {
         sendPredictaggstopic2DataSource.put("jy_send_predict_aggs","aggsMain");
         sendPredictaggstopic2DataSource.put("jy_send_predict_aggs_slave","aggsSlave");
     }
+    
+    // 新版分拣中心规范-分拣中心类型
+    public static final Integer SORTING_SORT_TYPE = 12351;
+    // 新版分拣中心规范-分拣中心子类型
+    public static final Integer SORTING_SORT_SUBTYPE = 123511;
+    // 新版分拣中心规范-分拣中心下中转站
+    public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
 }

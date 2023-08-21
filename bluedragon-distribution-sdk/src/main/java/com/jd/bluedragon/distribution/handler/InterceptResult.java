@@ -33,6 +33,10 @@ public class InterceptResult<T> extends JdResult<T>{
 	 */
 	public static final Integer STATUS_NEED_CONFIRM = 4;
 	/**
+	 * 拦截状态-4-退出
+	 */
+	public static final Integer STATUS_SUC_BREAK = 4;
+	/**
 	 * 拦截状态-默认为1-通过
 	 */
 	private Integer status = STATUS_PASSED;
@@ -41,7 +45,7 @@ public class InterceptResult<T> extends JdResult<T>{
 	 * @return
 	 */
 	public boolean isPassed(){
-		return STATUS_WEAK_PASSED.equals(status) || STATUS_PASSED.equals(status);
+		return STATUS_WEAK_PASSED.equals(status) || STATUS_PASSED.equals(status) || STATUS_SUC_BREAK.equals(status);
 	}
 	/**
 	 * 是否通过
@@ -49,6 +53,13 @@ public class InterceptResult<T> extends JdResult<T>{
 	 */
 	public boolean isWeakPassed(){
 		return STATUS_WEAK_PASSED.equals(status);
+	}
+	/**
+	 * 是否结束
+	 * @return
+	 */
+	public boolean isBreak(){
+		return STATUS_SUC_BREAK.equals(status);
 	}
 	
 	/**
@@ -90,5 +101,9 @@ public class InterceptResult<T> extends JdResult<T>{
 	public void toNeedConfirmStatus(Integer messageCode, String message) {
 		this.status = STATUS_NEED_CONFIRM;
 		super.toFail(messageCode, message);
+	}
+	public void toBreak(Integer messageCode, String message) {
+		this.status = STATUS_SUC_BREAK;
+		super.toSuccess(messageCode, message);
 	}
 }

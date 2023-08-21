@@ -84,4 +84,8 @@ public class WaybillPrintMessages{
 
 	public static final String MESSAGE_PACKAGE_UNCOLLECTED = "未操作揽收，禁止面单补打";
 
+	/**
+	 * 港澳云打印成功状态码
+	 */
+	public static final Integer CODE_INTERNATIONAL_SUC = 200200;
 }

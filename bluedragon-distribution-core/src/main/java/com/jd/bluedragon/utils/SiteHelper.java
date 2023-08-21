@@ -2,6 +2,7 @@ package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.ver.domain.Site;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang3.StringUtils;
@@ -467,4 +468,13 @@ public class SiteHelper {
                 && Objects.equals(SORT_SUBTYPE_SORTING_CENTER, site.getSortSubType())
                 && SORT_THIRD_TYPE_SORTING_CENTER.contains(site.getSortThirdType());
     }
+
+    /**
+     * 是否为分拣中转站
+     */
+    public static boolean isSortTransferSite(Site site) {
+        return site != null && Objects.equals(site.getSortType(), Constants.SORTING_SORT_TYPE) 
+                && Objects.equals(site.getSortSubType(), Constants.SORTING_SORT_SUBTYPE) 
+                && Objects.equals(site.getSortThirdType(), Constants.SORTING_SORT_THIRD_TYPE);
+    }    
 }

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.configuration.ucc;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
@@ -8,9 +9,9 @@ import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -1013,7 +1014,7 @@ public class UccPropertyConfiguration{
     }
 
     public List<String> getNeedInterceptUrlList() {
-        return needInterceptUrlList;
+        return Lists.newArrayList(needInterceptUrlList);
     }
 
     public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -3394,6 +3395,27 @@ public class UccPropertyConfiguration{
         this.volumeExcessIssueSites = volumeExcessIssueSites;
     }
 
+    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
+        AutoCloseJyBizTaskConfig config = new AutoCloseJyBizTaskConfig();
+        BeanUtils.copyProperties(autoCloseJyBizTaskConfigObj, config);
+        return config;
+    }
+
+    public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
+        this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
+        if(StringUtils.isNotBlank(this.autoCloseJyBizTaskConfig)){
+            autoCloseJyBizTaskConfigObj = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
+        }
+    }
+
+    public boolean isLoadCarEvaluateSwitch() {
+        return loadCarEvaluateSwitch;
+    }
+
+    public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
+        this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
+    }
+
     public Boolean getTysUnloadCarCollectDemoteSwitch() {
         return tysUnloadCarCollectDemoteSwitch;
     }
@@ -3547,6 +3569,14 @@ public class UccPropertyConfiguration{
 
     public void setJyWorkAppAutoRefreshConfig(String jyWorkAppAutoRefreshConfig) {
         this.jyWorkAppAutoRefreshConfig = jyWorkAppAutoRefreshConfig;
+        this.setJyWorkAppAutoRefreshConfigList(jyWorkAppAutoRefreshConfig);
+    }
+
+    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
+        return Lists.newArrayList(jyWorkAppAutoRefreshConfigList);
+    }
+
+    public void setJyWorkAppAutoRefreshConfigList(String jyWorkAppAutoRefreshConfig) {
         if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
             final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
             if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
@@ -3555,14 +3585,13 @@ public class UccPropertyConfiguration{
         }
     }
 
-    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
-        return jyWorkAppAutoRefreshConfigList;
-    }
     public ClientAutoRefreshConfig getJyWorkAppAutoRefreshConfigByBusinessType(String businessType) {
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
             if(first.isPresent()){
-                return first.get();
+                ClientAutoRefreshConfig config = new ClientAutoRefreshConfig();
+                BeanUtils.copyProperties(first.get(), config);
+                return config;
             }
         }
         return null;

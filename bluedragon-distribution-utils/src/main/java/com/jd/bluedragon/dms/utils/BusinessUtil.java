@@ -2823,5 +2823,16 @@ public class BusinessUtil {
         }
         return null;
     }
-    
+
+    /**
+     * 是否港澳运单
+     *  desc：运单的始发和目的其一是香港澳门则为港澳运单
+     * 
+     * @param waybillStart 运单始发
+     * @param waybillEnd 运单目的
+     * @return
+     */
+    public static boolean isGAWaybill(String waybillStart, String waybillEnd){
+        return DmsConstants.HK_MO_REGION.contains(waybillStart) || DmsConstants.HK_MO_REGION.contains(waybillEnd);
+    }
 }
