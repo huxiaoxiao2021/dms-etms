@@ -1112,7 +1112,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         query.setType(JyBizTaskExceptionTypeEnum.DAMAGE.getCode());
         query.setStatus(JyExpStatusEnum.PROCESSING.getCode());
         query.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_INTERVENTION.getCode());
-        query.setUpdateTime(DateHelper.addHours(new Date(),-hours));
+        query.setTs(DateHelper.addHours(new Date(),-hours));
         logger.info("查询超48小时破损任务入参-{}",JSON.toJSONString(query));
         List<JyBizTaskExceptionEntity> allExceptionTaskList = jyBizTaskExceptionDao.getExceptionTaskListOverTime(query);
         List<String> bizIds = new ArrayList<>();

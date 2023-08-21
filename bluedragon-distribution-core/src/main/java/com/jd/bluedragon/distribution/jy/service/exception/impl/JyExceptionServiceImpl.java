@@ -267,11 +267,14 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 req.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
             }
 
-            JyExceptionStrategy exceptionService = jyExceptionStrategyFactory.getStrategy(req.getType());
-            JdCResponse<Object> response = exceptionService.uploadScan(taskEntity,req, position, source, bizId);
-            if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
-                return response;
+            if(req.getType() != null){
+                JyExceptionStrategy exceptionService = jyExceptionStrategyFactory.getStrategy(req.getType());
+                JdCResponse<Object> response = exceptionService.uploadScan(taskEntity,req, position, source, bizId);
+                if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
+                    return response;
+                }
             }
+
             taskEntity.setBizId(bizId);
             taskEntity.setBarCode(req.getBarCode());
             taskEntity.setSource(source.getCode());

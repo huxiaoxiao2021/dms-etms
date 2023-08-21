@@ -493,8 +493,8 @@
         and type = #{type}
         and status = #{status}
         and processing_status = #{processingStatus}
-        and  <![CDATA[   ts  < #{updateTime}  ]]>
-        order by ts limit 500;
+        and  <![CDATA[   ts  < #{ts}  ]]>
+        order by ts limit 100;
     </select>
 
     <update id="updateExceptionTaskStatusByBizIds">
