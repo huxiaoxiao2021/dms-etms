@@ -3,7 +3,6 @@ package com.jd.bluedragon.configuration.ucc;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
-import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -3395,10 +3394,8 @@ public class UccPropertyConfiguration{
         this.volumeExcessIssueSites = volumeExcessIssueSites;
     }
 
-    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
-        AutoCloseJyBizTaskConfig config = new AutoCloseJyBizTaskConfig();
-        BeanUtils.copyProperties(autoCloseJyBizTaskConfigObj, config);
-        return config;
+    public String getAutoCloseJyBizTaskConfig() {
+        return autoCloseJyBizTaskConfig;
     }
 
     public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
@@ -3430,25 +3427,6 @@ public class UccPropertyConfiguration{
 
     public void setJyCollectSiteWhitelist(String jyCollectSiteWhitelist) {
         this.jyCollectSiteWhitelist = jyCollectSiteWhitelist;
-    }
-
-    public String getAutoCloseJyBizTaskConfig() {
-        return autoCloseJyBizTaskConfig;
-    }
-
-    public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
-        this.autoCloseJyBizTaskConfig = autoCloseJyBizTaskConfig;
-        if(StringUtils.isNotBlank(this.autoCloseJyBizTaskConfig)){
-            autoCloseJyBizTaskConfigObj = JsonHelper.fromJson(autoCloseJyBizTaskConfig, AutoCloseJyBizTaskConfig.class);
-        }
-    }
-
-    public boolean isLoadCarEvaluateSwitch() {
-        return loadCarEvaluateSwitch;
-    }
-
-    public void setLoadCarEvaluateSwitch(boolean loadCarEvaluateSwitch) {
-        this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
     }
 
     public boolean isJobTypeLimitSwitch() {
@@ -3814,7 +3792,9 @@ public class UccPropertyConfiguration{
 	}
 
 	public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
-		return autoCloseJyBizTaskConfigObj;
+        AutoCloseJyBizTaskConfig config = new AutoCloseJyBizTaskConfig();
+        BeanUtils.copyProperties(autoCloseJyBizTaskConfigObj, config);
+        return config;
 	}
 
 	public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {

@@ -29,10 +29,6 @@ public class InterceptResult<T> extends JdResult<T>{
 	 */
 	public static final Integer STATUS_NO_PASSED = 3;
 	/**
-	 * 拦截状态-4-强制拦截状态，客户端弹框确认
-	 */
-	public static final Integer STATUS_NEED_CONFIRM = 4;
-	/**
 	 * 拦截状态-4-退出
 	 */
 	public static final Integer STATUS_SUC_BREAK = 4;
@@ -98,10 +94,6 @@ public class InterceptResult<T> extends JdResult<T>{
 		super.toError(messageCode, message);
 	}
 
-	public void toNeedConfirmStatus(Integer messageCode, String message) {
-		this.status = STATUS_NEED_CONFIRM;
-		super.toFail(messageCode, message);
-	}
 	public void toBreak(Integer messageCode, String message) {
 		this.status = STATUS_SUC_BREAK;
 		super.toSuccess(messageCode, message);

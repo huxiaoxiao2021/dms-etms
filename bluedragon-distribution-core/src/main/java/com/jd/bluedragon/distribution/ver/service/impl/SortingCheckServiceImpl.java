@@ -483,7 +483,6 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         }
         
         filterContext.setPackageNum(waybillCache.getQuantity());
-        filterContext.setPackageNum(waybillCache.getQuantity());
         
         // 获取包裹数据
         if (WaybillUtil.isPackageCode(filterContext.getPackageCode())){
