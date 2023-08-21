@@ -15,6 +15,8 @@ public class SendTaskBindQueryReq extends BaseReq implements Serializable {
 
     private String bizId;
 
+    private String detailBizId;
+
     private String vehicleNumber;
 
     public String getBizId() {
@@ -31,5 +33,13 @@ public class SendTaskBindQueryReq extends BaseReq implements Serializable {
 
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public String getDetailBizId() {
+        return detailBizId;
+    }
+
+    public void setDetailBizId(String detailBizId) {
+        this.detailBizId = detailBizId;
     }
 }

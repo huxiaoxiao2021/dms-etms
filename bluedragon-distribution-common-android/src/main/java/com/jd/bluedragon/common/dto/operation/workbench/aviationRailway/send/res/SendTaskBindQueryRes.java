@@ -11,15 +11,26 @@ import java.util.List;
 public class SendTaskBindQueryRes implements Serializable {
 
     private static final long serialVersionUID = 4784612639942744950L;
+    /**
+     * 绑定任务数量
+     */
+    private Integer bindTaskNum;
 
     private List<SendTaskBindQueryDto> sendTaskBindQueryDtoList;
 
+    public Integer getBindTaskNum() {
+        return bindTaskNum;
+    }
 
-    public List<SendTaskBindQueryDto> getSendTaskBindDtoList() {
+    public void setBindTaskNum(Integer bindTaskNum) {
+        this.bindTaskNum = bindTaskNum;
+    }
+
+    public List<SendTaskBindQueryDto> getSendTaskBindQueryDtoList() {
         return sendTaskBindQueryDtoList;
     }
 
-    public void setSendTaskBindDtoList(List<SendTaskBindQueryDto> sendTaskBindQueryDtoList) {
+    public void setSendTaskBindQueryDtoList(List<SendTaskBindQueryDto> sendTaskBindQueryDtoList) {
         this.sendTaskBindQueryDtoList = sendTaskBindQueryDtoList;
     }
 }

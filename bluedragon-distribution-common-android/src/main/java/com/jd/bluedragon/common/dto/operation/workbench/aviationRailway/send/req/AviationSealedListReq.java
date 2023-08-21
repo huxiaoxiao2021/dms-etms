@@ -20,9 +20,10 @@ public class AviationSealedListReq  extends BaseReq implements Serializable {
      */
     private String keyword;
     /**
-     * 摆渡任务bizId
+     * 发车摆渡任务bizId
      */
     private String sendVehicleBizId;
+    private String sendVehicleDetailBizId;
     /**
      * 摆渡车牌号
      */
@@ -66,5 +67,13 @@ public class AviationSealedListReq  extends BaseReq implements Serializable {
 
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
+    }
+
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
     }
 }

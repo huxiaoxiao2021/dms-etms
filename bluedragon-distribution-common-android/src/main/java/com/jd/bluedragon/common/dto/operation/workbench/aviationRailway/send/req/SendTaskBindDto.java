@@ -14,6 +14,10 @@ public class SendTaskBindDto implements Serializable {
 
     private String bizId;
     private String detailBizId;
+    /**
+     * 航班号
+     */
+    private String flightNumber;
 
     public String getBizId() {
         return bizId;
@@ -29,5 +33,13 @@ public class SendTaskBindDto implements Serializable {
 
     public void setDetailBizId(String detailBizId) {
         this.detailBizId = detailBizId;
+    }
+
+    public String getFlightNumber() {
+        return flightNumber;
+    }
+
+    public void setFlightNumber(String flightNumber) {
+        this.flightNumber = flightNumber;
     }
 }

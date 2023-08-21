@@ -13,7 +13,14 @@ public class ShuttleSendTaskDto implements Serializable {
 
     private String bizId;
 
+    private String detailBizId;
+
     private String vehicleNumber;
+
+    private Integer nextSiteId;
+
+    private String nextSiteName;
+
     /**
      * 任务数
      */
@@ -23,6 +30,7 @@ public class ShuttleSendTaskDto implements Serializable {
      */
     private Integer totalItemNum;
 
+
     public String getBizId() {
         return bizId;
     }
@@ -31,12 +39,36 @@ public class ShuttleSendTaskDto implements Serializable {
         this.bizId = bizId;
     }
 
+    public String getDetailBizId() {
+        return detailBizId;
+    }
+
+    public void setDetailBizId(String detailBizId) {
+        this.detailBizId = detailBizId;
+    }
+
     public String getVehicleNumber() {
         return vehicleNumber;
     }
 
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public Integer getNextSiteId() {
+        return nextSiteId;
+    }
+
+    public void setNextSiteId(Integer nextSiteId) {
+        this.nextSiteId = nextSiteId;
+    }
+
+    public String getNextSiteName() {
+        return nextSiteName;
+    }
+
+    public void setNextSiteName(String nextSiteName) {
+        this.nextSiteName = nextSiteName;
     }
 
     public Integer getTaskNum() {

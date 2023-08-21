@@ -24,6 +24,7 @@ public class SendTaskBindReq extends BaseReq implements Serializable {
     private List<SendTaskBindDto> sendTaskBindDtoList;
     /**
      * 绑定业务类型（服务端默认）
+     * TaskBindTypeEnum
      */
     private Integer type;
 

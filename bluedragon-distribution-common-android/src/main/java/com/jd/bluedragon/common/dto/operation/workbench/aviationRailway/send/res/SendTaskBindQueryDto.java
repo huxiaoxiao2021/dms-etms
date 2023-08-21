@@ -18,6 +18,39 @@ public class SendTaskBindQueryDto implements Serializable {
      */
     private String flightNumber;
 
+    private Double weight;
+
+    private Double volume;
+    /**
+     * 件数
+     */
+    private Integer itemNum;
+    /**
+     * 运力编码
+     */
+    private String transportCode;
+    /**
+     * 标准发车时间
+     */
+    private Long departureTime;
+    private String departureTimeStr;
+    /**
+     * 目的分拣中心
+     */
+    private Integer nextSiteId;
+    private String nextSiteName;
+    /**
+     * 货物类型
+     * CargoTypeEnum
+     */
+    private Integer cargoType;
+    /**
+     * 航空类型
+     * AirTypeEnum
+     */
+    private Integer airType;
+
+
     public String getBindBizId() {
         return bindBizId;
     }
@@ -40,5 +73,85 @@ public class SendTaskBindQueryDto implements Serializable {
 
     public void setFlightNumber(String flightNumber) {
         this.flightNumber = flightNumber;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
+    }
+
+    public Integer getItemNum() {
+        return itemNum;
+    }
+
+    public void setItemNum(Integer itemNum) {
+        this.itemNum = itemNum;
+    }
+
+    public String getTransportCode() {
+        return transportCode;
+    }
+
+    public void setTransportCode(String transportCode) {
+        this.transportCode = transportCode;
+    }
+
+    public Long getDepartureTime() {
+        return departureTime;
+    }
+
+    public void setDepartureTime(Long departureTime) {
+        this.departureTime = departureTime;
+    }
+
+    public String getDepartureTimeStr() {
+        return departureTimeStr;
+    }
+
+    public void setDepartureTimeStr(String departureTimeStr) {
+        this.departureTimeStr = departureTimeStr;
+    }
+
+    public Integer getNextSiteId() {
+        return nextSiteId;
+    }
+
+    public void setNextSiteId(Integer nextSiteId) {
+        this.nextSiteId = nextSiteId;
+    }
+
+    public String getNextSiteName() {
+        return nextSiteName;
+    }
+
+    public void setNextSiteName(String nextSiteName) {
+        this.nextSiteName = nextSiteName;
+    }
+
+    public Integer getCargoType() {
+        return cargoType;
+    }
+
+    public void setCargoType(Integer cargoType) {
+        this.cargoType = cargoType;
+    }
+
+    public Integer getAirType() {
+        return airType;
+    }
+
+    public void setAirType(Integer airType) {
+        this.airType = airType;
     }
 }

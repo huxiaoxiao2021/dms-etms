@@ -800,7 +800,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             queryDto.setBindDetailBizId(entity.getBookingCode());
             sendTaskBindQueryDtoList.add(queryDto);
         });
-        resData.setSendTaskBindDtoList(sendTaskBindQueryDtoList);
+        resData.setSendTaskBindQueryDtoList(sendTaskBindQueryDtoList);
         return res;
     }
 
