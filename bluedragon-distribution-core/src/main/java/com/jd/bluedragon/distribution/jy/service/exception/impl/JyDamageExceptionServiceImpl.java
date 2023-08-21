@@ -153,31 +153,13 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      */
     private boolean checkDamageChangePackageRepair(String waybillCode) {
 
-        //获取增值服务信息
-        BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
-        logger.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
-        if (baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null) {
-            logger.warn("运单{}获取增值服务信息失败!", waybillCode);
-            return false;
-        }
-        List<WaybillVasDto> waybillVas = baseEntity.getData();
-        //校验是否是特安单
-        if (BusinessHelper.matchWaybillVasDto(Constants.TE_AN_SERVICE, waybillVas)) {
-            logger.warn("特安单!-{}", waybillCode);
-            return false;
-        }
 
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
         if (waybill == null) {
             logger.warn("运单{}获取运单信息失败!", waybillCode);
             return false;
         }
-        //校验是否是医药单
-        if (BusinessHelper.matchWaybillVasDto(Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY, waybillVas)
-                || BusinessUtil.isBMedicine(waybill.getWaybillSign())) {
-            logger.info("医药单!-{}", waybillCode);
-            return false;
-        }
+
         //自营生鲜运单判断
         if (BusinessUtil.isSelf(waybill.getWaybillSign())) {
             if (BusinessUtil.isSelfSX(waybill.getSendPay())) {
@@ -187,6 +169,24 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         } else {//外单
             if (BusinessUtil.isNotSelfSX(waybill.getWaybillSign())) {
                 logger.info("外单生鲜运单-{}",waybillCode);
+                return false;
+            }
+        }
+
+        //获取增值服务信息
+        BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+        logger.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{},运单号：{}", JsonHelper.toJson(baseEntity),waybillCode);
+        if (baseEntity != null && !CollectionUtils.isEmpty(baseEntity.getData())) {
+            List<WaybillVasDto> waybillVas = baseEntity.getData();
+            //校验是否是特安单
+            if (BusinessHelper.matchWaybillVasDto(Constants.TE_AN_SERVICE, waybillVas)) {
+                logger.warn("特安单!-{}", waybillCode);
+                return false;
+            }
+            //校验是否是医药单
+            if (BusinessHelper.matchWaybillVasDto(Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY, waybillVas)
+                    || BusinessUtil.isBMedicine(waybill.getWaybillSign())) {
+                logger.info("医药单!-{}", waybillCode);
                 return false;
             }
         }
