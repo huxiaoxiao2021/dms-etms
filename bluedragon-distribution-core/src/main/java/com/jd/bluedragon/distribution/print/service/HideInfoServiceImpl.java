@@ -214,8 +214,10 @@ public class HideInfoServiceImpl implements HideInfoService{
             if(consignerTel.length() > StringHelper.LANDLINE_NUMBER ){
                 waybill.setConsignerTel(consignerTel.substring(0,StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE +
                         consignerTel.substring(consignerTel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
-            }else{
+            }else if (consignerTel.length() > StringHelper.LANDLINE_FIRST_NUMBER) {
                 waybill.setConsignerTel(StringHelper.SMILE + consignerTel.substring(StringHelper.LANDLINE_FIRST_NUMBER));
+            }else{
+                waybill.setConsignerTel(StringHelper.SMILE);
             }
         }
 
@@ -225,8 +227,10 @@ public class HideInfoServiceImpl implements HideInfoService{
             if(consignerMobile.length() > StringHelper.LANDLINE_NUMBER ){
                 waybill.setConsignerMobile(consignerMobile.substring(0,StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE +
                         consignerMobile.substring(consignerMobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
-            }else{
+            }else if (consignerMobile.length() > StringHelper.LANDLINE_FIRST_NUMBER) {
                 waybill.setConsignerMobile(StringHelper.SMILE + consignerMobile.substring(StringHelper.LANDLINE_FIRST_NUMBER));
+            }else{
+                waybill.setConsignerMobile(StringHelper.SMILE);
             }
         }
 
