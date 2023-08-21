@@ -11,9 +11,10 @@ public enum CustomerReturnResultEnum {
     REPARI_DOWN(1,"","修复下传"),
     DIRECT_DOWN_1(2,"354","直接下传"),
     DIRECT_DOWN_2(2,"355","直接下传"),
-    CHANGE_PACKAGE_DOWN(3,"351","更换包装下传"),
+    CHANGE_PACKAGE_DOWN(3,"356","更换包装下传"),
     SCRAPPED(4,"353","报废"),
-    REVERSE_FALLBACK(5,"352","逆向退回");
+    REVERSE_FALLBACK_1(5,"352","逆向退回"),
+    REVERSE_FALLBACK_2(5,"350","逆向退回");
 
     private Integer type;
 
