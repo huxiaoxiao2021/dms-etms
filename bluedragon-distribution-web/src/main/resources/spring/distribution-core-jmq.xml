@@ -891,7 +891,7 @@
     <!-- 异常-破损数据通知客服 -->
     <bean id="dmsDamageNoticeKFProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.exception.damageNoticKF}"/>
-        <property name="timeout" value="1000"/>
+        <property name="timeout" value="3000"/>
     </bean>
 
 </beans>
