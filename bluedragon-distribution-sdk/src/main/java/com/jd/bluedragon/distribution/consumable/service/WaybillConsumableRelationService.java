@@ -63,5 +63,9 @@ public interface WaybillConsumableRelationService extends Service<WaybillConsuma
 
     void updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto);
 
+    WaybillConsumableRelation findByWaybillCodeAndConsumableCode(WaybillConsumableRelation waybillConsumableRelation);
+
+    void updateByWaybillCodeAndConsumableCode(WaybillConsumableRelation waybillConsumableRelation);
+
     List<WaybillConsumableRelation> convert2WaybillConsumableRelation(ReceivePackingConsumableDto packingConsumableDto);
 }

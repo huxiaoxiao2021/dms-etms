@@ -122,6 +122,16 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
 	}
 
 	@Override
+	public WaybillConsumableRelation findByWaybillCodeAndConsumableCode(WaybillConsumableRelation waybillConsumableRelation) {
+		return waybillConsumableRelationDao.findByWaybillCodeAndConsumableCode(waybillConsumableRelation);
+	}
+
+	@Override
+	public void updateByWaybillCodeAndConsumableCode(WaybillConsumableRelation waybillConsumableRelation) {
+		waybillConsumableRelationDao.updateByWaybillCodeAndConsumableCode(waybillConsumableRelation);
+	}
+
+	@Override
 	public List<WaybillConsumableRelation> convert2WaybillConsumableRelation(ReceivePackingConsumableDto packingConsumableDto) {
 		List<BoxChargeDetail> boxChargeDetails = packingConsumableDto.getBoxChargeDetails();
 		if(CollectionUtils.isEmpty(boxChargeDetails)){

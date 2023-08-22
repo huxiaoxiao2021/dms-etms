@@ -3,23 +3,26 @@ package com.jd.bluedragon.distribution.consumer.packingConsumable;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -36,6 +39,13 @@ import java.util.List;
 @Slf4j
 public class CPackingConsumableConsumer extends MessageBaseConsumer {
 
+    /**
+     * 快递包装耗材锁前缀
+     */
+    public static final String CPACK_CONSUMABLE_LOCK_PREFIX = "CPACK_CONSUMABLE_LOCK_";
+
+    private final static int LOCK_TIME = 60;
+
     @Autowired
     private WaybillConsumableRecordService waybillConsumableRecordService;
 
@@ -46,7 +56,8 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private RedisCommonUtil redisCommonUtil;
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
     @Override
     @JProfiler(jKey = "CPackingConsumableConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -98,25 +109,42 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
             }
         }
 
-        WaybillConsumableRecord oldRecord = waybillConsumableRecordService.queryOneByWaybillCode(packingConsumableDto.getWaybillCode());
-        if(oldRecord != null && oldRecord.getId() != null){
-            log.warn("包装耗材，重复的运单号：{}" , message.getText());
-            return;
-        }
+        try {
+            // 运单维度加锁
+            if (!lock(packingConsumableDto.getWaybillCode())) {
+                throw new JyBizException("快递包装耗材消费获取锁失败");
+            }
 
-        /* 保存主表 */
-        WaybillConsumableRecord waybillConsumableRecord = waybillConsumableRecordService.convert2WaybillConsumableRecord(packingConsumableDto);
-        if (isNeedConfirmConsumable(packingConsumableDto)) {
-            waybillConsumableRecord.setConfirmStatus(WaybillConsumableRecordService.TREATED_STATE);
-            waybillConsumableRecord.setConfirmUserErp(waybillConsumableRecord.getReceiveUserErp());//此处是操作人id，来源于终端的entryId
-            waybillConsumableRecord.setConfirmUserName(waybillConsumableRecord.getReceiveUserName());
-        }
-        waybillConsumableRecordService.saveOrUpdate(waybillConsumableRecord);
+            /* 保存主表 */
+            WaybillConsumableRecord waybillConsumableRecord = waybillConsumableRecordService.convert2WaybillConsumableRecord(packingConsumableDto);
+            if (isNeedConfirmConsumable(packingConsumableDto)) {
+                waybillConsumableRecord.setConfirmStatus(WaybillConsumableRecordService.TREATED_STATE);
+                waybillConsumableRecord.setConfirmUserErp(waybillConsumableRecord.getReceiveUserErp());//此处是操作人id，来源于终端的entryId
+                waybillConsumableRecord.setConfirmUserName(waybillConsumableRecord.getReceiveUserName());
+            }
+            WaybillConsumableRecord oldRecord = waybillConsumableRecordService.queryOneByWaybillCode(packingConsumableDto.getWaybillCode());
+            if (oldRecord == null) {
+                waybillConsumableRecordService.saveOrUpdate(waybillConsumableRecord);
+            } else {
+                waybillConsumableRecordService.updateByCondition(waybillConsumableRecord);
+            }
 
-        /* 保存明细表 */
-        List<WaybillConsumableRelation> waybillConsumableRelationLst = waybillConsumableRelationService.convert2WaybillConsumableRelation(packingConsumableDto);
-        if (CollectionUtils.isNotEmpty(waybillConsumableRelationLst)) {
-            waybillConsumableRelationService.batchAdd(waybillConsumableRelationLst);
+            /* 保存明细表 */
+            List<WaybillConsumableRelation> waybillConsumableRelationLst = waybillConsumableRelationService.convert2WaybillConsumableRelation(packingConsumableDto);
+            if (CollectionUtils.isNotEmpty(waybillConsumableRelationLst)) {
+                for (WaybillConsumableRelation relation : waybillConsumableRelationLst) {
+                    WaybillConsumableRelation oldRelation = waybillConsumableRelationService.findByWaybillCodeAndConsumableCode(relation);
+                    if (oldRelation == null) {
+                        waybillConsumableRelationService.saveOrUpdate(relation);
+                    } else {
+                        if (relation.getReceiveQuantity() != null && relation.getReceiveQuantity() > 0) {
+                            waybillConsumableRelationService.updateByWaybillCodeAndConsumableCode(relation);
+                        }
+                    }
+                }
+            }
+        } finally {
+            unLock(packingConsumableDto.getWaybillCode());
         }
     }
 
@@ -137,6 +165,30 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
             }
         }
         return true;
+    }
+
+    private boolean lock(String waybillCode) {
+        String lockKey = CPACK_CONSUMABLE_LOCK_PREFIX + waybillCode;
+        log.info("快递包装耗材消费开始获取锁lockKey={}", lockKey);
+        try {
+            if (!jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, LOCK_TIME, TimeUnit.SECONDS)) {
+                Thread.sleep(100);
+                return jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, LOCK_TIME, TimeUnit.SECONDS);
+            }
+        } catch (Exception e) {
+            log.error("快递包装耗材消费lock异常:sourceBizId={},e=", waybillCode, e);
+            jimdbCacheService.del(lockKey);
+        }
+        return true;
+    }
+
+    private void unLock(String waybillCode) {
+        try {
+            String lockKey = CPACK_CONSUMABLE_LOCK_PREFIX + waybillCode;
+            jimdbCacheService.del(lockKey);
+        } catch (Exception e) {
+            log.error("快递包装耗材消费unLock异常:waybillCode={},e=", waybillCode, e);
+        }
     }
 
 }

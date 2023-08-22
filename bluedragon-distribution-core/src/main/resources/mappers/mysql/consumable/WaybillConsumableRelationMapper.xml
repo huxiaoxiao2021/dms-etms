@@ -338,6 +338,14 @@
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 
+	<select id="findByWaybillCodeAndConsumableCode" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation" resultMap="WaybillConsumableRelation">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		waybill_consumable_relation
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR} and consumable_code = #{consumableCode, jdbcType=VARCHAR} and is_delete = 0 limit 1
+	</select>
+
 	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation" resultMap="WaybillConsumableRelation">
 		select 
 		 <include refid="Base_Column_List"/>
@@ -462,5 +470,53 @@
 			waybill_code = #{waybillCode, jdbcType=VARCHAR}
 			and consumable_code = #{consumableCode, jdbcType=VARCHAR}
 			and is_delete = 0
+	</update>
+
+	<update id="updateByWaybillCodeAndConsumableCode" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation">
+		update waybill_consumable_relation
+		<set>
+			<if test="waybillCode != null">
+				waybill_code = #{waybillCode,jdbcType=VARCHAR},
+			</if>
+			<if test="consumableCode != null">
+				consumable_code = #{consumableCode,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveQuantity != null">
+				receive_quantity = #{receiveQuantity,jdbcType=DOUBLE},
+			</if>
+			<if test="confirmQuantity != null">
+				confirm_quantity = #{confirmQuantity,jdbcType=DOUBLE},
+			</if>
+			<if test="confirmVolume != null">
+				confirm_volume = #{confirmVolume,jdbcType=DOUBLE},
+			</if>
+			<if test="operateUserCode != null">
+				operate_user_code = #{operateUserCode,jdbcType=VARCHAR},
+			</if>
+			<if test="operateUserErp != null">
+				operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
+			</if>
+			<if test="packUserErp != null">
+				pack_user_erp = #{packUserErp,jdbcType=VARCHAR},
+			</if>
+			<if test="operateTime != null">
+				operate_time = #{operateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDelete != null">
+				is_delete = #{isDelete,jdbcType=TINYINT},
+			</if>
+			<if test="ts != null">
+				ts = #{ts,jdbcType=TIMESTAMP}
+			</if>
+		</set>
+		where waybill_code = #{waybillCode, jdbcType=VARCHAR}
+	    and consumable_code = #{consumableCode, jdbcType=VARCHAR}
+		and is_delete = 0
 	</update>
 </mapper>
