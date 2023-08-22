@@ -42,6 +42,13 @@ public interface JyAviationRailwaySendSealGatewayService {
      */
     JdCResponse<AviationToSealAndSealedListRes> pageFetchAviationToSealAndSealedList(AviationSendTaskSealListReq request);
     /**
+     * 航空已封列表查询
+     * （仅列表查询，不含统计、条件查询， 使用场景：：用于摆渡绑定航空任务继续添加时查询待添加的已封航空任务列表）
+     * @param request
+     * @return
+     */
+    JdCResponse<AviationSealedListRes> pageFetchAviationSealedList(AviationSealedListReq request);
+    /**
      * 列表查询筛选条件查询
      * @param request
      * @return
@@ -93,7 +100,6 @@ public interface JyAviationRailwaySendSealGatewayService {
     JdCResponse<Void> sendTaskUnbinding(SendTaskUnbindReq request);
 
     /**
-     * todo zcf
      * 查询摆渡发货任务上绑定的航空发货任务
      * @param request
      * @return

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntityQueryCondition;
 
 import java.util.List;
 
@@ -21,4 +22,6 @@ public interface JyBizTaskBindService {
     void taskBinding(List<JyBizTaskBindEntity> jyBizTaskBindEntityList);
 
     void taskUnbinding(JyBizTaskBindEntity entity);
+
+    List<JyBizTaskBindEntity> queryBindTaskList(JyBizTaskBindEntityQueryCondition condition);
 }

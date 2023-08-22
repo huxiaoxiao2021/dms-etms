@@ -64,11 +64,11 @@
         select <include refid="Base_Column_List" />
         from jy_biz_task_bind
         where
-        and bind_detail_biz_id in
-        <foreach collection="bindDetailBizIdList" separator="," open="(" close=")" item="item">
-            #{item}
-        </foreach>
-        <include refid="Base_Condition_Sql" />
+            bind_detail_biz_id in
+            <foreach collection="bindDetailBizIdList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+            <include refid="Base_Condition_Sql" />
     </select>
 
     <update id="taskUnbinding" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntity" >
@@ -84,9 +84,23 @@
     </update>
 
 
+    <select id="queryBindTaskList" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntityQueryCondition"
+            resultMap="BaseResultMap" >
+        select
+            <include refid="Base_Column_List" />
+        from
+            jy_biz_task_bind
+        where
+            biz_id = #{bizId}
+            <if test="operateSiteCode != null" >
+                operate_site_code,
+            </if>
+            <include refid="Base_Condition_Sql" />
+        limit #{limit}
+    </select>
 
 
-    <!--    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
+            <!--    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--        select-->
 <!--        <include refid="Base_Column_List" />-->
 <!--        from jy_biz_task_bind-->

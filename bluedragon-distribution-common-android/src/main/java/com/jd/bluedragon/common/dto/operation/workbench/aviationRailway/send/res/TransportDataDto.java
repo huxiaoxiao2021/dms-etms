@@ -22,6 +22,18 @@ public class TransportDataDto implements Serializable {
      */
     private Boolean focusFlag;
 
+    /**
+     * 线路类型
+     *
+     */
+    private Integer transType;
+
+    private String transTypeName;
+    /**
+     * 运输方式
+     */
+    private Integer transWay;
+
     public String getTransportCode() {
         return transportCode;
     }
@@ -52,5 +64,28 @@ public class TransportDataDto implements Serializable {
 
     public void setDepartureTimeStr(String departureTimeStr) {
         this.departureTimeStr = departureTimeStr;
+    }
+
+    public Integer getTransType() {
+        return transType;
+    }
+    public void setTransType(Integer transType) {
+        this.transType = transType;
+    }
+
+    public String getTransTypeName() {
+        return transTypeName;
+    }
+
+    public void setTransTypeName(String transTypeName) {
+        this.transTypeName = transTypeName;
+    }
+
+    public Integer getTransWay() {
+        return transWay;
+    }
+
+    public void setTransWay(Integer transWay) {
+        this.transWay = transWay;
     }
 }

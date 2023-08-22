@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizSendTaskAssociationDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
@@ -125,6 +126,15 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public Integer countByCondition(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList, List<Integer> statuses) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
+        if (entity.getLineType() != null) {
+            List<Integer> lineType = new ArrayList<>();
+            if (JyLineTypeEnum.TRUNK_LINE.getCode().equals(entity.getLineType())
+                    ||JyLineTypeEnum.BRANCH_LINE.getCode().equals(entity.getLineType())){
+                lineType.add(JyLineTypeEnum.OTHER.getCode());
+            }
+            lineType.add(entity.getLineType());
+            params.put("lineTypeList", lineType.toArray());
+        }
         if(sendVehicleBizList != null && sendVehicleBizList.size() > 0){
             params.put("sendVehicleBizList", sendVehicleBizList.toArray());
         }
@@ -216,4 +226,17 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         }
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBookingCode", entity);
     }
+
+
+    public Integer countDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countDetailSendTaskByCondition", entity);
+    }
+    public  List<JyBizSendTaskAssociationDto>  pageFindDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity, Integer offset, Integer limit) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        params.put("offset", offset);
+        params.put("limit", limit);
+        return this.getSqlSession().selectList(NAMESPACE + ".pageFindDetailSendTaskByCondition", entity);
+    }
+
 }

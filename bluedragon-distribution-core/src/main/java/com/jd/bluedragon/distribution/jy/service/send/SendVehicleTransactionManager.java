@@ -21,9 +21,11 @@ import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
+import com.jd.bluedragon.distribution.jy.service.summary.JyStatisticsSummaryService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
@@ -100,6 +102,12 @@ public class SendVehicleTransactionManager {
 
     @Autowired
     private JyBizTaskSendAviationPlanService jyBizTaskSendAviationPlanService;
+
+    @Autowired
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
+
+    @Autowired
+    private JyStatisticsSummaryService statisticsSummaryService;
 
 
 
@@ -248,6 +256,34 @@ public class SendVehicleTransactionManager {
             }
         }
 
+        return true;
+    }
+
+
+    /**
+     * 更新发货任务状态--航空类型发货任务
+     * @param taskSend
+     * @param sendDetail
+     * @param updateStatus
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.updateAviationTaskStatus",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean updateAviationTaskStatus(JyBizTaskSendAviationPlanEntity aviationPlanEntity,
+                                            JyBizTaskSendVehicleEntity taskSend,
+                                            JyBizTaskSendVehicleDetailEntity sendDetail,
+                                            JyStatisticsSummaryEntity summaryEntity,
+                                            JyBizTaskSendDetailStatusEnum updateStatus) {
+        //
+        sendVehicleTransactionManager.updateTaskStatus(taskSend, sendDetail, updateStatus);
+        //
+        jyBizTaskSendAviationPlanService.updateStatus(aviationPlanEntity);
+
+        if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(updateStatus)) {
+            //封车节点做数据汇总
+            statisticsSummaryService.insertSelective(summaryEntity);
+        }
         return true;
     }
 

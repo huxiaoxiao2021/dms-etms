@@ -51,6 +51,10 @@ public class AviationSealListDto implements Serializable {
      * 运力编码
      */
     private String transportCode;
+    /**
+     * 绑定标识
+     */
+    private Boolean bindFlag;
 
 
     public String getBizId() {
@@ -155,5 +159,13 @@ public class AviationSealListDto implements Serializable {
 
     public void setTransportCode(String transportCode) {
         this.transportCode = transportCode;
+    }
+
+    public Boolean getBindFlag() {
+        return bindFlag;
+    }
+
+    public void setBindFlag(Boolean bindFlag) {
+        this.bindFlag = bindFlag;
     }
 }

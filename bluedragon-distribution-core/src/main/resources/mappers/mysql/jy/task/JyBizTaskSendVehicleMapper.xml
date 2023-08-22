@@ -46,6 +46,21 @@
         <result property="total" column="total"/>
     </resultMap>
 
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.dto.send.JyBizSendTaskAssociationDto" id="jyBizSendTaskAssociationDto">
+        <result property="transWorkCode" column="trans_work_code"/>
+        <result property="vehicleNumber" column="vehicle_number"/>
+        <result property="lastPlanDepartTime" column="last_plan_depart_time"/>
+        <result property="sendVehicleBizId" column="send_vehicle_biz_id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="transWorkItemCode" column="trans_work_item_code"/>
+        <result property="vehicleStatus" column="vehicle_status"/>
+        <result property="startSiteId" column="start_site_id"/>
+        <result property="startSiteName" column="start_site_name"/>
+        <result property="endSiteId" column="end_site_id"/>
+        <result property="endSiteName" column="end_site_name"/>
+    </resultMap>
+
     <!-- todo 空铁需求：2023.08.07 发货表增加类型字段task_type（默认100：表示发车任务）， 根据业务场景使用不同类型隔离数据-->
     <!-- todo 所有非指定bizId、非指定ID操作 都添加任务类型过滤，不同类型发货任务数据隔离  JySendTaskTypeEnum-->
     <!-- todo 空铁需求上线前历史任务都是发车任务，发车任务查询条件过滤必须添加类型过滤  -->
@@ -868,4 +883,84 @@
             and yn = #{yn}
         limit 1
     </select>
+
+
+    <select id="pageFindDetailSendTaskByCondition" resultMap="jyBizSendTaskAssociationDto">
+        SELECT
+        m.trans_work_code,m.vehicle_number,m.last_plan_depart_time
+        d.send_vehicle_biz_id,d.biz_id,d.trans_work_item_code,d.vehicle_status,
+        d.start_site_id,d.start_site_name,d.end_site_id,d.end_site_name
+        FROM
+        jy_biz_task_send_vehicle m
+        INNER JOIN jy_biz_task_send_vehicle_detail d
+        ON m.biz_id = d.send_vehicle_biz_id
+        WHERE
+        m.yn = 1
+        AND m.task_type = 100 <!-- 仅过滤发车任务 -->
+        AND m.manual_created_flag = 0
+        AND m.line_type in
+        <foreach collection="entity.lineTypeList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+        <if test="entity.bizIdList != null and entity.bizIdList.size() > 0">
+            AND m.biz_id IN
+            <foreach collection="entity.bizIdList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <!-- detail -->
+        AND d.yn = 1
+        AND d.start_site_id = #{statusList.startSiteId}
+        AND d.vehicle_status IN
+        <foreach collection="entity.statusList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+        and d.excep_label =0
+
+        GROUP BY
+        d.send_vehicle_biz_id, d.biz_id
+        ORDER BY
+        m.last_plan_depart_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+
+
+    <select id="countDetailSendTaskByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM (
+        SELECT
+        d.send_vehicle_biz_id, d.biz_id
+        FROM
+        jy_biz_task_send_vehicle m
+        INNER JOIN jy_biz_task_send_vehicle_detail d
+        ON m.biz_id = d.send_vehicle_biz_id
+        WHERE
+        m.yn = 1
+        AND m.task_type = 100 <!-- 仅过滤发车任务 -->
+        AND m.manual_created_flag = 0
+        AND m.line_type in
+        <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+        <if test="bizIdList != null and bizIdList.size() > 0">
+            AND m.biz_id IN
+            <foreach collection="bizIdList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <!-- detail -->
+        AND d.yn = 1
+        AND d.start_site_id = #{startSiteId}
+        AND d.vehicle_status IN
+        <foreach collection="statuses" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+        and d.excep_label =0
+        GROUP BY
+        d.send_vehicle_biz_id, d.biz_id
+        ) t
+    </select>
+
+
 </mapper>

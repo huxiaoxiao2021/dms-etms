@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizSendTaskAssociationDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
@@ -178,4 +179,17 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
     JyBizTaskSendVehicleEntity findByBookingCodeIgnoreYn(String bookingCode);
+
+    /**
+     * 关联查询，查询条件内子任务数量
+     * @param entity
+     * @return
+     */
+    Integer countDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity);
+    /**
+     * 关联查询，查询符合条件的子任务信息
+     * @param entity
+     * @return
+     */
+    List<JyBizSendTaskAssociationDto> pageFindDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity, Integer pageNo, Integer pageSize);
 }

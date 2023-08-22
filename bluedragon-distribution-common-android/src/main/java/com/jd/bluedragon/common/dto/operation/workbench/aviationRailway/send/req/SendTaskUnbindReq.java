@@ -16,6 +16,7 @@ public class SendTaskUnbindReq extends BaseReq implements Serializable {
      * 被绑定任务bizId
      */
     private String bizId;
+    private String detailBizId;
     /**
      * 需解绑的任务信息
      */
@@ -23,6 +24,7 @@ public class SendTaskUnbindReq extends BaseReq implements Serializable {
     private String unbindDetailBizId;
     /**
      * 绑定业务类型（服务端默认）
+     * TaskBindTypeEnum
      */
     private Integer type;
 
@@ -57,5 +59,13 @@ public class SendTaskUnbindReq extends BaseReq implements Serializable {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public String getDetailBizId() {
+        return detailBizId;
+    }
+
+    public void setDetailBizId(String detailBizId) {
+        this.detailBizId = detailBizId;
     }
 }

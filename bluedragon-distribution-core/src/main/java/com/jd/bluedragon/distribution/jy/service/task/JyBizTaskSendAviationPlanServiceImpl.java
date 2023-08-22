@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition;
 import com.jd.bluedragon.utils.NumberHelper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,14 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     }
 
     @Override
+    public List<JyBizTaskSendAviationPlanEntity> findByBizIdList(List<String> bizIdList) {
+        if(CollectionUtils.isEmpty(bizIdList)) {
+            return null;
+        }
+        return jyBizTaskSendAviationPlanDao.findByBizIdList(bizIdList);
+    }
+
+    @Override
     public int updateByBizId(JyBizTaskSendAviationPlanEntity entity) {
         if(Objects.isNull(entity)) {
             return 0;
@@ -59,9 +68,9 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     }
 
     @Override
-    public Boolean aviationPlanIntercept(String bizId) {
+    public boolean aviationPlanIntercept(String bizId) {
         if(StringUtils.isBlank(bizId)) {
-            return null;
+            return false;
         }
         if(aviationPlanCacheService.existCacheAviationPlanCancel(bizId)) {
             return true;
@@ -117,5 +126,8 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
         return jyBizTaskSendAviationPlanDao.pageQueryAviationPlanByCondition(condition);
     }
 
-
+    @Override
+    public int updateStatus(JyBizTaskSendAviationPlanEntity entity) {
+        return jyBizTaskSendAviationPlanDao.updateStatus(entity);
+    }
 }

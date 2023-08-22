@@ -18,11 +18,43 @@ public class ScanAndCheckTransportInfoReq extends BaseReq implements Serializabl
      */
     private String transportCode;
 
+    private String bizId;
+
+    private Integer nextSiteId;
+    /**
+     * SendTaskTypeEnum
+      */
+    private Integer taskType;
+
     public String getTransportCode() {
         return transportCode;
     }
 
     public void setTransportCode(String transportCode) {
         this.transportCode = transportCode;
+    }
+
+    public Integer getNextSiteId() {
+        return nextSiteId;
+    }
+
+    public void setNextSiteId(Integer nextSiteId) {
+        this.nextSiteId = nextSiteId;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 }

@@ -11,6 +11,8 @@ public class JyBizTaskBindEntityQueryCondition extends JyBizTaskBindEntity{
 
     private List<String> bindDetailBizIdList;
 
+    private Integer limit;
+
 
     public List<String> getBindDetailBizIdList() {
         return bindDetailBizIdList;
@@ -18,5 +20,13 @@ public class JyBizTaskBindEntityQueryCondition extends JyBizTaskBindEntity{
 
     public void setBindDetailBizIdList(List<String> bindDetailBizIdList) {
         this.bindDetailBizIdList = bindDetailBizIdList;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
     }
 }
