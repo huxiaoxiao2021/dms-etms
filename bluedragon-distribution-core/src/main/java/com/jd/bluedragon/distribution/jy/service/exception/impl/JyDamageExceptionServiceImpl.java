@@ -615,10 +615,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         logger.info("writeToProcessDamage write successfully");
     }
 
-    public static void main(String[] args) {
-
-    }
-
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.processTaskOfDamage", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req) {
@@ -631,7 +627,11 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             if (oldEntity != null) {
                 entity.setId(oldEntity.getId());
             }
-            if (oldEntity == null) this.saveDamage(req, entity, oldEntity);
+            if (oldEntity == null) {
+                oldEntity = new JyExceptionDamageEntity();
+                this.saveDamage(req, entity, oldEntity);
+                return JdCResponse.ok();
+            }
             JyExceptionDamageEnum.FeedBackTypeEnum reqFeedBackTypeEnum = JyExceptionDamageEnum.FeedBackTypeEnum.getEnumByCode(oldEntity.getFeedBackType());
             if (reqFeedBackTypeEnum == null)  return JdCResponse.fail("客服反馈类型匹配失败" + req.getBizId());
             switch (reqFeedBackTypeEnum) {
@@ -872,7 +872,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
         this.copyErpToEntity(baseStaffByErp, entity);
         
-        //
         PositionDetailRecord positionDetail = jyExceptionService.getPosition(req.getPositionCode());
         if (positionDetail == null) {
             throw new RuntimeException("岗位码不能为空!" + req.getUserErp());
