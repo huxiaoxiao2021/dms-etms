@@ -308,8 +308,8 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 return false;
             }
         }else {// 外单 选择外包装破损 -》修复 或者 直接下传 不发送客服
-            updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode());
             if(Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode(), damageEntity.getDamageType())){
+                updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode());
                 //修复
                 if(Objects.equals(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPAIR.getCode(), damageEntity.getRepairType())){
                     updateDamageEntity.setFeedBackType(JyExceptionDamageEnum.FeedBackTypeEnum.REPAIR_HANDOVER.getCode());
