@@ -191,5 +191,14 @@ public class JyExceptionDamageEnum {
             }
             return null;
         }
+        public static FeedBackTypeEnum getEnumByCode(Integer code) {
+            for (FeedBackTypeEnum type : FeedBackTypeEnum.values()) {
+                if (type.getCode().equals(code)) {
+                    return type;
+                }
+            }
+            return null;
+        }
+        
     }
 }
