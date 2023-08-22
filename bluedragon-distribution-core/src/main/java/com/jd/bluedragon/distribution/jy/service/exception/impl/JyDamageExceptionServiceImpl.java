@@ -558,7 +558,15 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Transactional
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.dealCustomerReturnDamageResult", mState = {JProEnum.TP})
     public void dealCustomerReturnDamageResult(JyExpCustomerReturnMQ returnMQ) {
+        
         String bizId = returnMQ.getExptId().split("_", 2)[1];
+        //回传状态
+        String resultType = returnMQ.getResultType();
+        CustomerReturnResultEnum resultEnum = CustomerReturnResultEnum.convertApproveEnum(resultType);
+        if(resultEnum == null){
+            logger.error("此任务-{}-客服返回状态不在处理范围内", bizId);
+            return;
+        }
         JyBizTaskExceptionEntity expTask = jyBizTaskExceptionDao.findByBizId(bizId);
         if (expTask == null) {
             logger.error("此任务-{}-不存在", bizId);
@@ -570,9 +578,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             logger.error("此任务-{}-状态不正确", bizId);
             return;
         }
-        //回传状态
-        String resultType = returnMQ.getResultType();
-        CustomerReturnResultEnum resultEnum = CustomerReturnResultEnum.convertApproveEnum(resultType);
+
         JyExceptionDamageEntity damageEntity = new JyExceptionDamageEntity();
         damageEntity.setBizId(bizId);
         damageEntity.setFeedBackType(resultEnum.getType());

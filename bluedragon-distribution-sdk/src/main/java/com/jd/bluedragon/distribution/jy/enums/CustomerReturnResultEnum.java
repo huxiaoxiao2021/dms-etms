@@ -7,8 +7,6 @@ package com.jd.bluedragon.distribution.jy.enums;
  */
 public enum CustomerReturnResultEnum {
 
-    UNKNOWN(0,"0", "未知"),
-    REPARI_DOWN(1,"","修复下传"),
     DIRECT_DOWN_1(2,"354","直接下传"),
     DIRECT_DOWN_2(2,"355","直接下传"),
     CHANGE_PACKAGE_DOWN(3,"356","更换包装下传"),
@@ -34,7 +32,7 @@ public enum CustomerReturnResultEnum {
                 return temp;
             }
         }
-        return CustomerReturnResultEnum.UNKNOWN;
+        return null;
     }
 
     public String getCode() {
