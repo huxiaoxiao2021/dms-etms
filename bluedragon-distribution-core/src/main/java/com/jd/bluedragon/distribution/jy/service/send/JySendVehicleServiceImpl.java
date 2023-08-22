@@ -4275,6 +4275,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.callByWorkItem", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> callByWorkItem(CallNumberRequest request) {
         InvokeResult<String> result = new InvokeResult<>();
         if (StringUtils.isEmpty(request.getBizId())) {
@@ -4302,7 +4303,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return result;
         }
         if (commonDto.isSuccess()) {
-
+            result.setData(commonDto.getData());
+        } else {
+            result.error(commonDto.getErrorCode());
         }
         return result;
     }
