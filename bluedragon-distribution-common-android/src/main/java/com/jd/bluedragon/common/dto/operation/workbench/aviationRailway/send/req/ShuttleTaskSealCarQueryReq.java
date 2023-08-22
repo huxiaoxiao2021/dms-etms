@@ -18,6 +18,8 @@ public class ShuttleTaskSealCarQueryReq extends BaseReq implements Serializable 
 
     private String detailBizId;
 
+    private String vehicleNumber;
+
 
     public String getBizId() {
         return bizId;
@@ -33,5 +35,13 @@ public class ShuttleTaskSealCarQueryReq extends BaseReq implements Serializable 
 
     public void setDetailBizId(String detailBizId) {
         this.detailBizId = detailBizId;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
     }
 }

@@ -153,15 +153,4 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         return this.getSqlSession().update(NAMESPACE + ".updateStatusByDetailVehicleBizIds", params) > 0;
     }
 
-
-
-    public List<JyBizTaskSendVehicleDetailEntity> findNoSealTaskByBizIds(List<String> bizIds) {
-        if(CollectionUtils.isEmpty(bizIds)) {
-            return null;
-        }
-        JyBizTaskSendVehicleDetailQueryEntity entity = new JyBizTaskSendVehicleDetailQueryEntity();
-        entity.setBizIdList(bizIds);
-        entity.setVehicleStatus(JyBizTaskSendStatusEnum.SEALED.getCode());
-        return this.getSqlSession().selectList(NAMESPACE + ".findNoSealTaskByBizIds", entity);
-    }
 }

@@ -16,6 +16,8 @@ public class JyBizTaskSendAviationPlanQueryCondition extends JyBizTaskSendAviati
 
     private List<Integer> taskStatusList;
 
+    private List<String> bizIdList;
+
     private Integer pageSize;
 
     private Integer offset;
@@ -50,5 +52,13 @@ public class JyBizTaskSendAviationPlanQueryCondition extends JyBizTaskSendAviati
 
     public void setTaskStatusList(List<Integer> taskStatusList) {
         this.taskStatusList = taskStatusList;
+    }
+
+    public List<String> getBizIdList() {
+        return bizIdList;
+    }
+
+    public void setBizIdList(List<String> bizIdList) {
+        this.bizIdList = bizIdList;
     }
 }

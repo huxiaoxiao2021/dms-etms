@@ -28,6 +28,10 @@ public class JyStatisticsSummaryEntity implements Serializable {
 
     private Integer itemNum;
     /**
+     * 托盘数
+     */
+    private Integer palletCount;
+    /**
      * 封车批次号数量
      */
     private Integer sealBatchCodeNum;
@@ -227,5 +231,13 @@ public class JyStatisticsSummaryEntity implements Serializable {
 
     public void setSealBindAviationTaskNum(Integer sealBindAviationTaskNum) {
         this.sealBindAviationTaskNum = sealBindAviationTaskNum;
+    }
+
+    public Integer getPalletCount() {
+        return palletCount;
+    }
+
+    public void setPalletCount(Integer palletCount) {
+        this.palletCount = palletCount;
     }
 }

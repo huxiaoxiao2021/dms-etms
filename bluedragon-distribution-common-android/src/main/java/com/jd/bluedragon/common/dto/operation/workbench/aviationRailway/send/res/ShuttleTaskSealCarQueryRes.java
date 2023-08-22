@@ -12,11 +12,6 @@ public class ShuttleTaskSealCarQueryRes implements Serializable {
 
     private static final long serialVersionUID = 4784612639942744950L;
 
-    private String bizId;
-    private String detailBizId;
-
-    private String vehicleNumber;
-
     private Double weight;
 
     private Double volume;
@@ -43,32 +38,8 @@ public class ShuttleTaskSealCarQueryRes implements Serializable {
     /**
      * 封签码数量
      */
-    private List<String> sealCode;
+    private List<String> sealCodes;
 
-
-    public String getBizId() {
-        return bizId;
-    }
-
-    public void setBizId(String bizId) {
-        this.bizId = bizId;
-    }
-
-    public String getDetailBizId() {
-        return detailBizId;
-    }
-
-    public void setDetailBizId(String detailBizId) {
-        this.detailBizId = detailBizId;
-    }
-
-    public String getVehicleNumber() {
-        return vehicleNumber;
-    }
-
-    public void setVehicleNumber(String vehicleNumber) {
-        this.vehicleNumber = vehicleNumber;
-    }
 
     public Double getWeight() {
         return weight;
@@ -126,11 +97,11 @@ public class ShuttleTaskSealCarQueryRes implements Serializable {
         this.taskNum = taskNum;
     }
 
-    public List<String> getSealCode() {
-        return sealCode;
+    public List<String> getSealCodes() {
+        return sealCodes;
     }
 
-    public void setSealCode(List<String> sealCode) {
-        this.sealCode = sealCode;
+    public void setSealCodes(List<String> sealCodes) {
+        this.sealCodes = sealCodes;
     }
 }

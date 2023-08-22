@@ -12,6 +12,8 @@ public class JyBizTaskBindEntity {
 
     private String bizId;
 
+    private String detailBizId;
+
     private String bindBizId;
 
     private String bindDetailBizId;
@@ -54,6 +56,14 @@ public class JyBizTaskBindEntity {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public String getDetailBizId() {
+        return detailBizId;
+    }
+
+    public void setDetailBizId(String detailBizId) {
+        this.detailBizId = detailBizId;
     }
 
     public String getBindBizId() {

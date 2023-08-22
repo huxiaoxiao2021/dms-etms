@@ -156,11 +156,4 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
     boolean updateStatusByDetailVehicleBizIds(List<String> detailBizList, Integer status);
-
-    /**
-     * 查询未封车bizId
-     * @param bizIds
-     * @return
-     */
-    List<JyBizTaskSendVehicleDetailEntity> findNoSealTaskByBizIds(List<String> bizIds);
 }

@@ -3,10 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.task;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendAviationPlanDao;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition;
+import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.utils.NumberHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -129,5 +126,10 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     @Override
     public int updateStatus(JyBizTaskSendAviationPlanEntity entity) {
         return jyBizTaskSendAviationPlanDao.updateStatus(entity);
+    }
+
+    @Override
+    public List<JyBizTaskSendAviationPlanEntity> findNoSealTaskByBizIds(List<String> bizIds) {
+        return jyBizTaskSendAviationPlanDao.findNoSealTaskByBizIds(bizIds);
     }
 }

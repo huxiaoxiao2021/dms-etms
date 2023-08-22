@@ -311,16 +311,17 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
             //业务参数校验
             if(StringUtils.isBlank(request.getDetailBizId())) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "被绑任务detailBizId为空", null);
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务detailBizId为空", null);
             }
             if(StringUtils.isBlank(request.getBizId())) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "被绑任务bizId为空", null);
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务bizId为空", null);
             }
             if(CollectionUtils.isEmpty(request.getSendTaskBindDtoList())) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "需绑任务信息为空", null);
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "航空任务信息为空", null);
             }
-            if(request.getSendTaskBindDtoList().size() > 100) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "最多绑定100个任务", null);
+            if(request.getSendTaskBindDtoList().size() > JyAviationRailwaySendSealServiceImpl.BIND_TASK_NUM) {
+                String msg = String.format("最多绑定%s个任务", JyAviationRailwaySendSealServiceImpl.BIND_TASK_NUM);
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, msg, null);
             }
             //服务调用
             if(log.isInfoEnabled()) {
@@ -349,10 +350,13 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
             //业务参数校验
             if(StringUtils.isBlank(request.getBizId())) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "被解绑任务bizId为空", null);
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务bizId为空", null);
+            }
+            if(StringUtils.isBlank(request.getBizId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务detailBizId为空", null);
             }
             if(StringUtils.isBlank(request.getUnbindBizId()) || StringUtils.isBlank(request.getUnbindDetailBizId())) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "需解绑任务信息为空", null);
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "航空任务信息为空", null);
             }
             //服务调用
             if(log.isInfoEnabled()) {
@@ -381,7 +385,10 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
             //业务参数校验
             if(StringUtils.isBlank(request.getBizId())) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "发车任务bizId为空", null);
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务bizId为空", null);
+            }
+            if(StringUtils.isBlank(request.getDetailBizId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务detailBizId为空", null);
             }
             //服务调用
             if(log.isInfoEnabled()) {

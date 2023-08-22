@@ -4,6 +4,7 @@
     <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntity" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
+        <result column="detail_biz_id" property="detailBizId" jdbcType="VARCHAR" />
         <result column="bind_biz_id" property="bindBizId" jdbcType="VARCHAR" />
         <result column="bind_detail_biz_id" property="bindDetailBizId" jdbcType="VARCHAR" />
         <result column="operate_site_code" property="operateSiteCode" jdbcType="INTEGER" />
@@ -17,20 +18,20 @@
         <result column="yn" property="yn" jdbcType="INTEGER" />
     </resultMap>
     <sql id="Base_Column_List" >
-        id, biz_id, bind_biz_id, bind_detail_biz_id, operate_site_code, type, create_user_erp,
+        id, biz_id, detail_biz_id, bind_biz_id, bind_detail_biz_id, operate_site_code, type, create_user_erp,
         create_user_name, update_user_erp, update_user_name, create_time, update_time, yn
     </sql>
 
     <!-- 所有where都加 -->
     <sql id="Base_Condition_Sql" >
-        and yn = 1
-        and type = #{type}
+        yn = 1 and type = #{type}
     </sql>
 
 
     <insert id="batchAdd" parameterType="java.util.List">
         insert into jy_biz_task_bind (
         biz_id,
+        detail_biz_id,
         bind_biz_id,
         bind_detail_biz_id,
         operate_site_code,
@@ -44,6 +45,7 @@
         <foreach collection="list" item="item" separator=",">
             (
             #{bizId,jdbcType=VARCHAR},
+            #{detailBizId,jdbcType=VARCHAR},
             #{bindBizId,jdbcType=VARCHAR},
             #{bindDetailBizId,jdbcType=VARCHAR},
             #{operateSiteCode,jdbcType=INTEGER},
@@ -63,12 +65,11 @@
             resultMap="BaseResultMap" >
         select <include refid="Base_Column_List" />
         from jy_biz_task_bind
-        where
-            bind_detail_biz_id in
+        where <include refid="Base_Condition_Sql" />
+            and bind_detail_biz_id in
             <foreach collection="bindDetailBizIdList" separator="," open="(" close=")" item="item">
                 #{item}
             </foreach>
-            <include refid="Base_Condition_Sql" />
     </select>
 
     <update id="taskUnbinding" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntity" >
@@ -77,10 +78,12 @@
             and update_user_erp = #{updateUserErp}
             and update_user_name = #{updateUserName}
             and update_time = #{updateTime}
-        where biz_id = #{bizId}
+        where  <include refid="Base_Condition_Sql" />
+            and biz_id = #{bizId}
+            and detail_biz_id = #{detailBizId}
             and bind_biz_id = #{bindBizId}
             and bind_detail_biz_id = #{bindDetailBizId}
-            <include refid="Base_Condition_Sql" />
+
     </update>
 
 
@@ -90,16 +93,21 @@
             <include refid="Base_Column_List" />
         from
             jy_biz_task_bind
-        where
-            biz_id = #{bizId}
+        where <include refid="Base_Condition_Sql" />
+            and biz_id = #{bizId}
+            and detail_biz_id = #{detailBizId}
             <if test="operateSiteCode != null" >
-                operate_site_code,
+                and operate_site_code = #{operateSiteCode}
             </if>
-            <include refid="Base_Condition_Sql" />
+
         limit #{limit}
     </select>
 
-
+    <!-- 根据条件查询没有绑在bizId中的任务 -->
+    <select id="countBind" parameterType="java.lang.String" resultMap="java.lang.Integer" >
+        select count(*) from jy_biz_task_bind
+        where yn = 1 and detail_biz_id = #{detailBizId}
+    </select>
             <!--    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--        select-->
 <!--        <include refid="Base_Column_List" />-->

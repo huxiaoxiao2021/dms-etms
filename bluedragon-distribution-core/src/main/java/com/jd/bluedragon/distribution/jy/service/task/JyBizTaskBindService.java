@@ -24,4 +24,6 @@ public interface JyBizTaskBindService {
     void taskUnbinding(JyBizTaskBindEntity entity);
 
     List<JyBizTaskBindEntity> queryBindTaskList(JyBizTaskBindEntityQueryCondition condition);
+
+    Integer countBind(String detailBizId);
 }

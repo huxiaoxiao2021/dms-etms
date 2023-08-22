@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 
@@ -67,6 +68,17 @@ public class JyBizTaskSendAviationPlanDao extends BaseDao<JyBizTaskSendAviationP
         return this.getSqlSession().update(NAMESPACE + ".updateStatus", entity);
     }
 
+
+
+    public List<JyBizTaskSendAviationPlanEntity> findNoSealTaskByBizIds(List<String> bizIds) {
+        if(CollectionUtils.isEmpty(bizIds)) {
+            return null;
+        }
+        JyBizTaskSendAviationPlanQueryCondition entity = new JyBizTaskSendAviationPlanQueryCondition();
+        entity.setBizIdList(bizIds);
+//        entity.setTaskStatus(JyBizTaskSendStatusEnum.SEALED.getCode());
+        return this.getSqlSession().selectList(NAMESPACE + ".findNoSealTaskByBizIds", entity);
+    }
 //
 //    JyNizTaskSendAviationPlanEntity selectByPrimaryKey(Long id);
 //

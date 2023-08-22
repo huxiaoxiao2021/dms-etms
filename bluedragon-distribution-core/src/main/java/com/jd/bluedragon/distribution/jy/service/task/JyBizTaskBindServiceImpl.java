@@ -53,4 +53,9 @@ public class JyBizTaskBindServiceImpl implements JyBizTaskBindService {
         }
         return jyBizTaskBindDao.queryBindTaskList(condition);
     }
+
+    @Override
+    public Integer countBind(String detailBizId){
+        return jyBizTaskBindDao.countBind(detailBizId);
+    }
 }

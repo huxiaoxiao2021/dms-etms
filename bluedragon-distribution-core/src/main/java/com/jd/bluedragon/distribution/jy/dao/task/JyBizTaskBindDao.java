@@ -33,6 +33,10 @@ public class JyBizTaskBindDao extends BaseDao<JyBizTaskBindEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".queryBindTaskList", condition);
     }
 
+    public Integer countBind(String detailBizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countBind", detailBizId);
+    }
+
 
 //    public int deleteByPrimaryKey(JyBizTaskBindEntity request){
 //        return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", request);
