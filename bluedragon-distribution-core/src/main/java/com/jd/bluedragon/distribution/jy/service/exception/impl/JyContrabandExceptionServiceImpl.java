@@ -115,9 +115,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         }
         //写运单维度的全程跟踪
         sendWaybillBDTrance(dto, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK,WAYBILL_TRACK_SECURITY_CHECK_DESC);
+        Thread.sleep(5000);
        switch (enumResult){
            case DETAIN_PACKAGE:
-               Thread.sleep(5000);
+
 
                //
 
