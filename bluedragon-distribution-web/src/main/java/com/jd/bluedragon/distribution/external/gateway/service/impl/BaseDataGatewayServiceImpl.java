@@ -15,17 +15,21 @@ import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.voice.request.HintVoiceReq;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceConfig;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceResp;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.BaseDataGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.converter.ResultConverter;
 import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ump.annotation.JProEnum;
@@ -56,6 +60,8 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
 
     @Autowired
     private IHintApiUnwrapManager hintApiUnwrapManager;
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.BaseDataGatewayServiceImpl.getBaseDictionaryTree",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -205,24 +211,52 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
         response.toSucceed();
         Pager<StreamlinedBasicSite> pageData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
         response.setData(pageData);
-        try {
-            request.setSearchVo(JSON.parseObject(JSON.toJSONString(request.getSearchVo()), StreamlinedBasicSiteQuery.class));
-            final Result<Pager<StreamlinedBasicSite>> pagerResult = baseService.selectSiteList(request);
-            if(!pagerResult.isSuccess()){
-                log.warn("BaseService.selectSiteList error " + JsonHelper.toJson(pagerResult));
-                response.toFail("查询站点信息异常");
-                return response;
+        String searchStr = request.getSearchVo().getSearchStr();
+        if (StringHelper.isEmpty(searchStr) && (WaybillUtil.isPackageCode(searchStr) || WaybillUtil.isWaybillCode(searchStr))) {
+            try {
+                if (WaybillUtil.isPackageCode(searchStr)) {
+                    searchStr = WaybillUtil.getWaybillCode(searchStr);
+                }
+                Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(searchStr);
+                convertParam(pageData, waybill);
+            } catch (Exception e) {
+                log.error("BaseDataGatewayServiceImpl.selectSiteList exception ", e);
+                response.toError("该包裹未获取到流向");
             }
-            if (pagerResult.getData() != null) {
-                final Pager<StreamlinedBasicSite> queryPageData = pagerResult.getData();
-                pageData.setData(queryPageData.getData());
-                pageData.setTotal(queryPageData.getTotal());
+        } else {
+            try {
+                request.setSearchVo(JSON.parseObject(JSON.toJSONString(request.getSearchVo()), StreamlinedBasicSiteQuery.class));
+                final Result<Pager<StreamlinedBasicSite>> pagerResult = baseService.selectSiteList(request);
+                if (!pagerResult.isSuccess()) {
+                    log.warn("BaseService.selectSiteList error " + JsonHelper.toJson(pagerResult));
+                    response.toFail("查询站点信息异常");
+                    return response;
+                }
+                if (pagerResult.getData() != null) {
+                    final Pager<StreamlinedBasicSite> queryPageData = pagerResult.getData();
+                    pageData.setData(queryPageData.getData());
+                    pageData.setTotal(queryPageData.getTotal());
+                }
+            } catch (Exception e) {
+                log.error("BaseDataGatewayServiceImpl.selectSiteList exception ", e);
+                response.toError("接口处理异常");
             }
-        } catch (Exception e) {
-            log.error("BaseDataGatewayServiceImpl.selectSiteList exception ", e);
-            response.toError("接口处理异常");
         }
         return response;
+    }
+
+    /**
+     * 返回参数转换
+     * @param pageData
+     * @param waybill
+     */
+    private void convertParam(Pager<StreamlinedBasicSite> pageData, Waybill waybill) {
+        List<StreamlinedBasicSite> StreamlinedBasicSiteList = new ArrayList<>();
+        StreamlinedBasicSite streamlinedBasicSite = new StreamlinedBasicSite();
+        streamlinedBasicSite.setSiteCode(waybill.getSiteId());
+        streamlinedBasicSite.setSiteName(waybill.getSiteName());
+        StreamlinedBasicSiteList.add(streamlinedBasicSite);
+        pageData.setData(StreamlinedBasicSiteList);
     }
 
     @Override

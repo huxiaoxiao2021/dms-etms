@@ -483,6 +483,8 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
                 return queryBoxInnerScanCount(scanRequest, nextSiteCode);
             case BOARD:
                 return queryBoardInnerScanCount(scanRequest, nextSiteCode);
+            case BATCH:
+                return queryBatchInnerScanCount(scanRequest, nextSiteCode);
             default:
                 throw new JyBizException("扫货方式不合法!");
         }
@@ -498,6 +500,28 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         String containerCode = Objects.equals(scanRequest.getScanType(), JyBizStrandScanTypeEnum.PACK.getCode()) 
                 ? scanRequest.getScanBarCode() : waybillCode;
         Integer containerInnerCount = Objects.equals(scanRequest.getScanType(), JyBizStrandScanTypeEnum.PACK.getCode()) 
+                ? Constants.NUMBER_ONE : (waybill.getGoodNumber() == null ? Constants.NUMBER_ZERO : waybill.getGoodNumber());
+        return ImmutablePair.of(containerCode, containerInnerCount);
+    }
+
+    /**
+     * 查询批次扫描件数量
+     * @param scanRequest
+     * @param nextSiteCode
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.queryBatchInnerScanCount",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    private ImmutablePair<String, Integer> queryBatchInnerScanCount(JyStrandReportScanReq scanRequest, Integer nextSiteCode) {
+        String waybillCode = WaybillUtil.getWaybillCode(scanRequest.getScanBarCode());
+        RouteNextDto routeNextDto = routerService.matchRouterNextNode(scanRequest.getSiteCode(), waybillCode);
+        if(routeNextDto == null || !Objects.equals(routeNextDto.getFirstNextSiteId(), nextSiteCode)){
+            throw new JyBizException("批次的目的地和任务流向不一致!");
+        }
+        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+        String containerCode = Objects.equals(scanRequest.getScanType(), JyBizStrandScanTypeEnum.BATCH.getCode())
+                ? scanRequest.getScanBarCode() : waybillCode;
+        Integer containerInnerCount = Objects.equals(scanRequest.getScanType(), JyBizStrandScanTypeEnum.BATCH.getCode())
                 ? Constants.NUMBER_ONE : (waybill.getGoodNumber() == null ? Constants.NUMBER_ZERO : waybill.getGoodNumber());
         return ImmutablePair.of(containerCode, containerInnerCount);
     }
