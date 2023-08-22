@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
@@ -128,4 +129,31 @@ public interface JyAviationRailwaySendSealGatewayService {
      */
     JdCResponse<Void> aviationTaskSealCar(AviationTaskSealCarReq request);
 
+    /**
+     * 发货扫描接口
+     * @param request
+     * @return
+     */
+    JdVerifyResponse<AviationSendScanResp> scan(AviationSendScanReq request);
+
+    /**
+     * 发货任务详情查询
+     * @param request
+     * @return
+     */
+    JdCResponse<AviationSendVehicleProgressResp> getAviationSendVehicleProgress(AviationSendVehicleProgressReq request);
+
+    /**
+     * 异常包裹查询
+     * @param request
+     * @return
+     */
+    JdCResponse<AviationSendAbnormalPackResp> abnormalBarCodeDetail(AviationSendAbnormalPackReq request);
+
+    /**
+     * 发货明细查询
+     * @param request
+     * @return
+     */
+    JdCResponse<AviationBarCodeDetailResp> sendBarCodeDetail(AviationBarCodeDetailReq request);
 }
