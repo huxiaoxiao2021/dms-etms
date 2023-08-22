@@ -93,6 +93,12 @@ public class DmsConstants {
      */
     public static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}10[0-9]{18}[0-3]{1}[0-9]{1}$");
 
+
+    /**
+     * 循环集包袋正则表达式
+     */
+    public static final Pattern RULE_CYCLE_BOX_REGEX = Pattern.compile("^AD(AD|[0-9]{2})[0-9]{12}$");
+
     /**
      * 箱号正则表达式，新开放-德邦的箱号规则
      */
