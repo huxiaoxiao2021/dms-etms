@@ -177,6 +177,9 @@ public interface JySendVehicleGatewayService {
      */
     JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
 
-
+    /**
+     * 运输任务叫号
+     */
+    JdCResponse<String> callByWorkItem(CallNumberRequest request);
 
 }
