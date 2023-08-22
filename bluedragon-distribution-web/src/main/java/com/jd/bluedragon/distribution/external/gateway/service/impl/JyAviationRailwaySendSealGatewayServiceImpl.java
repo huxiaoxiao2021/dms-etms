@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
@@ -391,6 +392,72 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空任务封车服务异常", null);//500+非自定义异常
+        }
+    }
+
+    @Override
+    public JdVerifyResponse<AviationSendScanResp> scan(AviationSendScanReq request) {
+        if(Objects.isNull(request)){
+            return new JdVerifyResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        try{
+            //服务调用
+            if(log.isInfoEnabled()) {
+                log.info("空铁发货岗，发货扫描请求信息={}", JsonHelper.toJson(request));
+            }
+            return jyAviationRailwaySendSealService.scan(request);
+        }catch (Exception ex) {
+            log.error("空铁发货岗，发货扫描执行异常={},errMsg={}", JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdVerifyResponse<>(JdCResponse.CODE_ERROR, "包裹发货异常，请联系分拣小秘！", null);//500+非自定义异常
+        }
+    }
+
+    @Override
+    public JdCResponse<AviationSendVehicleProgressResp> getAviationSendVehicleProgress(AviationSendVehicleProgressReq request) {
+        if(Objects.isNull(request)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        try{
+            if(log.isInfoEnabled()) {
+                log.info("空铁发货岗，发货统计数据请求信息={}", JsonHelper.toJson(request));
+            }
+            return retJdCResponse(jyAviationRailwaySendSealService.getAviationSendVehicleProgress(request));
+        }catch (Exception ex) {
+            log.error("空铁发货岗，统计数据查询异常={},errMsg={}", JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "包裹发货异常，请联系分拣小秘！", null);//500+非自定义异常
+        }   
+    }
+
+    @Override
+    public JdCResponse<AviationSendAbnormalPackResp> abnormalBarCodeDetail(AviationSendAbnormalPackReq request) {
+        if(Objects.isNull(request)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        try{
+            if(log.isInfoEnabled()) {
+                log.info("空铁发货岗，异常发货明细请求信息={}", JsonHelper.toJson(request));
+            }
+            return retJdCResponse(jyAviationRailwaySendSealService.abnormalBarCodeDetail(request));
+        }catch (Exception ex) {
+            log.error("空铁发货岗，异常发货明细请求信息={},errMsg={}", JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询异常发货信息异常！", null);//500+非自定义异常
+        }
+    }
+    
+    @Override
+    public JdCResponse<AviationBarCodeDetailResp> sendBarCodeDetail(AviationBarCodeDetailReq request) {
+        if(Objects.isNull(request)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        try{
+            
+            if(log.isInfoEnabled()) {
+                log.info("空铁发货岗，发货明细请求信息={}", JsonHelper.toJson(request));
+            }
+            return retJdCResponse(jyAviationRailwaySendSealService.sendBarCodeDetail(request));
+        }catch (Exception ex) {
+            log.error("空铁发货岗，发货明细请求信息={},errMsg={}", JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询发货信息异常！", null);//500+非自定义异常
         }
     }
 }

@@ -1,26 +1,41 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.BookingTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanBarCode;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.core.base.CarrierQueryWSManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.SendBarCodeQueryEntranceEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
+import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.task.*;
 import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
+import com.jdl.jy.realtime.base.Pager;
+import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
+import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +73,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Autowired
     private JySendAggsService jySendAggsService;
 
+    @Autowired
+    private IJySendVehicleJsfManager sendVehicleJsfManager;
+    
     @Override
     public InvokeResult<Void> sendTaskBinding(SendTaskBindReq request) {
         final String methodDesc = "JyAviationRailwaySendSealServiceImpl:sendTaskBinding:任务绑定：";
@@ -563,6 +581,20 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         return res;
     }
 
+    @Override
+    public JdVerifyResponse<AviationSendScanResp> scan(AviationSendScanReq request) {
+        JdVerifyResponse<AviationSendScanResp> result = new JdVerifyResponse<>();
+        AviationSendScanResp resp = new AviationSendScanResp();
+        result.setData(resp);
+        SendScanRequest sendScanRequest = BeanUtils.copy(request, SendScanRequest.class);
+        JdVerifyResponse<SendScanResponse> response = super.sendScan(sendScanRequest);
+        resp = BeanUtils.copy(response,AviationSendScanResp.class);
+        result.setCode(response.getCode());
+        result.setMessage(response.getMessage());
+        result.setMsgBoxes(response.getMsgBoxes());
+        return result;
+    }
+
 
     //封车列表查询结果集转换
     private AviationSealListDto convertAviationSealListDto(JyBizTaskSendAviationPlanEntity entity) {
@@ -631,5 +663,140 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
     }
 
+    public JyBizTaskSendVehicleEntity getSendVehicleByBizId(String bizId) {
+        JyBizTaskSendAviationPlanEntity entity= jyBizTaskSendAviationPlanService.findByBizId(bizId);
+        if (entity != null) {
+            JyBizTaskSendVehicleEntity sendVehicle = new JyBizTaskSendVehicleEntity();
+            sendVehicle.setBizId(bizId);
+            sendVehicle.setStartSiteId(Long.valueOf(entity.getStartSiteId()));
+            sendVehicle.setVehicleStatus(entity.getTaskStatus());
+            return sendVehicle;
+        }
+        return null;
+    }
 
+    public List<JyBizTaskSendVehicleDetailEntity> getSendVehicleDetail(JyBizTaskSendVehicleDetailEntity detail) {
+        JyBizTaskSendAviationPlanEntity entity= jyBizTaskSendAviationPlanService.findByBizId(detail.getSendVehicleBizId());
+        if (entity != null) {
+            JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
+            detailEntity.setSendVehicleBizId(detail.getBizId());
+            detailEntity.setEndSiteId(Long.valueOf(entity.getNextSiteId()));
+            detailEntity.setVehicleStatus(entity.getTaskStatus());
+            detailEntity.setExcepLabel(entity.getIntercept());
+            return Collections.singletonList(detailEntity);
+        }
+        return null;
+    }
+
+    @Override
+    public InvokeResult<AviationSendVehicleProgressResp> getAviationSendVehicleProgress(AviationSendVehicleProgressReq request) {
+        InvokeResult<AviationSendVehicleProgressResp> result = new InvokeResult<>();
+        AviationSendVehicleProgressResp taskDto = new AviationSendVehicleProgressResp();
+        
+        // 查询任务基础信息
+        JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(request.getBizId());
+        if (entity == null){
+            return new InvokeResult<>(InvokeResult.RESULT_NULL_CODE, "为找到航空计划发货任务！");
+        }
+        convertProgressResp(taskDto, entity);
+        
+        // 查询统计数据
+        List<JySendAggsEntity> sendAggList = jySendAggsService.findBySendVehicleBiz(request.getBizId());
+        if (!CollectionUtils.isEmpty(sendAggList)) {
+            JySendAggsEntity sendAgg = sendAggList.get(0);
+            taskDto.setScanWeight(Objects.isNull(sendAgg.getTotalScannedWeight()) ? 0d : sendAgg.getTotalScannedWeight().doubleValue());
+            int scanPackageNum = Objects.isNull(sendAgg.getTotalScannedPackageCodeCount()) ? 0 : sendAgg.getTotalScannedPackageCodeCount();
+            int scanBoxNum = Objects.isNull(sendAgg.getTotalScannedBoxCodeCount()) ? 0 : sendAgg.getTotalScannedBoxCodeCount();
+            taskDto.setScannedBoxCount(scanBoxNum);
+            taskDto.setScannedPackCount(scanPackageNum);
+            taskDto.setScannedCount(scanBoxNum + scanPackageNum);
+            taskDto.setInterceptedPackCount(sendAgg.getTotalInterceptCount());
+            taskDto.setForceSendPackCount(sendAgg.getTotalForceSendCount());
+        }
+        return result;
+    }
+
+    @Override
+    public InvokeResult<AviationSendAbnormalPackResp> abnormalBarCodeDetail(AviationSendAbnormalPackReq request) {
+        InvokeResult<AviationSendAbnormalPackResp> invokeResult = new InvokeResult<>();
+        if (!NumberHelper.gt0(request.getPageNumber())
+                || !NumberHelper.gt0(request.getPageSize())
+                || org.apache.commons.lang3.StringUtils.isBlank(request.getBizId())) {
+            invokeResult.parameterError();
+            return invokeResult;
+        }
+
+        try {
+            queryAbnormalSendBarCodeList(invokeResult, request);
+        }
+        catch (JyDemotionException e){
+            invokeResult.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEND_INTERCEPT, false));
+        }
+        catch (Exception ex) {
+            log.error("查询发车拦截包裹记录异常. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("服务器异常，查询拦截包裹记录失败，请咚咚联系分拣小秘！");
+        }
+
+        return invokeResult;
+    }
+
+    @Override
+    public InvokeResult<AviationBarCodeDetailResp> sendBarCodeDetail(AviationBarCodeDetailReq request) {
+        InvokeResult<AviationBarCodeDetailResp> invokeResult = new InvokeResult<>();
+        if (!NumberHelper.gt0(request.getPageNumber())
+                || !NumberHelper.gt0(request.getPageSize())
+                || org.apache.commons.lang3.StringUtils.isBlank(request.getBizId())) {
+            invokeResult.parameterError();
+            return invokeResult;
+        }
+        
+        //查询包裹明细 
+        
+        
+        return invokeResult;
+    }
+
+    private void queryAbnormalSendBarCodeList(InvokeResult<AviationSendAbnormalPackResp> invokeResult, AviationSendAbnormalPackReq request) {
+        Pager<SendVehicleTaskQuery> queryPager = getAbnormalQueryPager(request);
+
+        AviationSendAbnormalPackResp packResp = new AviationSendAbnormalPackResp();
+        invokeResult.setData(packResp);
+        List<String> barCodeList = new ArrayList<>();
+        packResp.setBarCodeList(barCodeList);
+        
+        Pager<SendBarCodeDetailVo> retPager = sendVehicleJsfManager.queryByCondition(queryPager);
+        if (retPager != null && org.apache.commons.collections4.CollectionUtils.isNotEmpty(retPager.getData())) {
+            retPager.getData().forEach(item -> barCodeList.add(item.getPackageCode()));
+        }
+    }
+
+    private Pager<SendVehicleTaskQuery> getAbnormalQueryPager(AviationSendAbnormalPackReq request) {
+        Pager<SendVehicleTaskQuery> pager = new Pager<>();
+        pager.setPageNo(request.getPageNumber());
+        pager.setPageSize(request.getPageSize());
+
+        SendVehicleTaskQuery searchVo = new SendVehicleTaskQuery();
+        pager.setSearchVo(searchVo);
+        searchVo.setSendVehicleBizId(request.getBizId());
+        searchVo.setQueryBarCodeFlag(request.getQueryBarCodeFlag());
+        return pager;
+    }
+
+    private void convertProgressResp(AviationSendVehicleProgressResp taskDto, JyBizTaskSendAviationPlanEntity entity) {
+        taskDto.setBizId(entity.getBizId());
+        taskDto.setBookingCode(entity.getBookingCode());
+        taskDto.setFlightNumber(entity.getFlightNumber());
+        taskDto.setTakeOffTime(Objects.isNull(entity.getTakeOffTime()) ? null : entity.getTakeOffTime().getTime());
+        taskDto.setAirCompanyCode(entity.getAirCompanyCode());
+        taskDto.setAirCompanyName(entity.getAirCompanyName());
+        taskDto.setBeginNodeCode(entity.getBeginNodeCode());
+        taskDto.setBeginNodeName(entity.getBeginNodeName());
+        taskDto.setCarrierCode(entity.getCarrierCode());
+        taskDto.setCarrierName(entity.getCarrierName());
+        taskDto.setBookingWeight(entity.getBookingWeight());
+        taskDto.setCargoType(entity.getCargoType());
+        taskDto.setAirType(entity.getAirType());
+        taskDto.setNextSiteId(entity.getNextSiteId());
+        taskDto.setNextSiteName(entity.getNextSiteName());
+    }
 }
