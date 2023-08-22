@@ -363,6 +363,10 @@ public class HideInfoServiceImpl implements HideInfoService{
     private static boolean setPhone(BasePrintWaybill waybill){
         String firstMobile = null;
         String firstTel = null;
+        waybill.setMobileFirst("");
+        waybill.setMobileLast("");
+        waybill.setTelFirst("");
+        waybill.setTelLast("");
         String contacts = waybill.getCustomerContacts();
         if(StringUtils.isBlank(contacts)){
             return false;
@@ -385,7 +389,6 @@ public class HideInfoServiceImpl implements HideInfoService{
             }else {
                 firstMobile = mobile;
                 waybill.setMobileFirst(firstMobile);
-                waybill.setMobileLast("");
             }
         }
         if (StringUtils.isNotBlank(tel) && tel.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
@@ -400,7 +403,6 @@ public class HideInfoServiceImpl implements HideInfoService{
             }else {
                 firstTel = tel;
                 waybill.setTelFirst(firstTel);
-                waybill.setTelLast("");
             }
         }
         if(StringUtils.isBlank(firstMobile) && StringUtils.isBlank(firstTel) ){
