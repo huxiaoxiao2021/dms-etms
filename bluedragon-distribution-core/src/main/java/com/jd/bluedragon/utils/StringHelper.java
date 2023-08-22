@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static com.jd.bluedragon.dms.utils.DmsConstants.LANDLINE_FIRST_NUMBER;
+
 public class StringHelper {
 
     private static Logger log = LoggerFactory.getLogger(StringHelper.class);
@@ -439,6 +441,8 @@ public class StringHelper {
         String newPhone = phone.replaceAll("\\s*", "");
         if(newPhone.length() > LANDLINE_NUMBER ){
             return newPhone.substring(0,PHONE_FIRST_NUMBER) + SMILE + newPhone.substring(newPhone.length() - PHONE_HIGHLIGHT_NUMBER);
+        } else if (newPhone.length() <= LANDLINE_FIRST_NUMBER) {
+            return SMILE;
         }else {
             return  SMILE + newPhone.substring(LANDLINE_FIRST_NUMBER);
         }

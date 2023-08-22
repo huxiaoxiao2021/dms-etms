@@ -2031,6 +2031,8 @@ public class BusinessUtil {
                 return hidePhone.substring(0,PHONE_FIRST_NUMBER)
                         + hidePlaceStr
                         + hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
+            }else if (hidePhone.length() <= LANDLINE_FIRST_NUMBER) {
+                return hidePlaceStr;
             }else {
                 return  hidePlaceStr
                         + hidePhone.substring(LANDLINE_FIRST_NUMBER);
