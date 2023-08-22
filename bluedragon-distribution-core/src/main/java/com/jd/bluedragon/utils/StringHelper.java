@@ -14,13 +14,17 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static com.jd.bluedragon.dms.utils.DmsConstants.LANDLINE_FIRST_NUMBER;
+
 public class StringHelper {
 
     private static Logger log = LoggerFactory.getLogger(StringHelper.class);
 
     public static final String  SMILE = "^_^";           //微笑符号
-    public static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
+    public static final int PHONE_FIRST_NUMBER = 1;//收件人联系方式前几位需要显示
     public static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
+    public static final int LANDLINE_FIRST_NUMBER = 6;//收件人联系方式为8位座机号要保留的位数
+    public static final int LANDLINE_NUMBER = 10;//收件人联系方式为3位区号+7位座机号
 
     public static String getRandomString() {
         Random random = new Random();
@@ -431,14 +435,17 @@ public class StringHelper {
         if(org.apache.commons.lang.StringUtils.isBlank(phone)){
             return phone;
         }
-        //进行隐藏要求tel/mobile至少有7位，<7位则不隐藏
-        int phoneLeastLength = PHONE_FIRST_NUMBER + PHONE_HIGHLIGHT_NUMBER;
+        //原 进行隐藏要求tel/mobile至少有7位，<7位则不隐藏
+        //新 8位以上的显示前一+笑脸+后四 8位一下的显示笑脸+后2
         //去除号码中间的空白字符
         String newPhone = phone.replaceAll("\\s*", "");
-        if(newPhone.length() >= phoneLeastLength ){
+        if(newPhone.length() > LANDLINE_NUMBER ){
             return newPhone.substring(0,PHONE_FIRST_NUMBER) + SMILE + newPhone.substring(newPhone.length() - PHONE_HIGHLIGHT_NUMBER);
+        } else if (newPhone.length() <= LANDLINE_FIRST_NUMBER) {
+            return SMILE;
+        }else {
+            return  SMILE + newPhone.substring(LANDLINE_FIRST_NUMBER);
         }
-        return newPhone;
     }
 
     public static String substring(String value,int start,int end){
