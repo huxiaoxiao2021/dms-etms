@@ -1036,7 +1036,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         } else {
             query.setBizType(JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_BEFORE.getCode());
         }
-        query.setLimit(200);
+        query.setPageSize(200);
         List<JyAttachmentDetailEntity> entityList = jyAttachmentDetailService.queryDataListByCondition(query);
         if (CollectionUtils.isEmpty(entityList)) {
             return new HashMap<>();
