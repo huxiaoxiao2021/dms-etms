@@ -13,6 +13,12 @@
 		<result column="CREATE_SITE_NAME" property="createSiteName" jdbcType="VARCHAR"  />
 		<result column="QC_TYPE" property="qcType"  jdbcType="INTEGER"/>
 		<result column="QC_VALUE" property="qcValue" jdbcType="VARCHAR"  />
+		<result column="abnormal_reason_first_id" property="abnormalReasonFirstId" jdbcType="INTEGER"  />
+		<result column="abnormal_reason_first_name" property="abnormalReasonFirstName" jdbcType="VARCHAR"  />
+		<result column="abnormal_reason_second_id" property="abnormalReasonSecondId" jdbcType="INTEGER"  />
+		<result column="abnormal_reason_second_name" property="abnormalReasonSecondName" jdbcType="VARCHAR"  />
+		<result column="abnormal_reason_third_id" property="abnormalReasonThirdId" jdbcType="INTEGER"  />
+		<result column="abnormal_reason_third_name" property="abnormalReasonThirdName" jdbcType="VARCHAR"  />
 		<result column="QC_CODE" property="qcCode" jdbcType="INTEGER" />
 		<result column="QC_NAME" property="qcName" jdbcType="VARCHAR"  />
 		<result column="IS_SORTING_RETURN" property="isSortingReturn" jdbcType="TINYINT" />
@@ -35,6 +41,12 @@
 			CREATE_SITE_NAME,
 			QC_TYPE,
 			QC_VALUE,
+            abnormal_reason_first_id,
+            abnormal_reason_first_name,
+            abnormal_reason_second_id,
+            abnormal_reason_second_name,
+            abnormal_reason_third_id,
+            abnormal_reason_third_name,
 			QC_CODE,
 			QC_NAME,
             IS_SORTING_RETURN,
@@ -62,6 +74,12 @@
 			#{createSiteName,jdbcType=VARCHAR},
 			#{qcType,jdbcType=INTEGER},
 			#{qcValue,jdbcType=VARCHAR},
+			#{abnormalReasonFirstId,jdbcType=INTEGER},
+			#{abnormalReasonFirstName,jdbcType=VARCHAR},
+			#{abnormalReasonSecondId,jdbcType=INTEGER},
+			#{abnormalReasonSecondName,jdbcType=VARCHAR},
+			#{abnormalReasonThirdId,jdbcType=INTEGER},
+			#{abnormalReasonThirdName,jdbcType=VARCHAR},
 			#{qcCode,jdbcType=INTEGER},
 			#{qcName,jdbcType=VARCHAR},
             #{isSortingReturn,jdbcType=TINYINT},
@@ -90,6 +108,12 @@
             #{abnormalWayBill.createSiteName,jdbcType=VARCHAR},
             #{abnormalWayBill.qcType,jdbcType=INTEGER},
             #{abnormalWayBill.qcValue,jdbcType=VARCHAR},
+            #{abnormalWayBill.abnormalReasonFirstId,jdbcType=INTEGER},
+            #{abnormalWayBill.abnormalReasonFirstName,jdbcType=VARCHAR},
+            #{abnormalWayBill.abnormalReasonSecondId,jdbcType=INTEGER},
+            #{abnormalWayBill.abnormalReasonSecondName,jdbcType=VARCHAR},
+            #{abnormalWayBill.abnormalReasonThirdId,jdbcType=INTEGER},
+            #{abnormalWayBill.abnormalReasonThirdName,jdbcType=VARCHAR},
             #{abnormalWayBill.qcCode,jdbcType=INTEGER},
             #{abnormalWayBill.qcName,jdbcType=VARCHAR},
             #{abnormalWayBill.isSortingReturn,jdbcType=TINYINT},
@@ -147,4 +171,42 @@
 		where yn = 1 
 		and waybill_code = #{waybillCode, jdbcType=VARCHAR}  order by operate_time desc LIMIT 1
 	</select>
+
+    <select id="queryAbnormalWayBillByWayBillCode" resultMap="abnormalWayBill" parameterType="java.util.HashMap">
+        select
+        <include refid="Base_Column_List"/>
+        from abnormal_waybill
+        where yn = 1
+        and waybill_code = #{waybillCode, jdbcType=VARCHAR}  order by operate_time desc LIMIT 1
+    </select>
+
+    <select id="queryOneByParam" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="abnormalWayBill">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM abnormal_waybill
+        WHERE
+        yn = 1
+        <if test="waybillCode != null and waybillCode != '' ">
+            AND WAYBILL_CODE = #{waybillCode}
+        </if>
+        <if test="packageCode != null and packageCode != '' ">
+            AND PACKAGE_BARCODE = #{packageCode}
+        </if>
+        <if test="createSiteCode != null">
+            AND CREATE_SITE_CODE = #{createSiteCode}
+        </if>
+        <if test="qcValue != null and qcValue != ''">
+            AND QC_VALUE = #{qcValue}
+        </if>
+        <if test="abnormalReasonFirstId != null">
+            AND abnormal_reason_first_id = #{abnormalReasonFirstId}
+        </if>
+        <if test="abnormalReasonSecondId != null">
+            AND abnormal_reason_second_id = #{abnormalReasonSecondId}
+        </if>
+        <if test="abnormalReasonThirdId != null">
+            AND abnormal_reason_third_id = #{abnormalReasonThirdId}
+        </if>
+        ORDER BY CREATE_TIME DESC limit 1
+    </select>
 </mapper>	

@@ -561,6 +561,12 @@ public class QualityControlService {
             abnormalWayBill.setCreateSiteName(request.getDistCenterName());
             abnormalWayBill.setQcType(request.getQcType());
             abnormalWayBill.setQcValue(request.getQcValue());
+            abnormalWayBill.setAbnormalReasonFirstId(request.getAbnormalReasonFirstId());
+            abnormalWayBill.setAbnormalReasonFirstName(request.getAbnormalReasonFirstName());
+            abnormalWayBill.setAbnormalReasonSecondId(request.getAbnormalReasonSecondId());
+            abnormalWayBill.setAbnormalReasonSecondName(request.getAbnormalReasonSecondName());
+            abnormalWayBill.setAbnormalReasonThirdId(request.getAbnormalReasonThirdId());
+            abnormalWayBill.setAbnormalReasonThirdName(request.getAbnormalReasonThirdName());
             abnormalWayBill.setQcCode(request.getQcCode());
             abnormalWayBill.setQcName(request.getQcName());
             abnormalWayBill.setSortingReturn(request.getIsSortingReturn());
@@ -710,6 +716,12 @@ public class QualityControlService {
                 qualityControlRequest.setOperateTime(new Date(qcReportJmqDto.getCreateTime()));
                 qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalThirdId().intValue());
                 qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalThirdName());
+                qualityControlRequest.setAbnormalReasonFirstId(qcReportJmqDto.getAbnormalFirstId());
+                qualityControlRequest.setAbnormalReasonFirstName(qcReportJmqDto.getAbnormalFirstName());
+                qualityControlRequest.setAbnormalReasonSecondId(qcReportJmqDto.getAbnormalSecondId());
+                qualityControlRequest.setAbnormalReasonSecondName(qcReportJmqDto.getAbnormalSecondName());
+                qualityControlRequest.setAbnormalReasonThirdId(qcReportJmqDto.getAbnormalThirdId());
+                qualityControlRequest.setAbnormalReasonThirdName(qcReportJmqDto.getAbnormalThirdName());
                 qualityControlRequest.setIsSortingReturn(false);
                 qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalThirdName() + "】");
                 Task task = new Task();
