@@ -307,7 +307,24 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 logger.warn("自营单-非全部破损，不与客服交互!");
                 return false;
             }
+        }else {// 外单 选择外包装破损 -》修复 或者 直接下传 不发送客服
+            updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode());
+            if(Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode(), damageEntity.getDamageType())){
+                //修复
+                if(Objects.equals(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPAIR.getCode(), damageEntity.getRepairType())){
+                    updateDamageEntity.setFeedBackType(JyExceptionDamageEnum.FeedBackTypeEnum.REPAIR_HANDOVER.getCode());
+                    logger.warn("外单 选择外包装破损 -》修复");
+                    return false;
+                }else if(Objects.equals(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.HANDOVER.getCode(), damageEntity.getRepairType())){
+                    updateDamageEntity.setFeedBackType(JyExceptionDamageEnum.FeedBackTypeEnum.HANDOVER.getCode());
+                    logger.warn("外单 选择外包装破损 -》直接下传");
+                    return false;
+                }else {
+                    logger.info("其他状态。。");
+                }
+            }
         }
+
         //一单多包裹的情况下，若上报外破内破，不发送消息给客服，直接下传
         if (waybill.getGoodNumber() > 1) {
             if (Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode(), damageEntity.getDamageType())) {
