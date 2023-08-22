@@ -172,7 +172,7 @@
 		and waybill_code = #{waybillCode, jdbcType=VARCHAR}  order by operate_time desc LIMIT 1
 	</select>
 
-    <select id="queryOneByParam" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="abnormalWayBill">
+    <select id="queryOneByParam" parameterType="AbnormalWayBill" resultMap="abnormalWayBill">
         SELECT
         <include refid="Base_Column_List"/>
         FROM abnormal_waybill
