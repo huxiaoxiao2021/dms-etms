@@ -13,5 +13,5 @@ import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 public interface JyContrabandExceptionService {
     JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req);
 
-    void  dealContrabandUploadData(JyExceptionContrabandDto dto);
+    void  dealContrabandUploadData(JyExceptionContrabandDto dto) throws InterruptedException;
 }

@@ -42,6 +42,10 @@ public class JyExceptionContrabandDto implements Serializable {
      */
     private String description;
 
+    private String createErp;
+
+    private String createStaffName;
+
 
     public String getBizId() {
         return bizId;
@@ -100,4 +104,19 @@ public class JyExceptionContrabandDto implements Serializable {
     }
 
 
+    public String getCreateErp() {
+        return createErp;
+    }
+
+    public void setCreateErp(String createErp) {
+        this.createErp = createErp;
+    }
+
+    public String getCreateStaffName() {
+        return createStaffName;
+    }
+
+    public void setCreateStaffName(String createStaffName) {
+        this.createStaffName = createStaffName;
+    }
 }

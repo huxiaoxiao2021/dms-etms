@@ -282,6 +282,23 @@ public class WaybillStatus {
      */
     public static final String EXTEND_PARAMETER_EQUIPMENT_CODE = "equipmentCode";
 
+    /**
+     * 安检扣件
+     * 节点状态码：800
+     * 操作码：21300
+     *
+     */
+    public static final Integer WAYBILL_TRACK_SECURITY_CHECK_DETAIN_PACKAGE = 21300;
+
+
+    /**
+     * 安检查验退运
+     * 节点状态码：-3090
+     * 操作码：21400
+     *
+     */
+    public static final Integer WAYBILL_TRACK_RETURNED_PACKAGE = 21400;
+
 
     private Long id;
 

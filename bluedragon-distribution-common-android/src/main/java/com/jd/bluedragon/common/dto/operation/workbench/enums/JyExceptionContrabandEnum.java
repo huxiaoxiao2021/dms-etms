@@ -8,7 +8,7 @@ public class JyExceptionContrabandEnum {
      * 违禁品上报类型枚举
      */
     public enum ContrabandTypeEnum {
-        DETAIN_PACKAGE(1, "扣减"), AIR_TO_LAND(2, "航空转陆运");
+        DETAIN_PACKAGE(1, "扣件"), AIR_TO_LAND(2, "航空转陆运");
 
         ContrabandTypeEnum(Integer code, String name) {
             this.code = code;
