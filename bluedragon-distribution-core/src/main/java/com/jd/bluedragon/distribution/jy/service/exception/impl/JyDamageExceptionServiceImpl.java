@@ -762,7 +762,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private void saveDamage(ExpDamageDetailReq req, JyExceptionDamageEntity entity, JyExceptionDamageEntity oldEntity) {
         logger.info("start saveDamage...");
         this.validateSaveDamageParams(req, oldEntity);
-        this.setAboutTaskInfo(req, entity);
         this.copyRequestToEntity(req, entity);
         this.saveImages(req, entity);
         this.saveOrUpdate(entity);
@@ -895,6 +894,8 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
         entity.setSiteCode(positionDetail.getSiteCode());
         entity.setSiteName(positionDetail.getSiteName());
+
+        this.setAboutTaskInfo(req, entity);
     }
 
     /**
