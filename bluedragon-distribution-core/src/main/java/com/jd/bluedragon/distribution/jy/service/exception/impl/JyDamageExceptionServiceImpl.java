@@ -1067,13 +1067,15 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
         logger.info("getDamageDetailListByBizIds attachmentDetailEntityMap :{}", JSON.toJSONString(attachmentDetailEntityMap));
         for (JyExceptionDamageEntity entity : entityList) {
-            List<JyAttachmentDetailEntity> attachmentDetailEntityList = attachmentDetailEntityMap.get(entity.getBizId());
-            if (CollectionUtils.isEmpty(attachmentDetailEntityList)) continue;
-            List<String> imageList = attachmentDetailEntityList.stream().map(JyAttachmentDetailEntity::getAttachmentUrl).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(imageList)) continue;
             JyExceptionDamageDto damageDto = new JyExceptionDamageDto();
-            BeanUtils.copyProperties(entity, damageDto);
-            damageDto.setImageUrlList(imageList);
+            damageDto.setFeedBackType(entity.getFeedBackType());
+            List<JyAttachmentDetailEntity> attachmentDetailEntityList = attachmentDetailEntityMap.get(entity.getBizId());
+            if (!CollectionUtils.isEmpty(attachmentDetailEntityList)) {
+                List<String> imageList = attachmentDetailEntityList.stream().map(JyAttachmentDetailEntity::getAttachmentUrl).collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(imageList)) {
+                    damageDto.setImageUrlList(imageList);
+                }
+            }
             damageDtoMap.put(entity.getBizId(), damageDto);
         }
         logger.info("getDamageDetailListByBizIds damageDtoMap :{}", JSON.toJSONString(damageDtoMap));

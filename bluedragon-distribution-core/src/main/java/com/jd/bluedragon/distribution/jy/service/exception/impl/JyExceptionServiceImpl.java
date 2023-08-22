@@ -651,14 +651,16 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     }
                 }
                 // 读取破损数据
-                if(Objects.equals(JyBizTaskExceptionTypeEnum.DAMAGE.getCode(),dto.getType())){
+                if(Objects.equals(JyBizTaskExceptionTypeEnum.DAMAGE.getCode(),entity.getType())){
                     // 如果待处理只设置状态
                     if (Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(), entity.getStatus())){
                         dto.setSaved(true);
                     } else {
-                        JyExceptionDamageDto damageDto = damageDtoMap.get(dto.getBizId());
+                        JyExceptionDamageDto damageDto = damageDtoMap.get(entity.getBizId());
                         if (damageDto != null) {
-                            dto.setImageUrls(String.join(";", damageDto.getImageUrlList()));
+                            if (CollectionUtils.isNotEmpty(damageDto.getImageUrlList())) {
+                                dto.setImageUrls(String.join(";", damageDto.getImageUrlList()));
+                            }
                             dto.setFeedBackTypeName(JyExceptionDamageEnum.FeedBackTypeEnum.getNameByCode(damageDto.getFeedBackType()));
                         }
                     }
