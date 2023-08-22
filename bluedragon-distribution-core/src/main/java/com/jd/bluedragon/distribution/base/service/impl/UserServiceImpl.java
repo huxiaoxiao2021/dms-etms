@@ -427,6 +427,10 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 					result.getData().setBusinessConfigInfo(businessConfigInfo);
 				}
 				result.getData().getBusinessConfigInfo().setUseSimulatorFlag(canUseSimulatorFlag);
+
+				// pda运输任务是否显示叫号按钮
+				boolean showCallButtonFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_CALL_BUTTON.getCode(), siteId, userErp);
+				result.getData().getBusinessConfigInfo().setShowCallButtonFlag(showCallButtonFlag);
 			}
 		}
 		return result;

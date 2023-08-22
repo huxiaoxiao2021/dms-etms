@@ -4271,7 +4271,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Override
     public InvokeResult<String> callByWorkItem(CallNumberRequest request) {
+        InvokeResult<String> result = new InvokeResult<>();
+        if (request.getBizId() == null) {
 
+        }
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(request.getCallSiteCode());
         return null;
     }
 }

@@ -16,9 +16,9 @@ public class CallNumberRequest implements Serializable {
     private String callUserErp;
 
     /**
-     * 派车单明细
+     * 发货明细流向bizId
      */
-    private String transWorkItemCode;
+    private String bizId;
 
     public Integer getCallSiteCode() {
         return callSiteCode;
@@ -36,11 +36,11 @@ public class CallNumberRequest implements Serializable {
         this.callUserErp = callUserErp;
     }
 
-    public String getTransWorkItemCode() {
-        return transWorkItemCode;
+    public String getBizId() {
+        return bizId;
     }
 
-    public void setTransWorkItemCode(String transWorkItemCode) {
-        this.transWorkItemCode = transWorkItemCode;
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 }
