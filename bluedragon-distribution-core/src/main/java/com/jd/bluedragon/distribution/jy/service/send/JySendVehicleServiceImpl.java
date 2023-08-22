@@ -4268,4 +4268,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
         return true;
     }
+
+    @Override
+    public InvokeResult<String> callByWorkItem(CallNumberRequest request) {
+
+        return null;
+    }
 }
