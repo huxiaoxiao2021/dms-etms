@@ -933,7 +933,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         // 区分是否有异常举报，1. 老版本异常上报 三级原因：违禁品无法发货 - 27000 2. 新版H5 外呼-违禁品（20009-20010）二级
         try {
             final AbnormalWayBill abnormalWayBillNewVersionParam = new AbnormalWayBill();
-            final String waybillCode = WaybillUtil.getCrossCodeOnPackageCode(sendDetail.getPackageBarcode());
+            final String waybillCode = WaybillUtil.getWaybillCodeByPackCode(sendDetail.getPackageBarcode());
             abnormalWayBillNewVersionParam.setWaybillCode(waybillCode);
             abnormalWayBillNewVersionParam.setAbnormalReasonFirstId(newVersion_abnormalReasonFirstId);
             abnormalWayBillNewVersionParam.setAbnormalReasonSecondId(newVersion_abnormalReasonSecondId);
