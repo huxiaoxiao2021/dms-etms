@@ -4,6 +4,7 @@ package com.jd.bluedragon.distribution.rest.cyclebox;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.common.dto.box.response.BoxDto;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.OrderBindMessageRequest;
@@ -173,6 +174,8 @@ public class CycleBoxResource {
             }
 
             //执行数据库操作
+            // WINCE PDA即将下线 , 不做弱校验
+            request.setForceFlag(Boolean.TRUE);
             result = cycleBoxService.boxMaterialRelationAlter(request);
         } catch (Exception e) {
             log.error("绑定循环集包袋系统异常请求参数:{}", JsonHelper.toJson(request), e);

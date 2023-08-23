@@ -1065,9 +1065,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         // 批量查询图片数据
         Boolean isCompleted = JyExpStatusEnum.COMPLETE.getCode() == status;
         Map<String, List<JyAttachmentDetailEntity>> attachmentDetailEntityMap = this.getDamageImageListByBizIds(entityList, isCompleted);
-        if (CollectionUtils.isEmpty(attachmentDetailEntityMap)) {
-            return damageDtoMap;
-        }
         logger.info("getDamageDetailListByBizIds attachmentDetailEntityMap :{}", JSON.toJSONString(attachmentDetailEntityMap));
         for (JyExceptionDamageEntity entity : entityList) {
             JyExceptionDamageDto damageDto = new JyExceptionDamageDto();
