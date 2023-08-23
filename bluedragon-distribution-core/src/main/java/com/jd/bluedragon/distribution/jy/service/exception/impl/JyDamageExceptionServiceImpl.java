@@ -270,6 +270,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 //发送破损消息通知客服
                 logger.info("发送破损消息通知客服-MQ-{}", JSON.toJSONString(damageNoticCustomerMQ));
                 dmsDamageNoticeKFProducer.sendOnFailPersistent(bizId, JsonHelper.toJson(damageNoticCustomerMQ));
+            }else {
+                //不给客服发消息 也要提示有新消息
+                writeToProcessDamage(bizId);
             }
             //称重
             this.dealExpDamageWeightVolumeUpload(damageEntity, true);
