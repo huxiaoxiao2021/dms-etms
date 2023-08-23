@@ -4305,7 +4305,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (commonDto.isSuccess()) {
             result.setData(commonDto.getData());
         } else {
-            result.error(commonDto.getErrorCode());
+            result.error(commonDto.getMessage());
         }
         return result;
     }
