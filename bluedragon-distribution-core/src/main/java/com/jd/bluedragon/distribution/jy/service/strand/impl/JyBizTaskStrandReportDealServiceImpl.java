@@ -1004,6 +1004,8 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
             case BOARD:
                 request.setReportType(ReportTypeEnum.BOARD_NO.getCode());
                 break;
+            case BATCH:
+                request.setReportType(ReportTypeEnum.BATCH_NO.getCode());
             default:
                 logger.warn("条码:{}通过非法扫描方式,不进行处理!", detailEntity.getScanBarCode());
                 return;

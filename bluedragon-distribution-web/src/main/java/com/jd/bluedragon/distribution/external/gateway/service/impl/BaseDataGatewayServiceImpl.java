@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
@@ -15,13 +17,13 @@ import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.voice.request.HintVoiceReq;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceConfig;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceResp;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.BaseDataGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -62,7 +64,7 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
     @Autowired
     private IHintApiUnwrapManager hintApiUnwrapManager;
     @Autowired
-    private WaybillQueryManager waybillQueryManager;
+    private WaybillCacheService waybillCacheService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.BaseDataGatewayServiceImpl.getBaseDictionaryTree",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -207,23 +209,25 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
      * @time 2022-10-11 14:59:04 周二
      */
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "BaseDataGatewayServiceImpl.selectSiteList",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Pager<StreamlinedBasicSite>> selectSiteList(Pager<StreamlinedBasicSiteQuery> request) {
         JdCResponse<Pager<StreamlinedBasicSite>> response = new JdCResponse<>();
         response.toSucceed();
         Pager<StreamlinedBasicSite> pageData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
         response.setData(pageData);
         String searchStr = request.getSearchVo().getSearchStr();
-        if (StringHelper.isEmpty(searchStr) && (WaybillUtil.isPackageCode(searchStr) || WaybillUtil.isWaybillCode(searchStr))) {
+        if (StringHelper.isNotEmpty(searchStr) && (WaybillUtil.whetherWaybillCode(searchStr) || WaybillUtil.whetherPackageCode(searchStr))) {
             try {
-                if (WaybillUtil.isPackageCode(searchStr)) {
+                if (WaybillUtil.whetherPackageCode(searchStr)) {
                     searchStr = WaybillUtil.getWaybillCode(searchStr);
                 }
-                Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(searchStr);
-                if (ObjectHelper.isEmpty(waybill)) {
+                WaybillCache waybillCache = waybillCacheService.getNoCache(searchStr);
+                if (ObjectHelper.isEmpty(waybillCache)) {
                     response.toError("该包裹未获取到流向");
                     return response;
                 }
-                convertParam(pageData, waybill);
+                convertParam(pageData, waybillCache);
             } catch (Exception e) {
                 log.error("BaseDataGatewayServiceImpl.selectSiteList exception ", e);
                 response.toError("该包裹未获取到流向");
@@ -253,13 +257,13 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
     /**
      * 返回参数转换
      * @param pageData
-     * @param waybill
+     * @param waybillCache
      */
-    private void convertParam(Pager<StreamlinedBasicSite> pageData, Waybill waybill) {
+    private void convertParam(Pager<StreamlinedBasicSite> pageData, WaybillCache waybillCache) {
         List<StreamlinedBasicSite> StreamlinedBasicSiteList = new ArrayList<>();
         StreamlinedBasicSite streamlinedBasicSite = new StreamlinedBasicSite();
-        streamlinedBasicSite.setSiteCode(waybill.getSiteId());
-        streamlinedBasicSite.setSiteName(waybill.getSiteName());
+        streamlinedBasicSite.setSiteCode(waybillCache.getSiteCode());
+        streamlinedBasicSite.setSiteName(waybillCache.getSiteName());
         StreamlinedBasicSiteList.add(streamlinedBasicSite);
         pageData.setData(StreamlinedBasicSiteList);
     }
