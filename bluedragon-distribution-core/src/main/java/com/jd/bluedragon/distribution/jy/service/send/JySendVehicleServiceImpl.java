@@ -4299,15 +4299,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         param.setOperateUser(request.getCallUserErp());
         CommonDto<String> commonDto = jdiTransQueueWSManager.callByWorkItem(param);
         if (commonDto == null) {
-            result.setData("叫号异常，请重试！");
             result.error("叫号异常，请重试！");
             return result;
         }
-        if (commonDto.isSuccess()) {
-            result.setData(commonDto.getData());
-        } else {
-            result.setData(commonDto.getMessage());
-        }
+        result.setMessage(commonDto.getMessage());
         return result;
     }
 }
