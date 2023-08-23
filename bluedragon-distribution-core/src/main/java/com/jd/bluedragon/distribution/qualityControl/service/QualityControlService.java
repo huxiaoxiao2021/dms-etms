@@ -561,14 +561,14 @@ public class QualityControlService {
             abnormalWayBill.setCreateSiteName(request.getDistCenterName());
             abnormalWayBill.setQcType(request.getQcType());
             abnormalWayBill.setQcValue(request.getQcValue());
-            abnormalWayBill.setAbnormalReasonFirstId(request.getAbnormalReasonFirstId());
-            abnormalWayBill.setAbnormalReasonFirstName(request.getAbnormalReasonFirstName());
-            abnormalWayBill.setAbnormalReasonSecondId(request.getAbnormalReasonSecondId());
-            abnormalWayBill.setAbnormalReasonSecondName(request.getAbnormalReasonSecondName());
-            abnormalWayBill.setAbnormalReasonThirdId(request.getAbnormalReasonThirdId());
-            abnormalWayBill.setAbnormalReasonThirdName(request.getAbnormalReasonThirdName());
             abnormalWayBill.setQcCode(request.getQcCode());
             abnormalWayBill.setQcName(request.getQcName());
+            abnormalWayBill.setAbnormalReasonFirstId(request.getAbnormalReasonFirstId() == null ? 0 : request.getAbnormalReasonFirstId());
+            abnormalWayBill.setAbnormalReasonFirstName(request.getAbnormalReasonFirstName() == null ? Constants.EMPTY_FILL : request.getAbnormalReasonFirstName());
+            abnormalWayBill.setAbnormalReasonSecondId(request.getAbnormalReasonSecondId() == null  ? 0 : request.getAbnormalReasonSecondId());
+            abnormalWayBill.setAbnormalReasonSecondName(request.getAbnormalReasonSecondName() == null ? Constants.EMPTY_FILL : request.getAbnormalReasonSecondName());
+            abnormalWayBill.setAbnormalReasonThirdId(request.getQcCode() == null  ? 0 : request.getQcCode().longValue());
+            abnormalWayBill.setAbnormalReasonThirdName(request.getQcValue() == null ? Constants.EMPTY_FILL : request.getQcValue());
             abnormalWayBill.setSortingReturn(request.getIsSortingReturn());
             abnormalWayBill.setOperateTime(request.getOperateTime());
             if (request.getWaveBusinessId() == null) {
