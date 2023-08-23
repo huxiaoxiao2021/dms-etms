@@ -894,7 +894,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         return frbc;
     }
 
-    private Long oldVersion_abnormalReasonThirdId = 20070L;
+    private Long oldVersion_abnormalReasonThirdId = 27000L;
     private Long newVersion_abnormalReasonFirstId = 20009L;
     private Long newVersion_abnormalReasonSecondId = 20010L;
 
