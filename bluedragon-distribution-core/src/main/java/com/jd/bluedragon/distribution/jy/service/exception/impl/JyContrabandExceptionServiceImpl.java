@@ -80,7 +80,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private DefaultJMQProducer jyExceptionContrabandNoticCustomerProducer;
 
     @Autowired
-    private WaybillQueryManager waybillQueryManager;
+    public WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private JyExceptionService jyExceptionService;
