@@ -140,6 +140,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     // 任务明细缓存时间
     private static final int TASK_DETAIL_CACHE_DAYS = 30;
     private static final String SPLIT = ",";
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 
 
     private final String DEVICE_ID = "sorting";
@@ -582,76 +584,23 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         List<ExpTaskDto> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(taskList)) {
             //获取所有要查询的bizId 集合
-            List<String> bizIds = taskList.stream().map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
-            JdCResponse<List<ExpScrappedDetailDto>> listOfscrappedResponse = jyScrappedExceptionService.getTaskListOfscrapped(bizIds);
-            logger.info("listOfscrappedResponse -{}",JSON.toJSONString(listOfscrappedResponse));
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Map<String, ExpScrappedDetailDto> scrappedDtoMap = this.getTaskListOfScrapped(taskList);
 
             // 读取破损数据
             Map<String, JyExceptionDamageDto> damageDtoMap = getDamageDetailMapByBizTaskList(taskList, req.getStatus());
             for (JyBizTaskExceptionEntity entity : taskList) {
                 // 拼装dto
-                ExpTaskDto dto = getTaskDto(entity);
-
+                ExpTaskDto dto = this.copyEntityToExpTaskDto(entity, scrappedDtoMap);
                 // 待处理状态数据
-                if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus())) || (Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), entity.getStatus()))) {
+                if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))
+                        || (Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), entity.getStatus()))) {
                     //处理三无待打印状态  待打印特殊处理
-                    if(Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType())){
-
-                        if(Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode(),entity.getProcessingStatus())){
-                            dto.setCreateTime(entity.getCreateTime() == null ? null : dateFormat.format(entity.getCreateTime()));
-                        }else{
-                            // 待打印时间
-                            dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
-                        }
-
-                        // 查询照片地址
-                        String key = TASK_CACHE_PRE + entity.getBizId();
-                        String taskCache = redisClient.get(key);
-                        logger.info("taskCache---{}",taskCache);
-                        if (StringUtils.isNotBlank(taskCache)) {
-                            ExpTaskDetailCacheDto cacheDto = JSON.parseObject(taskCache, ExpTaskDetailCacheDto.class);
-                            logger.info("ExpTaskDetailCacheDto---{}",JSON.toJSONString(cacheDto));
-                            if (cacheDto != null && StringUtils.isNotBlank(cacheDto.getImageUrls())) {
-                                dto.setImageUrls(cacheDto.getImageUrls());
-                            }
-                        }
-                    }else if(Objects.equals(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode(),dto.getType())){
-                        //生鲜报废的特殊处理
-                        if(!JdCResponse.CODE_SUCCESS.equals(listOfscrappedResponse.getCode())){
-                            continue;
-                        }
-                        for (ExpScrappedDetailDto detailDto: listOfscrappedResponse.getData()) {
-                            if(entity.getBizId().equals(detailDto.getBizId())){
-                                //处理中的报废任务
-                                if((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))){
-                                    if(StringUtils.isNotBlank(detailDto.getFirstChecker()) &&
-                                            ((Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
-                                                    ||(Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
-                                        dto.setCheckerErp(detailDto.getFirstChecker());
-                                    }else if(StringUtils.isNotBlank(detailDto.getSecondChecker())&&
-                                            ((Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
-                                                    ||(Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
-                                        dto.setCheckerErp(detailDto.getSecondChecker());
-                                    }else {
-                                        dto.setCheckerErp(detailDto.getThirdChecker());
-                                    }
-                                    //提交时间
-                                    dto.setCheckTime(detailDto.getSubmitTime());
-                                    dto.setImageUrls(detailDto.getGoodsImageUrl());
-                                }else { //完结的报废任务
-                                    if(Objects.nonNull(detailDto.getThirdCheckTime())){
-                                        dto.setCheckTime(detailDto.getThirdCheckTime());
-                                        dto.setCheckerErp(detailDto.getThirdChecker());
-                                    }else if(Objects.nonNull(detailDto.getSecondCheckTime())){
-                                        dto.setCheckTime(detailDto.getSecondCheckTime());
-                                        dto.setCheckerErp(detailDto.getSecondChecker());
-                                    }else {
-                                        dto.setCheckTime(detailDto.getFirstCheckTime());
-                                        dto.setCheckerErp(detailDto.getFirstChecker());
-                                    }
-                                }
-                            }
+                    if (Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType())) {
+                        this.dealSanwuTaskList(dto,entity);
+                    } else if (Objects.equals(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode(),dto.getType())) {
+                        ExpScrappedDetailDto detailDto = scrappedDtoMap.get(entity.getBizId());
+                        if (detailDto != null) {
+                            this.dealScrappedTaskList(dto, entity, detailDto);
                         }
                     }
                 }
@@ -695,6 +644,109 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         return JdCResponse.ok(list);
     }
 
+    /**
+     * 复制数据处理状态
+     * @param entity
+     * @param scrappedDtoMap
+     * @return
+     */
+    private ExpTaskDto copyEntityToExpTaskDto(JyBizTaskExceptionEntity entity, Map<String, ExpScrappedDetailDto> scrappedDtoMap){
+        ExpTaskDto dto = new ExpTaskDto();
+        BeanUtils.copyProperties(entity,dto);
+        // 停留时间：当前时间-分配时间
+        dto.setStayTime(getStayTime(entity.getDistributionTime()));
+        dto.setReporterName(entity.getCreateUserName());
+        dto.setTags(getTags(entity.getTags()));
+        // 在这里处理是因为老逻辑setSaved 不受task状态影响
+        if(Objects.nonNull(entity.getType())
+                && JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType())){
+            ExpScrappedDetailDto scrappedDetailDto = scrappedDtoMap.get(entity.getBizId());
+            if(scrappedDetailDto != null && scrappedDetailDto.getSaveType() != null){
+                dto.setSaved(Objects.equals(scrappedDetailDto.getSaveType(),JyExpSaveTypeEnum.TEMP_SAVE.getCode()));
+            }
+        }else{
+            String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
+            boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
+            dto.setSaved(saved);
+        }
+        return dto;
+    }
+    /**
+     * 三无列表数据处理
+     */
+    private void dealSanwuTaskList(ExpTaskDto dto, JyBizTaskExceptionEntity entity) {
+        if(Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode(),entity.getProcessingStatus())){
+            dto.setCreateTime(entity.getCreateTime() == null ? null : dateFormat.format(entity.getCreateTime()));
+        }else{
+            // 待打印时间
+            dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
+        }
+
+        // 查询照片地址
+        String key = TASK_CACHE_PRE + entity.getBizId();
+        String taskCache = redisClient.get(key);
+        logger.info("taskCache---{}",taskCache);
+        if (StringUtils.isNotBlank(taskCache)) {
+            ExpTaskDetailCacheDto cacheDto = JSON.parseObject(taskCache, ExpTaskDetailCacheDto.class);
+            logger.info("ExpTaskDetailCacheDto---{}",JSON.toJSONString(cacheDto));
+            if (cacheDto != null && StringUtils.isNotBlank(cacheDto.getImageUrls())) {
+                dto.setImageUrls(cacheDto.getImageUrls());
+            }
+        }
+    }
+    /**
+     * 破损列表数据处理
+     */
+    private void dealScrappedTaskList(ExpTaskDto dto, JyBizTaskExceptionEntity entity, ExpScrappedDetailDto detailDto) {
+        //处理中的报废任务
+        if((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))){
+            if(StringUtils.isNotBlank(detailDto.getFirstChecker()) &&
+                    ((Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
+                            ||(Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
+                dto.setCheckerErp(detailDto.getFirstChecker());
+            }else if(StringUtils.isNotBlank(detailDto.getSecondChecker())&&
+                    ((Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
+                            ||(Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
+                dto.setCheckerErp(detailDto.getSecondChecker());
+            }else {
+                dto.setCheckerErp(detailDto.getThirdChecker());
+            }
+            //提交时间
+            dto.setCheckTime(detailDto.getSubmitTime());
+            dto.setImageUrls(detailDto.getGoodsImageUrl());
+        }else { //完结的报废任务
+            if(Objects.nonNull(detailDto.getThirdCheckTime())){
+                dto.setCheckTime(detailDto.getThirdCheckTime());
+                dto.setCheckerErp(detailDto.getThirdChecker());
+            }else if(Objects.nonNull(detailDto.getSecondCheckTime())){
+                dto.setCheckTime(detailDto.getSecondCheckTime());
+                dto.setCheckerErp(detailDto.getSecondChecker());
+            }else {
+                dto.setCheckTime(detailDto.getFirstCheckTime());
+                dto.setCheckerErp(detailDto.getFirstChecker());
+            }
+        }
+    }
+
+    /**
+     * 根据bizId 批量查询生鲜数据
+     * @param taskList
+     * @return
+     */
+    private Map<String, ExpScrappedDetailDto> getTaskListOfScrapped(List<JyBizTaskExceptionEntity> taskList) {
+        List<String> bizIds = taskList.stream()
+                .filter(t -> Objects.equals(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode(), t.getType())
+                        && (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), t.getStatus())
+                        || Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), t.getStatus())))
+                .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
+        JdCResponse<List<ExpScrappedDetailDto>> listOfscrappedResponse = jyScrappedExceptionService.getTaskListOfscrapped(bizIds);
+        logger.info("listOfscrappedResponse -{}", JSON.toJSONString(listOfscrappedResponse));
+        if (!JdCResponse.CODE_SUCCESS.equals(listOfscrappedResponse.getCode()) && CollectionUtils.isNotEmpty(listOfscrappedResponse.getData())) {
+            return listOfscrappedResponse.getData().stream().collect(Collectors.toMap(ExpScrappedDetailDto::getBizId, s->s));
+        }
+        return new HashMap<>();
+    }
+    
     /**
      * 根据bizId 批量查询破损数据
      * @param taskList
