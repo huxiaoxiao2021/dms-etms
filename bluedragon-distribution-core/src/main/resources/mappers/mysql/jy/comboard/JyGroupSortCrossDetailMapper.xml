@@ -305,7 +305,7 @@
       and complete_status = #{completeStatus}
     </if>
     group by template_code
-    order by cross_code ,tabletrolley_code
+    order by ts desc
   </select>
   <select id="selectOneByFlowAndTemplateCode"
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
