@@ -1594,6 +1594,11 @@ public class UccPropertyConfiguration {
     private String jyWorkAppAutoRefreshConfig;
     private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
 
+    /**
+     * 组板岗混扫任务查询限制
+     */
+    private Integer cttGroupDataLimit;
+    
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -3625,5 +3630,13 @@ public class UccPropertyConfiguration {
 
     public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
         this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
+    }
+
+    public Integer getCttGroupDataLimit() {
+        return cttGroupDataLimit;
+    }
+
+    public void setCttGroupDataLimit(Integer cttGroupDataLimit) {
+        this.cttGroupDataLimit = cttGroupDataLimit;
     }
 }
