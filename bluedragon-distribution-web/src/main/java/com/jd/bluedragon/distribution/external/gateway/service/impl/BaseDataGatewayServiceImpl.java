@@ -34,6 +34,7 @@ import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.common.utils.ObjectHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -218,6 +219,10 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
                     searchStr = WaybillUtil.getWaybillCode(searchStr);
                 }
                 Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(searchStr);
+                if (ObjectHelper.isEmpty(waybill)) {
+                    response.toError("该包裹未获取到流向");
+                    return response;
+                }
                 convertParam(pageData, waybill);
             } catch (Exception e) {
                 log.error("BaseDataGatewayServiceImpl.selectSiteList exception ", e);
