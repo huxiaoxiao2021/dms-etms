@@ -978,17 +978,15 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             waybillStatus.setOperateTime(new Date(operateTime));
 
             waybillStatus.setOperateType(operateType);
+            Map<String, Object> extendParamMap = new HashMap<>();
+            extendParamMap.put("traceDisplay", 0);
             if(waybillIsProhibitedAbnormal){
                 waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检，不通过", waybillStatus.getCreateSiteName()));
-                Map<String, Object> extendMap = new HashMap<>();
-                extendMap.put("auditResult", 1);
-                waybillStatus.setExtendParamMap(extendMap);
+                extendParamMap.put("auditResult", 1);
             } else {
                 waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检通过", waybillStatus.getCreateSiteName()));
             }
 
-            Map<String, Object> extendParamMap = new HashMap<>();
-            extendParamMap.put("traceDisplay", 0);
             waybillStatus.setExtendParamMap(extendParamMap);
 
             // 添加到task表
