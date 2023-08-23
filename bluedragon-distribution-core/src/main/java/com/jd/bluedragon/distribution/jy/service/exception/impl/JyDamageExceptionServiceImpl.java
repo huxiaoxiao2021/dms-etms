@@ -860,7 +860,13 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             List<JyAttachmentDetailEntity> oldImageUrlList = jyAttachmentDetailService.queryDataListByCondition(query);
             logger.info("saveImages oldImageUrlList :{}", JSON.toJSONString(oldImageUrlList));
             if (!CollectionUtils.isEmpty(oldImageUrlList)) {
-                oldImageUrlList.forEach(i -> jyAttachmentDetailService.delete(i));
+                JyAttachmentDetailQuery delParams = new JyAttachmentDetailQuery();
+                List<String> deleteBizIdList = oldImageUrlList.stream().map(JyAttachmentDetailEntity::getBizId).collect(Collectors.toList());
+                delParams.setBizIdList(deleteBizIdList);
+                delParams.setSiteCode(entity.getSiteCode());
+                delParams.setBizType(bitType);
+                delParams.setUserErp(entity.getUpdateErp());
+                jyAttachmentDetailService.deleteBatch(delParams);
             }
             List<JyAttachmentDetailEntity> annexList = Lists.newArrayList();
             for (String proveUrl : imageUrlList) {

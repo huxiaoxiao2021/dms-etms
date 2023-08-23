@@ -53,6 +53,16 @@ public class JyAttachmentDetailQuery implements Serializable {
 	private Integer pageNumber = 1;
 	
 	private Integer pageSize = 10;
+	
+	private String userErp;
+
+	public String getUserErp() {
+		return userErp;
+	}
+
+	public void setUserErp(String userErp) {
+		this.userErp = userErp;
+	}
 
 	public String getBizId() {
 		return bizId;

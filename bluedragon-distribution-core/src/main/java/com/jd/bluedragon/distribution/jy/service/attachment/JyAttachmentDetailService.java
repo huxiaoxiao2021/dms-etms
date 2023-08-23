@@ -36,4 +36,5 @@ public interface JyAttachmentDetailService {
      */
     int delete(JyAttachmentDetailEntity entity);
 
+    int deleteBatch(JyAttachmentDetailQuery entity);
 }
