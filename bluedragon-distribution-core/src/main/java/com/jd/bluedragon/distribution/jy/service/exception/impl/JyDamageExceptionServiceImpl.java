@@ -552,8 +552,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         // 查询修复前图片
         damageDetail.setActualImageUrlList(this.getImageUrlList(oldEntity, JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_BEFORE.getCode()));
         // 查询修复后图片
-        if (JyExceptionDamageEnum.FeedBackTypeEnum.REPLACE_PACKAGING_HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
-            damageDetail.setActualImageUrlList(this.getImageUrlList(oldEntity, JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_AFTER.getCode()));
+        if (JyExceptionDamageEnum.FeedBackTypeEnum.REPAIR_HANDOVER.getCode().equals(oldEntity.getFeedBackType())
+            || JyExceptionDamageEnum.FeedBackTypeEnum.REPLACE_PACKAGING_HANDOVER.getCode().equals(oldEntity.getFeedBackType())) {
+            damageDetail.setDealImageUrlList(this.getImageUrlList(oldEntity, JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_AFTER.getCode()));
         }
         return JdCResponse.ok(damageDetail);
     }
@@ -837,7 +838,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         if (!CollectionUtils.isEmpty(req.getActualImageUrlList())) {
             this.saveImages(req.getActualImageUrlList(), JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_BEFORE.getCode(), entity);
         } else if (!CollectionUtils.isEmpty(req.getDealImageUrlList())) {
-            this.saveImages(req.getActualImageUrlList(), JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_AFTER.getCode(), entity);
+            this.saveImages(req.getDealImageUrlList(), JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_AFTER.getCode(), entity);
         }
     }
 
@@ -859,7 +860,13 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             List<JyAttachmentDetailEntity> oldImageUrlList = jyAttachmentDetailService.queryDataListByCondition(query);
             logger.info("saveImages oldImageUrlList :{}", JSON.toJSONString(oldImageUrlList));
             if (!CollectionUtils.isEmpty(oldImageUrlList)) {
-                oldImageUrlList.forEach(i -> jyAttachmentDetailService.delete(i));
+                JyAttachmentDetailQuery delParams = new JyAttachmentDetailQuery();
+                List<String> deleteBizIdList = oldImageUrlList.stream().map(JyAttachmentDetailEntity::getBizId).collect(Collectors.toList());
+                delParams.setBizIdList(deleteBizIdList);
+                delParams.setSiteCode(entity.getSiteCode());
+                delParams.setBizType(bitType);
+                delParams.setUserErp(entity.getUpdateErp());
+                jyAttachmentDetailService.deleteBatch(delParams);
             }
             List<JyAttachmentDetailEntity> annexList = Lists.newArrayList();
             for (String proveUrl : imageUrlList) {

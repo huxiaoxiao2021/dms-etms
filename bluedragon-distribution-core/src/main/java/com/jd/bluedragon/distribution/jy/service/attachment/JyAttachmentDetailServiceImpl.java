@@ -56,4 +56,9 @@ public class JyAttachmentDetailServiceImpl implements JyAttachmentDetailService 
 	public int delete(JyAttachmentDetailEntity entity) {
 		return jyAttachmentDetailDao.delete(entity);
 	}
+
+	@Override
+	public int deleteBatch(JyAttachmentDetailQuery entity) {
+		return jyAttachmentDetailDao.deleteBatch(entity);
+	}
 }
