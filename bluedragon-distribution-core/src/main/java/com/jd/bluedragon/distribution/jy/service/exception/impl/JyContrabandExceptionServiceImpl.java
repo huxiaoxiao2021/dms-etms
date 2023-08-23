@@ -11,15 +11,14 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrab
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpContrabandNoticCustomerMQ;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -28,11 +27,11 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.SwitchWaybillDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,8 +80,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private DefaultJMQProducer jyExceptionContrabandNoticCustomerProducer;
 
     @Autowired
-    public WaybillQueryManager waybillQueryManager;
+    private WaybillQueryManager waybillQueryManager;
 
+    @Autowired
+    private JyExceptionService jyExceptionService;
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {
@@ -248,8 +249,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         JyExceptionContrabandEntity entity = new JyExceptionContrabandEntity();
         BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
         if (baseStaff != null) {
-            entity.setSiteCode(baseStaff.getSiteCode());
-            entity.setSiteName(baseStaff.getSiteName());
+            entity.setSiteCode(req.getSiteId());
+            entity.setSiteName(req.getSiteName());
             entity.setCreateErp(baseStaff.getAccountNumber());
             entity.setCreateStaffName(baseStaff.getStaffName());
             entity.setCreateTime(new Date());
@@ -316,6 +317,12 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if (StringUtils.isEmpty(req.getUserErp())) {
             throw new RuntimeException("用户ERP不能为空");
         }
+        PositionDetailRecord positionDetail = jyExceptionService.getPosition(req.getPositionCode());
+        if (positionDetail == null) {
+            throw new RuntimeException("岗位码不能为空!");
+        }
+        req.setSiteId(positionDetail.getSiteCode());
+        req.setSiteName(positionDetail.getSiteName());
 
         JyExceptionContrabandEntity query = new JyExceptionContrabandEntity();
         query.setSiteCode(req.getSiteId());

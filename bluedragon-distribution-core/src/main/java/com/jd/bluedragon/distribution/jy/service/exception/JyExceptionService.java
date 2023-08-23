@@ -1,14 +1,23 @@
 package com.jd.bluedragon.distribution.jy.service.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.*;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionCycleTypeEnum;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpBaseReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpReceiveReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskDetailReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
-import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.ps.data.epf.dto.ExpefNotify;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
 
 import java.util.Date;
 import java.util.List;
@@ -128,5 +137,6 @@ public interface JyExceptionService {
      */
     JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req);
 
+    PositionDetailRecord getPosition(String positionCode);
 
 }

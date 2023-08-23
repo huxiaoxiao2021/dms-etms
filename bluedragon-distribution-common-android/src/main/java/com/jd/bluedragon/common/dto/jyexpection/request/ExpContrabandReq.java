@@ -21,6 +21,16 @@ public class ExpContrabandReq extends ExpBaseReq {
 
     // 货物情况
     private String description;
+    
+    private String siteName;
+
+    public String getSiteName() {
+        return siteName;
+    }
+
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
 
     public String getBarCode() {
         return barCode;

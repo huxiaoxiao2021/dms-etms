@@ -1499,7 +1499,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         return data.getSiteCode() + "-" + data.getFloor() + "-" + data.getGridCode();
     }
 
-    private PositionDetailRecord getPosition(String positionCode) {
+    public PositionDetailRecord getPosition(String positionCode) {
         if (StringUtils.isBlank(positionCode)) {
             return null;
         }
