@@ -54,6 +54,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillPickup;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -979,7 +980,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             waybillStatus.setOperateType(operateType);
             if(waybillIsProhibitedAbnormal){
                 waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检，不通过", waybillStatus.getCreateSiteName()));
-                // todo 不通过传扩展属性
+                Map<String, Object> extendMap = new HashMap<>();
+                extendMap.put("auditResult", 1);
+                waybillStatus.setExtendParamMap(extendMap);
             } else {
                 waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检通过", waybillStatus.getCreateSiteName()));
             }
