@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.api.request.DmsClientHeartbeatRequest;
 import com.jd.bluedragon.distribution.api.request.DmsClientLogoutRequest;
+import com.jd.bluedragon.distribution.api.request.DmsLoginRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.DmsClientHeartbeatResponse;
@@ -41,6 +42,12 @@ public interface DmsBaseService {
      * @time 2021-03-09 19:32:02 周二
      */
     LoginUserResponse clientLoginNew(LoginRequest request);
+
+    /**
+     * 获取登录token信息
+     */
+    LoginUserResponse getLoginId(DmsLoginRequest request);
+
 
 
     /**

@@ -3,8 +3,10 @@ package com.jd.bluedragon.distribution.external.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 import com.jd.bluedragon.distribution.api.request.DmsClientHeartbeatRequest;
 import com.jd.bluedragon.distribution.api.request.DmsClientLogoutRequest;
+import com.jd.bluedragon.distribution.api.request.DmsLoginRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.DmsClientHeartbeatResponse;
@@ -13,6 +15,8 @@ import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.service.DmsBaseService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -78,6 +82,29 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.clientLoginNew", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public LoginUserResponse clientLoginNew(LoginRequest request) {
         return userService.jsfLoginWithToken(request);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.getLoginId", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public LoginUserResponse getLoginId(DmsLoginRequest request) {
+        DmsClientLoginRequest dmsClientLoginRequest = new DmsClientLoginRequest();
+        org.springframework.beans.BeanUtils.copyProperties(request, dmsClientLoginRequest);
+        JdResult<DmsClientLoginResponse> loginResponse = dmsClientManager.login(dmsClientLoginRequest);
+        Long loginId = 0L;
+        DmsClientConfigInfo dmsClientConfigInfo = null;
+        if (loginResponse != null && loginResponse.isSucceed() && loginResponse.getData() != null) {
+            loginId = loginResponse.getData().getLoginId();
+            if (loginResponse.getData().getDmsClientConfigInfo() != null) {
+                dmsClientConfigInfo = new DmsClientConfigInfo();
+                org.springframework.beans.BeanUtils.copyProperties(dmsClientConfigInfo, loginResponse.getData().getDmsClientConfigInfo());
+            }
+        }
+        // 结果设置
+        LoginUserResponse response = new LoginUserResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        // 设置登录Id
+        response.setLoginId(loginId);
+        response.setDmsClientConfigInfo(dmsClientConfigInfo);
+        return response;
     }
 
     /**
