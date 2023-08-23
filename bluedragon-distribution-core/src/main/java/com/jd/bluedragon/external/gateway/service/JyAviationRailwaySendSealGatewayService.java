@@ -156,4 +156,11 @@ public interface JyAviationRailwaySendSealGatewayService {
      * @return
      */
     JdCResponse<AviationBarCodeDetailResp> sendBarCodeDetail(AviationBarCodeDetailReq request);
-}
+
+    /**
+     * 查询箱下的包裹明细数据
+     * @param request
+     * @return
+     */
+    JdCResponse<AviationBarCodeDetailResp> sendBoxDetail(AviationBoxDetailReq request);
+} 

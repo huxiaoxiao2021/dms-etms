@@ -47,4 +47,6 @@ public interface JyAviationRailwaySendSealService {
     InvokeResult<SendTaskBindQueryRes> queryBindTaskList(SendTaskBindQueryReq request);
 
     InvokeResult<AviationSealedListRes> pageFetchAviationSealedList(AviationSealedListReq request);
+
+    InvokeResult<AviationBarCodeDetailResp> sendBoxDetail(AviationBoxDetailReq request);
 }

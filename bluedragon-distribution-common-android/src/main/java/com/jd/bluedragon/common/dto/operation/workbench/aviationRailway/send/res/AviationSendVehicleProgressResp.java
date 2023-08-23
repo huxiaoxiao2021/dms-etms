@@ -32,6 +32,11 @@ public class AviationSendVehicleProgressResp extends AviationSendTaskDto{
      */
     private Integer forceSendPackCount;
 
+    /**
+     * 任务ID
+     */
+    private String taskId;
+
     public Integer getScannedCount() {
         return scannedCount;
     }
@@ -70,5 +75,13 @@ public class AviationSendVehicleProgressResp extends AviationSendTaskDto{
 
     public void setForceSendPackCount(Integer forceSendPackCount) {
         this.forceSendPackCount = forceSendPackCount;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 }

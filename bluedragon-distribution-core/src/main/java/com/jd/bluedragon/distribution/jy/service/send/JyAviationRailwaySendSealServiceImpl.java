@@ -3,10 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.BookingTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.ShuttleQuerySourceEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
@@ -16,6 +13,7 @@ import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
@@ -40,6 +38,7 @@ import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
@@ -50,6 +49,8 @@ import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jdl.jy.realtime.base.Pager;
+import com.jdl.jy.realtime.model.es.job.SendBoxAgg;
+import com.jdl.jy.realtime.model.es.job.SendPackageEsDto;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
 import org.apache.commons.collections.CollectionUtils;
@@ -107,6 +108,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
     @Autowired
     private IJySendVehicleJsfManager sendVehicleJsfManager;
+
+    @Autowired
+    private SortingService sortingService;
     
     @Override
     public InvokeResult<Void> sendTaskBinding(SendTaskBindReq request) {
@@ -976,6 +980,31 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
         return res;
     }
+
+    @Override
+    public InvokeResult<AviationBarCodeDetailResp> sendBoxDetail(AviationBoxDetailReq request) {
+        InvokeResult<AviationBarCodeDetailResp> invokeResult = new InvokeResult<>();
+        AviationBarCodeDetailResp resp = new AviationBarCodeDetailResp();
+        List<SendScanBarCodeDto> sendScanBarCodeDtoList = new ArrayList<>();
+        resp.setSendScanBarCodeDtoList(sendScanBarCodeDtoList);
+        invokeResult.setData(resp);
+        
+        SortingPageRequest sortingPageRequest = new SortingPageRequest();
+        sortingPageRequest.setOffset((request.getPageNumber() - 1) * request.getPageSize());
+        sortingPageRequest.setLimit(request.getPageSize());
+        sortingPageRequest.setBoxCode(request.getBoxCode());
+        sortingPageRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+        List<String> pagePackageNoByBoxCode = sortingService.getPagePackageNoByBoxCode(sortingPageRequest);
+        if (CollectionUtils.isNotEmpty(pagePackageNoByBoxCode)) {
+            for (String barCode : pagePackageNoByBoxCode) {
+                SendScanBarCodeDto scanBarCodeDto = new SendScanBarCodeDto();
+                scanBarCodeDto.setBarCode(barCode);
+                sendScanBarCodeDtoList.add(scanBarCodeDto);
+            }
+        }
+        return invokeResult;
+    }
+
     //任务添加页增加已绑定标签
     private void bindFlagHandler(List<AviationSealListDto> sealListDtoList, String sendVehicleBizId, String sendVehicleDetailBizId) {
         JyBizTaskBindEntityQueryCondition condition = new JyBizTaskBindEntityQueryCondition();
@@ -1144,6 +1173,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             taskDto.setInterceptedPackCount(sendAgg.getTotalInterceptCount());
             taskDto.setForceSendPackCount(sendAgg.getTotalForceSendCount());
         }
+
+        taskDto.setTaskId(getJyScheduleTaskId(request.getBizId()));
         return result;
     }
 
@@ -1174,17 +1205,85 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Override
     public InvokeResult<AviationBarCodeDetailResp> sendBarCodeDetail(AviationBarCodeDetailReq request) {
         InvokeResult<AviationBarCodeDetailResp> invokeResult = new InvokeResult<>();
-        if (!NumberHelper.gt0(request.getPageNumber())
-                || !NumberHelper.gt0(request.getPageSize())
-                || org.apache.commons.lang3.StringUtils.isBlank(request.getBizId())) {
-            invokeResult.parameterError();
+        AviationBarCodeDetailResp resp = new AviationBarCodeDetailResp();
+        List<SendScanBarCodeDto> sendScanBarCodeDtoList = new ArrayList<>();
+        resp.setSendScanBarCodeDtoList(sendScanBarCodeDtoList);
+        invokeResult.setData(resp);
+        checkAviationBarCodeDetailReq(request,invokeResult);
+        if (!invokeResult.codeSuccess()) {
             return invokeResult;
         }
         
-        //查询包裹明细 
+        // 判断查询包裹号还是箱号
+        boolean queryBoxCount = true;
+        if (Objects.equals(request.getScanedType(), AviationScanedTypeEnum.PACKAGE.getCode())) {
+            queryBoxCount = false;
+        }
         
-        
+        if (StringUtils.isNotEmpty(request.getBarCode())) {
+            if (WaybillUtil.isPackageCode(request.getBarCode())) {
+                queryBoxCount = false;
+            }
+        }
+        //查询箱号明细
+        if (queryBoxCount) {
+            Pager<SendVehicleTaskQuery> queryPager = getSendBarCodeDetailQueryPager(request);
+            Pager<SendBoxAgg> boxAggPager = sendVehicleJsfManager.querySendBoxAgg(queryPager);
+            if (boxAggPager != null && CollectionUtils.isNotEmpty(boxAggPager.getData())) {
+                for (SendBoxAgg sendBoxAgg : boxAggPager.getData()) {
+                    SendScanBarCodeDto scanBarCodeDto = new SendScanBarCodeDto();
+                    scanBarCodeDto.setBarCode(sendBoxAgg.getBoxCode());
+                    scanBarCodeDto.setPackCount(sendBoxAgg.getPackageCount());
+                    sendScanBarCodeDtoList.add(scanBarCodeDto);
+                }
+            }
+        }else {
+            // 查询包裹明细
+            Pager<SendVehicleTaskQuery> queryPager = getSendBarCodeDetailQueryPager(request);
+            Pager<SendPackageEsDto> sendPackageDtoPager = sendVehicleJsfManager.querySendPackageDetailNoBox(queryPager);
+            if (sendPackageDtoPager != null && CollectionUtils.isNotEmpty(sendPackageDtoPager.getData())) {
+                for (SendPackageEsDto sendBoxAgg : sendPackageDtoPager.getData()) {
+                    SendScanBarCodeDto scanBarCodeDto = new SendScanBarCodeDto();
+                    scanBarCodeDto.setBarCode(sendBoxAgg.getPackageCode());
+                    sendScanBarCodeDtoList.add(scanBarCodeDto);
+                }
+            }
+        }
         return invokeResult;
+    }
+
+    private Pager<SendVehicleTaskQuery> getSendBarCodeDetailQueryPager(AviationBarCodeDetailReq request) {
+        Pager<SendVehicleTaskQuery> pager = new Pager<>();
+        pager.setPageNo(request.getPageNumber());
+        pager.setPageSize(request.getPageSize());
+
+        SendVehicleTaskQuery searchVo = new SendVehicleTaskQuery();
+        pager.setSearchVo(searchVo);
+        searchVo.setSendVehicleBizId(request.getBizId());
+        searchVo.setBarCode(request.getBarCode());
+        return pager;
+    }
+
+    private void checkAviationBarCodeDetailReq(AviationBarCodeDetailReq request, InvokeResult<AviationBarCodeDetailResp> invokeResult) {
+        if (!NumberHelper.gt0(request.getPageNumber())
+                || !NumberHelper.gt0(request.getPageSize())
+                || org.apache.commons.lang3.StringUtils.isBlank(request.getBizId()) ||
+                (StringUtils.isEmpty(request.getBarCode()) && request.getScanedType() == null)) {
+            invokeResult.parameterError();
+        }
+
+        // 校验条码
+        if (StringUtils.isNotEmpty(request.getBarCode())
+                && !WaybillUtil.isPackageCode(request.getBarCode())
+                && !BusinessHelper.isBoxcode((request.getBarCode()))) {
+            invokeResult.parameterError("请扫描正确的包裹号或者箱号！");
+        }
+        
+        if (request.getScanedType() != null 
+                && !Objects.equals(request.getScanedType(),AviationScanedTypeEnum.PACKAGE.getCode()) 
+                && !Objects.equals(request.getScanedType(),AviationScanedTypeEnum.BOX.getCode())) {
+            invokeResult.parameterError("扫描类型错误！");
+        }
     }
 
     private void queryAbnormalSendBarCodeList(InvokeResult<AviationSendAbnormalPackResp> invokeResult, AviationSendAbnormalPackReq request) {
