@@ -94,6 +94,14 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     }
 
     @Override
+    public int initAviationTaskSendVehicle(JyBizTaskSendVehicleEntity entity) {
+        if (this.findByBookingCode(entity.getBookingCode(), entity.getStartSiteId()) == null) {
+            return jyBizTaskSendVehicleDao.initTaskSendVehicle(entity);
+        }
+        return 0;
+    }
+
+    @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.sumTaskByVehicleStatus",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
@@ -209,13 +217,13 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     }
 
     @Override
-    public JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode) {
-        return jyBizTaskSendVehicleDao.findByBookingCode(bookingCode, false);
+    public JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode, Long startSiteId) {
+        return jyBizTaskSendVehicleDao.findByBookingCode(bookingCode, startSiteId, false);
     }
 
     @Override
-    public JyBizTaskSendVehicleEntity findByBookingCodeIgnoreYn(String bookingCode) {
-        return jyBizTaskSendVehicleDao.findByBookingCode(bookingCode, true);
+    public JyBizTaskSendVehicleEntity findByBookingCodeIgnoreYn(String bookingCode, Long startSiteId) {
+        return jyBizTaskSendVehicleDao.findByBookingCode(bookingCode, startSiteId, true);
     }
 
     @Override

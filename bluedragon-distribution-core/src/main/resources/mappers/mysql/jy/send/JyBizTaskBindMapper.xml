@@ -104,7 +104,7 @@
     </select>
 
     <!-- 根据条件查询没有绑在bizId中的任务 -->
-    <select id="countBind" parameterType="java.lang.String" resultMap="java.lang.Integer" >
+    <select id="countBind" parameterType="java.lang.String" resultType="java.lang.Integer" >
         select count(*) from jy_biz_task_bind
         where yn = 1 and detail_biz_id = #{detailBizId}
     </select>

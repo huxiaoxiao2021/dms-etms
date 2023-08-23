@@ -179,6 +179,9 @@
             <if test="nextSiteName != null" >
                 next_site_name,
             </if>
+            <if test="taskStatus != null" >
+                task_status,
+            </if>
             yn
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -265,6 +268,9 @@
             </if>
             <if test="nextSiteName != null" >
                 #{nextSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="taskStatus != null" >
+                #{taskStatus},
             </if>
             1
         </trim>

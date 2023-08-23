@@ -49,8 +49,16 @@ public class TmsAviationPlanDto implements Serializable {
     private String carrierCode;//承运商编码
     private String carrierName;
     private Double bookingWeight;//订舱货量
-    private Integer cargoType;//货物类型
-    private Integer airType;//航空类型
+    /**
+     * 货物类型
+     * CargoTypeEnum
+     */
+    private Integer cargoType;
+    /**
+     * 航空类型
+     * AirTypeEnum
+     */
+    private Integer airType;
 
     public String getBusinessId() {
         return businessId;

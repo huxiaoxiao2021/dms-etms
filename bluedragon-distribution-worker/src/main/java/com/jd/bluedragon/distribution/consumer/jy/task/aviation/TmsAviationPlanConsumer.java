@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanC
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.enums.JySendTaskTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
@@ -131,7 +132,12 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
             throw new JyBizException(warnMsg);
         }
         try{
-            JyBizTaskSendVehicleEntity existSendTaskMain = jyBizTaskSendVehicleService.findByBookingCode(mqBody.getBookingCode());
+            BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(mqBody.getStartNodeCode());
+            if (Objects.isNull(currSite)) {
+                log.warn("航空计划发货任务创建：基础资料未查到始发分拣【{}】场地信息：mqBody={}" , mqBody.getStartNodeCode(), JsonHelper.toJson(mqBody));
+                throw new JyBizException();
+            }
+            JyBizTaskSendVehicleEntity existSendTaskMain = jyBizTaskSendVehicleService.findByBookingCode(mqBody.getBookingCode(), Long.valueOf(currSite.getSiteCode()));
             if(Objects.isNull(existSendTaskMain)) {
                 //0订舱量丢弃&记录缓存
                 if(!NumberHelper.gt0(mqBody.getBookingWeight())) {
@@ -152,6 +158,10 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
                 //修改
                 JyBizTaskSendAviationPlanEntity queryEntity = jyBizTaskSendAviationPlanService.findByBizId(existSendTaskMain.getBizId());
                 if(!Objects.isNull(queryEntity)) {
+                    if(mqBody.getBookingWeight().equals(queryEntity.getBookingWeight())) {
+                        log.warn("bizId={},订舱号={},航空计划订舱量未变化，不做更新，businessId={}", existSendTaskMain.getBizId(), mqBody.getBookingCode(), mqBody.getBusinessId());
+                        return;
+                    }
                     //同一订舱号约束变更仅变更订舱量，其他字段变更是生成新的订舱号任务，订舱量为0标识任务中途取消 2023年08月09日
                     if(!NumberHelper.gt0(queryEntity.getBookingWeight()) || (!Objects.isNull(queryEntity.getIntercept())) && queryEntity.getIntercept().equals(1)) {
                         log.warn("bizId={},订舱号={},该航空计划已经0订舱量取消处理，不在更新直接丢弃消息。消息体={}", existSendTaskMain.getBizId(), mqBody.getBookingCode(), JsonHelper.toJson(mqBody));
@@ -181,6 +191,9 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
                 }
             }
         }catch (Exception e) {
+            log.error("运输航空计划消费生成航空发货任务出错，errMsg={},mqBody={}", e.getMessage(), JsonHelper.toJson(mqBody));
+            throw new JyBizException("运输航空计划消费生成航空发货任务出错" + mqBody.getBookingCode());
+        }finally {
             //释放锁
             unlockGenerateSendAviationPlan(mqBody.getBookingCode());
         }
@@ -189,6 +202,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
 
     private JyBizTaskSendAviationPlanEntity generateAviationPlanEntity(TmsAviationPlanDto mqBody) {
         JyBizTaskSendAviationPlanEntity entity = new JyBizTaskSendAviationPlanEntity();
+//        entity.setBizId(tmsTransWorkItemOperateConsumer.genMainTaskBizId());
         entity.setBizId(jyBizTaskSendVehicleService.genMainTaskBizId());
         entity.setBookingCode(mqBody.getBookingCode());
         entity.setStartSiteCode(mqBody.getStartNodeCode());
@@ -213,10 +227,10 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         entity.setBookingWeight(mqBody.getBookingWeight());
         entity.setCargoType(mqBody.getCargoType());
         entity.setAirType(mqBody.getAirType());
-        //todo zcf 根据航空计划获取路由系统中流向场地信息： 待确认
-//        entity.setNextSiteCode();
-//        entity.setNextSiteId();
-//        entity.setNextSiteName();
+        //todo zcf 根据航空计划获取路由系统中流向场地信息： 待确认  下面是写死的测试代码
+        entity.setNextSiteCode("010F016");
+        entity.setNextSiteId(40240);
+        entity.setNextSiteName("北京通州分拣中心cs");
 
         entity.setCreateUserErp(Constants.SYS_NAME);
         entity.setCreateUserName(Constants.SYS_NAME);
@@ -224,6 +238,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         entity.setUpdateTime(entity.getCreateTime());
         entity.setYn(Constants.YN_YES);
         entity.setIntercept(0);
+        entity.setTaskStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
         return entity;
     }
 
@@ -232,11 +247,14 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         JyBizTaskSendVehicleEntity sendVehicleEntity = new JyBizTaskSendVehicleEntity();
         sendVehicleEntity.setBizId(aviationPlanEntity.getBizId());
         sendVehicleEntity.setStartSiteId(aviationPlanEntity.getStartSiteId().longValue());
-        sendVehicleEntity.setVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+        sendVehicleEntity.setVehicleStatus(aviationPlanEntity.getTaskStatus());
         sendVehicleEntity.setCreateUserErp(aviationPlanEntity.getCreateUserErp());
         sendVehicleEntity.setCreateUserName(aviationPlanEntity.getCreateUserName());
         sendVehicleEntity.setCreateTime(aviationPlanEntity.getCreateTime());
         sendVehicleEntity.setUpdateTime(aviationPlanEntity.getUpdateTime());
+        sendVehicleEntity.setBookingCode(aviationPlanEntity.getBookingCode());
+        sendVehicleEntity.setTaskType(JySendTaskTypeEnum.AVIATION.getCode());
+        sendVehicleEntity.setTransWorkCode(StringUtils.EMPTY);
         return sendVehicleEntity;
     }
 
@@ -265,6 +283,10 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
     private boolean invalidDataFilter(TmsAviationPlanDto mqBody) {
         if(StringUtils.isBlank(mqBody.getBookingCode())) {
             log.error("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：订舱号为空，内容为【{}】", JsonHelper.toJson(mqBody));
+            return true;
+        }
+        if(Objects.isNull(mqBody.getStartNodeCode())) {
+            log.error("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：操作场地StartNodeCode为空，内容为【{}】", JsonHelper.toJson(mqBody));
             return true;
         }
         return false;

@@ -54,6 +54,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
@@ -103,7 +104,7 @@ public class SendVehicleTransactionManager {
     @Autowired
     private JyBizTaskSendAviationPlanService jyBizTaskSendAviationPlanService;
 
-    @Autowired
+    @Resource
     private SendVehicleTransactionManager sendVehicleTransactionManager;
 
     @Autowired
@@ -662,7 +663,7 @@ public class SendVehicleTransactionManager {
 
             logInfo("初始化派车单.{}", JsonHelper.toJson(sendVehicleEntity));
 
-            taskSendVehicleService.initTaskSendVehicle(sendVehicleEntity);
+            taskSendVehicleService.initAviationTaskSendVehicle(sendVehicleEntity);
 
             // 创建发货调度任务
             createSendScheduleTask(sendVehicleEntity);
@@ -671,7 +672,7 @@ public class SendVehicleTransactionManager {
 
             logInfo("初始化派车单明细.{}", JsonHelper.toJson(sendVehicleDetailEntity));
 
-            if (taskSendVehicleDetailService.saveTaskSendDetail(sendVehicleDetailEntity) > 0) {
+            if (taskSendVehicleDetailService.saveAviationTaskSendDetail(sendVehicleDetailEntity) > 0) {
                 // 首次创建发货流向时，同时生成批次
                 saveSendCode(sendVehicleDetailEntity);
             }

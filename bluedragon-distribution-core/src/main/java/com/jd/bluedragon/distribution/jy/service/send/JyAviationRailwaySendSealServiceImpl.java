@@ -53,11 +53,15 @@ import com.jdl.jy.realtime.model.es.job.SendBoxAgg;
 import com.jdl.jy.realtime.model.es.job.SendPackageEsDto;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,6 +73,7 @@ import static com.jd.bluedragon.utils.TimeUtils.yyyy_MM_dd_HH_mm_ss;
  * @Date 2023/8/2 14:55
  * @Description
  */
+@Service
 public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceImpl implements JyAviationRailwaySendSealService{
 
     private static final Logger log = LoggerFactory.getLogger(JyAviationRailwaySendSealServiceImpl.class);
@@ -81,8 +86,6 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     private JyBizTaskSendAviationPlanService jyBizTaskSendAviationPlanService;
     @Autowired
     private JyBizTaskBindService jyBizTaskBindService;
-    @Autowired
-    private JyBizTaskBindCacheService jyBizTaskBindCacheService;
     @Autowired
     private JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
     @Autowired
@@ -100,6 +103,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Autowired
     private NewSealVehicleService newSealVehicleService;
     @Autowired
+    @Qualifier("sendVehicleTransactionManager")
     private SendVehicleTransactionManager sendVehicleTransactionManager;
     @Autowired
     private JyStatisticsSummaryService statisticsSummaryService;

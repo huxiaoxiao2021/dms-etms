@@ -215,13 +215,12 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByBizIds", params);
     }
 
-    public JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode, Boolean ignoreYn) {
+    public JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode, Long startSiteId, Boolean ignoreYn) {
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBookingCode(bookingCode);
+        entity.setStartSiteId(startSiteId);
         entity.setTaskType(JySendTaskTypeEnum.AVIATION.getCode());
-        if(Boolean.TRUE.equals(ignoreYn)) {
-            entity.setYn(Constants.YN_NO);
-        }else {
+        if(!Boolean.TRUE.equals(ignoreYn)) {
             entity.setYn(Constants.YN_YES);
         }
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBookingCode", entity);

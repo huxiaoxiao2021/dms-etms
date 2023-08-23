@@ -53,6 +53,12 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
     int initTaskSendVehicle(JyBizTaskSendVehicleEntity entity);
+    /**
+     * 初始化——航空发货任务
+     * @param entity
+     * @return
+     */
+    int initAviationTaskSendVehicle(JyBizTaskSendVehicleEntity entity);
 
     /**
      * 按状态统计发货任务数量
@@ -171,14 +177,14 @@ public interface JyBizTaskSendVehicleService {
      * @param bookingCode
      * @return
      */
-    JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode);
+    JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode, Long startSiteId);
 
     /**
      * 根据订舱号查询发货任务, 忽略yn
      * @param bookingCode
      * @return
      */
-    JyBizTaskSendVehicleEntity findByBookingCodeIgnoreYn(String bookingCode);
+    JyBizTaskSendVehicleEntity findByBookingCodeIgnoreYn(String bookingCode, Long startSiteId);
 
     /**
      * 关联查询，查询条件内子任务数量

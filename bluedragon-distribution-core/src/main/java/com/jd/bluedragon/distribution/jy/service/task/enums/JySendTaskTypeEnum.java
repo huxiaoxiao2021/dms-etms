@@ -2,9 +2,9 @@ package com.jd.bluedragon.distribution.jy.service.task.enums;
 
 public enum JySendTaskTypeEnum {
 
-    DEFAULT_VEHICLE(100, "（默认）发车任务，历史发货任务都是发车任务"),
-    AVIATION(200,"航空计划发货任务"),
-    RAILWAY(300, "铁路发货任务"),
+    DEFAULT_VEHICLE(1, "（默认）发车任务，历史发货任务都是发车任务"),
+    AVIATION(2,"航空计划发货任务"),
+    RAILWAY(3, "铁路发货任务"),
     ;
     private Integer code;
 
