@@ -80,9 +80,6 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private DefaultJMQProducer jyExceptionContrabandNoticCustomerProducer;
 
     @Autowired
-    public WaybillQueryManager waybillQueryManager;
-
-    @Autowired
     private JyExceptionService jyExceptionService;
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
