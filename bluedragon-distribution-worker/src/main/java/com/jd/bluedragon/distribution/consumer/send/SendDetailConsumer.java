@@ -198,6 +198,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         try {
             Long operateTime = context.getOperateTime();
             if (StringUtils.isNotEmpty(context.getPackageBarcode()) && operateTime != null && operateTime > 0) {
+                jyDamageExceptionService.dealDamageExpTaskStatus(context.getPackageBarcode(),context.getCreateSiteCode());
                 // 设置redis缓存锁
                 String lastOperateTime = this.setCacheLock(context);
                 if (lastOperateTime == null) {
@@ -214,7 +215,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                         return;
                     }
                 }
-                jyDamageExceptionService.dealDamageExpTaskStatus(context.getPackageBarcode(),context.getCreateSiteCode());
             } else {
                 log.warn("[dmsWorkSendDetail消费]无效发货明细消息，包裹号或者操作时间错误，MQ message body:{}", message.getText());
             }

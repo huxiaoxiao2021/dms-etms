@@ -1234,7 +1234,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Override
     public void pushScrapTrace(JyBizTaskExceptionEntity exTaskEntity) {
-
         if(StringUtils.isBlank(exTaskEntity.getBarCode())){
             logger.warn("单号为空!");
             return ;
@@ -1247,13 +1246,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         traceDto.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
         traceDto.setOperatorSiteId(exTaskEntity.getSiteCode().intValue());
         traceDto.setOperatorSiteName(exTaskEntity.getSiteName());
-        //traceDto.setOperatorUserName(exTaskEntity.getCreateStaffName());
-
+        traceDto.setOperatorUserName(exTaskEntity.getHandlerErp());
         traceDto.setOperatorTime(new Date());
         traceDto.setWaybillTraceType(1);
-        logger.info("发送运单全程跟踪信息-{}",JSON.toJSONString(traceDto));
+        logger.info("发送运单报废全程跟踪信息-{}",JSON.toJSONString(traceDto));
         waybillQueryManager.sendBdTrace(traceDto);
-
     }
 
     private void createSanWuTask(ExpefNotify mqDto) {
