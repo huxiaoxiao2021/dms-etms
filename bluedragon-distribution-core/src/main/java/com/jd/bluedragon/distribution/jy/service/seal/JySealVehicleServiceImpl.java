@@ -440,6 +440,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         sealCarDto.setSealUserName(sealVehicleReq.getUser().getUserName());
         //转换体积单位 立方厘米转换为立方米
         sealCarDto.setVolume(NumberHelper.cm3ToM3(sealVehicleReq.getVolume()));
+        if (!StringUtils.isEmpty(sealVehicleReq.getPalletCount())) {
+            sealCarDto.setPalletCount(Integer.valueOf(sealVehicleReq.getPalletCount()));
+        }
         return sealCarDto;
     }
 
