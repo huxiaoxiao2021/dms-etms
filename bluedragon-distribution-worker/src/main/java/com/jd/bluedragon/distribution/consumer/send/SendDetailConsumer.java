@@ -982,9 +982,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             extendParamMap.put("traceDisplay", 0);
             if(waybillIsProhibitedAbnormal){
                 waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检，不通过", waybillStatus.getCreateSiteName()));
-                extendParamMap.put("auditResult", 1);
+                extendParamMap.put("auditResult", 2);
             } else {
                 waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检通过", waybillStatus.getCreateSiteName()));
+                extendParamMap.put("auditResult", 1);
             }
 
             waybillStatus.setExtendParamMap(extendParamMap);
