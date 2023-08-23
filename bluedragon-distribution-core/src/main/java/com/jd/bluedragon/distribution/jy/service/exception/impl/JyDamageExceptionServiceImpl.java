@@ -312,13 +312,14 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             }
         }else {// 外单 选择外包装破损 -》修复 或者 直接下传 不发送客服
             if(Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode(), damageEntity.getDamageType())){
-                updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode());
                 //修复
                 if(Objects.equals(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPAIR.getCode(), damageEntity.getRepairType())){
+                    updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode());
                     updateDamageEntity.setFeedBackType(JyExceptionDamageEnum.FeedBackTypeEnum.REPAIR_HANDOVER.getCode());
                     logger.warn("外单 选择外包装破损 -》修复");
                     return false;
                 }else if(Objects.equals(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.HANDOVER.getCode(), damageEntity.getRepairType())){
+                    updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode());
                     updateDamageEntity.setFeedBackType(JyExceptionDamageEnum.FeedBackTypeEnum.HANDOVER.getCode());
                     logger.warn("外单 选择外包装破损 -》直接下传");
                     return false;

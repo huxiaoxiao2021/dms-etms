@@ -38,6 +38,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DeliveryWSManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
@@ -78,6 +79,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
@@ -219,6 +221,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     /**
      * 通用异常上报入口-扫描
@@ -1229,32 +1234,26 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Override
     public void pushScrapTrace(JyBizTaskExceptionEntity exTaskEntity) {
-        WaybillStatus status=new WaybillStatus();
-        status.setOperateType(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP);
-        status.setRemark(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
-        status.setWaybillCode(exTaskEntity.getBarCode());
-        status.setPackageCode(exTaskEntity.getBarCode());
-        status.setOperateTime(exTaskEntity.getProcessBeginTime());
 
-        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(exTaskEntity.getHandlerErp());
-        status.setOperatorId(baseStaff == null ? 0 : baseStaff.getStaffNo());
-        status.setOperator(baseStaff == null ? exTaskEntity.getHandlerErp() : baseStaff.getStaffName());
-        status.setCreateSiteCode(exTaskEntity.getSiteCode().intValue());
+        if(StringUtils.isBlank(exTaskEntity.getBarCode())){
+            logger.warn("单号为空!");
+            return ;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(exTaskEntity.getBarCode());
+        BdTraceDto traceDto = new BdTraceDto();
+        traceDto.setPackageBarCode(waybillCode);
+        traceDto.setWaybillCode(waybillCode);
+        traceDto.setOperateType(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP);
+        traceDto.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
+        traceDto.setOperatorSiteId(exTaskEntity.getSiteCode().intValue());
+        traceDto.setOperatorSiteName(exTaskEntity.getSiteName());
+        //traceDto.setOperatorUserName(exTaskEntity.getCreateStaffName());
 
-        Task tTask = new Task();
-        tTask.setKeyword1(exTaskEntity.getBarCode());
-        tTask.setKeyword2(String.valueOf(status.getOperateType()));
-        tTask.setCreateSiteCode(exTaskEntity.getSiteCode().intValue());
-        tTask.setCreateTime(exTaskEntity.getProcessBeginTime());
-        tTask.setType(Task.TASK_TYPE_WAYBILL_TRACK);
-        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
-        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_POP));
-        String ownSign = BusinessHelper.getOwnSign();
-        tTask.setOwnSign(ownSign);
-        tTask.setBody(JsonHelper.toJson(status));
-        tTask.setFingerprint(Md5Helper.encode(status.getCreateSiteCode() + "_"
-                + status.getWaybillCode() + "-" + status.getOperateType() + "-" + status.getOperateTime().getTime()));
-        taskService.add(tTask);
+        traceDto.setOperatorTime(new Date());
+        traceDto.setWaybillTraceType(1);
+        logger.info("发送运单全程跟踪信息-{}",JSON.toJSONString(traceDto));
+        waybillQueryManager.sendBdTrace(traceDto);
+
     }
 
     private void createSanWuTask(ExpefNotify mqDto) {
