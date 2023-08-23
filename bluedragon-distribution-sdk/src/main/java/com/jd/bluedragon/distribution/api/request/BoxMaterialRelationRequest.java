@@ -48,6 +48,16 @@ public class BoxMaterialRelationRequest extends JdRequest {
      */
     private String bizSource;
 
+    /**
+     * 强制提交
+     */
+    private Boolean forceFlag;
+
+    /**
+     * 本次绑定时需要发货的目的地
+     */
+    private Integer receiveSiteCode;
+
     public List<GroupBoxDto> getGroupList() {
         return groupList;
     }
@@ -106,5 +116,21 @@ public class BoxMaterialRelationRequest extends JdRequest {
 
     public void setBizSource(String bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public Integer getReceiveSiteCode() {
+        return receiveSiteCode;
+    }
+
+    public void setReceiveSiteCode(Integer receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
+    }
+
+    public Boolean getForceFlag() {
+        return forceFlag;
+    }
+
+    public void setForceFlag(Boolean forceFlag) {
+        this.forceFlag = forceFlag;
     }
 }
