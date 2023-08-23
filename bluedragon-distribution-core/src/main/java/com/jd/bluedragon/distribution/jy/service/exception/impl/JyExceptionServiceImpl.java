@@ -241,10 +241,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         //三无异常处理逻辑
-        if (!(BusinessUtil.isSanWuCode(req.getBarCode()) || WaybillUtil.isWaybillCode(req.getBarCode()))) {
+        if (!(BusinessUtil.isSanWuCode(req.getBarCode())  || WaybillUtil.isPackageCode(req.getBarCode()) || WaybillUtil.isWaybillCode(req.getBarCode()))) {
             return JdCResponse.fail("请扫描三无号或运单号!");
         }
-
 
         PositionDetailRecord position = getPosition(req.getPositionCode());
         if (position == null) {
@@ -255,6 +254,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (baseStaffByErp == null) {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
+        //如果是包裹号转成运单号
+        if(WaybillUtil.isPackageCode(req.getBarCode())){
+            req.setBarCode(WaybillUtil.getWaybillCode(req.getBarCode()));
+        }
+
         String bizId = getBizId(req.getBarCode(),position.getSiteCode());
         String existKey = "DMS.EXCEPTION.UPLOAD_SCAN:" + bizId;
         if (!redisClient.set(existKey, "1", 10, TimeUnit.SECONDS, false)) {
