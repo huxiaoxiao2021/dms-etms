@@ -10,6 +10,7 @@ import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.DeleteVehicleTaskCheckResp;
+import com.jd.bluedragon.distribution.jy.dto.send.JyTaskSendDetailFirstSendDto;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -268,5 +269,14 @@ public interface IJySendVehicleService {
      * @return
      */
     Result<Void> noticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo);
+
+    /**
+     * 首次发货任务扫描处理只装不卸属性
+     * @param jyTaskSendDetailFirstSendDto 首次扫描数据
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2023-08-21 17:57:28 周一
+     */
+    Result<Boolean> handleOnlyLoadAttr(JyTaskSendDetailFirstSendDto jyTaskSendDetailFirstSendDto);
 
 }

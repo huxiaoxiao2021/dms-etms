@@ -51,6 +51,7 @@
         <result property="teanFlag" column="te_an_flag"/>
         <result property="priorityFraction" column="priority_fraction"/>
         <result property="priorityFlag" column="priority_flag"/>
+        <result property="onlyUnloadNoLoad" column="only_unload_no_load"/>
     </resultMap>
 
     <resultMap type="com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto" id="JyBizTaskUnloadCountMap">
@@ -104,7 +105,8 @@
         intercept_count,
         te_an_flag,
         priority_fraction,
-        priority_flag
+        priority_flag,
+        only_unload_no_load
     </sql>
 
 
@@ -212,6 +214,9 @@
         <if test="taskType != null">
             task_type,
         </if>
+        <if test="onlyUnloadNoLoad != null">
+            only_unload_no_load,
+        </if>
         yn
 
         ) VALUES (
@@ -316,6 +321,9 @@
         </if>
         <if test="taskType != null">
             #{taskType},
+        </if>
+        <if test="onlyUnloadNoLoad != null">
+            #{onlyUnloadNoLoad},
         </if>
         1
 
@@ -689,6 +697,9 @@
             <if test="unloadType != null">
                 unload_type =#{unloadType},
             </if>
+            <if test="onlyUnloadNoLoad != null">
+                only_unload_no_load =#{onlyUnloadNoLoad},
+            </if>
         </set>
         <where>
             id = #{id} and yn = 1
@@ -781,6 +792,9 @@
             </if>
             <if test="priorityFlag != null">
                 priority_flag =#{priorityFlag},
+            </if>
+            <if test="onlyUnloadNoLoad != null">
+                only_unload_no_load =#{onlyUnloadNoLoad},
             </if>
         </set>
         <where>

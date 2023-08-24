@@ -158,6 +158,11 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	private String lineTypeName;
 	private String taskSimpleCode;
 
+    /**
+     * 是否只卸不装，需要操作无任务解封签
+     */
+	private Integer onlyLoadNoUnload;
+
 
 	/**
 	 * 线路类型集合
@@ -423,7 +428,15 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 		}
 	}
 
-	public List<Integer> getLineTypeList() {
+    public Integer getOnlyLoadNoUnload() {
+        return onlyLoadNoUnload;
+    }
+
+    public void setOnlyLoadNoUnload(Integer onlyLoadNoUnload) {
+        this.onlyLoadNoUnload = onlyLoadNoUnload;
+    }
+
+    public List<Integer> getLineTypeList() {
 		return lineTypeList;
 	}
 

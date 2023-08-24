@@ -111,11 +111,11 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     public CTTGroupDataResp queryCTTGroupDataByGroupOrSiteCode(CTTGroupDataReq request) {
         CTTGroupDataResp resp = new CTTGroupDataResp();
         List<CTTGroupDto> cttGroupDtos;
-        JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+        JyGroupSortCrossDetailEntityQueryDto entity = new JyGroupSortCrossDetailEntityQueryDto();
         entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         entity.setFuncType(COMBOARD_SEND_POSITION.getCode());
         // 返回固定混扫任务数量
-        PageHelper.startPage(1, ucc.getCttGroupDataLimit());
+        entity.setLimit(ucc.getCttGroupDataLimit());
         if (request.isGroupQueryFlag()) {
             entity.setGroupCode(request.getGroupCode());
             cttGroupDtos = jyGroupSortCrossDetailDao.queryCommonCTTGroupData(entity);
