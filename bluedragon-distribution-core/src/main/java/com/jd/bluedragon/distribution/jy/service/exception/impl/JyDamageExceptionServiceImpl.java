@@ -6,7 +6,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpTypeCheckReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
@@ -23,7 +22,6 @@ import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDamageDao;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
-import com.jd.bluedragon.distribution.jy.enums.CustomerReturnResultEnum;
 import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
@@ -40,10 +38,8 @@ import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jim.cli.Cluster;
@@ -67,7 +63,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,8 +100,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private Cluster redisClient;
 
     @Autowired
-    @Qualifier("dmsDamageNoticeKFProducer")
-    private DefaultJMQProducer dmsDamageNoticeKFProducer;
+    @Qualifier("dmsDamageMainLandNoticeKFProducer")
+    private DefaultJMQProducer dmsDamageMainLandNoticeKFProducer;
+
+    @Autowired
+    @Qualifier("dmsDamageHKOrMONoticeKFProducer")
+    private DefaultJMQProducer dmsDamageHKOrMONoticeKFProducer;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -228,16 +227,11 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 return;
             }
 
-            com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
-                    = waybillQueryManager.getDataByChoice(barCode, true, true, true, false);
-            if (dataByChoice == null
-                    || dataByChoice.getData() == null
-                    || dataByChoice.getData().getWaybill() == null
-                    || StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+            Waybill waybill = waybillService.getWaybillByWayCode(barCode);
+            if(waybill == null){
                 logger.warn("查询运单waybillSign失败!-{}", barCode);
                 throw new JyBizException("获取运单信息失败！");
             }
-            Waybill waybill = dataByChoice.getData().getWaybill();
 
             JyBizTaskExceptionEntity updateExp = new JyBizTaskExceptionEntity();
             updateExp.setBizId(bizId);
@@ -265,11 +259,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             }
 
             if (sendMQFlag) {
-                // todo 消息区分大陆和港澳
-                JyExpDamageNoticCustomerMQ damageNoticCustomerMQ = this.coverToDamageNoticCustomerMQ(exceptionEntity,waybill);
-                //发送破损消息通知客服
-                logger.info("发送破损消息通知客服-MQ-{}", JSON.toJSONString(damageNoticCustomerMQ));
-                dmsDamageNoticeKFProducer.sendOnFailPersistent(bizId, JsonHelper.toJson(damageNoticCustomerMQ));
+                sendMQToCustomer(exceptionEntity,damageEntity,waybill);
             }else {
                 //不给客服发消息 也要提示有新消息
                 writeToProcessDamage(bizId);
@@ -286,6 +276,155 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
 
+    /**
+     * 发送破损数据给客服
+     * @param exceptionEntity
+     * @param damageEntity
+     * @param waybill
+     */
+    private void  sendMQToCustomer(JyBizTaskExceptionEntity exceptionEntity,JyExceptionDamageEntity damageEntity,Waybill waybill){
+        try{
+            boolean isHKorMOWaybill = isHKorMOWaybill(exceptionEntity.getBarCode(), waybill);
+            // 内破外破
+            if(Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode(),damageEntity.getDamageType())){
+                //内物严重破损
+                if(Objects.equals(JyExceptionDamageEnum.InsideOutsideDamagedRepairTypeEnum.INSIDE_SEVERE_DAMAGE.getCode(),damageEntity.getRepairType())){
+                    //外单
+                    if(!BusinessUtil.isSelf(waybill.getWaybillSign())) {
+                        if (isHKorMOWaybill) {
+                            JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_DAMAGE_NO_DOWNLOAD.getCode(), true);
+                            if (mq != null) {
+                                logger.info("内破外破-内物严重破损-外单-港澳单");
+                                dmsDamageHKOrMONoticeKFProducer.sendOnFailPersistent(exceptionEntity.getBizId(), JsonHelper.toJson(mq));
+                            }
+                        } else {
+                            JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_PART_DAMAGE.getCode(), false);
+                            if (mq != null) {
+                                logger.info("内破外破-内物严重破损-外单-大陆单");
+                                dmsDamageMainLandNoticeKFProducer.sendOnFailPersistent(exceptionEntity.getBizId(), JsonHelper.toJson(mq));
+                            }
+                        }
+
+                    }
+                }else if(Objects.equals(JyExceptionDamageEnum.InsideOutsideDamagedRepairTypeEnum.WORTHLESS.getCode(),damageEntity.getRepairType())){
+                    //无残余价值
+                    if (isHKorMOWaybill) {
+                        JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_DAMAGE_NO_DOWNLOAD.getCode(), true);
+                        if (mq != null) {
+                            logger.info("内破外破-无残余价值-港澳单");
+                            dmsDamageHKOrMONoticeKFProducer.sendOnFailPersistent(exceptionEntity.getBizId(), JsonHelper.toJson(mq));
+                        }
+                    } else {
+                        JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_SERIOUS_DAMAGE.getCode(), false);
+                        if (mq != null) {
+                            logger.info("内破外破-无残余价值-大陆单");
+                            dmsDamageMainLandNoticeKFProducer.sendOnFailPersistent(exceptionEntity.getBizId(), JsonHelper.toJson(mq));
+                        }
+                    }
+
+                }
+            }else if(Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode(),damageEntity.getDamageType())){ //外包装破损
+                if(Objects.equals(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode(),damageEntity.getRepairType())){
+                    //更换包装
+                    if(!isHKorMOWaybill){
+                        JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_CHANGE_PACKAGE.getCode(), false);
+                        if (mq != null) {
+                            logger.info("外包装破损-更换包装-大陆单");
+                            dmsDamageMainLandNoticeKFProducer.sendOnFailPersistent(exceptionEntity.getBizId(), JsonHelper.toJson(mq));
+                        }
+                    }
+                }
+            }
+        }catch (Exception e){
+            logger.error("发送客服破损数据异常!",e);
+        }
+    }
+
+
+    /**
+     * 发送大陆运单给客服 破损数据组装
+     *
+     * @return
+     */
+    private JyExpDamageNoticCustomerMQ coverToDamageNoticCustomerMQ(JyBizTaskExceptionEntity entity,Waybill waybill,String twoLevelExceptionCode,boolean isHKorMO) {
+        JyExpDamageNoticCustomerMQ mq = new JyExpDamageNoticCustomerMQ();
+
+        mq.setDealType(ASCPContants.DEAL_TYPE);
+        mq.setCodeInfo(entity.getBarCode());
+        mq.setCodeType(ASCPContants.CODE_TYPE);
+        mq.setExptCreateTime(DateHelper.formatDateTime(entity.getCreateTime()));
+
+        JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum twoLevelEnum = JyExpNoticCustomerExpReasonEnum
+                .ExpReasonTwoLevelEnum.getEnumByCode(twoLevelExceptionCode);
+        if(twoLevelEnum == null){
+            return null;
+        }
+
+        if(isHKorMO){
+            logger.info("港澳单---{}",entity.getBarCode());
+            mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_HK_HO.getCode());
+            mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_HK_HO.getCode() + "_" + entity.getBizId());
+            switch (twoLevelEnum){
+                case HA_MO_DAMAGE_NO_DOWNLOAD:
+                    mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.HA_MO_DELIVERY_EXCEPTION_REPORT.getCode());
+                    mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.HA_MO_DELIVERY_EXCEPTION_REPORT.getName());
+                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_DAMAGE_NO_DOWNLOAD.getCode());
+                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_DAMAGE_NO_DOWNLOAD.getName());
+                    break;
+
+                default:
+                    logger.warn("未知的二级原因-{}",twoLevelEnum);
+                    return null;
+            }
+        }else{
+            logger.info("大陆单---{}",entity.getBarCode());
+            mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode());
+            mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode() + "_" + entity.getBizId());
+
+            switch (twoLevelEnum){
+
+                case MAIN_LAND_PART_DAMAGE:
+                    mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_DAMAGE_NO_DOWNLOAD.getCode());
+                    mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_DAMAGE_NO_DOWNLOAD.getName());
+                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_PART_DAMAGE.getCode());
+                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_PART_DAMAGE.getName());
+                    break;
+                case MAIN_LAND_SERIOUS_DAMAGE:
+                    mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_DAMAGE_NO_DOWNLOAD.getCode());
+                    mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_DAMAGE_NO_DOWNLOAD.getName());
+                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_SERIOUS_DAMAGE.getCode());
+                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_SERIOUS_DAMAGE.getName());
+                    break;
+                case MAIN_LAND_CHANGE_PACKAGE:
+                    mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_SALE_PACKAGE_DAMAGE.getCode());
+                    mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_SALE_PACKAGE_DAMAGE.getName());
+                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_CHANGE_PACKAGE.getCode());
+                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_CHANGE_PACKAGE.getName());
+                    break;
+
+                default:
+                    logger.warn("未知的二级原因-{}",twoLevelEnum);
+                    return null;
+            }
+        }
+
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(entity.getSiteCode().intValue());
+        if (baseSite != null) {
+            mq.setStartOrgCode(baseSite.getOrgId().toString());
+            mq.setStartOrgName(baseSite.getOrgName());
+            mq.setProvinceAgencyCode(StringUtils.isNotBlank(baseSite.getProvinceAgencyCode()) ? baseSite.getProvinceAgencyCode().toString() : "");
+            mq.setProvinceAgencyName(StringUtils.isNotBlank(baseSite.getProvinceAgencyName()) ? baseSite.getProvinceAgencyName() : "");
+        }
+
+        String waybillSign = waybill.getWaybillSign();
+        if (BusinessUtil.isSelf(waybillSign)) {
+            mq.setWaybillType(ASCPContants.WAYBILL_TYPE_SELF);
+        } else {//外单
+            mq.setWaybillType(ASCPContants.WAYBILL_TYPE_OTHER);
+        }
+        mq.setWaybillCode(entity.getBarCode());
+        return mq;
+    }
 
 
     /**
@@ -373,6 +512,15 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             logger.warn("破损类型选择-仅外包装破损-修复");
             return false;
         }
+        //如果异常处理选择 外破内破 - 内物轻微破损 不发送消息给客服 任务状态变更为待执行-直接下传
+        if(Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode(),damageEntity.getDamageType())
+                && Objects.equals(JyExceptionDamageEnum.InsideOutsideDamagedRepairTypeEnum.INSIDE_MILD_DAMAGE.getCode(),damageEntity.getRepairType())){
+            updateExp.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode());
+            updateDamageEntity.setFeedBackType(JyExceptionDamageEnum.FeedBackTypeEnum.HANDOVER.getCode());
+            logger.warn(" 外破内破-内物轻微破损 不与客服交互！");
+            return false;
+        }
+
         return true;
     }
 
@@ -425,40 +573,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         logger.info("破损调用运单滞留上报结果-{}", JsonHelper.toJson(report));
     }
 
-    /**
-     * 发送客服破损数据组装
-     *
-     * @return
-     */
-    private JyExpDamageNoticCustomerMQ coverToDamageNoticCustomerMQ(JyBizTaskExceptionEntity entity,Waybill waybill) {
-        JyExpDamageNoticCustomerMQ mq = new JyExpDamageNoticCustomerMQ();
-        mq.setBusinessId(ASCPContants.DAMAGE_BUSINESS_ID);
-        mq.setExptId(ASCPContants.DAMAGE_BUSINESS_ID + "_" + entity.getBizId());
-        mq.setDealType(ASCPContants.DEAL_TYPE);
-        mq.setCodeInfo(entity.getBarCode());
-        mq.setCodeType(ASCPContants.CODE_TYPE);
-        mq.setExptCreateTime(DateHelper.formatDateTime(entity.getCreateTime()));
-        mq.setExptOneLevel(ASCPContants.DAMAGE_EXPT_ONE_LEVEL);
-        mq.setExptOneLevelName(ASCPContants.DAMAGE_EXPT_ONE_LEVEL_NAME);
-        mq.setExptTwoLevel(ASCPContants.DAMAGE_EXPT_TWO_LEVEL);
-        mq.setExptTwoLevelName(ASCPContants.DAMAGE_EXPT_TWO_LEVEL_NAME);
-        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(entity.getSiteCode().intValue());
-        if (baseSite != null) {
-            mq.setStartOrgCode(baseSite.getOrgId().toString());
-            mq.setStartOrgName(baseSite.getOrgName());
-            mq.setProvinceAgencyCode(StringUtils.isNotBlank(baseSite.getProvinceAgencyCode()) ? baseSite.getProvinceAgencyCode().toString() : "");
-            mq.setProvinceAgencyName(StringUtils.isNotBlank(baseSite.getProvinceAgencyName()) ? baseSite.getProvinceAgencyName() : "");
-        }
 
-        String waybillSign = waybill.getWaybillSign();
-        if (BusinessUtil.isSelf(waybillSign)) {
-            mq.setWaybillType(ASCPContants.WAYBILL_TYPE_SELF);
-        } else {//外单
-            mq.setWaybillType(ASCPContants.WAYBILL_TYPE_OTHER);
-        }
-        mq.setWaybillCode(entity.getBarCode());
-        return mq;
-    }
 
 
     @Override
@@ -567,7 +682,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         String bizId = returnMQ.getExptId().split("_", 2)[1];
         //回传状态
         String resultType = returnMQ.getResultType();
-        CustomerReturnResultEnum resultEnum = CustomerReturnResultEnum.convertApproveEnum(resultType);
+        JyExpCustomerReturnResultEnum resultEnum = JyExpCustomerReturnResultEnum.convertApproveEnum(resultType);
         if(resultEnum == null){
             logger.error("此任务-{}-客服返回状态不在处理范围内", bizId);
             return;

@@ -157,7 +157,7 @@ public class JyExceptionDamageEnum {
     }
 
     /**
-     * 客服反馈类型（1：修复下传 2：直接下传 3：更换包装下传 4：报废 5：逆向退回）
+     * 客服反馈类型（1：修复下传 2：直接下传 3：更换包装下传 4：报废 5：逆向退回 6:）
      */
     public enum FeedBackTypeEnum {
         DEFAULT(0, "待客服反馈"),
@@ -165,7 +165,8 @@ public class JyExceptionDamageEnum {
         HANDOVER(2, "直接下传"),
         REPLACE_PACKAGING_HANDOVER(3, "更换包装下传"),
         DESTROY(4, "报废"),
-        REVERSE_RETURN(5, "逆向退回");
+        REVERSE_RETURN(5, "逆向退回"),
+        REPLENISH(6,"补单/补差");
 
         private Integer code;
         private String name;
