@@ -745,7 +745,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
         JdCResponse<List<ExpScrappedDetailDto>> listOfscrappedResponse = jyScrappedExceptionService.getTaskListOfscrapped(bizIds);
         logger.info("listOfscrappedResponse -{}", JSON.toJSONString(listOfscrappedResponse));
-        if (!JdCResponse.CODE_SUCCESS.equals(listOfscrappedResponse.getCode()) && CollectionUtils.isNotEmpty(listOfscrappedResponse.getData())) {
+        if (JdCResponse.CODE_SUCCESS.equals(listOfscrappedResponse.getCode()) && CollectionUtils.isNotEmpty(listOfscrappedResponse.getData())) {
             return listOfscrappedResponse.getData().stream().collect(Collectors.toMap(ExpScrappedDetailDto::getBizId, s->s));
         }
         return new HashMap<>();
