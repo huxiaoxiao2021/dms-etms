@@ -619,6 +619,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                             if (CollectionUtils.isNotEmpty(damageDto.getImageUrlList())) {
                                 dto.setImageUrls(String.join(";", damageDto.getImageUrlList()));
                             }
+                            dto.setFeedBackType(damageDto.getFeedBackType());
                             dto.setFeedBackTypeName(JyExceptionDamageEnum.FeedBackTypeEnum.getNameByCode(damageDto.getFeedBackType()));
                         }
                     }
