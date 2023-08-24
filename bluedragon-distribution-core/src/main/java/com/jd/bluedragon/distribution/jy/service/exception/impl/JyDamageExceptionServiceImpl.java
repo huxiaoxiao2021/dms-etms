@@ -809,6 +809,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                     // 该运单在提报场地操作换单打印成功后，任务状态变更为已完成
                     // this.finishFlow(req, entity);
                     break;
+                case REPLENISH:
+                    //6.补单/补差
+                    this.finishFlow(req, entity);
+                    break;
                 default:
                     return JdCResponse.fail("客服反馈类型匹配失败" + req.getBizId());
             }
