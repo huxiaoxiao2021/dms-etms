@@ -460,7 +460,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             //保存封车个数
 
             //航空任务没有主子任务一说，沿用历史发货任务数据模型，生成任务时以订舱号为detailBizId，直接使用
-            updateTaskStatusAndSummary(request, sendCodeList, entity.getBookingCode(),  sealCarDto);
+            updateTaskStatusSealAndSummary(request, sendCodeList, entity.getBookingCode(),  sealCarDto);
             return res;
         }catch (Exception e) {
             log.error("航空任务发货提交封车异常：request={},errMsg={}", JsonHelper.toJson(request), e.getMessage(), e);
@@ -471,13 +471,16 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     }
 
     //修改状态并落封车汇总数据
-    private void updateTaskStatusAndSummary(AviationTaskSealCarReq request, List<String> batchCodes, String detailBizId, SealCarDto sealCarDto) {
+    private void updateTaskStatusSealAndSummary(AviationTaskSealCarReq request, List<String> batchCodes, String detailBizId, SealCarDto sealCarDto) {
         //航空计划
         Date time = new Date();
         JyBizTaskSendAviationPlanEntity aviationPlanEntity = new JyBizTaskSendAviationPlanEntity();
         aviationPlanEntity.setUpdateTime(time);
         aviationPlanEntity.setUpdateUserErp(request.getUser().getUserErp());
         aviationPlanEntity.setUpdateUserName(request.getUser().getUserName());
+        aviationPlanEntity.setTaskStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
+        aviationPlanEntity.setBizId(request.getBizId());
+        aviationPlanEntity.setStartSiteId(request.getCurrentOperate().getSiteCode());
         //发货任务主表
         JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(detailBizId);
         JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(request.getBizId());
@@ -547,6 +550,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                         log.info("航空发货计划查询发货流向数据为空，request={},queryCondition={}", JsonHelper.toJson(request), JsonHelper.toJson(condition));
                     }
                 }
+                break;
             }
         }
 
@@ -583,9 +587,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             statusAggList.add(toSend);
 
             TaskStatusStatistics sending = new TaskStatusStatistics();
-            toSend.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode());
-            toSend.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SENDING.getName());
-            toSend.setTotal(0);
+            sending.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode());
+            sending.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SENDING.getName());
+            sending.setTotal(0);
             statusAggList.add(sending);
         }else {
             TaskStatusStatistics trunkN = new TaskStatusStatistics();
@@ -662,12 +666,16 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     public InvokeResult<AviationSendTaskQueryRes> pageFetchAviationTaskByNextSite(AviationSendTaskQueryReq request) {
         InvokeResult<AviationSendTaskQueryRes> res = new InvokeResult<>();
 
-        JyBizTaskSendAviationPlanQueryCondition condition = new JyBizTaskSendAviationPlanQueryCondition();
-        condition.setStartSiteId(request.getCurrentOperate().getSiteCode());
+        JyBizTaskSendAviationPlanQueryCondition condition = this.convertListQueryCondition(
+                request.getCurrentOperate().getSiteCode(),
+                request.getStatusCode(),
+                request.getFilterConditionDto(),
+                request.getKeyword()
+                );
         condition.setNextSiteId(request.getNextSiteId());
-        condition.setTaskStatus(request.getStatusCode());
         condition.setOffset((request.getPageNo() - 1) * request.getPageSize());
         condition.setPageSize(request.getPageSize());
+
         List<JyBizTaskSendAviationPlanEntity> taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
 
         List<AviationSendTaskDto> sendTaskDtoList = this.convertAviationSendTaskDtoList(taskDtoList, request.getStatusCode());
@@ -745,7 +753,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
         boolean existTaskFlag = false;
         for (TaskStatusStatistics tss : taskStatusStatistics) {
-            if(tss.getTaskStatus().equals(request.getStatusCode()) && NumberHelper.gt0(tss.getTotal())) {
+            if(tss.getTaskStatus().equals(request.getStatusCode()) && NumberHelper.gt0(tss.getTaskStatus())) {
                 existTaskFlag = true;
                 break;
             }

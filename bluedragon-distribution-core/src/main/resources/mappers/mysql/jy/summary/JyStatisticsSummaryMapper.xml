@@ -177,7 +177,7 @@
       and business_key_type = #{businessKeyType}
       and source = #{source}
       and operate_site_code = #{operateSiteCode}
-      and businessKey IN
+      and business_key IN
         <foreach collection="businessKeyList" item="item" index="index" open="(" separator="," close=")">
           #{item,jdbcType=VARCHAR}
         </foreach>

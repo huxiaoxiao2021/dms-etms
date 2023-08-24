@@ -23,6 +23,16 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
     private Integer statusCode;
 
 
+    /**
+     * 筛选条件
+     */
+    private FilterConditionDto filterConditionDto;
+    /**
+     * 关键词
+     */
+    private String keyword;
+
+
     public Integer getPageNo() {
         return pageNo;
     }
@@ -61,5 +71,21 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
 
     public void setStatusCode(Integer statusCode) {
         this.statusCode = statusCode;
+    }
+
+    public FilterConditionDto getFilterConditionDto() {
+        return filterConditionDto;
+    }
+
+    public void setFilterConditionDto(FilterConditionDto filterConditionDto) {
+        this.filterConditionDto = filterConditionDto;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 }

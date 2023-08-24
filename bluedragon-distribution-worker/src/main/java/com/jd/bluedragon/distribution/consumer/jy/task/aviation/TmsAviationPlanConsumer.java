@@ -191,7 +191,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
                 }
             }
         }catch (Exception e) {
-            log.error("运输航空计划消费生成航空发货任务出错，errMsg={},mqBody={}", e.getMessage(), JsonHelper.toJson(mqBody));
+            log.error("运输航空计划消费生成航空发货任务出错，errMsg={},mqBody={}", e.getMessage(), JsonHelper.toJson(mqBody), e);
             throw new JyBizException("运输航空计划消费生成航空发货任务出错" + mqBody.getBookingCode());
         }finally {
             //释放锁

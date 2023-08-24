@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.Ai
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.CargoTypeEnum;
 import com.jd.bluedragon.distribution.consumer.jy.task.aviation.TmsAviationPlanConsumer;
 import com.jd.bluedragon.distribution.jy.dto.send.TmsAviationPlanDto;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.util.DateUtil;
@@ -30,9 +32,18 @@ public class TmsAviationPlanConsumerTest {
 
     @Autowired
     private TmsAviationPlanConsumer tmsAviationPlanConsumer;
+    @Autowired
+    private JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
 
     @Test
     public void testConsume() {
+
+//        int t = 0;
+//        while(t++<100){
+//            String bizId = jyBizTaskSendVehicleService.genMainTaskBizId();
+//            System.out.println(bizId);
+//        }
+
         TmsAviationPlanDto param = new TmsAviationPlanDto();
         param.setStartNodeCode("010F002");//910
         param.setStartNodeName("马驹桥分拣中心cs");
@@ -51,17 +62,17 @@ public class TmsAviationPlanConsumerTest {
         param.setCargoType(CargoTypeEnum.SPECIAL_A.getCode());
         param.setAirType(AirTypeEnum.AIR_TYPE_BULK.getCode());
 
-        int i = 0;
-        while(i++ < 100) {
+        int i = 100;
+        while(i++ < 200) {
             try{
-                String dch = DateUtil.format(new Date(), DateUtil.FORMAT_DATE_TIME);
-                param.setBookingCode("DCH" + dch);
+                String dch = DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss);
+                param.setBookingCode("DCH" + i + dch);
                 Message message = new Message();
                 message.setText(JsonHelper.toJson(param));
                 message.setBusinessId(param.getBookingCode());
                 tmsAviationPlanConsumer.consume(message);
 
-                param.setBookingWeight(param.getBookingWeight() - i);
+                param.setBookingWeight(param.getBookingWeight() - 10);
                 Message message1 = new Message();
                 message1.setText(JsonHelper.toJson(param));
                 message1.setBusinessId(param.getBookingCode());
