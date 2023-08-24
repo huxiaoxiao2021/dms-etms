@@ -862,6 +862,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             if (!CollectionUtils.isEmpty(oldImageUrlList)) {
                 JyAttachmentDetailQuery delParams = new JyAttachmentDetailQuery();
                 List<String> deleteBizIdList = oldImageUrlList.stream().map(JyAttachmentDetailEntity::getBizId).collect(Collectors.toList());
+                logger.info("saveImages deleteBizIdList :{}", JSON.toJSONString(deleteBizIdList));
                 delParams.setBizIdList(deleteBizIdList);
                 delParams.setSiteCode(entity.getSiteCode());
                 delParams.setBizType(bitType);
