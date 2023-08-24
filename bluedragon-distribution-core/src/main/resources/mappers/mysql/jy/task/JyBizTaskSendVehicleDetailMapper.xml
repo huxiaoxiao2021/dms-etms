@@ -30,6 +30,7 @@
         <result property="excepLabel" column="excep_label"/>
         <result property="lineType" column="line_type"/>
         <result property="taskSimpleCode" column="task_simple_code"/>
+        <result property="onlyLoadNoUnload" column="only_load_no_unload"/>
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
@@ -40,7 +41,7 @@
     <sql id="Base_Column_List">
         id, send_vehicle_biz_id, biz_id, trans_work_item_code, vehicle_status, start_site_id, start_site_name,
         end_site_id, end_site_name, plan_depart_time,come_time,near_come_time, seal_car_time,
-        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,excep_label,line_type,task_simple_code
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,excep_label,line_type,task_simple_code, only_load_no_unload
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleDetailEntity">
@@ -84,6 +85,9 @@
             </if>
             <if test="sealCarTime != null">
                 seal_car_time,
+            </if>
+            <if test="onlyLoadNoUnload != null">
+                only_load_no_unload,
             </if>
             <if test="createUserErp != null">
                 create_user_erp,
@@ -149,6 +153,9 @@
             </if>
             <if test="sealCarTime != null">
                 #{sealCarTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="onlyLoadNoUnload != null">
+                #{onlyLoadNoUnload,jdbcType=TIMESTAMP},
             </if>
             <if test="createUserErp != null">
                 #{createUserErp,jdbcType=VARCHAR},
@@ -216,6 +223,9 @@
             <if test="sealCarTime != null">
                 seal_car_time = #{sealCarTime,jdbcType=TIMESTAMP},
             </if>
+            <if test="onlyLoadNoUnload != null">
+                only_load_no_unload = #{onlyLoadNoUnload,jdbcType=TIMESTAMP},
+            </if>
             <if test="createUserErp != null">
                 create_user_erp = #{createUserErp,jdbcType=VARCHAR},
             </if>
@@ -279,6 +289,9 @@
             </if>
             <if test="sealCarTime != null">
                 seal_car_time = #{sealCarTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="onlyLoadNoUnload != null">
+                only_load_no_unload = #{onlyLoadNoUnload,jdbcType=TIMESTAMP},
             </if>
             <if test="createUserErp != null">
                 create_user_erp = #{createUserErp,jdbcType=VARCHAR},
@@ -481,6 +494,9 @@
             </if>
             <if test="taskSimpleCode != null">
                 task_simple_code = #{taskSimpleCode},
+            </if>
+            <if test="onlyLoadNoUnload != null">
+                only_load_no_unload = #{onlyLoadNoUnload},
             </if>
             <if test="yn != null">
                 yn = #{yn}

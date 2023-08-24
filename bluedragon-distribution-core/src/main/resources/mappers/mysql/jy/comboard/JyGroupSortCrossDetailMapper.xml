@@ -277,7 +277,7 @@
       #{item.focus,jdbcType=BIT}, #{item.sendVehicleDetailBizId,jdbcType=VARCHAR}, #{item.funcType,jdbcType=VARCHAR})
     </foreach>
   </insert>
-  <select id="queryCommonCTTGroupData" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
+  <select id="queryCommonCTTGroupData" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto"
           resultMap="cttGroupDtoMap">
     select template_code, template_name, create_user_name, create_user_erp, cross_code, count(1) as send_flow_count
     from jy_group_sort_cross_detail
@@ -305,7 +305,10 @@
       and complete_status = #{completeStatus}
     </if>
     group by template_code
-    order by ts desc
+    order by id desc
+    <if test="limit != null">
+      limit #{limit}
+    </if>
   </select>
   <select id="selectOneByFlowAndTemplateCode"
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
@@ -330,7 +333,8 @@
       and template_code = #{templateCode} limit 1
   </select>
   <update id="deleteByIds" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq">
-    update jy_group_sort_cross_detail set yn = 0
+    update jy_group_sort_cross_detail set yn = 0, update_user_erp = #{updateUserErp,jdbcType=VARCHAR} ,
+    update_user_name = #{updateUserName,jdbcType=VARCHAR} , update_time = #{updateTime,jdbcType=TIMESTAMP}
     where yn = 1
       and id in
         <foreach collection="ids" item="item" open="(" close=")" separator=",">
@@ -419,7 +423,8 @@
   <update id="mixScanTaskComplete" 
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
     update jy_group_sort_cross_detail
-    set complete_status = 1 , update_time = #{updateTime,jdbcType=TIMESTAMP}
+    set complete_status = 1 , update_time = now(),  update_user_erp = #{updateUserErp,jdbcType=VARCHAR} ,
+        update_user_name = #{updateUserName,jdbcType=VARCHAR}
     where yn = 1
       and template_code = #{templateCode,jdbcType=VARCHAR}
       and start_site_id = #{startSiteId,jdbcType=BIGINT}

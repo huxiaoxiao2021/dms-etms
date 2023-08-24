@@ -1,12 +1,17 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdExtraMessageResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.delivery.DeliveryOperationServiceImpl;
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
+import com.jd.bluedragon.distribution.transport.enums.StopoverSiteUnloadAndLoadTypeEnum;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
+import com.jd.bluedragon.utils.BeanCopyUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.StopoverInfoDto;
 import com.jd.etms.vos.dto.StopoverQueryDto;
 import com.jd.fastjson.JSON;
@@ -29,7 +34,7 @@ import java.util.Objects;
 @Service("transportRelatedService")
 public class TransportRelatedServiceImpl implements TransportRelatedService {
 
-    private static final Logger log = LoggerFactory.getLogger(TransportRelatedServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SealCarManager sealCarManager;
@@ -38,7 +43,7 @@ public class TransportRelatedServiceImpl implements TransportRelatedService {
     private BaseMajorManager baseMajorManager;
 
     /**
-     * 校验运输任务
+     * 校验运输任务 todo
      *  left：code编码表示成功或失败
      *  right：表示原因
      * @param siteCode 场地ID
@@ -110,6 +115,48 @@ public class TransportRelatedServiceImpl implements TransportRelatedService {
             return "是";
         } else {
             return "否";
+        }
+    }
+
+    /**
+     * 查询经停装卸信息类型
+     * @return 经停数据结果
+     * @author fanggang7
+     * @time 2023-08-18 11:10:49 周五
+     */
+    @Override
+    public Result<Integer> queryStopoverLoadAndUnloadType(com.jd.bluedragon.distribution.transport.dto.StopoverQueryDto stopoverQueryDto){
+        Result<Integer> result = Result.success();
+        try {
+            if(stopoverQueryDto.getSiteCode() == null || StringUtils.isEmpty(stopoverQueryDto.getTransWorkCode()) && StringUtils.isEmpty(stopoverQueryDto.getSealCarCode())
+                    && StringUtils.isEmpty(stopoverQueryDto.getSimpleCode()) && StringUtils.isEmpty(stopoverQueryDto.getVehicleNumber())){
+                return result.toFail("参数错误，必要参数为空");
+            }
+            BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(stopoverQueryDto.getSiteCode());
+            StopoverQueryDto stopoverQueryDtoRemote = new StopoverQueryDto();
+            BeanCopyUtil.copy(stopoverQueryDto, stopoverQueryDtoRemote);
+            stopoverQueryDtoRemote.setSiteCode(operateSite == null ? null : operateSite.getDmsSiteCode());
+            StopoverInfoDto stopoverInfoDto = sealCarManager.queryStopoverInfo(stopoverQueryDtoRemote);
+            if(stopoverInfoDto == null){
+                return result.toFail("无此任务数据");
+            }
+            // 站点类型1:始发;2:经停;3:目的
+            // 站点类型=经停 且 装车计数＞0  且 卸车计数=0
+            if(Objects.equals(stopoverInfoDto.getSiteType(), 2)
+                    && NumberHelper.isPositiveNumber(stopoverInfoDto.getLoadCount())
+                    && Objects.equals(stopoverInfoDto.getUnloadCount(), Constants.NUMBER_ZERO)){
+                return result.setData(StopoverSiteUnloadAndLoadTypeEnum.ONLY_LOAD_NO_UNLOAD.getCode());
+            }
+            // 站点类型=经停  且 装车计数=0  且 卸车计数＞0
+            if(Objects.equals(stopoverInfoDto.getSiteType(), 2)
+                    && Objects.equals(stopoverInfoDto.getLoadCount(), Constants.NUMBER_ZERO)
+                    && NumberHelper.isPositiveNumber(stopoverInfoDto.getUnloadCount())){
+                return result.setData(StopoverSiteUnloadAndLoadTypeEnum.ONLY_UNLOAD_NO_LOAD.getCode());
+            }
+            return result;
+        } catch (Exception e) {
+            log.error("checkOnlyLoadNoUnload exception {}", JsonHelper.toJson(stopoverQueryDto), e);
+            return result.toFail("系统异常");
         }
     }
 }

@@ -692,7 +692,7 @@
     <!--  网格删除mq消费  -->
     <jmq:consumer id="jmq.workGridModifyMqConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.workGridModifyMq}" listener="workGridModifyMqConsumer"/>
-    </jmq:consumer> 
+    </jmq:consumer>
     <!--  发货波次统计消息处理  -->
     <jmq:consumer id="jmq.jySendPredictAggsMainConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.send.predict.aggs}" listener="jySendPredictAggsConsumer"/>
@@ -701,6 +701,12 @@
     <!--  发货波次备库统计消息处理  -->
     <jmq:consumer id="jmq.jySendPredictAggsBakConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.send.predict.aggs.bak}" listener="jySendPredictAggsConsumer"/>
+    </jmq:consumer>
+
+    </jmq:consumer>
+    <!-- 拣运发货流向纬度首次扫描 -->
+    <jmq:consumer id="jmq.jyTaskSendDetailFirstSendConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jyTaskSendDetailFirstSend}" listener="jyTaskSendDetailFirstSendConsumer"/>
     </jmq:consumer>
 
 </beans>
