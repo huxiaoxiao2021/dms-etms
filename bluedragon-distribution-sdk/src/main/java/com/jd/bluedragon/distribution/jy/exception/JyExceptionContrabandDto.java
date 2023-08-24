@@ -33,7 +33,7 @@ public class JyExceptionContrabandDto implements Serializable {
      */
     private Integer contrabandType;
     /**
-     * 客服反馈类型（1：更换包装下传 2：再派、未联系上、下传 3：破损已理赔、退回 4：报废 5：补单、补差）
+     * 客服反馈类型（1：修复下传 2：直接下传 3：更换包装下传 4：报废 5：逆向退回 6：补单/补差）
      */
     private Integer feedBackType;
 
@@ -41,6 +41,8 @@ public class JyExceptionContrabandDto implements Serializable {
      * 货物情况
      */
     private String description;
+
+    private Integer createUserId;
 
     private String createErp;
 
@@ -118,5 +120,13 @@ public class JyExceptionContrabandDto implements Serializable {
 
     public void setCreateStaffName(String createStaffName) {
         this.createStaffName = createStaffName;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
     }
 }

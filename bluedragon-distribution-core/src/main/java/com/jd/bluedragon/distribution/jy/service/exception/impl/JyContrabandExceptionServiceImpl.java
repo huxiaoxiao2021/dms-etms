@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailSe
 import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillStatusService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ASCPContants;
@@ -27,6 +28,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -53,11 +55,8 @@ import java.util.concurrent.TimeUnit;
 public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionService {
     private final Logger logger = LoggerFactory.getLogger(JyContrabandExceptionServiceImpl.class);
 
-    public static final String WAYBILL_TRACK_SECURITY_CHECK_DESC="安检查验";
-    public static final String WAYBILL_TRACK_SECURITY_CHECK_DETAIN_PACKAGE_DESC = "安检查验扣件";
 
-    public static final String WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC = "安检查验退运";
-
+    private static final Integer WAYBILL_TRACE_TYPE =1;
 
     @Autowired
     private JyAttachmentDetailService jyAttachmentDetailService;
@@ -81,6 +80,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     @Autowired
     private JyExceptionService jyExceptionService;
+
+    @Autowired
+    private WaybillStatusService waybillStatusService;
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {
@@ -91,10 +94,15 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             this.saveImages(req, entity);
             jyExceptionContrabandDao.insertSelective(entity);
 
-            JyExceptionContrabandDto dto = new JyExceptionContrabandDto();
-            BeanUtils.copyProperties(entity,dto);
-            jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
-            logger.info("违禁品上报发送MQ-{}",JSON.toJSONString(dto));
+            try {
+                JyExceptionContrabandDto dto = new JyExceptionContrabandDto();
+                BeanUtils.copyProperties(entity,dto);
+                jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
+                logger.info("违禁品上报发送MQ-{}",JSON.toJSONString(dto));
+            }catch (Exception e){
+                logger.error("违禁品上报发送MQ异常。。");
+            }
+
         } catch (Exception e) {
             logger.error("提交违禁品上报报错:", e);
             return JdCResponse.fail(e.getMessage());
@@ -103,7 +111,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     }
 
     @Override
-    public void dealContrabandUploadData(JyExceptionContrabandDto dto) throws InterruptedException {
+    public void dealContrabandUploadData(JyExceptionContrabandDto dto)  {
 
 
 
@@ -112,44 +120,46 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             return;
         }
         //写运单维度的全程跟踪
-        sendWaybillBDTrance(dto, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK,WAYBILL_TRACK_SECURITY_CHECK_DESC);
-        Thread.sleep(5000);
-       switch (enumResult){
+        sendContrabandSecurityCheckWaybillBDTrance(dto);
+        try {
+            TimeUnit.SECONDS.sleep(5);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        switch (enumResult){
            case DETAIN_PACKAGE:
-
-
-               //
-
+               //扣件
+               sendContrabandDetainPackageWaybillBDTrance(dto);
                break;
            case AIR_TO_LAND:
-
-               sendPackageBDTrance(dto, WaybillStatus.WAYBILL_TRACK_RETURNED_PACKAGE,WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC);
+               //退回
+               sendContrabandReturnPackageBDTrance(dto);
                break;
+            default:
+                logger.warn("未知的违禁品类型--");
+                break;
        }
 
-
-        if(Objects.equals(JyExceptionContrabandEnum.ContrabandTypeEnum.DETAIN_PACKAGE.getCode(),dto.getContrabandType())){
-
-
-        }else if(Objects.equals(JyExceptionContrabandEnum.ContrabandTypeEnum.AIR_TO_LAND.getCode(),dto.getContrabandType())){
-
-        }
         JyExpContrabandNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(dto);
         try {
             jyExceptionContrabandNoticCustomerProducer.send(dto.getBizId(), JsonHelper.toJson(mq));
             logger.info("违禁品上报发送客服-{}",JsonHelper.toJson(mq));
         } catch (JMQException e) {
-            e.printStackTrace();
+            logger.error("违禁品上报发送客服异常！",e);
         }
     }
 
+    private void  sendMQContrabandNoticCustomer(JyExceptionContrabandDto dto){
+
+
+
+    }
+
     /**
-     * 运单维度全程跟踪
+     * 违禁品运单维度安检全程跟踪
      * @param dto
-     * @param opreateType
-     * @param operatorDesp
      */
-    private void sendWaybillBDTrance(JyExceptionContrabandDto dto,int opreateType,String operatorDesp){
+    private void sendContrabandSecurityCheckWaybillBDTrance(JyExceptionContrabandDto dto){
 
         if(StringUtils.isBlank(dto.getBarCode())){
             logger.warn("单号为空!");
@@ -159,25 +169,47 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         BdTraceDto traceDto = new BdTraceDto();
         traceDto.setPackageBarCode(waybillCode);
         traceDto.setWaybillCode(waybillCode);
-        traceDto.setOperateType(opreateType);
-        traceDto.setOperatorDesp(operatorDesp);
+        traceDto.setOperateType(WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK);
+        traceDto.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_DESC);
         traceDto.setOperatorSiteId(dto.getSiteCode());
         traceDto.setOperatorSiteName(dto.getSiteName());
         traceDto.setOperatorUserName(dto.getCreateStaffName());
 
         traceDto.setOperatorTime(new Date());
-        traceDto.setWaybillTraceType(1);
-        logger.info("发送运单全程跟踪信息-{}",JSON.toJSONString(traceDto));
+        traceDto.setWaybillTraceType(WAYBILL_TRACE_TYPE);
+        logger.info("违禁品运单维度安检全程跟踪-{}",JSON.toJSONString(traceDto));
         waybillQueryManager.sendBdTrace(traceDto);
     }
 
     /**
-     * 包裹维度全程跟踪
+     * 违禁品运单维度扣件全程跟踪
      * @param dto
-     * @param opreateType
-     * @param operatorDesp
      */
-    private void sendPackageBDTrance(JyExceptionContrabandDto dto,int opreateType,String operatorDesp){
+    private void sendContrabandDetainPackageWaybillBDTrance(JyExceptionContrabandDto dto) {
+
+        List<WaybillSyncParameter> parameterList = new ArrayList<>(1);
+        WaybillSyncParameter parameter = new WaybillSyncParameter();
+        parameter.setOperatorCode(dto.getBarCode());
+        parameter.setOperatorId(dto.getCreateUserId());
+        parameter.setOperatorName(dto.getCreateStaffName());
+        parameter.setZdId(dto.getSiteCode());
+        parameter.setZdType(Constants.DMS_SITE_TYPE);
+        parameter.setZdName(dto.getSiteName());
+        parameter.setWaybillTraceType(WAYBILL_TRACE_TYPE);
+        Map<String,Object> extendSyncParam =new HashMap<>();
+        extendSyncParam.put("traceDesc", WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_DETAIN_PACKAGE_DESC);
+        extendSyncParam.put("traceDescAuthCode",123456);
+        parameter.setExtendSyncParam(extendSyncParam);
+        parameterList.add(parameter);
+        logger.info("违禁品运单维度扣件全程跟踪-{}",JSON.toJSONString(parameterList));
+        waybillStatusService.sendWaybillTrackByOperatorCode(parameterList, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_DETAIN_PACKAGE);
+    }
+
+    /**
+     * 违禁品包裹维度退回全程跟踪
+     * @param dto
+     */
+    private void sendContrabandReturnPackageBDTrance(JyExceptionContrabandDto dto){
 
         if(StringUtils.isBlank(dto.getBarCode())){
             logger.warn("单号为空!");
@@ -189,15 +221,15 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         BdTraceDto traceDto = new BdTraceDto();
         traceDto.setPackageBarCode(dto.getBarCode());
         traceDto.setWaybillCode(dto.getBarCode());
-        traceDto.setOperateType(opreateType);
-        traceDto.setOperatorDesp(operatorDesp);
+        traceDto.setOperateType(WaybillStatus.WAYBILL_TRACK_RETURNED_PACKAGE);
+        traceDto.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC);
         traceDto.setOperatorSiteId(dto.getSiteCode());
         traceDto.setOperatorSiteName(dto.getSiteName());
         traceDto.setOperatorUserName(dto.getCreateStaffName());
 
         traceDto.setOperatorTime(new Date());
         traceDto.setWaybillTraceType(3);
-        logger.info("发送运单全程跟踪信息-{}",JSON.toJSONString(traceDto));
+        logger.info("违禁品包裹维度退回全程跟踪-{}",JSON.toJSONString(traceDto));
         waybillQueryManager.sendBdTrace(traceDto);
     }
 
@@ -248,6 +280,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if (baseStaff != null) {
             entity.setSiteCode(req.getSiteId());
             entity.setSiteName(req.getSiteName());
+            entity.setCreateUserId(baseStaff.getStaffNo());
             entity.setCreateErp(baseStaff.getAccountNumber());
             entity.setCreateStaffName(baseStaff.getStaffName());
             entity.setCreateTime(new Date());

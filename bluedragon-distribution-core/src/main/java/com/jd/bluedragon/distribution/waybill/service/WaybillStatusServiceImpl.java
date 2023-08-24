@@ -1121,6 +1121,29 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 	}
 
+	@Override
+	public void sendWaybillTrackByOperatorCode(List<WaybillSyncParameter> waybillSyncParameters, Integer operatorType) {
+		CallerInfo info = null;
+
+		try{
+			if(log.isInfoEnabled()){
+				log.info("根据操作号批量同步运单数据 入参-{}，operatorType-{}",JSON.toJSONString(waybillSyncParameters),operatorType);
+			}
+			info = Profiler.registerInfo( "DMSWEB.waybillStatusService.sendWaybillTrackByOperatorCode",false, true);
+			BaseEntity<List<String>> response = waybillSyncApi.batchUpdateWaybillByOperatorCode(waybillSyncParameters, operatorType);
+			if(log.isInfoEnabled()){
+				log.info("根据操作号批量同步运单数据 出参-{}",JSON.toJSONString(response));
+
+			}
+		}catch (Exception e){
+			log.error("根据操作号批量同步运单数据（异步更新）异常!",e);
+			Profiler.functionError(info);
+
+		}finally {
+			Profiler.registerInfoEnd(info);
+		}
+	}
+
 	/**
 	 * 根据配送类型 获取相应运单操作码
 	 * @param resultType

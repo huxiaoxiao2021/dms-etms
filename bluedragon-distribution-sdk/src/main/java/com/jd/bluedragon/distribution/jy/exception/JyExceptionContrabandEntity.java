@@ -40,6 +40,8 @@ public class JyExceptionContrabandEntity implements Serializable {
      */
     private String description;
 
+    private Integer createUserId;
+
     private String createErp;
 
     private String createStaffName;
@@ -182,5 +184,13 @@ public class JyExceptionContrabandEntity implements Serializable {
 
     public void setYn(Boolean yn) {
         this.yn = yn;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
     }
 }
