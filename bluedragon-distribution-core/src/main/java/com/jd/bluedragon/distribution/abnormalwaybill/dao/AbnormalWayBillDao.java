@@ -84,4 +84,12 @@ public class AbnormalWayBillDao extends BaseDao<AbnormalWayBill> {
         parameter.put("waybillCode", waybillCode);
         return super.getSqlSession().selectOne(namespace + ".queryAbnormalWayBillByWayBillCode" , parameter);
 	}
+
+    /**
+     * 根据运单号查询提报的异常,返回最后一次提交的异常记录
+     * @return
+     */
+    public AbnormalWayBill queryOneByParam(AbnormalWayBill abnormalWayBill) {
+        return super.getSqlSession().selectOne(namespace + ".queryOneByParam" , abnormalWayBill);
+    }
 }
