@@ -812,6 +812,8 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 case REPLENISH:
                     //6.补单/补差
                     this.finishFlow(req, entity);
+                    //调用妥投接口
+                    jyExceptionService.delivered(req.getBizId());
                     break;
                 default:
                     return JdCResponse.fail("客服反馈类型匹配失败" + req.getBizId());
