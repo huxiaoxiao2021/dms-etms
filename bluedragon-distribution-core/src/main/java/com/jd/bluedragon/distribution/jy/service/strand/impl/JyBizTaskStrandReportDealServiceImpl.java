@@ -513,17 +513,12 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.queryBatchInnerScanCount",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     private ImmutablePair<String, Integer> queryBatchInnerScanCount(JyStrandReportScanReq scanRequest, Integer nextSiteCode) {
-        String waybillCode = WaybillUtil.getWaybillCode(scanRequest.getScanBarCode());
-        RouteNextDto routeNextDto = routerService.matchRouterNextNode(scanRequest.getSiteCode(), waybillCode);
-        if(routeNextDto == null || !Objects.equals(routeNextDto.getFirstNextSiteId(), nextSiteCode)){
-            throw new JyBizException("批次的目的地和任务流向不一致!");
+        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode()) || WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
+            return queryPackOrWaybillInnerScanCount(scanRequest,nextSiteCode);
+        } else if (BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
+            return queryBoxInnerScanCount(scanRequest,nextSiteCode);
         }
-        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
-        String containerCode = Objects.equals(scanRequest.getScanType(), JyBizStrandScanTypeEnum.BATCH.getCode())
-                ? scanRequest.getScanBarCode() : waybillCode;
-        Integer containerInnerCount = Objects.equals(scanRequest.getScanType(), JyBizStrandScanTypeEnum.BATCH.getCode())
-                ? Constants.NUMBER_ONE : (waybill.getGoodNumber() == null ? Constants.NUMBER_ZERO : waybill.getGoodNumber());
-        return ImmutablePair.of(containerCode, containerInnerCount);
+        throw new JyBizException("扫描批次的目的地和任务流向不一致!");
     }
 
     /**
@@ -701,6 +696,12 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         if(Objects.equals(request.getScanType(), JyBizStrandScanTypeEnum.BOARD.getCode())
                 && (!WaybillUtil.isPackageCode(request.getScanBarCode()) && !BusinessHelper.isBoxcode(request.getScanBarCode()))){
             result.error("扫货方式【按板】只能扫描包裹号/箱号!");
+            return false;
+        }
+        if (Objects.equals(request.getScanType(), JyBizStrandScanTypeEnum.BATCH.getCode())
+                && (!WaybillUtil.isPackageCode(request.getScanBarCode()) && !WaybillUtil.isWaybillCode(request.getScanBarCode())
+                && !BusinessHelper.isBoxcode(request.getScanBarCode()))) {
+            result.error("扫货方式【批次】只能扫描包裹号/运单号/箱号!");
             return false;
         }
         return true;

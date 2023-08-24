@@ -217,9 +217,9 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
         Pager<StreamlinedBasicSite> pageData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
         response.setData(pageData);
         String searchStr = request.getSearchVo().getSearchStr();
-        if (StringHelper.isNotEmpty(searchStr) && (WaybillUtil.whetherWaybillCode(searchStr) || WaybillUtil.whetherPackageCode(searchStr))) {
+        if (StringHelper.isNotEmpty(searchStr) && (WaybillUtil.isWaybillCode(searchStr) || WaybillUtil.isPackageCode(searchStr))) {
             try {
-                if (WaybillUtil.whetherPackageCode(searchStr)) {
+                if (WaybillUtil.isPackageCode(searchStr)) {
                     searchStr = WaybillUtil.getWaybillCode(searchStr);
                 }
                 WaybillCache waybillCache = waybillCacheService.getNoCache(searchStr);

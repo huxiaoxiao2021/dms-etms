@@ -342,41 +342,4 @@ public class WaybillUtil {
     public static boolean isEconomicNet(String waybillCode) {
         return UniformValidateUtil.isWaybillCodeMatchType(waybillCode, WaybillCodePattern.ENOCOMIC_WAYBILL_CODE);
     }
-
-    /**
-     * 根据单号判断是不是运单号
-     * @param waybillCode
-     * @return
-     */
-    public static boolean whetherWaybillCode(String waybillCode) {
-        if (StringUtils.isBlank(waybillCode)) {
-            return false;
-        }
-        if (matches(waybillCode,UniformValidateUtil.waybillCodePattern)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 根据单号判断是不是包裹号
-     * @param packageCode
-     * @return
-     */
-    public static boolean whetherPackageCode(String packageCode) {
-        if (StringUtils.isBlank(packageCode)) {
-            return false;
-        }
-        if (matches(packageCode,UniformValidateUtil.packageCodePattern)) {
-            return true;
-        }
-        return false;
-    }
-
-
-    private static boolean matches(String source, Pattern pattern) {
-        source = source.trim().toUpperCase();
-        return pattern.matcher(source).matches();
-    }
-
 }
