@@ -277,7 +277,7 @@
       #{item.focus,jdbcType=BIT}, #{item.sendVehicleDetailBizId,jdbcType=VARCHAR}, #{item.funcType,jdbcType=VARCHAR})
     </foreach>
   </insert>
-  <select id="queryCommonCTTGroupData" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
+  <select id="queryCommonCTTGroupData" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto"
           resultMap="cttGroupDtoMap">
     select template_code, template_name, create_user_name, create_user_erp, cross_code, count(1) as send_flow_count
     from jy_group_sort_cross_detail
@@ -305,7 +305,10 @@
       and complete_status = #{completeStatus}
     </if>
     group by template_code
-    order by ts desc
+    order by id desc
+    <if test="limit != null">
+      limit #{limit}
+    </if>
   </select>
   <select id="selectOneByFlowAndTemplateCode"
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"

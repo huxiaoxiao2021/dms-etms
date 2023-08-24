@@ -820,7 +820,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
 
     private JyGroupSortCrossDetailEntity assembleCondition(MixScanTaskListQueryReq mixScanTaskListQueryReq) {
         String barCode = mixScanTaskListQueryReq.getBarCode();
-        JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+        JyGroupSortCrossDetailEntityQueryDto condition = new JyGroupSortCrossDetailEntityQueryDto();
         
         if (StringUtils.isNotBlank(barCode)) {
             // 获取目的地站点或者滑道笼车号
