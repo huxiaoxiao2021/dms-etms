@@ -5,7 +5,6 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
@@ -41,7 +40,6 @@ import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -247,7 +245,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             entity.setRefGroupCode(unloadScanDto.getGroupCode());
             entity.setUpdateTime(new Date());
             // 处理是否只卸不装
-            this.handleOnlyLoadAttr(taskEntity, entity);
+            this.handleOnlyUnloadAttr(taskEntity, entity);
             jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
         }
     }
@@ -256,21 +254,21 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
      * 处理只卸不装属性
      * @param taskEntity 任务数据
      */
-    private void handleOnlyLoadAttr(JyBizTaskUnloadVehicleEntity taskEntity, JyBizTaskUnloadVehicleEntity taskEntityUpdate) {
+    private void handleOnlyUnloadAttr(JyBizTaskUnloadVehicleEntity taskEntity, JyBizTaskUnloadVehicleEntity taskEntityUpdate) {
         try {
-            logger.info("handleOnlyLoadAttr {}", JsonHelper.toJson(taskEntity));
+            logger.info("handleOnlyUnloadAttr {}", JsonHelper.toJson(taskEntity));
             final StopoverQueryDto stopoverQueryDto = new StopoverQueryDto();
             stopoverQueryDto.setSiteCode(taskEntity.getEndSiteId().intValue());
             stopoverQueryDto.setSealCarCode(taskEntity.getSealCarCode());
             stopoverQueryDto.setVehicleNumber(taskEntity.getVehicleNumber());
             final com.jd.dms.java.utils.sdk.base.Result<Integer> checkResult = transportRelatedService.queryStopoverLoadAndUnloadType(stopoverQueryDto);
-            logger.info("handleOnlyLoadAttr result {}", JsonHelper.toJson(checkResult));
+            logger.info("handleOnlyUnloadAttr result {}", JsonHelper.toJson(checkResult));
             if(checkResult.isSuccess() && Objects.equals(checkResult.getData(), StopoverSiteUnloadAndLoadTypeEnum.ONLY_UNLOAD_NO_LOAD.getCode())){
                 taskEntityUpdate.setOnlyUnloadNoLoad(Constants.YN_YES);
-                logger.info("handleOnlyLoadAttr match {}", JsonHelper.toJson(taskEntityUpdate));
+                logger.info("handleOnlyUnloadAttr match {}", JsonHelper.toJson(taskEntityUpdate));
             }
         } catch (Exception e) {
-            logger.info("handleOnlyLoadAttr exception {}", JsonHelper.toJson(taskEntity), e);
+            logger.info("handleOnlyUnloadAttr exception {}", JsonHelper.toJson(taskEntity), e);
         }
     }
 

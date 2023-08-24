@@ -4350,6 +4350,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if(taskSendVehicle == null){
                 return result;
             }
+            if(Objects.equals(taskSendVehicle.getManualCreatedFlag(), Constants.YN_YES)){
+                return result;
+            }
             final StopoverQueryDto stopoverQueryDto = new StopoverQueryDto();
             stopoverQueryDto.setSiteCode(taskSendVehicleDetail.getStartSiteId() != null ? taskSendVehicleDetail.getStartSiteId().intValue() : 0);
             stopoverQueryDto.setTransWorkCode(taskSendVehicle.getTransWorkCode());
