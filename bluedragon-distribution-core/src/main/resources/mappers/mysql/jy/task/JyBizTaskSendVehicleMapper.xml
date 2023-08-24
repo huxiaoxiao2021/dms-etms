@@ -597,19 +597,19 @@
     <sql id="taskQueryCondition">
         yn = 1
         AND start_site_id = #{entity.startSiteId}
-        <if test="lineTypeList != null and lineTypeList.size() > 0">
+        <if test="lineTypeList != null and lineTypeList.length > 0">
             AND line_type IN
             <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
                 #{item}
             </foreach>
         </if>
-        <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
+        <if test="sendVehicleBizList != null and sendVehicleBizList.length > 0">
             AND biz_id IN
             <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
                 #{item}
             </foreach>
         </if>
-        <if test="statuses != null and statuses.size() > 0">
+        <if test="statuses != null and statuses.length > 0">
             AND vehicle_status IN
             <foreach collection="statuses" separator="," open="(" close=")" item="item">
                 #{item}
@@ -700,7 +700,13 @@
         WHERE
         m.yn = 1
         AND m.manual_created_flag = 0
-        AND m.line_type in (1,2)
+        <!--AND m.line_type in (1,2)-->
+        <if test="entity.lineTypeList != null and entity.lineTypeList.size() > 0">
+            AND m.line_type in
+            <foreach collection="entity.lineTypeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
         AND d.yn = 1
         AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
         <if test="entity.transferFlag!=null and entity.transferFlag ==2">
@@ -739,7 +745,13 @@
                           INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
                  WHERE m.yn = 1
                    AND m.manual_created_flag = 0
-                   AND m.line_type in (1,2)
+                   <!--AND m.line_type in (1,2)-->
+                    <if test="lineTypeList != null and lineTypeList.size() > 0">
+                        AND m.line_type in
+                        <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+                            #{item}
+                        </foreach>
+                    </if>
                    AND d.yn = 1
                    AND d.start_site_id = #{startSiteId, jdbcType=BIGINT}
                    AND d.end_site_id = #{endSiteId, jdbcType=BIGINT}
@@ -781,5 +793,16 @@
             #{item}
         </foreach>
        and create_time &gt;= #{entity.createTimeBegin}
+    </select>
+    
+    <select id="findSendTaskByBizIds" resultMap="jyBizTaskSendVehicleMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_send_vehicle
+        where yn = 1
+        and biz_id in
+        <foreach collection="bizIds" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
     </select>
 </mapper>

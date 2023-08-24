@@ -13,8 +13,8 @@
     var CBM_DIV_KG_MIN_LIMIT = 168.0;
     var CBM_DIV_KG_MAX_LIMIT = 330.0;
 
-    var waybill_weight_validate_url     = '/b2b/express/weight/verifyWaybillReality';
-    var waybill_weight_insert_url       = '/b2b/express/weight/insertWaybillWeight';
+    var waybill_weight_validate_url     = '/b2b/express/weight/checkBeforeSaveWaybillWeight';
+    var waybill_weight_insert_url       = '/b2b/express/weight/insertWaybillWeight';   
     var waybill_weight_convert_url      = '/b2b/express/weight/convertCodeToWaybillCode';
     var waybill_weight_improt_url      = '/b2b/express/weight/uploadExcel'; //批量导入
     var SERVER_ERROR_CODE = 500;
@@ -22,6 +22,7 @@
     var ERROR_HALF_RESULT_CODE = 600; //部分成功
     var SERVER_SUCCESS_CODE = 200;
     var INTERCEPT_CODE = 300;
+    var RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI = 402
     var INTERCEPT_MESSAGE = "根据重量体积信息已经转至C网进行后续操作，请操作【包裹补打】更换面单，否则无法操作建箱及发货";
 
     var VALID_EXISTS_STATUS_CODE = 10;
@@ -79,6 +80,14 @@
         $('#waybill-weight-kg-input').numberbox('clear');
         $('#waybill-weight-cbm-input').numberbox('clear');
         $("input",$("#waybill-weight-code-input").next("span")).focus();
+        $('#over-enable-input').prop('disabled','');
+        $('#over-enable-input').prop('checked','');
+        $('#one-side-input').prop('disabled','disabled');
+        $('#one-side-input').prop('checked','');
+        $('#three-side-input').prop('disabled','disabled');
+        $('#three-side-input').prop('checked','');
+        $('#over-weight-input').prop('disabled','disabled');
+        $('#over-weight-input').prop('checked','');        
     };
 
 /**************************************************************************************/
@@ -133,7 +142,25 @@
             validateCodeFunc(codeStr,successFunc);
         }
     });
-
+    $('#over-enable-input').change(function(){
+        var selected = $('#over-enable-input').prop('checked');
+        if(selected){
+            $('#one-side-input').prop('disabled','');
+            $('#one-side-input').prop('checked','');
+            $('#three-side-input').prop('disabled','');
+            $('#three-side-input').prop('checked','');
+            $('#over-weight-input').prop('disabled','');
+            $('#over-weight-input').prop('checked','');
+        }else{
+            $('#one-side-input').prop('disabled','disabled');
+            $('#one-side-input').prop('checked','');
+            $('#three-side-input').prop('disabled','disabled');
+            $('#three-side-input').prop('checked','');
+            $('#over-weight-input').prop('disabled','disabled');
+            $('#over-weight-input').prop('checked','');
+        }
+    });
+    
     /*重量输入*/
     $('#waybill-weight-kg-input').numberbox({
         value:null,
@@ -217,13 +244,20 @@
         var codeStr = $('#waybill-weight-code-input').textbox('getValue').trim();
         var weight = $('#waybill-weight-kg-input').numberbox('getValue');
         var cbm = $('#waybill-weight-cbm-input').numberbox('getValue');
-
+        var selected = $('#over-enable-input').prop('checked');
+        var selected1 = $('#one-side-input').prop('checked');
+        var selected2 = $('#three-side-input').prop('checked');
+        var selected3 = $('#over-weight-input').prop('checked');
+        if(selected && (!selected1 && !selected2 && !selected3)){
+            $.messager.alert('验证结果','您好，超长超重货物需勾选具体超规格项！','warning');
+            return;
+        }
         var insertParam = {
             codeStr:codeStr,
             weight:weight,
             volume:cbm
         };
-
+        setOverDataInfo(insertParam);
         doWaybillWeight(insertParam,function(){});
 
     };
@@ -234,10 +268,23 @@
  */
 function doWaybillWeight(insertParam,removeFailData,removeIndex){
         /*调用验证方法验证单号是否合法、是否存在*/
-        involkPostSync(waybill_weight_validate_url,{codeStr:insertParam.codeStr},function (res) {
+        involkPostSync(waybill_weight_validate_url,insertParam,function (res) {
 
-            var isExists = res.data;
-
+            var isExists = res.data.isExists;
+            var verifyCode = res.data.verifyCode;
+            var verifyMessage = res.data.verifyMessage;
+            var weightVolumeCheckResult = res.data.weightVolumeCheckResult;
+            var hasOverLengthAndWeight = false;
+            if(weightVolumeCheckResult != null){
+                hasOverLengthAndWeight = weightVolumeCheckResult.hasOverLengthAndWeight;
+            }
+            //已有超重信息，取消选择
+            if(hasOverLengthAndWeight){
+                insertParam.overLengthAndWeightEnable = false;
+                insertParam.overLengthAndWeightTypes = [];
+                insertParam.longPackage = 0;
+                $.messager.alert('提示','此单已有超长超重服务，只上传称重信息！','warning');
+            }
             if(isExists)
             {
                 /*******************************************************************************/
@@ -253,33 +300,36 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
             }else
             {
                 /*******************************************************************************/
-                /*运单不存在 或校验不通过*/
+                /*校验不通过*/
                 /*******************************************************************************/
-
+                if(verifyCode == RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI){
+                    $.messager.alert('提示',verifyMessage,'warning');
+                    return ;
+                }
                 /*单号不合法*/
-                if(res.code == ERROR_PARAM_RESULT_CODE)
+                if(verifyCode == ERROR_PARAM_RESULT_CODE)
                 {
                     $.messager.alert('单号格式有误','快运外单单号输入有误，请您检查单号！','error');
                     return;
                 }
 
-                if(res.code == NO_NEED_WEIGHT){
-                    $.messager.alert('提示',res.message,'warning');
+                if(verifyCode == NO_NEED_WEIGHT){
+                    $.messager.alert('提示',verifyMessage,'warning');
                     return ;
                 }
                 //KA运单
-                if(res.code == KAWAYBILL_NEEDPACKAGE_WEIGHT){
-                    $.messager.alert('提示',res.message,'error');
+                if(verifyCode == KAWAYBILL_NEEDPACKAGE_WEIGHT){
+                    $.messager.alert('提示',verifyMessage,'error');
                     $('#waybill-weight-btn').linkbutton('disable');
                     $('#waybill-weight-import-btn').linkbutton('disable');
                     return ;
                 }
-                if(res.code === JP_FORBID_WEIGHT){
-                    $.messager.alert('提示', res.message, 'error');
+                if(verifyCode === JP_FORBID_WEIGHT){
+                    $.messager.alert('提示', verifyMessage, 'error');
                     return ;
                 }
-                if(res.code == WAYBILL_STATES_FINISHED){
-                    $.messager.alert('提示',res.message,'error');
+                if(verifyCode == WAYBILL_STATES_FINISHED){
+                    $.messager.alert('提示',verifyMessage,'error');
                     return ;
                 }
                 /*单号通过正则校验、但单号对应运单不存在*/
@@ -568,7 +618,7 @@ function existSubmit(insertParam,removeFailData,removeIndex){
             volume:volume,
             status:status
         };
-
+        setOverDataInfo(insertParam);
         if(allForcedToSubmit == 1){
             // 批量强制提交 调用的时候
             if(isExist){
@@ -607,7 +657,27 @@ function existSubmit(insertParam,removeFailData,removeIndex){
 
 
     }
-
+function setOverDataInfo(insertParam){
+        var selected = $('#over-enable-input').prop('checked');
+        var selected1 = $('#one-side-input').prop('checked');
+        var selected2 = $('#three-side-input').prop('checked');
+        var selected3 = $('#over-weight-input').prop('checked');
+        if(selected){
+            insertParam.overLengthAndWeightEnable = true;
+            var overLengthAndWeightTypes = [];
+            if(selected1){
+                overLengthAndWeightTypes.push($('#one-side-input').prop('value'));
+            }
+            if(selected2){
+                overLengthAndWeightTypes.push($('#three-side-input').prop('value'));
+            }
+            if(selected3){
+                overLengthAndWeightTypes.push($('#over-weight-input').prop('value'));
+            }            
+            insertParam.overLengthAndWeightTypesStr = JSON.stringify(overLengthAndWeightTypes);
+            insertParam.longPackage = 2;
+        }
+}
 
 function removeFailDataFunc(key){
         //防止删除后 数组索引发生变化  原函数索引未改变

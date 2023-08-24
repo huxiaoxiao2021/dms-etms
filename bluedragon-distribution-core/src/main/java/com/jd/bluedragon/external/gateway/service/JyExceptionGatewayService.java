@@ -67,4 +67,68 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<List<DmsBarCode>> queryProductName(String barCode);
+
+    /**
+     * 获取报废类型集合
+     * @return
+     */
+    JdCResponse<List<JyExceptionScrappedTypeDto>> getJyExceptionScrappedTypeList();
+
+    /**
+     * 报废处理任务接口
+     * @param req
+     * @return
+     */
+    JdCResponse<Boolean> processTaskOfscrapped(ExpScrappedDetailReq req);
+
+    /**
+     * 获取生鲜待处理任务详情
+     * @param req
+     * @return
+     */
+    JdCResponse<ExpScrappedDetailDto> getTaskDetailOfscrapped(ExpTaskByIdReq req);
+
+    /**
+     *校验当前登录erp是否是负责人
+     * @return
+     */
+    JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req);
+
+
+    /**
+     * 获取超时未领取任务统计接口
+     * @param req
+     * @return
+     */
+    JdCResponse<List<ExpTaskStatisticsOfWaitReceiveDto>> getExpTaskStatisticsOfWaitReceiveByPage(ExpTaskStatisticsReq req);
+
+    /**
+     * 获取超时未领取任务列表
+     * @param req
+     * @return
+     */
+    JdCResponse<List<ExpTaskDto>> getWaitReceiveSanwuExpTaskByPage(ExpTaskStatisticsDetailReq req);
+
+
+
+    /**
+     * 获取异常岗签到用户
+     * @param req
+     * @return
+     */
+    JdCResponse<List<ExpSignUserResp>> getExpSignInUserByPage(ExpSignUserReq req);
+
+    /**
+     * 指派任务给指定人
+     * @param req
+     * @return
+     */
+    JdCResponse<Boolean> assignExpTask(ExpTaskAssignRequest req);
+
+    /**
+     * 获取指派任务数
+     * @param req
+     * @return
+     */
+    JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req);
 }

@@ -562,6 +562,17 @@ public class HintCodeConstants {
     // 验货成功。未找到包裹下游流向场地，无法进行建板，可以手动选择包裹目的地，是否确认?
     public static String JY_UNLOAD_VEHICLE_PACK_NO_ROUTER = "20091";
 
+
+    /**
+     * 此运单为特安单，需单独建箱，禁止与其他类型运单混装
+     */
+    public static String TEAN_WAYBILL_INTERCEPT = "20092";
+
+    /**
+     * 此箱号内为特安单，需单独建箱，其他类型运单禁止混装
+     */
+    public static String TEAN_BOX_INTERCEPT = "20094";
+
     /*##############################################拦截相关END#########################################################*/
 
 
@@ -1026,4 +1037,16 @@ public class HintCodeConstants {
 
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_SITE_NOT_MATCHED = "40025";
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_SITE_NOT_MATCHED_MSG = "校验失败，场地不一致！";
+
+    public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE = "40026";
+    public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG = "仅支持【取消订单拦截】【理赔拦截】【理赔破损拦截】的运单提交异常！";
+
+    // 请扫描正确的循环集包袋编码 20098
+    public static String CYCLE_BOX_RULE_ERROR = "20098";
+
+    //该集包袋不归属于本场地，请确认是否绑定 20099
+    public static String CYCLE_BOX_NOT_BELONG_ERROR = "20099";
+
+    //疑似虚假操作，当前AD码已锁定，请使用其它循环袋 20100
+    public static String CYCLE_BOX_IS_LOCK_ERROR = "20100";
 }

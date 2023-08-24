@@ -50,6 +50,7 @@ public class DmsConstants {
     public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
 
     public static final String CODE_PREFIX_WORK_STATION = "GX";
+    public static final String CODE_PREFIX_WORK_GRID = "CDWG";    
     public static final String CODE_PREFIX_WORK_STATION_GRID = "CDGX";
     public static final String CODE_PREFIX_WORK_STATION_ATTEND_PLAN = "CDGXPL";
     public static final String CODE_PREFIX_POSITION = "GW";
@@ -92,10 +93,16 @@ public class DmsConstants {
      */
     public static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}10[0-9]{18}[0-3]{1}[0-9]{1}$");
 
+
+    /**
+     * 循环集包袋正则表达式
+     */
+    public static final Pattern RULE_CYCLE_BOX_REGEX = Pattern.compile("^AD(AD|[0-9]{2})[0-9]{12}$");
+
     /**
      * 箱号正则表达式，新开放-德邦的箱号规则
      */
-    public static final Pattern RULE_BOXCODE_REGEX_OPEN_DP = Pattern.compile("^B[0-9]{15}T99999$|^B[0-9]{15}T[0-9]{5}$|^B[0-9]{21,23}$");
+    public static final Pattern RULE_BOXCODE_REGEX_OPEN_DP = Pattern.compile("^B[0-9]{15}T99999$|^B[0-9]{15}T[0-9]{5}$|^B[0-9]{15}T[0-9]{6}$|^B[0-9]{15}T[0-9]{7}$|^B[0-9]{21,23}$");
 
     /**
      * 返单号正则表达式
@@ -225,11 +232,22 @@ public class DmsConstants {
      * 冷链卡班
      */
     public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
-
+    /**
+     * 快运产品-特快零担（fr-m-0001)
+     */
+    public static final String PRODUCT_TYPE_KY_001 = "fr-m-0001";
+    /**
+     * 快运产品-特快重货（fr-m-0004)\fr-m-0002)
+     */
+    public static final String PRODUCT_TYPE_KY_0002 = "fr-m-0002"; 
+    /**
+     * 快运产品-特快重货（fr-m-0004)\fr-m-0002)
+     */
+    public static final String PRODUCT_TYPE_KY_0004 = "fr-m-0004";     
     /**
      * 工种类型
      */
-    public static final String JOB_TYPE_REGEX = "^[1-6]$";
+    public static final String JOB_TYPE_REGEX = "^[1-7]$";
     /**
      * 身份证正则
      */
@@ -330,6 +348,7 @@ public class DmsConstants {
     public static final String WJ_BOX_PREFIX = "WJ";
 
     public static final int PAGE_SIZE_DEFAULT = 10;
+    public static final int PAGE_SIZE_DEFAULT_ATTACHMENT_QUERY = 100;
 
     public static final String KEYS_SPLIT = ":";
 
@@ -369,6 +388,10 @@ public class DmsConstants {
      */
     public static final String WAYBILL_VAS_JXD  = "ed-a-0073";
     /**
+     * 增值服务编码-超长超重服务（CCCZF00001）
+     */
+    public static final String WAYBILL_VAS_OVER_LENGTHANDWEIGHT  = "CCCZF00001";    
+    /**
      * 增值服务编码-京喜送达服务-取值key1
      */
     public static final String WAYBILL_VAS_JXD_CARDINFOS  = "cardInfos";
@@ -396,10 +419,27 @@ public class DmsConstants {
      * 返调度-路区：0
      */
     public static final String LOCAL_SCHEDULE_ROAD_CODE = "0";
-
+    /**
+     * 超长超重-标识-1
+     */
+    public static final Integer OVER_LENGTHANDWEIGHT_FLAG = 1;
+    
     public static final String CHINESE_PREFIX = "(^[\u4e00-\u9fa5])([0-9A-Z]+)"; // 汉字开头车牌号
     public static final String CODE_PREFIX = "(^[0-9]{3})[0-9A-Z]+"; 			  // 区号开头车牌号
     public static final String WHITE_SPACE = "\\s*";
+    
+    /**
+     * 运单-称重-longPackage:0-默认值
+     */
+    public static final Integer WAYBILL_LONG_PACKAGE_DEFAULT = 0;
+    /**
+     * 运单-称重-longPackage:2-超长超重服务
+     */
+    public static final Integer WAYBILL_LONG_PACKAGE_OVER_WEIGHT = 2;
+    /**
+     * 系统自动操作人
+     */
+    public static final String SYS_AUTO_USER_CODE = "system";    
     /**
      * 暂存类型枚举值
      */

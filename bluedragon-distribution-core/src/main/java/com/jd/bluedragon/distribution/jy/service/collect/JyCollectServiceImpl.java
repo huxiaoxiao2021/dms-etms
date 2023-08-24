@@ -47,6 +47,8 @@ import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.erp.util.BeanUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -201,6 +203,8 @@ public class JyCollectServiceImpl implements JyCollectService{
      * @return
      */
     public List<CollectionCodeEntity> getCollectionCodeEntityByElement (String bizCode, Integer siteCode, boolean isManualCreateTask) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.JyUnloadVehicleTysServiceImpl.getCollectionCodeEntityByElement", false, true);
+
         Map<CollectionConditionKeyEnum, Object> element = new HashMap<>();
         element.put(CollectionConditionKeyEnum.site_code, siteCode);
         element.put(CollectionConditionKeyEnum.seal_car_code, bizCode);
@@ -247,6 +251,8 @@ public class JyCollectServiceImpl implements JyCollectService{
         if(log.isInfoEnabled()) {
             log.info("getCollectionCodeEntityByElement获取collectionCode集合,param=【{}|{}|{}】,返回={}", bizCode,siteCode, isManualCreateTask, JsonHelper.toJson(collectionCodeEntityList));
         }
+        Profiler.registerInfoEnd(info);
+
         return collectionCodeEntityList;
     }
 

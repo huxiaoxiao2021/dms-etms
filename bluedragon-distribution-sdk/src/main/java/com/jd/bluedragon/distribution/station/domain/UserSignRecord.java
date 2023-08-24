@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class UserSignRecord implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * 主键ID
 	 */
@@ -224,6 +224,17 @@ public class UserSignRecord implements Serializable {
 	 */
 	private String areaHubName;
 	
+
+	private String refWorkGridKey;
+
+	public String getRefWorkGridKey() {
+		return refWorkGridKey;
+	}
+
+	public void setRefWorkGridKey(String refWorkGridKey) {
+		this.refWorkGridKey = refWorkGridKey;
+	}
+
 	/**
 	 *
 	 * @param id

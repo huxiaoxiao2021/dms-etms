@@ -9,14 +9,15 @@ package com.jd.bluedragon.distribution.jy.enums;
 public enum UnloadProductTypeEnum {
 
     NONE("NONE", "其他", 99),
-    FAST("FAST", "特快送", 1),
-    FRESH("FRESH", "生鲜", 2),
-    TIKTOK("TIKTOK", "抖音", 3),
-    DEWU("DEWU", "得物", 4),
-    LUXURY("LUXURY", "特保单", 5),
-    EASYFROZEN("EASYFROZEN", "易冻损", 6),
-    KA("KA", "KA", 7),
-    MEDICINE("MEDICINE", "医药", 8)
+    TEAN("TEAN","特安",1),
+    FAST("FAST", "特快送", 2),
+    FRESH("FRESH", "生鲜", 3),
+    TIKTOK("TIKTOK", "抖音", 4),
+    DEWU("DEWU", "得物", 5),
+    LUXURY("LUXURY", "特保单", 6),
+    EASYFROZEN("EASYFROZEN", "易冻损", 7),
+    KA("KA", "KA", 8),
+    MEDICINE("MEDICINE", "医药", 9)
     ;
 
     private String code;

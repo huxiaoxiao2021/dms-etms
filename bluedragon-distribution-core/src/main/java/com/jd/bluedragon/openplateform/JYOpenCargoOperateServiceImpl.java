@@ -1,6 +1,8 @@
 package com.jd.bluedragon.openplateform;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.ReceiveRequest;
@@ -8,6 +10,10 @@ import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
+import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -27,9 +33,11 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.jmq.common.exception.JMQException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -61,6 +69,20 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
     @Autowired
     private SortingServiceFactory sortingServiceFactory;
 
+    @Autowired
+    @Qualifier("jyOpenPlatformSendProducer")
+    private DefaultJMQProducer jyOpenPlatformSendProducer;
+
+    @Autowired
+    @Qualifier("jyOpenPlatformSendFinishProducer")
+    private DefaultJMQProducer jyOpenPlatformSendFinishProducer;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private BoxService boxService;
+
     @Override
     public InvokeResult<Boolean> inspection(JYCargoOperateEntity entity) {
         // 纯箱号时，查箱号内明细，发验货记录 + 收货记录
@@ -75,6 +97,13 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
                 addInspectionTask(entity, boxCode);
             }
         } else {
+            if(Objects.equals(BarCodeType.PACKAGE_CODE, barCodeType) || Objects.equals(BarCodeType.WAYBILL_CODE, barCodeType)){
+                final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
+                if(!Objects.equals(waybillExist, true)){
+                    log.error("JYOpenCargoOperateServiceImpl.inspection 运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));
+                    return new InvokeResult<>();
+                }
+            }
             addInspectionTask(entity, null);
         }
 
@@ -161,6 +190,17 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
     @Override
     public InvokeResult<Boolean> sorting(JYCargoOperateEntity entity) {
 
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(entity.getBarcode());
+        if(Objects.equals(BarCodeType.PACKAGE_CODE, barCodeType) || Objects.equals(BarCodeType.WAYBILL_CODE, barCodeType)){
+            final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
+            if(!Objects.equals(waybillExist, true)){
+                log.error("JYOpenCargoOperateServiceImpl.sorting 运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));
+                return new InvokeResult<>();
+            }
+        }
+
+        this.handleDpBox(entity);
+
         if (Objects.equals(entity.getDataOperateType(),"ADD")) {
             Task task=new Task();
             task.setKeyword1(entity.getBoxCode());
@@ -228,8 +268,51 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
         return new InvokeResult<>();
     }
 
+    private void handleDpBox(JYCargoOperateEntity entity) {
+        try {
+            if(BusinessHelper.isDPBoxCode(entity.getBoxCode())){
+                // 德邦箱号兼容处理
+                final Box box = boxService.findBoxByCode(entity.getBoxCode());
+                if(box == null){
+                    Box boxAdd = new Box();
+                    boxAdd.setId(boxService.newBoxId());
+                    boxAdd.setCode(entity.getBoxCode());
+                    boxAdd.setType(Box.TYPE_DP);
+                    boxAdd.setCreateSiteCode(entity.getCreateSiteId());
+                    boxAdd.setCreateSiteName(entity.getCreateSiteName());
+                    boxAdd.setReceiveSiteCode(entity.getReceiveSiteId());
+                    boxAdd.setReceiveSiteName(entity.getReceiveSiteName());
+                    boxAdd.setCreateTime(new Date(entity.getOperatorInfo().getOperateTime()));
+                    boxAdd.setUpdateTime(boxAdd.getCreateTime());
+                    boxAdd.setCreateUserCode(0);
+                    boxAdd.setCreateUser(entity.getOperatorInfo().getOperateUserName());
+                    boxAdd.setUpdateUserCode(boxAdd.getCreateUserCode());
+                    boxAdd.setUpdateUser(boxAdd.getUpdateUser());
+                    boxAdd.setTimes(1);
+                    boxAdd.setStatus(Box.BOX_STATUS_SEND);
+                    boxAdd.setTransportType(Box.BOX_TRANSPORT_TYPE_HIGHWAY);
+                    boxAdd.setMixBoxType(0);
+                    boxAdd.setLastNodeType(OpBoxNodeEnum.SEND.getNodeCode());
+                    boxAdd.setBoxSource(BoxSystemTypeEnum.PRINT_CLIENT.getCode());
+                    boxService.add(boxAdd);
+                }
+            }
+        } catch (Exception e) {
+            log.error("JYOpenCargoOperateServiceImpl.handleBox {}", JsonHelper.toJson(entity), e);
+        }
+    }
+
     @Override
     public InvokeResult<Boolean> send(JYCargoOperateEntity entity) {
+
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(entity.getBarcode());
+        if(Objects.equals(BarCodeType.PACKAGE_CODE, barCodeType) || Objects.equals(BarCodeType.WAYBILL_CODE, barCodeType)){
+            final Boolean waybillExist = waybillQueryManager.queryExist(WaybillUtil.getWaybillCode(entity.getBarcode()));
+            if(!Objects.equals(waybillExist, true)){
+                log.error("JYOpenCargoOperateServiceImpl.send 运单号{}在京东运单系统中不存在 param {}", entity.getBarcode(), JsonHelper.toJson(entity));
+                return new InvokeResult<>();
+            }
+        }
 
         if (Objects.equals(entity.getDataOperateType(), "ADD")) {
             SendBizSourceEnum bizSource = SendBizSourceEnum.valueOf(entity.getRequestProfile().getSysSource());
@@ -260,6 +343,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
             if (log.isDebugEnabled()) {
                 log.debug("拣运开放发货--end--参数【{}】", JsonHelper.toJson(domain));
             }
+            this.sendOpenPlatformSendMq(entity);
         } else if (Objects.equals(entity.getDataOperateType(), "DELETE")) {
             log.info("执行取消发货开始：{}", JsonHelper.toJson(entity));
             SendM sendM = new SendM();
@@ -273,7 +357,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
             if (!BusinessHelper.isBoxcode(entity.getBarcode())) {
                 sendM.setReceiveSiteCode(entity.getReceiveSiteId());
             }
-            sendM.setUpdateTime(new Date());
+            sendM.setUpdateTime(sendM.getOperateTime());
             sendM.setYn(0);
 
             DeliveryResponse checkResponse = deliveryService.dellCancelDeliveryCheckSealCar(sendM);
@@ -283,10 +367,55 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
                 return new InvokeResult(checkResponse.getCode(),checkResponse.getMessage(), null);
             }
 
-            ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
+            ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithOperateTime(sendM, true);
             log.info("取消发货结果：{}", JsonHelper.toJson(response));
 
         }
         return new InvokeResult<>();
+    }
+
+    private void sendOpenPlatformSendMq(JYCargoOperateEntity jyCargoOperateEntity) {
+        try {
+            if(log.isInfoEnabled()) {
+                log.info("sendOpenPlatformSendMq param {}", JsonHelper.toJson(jyCargoOperateEntity));
+            }
+            jyOpenPlatformSendProducer.send(jyCargoOperateEntity.getPackageCode(), JsonHelper.toJson(jyCargoOperateEntity));
+        } catch (JMQException e) {
+            log.error("sendOpenPlatformSendMq exception {}", JsonHelper.toJson(jyCargoOperateEntity), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 发货完成处理
+     * @param entity 发货数据
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2023-06-13 21:36:57 周二
+     */
+    @Override
+    public InvokeResult<Boolean> sendVehicleFinish(JYCargoOperateEntity entity) {
+        try {
+            if(log.isInfoEnabled()) {
+                log.info("JYOpenCargoOperateServiceImpl sendVehicleFinish {}", JsonHelper.toJson(entity));
+            }
+            this.sendOpenPlatformSendFinishMq(entity);
+            return new InvokeResult<>();
+        } catch (Exception e) {
+            log.error("JYOpenCargoOperateServiceImpl sendVehicleFinish exception {}", JsonHelper.toJson(entity), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void sendOpenPlatformSendFinishMq(JYCargoOperateEntity jyCargoOperateEntity) {
+        try {
+            if(log.isInfoEnabled()) {
+                log.info("sendOpenPlatformSendFinishMq param {}", JsonHelper.toJson(jyCargoOperateEntity));
+            }
+            jyOpenPlatformSendFinishProducer.send(jyCargoOperateEntity.getPackageCode(), JsonHelper.toJson(jyCargoOperateEntity));
+        } catch (JMQException e) {
+            log.error("sendOpenPlatformSendFinishMq exception {}", JsonHelper.toJson(jyCargoOperateEntity), e);
+            throw new RuntimeException(e);
+        }
     }
 }

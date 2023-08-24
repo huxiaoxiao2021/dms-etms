@@ -16,6 +16,8 @@ public interface JyUnloadAggsDaoStrategy {
 
     List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity);
 
+    List<JyUnloadAggsEntity> queryShouldScanByBizIds(List<String> bizIds);
+
     //查包裹维度任务统计信息
     JyUnloadAggsEntity queryPackageStatistics(DimensionQueryDto dto);
 

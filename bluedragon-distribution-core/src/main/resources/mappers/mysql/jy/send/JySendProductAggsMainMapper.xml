@@ -55,6 +55,9 @@
                  open="(" separator="," close=")">
             #{id}
         </foreach>
+        <if test="productType != null">
+            and  product_type = #{productType}
+        </if>
 
     </select>
 
@@ -136,6 +139,18 @@
         and biz_id =#{bizId}
         and  product_type = #{productType}
 
+    </select>
+    
+    <select id="getToScanNumByEndSiteList" parameterType="com.jd.bluedragon.distribution.jy.send.JySendProductAggsEntityQuery" resultMap="jySendProductAggsMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_send_product_aggs
+        WHERE operate_site_id = #{operateSiteId}
+        AND receive_site_id in
+        <foreach item="id" index="index" collection="endSiteIds"
+                 open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 
 </mapper>

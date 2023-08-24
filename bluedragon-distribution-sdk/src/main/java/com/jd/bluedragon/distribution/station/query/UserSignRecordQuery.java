@@ -144,6 +144,12 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	private String refGridKey;
 
 	/**
+	 * 签到人名称
+	 */
+	private String userErp;
+
+
+	/**
 	 * 省区编码
 	 */
 	private String provinceAgencyCode;
@@ -319,6 +325,14 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	}
 	public void setRefGridKey(String refGridKey) {
 		this.refGridKey = refGridKey;
+	}
+
+	public String getUserErp() {
+		return userErp;
+	}
+
+	public void setUserErp(String userErp) {
+		this.userErp = userErp;
 	}
 
 	public String getProvinceAgencyCode() {

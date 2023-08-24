@@ -100,6 +100,17 @@
         order by id  desc
         limit 1
     </select>
+
+    <select id="getLimitDataByMaterialCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from  box_material_relation
+        where material_code = #{materialCode}
+        AND is_delete = 0
+        order by id  desc
+        limit #{limitNum}
+    </select>
+
     <!--除了当前箱号，其他和此集包袋的绑定关系都解绑-->
     <update id="updateUnBindByMaterialCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation">
         UPDATE

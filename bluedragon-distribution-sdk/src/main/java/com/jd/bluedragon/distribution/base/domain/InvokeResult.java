@@ -18,6 +18,10 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int RESULT_PARAMETER_ERROR_CODE=400;
     /**
+     * 称重校验失败
+     */
+    public static final int RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI=402;
+    /**
      * 第三方接口异常
      */
     public static final int RESULT_THIRD_ERROR_CODE=401;
@@ -267,6 +271,11 @@ public class InvokeResult<T> implements Serializable {
     public static final int ONLINE_GET_TASK_SIMPLE_FAIL_CODE= 3066;
     public static final String ONLINE_GET_TASK_SIMPLE_FAIL_MESSAGE ="获取任务简码失败！";
 
+    public static final int COMBOARD_SCAN_WEAK_INTECEPTER_CODE= 3067;
+
+    public static final int REVOKE_TEAN_CODE = 346;
+    public static final String REVOKE_TEAN_MESSAGE = "特安件请注意分拣!";
+
     public static final int QUERY_EXCEPTION_REPORT_CODE = 343;
     public static final String QUERY_EXCEPTION_REPORT_MESSAGE = "查询异常提报数据失败！";
 
@@ -275,6 +284,16 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int REVOKE_INTERCEPT_CONFIRM_CODE = 345;
     public static final String REVOKE_INTERCEPT_CONFIRM_MESSAGE = "此单原为客户取消订单，当前客户已撤回取消指令，无需操作逆向换单，是否仍要进行换单操作？";
+
+    public static final int PACKAGE_HASBEEN_SCAN = 3070;
+    public static final String PACKAGE_HASBEEN_SCAN_MESSAGE = "该包裹已集被扫描过，请勿重复扫描!";
+
+    public static final int NO_WAITFIND_DATA_CODE = 3068;
+    public static final String NO_WAITFIND_DATA_MESSAGE = "未查询到对应的波次找货数据!";
+
+
+    public static final int NO_FINDGOODS_TASK_DATA_CODE = 3069;
+    public static final String NO_FINDGOODS_TASK_DATA_MESSAGE = "未查询到对应的找货任务数据!";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

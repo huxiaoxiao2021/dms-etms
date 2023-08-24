@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.send;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
@@ -9,6 +10,9 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageException;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.dto.SiteCodeAssociationDto;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.dto.CCInAndOutBoundMessage;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
@@ -28,10 +32,17 @@ import com.jd.bluedragon.distribution.sms.domain.SMSDto;
 import com.jd.bluedragon.distribution.sms.service.SmsConfigService;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.common.util.StringUtils;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -41,12 +52,11 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillPickup;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.alibaba.fastjson.JSONObject;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,9 +67,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -169,6 +177,12 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * */
     private final static String REDIS_COLD_INTEGRCEPT_SMS = "COLD_CHAIN_INTEGRCEPT_SMS-";
 
+    @Autowired
+    private SysConfigService sysConfigService;
+
+    @Autowired
+    private TaskService taskService;
+
     @Override
     public void consume(Message message) {
         if (!JsonHelper.isJsonString(message.getText())) {
@@ -268,6 +282,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                         throw new RuntimeException("[dmsWorkSendDetail消费]存储RMA订单数据失败，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
                     }
                 }
+                // 杭州亚运会特殊全程跟踪处理
+                this.handleSecurityCheckWaybillTrace(sendDetail);
                 // 非城配运单，发车队通知调度系统发送MQ消息
                 this.dmsToVendorMQ(sendDetail, waybill);
                 // 构建并发送冷链发货MQ消息 - 运输计划相关
@@ -874,5 +890,91 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         frbc.setSys("ql.dms");
 
         return frbc;
+    }
+
+    /**
+     * 处理案件全程跟踪
+     * @param sendDetail
+     * @author fanggang7
+     * @time 2023-08-08 18:10:21 周一
+     */
+    private void handleSecurityCheckWaybillTrace(SendDetailMessage sendDetail) {
+        try {
+            // 读取系统配置
+            final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION + sendDetail.getCreateSiteCode());
+            if (sysConfig == null) {
+                return;
+            }
+            final SiteCodeAssociationDto siteCodeAssociationDto = JSON.parseObject(sysConfig.getConfigContent(), SiteCodeAssociationDto.class);
+            if (siteCodeAssociationDto == null) {
+                return;
+            }
+            // 判断是否是在配置范围中
+            final List<Integer> siteCodeAssociationList = siteCodeAssociationDto.getSa();
+            if(CollectionUtils.isEmpty(siteCodeAssociationList) || !siteCodeAssociationList.contains(sendDetail.getReceiveSiteCode())){
+                return;
+            }
+            log.info("handleSecurityCheckWaybillTrace match {}", JsonHelper.toJson(sendDetail));
+            // 发送全程跟踪消息
+            this.sendWaybillTrace(sendDetail, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK);
+        } catch (Exception e) {
+            log.error("handleSecurityCheckWaybillTrace exception {}", JsonHelper.toJson(sendDetail), e);
+        }
+    }
+
+    private Long securityCheckAheadTimeMillseconds = 10000L;
+
+    /**
+     * 发送全程跟踪
+     * @param operateType
+     */
+    private void sendWaybillTrace(SendDetailMessage sendDetail, Integer operateType) {
+        try {
+            WaybillStatus waybillStatus = new WaybillStatus();
+            //设置站点相关属性
+            waybillStatus.setPackageCode(sendDetail.getPackageBarcode());
+
+            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
+            waybillStatus.setCreateSiteCode(sendDetail.getCreateSiteCode());
+            waybillStatus.setCreateSiteName(siteOrgDto != null ? siteOrgDto.getSiteName() : Constants.EMPTY_FILL);
+
+            waybillStatus.setOperatorId(sendDetail.getCreateUserCode());
+            waybillStatus.setOperator(sendDetail.getCreateUser());
+            // 操作时间为发货时间的前10秒
+            long operateTime = (sendDetail.getOperateTime() != null ? sendDetail.getOperateTime() : System.currentTimeMillis()) - securityCheckAheadTimeMillseconds;
+            waybillStatus.setOperateTime(new Date(operateTime));
+
+            waybillStatus.setOperateType(operateType);
+            waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检通过", waybillStatus.getCreateSiteName()));
+
+            Map<String, Object> extendParamMap = new HashMap<>();
+            extendParamMap.put("traceDisplay", 0);
+            waybillStatus.setExtendParamMap(extendParamMap);
+
+            // 添加到task表
+            taskService.add(toTask(waybillStatus));
+
+        } catch (Exception e) {
+            log.error("发货发送安检全称跟踪失败 {}", JsonHelper.toJson(sendDetail), e);
+        }
+    }
+
+    /**
+     * 转换成全称跟踪的Task
+     *
+     * @param waybillStatus
+     * @return
+     */
+    private Task toTask(WaybillStatus waybillStatus) {
+        Task task = new Task();
+        task.setTableName(Task.TABLE_NAME_POP);
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setKeyword1(waybillStatus.getPackageCode());
+        task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
+        task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
+        task.setBody(com.jd.bluedragon.utils.JsonHelper.toJson(waybillStatus));
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        return task;
     }
 }

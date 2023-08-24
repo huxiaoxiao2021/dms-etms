@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -482,6 +483,11 @@ public class UccPropertyConfiguration {
      */
     private boolean printCompeteAllPackageUpdateCancel;
 
+    /**
+     * 获取异常完结数据范围限制天数
+     */
+    private int completeExpDayNumLimit;
+
     public boolean isPrintCompeteAllPackageUpdateCancel() {
         return printCompeteAllPackageUpdateCancel;
     }
@@ -797,7 +803,7 @@ public class UccPropertyConfiguration {
     /**
      * 组板封车查询版列表时间
      */
-    private Double jyComboardSealQueryBoardListTime;
+    private String jyComboardSealQueryBoardListTime;
 
     /**
      * 组板封车全选板列表上线
@@ -832,6 +838,26 @@ public class UccPropertyConfiguration {
      */
     private Integer jyStrandScanNumLimit;
 
+
+    /**
+     * 分拣理货开关
+     */
+    private boolean checkTeAnSwitch;
+
+    /**
+     * 特安场地列表
+     */
+    private String teAnSiteWhitelist;
+
+    private int batchQueryEndSiteLimit;
+
+    public int getBatchQueryEndSiteLimit() {
+        return batchQueryEndSiteLimit;
+    }
+
+    public void setBatchQueryEndSiteLimit(int batchQueryEndSiteLimit) {
+        this.batchQueryEndSiteLimit = batchQueryEndSiteLimit;
+    }
 
     public String getAutoPackageSendInspectionSiteCodes() {
         return autoPackageSendInspectionSiteCodes;
@@ -1320,6 +1346,61 @@ public class UccPropertyConfiguration {
      */
     private boolean allianceBusinessSwitch;
 
+    /**
+     * 上传超长超重开关
+     */
+    private boolean uploadOverWeightSwitch;
+
+
+    /**
+     * 忽略转运全程跟踪开关
+     */
+    private boolean ignoreTysTrackSwitch;
+
+
+    /**
+     * 异常处理检查场地名单
+     */
+    private String exceptionSubmitCheckSites;
+    /**
+     * 异常处理检查运单拦截类型
+     */
+    private String exceptionSubmitCheckWaybillInterceptTypes;
+
+    /**
+     * 接货仓发货岗查询发货明细表，默认limit最大值
+     */
+    private Integer JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    /**
+     * 接货仓发货岗混扫任务下流向数量配置： 当前ucc配置，而且改为PC报表控制
+     * ,38:10,,10186:15,,,  配置：38场地支持10个流向， 10186支持15个流向
+     */
+    private String JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    /**
+     * 拣运扫描没有限制最大数量，取消可能存在巨大值，当取消特大时，需要关注是否为异常
+     */
+    private Integer JyBuQiWaybillCodeMaxSum;
+
+
+
+    /**
+     * 批量生成批次号时：最大数量限制
+     */
+    private Integer batchGenerateSendCodeMaxNum;
+
+    /**
+     * 车型优先分数默认值
+     */
+    private double vehicleIntegralPriorityFraction;
+
+    public Integer getBatchGenerateSendCodeMaxNum() {
+        return batchGenerateSendCodeMaxNum;
+    }
+
+    public void setBatchGenerateSendCodeMaxNum(Integer batchGenerateSendCodeMaxNum) {
+        this.batchGenerateSendCodeMaxNum = batchGenerateSendCodeMaxNum;
+    }
+
     public int getOnlineGetTaskSimpleCodeThreshold() {
         return onlineGetTaskSimpleCodeThreshold;
     }
@@ -1367,6 +1448,16 @@ public class UccPropertyConfiguration {
      * 需要按照岗位码隔离板列表的场地名单
      */
     private String needIsolateBoardByGroupCodeSiteList;
+
+    private String interceptBlackList;
+
+    public String getInterceptBlackList() {
+        return interceptBlackList;
+    }
+
+    public void setInterceptBlackList(String interceptBlackList) {
+        this.interceptBlackList = interceptBlackList;
+    }
 
     public String getNeedIsolateBoardByGroupCodeSiteList() {
         return needIsolateBoardByGroupCodeSiteList;
@@ -1447,6 +1538,19 @@ public class UccPropertyConfiguration {
         this.czOrgForbiddenList = czOrgForbiddenList;
     }
 
+    /**
+     * 异常报废审批级别限定数量
+     *  多个级别以,隔开
+     */
+    private String exScrapApproveLevelCountLimit;
+
+
+
+    /**
+     * 三无任务指派数量限制
+     */
+    private int assignExpTaskQuantityLimit;
+
     public boolean getSupportMutilScan() {
         return supportMutilScan;
     }
@@ -1490,6 +1594,11 @@ public class UccPropertyConfiguration {
     private String jyWorkAppAutoRefreshConfig;
     private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
 
+    /**
+     * 组板岗混扫任务查询限制
+     */
+    private Integer cttGroupDataLimit;
+    
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -3108,11 +3217,11 @@ public class UccPropertyConfiguration {
         this.jyComboardListBoardSqlSwitch = jyComboardListBoardSqlSwitch;
     }
 
-    public Double getJyComboardSealQueryBoardListTime() {
+    public String getJyComboardSealQueryBoardListTime() {
         return jyComboardSealQueryBoardListTime;
     }
 
-    public void setJyComboardSealQueryBoardListTime(Double jyComboardSealQueryBoardListTime) {
+    public void setJyComboardSealQueryBoardListTime(String jyComboardSealQueryBoardListTime) {
         this.jyComboardSealQueryBoardListTime = jyComboardSealQueryBoardListTime;
     }
 
@@ -3342,5 +3451,192 @@ public class UccPropertyConfiguration {
             }
         }
         return null;
+    }
+
+    public boolean isCheckTeAnSwitch() {
+        return checkTeAnSwitch;
+    }
+
+    public void setCheckTeAnSwitch(boolean checkTeAnSwitch) {
+        this.checkTeAnSwitch = checkTeAnSwitch;
+    }
+
+    public String getTeAnSiteWhitelist() {
+        return teAnSiteWhitelist;
+    }
+
+    public void setTeAnSiteWhitelist(String teAnSiteWhitelist) {
+        this.teAnSiteWhitelist = teAnSiteWhitelist;
+        this.teAnSiteWhitelistStrList = this.getTeAnSiteWhitelistStrList();
+    }
+
+    private List<String> teAnSiteWhitelistStrList = new ArrayList<>();
+
+    public List<String> getTeAnSiteWhitelistStrList() {
+        if(teAnSiteWhitelist == null){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(teAnSiteWhitelist.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchTeAnSiteWhitelist(int siteId) {
+        if(StringUtils.isBlank(teAnSiteWhitelist)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, teAnSiteWhitelist)){
+            return true;
+        }
+        if(teAnSiteWhitelistStrList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
+	public boolean isUploadOverWeightSwitch() {
+		return uploadOverWeightSwitch;
+	}
+
+	public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
+		this.uploadOverWeightSwitch = uploadOverWeightSwitch;
+	}
+
+    public boolean isIgnoreTysTrackSwitch() {
+        return ignoreTysTrackSwitch;
+    }
+
+    public void setIgnoreTysTrackSwitch(boolean ignoreTysTrackSwitch) {
+        this.ignoreTysTrackSwitch = ignoreTysTrackSwitch;
+    }
+
+    public String getExceptionSubmitCheckSites() {
+        return exceptionSubmitCheckSites;
+    }
+
+    public void setExceptionSubmitCheckSites(String exceptionSubmitCheckSites) {
+        this.exceptionSubmitCheckSites = exceptionSubmitCheckSites;
+        this.setExceptionSubmitCheckSiteList(exceptionSubmitCheckSites);
+    }
+
+    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
+
+    public void setExceptionSubmitCheckSiteList(String exceptionSubmitCheckSites) {
+        if(exceptionSubmitCheckSites == null){
+            exceptionSubmitCheckSiteList = new ArrayList<>();
+            return;
+        }
+        exceptionSubmitCheckSiteList = Arrays.asList(exceptionSubmitCheckSites.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchExceptionSubmitCheckSite(int siteId) {
+        if(StringUtils.isBlank(exceptionSubmitCheckSites)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckSites)){
+            return true;
+        }
+        if(exceptionSubmitCheckSiteList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
+    public String getExceptionSubmitCheckWaybillInterceptTypes() {
+        return exceptionSubmitCheckWaybillInterceptTypes;
+    }
+
+    public void setExceptionSubmitCheckWaybillInterceptTypes(String exceptionSubmitCheckWaybillInterceptTypes) {
+        this.exceptionSubmitCheckWaybillInterceptTypes = exceptionSubmitCheckWaybillInterceptTypes;
+        this.setExceptionSubmitCheckWaybillInterceptTypeList(exceptionSubmitCheckWaybillInterceptTypes);
+    }
+
+    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
+
+    public void setExceptionSubmitCheckWaybillInterceptTypeList(String exceptionSubmitCheckWaybillInterceptTypes) {
+        if(exceptionSubmitCheckWaybillInterceptTypes == null){
+            exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
+            return;
+        }
+        exceptionSubmitCheckWaybillInterceptTypeList = Arrays.asList(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchExceptionSubmitCheckWaybillInterceptType(Integer interceptType) {
+        if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckWaybillInterceptTypes)){
+            return true;
+        }
+        if(interceptType == null){
+            return false;
+        }
+        if(exceptionSubmitCheckWaybillInterceptTypeList.contains(String.valueOf(interceptType))){
+            return true;
+        }
+        return false;
+    }
+
+    public String getExScrapApproveLevelCountLimit() {
+        return exScrapApproveLevelCountLimit;
+    }
+
+    public void setExScrapApproveLevelCountLimit(String exScrapApproveLevelCountLimit) {
+        this.exScrapApproveLevelCountLimit = exScrapApproveLevelCountLimit;
+    }
+
+    public int getCompleteExpDayNumLimit() {
+        return completeExpDayNumLimit;
+    }
+
+    public void setCompleteExpDayNumLimit(int completeExpDayNumLimit) {
+        this.completeExpDayNumLimit = completeExpDayNumLimit;
+    }
+
+    public Integer getJyWarehouseSendVehicleDetailQueryDefaultLimitSize() {
+        return JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    }
+
+    public void setJyWarehouseSendVehicleDetailQueryDefaultLimitSize(Integer jyWarehouseSendVehicleDetailQueryDefaultLimitSize) {
+        JyWarehouseSendVehicleDetailQueryDefaultLimitSize = jyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    }
+
+    public String getJyWarehouseSendVehicleMixScanTaskFlowNumConfig() {
+        return JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    }
+
+    public void setJyWarehouseSendVehicleMixScanTaskFlowNumConfig(String jyWarehouseSendVehicleMixScanTaskFlowNumConfig) {
+        JyWarehouseSendVehicleMixScanTaskFlowNumConfig = jyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    }
+
+    public Integer getJyBuQiWaybillCodeMaxSum() {
+        return JyBuQiWaybillCodeMaxSum;
+    }
+
+    public void setJyBuQiWaybillCodeMaxSum(Integer jyBuQiWaybillCodeMaxSum) {
+        JyBuQiWaybillCodeMaxSum = jyBuQiWaybillCodeMaxSum;
+    }
+
+    public double getVehicleIntegralPriorityFraction() {
+        return vehicleIntegralPriorityFraction;
+    }
+
+    public void setVehicleIntegralPriorityFraction(double vehicleIntegralPriorityFraction) {
+        this.vehicleIntegralPriorityFraction = vehicleIntegralPriorityFraction;
+    }
+
+
+    public int getAssignExpTaskQuantityLimit() {
+        return assignExpTaskQuantityLimit;
+    }
+
+    public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
+        this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
+    }
+
+    public Integer getCttGroupDataLimit() {
+        return cttGroupDataLimit;
+    }
+
+    public void setCttGroupDataLimit(Integer cttGroupDataLimit) {
+        this.cttGroupDataLimit = cttGroupDataLimit;
     }
 }

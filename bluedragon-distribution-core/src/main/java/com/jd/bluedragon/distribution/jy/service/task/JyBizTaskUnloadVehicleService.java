@@ -67,6 +67,15 @@ public interface JyBizTaskUnloadVehicleService {
      */
     List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums);
 
+    /**
+     * 获取特安包裹数
+     * @param condition
+     * @param sealCarCodes
+     * @param enums
+     * @return
+     */
+    Long findStatusCountByCondition4StatusAndLineOfTEAN(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums);
+
 
     /**
      * 分页返回数据 集合（最大支持滚动到200条数据）

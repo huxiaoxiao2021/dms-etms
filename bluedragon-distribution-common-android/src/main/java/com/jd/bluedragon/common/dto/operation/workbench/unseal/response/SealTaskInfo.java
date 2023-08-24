@@ -126,6 +126,16 @@ public class SealTaskInfo implements Serializable {
      */
     private List<String> sealCodes;
 
+    /**
+     * 司机姓名
+     */
+    private String driverName;
+
+    /**
+     * 司机手机号
+     */
+    private String driverPhone;
+
     public String getVehicleNumber() {
         return vehicleNumber;
     }
@@ -308,5 +318,21 @@ public class SealTaskInfo implements Serializable {
 
     public void setSealCodes(List<String> sealCodes) {
         this.sealCodes = sealCodes;
+    }
+
+    public String getDriverPhone() {
+        return driverPhone;
+    }
+
+    public void setDriverPhone(String driverPhone) {
+        this.driverPhone = driverPhone;
+    }
+
+    public String getDriverName() {
+        return driverName;
+    }
+
+    public void setDriverName(String driverName) {
+        this.driverName = driverName;
     }
 }

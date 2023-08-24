@@ -57,6 +57,16 @@ public interface BaseMajorManager {
 
 	public abstract BaseStaffSiteOrgDto getBaseSiteByDmsCode(String siteCode);
 
+    /**
+     * 根据字符型编码查询场地数据，包含库房数据，支持 "spwms-605-603"这种查询
+     *
+     * @param siteCode 场地编码
+     * @return 场地信息
+     * @author fanggang7
+     * @time 2023-07-26 14:36:47 周三
+     */
+    BaseStaffSiteOrgDto getBaseSiteByCodeIncludeStore(String siteCode);
+
 	/**
 	 * 根据基础资料字典ID获取字典数据
 	 * @param id 基础资料字典ID

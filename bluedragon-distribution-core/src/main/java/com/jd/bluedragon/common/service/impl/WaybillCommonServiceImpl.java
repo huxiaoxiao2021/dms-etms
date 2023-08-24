@@ -4,11 +4,15 @@ import com.alibaba.fastjson.JSON;
 import com.jd.addresstranslation.api.base.ExternalAddressRequest;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.address.DmsExternalJDAddressResponse;
 import com.jd.bluedragon.core.jsf.address.ExternalAddressToJDAddressServiceManager;
 import com.jd.bluedragon.core.jsf.presort.AoiBindRoadMappingData;
@@ -18,6 +22,8 @@ import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
@@ -31,28 +37,23 @@ import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
-import com.jd.bluedragon.distribution.waybill.service.LabelPrintingService;
-import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.cache.util.WaybillConstants;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.*;
-import com.jd.preseparate.vo.external.AnalysisAddressResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.command.JdResult;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -1028,6 +1029,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         /*** 产品类型为md-m-0005时:医药专送 */
         if(waybillExt != null && Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(waybillExt.getProductType())){
             target.setTransportMode(TextConstants.COMMON_TEXT_MEDICINE_DELIVET);
+        }
+        /*** 产品类型为ed-m-0059时:电商特惠 */
+        if(waybillExt != null && Constants.E_COMMERCE_SPECIAL_OFFER_SERVICE.equals(waybillExt.getProductType())){
+            target.setTransportMode(TextConstants.PRODUCT_NAME_DSTH);
         }
         //添加抖音标识
         if(BusinessUtil.isDouyin(waybill.getWaybillCode(),waybill.getSourceCode(),waybill.getSendPay())) {
@@ -2107,7 +2112,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //“碎” 在 “尊” 的标识位追加
         String sendPayMap = waybillExt == null ? null :waybillExt.getSendPayMap();
         if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
-            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_FRAGILE) );
+            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_NC_TEXT) );
         }
         //waybill_sign标识位 135=2 判断是否为NC易碎件 (与尊字进行拼接，展示优先级为尊NC)
         if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_135, WaybillSignConstants.CHAR_135_2)){
@@ -2115,5 +2120,42 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         log.info("appendRespectTypeText-{}",target.getRespectTypeText());
         target.appendSpecialMark(target.getRespectTypeText(),false);
+    }
+
+
+    /**
+     * 获取预分拣站点ID
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "WaybillCommonServiceImpl.fetchOldSiteId",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public InvokeResult<Integer> fetchOldSiteId(String waybillCode) {
+        String methodDesc = "WaybillCommonServiceImpl.fetchOldSiteId:";
+        InvokeResult<Integer> result = new InvokeResult<>();
+        result.success();
+        try {
+            com.jd.etms.waybill.domain.Waybill waybill = null;
+            /* 获取包裹的运单数据，如果单号正确的话 */
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+            if(Objects.isNull(baseEntity)
+                    || Objects.isNull(baseEntity.getData())
+                    || Objects.isNull(baseEntity.getData().getWaybill())
+                    || Objects.isNull(baseEntity.getData().getWaybill().getOldSiteId())
+                    || Objects.isNull(baseEntity.getData().getWaybill().getOldSiteId() < 0 )){
+                log.warn("获取预分拣站点为空，单号={}， res={}", waybillCode, JsonHelper.toJson(baseEntity));
+                result.error("获取运单预分拣站点失败");
+                return result;
+            }
+            result.setData(baseEntity.getData().getWaybill().getOldSiteId());
+            return result;
+        } catch (Exception e) {
+            log.error("{}运单接口调用异常,单号为：{},errMsg={}" , methodDesc, waybillCode, e.getMessage(), e);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            String msg = HintService.getHint(HintCodeConstants.GET_WAYBILL_CHOICE_ERROR);
+            result.setMessage(StringUtils.isBlank(msg) ? "查运单获取预分拣场地服务失败" : msg);
+            return result;
+        }
     }
 }

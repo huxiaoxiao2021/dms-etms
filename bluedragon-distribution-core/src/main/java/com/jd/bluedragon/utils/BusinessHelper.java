@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.dms.utils.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
@@ -1041,6 +1042,16 @@ public class BusinessHelper {
     public static boolean isSpecialOrder(Map<String, Object> sendPayMap){
         return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_596), SendPayConstants.STR_596_1);
     }
+
+    /**
+     * 是否 vmi订单
+     * @param sendPayMap  840位 == 1
+     * @return
+     */
+    public static boolean isVmi(Map<String, Object> sendPayMap){
+        return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_840), SendPayConstants.STR_840_1);
+    }
+
     /**
      * 
      * @param extendMap
@@ -1073,5 +1084,24 @@ public class BusinessHelper {
      */
     public static boolean isFragile(Map<String, Object> sendPayMap){
         return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_746), SendPayConstants.CHAR_746_1);
+    }
+
+
+    /**
+     * 根据增值服务编码是否匹配
+     * @param waybillVas
+     * @param waybillVasDtos
+     * @return
+     */
+    public static boolean matchWaybillVasDto(String waybillVas, List<WaybillVasDto> waybillVasDtos){
+        if(StringUtils.isBlank(waybillVas) || CollectionUtils.isEmpty(waybillVasDtos)){
+            return false;
+        }
+        for(WaybillVasDto dto : waybillVasDtos){
+            if(waybillVas.equals(dto.getVasNo())){
+                return true;
+            }
+        }
+        return false;
     }
 }

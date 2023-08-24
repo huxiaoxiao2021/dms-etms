@@ -155,6 +155,22 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
     }
 
     /**
+     * 获取不同状态下的特安车辆任务数
+     * @param entity
+     * @param statuses
+     * @param sealCarCodes
+     * @return
+     */
+    public Long findStatusCountByCondition4StatusAndLineOfTEAN(JyBizTaskUnloadVehicleEntity entity, List<Integer> statuses, List<String> sealCarCodes){
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity",entity);
+        params.put("statuses",statuses);
+        if (CollectionUtils.isNotEmpty(sealCarCodes)) {
+            params.put("sealCarCodes", sealCarCodes);
+        }
+        return this.getSqlSession().selectOne(NAMESPACE + ".findStatusCountByCondition4StatusAndLineOfTEAN", params);
+    }
+    /**
      * 分页获取数据
      * @param condition
      * @param typeEnum

@@ -6,7 +6,9 @@ import com.jd.jdwl.feedback.dto.FeedbackQueryDto;
 import com.jd.jdwl.feedback.dto.UserInfoDto;
 import com.jd.jdwl.feedback.vo.FeedbackVo;
 import com.jd.jdwl.feedback.vo.PageVo;
+import com.jd.jdwl.feedback.vo.TypeVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,6 +20,8 @@ public interface FeedBackApiManager {
     Boolean createFeedBack(FeedbackDto feedbackDto);
 
     public Map<Long,String> queryFeedBackType(UserInfoDto userInfoDto);
+
+    List<TypeVo> queryFeedbackTypeList(UserInfoDto userInfoDto);
 
     PageVo<FeedbackVo> queryFeedback(FeedbackQueryDto queryDto);
 

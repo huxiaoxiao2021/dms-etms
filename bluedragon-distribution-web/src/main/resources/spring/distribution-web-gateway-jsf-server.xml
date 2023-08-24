@@ -503,13 +503,16 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="groupMemberGatewayService"
                   server="dmsjsf" />
-
+    <jsf:provider id="jyWorkGridManagerGatewayServiceServer"
+                  interface="com.jd.bluedragon.distribution.jy.gateway.work.JyWorkGridManagerGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyWorkGridManagerGatewayService"
+                  server="dmsjsf" />
     <jsf:provider id="identityScanGatewayServiceJsf"
                   interface="com.jd.bluedragon.external.gateway.service.IdentityScanGatewayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="identityScanGatewayService"
                   server="dmsjsf" />
-
     <!-- 车辆任务服务  -->
     <bean id="tMSCarTaskGateWayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.TMSCarTaskGateWayServiceImpl" />
     <jsf:provider id="tMSCarTaskGateWayService"
@@ -637,6 +640,30 @@
                   interface="com.jd.bluedragon.external.gateway.service.JyTransportSendVehicleGatewayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="jyTransportSendVehicleGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <bean id="jyFindGoodsGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyFindGoodsGatewayServiceImpl" />
+    <jsf:provider id="jsfJyFindGoodsGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyFindGoodsGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyFindGoodsGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <bean id="jyWarehouseSendGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyWarehouseSendGatewayServiceImpl" />
+    <jsf:provider id="jsfJyWarehouseSendGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyWarehouseSendGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <bean id="feedbackGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.FeedbackGatewayServiceImpl" />
+    <jsf:provider id="jsfFeedbackGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.FeedbackGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="feedbackGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
 

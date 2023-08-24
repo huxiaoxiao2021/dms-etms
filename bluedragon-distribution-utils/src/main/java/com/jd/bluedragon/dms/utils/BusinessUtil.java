@@ -132,7 +132,8 @@ public class BusinessUtil {
      */
     private static boolean isMatchBoxCode(String boxCode) {
         return DmsConstants.RULE_BOXCODE_REGEX_OLD.matcher(boxCode.trim().toUpperCase()).matches()
-                || DmsConstants.RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches();
+                || DmsConstants.RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches()
+                || DmsConstants.RULE_BOXCODE_REGEX_OPEN_DP.matcher(boxCode.trim().toUpperCase()).matches();
     }
 
     /**
@@ -691,6 +692,7 @@ public class BusinessUtil {
 
         return Boolean.FALSE;
     }
+
 
     /**
      * 通过运单标识 判断是否需求包装耗材
@@ -1950,7 +1952,7 @@ public class BusinessUtil {
         if (StringUtils.isBlank(materialCode)) {
             return false;
         }
-        return (materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 16) ||
+        return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15);
     }
     /**
@@ -2596,10 +2598,12 @@ public class BusinessUtil {
     }
 
     public static void main(String[] args) {
-        String sw = "67890";
-        System.out.println(BusinessUtil.isSiteCode(sw));
-        System.out.println(BusinessUtil.isSanWuCode(sw));
-        System.out.println(BusinessUtil.getBarCodeType("BC1001220222260019400709"));
+        System.out.println(BusinessUtil.isCollectionBag("AD12345678901234"));
+        System.out.println(BusinessUtil.isCollectionBag("ADAD123456789012"));
+        System.out.println(BusinessUtil.isCollectionBag("ADAC123456789012"));
+        System.out.println(BusinessUtil.isCollectionBag("ADAD1234567890123"));
+        System.out.println(BusinessUtil.isCollectionBag("ADAD12345678901C"));
+        System.out.println(BusinessUtil.isCollectionBag("AD1234567890123C"));
     }
 
     public static boolean isTaskSimpleCode(String simpleCode) {
@@ -2696,4 +2700,70 @@ public class BusinessUtil {
     public static boolean isAirFill(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_67,WaybillSignConstants.CHAR_67_1);
     }
+
+    /**
+     * 纯配(53=2)&&冷链生鲜单子
+     * 冷链卡班、冷链卡班小票、冷链城配、冷链专送
+     * 冷链卡班和冷链小票（WBS54位=2&&80位=7）、冷链城配（wbs54位=2&&80位=6）、冷链专送（wbs54位=2&&31位=G）
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isExternalPureDeliveryAndColdFresh(String waybillSign){
+        if(!isSignInChars(waybillSign,53,'0', '2')){
+            return false;
+        }
+        if(!isColdChainWaybill(waybillSign)){
+            return false;
+        }
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_7)
+                || isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_6)
+                || isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_G);
+    }
+
+    /**
+     *  自营生鲜 新逻辑
+     * sendpay第338位为1（且sendpay第2位为4或5或6或7或8或9）
+     */
+    public static boolean isSelfSX(String sendPay){
+        if(StringUtils.isBlank(sendPay)){
+            return false;
+        }
+       return isSignChar(sendPay,SendPayConstants.POSITION_338,SendPayConstants.POSITION_338_1) &&  isSx(sendPay);
+    }
+
+    /**
+     *  外单生鲜 新逻辑
+     *  waybillsign31位为9或A
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNotSelfSX(String waybillSign){
+        if(StringUtils.isBlank(waybillSign)){
+            return false;
+        }
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_9)
+                || isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_A);
+    }
+    /**
+     * 判断是否-场地网格key
+     * @param businessKey
+     * @return
+     */
+    public static boolean isWorkGridKey(String businessKey){
+        if(StringUtils.isBlank(businessKey)){
+            return false;
+        }
+        return businessKey.startsWith(DmsConstants.CODE_PREFIX_WORK_GRID);
+    }
+    /**
+     * 判断是否-场地网格工序key
+     * @param businessKey
+     * @return
+     */
+    public static boolean isWorkStationGridKey(String businessKey){
+        if(StringUtils.isBlank(businessKey)){
+            return false;
+        }
+        return businessKey.startsWith(DmsConstants.CODE_PREFIX_WORK_STATION_GRID);
+    }    
 }

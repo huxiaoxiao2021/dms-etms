@@ -267,6 +267,9 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
                 .operatorId(uploadData.getOperatorId())
                 .operatorName(uploadData.getOperatorName())
                 .operateTime(new Date());
+        weightVolumeEntity.setLongPackage(uploadData.getLongPackage());
+        weightVolumeEntity.setOverLengthAndWeightEnable(uploadData.getOverLengthAndWeightEnable());
+        weightVolumeEntity.setOverLengthAndWeightTypes(uploadData.getOverLengthAndWeightTypes());
         weightVolumeEntity.setVolume(uploadData.getVolume());
         weightVolumeEntity.setOperatorCode(uploadData.getOperatorCode());
         log.info("调用dmsWeightVolumeService#dealWeightAndVolume参数:{}", JsonUtils.toJSONString(weightVolumeEntity));

@@ -5,6 +5,10 @@ import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class BoxMaterialRelationDao  extends BaseDao<BoxMaterialRelation> {
 
     private final static Log logger = LogFactory.getLog(BoxMaterialRelationDao.class);
@@ -57,6 +61,20 @@ public class BoxMaterialRelationDao  extends BaseDao<BoxMaterialRelation> {
 
     public BoxMaterialRelation getDataByMaterialCode(String materialCode) {
         return this.getSqlSession().selectOne(NAMESPACE + ".getDataByMaterialCode", materialCode);
+    }
+
+    /**
+     * 根据集包袋编号查询固定条数数据
+     * @param materialCode
+     * @param limit
+     * @return
+     */
+    public List<BoxMaterialRelation> getLimitDataByMaterialCode(String materialCode, Integer limit){
+        Map<String,Object> param = new HashMap<>();
+        param.put("materialCode",materialCode);
+        param.put("limitNum",limit);
+        return this.getSqlSession().selectList(NAMESPACE + ".getLimitDataByMaterialCode", param);
+
     }
     /**
      * 除了当前箱号，其他和此集包袋的绑定关系都解绑

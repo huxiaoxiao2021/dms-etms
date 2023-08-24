@@ -7,6 +7,8 @@
     <resultMap type="com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity" id="JyAttachmentDetailDao">
         <result property="id" column="id"/>
         <result property="bizId" column="biz_id"/>
+        <result property="bizType" column="biz_type"/>
+        <result property="bizSubType" column="biz_sub_type"/>
         <result property="siteCode" column="site_code"/>
         <result property="attachmentType" column="attachment_type"/>
         <result property="attachmentUrl" column="attachment_url"/>
@@ -19,7 +21,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, biz_id, site_code, attachment_type, attachment_url,
+        id, biz_id, biz_type, biz_sub_type, site_code, attachment_type, attachment_url,
         create_user_erp, update_user_erp, create_time, update_time, yn, ts
     </sql>
 
@@ -32,6 +34,12 @@
                 <if test="bizId != null">
                     biz_id,
                 </if>
+                <if test="bizType != null">
+                    biz_type,
+                </if>
+                <if test="bizSubType != null">
+                    biz_sub_type,
+                </if>                                
                 <if test="siteCode != null">
                     site_code,
                 </if>
@@ -60,6 +68,12 @@
                 <if test="bizId != null">
                     #{bizId},
                 </if>
+                <if test="bizType != null">
+                    #{bizType},
+                </if> 
+                <if test="bizSubType != null">
+                    #{bizSubType},
+                </if>    
                 <if test="siteCode != null">
                     #{siteCode},
                 </if>
@@ -86,7 +100,9 @@
     <insert id="batchInsert" parameterType="java.util.List">
         insert into jy_attachment_detail (
              id, 
-             biz_id, 
+             biz_id,
+             biz_type,
+             biz_sub_type, 
              site_code, 
              attachment_type, 
              attachment_url,
@@ -100,6 +116,8 @@
             (
             #{item.id},
             #{item.bizId},
+            #{item.bizType},
+            #{item.bizSubType},
             #{item.siteCode},
             #{item.attachmentType},
             #{item.attachmentUrl},
@@ -123,6 +141,12 @@
             yn = 1
             and biz_id = #{bizId}
             and site_code = #{siteCode}
+            <if test="bizType != null">
+                and biz_type = #{bizType}
+            </if>
+            <if test="bizSubType != null">
+                and biz_sub_type = #{bizSubType}
+            </if>
         </where>
     </update>
 
@@ -137,7 +161,7 @@
         limit 1
     </select>
 
-    <select id="queryPageListByCondition" parameterType="map" resultMap="JyAttachmentDetailDao">
+    <select id="queryDataListByCondition" parameterType="com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery" resultMap="JyAttachmentDetailDao">
         select
             <include refid="Base_Column_List"/>
         from
@@ -145,20 +169,24 @@
         where yn = 1
         and biz_id = #{bizId}
         and site_code = #{siteCode}
+        and biz_type = #{bizType}
+        <if test="bizSubType != null">
+            and biz_sub_type = #{bizSubType}
+        </if>         
         order by create_time desc
-        <if test="offset != null">
-            LIMIT #{offset}, #{pageSize}
-        </if>
+        limit #{offset}, #{limit}
     </select>
 
-    <select id="queryTotalCondition" parameterType="map" resultType="int">
-        select
-            count(*)
-        from
-            jy_attachment_detail
+
+    <select id="countByCondition" parameterType="com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery" resultType="java.lang.Integer">
+        select count(*)
+        from jy_attachment_detail
         where yn = 1
-        and biz_id = #{bizId}
-        and site_code = #{siteCode}
+            and biz_id = #{bizId}
+            and site_code = #{siteCode}
+            and biz_type = #{bizType}
+            <if test="bizSubType != null">
+                and biz_sub_type = #{bizSubType}
+            </if>
     </select>
-
 </mapper>

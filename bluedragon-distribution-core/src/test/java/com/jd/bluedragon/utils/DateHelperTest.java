@@ -90,4 +90,16 @@ public class DateHelperTest {
 			System.out.println("----:" + DateHelper.hoursToHHMM(dateStr));
 		}
 	}
+	@Test
+	public void testGetBeforeTime() {
+		Date time = DateHelper.parseDateTime("2023-07-18 10:00:00");
+		Date time1 = DateHelper.parseDateTime("2023-07-19 10:00:00");
+		for (int i=1;i<=50;i++) {
+			System.out.println("--配置扫描任务--"+i+"--:" + DateHelper.formatDateTime(DateHelper.getBeforeTime(time, 1800, 300)));
+			
+			System.out.println("--站点任务--"+i+"--:" + DateHelper.formatDateTime(DateHelper.getBeforeTime(time, 900, 300)));
+			
+			System.out.println("--自动关闭任务--"+i+"--:" + DateHelper.formatDateTime(DateHelper.getAfterTime(time1, 30, 30)));
+		}
+	}
 }

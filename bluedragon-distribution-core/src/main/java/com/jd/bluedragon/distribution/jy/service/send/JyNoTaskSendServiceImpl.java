@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProductTypeAgg;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
@@ -14,19 +16,19 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.send.BindVehicleResp;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TransferVehicleResp;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
-import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.SendTaskExcepLabelEnum;
-import com.jd.bluedragon.distribution.jy.enums.TransferLogTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
@@ -56,6 +58,7 @@ import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
@@ -134,6 +137,13 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Qualifier("jyTaskGroupMemberService")
     private JyTaskGroupMemberService taskGroupMemberService;
     private static final int SEND_SCAN_BAR_EXPIRE = 6;
+
+    @Autowired
+    private IJySendVehicleJsfManager sendVehicleJsfManager;
+
+    @Autowired
+    private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
+
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -540,6 +550,22 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             fromSvDetailTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
             fromSvDetailTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
             jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(fromSvDetailTask);
+
+            //接货仓发货岗任务绑定or迁移时，被迁移流向从混扫任务中删除
+            if(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(bindVehicleDetailTaskReq.getPost())) {
+                JyGroupSortCrossDetailEntity sortCrossDetailEntity = new JyGroupSortCrossDetailEntity();
+                sortCrossDetailEntity.setStartSiteId((long)bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode());
+                sortCrossDetailEntity.setFuncType(bindVehicleDetailTaskReq.getPost());
+                sortCrossDetailEntity.setGroupCode(bindVehicleDetailTaskReq.getGroupCode());
+                sortCrossDetailEntity.setSendVehicleDetailBizId(fromSvdTask.getBizId());
+                sortCrossDetailEntity.setUpdateTime(now);
+                sortCrossDetailEntity.setUpdateUserErp("system");//修改人system  区分是服务端逻辑系统删除（绑定或迁移触发）非操作人指定删除
+                if(log.isInfoEnabled()) {
+                    log.info("任务绑定时，将被绑定流向【{}】从【接货仓发货岗混扫任务】中删除，request={}", fromSvdTask.getBizId(), JsonHelper.toJson(bindVehicleDetailTaskReq));
+                }
+                jyGroupSortCrossDetailService.deleteBySiteAndBizId(sortCrossDetailEntity);
+            }
+
             //关闭调度任务
             if (uccConfig.getSyncScheduleTaskSwitch()){
                 if (!closeScheduleTask(fromSvTask)){
@@ -694,6 +720,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.cancelSendTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq request) {
         log.info("jy取消发货，按{}进行取消,扫描号码：{}", CancelSendTypeEnum.getReportTypeName(request.getType()), request.getCode());
         validateCancelReq(request);

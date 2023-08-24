@@ -20,6 +20,11 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="yn" jdbcType="BIT" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="func_type" jdbcType="VARCHAR" property="funcType" />
+    <result column="focus" jdbcType="BIT" property="focus" />
+    <result column="send_vehicle_detail_biz_id" jdbcType="VARCHAR" property="sendVehicleDetailBizId" />
+    <result column="complete_status" jdbcType="VARCHAR" property="completeStatus" />
+
   </resultMap>
   <resultMap id="cttGroupDtoMap" type="com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto">
     <result column="template_code" jdbcType="VARCHAR" property="templateCode" />
@@ -33,7 +38,8 @@
   <sql id="Base_Column_List">
     id, group_code, template_code, template_name, cross_code, tabletrolley_code, start_site_id,
     start_site_name, end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp,
-    update_user_name, create_time, update_time, yn, ts
+    update_user_name, create_time, update_time, yn, ts, func_type, focus, send_vehicle_detail_biz_id,
+    complete_status
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -228,6 +234,9 @@
       <if test="ts != null">
         ts = #{ts,jdbcType=TIMESTAMP},
       </if>
+      <if test="focus != null">
+        focus = #{focus,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -256,14 +265,16 @@
     insert into jy_group_sort_cross_detail (group_code, template_code,
     template_name, cross_code, tabletrolley_code,
     start_site_id, start_site_name, end_site_id,
-    end_site_name, create_user_erp, create_user_name, create_time)
+    end_site_name, create_user_erp, create_user_name, 
+    create_time, focus, send_vehicle_detail_biz_id, func_type)
     values
     <foreach collection="list" item="item" index="index" separator=",">
       (#{item.groupCode,jdbcType=VARCHAR}, #{item.templateCode,jdbcType=VARCHAR},
       #{item.templateName,jdbcType=VARCHAR}, #{item.crossCode,jdbcType=VARCHAR}, #{item.tabletrolleyCode,jdbcType=VARCHAR},
       #{item.startSiteId,jdbcType=BIGINT}, #{item.startSiteName,jdbcType=VARCHAR}, #{item.endSiteId,jdbcType=BIGINT},
       #{item.endSiteName,jdbcType=VARCHAR}, #{item.createUserErp,jdbcType=VARCHAR},
-      #{item.createUserName,jdbcType=VARCHAR}, #{item.createTime,jdbcType=TIMESTAMP})
+      #{item.createUserName,jdbcType=VARCHAR}, #{item.createTime,jdbcType=TIMESTAMP}, 
+      #{item.focus,jdbcType=BIT}, #{item.sendVehicleDetailBizId,jdbcType=VARCHAR}, #{item.funcType,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <select id="queryCommonCTTGroupData" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
@@ -275,10 +286,28 @@
     <if test="groupCode != null and groupCode != ''">
       and group_code = #{groupCode,jdbcType=VARCHAR}
     </if>
+    <if test="funcType != null and funcType != ''">
+      and func_type = #{funcType,jdbcType=BIT}
+    </if>
+    <if test="sendVehicleDetailBizId != null and sendVehicleDetailBizId != ''">
+      and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
+    </if>
+    <if test="endSiteId !=null and endSiteId!=''">
+      and end_site_id = #{endSiteId}
+    </if>
+    <if test="crossCode != null and crossCode!=''">
+      and cross_code = #{crossCode,jdbcType=VARCHAR}
+    </if>
+    <if test="tabletrolleyCode != null and tabletrolleyCode!=''">
+      and tabletrolley_code = #{tabletrolleyCode,jdbcType=VARCHAR}
+    </if>
+    <if test="completeStatus != null">
+      and complete_status = #{completeStatus}
+    </if>
     group by template_code
-    order by cross_code ,tabletrolley_code
+    order by ts desc
   </select>
-  <select id="selectOneByGroupCrossTableTrolley"
+  <select id="selectOneByFlowAndTemplateCode"
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
           resultType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
     select
@@ -287,6 +316,12 @@
     and start_site_id = #{startSiteId,jdbcType=BIGINT} and group_code = #{groupCode,jdbcType=VARCHAR}
     and template_code = #{templateCode,jdbcType=VARCHAR}
     and end_site_id = #{endSiteId,jdbcType=BIGINT}
+    <if test="sendVehicleDetailBizId != null and sendVehicleDetailBizId != ''">
+      and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
+    </if>
+    <if test="funcType != null and funcType != ''">
+      and func_type = #{funcType,jdbcType=BIT}
+    </if>
   </select>
   <select id="queryTemplateName" parameterType="java.lang.String" resultType="java.lang.String">
     select template_name
@@ -295,11 +330,12 @@
       and template_code = #{templateCode} limit 1
   </select>
   <update id="deleteByIds" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq">
-    update jy_group_sort_cross_detail set yn = 0 , update_user_erp = #{updateUserErp,jdbcType=VARCHAR} ,
-    update_user_name = #{updateUserName,jdbcType=VARCHAR} , update_time = #{updateTime,jdbcType=TIMESTAMP} where id in
-    <foreach collection="ids" item="item" open="(" close=")" separator=",">
-      #{item}
-    </foreach>
+    update jy_group_sort_cross_detail set yn = 0
+    where yn = 1
+      and id in
+        <foreach collection="ids" item="item" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
   </update>
   <select id="listSendFlowByTemplateCodeOrEndSiteCode" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity" resultMap="BaseResultMap">
     SELECT
@@ -315,6 +351,9 @@
       and end_site_id = #{endSiteId}
     </if>
     AND start_site_id = #{startSiteId}
+    <if test="sendVehicleDetailBizId !=null and sendVehicleDetailBizId!=''">
+      and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId}
+    </if>
     AND yn = 1
   </select>
   <select id="listGroupByEndSiteCodeOrCTTCode"
@@ -347,4 +386,77 @@
     and yn = 1
     group by template_code
   </select>
+
+  <select id="selectByCondition"
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto"
+          resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from jy_group_sort_cross_detail
+    where yn = 1
+      and start_site_id = #{startSiteId,jdbcType=BIGINT}
+      and group_code = #{groupCode,jdbcType=VARCHAR}
+      and template_code = #{templateCode,jdbcType=VARCHAR}
+      <if test="endSiteId != null">
+        and end_site_id = #{endSiteId}
+      </if>
+      <if test="sendVehicleDetailBizId != null and sendVehicleDetailBizId != ''">
+        and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
+      </if>
+      <if test="funcType != null">
+        and func_type = #{funcType,jdbcType=BIT}
+      </if>
+      <if test="endSiteIdList != null and endSiteIdList.size() > 0">
+        and end_site_id in
+        <foreach collection="endSiteIdList" item="item" index="index" open="(" separator="," close=")">
+          #{item,jdbcType=BIGINT}
+        </foreach>
+      </if>
+      <if test="completeStatus != null">
+        and complete_status = #{completeStatus,jdbcType=BIT}
+      </if>
+  </select>
+
+  <update id="mixScanTaskComplete" 
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+    update jy_group_sort_cross_detail
+    set complete_status = 1 , update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where yn = 1
+      and template_code = #{templateCode,jdbcType=VARCHAR}
+      and start_site_id = #{startSiteId,jdbcType=BIGINT}
+      and group_code = #{groupCode,jdbcType=VARCHAR}
+  </update>
+
+
+  <select id="countByCondition"
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto"
+          resultType="int">
+    select count(*)
+    from jy_group_sort_cross_detail
+    where yn = 1
+    and start_site_id = #{startSiteId,jdbcType=BIGINT}
+    and group_code = #{groupCode,jdbcType=VARCHAR}
+    and template_code = #{templateCode,jdbcType=VARCHAR}
+    <if test="funcType != null">
+      and func_type = #{funcType,jdbcType=BIT}
+    </if>
+    <if test="completeStatus != null">
+      and complete_status = #{completeStatus,jdbcType=BIT}
+    </if>
+  </select>
+
+<!-- 按条件删除：小组+场地+岗位 -->
+  <update id="deleteBySiteAndBizId" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+    update jy_group_sort_cross_detail
+    set
+      <if test="updateUserErp != null">
+        update_user_erp = #{updateUserErp},
+      </if>
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = 0
+    where yn = 1
+    and group_code = #{groupCode}
+    and start_site_id = #{startSiteId}
+    and func_type = #{funcType}
+    and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
+  </update>
 </mapper>

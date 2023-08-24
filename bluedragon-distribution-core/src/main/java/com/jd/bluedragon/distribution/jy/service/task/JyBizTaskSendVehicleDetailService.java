@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 
+import java.util.Date;
 import java.util.List;
 
 public interface JyBizTaskSendVehicleDetailService {
@@ -112,4 +115,45 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
 	JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query);
+
+    JyBizTaskSendVehicleDetailEntity findBySendVehicleBizId(String sendVehicleBizId);
+
+    /**
+     * 根据流向list查询发货明细表中主任务BizIds
+     * @param queryEntity
+     * @return
+     */
+    List<String> findBizIdsBySiteFlows(JyBizTaskSendVehicleDetailQueryEntity queryEntity);
+
+    /**
+     * 根据BizIds批量获取任务
+     * @param siteCode
+     * @param bizIds
+     * @return
+     */
+    List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetailByBizIds(int siteCode, List<String> bizIds);
+
+    /**
+     * 根据send_vehicle_biz_id批量获取任务
+     * @param sendVehicleBizIds
+     * @return
+     */
+    List<JyBizTaskSendVehicleDetailEntity> findDetailBySendVehicleBizIds(List<String> sendVehicleBizIds);
+
+
+    /**
+     * 根据明细bizList获取任务明细信息
+     * @param detailBizList
+     * @param siteId
+     * @return
+     */
+    List<JyBizTaskSendVehicleDetailEntity> findByDetailVehicleBiz(List<String> detailBizList, Integer siteId);
+
+    /**
+     * 根据bizId更新派车任务状态
+     * @param detailBizList
+     * @param status
+     * @return
+     */
+    boolean updateStatusByDetailVehicleBizIds(List<String> detailBizList, Integer status);
 }

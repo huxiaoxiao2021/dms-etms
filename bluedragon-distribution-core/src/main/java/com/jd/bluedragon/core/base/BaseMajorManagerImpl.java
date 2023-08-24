@@ -17,10 +17,7 @@ import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
-import com.jd.bluedragon.utils.BaseContants;
-import com.jd.bluedragon.utils.BeanCopyUtil;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.coldchain.distribution.api.WaybillPackageContainerApi;
 import com.jd.coldchain.distribution.dto.BaseResponse;
 import com.jd.etms.basic.jsf.BasicSiteUpdateService;
@@ -272,6 +269,44 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             return dtoStaff;
         else
             responseDTO = basicTraderAPI.getBaseTraderByCode(siteCode);
+
+        if (responseDTO != null && responseDTO.getResult() != null)
+            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
+        return dtoStaff;
+    }
+
+    /**
+     * 根据字符型编码查询场地数据，包含库房数据，支持 "spwms-605-603"这种查询
+     *
+     * @param siteCode 场地编码
+     * @return 场地信息
+     * @author fanggang7
+     * @time 2023-07-26 14:36:47 周三
+     */
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteByCodeIncludeStore@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByCodeIncludeStore", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseStaffSiteOrgDto getBaseSiteByCodeIncludeStore(String siteCode) {
+        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteByDmsCode(siteCode);
+        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
+        if (dtoStaff != null)
+            return dtoStaff;
+        else
+            dtoStaff = basicPrimaryWS.getBaseStoreByDmsCode(siteCode);
+
+        if (dtoStaff != null){
+            return dtoStaff;
+        } else{
+            responseDTO = basicTraderAPI.getBaseTraderByCode(siteCode);
+            if(responseDTO == null || responseDTO.getResult() == null){
+                final PsStoreInfo storeInfo = this.getStoreByCode(siteCode);
+                if(storeInfo != null){
+                    dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(storeInfo.getDmsSiteId());
+                    return dtoStaff;
+                }
+            }
+        }
 
         if (responseDTO != null && responseDTO.getResult() != null)
             dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());

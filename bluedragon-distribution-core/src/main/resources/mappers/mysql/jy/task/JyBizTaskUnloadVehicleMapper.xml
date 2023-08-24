@@ -49,6 +49,8 @@
         <result property="taskType" column="task_type"/>
         <result property="railwayPfNo" column="railway_pf_no"/>
         <result property="teanFlag" column="te_an_flag"/>
+        <result property="priorityFraction" column="priority_fraction"/>
+        <result property="priorityFlag" column="priority_flag"/>
     </resultMap>
 
     <resultMap type="com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto" id="JyBizTaskUnloadCountMap">
@@ -99,7 +101,10 @@
         railway_pf_no,
         unload_start_time,
         comboard_count,
-        intercept_count
+        intercept_count,
+        te_an_flag,
+        priority_fraction,
+        priority_flag
     </sql>
 
 
@@ -389,6 +394,10 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="teanFlag != null">
+                and te_an_flag = #{teanFlag}
+            </if>
+
         </where>
 
         group by vehicle_status
@@ -411,6 +420,45 @@
         </if>
         <if test="entity.lineType!=null">
            and line_type =#{entity.lineType}
+        </if>
+        <if test="entity.taskType!=null">
+            and task_type =#{entity.taskType}
+        </if>
+        <if test="entity.teanFlag!=null">
+            and te_an_flag =#{entity.teanFlag}
+        </if>
+        <choose>
+            <when test="entity.startSiteId != null and entity.fuzzyVehicleNumber != null">
+                AND (start_site_id = #{entity.startSiteId} OR fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber})
+            </when>
+            <otherwise>
+                <if test="entity.fuzzyVehicleNumber">
+                    AND fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber}
+                </if>
+                <if test="entity.startSiteId != null">
+                    AND start_site_id = #{entity.startSiteId}
+                </if>
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <sql id="queryTaskConditionOfTean">
+        yn = 1 and  te_an_flag =1
+
+        AND end_site_id = #{entity.endSiteId}
+        <if test="entity.actualArriveStartTime != null">
+            and update_time >= #{entity.actualArriveStartTime}
+        </if>
+        <if test="entity.sealCarCode">
+            and seal_car_code = #{entity.sealCarCode}
+        </if>
+
+        <if test="entity.sortTime != null">
+            AND sort_time >= #{entity.sortTime}
+        </if>
+        <if test="entity.lineType!=null">
+            and line_type =#{entity.lineType}
         </if>
         <if test="entity.taskType!=null">
             and task_type =#{entity.taskType}
@@ -489,6 +537,32 @@
     </select>
 
 
+    <select id="findStatusCountByCondition4StatusAndLineOfTEAN" resultType="java.lang.Long">
+        select
+        count(1) as v_sum
+        from jy_biz_task_unload_vehicle
+
+        <where>
+
+            <include refid="queryTaskConditionOfTean"/>
+
+            <if test="statuses != null">
+                and vehicle_status in
+                <foreach collection="statuses" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="sealCarCodes != null">
+                AND seal_car_code IN
+                <foreach collection="sealCarCodes" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+
+    </select>
+
+
     <select id="findByConditionOfPage" resultMap="jyBizTaskUnloadVehicleMap">
         select
         <include refid="Base_Column_List"/>
@@ -515,6 +589,12 @@
             <if test="entity.refGroupCode != null and entity.refGroupCode != ''">
                 and ref_group_code = #{entity.refGroupCode}
             </if>
+            <if test="entity.teanFlag != null ">
+                and te_an_flag = #{entity.teanFlag}
+            </if>
+            <if test="entity.priorityFlag != null ">
+                and priority_flag = #{entity.priorityFlag}
+            </if>
 
         </where>
 
@@ -535,6 +615,9 @@
                 </when>
                 <when test="orderType == 5">
                     unload_progress desc
+                </when>
+                <when test="orderType == 6">
+                    priority_fraction desc
                 </when>
                 <otherwise>
                     id
@@ -692,6 +775,12 @@
             </if>
             <if test="teanFlag != null">
                 te_an_flag =#{teanFlag},
+            </if>
+            <if test="priorityFraction != null">
+                priority_fraction =#{priorityFraction},
+            </if>
+            <if test="priorityFlag != null">
+                priority_flag =#{priorityFlag},
             </if>
         </set>
         <where>

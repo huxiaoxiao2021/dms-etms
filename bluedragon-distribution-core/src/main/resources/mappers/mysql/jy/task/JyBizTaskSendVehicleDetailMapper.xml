@@ -634,4 +634,54 @@
         WHERE yn = 1
           AND trans_work_code = #{transWorkCode, jdbcType=VARCHAR})
     </select>
+
+    <select id="findBySendVehicleBizId" resultMap="jyBizTaskSendVehicleDetailMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_send_vehicle_detail
+        where yn = 1 AND send_vehicle_biz_id = #{sendVehicleBizId}
+        limit 1;
+    </select>
+
+    <select id="findBizIdsBySiteFlows" resultType="java.lang.String">
+        select send_vehicle_biz_id
+        from jy_biz_task_send_vehicle_detail
+        WHERE yn = 1
+            and start_site_id = #{entity.startSiteId}
+            and end_site_id in
+            <foreach collection="entity.endSiteIdList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        group by send_vehicle_biz_id
+        limit #{entity.pageSize}
+    </select>
+
+    <select id="findSendVehicleDetailByBizIds" resultMap="jyBizTaskSendVehicleDetailMap">
+        select <include refid="Base_Column_List"/> from jy_biz_task_send_vehicle_detail
+        where start_site_id = #{startSiteId}
+        and yn = 1
+        and biz_id in
+        <foreach collection="bizIds" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findDetailBySendVehicleBizIds" resultMap="jyBizTaskSendVehicleDetailMap">
+        select <include refid="Base_Column_List"/> from jy_biz_task_send_vehicle_detail
+        where  yn = 1
+        and send_vehicle_biz_id in
+        <foreach collection="sendVehicleBizIds" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="updateStatusByDetailVehicleBizIds">
+        update jy_biz_task_send_vehicle_detail
+        set vehicle_status = #{status}
+        where yn = 1
+        and biz_id in
+        <foreach collection="detailBizList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+    </update>
 </mapper>

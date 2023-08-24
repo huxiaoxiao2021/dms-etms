@@ -20,6 +20,9 @@
         <typeAlias type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributePo" alias="BusinessCodeAttributePo" />
         <typeAlias type="com.jd.bluedragon.distribution.collection.entity.CollectionRecordPo" alias="CollectionRecordPo" />
         <typeAlias type="com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo" alias="CollectionRecordDetailPo" />
+        <typeAlias type="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo" alias="JyCollectRecordPo" />
+        <typeAlias type="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo" alias="JyCollectRecordDetailPo" />
+
     </typeAliases>
 
     <mappers>

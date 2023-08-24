@@ -53,6 +53,11 @@ public class JyBizTaskExceptionLogEntity implements Serializable {
      */
     private Date ts;
 
+    /**
+     * 日志说明
+     */
+    private String remark;
+
     public Long getId() {
         return id;
     }
@@ -123,5 +128,13 @@ public class JyBizTaskExceptionLogEntity implements Serializable {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }
