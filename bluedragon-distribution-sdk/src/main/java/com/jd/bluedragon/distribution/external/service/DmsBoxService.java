@@ -23,5 +23,4 @@ public interface DmsBoxService {
      */
     BoxResponse get(String boxCode);
 
-    Response<List<String>> generateRecycleBasketCode(int quantity);
 }
