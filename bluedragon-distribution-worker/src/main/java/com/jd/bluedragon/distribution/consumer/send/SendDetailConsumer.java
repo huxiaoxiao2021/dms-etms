@@ -9,6 +9,8 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageException;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.dto.SiteCodeAssociationDto;
@@ -52,6 +54,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillPickup;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -182,6 +185,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private AbnormalWayBillService abnormalWayBillService;
 
     @Override
     public void consume(Message message) {
@@ -892,6 +898,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         return frbc;
     }
 
+    private Long oldVersion_abnormalReasonThirdId = 27000L;
+    private Long newVersion_abnormalReasonFirstId = 20009L;
+    private Long newVersion_abnormalReasonSecondId = 20010L;
+
     /**
      * 处理案件全程跟踪
      * @param sendDetail
@@ -915,11 +925,38 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 return;
             }
             log.info("handleSecurityCheckWaybillTrace match {}", JsonHelper.toJson(sendDetail));
+            boolean waybillIsProhibitedAbnormal = checkWaybillIsProhibitedAbnormal(sendDetail);
             // 发送全程跟踪消息
-            this.sendWaybillTrace(sendDetail, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK);
+            this.sendWaybillTrace(sendDetail, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK, waybillIsProhibitedAbnormal);
         } catch (Exception e) {
             log.error("handleSecurityCheckWaybillTrace exception {}", JsonHelper.toJson(sendDetail), e);
         }
+    }
+
+    private boolean checkWaybillIsProhibitedAbnormal(SendDetailMessage sendDetail) {
+        // 区分是否有异常举报，1. 老版本异常上报 三级原因：违禁品无法发货 - 27000 2. 新版H5 外呼-违禁品（20009-20010）二级
+        try {
+            final AbnormalWayBill abnormalWayBillNewVersionParam = new AbnormalWayBill();
+            final String waybillCode = WaybillUtil.getWaybillCodeByPackCode(sendDetail.getPackageBarcode());
+            abnormalWayBillNewVersionParam.setWaybillCode(waybillCode);
+            abnormalWayBillNewVersionParam.setAbnormalReasonFirstId(newVersion_abnormalReasonFirstId);
+            abnormalWayBillNewVersionParam.setAbnormalReasonSecondId(newVersion_abnormalReasonSecondId);
+            AbnormalWayBill abnormalWayBillExist = abnormalWayBillService.queryOneByParam(abnormalWayBillNewVersionParam);
+            if (abnormalWayBillExist != null) {
+                return true;
+            }
+
+            final AbnormalWayBill abnormalWayBillOldVersionParam = new AbnormalWayBill();
+            abnormalWayBillOldVersionParam.setWaybillCode(waybillCode);
+            abnormalWayBillOldVersionParam.setAbnormalReasonThirdId(oldVersion_abnormalReasonThirdId);
+            abnormalWayBillExist = abnormalWayBillService.queryOneByParam(abnormalWayBillOldVersionParam);
+            if (abnormalWayBillExist != null) {
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("checkWaybillIsProhibitedAbnormal exception {}", JsonHelper.toJson(sendDetail), e);
+        }
+        return false;
     }
 
     private Long securityCheckAheadTimeMillseconds = 10000L;
@@ -928,7 +965,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * 发送全程跟踪
      * @param operateType
      */
-    private void sendWaybillTrace(SendDetailMessage sendDetail, Integer operateType) {
+    private void sendWaybillTrace(SendDetailMessage sendDetail, Integer operateType, Boolean waybillIsProhibitedAbnormal) {
         try {
             WaybillStatus waybillStatus = new WaybillStatus();
             //设置站点相关属性
@@ -945,10 +982,16 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             waybillStatus.setOperateTime(new Date(operateTime));
 
             waybillStatus.setOperateType(operateType);
-            waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检通过", waybillStatus.getCreateSiteName()));
-
             Map<String, Object> extendParamMap = new HashMap<>();
             extendParamMap.put("traceDisplay", 0);
+            if(waybillIsProhibitedAbnormal){
+                waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检，不通过", waybillStatus.getCreateSiteName()));
+                extendParamMap.put("auditResult", 2);
+            } else {
+                waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检通过", waybillStatus.getCreateSiteName()));
+                extendParamMap.put("auditResult", 1);
+            }
+
             waybillStatus.setExtendParamMap(extendParamMap);
 
             // 添加到task表

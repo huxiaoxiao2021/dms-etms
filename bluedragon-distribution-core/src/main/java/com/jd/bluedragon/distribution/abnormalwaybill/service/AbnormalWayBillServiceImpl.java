@@ -80,4 +80,20 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
     	}
         return abnormalWayBillDao.queryAbnormalWayBillByWayBillCode(waybillCode);
     }
+
+    /**
+     * 根据查询条件查询数据
+     *
+     * @param abnormalWayBill 查询入参
+     * @return 查询结果列表
+     * @author fanggang7
+     * @time 2023-08-22 15:21:15 周二
+     */
+    @Override
+    public AbnormalWayBill queryOneByParam(AbnormalWayBill abnormalWayBill) {
+        if(abnormalWayBill == null){
+            return null;
+        }
+        return abnormalWayBillDao.queryOneByParam(abnormalWayBill);
+    }
 }
