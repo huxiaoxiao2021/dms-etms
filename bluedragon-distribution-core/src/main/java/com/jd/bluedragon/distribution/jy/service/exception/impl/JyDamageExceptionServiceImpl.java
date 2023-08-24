@@ -1237,8 +1237,11 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                         || Objects.equals(JyExpStatusEnum.PROCESSING.getCode(),expTask.getStatus())){
                     bizIds.add(bizId);
                 }
+
+                if(CollectionUtils.isEmpty(bizIds)){
+                  return ;
+                }
                 logger.info("操作场地不为空 更改任务状态-{}",bizIds);
-                jyBizTaskExceptionDao.updateExceptionTaskStatusByBizIds(JyExpStatusEnum.COMPLETE.getCode(),null,bizIds);
             }else {
                 List<JyExceptionDamageEntity> recordList = jyExceptionDamageDao.getDamageRecordListByBarCode(waybillCode);
                 logger.info("操作场地为空 获取的任务列表-{}",JSON.toJSONString(recordList));
@@ -1257,14 +1260,18 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                     }
                 }
                 logger.info("操作场地空 更改任务状态-{}",bizIds);
-                jyBizTaskExceptionDao.updateExceptionTaskStatusByBizIds(JyExpStatusEnum.COMPLETE.getCode(),null,bizIds);
             }
+            if(CollectionUtils.isEmpty(bizIds)){
+                return ;
+            }
+            jyBizTaskExceptionDao.updateExceptionTaskStatusByBizIds(JyExpStatusEnum.COMPLETE.getCode(), JyBizTaskExceptionProcessStatusEnum.DONE.getCode(),bizIds);
         }catch (Exception e){
             logger.error("处理破损异常任务状态异常-{}",waybillCode,e);
         }
     }
 
     @Override
+    @Transactional
     public JdCResponse<Boolean> dealDamageExpTaskOverTwoDags() {
         logger.info("超48小时的破损任务-");
         JdCResponse response = new JdCResponse();
@@ -1278,22 +1285,17 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         query.setTs(DateHelper.addHours(new Date(),-hours));
         logger.info("查询超48小时破损任务入参-{}",JSON.toJSONString(query));
         List<JyBizTaskExceptionEntity> allExceptionTaskList = jyBizTaskExceptionDao.getExceptionTaskListOverTime(query);
-        List<String> bizIds = new ArrayList<>();
+
         if(!CollectionUtils.isEmpty(allExceptionTaskList)){
-            for (JyBizTaskExceptionEntity expTask:allExceptionTaskList) {
-                if (!(Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), expTask.getStatus())
-                        && Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITER_INTERVENTION.getCode(), expTask.getProcessingStatus()))) {
-                    logger.warn("任务状态不在处理中-客服介入中");
-                    continue;
-                }
-                bizIds.add(expTask.getBizId());
-            }
+            List<String> bizIds = allExceptionTaskList.stream().map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
+            logger.info("超48小时破损任务更新-{}",JSON.toJSONString(bizIds));
+            //处理中-待执行
+            jyBizTaskExceptionDao.updateExceptionTaskStatusByBizIds(null,JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode(),bizIds);
+            //直接下传
+            jyExceptionDamageDao.updateDamageStatusByBizIds(JyExceptionDamageEnum.FeedBackTypeEnum.HANDOVER.getCode(),bizIds);
         }
-        //处理中-待执行
-        jyBizTaskExceptionDao.updateExceptionTaskStatusByBizIds(null,JyBizTaskExceptionProcessStatusEnum.WAITER_EXECUTION.getCode(),bizIds);
-        //直接下传
-        jyExceptionDamageDao.updateDamageStatusByBizIds(JyExceptionDamageEnum.FeedBackTypeEnum.HANDOVER.getCode(),bizIds);
         return response;
+
     }
 
 

@@ -504,7 +504,7 @@
                 status = #{status},
             </if>
             <if test="processingStatus != null">
-                processing_status = #{processingStatus}
+                processing_status = #{processingStatus},
             </if>
             update_time = #{updateTime}
         </set>

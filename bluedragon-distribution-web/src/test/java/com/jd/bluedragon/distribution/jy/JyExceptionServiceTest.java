@@ -321,12 +321,14 @@ public class JyExceptionServiceTest {
     @Test
     public void dealDamageExpTaskStatusTest(){
 
-        jyDamageExceptionService.dealDamageExpTaskStatus("JD0003421266039",910);
+        jyDamageExceptionService.dealDamageExpTaskStatus("JDX000201044026",null);
     }
 
     @Test
     public void dealDamageExpTaskOverTwoDagsTest(){
         jyDamageExceptionService.dealDamageExpTaskOverTwoDags();
     }
+
+
 
 }
