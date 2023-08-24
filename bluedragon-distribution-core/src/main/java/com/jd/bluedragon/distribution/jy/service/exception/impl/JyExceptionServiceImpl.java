@@ -274,7 +274,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 return JdCResponse.fail("该异常已上报!");
             }
             JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
-
+            taskEntity.setType(req.getType());
             //因为三无单可提前判断，可对三无数据提前处理
             if(BusinessUtil.isSanWuCode(req.getBarCode())){
                 JdCResponse<Object> response = jySanwuExceptionService.uploadScan(taskEntity,req, position, source, bizId);
