@@ -3,19 +3,16 @@ package com.jd.bluedragon.distribution.consumer.jy;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.AirTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.CargoTypeEnum;
 import com.jd.bluedragon.distribution.consumer.jy.task.aviation.TmsAviationPlanConsumer;
-import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TmsAviationPlanDto;
-import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.util.DateUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -36,9 +33,7 @@ public class TmsAviationPlanConsumerTest {
 
     @Test
     public void testConsume() {
-        String bc = "DCH20230823000";
         TmsAviationPlanDto param = new TmsAviationPlanDto();
-        param.setBookingCode("DCH20230823000");
         param.setStartNodeCode("010F002");//910
         param.setStartNodeName("马驹桥分拣中心cs");
         param.setFlightNumber("CA-1001");
@@ -59,7 +54,8 @@ public class TmsAviationPlanConsumerTest {
         int i = 0;
         while(i++ < 100) {
             try{
-                param.setBookingCode(bc + i);
+                String dch = DateUtil.format(new Date(), DateUtil.FORMAT_DATE_TIME);
+                param.setBookingCode("DCH" + dch);
                 Message message = new Message();
                 message.setText(JsonHelper.toJson(param));
                 message.setBusinessId(param.getBookingCode());
@@ -70,6 +66,7 @@ public class TmsAviationPlanConsumerTest {
                 message1.setText(JsonHelper.toJson(param));
                 message1.setBusinessId(param.getBookingCode());
                 tmsAviationPlanConsumer.consume(message1);
+
                  System.out.println("success");
             }catch (Exception e) {
                 System.out.println(e.getMessage());
