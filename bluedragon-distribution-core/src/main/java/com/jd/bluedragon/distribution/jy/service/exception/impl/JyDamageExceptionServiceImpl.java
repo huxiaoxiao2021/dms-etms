@@ -1216,6 +1216,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             logger.info("处理破损数据任务状态-{}",waybillCode);
             String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX + waybillCode;
             String cacheValue = redisClient.get(cacheKey);
+            logger.info("破损数据缓存任务-{}",cacheValue);
             if(StringUtils.isBlank(cacheValue)){
                 return;
             }
