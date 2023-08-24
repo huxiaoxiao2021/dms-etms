@@ -16,6 +16,7 @@ import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.distribution.api.request.material.batch.MaterialBatchSendRequest;
 import com.jd.bluedragon.distribution.api.response.material.batch.MaterialTypeResponse;
+import com.jd.bluedragon.distribution.api.response.material.batch.SendCodeCheckResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -149,8 +150,8 @@ public class MaterialBatchSendJsfServiceImpl implements MaterialBatchSendJsfServ
 	}
 
 	@Override
-	public InvokeResult<Entry<Integer, String>> getSendCodeDestination(String sendCode) {
-        InvokeResult<AbstractMap.Entry<Integer, String>> result = new InvokeResult<>();
+	public InvokeResult<SendCodeCheckResponse> getSendCodeDestination(String sendCode) {
+        InvokeResult<SendCodeCheckResponse> result = new InvokeResult<>();
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
         if (null == receiveSiteCode) {
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
@@ -159,14 +160,19 @@ public class MaterialBatchSendJsfServiceImpl implements MaterialBatchSendJsfServ
         }
 
         try {
+        	SendCodeCheckResponse response = new SendCodeCheckResponse();
             ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
             if (ServiceResultEnum.WRONG_STATUS.equals(data.getResult())) {
-                result.setData(new AbstractMap.SimpleEntry<>(2, "该发货批次号已操作封车，无法重复操作！"));
+            	response.setKey(2);
+            	response.setValue("该发货批次号已操作封车，无法重复操作！");
+                result.setData(response);
             }
             else if (ServiceResultEnum.SUCCESS.equals(data.getResult())) {
                 BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
                 String siteName = null != site ? site.getSiteName() : "未获取到该站点名称";
-                result.setData(new AbstractMap.SimpleEntry<>(1, siteName));
+            	response.setKey(1);
+            	response.setValue(siteName);
+                result.setData(response);
             }
             else {
                 result.error(data.getErrorMsg());

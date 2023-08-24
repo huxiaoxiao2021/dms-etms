@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import com.jd.bluedragon.distribution.api.request.material.batch.MaterialBatchSendRequest;
 import com.jd.bluedragon.distribution.api.response.material.batch.MaterialTypeResponse;
+import com.jd.bluedragon.distribution.api.response.material.batch.SendCodeCheckResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 
@@ -37,6 +38,6 @@ public interface MaterialBatchSendJsfService {
 	 * @param sendCode
 	 * @return
 	 */
-	InvokeResult<Entry<Integer, String>> getSendCodeDestination(String sendCode);
+	InvokeResult<SendCodeCheckResponse> getSendCodeDestination(String sendCode);
 	
 }
