@@ -46,6 +46,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.cross.TableTrolleyJsfResp;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -963,6 +964,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.saveSealVehicle",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq) {
+        if (StringUtils.isEmpty(sealVehicleReq.getPalletCount()) 
+                || !NumberUtils.isDigits(sealVehicleReq.getPalletCount().trim())
+                || Integer.parseInt(sealVehicleReq.getPalletCount().trim()) > 0){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL,"请录入正确托盘数！");
+        }
         return retJdCResponse(jySealVehicleService.saveSealVehicle(sealVehicleReq));
     }
 
