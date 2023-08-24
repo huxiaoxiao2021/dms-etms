@@ -100,6 +100,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private Cluster redisClient;
 
     @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+
+    @Autowired
     @Qualifier("dmsDamageMainLandNoticeKFProducer")
     private DefaultJMQProducer dmsDamageMainLandNoticeKFProducer;
 
@@ -1215,7 +1219,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         try{
             logger.info("处理破损数据任务状态-{}",waybillCode);
             String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX + waybillCode;
-            String cacheValue = redisClient.get(cacheKey);
+            String cacheValue = redisClientOfJy.get(cacheKey);
             logger.info("破损数据缓存任务-{}",cacheValue);
             if(StringUtils.isBlank(cacheValue)){
                 return;

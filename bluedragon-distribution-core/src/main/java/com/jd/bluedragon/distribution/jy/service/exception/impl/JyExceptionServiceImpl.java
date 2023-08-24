@@ -169,6 +169,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private Cluster redisClient;
 
     @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+
+    @Autowired
     @Qualifier("scheduleTaskChangeStatusWorkerProducer")
     private DefaultJMQProducer scheduleTaskChangeStatusWorkerProducer;
     @Autowired
@@ -317,7 +321,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             //如果是运单号，将运单号放入缓存 妥投时校验运单是否妥投
             if(WaybillUtil.isWaybillCode(req.getBarCode())){
                 String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX+req.getBarCode();
-                Boolean result = redisClient.set(cacheKey, "1", 7, TimeUnit.DAYS, false);
+                Boolean result = redisClientOfJy.set(cacheKey, "1", 7, TimeUnit.DAYS, false);
                 logger.info("异常上报 运单放入缓存结果-{}",result);
             }
 
