@@ -130,16 +130,8 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.exceptionTaskCheckByExceptionType", mState = {JProEnum.TP})
     public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req,Waybill waybill) {
-        if (logger.isInfoEnabled()) {
-            logger.info("选择异常类型时进行校验 入参-{}", JSON.toJSONString(req));
-        }
         JdCResponse<Boolean> response = new JdCResponse<>();
-        response.toSucceed("请求成功");
-        boolean hKorMOWaybill = isHKorMOWaybill(req.getBarCode(), waybill);
-        if(hKorMOWaybill){
-            response.toFail("港澳单不允许上报!");
-            response.setData(Boolean.FALSE);
-        }
+        response.toSucceed();
         return response;
     }
 
@@ -151,7 +143,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      * @return
      */
     private boolean checkDamageChangePackageRepair(String waybillCode) {
-
 
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
         if (waybill == null) {
@@ -188,6 +179,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 logger.info("医药单!-{}", waybillCode);
                 return false;
             }
+        }
+
+        boolean hKorMOWaybill = isHKorMOWaybill(waybillCode, waybill);
+        if(hKorMOWaybill){
+            logger.warn("港澳单!-{}", waybillCode);
+            return false;
         }
         return true;
     }
@@ -1216,7 +1213,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.dealDamageExpTaskStatus", mState = {JProEnum.TP})
     public void dealDamageExpTaskStatus(String waybillCode,Integer siteCode) {
         try{
-            logger.info("发货处理破损数据-{}",waybillCode);
+            logger.info("处理破损数据任务状态-{}",waybillCode);
             String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX + waybillCode;
             String cacheValue = redisClient.get(cacheKey);
             if(StringUtils.isBlank(cacheValue)){
@@ -1235,9 +1232,11 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                         || Objects.equals(JyExpStatusEnum.PROCESSING.getCode(),expTask.getStatus())){
                     bizIds.add(bizId);
                 }
+                logger.info("操作场地不为空 更改任务状态-{}",bizIds);
                 jyBizTaskExceptionDao.updateExceptionTaskStatusByBizIds(JyExpStatusEnum.COMPLETE.getCode(),null,bizIds);
             }else {
                 List<JyExceptionDamageEntity> recordList = jyExceptionDamageDao.getDamageRecordListByBarCode(waybillCode);
+                logger.info("操作场地为空 获取的任务列表-{}",JSON.toJSONString(recordList));
                 if(CollectionUtils.isEmpty(recordList)){
                     return;
                 }
@@ -1246,13 +1245,13 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                     if(expTask == null){
                         continue;
                     }
-
                     if(Objects.equals(JyExpStatusEnum.TO_PICK.getCode(),expTask.getStatus())
                             || Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(),expTask.getStatus())
                             || Objects.equals(JyExpStatusEnum.PROCESSING.getCode(),expTask.getStatus())){
                         bizIds.add(damageEntity.getBizId());
                     }
                 }
+                logger.info("操作场地空 更改任务状态-{}",bizIds);
                 jyBizTaskExceptionDao.updateExceptionTaskStatusByBizIds(JyExpStatusEnum.COMPLETE.getCode(),null,bizIds);
             }
         }catch (Exception e){
