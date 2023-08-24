@@ -18,9 +18,8 @@ import java.util.Objects;
 
 /**
  * 港澳单审单拦截
- *  1、运单始发目的其一是港澳区域
- *  2、中转站操作装箱发货
- *  3、waybillCancel中有港澳审核拦截
+ *  1、港澳单 && 非同城 报关审核失败拦截
+ *  2、港澳单 && 非同城 && 中转站 报关审核中拦截
  *
  * @author hujiping
  * @date 2023/7/31 2:08 PM
@@ -37,22 +36,24 @@ public class InternationalExamineFilter implements Filter {
         WaybillExtVO waybillExtVO = request.getWaybillCache().getWaybillExtVO();
         if(waybillExtVO != null 
                 &&  BusinessUtil.isGAWaybill(waybillExtVO.getStartFlowDirection(), waybillExtVO.getEndFlowDirection())
-                && SiteHelper.isSortTransferSite(request.getCreateSite())){
+                && !Objects.equals(waybillExtVO.getStartFlowDirection(), waybillExtVO.getEndFlowDirection())){
             
             CancelWaybill cancelWaybill = waybillService.queryGAExamineCancelWaybill(request.getWaybillCode());
             if(cancelWaybill == null){
                 chain.doFilter(request, chain);
                 return;
             }
-            if(Objects.equals(cancelWaybill.getFeatureType(), CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE)){
-                // 港澳单报关审核中拦截
-                throw new SortingCheckException(Integer.valueOf(HintCodeConstants.EXCEPTION_GA_EXAMINE_INTERCEPT_TYPE),
-                        HintService.getHint(HintCodeConstants.EXCEPTION_GA_EXAMINE_INTERCEPT_TYPE));
-            }
             if(Objects.equals(cancelWaybill.getFeatureType(), CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE_FAIL)){
                 // 港澳单报关审核失败拦截
                 throw new SortingCheckException(Integer.valueOf(HintCodeConstants.EXCEPTION_GA_EXAMINE_FAIL_INTERCEPT_TYPE),
                         HintService.getHint(HintCodeConstants.EXCEPTION_GA_EXAMINE_FAIL_INTERCEPT_TYPE));
+            }
+            if(SiteHelper.isSortTransferSite(request.getCreateSite())){
+                if(Objects.equals(cancelWaybill.getFeatureType(), CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE)){
+                    // 港澳单报关审核中拦截
+                    throw new SortingCheckException(Integer.valueOf(HintCodeConstants.EXCEPTION_GA_EXAMINE_INTERCEPT_TYPE),
+                            HintService.getHint(HintCodeConstants.EXCEPTION_GA_EXAMINE_INTERCEPT_TYPE));
+                }
             }
         }
         chain.doFilter(request, chain);
