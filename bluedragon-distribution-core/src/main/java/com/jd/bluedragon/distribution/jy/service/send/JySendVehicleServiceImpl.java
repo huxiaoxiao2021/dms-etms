@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -10,8 +9,6 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
-import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
-import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
@@ -32,7 +29,6 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDest
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
@@ -3857,7 +3853,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 log.info("获取特殊保障产品类型待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
                 final List<JySendVehicleProductType> sendVehicleProductTypeList = jySendProductAggsService.getSendVehicleProductTypeList(aggsEntityQuery);
                 log.info("获取特殊保障产品类型待扫数据--{}", JsonHelper.toJson(sendVehicleProductTypeList));
-                List<String> needShowProductTypeList = new ArrayList<>(Arrays.asList(JySendVehicleProductTypeEnum.TEAN.getCode(), JySendVehicleProductTypeEnum.AIR_TRANSPORT.getCode(), JySendVehicleProductTypeEnum.FRESH_SPECIAL.getCode()));
+                List<String> needShowProductTypeList = new ArrayList<>(Arrays.asList(JySendVehicleProductTypeEnum.TEAN.getCode(), JySendVehicleProductTypeEnum.HANGKONGJIAN.getCode(), JySendVehicleProductTypeEnum.SHENGXIANTEBAO.getCode()));
                 if(CollectionUtils.isNotEmpty(sendVehicleProductTypeList)){
                     List<SendVehicleProductTypeAgg> dataNoOrderList = new ArrayList<>();
                     for (JySendVehicleProductType jySendVehicleProductType : sendVehicleProductTypeList) {

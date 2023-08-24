@@ -18,6 +18,11 @@ public class SendVehicleToScanTipsDto implements Serializable {
     private Boolean needShowSpecialProductTypeToScanTips;
 
     /**
+     * 还需多少分钟才需要展示提示信息，前端取次值可以在该值之后启动定时任务调接口查询
+     */
+    private Integer needShowRemainTimeMinutes;
+
+    /**
      * 剩余时间分钟数
      */
     private Integer toSendRemainTimeMinutes;
@@ -36,6 +41,14 @@ public class SendVehicleToScanTipsDto implements Serializable {
 
     public void setNeedShowSpecialProductTypeToScanTips(Boolean needShowSpecialProductTypeToScanTips) {
         this.needShowSpecialProductTypeToScanTips = needShowSpecialProductTypeToScanTips;
+    }
+
+    public Integer getNeedShowRemainTimeMinutes() {
+        return needShowRemainTimeMinutes;
+    }
+
+    public void setNeedShowRemainTimeMinutes(Integer needShowRemainTimeMinutes) {
+        this.needShowRemainTimeMinutes = needShowRemainTimeMinutes;
     }
 
     public Integer getToSendRemainTimeMinutes() {

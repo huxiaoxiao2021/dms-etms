@@ -10,9 +10,9 @@ public enum UnloadProductTypeEnum {
 
     NONE("NONE", "其他", 99),
     FAST("FAST", "特快送", 1),
-    AIR_TRANSPORT("AIR_TRANSPORT", "航空件", 2),
+    HANGKONGJIAN("HANGKONGJIAN", "航空件", 2),
     FRESH("FRESH", "生鲜", 3),
-    FRESH_SPECIAL("FRESH_SPECIAL", "生鲜特保", 4),
+    SHENGXIANTEBAO("SHENGXIANTEBAO", "生鲜特保", 4),
     TIKTOK("TIKTOK", "抖音", 5),
     DEWU("DEWU", "得物", 6),
     TEAN("TEAN","特安",7),
