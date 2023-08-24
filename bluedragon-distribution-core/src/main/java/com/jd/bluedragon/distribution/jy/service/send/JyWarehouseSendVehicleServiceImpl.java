@@ -1554,6 +1554,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             updateInfo.setGroupCode(request.getGroupCode());
             updateInfo.setTemplateCode(request.getTemplateCode());
             updateInfo.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+            updateInfo.setUpdateUserErp(request.getUser().getUserErp());
+            updateInfo.setUpdateUserName(request.getUser().getUserName());
             if (!jyGroupSortCrossDetailService.mixScanTaskComplete(updateInfo)) {
                 return false;
             }

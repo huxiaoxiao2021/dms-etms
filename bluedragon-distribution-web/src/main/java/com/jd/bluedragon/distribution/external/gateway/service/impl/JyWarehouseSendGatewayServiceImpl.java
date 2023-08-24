@@ -710,6 +710,16 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 return response;
             }
 
+            JyGroupSortCrossDetailEntityQueryDto countQuery = new JyGroupSortCrossDetailEntityQueryDto();
+            countQuery.setGroupCode(mixScanTaskReq.getGroupCode());
+            countQuery.setTemplateCode(mixScanTaskReq.getTemplateCode());
+            countQuery.setStartSiteId((long)mixScanTaskReq.getCurrentOperate().getSiteCode());
+            countQuery.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
+            if (jyGroupSortCrossDetailService.countByCondition(countQuery) < 1) {
+                response.toFail("该混扫任务已被删除，请前往混扫任务列表！");
+                return response;
+            }
+            
             // 完成混扫任务 修改派车任务状态
             if (!jyWarehouseSendVehicleService.mixScanTaskComplete(mixScanTaskReq)){
                 response.toFail("完成混扫任务失败！");
