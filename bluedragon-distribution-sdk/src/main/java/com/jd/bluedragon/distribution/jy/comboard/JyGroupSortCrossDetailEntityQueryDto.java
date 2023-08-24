@@ -13,11 +13,24 @@ public class JyGroupSortCrossDetailEntityQueryDto extends JyGroupSortCrossDetail
      */
     private List<Long> endSiteIdList;
 
+    /**
+     * 数量限制
+     */
+    private Integer limit;
+
     public List<Long> getEndSiteIdList() {
         return endSiteIdList;
     }
 
     public void setEndSiteIdList(List<Long> endSiteIdList) {
         this.endSiteIdList = endSiteIdList;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
     }
 }

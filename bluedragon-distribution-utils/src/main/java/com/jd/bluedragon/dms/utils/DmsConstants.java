@@ -1,9 +1,6 @@
 package com.jd.bluedragon.dms.utils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -472,5 +469,11 @@ public class DmsConstants {
             this.name = name;
         }
     }
+    
+    public static final List<Integer> SMALL_RECYCLE_BASKET_TYPE = new ArrayList<Integer>(){{
+        add(1);
+        add(2);
+        add(3);
+    }};
 
 }

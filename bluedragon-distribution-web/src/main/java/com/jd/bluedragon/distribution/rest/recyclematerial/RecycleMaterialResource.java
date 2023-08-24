@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
+import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.bluedragon.distribution.recycle.material.domain.RecycleBasketAbolishRequest;
 import com.jd.bluedragon.distribution.recycle.material.domain.RecycleBasketEntity;
 import com.jd.bluedragon.distribution.recycle.material.domain.RecycleBasketPrintInfo;
@@ -30,6 +31,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.Objects;
+
+import static com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum.getFromCode;
 
 /**
  * 循环物资实操装态更新
@@ -89,6 +92,14 @@ public class RecycleMaterialResource {
                 // 打印/补打
                 response = recycleMaterialService.getPrintInfo(recycleBasketEntity);
             }
+            if (response != null && response.getData() != null) {
+                RecycleBasketTypeEnum boxTypeEnum = getFromCode(recycleBasketEntity.getTypeCode());
+                if (boxTypeEnum != null) {
+                    response.getData().setTypeName(boxTypeEnum.getName());
+                }else {
+                    response.getData().setTypeName("未知类型");
+                }
+            }
         }catch (Exception e){
             log.error("周转筐获取打印信息异常,请求参数:{}", JsonHelper.toJson(recycleBasketEntity),e);
             response.toError("周转筐获取打印信息异常");
@@ -136,6 +147,7 @@ public class RecycleMaterialResource {
                 return response;
             }
         }
+        
         if(recycleBasketEntity.getQuantity() > 50){
             recycleBasketEntity.setQuantity(50);
         }
