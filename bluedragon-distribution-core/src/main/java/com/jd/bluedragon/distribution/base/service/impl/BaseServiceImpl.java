@@ -1298,6 +1298,8 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		for (GetFlowDirectionQuery datum : request.getData()) {
 			if (CollectionUtils.isEmpty(datum.getSupportQueryType())) {
 				throw new JyBizException("参数错误：查询类型为空！");
+			}if (StringUtils.isEmpty(datum.getPositionCode())) {
+				throw new JyBizException("参数错误：岗位编码为空！");
 			}
 		}
 
