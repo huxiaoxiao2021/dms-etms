@@ -45,14 +45,6 @@ public class SpotCheckContrastDetail implements Serializable {
      */
     private String contrastOrgName;
     /**
-     * 核对省区编码
-     */
-    private String contrastProvinceAgencyCode;
-    /**
-     * 核对省区名称
-     */
-    private String contrastProvinceAgencyName;
-    /**
      * 核对操作战区编码
      */
     private String contrastWarZoneCode;
@@ -115,6 +107,15 @@ public class SpotCheckContrastDetail implements Serializable {
      */
     private String dutyThirdId;
     private String dutyThirdName;
+
+    /**
+     * 核对省区编码
+     */
+    private String contrastProvinceAgencyCode;
+    /**
+     * 核对省区名称
+     */
+    private String contrastProvinceAgencyName;
 
     public Integer getContrastSourceFrom() {
         return contrastSourceFrom;

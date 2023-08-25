@@ -34,14 +34,6 @@ public class SiteQueryRequest implements Serializable {
      */
     private Integer orgId;
     /**
-     * 省区编码
-     */
-    private String provinceAgencyCode;
-    /**
-     * 枢纽编码
-     */
-    private String areaCode;
-    /**
      * 站点类型
      */
     private List<Integer> siteTypeList;
@@ -65,6 +57,15 @@ public class SiteQueryRequest implements Serializable {
      * 查询数量
      */
     private Integer fetchNum;
+
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String areaCode;
 
     public Integer getSiteId() {
         return siteId;

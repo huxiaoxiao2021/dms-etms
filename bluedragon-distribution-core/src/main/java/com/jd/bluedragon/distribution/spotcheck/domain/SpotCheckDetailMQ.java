@@ -20,8 +20,6 @@ public class SpotCheckDetailMQ {
     private Integer reviewSource;
     private Integer reviewOrgCode;
     private String reviewOrgName;
-    private String reviewProvinceAgencyCode;
-    private String reviewProvinceAgencyName;
     private Integer reviewSiteCode;
     private String reviewSiteName;
     private String reviewUserErp;
@@ -34,8 +32,6 @@ public class SpotCheckDetailMQ {
     private Integer contrastSource;
     private Integer contrastOrgCode;
     private String contrastOrgName;
-    private String contrastProvinceAgencyCode;
-    private String contrastProvinceAgencyName;
     private String contrastWarZoneCode;
     private String contrastWarZoneName;
     private String contrastAreaCode;
@@ -64,6 +60,11 @@ public class SpotCheckDetailMQ {
     private Long updateTime;
     private Long ts;
     private Integer yn;
+
+    private String reviewProvinceAgencyCode;
+    private String reviewProvinceAgencyName;
+    private String contrastProvinceAgencyCode;
+    private String contrastProvinceAgencyName;
 
     public Long getReviewDate() {
         return reviewDate;

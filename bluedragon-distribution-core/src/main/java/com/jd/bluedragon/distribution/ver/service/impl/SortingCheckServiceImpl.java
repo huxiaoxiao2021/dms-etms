@@ -469,6 +469,11 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                     HintService.getHint(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND));
         }
 
+        // todo 待后续去除跨区校验后再去除此处逻辑
+        if (waybillCache.getOrgId() == null) {
+            throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR, SortingResponse.WAYBILL_ERROR_ORGID);
+        }
+
         if (waybillCache.getWaybillCode() == null) {
             throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR, SortingResponse.WAYBILL_ERROR_WAYBILLCODE);
         }

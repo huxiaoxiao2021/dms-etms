@@ -45,6 +45,11 @@ public class WaybillParamFilter implements Filter {
                     HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND, request.getFuncModule()));
         }
 
+        if (waybillCache.getOrgId() == null) {
+            throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR,
+                    SortingResponse.WAYBILL_ERROR_ORGID);
+        }
+
         if (waybillCache.getWaybillCode() == null) {
             throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR,
                     SortingResponse.WAYBILL_ERROR_WAYBILLCODE);

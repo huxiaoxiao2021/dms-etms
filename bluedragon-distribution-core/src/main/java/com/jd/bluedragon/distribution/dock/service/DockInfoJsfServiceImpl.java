@@ -241,9 +241,7 @@ public class DockInfoJsfServiceImpl implements DockService{
             return response;
         }
 
-        DockBaseInfoPo needDealItem = DockInfoConverter.convertToPo(dockInfoEntity);
-        fillBasicSiteInfo(needDealItem);
-        DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findByDockCode(needDealItem);
+        DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findByDockCode(DockInfoConverter.convertToPo(dockInfoEntity));
         response.setData(DockInfoConverter.convertToEntity(dockBaseInfoPo));
 
         return response;

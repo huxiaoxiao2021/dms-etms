@@ -24,6 +24,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
+import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author dudong
@@ -153,9 +155,41 @@ public class CrossDistributionFilter implements Filter {
                         HintService.getHintWithFuncModule(HintCodeConstants.MISSING_MIX_BOX_CONFIG, request.getFuncModule()));
             }
         } else {
+            //region 跨分拣中心判断，如果目的地是分拣中心，并且不是中转站，则弹确认框提示
+//            Site waybillSite = waybill.getSiteCode()!=null&&waybill.getSiteCode().intValue()>0?siteService.get(waybill.getSiteCode()):null;
+            //机构号判断用运单的预分拣站点的ORGID，如果预分拣站点为空，则默认去运单的ORGID
+            Integer waybillOrgid = null;
+            if(request.hasPreSite()) {
+            	//取预分拣站点机构
+                waybillOrgid = request.getWaybillSite() != null
+                        && request.getWaybillSite().getOrgId() != null ? request.getWaybillSite().getOrgId()
+                        : request.getWaybillCache().getOrgId();
+            }else if(request.hasEndDmsId()) {
+            	//取目的分拣中心机构
+                waybillOrgid = request.getWaybillEndDmsSite() != null
+                        && request.getWaybillEndDmsSite().getOrgId() != null ? request.getWaybillEndDmsSite().getOrgId()
+                        : request.getWaybillCache().getOrgId();
+            }
             if (SiteHelper.isDistributionCenter(request.getReceiveSite())
                     && !transferStationSiteType.equals(request.getReceiveSite().getSubType()) ) {
-                    // fixme：大区切换省区，暂定下线跨区校验
+
+                // todo 跨区校验待后续机构彻底不使用了再下线
+                //区域不匹配，直接弹
+                //新增逻辑，邹剑 - 取消苏州接货仓（ID：2531）、苏州外单分拣中心（ID 151678）跨分拣中心发货验证提示 2015年9月21日  邮件主题【跨区发货提示取消申请】
+                //在 rules表中 如果有1121.content=1 就不做跨分拣中心提示，  如果没有1121 或者 1121.content!=1 就仍然提示
+                Rule rule6 = null;
+                try {
+                    rule6 = request.getRuleMap().get("1121");
+                } catch (Exception e) {
+
+                    logger.warn("站点 [" + request.getCreateSiteCode() + "] 类型 [1121] 没有匹配的规则");
+                }
+                if (rule6 == null || !SWITCH_ON.equals(rule6.getContent())) {
+                    //1121 跨分拣中心提示规则，=1 时 才会有提示逻辑，其他都不走提示逻辑
+                    if (!waybillOrgid.equals(request.getReceiveSite().getOrgId()))
+                        throw new SortingCheckException(SortingResponse.CODE_39001,
+                                HintService.getHintWithFuncModule(HintCodeConstants.CROSS_AREA_VALIDATION, request.getFuncModule()));
+
                     //扫描目的分拣中心与预分拣站点对应分拣中心进行比对,如不一 致则提示
                     Rule rule5 = null;
                     try {
@@ -172,6 +206,7 @@ public class CrossDistributionFilter implements Filter {
                     		this.checkRule1120(request,endDmsId);
                     	}
                     }
+                }
             }
 
         }

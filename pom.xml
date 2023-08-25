@@ -347,7 +347,7 @@
             <dependency>
                 <groupId>com.jdl.basic</groupId>
                 <artifactId>jy-basic-common</artifactId>
-                <version>1.0.0-TEST-SNAPSHOT</version>
+                <version>${jy-basic-api.version}</version>
             </dependency>
             <dependency>
                 <artifactId>dms-java-utils-sdk</artifactId>
