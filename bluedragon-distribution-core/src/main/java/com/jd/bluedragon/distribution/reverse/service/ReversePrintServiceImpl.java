@@ -722,6 +722,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 domain.setSiteType(siteDomain.getSiteType());
                 domain.setOrgName(siteDomain.getOrgName());
                 domain.setOrgId(siteDomain.getOrgId());
+                domain.setProvinceAgencyCode(siteDomain.getProvinceAgencyCode());
+                domain.setProvinceAgencyName(siteDomain.getProvinceAgencyName());
+                domain.setAreaHubCode(siteDomain.getAreaCode());
+                domain.setAreaHubName(siteDomain.getAreaName());
             }else {
                 result.customMessage(2, MessageFormat.format("获取站点【ID={0}】信息为空",domain.getSiteId()));
                 log.warn("自营换单获取站点【ID={}】信息为空",domain.getSiteId());

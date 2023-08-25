@@ -606,6 +606,13 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         report.setOrgName(reportRequest.getCurrentOperate().getOrgName());
         report.setSiteCode(reportRequest.getCurrentOperate().getSiteCode());
         report.setSiteName(reportRequest.getCurrentOperate().getSiteName());
+        if(reportRequest.getCurrentOperate() != null && reportRequest.getCurrentOperate().getSiteCode() > Constants.NUMBER_ZERO){
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(reportRequest.getCurrentOperate().getSiteCode());
+            report.setProvinceAgencyCode(baseSite.getProvinceAgencyCode());
+            report.setProvinceAgencyName(baseSite.getProvinceAgencyName());
+            report.setAreaHubCode(baseSite.getAreaCode());
+            report.setAreaHubName(baseSite.getAreaName());
+        }
         report.setFirstSiteCode(reportRequest.getFirstSiteCode());
         report.setFirstSiteName(reportRequest.getFirstSiteName());
         report.setReportImgUrls(reportRequest.getReportPictureUrls());

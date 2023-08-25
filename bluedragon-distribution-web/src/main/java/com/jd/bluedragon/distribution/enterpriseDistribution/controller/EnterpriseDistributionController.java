@@ -53,7 +53,7 @@ public class EnterpriseDistributionController extends DmsBaseController {
     @Authorization(Constants.ENTERPRISE_DISTRIBUTION_R)
     public String toIndex(Model model) {
         LoginUser loginUser = this.getLoginUser();
-        model.addAttribute("orgId",loginUser.getOrgId()).addAttribute("createSiteCode",loginUser.getSiteCode());
+        model.addAttribute("createSiteCode",loginUser.getSiteCode());
         return "/enterpriseDistribution/qualityInspection";
     }
 

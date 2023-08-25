@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.popAbnormal.domain;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.bluedragon.Pager;
 
 /**
@@ -12,6 +13,7 @@ import com.jd.bluedragon.Pager;
  *
  * POP收货差异列表查询条件对象
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PopAbnormalQuery {
 	/**
 	 * 创建机构CODE
@@ -88,6 +90,15 @@ public class PopAbnormalQuery {
 	private String orderByString;
 	
 	private Pager<List<PopReceiveAbnormal>> pager;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
 
 	public Integer getOrgCode() {
 		return orgCode;
@@ -215,5 +226,21 @@ public class PopAbnormalQuery {
 
 	public void setPager(Pager<List<PopReceiveAbnormal>> pager) {
 		this.pager = pager;
+	}
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		this.areaHubCode = areaHubCode;
 	}
 }

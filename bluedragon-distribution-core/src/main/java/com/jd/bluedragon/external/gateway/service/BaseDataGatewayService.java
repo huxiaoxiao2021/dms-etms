@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.basedata.response.BaseDataDictDto;
+import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
@@ -13,7 +14,6 @@ import com.jd.bluedragon.common.dto.voice.request.HintVoiceReq;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceResp;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
-import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 
 import java.util.List;
 

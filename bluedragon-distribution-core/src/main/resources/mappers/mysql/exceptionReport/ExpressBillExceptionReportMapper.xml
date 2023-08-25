@@ -7,6 +7,10 @@
         <result property="packageCode" column="package_code"/>
         <result property="orgCode" column="org_code"/>
         <result property="orgName" column="org_name"/>
+        <result property="provinceAgencyCode" column="province_agency_code" />
+        <result property="provinceAgencyName" column="province_agency_name" />
+        <result property="areaHubCode" column="area_hub_code" />
+        <result property="areaHubName" column="area_hub_name" />
         <result property="siteCode" column="site_code"/>
         <result property="siteName" column="site_name"/>
         <result property="firstSiteCode" column="first_site_code"/>
@@ -39,7 +43,9 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        id, package_code, org_code, org_name, site_code, site_name,first_site_code,first_site_name, report_type_name, report_type, report_user_erp, report_time, report_img_urls,
+        id, package_code, org_code, org_name,
+        province_agency_code,province_agency_name,area_hub_code,area_hub_name,
+        site_code, site_name,first_site_code,first_site_name, report_type_name, report_type, report_user_erp, report_time, report_img_urls,
         trader_code, reported_user_id, reported_user_erp, reported_user_name, line_type, create_time, update_time, yn, ts, remark, order_id,
         trader_name, trader_org_code, trader_org_name, sale_staff_erp, order_status, rejected_reason
     </sql>
@@ -90,7 +96,9 @@
     <!--分页查询（解决深度分页问题）-->
     <select id="newQueryList" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultMap="RM_ExpressBillExceptionReport">
         select
-            e1.id, e1.package_code, e1.org_code, e1.org_name, e1.site_code, e1.site_name, e1.first_site_code,
+            e1.id, e1.package_code, e1.org_code, e1.org_name,
+            e1.province_agency_code,e1.province_agency_name,e1.area_hub_code,e1.area_hub_name,
+            e1.site_code, e1.site_name, e1.first_site_code,
             e1.first_site_name, e1.first_report_type, e1.first_report_type_name, e1.report_type_name, e1.report_type,
             e1.report_user_erp, e1.report_time, e1.report_img_urls,
             e1.trader_code, e1.reported_user_id, e1.reported_user_erp, e1.reported_user_name, e1.line_type, e1.create_time, e1.update_time, e1.yn, e1.ts, e1.remark, e1.order_id,
@@ -128,6 +136,18 @@
             </if>
             <if test="orgName != null and orgName != ''">
             org_name,
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code,
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                province_agency_name,
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code,
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                area_hub_name,
             </if>
             <if test="siteCode != null">
             site_code,
@@ -205,6 +225,18 @@
             </if>
             <if test="orgName != null and orgName != ''">
                 #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                #{areaHubName,jdbcType=VARCHAR},
             </if>
             <if test="siteCode != null">
                 #{siteCode,jdbcType=INTEGER},
@@ -306,6 +338,12 @@
     <sql id="where_sql">
         <if test="orgCode != null">
             AND org_code = #{orgCode,jdbcType=INTEGER}
+        </if>
+        <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+            AND province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+        </if>
+        <if test="areaHubCode != null and areaHubCode != ''" >
+            AND area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
         </if>
         <if test="siteCode != null">
             AND site_code = #{siteCode,jdbcType=INTEGER}

@@ -1,4 +1,11 @@
 $(function() {
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        'createSiteCodeName': 'dmsSiteCode',
+        'changeBtnShow': false,
+        'provinceOrOrgMode': 'province',
+        onlySiteSelect: true
+    });
     var saveUrl = '/base/dmsStorageArea/save';
     var deleteUrl = '/base/dmsStorageArea/deleteByIds';
     var detailUrl = '/base/dmsStorageArea/detail/';
@@ -119,7 +126,7 @@ $(function() {
             $('#btn_add').click(function() {
                 $("#cityEG").empty();
                 initProAndCity("#provinceEG","#cityEG");
-                $('.eidt-param,.edit-param').each(function () {
+                $('.eidt-param,dataEditDiv .edit-param').each(function () {
                     var _k = this.id;
                     if(_k){
                         $(this).val('');
@@ -267,11 +274,11 @@ function initSiteSelect(){
         placeholder:'请选择机构',
         allowClear:true
     });
-    $("#dmsSiteCode").select2({
-        width: '100%',
-        placeholder:'请选择分拣中心',
-        allowClear:true
-    });
+    // $("#dmsSiteCode").select2({
+    //     width: '100%',
+    //     placeholder:'请选择分拣中心',
+    //     allowClear:true
+    // });
     $("#desProvinceCode").select2({
         width: '100%',
         placeholder:'请选择收件省',

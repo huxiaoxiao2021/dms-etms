@@ -97,6 +97,10 @@ public abstract class AbstractClient extends AbstractBaseUserService implements 
                 result.setOrganizationId(pdadata.getOrganizationId());
                 // 机构名称
                 result.setOrganizationName(pdadata.getOrganizationName());
+                // 省区编码
+                result.setProvinceAgencyCode(pdadata.getProvinceAgencyCode());
+                // 省区名称
+                result.setProvinceAgencyName(pdadata.getProvinceAgencyName());
                 // DMS编码
                 result.setDmsCod(pdadata.getDmsCode());
                 // 站点类型
