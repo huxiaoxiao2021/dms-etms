@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.inventory.*;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryListTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.PhotoPositionEnum;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.findgoods.constants.FindGoodsConstants;
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -37,6 +39,10 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
 
   @Autowired
   private JyFindGoodsService jyFindGoodsService;
+  @Autowired
+  UccPropertyConfiguration ucc;
+  @Value("${app.config.runningMode}")
+  protected String env;
 
 
   private void checkBaseParam(User user, CurrentOperate currentOperate, String groupCode, String positionCode) {
@@ -92,6 +98,10 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
     String methodDesc = "JyFindGoodsGatewayServiceImpl.findCurrentInventoryTask:获取当前时刻找货任务服务:";
     JdCResponse<InventoryTaskDto> res = new JdCResponse<>();
     res.toSucceed();
+    if (!(ucc.getQingChangDataOpenSwitch().equals("*") || ucc.getQingChangDataOpenSwitch().contains(env))){
+        return res;
+    }
+
     try{
       if(Objects.isNull(request)) {
         res.toFail("请求为空");

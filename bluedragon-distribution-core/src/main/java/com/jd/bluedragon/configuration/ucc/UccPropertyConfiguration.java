@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -851,6 +853,9 @@ public class UccPropertyConfiguration {
 
     private int batchQueryEndSiteLimit;
 
+    @Getter
+    @Setter
+    private String qingChangDataOpenSwitch;
     public int getBatchQueryEndSiteLimit() {
         return batchQueryEndSiteLimit;
     }
