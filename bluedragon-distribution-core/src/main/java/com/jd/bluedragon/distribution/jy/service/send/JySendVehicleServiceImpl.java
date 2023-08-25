@@ -3841,7 +3841,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 final long remainSeconds = (lastPlanDepartTime.getTime() - System.currentTimeMillis()) / 60 / 1000;
                 if(remainSeconds < uccConfig.getJySendSpecialProductTypeToScanShowRemainMinutes() || remainSeconds < 0){
                     sendVehicleToScanTipsDto.setNeedShowSpecialProductTypeToScanTips(true);
-                    sendVehicleToScanTipsDto.setNeedShowRemainTimeMinutes((int) remainSeconds);
+                    sendVehicleToScanTipsDto.setNeedShowRemainTimeMinutes(remainSeconds >= 0 ? (int) remainSeconds : 0);
                 }
             }
 
