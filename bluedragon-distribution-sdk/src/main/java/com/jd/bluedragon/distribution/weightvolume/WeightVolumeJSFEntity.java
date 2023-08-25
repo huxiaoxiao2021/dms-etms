@@ -90,6 +90,9 @@ public class WeightVolumeJSFEntity implements Serializable {
      */
     private String machineCode;
 
+    /** 网格唯一编码 **/
+    private String gridBusinessKey;
+
     public String getBarCode() {
         return barCode;
     }
@@ -208,5 +211,13 @@ public class WeightVolumeJSFEntity implements Serializable {
 
     public void setMachineCode(String machineCode) {
         this.machineCode = machineCode;
+    }
+
+    public String getGridBusinessKey() {
+        return gridBusinessKey;
+    }
+
+    public void setGridBusinessKey(String gridBusinessKey) {
+        this.gridBusinessKey = gridBusinessKey;
     }
 }

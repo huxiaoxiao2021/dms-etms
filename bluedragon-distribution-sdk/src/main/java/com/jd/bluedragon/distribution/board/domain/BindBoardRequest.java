@@ -29,6 +29,13 @@ public class BindBoardRequest implements Serializable {
     private String machineCode;
 
     private boolean cancelLast;
+    
+    /** 自动化分拣设备格口**/
+    private String chuteCode;
+
+    /** 网格唯一编码 **/
+    private String gridBusinessKey;
+
 
     public boolean getCancelLast() {
         return cancelLast;
@@ -85,4 +92,20 @@ public class BindBoardRequest implements Serializable {
 	public void setMachineCode(String machineCode) {
 		this.machineCode = machineCode;
 	}
+
+    public String getChuteCode() {
+        return chuteCode;
+    }
+
+    public void setChuteCode(String chuteCode) {
+        this.chuteCode = chuteCode;
+    }
+
+    public String getGridBusinessKey() {
+        return gridBusinessKey;
+    }
+
+    public void setGridBusinessKey(String gridBusinessKey) {
+        this.gridBusinessKey = gridBusinessKey;
+    }
 }

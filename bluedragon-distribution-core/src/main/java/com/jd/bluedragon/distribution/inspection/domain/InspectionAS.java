@@ -92,6 +92,12 @@ public class InspectionAS implements Serializable {
      * 操作者id
      */
 	private String operatorId;
+
+    private String chuteCode;
+
+    /** 网格唯一编码 **/
+    private String gridBusinessKey;
+
     
 
     public String getSealBoxCode() {
@@ -229,4 +235,20 @@ public class InspectionAS implements Serializable {
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
 	}
+
+    public String getChuteCode() {
+        return chuteCode;
+    }
+
+    public void setChuteCode(String chuteCode) {
+        this.chuteCode = chuteCode;
+    }
+
+    public String getGridBusinessKey() {
+        return gridBusinessKey;
+    }
+
+    public void setGridBusinessKey(String gridBusinessKey) {
+        this.gridBusinessKey = gridBusinessKey;
+    }
 }

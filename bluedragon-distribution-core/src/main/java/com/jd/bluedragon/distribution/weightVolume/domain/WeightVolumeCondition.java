@@ -107,6 +107,9 @@ public class WeightVolumeCondition {
      * 超重服务类型
      */
     private List<String> overLengthAndWeightTypes;
+
+    /** 网格唯一编码 **/
+    private String gridBusinessKey;
     
     public Integer getLongPackage() {
         return longPackage;
@@ -267,5 +270,12 @@ public class WeightVolumeCondition {
 	public void setTotalVolumeFlag(Boolean totalVolumeFlag) {
 		this.totalVolumeFlag = totalVolumeFlag;
 	}
-    
+
+    public String getGridBusinessKey() {
+        return gridBusinessKey;
+    }
+
+    public void setGridBusinessKey(String gridBusinessKey) {
+        this.gridBusinessKey = gridBusinessKey;
+    }
 }

@@ -26,6 +26,9 @@ public class InspectionVO implements Serializable {
 
     private String machineCode;//设备编号
 
+    /** 网格唯一编码 **/
+    private String gridBusinessKey;
+
     public List<String> getBarCodes() {
         return barCodes;
     }
@@ -80,5 +83,13 @@ public class InspectionVO implements Serializable {
 
     public void setMachineCode(String machineCode) {
         this.machineCode = machineCode;
+    }
+
+    public String getGridBusinessKey() {
+        return gridBusinessKey;
+    }
+
+    public void setGridBusinessKey(String gridBusinessKey) {
+        this.gridBusinessKey = gridBusinessKey;
     }
 }

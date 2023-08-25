@@ -32,6 +32,10 @@ public class AutoSortingPackageDto implements Serializable{
     private String machineCode;
     /** 是否补验货**/
     private Boolean addInspection;
+    /** 格口 **/
+    private String chuteCode;
+    /** 网格唯一编码 **/
+    private String gridBusinessKey;
 
     public Integer getId() {
         return id;
@@ -127,5 +131,21 @@ public class AutoSortingPackageDto implements Serializable{
 
     public void setAddInspection(Boolean addInspection) {
         this.addInspection = addInspection;
+    }
+
+    public String getChuteCode() {
+        return chuteCode;
+    }
+
+    public void setChuteCode(String chuteCode) {
+        this.chuteCode = chuteCode;
+    }
+
+    public String getGridBusinessKey() {
+        return gridBusinessKey;
+    }
+
+    public void setGridBusinessKey(String gridBusinessKey) {
+        this.gridBusinessKey = gridBusinessKey;
     }
 }

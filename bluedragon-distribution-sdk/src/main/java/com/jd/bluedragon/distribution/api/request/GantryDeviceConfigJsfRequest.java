@@ -115,6 +115,9 @@ public class GantryDeviceConfigJsfRequest implements Serializable{
      * 业务类型：正向 逆向
      */
     private Integer waybillBusinessType;
+    
+    /** 网格唯一编码 **/
+    private String gridBusinessKey;
 
     public Long getId() {
         return id;
@@ -319,4 +322,11 @@ public class GantryDeviceConfigJsfRequest implements Serializable{
                 '}';
     }
 
+    public String getGridBusinessKey() {
+        return gridBusinessKey;
+    }
+
+    public void setGridBusinessKey(String gridBusinessKey) {
+        this.gridBusinessKey = gridBusinessKey;
+    }
 }
