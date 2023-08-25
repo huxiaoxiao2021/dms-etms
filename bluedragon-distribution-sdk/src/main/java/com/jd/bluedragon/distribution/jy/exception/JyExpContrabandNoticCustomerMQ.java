@@ -4,12 +4,13 @@ import java.io.Serializable;
 
 /**
  * @Author: chenyaguo@jd.com
- * @Date: 2023/8/16 16:51
- * @Description: 违禁品通知客服MQ
+ * @Date: 2023/7/31 16:52
+ * @Description: 异常-破损通知客服MQ
  */
 public class JyExpContrabandNoticCustomerMQ implements Serializable {
+    private static final long serialVersionUID = 2L;
 
-    private static final long serialVersionUID = 679178057510323653L;
+
 
     /**业务类型标识 ,通用基础字段，必填  传408*/
     private int businessId;

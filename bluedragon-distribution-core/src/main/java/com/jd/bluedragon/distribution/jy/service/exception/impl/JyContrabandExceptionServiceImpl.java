@@ -8,11 +8,13 @@ import com.jd.bluedragon.common.dto.jyexpection.request.ExpContrabandReq;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrabandEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpNoticCustomerExpReasonEnum;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpContrabandNoticCustomerMQ;
@@ -27,6 +29,7 @@ import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.jmq.common.exception.JMQException;
@@ -84,6 +87,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     @Autowired
     private WaybillStatusService waybillStatusService;
 
+
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {
@@ -126,33 +131,118 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        boolean sendMQFlag = false;
         switch (enumResult){
            case DETAIN_PACKAGE:
                //扣件
                sendContrabandDetainPackageWaybillBDTrance(dto);
                break;
            case AIR_TO_LAND:
-               //退回
+               //航空转陆运
                sendContrabandReturnPackageBDTrance(dto);
+               sendMQFlag = true;
                break;
+            case RETURN:
+                //退回
+                sendContrabandReturnPackageBDTrance(dto);
+                sendMQFlag = true;
+                break;
             default:
                 logger.warn("未知的违禁品类型--");
-                break;
+                return ;
+       }
+       if(sendMQFlag){
+           try {
+               JyExpContrabandNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(dto);
+               if(mq != null){
+                   jyExceptionContrabandNoticCustomerProducer.sendOnFailPersistent(dto.getBizId(), JsonHelper.toJson(mq));
+                   logger.info("违禁品上报发送客服-{}",JsonHelper.toJson(mq));
+               }
+           } catch (Exception e) {
+               logger.error("违禁品上报发送客服异常！",e);
+           }
        }
 
-        JyExpContrabandNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(dto);
-        try {
-            jyExceptionContrabandNoticCustomerProducer.send(dto.getBizId(), JsonHelper.toJson(mq));
-            logger.info("违禁品上报发送客服-{}",JsonHelper.toJson(mq));
-        } catch (JMQException e) {
-            logger.error("违禁品上报发送客服异常！",e);
-        }
     }
 
-    private void  sendMQContrabandNoticCustomer(JyExceptionContrabandDto dto){
 
+    /**
+     * 发送客服违禁品数据组装
+     * @return
+     */
+    private JyExpContrabandNoticCustomerMQ coverToDamageNoticCustomerMQ(JyExceptionContrabandDto dto) {
 
+        String waybillCode = WaybillUtil.getWaybillCode(dto.getBarCode());
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        if(waybill == null){
+            logger.warn("获取运单信息失败！-{}",waybillCode);
+        }
+        JyExpContrabandNoticCustomerMQ mq = new JyExpContrabandNoticCustomerMQ();
+        mq.setDealType(ASCPContants.DEAL_TYPE);
+        mq.setCodeInfo(waybillCode);
+        mq.setCodeType(ASCPContants.CODE_TYPE);
+        mq.setExptCreateTime(DateHelper.formatDateTime(new Date()));
 
+        JyExceptionContrabandEnum.ContrabandTypeEnum contrabandType = JyExceptionContrabandEnum.ContrabandTypeEnum.getEnumByCode(dto.getContrabandType());
+        if(contrabandType == null){
+            logger.warn("未知的违禁品上报类型--{}",contrabandType);
+            return null;
+        }
+        if(isHKorMOWaybill(waybillCode,waybill)){
+            logger.info("港澳单---{}",waybill);
+            mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_HK_HO.getCode());
+            mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_HK_HO.getCode() + "_" + dto.getBizId());
+            mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.HA_MO_DELIVERY_EXCEPTION_REPORT.getCode());
+            mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.HA_MO_DELIVERY_EXCEPTION_REPORT.getName());
+            switch (contrabandType){
+                case RETURN:
+                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_RETURN.getCode());
+                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_RETURN.getName());
+                    break;
+                case AIR_TO_LAND:
+                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_CHANGE_LAND.getCode());
+                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_CHANGE_LAND.getName());
+                    break;
+                default:
+                    logger.warn("此违禁品上报类型不做处理-{}",contrabandType);
+                    return null;
+            }
+        }else{
+            logger.info("大陆单---{}",waybill);
+            mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode());
+            mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode() + "_" + dto.getBizId());
+            mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_CONTRABAND.getCode());
+            mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_CONTRABAND.getName());
+            switch (contrabandType){
+                case RETURN:
+                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_RETURN.getCode());
+                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_RETURN.getName());
+                    break;
+                case AIR_TO_LAND:
+                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_AIR_CHANGE_LAND.getCode());
+                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_AIR_CHANGE_LAND.getName());
+                    break;
+                default:
+                    logger.warn("此违禁品上报类型不做处理-{}",contrabandType);
+                    return null;
+            }
+        }
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(dto.getSiteCode().intValue());
+        if (baseSite != null) {
+            mq.setStartOrgCode(baseSite.getOrgId().toString());
+            mq.setStartOrgName(baseSite.getOrgName());
+            mq.setProvinceAgencyCode(StringUtils.isNotBlank(baseSite.getProvinceAgencyCode()) ? baseSite.getProvinceAgencyCode().toString() : "");
+            mq.setProvinceAgencyName(StringUtils.isNotBlank(baseSite.getProvinceAgencyName()) ? baseSite.getProvinceAgencyName() : "");
+        }
+        String waybillSign = waybill.getWaybillSign();
+        if (BusinessUtil.isSelf(waybillSign)) {
+            mq.setWaybillType(ASCPContants.WAYBILL_TYPE_SELF);
+        } else {//外单
+            mq.setWaybillType(ASCPContants.WAYBILL_TYPE_OTHER);
+        }
+        mq.setWaybillCode(waybillCode);
+        logger.info("组装违禁品发送客服MQ-{}",JSON.toJSONString(mq));
+        return mq;
     }
 
     /**
@@ -187,9 +277,14 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
      */
     private void sendContrabandDetainPackageWaybillBDTrance(JyExceptionContrabandDto dto) {
 
+        if(StringUtils.isBlank(dto.getBarCode())){
+            logger.warn("单号为空!");
+            return ;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(dto.getBarCode());
         List<WaybillSyncParameter> parameterList = new ArrayList<>(1);
         WaybillSyncParameter parameter = new WaybillSyncParameter();
-        parameter.setOperatorCode(dto.getBarCode());
+        parameter.setOperatorCode(waybillCode);
         parameter.setOperatorId(dto.getCreateUserId());
         parameter.setOperatorName(dto.getCreateStaffName());
         parameter.setZdId(dto.getSiteCode());
@@ -233,46 +328,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         waybillQueryManager.sendBdTrace(traceDto);
     }
 
-    /**
-     * 发送客服破损数据组装
-     *
-     * @return
-     */
-    private JyExpContrabandNoticCustomerMQ coverToDamageNoticCustomerMQ(JyExceptionContrabandDto dto) {
-        JyExpContrabandNoticCustomerMQ mq = new JyExpContrabandNoticCustomerMQ();
-        mq.setBusinessId(ASCPContants.CONTRABAND_BUSINESS_ID);
-        mq.setExptId(ASCPContants.CONTRABAND_BUSINESS_ID + "_" + dto.getBizId());
-        mq.setDealType(ASCPContants.DEAL_TYPE);
-        mq.setCodeInfo(WaybillUtil.getWaybillCode(dto.getBarCode()));
-        mq.setCodeType(ASCPContants.CODE_TYPE);
-        mq.setExptCreateTime(DateHelper.formatDateTime(new Date()));
-        mq.setExptOneLevel(ASCPContants.CONTRABAND_EXPT_ONE_LEVEL);
-        mq.setExptOneLevelName(ASCPContants.CONTRABAND_EXPT_ONE_LEVEL_NAME);
-        mq.setExptTwoLevel(ASCPContants.CONTRABAND_EXPT_TWO_LEVEL);
-        mq.setExptTwoLevelName(ASCPContants.CONTRABAND_EXPT_TWO_LEVEL_NAME);
-        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(new Integer(dto.getSiteCode()));
-        if (baseSite != null) {
-            mq.setStartOrgCode(baseSite.getOrgId().toString());
-            mq.setStartOrgName(baseSite.getOrgName());
-            mq.setProvinceAgencyCode(StringUtils.isNotBlank(baseSite.getProvinceAgencyCode()) ? baseSite.getProvinceAgencyCode().toString() : "");
-            mq.setProvinceAgencyName(StringUtils.isNotBlank(baseSite.getProvinceAgencyName()) ? baseSite.getProvinceAgencyName() : "");
-        }
 
-        Waybill waybill = waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(dto.getBarCode()));
-        if(waybill == null){
-           logger.error("获取运单信息失败-{}",dto.getBarCode());
-           throw new RuntimeException("获取运单信息失败!");
-        }
 
-        String waybillSign = waybill.getWaybillSign();
-        if (BusinessUtil.isSelf(waybillSign)) {
-            mq.setWaybillType(ASCPContants.WAYBILL_TYPE_SELF);
-        } else {//外单
-            mq.setWaybillType(ASCPContants.WAYBILL_TYPE_OTHER);
-        }
-        mq.setWaybillCode(WaybillUtil.getWaybillCode(dto.getBarCode()));
-        return mq;
-    }
 
     private JyExceptionContrabandEntity buildEntity(ExpContrabandReq req) {
         JyExceptionContrabandEntity entity = new JyExceptionContrabandEntity();
@@ -362,5 +419,23 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if (!CollectionUtils.isEmpty(list)) {
             throw new RuntimeException("请勿重复提交");
         }
+    }
+
+    /**
+     * 港澳单校验逻辑
+     * @param waybillCode
+     * @param waybill
+     * @return
+     */
+    public boolean isHKorMOWaybill(String waybillCode,Waybill waybill){
+        if(waybill != null &&  waybill.getWaybillExt() != null){
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            if((org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
+                    || (org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
+                logger.info("港澳单-{}",waybillCode);
+                return true;
+            }
+        }
+        return false;
     }
 }
