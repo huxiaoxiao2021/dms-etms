@@ -152,7 +152,7 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
             return null;
         }
         UserNameAndPhone userNameAndPhone = new UserNameAndPhone();
-        userNameAndPhone.setUserName(erp);
+        userNameAndPhone.setUserName(baseStaffSiteOrgDto.getStaffName());
         userNameAndPhone.setPhone(baseStaffSiteOrgDto.getMobilePhone1());
         return userNameAndPhone;
     }
