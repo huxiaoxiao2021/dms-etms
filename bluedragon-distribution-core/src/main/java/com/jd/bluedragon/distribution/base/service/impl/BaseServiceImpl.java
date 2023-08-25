@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperateUser;
 import com.jd.bluedragon.common.dto.base.request.Pager;
+import com.jd.bluedragon.common.dto.basedata.request.GetFlowDirectionQuery;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
@@ -21,10 +22,15 @@ import com.jd.bluedragon.distribution.client.constants.ConfigConstants;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
 import com.jd.bluedragon.distribution.client.dto.config.DmsClientSysConfigAndroidBootImg;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -53,6 +59,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -121,6 +128,12 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	@Autowired
 	@Qualifier("thirdValidateService")
 	private ErpValidateService thirdValidateService;
+
+	@Autowired
+	private JyExceptionService jyExceptionService;
+
+	@Autowired
+	private RouterService routerService;
 
 	/**
 	 * @description: erp登录校验处理逻辑
@@ -1247,4 +1260,84 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
         }
         return result;
     }
+
+	/**
+	 * 获取流向
+	 *
+	 * @param request 请求参数
+	 * @return 返回结果
+	 * @author fanggang7
+	 * @time 2022-10-11 14:59:04 周二
+	 */
+	@Override
+	public Result<Pager<StreamlinedBasicSite>> getFlowDirection(Pager<GetFlowDirectionQuery> request) {
+		Result<Pager<StreamlinedBasicSite>> result = new Result<>();
+		result.toSuccess();
+		checkGetFlowDirectionQuery(request);
+		GetFlowDirectionQuery getFlowDirectionQuery = JSON.parseObject(JSON.toJSONString(request.getSearchVo()), GetFlowDirectionQuery.class);
+		String searchStr = getFlowDirectionQuery.getSearchStr();
+		try {
+			//根据岗位编码获取当前的场地编码
+			if (getFlowDirectionQuery.getSupportQueryType().contains(GetFlowDirectionQuery.SupportQueryTypeEnum.WAYBILL_CODE.getCode()) ||
+					getFlowDirectionQuery.getSupportQueryType().contains(GetFlowDirectionQuery.SupportQueryTypeEnum.PACKAGE_CODE.getCode())) {
+				searchStr = selectFlowDirection(getFlowDirectionQuery, searchStr);
+			}
+		} catch (Exception e) {
+			log.error("BaseDataGatewayServiceImpl.getFlowDirection exception: ", e);
+			result.toFail("该包裹未获取到流向");
+		}
+		return selectSiteList(convertStreamlinedBasicSiteQuery(searchStr, request.getPageNo(), request.getPageSize()));
+	}
+
+	/**
+	 * 校验入参
+	 *
+	 * @param request
+	 */
+	private void checkGetFlowDirectionQuery(Pager<GetFlowDirectionQuery> request) {
+		for (GetFlowDirectionQuery datum : request.getData()) {
+			if (CollectionUtils.isEmpty(datum.getSupportQueryType())) {
+				throw new JyBizException("参数错误：查询类型为空！");
+			}
+		}
+
+	}
+
+	/**
+	 * 查询流向
+	 *
+	 * @param getFlowDirectionQuery
+	 * @param searchStr
+	 */
+	private String selectFlowDirection(GetFlowDirectionQuery getFlowDirectionQuery, String searchStr) {
+		PositionDetailRecord position = jyExceptionService.getPosition(getFlowDirectionQuery.getPositionCode());
+		if (StringHelper.isNotEmpty(searchStr) && (WaybillUtil.isWaybillCode(searchStr) || WaybillUtil.isPackageCode(searchStr))) {
+			String waybillCode = WaybillUtil.getWaybillCode(searchStr);
+			if (ObjectHelper.isNotEmpty(position)) {
+				RouteNextDto routeNextDto = routerService.matchRouterNextNode(position.getSiteCode(), waybillCode);
+				if (ObjectHelper.isNotEmpty(routeNextDto)) {
+					return String.valueOf(routeNextDto.getFirstNextSiteId());
+				}
+			}
+		}
+		return searchStr;
+	}
+
+	/**
+	 * 入参类型参数转换为Pager<StreamlinedBasicSiteQuery>
+	 *
+	 * @param searchStr
+	 * @return
+	 */
+	private Pager<StreamlinedBasicSiteQuery> convertStreamlinedBasicSiteQuery(String searchStr, Integer pageNo, Integer pageSize) {
+		Pager<StreamlinedBasicSiteQuery> streamlinedBasicSiteQueryPager = new Pager<StreamlinedBasicSiteQuery>();
+		StreamlinedBasicSiteQuery streamlinedBasicSiteQuery = new StreamlinedBasicSiteQuery();
+		List<StreamlinedBasicSiteQuery> streamlinedBasicSiteQueryList = new ArrayList<>();
+		streamlinedBasicSiteQuery.setSearchStr(searchStr);
+		streamlinedBasicSiteQueryList.add(streamlinedBasicSiteQuery);
+		streamlinedBasicSiteQueryPager.setPageNo(pageNo);
+		streamlinedBasicSiteQueryPager.setPageSize(pageSize);
+		streamlinedBasicSiteQueryPager.setData(streamlinedBasicSiteQueryList);
+		return streamlinedBasicSiteQueryPager;
+	}
 }

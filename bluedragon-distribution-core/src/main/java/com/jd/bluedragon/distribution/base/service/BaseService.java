@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.base.service;
 
 import com.jd.bluedragon.common.dto.base.request.Pager;
+import com.jd.bluedragon.common.dto.basedata.request.GetFlowDirectionQuery;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
@@ -327,4 +328,12 @@ public interface BaseService{
      * @time 2023-05-04 18:41:33 周四
      */
     com.jd.dms.java.utils.sdk.base.Result <ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo);
+
+	/**
+	 * 获取流向
+	 *
+	 * @param request 请求参数
+	 * @return 返回结果
+	 */
+	Result<Pager<StreamlinedBasicSite>> getFlowDirection(Pager<GetFlowDirectionQuery> request);
 }

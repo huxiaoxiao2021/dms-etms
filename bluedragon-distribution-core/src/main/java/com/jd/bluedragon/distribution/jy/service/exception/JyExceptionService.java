@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.ps.data.epf.dto.ExpefNotify;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
 
 import java.util.Date;
 import java.util.List;
@@ -128,5 +129,5 @@ public interface JyExceptionService {
      */
     JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req);
 
-
+    PositionDetailRecord getPosition(String positionCode);
 }

@@ -3,10 +3,9 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.UmpConstants;
-import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.basedata.request.GetFlowDirectionQuery;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.basedata.response.BaseDataDictDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
@@ -24,19 +23,15 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.BaseDataGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.converter.ResultConverter;
 import com.jd.dms.workbench.utils.sdk.base.Result;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.common.utils.ObjectHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,63 +204,29 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
      * @time 2022-10-11 14:59:04 周二
      */
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "BaseDataGatewayServiceImpl.selectSiteList",
-            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Pager<StreamlinedBasicSite>> selectSiteList(Pager<StreamlinedBasicSiteQuery> request) {
         JdCResponse<Pager<StreamlinedBasicSite>> response = new JdCResponse<>();
         response.toSucceed();
         Pager<StreamlinedBasicSite> pageData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
         response.setData(pageData);
-        String searchStr = request.getSearchVo().getSearchStr();
-        if (StringHelper.isNotEmpty(searchStr) && (WaybillUtil.isWaybillCode(searchStr) || WaybillUtil.isPackageCode(searchStr))) {
-            try {
-                if (WaybillUtil.isPackageCode(searchStr)) {
-                    searchStr = WaybillUtil.getWaybillCode(searchStr);
-                }
-                WaybillCache waybillCache = waybillCacheService.getNoCache(searchStr);
-                if (ObjectHelper.isEmpty(waybillCache)) {
-                    response.toError("该包裹未获取到流向");
-                    return response;
-                }
-                convertParam(pageData, waybillCache);
-            } catch (Exception e) {
-                log.error("BaseDataGatewayServiceImpl.selectSiteList exception ", e);
-                response.toError("该包裹未获取到流向");
+        try {
+            request.setSearchVo(JSON.parseObject(JSON.toJSONString(request.getSearchVo()), StreamlinedBasicSiteQuery.class));
+            final Result<Pager<StreamlinedBasicSite>> pagerResult = baseService.selectSiteList(request);
+            if (!pagerResult.isSuccess()) {
+                log.warn("BaseService.selectSiteList error " + JsonHelper.toJson(pagerResult));
+                response.toFail("查询站点信息异常");
+                return response;
             }
-        } else {
-            try {
-                request.setSearchVo(JSON.parseObject(JSON.toJSONString(request.getSearchVo()), StreamlinedBasicSiteQuery.class));
-                final Result<Pager<StreamlinedBasicSite>> pagerResult = baseService.selectSiteList(request);
-                if (!pagerResult.isSuccess()) {
-                    log.warn("BaseService.selectSiteList error " + JsonHelper.toJson(pagerResult));
-                    response.toFail("查询站点信息异常");
-                    return response;
-                }
-                if (pagerResult.getData() != null) {
-                    final Pager<StreamlinedBasicSite> queryPageData = pagerResult.getData();
-                    pageData.setData(queryPageData.getData());
-                    pageData.setTotal(queryPageData.getTotal());
-                }
-            } catch (Exception e) {
-                log.error("BaseDataGatewayServiceImpl.selectSiteList exception ", e);
-                response.toError("接口处理异常");
+            if (pagerResult.getData() != null) {
+                final Pager<StreamlinedBasicSite> queryPageData = pagerResult.getData();
+                pageData.setData(queryPageData.getData());
+                pageData.setTotal(queryPageData.getTotal());
             }
+        } catch (Exception e) {
+            log.error("BaseDataGatewayServiceImpl.selectSiteList exception ", e);
+            response.toError("接口处理异常");
         }
         return response;
-    }
-
-    /**
-     * 返回参数转换
-     * @param pageData
-     * @param waybillCache
-     */
-    private void convertParam(Pager<StreamlinedBasicSite> pageData, WaybillCache waybillCache) {
-        List<StreamlinedBasicSite> StreamlinedBasicSiteList = new ArrayList<>();
-        StreamlinedBasicSite streamlinedBasicSite = new StreamlinedBasicSite();
-        streamlinedBasicSite.setSiteCode(waybillCache.getSiteCode());
-        streamlinedBasicSite.setSiteName(waybillCache.getSiteName());
-        StreamlinedBasicSiteList.add(streamlinedBasicSite);
-        pageData.setData(StreamlinedBasicSiteList);
     }
 
     @Override
@@ -300,5 +261,36 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
     @Override
     public JdCResponse<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo) {
         return ResultConverter.convertResultToJdcResponse(baseService.getAndroidInitData(deviceInfo));
+    }
+
+    /**
+     * 获取流向
+     *
+     * @param request 请求参数
+     * @return 返回结果
+     */
+    @Override
+    public JdCResponse<Pager<StreamlinedBasicSite>> getFlowDirection(Pager<GetFlowDirectionQuery> request) {
+        JdCResponse<Pager<StreamlinedBasicSite>> response = new JdCResponse<>();
+        response.toSucceed();
+        Pager<StreamlinedBasicSite> pageData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
+        response.setData(pageData);
+        try {
+            final Result<Pager<StreamlinedBasicSite>> flowDirection = baseService.getFlowDirection(request);
+            if (!flowDirection.isSuccess()) {
+                log.warn("BaseService.getFlowDirection error " + JsonHelper.toJson(flowDirection));
+                response.toFail("该包裹未获取到流向");
+                return response;
+            }
+            if (flowDirection.getData() != null) {
+                final Pager<StreamlinedBasicSite> queryPageData = flowDirection.getData();
+                pageData.setData(queryPageData.getData());
+                pageData.setTotal(queryPageData.getTotal());
+            }
+        } catch (Exception e) {
+            log.error("BaseDataGatewayServiceImpl.getFlowDirection exception ", e);
+            response.toError("接口处理异常");
+        }
+        return response;
     }
 }
