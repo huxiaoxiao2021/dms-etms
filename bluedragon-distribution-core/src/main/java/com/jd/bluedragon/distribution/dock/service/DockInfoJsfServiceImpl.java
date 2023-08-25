@@ -130,7 +130,6 @@ public class DockInfoJsfServiceImpl implements DockService{
 
         /* 相同场地内不允许出现多个dockCode同时生效 */
         DockBaseInfoPo needDealItem = DockInfoConverter.convertToPo(dockInfoEntity);
-        fillBasicSiteInfo(needDealItem);
         DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findByDockCode(needDealItem);
         if (!Objects.isNull(dockBaseInfoPo)
                 && Objects.equals(dockBaseInfoPo.getSiteCode(), dockInfoEntity.getSiteCode())
@@ -139,7 +138,7 @@ public class DockInfoJsfServiceImpl implements DockService{
             response.toError("已经存在相同的月台编号，请重新维护");
             return response;
         }
-
+        fillBasicSiteInfo(needDealItem);
         response.setData(dockBaseInfoDao.insert(needDealItem));
 
         return response;
