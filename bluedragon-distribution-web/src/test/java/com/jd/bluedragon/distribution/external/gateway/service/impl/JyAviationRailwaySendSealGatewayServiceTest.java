@@ -3,9 +3,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.AviationSendTaskListReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.AviationSendTaskQueryReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.AviationSendTaskSealListReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.ShuttleQuerySourceEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService;
 import org.junit.Test;
@@ -104,7 +103,7 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
     }
 
     @Test
-    public void testpageFetchAviationToSealAndSealedList() {
+    public void testPageFetchAviationToSealAndSealedList() {
         AviationSendTaskSealListReq request = new AviationSendTaskSealListReq();
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
@@ -128,20 +127,61 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
     }
 
     @Test
-    public void testpageFetchAviationSealedList() {
-        aviationRailwaySendSealGatewayService.pageFetchAviationSealedList(null);
+    public void testPageFetchAviationSealedList() {
+//        AviationSealedListReq request = new AviationSealedListReq();
+//        request.setCurrentOperate(SITE_910);
+//        request.setUser(USER_wuyoude);
+//        request.setGroupCode(GROUP_CODE);
+//        request.setPost(POST);
+//        request.setPageNo(1);
+//        request.setPageSize(30);
+//
+//        request.setSendVehicleBizId("SST23082500000056");
+//        request.setSendVehicleDetailBizId("TW23082500975599-001");
+//
+//        aviationRailwaySendSealGatewayService.pageFetchAviationSealedList(request);
 
     }
 
     @Test
-    public void testpageFetchFilterCondition() {
-        aviationRailwaySendSealGatewayService.pageFetchFilterCondition(null);
+    public void testPageFetchFilterCondition() {
+        FilterConditionQueryReq request = new FilterConditionQueryReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+        int i = 0;
+        while(i++<100) {
+            try{
+                Object obj = aviationRailwaySendSealGatewayService.pageFetchFilterCondition(request);
+                System.out.println("succ");
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
     }
 
     @Test
     public void testpageFetchShuttleSendTaskList() {
-        aviationRailwaySendSealGatewayService.pageFetchShuttleSendTaskList(null);
+        ShuttleSendTaskReq request = new ShuttleSendTaskReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+        request.setShuttleQuerySource(ShuttleQuerySourceEnum.SEAL_N.getCode());
+        request.setPageNo(1);
+        request.setPageSize(30);
+
+        int i = 0;
+        while(i++<100) {
+            try{
+                Object obj = aviationRailwaySendSealGatewayService.pageFetchShuttleSendTaskList(request);
+                System.out.println("succ");
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
     }
 

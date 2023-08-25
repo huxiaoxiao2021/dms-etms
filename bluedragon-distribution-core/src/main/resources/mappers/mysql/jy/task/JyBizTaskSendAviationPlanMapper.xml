@@ -43,7 +43,7 @@
         <result column="total" property="total" jdbcType="INTEGER" />
     </resultMap>
 
-    <resultMap id="airTypeStatistics" type="com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics" >
+    <resultMap id="airTypeStatisticsRes" type="com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics" >
         <result column="air_type" property="airType" jdbcType="VARCHAR" />
         <result column="total" property="total" jdbcType="INTEGER" />
     </resultMap>
@@ -438,7 +438,7 @@
     </select>
 
 
-    <select id="airTypeStatistics" parameterType="java.lang.Integer"  resultMap="airTypeStatistics">
+    <select id="airTypeStatistics" parameterType="java.lang.Integer"  resultMap="airTypeStatisticsRes">
         SELECT
             air_type, count(*) total
         FROM

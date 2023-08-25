@@ -755,11 +755,13 @@ public class UccPropertyConfiguration {
      */
     private Integer jySendTaskPlanTimeBeginDay;
     private Integer jyCzSendTaskPlanTimeBeginDay;
+    private Integer jyShuttleSendTaskPlanTimeBeginHour;
     /**
      * 发货岗计划发车时间查询条件后X天
      */
     private Integer jySendTaskPlanTimeEndDay;
     private Integer jyCzSendTaskPlanTimeEndDay;
+    private Integer jyShuttleSendTaskPlanTimeEndHour;
 
     private Integer jySendTaskCreateTimeBeginDay;
 
@@ -3629,5 +3631,21 @@ public class UccPropertyConfiguration {
 
     public void setAviationSendSealListNextSiteQueryLimit(Integer aviationSendSealListNextSiteQueryLimit) {
         this.aviationSendSealListNextSiteQueryLimit = aviationSendSealListNextSiteQueryLimit;
+    }
+
+    public Integer getJyShuttleSendTaskPlanTimeBeginHour() {
+        return jyShuttleSendTaskPlanTimeBeginHour;
+    }
+
+    public void setJyShuttleSendTaskPlanTimeBeginHour(Integer jyShuttleSendTaskPlanTimeBeginHour) {
+        this.jyShuttleSendTaskPlanTimeBeginHour = jyShuttleSendTaskPlanTimeBeginHour;
+    }
+
+    public Integer getJyShuttleSendTaskPlanTimeEndHour() {
+        return jyShuttleSendTaskPlanTimeEndHour;
+    }
+
+    public void setJyShuttleSendTaskPlanTimeEndHour(Integer jyShuttleSendTaskPlanTimeEndHour) {
+        this.jyShuttleSendTaskPlanTimeEndHour = jyShuttleSendTaskPlanTimeEndHour;
     }
 }

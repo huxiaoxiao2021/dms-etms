@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -236,7 +237,7 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.pageFindDetailSendTaskByCondition",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public List<JyBizSendTaskAssociationDto> pageFindDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity, Integer pageNo, Integer pageSize) {
+    public List<JyBizSendTaskAssociationDto> pageFindDetailSendTaskByCondition(JyBizTaskSendVehicleDetailQueryEntity entity, Integer pageNo, Integer pageSize) {
 
         Integer limit = pageSize;
         Integer offset = (pageNo - 1) * pageSize;

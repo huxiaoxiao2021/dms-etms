@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -115,6 +116,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
     @Autowired
     private SortingService sortingService;
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
     
     @Override
     public InvokeResult<Void> sendTaskBinding(SendTaskBindReq request) {
@@ -800,20 +803,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             }
         }
         //查询条件
-        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
-        detailEntity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-        detailEntity.setLineTypeList(Arrays.asList(JyLineTypeEnum.SHUTTLE.getCode()));
-        if(ShuttleQuerySourceEnum.SEAL_Y.getCode().equals(request.getShuttleQuerySource())) {
-            detailEntity.setStatusList(Arrays.asList(JyBizTaskSendStatusEnum.SEALED.getCode()));
-        } else if(ShuttleQuerySourceEnum.SEAL_N.getCode().equals(request.getShuttleQuerySource())) {
-            detailEntity.setStatusList(Arrays.asList(
-                    JyBizTaskSendStatusEnum.TO_SEND.getCode(),
-                    JyBizTaskSendStatusEnum.SENDING.getCode(),
-                    JyBizTaskSendStatusEnum.TO_SEAL.getCode()));
-        }
-        if(CollectionUtils.isNotEmpty(bizIdList)) {
-            detailEntity.setBizIdList(bizIdList);
-        }
+        JyBizTaskSendVehicleDetailQueryEntity detailEntity = this.generateShuttleTask(request, bizIdList);
         //
         Integer count = taskSendVehicleService.countDetailSendTaskByCondition(detailEntity);
         if(count > 0) {
@@ -865,6 +855,30 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             resData.setTaskStatusStatisticsList(statusAggList);
         }
         return res;
+    }
+
+    private JyBizTaskSendVehicleDetailQueryEntity generateShuttleTask(ShuttleSendTaskReq request, List<String> bizIdList) {
+        JyBizTaskSendVehicleDetailQueryEntity detailEntity = new JyBizTaskSendVehicleDetailQueryEntity();
+        detailEntity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+        detailEntity.setLineTypeList(Arrays.asList(JyLineTypeEnum.SHUTTLE.getCode()));
+        if(ShuttleQuerySourceEnum.SEAL_Y.getCode().equals(request.getShuttleQuerySource())) {
+            detailEntity.setStatusList(Arrays.asList(JyBizTaskSendStatusEnum.SEALED.getCode()));
+        } else if(ShuttleQuerySourceEnum.SEAL_N.getCode().equals(request.getShuttleQuerySource())) {
+            detailEntity.setStatusList(Arrays.asList(
+                    JyBizTaskSendStatusEnum.TO_SEND.getCode(),
+                    JyBizTaskSendStatusEnum.SENDING.getCode(),
+                    JyBizTaskSendStatusEnum.TO_SEAL.getCode()));
+        }
+        if(CollectionUtils.isNotEmpty(bizIdList)) {
+            detailEntity.setBizIdList(bizIdList);
+        }
+
+        Date curTime = new Date();
+        detailEntity.setLastPlanDepartTimeBegin(DateHelper.addHours(curTime, -uccConfig.getJyShuttleSendTaskPlanTimeBeginHour()));
+        detailEntity.setLastPlanDepartTimeEnd(DateHelper.addDate(curTime, uccConfig.getJyShuttleSendTaskPlanTimeEndHour()));
+        detailEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
+
+        return detailEntity;
     }
 
     private Map<String, JyStatisticsSummaryEntity> shuttleSendTaskSummary(List<String> detailBizIdList, Integer siteId) {
