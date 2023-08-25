@@ -296,14 +296,14 @@ public class JyExceptionServiceTest {
     public void dealExpDamageInfoByAbnormalReportOutCallTest(){
         QcReportOutCallJmqDto dto = new QcReportOutCallJmqDto();
         //dto.setAbnormalDocumentNum("JDVA00255154794");
-        dto.setAbnormalDocumentNum("JD0003421266039");
+        dto.setAbnormalDocumentNum("JDX000201044026");
         dto.setAbnormalFirstId(20009l);
         dto.setAbnormalFirstName("外呼类");
         dto.setAbnormalSecondId(20051L);
         dto.setAbnormalSecondName("揽收派送异常");
         dto.setAbnormalThirdId(230502L);
         dto.setAbnormalThirdName("派送联系不上客户");
-        dto.setCreateDept("910");
+        dto.setCreateDept("40240");
         dto.setCreateDeptName("资阳娇子营业部");
         dto.setCreateRegion("4");
         dto.setCreateTime(1691137481000L);

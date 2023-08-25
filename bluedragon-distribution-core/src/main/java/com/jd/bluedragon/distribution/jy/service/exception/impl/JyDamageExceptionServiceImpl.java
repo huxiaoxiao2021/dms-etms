@@ -250,14 +250,14 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             boolean sendMQFlag = sendMQNoticCustomerCheck(barCode, qcReportJmqDto,exceptionEntity, damageEntity, updateExp, updateDamageEntity,waybill);
             logger.info("最新的异常任务-{}",JSON.toJSONString(updateExp));
             logger.info("最新的破损数据-{}",JSON.toJSONString(updateDamageEntity));
-            if (jyBizTaskExceptionDao.updateByBizId(updateExp) < 1) {
-                logger.warn("破损任务数据更新失败！");
-                return;
-            }
-            if (jyExceptionDamageDao.updateByBizId(updateDamageEntity) < 1) {
-                logger.warn("破损数据更新失败！");
-                return;
-            }
+//            if (jyBizTaskExceptionDao.updateByBizId(updateExp) < 1) {
+//                logger.warn("破损任务数据更新失败！");
+//                return;
+//            }
+//            if (jyExceptionDamageDao.updateByBizId(updateDamageEntity) < 1) {
+//                logger.warn("破损数据更新失败！");
+//                return;
+//            }
 
             if (sendMQFlag) {
                 sendMQToCustomer(exceptionEntity,damageEntity,waybill);
@@ -266,9 +266,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 writeToProcessDamage(bizId);
             }
             //称重
-            this.dealExpDamageWeightVolumeUpload(damageEntity, true);
+            //this.dealExpDamageWeightVolumeUpload(damageEntity, true);
             //滞留上报
-            this.dealExpDamageStrandReport(exceptionEntity.getBarCode());
+            //this.dealExpDamageStrandReport(exceptionEntity.getBarCode());
         } catch (Exception e) {
             logger.error("根据质控异常提报mq处理破损数据异常!param-{}", JSON.toJSONString(qcReportJmqDto), e);
         } finally {
@@ -424,7 +424,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             mq.setWaybillType(ASCPContants.WAYBILL_TYPE_OTHER);
         }
         mq.setWaybillCode(entity.getBarCode());
-        logger.info("");
+        logger.info("组装发送给客服破损数据-{}",JSON.toJSONString(mq));
         return mq;
     }
 
