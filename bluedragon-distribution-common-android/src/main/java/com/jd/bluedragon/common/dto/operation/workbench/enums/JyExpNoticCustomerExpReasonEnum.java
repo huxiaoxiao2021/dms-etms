@@ -92,9 +92,9 @@ public class JyExpNoticCustomerExpReasonEnum {
 
 
         //港澳单 上报客服二级异常原因
-        HA_MO_DAMAGE_NO_DOWNLOAD("4130100","破损无法下传"),
-        HA_MO_CONTRABAND_RETURN("4130100","违禁品退回"),
-        HA_MO_CONTRABAND_CHANGE_LAND("4130100","违禁品转陆运")
+        HA_MO_DAMAGE_NO_DOWNLOAD("4130101","破损无法下传"),
+        HA_MO_CONTRABAND_RETURN("4130102","违禁品退回"),
+        HA_MO_CONTRABAND_CHANGE_LAND("4130103","违禁品转陆运")
         ;
 
         private String code;

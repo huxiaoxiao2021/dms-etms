@@ -343,7 +343,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
 
     /**
-     * 发送大陆运单给客服 破损数据组装
+     * 组装发送给客服破损数据
      *
      * @return
      */
@@ -424,6 +424,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             mq.setWaybillType(ASCPContants.WAYBILL_TYPE_OTHER);
         }
         mq.setWaybillCode(entity.getBarCode());
+        logger.info("");
         return mq;
     }
 
