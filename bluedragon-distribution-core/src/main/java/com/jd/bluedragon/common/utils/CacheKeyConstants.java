@@ -396,4 +396,9 @@ public class CacheKeyConstants {
      * 拣运-滞留扫描
      */
     public static final String CACHE_KEY_JY_STRAND_SCAN = JY_CACHE_PREFIX + "strandScan:%s";
+
+    /**
+     * 拣运-违禁品运单全程跟踪Key
+     */
+    public static final String CACHE_KEY_JY_CONTRABAND_BDTRANCE = JY_CACHE_PREFIX + "contrabandBDTrance:%s";
 }

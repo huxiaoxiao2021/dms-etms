@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTyp
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrabandEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpNoticCustomerExpReasonEnum;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -32,6 +33,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
+import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -78,14 +80,22 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
-    @Qualifier("jyExceptionContrabandNoticCustomerProducer")
-    private DefaultJMQProducer jyExceptionContrabandNoticCustomerProducer;
+    @Qualifier("dmsContrabandMainLandNoticeKFProducer")
+    private DefaultJMQProducer dmsContrabandMainLandNoticeKFProducer;
+
+    @Autowired
+    @Qualifier("dmsContrabandHKOrMONoticeKFProducer")
+    private DefaultJMQProducer dmsContrabandHKOrMONoticeKFProducer;
 
     @Autowired
     private JyExceptionService jyExceptionService;
 
     @Autowired
     private WaybillStatusService waybillStatusService;
+
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
 
 
 
@@ -118,65 +128,81 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     @Override
     public void dealContrabandUploadData(JyExceptionContrabandDto dto)  {
 
+        try{
+            JyExceptionContrabandEnum.ContrabandTypeEnum enumResult = JyExceptionContrabandEnum.ContrabandTypeEnum.getEnumByCode(dto.getContrabandType());
+            if(enumResult == null){
+                return;
+            }
+            String waybillCode = WaybillUtil.getWaybillCode(dto.getBarCode());
+            //写运单维度的全程跟踪
+            sendContrabandSecurityCheckWaybillBDTrance(dto);
 
-
-        JyExceptionContrabandEnum.ContrabandTypeEnum enumResult = JyExceptionContrabandEnum.ContrabandTypeEnum.getEnumByCode(dto.getContrabandType());
-        if(enumResult == null){
-            return;
-        }
-        //写运单维度的全程跟踪
-        sendContrabandSecurityCheckWaybillBDTrance(dto);
-        try {
-            TimeUnit.SECONDS.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        boolean sendMQFlag = false;
-        switch (enumResult){
-           case DETAIN_PACKAGE:
-               //扣件
-               sendContrabandDetainPackageWaybillBDTrance(dto);
-               break;
-           case AIR_TO_LAND:
-               //航空转陆运
-               sendContrabandReturnPackageBDTrance(dto);
-               sendMQFlag = true;
-               break;
-            case RETURN:
-                //退回
-                sendContrabandReturnPackageBDTrance(dto);
-                sendMQFlag = true;
-                break;
-            default:
-                logger.warn("未知的违禁品类型--");
-                return ;
-       }
-       if(sendMQFlag){
-           try {
-               JyExpContrabandNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(dto);
-               if(mq != null){
-                   jyExceptionContrabandNoticCustomerProducer.sendOnFailPersistent(dto.getBizId(), JsonHelper.toJson(mq));
-                   logger.info("违禁品上报发送客服-{}",JsonHelper.toJson(mq));
-               }
-           } catch (Exception e) {
-               logger.error("违禁品上报发送客服异常！",e);
+            String cacheKey = String.format(CacheKeyConstants.CACHE_KEY_JY_CONTRABAND_BDTRANCE, waybillCode);
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            boolean sendMQFlag = false;
+            switch (enumResult){
+               case DETAIN_PACKAGE:
+                   //扣件  2天时间内多次上报不同包裹，不重复写运单维度全程跟踪
+                   String cacheValue = redisClientOfJy.get(cacheKey);
+                   if(StringUtils.isBlank(cacheValue)){
+                       sendContrabandDetainPackageWaybillBDTrance(dto);
+                   }
+                   break;
+               case AIR_TO_LAND:
+                   //航空转陆运
+                   sendContrabandReturnPackageBDTrance(dto);
+                   sendMQFlag = true;
+                   break;
+                case RETURN:
+                    //退回
+                    sendContrabandReturnPackageBDTrance(dto);
+                    sendMQFlag = true;
+                    break;
+                default:
+                    logger.warn("未知的违禁品类型--");
+                    return ;
            }
-       }
+           if(!sendMQFlag) {
+               return;
+           }
+
+           Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+           if(waybill == null){
+               logger.warn("获取运单信息失败！-{}",waybillCode);
+           }
+
+           boolean hKorMOWaybill = this.isHKorMOWaybill(waybillCode, waybill);
+           JyExpContrabandNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(dto,waybill,hKorMOWaybill);
+           if(mq == null){
+               return ;
+           }
+           if(hKorMOWaybill){
+               logger.info("发送违禁品港澳单-{}",waybillCode);
+               dmsContrabandHKOrMONoticeKFProducer.sendOnFailPersistent(dto.getBizId(),JsonHelper.toJson(mq));
+           }else {
+               logger.info("发送违禁品大陆单-{}",waybillCode);
+               dmsContrabandMainLandNoticeKFProducer.send(dto.getBizId(),JsonHelper.toJson(mq));
+           }
+            Boolean setResult = redisClientOfJy.set(cacheKey, "1", 2, TimeUnit.DAYS, false);
+            logger.info("单号 {}，放入缓存结果-{}",waybillCode,setResult);
+        } catch (Exception e) {
+            logger.error("违禁品上报发送客服异常！",e);
+        }
 
     }
-
 
     /**
      * 发送客服违禁品数据组装
      * @return
      */
-    private JyExpContrabandNoticCustomerMQ coverToDamageNoticCustomerMQ(JyExceptionContrabandDto dto) {
+    private JyExpContrabandNoticCustomerMQ coverToDamageNoticCustomerMQ(JyExceptionContrabandDto dto,Waybill waybill,Boolean isisHKorMO) {
 
         String waybillCode = WaybillUtil.getWaybillCode(dto.getBarCode());
-        Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
-        if(waybill == null){
-            logger.warn("获取运单信息失败！-{}",waybillCode);
-        }
+
         JyExpContrabandNoticCustomerMQ mq = new JyExpContrabandNoticCustomerMQ();
         mq.setDealType(ASCPContants.DEAL_TYPE);
         mq.setCodeInfo(waybillCode);
@@ -188,8 +214,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             logger.warn("未知的违禁品上报类型--{}",contrabandType);
             return null;
         }
-        if(isHKorMOWaybill(waybillCode,waybill)){
-            logger.info("港澳单---{}",waybill);
+        if(isisHKorMO){
+            logger.info("港澳单---{}",waybillCode);
             mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_HK_HO.getCode());
             mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_HK_HO.getCode() + "_" + dto.getBizId());
             mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.HA_MO_DELIVERY_EXCEPTION_REPORT.getCode());
@@ -208,7 +234,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                     return null;
             }
         }else{
-            logger.info("大陆单---{}",waybill);
+            logger.info("大陆单---{}",waybillCode);
             mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode());
             mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode() + "_" + dto.getBizId());
             mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_CONTRABAND.getCode());
