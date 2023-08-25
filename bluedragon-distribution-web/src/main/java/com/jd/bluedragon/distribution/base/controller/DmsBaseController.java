@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.base.controller;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
@@ -9,6 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.ui.Model;
+
+import java.util.Objects;
 
 /**
  * 
@@ -60,7 +64,53 @@ public class DmsBaseController {
 			loginUser.setSiteCode(userOrgInfo.getSiteCode());
 			loginUser.setSiteName(userOrgInfo.getSiteName());
 			loginUser.setDmsSiteCode(userOrgInfo.getDmsSiteCode());
+			loginUser.setProvinceAgencyCode(userOrgInfo.getProvinceAgencyCode());
+			loginUser.setProvinceAgencyName(userOrgInfo.getProvinceAgencyName());
+			loginUser.setAreaHubCode(userOrgInfo.getAreaCode());
+			loginUser.setAreaHubName(userOrgInfo.getAreaName());
 		}
 		return loginUser;    
+	}
+
+	/**
+	 * 设置model基础信息
+	 * 
+	 * @param model
+	 */
+	public void setBaseModelInfo(Model model) {
+		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+		String userCode;
+		Long createSiteCode = (long) -1;
+		String createSiteName = Constants.EMPTY_FILL;
+		Integer orgId = -1;
+		String orgName = Constants.EMPTY_FILL;
+		String provinceAgencyCode = Constants.EMPTY_FILL;
+		String provinceAgencyName = Constants.EMPTY_FILL;
+		String areaHubCode = Constants.EMPTY_FILL;
+		String areaHubName = Constants.EMPTY_FILL;
+
+		if(erpUser!=null){
+			userCode = erpUser.getUserCode();
+			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+			if (bssod != null) {
+				createSiteCode = new Long(bssod.getSiteCode());
+				createSiteName = bssod.getSiteName();
+				orgId = bssod.getOrgId();
+				orgName = bssod.getOrgName();
+				provinceAgencyCode = bssod.getProvinceAgencyCode();
+				provinceAgencyName = bssod.getProvinceAgencyName();
+				areaHubCode = bssod.getAreaCode();
+				areaHubName = bssod.getAreaName();
+			}
+		}
+
+		model.addAttribute("orgId",orgId)
+				.addAttribute("orgName",orgName)
+				.addAttribute("createSiteCode",createSiteCode)
+				.addAttribute("createSiteName",createSiteName)
+				.addAttribute("provinceAgencyCode",provinceAgencyCode)
+				.addAttribute("provinceAgencyName",provinceAgencyName)
+				.addAttribute("areaHubCode",areaHubCode)
+				.addAttribute("areaHubName",areaHubName);
 	}
 }

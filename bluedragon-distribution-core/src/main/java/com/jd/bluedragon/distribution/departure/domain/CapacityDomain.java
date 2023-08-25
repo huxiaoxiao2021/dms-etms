@@ -116,6 +116,25 @@ public class CapacityDomain implements Serializable{
 	 */
 	private Integer effectiveStatus;
 
+	/**
+	 * 始发省区编码
+	 * */
+	private String startProvinceAgencyCode;
+
+	/**
+	 * 始发省区名称
+	 * */
+	private String startProvinceAgencyName;
+
+	/**
+	 * 目的省区编码
+	 * */
+	private String destProvinceAgencyCode;
+	
+	/**
+	 * 目的省区名称
+	 * */
+	private String destProvinceAgencyName;
 
 	public String getSorgid() {
 		return sorgid;
@@ -291,5 +310,37 @@ public class CapacityDomain implements Serializable{
 
 	public void setEffectiveStatus(Integer effectiveStatus) {
 		this.effectiveStatus = effectiveStatus;
+	}
+
+	public String getStartProvinceAgencyCode() {
+		return startProvinceAgencyCode;
+	}
+
+	public void setStartProvinceAgencyCode(String startProvinceAgencyCode) {
+		this.startProvinceAgencyCode = startProvinceAgencyCode;
+	}
+
+	public String getStartProvinceAgencyName() {
+		return startProvinceAgencyName;
+	}
+
+	public void setStartProvinceAgencyName(String startProvinceAgencyName) {
+		this.startProvinceAgencyName = startProvinceAgencyName;
+	}
+
+	public String getDestProvinceAgencyCode() {
+		return destProvinceAgencyCode;
+	}
+
+	public void setDestProvinceAgencyCode(String destProvinceAgencyCode) {
+		this.destProvinceAgencyCode = destProvinceAgencyCode;
+	}
+
+	public String getDestProvinceAgencyName() {
+		return destProvinceAgencyName;
+	}
+
+	public void setDestProvinceAgencyName(String destProvinceAgencyName) {
+		this.destProvinceAgencyName = destProvinceAgencyName;
 	}
 }

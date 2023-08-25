@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Date;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PopQueueQuery {
 	public String queueNo;
 	public String createSiteCode;
@@ -24,6 +27,15 @@ public class PopQueueQuery {
      * 每页记录条数
      */
     private Integer pageSize;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
 
 	public String getQueueNo() {
 		return queueNo;
@@ -123,4 +135,20 @@ public class PopQueueQuery {
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
     }
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		this.areaHubCode = areaHubCode;
+	}
 }

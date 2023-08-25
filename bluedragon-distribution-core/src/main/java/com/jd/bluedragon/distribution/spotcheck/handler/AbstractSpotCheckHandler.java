@@ -233,6 +233,8 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         dto.setReviewSource(SpotCheckSourceFromEnum.analysisCodeFromName(spotCheckContext.getSpotCheckSourceFrom()));
         dto.setReviewOrgCode(spotCheckReviewDetail.getReviewOrgId());
         dto.setReviewOrgName(spotCheckReviewDetail.getReviewOrgName());
+        dto.setReviewProvinceAgencyCode(spotCheckReviewDetail.getReviewProvinceAgencyCode());
+        dto.setReviewProvinceAgencyName(spotCheckReviewDetail.getReviewProvinceAgencyName());
         dto.setReviewSiteCode(spotCheckReviewDetail.getReviewSiteCode());
         dto.setReviewSiteName(spotCheckReviewDetail.getReviewSiteName());
         dto.setReviewUserErp(spotCheckReviewDetail.getReviewUserErp());
@@ -249,6 +251,8 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         dto.setContrastSource(spotCheckContrastDetail.getContrastSourceFrom());
         dto.setContrastOrgCode(spotCheckContrastDetail.getContrastOrgId());
         dto.setContrastOrgName(spotCheckContrastDetail.getContrastOrgName());
+        dto.setContrastProvinceAgencyCode(spotCheckContrastDetail.getContrastProvinceAgencyCode());
+        dto.setContrastProvinceAgencyName(spotCheckContrastDetail.getContrastProvinceAgencyName());
         dto.setContrastWarZoneCode(spotCheckContrastDetail.getContrastWarZoneCode());
         dto.setContrastWarZoneName(spotCheckContrastDetail.getContrastWarZoneName());
         dto.setContrastAreaCode(spotCheckContrastDetail.getContrastAreaCode());
@@ -474,8 +478,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         }
         spotCheckReviewDetail.setReviewVolume(volume);
         spotCheckReviewDetail.setReviewTotalVolume(volume);
-        spotCheckReviewDetail.setReviewOrgId(spotCheckDto.getOrgId());
-        spotCheckReviewDetail.setReviewOrgName(spotCheckDto.getOrgName());
+        spotCheckReviewDetail.setReviewOrgId(spotCheckContext.getReviewSite() == null ? null : spotCheckContext.getReviewSite().getOrgId());
+        spotCheckReviewDetail.setReviewOrgName(spotCheckContext.getReviewSite() == null ? null : spotCheckContext.getReviewSite().getOrgName());
+        spotCheckReviewDetail.setReviewProvinceAgencyCode(spotCheckContext.getReviewSite() == null ? null : spotCheckContext.getReviewSite().getProvinceAgencyCode());
+        spotCheckReviewDetail.setReviewProvinceAgencyName(spotCheckContext.getReviewSite() == null ? null : spotCheckContext.getReviewSite().getProvinceAgencyName());
         spotCheckReviewDetail.setReviewSiteCode(spotCheckDto.getSiteCode());
         spotCheckReviewDetail.setReviewSiteName(spotCheckDto.getSiteName());
         spotCheckReviewDetail.setReviewUserId(spotCheckDto.getOperateUserId());

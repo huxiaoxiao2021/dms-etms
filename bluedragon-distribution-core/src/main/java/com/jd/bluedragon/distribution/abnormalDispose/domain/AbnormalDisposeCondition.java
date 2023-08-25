@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormalDispose.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 import java.util.Date;
@@ -9,6 +10,7 @@ import java.util.Date;
  * @Description: 异常统计查询条件
  * @date 2018年06月13日 20时:01分
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AbnormalDisposeCondition  extends BasePagerCondition {
     public static String IS_DISPOSE_YES="1";
     public static String IS_DISPOSE_NO="0";

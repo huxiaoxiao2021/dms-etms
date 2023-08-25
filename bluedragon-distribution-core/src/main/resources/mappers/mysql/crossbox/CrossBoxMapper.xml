@@ -42,23 +42,20 @@
             <if test="yn != null and  yn != -1">
                 and yn =#{yn,jdbcType=TINYINT}
             </if>
-            <if test="originalDmsName != null and originalDmsName != ''">
-                and original_dms_name =
-                #{originalDmsName,jdbcType=VARCHAR}
+            <if test="originalDmsId != null">
+                and original_dms_id = #{originalDmsId,jdbcType=INTEGER}
             </if>
-            <if test="destinationDmsName != null and destinationDmsName != ''">
-                and destination_dms_name =
-                #{destinationDmsName,jdbcType=VARCHAR}
+            <if test="destinationDmsId != null">
+                and destination_dms_id = #{destinationDmsId,jdbcType=INTEGER}
             </if>
-            <if test="transferName != null and transferName != ''">
-                and (transfer_one_name = #{transferName,jdbcType=VARCHAR}
+            <if test="transferId != null">
+                and (transfer_one_id = #{transferId,jdbcType=INTEGER}
                 or
-                transfer_two_name = #{transferName,jdbcType=VARCHAR} or
-                transfer_three_name = #{transferName,jdbcType=VARCHAR})
+                transfer_two_id = #{transferId,jdbcType=INTEGER} or
+                transfer_three_id = #{transferId,jdbcType=INTEGER})
             </if>
             <if test="updateOperatorName != null and updateOperatorName != ''">
-                and update_operator_name like
-                #{updateOperatorName,jdbcType=VARCHAR}
+                and update_operator_name like #{updateOperatorName,jdbcType=VARCHAR}
             </if>
             <if test="startDate != null and startDate != ''">
                 and <![CDATA[update_time >= str_to_date(#{startDate,jdbcType=VARCHAR},'%Y-%m-%d %H:%i:%s')]]>
