@@ -3825,6 +3825,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             final SendVehicleToScanTipsDto sendVehicleToScanTipsDto = new SendVehicleToScanTipsDto();
             final List<SendVehicleProductTypeAgg> dataList = new ArrayList<>();
             sendVehicleToScanTipsDto.setSpecialProductTypeToScanList(dataList);
+            sendVehicleToScanTipsDto.setNeedShowSpecialProductTypeToScanTips(false);
             result.setData(sendVehicleToScanTipsDto);
 
             final JyBizTaskSendVehicleEntity taskSendVehicle = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
@@ -3834,49 +3835,55 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
             final Date lastPlanDepartTime = taskSendVehicle.getLastPlanDepartTime();
             if (lastPlanDepartTime == null) {
-                sendVehicleToScanTipsDto.setNeedShowSpecialProductTypeToScanTips(false);
+                return result;
             } else {
                 // 30分钟展示提示
-                if(lastPlanDepartTime.getTime() < (System.currentTimeMillis() + uccConfig.getJySendSpecialProductTypeToScanShowRemainMinutes() * 60 * 1000)){
+                final long remainSeconds = (lastPlanDepartTime.getTime() - System.currentTimeMillis()) / 60 / 1000;
+                if(remainSeconds < uccConfig.getJySendSpecialProductTypeToScanShowRemainMinutes() || remainSeconds < 0){
                     sendVehicleToScanTipsDto.setNeedShowSpecialProductTypeToScanTips(true);
+                    sendVehicleToScanTipsDto.setNeedShowRemainTimeMinutes((int) remainSeconds);
                 }
             }
 
             JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
             query.setSendVehicleBizId(request.getSendVehicleBizId());
             List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
+            if(CollectionUtils.isEmpty(receiveIds)){
+                return result;
+            }
 
-            if(CollectionUtils.isNotEmpty(receiveIds)){
-                JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
-                aggsEntityQuery.setOperateSiteId((long) request.getCurrentOperate().getSiteCode());
-                aggsEntityQuery.setEndSiteIds(receiveIds);
-                log.info("获取特殊保障产品类型待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
-                final List<JySendVehicleProductType> sendVehicleProductTypeList = jySendProductAggsService.getSendVehicleProductTypeList(aggsEntityQuery);
-                log.info("获取特殊保障产品类型待扫数据--{}", JsonHelper.toJson(sendVehicleProductTypeList));
-                List<String> needShowProductTypeList = new ArrayList<>(Arrays.asList(JySendVehicleProductTypeEnum.TEAN.getCode(), JySendVehicleProductTypeEnum.HANGKONGJIAN.getCode(), JySendVehicleProductTypeEnum.SHENGXIANTEBAO.getCode()));
-                if(CollectionUtils.isNotEmpty(sendVehicleProductTypeList)){
-                    List<SendVehicleProductTypeAgg> dataNoOrderList = new ArrayList<>();
-                    for (JySendVehicleProductType jySendVehicleProductType : sendVehicleProductTypeList) {
-                        if(!needShowProductTypeList.contains(jySendVehicleProductType.getProductType())){
-                            continue;
-                        }
-                        SendVehicleProductTypeAgg sendVehicleProductTypeAgg = new SendVehicleProductTypeAgg();
-                        sendVehicleProductTypeAgg.setCount(jySendVehicleProductType.getProductwaitScanCount());
-                        sendVehicleProductTypeAgg.setProductType(jySendVehicleProductType.getProductType());
-                        sendVehicleProductTypeAgg.setProductTypeName(JySendVehicleProductTypeEnum.getNameByCode(jySendVehicleProductType.getProductType()));
-                        final JySendVehicleProductTypeEnum typeEnum = JySendVehicleProductTypeEnum.getEnumByCode(jySendVehicleProductType.getProductType());
-                        sendVehicleProductTypeAgg.setOrder(typeEnum != null ? typeEnum.getDisplayOrder() : 0);
-                        dataNoOrderList.add(sendVehicleProductTypeAgg);
+            JySendProductAggsEntityQuery aggsEntityQuery = new JySendProductAggsEntityQuery();
+            aggsEntityQuery.setOperateSiteId((long) request.getCurrentOperate().getSiteCode());
+            aggsEntityQuery.setEndSiteIds(receiveIds);
+            log.info("获取特殊保障产品类型待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
+            final List<JySendVehicleProductType> sendVehicleProductTypeList = jySendProductAggsService.getSendVehicleProductTypeList(aggsEntityQuery);
+            log.info("获取特殊保障产品类型待扫数据--{}", JsonHelper.toJson(sendVehicleProductTypeList));
+            List<String> needShowProductTypeList = new ArrayList<>(Arrays.asList(JySendVehicleProductTypeEnum.TEAN.getCode(), JySendVehicleProductTypeEnum.HANGKONGJIAN.getCode(), JySendVehicleProductTypeEnum.SHENGXIANTEBAO.getCode()));
+            if(CollectionUtils.isNotEmpty(sendVehicleProductTypeList)){
+                List<SendVehicleProductTypeAgg> dataNoOrderList = new ArrayList<>();
+                for (JySendVehicleProductType jySendVehicleProductType : sendVehicleProductTypeList) {
+                    if(!needShowProductTypeList.contains(jySendVehicleProductType.getProductType())){
+                        continue;
                     }
-
-                    final List<SendVehicleProductTypeAgg> dataOrderList = dataNoOrderList.stream().sorted(new Comparator<SendVehicleProductTypeAgg>() {
-                        @Override
-                        public int compare(SendVehicleProductTypeAgg o1, SendVehicleProductTypeAgg o2) {
-                            return o1.getOrder().compareTo(o2.getOrder());
-                        }
-                    }).collect(Collectors.toList());
-                    dataList.addAll(dataOrderList);
+                    SendVehicleProductTypeAgg sendVehicleProductTypeAgg = new SendVehicleProductTypeAgg();
+                    sendVehicleProductTypeAgg.setCount(jySendVehicleProductType.getProductwaitScanCount());
+                    sendVehicleProductTypeAgg.setProductType(jySendVehicleProductType.getProductType());
+                    sendVehicleProductTypeAgg.setProductTypeName(JySendVehicleProductTypeEnum.getNameByCode(jySendVehicleProductType.getProductType()));
+                    final JySendVehicleProductTypeEnum typeEnum = JySendVehicleProductTypeEnum.getEnumByCode(jySendVehicleProductType.getProductType());
+                    sendVehicleProductTypeAgg.setOrder(typeEnum != null ? typeEnum.getDisplayOrder() : 0);
+                    dataNoOrderList.add(sendVehicleProductTypeAgg);
                 }
+
+                final List<SendVehicleProductTypeAgg> dataOrderList = dataNoOrderList.stream().sorted(new Comparator<SendVehicleProductTypeAgg>() {
+                    @Override
+                    public int compare(SendVehicleProductTypeAgg o1, SendVehicleProductTypeAgg o2) {
+                        return o1.getOrder().compareTo(o2.getOrder());
+                    }
+                }).collect(Collectors.toList());
+                dataList.addAll(dataOrderList);
+            }
+            if(dataList.isEmpty()){
+                sendVehicleToScanTipsDto.setNeedShowSpecialProductTypeToScanTips(false);
             }
         } catch (Exception e) {
             log.error("JyBizTaskCloseUnloadTaskServiceImpl. getProductToScanInfoList {}", JsonHelper.toJson(request), e);
