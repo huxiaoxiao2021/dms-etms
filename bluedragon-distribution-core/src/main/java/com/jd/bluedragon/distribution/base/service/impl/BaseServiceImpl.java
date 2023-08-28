@@ -1273,8 +1273,8 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	public Result<Pager<StreamlinedBasicSite>> getFlowDirection(Pager<GetFlowDirectionQuery> request) {
 		Result<Pager<StreamlinedBasicSite>> result = new Result<>();
 		result.toSuccess();
-		checkGetFlowDirectionQuery(request);
 		GetFlowDirectionQuery getFlowDirectionQuery = JSON.parseObject(JSON.toJSONString(request.getSearchVo()), GetFlowDirectionQuery.class);
+		checkGetFlowDirectionQuery(getFlowDirectionQuery);
 		String searchStr = getFlowDirectionQuery.getSearchStr();
 		try {
 			//根据岗位编码获取当前的场地编码
@@ -1292,17 +1292,15 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	/**
 	 * 校验入参
 	 *
-	 * @param request
+	 * @param getFlowDirectionQuery
 	 */
-	private void checkGetFlowDirectionQuery(Pager<GetFlowDirectionQuery> request) {
-		for (GetFlowDirectionQuery datum : request.getData()) {
-			if (CollectionUtils.isEmpty(datum.getSupportQueryType())) {
-				throw new JyBizException("参数错误：查询类型为空！");
-			}if (StringUtils.isEmpty(datum.getPositionCode())) {
-				throw new JyBizException("参数错误：岗位编码为空！");
-			}
+	private void checkGetFlowDirectionQuery(GetFlowDirectionQuery getFlowDirectionQuery) {
+		if (CollectionUtils.isEmpty(getFlowDirectionQuery.getSupportQueryType())) {
+			throw new JyBizException("参数错误：查询类型为空！");
 		}
-
+		if (StringUtils.isEmpty(getFlowDirectionQuery.getPositionCode())) {
+			throw new JyBizException("参数错误：岗位编码为空！");
+		}
 	}
 
 	/**
