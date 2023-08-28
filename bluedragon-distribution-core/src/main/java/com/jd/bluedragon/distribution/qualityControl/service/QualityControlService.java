@@ -951,7 +951,7 @@ public class QualityControlService {
                 return;
             }
             log.info("handleSecurityCheckWaybillTrace match {}", JsonHelper.toJson(qualityControlRequest));
-            qualityControlRequest.setAbnormalReasonThirdId(qualityControlRequest.getAbnormalReasonThirdId());
+            qualityControlRequest.setAbnormalReasonThirdId(qualityControlRequest.getQcCode() == null  ? 0 : qualityControlRequest.getQcCode().longValue());
             boolean waybillIsProhibitedAbnormal = checkWaybillIsProhibitedAbnormal(qualityControlRequest);
             if(!waybillIsProhibitedAbnormal){
                 return;
