@@ -183,8 +183,8 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
     public List<DiscardedPackageStorageTemp> brushQueryAllByPage(Integer startId) {
         return this.getSqlSession().selectList(DiscardedPackageStorageTempDao.NAMESPACE + ".brushQueryAllByPage", startId);
     }
-    public int brushUpdateById(List<DiscardedPackageStorageTemp> list) {
-        return this.getSqlSession().update(DiscardedPackageStorageTempDao.NAMESPACE + ".brushUpdateById", list);
+    public int brushUpdateById(DiscardedPackageStorageTemp detail) {
+        return this.getSqlSession().update(DiscardedPackageStorageTempDao.NAMESPACE + ".brushUpdateById", detail);
     }
 
 }

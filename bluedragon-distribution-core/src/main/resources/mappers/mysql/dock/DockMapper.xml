@@ -241,4 +241,39 @@
         order by dock_code
     </select>
 
+
+    <!-- 刷数sql start -->
+    <select id="brushQueryAllByPage" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+            id,site_code
+        from
+            dock_base_info
+        where is_delete = 0
+          and province_agency_code = ''
+          and id > #{id,jdbcType=BIGINT}
+        order by id
+            limit 100
+    </select>
+    <update id="brushUpdateById" parameterType="com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo">
+        UPDATE dock_base_info
+        <set>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                area_hub_name = #{areaHubName,jdbcType=VARCHAR},
+            </if>
+            update_time = now()
+        </set>
+        WHERE is_delete = 0
+        AND id = #{id}
+    </update>
+    <!-- 刷数sql end -->
+
 </mapper>

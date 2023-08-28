@@ -92,8 +92,8 @@ public class MerchantWeightAndVolumeWhiteListDao extends BaseDao<MerchantWeightA
     public List<MerchantWeightAndVolumeDetail> brushQueryAllByPage(Integer startId) {
         return this.getSqlSession().selectList(namespace + ".brushQueryAllByPage", startId);
     }
-    public int brushUpdateById(List<MerchantWeightAndVolumeDetail> list) {
-        return this.getSqlSession().update(namespace + ".brushUpdateById", list);
+    public int brushUpdateById(MerchantWeightAndVolumeDetail detail) {
+        return this.getSqlSession().update(namespace + ".brushUpdateById", detail);
     }
 
 }

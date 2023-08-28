@@ -303,27 +303,25 @@
 		order by id
 			limit 100
 	</select>
-	<update id="brushUpdateById" parameterType="java.util.List">
-		<foreach collection="list" item="item" index="index"  separator=";">
-			UPDATE merchant_weight_white_list
-			<set>
-				<if test="item.operateProvinceAgencyCode != null and item.operateProvinceAgencyCode != ''" >
-					operate_province_agency_code = #{item.operateProvinceAgencyCode,jdbcType=VARCHAR},
-				</if>
-				<if test="item.operateProvinceAgencyName != null and item.operateProvinceAgencyName != ''" >
-					operate_province_agency_name = #{item.operateProvinceAgencyName,jdbcType=VARCHAR},
-				</if>
-				<if test="item.operateAreaHubCode != null and item.operateAreaHubCode != ''" >
-					operate_area_hub_code = #{item.operateAreaHubCode,jdbcType=VARCHAR},
-				</if>
-				<if test="item.operateAreaHubName != null and item.operateAreaHubName != ''" >
-					operate_area_hub_name = #{item.operateAreaHubName,jdbcType=VARCHAR},
-				</if>
-				update_time = now()
-			</set>
-			WHERE is_delete = 0
-			AND id = #{item.id}
-		</foreach>
+	<update id="brushUpdateById" parameterType="com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetail">
+		UPDATE merchant_weight_white_list
+		<set>
+			<if test="operateProvinceAgencyCode != null and operateProvinceAgencyCode != ''" >
+				operate_province_agency_code = #{operateProvinceAgencyCode,jdbcType=VARCHAR},
+			</if>
+			<if test="operateProvinceAgencyName != null and operateProvinceAgencyName != ''" >
+				operate_province_agency_name = #{operateProvinceAgencyName,jdbcType=VARCHAR},
+			</if>
+			<if test="operateAreaHubCode != null and operateAreaHubCode != ''" >
+				operate_area_hub_code = #{operateAreaHubCode,jdbcType=VARCHAR},
+			</if>
+			<if test="operateAreaHubName != null and operateAreaHubName != ''" >
+				operate_area_hub_name = #{operateAreaHubName,jdbcType=VARCHAR},
+			</if>
+			update_time = now()
+		</set>
+		WHERE is_delete = 0
+		AND id = #{id}
 	</update>
 	<!-- 刷数sql end -->
 </mapper>

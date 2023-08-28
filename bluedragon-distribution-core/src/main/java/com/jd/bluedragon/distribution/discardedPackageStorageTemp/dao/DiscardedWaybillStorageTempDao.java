@@ -168,7 +168,7 @@ public class DiscardedWaybillStorageTempDao extends BaseDao<DiscardedWaybillStor
     public List<DiscardedWaybillStorageTemp> brushQueryAllByPage(Integer startId) {
         return this.getSqlSession().selectList(DiscardedWaybillStorageTempDao.NAMESPACE + ".brushQueryAllByPage", startId);
     }
-    public int brushUpdateById(List<DiscardedWaybillStorageTemp> list) {
-        return this.getSqlSession().update(DiscardedWaybillStorageTempDao.NAMESPACE + ".brushUpdateById", list);
+    public int brushUpdateById(DiscardedWaybillStorageTemp detail) {
+        return this.getSqlSession().update(DiscardedWaybillStorageTempDao.NAMESPACE + ".brushUpdateById", detail);
     }
 }
