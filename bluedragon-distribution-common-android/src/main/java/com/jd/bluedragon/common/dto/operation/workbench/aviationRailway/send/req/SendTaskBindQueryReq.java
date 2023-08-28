@@ -19,6 +19,19 @@ public class SendTaskBindQueryReq extends BaseReq implements Serializable {
 
     private String vehicleNumber;
 
+    /**
+     * 绑定任务业务场景分类
+     * com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum
+     */
+    private Integer type;
+
+    /**
+     * 摆渡发车任务查询来源
+     * ShuttleQuerySourceEnum
+     */
+    private Integer shuttleQuerySource;
+
+
     public String getBizId() {
         return bizId;
     }
@@ -43,4 +56,19 @@ public class SendTaskBindQueryReq extends BaseReq implements Serializable {
         this.detailBizId = detailBizId;
     }
 
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public Integer getShuttleQuerySource() {
+        return shuttleQuerySource;
+    }
+
+    public void setShuttleQuerySource(Integer shuttleQuerySource) {
+        this.shuttleQuerySource = shuttleQuerySource;
+    }
 }

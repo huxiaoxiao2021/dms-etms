@@ -357,7 +357,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             if(StringUtils.isBlank(request.getBizId())) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务bizId为空", null);
             }
-            if(StringUtils.isBlank(request.getBizId())) {
+            if(StringUtils.isBlank(request.getDetailBizId())) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务detailBizId为空", null);
             }
             if(StringUtils.isBlank(request.getUnbindBizId()) || StringUtils.isBlank(request.getUnbindDetailBizId())) {
@@ -395,6 +395,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             if(StringUtils.isBlank(request.getDetailBizId())) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务detailBizId为空", null);
             }
+            request.setType(TaskBindTypeEnum.BIND_TYPE_AVIATION.getCode());
             //服务调用
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
@@ -421,7 +422,10 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
             //业务参数校验
             if(StringUtils.isBlank(request.getBizId())) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "被解绑任务bizId为空", null);
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务bizId为空", null);
+            }
+            if(StringUtils.isBlank(request.getDetailBizId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务detailBizId为空", null);
             }
             //服务调用
             if(log.isInfoEnabled()) {

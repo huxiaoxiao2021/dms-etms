@@ -30,7 +30,7 @@ public class JyAviationRailwaySendSealCacheService {
      * K:bizId V：erp
      */
     public static final String LOCK_SEND_TASK_SEAL = "lock:send:seal:%s:%s";
-    public static final int LOCK_SEND_TASK_SEAL_TIMEOUT_SECONDS = 30;
+    public static final int LOCK_SEND_TASK_SEAL_TIMEOUT_SECONDS = 60;
 
 
     @Autowired
@@ -61,7 +61,7 @@ public class JyAviationRailwaySendSealCacheService {
         jimDbLock.releaseLock(lockKey, DEFAULT_VALUE_1);
     }
     private String getLockKeyShuttleTaskSealCarBizId(String bizId, Integer taskType) {
-        return String.format(JyAviationRailwaySendSealCacheService.LOCK_SEND_TASK_SEAL, bizId);
+        return String.format(JyAviationRailwaySendSealCacheService.LOCK_SEND_TASK_SEAL, bizId, taskType);
     }
 
 

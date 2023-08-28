@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class JyBizTaskBindDao extends BaseDao<JyBizTaskBindEntity> {
 
-    private final static String NAMESPACE = JyBizTaskSendVehicleDao.class.getName();
+    private final static String NAMESPACE = JyBizTaskBindDao.class.getName();
 
 
     public List<JyBizTaskBindEntity> queryBindTaskByBindDetailBizIds(JyBizTaskBindEntityQueryCondition queryCondition) {

@@ -483,7 +483,7 @@
 
 
 
-    <select id="findNoSealTaskByBizIds" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition">
+    <select id="findNoSealTaskByBizIds" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition" resultMap="BaseResultMap">
         select
             <include refid="Base_Column_List"/>
         from

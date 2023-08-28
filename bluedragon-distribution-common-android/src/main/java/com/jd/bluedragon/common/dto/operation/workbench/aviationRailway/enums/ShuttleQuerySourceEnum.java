@@ -5,8 +5,8 @@ import java.util.Map;
 
 public enum ShuttleQuerySourceEnum {
 
-    SEAL_Y(1,"封车列表页查询摆渡已封车数据"),
-    SEAL_N(2,"摆渡任务绑定确认车辆查询未封车数据"),
+    SEAL_Y(1,"摆渡已封车数据"),
+    SEAL_N(2,"摆渡未封车数据"),
     ;
     private Integer code;
     private String desc;

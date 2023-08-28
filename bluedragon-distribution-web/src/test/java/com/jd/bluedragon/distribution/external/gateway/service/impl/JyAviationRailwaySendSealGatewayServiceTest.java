@@ -13,9 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author zhengchengfa
@@ -201,25 +201,112 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
     @Test
     public void testsendTaskBinding() {
-        aviationRailwaySendSealGatewayService.sendTaskBinding(null);
+        SendTaskBindReq request = new SendTaskBindReq();
+
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+
+        request.setDetailBizId("TW23082500975485-001");
+        request.setBizId("SST23082500000051");
+
+        List<SendTaskBindDto> sendTaskBindDtoList = new ArrayList<>();
+        request.setSendTaskBindDtoList(sendTaskBindDtoList);
+
+        SendTaskBindDto bindDto = new SendTaskBindDto();
+        bindDto.setBizId("SST23082400000132");
+        bindDto.setDetailBizId("DCH15520230824152643");
+        bindDto.setFlightNumber("CA-1001");
+        sendTaskBindDtoList.add(bindDto);
+
+        SendTaskBindDto bindDto2 = new SendTaskBindDto();
+        bindDto2.setBizId("SST23082400000123");
+        bindDto2.setDetailBizId("DCH14620230824152633");
+        bindDto2.setFlightNumber("CA-1002");
+        sendTaskBindDtoList.add(bindDto2);
+
+        int i = 0;
+        while(i++<100) {
+            try{
+                Object obj = aviationRailwaySendSealGatewayService.sendTaskBinding(request);
+                System.out.println("succ");
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
     }
 
     @Test
     public void testsendTaskUnbinding() {
-        aviationRailwaySendSealGatewayService.sendTaskUnbinding(null);
+        SendTaskUnbindReq request = new SendTaskUnbindReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+
+        request.setDetailBizId("TW23082500975485-001");
+        request.setBizId("SST23082500000051");
+        request.setUnbindBizId("SST23082400000132");
+        request.setUnbindDetailBizId("DCH15520230824152643");
+        int i = 0;
+        while(i++<100) {
+            try{
+                Object obj = aviationRailwaySendSealGatewayService.sendTaskUnbinding(request);
+                System.out.println("succ");
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
     }
 
     @Test
     public void testfetchSendTaskBindingData() {
-        aviationRailwaySendSealGatewayService.fetchSendTaskBindingData(null);
+        SendTaskBindQueryReq request = new SendTaskBindQueryReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+
+        request.setDetailBizId("TW23082500975485-001");
+        request.setBizId("SST23082500000051");
+        int i = 0;
+        while(i++<100) {
+            try{
+                Object obj = aviationRailwaySendSealGatewayService.fetchSendTaskBindingData(request);
+                System.out.println("succ");
+                request.setShuttleQuerySource(ShuttleQuerySourceEnum.SEAL_Y.getCode());
+                Object obj1 = aviationRailwaySendSealGatewayService.fetchSendTaskBindingData(request);
+                System.out.println("succ");
+
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
     }
 
     @Test
     public void testfetchShuttleTaskSealCarInfo() {
-        aviationRailwaySendSealGatewayService.fetchShuttleTaskSealCarInfo(null);
+        ShuttleTaskSealCarQueryReq request = new ShuttleTaskSealCarQueryReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+
+        request.setDetailBizId("TW23082500975485-001");
+        request.setBizId("SST23082500000051");
+        int i = 0;
+        while(i++<100) {
+            try{
+                Object obj = aviationRailwaySendSealGatewayService.fetchShuttleTaskSealCarInfo(request);
+                System.out.println("succ");
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
     }
 
