@@ -113,7 +113,7 @@ public class QualityControlService {
 
     @Autowired
     private SysConfigService sysConfigService;
-    
+
     @Autowired
     private UserSignRecordService userSignRecordService;
 
@@ -137,7 +137,7 @@ public class QualityControlService {
 
     /**
      * 协商再投状态校验
-     * 
+     *
      * @param request
      * @return
      */
@@ -273,10 +273,10 @@ public class QualityControlService {
     @Autowired
     @Qualifier("abnormalReportRecordProducer")
     private DefaultJMQProducer abnormalReportRecordProducer;
-    
+
     @Autowired
     private PositionManager positionManager;
-    
+
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
         List<SendDetail> sendDetails = null;
@@ -951,6 +951,7 @@ public class QualityControlService {
                 return;
             }
             log.info("handleSecurityCheckWaybillTrace match {}", JsonHelper.toJson(qualityControlRequest));
+            qualityControlRequest.setAbnormalReasonThirdId(qualityControlRequest.getAbnormalReasonThirdId());
             boolean waybillIsProhibitedAbnormal = checkWaybillIsProhibitedAbnormal(qualityControlRequest);
             if(!waybillIsProhibitedAbnormal){
                 return;
