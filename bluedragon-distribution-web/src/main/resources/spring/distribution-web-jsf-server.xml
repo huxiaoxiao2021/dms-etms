@@ -572,7 +572,14 @@
                   ref="reverseIntensiveService"
                   server="dmsjsf">
     </jsf:provider>
-
+    <!--  提供给逆向集约接口-循环物资接口   -->
+    <jsf:provider id="materialBatchSendJsfServiceJsf"
+                  interface="com.jd.bluedragon.distribution.external.intensive.service.MaterialBatchSendJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="materialBatchSendJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+    
     <!-- 对外提供给德邦的包装确认服务jsf -->
     <jsf:provider id="jsfWaybillConsumableService"
                   interface="com.jd.bluedragon.distribution.consumable.service.WaybillConsumableService"
