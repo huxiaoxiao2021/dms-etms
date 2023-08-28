@@ -424,8 +424,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if (noneMatchContrabandType) {
             throw new RuntimeException("违禁品类型错误");
         }
-        if (StringUtils.isEmpty(req.getBarCode())) {
-            throw new RuntimeException("包裹号不能为空");
+        if (!WaybillUtil.isPackageCode(req.getBarCode())) {
+            throw new RuntimeException("包裹号错误");
         }
         if (StringUtils.isEmpty(req.getUserErp())) {
             throw new RuntimeException("用户ERP不能为空");
