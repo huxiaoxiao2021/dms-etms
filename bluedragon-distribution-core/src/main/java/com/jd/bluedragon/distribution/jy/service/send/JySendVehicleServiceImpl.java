@@ -4545,6 +4545,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         operateProgressRequest.setOperationCode(task.getTransWorkCode());
         operateProgressRequest.setOperationTime(new Date());
         operateProgressRequest.setOperationType(Constants.CONSTANT_NUMBER_ONE);
+        if (!ObjectHelper.isNotNull(operateProgressRequest.getOperationCode())){
+            return true;
+        }
         try {
             jyOperationProgressProducer.send(operateProgressRequest.getOperationCode(),JsonHelper.toJson(operateProgressRequest));
             if (log.isInfoEnabled()){

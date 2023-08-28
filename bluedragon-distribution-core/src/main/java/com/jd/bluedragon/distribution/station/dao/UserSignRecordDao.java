@@ -182,6 +182,8 @@ public interface UserSignRecordDao {
 	 */
 	UserSignRecord queryByIdForFlow(Long recordId);
 
+    List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query);
+
 	/**
 	 * 按条件查询签到用户信息
 	 * @param query
@@ -189,5 +191,10 @@ public interface UserSignRecordDao {
 	 */
 	List<BaseUserSignRecordVo> querySignInUserByCondition(UserSignRecordQuery query);
 
-  List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query);
+
+	/**
+	 * 用business_key查询
+	 * @return
+	 */
+	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
 }

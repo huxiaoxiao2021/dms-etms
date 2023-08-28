@@ -26,7 +26,7 @@ public class FindGoodsConstants {
     /**
      * 计划找货任务持续时长 60min
      */
-    public static final Integer PLAN_INVENTORY_TASK_DURATION_MINUTES = 60;
+    public static final Integer PLAN_INVENTORY_TASK_DURATION_MINUTES = 30;
 
 
 
