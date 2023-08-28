@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.transport.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 import java.util.Date;
@@ -9,6 +10,7 @@ import java.util.Date;
  * @Description: 类描述信息
  * @date 2018年09月25日 14时:16分
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TmsProxyCondition  extends BasePagerCondition {
 
     private static final long serialVersionUID = 1L;

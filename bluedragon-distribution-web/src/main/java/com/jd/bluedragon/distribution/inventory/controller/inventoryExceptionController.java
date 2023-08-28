@@ -56,14 +56,9 @@ public class inventoryExceptionController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_INVENTORYEXCEPTION_R)
     @RequestMapping("/toIndex")
     public String toIndex(Model model){
-        Integer createSiteCode = -1;
-        Integer orgId = -1;
-        LoginUser loginUser = getLoginUser();
-        if(loginUser != null && loginUser.getSiteType() == 64){
-            createSiteCode = loginUser.getSiteCode();
-            orgId = loginUser.getOrgId();
-        }
-        model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode).addAttribute("url",this.waybillTraceUrl);
+        // 设置基础信息
+        setBaseModelInfo(model);
+        model.addAttribute("url",this.waybillTraceUrl);
         return "/inventory/inventoryException";
     }
 

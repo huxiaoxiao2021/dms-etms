@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.inventory.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InventoryTaskCondition extends BasePagerCondition {
 
     private Integer orgId;
@@ -19,6 +21,15 @@ public class InventoryTaskCondition extends BasePagerCondition {
     private String completeStartTime;
 
     private String completeEndTime;
+
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
 
     public Integer getOrgId() {
         return orgId;
@@ -82,5 +93,21 @@ public class InventoryTaskCondition extends BasePagerCondition {
 
     public void setCompleteEndTime(String completeEndTime) {
         this.completeEndTime = completeEndTime;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
     }
 }

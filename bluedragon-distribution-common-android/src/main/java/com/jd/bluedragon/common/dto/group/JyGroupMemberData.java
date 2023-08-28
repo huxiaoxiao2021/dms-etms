@@ -117,6 +117,16 @@ public class JyGroupMemberData implements Serializable {
 	 * 工作时长（单位：hh时mm分）
 	 */
 	private String workTimeStr;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
+	
 	public Long getId() {
 		return id;
 	}
@@ -272,5 +282,27 @@ public class JyGroupMemberData implements Serializable {
 	}
 	public void setWorkTimeStr(String workTimeStr) {
 		this.workTimeStr = workTimeStr;
+	}
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		if(provinceAgencyCode == null){
+			provinceAgencyCode = "";
+		}
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		if(areaHubCode == null){
+			areaHubCode = "";
+		}
+		this.areaHubCode = areaHubCode;
 	}
 }

@@ -1,7 +1,78 @@
 function main() {
+	//加载站点组件
+	$('#switchSiteDom_start').sitePluginSelect({
+		'createSiteCode': $("#originalSiteCode").val() ? $("#originalSiteCode").val() : null,
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'originalSiteCode',
+		'createSiteNameName': 'originalSiteName',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_transfer1').sitePluginSelect({
+		'createSiteCode': $("#transferOneSiteCode").val() ? $("#transferOneSiteCode").val() : null,
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'transferOneSiteCode',
+		'createSiteNameName': 'transferOneSiteName',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_transfer2').sitePluginSelect({
+		'createSiteCode': $("#transferTwoSiteCode").val() ? $("#transferTwoSiteCode").val() : null,
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'transferTwoSiteCode',
+		'createSiteNameName': 'transferTwoSiteName',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_transfer3').sitePluginSelect({
+		'createSiteCode': $("#transferThreeSiteCode").val() ? $("#transferThreeSiteCode").val() : null,
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'transferThreeSiteCode',
+		'createSiteNameName': 'transferThreeSiteName',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_transfer4').sitePluginSelect({
+		'createSiteCode': $("#transferFourSiteCode").val() ? $("#transferFourSiteCode").val() : null,
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'transferFourSiteCode',
+		'createSiteNameName': 'transferFourSiteName',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_transfer5').sitePluginSelect({
+		'createSiteCode': $("#transferFiveSiteCode").val() ? $("#transferFiveSiteCode").val() : null,
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'transferFiveSiteCode',
+		'createSiteNameName': 'transferFiveSiteName',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	$('#switchSiteDom_dest').sitePluginSelect({
+		'createSiteCode': $("#destinationSiteCode").val() ? $("#destinationSiteCode").val() : null,
+		'onlySiteSelect': true,
+		'createSiteCodeName': 'destinationSiteCode',
+		'createSiteNameName': 'destinationSiteName',
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : null,
+		'subTypes' : [6420,6450],
+		'changeBtnShow': false
+	});
+	
 	//初始化网点信息
 	var originalSiteType = $("#originalSiteType").val();
-	var destinationSiteType = $("#destinationSiteType").val();
 
 	getSiteData(originalSiteType,$("#originalSiteName"),$("#originalSiteCode"));
 	getSiteData(originalSiteType,$("#transferOneSiteName"),$("#transferOneSiteCode"));
@@ -9,15 +80,7 @@ function main() {
 	getSiteData(originalSiteType,$("#transferThreeSiteName"),$("#transferThreeSiteCode"));
 	getSiteData(originalSiteType,$("#transferFourSiteName"),$("#transferFourSiteCode"));
 	getSiteData(originalSiteType,$("#transferFiveSiteName"),$("#transferFiveSiteCode"));
-	getSiteData(destinationSiteType,$("#destinationSiteName"),$("#destinationSiteCode"));
 
-	$("#destinationSiteType").change(function() {
-		$("#destinationSiteName").val("");
-		$("#destinationSiteCode").val("");
-		$("#destinationSiteName").unautocomplete();
-		var siteType = $("#destinationSiteType").val();
-		getSiteData(siteType,$("#destinationSiteName"),$("#destinationSiteCode"));
-	});
 }
 
 /**
@@ -114,15 +177,13 @@ function sbmt() {
 	
 	var contextPath = $("#contextPath").val();		
 			
-	if ($("#dataForm").validate()) {
-		var originalSiteName = $("#originalSiteName").val();
-		var transOneSiteName = $("#transferOneSiteName").val();
-		var transTwoSiteName = $("#transferTwoSiteName").val();
-		var transThreeSiteName = $("#transferThreeSiteName").val();
-		var transFourSiteName = $("#transferFourSiteName").val();
-		var transFiveSiteName = $("#transferFiveSiteName").val();
-		var destinationSiteName = $("#destinationSiteName").val();
-		var destinationSiteType = $("#destinationSiteType").val();
+		var originalSiteName = $('#switchSiteDom_start').sitePluginSelect('getSelected').siteName;
+		var transOneSiteName = $('#switchSiteDom_transfer1').sitePluginSelect('getSelected').siteName;
+		var transTwoSiteName = $('#switchSiteDom_transfer2').sitePluginSelect('getSelected').siteName;
+		var transThreeSiteName = $('#switchSiteDom_transfer3').sitePluginSelect('getSelected').siteName;
+		var transFourSiteName = $('#switchSiteDom_transfer4').sitePluginSelect('getSelected').siteName;
+		var transFiveSiteName = $('#switchSiteDom_transfer5').sitePluginSelect('getSelected').siteName;
+		var destinationSiteName = $('#switchSiteDom_dest').sitePluginSelect('getSelected').siteName;
 
 
 		if (originalSiteName == "" || destinationSiteName == ""){
@@ -171,7 +232,6 @@ function sbmt() {
 				}
 			}
 		}
-	}
 }
 
 function doAdd() {

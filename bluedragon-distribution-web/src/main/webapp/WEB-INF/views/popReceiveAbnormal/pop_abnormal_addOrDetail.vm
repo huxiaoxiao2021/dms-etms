@@ -216,7 +216,7 @@ $(document).ready(function() {
 
 	$("#submitPop").click(function() {
 		// 验证参数
-		if (!checkNull($("#createSiteCode").val()) || !checkNull($("#orgCode").val())) {
+		if (!checkNull($("#createSiteCode").val())) {
 			alert("操作人所属站点不能为空，请确认操作人是否属于分拣中心（具体查询青龙基础资料系统）！");
 			return false;
 		}

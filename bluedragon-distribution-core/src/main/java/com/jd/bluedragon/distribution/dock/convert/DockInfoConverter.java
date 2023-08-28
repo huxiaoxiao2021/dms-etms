@@ -43,6 +43,10 @@ public class DockInfoConverter {
         entity.setSiteName(dockBaseInfoPo.getSiteName());
         entity.setOrgId(dockBaseInfoPo.getOrgId());
         entity.setOrgName(dockBaseInfoPo.getOrgName());
+        entity.setProvinceAgencyCode(dockBaseInfoPo.getProvinceAgencyCode());
+        entity.setProvinceAgencyName(dockBaseInfoPo.getProvinceAgencyName());
+        entity.setAreaHubCode(dockBaseInfoPo.getAreaHubCode());
+        entity.setAreaHubName(dockBaseInfoPo.getAreaHubName());
         entity.setDockType(DockTypeEnums.getEnumsByType(dockBaseInfoPo.getDockType()));
         entity.setDockAttribute(DockAttributeEnums.getEnumsByType(dockBaseInfoPo.getDockAttribute()));
         entity.setAllowedVehicleTypes(getListEntity(dockBaseInfoPo.getAllowedVehicleType()));
@@ -73,6 +77,10 @@ public class DockInfoConverter {
         po.setSiteName(dockInfoEntity.getSiteName());
         po.setOrgId(dockInfoEntity.getOrgId());
         po.setOrgName(dockInfoEntity.getOrgName());
+        po.setProvinceAgencyCode(dockInfoEntity.getProvinceAgencyCode());
+        po.setProvinceAgencyName(dockInfoEntity.getProvinceAgencyName());
+        po.setAreaHubCode(dockInfoEntity.getAreaHubCode());
+        po.setAreaHubName(dockInfoEntity.getAreaHubName());
         if (!Objects.equals(dockInfoEntity.getDockType(), null)) {
             po.setDockType(dockInfoEntity.getDockType().getType());
         }

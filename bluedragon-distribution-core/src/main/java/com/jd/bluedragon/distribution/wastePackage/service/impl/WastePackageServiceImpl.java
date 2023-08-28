@@ -356,6 +356,10 @@ public class WastePackageServiceImpl implements WastePackageService {
         db.setSiteCity(siteDto.getCityName());
         db.setOrgCode(siteDto.getOrgId());
         db.setOrgName(siteDto.getOrgName());
+        db.setProvinceAgencyCode(siteDto.getProvinceAgencyCode());
+        db.setProvinceAgencyName(siteDto.getProvinceAgencyName());
+        db.setAreaHubCode(siteDto.getAreaCode());
+        db.setAreaHubName(siteDto.getAreaName());
         Integer prevSiteCode=getPreSiteCode(packageCode,request.getSiteCode());
             db.setPrevSiteCode(prevSiteCode);
             if(prevSiteCode!=null){
