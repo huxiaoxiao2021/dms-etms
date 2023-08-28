@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.station.service;
 
+import java.util.Date;
 import java.util.List;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -224,4 +226,11 @@ public interface UserSignRecordService {
 	UserSignRecord queryByIdForFlow(Long recordId);
 
   List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query);
+
+	/**
+	 * 查询
+	 * @param query
+	 * @return
+	 */
+	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
 }

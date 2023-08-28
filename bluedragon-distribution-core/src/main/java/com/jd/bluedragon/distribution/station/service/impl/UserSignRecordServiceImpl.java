@@ -1768,6 +1768,16 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return userSignRecordDao.listSignRecordByTime(query);
 	}
 
+	/**
+	 * 用business_key查询
+	 * @param query
+	 * @return
+	 */
+	@Override
+	public List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query) {
+		return userSignRecordDao.queryByBusinessKeyAndJobCode(query);
+	}
+
 	private void checkUserSignRecordQuery(UserSignRecordQuery query) {
 		if (ObjectHelper.isEmpty(query.getSignDateStart())){
 			throw new JyBizException("参数错误：签到开始时间为空！");

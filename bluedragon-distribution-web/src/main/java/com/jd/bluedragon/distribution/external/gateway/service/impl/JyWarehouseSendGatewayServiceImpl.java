@@ -983,6 +983,12 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.sealVehicle",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> sealVehicle(SealVehicleReq sealVehicleReq) {
+        if (sealVehicleReq == null) {
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "请求参数为空！");
+        }
+        if (CollectionUtils.isEmpty(sealVehicleReq.getSealCodes()) && CollectionUtils.isNotEmpty(sealVehicleReq.getScannedSealCodes())) {
+            sealVehicleReq.setSealCodes(sealVehicleReq.getScannedSealCodes());
+        }
         return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
     }
 
