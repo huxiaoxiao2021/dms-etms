@@ -48,6 +48,7 @@ public class MaterialServiceFactory {
         else if (MaterialSendModeEnum.COLLECTION_BAG_SEND.getCode() == sendBusinessType) {
             return collectionBagOperationService;
         }
+
         return null;
     }
 }
