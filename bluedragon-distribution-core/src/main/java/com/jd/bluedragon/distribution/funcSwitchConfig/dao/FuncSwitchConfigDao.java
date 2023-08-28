@@ -88,7 +88,7 @@ public class FuncSwitchConfigDao extends BaseDao<FuncSwitchConfigDto> {
     }
 
     public List<FuncSwitchConfigDto> brushQueryAllByPage(Integer startId) {
-        return this.getSqlSession().selectOne(namespace + ".brushQueryAllByPage", startId);
+        return this.getSqlSession().selectList(namespace + ".brushQueryAllByPage", startId);
     }
     public int brushUpdateById(List<FuncSwitchConfigDto> list) {
         return this.getSqlSession().update(namespace + ".brushUpdateById", list);

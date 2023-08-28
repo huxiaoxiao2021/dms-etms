@@ -72,7 +72,7 @@ public class CollectionBagExceptionReportDao extends BaseDao<CollectionBagExcept
 
 
     public List<CollectionBagExceptionReport> brushQueryAllByPage(Integer startId) {
-        return this.getSqlSession().selectOne(CollectionBagExceptionReportDao.namespace + ".brushQueryAllByPage", startId);
+        return this.getSqlSession().selectList(CollectionBagExceptionReportDao.namespace + ".brushQueryAllByPage", startId);
     }
     public int brushUpdateById(List<CollectionBagExceptionReport> list) {
         return this.getSqlSession().update(CollectionBagExceptionReportDao.namespace + ".brushUpdateById", list);
