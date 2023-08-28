@@ -138,20 +138,12 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
             // 始发区域
             if (request.getSorgid() != null)
                 transportResourceDto.setStartOrgCode(String.valueOf(request.getSorgid()));
-            // 始发省区
-            if (StringUtils.isNotEmpty(request.getStartProvinceAgencyCode()))
-                // todo org_switch_province 运输需增加字段
-                
             // 始发站
             if (request.getScode() != null)
                 transportResourceDto.setStartNodeId(request.getScode());
             // 目的区域
             if (request.getRorgid() != null)
                 transportResourceDto.setEndOrgCode(String.valueOf(request.getRorgid()));
-            // 目的省区
-            if (StringUtils.isNotEmpty(request.getDestProvinceAgencyCode()))
-                // todo org_switch_province 运输需增加字段
-                
             // 目的站
             if (request.getRcode() != null)
                 transportResourceDto.setEndNodeId(request.getRcode());
