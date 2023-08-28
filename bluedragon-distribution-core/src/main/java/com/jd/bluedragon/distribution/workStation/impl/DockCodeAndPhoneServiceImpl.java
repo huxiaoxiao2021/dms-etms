@@ -88,7 +88,9 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
                     userSignRecordQuery.setLimit(dockCodeAndPhoneSize);
                     List<UserSignRecord> userSignRecords = userSignRecordService.queryByBusinessKeyAndJobCode(userSignRecordQuery);
                     userSignRecords.forEach(userSignRecord->{
-                        erps.add(userSignRecord.getUserCode());
+                        if (!StringUtils.isEmpty(userSignRecord.getUserCode())) {
+                            erps.add(userSignRecord.getUserCode());
+                        }
                     });
                 }
                 //6、根据erp查询电话号码
@@ -123,7 +125,7 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
                 }
             }
         }
-        if (CollectionUtils.isNotEmpty(phoneList)) {
+        if (CollectionUtils.isEmpty(phoneList)) {
             // 兜底逻辑：如果在岗人员为0人，则取网格对应的负责人姓名+手机号
             List<String> ownerUserErps = listResult.stream().map(WorkStationGrid::getOwnerUserErp).distinct().collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(ownerUserErps)) {
