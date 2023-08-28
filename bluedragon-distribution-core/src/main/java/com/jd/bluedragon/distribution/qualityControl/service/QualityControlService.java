@@ -48,6 +48,8 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeE
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BarCodeType;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.Waybill;
@@ -293,6 +295,8 @@ public class QualityControlService {
                     sendDetail = new SendDetail();
                     sendDetail.setWaybillCode(waybillCode);
                     sendDetails.add(sendDetail);
+
+                    this.handleSecurityCheckWaybillTrace(request);
                     break;
                 case WAYBILL_CODE_TYPE:
                     toSortingReturn(request);
@@ -300,6 +304,8 @@ public class QualityControlService {
                     sendDetail = new SendDetail();
                     sendDetail.setWaybillCode(request.getQcValue());
                     sendDetails.add(sendDetail);
+
+                    this.handleSecurityCheckWaybillTrace(request);
                     break;
                 case BOX_CODE_TYPE:
                     boxCode = request.getQcValue();
@@ -735,8 +741,6 @@ public class QualityControlService {
                 final TaskResult taskResult = this.dealQualityControlTask(task);
                 log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
 
-                this.handleSecurityCheckWaybillTrace(qualityControlRequest);
-                
                 // 找到操作人登录网格并发送MQ消息
                 QcfindGridAndSendMQ(qcReportJmqDto);
                 
@@ -845,8 +849,6 @@ public class QualityControlService {
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
                 final TaskResult taskResult = this.dealQualityControlTask(task);
                 log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
-
-                this.handleSecurityCheckWaybillTrace(qualityControlRequest);
 
                 // 找到操作人登录网格并发送MQ消息
                 QcOutCallfindGridAndSendMQ(qcReportJmqDto);
@@ -983,6 +985,10 @@ public class QualityControlService {
      */
     private void sendWaybillTrace(QualityControlRequest qualityControlRequest, Integer operateType) {
         try {
+            final BarCodeType barCodeType = BusinessUtil.getBarCodeType(qualityControlRequest.getQcValue());
+            if(!Objects.equals(barCodeType, BarCodeType.PACKAGE_CODE) && !Objects.equals(barCodeType, BarCodeType.WAYBILL_CODE)){
+                return;
+            }
             WaybillStatus waybillStatus = new WaybillStatus();
             //设置站点相关属性
             waybillStatus.setPackageCode(qualityControlRequest.getQcValue());
