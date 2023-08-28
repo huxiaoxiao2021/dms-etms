@@ -36,5 +36,9 @@ public interface OrgSwitchProvinceBrushJsfService {
      * collection_bag_exception_report 表刷数省区字段
      */
     void collectionBagExceptionBrush(Integer startId);
-    
+
+    /**
+     * dock_base_info 表刷数省区字段
+     */
+    void dockBaseInfoBrush(Integer startId);
 }

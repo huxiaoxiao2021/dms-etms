@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.dock.dao;
 
 import com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
@@ -38,5 +37,11 @@ public class DockBaseInfoDao extends BaseDao<DockBaseInfoPo> {
         return sqlSession.selectList(this.nameSpace.concat(".listAllDockInfoBySiteCode"), siteCode);
     }
 
+    public List<DockBaseInfoPo> brushQueryAllByPage(Integer startId) {
+        return sqlSession.selectList(this.nameSpace.concat(".brushQueryAllByPage"), startId);
+    }
+    public int brushUpdateById(DockBaseInfoPo detail) {
+        return sqlSession.update(this.nameSpace.concat(".brushUpdateById"), detail);
+    }
 
 }

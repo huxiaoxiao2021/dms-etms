@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedP
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedWaybillStorageTempDao;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedWaybillStorageTemp;
+import com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao;
+import com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao;
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
 import com.jd.bluedragon.distribution.external.service.OrgSwitchProvinceBrushJsfService;
@@ -16,7 +18,6 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.merchantWeightAndVolume.dao.MerchantWeightAndVolumeWhiteListDao;
 import com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jdl.basic.common.contants.Constants;
 import com.jdl.basic.common.utils.StringUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -56,13 +57,15 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
     private CollectionBagExceptionReportDao collectionBagExceptionReportDao;
 
     @Autowired
+    private DockBaseInfoDao dockBaseInfoDao;
+
+    @Autowired
     private BaseMajorManager baseMajorManager;
 
     @Override
     public void merchantWeightWhiteBrush(Integer startId) {
         // 起始id
         int offsetId = startId;
-        int updatedCount = 0; // 更新数量
         int loopCount = 0; // 循环次数
         while (loopCount < 1000) {
             List<MerchantWeightAndVolumeDetail> singleList = merchantWeightAndVolumeWhiteListDao.brushQueryAllByPage(offsetId);
@@ -78,12 +81,15 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
                 if(baseSite == null){
                     continue;
                 }
+                if(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) && StringUtils.isEmpty(baseSite.getAreaCode())){
+                    continue;
+                }
                 MerchantWeightAndVolumeDetail updateItem = new MerchantWeightAndVolumeDetail();
                 updateItem.setId(item.getId());
-                updateItem.setOperateProvinceAgencyCode(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode() );
-                updateItem.setOperateProvinceAgencyName(StringUtils.isEmpty(baseSite.getProvinceAgencyName()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
-                updateItem.setOperateAreaHubCode(StringUtils.isEmpty(baseSite.getAreaCode()) ? Constants.EMPTY_FILL : baseSite.getAreaCode());
-                updateItem.setOperateAreaHubName(StringUtils.isEmpty(baseSite.getAreaName()) ? Constants.EMPTY_FILL : baseSite.getAreaName());
+                updateItem.setOperateProvinceAgencyCode(baseSite.getProvinceAgencyCode());
+                updateItem.setOperateProvinceAgencyName(baseSite.getProvinceAgencyName());
+                updateItem.setOperateAreaHubCode(baseSite.getAreaCode());
+                updateItem.setOperateAreaHubName(baseSite.getAreaName());
                 list.add(updateItem);
             }
 
@@ -93,13 +99,11 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
             if(CollectionUtils.isEmpty(list)){
                 continue;
             }
-            int singleCount = merchantWeightAndVolumeWhiteListDao.brushUpdateById(list);
-            updatedCount += singleCount;
+            list.forEach(item -> {
+                merchantWeightAndVolumeWhiteListDao.brushUpdateById(item);
+            });
 
             loopCount ++;
-        }
-        if(logger.isInfoEnabled()){
-            logger.info("merchant_weight_white_list 表省区刷数:{}", updatedCount);
         }
     }
 
@@ -107,7 +111,6 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
     public void funcSwitchConfigBrush(Integer startId) {
         // 起始id
         int offsetId = startId;
-        int updatedCount = 0; // 更新数量
         int loopCount = 0; // 循环次数
         while (loopCount < 1000) {
             List<FuncSwitchConfigDto> singleList = funcSwitchConfigDao.brushQueryAllByPage(offsetId);
@@ -123,12 +126,15 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
                 if(baseSite == null){
                     continue;
                 }
+                if(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) && StringUtils.isEmpty(baseSite.getAreaCode())){
+                    continue;
+                }
                 FuncSwitchConfigDto updateItem = new FuncSwitchConfigDto();
                 updateItem.setId(item.getId());
-                updateItem.setProvinceAgencyCode(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode() );
-                updateItem.setProvinceAgencyName(StringUtils.isEmpty(baseSite.getProvinceAgencyName()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
-                updateItem.setAreaHubCode(StringUtils.isEmpty(baseSite.getAreaCode()) ? Constants.EMPTY_FILL : baseSite.getAreaCode());
-                updateItem.setAreaHubName(StringUtils.isEmpty(baseSite.getAreaName()) ? Constants.EMPTY_FILL : baseSite.getAreaName());
+                updateItem.setProvinceAgencyCode(baseSite.getProvinceAgencyCode());
+                updateItem.setProvinceAgencyName(baseSite.getProvinceAgencyName());
+                updateItem.setAreaHubCode(baseSite.getAreaCode());
+                updateItem.setAreaHubName(baseSite.getAreaName());
                 list.add(updateItem);
             }
 
@@ -138,13 +144,11 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
             if(CollectionUtils.isEmpty(list)){
                 continue;
             }
-            int singleCount = funcSwitchConfigDao.brushUpdateById(list);
-            updatedCount += singleCount;
+            list.forEach(item -> {
+                funcSwitchConfigDao.brushUpdateById(item);
+            });
 
             loopCount ++;
-        }
-        if(logger.isInfoEnabled()){
-            logger.info("func_switch_config 表省区刷数:{}", updatedCount);
         }
     }
 
@@ -152,7 +156,6 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
     public void expressBillExceptionReportBrush(Integer startId) {
         // 起始id
         int offsetId = startId;
-        int updatedCount = 0; // 更新数量
         int loopCount = 0; // 循环次数
         while (loopCount < 1000) {
             List<ExpressBillExceptionReport> singleList = expressBillExceptionReportDao.brushQueryAllByPage(offsetId);
@@ -168,12 +171,15 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
                 if(baseSite == null){
                     continue;
                 }
+                if(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) && StringUtils.isEmpty(baseSite.getAreaCode())){
+                    continue;
+                }
                 ExpressBillExceptionReport updateItem = new ExpressBillExceptionReport();
                 updateItem.setId(item.getId());
-                updateItem.setProvinceAgencyCode(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode() );
-                updateItem.setProvinceAgencyName(StringUtils.isEmpty(baseSite.getProvinceAgencyName()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
-                updateItem.setAreaHubCode(StringUtils.isEmpty(baseSite.getAreaCode()) ? Constants.EMPTY_FILL : baseSite.getAreaCode());
-                updateItem.setAreaHubName(StringUtils.isEmpty(baseSite.getAreaName()) ? Constants.EMPTY_FILL : baseSite.getAreaName());
+                updateItem.setProvinceAgencyCode(baseSite.getProvinceAgencyCode());
+                updateItem.setProvinceAgencyName(baseSite.getProvinceAgencyName());
+                updateItem.setAreaHubCode(baseSite.getAreaCode());
+                updateItem.setAreaHubName(baseSite.getAreaName());
                 list.add(updateItem);
             }
 
@@ -183,13 +189,11 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
             if(CollectionUtils.isEmpty(list)){
                 continue;
             }
-            int singleCount = expressBillExceptionReportDao.brushUpdateById(list);
-            updatedCount += singleCount;
+            list.forEach(item -> {
+                expressBillExceptionReportDao.brushUpdateById(item);
+            });
 
             loopCount ++;
-        }
-        if(logger.isInfoEnabled()){
-            logger.info("express_bill_exception_report 表省区刷数:{}", updatedCount);
         }
     }
 
@@ -197,7 +201,6 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
     public void discardedWaybillStorageBrush(Integer startId) {
         // 起始id
         int offsetId = startId;
-        int updatedCount = 0; // 更新数量
         int loopCount = 0; // 循环次数
         while (loopCount < 1000) {
             List<DiscardedWaybillStorageTemp> singleList = discardedWaybillStorageTempDao.brushQueryAllByPage(offsetId);
@@ -213,12 +216,15 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
                 if(baseSite == null){
                     continue;
                 }
+                if(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) && StringUtils.isEmpty(baseSite.getAreaCode())){
+                    continue;
+                }
                 DiscardedWaybillStorageTemp updateItem = new DiscardedWaybillStorageTemp();
                 updateItem.setId(item.getId());
-                updateItem.setProvinceAgencyCode(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode() );
-                updateItem.setProvinceAgencyName(StringUtils.isEmpty(baseSite.getProvinceAgencyName()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
-                updateItem.setAreaHubCode(StringUtils.isEmpty(baseSite.getAreaCode()) ? Constants.EMPTY_FILL : baseSite.getAreaCode());
-                updateItem.setAreaHubName(StringUtils.isEmpty(baseSite.getAreaName()) ? Constants.EMPTY_FILL : baseSite.getAreaName());
+                updateItem.setProvinceAgencyCode(baseSite.getProvinceAgencyCode());
+                updateItem.setProvinceAgencyName(baseSite.getProvinceAgencyName());
+                updateItem.setAreaHubCode(baseSite.getAreaCode());
+                updateItem.setAreaHubName(baseSite.getAreaName());
                 list.add(updateItem);
             }
 
@@ -228,13 +234,11 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
             if(CollectionUtils.isEmpty(list)){
                 continue;
             }
-            int singleCount = discardedWaybillStorageTempDao.brushUpdateById(list);
-            updatedCount += singleCount;
+            list.forEach(item -> {
+                discardedWaybillStorageTempDao.brushUpdateById(item);
+            });
 
             loopCount ++;
-        }
-        if(logger.isInfoEnabled()){
-            logger.info("discarded_waybill_storage_temp 表省区刷数:{}", updatedCount);
         }
     }
 
@@ -242,7 +246,6 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
     public void discardedPackageStorageBrush(Integer startId) {
         // 起始id
         int offsetId = startId;
-        int updatedCount = 0; // 更新数量
         int loopCount = 0; // 循环次数
         while (loopCount < 1000) {
             List<DiscardedPackageStorageTemp> singleList = discardedPackageStorageTempDao.brushQueryAllByPage(offsetId);
@@ -258,12 +261,15 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
                 if(baseSite == null){
                     continue;
                 }
+                if(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) && StringUtils.isEmpty(baseSite.getAreaCode())){
+                    continue;
+                }
                 DiscardedPackageStorageTemp updateItem = new DiscardedPackageStorageTemp();
                 updateItem.setId(item.getId());
-                updateItem.setProvinceAgencyCode(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode() );
-                updateItem.setProvinceAgencyName(StringUtils.isEmpty(baseSite.getProvinceAgencyName()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
-                updateItem.setAreaHubCode(StringUtils.isEmpty(baseSite.getAreaCode()) ? Constants.EMPTY_FILL : baseSite.getAreaCode());
-                updateItem.setAreaHubName(StringUtils.isEmpty(baseSite.getAreaName()) ? Constants.EMPTY_FILL : baseSite.getAreaName());
+                updateItem.setProvinceAgencyCode(baseSite.getProvinceAgencyCode());
+                updateItem.setProvinceAgencyName(baseSite.getProvinceAgencyName());
+                updateItem.setAreaHubCode(baseSite.getAreaCode());
+                updateItem.setAreaHubName(baseSite.getAreaName());
                 list.add(updateItem);
             }
 
@@ -273,13 +279,11 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
             if(CollectionUtils.isEmpty(list)){
                 continue;
             }
-            int singleCount = discardedPackageStorageTempDao.brushUpdateById(list);
-            updatedCount += singleCount;
+            list.forEach(item -> {
+                discardedPackageStorageTempDao.brushUpdateById(item);
+            });
 
             loopCount ++;
-        }
-        if(logger.isInfoEnabled()){
-            logger.info("discarded_package_storage_temp 表省区刷数:{}", updatedCount);
         }
     }
 
@@ -287,7 +291,6 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
     public void collectionBagExceptionBrush(Integer startId) {
         // 起始id
         int offsetId = startId;
-        int updatedCount = 0; // 更新数量
         int loopCount = 0; // 循环次数
         while (loopCount < 1000) {
             List<CollectionBagExceptionReport> singleList = collectionBagExceptionReportDao.brushQueryAllByPage(offsetId);
@@ -303,12 +306,15 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
                 if(baseSite == null){
                     continue;
                 }
+                if(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) && StringUtils.isEmpty(baseSite.getAreaCode())){
+                    continue;
+                }
                 CollectionBagExceptionReport updateItem = new CollectionBagExceptionReport();
                 updateItem.setId(item.getId());
-                updateItem.setProvinceAgencyCode(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode() );
-                updateItem.setProvinceAgencyName(StringUtils.isEmpty(baseSite.getProvinceAgencyName()) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
-                updateItem.setAreaHubCode(StringUtils.isEmpty(baseSite.getAreaCode()) ? Constants.EMPTY_FILL : baseSite.getAreaCode());
-                updateItem.setAreaHubName(StringUtils.isEmpty(baseSite.getAreaName()) ? Constants.EMPTY_FILL : baseSite.getAreaName());
+                updateItem.setProvinceAgencyCode(baseSite.getProvinceAgencyCode());
+                updateItem.setProvinceAgencyName(baseSite.getProvinceAgencyName());
+                updateItem.setAreaHubCode(baseSite.getAreaCode());
+                updateItem.setAreaHubName(baseSite.getAreaName());
                 list.add(updateItem);
             }
 
@@ -318,13 +324,56 @@ public class OrgSwitchProvinceBrushJsfServiceImpl implements OrgSwitchProvinceBr
             if(CollectionUtils.isEmpty(list)){
                 continue;
             }
-            int singleCount = collectionBagExceptionReportDao.brushUpdateById(list);
-            updatedCount += singleCount;
-
+            list.forEach(item -> {
+                collectionBagExceptionReportDao.brushUpdateById(item);
+            });
+            
             loopCount ++;
         }
-        if(logger.isInfoEnabled()){
-            logger.info("collection_bag_exception_report 表省区刷数:{}", updatedCount);
+    }
+
+    @Override
+    public void dockBaseInfoBrush(Integer startId) {
+        // 起始id
+        int offsetId = startId;
+        int loopCount = 0; // 循环次数
+        while (loopCount < 1000) {
+            List<DockBaseInfoPo> singleList = dockBaseInfoDao.brushQueryAllByPage(offsetId);
+            if(CollectionUtils.isEmpty(singleList)){
+                break;
+            }
+            List<DockBaseInfoPo> list = Lists.newArrayList();
+            for (DockBaseInfoPo item : singleList) {
+                if(item.getSiteCode() == null){
+                    continue;
+                }
+                BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(item.getSiteCode());
+                if(baseSite == null){
+                    continue;
+                }
+                if(StringUtils.isEmpty(baseSite.getProvinceAgencyCode()) && StringUtils.isEmpty(baseSite.getAreaCode())){
+                    continue;
+                }
+                DockBaseInfoPo updateItem = new DockBaseInfoPo();
+                updateItem.setId(item.getId());
+                updateItem.setProvinceAgencyCode(baseSite.getProvinceAgencyCode());
+                updateItem.setProvinceAgencyName(baseSite.getProvinceAgencyName());
+                updateItem.setAreaHubCode(baseSite.getAreaCode());
+                updateItem.setAreaHubName(baseSite.getAreaName());
+                list.add(updateItem);
+            }
+
+            DockBaseInfoPo dockBaseInfoPo = singleList.stream().max((a, b) -> (int) (a.getId() - b.getId())).get();
+            offsetId = dockBaseInfoPo.getId().intValue();
+
+            if(CollectionUtils.isEmpty(list)){
+                continue;
+            }
+            list.forEach(item -> {
+                dockBaseInfoDao.brushUpdateById(item);
+            });
+
+            loopCount ++;
         }
     }
 }

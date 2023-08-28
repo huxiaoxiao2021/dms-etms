@@ -83,8 +83,8 @@ public class ExpressBillExceptionReportDao extends BaseDao<ExpressBillExceptionR
     public List<ExpressBillExceptionReport> brushQueryAllByPage(Integer startId) {
         return this.getSqlSession().selectList(namespace + ".brushQueryAllByPage", startId);
     }
-    public int brushUpdateById(List<ExpressBillExceptionReport> list) {
-        return this.getSqlSession().update(namespace + ".brushUpdateById", list);
+    public int brushUpdateById(ExpressBillExceptionReport detail) {
+        return this.getSqlSession().update(namespace + ".brushUpdateById", detail);
     }
 }
     
