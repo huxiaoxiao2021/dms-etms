@@ -965,7 +965,7 @@ public class QualityControlService {
     private boolean checkWaybillIsProhibitedAbnormal(QualityControlRequest qualityControlRequest) {
         // 区分是否有异常举报，1. 老版本异常上报 三级原因：违禁品无法发货 - 27000 2. 新版H5 外呼-违禁品（20009-20010）二级
         try {
-            if(Objects.equals(Constants.SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID, qualityControlRequest.getAbnormalReasonThirdId())){
+            if(Objects.equals(Constants.SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID, (long) qualityControlRequest.getQcCode()) || Objects.equals(Constants.SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID, qualityControlRequest.getAbnormalReasonThirdId())){
                 return true;
             }
             final List<Long> secondIds = Constants.SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP.get(qualityControlRequest.getAbnormalReasonFirstId());
