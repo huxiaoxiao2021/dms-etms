@@ -734,6 +734,8 @@ public class QualityControlService {
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
                 final TaskResult taskResult = this.dealQualityControlTask(task);
                 log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
+
+                this.handleSecurityCheckWaybillTrace(qualityControlRequest);
                 
                 // 找到操作人登录网格并发送MQ消息
                 QcfindGridAndSendMQ(qcReportJmqDto);
@@ -843,6 +845,8 @@ public class QualityControlService {
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
                 final TaskResult taskResult = this.dealQualityControlTask(task);
                 log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
+
+                this.handleSecurityCheckWaybillTrace(qualityControlRequest);
 
                 // 找到操作人登录网格并发送MQ消息
                 QcOutCallfindGridAndSendMQ(qcReportJmqDto);
