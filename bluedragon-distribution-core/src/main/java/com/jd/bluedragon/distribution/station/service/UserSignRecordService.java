@@ -225,5 +225,5 @@ public interface UserSignRecordService {
 	 * @param query
 	 * @return
 	 */
-	List<String> queryByBusinessKeyForTms(UserSignRecordQuery query);
+	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
 }

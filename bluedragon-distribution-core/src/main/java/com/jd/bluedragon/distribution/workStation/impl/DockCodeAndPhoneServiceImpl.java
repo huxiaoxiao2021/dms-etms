@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.workStation.impl;
 
 import com.jd.bluedragon.core.jsf.workStation.DockCodeAndPhoneMapper;
+import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.workStation.domain.DockCodeAndPhone;
@@ -46,8 +47,8 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
     @Value("${jobCodeList}")
     private List<Integer> jobCodeList;
 
-    @Value("${pageSize}")
-    private Integer pageSize;
+    @Value("${dockCodeAndPhoneSize}")
+    private Integer dockCodeAndPhoneSize;
 
     /**
      * 获取运输月台号
@@ -84,8 +85,11 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
                     UserSignRecordQuery userSignRecordQuery = new UserSignRecordQuery();
                     userSignRecordQuery.setBusinessKeyList(workStationGridList);
                     userSignRecordQuery.setJobCodeList(jobCodeList);
-                    userSignRecordQuery.setPageSize(pageSize);
-                    erps = userSignRecordService.queryByBusinessKeyForTms(userSignRecordQuery);
+                    userSignRecordQuery.setLimit(dockCodeAndPhoneSize);
+                    List<UserSignRecord> userSignRecords = userSignRecordService.queryByBusinessKeyAndJobCode(userSignRecordQuery);
+                    userSignRecords.forEach(userSignRecord->{
+                        erps.add(userSignRecord.getUserCode());
+                    });
                 }
                 //6、根据erp查询电话号码
                 DockCodeAndPhone phone = getPhone(listResult.getData(), erps);
@@ -110,23 +114,21 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
         List<UserNameAndPhone> phoneList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(erps)) {
             for (String erp : erps) {
-                if (pageSize.equals(phoneList.size())) {
+                if (phoneList.size() >= dockCodeAndPhoneSize) {
                     break;
                 }
-                //erp解密
-                String decrypt_erp = AcesFactory.getIns().decryptString(erp);
-                UserNameAndPhone phoneByErp = getPhoneByErp(decrypt_erp);
+                UserNameAndPhone phoneByErp = getPhoneByErp(erp);
                 if (ObjectHelper.isNotEmpty(phoneByErp)) {
                     phoneList.add(phoneByErp);
                 }
             }
         }
-        if (phoneList.size() == BaseContants.NUMBER_ZERO) {
+        if (CollectionUtils.isNotEmpty(phoneList)) {
             // 兜底逻辑：如果在岗人员为0人，则取网格对应的负责人姓名+手机号
             List<String> ownerUserErps = listResult.stream().map(WorkStationGrid::getOwnerUserErp).distinct().collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(ownerUserErps)) {
                 for (String erp : ownerUserErps) {
-                    if (pageSize.equals(phoneList.size())) {
+                    if (phoneList.size() >= dockCodeAndPhoneSize) {
                         break;
                     }
                     UserNameAndPhone phoneByErp = getPhoneByErp(erp);

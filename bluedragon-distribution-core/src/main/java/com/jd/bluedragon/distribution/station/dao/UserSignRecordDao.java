@@ -196,5 +196,5 @@ public interface UserSignRecordDao {
 	 * 用business_key查询
 	 * @return
 	 */
-	List<String> queryByBusinessKeyForTms(UserSignRecordQuery query);
+	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
 }

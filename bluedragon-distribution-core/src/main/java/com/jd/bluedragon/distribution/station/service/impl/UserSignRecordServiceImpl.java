@@ -1673,8 +1673,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * @return
 	 */
 	@Override
-	public List<String> queryByBusinessKeyForTms(UserSignRecordQuery query) {
-		return userSignRecordDao.queryByBusinessKeyForTms(query);
+	public List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query) {
+		return userSignRecordDao.queryByBusinessKeyAndJobCode(query);
 	}
 
 	private void checkUserSignRecordQuery(UserSignRecordQuery query) {
