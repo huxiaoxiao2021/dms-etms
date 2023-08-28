@@ -14,7 +14,7 @@ public class AviationSendCompleteReq extends BaseReq  implements Serializable {
     private static final long serialVersionUID = 4784612639942744950L;
 
     /**
-     * 发车摆渡任务bizId
+     * 发车任务bizId
      */
     private String sendVehicleBizId;
 

@@ -504,7 +504,6 @@
         jy_biz_task_send_aviation_plan
         where
         yn = 1
-        yn = 1
         and start_site_id = #{startSiteId}
         and next_site_id = #{startSiteId}
         and (task_status = 0 and and take_off_time &gt;= #{takeOffTime}) or (task_status = 1)

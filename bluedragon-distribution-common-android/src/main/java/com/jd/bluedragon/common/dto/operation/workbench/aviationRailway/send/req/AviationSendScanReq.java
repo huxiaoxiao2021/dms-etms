@@ -53,11 +53,6 @@ public class AviationSendScanReq implements Serializable {
      */
     private Boolean forceSubmit;
 
-    /**
-     * 忽略验证的条件
-     */
-    private ValidateIgnore validateIgnore;
-
     public User getUser() {
         return user;
     }
@@ -130,15 +125,7 @@ public class AviationSendScanReq implements Serializable {
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
-
-    public ValidateIgnore getValidateIgnore() {
-        return validateIgnore;
-    }
-
-    public void setValidateIgnore(ValidateIgnore validateIgnore) {
-        this.validateIgnore = validateIgnore;
-    }
-
+    
     public String getSendVehicleDetailBizId() {
         return sendVehicleDetailBizId;
     }

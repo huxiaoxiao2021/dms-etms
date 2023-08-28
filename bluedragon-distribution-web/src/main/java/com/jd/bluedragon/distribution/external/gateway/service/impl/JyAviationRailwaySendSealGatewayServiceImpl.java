@@ -120,9 +120,8 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             }
             if(request.getSource() == null 
                     || (Objects.equals(request.getSource(), SEND_TASK_LIST.getCode())
-                    && !CollectionUtils.isEmpty(request.getStatusCodeList())
-                    && !JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(request.getStatusCodeList().get(0))
-                    && !JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode().equals(request.getStatusCodeList().get(0)))) {
+                    && !JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(request.getStatusCode())
+                    && !JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode().equals(request.getStatusCode()))) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "查询状态不合法", null);
             }
             if(log.isInfoEnabled()) {
@@ -501,14 +500,34 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             return new JdVerifyResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
         try{
+            baseParamValidateService.checkUserAndSiteAndGroup(request.getUser(),request.getCurrentOperate(),request.getGroupCode());
+            scanRequestCheck(request);
             //服务调用
             if(log.isInfoEnabled()) {
                 log.info("空铁发货岗，发货扫描请求信息={}", JsonHelper.toJson(request));
             }
             return jyAviationRailwaySendSealService.scan(request);
+        }catch (JyBizException ex) {
+            log.error("空铁发货岗，发货扫描请求信息自定义异常捕获，请求信息={},errMsg={}", JsonHelper.toJson(request), ex.getMessage());
+            return new JdVerifyResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("空铁发货岗，发货扫描执行异常={},errMsg={}", JsonHelper.toJson(request), ex.getMessage(), ex);
             return new JdVerifyResponse<>(JdCResponse.CODE_ERROR, "包裹发货异常，请联系分拣小秘！", null);//500+非自定义异常
+        }
+    }
+
+    private void scanRequestCheck(AviationSendScanReq request) {
+        if (StringUtils.isEmpty(request.getSendVehicleBizId())) {
+            throw new JyBizException("派车任务主键为空！");
+        }
+        if (StringUtils.isEmpty(request.getSendVehicleDetailBizId())) {
+            throw new JyBizException("派车任务明细主键为空！");
+        }
+        if (StringUtils.isEmpty(request.getBarCode())) {
+            throw new JyBizException("扫描条码为空！");
+        }
+        if (request.getBarCodeType() == null) {
+            throw new JyBizException("扫描条码类型为空！");
         }
     }
 

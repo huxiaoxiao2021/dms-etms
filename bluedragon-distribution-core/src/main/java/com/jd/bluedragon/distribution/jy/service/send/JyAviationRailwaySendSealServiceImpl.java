@@ -673,7 +673,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
         JyBizTaskSendAviationPlanQueryCondition condition = this.convertListQueryCondition(
                 request.getCurrentOperate().getSiteCode(),
-                request.getStatusCodeList().get(0),
+                request.getStatusCode(),
                 request.getFilterConditionDto(),
                 request.getKeyword()
                 );
@@ -1093,14 +1093,13 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Override
     public JdVerifyResponse<AviationSendScanResp> scan(AviationSendScanReq request) {
         JdVerifyResponse<AviationSendScanResp> result = new JdVerifyResponse<>();
-        AviationSendScanResp resp = new AviationSendScanResp();
-        result.setData(resp);
         SendScanRequest sendScanRequest = BeanUtils.copy(request, SendScanRequest.class);
         JdVerifyResponse<SendScanResponse> response = super.sendScan(sendScanRequest);
-        resp = BeanUtils.copy(response,AviationSendScanResp.class);
+        AviationSendScanResp resp = BeanUtils.copy(response,AviationSendScanResp.class);
         result.setCode(response.getCode());
         result.setMessage(response.getMessage());
         result.setMsgBoxes(response.getMsgBoxes());
+        result.setData(resp);
         return result;
     }
 

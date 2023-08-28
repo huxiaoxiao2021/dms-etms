@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 
 /**
@@ -85,7 +87,7 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setUser(USER_wuyoude);
         request.setGroupCode(GROUP_CODE);
         request.setPost(POST);
-        request.setStatusCode(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode());
+        request.setStatusCodeList(Collections.singletonList(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode()));
         request.setPageNo(1);
         request.setPageSize(30);
         request.setNextSiteId(40240);
@@ -235,8 +237,12 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
     @Test
     public void testscan() {
-        aviationRailwaySendSealGatewayService.scan(null);
-
+        AviationSendScanReq request = new AviationSendScanReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        
+        aviationRailwaySendSealGatewayService.scan(request);
     }
     @Test
     public void testgetAviationSendVehicleProgress() {

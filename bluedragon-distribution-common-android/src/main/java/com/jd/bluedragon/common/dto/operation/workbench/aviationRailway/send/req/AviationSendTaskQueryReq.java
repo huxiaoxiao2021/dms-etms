@@ -23,9 +23,9 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
     private Integer nextSiteId;
 
     /**
-     * JyAviationRailwaySendVehicleStatusEnum.sendTaskStatus
+     * 状态
      */
-    private List<Integer> statusCodeList;
+    private Integer statusCode;
     
 
     /**
@@ -90,14 +90,7 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
     public void setKeyword(String keyword) {
         this.keyword = keyword;
     }
-
-    public List<Integer> getStatusCodeList() {
-        return statusCodeList;
-    }
-
-    public void setStatusCodeList(List<Integer> statusCodeList) {
-        this.statusCodeList = statusCodeList;
-    }
+    
 
     public Integer getSource() {
         return source;
@@ -105,5 +98,13 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
 
     public void setSource(Integer source) {
         this.source = source;
+    }
+
+    public Integer getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(Integer statusCode) {
+        this.statusCode = statusCode;
     }
 }
