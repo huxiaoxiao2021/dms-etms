@@ -506,7 +506,7 @@
         yn = 1
         and start_site_id = #{startSiteId}
         and next_site_id = #{startSiteId}
-        and (task_status = 0 and and take_off_time &gt;= #{takeOffTime}) or (task_status = 1)
+        and (task_status = 0 and take_off_time &gt;= #{takeOffTime}) or (task_status = 1)
         order by
         take_off_time
         limit #{offset},#{pageSize}

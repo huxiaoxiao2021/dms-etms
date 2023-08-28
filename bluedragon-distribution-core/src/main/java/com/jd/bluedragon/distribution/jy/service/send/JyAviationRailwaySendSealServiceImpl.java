@@ -567,7 +567,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     private JyBizTaskSendAviationPlanQueryCondition convertListQueryCondition(Integer siteCode, Integer statusCode, FilterConditionDto filterConditionDto, String keyword) {
         JyBizTaskSendAviationPlanQueryCondition condition = new JyBizTaskSendAviationPlanQueryCondition();
         condition.setStartSiteId(siteCode);
-        condition.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.getSendTaskStatusByCode(statusCode));
+        if(!Objects.isNull(statusCode)) {
+            condition.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.getSendTaskStatusByCode(statusCode));
+        }
         if(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(statusCode)) {
             //起飞时间
             condition.setTakeOffTime(DateHelper.newTimeRangeHoursAgo(new Date(), 24));
@@ -671,9 +673,14 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     public InvokeResult<AviationSendTaskQueryRes> pageFetchAviationTaskByNextSite(AviationSendTaskQueryReq request) {
         InvokeResult<AviationSendTaskQueryRes> res = new InvokeResult<>();
 
+        Integer statusCode = null;
+        if (!TASK_RECOMMEND.getCode().equals(request.getSource())) {
+            statusCode = request.getStatusCode();
+        }
+
         JyBizTaskSendAviationPlanQueryCondition condition = this.convertListQueryCondition(
                 request.getCurrentOperate().getSiteCode(),
-                request.getStatusCode(),
+                statusCode,
                 request.getFilterConditionDto(),
                 request.getKeyword()
                 );
@@ -681,16 +688,14 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         condition.setOffset((request.getPageNo() - 1) * request.getPageSize());
         condition.setPageSize(request.getPageSize());
 
-        List<JyBizTaskSendAviationPlanEntity> taskDtoList = new ArrayList<>();
+        List<JyBizTaskSendAviationPlanEntity> taskDtoList;
         
-        //  查询发车任务列表
-        if (SEND_TASK_LIST.getCode().equals(request.getSource())) {
-            taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
-            
-        }else if (TASK_RECOMMEND.getCode().equals(request.getSource())) {
-            // 查询推荐任务列表
-            condition.setTakeOffTime(DateHelper.newTimeRangeHoursAgo(new Date(), 24));
-            taskDtoList = jyBizTaskSendAviationPlanService.pageQueryRecommendTaskByNextSiteId(condition);
+       if (!TASK_RECOMMEND.getCode().equals(request.getSource())) {
+           //  查询发车任务列表
+           taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
+       }else {
+           // 查询推荐任务列表
+           taskDtoList = jyBizTaskSendAviationPlanService.pageQueryRecommendTaskByNextSiteId(condition);
         }
 
         List<AviationSendTaskDto> sendTaskDtoList = this.convertAviationSendTaskDtoList(taskDtoList);

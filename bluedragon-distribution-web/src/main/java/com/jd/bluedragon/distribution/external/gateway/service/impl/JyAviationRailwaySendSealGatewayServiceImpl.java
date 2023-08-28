@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskQueryEnum.SEND_TASK_LIST;
+import static com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskQueryEnum.TASK_RECOMMEND;
 
 /**
  * @Author zhengchengfa
@@ -118,10 +118,9 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             if(!NumberHelper.gt0(request.getNextSiteId())) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "流向场地不合法", null);
             }
-            if(request.getSource() == null 
-                    || (Objects.equals(request.getSource(), SEND_TASK_LIST.getCode())
+            if(!TASK_RECOMMEND.getCode().equals(request.getSource())
                     && !JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(request.getStatusCode())
-                    && !JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode().equals(request.getStatusCode()))) {
+                    && !JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode().equals(request.getStatusCode())) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "查询状态不合法", null);
             }
             if(log.isInfoEnabled()) {
