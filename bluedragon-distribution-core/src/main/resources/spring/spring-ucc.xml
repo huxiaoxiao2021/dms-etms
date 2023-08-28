@@ -302,6 +302,7 @@
 		<property name="interceptBlackList" value="${interceptBlackList:'*'}"/>
 		<property name="cttGroupDataLimit" value="${cttGroupDataLimit:200}"/>
 		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
+		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -609,6 +610,7 @@
 				<value>uccPropertyConfiguration.interceptBlackList</value>
 				<value>uccPropertyConfiguration.cttGroupDataLimit</value>
 				<value>uccPropertyConfiguration.jySendSpecialProductTypeToScanShowRemainMinutes</value>
+				<value>uccPropertyConfiguration.qingChangDataOpenSwitch</value>
 			</list>
 		</property>
 	</bean>

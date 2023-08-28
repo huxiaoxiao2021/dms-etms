@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.station.query;
 
 import java.util.Date;
+import java.util.List;
 
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
@@ -157,6 +158,10 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	 * 枢纽编码
 	 */
 	private String areaHubCode;
+
+	private List<String> businessKeyList;
+
+	private List<Integer> jobCodeList;
 
 	public Integer getOrgCode() {
 		return orgCode;
@@ -349,5 +354,21 @@ public class UserSignRecordQuery extends BasePagerCondition {
 
 	public void setAreaHubCode(String areaHubCode) {
 		this.areaHubCode = areaHubCode;
+	}
+
+	public List<String> getBusinessKeyList() {
+		return businessKeyList;
+	}
+
+	public void setBusinessKeyList(List<String> businessKeyList) {
+		this.businessKeyList = businessKeyList;
+	}
+
+	public List<Integer> getJobCodeList() {
+		return jobCodeList;
+	}
+
+	public void setJobCodeList(List<Integer> jobCodeList) {
+		this.jobCodeList = jobCodeList;
 	}
 }
