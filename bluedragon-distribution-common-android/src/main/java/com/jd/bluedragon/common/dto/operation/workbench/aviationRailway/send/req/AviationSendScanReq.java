@@ -12,8 +12,8 @@ import java.io.Serializable;
  * @date 2023-08-15 18:03
  */
 public class AviationSendScanReq implements Serializable {
-
-    private static final long serialVersionUID = -6891254799862705700L;
+    
+    private static final long serialVersionUID = -6891254799862705090L;
 
     private User user;
 

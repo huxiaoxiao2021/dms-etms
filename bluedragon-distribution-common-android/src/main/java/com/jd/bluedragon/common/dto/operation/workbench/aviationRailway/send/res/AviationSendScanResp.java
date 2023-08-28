@@ -1,5 +1,6 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,7 +8,9 @@ import java.util.Date;
  * @description 发货扫描返回值
  * @date 2023-08-15 18:04
  */
-public class AviationSendScanResp {
+public class AviationSendScanResp implements Serializable {
+
+    private static final long serialVersionUID = 4784612639942744950L;
 
     /**
      * 本次扫描的包裹数

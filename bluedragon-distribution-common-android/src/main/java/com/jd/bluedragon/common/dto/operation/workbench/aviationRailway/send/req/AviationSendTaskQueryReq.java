@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.re
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author zhengchengfa
@@ -20,9 +21,12 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
      */
     private Long queryPageTime;
     private Integer nextSiteId;
-    private Integer statusCode;
 
-
+    /**
+     * JyAviationRailwaySendVehicleStatusEnum.sendTaskStatus
+     */
+    private List<Integer> statusCode;
+    
     public Integer getPageNo() {
         return pageNo;
     }
@@ -55,11 +59,11 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
         this.nextSiteId = nextSiteId;
     }
 
-    public Integer getStatusCode() {
+    public List<Integer> getStatusCode() {
         return statusCode;
     }
 
-    public void setStatusCode(Integer statusCode) {
+    public void setStatusCode(List<Integer> statusCode) {
         this.statusCode = statusCode;
     }
 }

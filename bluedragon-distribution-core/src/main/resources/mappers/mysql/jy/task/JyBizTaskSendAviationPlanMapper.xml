@@ -421,13 +421,16 @@
         SELECT
             <include refid="Base_Column_List" />
         FROM
-            jy_biz_task_send_aviation_plan
+        jy_biz_task_send_aviation_plan
         WHERE
-            yn = 1
-            and start_site_id = #{startSiteId}
-            and next_site_id = #{nextSiteId}
-            and task_status = #{taskStatus}
-            limit #{offset},#{pageSize}
+        yn = 1
+        and start_site_id = #{startSiteId}
+        and next_site_id = #{nextSiteId}
+        and task_status in
+        <foreach collection="taskStatusList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+        limit #{offset},#{pageSize}
         order by take_off_time
     </select>
 
@@ -461,7 +464,7 @@
         SELECT
             <include refid="Base_Column_List" />
         FROM
-            `jy_biz_task_send_aviation_plan
+            jy_biz_task_send_aviation_plan
         WHERE
             yn = 1
             and start_site_id = #{startSiteId}

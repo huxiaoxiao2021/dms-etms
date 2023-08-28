@@ -1,11 +1,13 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res;
 
+import java.io.Serializable;
+
 /**
  * @author liwenji
  * @description 
  * @date 2023-08-21 17:29
  */
-public class SendScanBarCodeDto {
+public class SendScanBarCodeDto implements Serializable {
 
     /**
      * 包裹号|箱号

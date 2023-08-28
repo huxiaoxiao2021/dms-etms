@@ -571,5 +571,25 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询发货信息异常！", null);//500+非自定义异常
         }
     }
-    
+
+    @Override
+    public JdCResponse<Void> aviationSendComplete(AviationSendCompleteReq req) {
+        if(Objects.isNull(req)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        
+        if (StringUtils.isEmpty(req.getSendVehicleBizId())) {
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "任务id为空！");
+        }
+        
+        try{
+            if(log.isInfoEnabled()) {
+                log.info("空铁发货岗，发货任务完成={}", JsonHelper.toJson(req));
+            }
+            return retJdCResponse(jyAviationRailwaySendSealService.aviationSendComplete(req));
+        }catch (Exception ex) {
+            log.error("空铁发货岗，发货任务完成={},errMsg={}", JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "发货任务完成异常！", null);//500+非自定义异常
+        }
+    }
 }

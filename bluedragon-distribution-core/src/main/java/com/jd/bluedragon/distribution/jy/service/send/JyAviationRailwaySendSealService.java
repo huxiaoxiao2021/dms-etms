@@ -49,4 +49,6 @@ public interface JyAviationRailwaySendSealService {
     InvokeResult<AviationSealedListRes> pageFetchAviationSealedList(AviationSealedListReq request);
 
     InvokeResult<AviationBarCodeDetailResp> sendBoxDetail(AviationBoxDetailReq request);
+
+    InvokeResult<Void> aviationSendComplete(AviationSendCompleteReq req);
 }

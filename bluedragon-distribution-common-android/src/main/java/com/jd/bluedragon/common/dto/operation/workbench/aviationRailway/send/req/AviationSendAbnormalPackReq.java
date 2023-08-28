@@ -3,13 +3,17 @@ package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.re
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 
+import java.io.Serializable;
+
 /**
  * @author liwenji
  * @description 异常包裹查询请求
  * @date 2023-08-18 14:47
  */
-public class AviationSendAbnormalPackReq {
+public class AviationSendAbnormalPackReq implements Serializable {
 
+    private static final long serialVersionUID = 4784612639942744950L;
+    
     private User user;
 
     private CurrentOperate currentOperate;
