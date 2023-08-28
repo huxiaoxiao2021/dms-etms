@@ -297,7 +297,7 @@
 			id,operate_site_code
 		from
 			merchant_weight_white_list
-		where yn = 1
+		where is_delete = 0
 		  and operate_province_agency_code = ''
 		  and id > #{id,jdbcType=BIGINT}
 		order by id
@@ -321,7 +321,7 @@
 				</if>
 				update_time = now()
 			</set>
-			WHERE yn = 1
+			WHERE is_delete = 0
 			AND id = #{item.id}
 		</foreach>
 	</update>
