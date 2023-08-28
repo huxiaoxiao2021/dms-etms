@@ -1332,12 +1332,10 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	private Pager<StreamlinedBasicSiteQuery> convertStreamlinedBasicSiteQuery(String searchStr, Integer pageNo, Integer pageSize) {
 		Pager<StreamlinedBasicSiteQuery> streamlinedBasicSiteQueryPager = new Pager<StreamlinedBasicSiteQuery>();
 		StreamlinedBasicSiteQuery streamlinedBasicSiteQuery = new StreamlinedBasicSiteQuery();
-		List<StreamlinedBasicSiteQuery> streamlinedBasicSiteQueryList = new ArrayList<>();
 		streamlinedBasicSiteQuery.setSearchStr(searchStr);
-		streamlinedBasicSiteQueryList.add(streamlinedBasicSiteQuery);
 		streamlinedBasicSiteQueryPager.setPageNo(pageNo);
 		streamlinedBasicSiteQueryPager.setPageSize(pageSize);
-		streamlinedBasicSiteQueryPager.setData(streamlinedBasicSiteQueryList);
+		streamlinedBasicSiteQueryPager.setSearchVo(streamlinedBasicSiteQuery);
 		return streamlinedBasicSiteQueryPager;
 	}
 }
