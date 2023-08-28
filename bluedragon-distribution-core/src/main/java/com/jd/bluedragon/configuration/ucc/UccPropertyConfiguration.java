@@ -1630,7 +1630,12 @@ public class UccPropertyConfiguration{
      * 组板岗混扫任务查询限制
      */
     private Integer cttGroupDataLimit;
-    
+
+    /**
+     * 作业APP发货特殊产品类型提示，到指定剩余分钟数才提示
+     */
+    private Integer jySendSpecialProductTypeToScanShowRemainMinutes;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -3852,5 +3857,13 @@ public class UccPropertyConfiguration{
 
     public void setCttGroupDataLimit(Integer cttGroupDataLimit) {
         this.cttGroupDataLimit = cttGroupDataLimit;
+    }
+
+    public Integer getJySendSpecialProductTypeToScanShowRemainMinutes() {
+        return jySendSpecialProductTypeToScanShowRemainMinutes;
+    }
+
+    public void setJySendSpecialProductTypeToScanShowRemainMinutes(Integer jySendSpecialProductTypeToScanShowRemainMinutes) {
+        this.jySendSpecialProductTypeToScanShowRemainMinutes = jySendSpecialProductTypeToScanShowRemainMinutes;
     }
 }

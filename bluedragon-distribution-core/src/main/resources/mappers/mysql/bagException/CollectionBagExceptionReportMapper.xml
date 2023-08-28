@@ -404,17 +404,17 @@
                 <if test="item.orgName != null and item.orgName != ''">
                 org_name = #{item.orgName},
                 </if>
-                <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
-                    province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+                <if test="item.provinceAgencyCode != null and item.provinceAgencyCode != ''" >
+                    province_agency_code = #{item.provinceAgencyCode,jdbcType=VARCHAR},
                 </if>
-                <if test="provinceAgencyName != null and provinceAgencyName != ''" >
-                    province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+                <if test="item.provinceAgencyName != null and item.provinceAgencyName != ''" >
+                    province_agency_name = #{item.provinceAgencyName,jdbcType=VARCHAR},
                 </if>
-                <if test="areaHubCode != null and areaHubCode != ''" >
-                    area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+                <if test="item.areaHubCode != null and item.areaHubCode != ''" >
+                    area_hub_code = #{item.areaHubCode,jdbcType=VARCHAR},
                 </if>
-                <if test="areaHubName != null and areaHubName != ''" >
-                    area_hub_name = #{areaHubName,jdbcType=VARCHAR},
+                <if test="item.areaHubName != null and item.areaHubName != ''" >
+                    area_hub_name = #{item.areaHubName,jdbcType=VARCHAR},
                 </if>
                 <if test="item.siteCode != null">
                 site_code = #{item.siteCode},

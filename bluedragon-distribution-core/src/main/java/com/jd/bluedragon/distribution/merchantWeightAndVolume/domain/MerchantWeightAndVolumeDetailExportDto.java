@@ -31,22 +31,6 @@ public class MerchantWeightAndVolumeDetailExportDto implements Serializable {
      * */
     private String operateOrgName;
     /**
-     * 操作省区编码
-     * */
-    private String operateProvinceAgencyCode;
-    /**
-     * 操作省区名称
-     * */
-    private String operateProvinceAgencyName;
-    /**
-     * 操作枢纽编码
-     * */
-    private String operateAreaHubCode;
-    /**
-     * 操作枢纽名称
-     * */
-    private String operateAreaHubName;
-    /**
      * 操作站点编码
      * */
     private Integer operateSiteCode;
@@ -67,6 +51,23 @@ public class MerchantWeightAndVolumeDetailExportDto implements Serializable {
      * 创建时间
      */
     private String createTime;
+
+    /**
+     * 操作省区编码
+     * */
+    private String operateProvinceAgencyCode;
+    /**
+     * 操作省区名称
+     * */
+    private String operateProvinceAgencyName;
+    /**
+     * 操作枢纽编码
+     * */
+    private String operateAreaHubCode;
+    /**
+     * 操作枢纽名称
+     * */
+    private String operateAreaHubName;
 
     public Integer getMerchantId() {
         return merchantId;

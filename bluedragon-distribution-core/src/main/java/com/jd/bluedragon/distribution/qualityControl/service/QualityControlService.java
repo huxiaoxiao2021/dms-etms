@@ -826,6 +826,12 @@ public class QualityControlService {
                 qualityControlRequest.setOperateTime(new Date(qcReportJmqDto.getCreateTime()));
                 qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalThirdId().intValue());
                 qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalThirdName());
+                qualityControlRequest.setAbnormalReasonFirstId(qcReportJmqDto.getAbnormalFirstId());
+                qualityControlRequest.setAbnormalReasonFirstName(qcReportJmqDto.getAbnormalFirstName());
+                qualityControlRequest.setAbnormalReasonSecondId(qcReportJmqDto.getAbnormalSecondId());
+                qualityControlRequest.setAbnormalReasonSecondName(qcReportJmqDto.getAbnormalSecondName());
+                qualityControlRequest.setAbnormalReasonThirdId(qcReportJmqDto.getAbnormalThirdId());
+                qualityControlRequest.setAbnormalReasonThirdName(qcReportJmqDto.getAbnormalThirdName());
                 qualityControlRequest.setIsSortingReturn(false);
                 qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalThirdName() + "】");
                 Task task = new Task();
