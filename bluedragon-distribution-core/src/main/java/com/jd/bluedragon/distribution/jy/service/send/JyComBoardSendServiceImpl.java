@@ -1127,7 +1127,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   //是否需要强拦截提醒
   private boolean checkIntercept(ComboardScanReq request) {
-    if (ucc.getInterceptBlackList().equals(Constants.TOTAL_URL_INTERCEPTOR) || checkContainsCurrentSite(request)){
+    if ((ucc.getInterceptBlackList().equals(Constants.TOTAL_URL_INTERCEPTOR) || checkContainsCurrentSite(request)) && request.getNeedIntercept()){
       return true;
     }
     return false;
@@ -1768,6 +1768,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
             throw new JyBizException(InvokeResult.COMBOARD_SCAN_WEAK_INTECEPTER_CODE,chainResp.getMessage());
           }
         }
+        request.setNeedIntercept(true);
         throw new JyBizException(chainResp.getMessage());
       }
     }
@@ -1925,6 +1926,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         if (interceptResult.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
           throw new JyBizException(InvokeResult.COMBOARD_SCAN_WEAK_INTECEPTER_CODE,interceptResult.getMessage());
         }
+        request.setNeedIntercept(true);
         throw new JyBizException(interceptResult.getMessage());
       }
     }
