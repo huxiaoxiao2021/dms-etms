@@ -332,7 +332,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     		}else if(rpcResult != null){
     			log.warn("调用运单换单查询接口失败reverseWaybillApi.queryWaybill,入参：{}  返回结果：{}",JsonHelper.toJson(dmsWaybillReverseDTO),JsonHelper.toJson(rpcResult));
                 String errorMsg = rpcResult.getMessage();
-                if( rpcResult.getExt() != null ){
+                if( rpcResult.getExt() != null && StringUtils.isNotBlank(rpcResult.getExt().get(SUB_MSG_KEY))){
                     errorMsg += Constants.SEPARATOR_COMMA + rpcResult.getExt().get(SUB_MSG_KEY);
                 }
                 result.toFail(errorMsg);
@@ -377,7 +377,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     		}else if(rpcResult != null){
     			log.warn("调用运单换单提交接口失败reverseWaybillApi.submitWaybill,入参：{}  返回结果：{}",JsonHelper.toJson(dmsWaybillReverseDTO),JsonHelper.toJson(rpcResult));
                 String errorMsg = rpcResult.getMessage();
-                if( rpcResult.getExt() != null ){
+                if( rpcResult.getExt() != null && StringUtils.isNotBlank(rpcResult.getExt().get(SUB_MSG_KEY))){
                     errorMsg += Constants.SEPARATOR_COMMA + rpcResult.getExt().get(SUB_MSG_KEY);
                 }
     			result.toFail(errorMsg);
