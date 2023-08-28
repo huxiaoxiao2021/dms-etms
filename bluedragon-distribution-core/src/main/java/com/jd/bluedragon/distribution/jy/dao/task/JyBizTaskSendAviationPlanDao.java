@@ -79,6 +79,10 @@ public class JyBizTaskSendAviationPlanDao extends BaseDao<JyBizTaskSendAviationP
 //        entity.setTaskStatus(JyBizTaskSendStatusEnum.SEALED.getCode());
         return this.getSqlSession().selectList(NAMESPACE + ".findNoSealTaskByBizIds", entity);
     }
+
+    public List<JyBizTaskSendAviationPlanEntity> pageQueryRecommendTaskByNextSiteId(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".pageQueryRecommendTaskByNextSiteId", condition);
+    }
 //
 //    JyNizTaskSendAviationPlanEntity selectByPrimaryKey(Long id);
 //

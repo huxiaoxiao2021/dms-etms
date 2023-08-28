@@ -25,7 +25,7 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
     /**
      * JyAviationRailwaySendVehicleStatusEnum.sendTaskStatus
      */
-    private List<Integer> statusCode;
+    private List<Integer> statusCodeList;
     
 
     /**
@@ -37,6 +37,10 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
      */
     private String keyword;
 
+    /**
+     * 来源 0 普通分页查询 1 推荐任务
+     */
+    private Integer source;
 
     public Integer getPageNo() {
         return pageNo;
@@ -69,14 +73,7 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
     public void setNextSiteId(Integer nextSiteId) {
         this.nextSiteId = nextSiteId;
     }
-
-    public List<Integer> getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(List<Integer> statusCode) {
-        this.statusCode = statusCode;
-    }
+    
 
     public FilterConditionDto getFilterConditionDto() {
         return filterConditionDto;
@@ -92,5 +89,21 @@ public class AviationSendTaskQueryReq extends BaseReq implements Serializable {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
+    }
+
+    public List<Integer> getStatusCodeList() {
+        return statusCodeList;
+    }
+
+    public void setStatusCodeList(List<Integer> statusCodeList) {
+        this.statusCodeList = statusCodeList;
+    }
+
+    public Integer getSource() {
+        return source;
+    }
+
+    public void setSource(Integer source) {
+        this.source = source;
     }
 }

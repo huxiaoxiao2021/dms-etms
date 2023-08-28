@@ -67,6 +67,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskQueryEnum.SEND_TASK_LIST;
+import static com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskQueryEnum.TASK_RECOMMEND;
 import static com.jd.bluedragon.utils.TimeUtils.yyyy_MM_dd_HH_mm_ss;
 
 /**
@@ -671,16 +673,25 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
         JyBizTaskSendAviationPlanQueryCondition condition = this.convertListQueryCondition(
                 request.getCurrentOperate().getSiteCode(),
-                request.getStatusCode(),
+                request.getStatusCodeList().get(0),
                 request.getFilterConditionDto(),
                 request.getKeyword()
                 );
         condition.setNextSiteId(request.getNextSiteId());
-        condition.setTaskStatusList(request.getStatusCode());
         condition.setOffset((request.getPageNo() - 1) * request.getPageSize());
         condition.setPageSize(request.getPageSize());
 
-        List<JyBizTaskSendAviationPlanEntity> taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
+        List<JyBizTaskSendAviationPlanEntity> taskDtoList = new ArrayList<>();
+        
+        //  查询发车任务列表
+        if (SEND_TASK_LIST.getCode().equals(request.getSource())) {
+            taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
+            
+        }else if (TASK_RECOMMEND.getCode().equals(request.getSource())) {
+            // 查询推荐任务列表
+            condition.setTakeOffTime(DateHelper.newTimeRangeHoursAgo(new Date(), 24));
+            taskDtoList = jyBizTaskSendAviationPlanService.pageQueryRecommendTaskByNextSiteId(condition);
+        }
 
         List<AviationSendTaskDto> sendTaskDtoList = this.convertAviationSendTaskDtoList(taskDtoList);
         if(CollectionUtils.isEmpty(sendTaskDtoList)) {

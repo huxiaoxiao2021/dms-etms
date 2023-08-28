@@ -131,4 +131,9 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     public List<JyBizTaskSendAviationPlanEntity> findNoSealTaskByBizIds(List<String> bizIds) {
         return jyBizTaskSendAviationPlanDao.findNoSealTaskByBizIds(bizIds);
     }
+
+    @Override
+    public List<JyBizTaskSendAviationPlanEntity> pageQueryRecommendTaskByNextSiteId(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return jyBizTaskSendAviationPlanDao.pageQueryRecommendTaskByNextSiteId(condition);
+    }
 }

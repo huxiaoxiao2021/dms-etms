@@ -45,4 +45,6 @@ public interface JyBizTaskSendAviationPlanService {
     int updateStatus(JyBizTaskSendAviationPlanEntity entity);
 
     List<JyBizTaskSendAviationPlanEntity> findNoSealTaskByBizIds(List<String> bizIds);
+    
+    List<JyBizTaskSendAviationPlanEntity> pageQueryRecommendTaskByNextSiteId(JyBizTaskSendAviationPlanQueryCondition condition);
 }
