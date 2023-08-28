@@ -2020,5 +2020,5 @@ public class Constants {
     /**
      * 异常上报原因与二次安检关系-老版异常上报
      */
-    public static final Long SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID = 20009L;
+    public static final Long SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID = 27000L;
 }
