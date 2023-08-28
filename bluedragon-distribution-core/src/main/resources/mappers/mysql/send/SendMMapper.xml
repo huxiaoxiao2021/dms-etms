@@ -530,7 +530,7 @@
 	<select id="batchQuerySendMListBySiteAndBoxes" parameterType="SendM"
 			resultMap="SendM">
 		select
-		box_code,receive_site_code,operate_time
+		box_code,receive_site_code,max(operate_time)
 		from send_m
 		<where>
 			yn = 1
@@ -540,6 +540,7 @@
 				#{item,jdbcType=VARCHAR}
 			</foreach>
 		</where>
+		group by box_code,receive_site_code
 	</select>
 	
 	<select id="batchQueryCancelSendMList" parameterType="SendM"
