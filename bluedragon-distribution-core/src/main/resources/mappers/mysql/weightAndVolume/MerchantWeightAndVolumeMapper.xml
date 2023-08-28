@@ -290,4 +290,40 @@
 		and merchant_id = #{merchantId,jdbcType=BIGINT}
 		and operate_site_code = #{operateSiteCode,jdbcType=BIGINT}
 	</select>
+
+	<!-- 刷数sql start -->
+	<select id="brushQueryAllByPage" parameterType="java.lang.Integer" resultMap="merchantResultMap">
+		select
+			id,operate_site_code
+		from
+			merchant_weight_white_list
+		where is_delete = 0
+		  and operate_province_agency_code = ''
+		  and id > #{id,jdbcType=BIGINT}
+		order by id
+			limit 100
+	</select>
+	<update id="brushUpdateById" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index"  separator=";">
+			UPDATE merchant_weight_white_list
+			<set>
+				<if test="item.operateProvinceAgencyCode != null and item.operateProvinceAgencyCode != ''" >
+					operate_province_agency_code = #{item.operateProvinceAgencyCode,jdbcType=VARCHAR},
+				</if>
+				<if test="item.operateProvinceAgencyName != null and item.operateProvinceAgencyName != ''" >
+					operate_province_agency_name = #{item.operateProvinceAgencyName,jdbcType=VARCHAR},
+				</if>
+				<if test="item.operateAreaHubCode != null and item.operateAreaHubCode != ''" >
+					operate_area_hub_code = #{item.operateAreaHubCode,jdbcType=VARCHAR},
+				</if>
+				<if test="item.operateAreaHubName != null and item.operateAreaHubName != ''" >
+					operate_area_hub_name = #{item.operateAreaHubName,jdbcType=VARCHAR},
+				</if>
+				update_time = now()
+			</set>
+			WHERE is_delete = 0
+			AND id = #{item.id}
+		</foreach>
+	</update>
+	<!-- 刷数sql end -->
 </mapper>

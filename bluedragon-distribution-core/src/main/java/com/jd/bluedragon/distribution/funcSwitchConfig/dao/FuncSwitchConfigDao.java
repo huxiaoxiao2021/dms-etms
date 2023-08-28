@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.funcSwitchConfig.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 
 import java.util.List;
 
@@ -85,5 +85,12 @@ public class FuncSwitchConfigDao extends BaseDao<FuncSwitchConfigDto> {
 
     public int selectConfiguredCount(FuncSwitchConfigDto dto) {
         return this.getSqlSession().selectOne(namespace + ".selectConfiguredCount",dto);
+    }
+
+    public List<FuncSwitchConfigDto> brushQueryAllByPage(Integer startId) {
+        return this.getSqlSession().selectList(namespace + ".brushQueryAllByPage", startId);
+    }
+    public int brushUpdateById(List<FuncSwitchConfigDto> list) {
+        return this.getSqlSession().update(namespace + ".brushUpdateById", list);
     }
 }
