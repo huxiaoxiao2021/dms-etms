@@ -603,5 +603,13 @@
       ref="jyFindGoodsJsfService"
       server="dmsjsf">
     </jsf:provider>
-
+    
+    <!-- 大区切换刷数接口 -->
+    <jsf:provider id="orgSwitchProvinceBrushJsfServiceJsf"
+                  interface="com.jd.bluedragon.distribution.external.service.OrgSwitchProvinceBrushJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="orgSwitchProvinceBrushJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+    
 </beans>

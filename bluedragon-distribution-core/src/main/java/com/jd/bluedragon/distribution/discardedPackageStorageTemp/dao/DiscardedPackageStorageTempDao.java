@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedP
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnFinishScanDiscardedPackageQo;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnSubmitDiscardedListQo;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
 
 import java.util.List;
 
@@ -179,6 +178,13 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
      */
     public List<DiscardedPackageScanResultItemDto> selectUnFinishScanDiscardedPackageList(UnFinishScanDiscardedPackageQo paramObj){
         return this.getSqlSession().selectList(DiscardedPackageStorageTempDao.NAMESPACE + ".selectUnFinishScanDiscardedPackageList", paramObj);
+    }
+
+    public List<DiscardedPackageStorageTemp> brushQueryAllByPage(Integer startId) {
+        return this.getSqlSession().selectOne(DiscardedPackageStorageTempDao.NAMESPACE + ".brushQueryAllByPage", startId);
+    }
+    public int brushUpdateById(List<DiscardedPackageStorageTemp> list) {
+        return this.getSqlSession().update(DiscardedPackageStorageTempDao.NAMESPACE + ".brushUpdateById", list);
     }
 
 }
