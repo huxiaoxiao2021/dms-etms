@@ -744,6 +744,7 @@ public class Waybill implements Serializable {
 		String sendPay = waybill.getSendPay();
 		// Double weight = waybill.getWeight();
 
+		// todo 运单中机构字段待后续机构下线后可去除这个判断逻辑
 		if (orgId == null 
 				|| sendPay == null || sendPay.trim().length() == 0
 				|| paymentType == null || address == null

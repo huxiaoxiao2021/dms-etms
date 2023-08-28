@@ -1,4 +1,11 @@
 $(function() {
+
+	//加载站点组件
+	$('#switchSiteDom').sitePluginSelect({
+		bootstrapMode:true
+	});
+
+
 	var saveUrl = '/reverse/part/reversePartDetail/save';
 	var deleteUrl = '/reverse/part/reversePartDetail/deleteByIds';
   var detailUrl = '/reverse/part/reversePartDetail/detail/';
@@ -68,6 +75,8 @@ $(function() {
 		        	params[_k] = _v;
 		        }
 		    });
+
+			console.log($('#switchSiteDom').sitePluginSelect('getSelected'));
 		    return params;
 		};
 		oTableInit.tableColums = [ /*{
@@ -139,6 +148,10 @@ $(function() {
 
 			$('#dataEditDiv').hide();		
 		    $('#btn_query').click(function() {
+				if(!$('#createSiteCode').val()){
+					Jd.alert("请选择场地!");
+					return
+				}
 		    	tableInit().refresh();
 			});
 		    //导出

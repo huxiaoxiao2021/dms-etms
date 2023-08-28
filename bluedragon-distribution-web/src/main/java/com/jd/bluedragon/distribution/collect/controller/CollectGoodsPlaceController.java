@@ -3,11 +3,11 @@ package com.jd.bluedragon.distribution.collect.controller;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceCondition;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceStatusEnum;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsAreaService;
-import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsPlaceService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -37,15 +37,12 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("collect/collectGoodsPlace")
-public class CollectGoodsPlaceController {
+public class CollectGoodsPlaceController extends DmsBaseController {
 
 	private static final Logger log = LoggerFactory.getLogger(CollectGoodsPlaceController.class);
 
 	@Autowired
 	private CollectGoodsPlaceService collectGoodsPlaceService;
-
-	@Autowired
-	private CollectGoodsDetailService collectGoodsDetailService;
 
 	@Autowired
 	private CollectGoodsAreaService collectGoodsAreaService;
@@ -60,23 +57,8 @@ public class CollectGoodsPlaceController {
 	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex(Model model) {
-
-
-		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-		String userCode = "";
-		Long createSiteCode = new Long(-1);
-		Integer orgId = new Integer(-1);
-        String createSiteName = "";
-		if(erpUser!=null){
-			userCode = erpUser.getUserCode();
-			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-			if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
-				createSiteCode = new Long(bssod.getSiteCode());
-				orgId = bssod.getOrgId();
-                createSiteName = bssod.getSiteName();
-			}
-		}
-		model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode).addAttribute("createSiteName",createSiteName);
+		// 设置基础信息
+		setBaseModelInfo(model);
 		return "/collect/collectGoodsPlace";
 	}
 	/**

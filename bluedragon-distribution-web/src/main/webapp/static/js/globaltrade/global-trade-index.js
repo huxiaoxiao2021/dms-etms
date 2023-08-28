@@ -3,6 +3,14 @@ $(document).ready(main);
 
 function main() {
 
+	//加载站点组件
+	$('#switchSiteDom').sitePluginSelect({
+		'onlySiteSelect': true,
+		'provinceOrOrgMode': 'province',
+		'siteTypes' : [64],
+		'changeBtnShow': false
+	});
+	
 	// 查询按钮提交处理
 	$('#queryBtn').click(function() {
 		onQueryBtnClick(1);
@@ -206,7 +214,7 @@ function getParams() {
 	params.sendTimeFrom = $.trim($("#sendTimeFrom").val());
 	params.sendTimeTo = $.trim($("#sendTimeTo").val());
 	params.sendCode = $.trim($("#sendCode").val());
-	params.dmsCode = $.trim($("#dmsList").val());
+	params.dmsCode = $('#switchSiteDom').sitePluginSelect('getSelected').siteCode;
 	params.approvalCode = $.trim($("#approvalCode").val());
 	params.pageSize = $.trim($("#pageSize").val());
 	params.waybillOrPackageCode = $.trim($("#waybillOrPackageCode").val());

@@ -114,6 +114,11 @@ public class LoginUserResponse extends JdResponse {
 	private Integer siteSortThirdType;
 
 	/**
+	 * 省区
+	 */
+	private String provinceAgencyCode;
+	private String provinceAgencyName;
+	/**
 	 * @return the dmsSiteCode
 	 */
 	public Integer getDmsSiteCode() {
@@ -348,6 +353,22 @@ public class LoginUserResponse extends JdResponse {
 
 	public void setSiteSortThirdType(Integer siteSortThirdType) {
 		this.siteSortThirdType = siteSortThirdType;
+	}
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getProvinceAgencyName() {
+		return provinceAgencyName;
+	}
+
+	public void setProvinceAgencyName(String provinceAgencyName) {
+		this.provinceAgencyName = provinceAgencyName;
 	}
 
 	public BaseResponse toOldLoginResponse() {

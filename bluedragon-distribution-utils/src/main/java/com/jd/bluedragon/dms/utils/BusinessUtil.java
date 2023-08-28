@@ -2774,5 +2774,26 @@ public class BusinessUtil {
             return false;
         }
         return businessKey.startsWith(DmsConstants.CODE_PREFIX_WORK_STATION_GRID);
-    }    
+    }
+
+    /**
+     * 判断周转筐型号
+     * 通过第13位判断周转筐型号
+     * 1,2,3,对应小型 4对应大型
+     * @param code
+     * @return
+     */
+    public static RecycleBasketTypeEnum getRecycleBasketType(String code) {
+        if (!StringUtils.isEmpty(code) && isMatchBoxCode(code)) {
+            Integer type = Integer.valueOf(code.substring(12,13));
+            if (SMALL_RECYCLE_BASKET_TYPE.contains(type)) {
+                return RecycleBasketTypeEnum.SMALL;
+            }
+            if (RecycleBasketTypeEnum.BIG.getCode().equals(type)){
+                return RecycleBasketTypeEnum.BIG;
+            }
+        }
+        return null;
+    }
+    
 }

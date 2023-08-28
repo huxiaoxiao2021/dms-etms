@@ -150,7 +150,7 @@
                   alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${basic.jsf.token}" hide="true"/>
     </jsf:consumer>
-
+    
     <jsf:consumer id="basicTraderAPI" interface="com.jd.ldop.basic.api.BasicTraderAPI" protocol="jsf"
                   alias="${ldop.basic.jsf.alias}" timeout="${ldop.basic.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
@@ -1407,5 +1407,28 @@
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!--  拣运基础站点服务  -->
+    <jsf:consumer id="siteQueryJsfService"
+                  interface="com.jdl.basic.api.service.site.SiteQueryService"
+                  protocol="jsf"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    
+    <!-- 基础资料人员jsf服务 -->
+    <jsf:consumer id="basicStaffQueryWS" 
+                  interface="com.jd.ql.basic.ws.BasicStaffQueryWS" 
+                  protocol="jsf" 
+                  alias="${basic.jsf.alias}"
+                  timeout="${basic.jsf.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
     </jsf:consumer>
 </beans>
