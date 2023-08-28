@@ -173,6 +173,7 @@ public class CrossDistributionFilter implements Filter {
             if (SiteHelper.isDistributionCenter(request.getReceiveSite())
                     && !transferStationSiteType.equals(request.getReceiveSite().getSubType()) ) {
 
+                // todo 跨区校验待后续机构彻底不使用了再下线
                 //区域不匹配，直接弹
                 //新增逻辑，邹剑 - 取消苏州接货仓（ID：2531）、苏州外单分拣中心（ID 151678）跨分拣中心发货验证提示 2015年9月21日  邮件主题【跨区发货提示取消申请】
                 //在 rules表中 如果有1121.content=1 就不做跨分拣中心提示，  如果没有1121 或者 1121.content!=1 就仍然提示

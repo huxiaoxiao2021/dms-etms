@@ -96,6 +96,15 @@ public class GroupMemberRequest implements Serializable {
 	 * 签到记录Id列表
 	 */
 	private List<Long> signRecordIdList;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
 	
 	public String getGroupCode() {
 		return groupCode;
@@ -216,5 +225,21 @@ public class GroupMemberRequest implements Serializable {
 	}
 	public void setSignRecordIdList(List<Long> signRecordIdList) {
 		this.signRecordIdList = signRecordIdList;
+	}
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		this.areaHubCode = areaHubCode;
 	}
 }

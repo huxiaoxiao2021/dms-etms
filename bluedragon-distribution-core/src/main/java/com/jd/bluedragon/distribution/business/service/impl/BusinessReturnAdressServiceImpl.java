@@ -190,7 +190,7 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 			body.setLastOperateTime(DateHelper.formatDateTime(row.getLastOperateTime()));
 			body.setBusinessId(row.getBusinessId());
 			body.setBusinessName(row.getBusinessName());
-			body.setDeptNo(row.getDeptNo());
+//			body.setDeptNo(row.getDeptNo());
 			body.setReturnAdressStatusDesc(row.getReturnAdressStatusDesc());
 			body.setReturnQuantity(row.getReturnQuantity());
 			dataList.add(body);
@@ -205,7 +205,7 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 		headerMap.put("lastOperateTime","最新换单时间");
 		headerMap.put("businessId","商家ID");
 		headerMap.put("businessName","商家名称");
-		headerMap.put("deptNo","签约区域");
+//		headerMap.put("deptNo","签约区域");
 		headerMap.put("returnAdressStatusDesc","此时是否已维护退货信息");
 		headerMap.put("returnQuantity","退货量");
 		return  headerMap;

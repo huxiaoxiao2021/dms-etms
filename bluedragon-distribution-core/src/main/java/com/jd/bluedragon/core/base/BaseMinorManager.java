@@ -5,12 +5,7 @@ import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderReturnDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
-import com.jd.ql.basic.domain.AirTransport;
-import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseSiteGoods;
-import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.domain.ReverseCrossPackageTag;
-import com.jd.ql.basic.domain.SortCrossDetail;
+import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 
 import java.util.List;

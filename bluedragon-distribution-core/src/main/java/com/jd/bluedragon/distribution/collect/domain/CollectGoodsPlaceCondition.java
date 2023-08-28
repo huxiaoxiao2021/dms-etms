@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.collect.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
@@ -14,6 +15,7 @@ import java.util.Date;
  * @date 2019年08月14日 13:56:21
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CollectGoodsPlaceCondition extends BasePagerCondition {
 
 	private static final long serialVersionUID = 1L;

@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.popReveice.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -10,6 +12,7 @@ import java.util.Date;
  *
  * 类说明
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PopReceiveDto implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -52,6 +55,15 @@ public class PopReceiveDto implements Serializable {
 	 * 2：打印发票
 	 */
 	private Integer isPackOrInvoice;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
 
 	public String getWaybillCode() {
 		return waybillCode;
@@ -124,6 +136,20 @@ public class PopReceiveDto implements Serializable {
 	public void setOperateEndTime(String operateEndTime) {
 		this.operateEndTime = operateEndTime;
 	}
-	
-	
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		this.areaHubCode = areaHubCode;
+	}
 }
