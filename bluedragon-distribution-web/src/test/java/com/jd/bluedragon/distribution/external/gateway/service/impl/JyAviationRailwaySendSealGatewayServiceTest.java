@@ -87,7 +87,7 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setUser(USER_wuyoude);
         request.setGroupCode(GROUP_CODE);
         request.setPost(POST);
-        request.setStatusCodeList(Collections.singletonList(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode()));
+        request.setStatusCode(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode());
         request.setPageNo(1);
         request.setPageSize(30);
         request.setNextSiteId(40240);
@@ -241,7 +241,10 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
         request.setGroupCode(GROUP_CODE);
-        
+        request.setSendVehicleBizId("SST23082400000051");
+        request.setSendVehicleDetailBizId("DCH20230824144926");
+        request.setBarCodeType(2);
+        request.setBarCode("JD0003421571498-1-1-");
         aviationRailwaySendSealGatewayService.scan(request);
     }
     @Test
