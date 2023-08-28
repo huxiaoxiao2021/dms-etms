@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.enums.JySendTaskTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.ObjectHelper;
 import org.apache.commons.collections4.CollectionUtils;
@@ -230,12 +231,12 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public Integer countDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".countDetailSendTaskByCondition", entity);
     }
-    public  List<JyBizSendTaskAssociationDto>  pageFindDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity, Integer offset, Integer limit) {
+    public  List<JyBizSendTaskAssociationDto>  pageFindDetailSendTaskByCondition(JyBizTaskSendVehicleDetailQueryEntity entity, Integer offset, Integer limit) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
         params.put("offset", offset);
         params.put("limit", limit);
-        return this.getSqlSession().selectList(NAMESPACE + ".pageFindDetailSendTaskByCondition", entity);
+        return this.getSqlSession().selectList(NAMESPACE + ".pageFindDetailSendTaskByCondition", params);
     }
 
 }

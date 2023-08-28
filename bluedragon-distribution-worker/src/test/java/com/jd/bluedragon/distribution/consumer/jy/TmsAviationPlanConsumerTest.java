@@ -3,19 +3,18 @@ package com.jd.bluedragon.distribution.consumer.jy;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.AirTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.CargoTypeEnum;
 import com.jd.bluedragon.distribution.consumer.jy.task.aviation.TmsAviationPlanConsumer;
-import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TmsAviationPlanDto;
-import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.util.DateUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -33,12 +32,19 @@ public class TmsAviationPlanConsumerTest {
 
     @Autowired
     private TmsAviationPlanConsumer tmsAviationPlanConsumer;
+    @Autowired
+    private JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
 
     @Test
     public void testConsume() {
-        String bc = "DCH20230823000";
+
+//        int t = 0;
+//        while(t++<100){
+//            String bizId = jyBizTaskSendVehicleService.genMainTaskBizId();
+//            System.out.println(bizId);
+//        }
+
         TmsAviationPlanDto param = new TmsAviationPlanDto();
-        param.setBookingCode("DCH20230823000");
         param.setStartNodeCode("010F002");//910
         param.setStartNodeName("马驹桥分拣中心cs");
         param.setFlightNumber("CA-1001");
@@ -56,20 +62,22 @@ public class TmsAviationPlanConsumerTest {
         param.setCargoType(CargoTypeEnum.SPECIAL_A.getCode());
         param.setAirType(AirTypeEnum.AIR_TYPE_BULK.getCode());
 
-        int i = 0;
-        while(i++ < 100) {
+        int i = 100;
+        while(i++ < 200) {
             try{
-                param.setBookingCode(bc + i);
+                String dch = DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss);
+                param.setBookingCode("DCH" + i + dch);
                 Message message = new Message();
                 message.setText(JsonHelper.toJson(param));
                 message.setBusinessId(param.getBookingCode());
                 tmsAviationPlanConsumer.consume(message);
 
-                param.setBookingWeight(param.getBookingWeight() - i);
+                param.setBookingWeight(param.getBookingWeight() - 10);
                 Message message1 = new Message();
                 message1.setText(JsonHelper.toJson(param));
                 message1.setBusinessId(param.getBookingCode());
                 tmsAviationPlanConsumer.consume(message1);
+
                  System.out.println("success");
             }catch (Exception e) {
                 System.out.println(e.getMessage());

@@ -38,14 +38,20 @@
     </resultMap>
 
 
-    <resultMap id="statusStatistics" type="com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics" >
+    <resultMap id="statusStatisticsRes" type="com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics" >
         <result column="task_status" property="taskStatus" jdbcType="VARCHAR" />
         <result column="total" property="total" jdbcType="INTEGER" />
     </resultMap>
 
-    <resultMap id="airTypeStatistics" type="com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics" >
+    <resultMap id="airTypeStatisticsRes" type="com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics" >
         <result column="air_type" property="airType" jdbcType="VARCHAR" />
         <result column="total" property="total" jdbcType="INTEGER" />
+    </resultMap>
+
+    <resultMap id="nextSiteStatistics" type="com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto" >
+        <result column="next_site_id" property="nextSiteId" jdbcType="BIGINT" />
+        <result column="next_site_name" property="nextSiteName" jdbcType="VARCHAR" />
+        <result column="total" property="totalNum" jdbcType="INTEGER" />
     </resultMap>
 
 
@@ -390,7 +396,7 @@
         </if>
     </sql>
 
-    <select id="statusStatistics" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="statusStatistics">
+    <select id="statusStatistics" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="statusStatisticsRes">
         SELECT
           task_status, count(*) total
         FROM
@@ -402,7 +408,7 @@
           task_status
     </select>
 
-    <select id="queryNextSitesByStartSite" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="BaseResultMap">
+    <select id="queryNextSitesByStartSite" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="nextSiteStatistics">
         SELECT
             next_site_id,next_site_name, count(*) total
         FROM
@@ -430,12 +436,12 @@
         <foreach collection="taskStatusList" separator="," open="(" close=")" item="item">
             #{item}
         </foreach>
-        limit #{offset},#{pageSize}
         order by take_off_time
+        limit #{offset},#{pageSize}
     </select>
 
 
-    <select id="airTypeStatistics" parameterType="java.lang.Integer"  resultMap="airTypeStatistics">
+    <select id="airTypeStatistics" parameterType="java.lang.Integer"  resultMap="airTypeStatisticsRes">
         SELECT
             air_type, count(*) total
         FROM
@@ -491,3 +497,4 @@
                 </foreach>
     </select>
 </mapper>
+

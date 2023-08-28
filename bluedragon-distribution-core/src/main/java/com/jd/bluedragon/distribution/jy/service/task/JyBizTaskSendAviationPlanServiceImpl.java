@@ -109,7 +109,6 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
         if(!NumberHelper.gt0(siteId)) {
             return null;
         }
-        List<JyBizTaskAviationAirTypeStatistics> res = new ArrayList<>();
         return jyBizTaskSendAviationPlanDao.airTypeStatistics(siteId);
     }
 

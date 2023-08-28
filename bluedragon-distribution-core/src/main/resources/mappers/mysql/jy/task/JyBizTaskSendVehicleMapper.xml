@@ -48,7 +48,7 @@
         <result property="total" column="total"/>
     </resultMap>
 
-    <!-- 可根据自己的需求，是否要使用 -->
+
     <resultMap type="com.jd.bluedragon.distribution.jy.dto.send.JyBizSendTaskAssociationDto" id="jyBizSendTaskAssociationDto">
         <result property="transWorkCode" column="trans_work_code"/>
         <result property="vehicleNumber" column="vehicle_number"/>
@@ -765,7 +765,7 @@
         INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
         WHERE
         m.yn = 1
-        AND m.task_type = 100 <!-- 仅过滤发车任务 -->
+        AND m.task_type = 1 <!-- 仅过滤发车任务 -->
         AND m.manual_created_flag = 0
         <!--AND m.line_type in (1,2)-->
         <if test="entity.lineTypeList != null and entity.lineTypeList.size() > 0">
@@ -811,7 +811,7 @@
                  FROM jy_biz_task_send_vehicle m
                           INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
                  WHERE m.yn = 1
-                    AND m.task_type = 100 <!-- 仅过滤发车任务 -->
+                    AND m.task_type = 1 <!-- 仅过滤发车任务 -->
                    AND m.manual_created_flag = 0
                    <!--AND m.line_type in (1,2)-->
                     <if test="lineTypeList != null and lineTypeList.size() > 0">
@@ -893,40 +893,42 @@
 
     <select id="pageFindDetailSendTaskByCondition" resultMap="jyBizSendTaskAssociationDto">
         SELECT
-        m.trans_work_code,m.vehicle_number,m.last_plan_depart_time
-        d.send_vehicle_biz_id,d.biz_id,d.trans_work_item_code,d.vehicle_status,
-        d.start_site_id,d.start_site_name,d.end_site_id,d.end_site_name
+            m.trans_work_code,m.vehicle_number,m.last_plan_depart_time,
+            d.send_vehicle_biz_id,d.biz_id,d.trans_work_item_code,d.vehicle_status,
+            d.start_site_id,d.start_site_name,d.end_site_id,d.end_site_name
         FROM
-        jy_biz_task_send_vehicle m
-        INNER JOIN jy_biz_task_send_vehicle_detail d
-        ON m.biz_id = d.send_vehicle_biz_id
+            jy_biz_task_send_vehicle m
+            INNER JOIN jy_biz_task_send_vehicle_detail d
+            ON m.biz_id = d.send_vehicle_biz_id
         WHERE
-        m.yn = 1
-        AND m.task_type = 100 <!-- 仅过滤发车任务 -->
-        AND m.manual_created_flag = 0
-        AND m.line_type in
-        <foreach collection="entity.lineTypeList" separator="," open="(" close=")" item="item">
-            #{item}
-        </foreach>
-        <if test="entity.bizIdList != null and entity.bizIdList.size() > 0">
-            AND m.biz_id IN
-            <foreach collection="entity.bizIdList" separator="," open="(" close=")" item="item">
+            m.yn = 1
+            AND m.start_site_id = #{entity.startSiteId}
+            AND m.task_type = 1 <!-- 仅过滤发车任务 -->
+            AND m.manual_created_flag = 0
+            AND m.line_type in
+            <foreach collection="entity.lineTypeList" separator="," open="(" close=")" item="item">
                 #{item}
             </foreach>
-        </if>
-        <!-- detail -->
-        AND d.yn = 1
-        AND d.start_site_id = #{statusList.startSiteId}
-        AND d.vehicle_status IN
-        <foreach collection="entity.statusList" separator="," open="(" close=")" item="item">
-            #{item}
-        </foreach>
-        and d.excep_label =0
-
+            <if test="entity.bizIdList != null and entity.bizIdList.size() > 0">
+                AND m.biz_id IN
+                <foreach collection="entity.bizIdList" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+                and ((m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{entity.createTimeBegin}))
+            </if>
+            <!-- detail -->
+            AND d.yn = 1
+            AND d.vehicle_status IN
+            <foreach collection="entity.statusList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+            and d.excep_label =0
         GROUP BY
-        d.send_vehicle_biz_id, d.biz_id
+            d.send_vehicle_biz_id, d.biz_id
         ORDER BY
-        m.last_plan_depart_time DESC
+            m.last_plan_depart_time DESC
         LIMIT #{offset}, #{limit}
     </select>
 
@@ -935,36 +937,39 @@
     <select id="countDetailSendTaskByCondition" resultType="java.lang.Integer">
         SELECT COUNT(*)
         FROM (
-        SELECT
-        d.send_vehicle_biz_id, d.biz_id
-        FROM
-        jy_biz_task_send_vehicle m
-        INNER JOIN jy_biz_task_send_vehicle_detail d
-        ON m.biz_id = d.send_vehicle_biz_id
-        WHERE
-        m.yn = 1
-        AND m.task_type = 100 <!-- 仅过滤发车任务 -->
-        AND m.manual_created_flag = 0
-        AND m.line_type in
-        <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
-            #{item}
-        </foreach>
-        <if test="bizIdList != null and bizIdList.size() > 0">
-            AND m.biz_id IN
-            <foreach collection="bizIdList" separator="," open="(" close=")" item="item">
-                #{item}
-            </foreach>
-        </if>
-        <!-- detail -->
-        AND d.yn = 1
-        AND d.start_site_id = #{startSiteId}
-        AND d.vehicle_status IN
-        <foreach collection="statuses" separator="," open="(" close=")" item="item">
-            #{item}
-        </foreach>
-        and d.excep_label =0
-        GROUP BY
-        d.send_vehicle_biz_id, d.biz_id
+            SELECT
+                d.send_vehicle_biz_id, d.biz_id
+            FROM
+                jy_biz_task_send_vehicle m
+                INNER JOIN jy_biz_task_send_vehicle_detail d
+                ON m.biz_id = d.send_vehicle_biz_id
+            WHERE
+                m.yn = 1
+                AND m.start_site_id = #{startSiteId}
+                AND m.task_type = 1 <!-- 仅过滤发车任务 -->
+                AND m.manual_created_flag = 0
+                AND m.line_type in
+                <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+                <if test="bizIdList != null and bizIdList.size() > 0">
+                    AND m.biz_id IN
+                    <foreach collection="bizIdList" separator="," open="(" close=")" item="item">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="lastPlanDepartTimeBegin !=null and lastPlanDepartTimeEnd !=null and createTimeBegin !=null">
+                    and ((m.last_plan_depart_time &gt;= #{lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{createTimeBegin}))
+                </if>
+                <!-- detail -->
+                AND d.yn = 1
+                AND d.vehicle_status IN
+                <foreach collection="statusList" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+                and d.excep_label =0
+            GROUP BY
+                d.send_vehicle_biz_id, d.biz_id
         ) t
     </select>
 
