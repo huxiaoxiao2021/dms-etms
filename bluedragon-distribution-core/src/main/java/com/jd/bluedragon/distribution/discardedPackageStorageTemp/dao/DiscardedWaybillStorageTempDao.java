@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageScanResultItemDto;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.*;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedWaybillStorageTemp;
@@ -164,5 +163,12 @@ public class DiscardedWaybillStorageTempDao extends BaseDao<DiscardedWaybillStor
      */
     public int finishSubmitDiscarded(FinishSubmitDiscardedUo updateObj){
         return this.getSqlSession().update(DiscardedWaybillStorageTempDao.NAMESPACE + ".finishSubmitDiscarded", updateObj);
+    }
+
+    public List<DiscardedWaybillStorageTemp> brushQueryAllByPage(Integer startId) {
+        return this.getSqlSession().selectOne(DiscardedWaybillStorageTempDao.NAMESPACE + ".brushQueryAllByPage", startId);
+    }
+    public int brushUpdateById(List<DiscardedWaybillStorageTemp> list) {
+        return this.getSqlSession().update(DiscardedWaybillStorageTempDao.NAMESPACE + ".brushUpdateById", list);
     }
 }

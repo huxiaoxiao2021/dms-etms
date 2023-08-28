@@ -69,4 +69,12 @@ public class CollectionBagExceptionReportDao extends BaseDao<CollectionBagExcept
     public int updateByPrimaryKey(CollectionBagExceptionReport record) {
         return this.getSqlSession().update(CollectionBagExceptionReportDao.namespace + ".updateByPrimaryKey", record);
     }
+
+
+    public List<CollectionBagExceptionReport> brushQueryAllByPage(Integer startId) {
+        return this.getSqlSession().selectOne(CollectionBagExceptionReportDao.namespace + ".brushQueryAllByPage", startId);
+    }
+    public int brushUpdateById(List<CollectionBagExceptionReport> list) {
+        return this.getSqlSession().update(CollectionBagExceptionReportDao.namespace + ".brushUpdateById", list);
+    }
 }

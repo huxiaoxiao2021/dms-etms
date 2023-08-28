@@ -336,4 +336,41 @@
      where  yn = 1
      <include refid="Query_Yn_Condition_Sql"/>
     </select>
+
+
+    <!-- 刷数sql start -->
+    <select id="brushQueryAllByPage" parameterType="java.lang.Integer" resultMap="funcSwitchConfigDto">
+        select
+            id,site_code
+        from
+            func_switch_config
+        where yn = 1
+          and province_agency_code = ''
+          and id > #{id,jdbcType=BIGINT}
+        order by id
+            limit 100
+    </select>
+    <update id="brushUpdateById" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            UPDATE func_switch_config
+            <set>
+                <if test="item.provinceAgencyCode != null and item.provinceAgencyCode != ''" >
+                    province_agency_code = #{item.provinceAgencyCode,jdbcType=VARCHAR},
+                </if>
+                <if test="item.provinceAgencyName != null and item.provinceAgencyName != ''" >
+                    province_agency_name = #{item.provinceAgencyName,jdbcType=VARCHAR},
+                </if>
+                <if test="item.areaHubCode != null and item.areaHubCode != ''" >
+                    area_hub_code = #{item.areaHubCode,jdbcType=VARCHAR},
+                </if>
+                <if test="item.areaHubName != null and item.areaHubName != ''" >
+                    area_hub_name = #{item.areaHubName,jdbcType=VARCHAR},
+                </if>
+                update_time = now()
+            </set>
+            WHERE yn = 1
+            AND id = #{item.id}
+        </foreach>
+    </update>
+    <!-- 刷数sql end -->
 </mapper>
