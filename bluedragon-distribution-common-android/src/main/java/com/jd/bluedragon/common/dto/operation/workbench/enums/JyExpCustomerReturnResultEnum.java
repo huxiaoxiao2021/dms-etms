@@ -14,7 +14,7 @@ public enum JyExpCustomerReturnResultEnum {
     MAIN_LAND_DIRECT_DOWN_1(2,"534","直接下传"),
     MAIN_LAND_DIRECT_DOWN_2(2,"538","直接下传"),
     MAIN_LAND_DIRECT_DOWN_3(2,"539","直接下传"),
-    MAIN_LAND_CHANGE_PACKAGE_DOWN(3,"357","更换包装下传"),
+    MAIN_LAND_CHANGE_PACKAGE_DOWN(3,"537","更换包装下传"),
     MAIN_LAND_SCRAPPED(4,"536","报废"),
     MAIN_LAND_REVERSE_FALLBACK_1(5,"533","逆向退回"),
     MAIN_LAND_REVERSE_FALLBACK_2(5,"535","逆向退回"),
