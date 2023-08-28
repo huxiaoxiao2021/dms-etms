@@ -207,17 +207,6 @@ public class UserSignRecord implements Serializable {
 	 */
 	private Integer bizSource;
 
-	private String refWorkGridKey;
-
-	public String getRefWorkGridKey() {
-		return refWorkGridKey;
-	}
-
-	public void setRefWorkGridKey(String refWorkGridKey) {
-		this.refWorkGridKey = refWorkGridKey;
-	}
-
-
 	/**
 	 * 省区编码
 	 */
@@ -235,6 +224,16 @@ public class UserSignRecord implements Serializable {
 	 */
 	private String areaHubName;
 	
+	private String refWorkGridKey;
+
+	public String getRefWorkGridKey() {
+		return refWorkGridKey;
+	}
+
+	public void setRefWorkGridKey(String refWorkGridKey) {
+		this.refWorkGridKey = refWorkGridKey;
+	}
+
 	/**
 	 *
 	 * @param id

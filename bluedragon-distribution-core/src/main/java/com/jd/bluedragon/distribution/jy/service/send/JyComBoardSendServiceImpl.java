@@ -9,41 +9,44 @@ import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.RouterValidateData;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey.SendCodeAttributeKeyEnum;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
+import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
@@ -53,11 +56,12 @@ import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.IJyComboardJsfManager;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
-import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
+import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -69,21 +73,17 @@ import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.*;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
-import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
-import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.*;
@@ -94,37 +94,29 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.cross.*;
-
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.comboard.ComboardScanedDto;
 import com.jdl.jy.realtime.model.es.comboard.JyComboardPackageDetail;
-
-import java.util.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import com.jd.etms.waybill.domain.Waybill;
-
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.Constants.SUCCESS_CODE;
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
-import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.*;
+import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.COMBOARD_SEND_POSITION;
 import static com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE;
 
 @Service
@@ -136,6 +128,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Autowired
   private WaybillQueryManager waybillQueryManager;
+  @Autowired
+  private WaybillCommonService waybillCommonService;
   @Autowired
   private SortingCheckService sortingCheckService;
   @Autowired
@@ -1094,7 +1088,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.comboardScan", mState = {JProEnum.TP, JProEnum.FunctionError})
-  public InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request) {
+  public JdVerifyResponse<ComboardScanResp> comboardScan(ComboardScanReq request) {
+    JdVerifyResponse<ComboardScanResp> result = new JdVerifyResponse<>();
+    result.toSuccess();
     try {
       baseCheck(request);
       comboardCheck(request);
@@ -1104,25 +1100,36 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
       execComboard(request);
       execSend(request);
+      businessTips(request, result);
     } catch (NullPointerException e){
       log.error("JyComBoardSendServiceImpl comboardScan NullPointerException", e);
-      return new InvokeResult<>(CODE_ERROR,"服务器开小差，请联系分拣小秘！");
+      result.toError("服务器开小差，请联系分拣小秘！");
+      return result;
     } catch(JyBizException e) {
       ComboardScanResp resp = assembleComboardResp(request);
       resp.setInterceptFlag(checkIntercept(request));
       if (ObjectHelper.isNotNull(e.getCode())){
         if (BOARD_HAS_BEEN_FULL_CODE==e.getCode()){
-          return new InvokeResult(e.getCode(), e.getMessage(),resp);
+          result.toCustomError(e.getCode(), e.getMessage());
+          result.setData(resp);
+          return result;
         }
-        return new InvokeResult(e.getCode(), e.getMessage(),resp);
+        result.toCustomError(e.getCode(), e.getMessage());
+        result.setData(resp);
+        return result;
       }
-      return new InvokeResult(CODE_ERROR, e.getMessage(),resp);
+      result.setData(resp);
+      result.toError(e.getMessage());
+      return result;
     }
     ComboardScanResp resp = assembleComboardResp(request);
     if (ucc.getSupportMutilScan() && request.getNeedSkipSendFlowCheck()){
-      return new InvokeResult(NOT_CONSISTENT_WHIT_CUR_SENDFLOW_CODE, NOT_CONSISTENT_WHIT_CUR_SENDFLOW_MESSAGE, resp);
+      result.toCustomError(NOT_CONSISTENT_WHIT_CUR_SENDFLOW_CODE, NOT_CONSISTENT_WHIT_CUR_SENDFLOW_MESSAGE);
+      result.setData(resp);
+      return result;
     }
-    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+    result.setData(resp);
+    return result;
   }
 
   //是否需要强拦截提醒
@@ -2017,6 +2024,40 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       else {
         throw new JyBizException(NOT_CONSISTENT_WHIT_LAST_SENDFLOW_CODE,NOT_CONSISTENT_WHIT_LAST_SENDFLOW_MESSAGE);
       }
+    }
+  }
+
+  private void businessTips(ComboardScanReq request, JdVerifyResponse<ComboardScanResp> response){
+    try {
+      // 只处理包裹号或运单号
+      if(!WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())){
+        log.warn("此单非包裹或运单号");
+        return;
+      }
+      String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+
+      Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+      // 1. 航空件类型
+      if(BusinessUtil.isAirLineMode(waybill.getWaybillSign())){
+        response.addPromptBox(InvokeResult.CODE_AIR_TRANSPORT, InvokeResult.CODE_AIR_TRANSPORT_MESSAGE);
+      }
+
+      // 2. 增值服务-特安
+      final List<WaybillVasDto> waybillVasList = waybillCommonService.getWaybillVasList(waybillCode);
+      if(org.apache.commons.collections4.CollectionUtils.isEmpty(waybillVasList)){
+        return;
+      }
+      final com.jd.dms.java.utils.sdk.base.Result<Boolean> specialSafetyCheckResult = waybillCommonService.checkWaybillVas(waybillCode, WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFETY, waybillVasList);
+      if(specialSafetyCheckResult.isSuccess() && specialSafetyCheckResult.getData()){
+        response.addWarningBox(InvokeResult.REVOKE_TEAN_CODE, InvokeResult.REVOKE_TEAN_MESSAGE);
+      }
+      // 3. 增值服务-生鲜特保
+      final com.jd.dms.java.utils.sdk.base.Result<Boolean> specialSafeColdFreshCheckResult = waybillCommonService.checkWaybillVas(waybillCode, WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFEGUARD_COLD_FRESH_OPERATION, waybillVasList);
+      if(specialSafeColdFreshCheckResult.isSuccess() && specialSafeColdFreshCheckResult.getData()){
+        response.addPromptBox(InvokeResult.CODE_FRESH_SPECIAL, InvokeResult.CODE_FRESH_SPECIAL_MESSAGE);
+      }
+    } catch (Exception e) {
+      log.error("businessTips param {}", JsonHelper.toJson(request), e);
     }
   }
 

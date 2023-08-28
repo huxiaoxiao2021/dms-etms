@@ -156,13 +156,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	public Result<Boolean> insert(UserSignRecord insertData){
 		Result<Boolean> result = Result.success();
 		// fill basic site info
-		BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(insertData.getSiteCode());
-		insertData.setOrgCode(baseSite == null ? null : baseSite.getOrgId());
-		insertData.setOrgName(baseSite == null ? null : baseSite.getOrgName());
-		insertData.setProvinceAgencyCode(baseSite == null ? null : baseSite.getProvinceAgencyCode());
-		insertData.setProvinceAgencyName(baseSite == null ? null : baseSite.getProvinceAgencyName());
-		insertData.setAreaHubCode(baseSite == null ? null : baseSite.getAreaCode());
-		insertData.setAreaHubName(baseSite == null ? null : baseSite.getAreaName());
+		if(insertData.getSiteCode() != null){
+			BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(insertData.getSiteCode());
+			insertData.setOrgCode(baseSite == null ? null : baseSite.getOrgId());
+			insertData.setOrgName(baseSite == null ? null : baseSite.getOrgName());
+			insertData.setProvinceAgencyCode(baseSite == null ? null : baseSite.getProvinceAgencyCode());
+			insertData.setProvinceAgencyName(baseSite == null ? null : baseSite.getProvinceAgencyName());
+			insertData.setAreaHubCode(baseSite == null ? null : baseSite.getAreaCode());
+			insertData.setAreaHubName(baseSite == null ? null : baseSite.getAreaName());	
+		}
 		result.setData(userSignRecordDao.insert(insertData) == 1);
 		return result;
 	 }

@@ -58,7 +58,7 @@
 			<if test="operateProvinceAgencyName != null">
 				operate_province_agency_name,
 			</if>
-			<if test="operateAreaHunCode != null">
+			<if test="operateAreaHubCode != null">
 				operate_area_hub_code,
 			</if>
 			<if test="operateAreaHubName != null">

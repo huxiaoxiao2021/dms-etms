@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -89,8 +90,8 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   }
 
   @Override
-  public JdCResponse<ComboardScanResp> comboardScan(ComboardScanReq request) {
-    return retJdCResponse(jyComBoardSendService.comboardScan(request));
+  public JdVerifyResponse<ComboardScanResp> comboardScan(ComboardScanReq request) {
+    return jyComBoardSendService.comboardScan(request);
   }
 
   @Override

@@ -175,8 +175,8 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             return response;
         }
 
-        InvokeResult<Integer> invokeResult = unloadVehicleService.unloadScan(request);
-        if (invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
+        final JdVerifyResponse<Integer> integerJdVerifyResponse = unloadVehicleService.unloadScan(request);
+        /*if (invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
             response.setData(invokeResult.getData());
             response.toSuccess();
             response.setData(invokeResult.getData());
@@ -195,7 +195,8 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         } else {
             response.toFail(invokeResult.getMessage());
             return response;
-        }
+        }*/
+        return integerJdVerifyResponse;
     }
 
     /**

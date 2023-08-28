@@ -7,6 +7,8 @@ import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
+import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -263,4 +265,23 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	InvokeResult<Integer> fetchOldSiteId(String waybillCode);
+    /**
+     * 查询增值服务
+     * @param waybillCode 运单号
+     * @param waybillVasEnum 自定义增值服务枚举
+     * @return 是否包含增值服务
+     * @author fanggang7
+     * @time 2023-08-10 10:55:02 周四
+     */
+    Result<Boolean> checkWaybillVas(String waybillCode, WaybillVasEnum waybillVasEnum);
+
+    /**
+     * 查询增值服务
+     * @param waybillCode 运单号
+     * @param waybillVasEnum 自定义增值服务枚举
+     * @return 是否包含增值服务
+     * @author fanggang7
+     * @time 2023-08-10 10:55:02 周四
+     */
+    Result<Boolean> checkWaybillVas(String waybillCode, WaybillVasEnum waybillVasEnum, List<WaybillVasDto> waybillVasDtoList);
 }

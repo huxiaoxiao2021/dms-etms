@@ -5,9 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
-import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
 import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
-import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
 
 import java.util.List;
@@ -176,6 +174,13 @@ public interface JySendVehicleGatewayService {
      */
     JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
 
-
+    /**
+     * 根据发货任务获取特殊产品类型数量
+     * @param request 请求参数
+     * @return 待扫列表统计
+     * @author fanggang7
+     * @time 2023-07-26 10:00:32 周三
+     */
+    JdCResponse<SendVehicleToScanTipsDto> getSpecialProductTypeToScanList(SendVehicleToScanTipsRequest request);
 
 }

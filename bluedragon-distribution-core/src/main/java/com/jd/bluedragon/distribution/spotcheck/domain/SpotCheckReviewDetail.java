@@ -64,14 +64,6 @@ public class SpotCheckReviewDetail implements Serializable {
      */
     private String reviewOrgName;
     /**
-     * 复核省区编码
-     */
-    private String reviewProvinceAgencyCode;
-    /**
-     * 复核省区名称
-     */
-    private String reviewProvinceAgencyName;
-    /**
      * 复核站点ID
      */
     private Integer reviewSiteCode;
@@ -96,6 +88,15 @@ public class SpotCheckReviewDetail implements Serializable {
      * 设备编码
      */
     private String machineCode;
+
+    /**
+     * 复核省区编码
+     */
+    private String reviewProvinceAgencyCode;
+    /**
+     * 复核省区名称
+     */
+    private String reviewProvinceAgencyName;
 
     public Double getReviewTotalWeight() {
         return reviewTotalWeight == null ? Constants.DOUBLE_ZERO : reviewTotalWeight;

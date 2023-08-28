@@ -17,8 +17,6 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 import com.jd.dms.java.utils.sdk.base.Result;
 
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -262,6 +260,15 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
+
+    /**
+     * 根据发货任务获取特殊产品类型数量
+     * @param request 请求参数
+     * @return 待扫列表统计
+     * @author fanggang7
+     * @time 2023-07-26 10:00:32 周三
+     */
+    Result<SendVehicleToScanTipsDto> getSpecialProductTypeToScanList(SendVehicleToScanTipsRequest request);
 
 
     /**

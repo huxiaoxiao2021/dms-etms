@@ -298,6 +298,12 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int NO_FINDGOODS_TASK_DATA_CODE = 3069;
     public static final String NO_FINDGOODS_TASK_DATA_MESSAGE = "未查询到对应的找货任务数据!";
+    // 航空件
+    public static final int CODE_AIR_TRANSPORT = 347;
+    public static final String CODE_AIR_TRANSPORT_MESSAGE = "航空件";
+    // 生鲜特保
+    public static final int CODE_FRESH_SPECIAL = 348;
+    public static final String CODE_FRESH_SPECIAL_MESSAGE = "生鲜特保件";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

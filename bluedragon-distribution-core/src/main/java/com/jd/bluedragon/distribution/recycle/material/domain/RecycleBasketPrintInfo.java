@@ -23,14 +23,14 @@ public class RecycleBasketPrintInfo implements Serializable {
     private List<String> recycleBasketCodes;
 
     /**
-     * 省区名称
-     */
-    private String provinceAgencyName;
-
-    /**
      * 周转筐类型
      */
     public String typeName;
+
+    /**
+     * 省区名称
+     */
+    private String provinceAgencyName;
 
     public String getCreateSiteName() {
         return createSiteName;
@@ -64,19 +64,19 @@ public class RecycleBasketPrintInfo implements Serializable {
         this.recycleBasketCodes = recycleBasketCodes;
     }
 
-    public String getProvinceAgencyName() {
-        return provinceAgencyName;
-    }
-
-    public void setProvinceAgencyName(String provinceAgencyName) {
-        this.provinceAgencyName = provinceAgencyName;
-    }
-
     public String getTypeName() {
         return typeName;
     }
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
+    }
+
+    public String getProvinceAgencyName() {
+        return provinceAgencyName;
+    }
+
+    public void setProvinceAgencyName(String provinceAgencyName) {
+        this.provinceAgencyName = provinceAgencyName;
     }
 }
