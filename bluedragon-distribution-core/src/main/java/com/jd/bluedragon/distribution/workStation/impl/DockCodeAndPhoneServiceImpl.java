@@ -98,7 +98,7 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
             }
             return result;
         } catch (Exception e) {
-            log.error("获取联系人号数据异常 {}", e.getMessage(), e);
+            log.error("获取联系人号数据异常:", e);
             result.toFail("获取联系人数据异常!");
         }
         return result;
