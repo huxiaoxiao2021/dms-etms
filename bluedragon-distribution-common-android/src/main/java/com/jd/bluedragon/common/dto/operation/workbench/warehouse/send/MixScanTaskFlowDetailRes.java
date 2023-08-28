@@ -10,6 +10,8 @@ import java.util.List;
  */
 public class MixScanTaskFlowDetailRes implements Serializable {
 
+    private static final long serialVersionUID = 4784612639942744950L;
+    
     /**
      * 流向详情
      */
