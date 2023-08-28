@@ -7,6 +7,10 @@ import java.util.Map;
 
 public class WaybillStatus {
 
+    public static final Integer waybillTraceType1 = 1;
+    public static final Integer waybillTraceType2 = 2;
+    public static final Integer waybillTraceType3 = 3;
+
     public static final int RESULT_CODE_PARAM_IS_NULL = 10001;
     public static final int RESULT_CODE_REPEAT_TASK = 10003;
 
