@@ -77,7 +77,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.40-SNAPSHOT</version>
+			<version>1.1.41-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -242,12 +242,12 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>2.0.13-SNAPSHOT</version>
+			<version>2.0.16-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.5.2-SNAPSHOT</version>
+			<version>1.5.3-SNAPSHOT</version>
 		</dependency>
 <!--		积分-->
 		<dependency>
@@ -276,7 +276,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.6.9-SNAPSHOT</version>
+            <version>1.7.1-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>

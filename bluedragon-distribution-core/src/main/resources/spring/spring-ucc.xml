@@ -296,6 +296,8 @@
 		<property name="JyBuQiWaybillCodeMaxSum" value="${JyBuQiWaybillCodeMaxSum:50000}"/>
 
 
+		<property name="interceptBlackList" value="${interceptBlackList:'*'}"/>
+		<property name="cttGroupDataLimit" value="${cttGroupDataLimit:200}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -581,6 +583,8 @@
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
 
 
+				<value>uccPropertyConfiguration.interceptBlackList</value>
+				<value>uccPropertyConfiguration.cttGroupDataLimit</value>
 			</list>
 		</property>
 	</bean>

@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition;
@@ -44,7 +45,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("collect/collectGoodsDetail")
-public class CollectGoodsDetailController {
+public class CollectGoodsDetailController extends DmsBaseController {
 
 	private static final Logger log = LoggerFactory.getLogger(CollectGoodsDetailController.class);
 
@@ -64,22 +65,8 @@ public class CollectGoodsDetailController {
 	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex(Model model) {
-
-		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-		String userCode = "";
-		Long createSiteCode = new Long(-1);
-		Integer orgId = new Integer(-1);
-
-		if(erpUser!=null){
-			userCode = erpUser.getUserCode();
-			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-			if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
-				createSiteCode = new Long(bssod.getSiteCode());
-				orgId = bssod.getOrgId();
-			}
-		}
-
-		model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
+		// 设置基础信息
+		setBaseModelInfo(model);
 		return "/collect/collectGoodsDetail";
 	}
 	/**

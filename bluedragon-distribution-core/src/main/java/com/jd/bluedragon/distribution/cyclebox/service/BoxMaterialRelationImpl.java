@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service("boxMaterialRelationService")
 public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
 
@@ -56,6 +58,16 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
     @Override
     public BoxMaterialRelation getDataByMaterialCode(String materialCode) {
         return boxMaterialRelationDao.getDataByMaterialCode(materialCode);
+    }
+
+    /**
+     * 根据集包袋编号查询固定条数数据
+     * @param materialCode
+     * @return
+     */
+    @Override
+    public List<BoxMaterialRelation> getLimitDataByMaterialCode(String materialCode, Integer limit) {
+        return boxMaterialRelationDao.getLimitDataByMaterialCode(materialCode,limit);
     }
 
     /**

@@ -2,10 +2,8 @@ package com.jd.bluedragon.distribution.jy.service.work.impl;
 
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 import org.jsoup.helper.StringUtil;
@@ -76,6 +74,7 @@ import com.jdl.basic.api.domain.work.WorkGridManagerTask;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
+import com.jdl.basic.api.domain.workStation.WorkGridModifyMqData;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
@@ -204,6 +203,11 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			result.toFail("任务已超时，不能提交！");
 			return result;
 		}
+		//非待处理状态，不能提交
+		if(!WorkTaskStatusEnum.TODO.getCode().equals(oldData.getStatus())) {
+			result.toFail("任务状态已变更，不能提交！");
+			return result;
+		}		
 		JyBizTaskWorkGridManager updateTaskData = new JyBizTaskWorkGridManager();
 		updateTaskData.setStatus(WorkTaskStatusEnum.COMPLETE.getCode());
 		updateTaskData.setHandlerPositionCode("");
@@ -867,5 +871,34 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public boolean dealWorkGridModifyTask(WorkGridModifyMqData workGridModifyMqData) {
+		if(workGridModifyMqData == null
+				|| workGridModifyMqData.getGridData() == null) {
+			return false;
+		}
+		//目前只处理网格删除的数据
+		if(!EditTypeEnum.DELETE.getCode().equals(workGridModifyMqData.getEditType())) {
+			return true;
+		}
+		JyBizTaskWorkGridManagerBatchUpdate cancelData = new JyBizTaskWorkGridManagerBatchUpdate();
+		JyBizTaskWorkGridManager data = new JyBizTaskWorkGridManager();
+		cancelData.setData(data);
+		data.setTaskRefGridKey(workGridModifyMqData.getGridData().getBusinessKey());
+		data.setStatus(WorkTaskStatusEnum.CANCEL_GRID_DELETE.getCode());
+		data.setUpdateTime(new Date());
+		data.setUpdateUser(DmsConstants.SYS_AUTO_USER_CODE);
+		data.setUpdateUserName(DmsConstants.SYS_AUTO_USER_CODE);
+		List<Integer> statusList = new ArrayList<>();
+		cancelData.setStatusList(statusList);
+		statusList.add(WorkTaskStatusEnum.TO_DISTRIBUTION.getCode());
+		statusList.add(WorkTaskStatusEnum.TODO.getCode());
+		statusList.add(WorkTaskStatusEnum.HANDLING.getCode());
+		int num = jyBizTaskWorkGridManagerService.autoCancelTaskForGridDelete(cancelData);
+		
+		logger.info("dealWorkGridModifyTask-网格[{}]删除，线上化任务-取消{}条",workGridModifyMqData.getGridData().getBusinessKey(),num);
+		return true;
 	}
 }

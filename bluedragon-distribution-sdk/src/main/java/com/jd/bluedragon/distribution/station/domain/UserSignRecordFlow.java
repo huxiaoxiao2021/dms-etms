@@ -280,7 +280,12 @@ public class UserSignRecordFlow implements Serializable {
 	/**
 	 * 员工名称-隐藏
 	 */
-	private String userNameHidden;	
+	private String userNameHidden;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
 	
 	/**
 	 *
@@ -984,5 +989,13 @@ public class UserSignRecordFlow implements Serializable {
 
 	public void setUserNameHidden(String userNameHidden) {
 		this.userNameHidden = userNameHidden;
+	}
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
 	}
 }

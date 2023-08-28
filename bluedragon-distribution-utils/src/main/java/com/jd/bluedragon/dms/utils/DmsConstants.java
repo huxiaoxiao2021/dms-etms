@@ -1,9 +1,6 @@
 package com.jd.bluedragon.dms.utils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -92,6 +89,12 @@ public class DmsConstants {
      * 箱号正则表达式 新版
      */
     public static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}10[0-9]{18}[0-3]{1}[0-9]{1}$");
+
+
+    /**
+     * 循环集包袋正则表达式
+     */
+    public static final Pattern RULE_CYCLE_BOX_REGEX = Pattern.compile("^AD(AD|[0-9]{2})[0-9]{12}$");
 
     /**
      * 箱号正则表达式，新开放-德邦的箱号规则
@@ -466,5 +469,11 @@ public class DmsConstants {
             this.name = name;
         }
     }
+    
+    public static final List<Integer> SMALL_RECYCLE_BASKET_TYPE = new ArrayList<Integer>(){{
+        add(1);
+        add(2);
+        add(3);
+    }};
 
 }
