@@ -971,7 +971,7 @@ public class QualityControlService {
             }
             final List<Long> secondIds = Constants.SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP.get(qualityControlRequest.getAbnormalReasonFirstId());
             if(CollectionUtils.isNotEmpty(secondIds)
-                    && secondIds.contains(qualityControlRequest.getAbnormalReasonFirstId())){
+                    && secondIds.contains(qualityControlRequest.getAbnormalReasonSecondId())){
                 return true;
             }
         } catch (Exception e) {
