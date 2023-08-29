@@ -27,6 +27,18 @@ public abstract class JyExceptionStrategy {
     public abstract Integer getExceptionType();
 
     /**
+     * 异常上报
+     * @param exceptionEntity
+     * @param req
+     * @param position
+     * @param source
+     * @param bizId
+     * @return
+     */
+    public abstract  JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity exceptionEntity, ExpUploadScanReq req, PositionDetailRecord position
+            , JyExpSourceEnum source,  String bizId);
+
+    /**
      * PDA选择不同的异常类型、破损类型、修复类型进行判断
      * @param req
      * @return

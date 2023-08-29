@@ -279,13 +279,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             }
             JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
             taskEntity.setType(req.getType());
-            //因为三无单可提前判断，可对三无数据提前处理
-            if(BusinessUtil.isSanWuCode(req.getBarCode())){
-                JdCResponse<Object> response = jySanwuExceptionService.uploadScan(taskEntity,req, position, source, bizId);
+            //兼容老逻辑 type 不为空
+            if(req.getType() != null){
+                JyExceptionStrategy exceptionService = jyExceptionStrategyFactory.getStrategy(req.getType());
+                JdCResponse<Object> response = exceptionService.uploadScan(taskEntity,req, position, source, bizId);
                 if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
                     return response;
                 }
             }
+
             taskEntity.setBizId(bizId);
             taskEntity.setBarCode(req.getBarCode());
             taskEntity.setSource(source.getCode());

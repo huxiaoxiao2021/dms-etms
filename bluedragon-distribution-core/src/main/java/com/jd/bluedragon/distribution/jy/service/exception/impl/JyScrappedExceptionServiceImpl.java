@@ -116,6 +116,26 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         return JyBizTaskExceptionTypeEnum.SCRAPPED.getCode();
     }
 
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.uploadScan", mState = {JProEnum.TP})
+    public JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity,ExpUploadScanReq req, PositionDetailRecord position
+            , JyExpSourceEnum source, String bizId) {
+
+        logger.info("报废上报信息req-{} 岗位码信息position-{} bizId-{}", JSON.toJSONString(req), JSON.toJSONString(position), bizId);
+        if (!checkBarCode(req.getBarCode())) {
+            return JdCResponse.fail("请扫描正确的运单号或包裹号!");
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
+        //校验生鲜单号 自营OR外单
+        String msg = checkFresh(waybillCode,req.getUserErp());
+        if (StringUtils.isNotBlank(msg)) {
+            return JdCResponse.fail(msg);
+        }
+
+        return JdCResponse.ok();
+    }
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.exceptionTaskCheckByExceptionType", mState = {JProEnum.TP})
     public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req, Waybill waybill) {
@@ -777,5 +797,48 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         requestDto.setUserCode(erp);
         requestDto.setSource(DMS_ETMS_SOURCE);
         return waybillForceDeliveryApiManager.forceDeliveryCheck(requestDto);
+    }
+
+
+    /**
+     * 检验生鲜单号
+     *
+     * @param waybillCode
+     * @return
+     */
+    private String checkFresh(String waybillCode,String erp) {
+        //根据运单获取waybillSign
+        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+                = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+        if (dataByChoice == null
+                || dataByChoice.getData() == null
+                || dataByChoice.getData().getWaybill() == null
+                || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+            logger.warn("查询运单waybillSign失败!-{}", waybillCode);
+            return "获取运单失败!";
+        }
+        Integer goodNumber = dataByChoice.getData().getWaybill().getGoodNumber();
+        //一单多件校验
+        if(!Objects.equals(goodNumber,1)){
+            return "一单多件禁止上报!";
+        }
+        String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
+        String sendPay = dataByChoice.getData().getWaybill().getSendPay();
+        //自营生鲜运单判断
+        if (BusinessUtil.isSelf(waybillSign)) {
+            if (BusinessUtil.isSelfSX(sendPay)) {
+                logger.info("自营生鲜运单");
+                if(!checkDelivery(waybillCode, erp)){
+                    return "此运单妥投校验失败,不允许上报!";
+                }
+                return "";
+            }
+        } else {//外单
+            if (BusinessUtil.isNotSelfSX(waybillSign)) {
+                logger.info("外单生鲜运单");
+                return "";
+            }
+        }
+        return "非生鲜运单，请检查后再操作!";
     }
 }

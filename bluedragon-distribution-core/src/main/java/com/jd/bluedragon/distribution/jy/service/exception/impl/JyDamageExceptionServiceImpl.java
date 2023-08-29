@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpTypeCheckReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
@@ -129,6 +130,13 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     public Integer getExceptionType() {
         return JyBizTaskExceptionTypeEnum.DAMAGE.getCode();
+    }
+
+    @Override
+    public JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity exceptionEntity, ExpUploadScanReq req, PositionDetailRecord position, JyExpSourceEnum source, String bizId) {
+        JdCResponse<Object> response = new JdCResponse<>();
+        response.toSucceed();
+        return response;
     }
 
     @Override
