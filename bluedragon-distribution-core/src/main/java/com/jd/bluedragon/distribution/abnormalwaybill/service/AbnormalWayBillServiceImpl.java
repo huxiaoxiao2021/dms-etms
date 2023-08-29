@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.abnormalwaybill.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery;
 import com.jd.ql.dms.print.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -95,5 +96,40 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
             return null;
         }
         return abnormalWayBillDao.queryOneByParam(abnormalWayBill);
+    }
+
+    /**
+     * 根据查询条件查询数据统计
+     *
+     * @param abnormalWayBillQuery 查询入参
+     * @return 查询结果列表
+     * @author fanggang7
+     * @time 2023-08-22 15:21:15 周二
+     */
+    @Override
+    public Long queryCountByQueryParam(AbnormalWayBillQuery abnormalWayBillQuery) {
+        if(abnormalWayBillQuery == null){
+            return null;
+        }
+        return abnormalWayBillDao.queryCountByQueryParam(abnormalWayBillQuery);
+    }
+
+    /**
+     * 根据查询条件查询数据
+     *
+     * @param abnormalWayBillQuery 查询入参
+     * @return 查询结果列表
+     * @author fanggang7
+     * @time 2023-08-22 15:21:15 周二
+     */
+    @Override
+    public List<AbnormalWayBill> queryPageListByQueryParam(AbnormalWayBillQuery abnormalWayBillQuery) {
+        if(abnormalWayBillQuery == null){
+            return null;
+        }
+        if(abnormalWayBillQuery.getPageNumber() <= 0){
+            abnormalWayBillQuery.setPageNumber(1);
+        }
+        return abnormalWayBillDao.queryPageListByQueryParam(abnormalWayBillQuery);
     }
 }

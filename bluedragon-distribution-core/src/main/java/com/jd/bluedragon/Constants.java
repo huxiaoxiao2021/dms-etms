@@ -1,9 +1,6 @@
 package com.jd.bluedragon;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -2035,7 +2032,7 @@ public class Constants {
         sendPredictaggstopic2DataSource.put("jy_send_predict_aggs","aggsMain");
         sendPredictaggstopic2DataSource.put("jy_send_predict_aggs_slave","aggsSlave");
     }
-    
+
     // 新版分拣中心规范-分拣中心类型
     public static final Integer SORTING_SORT_TYPE = 12351;
     // 新版分拣中心规范-分拣中心子类型
@@ -2043,4 +2040,17 @@ public class Constants {
     // 新版分拣中心规范-分拣中心下中转站
     public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
 
+
+    /**
+     * 异常上报原因与二次安检关系-新版异常上报
+     */
+    public static final Map<Long, List<Long>> SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP = new HashMap<Long, List<Long>>(){{
+        put(20009L, new ArrayList<>(Collections.singletonList(20010L)));
+        put(20006L, new ArrayList<>(Collections.singletonList(20088L)));
+    }};
+
+    /**
+     * 异常上报原因与二次安检关系-老版异常上报
+     */
+    public static final Long SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID = 27000L;
 }

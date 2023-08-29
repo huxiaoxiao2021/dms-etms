@@ -182,5 +182,9 @@ public interface JySendVehicleGatewayService {
      * @time 2023-07-26 10:00:32 周三
      */
     JdCResponse<SendVehicleToScanTipsDto> getSpecialProductTypeToScanList(SendVehicleToScanTipsRequest request);
+    /**
+     * 运输任务叫号
+     */
+    JdCResponse<String> callByWorkItem(CallNumberRequest request);
 
 }

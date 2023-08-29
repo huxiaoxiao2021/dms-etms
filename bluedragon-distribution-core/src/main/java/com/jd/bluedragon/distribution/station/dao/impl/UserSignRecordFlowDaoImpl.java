@@ -45,4 +45,9 @@ public class UserSignRecordFlowDaoImpl extends BaseDao<UserSignRecordFlow> imple
 	public Integer queryCountForCheckUnCompletedFlow(UserSignRecordFlowQuery checkFlowQuery) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryCountForCheckUnCompletedFlow",checkFlowQuery);
 	}
+
+	@Override
+	public List<UserSignRecordFlow> queryByRefGridKey(List<String> businessKeys) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryByRefGridKey",businessKeys);
+	}
 }

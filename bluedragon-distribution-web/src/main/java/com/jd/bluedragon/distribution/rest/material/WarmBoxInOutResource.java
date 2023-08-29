@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.api.request.material.warmbox.WarmBoxOutbou
 import com.jd.bluedragon.distribution.api.response.material.warmbox.WarmBoxInOutResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.external.intensive.enums.MaterialSendModeEnum;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialReceive;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialRelation;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialSend;
@@ -54,7 +55,7 @@ public class WarmBoxInOutResource {
 
     private static final int DEFAULT_RECEIVE_NUM = 1;
     private static final int DEFAULT_SEND_NUM = 1;
-    private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.WARM_BOX_SEND.getCode();
+    private static final byte SEND_MODE = MaterialSendModeEnum.WARM_BOX_SEND.getCode();
 
     @Autowired
     private MaterialServiceFactory materialServiceFactory;

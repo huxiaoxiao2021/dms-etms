@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto;
@@ -11,6 +12,8 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 import java.util.Date;
 import java.util.List;
@@ -30,6 +33,12 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     JyBizTaskUnloadVehicleEntity findByBizId(String bizId);
+
+    /**
+     * 根据bizId获取数据 忽略YN
+     * @return
+     */
+    JyBizTaskUnloadVehicleEntity findByBizIdIgnoreYn(String bizId);
 
     /**
      * 获取6个小时内实际解封车顺序

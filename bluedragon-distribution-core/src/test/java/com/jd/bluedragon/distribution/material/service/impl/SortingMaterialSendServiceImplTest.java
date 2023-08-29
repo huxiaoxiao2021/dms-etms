@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo;
 import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
+import com.jd.bluedragon.distribution.external.intensive.enums.MaterialSendModeEnum;
 import com.jd.bluedragon.distribution.material.dao.MaterialReceiveDao;
 import com.jd.bluedragon.distribution.material.dao.MaterialReceiveFlowDao;
 import com.jd.bluedragon.distribution.material.dao.MaterialSendDao;
@@ -55,7 +56,7 @@ public class SortingMaterialSendServiceImplTest {
 
     private static List<DmsMaterialSend> dmsMaterialSends = new ArrayList<>();
 
-    private static MaterialBatchSendRequest request = new MaterialBatchSendRequest(MaterialServiceFactory.MaterialSendModeEnum.TYPE_BATCH_SEND.getCode());
+    private static MaterialBatchSendRequest request = new MaterialBatchSendRequest(MaterialSendModeEnum.TYPE_BATCH_SEND.getCode());
 
     static {
         DmsMaterialSend dmsMaterialSend = new DmsMaterialSend();

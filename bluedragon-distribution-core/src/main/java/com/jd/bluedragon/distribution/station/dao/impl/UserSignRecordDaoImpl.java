@@ -195,14 +195,19 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 		return this.getSqlSession().selectOne(NAMESPACE+".queryByIdForFlow",recordId);
 	}
 
+	@Override
+	public List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".listSignRecordByTime",query);
+	}
+
 	public List<BaseUserSignRecordVo> querySignInUserByCondition(UserSignRecordQuery query){
 		return this.getSqlSession().selectList(NAMESPACE + ".querySignInUserByCondition", query);
 
 	}
 
-
 	@Override
-	public List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query) {
-		return this.getSqlSession().selectList(NAMESPACE + ".listSignRecordByTime",query);
+	public List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryByBusinessKeyAndJobCode", query);
 	}
+
 }

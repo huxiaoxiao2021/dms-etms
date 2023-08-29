@@ -572,6 +572,13 @@
                   ref="reverseIntensiveService"
                   server="dmsjsf">
     </jsf:provider>
+    <!--  提供给逆向集约接口-循环物资接口   -->
+    <jsf:provider id="materialBatchSendJsfServiceJsf"
+                  interface="com.jd.bluedragon.distribution.external.intensive.service.MaterialBatchSendJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="materialBatchSendJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 
     <!-- 对外提供给德邦的包装确认服务jsf -->
     <jsf:provider id="jsfWaybillConsumableService"
@@ -603,7 +610,7 @@
       ref="jyFindGoodsJsfService"
       server="dmsjsf">
     </jsf:provider>
-    
+
     <!-- 大区切换刷数接口 -->
     <jsf:provider id="orgSwitchProvinceBrushJsfServiceJsf"
                   interface="com.jd.bluedragon.distribution.external.service.OrgSwitchProvinceBrushJsfService"
@@ -611,5 +618,13 @@
                   ref="orgSwitchProvinceBrushJsfService"
                   server="dmsjsf">
     </jsf:provider>
-    
+
+
+    <!--  推送运输月台号和联系人  -->
+    <jsf:provider id="jsfDockCodeAndPhoneJsfService"
+                  interface="com.jd.bluedragon.distribution.workStation.api.DockCodeAndPhoneJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="dockCodeAndPhoneJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
