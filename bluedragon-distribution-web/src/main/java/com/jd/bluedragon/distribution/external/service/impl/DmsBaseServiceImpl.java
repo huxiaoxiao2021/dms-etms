@@ -96,7 +96,7 @@ public class DmsBaseServiceImpl implements DmsBaseService {
             loginId = loginResponse.getData().getLoginId();
             if (loginResponse.getData().getDmsClientConfigInfo() != null) {
                 dmsClientConfigInfo = new DmsClientConfigInfo();
-                org.springframework.beans.BeanUtils.copyProperties(dmsClientConfigInfo, loginResponse.getData().getDmsClientConfigInfo());
+                org.springframework.beans.BeanUtils.copyProperties(loginResponse.getData().getDmsClientConfigInfo(), dmsClientConfigInfo);
             }
         }
         // 结果设置
