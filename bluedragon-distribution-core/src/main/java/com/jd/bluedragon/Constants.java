@@ -2013,7 +2013,7 @@ public class Constants {
      * 异常上报原因与二次安检关系-新版异常上报
      */
     public static final Map<Long, List<Long>> SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP = new HashMap<Long, List<Long>>(){{
-        put(27000L, new ArrayList<>(Collections.singletonList(20009L)));
+        put(20009L, new ArrayList<>(Collections.singletonList(20010L)));
         put(20006L, new ArrayList<>(Collections.singletonList(20088L)));
     }};
 
