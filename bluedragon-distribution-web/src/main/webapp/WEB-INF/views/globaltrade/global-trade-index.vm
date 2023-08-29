@@ -11,7 +11,6 @@
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
     <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
-    <script type="text/javascript" src="#springUrl('/static/imports/easyui/v1.4.5/jquery.easyui.min.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
     <script type="text/javascript"
             src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
@@ -22,7 +21,6 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/globaltrade/global-trade-index.js')"></script>
-    #parse("system/common/baseImport.vm")
     <style type="text/css">
     </style>
 </head>
@@ -59,10 +57,8 @@
                 </div>
                 <div id="condition_mid" style="height: 34px;padding-bottom: 5px;border-bottom: 2px solid #999;">
                     <span>分拣中心：</span>
-                    <switchSiteDom id = "switchSiteDom">
                     <select id="dmsList" style="width:180px;height: 23px;">
                     </select>
-                    </switchSiteDom>
                     <span style="display: inline-block;margin-left: 20px;">审批状态：</span>
                     <select id="approvalCode" style="width:100px;height: 23px;">
                         <option value="" selected="selected">全部</option>
