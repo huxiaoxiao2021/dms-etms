@@ -49,5 +49,7 @@ public class SendTaskBody extends SendM{
         this.setTransporttype(domain.getTransporttype());
         this.setBoardCode(domain.getBoardCode());
         this.setBizSource(domain.getBizSource());
+        this.setOperatorId(domain.getOperatorId());
+        this.setOperatorTypeCode(domain.getOperatorTypeCode());
     }
 }

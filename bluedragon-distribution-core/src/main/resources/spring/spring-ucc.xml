@@ -296,6 +296,7 @@
 		<property name="JyBuQiWaybillCodeMaxSum" value="${JyBuQiWaybillCodeMaxSum:50000}"/>
 		<property name="interceptBlackList" value="${interceptBlackList:'*'}"/>
 		<property name="cttGroupDataLimit" value="${cttGroupDataLimit:200}"/>
+		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
 		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -582,6 +583,7 @@
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
 				<value>uccPropertyConfiguration.interceptBlackList</value>
 				<value>uccPropertyConfiguration.cttGroupDataLimit</value>
+				<value>uccPropertyConfiguration.qingChangDataOpenSwitch</value>
 				<value>uccPropertyConfiguration.jySendSpecialProductTypeToScanShowRemainMinutes</value>
 			</list>
 		</property>

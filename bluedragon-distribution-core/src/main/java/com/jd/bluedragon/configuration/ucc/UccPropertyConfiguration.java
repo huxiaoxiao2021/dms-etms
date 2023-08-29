@@ -850,8 +850,18 @@ public class UccPropertyConfiguration {
 
     private int batchQueryEndSiteLimit;
 
+    private String qingChangDataOpenSwitch;
+
+    public String getQingChangDataOpenSwitch(){
+        return qingChangDataOpenSwitch;
+    }
+
     public int getBatchQueryEndSiteLimit() {
         return batchQueryEndSiteLimit;
+    }
+
+    public void setQingChangDataOpenSwitch(String qingChangDataOpenSwitch) {
+        this.qingChangDataOpenSwitch = qingChangDataOpenSwitch;
     }
 
     public void setBatchQueryEndSiteLimit(int batchQueryEndSiteLimit) {
