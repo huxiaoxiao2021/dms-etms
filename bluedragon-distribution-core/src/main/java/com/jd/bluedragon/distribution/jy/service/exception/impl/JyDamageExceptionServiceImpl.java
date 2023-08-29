@@ -268,7 +268,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             //称重
             this.dealExpDamageWeightVolumeUpload(damageEntity, true);
             //滞留上报
-            this.dealExpDamageStrandReport(exceptionEntity.getBarCode());
+            this.dealExpDamageStrandReport(exceptionEntity);
         } catch (Exception e) {
             logger.error("根据质控异常提报mq处理破损数据异常!param-{}", JSON.toJSONString(qcReportJmqDto), e);
         } finally {
@@ -563,9 +563,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     /**
      * 处理运单滞留上报信息
      */
-    private void dealExpDamageStrandReport(String barcode) {
+    private void dealExpDamageStrandReport(JyBizTaskExceptionEntity exceptionEntity) {
         StrandReportRequest request = new StrandReportRequest();
-        request.setBarcode(barcode);
+        request.setBarcode(exceptionEntity.getBarCode());
+        request.setSiteCode(exceptionEntity.getSiteCode().intValue());
+        request.setSiteName(exceptionEntity.getSiteName());
+        request.setUserName(exceptionEntity.getUpdateUserName());
         request.setReasonCode(103);//滞留原因管理-破损异常
         request.setReportType(ReportTypeEnum.WAYBILL_CODE.getCode());
         request.setBusinessType(10);//业务类型-正向
