@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.abnormalwaybill.service;
 
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery;
 
 import java.util.List;
 
@@ -53,4 +54,22 @@ public interface AbnormalWayBillService {
      * @time 2023-08-22 15:21:15 周二
      */
     AbnormalWayBill queryOneByParam(AbnormalWayBill abnormalWayBill);
+
+    /**
+     * 根据查询条件查询数据统计
+     * @param abnormalWayBillQuery 查询入参
+     * @return 查询结果列表
+     * @author fanggang7
+     * @time 2023-08-22 15:21:15 周二
+     */
+    Long queryCountByQueryParam(AbnormalWayBillQuery abnormalWayBillQuery);
+
+    /**
+     * 根据查询条件查询数据
+     * @param abnormalWayBillQuery 查询入参
+     * @return 查询结果列表
+     * @author fanggang7
+     * @time 2023-08-22 15:21:15 周二
+     */
+    List<AbnormalWayBill> queryPageListByQueryParam(AbnormalWayBillQuery abnormalWayBillQuery);
 }

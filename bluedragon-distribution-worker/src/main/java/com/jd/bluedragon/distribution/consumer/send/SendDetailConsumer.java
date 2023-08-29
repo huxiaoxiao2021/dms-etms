@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageException;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -898,10 +899,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         return frbc;
     }
 
-    private Long oldVersion_abnormalReasonThirdId = 27000L;
-    private Long newVersion_abnormalReasonFirstId = 20009L;
-    private Long newVersion_abnormalReasonSecondId = 20010L;
-
     /**
      * 处理案件全程跟踪
      * @param sendDetail
@@ -926,8 +923,12 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             }
             log.info("handleSecurityCheckWaybillTrace match {}", JsonHelper.toJson(sendDetail));
             boolean waybillIsProhibitedAbnormal = checkWaybillIsProhibitedAbnormal(sendDetail);
+            // 有异常上报记录，不发送全程跟踪
+            if(waybillIsProhibitedAbnormal){
+                return;
+            }
             // 发送全程跟踪消息
-            this.sendWaybillTrace(sendDetail, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK, waybillIsProhibitedAbnormal);
+            this.sendWaybillTrace(sendDetail, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK);
         } catch (Exception e) {
             log.error("handleSecurityCheckWaybillTrace exception {}", JsonHelper.toJson(sendDetail), e);
         }
@@ -936,22 +937,34 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private boolean checkWaybillIsProhibitedAbnormal(SendDetailMessage sendDetail) {
         // 区分是否有异常举报，1. 老版本异常上报 三级原因：违禁品无法发货 - 27000 2. 新版H5 外呼-违禁品（20009-20010）二级
         try {
-            final AbnormalWayBill abnormalWayBillNewVersionParam = new AbnormalWayBill();
-            final String waybillCode = WaybillUtil.getWaybillCodeByPackCode(sendDetail.getPackageBarcode());
-            abnormalWayBillNewVersionParam.setWaybillCode(waybillCode);
-            abnormalWayBillNewVersionParam.setAbnormalReasonFirstId(newVersion_abnormalReasonFirstId);
-            abnormalWayBillNewVersionParam.setAbnormalReasonSecondId(newVersion_abnormalReasonSecondId);
-            AbnormalWayBill abnormalWayBillExist = abnormalWayBillService.queryOneByParam(abnormalWayBillNewVersionParam);
-            if (abnormalWayBillExist != null) {
-                return true;
-            }
+            final AbnormalWayBillQuery abnormalWayBillQueryParam = new AbnormalWayBillQuery();
+            abnormalWayBillQueryParam.setPageNumber(1);
+            abnormalWayBillQueryParam.setLimit(100);
+            final String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
+            abnormalWayBillQueryParam.setWaybillCode(waybillCode);
 
-            final AbnormalWayBill abnormalWayBillOldVersionParam = new AbnormalWayBill();
-            abnormalWayBillOldVersionParam.setWaybillCode(waybillCode);
-            abnormalWayBillOldVersionParam.setAbnormalReasonThirdId(oldVersion_abnormalReasonThirdId);
-            abnormalWayBillExist = abnormalWayBillService.queryOneByParam(abnormalWayBillOldVersionParam);
-            if (abnormalWayBillExist != null) {
-                return true;
+            final Long total = abnormalWayBillService.queryCountByQueryParam(abnormalWayBillQueryParam);
+            if(total == null || total <= 0){
+                return false;
+            }
+            int totalPage = Double.valueOf(Math.ceil((double) total / abnormalWayBillQueryParam.getPageNumber())).intValue();
+            for (int i = 0; i < totalPage; i++) {
+                abnormalWayBillQueryParam.setPageNumber(i + 1);
+                List<AbnormalWayBill> abnormalWayBillExsitList = abnormalWayBillService.queryPageListByQueryParam(abnormalWayBillQueryParam);
+                if (CollectionUtils.isEmpty(abnormalWayBillExsitList)) {
+                    return false;
+                }
+
+                for (AbnormalWayBill abnormalWayBill : abnormalWayBillExsitList) {
+                    if(Objects.equals(Constants.SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID, abnormalWayBill.getAbnormalReasonThirdId())){
+                        return true;
+                    }
+                    final List<Long> secondIds = Constants.SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP.get(abnormalWayBill.getAbnormalReasonFirstId());
+                    if(CollectionUtils.isNotEmpty(secondIds)
+                            && secondIds.contains(abnormalWayBill.getAbnormalReasonFirstId())){
+                        return true;
+                    }
+                }
             }
         } catch (Exception e) {
             log.error("checkWaybillIsProhibitedAbnormal exception {}", JsonHelper.toJson(sendDetail), e);
@@ -965,7 +978,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * 发送全程跟踪
      * @param operateType
      */
-    private void sendWaybillTrace(SendDetailMessage sendDetail, Integer operateType, Boolean waybillIsProhibitedAbnormal) {
+    private void sendWaybillTrace(SendDetailMessage sendDetail, Integer operateType) {
         try {
             WaybillStatus waybillStatus = new WaybillStatus();
             //设置站点相关属性
@@ -984,15 +997,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             waybillStatus.setOperateType(operateType);
             Map<String, Object> extendParamMap = new HashMap<>();
             extendParamMap.put("traceDisplay", 0);
-            if(waybillIsProhibitedAbnormal){
-                waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检，不通过", waybillStatus.getCreateSiteName()));
-                extendParamMap.put("auditResult", 2);
-            } else {
-                waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检通过", waybillStatus.getCreateSiteName()));
-                extendParamMap.put("auditResult", 1);
-            }
-
+            extendParamMap.put("auditResult", 1);
             waybillStatus.setExtendParamMap(extendParamMap);
+
+            waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检通过", waybillStatus.getCreateSiteName()));
 
             // 添加到task表
             taskService.add(toTask(waybillStatus));
