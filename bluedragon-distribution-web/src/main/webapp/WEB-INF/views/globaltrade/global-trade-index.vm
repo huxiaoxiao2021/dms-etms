@@ -4,6 +4,7 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <title>全球购</title>
+    #parse("system/common/baseImport.vm")
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
     <link rel="stylesheet" type="text/css"
@@ -21,7 +22,6 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/globaltrade/global-trade-index.js')"></script>
-    #parse("system/common/baseImport.vm")
     <style type="text/css">
     </style>
 </head>
