@@ -1001,7 +1001,7 @@ public class QualityControlService {
             waybillStatus.setOperatorId(qualityControlRequest.getUserID());
             waybillStatus.setOperator(qualityControlRequest.getUserName());
             // 操作时间为发货时间的前10秒
-            long operateTime = (qualityControlRequest.getOperateTime() != null ? qualityControlRequest.getOperateTime().getTime() : System.currentTimeMillis());
+            long operateTime = (qualityControlRequest.getOperateTime() != null ? qualityControlRequest.getOperateTime().getTime() : System.currentTimeMillis() - 1000L);
             waybillStatus.setOperateTime(new Date(operateTime));
 
             waybillStatus.setOperateType(operateType);
