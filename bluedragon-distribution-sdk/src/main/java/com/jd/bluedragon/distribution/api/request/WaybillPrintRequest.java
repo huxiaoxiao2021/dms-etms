@@ -178,6 +178,11 @@ public class WaybillPrintRequest extends JdRequest{
 	 * 返调度标识 1-返调度 0-其他打印
 	 */
 	private Integer localSchedule;
+	
+	/**
+	 * 启用新oss标识
+	 */
+	private Boolean useAmazon;
 
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
@@ -507,5 +512,13 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setLocalSchedule(Integer localSchedule) {
 		this.localSchedule = localSchedule;
+	}
+
+	public Boolean getUseAmazon() {
+		return useAmazon;
+	}
+
+	public void setUseAmazon(Boolean useAmazon) {
+		this.useAmazon = useAmazon;
 	}
 }
