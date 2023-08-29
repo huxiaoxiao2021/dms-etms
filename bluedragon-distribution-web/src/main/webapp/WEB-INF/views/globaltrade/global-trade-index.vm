@@ -4,6 +4,7 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <title>全球购</title>
+    #parse("system/common/baseImport.vm")
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
     <link rel="stylesheet" type="text/css"
