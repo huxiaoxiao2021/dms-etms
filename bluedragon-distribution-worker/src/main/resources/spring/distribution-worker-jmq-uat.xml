@@ -355,7 +355,7 @@
     </jmq:consumer>
 
     <!--  运输封车任务预计到达时间  -->
-    <jmq:consumer id="jmq.tmsJdiTransWorkItemEstimateArriveTimeConsumer" transport="jmq4.dmsWorker.transport">
+    <jmq:consumer id="jmq.tmsJdiTransWorkItemEstimateArriveTimeConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.tms.jdi.trans.work.item.estimate.arrive.time}" listener="tmsJdiTransWorkItemEstimateArriveTimeConsumer"/>
     </jmq:consumer>
 
