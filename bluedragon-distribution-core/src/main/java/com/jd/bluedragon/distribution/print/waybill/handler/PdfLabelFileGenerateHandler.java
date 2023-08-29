@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.JdCloudPrintOutputMsgItem;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintRequest;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintResponse;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -56,7 +58,10 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
         	interceptResult.toFail("包裹数大于"+pdfMaxPageNum+",生成pdf失败！");
         	return interceptResult;
         }
-        JdCloudPrintRequest<Map<String,String>> jdCloudPrintRequest = jdCloudPrintService.getDefaultPdfRequest();
+        JdCloudPrintRequest<Map<String,String>> jdCloudPrintRequest = jdCloudPrintService.getDefaultPdfRequest(waybillPrintRequest.getUseAmazon());
+        if(!Boolean.TRUE.equals(waybillPrintRequest.getUseAmazon())) {
+        	log.warn("pdfLabelFileGenerateHandler-useAmazon-false:{}",waybillPrintRequest.getOperateType());
+        }
         if(waybillPrintRequest.getSiteCode() != null){
         	jdCloudPrintRequest.setLocation(waybillPrintRequest.getSiteCode().toString());
         }
@@ -75,10 +80,13 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
         	if(pdfList.size()>0){
         		JdCloudPrintResponse jdCloudPrintResponse = pdfList.get(0);
         		if(JdCloudPrintResponse.STATUS_SUC.equals(jdCloudPrintResponse.getStatus())
-        				&& jdCloudPrintResponse.getOutputMsg() != null
-        				&& jdCloudPrintResponse.getOutputMsg().size()>0){
+        				&& !CollectionUtils.isEmpty(jdCloudPrintResponse.getOutputMsgItems())
+        				&& jdCloudPrintResponse.getOutputMsgItems().get(0) != null){
         			basePrintWaybill.setLabelFileType(jdCloudPrintResponse.getOutputType());
-        			basePrintWaybill.setLabelFileUrl(jdCloudPrintResponse.getOutputMsg().get(0));
+        			JdCloudPrintOutputMsgItem msgItem = jdCloudPrintResponse.getOutputMsgItems().get(0);
+        			basePrintWaybill.setLabelFileUrl(msgItem.getPath());
+        			//设置下载地址
+        			basePrintWaybill.setLabelFileDownloadUrl(msgItem.getUrl());
         		}else{
         			interceptResult.toFail("生成pdf文件失败！");
         		}
