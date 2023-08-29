@@ -21,6 +21,7 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/globaltrade/global-trade-index.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/provinceModeSite.js')"></script>
     <style type="text/css">
     </style>
 </head>
@@ -57,8 +58,10 @@
                 </div>
                 <div id="condition_mid" style="height: 34px;padding-bottom: 5px;border-bottom: 2px solid #999;">
                     <span>分拣中心：</span>
+                    <switchSiteDom id = "switchSiteDom">
                     <select id="dmsList" style="width:180px;height: 23px;">
                     </select>
+                    </switchSiteDom>
                     <span style="display: inline-block;margin-left: 20px;">审批状态：</span>
                     <select id="approvalCode" style="width:100px;height: 23px;">
                         <option value="" selected="selected">全部</option>
