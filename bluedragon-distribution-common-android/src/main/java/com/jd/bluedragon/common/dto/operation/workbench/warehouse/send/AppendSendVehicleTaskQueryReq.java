@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.dto.operation.workbench.warehouse.send;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 追加混扫任务列表查询
@@ -22,6 +23,17 @@ public class AppendSendVehicleTaskQueryReq extends BaseReq implements Serializab
 
     private Integer pageSize;
     private Integer pageNo;
+
+
+    /**
+     * 最晚计划发车时间 范围查找-开始时间
+     */
+    private Date lastPlanDepartTimeBegin;
+
+    /**
+     * 最晚计划发车时间 范围查找-结束时间
+     */
+    private Date lastPlanDepartTimeEnd;
 
 
     public String getKeyword() {
@@ -54,5 +66,21 @@ public class AppendSendVehicleTaskQueryReq extends BaseReq implements Serializab
 
     public void setMixScanTaskCode(String mixScanTaskCode) {
         this.mixScanTaskCode = mixScanTaskCode;
+    }
+
+    public Date getLastPlanDepartTimeBegin() {
+        return lastPlanDepartTimeBegin;
+    }
+
+    public void setLastPlanDepartTimeBegin(Date lastPlanDepartTimeBegin) {
+        this.lastPlanDepartTimeBegin = lastPlanDepartTimeBegin;
+    }
+
+    public Date getLastPlanDepartTimeEnd() {
+        return lastPlanDepartTimeEnd;
+    }
+
+    public void setLastPlanDepartTimeEnd(Date lastPlanDepartTimeEnd) {
+        this.lastPlanDepartTimeEnd = lastPlanDepartTimeEnd;
     }
 }
