@@ -13,5 +13,10 @@ import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 public interface JyContrabandExceptionService {
     JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req);
 
+    /**
+     * 处理违禁品上报数据
+     * @param dto
+     * @throws InterruptedException
+     */
     void  dealContrabandUploadData(JyExceptionContrabandDto dto) throws InterruptedException;
 }

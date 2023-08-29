@@ -2013,4 +2013,11 @@ public class Constants {
      * 安检场地关系配置
      */
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
+
+    /**
+     * 运单全程跟踪记录类型（强校验）
+     * 枚举类型：1:运单维度不记录各包裹全程跟踪,2:运单维度记录各包裹全程跟踪,3:包裹维度记录包裹全程跟踪
+     */
+    public static final Integer WAYBILL_TRACE_TYPE =1;
+
 }

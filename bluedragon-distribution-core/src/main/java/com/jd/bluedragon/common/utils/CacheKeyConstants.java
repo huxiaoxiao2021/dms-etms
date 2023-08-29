@@ -401,4 +401,9 @@ public class CacheKeyConstants {
      * 拣运-违禁品运单全程跟踪Key
      */
     public static final String CACHE_KEY_JY_CONTRABAND_BDTRANCE = JY_CACHE_PREFIX + "contrabandBDTrance:%s";
+
+    /**
+     * 违禁品上报并发key
+     */
+    public static final String CONTRABAND_LOCK_KEY = "DMS.EXCEPTION.CONTRABAND.UPLOAD:%s";
 }

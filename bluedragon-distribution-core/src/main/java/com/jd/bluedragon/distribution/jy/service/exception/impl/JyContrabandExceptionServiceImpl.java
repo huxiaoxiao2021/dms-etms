@@ -61,7 +61,6 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private final Logger logger = LoggerFactory.getLogger(JyContrabandExceptionServiceImpl.class);
 
 
-    private static final Integer WAYBILL_TRACE_TYPE =1;
 
     @Autowired
     private JyAttachmentDetailService jyAttachmentDetailService;
@@ -102,8 +101,13 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {
+        logger.info("processTaskOfContraband req:{}", JSON.toJSONString(req));
+        String existKey = String.format(CacheKeyConstants.CONTRABAND_LOCK_KEY,req.getBarCode());
         try {
-            logger.info("processTaskOfContraband req:{}", JSON.toJSONString(req));
+            if (!redisClientOfJy.set(existKey, "1", 10, TimeUnit.SECONDS, false)) {
+                return JdCResponse.fail("该违禁品上报正在提交,请稍后再试!");
+            }
+
             this.validateReq(req);
             JyExceptionContrabandEntity entity = buildEntity(req);
             this.saveImages(req, entity);
@@ -121,6 +125,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         } catch (Exception e) {
             logger.error("提交违禁品上报报错:", e);
             return JdCResponse.fail(e.getMessage());
+        }finally {
+            redisClientOfJy.del(existKey);
         }
         return JdCResponse.ok();
     }
@@ -134,38 +140,40 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                 return;
             }
             String waybillCode = WaybillUtil.getWaybillCode(dto.getBarCode());
-            //写运单维度的全程跟踪
-            sendContrabandSecurityCheckWaybillBDTrance(dto);
+
 
             String cacheKey = String.format(CacheKeyConstants.CACHE_KEY_JY_CONTRABAND_BDTRANCE, waybillCode);
-            try {
-                TimeUnit.SECONDS.sleep(5);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            //写运单维度的全程跟踪
+            String cacheValue = redisClientOfJy.get(cacheKey);
+            //2天时间内多次上报不同包裹，不重复写运单维度全程跟踪
+            if(StringUtils.isBlank(cacheValue)){
+                sendContrabandSecurityCheckWaybillBDTrance(dto);
             }
+            //第一条全程跟踪和第二条全程跟踪间隔五秒
+            logger.info("time 1 -{}",JSON.toJSONString(new Date()));
+            TimeUnit.SECONDS.sleep(5);
+            logger.info("time 2 -{}",JSON.toJSONString(new Date()));
             boolean sendMQFlag = false;
             switch (enumResult){
                case DETAIN_PACKAGE:
-                   //扣件  2天时间内多次上报不同包裹，不重复写运单维度全程跟踪
-                   String cacheValue = redisClientOfJy.get(cacheKey);
+                   //扣件
                    if(StringUtils.isBlank(cacheValue)){
                        sendContrabandDetainPackageWaybillBDTrance(dto);
                    }
                    break;
-               case AIR_TO_LAND:
-                   //航空转陆运
+               case AIR_TO_LAND:  //航空转陆运
+               case RETURN://退回
                    sendContrabandReturnPackageBDTrance(dto);
                    sendMQFlag = true;
                    break;
-                case RETURN:
-                    //退回
-                    sendContrabandReturnPackageBDTrance(dto);
-                    sendMQFlag = true;
-                    break;
                 default:
                     logger.warn("未知的违禁品类型--");
                     return ;
            }
+           //缓存当前单号
+            Boolean setResult = redisClientOfJy.set(cacheKey, "1", 2, TimeUnit.DAYS, false);
+            logger.info("单号 {}，放入缓存结果-{}",waybillCode,setResult);
+
            if(!sendMQFlag) {
                return;
            }
@@ -185,10 +193,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                dmsContrabandHKOrMONoticeKFProducer.sendOnFailPersistent(dto.getBizId(),JsonHelper.toJson(mq));
            }else {
                logger.info("发送违禁品大陆单-{}",waybillCode);
-               dmsContrabandMainLandNoticeKFProducer.send(dto.getBizId(),JsonHelper.toJson(mq));
+               dmsContrabandMainLandNoticeKFProducer.sendOnFailPersistent(dto.getBizId(),JsonHelper.toJson(mq));
            }
-            Boolean setResult = redisClientOfJy.set(cacheKey, "1", 2, TimeUnit.DAYS, false);
-            logger.info("单号 {}，放入缓存结果-{}",waybillCode,setResult);
+
         } catch (Exception e) {
             logger.error("违禁品上报发送客服异常！",e);
         }
@@ -290,9 +297,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         traceDto.setOperatorSiteId(dto.getSiteCode());
         traceDto.setOperatorSiteName(dto.getSiteName());
         traceDto.setOperatorUserName(dto.getCreateStaffName());
-
         traceDto.setOperatorTime(new Date());
-        traceDto.setWaybillTraceType(WAYBILL_TRACE_TYPE);
+        traceDto.setWaybillTraceType(Constants.WAYBILL_TRACE_TYPE);
+        //Map<String, Object> extendParameter = new HashMap<>();
+        //extendParameter.put("traceDisplay",1);
         logger.info("违禁品运单维度安检全程跟踪-{}",JSON.toJSONString(traceDto));
         waybillQueryManager.sendBdTrace(traceDto);
     }
@@ -313,13 +321,14 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         parameter.setOperatorCode(waybillCode);
         parameter.setOperatorId(dto.getCreateUserId());
         parameter.setOperatorName(dto.getCreateStaffName());
+        parameter.setOperateTime(new Date());
         parameter.setZdId(dto.getSiteCode());
         parameter.setZdType(Constants.DMS_SITE_TYPE);
         parameter.setZdName(dto.getSiteName());
-        parameter.setWaybillTraceType(WAYBILL_TRACE_TYPE);
+        parameter.setWaybillTraceType(Constants.WAYBILL_TRACE_TYPE);
         Map<String,Object> extendSyncParam =new HashMap<>();
-        extendSyncParam.put("traceDesc", WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_DETAIN_PACKAGE_DESC);
-        extendSyncParam.put("traceDescAuthCode",123456);
+        extendSyncParam.put("operateDesc", WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_DETAIN_PACKAGE_DESC);
+
         parameter.setExtendSyncParam(extendSyncParam);
         parameterList.add(parameter);
         logger.info("违禁品运单维度扣件全程跟踪-{}",JSON.toJSONString(parameterList));
@@ -341,7 +350,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         }
         BdTraceDto traceDto = new BdTraceDto();
         traceDto.setPackageBarCode(dto.getBarCode());
-        traceDto.setWaybillCode(dto.getBarCode());
+        traceDto.setWaybillCode(WaybillUtil.getWaybillCode(dto.getBarCode()));
         traceDto.setOperateType(WaybillStatus.WAYBILL_TRACK_RETURNED_PACKAGE);
         traceDto.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC);
         traceDto.setOperatorSiteId(dto.getSiteCode());
