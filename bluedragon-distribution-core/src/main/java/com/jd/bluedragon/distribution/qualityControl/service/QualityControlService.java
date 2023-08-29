@@ -971,13 +971,46 @@ public class QualityControlService {
             }
             final List<Long> secondIds = Constants.SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP.get(qualityControlRequest.getAbnormalReasonFirstId());
             if(CollectionUtils.isNotEmpty(secondIds)
-                    && secondIds.contains(qualityControlRequest.getAbnormalReasonFirstId())){
+                    && secondIds.contains(qualityControlRequest.getAbnormalReasonSecondId())){
                 return true;
             }
         } catch (Exception e) {
             log.error("checkWaybillIsProhibitedAbnormal exception {}", JsonHelper.toJson(qualityControlRequest), e);
         }
         return false;
+    }
+
+    public static void main(String[] args) {
+        QualityControlRequest qualityControlRequest = JSON.parseObject(" {\n" +
+                "  \"userID\" : 94834,\n" +
+                "  \"userName\" : \"陈琢\",\n" +
+                "  \"userERP\" : \"chenzhuo3\",\n" +
+                "  \"distCenterID\" : 761804,\n" +
+                "  \"distCenterName\" : \"杭州散货分拣中心\",\n" +
+                "  \"operateTime\" : 1693289972000,\n" +
+                "  \"qcType\" : 1,\n" +
+                "  \"qcValue\" : \"JDVC20714475900-1-1-\",\n" +
+                "  \"abnormalReasonFirstId\" : 20009,\n" +
+                "  \"abnormalReasonFirstName\" : \"外呼类\",\n" +
+                "  \"abnormalReasonSecondId\" : 20010,\n" +
+                "  \"abnormalReasonSecondName\" : \"违禁品\",\n" +
+                "  \"abnormalReasonThirdId\" : 20011,\n" +
+                "  \"abnormalReasonThirdName\" : \"违禁品\",\n" +
+                "  \"qcCode\" : 20011,\n" +
+                "  \"qcName\" : \"违禁品\",\n" +
+                "  \"isSortingReturn\" : false,\n" +
+                "  \"trackContent\" : \"订单扫描异常【违禁品】\",\n" +
+                "  \"qcVersionFlag\" : 1\n" +
+                "}", QualityControlRequest.class);
+        if(Objects.equals(Constants.SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID, (long) qualityControlRequest.getQcCode()) || Objects.equals(Constants.SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID, qualityControlRequest.getAbnormalReasonThirdId())){
+            System.out.println(true);
+        }
+        final List<Long> secondIds = Constants.SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP.get(qualityControlRequest.getAbnormalReasonFirstId());
+        if(CollectionUtils.isNotEmpty(secondIds)
+                && secondIds.contains(qualityControlRequest.getAbnormalReasonFirstId())){
+            System.out.println(true);
+        }
+        System.out.println(false);
     }
 
     /**
