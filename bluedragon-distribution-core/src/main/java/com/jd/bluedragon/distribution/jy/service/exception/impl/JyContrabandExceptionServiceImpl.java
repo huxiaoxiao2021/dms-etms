@@ -215,12 +215,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         mq.setCodeInfo(waybillCode);
         mq.setCodeType(ASCPContants.CODE_TYPE);
         mq.setExptCreateTime(DateHelper.formatDateTime(new Date()));
-
         JyExceptionContrabandEnum.ContrabandTypeEnum contrabandType = JyExceptionContrabandEnum.ContrabandTypeEnum.getEnumByCode(dto.getContrabandType());
-        if(contrabandType == null){
-            logger.warn("未知的违禁品上报类型--{}",contrabandType);
-            return null;
-        }
         if(isisHKorMO){
             logger.info("港澳单---{}",waybillCode);
             mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_HK_HO.getCode());
