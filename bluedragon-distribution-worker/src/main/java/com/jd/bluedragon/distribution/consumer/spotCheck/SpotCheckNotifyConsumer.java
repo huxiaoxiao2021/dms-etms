@@ -68,8 +68,10 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         // 校验
         String waybillCode = spotCheckNotifyMQ.getWaybillCode();
         String initiationLink = spotCheckNotifyMQ.getInitiationLink();
+        String flowSystem = spotCheckNotifyMQ.getFlowSystem();
         Integer exceedType = spotCheckNotifyMQ.getExceedType();
-        if(!Objects.equals(String.valueOf(SpotCheckConstants.DMS_SPOT_CHECK_ISSUE), initiationLink)
+        if(!Objects.equals(String.valueOf(SpotCheckConstants.DMS_SPOT_CHECK_ISSUE), initiationLink) 
+                || (!Objects.equals(flowSystem, SpotCheckConstants.EQUIPMENT_SPOT_CHECK) && !Objects.equals(flowSystem, SpotCheckConstants.ARTIFICIAL_SPOT_CHECK))
                 || (!Objects.equals(exceedType, SpotCheckConstants.EXCESS_TYPE_WEIGHT) && !Objects.equals(exceedType, SpotCheckConstants.EXCESS_TYPE_VOLUME))
                 || !WaybillUtil.isWaybillCode(waybillCode)){
             logger.warn("抽检回传消息体不符合校验条件，内容为【{}】", message.getText());
