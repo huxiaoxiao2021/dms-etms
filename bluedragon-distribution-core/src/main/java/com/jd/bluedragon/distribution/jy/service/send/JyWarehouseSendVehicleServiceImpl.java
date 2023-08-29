@@ -87,6 +87,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,6 +117,13 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
     public static final String OPERATE_SOURCE_PDA = "pdaScan";
     public static final String OPERATE_SOURCE_MQ = "allSelectMqSplit";
+
+
+    @Value("${jyWarehouseSendTaskPlanTimeBeginDay:1}")
+    private Integer jyWarehouseSendTaskPlanTimeBeginDay;
+    @Value("${jyWarehouseSendTaskPlanTimeEndDay:2}")
+    private Integer jyWarehouseSendTaskPlanTimeEndDay;
+
 
 
     @Autowired
@@ -170,6 +178,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
 
+        this.beforeQueryParamHandler(request);
+
         InvokeResult<SendVehicleTaskResponse> invokeResult = super.fetchSendVehicleTask(request);
         if(Objects.isNull(invokeResult.getData())) {
             SendVehicleTaskResponse resData = new SendVehicleTaskResponse();
@@ -186,6 +196,27 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
 
         return invokeResult;
+    }
+
+    private void beforeQueryParamHandler(SendVehicleTaskRequest request) {
+        if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeBegin())) {
+            request.setLastPlanDepartTimeBegin(request.getLastPlanDepartTimeBegin());
+        } else {
+            request.setLastPlanDepartTimeBegin(this.defaultTaskPlanTimeBegin());
+        }
+        if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeEnd())) {
+            request.setLastPlanDepartTimeEnd(request.getLastPlanDepartTimeEnd());
+        } else {
+            request.setLastPlanDepartTimeEnd(this.defaultTaskPlanTimeEnd());
+        }
+    }
+
+    private Date defaultTaskPlanTimeBegin() {
+        return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -jyWarehouseSendTaskPlanTimeBeginDay);
+    }
+
+    private Date defaultTaskPlanTimeEnd() {
+        return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), jyWarehouseSendTaskPlanTimeEndDay);
     }
 
     private void fillMustField(SendVehicleTaskResponse response) {
@@ -705,12 +736,12 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeBegin())) {
                 queryEntity.setLastPlanDepartTimeBegin(request.getLastPlanDepartTimeBegin());
             } else {
-                queryEntity.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccPropertyConfiguration.getJySendTaskPlanTimeBeginDay()));
+                queryEntity.setLastPlanDepartTimeBegin(this.defaultTaskPlanTimeBegin());
             }
             if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeEnd())) {
                 queryEntity.setLastPlanDepartTimeEnd(request.getLastPlanDepartTimeEnd());
             } else {
-                queryEntity.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), uccPropertyConfiguration.getJySendTaskPlanTimeEndDay()));
+                queryEntity.setLastPlanDepartTimeEnd(this.defaultTaskPlanTimeEnd());
             }
             queryEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccPropertyConfiguration.getJySendTaskCreateTimeBeginDay()));
 
