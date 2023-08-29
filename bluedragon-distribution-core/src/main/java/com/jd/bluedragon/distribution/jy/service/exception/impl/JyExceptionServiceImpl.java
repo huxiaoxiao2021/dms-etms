@@ -280,7 +280,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
             taskEntity.setType(req.getType());
             if(BusinessUtil.isSanWuCode(req.getBarCode())){
-                taskEntity.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+                req.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
             }
 
             //兼容老逻辑 type 不为空
