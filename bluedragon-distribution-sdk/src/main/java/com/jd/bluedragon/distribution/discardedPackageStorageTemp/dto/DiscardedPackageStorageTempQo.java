@@ -112,6 +112,15 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
 
     List<String> waybillCodeList;
 
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -297,5 +306,21 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
     public DiscardedPackageStorageTempQo setWaybillCodeList(List<String> waybillCodeList) {
         this.waybillCodeList = waybillCodeList;
         return this;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
     }
 }

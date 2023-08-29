@@ -108,6 +108,8 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 			taskMember.setUserCode(member.getUserCode());
 			taskMember.setUserName(member.getUserName());
 			taskMember.setOrgCode(startData.getOrgCode());
+			taskMember.setProvinceAgencyCode(startData.getProvinceAgencyCode());
+			taskMember.setAreaHubCode(startData.getAreaHubCode());
 			taskMember.setSiteCode(startData.getSiteCode());
 			taskMember.setStartTime(currentDate);
 			taskMember.setCreateTime(currentDate);

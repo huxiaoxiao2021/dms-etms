@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.whitelist;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 /**
  * @author lijie
  * @date 2020/3/10 16:20
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WhiteListCondition extends BasePagerCondition {
 
     private static final long serialVersionUID = 1L;

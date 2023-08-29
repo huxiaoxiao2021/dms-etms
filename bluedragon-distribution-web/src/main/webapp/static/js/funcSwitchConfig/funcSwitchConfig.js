@@ -7,6 +7,21 @@ var deleteUrl = '/funcSwitchConfig/deleteByIds';
 var uploadExcelUrl = '/funcSwitchConfig/uploadExcel';
 $(function () {
 
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        'bootstrapMode':true,
+        'createSiteCodeName': 'siteCode',
+        'changeBtnShow': false,
+        'provinceOrOrgMode' : 'province',
+        'onlySiteSelect':true
+    });
+
+    $('#switchSiteDom_add').sitePluginSelect({
+        'changeBtnShow': false,
+        'provinceOrOrgMode': 'province',
+        'onlySiteSelect': true
+    });
+    
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -94,14 +109,6 @@ $(function () {
             title: '维度',
             align: 'center'
         }, {
-            field: 'orgId',
-            title: '区域ID',
-            align: 'center'
-        },{
-            field: 'orgName',
-            title: '区域名称',
-            align: 'center'
-        }, {
             field: 'siteCode',
             title: '站点ID',
             align: 'center'
@@ -161,7 +168,7 @@ $(function () {
             //新增
             $('#btn_add').click(function() {
                 $("#siteCode-EG").empty();
-                $('.edit-param').each(function () {
+                $('dataEditDiv .edit-param').each(function () {
                     var _k = this.id;
                     if(_k){
                         $(this).val('');
@@ -175,7 +182,6 @@ $(function () {
                 $('#dataEditDiv').show();
                 initMenu("#menuCode-EG");
                 initDimension("#dimensionCode-EG");
-                initOrg("#orgId-EG","#siteCode-EG");
                 initYn("#yn-EG");
             });
             // 逻辑变更
@@ -193,7 +199,6 @@ $(function () {
 
                 initMenu("#menuCode-EG");
                 initDimension("#dimensionCode-EG");
-                initOrg("#orgId-EG","#siteCode-EG");
                 initYn("#yn-EG");
 
                 $('#menuCode-EG').val(rows[0].menuCode).trigger('change');
@@ -246,7 +251,7 @@ $(function () {
                     $.msg.warn("带 * 号选项必填!");
                     $('#btn_add_submit').attr("disabled",false);
                     return;
-                }else if(param["dimensionCode"]!='3'&&(param["menuCode"] == null || param["dimensionCode"] == null || param["orgId"] == null
+                }else if(param["dimensionCode"]!='3'&&(param["menuCode"] == null || param["dimensionCode"] == null
                     || param['siteCode'] == null || param['yn'] == null)){
                     $.msg.warn("带 * 号选项必填!");
                     $('#btn_add_submit').attr("disabled",false);
@@ -281,7 +286,7 @@ $(function () {
                 $('#btn_update_submit').attr("disabled",true);
                 debugger;
                 var param = convert2param();
-                if(param["menuCode"] == null || param["dimensionCode"] == null || param["orgId"] == null
+                if(param["menuCode"] == null || param["dimensionCode"] == null
                     || param['siteCode'] == null || param['yn'] == null){
                     $.msg.warn("带 * 号选项必填!");
                     $('#btn_update_submit').attr("disabled",false);
@@ -332,7 +337,6 @@ $(function () {
     initMenu("#menuCode");
     initYn("#yn");
     initDimension("#dimensionCode");
-    initOrg("#orgId","#siteCode");
     tableInit().init();
     pageInit().init();
     initImportExcel();
@@ -346,8 +350,8 @@ function resetStatus(){
     $('#operateErp-EG').val(null);
     $('#menuCode-EG').attr("disabled",false);
     $('#dimensionCode-EG').attr("disabled",false);
-    $('#orgId-EG').attr("disabled",false);
     $('#siteCode-EG').attr("disabled",false);
+    $('#switchSiteDom_add').sitePluginSelect('cleanData');
 }
 
 function initSelect(){
@@ -367,11 +371,11 @@ function initSelect(){
         placeholder:'请选择机构',
         allowClear:true
     });
-    $("#siteCode").select2({
-        width: '100%',
-        placeholder:'请选择分拣中心',
-        allowClear:true
-    });
+    // $("#siteCode").select2({
+    //     width: '100%',
+    //     placeholder:'请选择分拣中心',
+    //     allowClear:true
+    // });
     $("#menuCode-EG").select2({
         width: '100%',
         placeholder:'请选择功能',
@@ -382,11 +386,11 @@ function initSelect(){
         placeholder:'请选择机构',
         allowClear:true
     });
-    $("#siteCode-EG").select2({
-        width: '100%',
-        placeholder:'请选择分拣中心',
-        allowClear:true
-    });
+    // $("#siteCode-EG").select2({
+    //     width: '100%',
+    //     placeholder:'请选择分拣中心',
+    //     allowClear:true
+    // });
     $("#yn-EG").select2({
         width: '100%',
         placeholder:'请选择是否有效',
@@ -467,68 +471,6 @@ function initYn(yn) {
     $(yn).val(null).trigger('change');
 }
 
-//初始化区域、分拣中心
-function initOrg(orgSelect,siteSelect) {
-    var url = "/services/bases/allorgs";
-    var param = {};
-    $.ajax({
-        type : "get",
-        url : url,
-        data : param,
-        async : false,
-        success : function (data) {
-            var result = [];
-            for(var i in data){
-                if(data[i].orgId && data[i].orgId != ""){
-                    result.push({id:data[i].orgId,text:data[i].orgName});
-                }
-            }
-            $(orgSelect).select2({
-                width: '100%',
-                placeholder:'请选择机构',
-                allowClear:true,
-                data:result
-            });
-            $(orgSelect).val(null).trigger('change');
-            $(orgSelect)
-                .on("change", function(e) {
-                    var orgId = $(orgSelect).val();
-                    if(orgId){
-                        var siteListUrl = '/services/bases/dms/'+orgId;
-                        findSite(siteSelect,siteListUrl);
-                    }
-                });
-        }
-    });
-}
-function findSite(selectId,siteListUrl){
-    $(selectId).empty();
-    $.ajax({
-        type : "get",
-        url : siteListUrl,
-        data : {},
-        async : false,
-        success : function (data) {
-            var result = [];
-            if(data.length==1 && data[0].code!="200"){
-                result.push({id:"-999",text:data[0].message});
-            }else{
-                for(var i in data){
-                    if(data[i].siteCode && data[i].siteCode != ""){
-                        result.push({id:data[i].siteCode,text:data[i].siteName});
-                    }
-                }
-            }
-            $(selectId).select2({
-                width: '100%',
-                placeholder:'请选择分拣中心',
-                allowClear:true,
-                data:result
-            });
-        }
-    });
-}
-
 //上传按钮
 function initImportExcel(){
     $('#btn_upload').on('click',function(e){
@@ -567,10 +509,10 @@ function convert2param(){
     params["menuName"] = $('#menuCode-EG option:selected').text();
     params["dimensionCode"] = $('#dimensionCode-EG').val();
     params["dimensionName"] = $('#dimensionCode-EG option:selected').text();
-    params["orgId"] = $('#orgId-EG').val();
-    params["orgName"] = $('#orgId-EG option:selected').text();
-    params["siteCode"] = $('#siteCode-EG').val();
-    params["siteName"] = $('#siteCode-EG option:selected').text();
+    params["siteCode"] = $('#switchSiteDom_add').sitePluginSelect('getSelected').siteCode === undefined 
+        ? '' : $('#switchSiteDom_add').sitePluginSelect('getSelected').siteCode;
+    params["siteName"] = $('#switchSiteDom_add').sitePluginSelect('getSelected').siteName === undefined 
+        ? '' : $('#switchSiteDom_add').sitePluginSelect('getSelected').siteName;
     params["operateErp"] = $('#operateErp-EG').val();
     params["yn"] = $('#yn-EG option:selected').val();
     return params;

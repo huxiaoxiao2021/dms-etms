@@ -12,7 +12,6 @@
 <script src="/static/js/jquery-plugins/jquery.media.js"></script>
 </head>
 <body class="container-fluid">
-	<input type="hidden" id="loginUserOrgId" value="$!{orgId}" />
 	<input type="hidden" id="loginUserCreateSiteCode"
 		value="$!{createSiteCode}" />
 	<div id="dataTableDiv" class="main">

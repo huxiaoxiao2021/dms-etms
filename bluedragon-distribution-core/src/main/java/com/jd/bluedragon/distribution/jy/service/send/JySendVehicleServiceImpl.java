@@ -1943,6 +1943,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         startData.setSiteCode(request.getCurrentOperate().getSiteCode());
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(startData.getSiteCode());
         startData.setOrgCode(baseSite != null ? baseSite.getOrgId() : -1);
+        startData.setProvinceAgencyCode(baseSite == null ? null : baseSite.getProvinceAgencyCode());
+        startData.setAreaHubCode(baseSite == null ? null : baseSite.getAreaCode());
 
         startData.setCreateUser(request.getUser().getUserErp());
         startData.setCreateUserName(request.getUser().getUserName());
@@ -4159,6 +4161,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         operateProgressRequest.setOperationCode(task.getTransWorkCode());
         operateProgressRequest.setOperationTime(new Date());
         operateProgressRequest.setOperationType(Constants.CONSTANT_NUMBER_ONE);
+        if (!ObjectHelper.isNotNull(operateProgressRequest.getOperationCode())){
+            return true;
+        }
         try {
             jyOperationProgressProducer.send(operateProgressRequest.getOperationCode(),JsonHelper.toJson(operateProgressRequest));
             if (log.isInfoEnabled()){

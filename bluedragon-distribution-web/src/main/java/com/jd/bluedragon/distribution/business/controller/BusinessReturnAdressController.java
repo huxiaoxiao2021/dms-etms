@@ -4,7 +4,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
@@ -61,8 +60,8 @@ public class BusinessReturnAdressController extends DmsBaseController{
 	@Authorization(Constants.DMS_BUSINESS_RETURN_ADRESS_R)
 	@RequestMapping(value = "/toBusinessReturnAdressIndex")
 	public String toIndex(Model model) {
-		LoginUser loginUser = this.getLoginUser();
-		model.addAttribute("orgId",loginUser.getOrgId()).addAttribute("createSiteCode",loginUser.getSiteCode());
+		// 设置基础信息
+		setBaseModelInfo(model);
 		return "/business/businessReturnAdressIndex";
 	}
 	/**

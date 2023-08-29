@@ -72,7 +72,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	@RequestMapping(value = "/toDmsEdnPickingIndex")
 	public String toIndex(Model model) {
 		LoginUser loginUser = this.getLoginUser();
-		model.addAttribute("orgId",loginUser.getOrgId()).addAttribute("createSiteCode",loginUser.getSiteCode());
+		model.addAttribute("createSiteCode",loginUser.getSiteCode());
 		return "/schedule/dmsEdnPickingIndex";
 	}
 

@@ -26,14 +26,13 @@ import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.ver.domain.Site;
-import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
+import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
@@ -58,11 +57,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.RECYCLE_BASKET;
 
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
@@ -232,7 +228,7 @@ public class BoxServiceImpl implements BoxService {
      */
 	private List<Box> batchAddNewFromDMS(Box param, String systemType) {
         List<Box> boxes = Lists.newArrayList();
-		List<String> codes = generateCode(param, systemType);
+		List<String> codes = generateCode(param, systemType, null);
 		for(String code :codes){
 			Box box = new Box();
 			BeanHelper.copyProperties(box, param);
@@ -244,18 +240,26 @@ public class BoxServiceImpl implements BoxService {
 		return boxes;
 	}
 
-	private List<String> generateCode(Box param, String systemType){
+	private List<String> generateCode(Box param, String systemType, RecycleBasketTypeEnum typeEnum){
 		String boxCodePrefix = null;
 		long[] seqNos = new long[0];
 		boolean dbOpen = isOpenDB();
 		try{
-			boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,dbOpen);
+			if (Objects.equals(BoxTypeEnum.RECYCLE_BASKET.getCode(),param.getType())) {
+				boxCodePrefix= this.generateRecycleMaterialPrefixNew(systemType, typeEnum);
+			}else {
+				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,dbOpen);
+			}
 			seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),dbOpen);
 		}catch (Exception e){
 			log.error("箱号生成序列号异常",e);
 			if(!dbOpen){
 				//redis 异常
-				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,true);
+				if (Objects.equals(BoxTypeEnum.RECYCLE_BASKET.getCode(),param.getType())) {
+					boxCodePrefix= this.generateRecycleMaterialPrefixNew(systemType, typeEnum);
+				}else {
+					boxCodePrefix = this.generateBoxCodePrefixNew(param, systemType, true);
+				}
 				seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),true);
 			}
 		}
@@ -273,11 +277,11 @@ public class BoxServiceImpl implements BoxService {
 	}
 
 	@Override
-	public List<String> generateRecycleBasketCode(int quantity){
+	public List<String> generateRecycleBasketCode(int quantity, RecycleBasketTypeEnum typeEnum){
 		Box param = new Box();
 		param.setType(BoxTypeEnum.RECYCLE_BASKET.getCode());
 		param.setQuantity(quantity);
-		return generateCode(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode());
+		return generateCode(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode(), typeEnum);
 	}
 
 
@@ -306,6 +310,14 @@ public class BoxServiceImpl implements BoxService {
 		return preFix.append("10").append(systemType)
 				.append(DateHelper.formatDate(new Date(),"yyMMdd"))
 				.append(isDB?"2":"1").toString();
+	}
+
+	private String generateRecycleMaterialPrefixNew(String systemType, RecycleBasketTypeEnum typeEnum) {
+		StringBuilder preFix = new StringBuilder();
+		return preFix.append(BoxTypeEnum.RECYCLE_BASKET.getCode())
+				.append("10").append(systemType)
+				.append(DateHelper.formatDate(new Date(),"yyMMdd"))
+				.append(typeEnum.getCode()).toString();
 	}
 
     /**
