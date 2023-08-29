@@ -697,9 +697,6 @@
             <if test="unloadType != null">
                 unload_type =#{unloadType},
             </if>
-            <if test="onlyUnloadNoLoad != null">
-                only_unload_no_load =#{onlyUnloadNoLoad},
-            </if>
         </set>
         <where>
             id = #{id} and yn = 1
