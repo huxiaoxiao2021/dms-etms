@@ -59,6 +59,30 @@
 		</trim>
 	</sql>
 
+    <sql id="whereByQueryParam">
+        <if test="waybillCode != null and waybillCode != '' ">
+            AND WAYBILL_CODE = #{waybillCode}
+        </if>
+        <if test="packageCode != null and packageCode != '' ">
+            AND PACKAGE_BARCODE = #{packageCode}
+        </if>
+        <if test="createSiteCode != null">
+            AND CREATE_SITE_CODE = #{createSiteCode}
+        </if>
+        <if test="qcValue != null and qcValue != ''">
+            AND QC_VALUE = #{qcValue}
+        </if>
+        <if test="abnormalReasonFirstId != null">
+            AND abnormal_reason_first_id = #{abnormalReasonFirstId}
+        </if>
+        <if test="abnormalReasonSecondId != null">
+            AND abnormal_reason_second_id = #{abnormalReasonSecondId}
+        </if>
+        <if test="abnormalReasonThirdId != null">
+            AND abnormal_reason_third_id = #{abnormalReasonThirdId}
+        </if>
+    </sql>
+
 	<insert id="add" parameterType="abnormalWayBill">
 		INSERT INTO abnormal_waybill(
         <include refid="Base_Column_List"/>
@@ -178,27 +202,29 @@
         FROM abnormal_waybill
         WHERE
         yn = 1
-        <if test="waybillCode != null and waybillCode != '' ">
-            AND WAYBILL_CODE = #{waybillCode}
-        </if>
-        <if test="packageCode != null and packageCode != '' ">
-            AND PACKAGE_BARCODE = #{packageCode}
-        </if>
-        <if test="createSiteCode != null">
-            AND CREATE_SITE_CODE = #{createSiteCode}
-        </if>
-        <if test="qcValue != null and qcValue != ''">
-            AND QC_VALUE = #{qcValue}
-        </if>
-        <if test="abnormalReasonFirstId != null">
-            AND abnormal_reason_first_id = #{abnormalReasonFirstId}
-        </if>
-        <if test="abnormalReasonSecondId != null">
-            AND abnormal_reason_second_id = #{abnormalReasonSecondId}
-        </if>
-        <if test="abnormalReasonThirdId != null">
-            AND abnormal_reason_third_id = #{abnormalReasonThirdId}
-        </if>
+        <include refid="whereByQueryParam"/>
         ORDER BY CREATE_TIME DESC limit 1
+    </select>
+
+    <select id="queryCountByQueryParam" parameterType="com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery" resultType="long">
+        SELECT
+        count(*)
+        FROM abnormal_waybill
+        WHERE
+        yn = 1
+        <include refid="whereByQueryParam"/>
+    </select>
+
+    <select id="queryPageListByQueryParam" parameterType="com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery" resultMap="abnormalWayBill">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM abnormal_waybill
+        WHERE
+        yn = 1
+        <include refid="whereByQueryParam"/>
+        ORDER BY CREATE_TIME DESC
+        <if test="pageNumber > 0">
+            limit #{offset}, #{limit}
+        </if>
     </select>
 </mapper>	
