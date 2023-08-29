@@ -17,6 +17,8 @@ import com.jd.bluedragon.distribution.external.service.DmsBaseService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientVersionRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientVersionResponse;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -123,6 +125,32 @@ public class DmsBaseServiceImpl implements DmsBaseService {
         jdResult.setMessage(result.getMessage());
         jdResult.setData(JsonHelper.fromJson(JsonHelper.toJson(result.getData()), DmsClientHeartbeatResponse.class));
         return jdResult;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.getClientConfigInfo", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdResult<DmsClientConfigInfo> getClientConfigInfo(DmsLoginRequest request) {
+        JdResult<DmsClientConfigInfo> result = new JdResult<>();
+        result.toSuccess();
+        DmsClientVersionRequest dmsClientVersionRequest = new DmsClientVersionRequest();
+        dmsClientVersionRequest.setProgramType(request.getProgramType());
+        dmsClientVersionRequest.setUserCode(request.getUserCode());
+        dmsClientVersionRequest.setSiteCode(request.getSiteCode());
+        dmsClientVersionRequest.setOrgCode(request.getOrgCode());
+        dmsClientVersionRequest.setSystemCode(request.getSystemCode());
+        JdResult<DmsClientVersionResponse> clientResponse = dmsClientManager.getClientVersion(dmsClientVersionRequest);
+        if (clientResponse.isSucceed() && null != clientResponse.getData()) {
+            DmsClientVersionResponse clientVersion = clientResponse.getData();
+            if (clientVersion.getDmsClientConfigInfo() != null) {
+                DmsClientConfigInfo dmsClientConfigInfo = new DmsClientConfigInfo();
+                org.springframework.beans.BeanUtils.copyProperties(clientVersion.getDmsClientConfigInfo(), dmsClientConfigInfo);
+                result.setData(dmsClientConfigInfo);
+                return result;
+            }
+        }
+        result.setCode(clientResponse.getCode());
+        result.setMessage(clientResponse.getMessage());
+        return result;
     }
 
     /**
