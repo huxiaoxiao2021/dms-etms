@@ -35,6 +35,7 @@ import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeServic
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -1230,6 +1231,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     public void dealDamageExpTaskStatus(String waybillCode,Integer siteCode) {
         try{
             logger.info("处理破损数据任务状态-{}",waybillCode);
+            waybillCode = WaybillUtil.getWaybillCode(waybillCode);
             String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX + waybillCode;
             String cacheValue = redisClientOfJy.get(cacheKey);
             logger.info("破损数据缓存任务-{}",cacheValue);
