@@ -33,10 +33,10 @@ public class GateWayServiceExcepHandler {
     protected String env;
 
   @Around("execution(* com.jd.bluedragon.distribution.external.gateway.service.impl..*.*(..)) && @within(com.jd.bluedragon.common.UnifiedExceptionProcess)")
-  public JdCResponse serviceExceptionHandler(ProceedingJoinPoint jp) {
-    JdCResponse jdCResponse;
+  public Object serviceExceptionHandler(ProceedingJoinPoint jp) {
+    Object jdCResponse;
     try {
-      jdCResponse = (JdCResponse) jp.proceed();
+      jdCResponse = (Object) jp.proceed();
     } catch (Throwable throwable) {
       Map<String, Object> params =getRequestArgs(jp);
       log.error("UnifiedExceptionProcess catch exception：{}，requestArgs：{}", throwable,JsonHelper.toJson(params));
