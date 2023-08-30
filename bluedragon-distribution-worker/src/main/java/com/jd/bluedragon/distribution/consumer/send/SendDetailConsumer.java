@@ -3,9 +3,11 @@ package com.jd.bluedragon.distribution.consumer.send;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageException;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -37,7 +39,6 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -54,12 +55,13 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillPickup;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
@@ -89,6 +91,13 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService cacheService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -923,6 +932,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             if(waybillIsProhibitedAbnormal){
                 return;
             }
+            // 如果已经发过全程跟踪，则不再发送
+            if(this.checkSendSecurityCheckWaybillTraceAlready(sendDetail)){
+                return;
+            }
             // 发送全程跟踪消息
             this.sendWaybillTrace(sendDetail, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK);
         } catch (Exception e) {
@@ -968,6 +981,21 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         return false;
     }
 
+    private boolean checkSendSecurityCheckWaybillTraceAlready(SendDetailMessage sendDetail){
+        String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
+        final String exist = cacheService.get(String.format(CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL, waybillCode));
+        if (exist != null) {
+            log.info("SendDetailConsumer.checkSendSecurityCheckWaybillTraceAlready exist cache {} ", JsonHelper.toJson(sendDetail));
+            return true;
+        }
+        final List<PackageStateDto> waybillTrackExistList = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_STATE.toString());
+        if(CollectionUtils.isNotEmpty(waybillTrackExistList)){
+            log.info("SendDetailConsumer.checkSendSecurityCheckWaybillTraceAlready exist {} ", JsonHelper.toJson(sendDetail));
+            return true;
+        }
+        return false;
+    }
+
     private Long securityCheckAheadTimeMillseconds = 10000L;
 
     /**
@@ -1000,6 +1028,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
             // 添加到task表
             taskService.add(toTask(waybillStatus));
+
+            cacheService.setEx(String.format(CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL, WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode())), Constants.STRING_FLG_TRUE, CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL_TIMEOUT, TimeUnit.MINUTES);
 
         } catch (Exception e) {
             log.error("发货发送安检全称跟踪失败 {}", JsonHelper.toJson(sendDetail), e);

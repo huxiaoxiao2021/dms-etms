@@ -5,10 +5,12 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -53,6 +55,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import com.jd.ldop.business.api.AbnormalOrderApi;
 import com.jd.ldop.business.api.dto.request.AbnormalOrderDTO;
@@ -60,6 +63,7 @@ import com.jd.ldop.business.api.dto.response.Response;
 import com.jd.ldop.business.api.dto.response.ResponseStatus;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
@@ -73,6 +77,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by dudong on 2014/12/1.
@@ -122,6 +127,13 @@ public class QualityControlService {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService cacheService;
 
     @Autowired
     private WaybillService waybillService;
@@ -956,6 +968,10 @@ public class QualityControlService {
             if(!waybillIsProhibitedAbnormal){
                 return;
             }
+            // 如果已经发过全程跟踪，则不再发送
+            if(this.checkSendSecurityCheckWaybillTraceAlready(qualityControlRequest)){
+                return;
+            }
             // 发送全程跟踪消息
             this.sendWaybillTrace(qualityControlRequest, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK);
         } catch (Exception e) {
@@ -976,6 +992,21 @@ public class QualityControlService {
             }
         } catch (Exception e) {
             log.error("checkWaybillIsProhibitedAbnormal exception {}", JsonHelper.toJson(qualityControlRequest), e);
+        }
+        return false;
+    }
+
+    private boolean checkSendSecurityCheckWaybillTraceAlready(QualityControlRequest qualityControlRequest){
+        String waybillCode = WaybillUtil.getWaybillCode(qualityControlRequest.getQcValue());
+        final String exist = cacheService.get(String.format(CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL, waybillCode));
+        if (exist != null) {
+            log.info("QualityControlService.checkSendSecurityCheckWaybillTraceAlready exist cache {} ", JsonHelper.toJson(qualityControlRequest));
+            return true;
+        }
+        final List<PackageStateDto> waybillTrackExistList = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_STATE.toString());
+        if(CollectionUtils.isNotEmpty(waybillTrackExistList)){
+            log.info("QualityControlService.checkSendSecurityCheckWaybillTraceAlready exist {} ", JsonHelper.toJson(qualityControlRequest));
+            return true;
         }
         return false;
     }
@@ -1015,6 +1046,7 @@ public class QualityControlService {
 
             // 添加到task表
             taskService.add(toTask(waybillStatus));
+            cacheService.setEx(String.format(CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL, WaybillUtil.getWaybillCode(qualityControlRequest.getQcValue())), Constants.STRING_FLG_TRUE, CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL_TIMEOUT, TimeUnit.MINUTES);
 
         } catch (Exception e) {
             log.error("发货发送安检全称跟踪失败 {}", JsonHelper.toJson(qualityControlRequest), e);
