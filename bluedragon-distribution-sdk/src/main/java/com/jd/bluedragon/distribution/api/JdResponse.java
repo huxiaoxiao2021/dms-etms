@@ -6,9 +6,6 @@ public class JdResponse extends JdObject {
     
     public static final Integer CODE_OK = 200;
     public static final String MESSAGE_OK = "OK";
-
-    public static final Integer CODE_OK_SITE_OR_PROVINCE_DIFF = 2201;
-    public static final String MESSAGE_OK_SITE_OR_PROVINCE_DIFF = "人员码对应的人员在基础资料中所属场地(或对应省区)与网格码所属接货仓场地(或省区)不一致";
     
     public static final Integer CODE_OK_NULL = 2200;
     public static final String MESSAGE_OK_NULL = "调用服务成功，数据为空";

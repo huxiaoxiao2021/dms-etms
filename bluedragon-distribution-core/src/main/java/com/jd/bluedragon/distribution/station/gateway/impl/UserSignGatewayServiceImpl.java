@@ -1,22 +1,7 @@
 package com.jd.bluedragon.distribution.station.gateway.impl;
 
 
-import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
-import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
-import com.jd.bluedragon.core.hint.service.HintService;
-import com.jd.bluedragon.core.jsf.position.PositionManager;
-import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
-import com.jdl.basic.api.response.JDResponse;
-import com.jdl.basic.common.utils.Result;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.PositionData;
@@ -25,18 +10,33 @@ import com.jd.bluedragon.common.dto.station.ScanUserData;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -56,6 +56,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 
 	@Autowired
 	private PositionManager positionManager;
+
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithPosition",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -274,6 +277,11 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				result.toConfirm(checkResult.getMessage());
 			}
 		}
+		// 校验网格码场地和用户场地是否一致
+		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
+			return new JdCResponse<>(JdCResponse.CODE_OK_SITE_OR_PROVINCE_DIFF,
+					JdCResponse.MESSAGE_OK_SITE_OR_PROVINCE_DIFF);
+		}
 		//设置返回值对象
 		ScanUserData data = new ScanUserData();
 		data.setJobCode(jobCode);
@@ -310,6 +318,11 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				if(checkResult.needConfirm()) {
 					result.toConfirm(checkResult.getMessage());
 				}
+			}
+			// 校验网格码场地和用户场地是否一致
+			if (!this.checkOperatorBaseInfo(positionCode, scanRequest.getUserCode())) {
+				return new JdCResponse<>(JdCResponse.CODE_OK_SITE_OR_PROVINCE_DIFF,
+						JdCResponse.MESSAGE_OK_SITE_OR_PROVINCE_DIFF);
 			}
 			//设置返回值对象
 			PositionData positionData = new PositionData();
@@ -349,5 +362,43 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toConfirm(HintService.getHint(defaultMsg,HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN, argsMap));
 		}
 		return result;
+	}
+
+	/**
+	 * 作业APP网格码错误检验
+	 */
+	private boolean checkOperatorBaseInfo(String positionCode, String userCode) {
+		if (StringUtils.isBlank(positionCode) || StringUtils.isBlank(userCode)) {
+			return true;
+		}
+		// 查询网格码信息
+		log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo positionCode:{}, userCode:{}", positionCode, userCode);
+		Result<PositionDetailRecord> apiResult = positionManager.queryOneByPositionCode(positionCode);
+		log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo apiResult:{}", JSON.toJSONString(apiResult));
+		if(apiResult == null || !apiResult.isSuccess()  || apiResult.getData() == null){
+			return true;
+		}
+		BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(apiResult.getData().getSiteCode());
+		log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo dtoStaff:{}", JSON.toJSONString(dtoStaff));
+		if (dtoStaff == null) {
+			return true;
+		}
+		// 查询人员信息
+		BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+		log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo baseStaffByErp:{}", JSON.toJSONString(baseStaffByErp));
+		if(baseStaffByErp == null) {
+			return true;
+		}
+		// 网格码为分拣场地类型
+		if (BusinessUtil.isSortingCenter(dtoStaff.getSortType(), dtoStaff.getSortSubType(),dtoStaff.getSortThirdType())) {
+			// 所属场地是否与当前网格码对应场地一致
+			return baseStaffByErp.getSiteCode().equals(apiResult.getData().getSiteCode());
+		}
+		// 网格码为接货仓场地类型
+		if (BusinessUtil.isReceivingWarehouse(dtoStaff.getSortType())) {
+			// 所属场地对应省区与网格码所属接货仓省区是否一致
+			return baseStaffByErp.getProvinceAgencyCode().equals(apiResult.getData().getProvinceAgencyCode());
+		}
+		return true;
 	}
 }

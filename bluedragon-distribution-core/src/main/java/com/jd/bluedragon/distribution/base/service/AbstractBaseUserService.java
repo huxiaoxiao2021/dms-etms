@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.base.service;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
@@ -18,7 +16,6 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
@@ -28,8 +25,6 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.domain.position.PositionDetailRecord;
-import com.jdl.basic.common.utils.Result;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -100,9 +95,6 @@ public abstract class AbstractBaseUserService implements LoginService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
-    
-    @Autowired
-    private PositionManager positionManager;
 
     @Override
     @JProfiler(jKey = "DMS.BASE.AbstractBaseUserService.clientLoginIn", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -125,43 +117,7 @@ public abstract class AbstractBaseUserService implements LoginService {
             response.setMessage(msg);
             return response;
         }
-        if (!this.checkOperatorBaseInfo(request, response)) {
-            response.setCode(JdResponse.CODE_OK_SITE_OR_PROVINCE_DIFF);
-            response.setMessage(JdResponse.MESSAGE_OK_SITE_OR_PROVINCE_DIFF);
-            return response;
-        }
         return response;
-    }
-
-    /**
-     * 作业APP网格码错误检验
-     * @param request
-     * @return
-     */
-    private boolean checkOperatorBaseInfo(LoginRequest request, LoginUserResponse response) {
-        log.info("AbstractBaseUserService checkOperatorBaseInfo request:", JSON.toJSONString(request));
-        log.info("AbstractBaseUserService checkOperatorBaseInfo response:", JSON.toJSONString(response));
-        Result<PositionDetailRecord> apiResult = positionManager.queryOneByPositionCode(request.getPositionCode());
-        log.info("AbstractBaseUserService checkOperatorBaseInfo apiResult:", JSON.toJSONString(apiResult));
-        if(apiResult == null || !apiResult.isSuccess()  || apiResult.getData() == null){
-            return true;
-        }
-        BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(apiResult.getData().getSiteCode());
-        log.info("AbstractBaseUserService checkOperatorBaseInfo dtoStaff:", JSON.toJSONString(dtoStaff));
-        if (dtoStaff == null) {
-            return true;
-        }
-        // 网格码为分拣场地类型
-        if (BusinessUtil.isSortingCenter(dtoStaff.getSortType(), dtoStaff.getSortSubType(),dtoStaff.getSortThirdType())) {
-            // 所属场地是否与当前网格码对应场地一致
-            return apiResult.getData().getSiteCode().equals(response.getSiteCode());
-        }
-        // 网格码为接货仓场地类型
-        if (BusinessUtil.isReceivingWarehouse(dtoStaff.getSortType())) {
-            // 所属场地对应省区与网格码所属接货仓省区是否一致
-            return apiResult.getData().getProvinceAgencyCode().equals(response.getProvinceAgencyCode());
-        }
-        return true;
     }
 
     /**
