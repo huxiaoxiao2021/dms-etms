@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.Pager;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.voice.request.HintVoiceReq;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceConfig;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceResp;
+import com.jd.bluedragon.core.base.JyBasicSiteQueryManager;
 import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -26,12 +28,14 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.external.gateway.service.BaseDataGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.converter.ResultConverter;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.dto.site.BasicSiteVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +64,8 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
     private IHintApiUnwrapManager hintApiUnwrapManager;
     @Autowired
     private WaybillCacheService waybillCacheService;
+    @Autowired
+    private JyBasicSiteQueryManager jyBasicSiteQueryManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.BaseDataGatewayServiceImpl.getBaseDictionaryTree",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -276,21 +282,25 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
         Pager<StreamlinedBasicSite> pageData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
         response.setData(pageData);
         try {
-            final Result<Pager<StreamlinedBasicSite>> flowDirection = baseService.getFlowDirection(request);
+            Result<Pager<BasicSiteVO>> flowDirection = jyBasicSiteQueryManager.getFlowDirection(request);
             if (!flowDirection.isSuccess()) {
                 log.warn("BaseService.getFlowDirection error " + JsonHelper.toJson(flowDirection));
                 response.toFail("该包裹未获取到流向");
                 return response;
             }
-            if (flowDirection.getData() != null) {
-                final Pager<StreamlinedBasicSite> queryPageData = flowDirection.getData();
-                pageData.setData(queryPageData.getData());
-                pageData.setTotal(queryPageData.getTotal());
+            Pager<StreamlinedBasicSite> streamlinedBasicSitePager = new Pager<>();
+            if(ObjectHelper.isNotEmpty(flowDirection)){
+                streamlinedBasicSitePager.setData(JsonHelper.jsonToList(JsonHelper.toJson(flowDirection.getData().getData()), StreamlinedBasicSite.class));
+                streamlinedBasicSitePager.setTotal(flowDirection.getData().getTotal());
+
             }
+            response.setData(streamlinedBasicSitePager);
+            log.info("BaseDataGatewayServiceImpl.getFlowDirection"+ JSONObject.toJSONString(response));
         } catch (Exception e) {
             log.error("BaseDataGatewayServiceImpl.getFlowDirection exception ", e);
             response.toError("接口处理异常");
         }
+
         return response;
     }
 }
