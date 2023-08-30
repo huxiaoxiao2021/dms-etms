@@ -282,6 +282,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		data.setJobCode(jobCode);
 		data.setUserCode(userCode);
 		result.setData(data);
+		log.info("userSignGatewayService queryUserDataForLogin result:{}", JSON.toJSONString(result));
 		// 校验网格码场地和用户场地是否一致
 		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
 			return new JdCResponse<>(JdCResponse.CODE_SUCCESS_DIALOG,
@@ -325,6 +326,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			BeanUtils.copyProperties(apiResult.getData(),positionData);
 			result.setData(positionData);
 			// 校验网格码场地和用户场地是否一致
+			log.info("userSignGatewayService queryPositionDataForLogin result:{}", JSON.toJSONString(result));
 			if (!this.checkOperatorBaseInfo(positionCode, scanRequest.getUserCode())) {
 				return new JdCResponse<>(JdCResponse.CODE_SUCCESS_DIALOG,
 						JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF, positionData);
@@ -391,13 +393,17 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			return true;
 		}
 		// 网格码为分拣场地类型
+		log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo getSortType:{}, getSortSubType:{}, getSortThirdType:{}",
+				dtoStaff.getSortType(), dtoStaff.getSortSubType(), dtoStaff.getSortThirdType());
 		if (BusinessUtil.isSortingCenter(dtoStaff.getSortType(), dtoStaff.getSortSubType(),dtoStaff.getSortThirdType())) {
 			// 所属场地是否与当前网格码对应场地一致
+			log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo baseStaffByErp.getSiteCode():{}, apiResult.getData().getSiteCode:{}", baseStaffByErp.getSiteCode(), apiResult.getData().getSiteCode());
 			return baseStaffByErp.getSiteCode().equals(apiResult.getData().getSiteCode());
 		}
 		// 网格码为接货仓场地类型
 		if (BusinessUtil.isReceivingWarehouse(dtoStaff.getSortType())) {
 			// 所属场地对应省区与网格码所属接货仓省区是否一致
+			log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo baseStaffByErp.getProvinceAgencyCode():{}, apiResult.getData().getProvinceAgencyCode:{}", baseStaffByErp.getProvinceAgencyCode(), apiResult.getData().getProvinceAgencyCode());
 			return baseStaffByErp.getProvinceAgencyCode().equals(apiResult.getData().getProvinceAgencyCode());
 		}
 		return true;
