@@ -277,16 +277,16 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				result.toConfirm(checkResult.getMessage());
 			}
 		}
-		// 校验网格码场地和用户场地是否一致
-		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
-			return new JdCResponse<>(JdCResponse.CODE_OK_SITE_OR_PROVINCE_DIFF,
-					JdCResponse.MESSAGE_OK_SITE_OR_PROVINCE_DIFF);
-		}
 		//设置返回值对象
 		ScanUserData data = new ScanUserData();
 		data.setJobCode(jobCode);
 		data.setUserCode(userCode);
 		result.setData(data);
+		// 校验网格码场地和用户场地是否一致
+		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
+			return new JdCResponse<>(JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
+					JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF, data);
+		}
 		return result;
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryPositionDataForLogin",
@@ -319,15 +319,16 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 					result.toConfirm(checkResult.getMessage());
 				}
 			}
-			// 校验网格码场地和用户场地是否一致
-			if (!this.checkOperatorBaseInfo(positionCode, scanRequest.getUserCode())) {
-				return new JdCResponse<>(JdCResponse.CODE_OK_SITE_OR_PROVINCE_DIFF,
-						JdCResponse.MESSAGE_OK_SITE_OR_PROVINCE_DIFF);
-			}
+			
 			//设置返回值对象
 			PositionData positionData = new PositionData();
 			BeanUtils.copyProperties(apiResult.getData(),positionData);
 			result.setData(positionData);
+			// 校验网格码场地和用户场地是否一致
+			if (!this.checkOperatorBaseInfo(positionCode, scanRequest.getUserCode())) {
+				return new JdCResponse<>(JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
+						JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF, positionData);
+			}
 		}catch (Exception e){
 			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
 			result.toError("查询岗位信息异常");

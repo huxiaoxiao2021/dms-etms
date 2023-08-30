@@ -33,8 +33,8 @@ public class JdCResponse<E> implements Serializable {
 	public static final Integer CODE_PARTIAL_SUCCESS = 600;
 	public static final String  MESSAGE_PARTIAL_SUCCESS = "partial success";
 
-	public static final Integer CODE_OK_SITE_OR_PROVINCE_DIFF = 2200;
-	public static final String MESSAGE_OK_SITE_OR_PROVINCE_DIFF = "人员码对应的人员在基础资料中所属场地(或对应省区)与网格码所属接货仓场地(或省区)不一致";
+	public static final Integer CODE_SUCCESS_SITE_OR_PROVINCE_DIFF = 30002;
+	public static final String MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF = "当前网格码所属场地与人员所属场地不符，登录后会影响计提取量，是否确认登录？";
 
 
 	/** 响应状态码 */
