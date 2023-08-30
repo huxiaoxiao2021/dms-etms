@@ -1,5 +1,6 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req;
 
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.ValidateIgnore;
@@ -11,13 +12,9 @@ import java.io.Serializable;
  * @description 发货扫描
  * @date 2023-08-15 18:03
  */
-public class AviationSendScanReq implements Serializable {
+public class AviationSendScanReq  extends BaseReq implements Serializable {
     
     private static final long serialVersionUID = -6891254799862705090L;
-
-    private User user;
-
-    private CurrentOperate currentOperate;
 
     /**
      * send_vehicle业务主键
@@ -53,22 +50,6 @@ public class AviationSendScanReq implements Serializable {
      */
     private Boolean forceSubmit;
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public CurrentOperate getCurrentOperate() {
-        return currentOperate;
-    }
-
-    public void setCurrentOperate(CurrentOperate currentOperate) {
-        this.currentOperate = currentOperate;
-    }
-
     public String getSendVehicleBizId() {
         return sendVehicleBizId;
     }
@@ -100,14 +81,7 @@ public class AviationSendScanReq implements Serializable {
     public void setMaterialCode(String materialCode) {
         this.materialCode = materialCode;
     }
-
-    public String getGroupCode() {
-        return groupCode;
-    }
-
-    public void setGroupCode(String groupCode) {
-        this.groupCode = groupCode;
-    }
+    
 
     public Boolean getForceSubmit() {
         return forceSubmit;

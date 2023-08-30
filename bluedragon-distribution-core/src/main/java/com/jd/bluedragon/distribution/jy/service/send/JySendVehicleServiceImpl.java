@@ -1925,7 +1925,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return req;
     }
 
-    private void updateSendVehicleStatus(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail) {
+    public void updateSendVehicleStatus(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail) {
         taskSend.setUpdateTime(new Date());
         taskSend.setUpdateUserErp(request.getUser().getUserErp());
         taskSend.setUpdateUserName(request.getUser().getUserName());

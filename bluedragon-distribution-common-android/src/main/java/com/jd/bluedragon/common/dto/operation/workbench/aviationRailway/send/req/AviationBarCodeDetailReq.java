@@ -1,5 +1,6 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req;
 
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 
@@ -10,13 +11,9 @@ import java.io.Serializable;
  * @description 发货明细请求
  * @date 2023-08-21 10:37
  */
-public class AviationBarCodeDetailReq implements Serializable {
+public class AviationBarCodeDetailReq extends BaseReq implements Serializable {
 
     private static final long serialVersionUID = 4784612639942744950L;
-
-    private User user;
-
-    private CurrentOperate currentOperate;
 
     private Integer pageNumber;
 
@@ -34,25 +31,10 @@ public class AviationBarCodeDetailReq implements Serializable {
 
     /**
      * 已扫类型
-     * com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendAbnormalTypeEnum
+     * com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.AviationScanedTypeEnum
      */
     private Integer scanedType;
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public CurrentOperate getCurrentOperate() {
-        return currentOperate;
-    }
-
-    public void setCurrentOperate(CurrentOperate currentOperate) {
-        this.currentOperate = currentOperate;
-    }
+    
 
     public Integer getPageNumber() {
         return pageNumber;

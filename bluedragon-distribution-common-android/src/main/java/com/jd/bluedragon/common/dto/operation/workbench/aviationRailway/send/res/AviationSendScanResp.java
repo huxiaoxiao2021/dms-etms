@@ -62,6 +62,11 @@ public class AviationSendScanResp implements Serializable {
      */
     private Date createTime;
 
+    /**
+     * 用户确认的发货目的地
+     */
+    private Long confirmSendDestId;
+
     public Integer getScanPackCount() {
         return scanPackCount;
     }
@@ -140,5 +145,13 @@ public class AviationSendScanResp implements Serializable {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Long getConfirmSendDestId() {
+        return confirmSendDestId;
+    }
+
+    public void setConfirmSendDestId(Long confirmSendDestId) {
+        this.confirmSendDestId = confirmSendDestId;
     }
 }

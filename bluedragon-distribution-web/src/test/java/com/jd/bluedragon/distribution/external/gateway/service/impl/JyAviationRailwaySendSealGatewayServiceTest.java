@@ -2,11 +2,17 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.ShuttleQuerySourceEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationBarCodeDetailResp;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendScanResp;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendVehicleProgressResp;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -332,20 +338,48 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setSendVehicleDetailBizId("DCH20230824144926");
         request.setBarCodeType(2);
         request.setBarCode("JD0003421571498-1-1-");
-        aviationRailwaySendSealGatewayService.scan(request);
+        JdVerifyResponse<AviationSendScanResp> jdVerifyResponse = aviationRailwaySendSealGatewayService.scan(request);
+        System.out.println(JsonHelper.toJson(jdVerifyResponse));
     }
     @Test
     public void testgetAviationSendVehicleProgress() {
-        aviationRailwaySendSealGatewayService.getAviationSendVehicleProgress(null);
-
+        AviationSendVehicleProgressReq request = new AviationSendVehicleProgressReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setBizId("SST23082400000051");
+        JdCResponse<AviationSendVehicleProgressResp> progress = 
+                aviationRailwaySendSealGatewayService.getAviationSendVehicleProgress(request);
+        System.out.println(JsonHelper.toJson(progress));
     }
     @Test
     public void testabnormalBarCodeDetail() {
-        aviationRailwaySendSealGatewayService.abnormalBarCodeDetail(null);
+        AviationSendAbnormalPackReq req = new AviationSendAbnormalPackReq();
+        req.setBizId("");
+        aviationRailwaySendSealGatewayService.abnormalBarCodeDetail(req);
 
     }
     @Test
     public void testsendBarCodeDetail() {
-        aviationRailwaySendSealGatewayService.sendBarCodeDetail(null);
+        AviationBarCodeDetailReq request = new AviationBarCodeDetailReq();
+        request.setBizId("SST22062700000004");
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setScanedType(2);
+        request.setPageNumber(1);
+        request.setPageSize(15);
+        JdCResponse<AviationBarCodeDetailResp> response = aviationRailwaySendSealGatewayService.sendBarCodeDetail(request);
+        System.out.println(JsonHelper.toJson(response));
+    }
+    
+    @Test
+    public void aviationSendCompleteTest() {
+        AviationSendCompleteReq request =  new AviationSendCompleteReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setSendVehicleBizId("SST23082400000051");        
+        aviationRailwaySendSealGatewayService.aviationSendComplete(request);
     }
 }

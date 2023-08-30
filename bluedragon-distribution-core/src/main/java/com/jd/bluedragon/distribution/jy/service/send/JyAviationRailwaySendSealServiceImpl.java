@@ -1063,6 +1063,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         JyBizTaskSendVehicleDetailEntity sendVehicleDetailTask = jyBizTaskSendVehicleDetailService.findByBizId(sendAviationPlan.getBookingCode());
         sendAviationPlan.setTaskStatus(JyBizTaskSendDetailStatusEnum.TO_SEAL.getCode());
         
+        sendVehicleTask.setUpdateUserName(req.getUser().getUserName());
+        sendVehicleTask.setUpdateUserErp(req.getUser().getUserErp());
+        sendAviationPlan.setUpdateUserErp(req.getUser().getUserErp());
+        sendAviationPlan.setUpdateUserName(req.getUser().getUserName());
+        sendVehicleDetailTask.setUpdateUserName(req.getUser().getUserName());
+        sendVehicleDetailTask.setUpdateUserErp(req.getUser().getUserErp());
         // 更新任务状态
         if (sendVehicleTransactionManager.updateAviationTaskStatus(sendAviationPlan,
                         sendVehicleTask,
@@ -1125,7 +1131,35 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         return res;
     }
 
-    private void fillAviationSealListStatistics(List<AviationSealListDto> sealListDtoList, List<String> bizIdList, Integer statusCode, Integer siteCode) {
+    /**
+     * 首次扫描更新任务
+     * @param request
+     * @param taskSend
+     * @param curSendDetail
+     */
+    public void updateSendVehicleStatus(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail) {
+        // 发货任务表更新
+        taskSend.setUpdateTime(new Date());
+        taskSend.setUpdateUserErp(request.getUser().getUserErp());
+        taskSend.setUpdateUserName(request.getUser().getUserName());
+        curSendDetail.setUpdateTime(taskSend.getUpdateTime());
+        curSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
+        curSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
+        sendVehicleTransactionManager.updateTaskStatus(taskSend, curSendDetail, JyBizTaskSendDetailStatusEnum.SENDING);
+        
+        //空铁任务表更新
+        JyBizTaskSendAviationPlanEntity aviationPlan = new JyBizTaskSendAviationPlanEntity();
+        aviationPlan.setTaskStatus(JyBizTaskSendDetailStatusEnum.SENDING.getCode());
+        aviationPlan.setUpdateTime(taskSend.getUpdateTime());
+        aviationPlan.setUpdateUserErp(taskSend.getUpdateUserErp());
+        aviationPlan.setUpdateUserName(taskSend.getUpdateUserName());
+        aviationPlan.setBizId(taskSend.getBizId());
+        aviationPlan.setStartSiteId(taskSend.getStartSiteId().intValue());
+        int updateStatus = jyBizTaskSendAviationPlanService.updateStatus(aviationPlan);
+        log.info("更新结果：{}", updateStatus);
+    }
+    
+        private void fillAviationSealListStatistics(List<AviationSealListDto> sealListDtoList, List<String> bizIdList, Integer statusCode, Integer siteCode) {
         if(CollectionUtils.isEmpty(sealListDtoList) || CollectionUtils.isEmpty(bizIdList) || Objects.isNull(statusCode) || !NumberHelper.gt0(siteCode)) {
             return;
         }
@@ -1209,10 +1243,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         JyBizTaskSendAviationPlanEntity entity= jyBizTaskSendAviationPlanService.findByBizId(detail.getSendVehicleBizId());
         if (entity != null) {
             JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
+            detailEntity.setBizId(entity.getBookingCode());
             detailEntity.setSendVehicleBizId(detail.getBizId());
             detailEntity.setEndSiteId(Long.valueOf(entity.getNextSiteId()));
             detailEntity.setVehicleStatus(entity.getTaskStatus());
             detailEntity.setExcepLabel(entity.getIntercept());
+            detailEntity.setStartSiteId(entity.getStartSiteId().longValue());
             return Collections.singletonList(detailEntity);
         }
         return null;
@@ -1222,11 +1258,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     public InvokeResult<AviationSendVehicleProgressResp> getAviationSendVehicleProgress(AviationSendVehicleProgressReq request) {
         InvokeResult<AviationSendVehicleProgressResp> result = new InvokeResult<>();
         AviationSendVehicleProgressResp taskDto = new AviationSendVehicleProgressResp();
+        result.setData(taskDto);
         
         // 查询任务基础信息
         JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(request.getBizId());
         if (entity == null){
-            return new InvokeResult<>(InvokeResult.RESULT_NULL_CODE, "为找到航空计划发货任务！");
+            return new InvokeResult<>(InvokeResult.RESULT_NULL_CODE, "未找到航空计划发货任务！");
         }
         convertProgressResp(taskDto, entity);
         

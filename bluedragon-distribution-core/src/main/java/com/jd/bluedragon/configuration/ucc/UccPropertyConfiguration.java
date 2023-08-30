@@ -3248,7 +3248,7 @@ public class UccPropertyConfiguration {
 
     public void setCloudOssInsertSwitch(boolean cloudOssInsertSwitch) {
         this.cloudOssInsertSwitch = cloudOssInsertSwitch;
-    }
+    }   
 
     public Integer getCttGroupSendFLowLimit() {
         return cttGroupSendFLowLimit;
