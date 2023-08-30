@@ -2013,4 +2013,6 @@ public class Constants {
      * 安检场地关系配置
      */
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
+
+    public static final Integer SEND_FLOW_COUNT_LIMIT_DEFAULT=6;
 }
