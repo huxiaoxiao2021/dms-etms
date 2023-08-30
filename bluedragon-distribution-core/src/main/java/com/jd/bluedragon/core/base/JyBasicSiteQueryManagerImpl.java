@@ -199,10 +199,10 @@ public class JyBasicSiteQueryManagerImpl implements JyBasicSiteQueryManager {
             String waybillCode = WaybillUtil.getWaybillCode(searchStr);
             if (ObjectHelper.isNotEmpty(position)) {
                 RouteNextDto routeNextDto = routerService.matchRouterNextNode(position.getSiteCode(), waybillCode);
-                logger.info("JyBasicSiteQueryManagerImpl,selectFlowDirection, routeNextDto:{}",JSONObject.toJSONString(routeNextDto));
-                if (ObjectHelper.isNotEmpty(routeNextDto)) {
+                if (ObjectHelper.isNotEmpty(routeNextDto) && ObjectHelper.isNotEmpty(routeNextDto.getFirstNextSiteId())) {
                     return String.valueOf(routeNextDto.getFirstNextSiteId());
                 }else {
+                    logger.info("JyBasicSiteQueryManagerImpl,selectFlowDirection, routeNextDto:{}",JSONObject.toJSONString(routeNextDto));
                     throw new JyBizException("该包裹未获取到流向");
                 }
             }

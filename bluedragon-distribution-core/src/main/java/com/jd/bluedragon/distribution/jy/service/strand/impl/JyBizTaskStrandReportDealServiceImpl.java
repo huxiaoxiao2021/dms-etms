@@ -21,10 +21,12 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
 import com.jd.bluedragon.distribution.abnormal.service.StrandService;
+import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.external.service.DmsExternalReadService;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dto.strand.JyStrandTaskPageCondition;
@@ -143,6 +145,9 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
 
     @Autowired
     private RouterService routerService;
+
+    @Autowired
+    private DmsExternalReadService dmsExternalReadService;
 
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.artificialCreateStrandReportTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -513,12 +518,25 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.queryBatchInnerScanCount",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     private ImmutablePair<String, Integer> queryBatchInnerScanCount(JyStrandReportScanReq scanRequest, Integer nextSiteCode) {
+        ImmutablePair<String, Integer> packageCodeOrWaybillCode = null;
+        ImmutablePair<String, Integer> boxCode = null;
+        String containerCode = null;
+        Integer count = Constants.NUMBER_ZERO;
         if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode()) || WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
-            return queryPackOrWaybillInnerScanCount(scanRequest,nextSiteCode);
+            packageCodeOrWaybillCode = queryPackOrWaybillInnerScanCount(scanRequest, nextSiteCode);
         } else if (BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
-            return queryBoxInnerScanCount(scanRequest,nextSiteCode);
+            boxCode = queryBoxInnerScanCount(scanRequest, nextSiteCode);
         }
-        throw new JyBizException("扫描批次的目的地和任务流向不一致!");
+        if (ObjectHelper.isNotEmpty(packageCodeOrWaybillCode)) {
+            containerCode = packageCodeOrWaybillCode.getLeft();
+            count ++;
+        } else if (ObjectHelper.isNotEmpty(boxCode)) {
+            String left = boxCode.getLeft();
+            count ++;
+        }else {
+            throw new JyBizException("扫描批次的目的地和任务流向不一致!");
+        }
+        return ImmutablePair.of(containerCode, count);
     }
 
     /**
