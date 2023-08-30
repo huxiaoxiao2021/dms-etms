@@ -91,7 +91,7 @@ public class JdCResponse<E> implements Serializable {
 	 * @return
 	 */
 	public boolean isSucceed() {
-		return CODE_SUCCESS.equals(this.code);
+		return CODE_SUCCESS.equals(this.code) || CODE_SUCCESS_DIALOG.equals(this.code);
 	}
 
 	public boolean isFail() {
@@ -114,13 +114,7 @@ public class JdCResponse<E> implements Serializable {
 	public void toSucceed() {
 		init(CODE_SUCCESS);
 	}
-
-	/**
-	 * 成功需要弹二次确认窗口
-	 */
-	public boolean needDialog() {
-		return CODE_SUCCESS_DIALOG.equals(this.code);
-	}
+	
 	/**
 	 * 状态转换并设置返回信息
 	 * @param message
