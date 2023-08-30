@@ -24,6 +24,9 @@ import com.jd.bluedragon.distribution.jy.service.unload.UnloadVehicleTransaction
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
+import com.jd.bluedragon.distribution.transport.dto.StopoverQueryDto;
+import com.jd.bluedragon.distribution.transport.enums.StopoverSiteUnloadAndLoadTypeEnum;
+import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -45,6 +48,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -93,6 +97,9 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private TransportRelatedService transportRelatedService;
 
     @Override
     @JProfiler(jKey = "DMS.WORKER.jyUnloadScanConsumer.consume",
@@ -214,31 +221,18 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
             updateTaskBusinessInfo(unloadScanDto);
         } else {
-            // 更新最后扫描事件缓存，每次续期4小时
-            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
-            if (autoCloseJyBizTaskConfig == null) {
-                logger.info("pushBizTaskAutoCloseTask no config, will not push auto close task");
-            } else {
-                final String unloadBizLastScanTimeKey = this.getUnloadBizLastScanTimeKey(unloadScanDto.getBizId());
-                redisClientOfJy.setEx(unloadBizLastScanTimeKey, unloadScanDto.getOperateTime().getTime() + "", 36, TimeUnit.HOURS);
-            }
-            // 方案2，更新任务执行时间
-            /*final List<Task> jyBizAutoCloseTask = taskService.findJyBizAutoCloseTask(JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode(), 1, BusinessHelper.getOwnSign(), unloadScanDto.getBizId(), JyAutoCloseTaskBusinessTypeEnum.UNLOADING_NOT_FINISH.getCode().toString());
-            if (CollectionUtils.isNotEmpty(jyBizAutoCloseTask)) {
-                final Task taskExist = jyBizAutoCloseTask.get(0);
-                Task taskUpdate = new Task();
-                taskUpdate.setId(taskExist.getId());
-                final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
-                if (autoCloseJyBizTaskConfig == null) {
-                    logger.info("pushBizTaskAutoCloseTask no config, will not push auto close task");
-                } else {
-                    // 以解封车时间为准
-                    final Date operateTime = unloadScanDto.getOperateTime();
-                    final long executeTimeMillSeconds = operateTime.getTime() + autoCloseJyBizTaskConfig.getUnloadingNotFinish() * 60 * 60 * 1000L;
-                    taskUpdate.setExecuteTime(new Date(executeTimeMillSeconds));
-                    taskService.updateBySelective(taskUpdate);
-                }
-            }*/
+            this.updateAutoCloseTaskCacheLastScanTime(unloadScanDto);
+        }
+    }
+
+    private void updateAutoCloseTaskCacheLastScanTime(UnloadScanDto unloadScanDto){
+        // 更新最后扫描事件缓存，每次续期4小时
+        final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+        if (autoCloseJyBizTaskConfig == null) {
+            logger.info("pushBizTaskAutoCloseTask no config, will not push auto close task");
+        } else {
+            final String unloadBizLastScanTimeKey = this.getUnloadBizLastScanTimeKey(unloadScanDto.getBizId());
+            redisClientOfJy.setEx(unloadBizLastScanTimeKey, unloadScanDto.getOperateTime().getTime() + "", 36, TimeUnit.HOURS);
         }
     }
 
@@ -250,7 +244,31 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             entity.setUnloadStartTime(unloadScanDto.getOperateTime());
             entity.setRefGroupCode(unloadScanDto.getGroupCode());
             entity.setUpdateTime(new Date());
+            // 处理是否只卸不装
+            this.handleOnlyUnloadAttr(taskEntity, entity);
             jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
+        }
+    }
+
+    /**
+     * 处理只卸不装属性
+     * @param taskEntity 任务数据
+     */
+    private void handleOnlyUnloadAttr(JyBizTaskUnloadVehicleEntity taskEntity, JyBizTaskUnloadVehicleEntity taskEntityUpdate) {
+        try {
+            logger.info("handleOnlyUnloadAttr {}", JsonHelper.toJson(taskEntity));
+            final StopoverQueryDto stopoverQueryDto = new StopoverQueryDto();
+            stopoverQueryDto.setSiteCode(taskEntity.getEndSiteId().intValue());
+            stopoverQueryDto.setSealCarCode(taskEntity.getSealCarCode());
+            stopoverQueryDto.setVehicleNumber(taskEntity.getVehicleNumber());
+            final com.jd.dms.java.utils.sdk.base.Result<Integer> checkResult = transportRelatedService.queryStopoverLoadAndUnloadType(stopoverQueryDto);
+            logger.info("handleOnlyUnloadAttr result {}", JsonHelper.toJson(checkResult));
+            if(checkResult.isSuccess() && Objects.equals(checkResult.getData(), StopoverSiteUnloadAndLoadTypeEnum.ONLY_UNLOAD_NO_LOAD.getCode())){
+                taskEntityUpdate.setOnlyUnloadNoLoad(Constants.YN_YES);
+                logger.info("handleOnlyUnloadAttr match {}", JsonHelper.toJson(taskEntityUpdate));
+            }
+        } catch (Exception e) {
+            logger.info("handleOnlyUnloadAttr exception {}", JsonHelper.toJson(taskEntity), e);
         }
     }
 
