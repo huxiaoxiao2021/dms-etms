@@ -260,8 +260,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     InvokeResult<TableTrolleyResp> result = new InvokeResult<>();
     TableTrolleyResp tableTrolleyResp = new TableTrolleyResp();
     tableTrolleyResp.setSendFlowCountLimitUnderCtt(Constants.SEND_FLOW_COUNT_LIMIT_DEFAULT);
-    if (ObjectHelper.isNotNull(ucc.getSendFlowCountLimitUnderCtt()) && ucc.getSendFlowCountLimitUnderCtt()>0){
-      tableTrolleyResp.setSendFlowCountLimitUnderCtt(ucc.getSendFlowCountLimitUnderCtt());
+    if (ObjectHelper.isNotNull(ucc.getCttGroupSendFLowLimit()) && ucc.getCttGroupSendFLowLimit()>0){
+      tableTrolleyResp.setSendFlowCountLimitUnderCtt(ucc.getCttGroupSendFLowLimit());
     }
     result.setData(tableTrolleyResp);
 
