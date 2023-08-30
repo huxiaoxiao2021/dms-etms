@@ -157,6 +157,11 @@ public class WorkStationGrid implements Serializable {
 	private String areaHubName;
 
 	/**
+	 * 月台编号
+	 */
+	private String dockCode;
+
+	/**
 	 *
 	 * @param id
 	 */
@@ -575,7 +580,13 @@ public class WorkStationGrid implements Serializable {
 	public String getAreaHubCode() {
 		return areaHubCode;
 	}
+	public String getDockCode() {
+		return dockCode;
+	}
 
+	public void setDockCode(String dockCode) {
+		this.dockCode = dockCode;
+	}
 	public void setAreaHubCode(String areaHubCode) {
 		this.areaHubCode = areaHubCode;
 	}
