@@ -148,6 +148,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         if(hKorMOWaybill){
             response.toFail("港澳单不允许上报!");
             response.setData(Boolean.FALSE);
+            return response;
         }
         Integer goodNumber = waybill.getGoodNumber();
         //一单多件校验
