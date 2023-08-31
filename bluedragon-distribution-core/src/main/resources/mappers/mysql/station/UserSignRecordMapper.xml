@@ -1147,5 +1147,19 @@
 		</if>
 
 	</select>
-
+	<select id="queryByBusinessKeyAndJobCode" resultMap="UserSignRecord">
+		select user_code,user_code_encrypt
+		from  user_sign_record
+		where yn =1
+		AND ref_grid_key in
+		<foreach collection="businessKeyList" item="item" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+		AND job_code in
+		<foreach collection="jobCodeList" item="item" open="(" separator="," close=")">
+			#{item,jdbcType=INTEGER}
+		</foreach>
+		AND sign_out_time is null
+		limit #{offset}, #{limit}
+	</select>
 </mapper>

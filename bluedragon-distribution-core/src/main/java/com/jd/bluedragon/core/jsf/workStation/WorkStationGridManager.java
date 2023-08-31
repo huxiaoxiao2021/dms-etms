@@ -3,7 +3,6 @@ package com.jd.bluedragon.core.jsf.workStation;
 import java.util.List;
 
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
-import com.jdl.basic.api.domain.workStation.WorkStationGridCountVo;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
 import com.jdl.basic.common.utils.PageDto;
 import com.jdl.basic.common.utils.Result;
@@ -55,4 +54,5 @@ public interface WorkStationGridManager {
      * @return
      */
 	List<WorkStationGrid> queryListForManagerSiteScan(WorkStationGridQuery workStationGridQuery);
+
 }
