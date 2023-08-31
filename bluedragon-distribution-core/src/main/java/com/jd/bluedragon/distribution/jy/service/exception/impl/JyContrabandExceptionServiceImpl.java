@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
@@ -22,6 +23,9 @@ import com.jd.bluedragon.distribution.jy.exception.JyExpContrabandNoticCustomerM
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.distribution.reverse.domain.DmsDetailReverseReasonDTO;
+import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillAddress;
+import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillStatusService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -96,7 +100,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
 
-
+    @Autowired
+    private WaybillReverseManager waybillReverseManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
@@ -113,14 +118,16 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             this.saveImages(req, entity);
             jyExceptionContrabandDao.insertSelective(entity);
 
-            try {
-                JyExceptionContrabandDto dto = new JyExceptionContrabandDto();
-                BeanUtils.copyProperties(entity,dto);
-                jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
-                logger.info("违禁品上报发送MQ-{}",JSON.toJSONString(dto));
-            }catch (Exception e){
-                logger.error("违禁品上报发送MQ异常。。");
-            }
+            //
+            //DmsWaybillReverseDTO reverseDTO = this.covertDmsWaybillReverseDTO(entity);
+            //waybillReverseManager.submitWaybill(reverseDTO);
+
+
+            JyExceptionContrabandDto dto = new JyExceptionContrabandDto();
+            BeanUtils.copyProperties(entity,dto);
+            jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
+            logger.info("违禁品上报发送MQ-{}",JSON.toJSONString(dto));
+
 
         } catch (Exception e) {
             logger.error("提交违禁品上报报错:", e);
@@ -129,6 +136,43 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             redisClientOfJy.del(existKey);
         }
         return JdCResponse.ok();
+    }
+
+    private DmsWaybillReverseDTO covertDmsWaybillReverseDTO(JyExceptionContrabandEntity entity){
+        DmsWaybillReverseDTO dto = new DmsWaybillReverseDTO();
+//        dto.setSource();
+//        dto.setReverseType();
+//        dto.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
+//        dto.setOrgId();
+//        dto.setSortCenterId();
+//        dto.setSiteId(entity.getSiteCode());
+//        dto.setCustomerCode();
+//        dto.setPackageCount();
+//        dto.setReturnType();
+//        dto.setReverseReason("");
+//        dto.setOperateTime(new Date());
+//        dto.setOperateUser(entity.getCreateStaffName());
+//        dto.setOperateUserId();
+//        dto.setRemark("");
+//        dto.setChargeType();
+//        dto.setAttributionToJD();
+//        dto.setWeight();
+//        dto.setVolume();
+//        dto.setLimitReverseFlag();
+//        dto.setAllowReverseCount();
+
+        List<DmsDetailReverseReasonDTO> detailReverseReasonDTOList = new ArrayList<>();
+        DmsDetailReverseReasonDTO reverseReasonDTO = new DmsDetailReverseReasonDTO();
+        detailReverseReasonDTOList.add(reverseReasonDTO);
+
+        dto.setDetailReverseReasonDTOList(detailReverseReasonDTOList);
+
+        DmsWaybillAddress waybillAddress = new DmsWaybillAddress();
+
+        dto.setWaybillAddress(waybillAddress);
+
+        return dto;
+
     }
 
     @Override
@@ -140,8 +184,6 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                 return;
             }
             String waybillCode = WaybillUtil.getWaybillCode(dto.getBarCode());
-
-
             String cacheKey = String.format(CacheKeyConstants.CACHE_KEY_JY_CONTRABAND_BDTRANCE, waybillCode);
             //写运单维度的全程跟踪
             String cacheValue = redisClientOfJy.get(cacheKey);
@@ -150,13 +192,14 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                 sendContrabandSecurityCheckWaybillBDTrance(dto);
             }
             //第一条全程跟踪和第二条全程跟踪间隔五秒
-            logger.info("time 1 -{}",JSON.toJSONString(new Date()));
-            TimeUnit.SECONDS.sleep(5);
-            logger.info("time 2 -{}",JSON.toJSONString(new Date()));
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                logger.error("TimeUnit.SECONDS.sleep exception");
+            }
             boolean sendMQFlag = false;
             switch (enumResult){
-               case DETAIN_PACKAGE:
-                   //扣件
+               case DETAIN_PACKAGE://扣件
                    if(StringUtils.isBlank(cacheValue)){
                        sendContrabandDetainPackageWaybillBDTrance(dto);
                    }
@@ -428,6 +471,11 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if (noneMatchContrabandType) {
             throw new RuntimeException("违禁品类型错误");
         }
+        if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
+            if(!isHKorMOExitWaybill(WaybillUtil.getWaybillCode(req.getBarCode()))){
+                throw new RuntimeException("仅港澳件出口支持违禁品退回!");
+            }
+        }
         if (!WaybillUtil.isPackageCode(req.getBarCode())) {
             throw new RuntimeException("包裹号错误");
         }
@@ -441,14 +489,38 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         req.setSiteId(positionDetail.getSiteCode());
         req.setSiteName(positionDetail.getSiteName());
 
-        JyExceptionContrabandEntity query = new JyExceptionContrabandEntity();
+        JyExceptionContrabandDto query = new JyExceptionContrabandDto();
         query.setSiteCode(req.getSiteId());
         query.setBarCode(req.getBarCode());
         query.setContrabandType(req.getContrabandType());
-        List<JyExceptionContrabandEntity> list = jyExceptionContrabandDao.selectByParams(query);
-        if (!CollectionUtils.isEmpty(list)) {
-            throw new RuntimeException("请勿重复提交");
+        JyExceptionContrabandEntity entity = jyExceptionContrabandDao.selectOneByParams(query);
+        if (entity != null) {
+            String msg = entity.getBarCode() + " 已经提报，请勿重复提交！";
+            throw new RuntimeException(msg);
         }
+    }
+
+
+
+
+    /**
+     * 港澳件出口判断：始发地区为大陆，目的地区为港澳
+     * @param waybillCode
+     */
+    private boolean isHKorMOExitWaybill (String waybillCode){
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        if (waybill == null) {
+            throw new RuntimeException("获取运单信息失败!");
+        }
+        WaybillExt waybillExt = waybill.getWaybillExt();
+        if (waybill.getWaybillExt() != null) {
+            if ((StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && !(Objects.equals("HK", waybillExt.getStartFlowDirection()) || Objects.equals("MO", waybillExt.getStartFlowDirection())))
+                    || (StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK", waybillExt.getEndFlowDirection()) || Objects.equals("MO", waybillExt.getEndFlowDirection())))) {
+                logger.info("始发地区为大陆，目的地区为港澳");
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -460,8 +532,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     public boolean isHKorMOWaybill(String waybillCode,Waybill waybill){
         if(waybill != null &&  waybill.getWaybillExt() != null){
             WaybillExt waybillExt = waybill.getWaybillExt();
-            if((org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
-                    || (org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
+            if((StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
+                    || (StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
                 logger.info("港澳单-{}",waybillCode);
                 return true;
             }

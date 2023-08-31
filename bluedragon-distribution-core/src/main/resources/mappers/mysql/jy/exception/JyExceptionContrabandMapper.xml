@@ -175,7 +175,7 @@
     where biz_id = #{bizId,jdbcType=BIGINT}
   </update>
 
-  <select id="selectByParams" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity" >
+  <select id="selectOneByParams" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto" >
     select
     <include refid="Base_Column_List"/>
     from jy_exception_contraband

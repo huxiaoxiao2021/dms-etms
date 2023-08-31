@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dao.exception;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 
@@ -24,7 +25,7 @@ public class JyExceptionContrabandDao extends BaseDao<JyExceptionContrabandEntit
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
     }
 
-    public List<JyExceptionContrabandEntity> selectByParams(JyExceptionContrabandEntity entity) {
-        return this.getSqlSession().selectList(NAMESPACE + ".selectByParams", entity);
+    public JyExceptionContrabandEntity selectOneByParams(JyExceptionContrabandDto entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectOneByParams", entity);
     }
 }

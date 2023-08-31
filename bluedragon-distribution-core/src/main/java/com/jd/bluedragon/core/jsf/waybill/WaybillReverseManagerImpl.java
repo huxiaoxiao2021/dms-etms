@@ -351,7 +351,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
      * @param dmsWaybillReverseDTO
      * @return
      */
-    private JdResult<SubmitWaybillResponse> submitWaybill(DmsWaybillReverseDTO dmsWaybillReverseDTO){
+    public JdResult<SubmitWaybillResponse> submitWaybill(DmsWaybillReverseDTO dmsWaybillReverseDTO){
     	JdResult<SubmitWaybillResponse> result = new JdResult<SubmitWaybillResponse>();
     	WbmsApiResult<SubmitWaybillResponse> rpcResult = null;
     	CallerInfo info = null;
