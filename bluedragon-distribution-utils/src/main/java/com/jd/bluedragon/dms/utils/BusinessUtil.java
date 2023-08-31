@@ -1829,6 +1829,15 @@ public class BusinessUtil {
     }
 
     /**
+     * 航空件
+     * @param waybillSign 运单标位
+     * @return 判断结果标识
+     */
+    public static Boolean isAirLineMode(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3);
+    }
+
+    /**
      * 京航达运单
      *  sendPay第137位为1
      * @param sendPay

@@ -11,14 +11,13 @@ import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.DeleteVehicleTaskCheckResp;
+import com.jd.bluedragon.distribution.jy.dto.send.JyTaskSendDetailFirstSendDto;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 import com.jd.dms.java.utils.sdk.base.Result;
 
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -263,6 +262,15 @@ public interface IJySendVehicleService {
      */
     InvokeResult<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
 
+    /**
+     * 根据发货任务获取特殊产品类型数量
+     * @param request 请求参数
+     * @return 待扫列表统计
+     * @author fanggang7
+     * @time 2023-07-26 10:00:32 周三
+     */
+    Result<SendVehicleToScanTipsDto> getSpecialProductTypeToScanList(SendVehicleToScanTipsRequest request);
+
 
     /**
      * 推送特安待扫包裹明细数据到场地负责人
@@ -276,5 +284,14 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<String> callByWorkItem(CallNumberRequest request);
+
+    /**
+     * 首次发货任务扫描处理只装不卸属性
+     * @param jyTaskSendDetailFirstSendDto 首次扫描数据
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2023-08-21 17:57:28 周一
+     */
+    Result<Boolean> handleOnlyLoadAttr(JyTaskSendDetailFirstSendDto jyTaskSendDetailFirstSendDto);
 
 }

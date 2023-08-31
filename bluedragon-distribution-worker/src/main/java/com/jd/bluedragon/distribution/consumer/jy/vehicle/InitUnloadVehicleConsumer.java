@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -297,6 +296,13 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
             Long damageCnt = Long.valueOf(damageCntObj + "");
             Long lostCnt = Long.valueOf(lostCntObj + "");
             if (uccConfig.getJyUnloadSingleWaybillThreshold() < (damageCnt + lostCnt)) {
+                unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_2, JyUnloadTaskSignConstants.CHAR_2_1));
+            }
+        }
+        if (!BusinessUtil.isSignY(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_2)) {
+            // 是合流车也标记逐单卸标识
+            Object isMergeCar = extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_IS_MERGE_CAR);
+            if (null != isMergeCar && Boolean.TRUE.equals(Boolean.parseBoolean(isMergeCar.toString()))) {
                 unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_2, JyUnloadTaskSignConstants.CHAR_2_1));
             }
         }
