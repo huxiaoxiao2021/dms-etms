@@ -5,11 +5,26 @@ import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.common.dto.jyexpection.response.DmsBarCode;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpSignUserResp;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskStatisticsOfWaitReceiveDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
+import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
+import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
+import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -34,6 +49,8 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @Autowired
     private JySanwuExceptionService jySanwuExceptionService;
 
+    @Autowired
+    private JyDamageExceptionService jyDamageExceptionService;
     /**
      * 通用异常上报入口-扫描
      *
@@ -124,7 +141,7 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.queryByBarcode", mState = {JProEnum.TP})
     public JdCResponse<ExpTaskDto> queryByBarcode(ExpReceiveReq req) {
-        return jyExceptionService.queryByBarcode(req.getType(),req.getBarCode(), req.getUserErp());
+        return jyExceptionService.queryByBarcode(req);
     }
 
     /**
@@ -186,6 +203,12 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.getJyExceptionPackageTypeList", mState = {JProEnum.TP})
+    public JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList(String barCode) {
+        return jyDamageExceptionService.getJyExceptionPackageTypeList(barCode);
+    }
+
+    @Override
     public JdCResponse<Boolean> processTaskOfscrapped(ExpScrappedDetailReq req) {
         return jyScrappedExceptionService.processTaskOfscrapped(req);
     }
@@ -198,6 +221,11 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @Override
     public JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req) {
         return jyExceptionService.checkExceptionPrincipal(req);
+    }
+
+    @Override
+    public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req) {
+        return jyExceptionService.exceptionTaskCheckByExceptionType(req);
     }
 
     @Override
@@ -225,6 +253,44 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @Override
     public JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req) {
         return jySanwuExceptionService.getAssignExpTaskCount(req);
+    }
+
+    @Override
+    public JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req) {
+        return jyDamageExceptionService.processTaskOfDamage(req);
+    }
+
+    @Override
+    public JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(String positionCode){
+        return jyDamageExceptionService.getToProcessDamageCount(positionCode);
+    }
+
+    @Override
+    public JdCResponse<Boolean> readToProcessDamage(String positionCode) {
+        return jyDamageExceptionService.readToProcessDamage(positionCode);
+    }
+
+    @Override
+    public JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req){
+        return jyDamageExceptionService.getTaskDetailOfDamage(req);
+    }
+
+    @Override
+    public JdCResponse<Boolean> writeToProcessDamage(String bizId){
+        jyDamageExceptionService.writeToProcessDamage(bizId);
+        return JdCResponse.ok();
+    }
+
+    @Override
+    public JdCResponse<Boolean> dealExpDamageInfoByAbnormalReportOutCall(QcReportOutCallJmqDto qcReportJmqDto) {
+        jyDamageExceptionService.dealExpDamageInfoByAbnormalReportOutCall(qcReportJmqDto);
+        return JdCResponse.ok();
+    }
+
+    @Override
+    public JdCResponse<Boolean> dealCustomerReturnDamageResult(JyExpCustomerReturnMQ returnMQ) {
+        jyDamageExceptionService.dealCustomerReturnDamageResult(returnMQ);
+        return JdCResponse.ok();
     }
 
 }

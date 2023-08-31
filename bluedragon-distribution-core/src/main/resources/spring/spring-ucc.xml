@@ -274,6 +274,8 @@
 		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
 		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
 		<property name="assignExpTaskQuantityLimit" value="${assignExpTaskQuantityLimit:50}"/>
+		<property name="jyExceptionDamageTaskCustomerNotReturnHours" value="${jyExceptionDamageTaskCustomerNotReturnHours:48}"/>
+		<property name="jyExceptionCreateBizIdSwitch" value="${jyExceptionCreateBizIdSwitch:true}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="boardCombinationRouterSwitch" value="${boardCombinationRouterSwitch:false}"/>
@@ -611,6 +613,8 @@
 				<value>uccPropertyConfiguration.cttGroupDataLimit</value>
 				<value>uccPropertyConfiguration.jySendSpecialProductTypeToScanShowRemainMinutes</value>
 				<value>uccPropertyConfiguration.qingChangDataOpenSwitch</value>
+				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
+				<value>uccPropertyConfiguration.jyExceptionCreateBizIdSwitch</value>
 			</list>
 		</property>
 	</bean>
