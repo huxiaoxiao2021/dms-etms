@@ -31,6 +31,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -101,6 +102,13 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
     @Override
     public Integer getExceptionType() {
         return JyBizTaskExceptionTypeEnum.SANWU.getCode();
+    }
+
+    @Override
+    public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req, Waybill waybill) {
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        response.toSucceed();
+        return response;
     }
 
     /**

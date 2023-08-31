@@ -2,30 +2,67 @@ package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.*;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpBaseReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpReceiveReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskDetailReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTypeCheckReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailCacheDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.TagDto;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyApproveStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionCycleTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionProcessStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTagEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTimeOutEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSaveTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSourceEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DeliveryWSManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
+import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.enums.CustomerNotifyStatusEnum;
-import com.jd.bluedragon.distribution.jy.exception.*;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
+import com.jd.bluedragon.distribution.jy.exception.JyExScrapNoticeMQ;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionAgg;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
+import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategyFactory;
+import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -33,6 +70,7 @@ import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -40,6 +78,9 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -71,7 +112,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -89,6 +140,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     // 任务明细缓存时间
     private static final int TASK_DETAIL_CACHE_DAYS = 30;
     private static final String SPLIT = ",";
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 
 
     private final String DEVICE_ID = "sorting";
@@ -114,6 +167,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     @Qualifier("redisClientCache")
     private Cluster redisClient;
+
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
 
     @Autowired
     @Qualifier("scheduleTaskChangeStatusWorkerProducer")
@@ -162,6 +219,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     private WorkStationGridManager workStationGridManager;
 
+    @Autowired
+    private JySanwuExceptionService jySanwuExceptionService;
+
+    @Autowired
+    private JyDamageExceptionService jyDamageExceptionService;
+
+    @Autowired
+    private WaybillService waybillService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
     /**
      * 通用异常上报入口-扫描
      *
@@ -178,10 +247,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         //三无异常处理逻辑
-        if (!(BusinessUtil.isSanWuCode(req.getBarCode()) || WaybillUtil.isPackageCode(req.getBarCode()) || WaybillUtil.isWaybillCode(req.getBarCode()))) {
-            return JdCResponse.fail("请扫描三无号或包裹号或运单号!");
+        if (!(BusinessUtil.isSanWuCode(req.getBarCode())  || WaybillUtil.isPackageCode(req.getBarCode()) || WaybillUtil.isWaybillCode(req.getBarCode()))) {
+            return JdCResponse.fail("请扫描三无号或运单号!");
         }
-
 
         PositionDetailRecord position = getPosition(req.getPositionCode());
         if (position == null) {
@@ -192,7 +260,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (baseStaffByErp == null) {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
-        String bizId = getBizId(req.getType(), req.getBarCode());
+        //如果是包裹号转成运单号
+        if(WaybillUtil.isPackageCode(req.getBarCode())){
+            req.setBarCode(WaybillUtil.getWaybillCode(req.getBarCode()));
+        }
+
+        String bizId = getBizId(req.getBarCode(),position.getSiteCode());
         String existKey = "DMS.EXCEPTION.UPLOAD_SCAN:" + bizId;
         if (!redisClient.set(existKey, "1", 10, TimeUnit.SECONDS, false)) {
             return JdCResponse.fail("该异常上报正在提交,请稍后再试!");
@@ -205,13 +278,22 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 return JdCResponse.fail("该异常已上报!");
             }
             JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
-            JyExceptionStrategy exceptionService = jyExceptionStrategyFactory.getStrategy(req.getType());
-            JdCResponse<Object> response = exceptionService.uploadScan(taskEntity,req, position, source, bizId);
-            if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
-                return response;
+            taskEntity.setType(req.getType());
+            if(BusinessUtil.isSanWuCode(req.getBarCode())){
+                req.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+            }
+
+            //兼容老逻辑 type 不为空
+            if(req.getType() != null){
+                JyExceptionStrategy exceptionService = jyExceptionStrategyFactory.getStrategy(req.getType());
+                JdCResponse<Object> response = exceptionService.uploadScan(taskEntity,req, position, source, bizId);
+                if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
+                    return response;
+                }
             }
 
             taskEntity.setBizId(bizId);
+            taskEntity.setBarCode(req.getBarCode());
             taskEntity.setSource(source.getCode());
             taskEntity.setSiteCode(new Long(position.getSiteCode()));
             taskEntity.setSiteName(position.getSiteName());
@@ -242,6 +324,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             scheduleTaskAddProducer.sendOnFailPersistent(bizId, body);
             logger.info("异常岗-写入任务发送mq完成:body={}", body);
 
+            //如果是运单号，将运单号放入缓存 妥投时校验运单是否妥投
+            if(WaybillUtil.isWaybillCode(req.getBarCode())){
+                String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX+req.getBarCode();
+                Boolean result = redisClientOfJy.set(cacheKey, "1", 7, TimeUnit.DAYS, false);
+                logger.info("异常上报 运单放入缓存结果-{}",result);
+            }
+
         }catch (Exception e) {
             logger.error("写入异常提报数据出错了,request=" + JSON.toJSONString(req), e);
             return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");
@@ -257,7 +346,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param cycle
      * @param entity
      */
-    private void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
+    public void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
         String msg ="%s%s操作,状态变更为%s-%s";
         try{
             JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
@@ -510,73 +599,39 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         List<ExpTaskDto> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(taskList)) {
             //获取所有要查询的bizId 集合
-            List<String> bizIds = taskList.stream().map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
-            JdCResponse<List<ExpScrappedDetailDto>> listOfscrappedResponse = jyScrappedExceptionService.getTaskListOfscrapped(bizIds);
-            logger.info("listOfscrappedResponse -{}",JSON.toJSONString(listOfscrappedResponse));
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Map<String, ExpScrappedDetailDto> scrappedDtoMap = this.getTaskListOfScrapped(taskList);
+
+            // 读取破损数据
+            Map<String, JyExceptionDamageDto> damageDtoMap = getDamageDetailMapByBizTaskList(taskList, req.getStatus());
             for (JyBizTaskExceptionEntity entity : taskList) {
                 // 拼装dto
-                ExpTaskDto dto = getTaskDto(entity);
-
+                ExpTaskDto dto = this.copyEntityToExpTaskDto(entity, scrappedDtoMap);
                 // 待处理状态数据
-                if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus())) || (Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), entity.getStatus()))) {
+                if ((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))
+                        || (Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), entity.getStatus()))) {
                     //处理三无待打印状态  待打印特殊处理
-                    if(Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType())){
-
-                        if(Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode(),entity.getProcessingStatus())){
-                            dto.setCreateTime(entity.getCreateTime() == null ? null : dateFormat.format(entity.getCreateTime()));
-                        }else{
-                            // 待打印时间
-                            dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
+                    if (Objects.equals(JyBizTaskExceptionTypeEnum.SANWU.getCode(),entity.getType())) {
+                        this.dealSanwuTaskList(dto,entity);
+                    } else if (Objects.equals(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode(),dto.getType())) {
+                        ExpScrappedDetailDto detailDto = scrappedDtoMap.get(entity.getBizId());
+                        if (detailDto != null) {
+                            this.dealScrappedTaskList(dto, entity, detailDto);
                         }
-
-                        // 查询照片地址
-                        String key = TASK_CACHE_PRE + entity.getBizId();
-                        String taskCache = redisClient.get(key);
-                        logger.info("taskCache---{}",taskCache);
-                        if (StringUtils.isNotBlank(taskCache)) {
-                            ExpTaskDetailCacheDto cacheDto = JSON.parseObject(taskCache, ExpTaskDetailCacheDto.class);
-                            logger.info("ExpTaskDetailCacheDto---{}",JSON.toJSONString(cacheDto));
-                            if (cacheDto != null && StringUtils.isNotBlank(cacheDto.getImageUrls())) {
-                                dto.setImageUrls(cacheDto.getImageUrls());
+                    }
+                }
+                // 读取破损数据
+                if(Objects.equals(JyBizTaskExceptionTypeEnum.DAMAGE.getCode(),entity.getType())){
+                    // 如果待处理只设置状态
+                    if (Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(), entity.getStatus())){
+                        dto.setSaved(true);
+                    } else {
+                        JyExceptionDamageDto damageDto = damageDtoMap.get(entity.getBizId());
+                        if (damageDto != null) {
+                            if (CollectionUtils.isNotEmpty(damageDto.getImageUrlList())) {
+                                dto.setImageUrls(String.join(";", damageDto.getImageUrlList()));
                             }
-                        }
-                    }else if(Objects.equals(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode(),dto.getType())){
-                        //生鲜报废的特殊处理
-                        if(!JdCResponse.CODE_SUCCESS.equals(listOfscrappedResponse.getCode())){
-                            continue;
-                        }
-                        for (ExpScrappedDetailDto detailDto: listOfscrappedResponse.getData()) {
-                            if(entity.getBizId().equals(detailDto.getBizId())){
-                                //处理中的报废任务
-                                if((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))){
-                                    if(StringUtils.isNotBlank(detailDto.getFirstChecker()) &&
-                                            ((Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
-                                                    ||(Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
-                                        dto.setCheckerErp(detailDto.getFirstChecker());
-                                    }else if(StringUtils.isNotBlank(detailDto.getSecondChecker())&&
-                                            ((Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
-                                                    ||(Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
-                                        dto.setCheckerErp(detailDto.getSecondChecker());
-                                    }else {
-                                        dto.setCheckerErp(detailDto.getThirdChecker());
-                                    }
-                                    //提交时间
-                                    dto.setCheckTime(detailDto.getSubmitTime());
-                                    dto.setImageUrls(detailDto.getGoodsImageUrl());
-                                }else { //完结的报废任务
-                                    if(Objects.nonNull(detailDto.getThirdCheckTime())){
-                                        dto.setCheckTime(detailDto.getThirdCheckTime());
-                                        dto.setCheckerErp(detailDto.getThirdChecker());
-                                    }else if(Objects.nonNull(detailDto.getSecondCheckTime())){
-                                        dto.setCheckTime(detailDto.getSecondCheckTime());
-                                        dto.setCheckerErp(detailDto.getSecondChecker());
-                                    }else {
-                                        dto.setCheckTime(detailDto.getFirstCheckTime());
-                                        dto.setCheckerErp(detailDto.getFirstChecker());
-                                    }
-                                }
-                            }
+                            dto.setFeedBackType(damageDto.getFeedBackType());
+                            dto.setFeedBackTypeName(JyExceptionDamageEnum.FeedBackTypeEnum.getNameByCode(damageDto.getFeedBackType()));
                         }
                     }
                 }
@@ -603,6 +658,125 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         logger.info("取件进行中的人数,gridKey={},erp={}", gridKey, req.getUserErp());
         return JdCResponse.ok(list);
+    }
+
+    /**
+     * 复制数据处理状态
+     * @param entity
+     * @param scrappedDtoMap
+     * @return
+     */
+    private ExpTaskDto copyEntityToExpTaskDto(JyBizTaskExceptionEntity entity, Map<String, ExpScrappedDetailDto> scrappedDtoMap){
+        ExpTaskDto dto = new ExpTaskDto();
+        BeanUtils.copyProperties(entity,dto);
+        // 停留时间：当前时间-分配时间
+        dto.setStayTime(getStayTime(entity.getDistributionTime()));
+        dto.setReporterName(entity.getCreateUserName());
+        dto.setTags(getTags(entity.getTags()));
+        // 在这里处理是因为老逻辑setSaved 不受task状态影响
+        if(Objects.nonNull(entity.getType())
+                && JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType())){
+            ExpScrappedDetailDto scrappedDetailDto = scrappedDtoMap.get(entity.getBizId());
+            if(scrappedDetailDto != null && scrappedDetailDto.getSaveType() != null){
+                dto.setSaved(Objects.equals(scrappedDetailDto.getSaveType(),JyExpSaveTypeEnum.TEMP_SAVE.getCode()));
+            }
+        }else{
+            String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
+            boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
+            dto.setSaved(saved);
+        }
+        return dto;
+    }
+    /**
+     * 三无列表数据处理
+     */
+    private void dealSanwuTaskList(ExpTaskDto dto, JyBizTaskExceptionEntity entity) {
+        if(Objects.equals(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode(),entity.getProcessingStatus())){
+            dto.setCreateTime(entity.getCreateTime() == null ? null : dateFormat.format(entity.getCreateTime()));
+        }else{
+            // 待打印时间
+            dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
+        }
+
+        // 查询照片地址
+        String key = TASK_CACHE_PRE + entity.getBizId();
+        String taskCache = redisClient.get(key);
+        logger.info("taskCache---{}",taskCache);
+        if (StringUtils.isNotBlank(taskCache)) {
+            ExpTaskDetailCacheDto cacheDto = JSON.parseObject(taskCache, ExpTaskDetailCacheDto.class);
+            logger.info("ExpTaskDetailCacheDto---{}",JSON.toJSONString(cacheDto));
+            if (cacheDto != null && StringUtils.isNotBlank(cacheDto.getImageUrls())) {
+                dto.setImageUrls(cacheDto.getImageUrls());
+            }
+        }
+    }
+    /**
+     * 破损列表数据处理
+     */
+    private void dealScrappedTaskList(ExpTaskDto dto, JyBizTaskExceptionEntity entity, ExpScrappedDetailDto detailDto) {
+        //处理中的报废任务
+        if((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))){
+            if(StringUtils.isNotBlank(detailDto.getFirstChecker()) &&
+                    ((Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
+                            ||(Objects.equals(detailDto.getFirstCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
+                dto.setCheckerErp(detailDto.getFirstChecker());
+            }else if(StringUtils.isNotBlank(detailDto.getSecondChecker())&&
+                    ((Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.TODO.getCode()))
+                            ||(Objects.equals(detailDto.getSecondCheckStatus(),JyApproveStatusEnum.REJECT.getCode())))){
+                dto.setCheckerErp(detailDto.getSecondChecker());
+            }else {
+                dto.setCheckerErp(detailDto.getThirdChecker());
+            }
+            //提交时间
+            dto.setCheckTime(detailDto.getSubmitTime());
+            dto.setImageUrls(detailDto.getGoodsImageUrl());
+        }else { //完结的报废任务
+            if(Objects.nonNull(detailDto.getThirdCheckTime())){
+                dto.setCheckTime(detailDto.getThirdCheckTime());
+                dto.setCheckerErp(detailDto.getThirdChecker());
+            }else if(Objects.nonNull(detailDto.getSecondCheckTime())){
+                dto.setCheckTime(detailDto.getSecondCheckTime());
+                dto.setCheckerErp(detailDto.getSecondChecker());
+            }else {
+                dto.setCheckTime(detailDto.getFirstCheckTime());
+                dto.setCheckerErp(detailDto.getFirstChecker());
+            }
+        }
+    }
+
+    /**
+     * 根据bizId 批量查询生鲜数据
+     * @param taskList
+     * @return
+     */
+    private Map<String, ExpScrappedDetailDto> getTaskListOfScrapped(List<JyBizTaskExceptionEntity> taskList) {
+        List<String> bizIds = taskList.stream()
+                .filter(t -> Objects.equals(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode(), t.getType())
+                        && (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), t.getStatus())
+                        || Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), t.getStatus())))
+                .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
+        JdCResponse<List<ExpScrappedDetailDto>> listOfscrappedResponse = jyScrappedExceptionService.getTaskListOfscrapped(bizIds);
+        logger.info("listOfscrappedResponse -{}", JSON.toJSONString(listOfscrappedResponse));
+        if (JdCResponse.CODE_SUCCESS.equals(listOfscrappedResponse.getCode()) && CollectionUtils.isNotEmpty(listOfscrappedResponse.getData())) {
+            return listOfscrappedResponse.getData().stream().collect(Collectors.toMap(ExpScrappedDetailDto::getBizId, s->s));
+        }
+        return new HashMap<>();
+    }
+
+    /**
+     * 根据bizId 批量查询破损数据
+     * @param taskList
+     * @param status
+     * @return
+     */
+    private Map<String, JyExceptionDamageDto> getDamageDetailMapByBizTaskList(List<JyBizTaskExceptionEntity> taskList, Integer status) {
+        List<String> bizIdList = taskList.stream()
+                .filter(t-> Objects.equals(JyBizTaskExceptionTypeEnum.DAMAGE.getCode(),t.getType())
+                        && (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), t.getStatus())
+                        || Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), t.getStatus())))
+                .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
+        logger.info("setDataForDamageList bizIdList:{}, status:{}", JSON.toJSONString(bizIdList), status);
+        return jyDamageExceptionService.getDamageDetailMapByBizIds(bizIdList, status);
     }
 
     /**
@@ -654,7 +828,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         // 校验操作人的岗位 与 任务被分配岗位是否匹配
         String gridRid = getGridRid(position);
-        String bizId =getBizId(req.getType(), req.getBarCode());
+        String bizId =getBizId(req.getBarCode(), position.getSiteCode());
         JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if (taskEntity == null) {
             return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
@@ -693,18 +867,38 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      *
      */
     @Override
-    public JdCResponse<ExpTaskDto> queryByBarcode(Integer type, String barcode, String erp) {
+    public JdCResponse<ExpTaskDto> queryByBarcode(ExpReceiveReq req) {
+        JdCResponse<ExpTaskDto> validateResult = this.validateExpReceiveReq(req);
+        if (validateResult != null) return validateResult;
 
-        String bizId = getBizId(type, barcode);
+        String bizId = getBizId(req.getBarCode(), req.getSiteId());
         JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if (taskEntity == null) {
-            return JdCResponse.fail("该条码无相关任务!" + barcode);
+            return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
         }
         ExpTaskDto taskDto = getTaskDto(taskEntity);
-        if(ObjectUtils.notEqual(taskEntity.getHandlerErp(), erp)){
-            return JdCResponse.fail("您未领取该条码任务!" + barcode);
+        if(ObjectUtils.notEqual(taskEntity.getHandlerErp(), req.getUserErp())){
+            return JdCResponse.fail("您未领取该条码任务!" + req.getBarCode());
         }
         return JdCResponse.ok(taskDto);
+    }
+
+    /**
+     * 校验扫码请求参数
+     * @param req
+     * @return
+     */
+    private JdCResponse<ExpTaskDto> validateExpReceiveReq(ExpReceiveReq req) {
+        if (req == null) {
+            return JdCResponse.fail("参数不能为空!");
+        }
+        if (StringUtils.isBlank(req.getBarCode())) {
+            return JdCResponse.fail("条形码不能为空!");
+        }
+        if (req.getSiteId() == null) {
+            return JdCResponse.fail("场地id不能为空!");
+        }
+        return null;
     }
 
     /**
@@ -1106,37 +1300,29 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 BusinessUtil.bdBlockerCompleteMQ(exTaskEntity.getBarCode(), DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_BAOFEI, DateHelper.formatDateTimeMs(new Date())));
     }
 
-    private void pushScrapTrace(JyBizTaskExceptionEntity exTaskEntity) {
-        WaybillStatus status=new WaybillStatus();
-        status.setOperateType(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP);
-        status.setRemark(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
-        status.setWaybillCode(exTaskEntity.getBarCode());
-        status.setPackageCode(exTaskEntity.getBarCode());
-        status.setOperateTime(exTaskEntity.getProcessBeginTime());
-
-        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(exTaskEntity.getHandlerErp());
-        status.setOperatorId(baseStaff == null ? 0 : baseStaff.getStaffNo());
-        status.setOperator(baseStaff == null ? exTaskEntity.getHandlerErp() : baseStaff.getStaffName());
-        status.setCreateSiteCode(exTaskEntity.getSiteCode().intValue());
-
-        Task tTask = new Task();
-        tTask.setKeyword1(exTaskEntity.getBarCode());
-        tTask.setKeyword2(String.valueOf(status.getOperateType()));
-        tTask.setCreateSiteCode(exTaskEntity.getSiteCode().intValue());
-        tTask.setCreateTime(exTaskEntity.getProcessBeginTime());
-        tTask.setType(Task.TASK_TYPE_WAYBILL_TRACK);
-        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
-        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_POP));
-        String ownSign = BusinessHelper.getOwnSign();
-        tTask.setOwnSign(ownSign);
-        tTask.setBody(JsonHelper.toJson(status));
-        tTask.setFingerprint(Md5Helper.encode(status.getCreateSiteCode() + "_"
-                + status.getWaybillCode() + "-" + status.getOperateType() + "-" + status.getOperateTime().getTime()));
-        taskService.add(tTask);
+    @Override
+    public void pushScrapTrace(JyBizTaskExceptionEntity exTaskEntity) {
+        if(StringUtils.isBlank(exTaskEntity.getBarCode())){
+            logger.warn("单号为空!");
+            return ;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(exTaskEntity.getBarCode());
+        BdTraceDto traceDto = new BdTraceDto();
+        traceDto.setPackageBarCode(waybillCode);
+        traceDto.setWaybillCode(waybillCode);
+        traceDto.setOperateType(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP);
+        traceDto.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
+        traceDto.setOperatorSiteId(exTaskEntity.getSiteCode().intValue());
+        traceDto.setOperatorSiteName(exTaskEntity.getSiteName());
+        traceDto.setOperatorUserName(exTaskEntity.getHandlerErp());
+        traceDto.setOperatorTime(new Date());
+        traceDto.setWaybillTraceType(1);
+        logger.info("发送运单报废全程跟踪信息-{}",JSON.toJSONString(traceDto));
+        waybillQueryManager.sendBdTrace(traceDto);
     }
 
     private void createSanWuTask(ExpefNotify mqDto) {
-        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU.getCode(), mqDto.getBarCode());
+        String bizId = getBizId(mqDto.getBarCode(),mqDto.getSiteCode());
         JyBizTaskExceptionEntity byBizId = jyBizTaskExceptionDao.findByBizId(bizId);
         if (byBizId != null) {
             logger.warn("已存在当前条码的任务,请勿重复提交!");
@@ -1204,7 +1390,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param
      */
     private void sanwuComplate(ExpefNotify mqDto) {
-        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU.getCode(), mqDto.getBarCode());
+        String bizId = getBizId(mqDto.getBarCode(),mqDto.getSiteCode());
         updateExceptionResult(bizId,mqDto.getNotifyErp(),mqDto.getNotifyTime(),true);
     }
 
@@ -1248,7 +1434,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             logger.info("checkExceptionPrincipal-入参-{}",JSON.toJSONString(req));
         }
         JdCResponse<Boolean> response = new JdCResponse<>();
-        response.setCode(JdCResponse.CODE_FAIL);
+        response.toSucceed(JdCResponse.MESSAGE_SUCCESS);
         response.setData(Boolean.FALSE);
         if(req == null || StringUtils.isBlank(req.getPositionCode()) || StringUtils.isBlank(req.getUserErp())){
             return response.fail("入参不能为空!");
@@ -1276,13 +1462,37 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         String ownerUserErp = result.getData().getOwnerUserErp();
         //校验场地网格负责人
         if(Objects.equals(req.getUserErp(),ownerUserErp)){
-            response.setCode(JdCResponse.CODE_SUCCESS);
             response.setData(Boolean.TRUE);
         }
         return response;
     }
 
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionServiceImpl.exceptionTaskCheckByExceptionType", mState = {JProEnum.TP})
+    public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("exceptionTaskCheckByExceptionType-入参-{}",JSON.toJSONString(req));
+        }
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        try{
+            if(req == null || req.getType() == null || StringUtils.isBlank(req.getBarCode())){
+                response.toFail("入参不能为空!");
+                return response;
+            }
+            Waybill waybill = waybillService.getWaybillByWayCode(req.getBarCode());
+            if(waybill == null){
+                response.toFail("运单信息为空!");
+                return response;
+            }
+            JyExceptionStrategy strategy = jyExceptionStrategyFactory.getStrategy(req.getType());
+            return strategy.exceptionTaskCheckByExceptionType(req,waybill);
 
+        }catch (Exception e){
+            logger.error("根据异常类型校验单号异常-param-{}",JSON.toJSONString(req),e);
+            response.toError("根据异常类型校验单号异常!");
+            return response;
+        }
+    }
 
     private void sendScheduleTaskStatusMsg(String bizId, String userErp,
                                            JyScheduleTaskStatusEnum status, DefaultJMQProducer producer) {
@@ -1306,7 +1516,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param mqDto
      */
     private void matchSuccessProcess(ExpefNotify mqDto) {
-        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU.getCode(),mqDto.getBarCode());
+        String bizId = getBizId(mqDto.getBarCode(),mqDto.getSiteCode());
         JyBizTaskExceptionEntity bizTaskException = jyBizTaskExceptionDao.findByBizId(bizId);
         if (bizTaskException == null){
             logger.error("获取异常业务任务数据失败！");
@@ -1494,11 +1704,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     /**
      * 拼接唯一网格标识
      */
-    private String getGridRid(PositionDetailRecord data) {
+    public String getGridRid(PositionDetailRecord data) {
         return data.getSiteCode() + "-" + data.getFloor() + "-" + data.getGridCode();
     }
 
-    private PositionDetailRecord getPosition(String positionCode) {
+    public PositionDetailRecord getPosition(String positionCode) {
         if (StringUtils.isBlank(positionCode)) {
             return null;
         }
@@ -1510,12 +1720,22 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         return JSON.parseObject(JSON.toJSONString(positionResult.getData()), PositionDetailRecord.class);
     }
 
-    private String getBizId(Integer type, String barCode) {
-        if(JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(type)){
-            return JyBizTaskExceptionTypeEnum.SCRAPPED.name() + "_" + barCode;
+    private String getBizId(String barCode,Integer siteId) {
+        if(BusinessUtil.isSanWuCode(barCode)){
+            return JyBizTaskExceptionTypeEnum.SANWU.name() + "_" + barCode;
+        }else {
+            boolean bizIdSwith = uccPropertyConfiguration.isJyExceptionCreateBizIdSwitch();
+            if(bizIdSwith){
+                String bizid = JyBizTaskExceptionTypeEnum.SCRAPPED.name() + "_" + barCode;
+                JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(bizid);
+                if(task != null){
+                    return bizid;
+                }
+            }
+            return  barCode+"_"+siteId;
         }
-        return JyBizTaskExceptionTypeEnum.SANWU.name() + "_" + barCode;
     }
+
 
 
     /**
@@ -1616,7 +1836,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     /**
      * 调用终端妥投接口
      */
-    private void delivered(String bizId){
+    @Override
+    public void delivered(String bizId){
         JyBizTaskExceptionEntity exTaskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if(exTaskEntity == null){
             logger.warn("根据业务主键:{}未查询到异常任务数据!", bizId);
