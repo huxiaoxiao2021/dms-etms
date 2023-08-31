@@ -138,7 +138,7 @@ public class TransportRelatedServiceImpl implements TransportRelatedService {
             stopoverQueryDtoRemote.setSiteCode(operateSite == null ? null : operateSite.getDmsSiteCode());
             StopoverInfoDto stopoverInfoDto = sealCarManager.queryStopoverInfo(stopoverQueryDtoRemote);
             if(stopoverInfoDto == null){
-                return result.toFail("无此任务数据");
+                return result.setData(StopoverSiteUnloadAndLoadTypeEnum.UNKNOWN.getCode());
             }
             // 站点类型1:始发;2:经停;3:目的
             // 站点类型=经停 且 装车计数＞0  且 卸车计数=0
