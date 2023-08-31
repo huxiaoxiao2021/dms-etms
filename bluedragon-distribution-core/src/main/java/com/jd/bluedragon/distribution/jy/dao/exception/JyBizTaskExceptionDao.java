@@ -118,7 +118,7 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".getStatisticsExceptionTaskDetailList", req);
     }
 
-    public List<JyBizTaskExceptionEntity> getExceptionTaskListOverTime(JyBizTaskExceptionEntity req){
+    public List<String> getExceptionTaskListOverTime(JyBizTaskExceptionEntity req){
         return this.getSqlSession().selectList(NAMESPACE + ".getExceptionTaskListOverTime", req);
     }
 

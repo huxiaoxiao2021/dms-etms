@@ -486,8 +486,8 @@
         </if>
     </select>
 
-    <select id="getExceptionTaskListOverTime" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity" resultMap="jyBizTaskExceptionMap">
-        select <include refid="Base_Column_List"/>
+    <select id="getExceptionTaskListOverTime" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity"  resultType="String">
+        select biz_id
         FROM jy_biz_task_exception
         WHERE yn = 1
         and type = #{type}
