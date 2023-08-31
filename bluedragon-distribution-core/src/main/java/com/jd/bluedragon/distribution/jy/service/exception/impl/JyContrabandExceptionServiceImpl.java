@@ -33,6 +33,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.cp.wbms.client.enums.RejectionEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
@@ -119,18 +120,15 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             JyExceptionContrabandEntity entity = buildEntity(req);
             this.saveImages(req, entity);
             jyExceptionContrabandDao.insertSelective(entity);
-
-            //
-            //DmsWaybillReverseDTO reverseDTO = this.covertDmsWaybillReverseDTO(entity);
-            //waybillReverseManager.submitWaybill(reverseDTO);
-
-
+            //退回 调用百川逆向换单
+            if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
+                DmsWaybillReverseDTO reverseDTO = this.covertDmsWaybillReverseDTO(entity);
+                waybillReverseManager.submitWaybill(reverseDTO);
+            }
             JyExceptionContrabandDto dto = new JyExceptionContrabandDto();
             BeanUtils.copyProperties(entity,dto);
             jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
             logger.info("违禁品上报发送MQ-{}",JSON.toJSONString(dto));
-
-
         } catch (Exception e) {
             logger.error("提交违禁品上报报错:", e);
             return JdCResponse.fail(e.getMessage());
@@ -142,39 +140,23 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     private DmsWaybillReverseDTO covertDmsWaybillReverseDTO(JyExceptionContrabandEntity entity){
         DmsWaybillReverseDTO dto = new DmsWaybillReverseDTO();
-//        dto.setSource();
-//        dto.setReverseType();
-//        dto.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
-//        dto.setOrgId();
-//        dto.setSortCenterId();
-//        dto.setSiteId(entity.getSiteCode());
-//        dto.setCustomerCode();
-//        dto.setPackageCount();
-//        dto.setReturnType();
-//        dto.setReverseReason("");
-//        dto.setOperateTime(new Date());
-//        dto.setOperateUser(entity.getCreateStaffName());
-//        dto.setOperateUserId();
-//        dto.setRemark("");
-//        dto.setChargeType();
-//        dto.setAttributionToJD();
-//        dto.setWeight();
-//        dto.setVolume();
-//        dto.setLimitReverseFlag();
-//        dto.setAllowReverseCount();
-
-        List<DmsDetailReverseReasonDTO> detailReverseReasonDTOList = new ArrayList<>();
-        DmsDetailReverseReasonDTO reverseReasonDTO = new DmsDetailReverseReasonDTO();
-        detailReverseReasonDTOList.add(reverseReasonDTO);
-
-        dto.setDetailReverseReasonDTOList(detailReverseReasonDTOList);
-
-        DmsWaybillAddress waybillAddress = new DmsWaybillAddress();
-
-        dto.setWaybillAddress(waybillAddress);
-
+        dto.setSource(Constants.BASE_SITE_DISTRIBUTION_CENTER);
+        dto.setReverseType(RejectionEnum.PACKAGE.getCode());//todo ??
+        dto.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
+        dto.setSortCenterId(entity.getSiteCode());
+        dto.setSiteId(entity.getSiteCode());
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
+        if(waybill != null){
+            dto.setPackageCount(waybill.getGoodNumber());
+        }
+        dto.setReturnType(Constants.REVERSE_TYPE_REJECT_BACK);
+        dto.setOperateTime(new Date());
+        dto.setOperateUser(entity.getCreateStaffName());
+        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(entity.getCreateErp());
+        if(baseStaff != null){
+            dto.setOperateUserId(baseStaff.getStaffNo());
+        }
         return dto;
-
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.jd.bluedragon;
 
+import com.jd.cp.wbms.client.enums.RejectionEnum;
+
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -2019,5 +2021,11 @@ public class Constants {
      * 枚举类型：1:运单维度不记录各包裹全程跟踪,2:运单维度记录各包裹全程跟踪,3:包裹维度记录包裹全程跟踪
      */
     public static final Integer WAYBILL_TRACE_TYPE =1;
+
+    /**
+     * 逆向退货类型:拒收退回
+     */
+    public static final Integer REVERSE_TYPE_REJECT_BACK =7;
+
 
 }
