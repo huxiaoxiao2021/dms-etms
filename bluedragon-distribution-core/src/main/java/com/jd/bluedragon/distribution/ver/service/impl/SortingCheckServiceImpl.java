@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.ver.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
@@ -16,19 +14,14 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
-import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
-import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
-import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
-import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
-import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+import com.jd.bluedragon.distribution.jsf.domain.*;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.rule.service.RuleService;
@@ -40,7 +33,10 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.filter.chains.*;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -51,6 +47,8 @@ import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.etms.waybill.dto.WaybillProductDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -182,14 +180,6 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             }
         }
-        if(filterContext != null && CollectionUtils.isNotEmpty(filterContext.getMsgBoxList())){
-            List<InvokeWithMsgBoxResult.MsgBox> msgBoxes = new ArrayList<>();
-            for (InvokeWithMsgBoxResult.MsgBox msgBoxItem : filterContext.getMsgBoxList()) {
-                InvokeWithMsgBoxResult.MsgBox msgBox = new InvokeWithMsgBoxResult.MsgBox(msgBoxItem.getType(), msgBoxItem.getCode(), msgBoxItem.getMsg());
-                msgBoxes.add(msgBox);
-            }
-            response.setMsgBoxes(filterContext.getMsgBoxList());
-        }
         this.addSortingCheckStatisticsLog(pdaOperateRequest, response.getCode(), response.getMessage());
         return response;
     }
@@ -320,14 +310,6 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                     response.setCode(JdResponse.CODE_SERVICE_ERROR);
                     response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
                 }
-            }
-            if(filterContext != null && CollectionUtils.isNotEmpty(filterContext.getMsgBoxList())){
-                List<InvokeWithMsgBoxResult.MsgBox> msgBoxes = new ArrayList<>();
-                for (InvokeWithMsgBoxResult.MsgBox msgBoxItem : filterContext.getMsgBoxList()) {
-                    InvokeWithMsgBoxResult.MsgBox msgBox = new InvokeWithMsgBoxResult.MsgBox(msgBoxItem.getType(), msgBoxItem.getCode(), msgBoxItem.getMsg());
-                    msgBoxes.add(msgBox);
-                }
-                response.setMsgBoxes(filterContext.getMsgBoxList());
             }
         } else {
             //调用装箱的分拣验证

@@ -1961,27 +1961,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         return false;
                     }
                 }
-                if (CollectionUtils.isNotEmpty(chainResp.getMsgBoxes())) {
-                    List<JdVerifyResponse.MsgBox> msgBoxes = new ArrayList<>();
-                    for (InvokeWithMsgBoxResult.MsgBox msgBoxItem : chainResp.getMsgBoxes()) {
-                        MsgBoxTypeEnum type = MsgBoxTypeEnum.PROMPT;
-                        if(Objects.equals(msgBoxItem.getType(), InvokeWithMsgBoxResult.MsgBoxTypeEnum.WARNING)){
-                            type = MsgBoxTypeEnum.WARNING;
-                        }
-                        if(Objects.equals(msgBoxItem.getType(), InvokeWithMsgBoxResult.MsgBoxTypeEnum.CONFIRM)){
-                            type = MsgBoxTypeEnum.CONFIRM;
-                        }
-                        if(Objects.equals(msgBoxItem.getType(), InvokeWithMsgBoxResult.MsgBoxTypeEnum.INTERCEPT)){
-                            type = MsgBoxTypeEnum.INTERCEPT;
-                        }
-                        JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox(type, msgBoxItem.getCode(), msgBoxItem.getMsg());
-                        msgBoxes.add(msgBox);
-                    }
-                    if (result.getMsgBoxes() == null) {
-                        result.setMsgBoxes(new ArrayList<>());
-                    }
-                    result.getMsgBoxes().addAll(msgBoxes);
-                }
             }
         }
 
