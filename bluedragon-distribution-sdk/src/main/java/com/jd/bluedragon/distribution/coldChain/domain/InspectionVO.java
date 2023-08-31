@@ -25,7 +25,10 @@ public class InspectionVO implements Serializable {
     private String operateTime;
 
     private String machineCode;//设备编号
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
     public List<String> getBarCodes() {
         return barCodes;
     }

@@ -115,7 +115,10 @@ public class GantryDeviceConfigJsfRequest implements Serializable{
      * 业务类型：正向 逆向
      */
     private Integer waybillBusinessType;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
     public Long getId() {
         return id;
     }

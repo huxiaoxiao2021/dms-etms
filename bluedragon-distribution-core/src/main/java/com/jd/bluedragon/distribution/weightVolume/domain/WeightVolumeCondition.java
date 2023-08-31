@@ -107,6 +107,10 @@ public class WeightVolumeCondition {
      * 超重服务类型
      */
     private List<String> overLengthAndWeightTypes;
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
     
     public Integer getLongPackage() {
         return longPackage;

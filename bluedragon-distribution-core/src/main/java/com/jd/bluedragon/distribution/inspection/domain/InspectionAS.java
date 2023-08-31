@@ -92,6 +92,10 @@ public class InspectionAS implements Serializable {
      * 操作者id
      */
 	private String operatorId;
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
     
 
     public String getSealBoxCode() {

@@ -89,7 +89,10 @@ public class WeightVolumeJSFEntity implements Serializable {
      * 设备编码
      */
     private String machineCode;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
     public String getBarCode() {
         return barCode;
     }

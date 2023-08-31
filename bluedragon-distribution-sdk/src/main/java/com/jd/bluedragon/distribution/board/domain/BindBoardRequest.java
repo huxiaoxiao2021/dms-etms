@@ -29,7 +29,10 @@ public class BindBoardRequest implements Serializable {
     private String machineCode;
 
     private boolean cancelLast;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
     public boolean getCancelLast() {
         return cancelLast;
     }

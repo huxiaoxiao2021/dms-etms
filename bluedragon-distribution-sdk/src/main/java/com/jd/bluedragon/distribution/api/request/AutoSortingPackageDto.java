@@ -32,7 +32,10 @@ public class AutoSortingPackageDto implements Serializable{
     private String machineCode;
     /** 是否补验货**/
     private Boolean addInspection;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
     public Integer getId() {
         return id;
     }
