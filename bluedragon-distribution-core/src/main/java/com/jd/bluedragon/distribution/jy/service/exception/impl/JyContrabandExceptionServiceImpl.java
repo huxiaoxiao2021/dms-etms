@@ -33,6 +33,8 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BdTraceDto;
@@ -477,11 +479,14 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             }
         }
         if (WaybillUtil.isPackageCode(req.getBarCode())) {
-            Waybill waybill = waybillQueryManager.getWaybillByWayCode(req.getBarCode());
-            if (waybill == null) {
+            logger.info("validateReq pass ....");
+            BaseEntity<Waybill> baseEntity = waybillQueryManager.getWaybillByPackCode(req.getBarCode());
+            logger.info("validateReq baseEntity:{}", JSON.toJSONString(baseEntity));
+            if (baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null) {
                 throw new RuntimeException("包裹号错误");
             }
         } else {
+            logger.info("validateReq not pass ....");
             throw new RuntimeException("包裹号错误");
         }
         if (StringUtils.isEmpty(req.getUserErp())) {
