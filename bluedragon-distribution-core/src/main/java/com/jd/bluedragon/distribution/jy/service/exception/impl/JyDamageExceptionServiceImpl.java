@@ -1257,20 +1257,15 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 }
                 logger.info("操作场地不为空 更改任务状态-{}",bizIds);
             }else {
-                List<JyExceptionDamageEntity> recordList = jyExceptionDamageDao.getDamageRecordListByBarCode(waybillCode);
-                logger.info("操作场地为空 获取的任务列表-{}",JSON.toJSONString(recordList));
-                if(CollectionUtils.isEmpty(recordList)){
-                    return;
+                List<JyBizTaskExceptionEntity> findBizIds = jyBizTaskExceptionDao.selectListByBarCode(waybillCode);
+                if(CollectionUtils.isEmpty(findBizIds)){
+                    return ;
                 }
-                for (JyExceptionDamageEntity damageEntity:recordList) {
-                    JyBizTaskExceptionEntity expTask = jyBizTaskExceptionDao.findByBizId(damageEntity.getBizId());
-                    if(expTask == null){
-                        continue;
-                    }
-                    if(Objects.equals(JyExpStatusEnum.TO_PICK.getCode(),expTask.getStatus())
-                            || Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(),expTask.getStatus())
-                            || Objects.equals(JyExpStatusEnum.PROCESSING.getCode(),expTask.getStatus())){
-                        bizIds.add(damageEntity.getBizId());
+                for (JyBizTaskExceptionEntity entity :findBizIds) {
+                    if(Objects.equals(JyExpStatusEnum.TO_PICK.getCode(),entity.getStatus())
+                            || Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(),entity.getStatus())
+                            || Objects.equals(JyExpStatusEnum.PROCESSING.getCode(),entity.getStatus())){
+                        bizIds.add(entity.getBizId());
                     }
                 }
                 logger.info("操作场地空 更改任务状态-{}",bizIds);
