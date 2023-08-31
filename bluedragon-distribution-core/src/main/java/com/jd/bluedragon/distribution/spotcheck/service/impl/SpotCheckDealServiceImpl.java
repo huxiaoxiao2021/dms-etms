@@ -632,6 +632,11 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      */
     @Override
     public void executeIssue(WeightVolumeSpotCheckDto spotCheckDto) {
+        if(!Objects.equals(spotCheckDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
+            // 抽检不超标不下发
+            logger.warn("单号:{}的抽检数据不执行下发!", spotCheckDto.getPackageCode());
+            return;
+        }
         // 校验运单是否已下发
         if(checkWaybillHasIssued(spotCheckDto.getWaybillCode())){
             logger.info("spotCheckWaybill has issued will not send {}", spotCheckDto.getWaybillCode());
@@ -652,10 +657,6 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             spotCheckIssueZDMQ.setReviewVolume(spotCheckDto.getReviewVolume());
             spotCheckIssueZDMQ.setReviewTime(spotCheckDto.getReviewDate());
             spotCheckIssueZDProducer.sendOnFailPersistent(spotCheckIssueZDMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueZDMQ));
-            // 体积超标是否下发判断
-            if(!checkVolumeExcessIsIssue(spotCheckDto)){
-                return;
-            }
         }
         // 下发超标数据至称重再造系统条件
         // 1、图片
@@ -667,8 +668,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 return;
             }
         }else if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){ // 设备抽检
-            if(spotCheckIssueIsRelyOnMachineStatus(spotCheckDto.getReviewSiteCode())
-                    && !Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
+            if(!Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
                 // 设备抽检设备不合格不下发
                 logger.warn("单号:{}设备编码:{}的抽检数据不执行下发!", spotCheckDto.getPackageCode(), spotCheckDto.getMachineCode());
                 return;
@@ -698,16 +698,6 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 && Objects.equals(spotCheckDto.getExcessType(), SpotCheckConstants.EXCESS_TYPE_WEIGHT);
     }
 
-    private boolean checkVolumeExcessIsIssue(WeightVolumeSpotCheckDto spotCheckDto) {
-        String volumeExcessIssueSites = uccPropertyConfiguration.getVolumeExcessIssueSites();
-        if(StringUtils.isEmpty(volumeExcessIssueSites)){
-            return false;
-        }
-        if(Objects.equals(volumeExcessIssueSites, Constants.STR_ALL)){
-            return true;
-        }
-        return Arrays.asList(volumeExcessIssueSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(spotCheckDto.getReviewSiteCode()));
-    }
 
     /**
      * 构建并下发数据

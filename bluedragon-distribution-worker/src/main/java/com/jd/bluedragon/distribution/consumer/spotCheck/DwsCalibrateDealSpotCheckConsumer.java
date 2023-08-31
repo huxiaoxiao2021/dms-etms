@@ -10,7 +10,6 @@ import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
@@ -108,12 +107,8 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
                 spotCheckServiceProxy.insertOrUpdateProxyReform(updateSpotDto);
             }
 
-            // 下发抽检数据
-            if(spotCheckDealService.spotCheckIssueIsRelyOnMachineStatus(weightVolumeSpotCheckDto.getReviewSiteCode())
-                    && Objects.equals(waybillMachineStatus, JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode()) 
-                    && Objects.equals(weightVolumeSpotCheckDto.getExcessType(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
-                spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
-            }
+            // 下发抽检数据处理
+            spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
 
         } catch (Exception e) {
             Profiler.functionError(info);
