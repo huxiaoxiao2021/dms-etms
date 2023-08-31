@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.external.service;
 
+import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 import com.jd.bluedragon.distribution.api.request.DmsClientHeartbeatRequest;
 import com.jd.bluedragon.distribution.api.request.DmsClientLogoutRequest;
+import com.jd.bluedragon.distribution.api.request.DmsLoginRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.DmsClientHeartbeatResponse;
@@ -42,6 +44,10 @@ public interface DmsBaseService {
      */
     LoginUserResponse clientLoginNew(LoginRequest request);
 
+    /**
+     * 获取登录token信息
+     */
+    LoginUserResponse getLoginId(DmsLoginRequest request);
 
     /**
      * 客户端登陆，发送心跳（android PDA）
@@ -49,6 +55,13 @@ public interface DmsBaseService {
      * @return
      */
     JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest request);
+
+    /**
+     * 获取客户端配置信息
+     * @param request
+     * @return
+     */
+    JdResult<DmsClientConfigInfo> getClientConfigInfo(DmsLoginRequest request);
 
     /**
      * 客户端退出登陆
