@@ -175,6 +175,10 @@ public interface JySendVehicleGatewayService {
     JdCResponse<SendVehicleProductTypeAgg> getProductToScanInfo(SendAbnormalRequest request);
 
     /**
+     * 运输任务叫号
+     */
+    JdCResponse<String> callByWorkItem(CallNumberRequest request);
+    /**
      * 根据发货任务获取特殊产品类型数量
      * @param request 请求参数
      * @return 待扫列表统计

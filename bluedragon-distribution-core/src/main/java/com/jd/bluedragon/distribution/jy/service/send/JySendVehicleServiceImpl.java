@@ -146,9 +146,11 @@ import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
+import com.jd.tms.jdi.dto.CommonDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.tms.jdi.dto.TransWorkFuzzyQueryParam;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
+import com.jd.tms.jdi.param.TransWorkItemQueueCallParam;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
@@ -362,6 +364,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    private JdiTransQueueWSManager jdiTransQueueWSManager;
 
     @Autowired
     private TransportRelatedService transportRelatedService;
@@ -4475,6 +4480,38 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         }
         return true;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.callByWorkItem", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<String> callByWorkItem(CallNumberRequest request) {
+        InvokeResult<String> result = new InvokeResult<>();
+        if (StringUtils.isEmpty(request.getBizId())) {
+            result.parameterError("发货明细流向bizId不能为空！");
+            return result;
+        }
+        if (request.getCallSiteCode() == null) {
+            result.parameterError("叫号场地不能为空！");
+            return result;
+        }
+        if (StringUtils.isEmpty(request.getCallUserErp())) {
+            result.parameterError("叫号人erp不能为空！");
+            return result;
+        }
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(request.getCallSiteCode());
+        JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity = taskSendVehicleDetailService.findByBizId(request.getBizId());
+
+        TransWorkItemQueueCallParam param = new TransWorkItemQueueCallParam();
+        param.setTransWorkItemCode(sendVehicleDetailEntity.getTransWorkItemCode());
+        param.setBeginNodeCode(dto.getDmsSiteCode());
+        param.setOperateUser(request.getCallUserErp());
+        CommonDto<String> commonDto = jdiTransQueueWSManager.callByWorkItem(param);
+        if (commonDto == null) {
+            result.error("叫号异常，请重试！");
+            return result;
+        }
+        result.setMessage(commonDto.getMessage());
+        return result;
     }
 
     /**

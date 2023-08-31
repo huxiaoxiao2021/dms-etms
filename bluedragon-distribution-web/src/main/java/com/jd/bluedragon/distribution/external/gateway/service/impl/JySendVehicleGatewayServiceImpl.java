@@ -227,6 +227,12 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
         return retJdCResponse(jySendVehicleService.getProductToScanInfo(request));
     }
 
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleGatewayServiceImpl.callByWorkItem", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<String> callByWorkItem(CallNumberRequest request) {
+        return retJdCResponse(jySendVehicleService.callByWorkItem(request));
+    }
+
     /**
      * 根据发货任务获取特殊产品类型数量
      * @param request 请求参数

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
@@ -276,6 +277,13 @@ public interface IJySendVehicleService {
      * @return
      */
     Result<Void> noticeToCanTEANPackage(AutoCloseTaskPo autoCloseTaskPo);
+
+    /**
+     * 运输叫号
+     * @param request
+     * @return
+     */
+    InvokeResult<String> callByWorkItem(CallNumberRequest request);
 
     /**
      * 首次发货任务扫描处理只装不卸属性
