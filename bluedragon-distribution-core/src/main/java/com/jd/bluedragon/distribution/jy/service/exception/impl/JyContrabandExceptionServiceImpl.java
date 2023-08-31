@@ -476,7 +476,12 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                 throw new RuntimeException("仅港澳件出口支持违禁品退回!");
             }
         }
-        if (!WaybillUtil.isPackageCode(req.getBarCode())) {
+        if (WaybillUtil.isPackageCode(req.getBarCode())) {
+            Waybill waybill = waybillQueryManager.getWaybillByWayCode(req.getBarCode());
+            if (waybill == null) {
+                throw new RuntimeException("包裹号错误");
+            }
+        } else {
             throw new RuntimeException("包裹号错误");
         }
         if (StringUtils.isEmpty(req.getUserErp())) {
