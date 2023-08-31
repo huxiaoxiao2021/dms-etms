@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.abnormalwaybill.dao;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,4 +85,27 @@ public class AbnormalWayBillDao extends BaseDao<AbnormalWayBill> {
         parameter.put("waybillCode", waybillCode);
         return super.getSqlSession().selectOne(namespace + ".queryAbnormalWayBillByWayBillCode" , parameter);
 	}
+
+    /**
+     * 根据运单号查询提报的异常,返回最后一次提交的异常记录
+     * @return
+     */
+    public AbnormalWayBill queryOneByParam(AbnormalWayBill abnormalWayBill) {
+        return super.getSqlSession().selectOne(namespace + ".queryOneByParam" , abnormalWayBill);
+    }
+
+    /**
+     * 根据运单号查询提报的异常列表
+     * @return
+     */
+    public long queryCountByQueryParam(AbnormalWayBillQuery abnormalWayBillQuery) {
+        return super.getSqlSession().selectOne(namespace + ".queryCountByQueryParam" , abnormalWayBillQuery);
+    }
+    /**
+     * 根据运单号查询提报的异常,返回最后一次提交的异常记录
+     * @return
+     */
+    public List<AbnormalWayBill> queryPageListByQueryParam(AbnormalWayBillQuery abnormalWayBillQuery) {
+        return super.getSqlSession().selectList(namespace + ".queryPageListByQueryParam" , abnormalWayBillQuery);
+    }
 }
