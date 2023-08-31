@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.inspection.domain;
 
 import java.io.Serializable;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 /**
  * 自动分拣机交接验货表
  * Created by dudong on 2014/10/20.
@@ -96,7 +98,6 @@ public class InspectionAS implements Serializable {
      * 操作信息对象
      */
 	private OperatorData operatorData;
-    
 
     public String getSealBoxCode() {
         return sealBoxCode;
@@ -232,5 +233,13 @@ public class InspectionAS implements Serializable {
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

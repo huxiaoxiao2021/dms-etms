@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.coldChain.domain;
 
 import java.io.Serializable;
 import java.util.List;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -84,4 +85,12 @@ public class InspectionVO implements Serializable {
     public void setMachineCode(String machineCode) {
         this.machineCode = machineCode;
     }
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.weightvolume;
 
 import java.io.Serializable;
 import java.util.Date;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 
 /**
  * <p>
@@ -212,4 +213,12 @@ public class WeightVolumeJSFEntity implements Serializable {
     public void setMachineCode(String machineCode) {
         this.machineCode = machineCode;
     }
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 }

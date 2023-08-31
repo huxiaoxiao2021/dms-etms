@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.board.domain;
 
 import java.io.Serializable;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 
 public class BindBoardRequest implements Serializable {
     private static final long serialVersionUID = -1390506536718685368L;
@@ -87,5 +88,12 @@ public class BindBoardRequest implements Serializable {
 
 	public void setMachineCode(String machineCode) {
 		this.machineCode = machineCode;
+	}
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

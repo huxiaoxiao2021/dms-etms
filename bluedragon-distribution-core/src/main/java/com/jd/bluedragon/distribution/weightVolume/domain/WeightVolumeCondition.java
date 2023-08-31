@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.weightVolume.domain;
 
 import java.util.List;
-
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 /**
  * <p>
  *
@@ -271,5 +271,12 @@ public class WeightVolumeCondition {
 	public void setTotalVolumeFlag(Boolean totalVolumeFlag) {
 		this.totalVolumeFlag = totalVolumeFlag;
 	}
-    
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 }

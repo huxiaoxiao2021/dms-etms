@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.api.request;
 
 import java.io.Serializable;
 import java.util.Date;
-
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 /**
  * Created by yanghongqiang on 2016/3/11.
  * 龙门架编号，操作时间，返回操作类型，操作人ID、姓名、操作站点ID，名称、批次号（可选）等其它信息
@@ -294,7 +294,13 @@ public class GantryDeviceConfigJsfRequest implements Serializable{
     public void setWaybillBusinessType(Integer waybillBusinessType) {
         this.waybillBusinessType = waybillBusinessType;
     }
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
 
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
     @Override
     public String toString() {
         return "GantryDeviceConfigJsfRequest{" +

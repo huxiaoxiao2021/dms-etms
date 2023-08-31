@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
 import java.io.Serializable;
-
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 /**
  * @author dudong
  * @date 2015/9/15
@@ -131,4 +131,11 @@ public class AutoSortingPackageDto implements Serializable{
     public void setAddInspection(Boolean addInspection) {
         this.addInspection = addInspection;
     }
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 }
