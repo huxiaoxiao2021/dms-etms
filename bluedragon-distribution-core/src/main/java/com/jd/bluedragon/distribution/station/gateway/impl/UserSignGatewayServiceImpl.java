@@ -404,6 +404,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		if (BusinessUtil.isReceivingWarehouse(dtoStaff.getSortType())) {
 			// 所属场地对应省区与网格码所属接货仓省区是否一致
 			log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo baseStaffByErp.getProvinceAgencyCode():{}, apiResult.getData().getProvinceAgencyCode:{}", baseStaffByErp.getProvinceAgencyCode(), apiResult.getData().getProvinceAgencyCode());
+			if (StringUtils.isBlank(baseStaffByErp.getProvinceAgencyCode())) {
+				return true;
+			}
 			return baseStaffByErp.getProvinceAgencyCode().equals(apiResult.getData().getProvinceAgencyCode());
 		}
 		return true;
