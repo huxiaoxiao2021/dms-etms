@@ -42,6 +42,8 @@ import com.jd.bluedragon.distribution.jy.strand.JyBizTaskStrandReportEntity;
 import com.jd.bluedragon.distribution.jy.strand.StrandDetailSumEntity;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -75,6 +77,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 拣运app-滞留上报接口实现
@@ -143,6 +146,9 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
 
     @Autowired
     private RouterService routerService;
+
+    @Autowired
+    private SendDatailDao sendDatailDao;
 
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.artificialCreateStrandReportTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -513,25 +519,65 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.queryBatchInnerScanCount",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     private ImmutablePair<String, Integer> queryBatchInnerScanCount(JyStrandReportScanReq scanRequest, Integer nextSiteCode) {
-        ImmutablePair<String, Integer> packageCodeOrWaybillCode = null;
-        ImmutablePair<String, Integer> boxCode = null;
-        String containerCode = null;
+        String sendCode = null;
         Integer count = Constants.NUMBER_ZERO;
-        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode()) || WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
-            packageCodeOrWaybillCode = queryPackOrWaybillInnerScanCount(scanRequest, nextSiteCode);
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setCreateSiteCode(scanRequest.getCurrentOperate().getSiteCode());
+        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode())) {
+            ImmutablePair<String, Integer> stringIntegerImmutablePair = queryPackOrWaybillInnerScanCount(scanRequest, nextSiteCode);
+            sendDetail.setPackageBarcode(stringIntegerImmutablePair.getLeft());
+            //获取批次号
+            sendCode = getSendCOde(scanRequest,sendDetail);
+            //获取批次号下的（包裹，运单，箱）数量
+            count = getInteger(scanRequest, sendCode);
+        } else if (WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
+            ImmutablePair<String, Integer> stringIntegerImmutablePair = queryPackOrWaybillInnerScanCount(scanRequest, nextSiteCode);
+            sendDetail.setWaybillCode(stringIntegerImmutablePair.getLeft());
+            //获取批次号
+            sendCode = getSendCOde(scanRequest,sendDetail);
+            //获取批次号下的（包裹，运单，箱）数量
+            count = getInteger(scanRequest, sendCode);
         } else if (BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
-            boxCode = queryBoxInnerScanCount(scanRequest, nextSiteCode);
-        }
-        if (ObjectHelper.isNotEmpty(packageCodeOrWaybillCode)) {
-            containerCode = packageCodeOrWaybillCode.getLeft();
-            count ++;
-        } else if (ObjectHelper.isNotEmpty(boxCode)) {
-            String left = boxCode.getLeft();
-            count ++;
+            ImmutablePair<String, Integer> boxCode = queryBoxInnerScanCount(scanRequest, nextSiteCode);
+            sendDetail.setBoxCode(boxCode.getLeft());
+            //获取批次号
+            sendCode = getSendCOde(scanRequest,sendDetail);
+            //获取批次号下的（包裹，运单，箱）数量
+            count = getInteger(scanRequest, sendCode);
         }else {
             throw new JyBizException("扫描批次的目的地和任务流向不一致!");
         }
-        return ImmutablePair.of(containerCode, count);
+        return ImmutablePair.of(sendCode, count);
+    }
+
+    /**
+     * 获取批次号
+     * @param sendDetail
+     * @return
+     */
+    private String getSendCOde(JyStrandReportScanReq scanRequest, SendDetail sendDetail) {
+        List<SendDetail> sendDetails = sendDatailDao.querySendDatailsBySelective(sendDetail);
+        if (CollectionUtils.isEmpty(sendDetails)) {
+            throw new JyBizException("未查询到单号: " + scanRequest.getScanBarCode() + " 对应的批次号");
+        }
+        return sendDetails.get(0).getSendCode();
+    }
+
+    /**
+     * 获取批次号下的（包裹，运单，箱）数量
+     * @param scanRequest
+     * @return
+     */
+    private Integer getInteger(JyStrandReportScanReq scanRequest,String sendCode) {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setCreateSiteCode(scanRequest.getCurrentOperate().getSiteCode());
+        sendDetail.setSendCode(sendCode);
+        List<SendDetail> sendDetailList = sendDatailDao.querySendDatailsBySelective(sendDetail);
+        if (CollectionUtils.isEmpty(sendDetailList)) {
+            throw new JyBizException("未查询到批号: " + scanRequest.getScanBarCode() + " 对应的包裹号，运单号，箱号等");
+        }
+        List<String> collect = sendDetailList.stream().map(SendDetail::getBoxCode).distinct().collect(Collectors.toList());
+        return collect.size();
     }
 
     /**
@@ -657,6 +703,16 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         strandTaskCheck(request.getBizId(), result);
         if(!result.codeSuccess()){
            return result; 
+        }
+        //操作单位编号
+        if(ObjectHelper.isEmpty(request.getCurrentOperate())){
+            result.parameterError("参数错误-操作人不能为空!");
+            return result;
+        }
+        //操作单位编号
+        if(ObjectHelper.isEmpty(request.getCurrentOperate().getSiteCode())){
+            result.parameterError("参数错误-操作单位编号不能为空!");
+            return result;
         }
         return result;
     }
