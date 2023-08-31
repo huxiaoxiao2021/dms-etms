@@ -11,12 +11,12 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrab
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpNoticCustomerExpReasonEnum;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpContrabandNoticCustomerMQ;
@@ -36,12 +36,12 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.cp.wbms.client.enums.RejectionEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.jim.cli.Cluster;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -105,6 +105,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     @Autowired
     private WaybillReverseManager waybillReverseManager;
+
+    @Autowired
+    private WaybillPackageManager waybillPackageManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
@@ -462,9 +465,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         }
         if (WaybillUtil.isPackageCode(req.getBarCode())) {
             logger.info("validateReq pass ....");
-            BaseEntity<Waybill> baseEntity = waybillQueryManager.getWaybillByPackCode(req.getBarCode());
-            logger.info("validateReq baseEntity:{}", JSON.toJSONString(baseEntity));
-            if (baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null) {
+            DeliveryPackageD packageD = waybillPackageManager.getPackageInfoByPackageCode(req.getBarCode());
+            logger.info("validateReq packageD:{}", JSON.toJSONString(packageD));
+            if (packageD == null) {
                 throw new RuntimeException("包裹号错误");
             }
         } else {
