@@ -49,7 +49,7 @@ public class JyBizTaskBindServiceImpl implements JyBizTaskBindService {
             return null;
         }
         if(!NumberHelper.gt0(condition.getLimit())) {
-            condition.setLimit(500);
+            condition.setLimit(1000);
         }
         return jyBizTaskBindDao.queryBindTaskList(condition);
     }

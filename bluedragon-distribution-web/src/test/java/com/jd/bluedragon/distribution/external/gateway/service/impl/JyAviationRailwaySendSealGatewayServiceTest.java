@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.ShuttleQuerySourceEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationBarCodeDetailResp;
@@ -53,12 +54,8 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
     @Test
     public void testScanTypeOptions() {
-        try{
-            Object obj = aviationRailwaySendSealGatewayService.scanTypeOptions();
-            System.out.println("succ");
-        }catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+        Object obj = aviationRailwaySendSealGatewayService.scanTypeOptions();
+        System.out.println("succ");
     }
 
     @Test
@@ -76,12 +73,8 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
         int i = 0;
         while(i++<100) {
-            try{
-                Object obj = aviationRailwaySendSealGatewayService.fetchAviationToSendAndSendingList(request);
-                System.out.println("succ");
-            }catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+            Object obj = aviationRailwaySendSealGatewayService.fetchAviationToSendAndSendingList(request);
+            System.out.println("succ");
         }
 
     }
@@ -100,12 +93,8 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
         int i = 0;
         while(i++<100) {
-            try{
-                Object obj = aviationRailwaySendSealGatewayService.pageFetchAviationTaskByNextSite(request);
-                System.out.println("succ");
-            }catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+            Object obj = aviationRailwaySendSealGatewayService.pageFetchAviationTaskByNextSite(request);
+            System.out.println("succ");
         }
 
     }
@@ -124,30 +113,30 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
         int i = 0;
         while(i++<100) {
-            try{
-                Object obj = aviationRailwaySendSealGatewayService.pageFetchAviationToSealAndSealedList(request);
-                System.out.println("succ");
-            }catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+            Object obj = aviationRailwaySendSealGatewayService.pageFetchAviationToSealAndSealedList(request);
+            System.out.println("succ");
         }
 
     }
 
     @Test
     public void testPageFetchAviationSealedList() {
-//        AviationSealedListReq request = new AviationSealedListReq();
-//        request.setCurrentOperate(SITE_910);
-//        request.setUser(USER_wuyoude);
-//        request.setGroupCode(GROUP_CODE);
-//        request.setPost(POST);
-//        request.setPageNo(1);
-//        request.setPageSize(30);
-//
-//        request.setSendVehicleBizId("SST23082500000056");
-//        request.setSendVehicleDetailBizId("TW23082500975599-001");
-//
-//        aviationRailwaySendSealGatewayService.pageFetchAviationSealedList(request);
+        AviationSealedListReq request = new AviationSealedListReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+        request.setPageNo(1);
+        request.setPageSize(30);
+
+        request.setSendVehicleBizId("SST23082500000056");
+        request.setSendVehicleDetailBizId("TW23082500975599-001");
+
+        int i = 0;
+        while(i++<100) {
+            Object obj = aviationRailwaySendSealGatewayService.pageFetchAviationSealedList(request);
+            System.out.println("succ");
+        }
 
     }
 
@@ -158,14 +147,11 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setUser(USER_wuyoude);
         request.setGroupCode(GROUP_CODE);
         request.setPost(POST);
+
         int i = 0;
         while(i++<100) {
-            try{
-                Object obj = aviationRailwaySendSealGatewayService.pageFetchFilterCondition(request);
-                System.out.println("succ");
-            }catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+            Object obj = aviationRailwaySendSealGatewayService.pageFetchFilterCondition(request);
+            System.out.println("succ");
         }
 
     }
@@ -183,12 +169,8 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
         int i = 0;
         while(i++<100) {
-            try{
-                Object obj = aviationRailwaySendSealGatewayService.pageFetchShuttleSendTaskList(request);
-                System.out.println("succ");
-            }catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+            Object obj = aviationRailwaySendSealGatewayService.pageFetchShuttleSendTaskList(request);
+            System.out.println("succ");
         }
 
     }
@@ -200,13 +182,26 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
     }
 
     @Test
-    public void testscanAndCheckTransportInfo() {
-        aviationRailwaySendSealGatewayService.scanAndCheckTransportInfo(null);
+    public void testScanAndCheckTransportInfo() {
+
+        ScanAndCheckTransportInfoReq request = new ScanAndCheckTransportInfoReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+        request.setTransportCode("T230831003803");
+        request.setNextSiteId(3011);
+        request.setTaskType(SendTaskTypeEnum.AVIATION.getCode());
+        int i = 0;
+        while(i++<100) {
+            Object obj = aviationRailwaySendSealGatewayService.scanAndCheckTransportInfo(request);
+            System.out.println("succ");
+        }
 
     }
 
     @Test
-    public void testsendTaskBinding() {
+    public void testSendTaskBinding() {
         SendTaskBindReq request = new SendTaskBindReq();
 
         request.setCurrentOperate(SITE_910);
@@ -234,18 +229,14 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
         int i = 0;
         while(i++<100) {
-            try{
-                Object obj = aviationRailwaySendSealGatewayService.sendTaskBinding(request);
-                System.out.println("succ");
-            }catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+            Object obj = aviationRailwaySendSealGatewayService.sendTaskBinding(request);
+            System.out.println("succ");
         }
 
     }
 
     @Test
-    public void testsendTaskUnbinding() {
+    public void testSendTaskUnbinding() {
         SendTaskUnbindReq request = new SendTaskUnbindReq();
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
@@ -258,18 +249,14 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setUnbindDetailBizId("DCH15520230824152643");
         int i = 0;
         while(i++<100) {
-            try{
-                Object obj = aviationRailwaySendSealGatewayService.sendTaskUnbinding(request);
-                System.out.println("succ");
-            }catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+            Object obj = aviationRailwaySendSealGatewayService.sendTaskUnbinding(request);
+            System.out.println("succ");
         }
 
     }
 
     @Test
-    public void testfetchSendTaskBindingData() {
+    public void testFetchSendTaskBindingData() {
         SendTaskBindQueryReq request = new SendTaskBindQueryReq();
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
@@ -280,22 +267,17 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setBizId("SST23082500000051");
         int i = 0;
         while(i++<100) {
-            try{
-                Object obj = aviationRailwaySendSealGatewayService.fetchSendTaskBindingData(request);
-                System.out.println("succ");
-                request.setShuttleQuerySource(ShuttleQuerySourceEnum.SEAL_Y.getCode());
-                Object obj1 = aviationRailwaySendSealGatewayService.fetchSendTaskBindingData(request);
-                System.out.println("succ");
-
-            }catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+            Object obj = aviationRailwaySendSealGatewayService.fetchSendTaskBindingData(request);
+            System.out.println("succ");
+            request.setShuttleQuerySource(ShuttleQuerySourceEnum.SEAL_Y.getCode());
+            Object obj1 = aviationRailwaySendSealGatewayService.fetchSendTaskBindingData(request);
+            System.out.println("succ");
         }
 
     }
 
     @Test
-    public void testfetchShuttleTaskSealCarInfo() {
+    public void testFetchShuttleTaskSealCarInfo() {
         ShuttleTaskSealCarQueryReq request = new ShuttleTaskSealCarQueryReq();
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
@@ -306,30 +288,26 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setBizId("SST23082500000051");
         int i = 0;
         while(i++<100) {
-            try{
-                Object obj = aviationRailwaySendSealGatewayService.fetchShuttleTaskSealCarInfo(request);
-                System.out.println("succ");
-            }catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+            Object obj = aviationRailwaySendSealGatewayService.fetchShuttleTaskSealCarInfo(request);
+            System.out.println("succ");
         }
 
     }
 
     @Test
-    public void testshuttleTaskSealCar() {
+    public void testShuttleTaskSealCar() {
         aviationRailwaySendSealGatewayService.shuttleTaskSealCar(null);
 
     }
 
     @Test
-    public void testaviationTaskSealCar() {
+    public void testAviationTaskSealCar() {
         aviationRailwaySendSealGatewayService.aviationTaskSealCar(null);
 
     }
 
     @Test
-    public void testscan() {
+    public void testScan() {
         AviationSendScanReq request = new AviationSendScanReq();
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
@@ -342,7 +320,7 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         System.out.println(JsonHelper.toJson(jdVerifyResponse));
     }
     @Test
-    public void testgetAviationSendVehicleProgress() {
+    public void testGetAviationSendVehicleProgress() {
         AviationSendVehicleProgressReq request = new AviationSendVehicleProgressReq();
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
@@ -353,14 +331,14 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         System.out.println(JsonHelper.toJson(progress));
     }
     @Test
-    public void testabnormalBarCodeDetail() {
+    public void testAbnormalBarCodeDetail() {
         AviationSendAbnormalPackReq req = new AviationSendAbnormalPackReq();
         req.setBizId("");
         aviationRailwaySendSealGatewayService.abnormalBarCodeDetail(req);
 
     }
     @Test
-    public void testsendBarCodeDetail() {
+    public void testSendBarCodeDetail() {
         AviationBarCodeDetailReq request = new AviationBarCodeDetailReq();
         request.setBizId("SST22062700000004");
         request.setCurrentOperate(SITE_910);

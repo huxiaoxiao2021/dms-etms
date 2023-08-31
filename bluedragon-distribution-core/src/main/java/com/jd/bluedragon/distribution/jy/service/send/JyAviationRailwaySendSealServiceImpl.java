@@ -8,6 +8,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
+import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
+import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
+import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CarrierQueryWSManager;
@@ -28,6 +31,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
 import com.jd.bluedragon.distribution.jy.service.summary.JyStatisticsSummaryService;
 import com.jd.bluedragon.distribution.jy.service.task.*;
@@ -60,6 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -82,6 +87,13 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     private static final Logger log = LoggerFactory.getLogger(JyAviationRailwaySendSealServiceImpl.class);
 
     public static final Integer BIND_TASK_NUM = 100;
+
+
+    @Value("${jyAviationRailwayShuttleSendTaskPlanTimeBeginHour:2}")
+    private int shuttlePlanTimeBeginHour;
+    @Value("${jyAviationRailwayShuttleSendTaskPlanTimeEndHour:24}")
+    private int shuttlePlanTimeEndHour;
+
 
     @Autowired
     private JyAviationRailwaySendSealCacheService jyAviationRailwaySendSealCacheService;
@@ -120,6 +132,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     private SortingService sortingService;
     @Autowired
     private UccPropertyConfiguration uccConfig;
+
+    @Autowired
+    private JySealVehicleService jySealVehicleService;
     
     @Override
     public InvokeResult<Void> sendTaskBinding(SendTaskBindReq request) {
@@ -339,39 +354,30 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         TransportDataDto resData = new TransportDataDto();
         res.setData(resData);
 
-        CommonDto<TransportResourceDto> commonDto = carrierQueryWSManager.getTransportResourceByTransCode(request.getTransportCode());
-        if (Objects.isNull(commonDto) || Objects.isNull(commonDto.getData())) {
-            res.error("查询运力信息结果为空");
+        CheckTransportReq param = new CheckTransportReq();
+        param.setUser(request.getUser());
+        param.setCurrentOperate(request.getCurrentOperate());
+        param.setTransportCode(request.getTransportCode());
+        param.setEndSiteId(request.getNextSiteId());
+
+        InvokeResult<TransportResp> transportResp = jySealVehicleService.checkTransCode(param);
+        if(!transportResp.codeSuccess()) {
+            res.setCode(transportResp.getCode());
+            res.setMessage(transportResp.getMessage());
+            return res;
+        }
+        TransportResp transportInfo = transportResp.getData();
+        if(Objects.isNull(transportResp.getData())) {
+            res.error("未查到运力信息");
             return res;
         }
 
-        if (Constants.RESULT_SUCCESS == commonDto.getCode()) {
-            TransportResourceDto data = commonDto.getData();
-            Integer endNodeId = data.getEndNodeId();
-            if (!request.getNextSiteId().equals(endNodeId)) {
-                //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
-                BaseStaffSiteOrgDto endNodeSite = baseMajorManager.getBaseSiteBySiteId(endNodeId);
-                if (!(endNodeSite != null && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign()))) {
-                    res.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                    res.setMessage(NewSealVehicleResponse.TIPS_RECEIVE_DIFF_ERROR);
-                    return res;
-                }
-            }
-            resData.setTransWay(data.getTransWay());
-            resData.setTransTypeName(data.getTransTypeName());
-            resData.setTransportCode(request.getTransportCode());
-            //todo zcf 发车时间取那个字段
-//            resData.setDepartureTime();
-            resData.setDepartureTimeStr("待确认");
-            return res;
-        } else if (Constants.RESULT_WARN == commonDto.getCode()) {
-            res.error(commonDto.getMessage());
-            return res;
-        } else {
-            res.error("查询运力信息出错！");
-            log.warn("scanAndCheckTransportInfo：根据运力编码：【{}】查询运力信息出错,出错原因:{}", request.getTransportCode(), commonDto.getMessage());
-            return res;
-        }
+        resData.setTransWay(transportInfo.getTransWay());
+        resData.setTransTypeName(transportInfo.getTransTypeName());
+        resData.setTransportCode(request.getTransportCode());
+        resData.setDepartureTimeStr(transportInfo.getSendCarHourMin());
+        return res;
+
     }
 
     @Override
@@ -414,24 +420,14 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
     @Override
     public InvokeResult<Void> aviationTaskSealCar(AviationTaskSealCarReq request) {
-        //todo zcf 这个接口写错了。航空封车待确认，这个逻辑走的是摆渡封车
         InvokeResult<Void> res = new InvokeResult<>();
-
-        //拦截
-        if(jyBizTaskSendAviationPlanService.aviationPlanIntercept(request.getBizId())) {
-            res.error("该航空任务已经取消，无法进行后续操作，请迁移任务操作数据");
-            return res;
-        }
-
         if(!jyAviationRailwaySendSealCacheService.lockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.AVIATION.getCode())) {
             res.error("多人操作中，请稍后重试");
             return res;
         }
-
         try{
-            List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(request.getBizId());
-            if(CollectionUtils.isEmpty(sendCodeList)) {
-                res.error("未查到该任务发货批次");
+            if(jyBizTaskSendAviationPlanService.aviationPlanIntercept(request.getBizId())) {
+                res.error("该航空任务已经取消，无法进行后续操作，请迁移任务操作数据");
                 return res;
             }
             JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(request.getBizId());
@@ -439,82 +435,16 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 throw new JyBizException("该航空任务已封车！");
             }
 
-//            SealCarDto sealCarDto = BeanUtils.copy(sealVehicleReq, SealCarDto.class);
-            SealCarDto sealCarDto = new SealCarDto();
-            sealCarDto.setSealCarType(SealCarTypeEnum.SEAL_BY_TRANSPORT_CAPABILITY.getType());
-            sealCarDto.setSealCarTime(TimeUtils.date2string(new Date(), yyyy_MM_dd_HH_mm_ss));
-            sealCarDto.setSealSiteId(request.getCurrentOperate().getSiteCode());
-            sealCarDto.setSealSiteName(request.getCurrentOperate().getSiteName());
-            sealCarDto.setSealUserCode(request.getUser().getUserErp());
-            sealCarDto.setSealUserName(request.getUser().getUserName());
-            sealCarDto.setBatchCodes(sendCodeList);
-            //转换体积单位 立方厘米转换为立方米
-            sealCarDto.setVolume(request.getVolume());
-            sealCarDto.setWeight((request.getWeight()));
-            sealCarDto.setItemNum(request.getItemNum());
+            SealVehicleReq sealVehicleReq = new SealVehicleReq();
 
-            List<SealCarDto> sealCarDtoList = Arrays.asList(sealCarDto);
-            //批次为空的列表信息
-            Map<String, String> emptyBatchCode = new HashMap<String,String>();
-            NewSealVehicleResponse sealResp = newSealVehicleService.doSealCarWithVehicleJob(sealCarDtoList,emptyBatchCode);
-            if(!JdResponse.CODE_OK.equals(sealResp.getCode())) {
-                String msg = StringUtils.isEmpty(sealResp.getMessage()) ? "封车异常" : sealResp.getMessage();
-                res.setMessage(msg);
-                return res;
-            }
-            //保存封车个数
+            return jySealVehicleService.sealVehicle(sealVehicleReq);
 
-            //航空任务没有主子任务一说，沿用历史发货任务数据模型，生成任务时以订舱号为detailBizId，直接使用
-            updateTaskStatusSealAndSummary(request, sendCodeList, entity.getBookingCode(),  sealCarDto);
-            return res;
         }catch (Exception e) {
             log.error("航空任务发货提交封车异常：request={},errMsg={}", JsonHelper.toJson(request), e.getMessage(), e);
             throw new JyBizException("航空任务发货提交封车异常");
         }finally {
             jyAviationRailwaySendSealCacheService.unlockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.AVIATION.getCode());
         }
-    }
-
-    //修改状态并落封车汇总数据
-    private void updateTaskStatusSealAndSummary(AviationTaskSealCarReq request, List<String> batchCodes, String detailBizId, SealCarDto sealCarDto) {
-        //航空计划
-        Date time = new Date();
-        JyBizTaskSendAviationPlanEntity aviationPlanEntity = new JyBizTaskSendAviationPlanEntity();
-        aviationPlanEntity.setUpdateTime(time);
-        aviationPlanEntity.setUpdateUserErp(request.getUser().getUserErp());
-        aviationPlanEntity.setUpdateUserName(request.getUser().getUserName());
-        aviationPlanEntity.setTaskStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
-        aviationPlanEntity.setBizId(request.getBizId());
-        aviationPlanEntity.setStartSiteId(request.getCurrentOperate().getSiteCode());
-        //发货任务主表
-        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(detailBizId);
-        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(request.getBizId());
-        taskSend.setUpdateTime(time);
-        taskSend.setUpdateUserErp(request.getUser().getUserErp());
-        taskSend.setUpdateUserName(request.getUser().getUserName());
-        //发货任务子表
-        taskSendDetail.setSealCarTime(DateHelper.parseDate(sealCarDto.getSealCarTime(), Constants.DATE_TIME_FORMAT));
-        taskSendDetail.setUpdateTime(time);
-        taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
-        taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
-        //航空任务封车汇总
-        JyStatisticsSummaryEntity summaryEntity = new JyStatisticsSummaryEntity(
-                request.getBizId(), BusinessKeyTypeEnum.JY_SEND_TASK.getCode(),
-                request.getCurrentOperate().getSiteCode(), SummarySourceEnum.SEAL.getCode());
-        summaryEntity.setWeight(request.getWeight());
-        summaryEntity.setVolume(request.getVolume());
-        summaryEntity.setItemNum(request.getItemNum());
-        summaryEntity.setSealBatchCodeNum(batchCodes.size());
-        summaryEntity.setSubBusinessNum(1);
-        summaryEntity.setTransportCode(request.getTransportCode());
-        summaryEntity.setCreateTime(time);
-        summaryEntity.setUpdateTime(time);
-        summaryEntity.setCreateUserErp(request.getUser().getUserErp());
-        summaryEntity.setCreateUserName(request.getUser().getUserName());
-        summaryEntity.setUpdateUserErp(request.getUser().getUserErp());
-        summaryEntity.setUpdateUserName(request.getUser().getUserName());
-
-        sendVehicleTransactionManager.updateAviationTaskStatus(aviationPlanEntity, taskSend, taskSendDetail, summaryEntity, JyBizTaskSendDetailStatusEnum.SEALED);
     }
 
     @Override
@@ -894,8 +824,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
 
         Date curTime = new Date();
-        detailEntity.setLastPlanDepartTimeBegin(DateHelper.addHours(curTime, -uccConfig.getJyShuttleSendTaskPlanTimeBeginHour()));
-        detailEntity.setLastPlanDepartTimeEnd(DateHelper.addDate(curTime, uccConfig.getJyShuttleSendTaskPlanTimeEndHour()));
+        detailEntity.setLastPlanDepartTimeBegin(DateHelper.addHours(curTime, -shuttlePlanTimeBeginHour));
+        detailEntity.setLastPlanDepartTimeEnd(DateHelper.addHours(curTime, shuttlePlanTimeEndHour));
         detailEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
 
         return detailEntity;
@@ -1159,7 +1089,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         log.info("更新结果：{}", updateStatus);
     }
     
-        private void fillAviationSealListStatistics(List<AviationSealListDto> sealListDtoList, List<String> bizIdList, Integer statusCode, Integer siteCode) {
+    private void fillAviationSealListStatistics(List<AviationSealListDto> sealListDtoList, List<String> bizIdList, Integer statusCode, Integer siteCode) {
         if(CollectionUtils.isEmpty(sealListDtoList) || CollectionUtils.isEmpty(bizIdList) || Objects.isNull(statusCode) || !NumberHelper.gt0(siteCode)) {
             return;
         }

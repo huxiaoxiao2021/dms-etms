@@ -9,6 +9,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,6 +26,9 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
 
     public static final Integer nextSiteListQueryPageLimitMax = 200;
     public static final Integer nextSiteListQueryPageLimitDefault = 50;
+
+    @Value("${jyAviationSendSealListNextSiteQueryLimit:50}")
+    private int aviationSendSealListNextSiteQueryLimit;
 
 
     @Autowired
@@ -84,11 +88,10 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     public List<AviationNextSiteStatisticsDto> queryNextSitesByStartSite(JyBizTaskSendAviationPlanQueryCondition condition) {
         JyBizTaskSendAviationPlanQueryCondition queryCondition = new JyBizTaskSendAviationPlanQueryCondition();
         BeanUtils.copyProperties(condition, queryCondition);
-        Integer limit = uccPropertyConfiguration.getAviationSendSealListNextSiteQueryLimit();
-        if(!NumberHelper.gt0(limit) || limit > nextSiteListQueryPageLimitMax) {
-            limit = nextSiteListQueryPageLimitDefault;
+        if(!NumberHelper.gt0(aviationSendSealListNextSiteQueryLimit) || aviationSendSealListNextSiteQueryLimit > nextSiteListQueryPageLimitMax) {
+            aviationSendSealListNextSiteQueryLimit = nextSiteListQueryPageLimitDefault;
         }
-        queryCondition.setPageSize(limit);
+        queryCondition.setPageSize(aviationSendSealListNextSiteQueryLimit);
         return jyBizTaskSendAviationPlanDao.queryNextSitesByStartSite(queryCondition);
     }
 

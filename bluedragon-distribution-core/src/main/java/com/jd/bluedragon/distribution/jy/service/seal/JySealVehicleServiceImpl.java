@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.AviationTaskSealCarReq;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
@@ -39,6 +40,10 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.send.*;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.summary.BusinessKeyTypeEnum;
+import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
+import com.jd.bluedragon.distribution.jy.summary.SummarySourceEnum;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
@@ -262,7 +267,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                         List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
                         jySendSealCodeService.addBatch(entityList);
                     }
-                    updateTaskStatus(sealVehicleReq, sealCarDto);
+                    if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(sealVehicleReq.getFuncType())) {
+                        //空铁任务
+                        updateTaskStatusSealAndSummary(sealVehicleReq, sendCodes, sealCarDto);
+                    }else {
+                        updateTaskStatus(sealVehicleReq, sealCarDto);
+                    }
                     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
                 }
                 return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
@@ -273,6 +283,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
         return new InvokeResult(NO_SEND_CODE_DATA_UNDER_BIZTASK_CODE, NO_SEND_CODE_DATA_UNDER_BIZTASK_MESSAGE);
     }
+
+
+
 
     @Override
     public InvokeResult<Void> czSealVehicle(SealVehicleReq sealVehicleReq) {
@@ -542,6 +555,14 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             if (commonDto.getData() != null && Constants.RESULT_SUCCESS == commonDto.getCode()) {
                 TransportResourceDto data = commonDto.getData();
+                if(Objects.isNull(data.getStartNodeId()) || reqcuest.getCurrentOperate().getSiteCode() != data.getStartNodeId()) {
+                    invokeResult.error(String.format("运力编码始发地[%s]非当前场地", data.getStartNodeName()));
+                    return invokeResult;
+                }
+                String hourStr = data.getSendCarMin() < 10 ? "0" + data.getSendCarHour() : String.valueOf(data.getSendCarHour());
+                String minStr = data.getSendCarMin() < 10 ? "0" + data.getSendCarMin() : String.valueOf(data.getSendCarMin());
+                transportResp.setSendCarHourMin(String.format("%s:%s", hourStr, minStr));
+
                 Integer endNodeId = data.getEndNodeId();
                 transportResp.setTransWay(data.getTransWay());
                 transportResp.setTransTypeName(data.getTransTypeName());
@@ -961,5 +982,50 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
         return CarLicenseTransformUtil.numToChinese;
     }
+
+
+
+    //修改状态并落封车汇总数据
+    private void updateTaskStatusSealAndSummary(SealVehicleReq sealVehicleReq, List<String> batchCodes, SealCarDto sealCarDto) {
+        //航空计划
+        Date time = new Date();
+        JyBizTaskSendAviationPlanEntity aviationPlanEntity = new JyBizTaskSendAviationPlanEntity();
+        aviationPlanEntity.setUpdateTime(time);
+        aviationPlanEntity.setUpdateUserErp(sealVehicleReq.getUser().getUserErp());
+        aviationPlanEntity.setUpdateUserName(sealVehicleReq.getUser().getUserName());
+        aviationPlanEntity.setTaskStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
+        aviationPlanEntity.setBizId(sealVehicleReq.getSendVehicleBizId());
+        aviationPlanEntity.setStartSiteId(sealVehicleReq.getCurrentOperate().getSiteCode());
+        //发货任务主表
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(sealVehicleReq.getSendVehicleDetailBizId());
+        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(sealVehicleReq.getSendVehicleBizId());
+        taskSend.setUpdateTime(time);
+        taskSend.setUpdateUserErp(sealVehicleReq.getUser().getUserErp());
+        taskSend.setUpdateUserName(sealVehicleReq.getUser().getUserName());
+        //发货任务子表
+        taskSendDetail.setSealCarTime(DateHelper.parseDate(sealCarDto.getSealCarTime(), Constants.DATE_TIME_FORMAT));
+        taskSendDetail.setUpdateTime(time);
+        taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
+        taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
+        //航空任务封车汇总
+        JyStatisticsSummaryEntity summaryEntity = new JyStatisticsSummaryEntity(
+                sealVehicleReq.getSendVehicleBizId(), BusinessKeyTypeEnum.JY_SEND_TASK.getCode(),
+                sealVehicleReq.getCurrentOperate().getSiteCode(), SummarySourceEnum.SEAL.getCode());
+        summaryEntity.setWeight(sealVehicleReq.getWeight());
+        summaryEntity.setVolume(sealVehicleReq.getVolume());
+        summaryEntity.setItemNum(sealVehicleReq.getItemNum());
+        summaryEntity.setSealBatchCodeNum(batchCodes.size());
+        summaryEntity.setSubBusinessNum(1);
+        summaryEntity.setTransportCode(sealVehicleReq.getTransportCode());
+        summaryEntity.setCreateTime(time);
+        summaryEntity.setUpdateTime(time);
+        summaryEntity.setCreateUserErp(sealVehicleReq.getUser().getUserErp());
+        summaryEntity.setCreateUserName(sealVehicleReq.getUser().getUserName());
+        summaryEntity.setUpdateUserErp(sealVehicleReq.getUser().getUserErp());
+        summaryEntity.setUpdateUserName(sealVehicleReq.getUser().getUserName());
+
+        sendVehicleTransactionManager.updateAviationTaskStatus(aviationPlanEntity, taskSend, taskSendDetail, summaryEntity, JyBizTaskSendDetailStatusEnum.SEALED);
+    }
+
 
 }

@@ -177,7 +177,10 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
             baseParamValidateService.checkPdaPage(request.getPageNo(), request.getPageSize());
             if(StringUtils.isBlank(request.getSendVehicleBizId())) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "发车任务bizId为空", null);
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务bizId为空", null);
+            }
+            if(StringUtils.isBlank(request.getSendVehicleDetailBizId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务detailBizId为空", null);
             }
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
@@ -287,6 +290,9 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
             if(StringUtils.isBlank(request.getTransportCode())) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "运力编码为空", null);
+            }
+            if(Objects.isNull(request.getNextSiteId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "流向场地为空", null);
             }
             //服务调用
             if(log.isInfoEnabled()) {

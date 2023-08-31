@@ -755,13 +755,11 @@ public class UccPropertyConfiguration {
      */
     private Integer jySendTaskPlanTimeBeginDay;
     private Integer jyCzSendTaskPlanTimeBeginDay;
-    private Integer jyShuttleSendTaskPlanTimeBeginHour;
     /**
      * 发货岗计划发车时间查询条件后X天
      */
     private Integer jySendTaskPlanTimeEndDay;
     private Integer jyCzSendTaskPlanTimeEndDay;
-    private Integer jyShuttleSendTaskPlanTimeEndHour;
 
     private Integer jySendTaskCreateTimeBeginDay;
 
@@ -1394,12 +1392,6 @@ public class UccPropertyConfiguration {
      * 车型优先分数默认值
      */
     private double vehicleIntegralPriorityFraction;
-
-    /**
-     * 航空发货封车岗列表查询
-     */
-    private Integer aviationSendSealListNextSiteQueryLimit;
-
 
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
@@ -3248,7 +3240,7 @@ public class UccPropertyConfiguration {
 
     public void setCloudOssInsertSwitch(boolean cloudOssInsertSwitch) {
         this.cloudOssInsertSwitch = cloudOssInsertSwitch;
-    }   
+    }
 
     public Integer getCttGroupSendFLowLimit() {
         return cttGroupSendFLowLimit;
@@ -3623,29 +3615,5 @@ public class UccPropertyConfiguration {
 
     public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
         this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
-    }
-
-    public Integer getAviationSendSealListNextSiteQueryLimit() {
-        return aviationSendSealListNextSiteQueryLimit;
-    }
-
-    public void setAviationSendSealListNextSiteQueryLimit(Integer aviationSendSealListNextSiteQueryLimit) {
-        this.aviationSendSealListNextSiteQueryLimit = aviationSendSealListNextSiteQueryLimit;
-    }
-
-    public Integer getJyShuttleSendTaskPlanTimeBeginHour() {
-        return jyShuttleSendTaskPlanTimeBeginHour;
-    }
-
-    public void setJyShuttleSendTaskPlanTimeBeginHour(Integer jyShuttleSendTaskPlanTimeBeginHour) {
-        this.jyShuttleSendTaskPlanTimeBeginHour = jyShuttleSendTaskPlanTimeBeginHour;
-    }
-
-    public Integer getJyShuttleSendTaskPlanTimeEndHour() {
-        return jyShuttleSendTaskPlanTimeEndHour;
-    }
-
-    public void setJyShuttleSendTaskPlanTimeEndHour(Integer jyShuttleSendTaskPlanTimeEndHour) {
-        this.jyShuttleSendTaskPlanTimeEndHour = jyShuttleSendTaskPlanTimeEndHour;
     }
 }

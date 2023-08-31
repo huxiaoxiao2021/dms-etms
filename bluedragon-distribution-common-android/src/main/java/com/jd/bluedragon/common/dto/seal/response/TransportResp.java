@@ -48,6 +48,10 @@ public class TransportResp implements Serializable {
      * 批次号
      */
     private String sendCode;
+    /**
+     * 标准发车时间： 12:00
+     */
+    private String sendCarHourMin;
 
     public String getTransTypeName() {
         return transTypeName;
@@ -119,5 +123,13 @@ public class TransportResp implements Serializable {
 
     public void setTransWayName(String transWayName) {
         this.transWayName = transWayName;
+    }
+
+    public String getSendCarHourMin() {
+        return sendCarHourMin;
+    }
+
+    public void setSendCarHourMin(String sendCarHourMin) {
+        this.sendCarHourMin = sendCarHourMin;
     }
 }

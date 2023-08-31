@@ -18,8 +18,6 @@ public class ScanAndCheckTransportInfoReq extends BaseReq implements Serializabl
      */
     private String transportCode;
 
-    private String bizId;
-
     private Integer nextSiteId;
     /**
      * SendTaskTypeEnum
@@ -50,11 +48,4 @@ public class ScanAndCheckTransportInfoReq extends BaseReq implements Serializabl
         this.taskType = taskType;
     }
 
-    public String getBizId() {
-        return bizId;
-    }
-
-    public void setBizId(String bizId) {
-        this.bizId = bizId;
-    }
 }
