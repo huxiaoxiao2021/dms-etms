@@ -2,16 +2,16 @@ package com.jd.bluedragon.distribution.ver.domain;
 
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.core.hint.constants.HintModuleConstants;
-import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 import com.jd.bluedragon.distribution.board.domain.Board;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
+import com.jd.etms.waybill.dto.WaybillAbilityAttrDto;
+import com.jd.etms.waybill.dto.WaybillAbilityDto;
 import com.jd.etms.waybill.dto.WaybillProductDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -108,7 +108,6 @@ public class FilterContext {
      */
     private List<WaybillVasDto> waybillVasDtos;
 
-    private List<InvokeWithMsgBoxResult.MsgBox> msgBoxList = new ArrayList<>();
 
     /**
      * 判断是否有预分拣站点
@@ -376,13 +375,5 @@ public class FilterContext {
 
     public void setWaybillVasDtos(List<WaybillVasDto> waybillVasDtos) {
         this.waybillVasDtos = waybillVasDtos;
-    }
-
-    public List<InvokeWithMsgBoxResult.MsgBox> getMsgBoxList() {
-        return msgBoxList;
-    }
-
-    public void setMsgBoxList(List<InvokeWithMsgBoxResult.MsgBox> msgBoxList) {
-        this.msgBoxList = msgBoxList;
     }
 }
