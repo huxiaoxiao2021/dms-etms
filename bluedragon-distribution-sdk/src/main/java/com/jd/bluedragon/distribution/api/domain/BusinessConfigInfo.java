@@ -21,6 +21,11 @@ public class BusinessConfigInfo implements Serializable {
      */
     private boolean useSimulatorFlag;
 
+    /**
+     * 是否允许运输任务叫号
+     */
+    private boolean showCallButtonFlag;
+
     public List<JyDemotionConfigInfo> getJyDemotionConfigList() {
         return jyDemotionConfigList;
     }
@@ -35,5 +40,13 @@ public class BusinessConfigInfo implements Serializable {
 
     public void setUseSimulatorFlag(boolean useSimulatorFlag) {
         this.useSimulatorFlag = useSimulatorFlag;
+    }
+
+    public boolean getShowCallButtonFlag() {
+        return showCallButtonFlag;
+    }
+
+    public void setShowCallButtonFlag(boolean showCallButtonFlag) {
+        this.showCallButtonFlag = showCallButtonFlag;
     }
 }
