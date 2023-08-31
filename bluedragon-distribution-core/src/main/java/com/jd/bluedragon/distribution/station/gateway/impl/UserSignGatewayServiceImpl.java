@@ -285,7 +285,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		log.info("userSignGatewayService queryUserDataForLogin result:{}", JSON.toJSONString(result));
 		// 校验网格码场地和用户场地是否一致
 		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
-			return new JdCResponse<>(JdCResponse.CODE_SUCCESS_DIALOG,
+			return new JdCResponse<>(JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
 					JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF, data);
 		}
 		return result;
@@ -328,7 +328,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			// 校验网格码场地和用户场地是否一致
 			log.info("userSignGatewayService queryPositionDataForLogin result:{}", JSON.toJSONString(result));
 			if (!this.checkOperatorBaseInfo(positionCode, scanRequest.getUserCode())) {
-				return new JdCResponse<>(JdCResponse.CODE_SUCCESS_DIALOG,
+				return new JdCResponse<>(JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
 						JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF, positionData);
 			}
 		}catch (Exception e){
