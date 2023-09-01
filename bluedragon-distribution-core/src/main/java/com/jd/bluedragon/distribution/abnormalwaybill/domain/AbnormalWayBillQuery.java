@@ -1,12 +1,18 @@
 package com.jd.bluedragon.distribution.abnormalwaybill.domain;
 
+import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+
+import java.io.Serializable;
 import java.util.Date;
 
 /**
- * PDA异常操作实体类
- * Created by shipeilin on 2017/11/17.
+ * PDA异常操作查询类
+ * @author fanggang7
+ * @time 2023-08-28 20:04:37 周一
  */
-public class AbnormalWayBill {
+public class AbnormalWayBillQuery extends BasePagerCondition implements Serializable {
+
+    private static final long serialVersionUID = 5693545231191551823L;
 
     /** 全局唯一ID */
     private Long id;
@@ -93,36 +99,31 @@ public class AbnormalWayBill {
     private Date ts;
     private String waveBusinessId;//版次号，路由系统的字段
 
-    public Integer getCreateSiteCode() {
-        return createSiteCode;
+    public AbnormalWayBillQuery() {
     }
 
-    public void setCreateSiteCode(Integer createSiteCode) {
-        this.createSiteCode = createSiteCode;
+    public Long getId() {
+        return id;
     }
 
-    public String getCreateSiteName() {
-        return createSiteName;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setCreateSiteName(String createSiteName) {
-        this.createSiteName = createSiteName;
+    public String getWaybillCode() {
+        return waybillCode;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public String getPackageCode() {
+        return packageCode;
     }
 
-    public String getCreateUser() {
-        return createUser;
-    }
-
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
     }
 
     public Integer getCreateUserCode() {
@@ -141,52 +142,28 @@ public class AbnormalWayBill {
         this.createUserErp = createUserErp;
     }
 
-    public Long getId() {
-        return id;
+    public String getCreateUser() {
+        return createUser;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setCreateUser(String createUser) {
+        this.createUser = createUser;
     }
 
-    public boolean isSortingReturn() {
-        return isSortingReturn;
+    public Integer getCreateSiteCode() {
+        return createSiteCode;
     }
 
-    public void setSortingReturn(boolean sortingReturn) {
-        isSortingReturn = sortingReturn;
+    public void setCreateSiteCode(Integer createSiteCode) {
+        this.createSiteCode = createSiteCode;
     }
 
-    public Date getOperateTime() {
-        return operateTime;
+    public String getCreateSiteName() {
+        return createSiteName;
     }
 
-    public void setOperateTime(Date operateTime) {
-        this.operateTime = operateTime;
-    }
-
-    public String getPackageCode() {
-        return packageCode;
-    }
-
-    public void setPackageCode(String packageCode) {
-        this.packageCode = packageCode;
-    }
-
-    public Integer getQcCode() {
-        return qcCode;
-    }
-
-    public void setQcCode(Integer qcCode) {
-        this.qcCode = qcCode;
-    }
-
-    public String getQcName() {
-        return qcName;
-    }
-
-    public void setQcName(String qcName) {
-        this.qcName = qcName;
+    public void setCreateSiteName(String createSiteName) {
+        this.createSiteName = createSiteName;
     }
 
     public Integer getQcType() {
@@ -209,56 +186,80 @@ public class AbnormalWayBill {
         return abnormalReasonFirstId;
     }
 
-    public String getAbnormalReasonFirstName() {
-        return abnormalReasonFirstName;
-    }
-
-    public Long getAbnormalReasonSecondId() {
-        return abnormalReasonSecondId;
-    }
-
-    public String getAbnormalReasonSecondName() {
-        return abnormalReasonSecondName;
-    }
-
-    public Long getAbnormalReasonThirdId() {
-        return abnormalReasonThirdId;
-    }
-
-    public String getAbnormalReasonThirdName() {
-        return abnormalReasonThirdName;
-    }
-
     public void setAbnormalReasonFirstId(Long abnormalReasonFirstId) {
         this.abnormalReasonFirstId = abnormalReasonFirstId;
+    }
+
+    public String getAbnormalReasonFirstName() {
+        return abnormalReasonFirstName;
     }
 
     public void setAbnormalReasonFirstName(String abnormalReasonFirstName) {
         this.abnormalReasonFirstName = abnormalReasonFirstName;
     }
 
+    public Long getAbnormalReasonSecondId() {
+        return abnormalReasonSecondId;
+    }
+
     public void setAbnormalReasonSecondId(Long abnormalReasonSecondId) {
         this.abnormalReasonSecondId = abnormalReasonSecondId;
+    }
+
+    public String getAbnormalReasonSecondName() {
+        return abnormalReasonSecondName;
     }
 
     public void setAbnormalReasonSecondName(String abnormalReasonSecondName) {
         this.abnormalReasonSecondName = abnormalReasonSecondName;
     }
 
+    public Long getAbnormalReasonThirdId() {
+        return abnormalReasonThirdId;
+    }
+
     public void setAbnormalReasonThirdId(Long abnormalReasonThirdId) {
         this.abnormalReasonThirdId = abnormalReasonThirdId;
+    }
+
+    public String getAbnormalReasonThirdName() {
+        return abnormalReasonThirdName;
     }
 
     public void setAbnormalReasonThirdName(String abnormalReasonThirdName) {
         this.abnormalReasonThirdName = abnormalReasonThirdName;
     }
 
-    public Date getTs() {
-        return ts;
+    public Integer getQcCode() {
+        return qcCode;
     }
 
-    public void setTs(Date ts) {
-        this.ts = ts;
+    public void setQcCode(Integer qcCode) {
+        this.qcCode = qcCode;
+    }
+
+    public String getQcName() {
+        return qcName;
+    }
+
+    public void setQcName(String qcName) {
+        this.qcName = qcName;
+    }
+
+    public boolean isSortingReturn() {
+        return isSortingReturn;
+    }
+
+    public void setSortingReturn(boolean sortingReturn) {
+        isSortingReturn = sortingReturn;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public Date getUpdateTime() {
@@ -269,12 +270,12 @@ public class AbnormalWayBill {
         this.updateTime = updateTime;
     }
 
-    public String getWaybillCode() {
-        return waybillCode;
+    public Date getOperateTime() {
+        return operateTime;
     }
 
-    public void setWaybillCode(String waybillCode) {
-        this.waybillCode = waybillCode;
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime;
     }
 
     public Integer getYn() {
@@ -283,6 +284,14 @@ public class AbnormalWayBill {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public Date getTs() {
+        return ts;
+    }
+
+    public void setTs(Date ts) {
+        this.ts = ts;
     }
 
     public String getWaveBusinessId() {

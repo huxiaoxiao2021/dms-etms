@@ -545,6 +545,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         logInfo("开始卸车扫描. {}", JsonHelper.toJson(request));
 
         JdVerifyResponse<Integer> result = new JdVerifyResponse<>();
+        result.toSuccess();
 
         JyBizTaskUnloadVehicleEntity taskUnloadVehicle = unloadVehicleService.findByBizId(request.getBizId());
         if (taskUnloadVehicle == null) {
