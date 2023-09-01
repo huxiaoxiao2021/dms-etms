@@ -593,19 +593,16 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.getToProcessDamageCount", mState = {JProEnum.TP})
     public JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(String positionCode) {
-        logger.info("getToProcessDamageCount positionCode :{}", positionCode);
         String gridId = this.getGridRid(positionCode);
         if (StringUtils.isEmpty(gridId)) {
             return JdCResponse.fail("网格码不存在");
         }
-        logger.info("getToProcessDamageCount gridId :{}", gridId);
         JyDamageExceptionToProcessCountDto toProcessCount = new JyDamageExceptionToProcessCountDto();
         String feedBackAddKey = JyExceptionDamageEnum.TO_PROCESS_DAMAGE_EXCEPTION_ADD + gridId;
         String feedBackKey = JyExceptionDamageEnum.TO_PROCESS_DAMAGE_EXCEPTION + gridId;
 
         // 获取待处理破损异常新增数量
         Set<String> oldBizIdAddSet = redisClient.sMembers(feedBackAddKey);
-        logger.info("getToProcessDamageCount oldBizIdAddSet :{}", JSON.toJSONString(oldBizIdAddSet));
         if (CollectionUtils.isEmpty(oldBizIdAddSet)) {
             toProcessCount.setToProcessAddCount(0);
         } else {
@@ -613,7 +610,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
         // 获取待处理破损异常数量
         Set<String> oldBizIdSet = redisClient.sMembers(feedBackKey);
-        logger.info("getToProcessDamageCount oldBizIdSet :{}", JSON.toJSONString(oldBizIdSet));
         if (CollectionUtils.isEmpty(oldBizIdSet)) {
             toProcessCount.setToProcessCount(0);
             if (!CollectionUtils.isEmpty(oldBizIdAddSet)) {
@@ -640,7 +636,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         if (StringUtils.isEmpty(gridId)) {
             return JdCResponse.fail("网格码不存在");
         }
-        logger.info("readToProcessDamage gridId :{}", gridId);
         redisClient.del(JyExceptionDamageEnum.TO_PROCESS_DAMAGE_EXCEPTION_ADD + gridId);
         redisClient.del(JyExceptionDamageEnum.TO_PROCESS_DAMAGE_EXCEPTION + gridId);
         return JdCResponse.ok();
@@ -739,7 +734,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         queryBefore.setBizType(bizType);
         // 删除老数据
         List<JyAttachmentDetailEntity> entityList = jyAttachmentDetailService.queryDataListByCondition(queryBefore);
-        logger.info("getTaskDetailOfDamage getImageUrlList entityList:{}", JSON.toJSONString(entityList));
         if (!CollectionUtils.isEmpty(entityList)) {
             return entityList.stream().map(JyAttachmentDetailEntity::getAttachmentUrl)
                     .collect(Collectors.toList());
@@ -753,34 +747,29 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.writeToProcessDamage", mState = {JProEnum.TP})
     public void writeToProcessDamage(String bizId) {
-        logger.info("writeToProcessDamage bizId:{}", bizId);
         JyBizTaskExceptionEntity entity = jyBizTaskExceptionDao.findByBizId(bizId);
-        logger.info("writeToProcessDamage entity:{}", entity);
         if (entity == null) {
             return;
         }
         String gridId = entity.getDistributionTarget();
         String feedBackAddKey = JyExceptionDamageEnum.TO_PROCESS_DAMAGE_EXCEPTION_ADD + gridId;
         Set<String> oldBizIdSet = redisClient.sMembers(feedBackAddKey);
-        logger.info("writeToProcessDamage bizIdSet:{}", JSON.toJSONString(oldBizIdSet));
         if (CollectionUtils.isEmpty(oldBizIdSet)) {
             redisClient.sAdd(feedBackAddKey, bizId);
             return;
         }
         oldBizIdSet.add(bizId);
         redisClient.sAdd(feedBackAddKey, oldBizIdSet.toArray(new String[0]));
-        logger.info("writeToProcessDamage write successfully");
     }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.processTaskOfDamage", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req) {
+        logger.info("JySanwuExceptionServiceImpl.processTaskOfDamage req:{}", JSON.toJSONString(req));
         JyExceptionDamageEntity entity = new JyExceptionDamageEntity();
-        logger.info("processTaskOfDamage req params:{}", JSON.toJSONString(req));
         try {
             this.setBaseInfoToEntity(req, entity);
             JyExceptionDamageEntity oldEntity = jyExceptionDamageDao.selectOneByBizId(req.getBizId());
-            logger.info("processTaskOfDamage oldEntity :{}", JSON.toJSONString(oldEntity));
             if (oldEntity != null) {
                 entity.setId(oldEntity.getId());
             }
@@ -872,7 +861,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
     private void finishFlow(ExpDamageDetailReq req, JyExceptionDamageEntity entity) {
-        logger.info("finishFlow req params:{}", JSON.toJSONString(req));
         this.saveOrUpdate(entity);
         this.updateTask(entity);
     }
@@ -887,8 +875,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         update.setUpdateTime(new Date());
         jyBizTaskExceptionDao.updateByBizId(update);
         jyExceptionService.recordLog(JyBizTaskExceptionCycleTypeEnum.CLOSE, update);
-        logger.info("updateTask sucessfullly");
-
     }
 
     private void repairOrReplacePackagingHandover(ExpDamageDetailReq req, JyExceptionDamageEntity entity) {
@@ -906,7 +892,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      * @return
      */
     private void saveDamage(ExpDamageDetailReq req, JyExceptionDamageEntity entity, JyExceptionDamageEntity oldEntity) {
-        logger.info("start saveDamage...");
         this.validateSaveDamageParams(req, oldEntity);
         this.copyRequestToEntity(req, entity);
         this.saveImages(req, entity);
@@ -931,14 +916,11 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
     private void saveOrUpdate(JyExceptionDamageEntity entity) {
-        logger.info("saveOrUpdate entity :{}", JSON.toJSONString(entity));
         if (entity.getId() == null) {
-            logger.info("saveOrUpdate save...");
             // 修改task类型为磨损
             this.updateTaskExpType(entity);
             jyExceptionDamageDao.insertSelective(entity);
         } else {
-            logger.info("saveOrUpdate update...");
             // 破损提交状态修改为处理中
 //            if (JyExceptionDamageEnum.SaveTypeEnum.SBUMIT_NOT_FEEBACK.getCode().equals(entity.getSaveType())) {
 //                this.updateTaskExpStatusToProcessing(entity);
@@ -946,8 +928,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             this.clearNotNeedUpdateFiled(entity);
             jyExceptionDamageDao.updateByBizId(entity);
         }
-        logger.info("saveOrUpdate entity sucessfully");
-
     }
 
     /**
@@ -991,13 +971,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             query.setSiteCode(entity.getSiteCode());
             query.setBizType(bitType);
             // 删除老数据
-            logger.info("saveImages entity :{}", JSON.toJSONString(entity));
             List<JyAttachmentDetailEntity> oldImageUrlList = jyAttachmentDetailService.queryDataListByCondition(query);
-            logger.info("saveImages oldImageUrlList :{}", JSON.toJSONString(oldImageUrlList));
             if (!CollectionUtils.isEmpty(oldImageUrlList)) {
                 JyAttachmentDetailQuery delParams = new JyAttachmentDetailQuery();
                 List<String> deleteBizIdList = oldImageUrlList.stream().map(JyAttachmentDetailEntity::getBizId).collect(Collectors.toList());
-                logger.info("saveImages deleteBizIdList :{}", JSON.toJSONString(deleteBizIdList));
                 delParams.setBizIdList(deleteBizIdList);
                 delParams.setSiteCode(entity.getSiteCode());
                 delParams.setBizType(bitType);
@@ -1035,7 +1012,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private void setBaseInfoToEntity(ExpDamageDetailReq req, JyExceptionDamageEntity entity) {
         // 获取erp相关信息
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
-        logger.info("validateOrSetErpInfo baseStaffByErp :{}", JSON.toJSONString(baseStaffByErp));
         if (baseStaffByErp == null) {
             throw new RuntimeException("登录人ERP有误!" + req.getUserErp());
         }
@@ -1061,7 +1037,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private void setAboutTaskInfo(ExpDamageDetailReq req, JyExceptionDamageEntity entity) {
         // 获取task相关信息
         JyBizTaskExceptionEntity bizEntity = jyBizTaskExceptionDao.findByBizId(req.getBizId());
-        logger.info("dealTaskInfo bizEntity :{}", JSON.toJSONString(bizEntity));
         if (bizEntity == null) {
             throw new RuntimeException("无相关任务!bizId=" + req.getBizId());
         }
@@ -1174,7 +1149,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             return new HashMap<>();
         }
         List<String> bizIdList = detailList.stream().map(JyExceptionDamageEntity::getBizId).collect(Collectors.toList());
-        logger.info("getDamageImageListByBizIds bizIdList :{},detailList:{}", JSON.toJSONString(bizIdList), JSON.toJSONString(detailList));
         JyAttachmentDetailQuery query = new JyAttachmentDetailQuery();
         query.setBizIdList(bizIdList);
         query.setSiteCode(detailList.get(0).getSiteCode());
@@ -1188,7 +1162,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         if (CollectionUtils.isEmpty(entityList)) {
             return new HashMap<>();
         }
-        logger.info("getDamageImageListByBizIds entityList :{}", JSON.toJSONString(entityList));
         return entityList.stream().collect(Collectors.groupingBy(JyAttachmentDetailEntity::getBizId));
     }
 
@@ -1199,17 +1172,14 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         if (CollectionUtils.isEmpty(bizIdList) || status == null) {
             return damageDtoMap;
         }
-        logger.info("getDamageDetailListByBizIds bizIdList :{}", JSON.toJSONString(bizIdList));
         // 批量查询破损数据
         List<JyExceptionDamageEntity> entityList = jyExceptionDamageDao.getTaskListOfDamage(bizIdList);
         if (CollectionUtils.isEmpty(entityList)) {
             return damageDtoMap;
         }
-        logger.info("getDamageDetailListByBizIds entityList :{}", JSON.toJSONString(entityList));
         // 批量查询图片数据
         Boolean isCompleted = JyExpStatusEnum.COMPLETE.getCode() == status;
         Map<String, List<JyAttachmentDetailEntity>> attachmentDetailEntityMap = this.getDamageImageListByBizIds(entityList, isCompleted);
-        logger.info("getDamageDetailListByBizIds attachmentDetailEntityMap :{}", JSON.toJSONString(attachmentDetailEntityMap));
         for (JyExceptionDamageEntity entity : entityList) {
             JyExceptionDamageDto damageDto = new JyExceptionDamageDto();
             damageDto.setFeedBackType(entity.getFeedBackType());
@@ -1222,7 +1192,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             }
             damageDtoMap.put(entity.getBizId(), damageDto);
         }
-        logger.info("getDamageDetailListByBizIds damageDtoMap :{}", JSON.toJSONString(damageDtoMap));
         return damageDtoMap;
     }
 
