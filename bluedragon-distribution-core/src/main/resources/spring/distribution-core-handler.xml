@@ -130,12 +130,12 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="oldWaybillQueryHandler"/>
 				<ref bean="internationalPdfPrintHandler"/>
 				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="errorWaybillInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
-				<ref bean="oldWaybillQueryHandler"/>
 				<ref bean="letterExpressRejectHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
