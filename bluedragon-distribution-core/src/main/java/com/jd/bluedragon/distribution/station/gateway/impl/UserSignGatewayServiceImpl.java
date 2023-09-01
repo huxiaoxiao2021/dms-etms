@@ -285,8 +285,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		log.info("userSignGatewayService queryUserDataForLogin result:{}", JSON.toJSONString(result));
 		// 校验网格码场地和用户场地是否一致
 		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
-			return new JdCResponse<>(JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
-					JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF, data);
+			return new JdCResponse<ScanUserData>().successNeedConfirm(data, JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
+					JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF);
 		}
 		return result;
 	}
@@ -328,8 +328,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			// 校验网格码场地和用户场地是否一致
 			log.info("userSignGatewayService queryPositionDataForLogin result:{}", JSON.toJSONString(result));
 			if (!this.checkOperatorBaseInfo(positionCode, scanRequest.getUserCode())) {
-				return new JdCResponse<>(JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
-						JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF, positionData);
+				return new JdCResponse<PositionData>().successNeedConfirm(positionData, JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
+						JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF);
 			}
 		}catch (Exception e){
 			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
@@ -404,7 +404,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		if (BusinessUtil.isReceivingWarehouse(dtoStaff.getSortType())) {
 			// 所属场地对应省区与网格码所属接货仓省区是否一致
 			log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo baseStaffByErp.getProvinceAgencyCode():{}, apiResult.getData().getProvinceAgencyCode:{}", baseStaffByErp.getProvinceAgencyCode(), apiResult.getData().getProvinceAgencyCode());
-			if (StringUtils.isBlank(baseStaffByErp.getProvinceAgencyCode())) {
+			if (StringUtils.isBlank(baseStaffByErp.getProvinceAgencyCode()) || StringUtils.isBlank(apiResult.getData().getProvinceAgencyCode())) {
 				return true;
 			}
 			return baseStaffByErp.getProvinceAgencyCode().equals(apiResult.getData().getProvinceAgencyCode());
