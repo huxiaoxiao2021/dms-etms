@@ -176,6 +176,12 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         }
 
         final JdVerifyResponse<Integer> scanResponse = unloadVehicleService.unloadScan(request);
+        if (CollectionUtils.isNotEmpty(scanResponse.getMsgBoxes())) {
+            if(response.getMsgBoxes() == null){
+                response.setMsgBoxes(new ArrayList<>());
+            }
+            response.getMsgBoxes().addAll(scanResponse.getMsgBoxes());
+        }
         if (scanResponse.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
             response.setData(scanResponse.getData());
             response.toSuccess();
