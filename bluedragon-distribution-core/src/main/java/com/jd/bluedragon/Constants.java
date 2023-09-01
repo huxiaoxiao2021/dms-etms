@@ -2015,4 +2015,9 @@ public class Constants {
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
 
     public static final Integer SEND_FLOW_COUNT_LIMIT_DEFAULT=6;
+
+    /**
+     * 功能可用配置白名单
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
 }
