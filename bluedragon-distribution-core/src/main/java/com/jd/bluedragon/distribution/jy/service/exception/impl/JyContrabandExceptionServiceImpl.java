@@ -10,6 +10,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEn
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrabandEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpNoticCustomerExpReasonEnum;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -109,6 +110,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     @Autowired
     private WaybillPackageManager waybillPackageManager;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {
@@ -124,10 +128,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             this.saveImages(req, entity);
             jyExceptionContrabandDao.insertSelective(entity);
             //退回 调用百川逆向换单
-            if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
-                DmsWaybillReverseDTO reverseDTO = this.covertDmsWaybillReverseDTO(entity);
-                waybillReverseManager.submitWaybill(reverseDTO);
-            }
+//            if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
+//                DmsWaybillReverseDTO reverseDTO = this.covertDmsWaybillReverseDTO(entity);
+//                waybillReverseManager.submitWaybill(reverseDTO);
+//            }
             JyExceptionContrabandDto dto = new JyExceptionContrabandDto();
             BeanUtils.copyProperties(entity,dto);
             jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
@@ -143,7 +147,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     private DmsWaybillReverseDTO covertDmsWaybillReverseDTO(JyExceptionContrabandEntity entity){
         DmsWaybillReverseDTO dto = new DmsWaybillReverseDTO();
-        dto.setSource(Constants.BASE_SITE_DISTRIBUTION_CENTER);
+        dto.setSource(Constants.CHANGE_WAYBILL_OPERATE_SOURCE_SORT_CENTER);
         dto.setReverseType(RejectionEnum.PACKAGE.getCode());//todo ??
         dto.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
         dto.setSortCenterId(entity.getSiteCode());
@@ -200,8 +204,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                     logger.warn("未知的违禁品类型--");
                     return ;
            }
-           //缓存当前单号
-            Boolean setResult = redisClientOfJy.set(cacheKey, "1", 2, TimeUnit.DAYS, false);
+            int contrabandWaybillCacheTime = uccPropertyConfiguration.getContrabandWaybillCacheTime();
+            logger.info("缓存时长-{}",contrabandWaybillCacheTime);
+            //缓存当前单号
+            Boolean setResult = redisClientOfJy.set(cacheKey, "1", contrabandWaybillCacheTime, TimeUnit.MINUTES, false);
             logger.info("单号 {}，放入缓存结果-{}",waybillCode,setResult);
 
            if(!sendMQFlag) {
@@ -510,7 +516,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         WaybillExt waybillExt = waybill.getWaybillExt();
         if (waybill.getWaybillExt() != null) {
             if ((StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && !(Objects.equals("HK", waybillExt.getStartFlowDirection()) || Objects.equals("MO", waybillExt.getStartFlowDirection())))
-                    || (StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK", waybillExt.getEndFlowDirection()) || Objects.equals("MO", waybillExt.getEndFlowDirection())))) {
+                    && (StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK", waybillExt.getEndFlowDirection()) || Objects.equals("MO", waybillExt.getEndFlowDirection())))) {
                 logger.info("始发地区为大陆，目的地区为港澳");
                 return true;
             }

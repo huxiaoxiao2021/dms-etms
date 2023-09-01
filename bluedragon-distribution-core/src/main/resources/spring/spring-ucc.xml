@@ -294,6 +294,7 @@
 		<property name="JyWarehouseSendVehicleDetailQueryDefaultLimitSize" value="${JyWarehouseSendVehicleDetailQueryDefaultLimitSize:30}"/>
 		<property name="JyWarehouseSendVehicleMixScanTaskFlowNumConfig" value="${JyWarehouseSendVehicleMixScanTaskFlowNumConfig:}"/>
 		<property name="JyBuQiWaybillCodeMaxSum" value="${JyBuQiWaybillCodeMaxSum:50000}"/>
+		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
 
 
 		<property name="interceptBlackList" value="${interceptBlackList:'*'}"/>
@@ -580,6 +581,7 @@
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleDetailQueryDefaultLimitSize</value>
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleMixScanTaskFlowNumConfig</value>
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
+				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
 
 
 				<value>uccPropertyConfiguration.interceptBlackList</value>

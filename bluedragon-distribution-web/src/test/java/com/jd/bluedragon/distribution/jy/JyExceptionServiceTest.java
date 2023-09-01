@@ -278,7 +278,7 @@ public class JyExceptionServiceTest {
         req.setSiteId(910);
         req.setPositionCode("GW00003001");
         req.setBarCode("JDVE00088304206-1-1-");
-        req.setContrabandType(1);
+        req.setContrabandType(3);
         req.setDescription("hahahahahahaha");
 
 

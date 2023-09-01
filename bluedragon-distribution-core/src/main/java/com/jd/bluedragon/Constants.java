@@ -2027,5 +2027,10 @@ public class Constants {
      */
     public static final Integer REVERSE_TYPE_REJECT_BACK =7;
 
+    /**
+     * 换单来源 2: 分拣/SORT_CENTER
+     */
+    public static final Integer CHANGE_WAYBILL_OPERATE_SOURCE_SORT_CENTER =2;
+
 
 }

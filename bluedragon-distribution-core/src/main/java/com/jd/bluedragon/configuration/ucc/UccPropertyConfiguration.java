@@ -3626,4 +3626,17 @@ public class UccPropertyConfiguration {
     public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
         this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
     }
+
+    /**
+     * 违禁品运单缓存时长
+     */
+    private int contrabandWaybillCacheTime;
+
+    public int getContrabandWaybillCacheTime() {
+        return contrabandWaybillCacheTime;
+    }
+
+    public void setContrabandWaybillCacheTime(int contrabandWaybillCacheTime) {
+        this.contrabandWaybillCacheTime = contrabandWaybillCacheTime;
+    }
 }
