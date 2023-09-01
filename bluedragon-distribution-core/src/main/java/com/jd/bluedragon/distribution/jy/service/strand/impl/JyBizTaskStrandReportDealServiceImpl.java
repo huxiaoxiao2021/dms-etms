@@ -1092,6 +1092,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
                 break;
             case BATCH:
                 request.setReportType(ReportTypeEnum.BATCH_NO.getCode());
+                break;
             default:
                 logger.warn("条码:{}通过非法扫描方式,不进行处理!", detailEntity.getScanBarCode());
                 return;
