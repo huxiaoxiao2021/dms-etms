@@ -14,7 +14,7 @@
     <result column="seal_batch_code_num" property="sealBatchCodeNum" jdbcType="INTEGER" />
     <result column="sub_business_num" property="subBusinessNum" jdbcType="INTEGER" />
     <result column="transport_code" property="transportCode" jdbcType="VARCHAR" />
-    <result column="depart_time" property="departTime" jdbcType="TIMESTAMP" />
+    <result column="depart_time" property="departTime" jdbcType="VARCHAR" />
     <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
     <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
     <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
@@ -41,14 +41,14 @@
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity" >
     insert into jy_statistics_summary (
       business_key, business_key_type, source, operate_site_code, weight, volume,
-    item_num, seal_batch_code_num, seal_bind_aviation_task_num, sub_business_num, transport_code,
+    item_num, seal_batch_code_num, seal_bind_aviation_task_num, sub_business_num, transport_code,depart_time
     create_user_erp, create_user_name, update_user_erp,
     update_user_name, create_time, update_time,
     yn)
     values
       #{businessKey}, #{businessKeyType}, #{source},
       #{operateSiteCode}, #{weight}, #{volume},
-      #{itemNum}, #{sealBatchCodeNum}, #{sealBindAviationTaskNum}, #{subBusinessNum}, #{transportCode},
+      #{itemNum}, #{sealBatchCodeNum}, #{sealBindAviationTaskNum}, #{subBusinessNum}, #{transportCode},#{departTime},
       #{createUserErp}, #{createUserName}, #{updateUserErp},
       #{updateUserName}, #{createTime}, #{updateTime},
       #{yn,jdbcType=BIT})
@@ -88,6 +88,9 @@
       </if>
       <if test="transportCode != null" >
         transport_code,
+      </if>
+      <if test="departTime != null" >
+        depart_time,
       </if>
       <if test="createUserErp != null" >
         create_user_erp,
@@ -142,6 +145,9 @@
       </if>
       <if test="transportCode != null" >
         #{transportCode},
+      </if>
+      <if test="departTime != null" >
+        #{departTime},
       </if>
       <if test="createUserErp != null" >
         #{createUserErp},

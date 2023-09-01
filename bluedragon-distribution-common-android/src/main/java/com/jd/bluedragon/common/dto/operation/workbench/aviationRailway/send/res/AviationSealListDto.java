@@ -45,7 +45,6 @@ public class AviationSealListDto implements Serializable {
     /**
      * 标准发车时间
      */
-    private Long departureTime;
     private String departureTimeStr;
     /**
      * 运力编码
@@ -135,14 +134,6 @@ public class AviationSealListDto implements Serializable {
 
     public void setItemNum(Integer itemNum) {
         this.itemNum = itemNum;
-    }
-
-    public Long getDepartureTime() {
-        return departureTime;
-    }
-
-    public void setDepartureTime(Long departureTime) {
-        this.departureTime = departureTime;
     }
 
     public String getDepartureTimeStr() {

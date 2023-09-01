@@ -32,7 +32,6 @@ public class SendTaskBindQueryDto implements Serializable {
     /**
      * 标准发车时间
      */
-    private Long departureTime;
     private String departureTimeStr;
     /**
      * 目的分拣中心
@@ -105,14 +104,6 @@ public class SendTaskBindQueryDto implements Serializable {
 
     public void setTransportCode(String transportCode) {
         this.transportCode = transportCode;
-    }
-
-    public Long getDepartureTime() {
-        return departureTime;
-    }
-
-    public void setDepartureTime(Long departureTime) {
-        this.departureTime = departureTime;
     }
 
     public String getDepartureTimeStr() {

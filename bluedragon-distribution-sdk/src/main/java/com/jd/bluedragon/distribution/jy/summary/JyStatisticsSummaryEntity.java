@@ -44,7 +44,7 @@ public class JyStatisticsSummaryEntity implements Serializable {
 
     private String transportCode;
 
-    private Date departTime;
+    private String departTime;
 
     private String createUserErp;
 
@@ -201,11 +201,11 @@ public class JyStatisticsSummaryEntity implements Serializable {
         this.transportCode = transportCode;
     }
 
-    public Date getDepartTime() {
+    public String getDepartTime() {
         return departTime;
     }
 
-    public void setDepartTime(Date departTime) {
+    public void setDepartTime(String departTime) {
         this.departTime = departTime;
     }
 
