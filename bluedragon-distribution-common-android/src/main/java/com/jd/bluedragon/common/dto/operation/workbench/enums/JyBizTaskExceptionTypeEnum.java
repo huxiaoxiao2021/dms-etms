@@ -7,7 +7,7 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
  * @Description:
  */
 public enum JyBizTaskExceptionTypeEnum {
-
+    UNKNOW(-1,"未知"),
     SANWU(0, "三无"),
     SCRAPPED(1, "报废"),
     DAMAGE(2, "破损"),
