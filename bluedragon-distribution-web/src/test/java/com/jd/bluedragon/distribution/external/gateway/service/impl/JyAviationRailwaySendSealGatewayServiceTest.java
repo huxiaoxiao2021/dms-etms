@@ -404,7 +404,8 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
         request.setGroupCode(GROUP_CODE);
-        request.setSendVehicleBizId("SST23082400000051");        
-        aviationRailwaySendSealGatewayService.aviationSendComplete(request);
+        request.setSendVehicleBizId("SST23082400000051");
+        JdCResponse<Void> response = aviationRailwaySendSealGatewayService.aviationSendComplete(request);
+        System.out.println(JsonHelper.toJson(response));
     }
 }
