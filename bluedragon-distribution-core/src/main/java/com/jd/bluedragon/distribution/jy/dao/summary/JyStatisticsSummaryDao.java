@@ -15,11 +15,11 @@ public class JyStatisticsSummaryDao extends BaseDao<JyStatisticsSummaryEntity> {
 //    }
 //
     public int insert(JyStatisticsSummaryEntity entity){
-        return this.getSqlSession().insert(NAMESPACE + ".deleteByPrimaryKey", entity);
+        return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
 
     public int insertSelective(JyStatisticsSummaryEntity entity){
-        return this.getSqlSession().insert(NAMESPACE + ".deleteByPrimaryKey", entity);
+        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
     }
 
     public List<JyStatisticsSummaryEntity> queryByBusinessKeysAndType(JyStatisticsSummaryCondition condition) {

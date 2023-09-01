@@ -15,7 +15,6 @@ public class TransportDataDto implements Serializable {
     /**
      * 出发时间
      */
-    private Long departureTime;
     private String departureTimeStr;
     /**
      * 是否关注打标（最近的运力重点关注）
@@ -27,12 +26,12 @@ public class TransportDataDto implements Serializable {
      *
      */
     private Integer transType;
-
     private String transTypeName;
     /**
      * 运输方式
      */
     private Integer transWay;
+    private String transWayName;
 
     public String getTransportCode() {
         return transportCode;
@@ -40,14 +39,6 @@ public class TransportDataDto implements Serializable {
 
     public void setTransportCode(String transportCode) {
         this.transportCode = transportCode;
-    }
-
-    public Long getDepartureTime() {
-        return departureTime;
-    }
-
-    public void setDepartureTime(Long departureTime) {
-        this.departureTime = departureTime;
     }
 
     public Boolean getFocusFlag() {
@@ -87,5 +78,13 @@ public class TransportDataDto implements Serializable {
 
     public void setTransWay(Integer transWay) {
         this.transWay = transWay;
+    }
+
+    public String getTransWayName() {
+        return transWayName;
+    }
+
+    public void setTransWayName(String transWayName) {
+        this.transWayName = transWayName;
     }
 }

@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationBarCodeDetailResp;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendScanResp;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendVehicleProgressResp;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.TransportDataDto;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -23,6 +24,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author zhengchengfa
@@ -302,7 +304,52 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
     @Test
     public void testAviationTaskSealCar() {
-        aviationRailwaySendSealGatewayService.aviationTaskSealCar(null);
+        //测试910-40240的封车
+
+        String transportCode = "T190703000723";
+        Integer endSiteId = 40240;
+        String bizId = "SST23082400000051";
+        String detailBizId = "DCH20230824144926";
+
+
+        ScanAndCheckTransportInfoReq request = new ScanAndCheckTransportInfoReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+        request.setTransportCode(transportCode);
+        request.setNextSiteId(endSiteId);
+        request.setTaskType(SendTaskTypeEnum.AVIATION.getCode());
+
+        AviationTaskSealCarReq sealRequest = new AviationTaskSealCarReq();
+        sealRequest.setCurrentOperate(SITE_910);
+        sealRequest.setUser(USER_wuyoude);
+        sealRequest.setGroupCode(GROUP_CODE);
+        sealRequest.setPost(POST);
+        sealRequest.setBizId(bizId);
+        sealRequest.setBookingCode(detailBizId);
+        sealRequest.setTransportCode(transportCode);
+        sealRequest.setWeight(11d);
+        sealRequest.setVolume(12d);
+        sealRequest.setItemNum(100);
+
+        int i = 0;
+        while (i++ < 100) {
+
+            JdCResponse<TransportDataDto> transportDataDtoJdCResponse = aviationRailwaySendSealGatewayService.scanAndCheckTransportInfo(request);
+            if(!transportDataDtoJdCResponse.isSucceed() || Objects.isNull(transportDataDtoJdCResponse.getData())) {
+                continue;
+            }
+            TransportDataDto transportDataDto = transportDataDtoJdCResponse.getData();
+
+
+            sealRequest.setDepartureTimeStr(transportDataDto.getDepartureTimeStr());
+            sealRequest.setTransWay(transportDataDto.getTransWay());
+            sealRequest.setTransWayName(transportDataDto.getTransTypeName());
+
+            Object obj = aviationRailwaySendSealGatewayService.aviationTaskSealCar(sealRequest);
+            System.out.println("succ");
+        }
 
     }
 

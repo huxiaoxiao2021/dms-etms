@@ -281,7 +281,7 @@ public class SendVehicleTransactionManager {
         //
         jyBizTaskSendAviationPlanService.updateStatus(aviationPlanEntity);
 
-        if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(updateStatus)) {
+        if (JyBizTaskSendDetailStatusEnum.SEALED.equals(updateStatus)) {
             //封车节点做数据汇总
             statisticsSummaryService.insertSelective(summaryEntity);
         }

@@ -16,18 +16,31 @@ public class AviationTaskSealCarReq extends BaseReq implements Serializable {
     private String bizId;
     //订舱号
     private String bookingCode;
-
+    //kg
     private Double weight;
-
+    //立方厘米
     private Double volume;
-
+    //件数
     private Integer itemNum;
-    //运力编码
+    /**
+     * 运力编码
+     */
     private String transportCode;
     /**
      * 出发时间
      */
-    private Long departureTime;
+    private String departureTimeStr;
+    /**
+     * 运输方式
+     */
+    private Integer transWay;
+    private String transWayName;
+    /**
+     * 线路类型
+     *
+     */
+    private Integer transType;
+    private String transTypeName;
 
     public String getBizId() {
         return bizId;
@@ -77,11 +90,43 @@ public class AviationTaskSealCarReq extends BaseReq implements Serializable {
         this.transportCode = transportCode;
     }
 
-    public Long getDepartureTime() {
-        return departureTime;
+    public String getDepartureTimeStr() {
+        return departureTimeStr;
     }
 
-    public void setDepartureTime(Long departureTime) {
-        this.departureTime = departureTime;
+    public void setDepartureTimeStr(String departureTimeStr) {
+        this.departureTimeStr = departureTimeStr;
+    }
+
+    public Integer getTransWay() {
+        return transWay;
+    }
+
+    public void setTransWay(Integer transWay) {
+        this.transWay = transWay;
+    }
+
+    public String getTransWayName() {
+        return transWayName;
+    }
+
+    public void setTransWayName(String transWayName) {
+        this.transWayName = transWayName;
+    }
+
+    public Integer getTransType() {
+        return transType;
+    }
+
+    public void setTransType(Integer transType) {
+        this.transType = transType;
+    }
+
+    public String getTransTypeName() {
+        return transTypeName;
+    }
+
+    public void setTransTypeName(String transTypeName) {
+        this.transTypeName = transTypeName;
     }
 }

@@ -373,6 +373,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
 
         resData.setTransWay(transportInfo.getTransWay());
+        resData.setTransWayName(transportInfo.getTransWayName());
+        resData.setTransType(transportInfo.getTransType());
         resData.setTransTypeName(transportInfo.getTransTypeName());
         resData.setTransportCode(request.getTransportCode());
         resData.setDepartureTimeStr(transportInfo.getSendCarHourMin());
@@ -403,9 +405,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         resData.setItemNum(entity.getItemNum());
         resData.setPalletCount(entity.getPalletCount());
         resData.setTransportCode(entity.getTransportCode());
-        if(!Objects.isNull(entity.getDepartTime())) {
-            resData.setDepartureTimeStr(this.convertDepartureTimeStr(entity.getDepartTime()));
-        }
+        resData.setDepartureTimeStr(entity.getDepartTime());
         resData.setTaskNum(entity.getSealBindAviationTaskNum());
 
         resData.setSealCodes(jySendSealCodeService.selectSealCodeByBizId(request.getDetailBizId()));
@@ -436,7 +436,20 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             }
 
             SealVehicleReq sealVehicleReq = new SealVehicleReq();
-
+            sealVehicleReq.setSendVehicleBizId(request.getBizId());
+            sealVehicleReq.setSendVehicleDetailBizId(request.getBookingCode());
+            sealVehicleReq.setTransportCode(request.getTransportCode());
+            sealVehicleReq.setWeight(request.getWeight());
+            sealVehicleReq.setVolume(request.getVolume());
+            sealVehicleReq.setItemNum(request.getItemNum());
+            sealVehicleReq.setSealCarType(SealCarTypeEnum.SEAL_BY_TRANSPORT_CAPABILITY.getType());
+            sealVehicleReq.setUser(request.getUser());
+            sealVehicleReq.setCurrentOperate(request.getCurrentOperate());
+            sealVehicleReq.setDepartureTimeStr(request.getDepartureTimeStr());
+            sealVehicleReq.setFuncType(request.getPost());
+            //选填字段
+            sealVehicleReq.setTransWay(request.getTransWay());
+            sealVehicleReq.setTransWayName(request.getTransWayName());
             return jySealVehicleService.sealVehicle(sealVehicleReq);
 
         }catch (Exception e) {
@@ -909,10 +922,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                     queryDto.setVolume(summaryEntity.getVolume());
                     queryDto.setItemNum(summaryEntity.getItemNum());
                     queryDto.setTransportCode(summaryEntity.getTransportCode());
-                    queryDto.setDepartureTime(Objects.isNull(summaryEntity.getDepartTime()) ? null : summaryEntity.getDepartTime().getTime());
-                    if (!Objects.isNull(queryDto.getDepartureTime())) {
-                        queryDto.setDepartureTimeStr(this.convertDepartureTimeStr(new Date(queryDto.getDepartureTime())));
-                    }
+                    queryDto.setDepartureTimeStr(summaryEntity.getDepartTime());
                 }
                 });
             }
@@ -1121,7 +1131,6 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 sealListDto.setItemNum(itemNum);
 
                 //获取运力信息  todo zcf 待确认
-                //        res.setDepartureTime();
                 //        res.setDepartureTimeStr();
                 //        res.setTransportCode();
             });
@@ -1139,8 +1148,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                         sealListDto.setVolume(summaryEntity.getVolume());
                         sealListDto.setItemNum(summaryEntity.getItemNum());
                         //获取运力信息
-                        sealListDto.setDepartureTime(Objects.isNull(summaryEntity.getDepartTime()) ? null : summaryEntity.getDepartTime().getTime());
-                        sealListDto.setDepartureTimeStr(this.convertDepartureTimeStr(summaryEntity.getDepartTime()));
+                        sealListDto.setDepartureTimeStr(summaryEntity.getDepartTime());
                         sealListDto.setTransportCode(summaryEntity.getTransportCode());
                     }
                 });
@@ -1148,14 +1156,6 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
     }
 
-    //todo zcf 待确认
-    private String convertDepartureTimeStr(Date departureTime) {
-        if(Objects.isNull(departureTime)) {
-            return "";
-        }
-
-        return "1";
-    }
 
     public JyBizTaskSendVehicleEntity getSendVehicleByBizId(String bizId) {
         JyBizTaskSendAviationPlanEntity entity= jyBizTaskSendAviationPlanService.findByBizId(bizId);

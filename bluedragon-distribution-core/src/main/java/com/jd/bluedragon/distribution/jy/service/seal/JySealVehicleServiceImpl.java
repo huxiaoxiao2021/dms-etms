@@ -227,7 +227,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         List<String> sendCodes = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(sealVehicleReq.getSendVehicleDetailBizId());
         if (ObjectHelper.isNotNull(sendCodes) && sendCodes.size() > 0) {
             //车上已经封了的封签号
-            List<String> sealCodes = jySendSealCodeService.selectSealCodeByBizId(sealVehicleReq.getSendVehicleBizId());
+            List<String> sealCodes = this.getSealCodes(sealVehicleReq);
 
             SealCarDto sealCarDto = convertSealCarDto(sealVehicleReq);
             if (sealCarDto.getBatchCodes() != null) {
@@ -284,7 +284,15 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         return new InvokeResult(NO_SEND_CODE_DATA_UNDER_BIZTASK_CODE, NO_SEND_CODE_DATA_UNDER_BIZTASK_MESSAGE);
     }
 
-
+    private List<String> getSealCodes(SealVehicleReq sealVehicleReq) {
+        if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(sealVehicleReq.getFuncType())) {
+            //空铁封车没有封签号
+            return null;
+        }
+        else{
+            return jySendSealCodeService.selectSealCodeByBizId(sealVehicleReq.getSendVehicleBizId());
+        }
+    }
 
 
     @Override
@@ -565,6 +573,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
                 Integer endNodeId = data.getEndNodeId();
                 transportResp.setTransWay(data.getTransWay());
+                transportResp.setTransWayName(data.getTransWayName());
+                transportResp.setTransType(data.getTransType());
                 transportResp.setTransTypeName(data.getTransTypeName());
                 if (reqcuest.getEndSiteId().equals(endNodeId)) {
                     invokeResult.setCode(RESULT_SUCCESS_CODE);
@@ -1023,6 +1033,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         summaryEntity.setCreateUserName(sealVehicleReq.getUser().getUserName());
         summaryEntity.setUpdateUserErp(sealVehicleReq.getUser().getUserErp());
         summaryEntity.setUpdateUserName(sealVehicleReq.getUser().getUserName());
+        summaryEntity.setDepartTime(sealVehicleReq.getDepartureTimeStr());
 
         sendVehicleTransactionManager.updateAviationTaskStatus(aviationPlanEntity, taskSend, taskSendDetail, summaryEntity, JyBizTaskSendDetailStatusEnum.SEALED);
     }

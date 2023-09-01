@@ -143,6 +143,11 @@ public class SealVehicleReq extends BaseReq implements Serializable {
      */
     private Integer itemNum;
 
+    /**
+     * 标准出发时间
+     */
+    private String departureTimeStr;
+
     public String getSendVehicleBizId() {
         return sendVehicleBizId;
     }
@@ -341,5 +346,13 @@ public class SealVehicleReq extends BaseReq implements Serializable {
 
     public void setItemNum(Integer itemNum) {
         this.itemNum = itemNum;
+    }
+
+    public String getDepartureTimeStr() {
+        return departureTimeStr;
+    }
+
+    public void setDepartureTimeStr(String departureTimeStr) {
+        this.departureTimeStr = departureTimeStr;
     }
 }

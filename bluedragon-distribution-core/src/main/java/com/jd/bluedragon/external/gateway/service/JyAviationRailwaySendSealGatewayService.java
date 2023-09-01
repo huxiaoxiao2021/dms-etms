@@ -123,7 +123,6 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 航空任务封车
-     * todo zcf
      * @param request
      * @return
      */

@@ -306,10 +306,10 @@
         UPDATE
             jy_biz_task_send_aviation_plan
         set
-            task_status = #{taskStatus}
+            task_status = #{taskStatus},
             update_time = #{updateTime},
             update_user_erp = #{updateUserErp},
-            update_user_name = #{updateUserName},
+            update_user_name = #{updateUserName}
         WHERE
             yn = 1
             AND biz_id = #{bizId}
