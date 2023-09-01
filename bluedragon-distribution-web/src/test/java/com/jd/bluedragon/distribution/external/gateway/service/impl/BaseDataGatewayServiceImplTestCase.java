@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.basedata.request.GetFlowDirectionQuery;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 
 
@@ -33,12 +35,21 @@ public class BaseDataGatewayServiceImplTestCase {
 
 	@Test
 	public void testSelectSiteList() {
-		Pager<StreamlinedBasicSiteQuery> streamlinedBasicSiteQueryPager = new Pager<StreamlinedBasicSiteQuery>();
-		StreamlinedBasicSiteQuery streamlinedBasicSiteQuery = new StreamlinedBasicSiteQuery();
-		streamlinedBasicSiteQuery.setSearchStr("JD0003421508148-1-1");
-		streamlinedBasicSiteQueryPager.setSearchVo(streamlinedBasicSiteQuery);
-		//JdCResponse<Pager<StreamlinedBasicSite>> pagerJdCResponse = baseDataGatewayService.selectSiteList(streamlinedBasicSiteQueryPager);
+//		Pager<StreamlinedBasicSiteQuery> streamlinedBasicSiteQueryPager = new Pager<StreamlinedBasicSiteQuery>();
+//		StreamlinedBasicSiteQuery streamlinedBasicSiteQuery = new StreamlinedBasicSiteQuery();
+//		streamlinedBasicSiteQuery.setSearchStr("JD0003421508148-1-1");
+//		streamlinedBasicSiteQueryPager.setSearchVo(streamlinedBasicSiteQuery);
+//		JdCResponse<Pager<StreamlinedBasicSite>> pagerJdCResponse = baseDataGatewayService.selectSiteList(streamlinedBasicSiteQueryPager);
 		//System.out.println("111111111111"+ JsonHelper.toJson(pagerJdCResponse));
 
+		Pager<GetFlowDirectionQuery> getFlowDirectionQueryPager = new Pager<>();
+		GetFlowDirectionQuery getFlowDirectionQuery = new GetFlowDirectionQuery();
+		getFlowDirectionQuery.setSearchStr("JD0003421619772-1-1-");
+		CurrentOperate currentOperate = new CurrentOperate();
+		currentOperate.setSiteCode(40240);
+		getFlowDirectionQuery.setCurrentOperate(currentOperate);
+		getFlowDirectionQueryPager.setSearchVo(getFlowDirectionQuery);
+		JdCResponse<Pager<StreamlinedBasicSite>> flowDirection = baseDataGatewayService.getFlowDirection(getFlowDirectionQueryPager);
+		System.out.println("22222222222"+ JsonHelper.toJson(flowDirection));
 	}
 }

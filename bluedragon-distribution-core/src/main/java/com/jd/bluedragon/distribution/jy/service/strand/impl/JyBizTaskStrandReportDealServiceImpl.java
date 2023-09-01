@@ -530,30 +530,23 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         Integer count = Constants.NUMBER_ZERO;
         SendDetail sendDetail = new SendDetail();
         sendDetail.setCreateSiteCode(scanRequest.getCurrentOperate().getSiteCode());
-        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode())) {
-            ImmutablePair<String, Integer> stringIntegerImmutablePair = queryPackOrWaybillInnerScanCount(scanRequest, nextSiteCode);
-            sendDetail.setPackageBarcode(stringIntegerImmutablePair.getLeft());
-            //获取批次号
-            sendCode = getSendCOde(scanRequest, sendDetail);
-            //获取批次号下的（包裹，运单，箱）数量
-            count = getCount(scanRequest, sendCode);
-        } else if (WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
-            ImmutablePair<String, Integer> stringIntegerImmutablePair = queryPackOrWaybillInnerScanCount(scanRequest, nextSiteCode);
-            sendDetail.setWaybillCode(stringIntegerImmutablePair.getLeft());
+        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode()) || WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
+            queryPackOrWaybillInnerScanCount(scanRequest, nextSiteCode);
+            sendDetail.setPackageBarcode(scanRequest.getScanBarCode());
             //获取批次号
             sendCode = getSendCOde(scanRequest, sendDetail);
             //获取批次号下的（包裹，运单，箱）数量
             count = getCount(scanRequest, sendCode);
         } else if (BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
-            ImmutablePair<String, Integer> boxCode = queryBoxInnerScanCount(scanRequest, nextSiteCode);
-            sendDetail.setBoxCode(boxCode.getLeft());
+            queryBoxInnerScanCount(scanRequest, nextSiteCode);
+            sendDetail.setBoxCode(scanRequest.getScanBarCode());
             //获取批次号
             sendCode = getSendCOde(scanRequest, sendDetail);
             //获取批次号下的（包裹，运单，箱）数量
             count = getCount(scanRequest, sendCode);
         } else if (BusinessUtil.isBoardCode(scanRequest.getScanBarCode())) {
-            ImmutablePair<String, Integer> boxCode = queryBoxInnerScanCount(scanRequest, nextSiteCode);
-            sendDetail.setBoxCode(boxCode.getLeft());
+            queryBoardInnerScanCount(scanRequest, nextSiteCode);
+            sendDetail.setBoxCode(scanRequest.getScanBarCode());
             //获取批次号
             sendCode = getSendCOde(scanRequest, sendDetail);
             //获取批次号下的（包裹，运单，箱）数量
