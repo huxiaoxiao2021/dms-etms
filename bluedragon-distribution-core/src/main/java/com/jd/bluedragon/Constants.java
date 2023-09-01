@@ -1,11 +1,6 @@
 package com.jd.bluedragon;
 
-import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -2015,6 +2010,19 @@ public class Constants {
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
 
     public static final Integer SEND_FLOW_COUNT_LIMIT_DEFAULT=6;
+
+    /**
+     * 异常上报原因与二次安检关系-新版异常上报
+     */
+    public static final Map<Long, List<Long>> SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP = new HashMap<Long, List<Long>>(){{
+        put(20009L, new ArrayList<>(Collections.singletonList(20010L)));
+        put(20006L, new ArrayList<>(Collections.singletonList(20088L)));
+    }};
+
+    /**
+     * 异常上报原因与二次安检关系-老版异常上报
+     */
+    public static final Long SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID = 27000L;
 
     /**
      * 功能可用配置白名单
