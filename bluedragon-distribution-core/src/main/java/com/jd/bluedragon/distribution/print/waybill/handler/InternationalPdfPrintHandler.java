@@ -59,7 +59,7 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
         }
         context.getBasePrintWaybill().setLabelFileDownloadUrl(pdfUrl);
         // 推送咚咚-pdf链接
-        noticeToDD(context);
+//        noticeToDD(context);
         
         interceptResult.toBreak(WaybillPrintMessages.CODE_INTERNATIONAL_SUC, "云打印成功");
         return interceptResult;
