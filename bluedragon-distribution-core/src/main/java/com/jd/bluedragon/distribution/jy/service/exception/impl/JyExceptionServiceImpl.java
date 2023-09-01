@@ -287,7 +287,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             }
 
             //兼容老逻辑 type 不为空
-            if(req.getType() != null){
+            if(req.getType() != null && !Objects.equals(req.getType(),-1)){
                 JyExceptionStrategy exceptionService = jyExceptionStrategyFactory.getStrategy(req.getType());
                 JdCResponse<Object> response = exceptionService.uploadScan(taskEntity,req, position, source, bizId);
                 if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
