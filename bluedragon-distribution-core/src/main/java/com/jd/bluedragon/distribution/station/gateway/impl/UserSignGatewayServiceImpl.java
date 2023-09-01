@@ -284,10 +284,10 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		result.setData(data);
 		log.info("userSignGatewayService queryUserDataForLogin result:{}", JSON.toJSONString(result));
 		// 校验网格码场地和用户场地是否一致
-//		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
-//			return new JdCResponse<>(JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
-//					JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF, data);
-//		}
+		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
+			return new JdCResponse<>(JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
+					JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF, data);
+		}
 		return result;
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryPositionDataForLogin",
@@ -327,10 +327,10 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.setData(positionData);
 			// 校验网格码场地和用户场地是否一致
 			log.info("userSignGatewayService queryPositionDataForLogin result:{}", JSON.toJSONString(result));
-//			if (!this.checkOperatorBaseInfo(positionCode, scanRequest.getUserCode())) {
-//				return new JdCResponse<>(JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
-//						JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF, positionData);
-//			}
+			if (!this.checkOperatorBaseInfo(positionCode, scanRequest.getUserCode())) {
+				return new JdCResponse<>(JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
+						JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF, positionData);
+			}
 		}catch (Exception e){
 			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
 			result.toError("查询岗位信息异常");
