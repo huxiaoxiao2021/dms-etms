@@ -372,7 +372,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
      * @param waybillCode
      * @return
      */
-    public BaseEntity<Page<Goods>> getGoodsNamePrint(String waybillCode) {
+    public BaseEntity<Page<Goods>> getTenGoodsNamePrint(String waybillCode) {
         Page<Goods> pageInfo = new Page<Goods>();
         pageInfo.setPageSize(10);
         pageInfo.setCurPage(1);

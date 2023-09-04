@@ -25,6 +25,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.dms.utils.WaybillVasUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -245,21 +246,28 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * @param context
      */
     private final void loadGoodsInfo(WaybillPrintContext context, final PrintWaybill waybill) {
-        String waybillSign = context.getWaybillSign();
         String spliceGoodsName = "";
-        if (BusinessUtil.isGetGoodsInfo(waybillSign)) {
+        if (BusinessUtil.isGetGoodsInfo(context.getWaybillSign())) {
             //调查询商品的接口
-            BaseEntity<Page<Goods>> goodsName = goodsPrintService.getGoodsNamePrint(waybillSign);
-            if (ObjectHelper.isNotEmpty(goodsName)) {
-                List<Goods> result = goodsName.getData().getResult();
-                if (ObjectHelper.isNotEmpty(result)) {
-                    for (Goods goods : result) {
-                        spliceGoodsName += goods.getGoodName() + ";";
+            try {
+                BaseEntity<Page<Goods>> goodsNameEntity = goodsPrintService.getTenGoodsNamePrint(context.getWaybill().getWaybillCode());
+                if (ObjectHelper.isNotEmpty(goodsNameEntity)) {
+                    List<Goods> GoodsList = goodsNameEntity.getData().getResult();
+                    if (ObjectHelper.isNotEmpty(GoodsList)) {
+                        for (Goods goods : GoodsList) {
+                            if (StringUtils.isEmpty(spliceGoodsName)) {
+                                spliceGoodsName = goods.getGoodName();
+                                return;
+                            }
+                            spliceGoodsName += ";" + goods.getGoodName();
+                        }
                     }
                 }
+            } catch (Exception e) {
+                log.error("loadGoodsInfo加载商品信息失败! 入参：{}", JsonHelper.toJson(context), e);
             }
-            waybill.setSpliceGoodsName(spliceGoodsName);
         }
+        waybill.setSpliceGoodsName(spliceGoodsName);
     }
 
     /**
