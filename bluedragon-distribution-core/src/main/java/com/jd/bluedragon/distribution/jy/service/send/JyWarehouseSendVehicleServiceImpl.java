@@ -1284,8 +1284,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             if (request.getOperateType().equals(JySendFlowConfigEnum.ROUTER.getCode())) {
                 /* 通过路由调用 */
                 result = this.getSiteRoutersFromRouterJsf(operateSiteCode, waybillCode, nextRouters);
-                if (nextRouters.size() == 1) {
-                    result.error("获取路由数据失败");
+                if (CollectionUtils.isEmpty(nextRouters)) {
+                    result.error("获取路由流向数据失败");
                 }
             } else {
                 /* 按龙门架时需要先获取大小站逻辑 */
