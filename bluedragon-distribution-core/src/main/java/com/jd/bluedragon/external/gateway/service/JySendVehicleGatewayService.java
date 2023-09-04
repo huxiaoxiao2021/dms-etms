@@ -1,5 +1,6 @@
 package com.jd.bluedragon.external.gateway.service;
 
+import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
@@ -7,6 +8,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 import java.util.List;
 
@@ -48,6 +50,13 @@ public interface JySendVehicleGatewayService {
      * @return
      */
     JdCResponse<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request);
+
+    /**
+     * 获取待派车任务列表
+     * @param request
+     * @return
+     */
+    JdCResponse<Pager<WaitingVehicleDistribution>> fetchWaitingVehicleDistributionList(WaitingVehicleDistributionRequest request);
 
     /**
      * 车辆未到、已到候选

@@ -1440,4 +1440,8 @@
     <jsf:consumer id="workGridBusinessJsfService" interface="com.jdl.basic.api.service.workStation.WorkGridBusinessJsfService"
                   protocol="jsf" alias="${jsf.alias.jy_basic}" timeout="${jsf.jy_basic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+
+    <jsf:consumer id="pdaSorterApi" interface="com.jd.tms.workbench.api.PdaSorterApi"
+                  protocol="jsf" alias="${tms.jsf.pdaSorterApi.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>
