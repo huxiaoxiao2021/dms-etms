@@ -802,10 +802,15 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             checkGroupCode(mixScanTaskListQueryReq.getGroupCode());
             MixScanTaskQueryRes result = this.getMixScanTaskPage(mixScanTaskListQueryReq);
 
-            if(CollectionUtils.isEmpty(result.getMixScanTaskDtoList()) && StringUtils.isNotBlank(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
-                response.toFail("未搜索到混扫任务，如果是自建任务，需要先绑定到混扫任务中");
-            }
             response.setData(result);
+            if(CollectionUtils.isEmpty(result.getMixScanTaskDtoList())) {
+                if(StringUtils.isNotBlank(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
+                    response.setCode(MixScanTaskQueryRes.FIND_NULL_CREATE_CODE);
+                    response.setMessage("未搜索到混扫任务，如果是自建任务，需要先绑定到混扫任务中");
+                }else {
+                    response.setMessage("查询为空");
+                }
+            }
         } catch (JyBizException e) {
             log.info("查询混扫任务失败：{}", JsonHelper.toJson(mixScanTaskListQueryReq), e);
             return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
