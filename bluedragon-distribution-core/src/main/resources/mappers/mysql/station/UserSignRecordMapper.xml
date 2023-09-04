@@ -45,6 +45,7 @@
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="biz_source" property="bizSource" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="ref_work_grid_key" property="refWorkGridKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="id_card" property="idCard" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
 
 	<resultMap id="UserSignRecordReportVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo" >
@@ -161,13 +162,13 @@
 		r.create_time,r.update_time,r.yn,r.ts,
 		g.org_name,g.site_name,g.floor,g.grid_no,g.grid_code,g.grid_name,
 		s.area_code,s.area_name,s.work_code,s.work_name,
-		p.plan_name
+		p.plan_name,r.id_card
 	</sql>
     <sql id="Main_Column_List" >
         r.id,r.org_code,r.site_code,r.user_code,r.user_code_encrypt,r.user_name,r.user_name_encrypt,r.wave_code,r.job_code,
         r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
         r.ref_station_key,r.create_user,r.create_user_name,r.update_user,r.update_user_name,
-        r.create_time,r.update_time,r.yn,r.ts,r.biz_source
+        r.create_time,r.update_time,r.yn,r.ts,r.biz_source,r.id_card
     </sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord" useGeneratedKeys="true" keyProperty="id">
@@ -262,6 +263,9 @@
                 <if test="bizSource != null">
                     biz_source,
                 </if>
+				<if test="icCard != null">
+					id_card,
+				</if>
 			</trim>
 			)
 			values
@@ -355,6 +359,9 @@
                 <if test="bizSource != null" >
                     #{bizSource,jdbcType=INTEGER},
                 </if>
+				<if test="idCard != null" >
+					#{idCard,jdbcType=VARCHAR},
+				</if>
 			</trim>
 			)
 	</insert>
@@ -450,6 +457,9 @@
                 <if test="bizSource != null">
                     biz_source = #{bizSource,jdbcType=INTEGER},
                 </if>
+				<if test="idCard != null">
+					id_card = #{idCard,jdbcType=VARCHAR},
+				</if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -552,6 +562,12 @@
         <if test="signDateEnd != null" >
             and t.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
         </if>
+		<if test="idCardLike != null and idCardLike != '' " >
+			and t.id_card like concat(#{idCardLike,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="userNameLike != null and userNameLike != '' " >
+			and t.user_name like concat(#{userNameLike,jdbcType=VARCHAR},'%')
+		</if>
         </where>
     </sql>
 	<sql id="queryConditionRef">
