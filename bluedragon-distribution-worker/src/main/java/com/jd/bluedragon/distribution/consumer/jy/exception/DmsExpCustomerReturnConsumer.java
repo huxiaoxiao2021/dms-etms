@@ -32,6 +32,7 @@ public class DmsExpCustomerReturnConsumer extends MessageBaseConsumer {
     
     @Override
     public void consume(Message message) throws Exception {
+        logger.info("客服异常信息回传消息体");
         CallerInfo info = Profiler.registerInfo("DmsExpCustomerReturnConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER, false, true);
         try {
             logger.info("客服异常信息回传消息体-{}",message.getText());
