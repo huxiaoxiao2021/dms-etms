@@ -6,9 +6,7 @@ import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
-import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
@@ -49,19 +47,8 @@ public class ReceiveWeightCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R)
     @RequestMapping("/toIndex")
     public String toIndex(Model model){
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        String userCode = "";
-        Long createSiteCode = new Long(-1);
-        Integer orgId = new Integer(-1);
-        if(erpUser != null){
-            userCode = erpUser.getUserCode();
-            BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-            if (bssod!=null && bssod.getSiteType() == 64) {
-                createSiteCode = new Long(bssod.getSiteCode());
-                orgId = bssod.getOrgId();
-            }
-        }
-        model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
+        // 设置基础信息
+        setBaseModelInfo(model);
         return "/receive/receiveWeightCheck";
     }
 

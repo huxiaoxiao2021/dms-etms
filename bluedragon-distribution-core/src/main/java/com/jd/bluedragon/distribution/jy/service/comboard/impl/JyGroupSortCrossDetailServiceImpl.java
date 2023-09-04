@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.comboard.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.comboard.request.AddCTTReq;
@@ -11,6 +12,7 @@ import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto;
 import com.jd.bluedragon.common.dto.comboard.response.TableTrolleyDto;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
@@ -52,6 +54,9 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     private IGenerateObjectId genObjectId;
     @Autowired
     private JyGroupSortCrossDetailCacheService jyGroupSortCrossDetailCacheService;
+    
+    @Autowired
+    private UccPropertyConfiguration ucc;    
     
     public static final String COM_BOARD_SEND = "CTT%s";
 
@@ -106,9 +111,11 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     public CTTGroupDataResp queryCTTGroupDataByGroupOrSiteCode(CTTGroupDataReq request) {
         CTTGroupDataResp resp = new CTTGroupDataResp();
         List<CTTGroupDto> cttGroupDtos;
-        JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+        JyGroupSortCrossDetailEntityQueryDto entity = new JyGroupSortCrossDetailEntityQueryDto();
         entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         entity.setFuncType(COMBOARD_SEND_POSITION.getCode());
+        // 返回固定混扫任务数量
+        entity.setLimit(ucc.getCttGroupDataLimit());
         if (request.isGroupQueryFlag()) {
             entity.setGroupCode(request.getGroupCode());
             cttGroupDtos = jyGroupSortCrossDetailDao.queryCommonCTTGroupData(entity);

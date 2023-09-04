@@ -17,6 +17,7 @@
         <result column="sign_in_time_new" property="signInTimeNew" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="sign_out_time_new" property="signOutTimeNew" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="war_zone_code" property="warZoneCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="war_zone_name" property="warZoneName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -46,7 +47,7 @@
     <sql id="Base_Column_List" >
         r.id,r.ref_record_id,r.ref_flow_biz_code,r.flow_type,r.flow_status,r.flow_remark,
         r.flow_create_user,r.flow_create_time,r.flow_update_user,r.flow_update_time,sign_date_new,r.sign_in_time_new,
-        r.sign_out_time_new,r.org_code,r.site_code,r.user_code,r.user_code_encrypt,
+        r.sign_out_time_new,r.org_code,r.province_agency_code,r.site_code,r.user_code,r.user_code_encrypt,
         r.user_code_index,r.user_name,r.user_name_encrypt,r.user_name_index,r.wave_code,
         r.job_code,r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,
         r.ref_grid_key,r.ref_station_key,r.create_user,r.create_user_name,r.update_user,
@@ -99,6 +100,9 @@
                 </if>				
 				<if test="orgCode != null" >
 					org_code,
+				</if>
+				<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+					province_agency_code,
 				</if>
 				<if test="warZoneCode != null" >
 					war_zone_code,
@@ -216,6 +220,9 @@
                 </if>				
 				<if test="orgCode != null" >
 					#{orgCode,jdbcType=INTEGER},
+				</if>
+				<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+					#{provinceAgencyCode,jdbcType=VARCHAR},
 				</if>
 				<if test="warZoneCode != null" >
 					#{warZoneCode,jdbcType=VARCHAR},
@@ -358,5 +365,15 @@
         <foreach collection="flowStatusList" item="item" open="(" close=")" separator=",">
             #{item, jdbcType=INTEGER}
         </foreach>          
-    </select>    
+    </select>
+	<select id="queryByRefGridKey"
+			resultType="com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow">
+		select
+		<include refid="Base_Column_List"/>
+		from user_sign_record_flow r
+		where r.ref_grid_key in
+		<foreach collection="businessKeys" item="item" open="(" close=")" separator=",">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</select>
 </mapper>

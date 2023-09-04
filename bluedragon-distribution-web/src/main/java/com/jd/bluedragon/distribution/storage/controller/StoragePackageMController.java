@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.StorageException;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.storage.domain.FulfillmentOrderDto;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
@@ -54,7 +55,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("storage/storagePackageM")
-public class StoragePackageMController {
+public class StoragePackageMController extends DmsBaseController {
 
 	private static final Logger log = LoggerFactory.getLogger(StoragePackageMController.class);
 
@@ -77,23 +78,8 @@ public class StoragePackageMController {
 	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex(Model model) {
-
-		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-		String userCode = "";
-		Long createSiteCode = new Long(-1);
-		Integer orgId = new Integer(-1);
-
-		if(erpUser!=null){
-			userCode = erpUser.getUserCode();
-			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-			if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
-				createSiteCode = new Long(bssod.getSiteCode());
-				orgId = bssod.getOrgId();
-			}
-		}
-
-		model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
-
+		// 设置基础信息
+		setBaseModelInfo(model);
 		return "/storage/storagePackageM";
 	}
 	/**

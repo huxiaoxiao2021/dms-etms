@@ -2,7 +2,6 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.common.dto.basedata.request.GetFlowDirectionQuery;
 import com.jd.dms.workbench.utils.sdk.base.Result;
-import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jdl.basic.api.dto.site.AreaVO;
 import com.jdl.basic.api.dto.site.BasicSiteVO;
 import com.jdl.basic.api.dto.site.ProvinceAgencyVO;

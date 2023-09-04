@@ -190,6 +190,11 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
                 // 目的区域
                 domain.setRorgid(String.valueOf(dto.getEndOrgCode()));
                 domain.setRorgName(dto.getEndOrgName());
+                // todo org_switch_province 运输需增加字段
+                // 目的省区
+                domain.setDestProvinceAgencyCode(null);
+                domain.setDestProvinceAgencyName(null);
+                
                 // 线路类型
                 domain.setRouteType(String.valueOf(dto.getTransType()));
                 // 始发站
@@ -201,6 +206,10 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
                 // 始发区域
                 domain.setSorgid(String.valueOf(dto.getStartOrgCode()));
                 domain.setSorgName(dto.getStartOrgName());
+                // todo org_switch_province 运输需增加字段
+                // 始发省区
+                domain.setStartProvinceAgencyCode(null);
+                domain.setStartProvinceAgencyName(null);
                 // 运力编码
                 domain.setTranCode(String.valueOf(dto.getTransCode()));
                 // 运输方式

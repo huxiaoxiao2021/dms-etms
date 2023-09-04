@@ -473,6 +473,10 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         abnormalUnknownWaybill.setCreateUserName(userDto.getStaffName());
         abnormalUnknownWaybill.setDmsSiteCode(userDto.getSiteCode());
         abnormalUnknownWaybill.setDmsSiteName(userDto.getSiteName());
+        abnormalUnknownWaybill.setProvinceAgencyCode(userDto.getProvinceAgencyCode());
+        abnormalUnknownWaybill.setProvinceAgencyName(userDto.getProvinceAgencyName());
+        abnormalUnknownWaybill.setAreaHubCode(userDto.getAreaCode());
+        abnormalUnknownWaybill.setAreaHubName(userDto.getAreaName());
         abnormalUnknownWaybill.setAreaId(areaNode.getId());
         abnormalUnknownWaybill.setAreaName(areaNode.getName());
         abnormalUnknownWaybill.setIsDelete(0);
@@ -670,6 +674,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         newBody.setTraderName(abnormalUnknownWaybill.getTraderName());//商家名称
         newBody.setDmsSiteName(abnormalUnknownWaybill.getDmsSiteName());//机构名称
         newBody.setAreaName(abnormalUnknownWaybill.getAreaName());//区域名称
+        newBody.setProvinceAgencyName(abnormalUnknownWaybill.getProvinceAgencyName()); // 省区名称
+        newBody.setAreaHubName(abnormalUnknownWaybill.getAreaHubName()); // 枢纽名称
         newBody.setIsReceipt(abnormalUnknownWaybill.getIsReceipt() == null ? null : abnormalUnknownWaybill.getIsReceipt() == 1 ? "是" : "否");//是否回复
         newBody.setReceiptTime(abnormalUnknownWaybill.getReceiptTime() == null ? null : DateHelper.formatDate(abnormalUnknownWaybill.getReceiptTime(), Constants.DATE_TIME_FORMAT));//回复时间
         newBody.setReceiptFrom(abnormalUnknownWaybill.getReceiptFrom() == null ? null : AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "运单系统" : AbnormalUnknownWaybill.RECEIPT_FROM_ECLP.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "ECLP系统" : "商家回复");
@@ -690,6 +696,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         headerMap.put("traderName","商家名称");
         headerMap.put("dmsSiteName","机构名称");
         headerMap.put("areaName","区域名称");
+        headerMap.put("provinceAgencyName","省区名称");
+        headerMap.put("areaHubName","枢纽名称");
         headerMap.put("isReceipt","是否回复");
         headerMap.put("receiptTime","回复时间");
         headerMap.put("receiptFrom","回复来源");

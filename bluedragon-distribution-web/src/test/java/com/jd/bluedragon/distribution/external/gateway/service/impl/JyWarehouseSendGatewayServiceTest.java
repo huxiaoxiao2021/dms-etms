@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -91,7 +92,44 @@ public class JyWarehouseSendGatewayServiceTest {
         list.add(mixScanTaskDetailDto);
         list.add(mixScanTaskDetailDto2);
         createMixScanTaskReq.setSendFlowList(list);
-        jyWarehouseSendGatewayService.createMixScanTask(createMixScanTaskReq);
+
+
+        String json = "    {\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"operateTime\": 1693192779127,\n" +
+                "            \"operatorId\": \"104120845\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 4,\n" +
+                "            \"orgName\": \"西南\",\n" +
+                "            \"siteCode\": 910,\n" +
+                "            \"siteName\": \"910ces\"\n" +
+                "        },\n" +
+                "        \"groupCode\": \"G00003810008\",\n" +
+                "        \"requestId\": \"8665cd3366cf4742b81f45d3d988dffc\",\n" +
+                "        \"sendFlowList\": [\n" +
+                "            {\n" +
+                "                \"crossCode\": \"\",\n" +
+                "                \"endSiteId\": 821602,\n" +
+                "                \"endSiteName\": \"成都新都分拣中心\",\n" +
+                "                \"sendVehicleDetailBizId\": \"TW23082876701210-001\",\n" +
+                "                \"tabletrolleyCode\": \"\",\n" +
+                "                \"templateName\": \"1\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"templateName\": \"1\",\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 70643,\n" +
+                "            \"userErp\": \"xumigen\",\n" +
+                "            \"userName\": \"曾云建\"\n" +
+                "        }\n" +
+                "    }";
+        CreateMixScanTaskReq param = JSONObject.parseObject(json, CreateMixScanTaskReq.class);
+        int i = 0;
+        while (i++ < 100) {
+
+            Object obj = jyWarehouseSendGatewayService.createMixScanTask(param);
+            System.out.println("success");
+        }
     }
     
     @Test

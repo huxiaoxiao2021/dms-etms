@@ -7,6 +7,10 @@
 		<result column="farmar_code" property="farmarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="org_id" property="orgId" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="province_agency_name" property="provinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_hub_code" property="areaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_hub_name" property="areaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -23,7 +27,9 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,farmar_code,org_id,org_name,create_site_code,create_site_name,create_user_erp,create_user_name,
+		id,farmar_code,org_id,org_name,
+		province_agency_code,province_agency_name,area_hub_code,area_hub_name,
+		create_site_code,create_site_name,create_user_erp,create_user_name,
 		weight,length,width,high,farmar_check_type,create_time,update_time,yn,ts
 	</sql>
 
@@ -42,6 +48,18 @@
 			</if>
 			<if test="orgName != null" >
 				org_name,
+			</if>
+			<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+				province_agency_code,
+			</if>
+			<if test="provinceAgencyName != null and provinceAgencyName != ''" >
+				province_agency_name,
+			</if>
+			<if test="areaHubCode != null and areaHubCode != ''" >
+				area_hub_code,
+			</if>
+			<if test="areaHubName != null and areaHubName != ''" >
+				area_hub_name,
 			</if>
 			<if test="createSiteCode != null" >
 				create_site_code,
@@ -91,6 +109,18 @@
 			<if test="orgName != null" >
 				#{orgName, jdbcType=VARCHAR},
 			</if>
+			<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+				#{provinceAgencyCode,jdbcType=VARCHAR},
+			</if>
+			<if test="provinceAgencyName != null and provinceAgencyName != ''" >
+				#{provinceAgencyName,jdbcType=VARCHAR},
+			</if>
+			<if test="areaHubCode != null and areaHubCode != ''" >
+				#{areaHubCode,jdbcType=VARCHAR},
+			</if>
+			<if test="areaHubName != null and areaHubName != ''" >
+				#{areaHubName,jdbcType=VARCHAR},
+			</if>
 			<if test="createSiteCode != null" >
 				#{createSiteCode, jdbcType=INTEGER},
 			</if>
@@ -129,7 +159,9 @@
 	<insert id="batchInsert" parameterType="List">
 		insert into farmar_print_record
 		(
-		farmar_code,org_id,org_name,create_site_code,create_site_name,create_user_erp,create_user_name,
+		farmar_code,org_id,org_name,
+		province_agency_code,province_agency_name,area_hub_code,area_hub_name,
+		create_site_code,create_site_name,create_user_erp,create_user_name,
 		weight,length,width,high,farmar_check_type,create_time,update_time,yn,ts
 		)
 		values
@@ -138,6 +170,7 @@
 			#{item.farmarCode,jdbcType=VARCHAR},
 			#{item.orgId,jdbcType=INTEGER},
 			#{item.orgName,jdbcType=VARCHAR},
+			#{item.provinceAgencyCode,jdbcType=VARCHAR},#{item.provinceAgencyName,jdbcType=VARCHAR},#{item.areaHubCode,jdbcType=VARCHAR},#{item.areaHubName,jdbcType=VARCHAR},
 			#{item.createSiteCode,jdbcType=INTEGER},
 			#{item.createSiteName,jdbcType=VARCHAR},
 			#{item.createUserErp,jdbcType=VARCHAR},

@@ -1,57 +1,44 @@
 package com.jd.bluedragon.distribution.jy.service.group.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.jsf.position.PositionManager;
-import com.jdl.basic.api.domain.position.PositionDetailRecord;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
-import com.jd.bluedragon.common.dto.group.GroupMemberData;
-import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
-import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
-import com.jd.bluedragon.common.dto.group.JyGroupMemberCountData;
-import com.jd.bluedragon.common.dto.group.JyGroupMemberData;
-import com.jd.bluedragon.common.dto.group.JyGroupMemberResponse;
+import com.jd.bluedragon.common.dto.group.*;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.device.service.DeviceInfoService;
 import com.jd.bluedragon.distribution.jy.dao.group.JyGroupMemberDao;
-import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
-import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
-import com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery;
-import com.jd.bluedragon.distribution.jy.group.JyGroupMemberStatusEnum;
-import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
-import com.jd.bluedragon.distribution.jy.group.JyGroupQuery;
-import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.group.*;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
-import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ql.dms.print.utils.StringHelper;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 人员签到表--Service接口实现
@@ -79,9 +66,6 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 	
 	@Autowired
 	private PositionManager positionManager;
-
-	@Autowired
-	private PositionRecordService positionRecordService;
 	
 	@Autowired
 	@Qualifier("jyTaskGroupMemberService")
@@ -95,11 +79,10 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 	private IGenerateObjectId genObjectId;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
-
-	
-	@Autowired
 	private DeviceInfoService deviceInfoService;
+
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 	
 	/**
 	 * 添加小组成员
@@ -110,9 +93,11 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		result.toSucceed();
 		if(addMemberRequest == null) {
 			result.toFail("请求参数不能为空！");
+			return result;
 		}
 		if(StringHelper.isEmpty(addMemberRequest.getPositionCode())) {
 			result.toFail("岗位码不能为空！");
+			return result;
 		}
 		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.position.PositionDetailRecord> positionData
 				= positionManager.queryOneByPositionCode(addMemberRequest.getPositionCode());
@@ -121,6 +106,10 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码");
 			return result;
 		}
+		
+		// fill request org&province info
+		fillRequestBasicInfo(addMemberRequest);
+		
 		if(addMemberRequest.getSignInTime() == null) {
 			addMemberRequest.setSignInTime(new Date());
 		}
@@ -144,6 +133,8 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			groupData.setCreateTime(currentDate);
 			groupData.setCreateUser(addMemberRequest.getOperateUserCode());
 			groupData.setCreateUserName(addMemberRequest.getOperateUserName());
+			groupData.setProvinceAgencyCode(addMemberRequest.getProvinceAgencyCode());
+			groupData.setAreaHubCode(addMemberRequest.getAreaHubCode());
 			jyGroupService.addGroupData(groupData);
 			isNewGroup = true;
 		}
@@ -165,6 +156,8 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		memberData.setCreateUser(addMemberRequest.getOperateUserCode());
 		memberData.setCreateUserName(addMemberRequest.getOperateUserName());
 		memberData.setSignInTime(addMemberRequest.getSignInTime());
+		memberData.setProvinceAgencyCode(addMemberRequest.getProvinceAgencyCode());
+		memberData.setAreaHubCode(addMemberRequest.getAreaHubCode());
 		//校验组员是否存在
 		Result<Boolean> checkResult = checkBeforeAddMember(memberData);
 		if(checkResult != null 
@@ -203,6 +196,8 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 					member.setCreateUser(addMemberRequest.getOperateUserCode());
 					member.setCreateUserName(addMemberRequest.getOperateUserName());
 					member.setSignInTime(signData.getSignInTime());
+					member.setProvinceAgencyCode(addMemberRequest.getProvinceAgencyCode());
+					member.setAreaHubCode(addMemberRequest.getAreaHubCode());
 					memberList.add(member);
 				}
 			}
@@ -235,7 +230,9 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 					taskMember.setStartTime(currentDate);
 					taskMember.setCreateTime(currentDate);
 					taskMember.setCreateUser(addMemberRequest.getOperateUserCode());
-					taskMember.setCreateUserName(addMemberRequest.getOperateUserName());	
+					taskMember.setCreateUserName(addMemberRequest.getOperateUserName());
+					taskMember.setProvinceAgencyCode(addMemberRequest.getProvinceAgencyCode());
+					taskMember.setAreaHubCode(addMemberRequest.getAreaHubCode());
 					jyTaskGroupMemberService.addTaskMember(taskMember);
 				}
 			}
@@ -246,6 +243,21 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		result.setData(returnData);
 		return result;
 	}
+
+	/**
+	 * 补充基础数据
+	 * 
+	 * @param addMemberRequest
+	 */
+	private void fillRequestBasicInfo(GroupMemberRequest addMemberRequest) {
+		if(addMemberRequest.getSiteCode() != null){
+			BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(addMemberRequest.getSiteCode());
+			addMemberRequest.setOrgCode(baseSite == null ? null : baseSite.getOrgId());
+			addMemberRequest.setProvinceAgencyCode((baseSite == null || baseSite.getProvinceAgencyCode() == null) ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode());
+			addMemberRequest.setAreaHubCode((baseSite == null || baseSite.getAreaCode() == null) ? Constants.EMPTY_FILL : baseSite.getAreaCode());
+		}
+	}
+
 	/**
 	 * 判断能否添加组员
 	 * @param memberData
@@ -536,9 +548,11 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		result.toSuccess();
 		if(addMemberRequest == null) {
 			result.toFail("请求参数不能为空！");
+			return result;
 		}
 		if(StringHelper.isEmpty(addMemberRequest.getPositionCode())) {
 			result.toFail("岗位码不能为空！");
+			return result;
 		}
 		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.position.PositionDetailRecord> positionData
 				= positionManager.queryOneByPositionCode(addMemberRequest.getPositionCode());
@@ -547,6 +561,9 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码");
 			return result;
 		}
+		// fill request org&province info
+		fillRequestBasicInfo(addMemberRequest);
+		
 		if(addMemberRequest.getSignInTime() == null) {
 			addMemberRequest.setSignInTime(new Date());
 		}
@@ -570,6 +587,8 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			groupData.setCreateTime(currentDate);
 			groupData.setCreateUser(addMemberRequest.getOperateUserCode());
 			groupData.setCreateUserName(addMemberRequest.getOperateUserName());
+			groupData.setProvinceAgencyCode(addMemberRequest.getProvinceAgencyCode());
+			groupData.setAreaHubCode(addMemberRequest.getAreaHubCode());
 			jyGroupService.addGroupData(groupData);
 			if(log.isDebugEnabled()) {
 				log.debug("流程审批-添加组：{}", JsonHelper.toJson(groupData));
@@ -595,6 +614,8 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		memberData.setCreateUserName(addMemberRequest.getOperateUserName());
 		memberData.setSignInTime(addMemberRequest.getSignInTime());
 		memberData.setSignOutTime(addMemberRequest.getSignOutTime());
+		memberData.setProvinceAgencyCode(addMemberRequest.getProvinceAgencyCode());
+		memberData.setAreaHubCode(addMemberRequest.getAreaHubCode());
 		//校验组员是否存在
 		Result<Boolean> checkResult = checkBeforeAddMember(memberData);
 		if(checkResult != null 
@@ -634,6 +655,8 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 					member.setCreateUserName(signData.getCreateUserName());
 					member.setSignInTime(signData.getSignInTime());
 					member.setSignOutTime(signData.getSignOutTime());
+					member.setProvinceAgencyCode(addMemberRequest.getProvinceAgencyCode());
+					member.setAreaHubCode(addMemberRequest.getAreaHubCode());
 					memberList.add(member);
 				}
 			}
