@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExpWaybillDeliveryDto;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public interface JyDamageExceptionService {
      * @param qcReportJmqDto
      * @return
      */
-    void dealExpDamageInfoByAbnormalReportOutCall(QcReportOutCallJmqDto qcReportJmqDto);
+    void dealExpDamageInfoByAbnormalReportOutCall(QcReportJmqDto qcReportJmqDto);
 
     /**
      * 获取待处理和新增的破损异常数量

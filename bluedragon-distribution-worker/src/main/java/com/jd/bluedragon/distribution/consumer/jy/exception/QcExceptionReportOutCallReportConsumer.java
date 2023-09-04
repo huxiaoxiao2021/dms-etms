@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -38,7 +39,7 @@ public class QcExceptionReportOutCallReportConsumer extends MessageBaseConsumer 
                 logger.warn("质控异常上报消息回传消息体非JSON格式，内容为【{}】", message.getText());
                 return;
             }
-            QcReportOutCallJmqDto qcReportJmqDto = JsonHelper.fromJson(message.getText(), QcReportOutCallJmqDto.class);
+            QcReportJmqDto qcReportJmqDto = JsonHelper.fromJson(message.getText(), QcReportJmqDto.class);
 
             if(qcReportJmqDto == null){
                 logger.warn("QcAbnormalReportOutCallReportConsumer 消息转换失败！[{}-{}]:[{}]", message.getTopic(), message.getBusinessId(), message.getText());

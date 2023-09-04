@@ -677,7 +677,7 @@
     </jmq:consumer>
     <!--质控异常上报消息消费-->
     <jmq:consumer id="jmq.qcExceptionReportOutCallReportConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.abnormalRecordOutCallReport}" listener="qcExceptionReportOutCallReportConsumer"/>
+        <jmq:listener topic="${jmq.topic.abnormalRecordReport}" listener="qcExceptionReportOutCallReportConsumer"/>
     </jmq:consumer>
 
     <!--运单妥投-->
