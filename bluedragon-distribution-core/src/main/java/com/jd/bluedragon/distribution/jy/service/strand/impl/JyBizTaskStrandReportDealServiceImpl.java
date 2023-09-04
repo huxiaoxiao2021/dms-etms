@@ -527,34 +527,20 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     private ImmutablePair<String, Integer> queryBatchInnerScanCount(JyStrandReportScanReq scanRequest, Integer nextSiteCode) {
         String sendCode = null;
-        Integer count = Constants.NUMBER_ZERO;
         SendDetail sendDetail = new SendDetail();
-        sendDetail.setCreateSiteCode(scanRequest.getCurrentOperate().getSiteCode());
-        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode()) || WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
-            queryPackOrWaybillInnerScanCount(scanRequest, nextSiteCode);
-            sendDetail.setPackageBarcode(scanRequest.getScanBarCode());
-            //获取批次号
-            sendCode = getSendCOde(scanRequest, sendDetail);
-            //获取批次号下的（包裹，运单，箱）数量
-            count = getCount(scanRequest, sendCode);
-        } else if (BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
-            queryBoxInnerScanCount(scanRequest, nextSiteCode);
-            sendDetail.setBoxCode(scanRequest.getScanBarCode());
-            //获取批次号
-            sendCode = getSendCOde(scanRequest, sendDetail);
-            //获取批次号下的（包裹，运单，箱）数量
-            count = getCount(scanRequest, sendCode);
-        } else if (BusinessUtil.isBoardCode(scanRequest.getScanBarCode())) {
-            queryBoardInnerScanCount(scanRequest, nextSiteCode);
-            sendDetail.setBoxCode(scanRequest.getScanBarCode());
-            //获取批次号
-            sendCode = getSendCOde(scanRequest, sendDetail);
-            //获取批次号下的（包裹，运单，箱）数量
-            count = getCount(scanRequest, sendCode);
-        } else {
-            throw new JyBizException("扫描批次的目的地和任务流向不一致!");
+        //获取批次号
+        sendCode = getSendCOde(scanRequest, sendDetail);
+        //校验批次号
+        try {
+            Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
+            if (receiveSiteCode == null || !Objects.equals(receiveSiteCode, nextSiteCode)) {
+                throw new JyBizException("扫描条码所属容器的流向和任务流向不一致!");
+            }
+        } catch (Exception e) {
+            throw new JyBizException("扫描条码所属容器的流向和任务流向不一致!");
         }
-        return ImmutablePair.of(sendCode, count);
+        //获取批次号下的（包裹，运单，箱,板）数量
+        return ImmutablePair.of(sendCode, getCount(scanRequest, sendCode));
     }
 
     /**
@@ -564,12 +550,18 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
      * @return
      */
     private String getSendCOde(JyStrandReportScanReq scanRequest, SendDetail sendDetail) {
-        if (BusinessUtil.isBoardCode(scanRequest.getScanBarCode())) {
+        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode()) || BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
+            sendDetail.setBoxCode(scanRequest.getScanBarCode());
+        } else if (WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
+            sendDetail.setWaybillCode(scanRequest.getScanBarCode());
+        } else if (BusinessUtil.isBoardCode(scanRequest.getScanBarCode())) {
             SendM sendM = sendMDao.selectSendByBoardCode(scanRequest.getCurrentOperate().getSiteCode(), scanRequest.getScanBarCode(), SendStatusEnum.HAS_BEEN_SENDED.getCode());
             if (ObjectHelper.isEmpty(sendM)) {
-                throw new JyBizException("未查询到批号: " + scanRequest.getScanBarCode() + " 对应的批次号");
+                throw new JyBizException("未查询到板号: " + scanRequest.getScanBarCode() + " 对应的批次号");
             }
             return sendM.getSendCode();
+        } else {
+            throw new JyBizException("扫描批次的目的地和任务流向不一致!");
         }
         List<SendDetail> sendDetails = sendDatailDao.querySendDatailsBySelective(sendDetail);
         if (CollectionUtils.isEmpty(sendDetails)) {
@@ -619,7 +611,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
                 return ImmutablePair.of(boardCode, boardInnerCount == null ? Constants.NUMBER_ZERO : boardInnerCount);
             }
         }catch (JyBizException e){
-            throw e;   
+            throw e;
         }catch (Exception e){
             Profiler.functionError(info);
         }finally {
