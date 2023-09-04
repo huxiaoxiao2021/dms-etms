@@ -278,13 +278,16 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 return JdCResponse.fail("该异常已上报!");
             }
             JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
+            if(req.getType() == null){
+                req.setType(JyBizTaskExceptionTypeEnum.UNKNOW.getCode());
+            }
             taskEntity.setType(req.getType());
             if(BusinessUtil.isSanWuCode(req.getBarCode())){
                 req.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
             }
 
             //兼容老逻辑 type 不为空
-            if(req.getType() != null){
+            if(req.getType() != null && !Objects.equals(req.getType(),-1)){
                 JyExceptionStrategy exceptionService = jyExceptionStrategyFactory.getStrategy(req.getType());
                 JdCResponse<Object> response = exceptionService.uploadScan(taskEntity,req, position, source, bizId);
                 if(!JdCResponse.CODE_SUCCESS.equals(response.getCode())){
@@ -756,7 +759,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         || Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), t.getStatus())))
                 .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
         JdCResponse<List<ExpScrappedDetailDto>> listOfscrappedResponse = jyScrappedExceptionService.getTaskListOfscrapped(bizIds);
-        logger.info("listOfscrappedResponse -{}", JSON.toJSONString(listOfscrappedResponse));
         if (JdCResponse.CODE_SUCCESS.equals(listOfscrappedResponse.getCode()) && CollectionUtils.isNotEmpty(listOfscrappedResponse.getData())) {
             return listOfscrappedResponse.getData().stream().collect(Collectors.toMap(ExpScrappedDetailDto::getBizId, s->s));
         }

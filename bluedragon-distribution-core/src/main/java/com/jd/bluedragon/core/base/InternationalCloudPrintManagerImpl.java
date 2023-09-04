@@ -39,6 +39,9 @@ public class InternationalCloudPrintManagerImpl implements InternationalCloudPri
             // 系统来源：分拣
             renderQuery.setAppKey(Constants.SYSTEM_CODE_OWON);
             renderQuery.setCallSystem(Constants.SYSTEM_CODE_OWON);
+            if(logger.isInfoEnabled()){
+                logger.info("国际化调用云打印 req:{}", JsonHelper.toJson(renderQuery));
+            }
             PrintResultDTO printResultDTO = renderService.render4OuterReprint(renderQuery);
             if(printResultDTO == null){
                 logger.error("国际化调用云打印失败! req:{}", JsonHelper.toJson(renderQuery));
