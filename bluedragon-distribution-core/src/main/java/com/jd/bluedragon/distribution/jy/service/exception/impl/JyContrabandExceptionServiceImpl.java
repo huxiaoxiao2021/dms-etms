@@ -128,10 +128,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             this.saveImages(req, entity);
             jyExceptionContrabandDao.insertSelective(entity);
             //退回 调用百川逆向换单
-//            if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
-//                DmsWaybillReverseDTO reverseDTO = this.covertDmsWaybillReverseDTO(entity);
-//                waybillReverseManager.submitWaybill(reverseDTO);
-//            }
+            if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
+                DmsWaybillReverseDTO reverseDTO = this.covertDmsWaybillReverseDTO(entity);
+                waybillReverseManager.submitWaybill(reverseDTO);
+            }
             JyExceptionContrabandDto dto = new JyExceptionContrabandDto();
             BeanUtils.copyProperties(entity,dto);
             jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
