@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionServ
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import org.junit.Assert;
 import org.junit.Test;
@@ -294,7 +295,7 @@ public class JyExceptionServiceTest {
 
     @Test
     public void dealExpDamageInfoByAbnormalReportOutCallTest(){
-        QcReportOutCallJmqDto dto = new QcReportOutCallJmqDto();
+        QcReportJmqDto dto = new QcReportJmqDto();
         //dto.setAbnormalDocumentNum("JDVA00255154794");
         dto.setAbnormalDocumentNum("JDX000201044026");
         dto.setAbnormalFirstId(20009l);
@@ -310,7 +311,6 @@ public class JyExceptionServiceTest {
         dto.setCreateUser("jiangchengjie5");
         dto.setEndStatus("1");
         dto.setId(404341744L);
-        dto.setOutCallResult("70");
         dto.setPackageNumber("JDVA21647328198-1-1-");
         dto.setRemark("空号");
         dto.setReportSystem("xiaoge");

@@ -28,6 +28,7 @@ import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailSe
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
@@ -209,7 +210,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Override
     @Transactional
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.dealExpDamageInfoByAbnormalReportOutCall", mState = {JProEnum.TP})
-    public void dealExpDamageInfoByAbnormalReportOutCall(QcReportOutCallJmqDto qcReportJmqDto) {
+    public void dealExpDamageInfoByAbnormalReportOutCall(QcReportJmqDto qcReportJmqDto) {
         logger.info("dealExpDamageInfoByAbnormalReportOutCall -外呼通知内容-{}", JSON.toJSONString(qcReportJmqDto));
         String barCode = qcReportJmqDto.getAbnormalDocumentNum();
         String bizId = getBizId(barCode, new Integer(qcReportJmqDto.getCreateDept()));
@@ -448,7 +449,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      * @param updateDamageEntity
      * @return
      */
-    private boolean sendMQNoticCustomerCheck(String barCode, QcReportOutCallJmqDto qcReportJmqDto, JyBizTaskExceptionEntity exceptionEntity
+    private boolean sendMQNoticCustomerCheck(String barCode, QcReportJmqDto qcReportJmqDto, JyBizTaskExceptionEntity exceptionEntity
             , JyExceptionDamageEntity damageEntity, JyBizTaskExceptionEntity updateExp, JyExceptionDamageEntity updateDamageEntity,Waybill waybill) {
 
         //自营单上报破损时，非全部破损情况提交后，不与客服交互，任务状态变更为直接下传 （选择 外破内破-》无残余价值）
