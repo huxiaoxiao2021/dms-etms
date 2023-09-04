@@ -827,6 +827,13 @@ public class Constants {
      *
      */
     public static final String SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF = "waybill.print.addiOwnNumberConf";
+    
+
+    /**
+     *  配置信息-切换百川流量场地列表
+     *
+     */
+    public static final String BAICHUAN_REVERSE_SITE_CONF = "baichuan.reverse.site.conf";
 
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
