@@ -343,29 +343,33 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         if(CollectionUtils.isEmpty(nextSiteCodeSet) || CollectionUtils.isEmpty(list)) {
             return;
         }
-        List<Integer> nextSiteCodeList = nextSiteCodeSet.stream().collect(Collectors.toList());
-        TableTrolleyQuery tableTrolleyQuery = new TableTrolleyQuery();
-        tableTrolleyQuery.setDmsId(siteCode);
-        tableTrolleyQuery.setSiteCodeList(nextSiteCodeList);
-        JdResult<TableTrolleyJsfResp> tableTrolleyRes = sortCrossJsfManager.queryCrossCodeTableTrolleyBySiteFlowList(tableTrolleyQuery);
+        try{
+            List<Integer> nextSiteCodeList = nextSiteCodeSet.stream().collect(Collectors.toList());
+            TableTrolleyQuery tableTrolleyQuery = new TableTrolleyQuery();
+            tableTrolleyQuery.setDmsId(siteCode);
+            tableTrolleyQuery.setSiteCodeList(nextSiteCodeList);
+            JdResult<TableTrolleyJsfResp> tableTrolleyRes = sortCrossJsfManager.queryCrossCodeTableTrolleyBySiteFlowList(tableTrolleyQuery);
 
-        if(!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() && !Objects.isNull(tableTrolleyRes.getData()) && !CollectionUtils.isEmpty(tableTrolleyRes.getData().getTableTrolleyDtoJsfList())) {
-            Map<Integer, TableTrolleyJsfDto> nextSiteTableTrolleyMap = new HashMap<>();
-            tableTrolleyRes.getData().getTableTrolleyDtoJsfList().forEach(tableTrolleyDto -> {
-                if (!Objects.isNull(tableTrolleyDto.getEndSiteId())) {
-                    nextSiteTableTrolleyMap.put(tableTrolleyDto.getEndSiteId(), tableTrolleyDto);
-                }
-            });
+            if(!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() && !Objects.isNull(tableTrolleyRes.getData()) && !CollectionUtils.isEmpty(tableTrolleyRes.getData().getTableTrolleyDtoJsfList())) {
+                Map<Integer, TableTrolleyJsfDto> nextSiteTableTrolleyMap = new HashMap<>();
+                tableTrolleyRes.getData().getTableTrolleyDtoJsfList().forEach(tableTrolleyDto -> {
+                    if (!Objects.isNull(tableTrolleyDto.getEndSiteId())) {
+                        nextSiteTableTrolleyMap.put(tableTrolleyDto.getEndSiteId(), tableTrolleyDto);
+                    }
+                });
 
-            list.forEach(detailEntity -> {
-                TableTrolleyJsfDto tableTrolleyJsfDto = nextSiteTableTrolleyMap.get(detailEntity.getEndSiteId().intValue());
-                if(!Objects.isNull(tableTrolleyJsfDto)) {
-                    String crossCode = tableTrolleyJsfDto.getCrossCode();
-                    String tableTrolleyCode = tableTrolleyJsfDto.getTableTrolleyCode();
-                    detailEntity.setCrossCode(crossCode);
-                    detailEntity.setTabletrolleyCode(tableTrolleyCode);
-                }
-            });
+                list.forEach(detailEntity -> {
+                    TableTrolleyJsfDto tableTrolleyJsfDto = nextSiteTableTrolleyMap.get(detailEntity.getEndSiteId().intValue());
+                    if(!Objects.isNull(tableTrolleyJsfDto)) {
+                        String crossCode = tableTrolleyJsfDto.getCrossCode();
+                        String tableTrolleyCode = tableTrolleyJsfDto.getTableTrolleyCode();
+                        detailEntity.setCrossCode(crossCode);
+                        detailEntity.setTabletrolleyCode(tableTrolleyCode);
+                    }
+                });
+            }
+        }catch (Exception e) {
+            log.error("创建混扫任务补充滑道笼车号出错，不卡实操，siteCode={}，nextSiteCodeSet={}", siteCode, JsonHelper.toJson(nextSiteCodeSet));
         }
     }
 
