@@ -291,7 +291,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
 
     @Override
     public String createMixScanTask(CreateMixScanTaskReq request) {
-        String templateCode = getTemplateCode();
+        String templateCode = this.getTemplateCode();
         List<JyGroupSortCrossDetailEntity> entities = getMixScanTaskList(templateCode, request);
         if (this.createCTTGroup(entities)) {
             return templateCode;
