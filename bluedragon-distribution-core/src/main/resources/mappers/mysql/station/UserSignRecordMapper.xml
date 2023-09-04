@@ -1113,6 +1113,12 @@
         <if test="userCode != null and userCode != '' " >
             and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
         </if>
+		<if test="idCardLike != null and idCardLike != '' " >
+			and r.id_card like concat(#{idCardLike,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="userNameLike != null and userNameLike != '' " >
+			and r.user_name like concat(#{userNameLike,jdbcType=VARCHAR},'%')
+		</if>
         </where>
     </sql>
     <select id="queryCountForCheckSignTime" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery" resultType="java.lang.Integer">
