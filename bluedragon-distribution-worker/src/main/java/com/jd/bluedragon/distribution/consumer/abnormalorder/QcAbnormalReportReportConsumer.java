@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.consumer.abnormalorder;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.jmq.common.message.Message;
@@ -26,6 +27,9 @@ public class QcAbnormalReportReportConsumer extends MessageBaseConsumer {
     @Autowired
     private QualityControlService qualityControlService;
 
+    @Autowired
+    private JyDamageExceptionService jyDamageExceptionService;
+
     @Override
     public void setUat(String uat) {
         super.setUat("false");
@@ -38,7 +42,8 @@ public class QcAbnormalReportReportConsumer extends MessageBaseConsumer {
             log.warn("QcAbnormalReportReportConsumer 消息转换失败！[{}-{}]:[{}]", message.getTopic(), message.getBusinessId(), message.getText());
             return;
         }
-
+        //处理异常破损数据
+        jyDamageExceptionService.dealExpDamageInfoByAbnormalReportOutCall(qcReportJmqDto);
         final Result<Void> checkMqParamResult = qualityControlService.checkMqParam(qcReportJmqDto);
         if(!checkMqParamResult.isSuccess()){
             log.warn("QcAbnormalReportReportConsumer 消息体参数不符合要求 {} message: {}", checkMqParamResult.getMessage(), message.getText());

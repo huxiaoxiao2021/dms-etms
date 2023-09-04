@@ -675,10 +675,7 @@
     <jmq:consumer id="jmq.dmsExpCustomerReturnConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.exception.customerReturn}" listener="dmsExpCustomerReturnConsumer"/>
     </jmq:consumer>
-    <!--质控异常上报消息消费-->
-    <jmq:consumer id="jmq.qcExceptionReportOutCallReportConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.abnormalRecordReport}" listener="qcExceptionReportOutCallReportConsumer"/>
-    </jmq:consumer>
+
 
     <!--运单妥投-->
     <jmq:consumer id="jmq.dmsExpWaybillDeliveryConsumer" transport="jmq4.dmsWorker.transport">
