@@ -476,4 +476,8 @@ public class DmsConstants {
         add(3);
     }};
 
+    //authCode
+    public static final String AUTH_CODE = "authCode";
+    // verificationCode
+    public static final String VERIFICATION_CODE = "verificationCode";
 }

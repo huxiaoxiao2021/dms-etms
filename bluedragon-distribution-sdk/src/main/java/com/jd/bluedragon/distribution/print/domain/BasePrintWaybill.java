@@ -501,6 +501,16 @@ public class BasePrintWaybill implements Serializable {
 	 * 始发滑道号类型 (临时变量)
 	 */
 	private Integer tempOriginalCrossType;
+
+	/**
+	 * 拼接商品名称
+	 */
+	private String spliceGoodsName;
+
+	/**
+	 * 真实验证码（取件码）
+	 */
+	private String verificationCode;
 	
 	public String getServiceCode() {
 		return serviceCode;
@@ -1772,5 +1782,21 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setTempOriginalCrossType(Integer tempOriginalCrossType) {
 		this.tempOriginalCrossType = tempOriginalCrossType;
+	}
+
+	public String getSpliceGoodsName() {
+		return spliceGoodsName;
+	}
+
+	public void setSpliceGoodsName(String spliceGoodsName) {
+		this.spliceGoodsName = spliceGoodsName;
+	}
+
+	public String getVerificationCode() {
+		return verificationCode;
+	}
+
+	public void setVerificationCode(String verificationCode) {
+		this.verificationCode = verificationCode;
 	}
 }

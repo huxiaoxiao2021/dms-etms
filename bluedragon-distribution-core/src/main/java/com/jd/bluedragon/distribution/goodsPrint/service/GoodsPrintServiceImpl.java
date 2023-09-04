@@ -365,4 +365,18 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             log.error("[getWaybillFromEsOperator]删除数据出错,key = {} 错误信息为：{}", key, e.getMessage());
         }
     }
+
+    /**
+     * 查询商品名称
+     *
+     * @param waybillCode
+     * @return
+     */
+    public BaseEntity<Page<Goods>> getGoodsNamePrint(String waybillCode) {
+        Page<Goods> pageInfo = new Page<Goods>();
+        pageInfo.setPageSize(10);
+        pageInfo.setCurPage(1);
+        return waybillQueryManager.getPagedGoodsDataByWCode(waybillCode, pageInfo);
+    }
+
 }
