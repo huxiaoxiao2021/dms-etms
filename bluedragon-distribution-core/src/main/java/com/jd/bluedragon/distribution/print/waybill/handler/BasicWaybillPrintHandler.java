@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT;
@@ -252,22 +253,20 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             try {
                 BaseEntity<Page<Goods>> goodsNameEntity = goodsPrintService.getTenGoodsNamePrint(context.getWaybill().getWaybillCode());
                 if (ObjectHelper.isNotEmpty(goodsNameEntity)) {
-                    List<Goods> GoodsList = goodsNameEntity.getData().getResult();
-                    if (ObjectHelper.isNotEmpty(GoodsList)) {
-                        for (Goods goods : GoodsList) {
-                            if (StringUtils.isEmpty(spliceGoodsName)) {
-                                spliceGoodsName = goods.getGoodName();
-                                return;
-                            }
-                            spliceGoodsName += ";" + goods.getGoodName();
-                        }
+                    List<Goods> goodsList = goodsNameEntity.getData().getResult();
+                    if (ObjectHelper.isNotEmpty(goodsList)) {
+                        spliceGoodsName = goodsList.stream().map(Goods::getGoodName).collect(Collectors.joining(";"));
                     }
                 }
             } catch (Exception e) {
                 log.error("loadGoodsInfo加载商品信息失败! 入参：{}", JsonHelper.toJson(context), e);
             }
         }
-        waybill.setSpliceGoodsName(spliceGoodsName);
+        if (spliceGoodsName.length() >= DmsConstants.NUMBER_HUNDRED){
+            waybill.setSpliceGoodsName(spliceGoodsName.substring(DmsConstants.NUMBER_ONE, DmsConstants.NUMBER_HUNDRED));
+        }else {
+            waybill.setSpliceGoodsName(spliceGoodsName);
+        }
     }
 
     /**
