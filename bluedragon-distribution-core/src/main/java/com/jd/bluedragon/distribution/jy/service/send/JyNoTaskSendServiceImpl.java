@@ -1,10 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProductTypeAgg;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
@@ -58,7 +56,6 @@ import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
@@ -144,6 +141,13 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Autowired
     private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
 
+    @Autowired
+    @Qualifier("redisJyNoTaskSendDetailBizIdSequenceGen")
+    private JimdbSequenceGen redisJyNoTaskSendDetailBizIdSequenceGen;
+
+    @Autowired
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
+
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -198,6 +202,12 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity = initJyBizTaskSendVehicle(createVehicleTaskReq);
         jyBizTaskSendVehicleService.saveSendVehicleTask(jyBizTaskSendVehicleEntity);
+
+        if(createVehicleTaskReq.getDestinationSiteId() != null){
+            final JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailEntity = this.initJyBizTaskSendVehicleDetail(createVehicleTaskReq, jyBizTaskSendVehicleEntity);
+            jyBizTaskSendVehicleDetailService.saveTaskSendDetail(jyBizTaskSendVehicleDetailEntity);
+        }
+
         CreateVehicleTaskResp createVehicleTaskResp = new CreateVehicleTaskResp();
         createVehicleTaskResp.setBizId(jyBizTaskSendVehicleEntity.getBizId());
         createVehicleTaskResp.setBizNo(jyBizTaskSendVehicleEntity.getBizNo());
@@ -277,6 +287,33 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         entity.setCreateTime(now);
         entity.setUpdateTime(now);
         return entity;
+    }
+
+    private JyBizTaskSendVehicleDetailEntity initJyBizTaskSendVehicleDetail(CreateVehicleTaskReq createVehicleTaskReq, JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity) {
+        JyBizTaskSendVehicleDetailEntity noTaskDetail = new JyBizTaskSendVehicleDetailEntity();
+        noTaskDetail.setSendVehicleBizId(jyBizTaskSendVehicleEntity.getBizId());
+        noTaskDetail.setBizId(genNoTaskBizId());
+        noTaskDetail.setTransWorkItemCode(StringUtils.EMPTY);
+        noTaskDetail.setVehicleStatus(JyBizTaskSendDetailStatusEnum.TO_SEND.getCode());
+        noTaskDetail.setStartSiteId(jyBizTaskSendVehicleEntity.getStartSiteId());
+
+        BaseStaffSiteOrgDto startSite = baseMajorManager.getBaseSiteBySiteId(jyBizTaskSendVehicleEntity.getStartSiteId().intValue());
+        noTaskDetail.setStartSiteName(startSite == null ? StringUtils.EMPTY : startSite.getSiteName());
+
+        noTaskDetail.setEndSiteId(createVehicleTaskReq.getDestinationSiteId());
+        BaseStaffSiteOrgDto endSite = baseMajorManager.getBaseSiteBySiteId(noTaskDetail.getEndSiteId().intValue());
+        noTaskDetail.setEndSiteName(endSite == null ? StringUtils.EMPTY : endSite.getSiteName());
+
+        Date noTaskPlanDate = new Date();
+        noTaskDetail.setPlanDepartTime(noTaskPlanDate);
+        noTaskDetail.setCreateUserErp("sys.dms");
+        noTaskDetail.setCreateUserName("sys.dms");
+        return noTaskDetail;
+    }
+
+    private String genNoTaskBizId() {
+        String ownerKey = String.format(JyBizTaskSendVehicleDetailEntity.NO_TASK_BIZ_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
+        return ownerKey + StringHelper.padZero(redisJyNoTaskSendDetailBizIdSequenceGen.gen(ownerKey));
     }
 
     private boolean distributeAndStartScheduleTask(BindVehicleDetailTaskReq request) {
