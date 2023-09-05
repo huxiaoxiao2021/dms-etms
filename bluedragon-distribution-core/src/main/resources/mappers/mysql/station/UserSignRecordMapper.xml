@@ -264,7 +264,7 @@
                 <if test="bizSource != null">
                     biz_source,
                 </if>
-				<if test="icCard != null">
+				<if test="idCard != null">
 					id_card,
 				</if>
 			</trim>
