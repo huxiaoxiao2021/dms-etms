@@ -52,5 +52,5 @@ public interface GoodsPrintService {
      * @param waybillCode
      * @return
      */
-    public BaseEntity<Page<Goods>> getTenGoodsNamePrint(String waybillCode);
+    public BaseEntity<Page<Goods>> getTwentyGoodsNamePrint(String waybillCode);
 }

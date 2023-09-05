@@ -234,7 +234,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybillVasList.forEach(waybillVas -> {
                     if (StringUtils.isNotEmpty(waybillVas.getVasNo()) && waybillVas.getVasNo().equals(DmsConstants.AUTH_CODE)) {
                         String verificationCode = waybillVas.getExtendMap().get(DmsConstants.VERIFICATION_CODE);
-                        waybill.setVerificationCode(verificationCode);
+                        waybill.setVerificationCodeWithTitle("核销码:" + verificationCode);
                     }
                 });
             }
@@ -251,7 +251,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         if (BusinessUtil.isGetGoodsInfo(context.getWaybillSign())) {
             //调查询商品的接口
             try {
-                BaseEntity<Page<Goods>> goodsNameEntity = goodsPrintService.getTenGoodsNamePrint(context.getWaybill().getWaybillCode());
+                BaseEntity<Page<Goods>> goodsNameEntity = goodsPrintService.getTwentyGoodsNamePrint(context.getWaybill().getWaybillCode());
                 if (ObjectHelper.isNotEmpty(goodsNameEntity)) {
                     List<Goods> goodsList = goodsNameEntity.getData().getResult();
                     if (ObjectHelper.isNotEmpty(goodsList)) {
@@ -262,10 +262,10 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 log.error("loadGoodsInfo加载商品信息失败! 入参：{}", JsonHelper.toJson(context), e);
             }
         }
-        if (spliceGoodsName.length() >= DmsConstants.NUMBER_HUNDRED){
-            waybill.setSpliceGoodsName(spliceGoodsName.substring(DmsConstants.NUMBER_ONE, DmsConstants.NUMBER_HUNDRED));
-        }else {
-            waybill.setSpliceGoodsName(spliceGoodsName);
+        if (spliceGoodsName.length() >= DmsConstants.NUMBER_HUNDRED) {
+            waybill.setSpliceGoodsNameWithTitle("商品名称:" + spliceGoodsName.substring(DmsConstants.NUMBER_ONE, DmsConstants.NUMBER_HUNDRED));
+        } else {
+            waybill.setSpliceGoodsNameWithTitle("商品名称:" + spliceGoodsName);
         }
     }
 
