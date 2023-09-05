@@ -2522,6 +2522,12 @@ public class BusinessUtil {
     	}
     	return idCard.replaceAll("(\\w{4})\\w*(\\w{4})", "$1***$2");
     }
+    public static String encryptIdCardDoubleStar(String idCard) {
+        if(!isIdCardNo(idCard)) {
+            return null;
+        }
+        return idCard.replaceAll("(\\w{3})\\w{3}(\\w{4})\\w*(\\w{4})", "$1***$2****$3");  
+    }
     /**
      * APP版本大小比较
      * @param appVersion 当前版本
