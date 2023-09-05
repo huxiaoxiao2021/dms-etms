@@ -488,6 +488,11 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		if(query.getPageNumber() > 0) {
 			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
 		}
+		String userCode = query.getUserCode();
+		if (StringUtils.isNotBlank(query.getUserCode()) && query.getUserCode().contains("***")) {
+			query.setUserCode(null);
+			query.setIdCard(userCode);
+		}
 		return result;
 	 }
 }
