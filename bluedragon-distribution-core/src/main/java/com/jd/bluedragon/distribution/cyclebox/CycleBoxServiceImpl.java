@@ -382,7 +382,13 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             return result;
         }
         //集包袋规则校验
-        if (!BusinessUtil.isCollectionBag(request.getMaterialCode())) {
+        // 如果是LL类型箱号，只能绑定围板箱或者笼车号
+        if (BusinessHelper.isLLBoxType(request.getBoxCode().substring(0, 2))) {
+            if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
+                result.setCode(CODE_BINDING_MATERIAL_TYPE_CODE);
+                result.setMessage(CODE_BINDING_MATERIAL_TYPE_MESSAGE);
+            }
+        }else if (!BusinessUtil.isCollectionBag(request.getMaterialCode())) {
             result.setCode(Integer.valueOf(HintCodeConstants.CYCLE_BOX_RULE_ERROR));
             result.setMessage(HintService.getHint(HintCodeConstants.CYCLE_BOX_RULE_ERROR, Boolean.TRUE));
             return result;
@@ -410,12 +416,6 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             result.setCode(Integer.valueOf(HintCodeConstants.CYCLE_BOX_NOT_BELONG_ERROR));
             result.setMessage(HintService.getHint(HintCodeConstants.CYCLE_BOX_NOT_BELONG_ERROR, Boolean.TRUE));
             return result;
-        }
-
-        // 如果是LL类型箱号，绑定集包袋号校验
-        if (BusinessHelper.isLLBoxType(request.getBoxCode().substring(0,2)) && !BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
-            result.setCode(CODE_BINDING_MATERIAL_TYPE_CODE);
-            result.setMessage(CODE_BINDING_MATERIAL_TYPE_MESSAGE);
         }
 
         return result;
