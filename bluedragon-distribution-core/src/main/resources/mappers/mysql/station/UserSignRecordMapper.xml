@@ -563,12 +563,6 @@
         <if test="signDateEnd != null" >
             and t.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
         </if>
-		<if test="idCardLike != null and idCardLike != '' " >
-			and t.id_card like concat(#{idCardLike,jdbcType=VARCHAR},'%')
-		</if>
-		<if test="userNameLike != null and userNameLike != '' " >
-			and t.user_name like concat(#{userNameLike,jdbcType=VARCHAR},'%')
-		</if>
         </where>
     </sql>
 	<sql id="queryConditionRef">
@@ -1112,11 +1106,10 @@
             and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
         </if>
         <if test="userCode != null and userCode != '' " >
-            and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+            and (r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+				or r.id_card like concat(#{userCode,jdbcType=VARCHAR},'%')
+			)
         </if>
-		<if test="idCardLike != null and idCardLike != '' " >
-			and r.id_card like concat(#{idCardLike,jdbcType=VARCHAR},'%')
-		</if>
 		<if test="userNameLike != null and userNameLike != '' " >
 			and r.user_name like concat(#{userNameLike,jdbcType=VARCHAR},'%')
 		</if>
