@@ -1109,7 +1109,7 @@
             and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
         </if>
 		<if test="idCard != null and idCard != '' " >
-			and or r.id_card = #{idCard,jdbcType=VARCHAR}
+			and r.id_card = #{idCard,jdbcType=VARCHAR}
 		</if>
 		<if test="userNameLike != null and userNameLike != '' " >
 			and r.user_name like concat(#{userNameLike,jdbcType=VARCHAR},'%')
