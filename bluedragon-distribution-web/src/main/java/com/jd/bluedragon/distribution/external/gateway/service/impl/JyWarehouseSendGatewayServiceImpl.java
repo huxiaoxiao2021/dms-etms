@@ -36,6 +36,7 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetail
 import com.jd.bluedragon.distribution.jy.service.comboard.impl.JyGroupSortCrossDetailCacheService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyWarehouseSendVehicleServiceImpl;
+import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -803,7 +804,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             MixScanTaskQueryRes result = this.getMixScanTaskPage(mixScanTaskListQueryReq);
 
             response.setData(result);
-            if(CollectionUtils.isEmpty(result.getMixScanTaskDtoList())) {
+            if(CollectionUtils.isEmpty(result.getMixScanTaskDtoList()) && mixScanTaskListQueryReq.getPageNo() == 1) {
                 if(StringUtils.isNotBlank(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
                     response.setCode(MixScanTaskQueryRes.FIND_NULL_CREATE_CODE);
                     response.setMessage("未搜索到混扫任务，如果是自建任务，需要先绑定到混扫任务中");
