@@ -368,7 +368,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         mq.setCodeInfo(entity.getBarCode());
         mq.setCodeType(ASCPContants.CODE_TYPE);
         mq.setExptCreateTime(DateHelper.formatDateTime(entity.getCreateTime()));
-
+        mq.setExptCreator(entity.getCreateUserErp());
         JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum twoLevelEnum = JyExpNoticCustomerExpReasonEnum
                 .ExpReasonTwoLevelEnum.getEnumByCode(twoLevelExceptionCode);
         if(twoLevelEnum == null){
