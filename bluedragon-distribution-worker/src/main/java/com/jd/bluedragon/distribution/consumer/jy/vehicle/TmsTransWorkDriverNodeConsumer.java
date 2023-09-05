@@ -34,21 +34,21 @@ public class TmsTransWorkDriverNodeConsumer extends MessageBaseConsumer {
             logger.error("TmsTransWorkDriverNodeConsumer consume -->JSON转换后为空，内容为【{}】", message.getText());
             return;
         }
-        if(StringUtils.isEmpty(mqBody.getTransWorkItemCode()) || StringUtils.isEmpty(mqBody.getEventTime()) || StringUtils.isEmpty(mqBody.getTransWorkCode())){
-            logger.error("TmsTransWorkDriverNodeConsumer consume -->关键数据为空，内容为【{}】", message.getText());
-            return;
-        }
+//        if(StringUtils.isEmpty(mqBody.getTransWorkItemCode()) || StringUtils.isEmpty(mqBody.getEventTime()) || StringUtils.isEmpty(mqBody.getTransWorkCode())){
+//            logger.error("TmsTransWorkDriverNodeConsumer consume -->关键数据为空，内容为【{}】", message.getText());
+//            return;
+//        }
 
         //目前仅记录当前始发场地车辆到来时间使用
-        if(saveNearComeTime(mqBody)){
-            if(logger.isInfoEnabled()){
-                logger.info("TmsAreaNearNoticeForBeginNodeConsumer saveNearComeTime success!,{}",JsonHelper.toJson(mqBody));
-            }
-        }else{
-            //理论上没有失败场景，如有存在失败暂时只记录日志，即使重试也没有什么意义
-            logger.error("TmsAreaNearNoticeForBeginNodeConsumer" +
-                    " saveNearComeTime fail!,{}",JsonHelper.toJson(mqBody));
-        }
+//        if(saveNearComeTime(mqBody)){
+//            if(logger.isInfoEnabled()){
+//                logger.info("TmsAreaNearNoticeForBeginNodeConsumer saveNearComeTime success!,{}",JsonHelper.toJson(mqBody));
+//            }
+//        }else{
+//            //理论上没有失败场景，如有存在失败暂时只记录日志，即使重试也没有什么意义
+//            logger.error("TmsAreaNearNoticeForBeginNodeConsumer" +
+//                    " saveNearComeTime fail!,{}",JsonHelper.toJson(mqBody));
+//        }
     }
 
     private class TmsTransWorkDriverNodeMqBody implements Serializable {
