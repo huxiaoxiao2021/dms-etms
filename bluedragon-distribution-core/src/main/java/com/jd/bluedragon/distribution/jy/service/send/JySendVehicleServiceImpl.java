@@ -2630,8 +2630,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     }
                 }
             }
+            
+            // 如果是LL类型箱号，绑定集包袋号校验
+            if (BusinessHelper.isLLBoxType(box.getType())) {
+                // 箱号未绑定集包袋
+                if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
+                    if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
+                        response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
+                        response.addInterceptBox(0, CODE_BINDING_MATERIAL_TYPE_MESSAGE);
+                        return false;
+                    }
+                }
+            }
         }
-
         return true;
     }
 

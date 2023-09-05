@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.cyclebox;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
 import com.jd.bluedragon.core.base.TMSBossQueryManager;
@@ -57,6 +58,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.CODE_BINDING_MATERIAL_TYPE_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.CODE_BINDING_MATERIAL_TYPE_MESSAGE;
 
 @Service("cycleBoxService")
 public class CycleBoxServiceImpl implements CycleBoxService {
@@ -408,9 +412,15 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             return result;
         }
 
+        // 如果是LL类型箱号，绑定集包袋号校验
+        if (BusinessHelper.isLLBoxType(request.getBoxCode().substring(0,2)) && !BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
+            result.setCode(CODE_BINDING_MATERIAL_TYPE_CODE);
+            result.setMessage(CODE_BINDING_MATERIAL_TYPE_MESSAGE);
+        }
+
         return result;
     }
-
+    
     /**
      * 跳过校验
      * @param request
