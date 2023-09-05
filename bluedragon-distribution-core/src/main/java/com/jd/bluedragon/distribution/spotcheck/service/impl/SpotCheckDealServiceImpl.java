@@ -691,9 +691,11 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     }
 
     private boolean checkIsDownByPicAI(WeightVolumeSpotCheckDto spotCheckDto) {
+        if(Objects.equals(spotCheckDto.getPicIsQualify(), Constants.CONSTANT_NUMBER_ONE)){
+            return true;
+        }
         // 目前图片不合格的场景：只有图片类型是软包&&超标类型是重量超标会下发，其他场景都不下发
-        return !Objects.equals(spotCheckDto.getPicIsQualify(), Constants.CONSTANT_NUMBER_ONE)
-                && StringUtils.isNotEmpty(spotCheckDto.getPictureAIDistinguishReason())
+        return StringUtils.isNotEmpty(spotCheckDto.getPictureAIDistinguishReason())
                 && spotCheckDto.getPictureAIDistinguishReason().contains(SpotCheckConstants.PIC_AI_REASON_RB)
                 && Objects.equals(spotCheckDto.getExcessType(), SpotCheckConstants.EXCESS_TYPE_WEIGHT);
     }
