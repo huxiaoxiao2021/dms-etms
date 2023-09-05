@@ -148,7 +148,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private DmsWaybillReverseDTO covertDmsWaybillReverseDTO(JyExceptionContrabandEntity entity){
         DmsWaybillReverseDTO dto = new DmsWaybillReverseDTO();
         dto.setSource(Constants.CHANGE_WAYBILL_OPERATE_SOURCE_SORT_CENTER);
-        dto.setReverseType(RejectionEnum.PACKAGE.getCode());//todo ??
+        dto.setReverseType(RejectionEnum.WHOLE.getCode());
         dto.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
         dto.setSortCenterId(entity.getSiteCode());
         dto.setSiteId(entity.getSiteCode());
