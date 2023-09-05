@@ -288,17 +288,15 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
             Result<Pager<BasicSiteVO>> flowDirection = jyBasicSiteQueryManager.getFlowDirection(request);
             if (!flowDirection.isSuccess()) {
                 log.warn("BaseService.getFlowDirection error " + JsonHelper.toJson(flowDirection));
-                response.toFail("该包裹未获取到流向");
+                response.toFail("该包裹获取流向异常");
                 return response;
             }
             Pager<StreamlinedBasicSite> streamlinedBasicSitePager = new Pager<>();
             if(ObjectHelper.isNotEmpty(flowDirection)){
                 streamlinedBasicSitePager.setData(JsonHelper.jsonToList(JsonHelper.toJson(flowDirection.getData().getData()), StreamlinedBasicSite.class));
                 streamlinedBasicSitePager.setTotal(flowDirection.getData().getTotal());
-
             }
             response.setData(streamlinedBasicSitePager);
-            log.info("BaseDataGatewayServiceImpl.getFlowDirection"+ JSONObject.toJSONString(response));
         } catch (Exception e) {
             log.error("BaseDataGatewayServiceImpl.getFlowDirection exception ", e);
             response.toError("接口处理异常");

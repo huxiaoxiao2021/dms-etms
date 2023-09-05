@@ -527,9 +527,8 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     private ImmutablePair<String, Integer> queryBatchInnerScanCount(JyStrandReportScanReq scanRequest, Integer nextSiteCode) {
         String sendCode = null;
-        SendDetail sendDetail = new SendDetail();
         //获取批次号
-        sendCode = getSendCOde(scanRequest, sendDetail);
+        sendCode = getScanSendCOde(scanRequest);
         //校验批次号
         try {
             Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
@@ -540,16 +539,18 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
             throw new JyBizException("扫描条码所属容器的流向和任务流向不一致!");
         }
         //获取批次号下的（包裹，运单，箱,板）数量
-        return ImmutablePair.of(sendCode, getCount(scanRequest, sendCode));
+        return ImmutablePair.of(sendCode, getBatchScanCount(scanRequest, sendCode));
     }
 
     /**
      * 获取批次号
      *
-     * @param sendDetail
+     * @param scanRequest
      * @return
      */
-    private String getSendCOde(JyStrandReportScanReq scanRequest, SendDetail sendDetail) {
+    private String getScanSendCOde(JyStrandReportScanReq scanRequest) {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setCreateSiteCode(scanRequest.getCurrentOperate().getSiteCode());
         if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode()) || BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
             sendDetail.setBoxCode(scanRequest.getScanBarCode());
         } else if (WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
@@ -576,16 +577,15 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
      * @param scanRequest
      * @return
      */
-    private Integer getCount(JyStrandReportScanReq scanRequest, String sendCode) {
+    private Integer getBatchScanCount(JyStrandReportScanReq scanRequest, String sendCode) {
         SendDetail sendDetail = new SendDetail();
         sendDetail.setCreateSiteCode(scanRequest.getCurrentOperate().getSiteCode());
         sendDetail.setSendCode(sendCode);
-        List<SendDetail> sendDetailList = sendDatailDao.querySendDatailsBySelective(sendDetail);
+        List<String> sendDetailList = sendDatailDao.queryBoxCodeSingleBySendCode(sendDetail);
         if (CollectionUtils.isEmpty(sendDetailList)) {
             throw new JyBizException("未查询到批号: " + scanRequest.getScanBarCode() + " 对应的包裹号，运单号，箱号，板号等");
         }
-        List<String> collect = sendDetailList.stream().map(SendDetail::getBoxCode).distinct().collect(Collectors.toList());
-        return collect.size();
+        return sendDetailList.size();
     }
 
     /**

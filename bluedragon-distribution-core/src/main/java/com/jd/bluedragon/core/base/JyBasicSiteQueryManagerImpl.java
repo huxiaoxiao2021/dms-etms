@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.dto.basedata.request.GetFlowDirectionQuery;
+import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.router.RouterService;
@@ -143,26 +144,27 @@ public class JyBasicSiteQueryManagerImpl implements JyBasicSiteQueryManager {
     public com.jd.dms.workbench.utils.sdk.base.Result<com.jd.bluedragon.common.dto.base.request.Pager<BasicSiteVO>> getFlowDirection(com.jd.bluedragon.common.dto.base.request.Pager<GetFlowDirectionQuery> request) {
         com.jd.dms.workbench.utils.sdk.base.Result<com.jd.bluedragon.common.dto.base.request.Pager<BasicSiteVO>> pagerResult = new com.jd.dms.workbench.utils.sdk.base.Result<>();
         pagerResult.toSuccess();
+        com.jd.bluedragon.common.dto.base.request.Pager<BasicSiteVO> basicSiteVOPagers = new com.jd.bluedragon.common.dto.base.request.Pager<>(request.getPageNo(), request.getPageSize(), 0L);
+        pagerResult.setData(basicSiteVOPagers);
         GetFlowDirectionQuery getFlowDirectionQuery = JSON.parseObject(JSON.toJSONString(request.getSearchVo()), GetFlowDirectionQuery.class);
+        //入参校验
         checkGetFlowDirectionQuery(getFlowDirectionQuery);
         String searchStr = getFlowDirectionQuery.getSearchStr();
-        try {
-            //根据岗位编码获取当前的场地编码
-            if (getFlowDirectionQuery.getSupportQueryType().contains(GetFlowDirectionQuery.SupportQueryTypeEnum.WAYBILL_CODE.getCode()) ||
-                    getFlowDirectionQuery.getSupportQueryType().contains(GetFlowDirectionQuery.SupportQueryTypeEnum.PACKAGE_CODE.getCode())) {
-                searchStr = selectFlowDirection(getFlowDirectionQuery, searchStr);
+        //根据岗位编码获取当前的场地编码
+        if (getFlowDirectionQuery.getSupportQueryType().contains(GetFlowDirectionQuery.SupportQueryTypeEnum.PACKAGE_CODE.getCode())) {
+            Integer siteCode = selectFlowDirection(getFlowDirectionQuery, searchStr);
+            if (ObjectHelper.isEmpty(siteCode)) {
+                pagerResult.toFail("该包裹未获取到流向");
+                return pagerResult;
             }
-        } catch (Exception e) {
-            pagerResult.toFail("该包裹未获取到流向");
+            searchStr = String.valueOf(siteCode);
         }
         Pager<BasicSiteVO> basicSiteVOPager = this.querySitePageByConditionFromBasicSite(convertStreamlinedBasicSiteQuery(searchStr, request.getPageNo(), request.getPageSize()));
-        logger.info("JyBasicSiteQueryManagerImpl.getFlowDirection :{}", JSONObject.toJSONString(basicSiteVOPager));
         if (basicSiteVOPager == null) {
             pagerResult.toFail("查询站点信息异常");
             return pagerResult;
         }
         if(ObjectHelper.isNotEmpty(basicSiteVOPager)){
-            com.jd.bluedragon.common.dto.base.request.Pager<BasicSiteVO> basicSiteVOPagers = new com.jd.bluedragon.common.dto.base.request.Pager<>();
             basicSiteVOPagers.setData(basicSiteVOPager.getData());
             basicSiteVOPagers.setTotal(basicSiteVOPager.getTotal());
             pagerResult.setData(basicSiteVOPagers);
@@ -176,11 +178,14 @@ public class JyBasicSiteQueryManagerImpl implements JyBasicSiteQueryManager {
      * @param getFlowDirectionQuery
      */
     private void checkGetFlowDirectionQuery(GetFlowDirectionQuery getFlowDirectionQuery) {
+        if (ObjectHelper.isEmpty(getFlowDirectionQuery)) {
+            throw new JyBizException("参数错误：请求参数为空！");
+        }
         if (CollectionUtils.isEmpty(getFlowDirectionQuery.getSupportQueryType())) {
             throw new JyBizException("参数错误：查询类型为空！");
         }
-        if (StringUtils.isEmpty(getFlowDirectionQuery.getPositionCode())) {
-            throw new JyBizException("参数错误：岗位编码为空！");
+        if (ObjectHelper.isEmpty(getFlowDirectionQuery.getCurrentOperate()) && ObjectHelper.isEmpty(getFlowDirectionQuery.getCurrentOperate().getSiteCode())) {
+            throw new JyBizException("参数错误：操作单位编号为空！");
         }
     }
 
@@ -190,21 +195,22 @@ public class JyBasicSiteQueryManagerImpl implements JyBasicSiteQueryManager {
      * @param getFlowDirectionQuery
      * @param searchStr
      */
-    private String selectFlowDirection(GetFlowDirectionQuery getFlowDirectionQuery, String searchStr) {
-        PositionDetailRecord position = jyExceptionService.getPosition(getFlowDirectionQuery.getPositionCode());
-        if (StringHelper.isNotEmpty(searchStr) && (WaybillUtil.isWaybillCode(searchStr) || WaybillUtil.isPackageCode(searchStr))) {
+    private Integer selectFlowDirection(GetFlowDirectionQuery getFlowDirectionQuery, String searchStr) {
+        if (StringHelper.isNotEmpty(searchStr) && WaybillUtil.isPackageCode(searchStr)) {
             String waybillCode = WaybillUtil.getWaybillCode(searchStr);
-            if (ObjectHelper.isNotEmpty(position)) {
-                RouteNextDto routeNextDto = routerService.matchRouterNextNode(position.getSiteCode(), waybillCode);
-                if (ObjectHelper.isNotEmpty(routeNextDto) && ObjectHelper.isNotEmpty(routeNextDto.getFirstNextSiteId())) {
-                    return String.valueOf(routeNextDto.getFirstNextSiteId());
-                }else {
-                    logger.info("JyBasicSiteQueryManagerImpl,selectFlowDirection, routeNextDto:{}",JSONObject.toJSONString(routeNextDto));
-                    throw new JyBizException("该包裹未获取到流向");
+            if (StringUtils.isNotEmpty(waybillCode)) {
+                try {
+                    RouteNextDto routeNextDto = routerService.matchRouterNextNode(getFlowDirectionQuery.getCurrentOperate().getSiteCode(), waybillCode);
+                    if (ObjectHelper.isNotEmpty(routeNextDto) && ObjectHelper.isNotEmpty(routeNextDto.getFirstNextSiteId())) {
+                        return routeNextDto.getFirstNextSiteId();
+                    }
+                }catch (Exception e) {
+                    logger.error("调用查询流向接口报错，入参：getFlowDirectionQuery:{},searchStr:{}",JSONObject.toJSONString(getFlowDirectionQuery),searchStr);
+                    throw new JyBizException("调用查询流向接口报错！");
                 }
             }
         }
-        return searchStr;
+        return null;
     }
 
     /**

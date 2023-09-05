@@ -49,14 +49,9 @@ public class GetFlowDirectionQuery extends BaseRequest implements Serializable {
         SITE_NAME(2, "场地名称"),
 
         /**
-         * 运单号
-         */
-        WAYBILL_CODE(3, "运单号"),
-
-        /**
          * 包裹号
          */
-        PACKAGE_CODE(4, "包裹号"),
+        PACKAGE_CODE(3, "包裹号"),
 
         UNKNOWN(-1, "未知"),
 

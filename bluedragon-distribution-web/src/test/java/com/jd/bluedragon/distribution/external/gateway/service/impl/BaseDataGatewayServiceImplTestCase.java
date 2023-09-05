@@ -5,13 +5,12 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.request.GetFlowDirectionQuery;
-import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 
 
+import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.external.gateway.service.BaseDataGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 
-import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

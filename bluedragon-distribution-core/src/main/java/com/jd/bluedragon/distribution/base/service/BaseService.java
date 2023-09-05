@@ -327,5 +327,4 @@ public interface BaseService{
      * @time 2023-05-04 18:41:33 周四
      */
     com.jd.dms.java.utils.sdk.base.Result <ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo);
-
 }
