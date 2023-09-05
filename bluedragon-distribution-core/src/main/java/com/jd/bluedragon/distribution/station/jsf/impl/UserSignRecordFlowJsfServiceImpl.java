@@ -399,7 +399,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		signData.setFlowTypeName(SignFlowTypeEnum.getNameByCode(signData.getFlowType()));
 		signData.setFlowStatusName(SignFlowStatusEnum.getNameByCode(signData.getFlowStatus()));
 		//身份证隐藏
-		signData.setUserCodeHidden(BusinessUtil.encryptIdCard(signData.getUserCode()));
+		signData.setUserCodeHidden(BusinessUtil.encryptIdCardDoubleStar(signData.getUserCode()));
 		signData.setUserNameHidden(BusinessUtil.encryptIdCard(signData.getUserName()));
 	}
 			
