@@ -156,6 +156,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if(waybill != null){
             dto.setPackageCount(waybill.getGoodNumber());
         }
+        if(isHKorMOWaybill(WaybillUtil.getWaybillCode(entity.getBarCode()),waybill)){
+            dto.setReverseReasonCode(Constants.INTERCEPT_REVERSE_CODE);
+        }
         dto.setReturnType(Constants.REVERSE_TYPE_REJECT_BACK);
         dto.setOperateTime(new Date());
         dto.setOperateUser(entity.getCreateStaffName());

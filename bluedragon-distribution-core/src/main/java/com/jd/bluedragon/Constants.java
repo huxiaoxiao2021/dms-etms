@@ -2032,5 +2032,12 @@ public class Constants {
      */
     public static final Integer CHANGE_WAYBILL_OPERATE_SOURCE_SORT_CENTER =2;
 
+    /**
+     *  逆向原因编码
+     *
+     * 2-拦截逆向
+     */
+    public static final Integer INTERCEPT_REVERSE_CODE = 2;
+
 
 }
