@@ -24,8 +24,6 @@ public interface JyAviationRailwaySendSealService {
 
     InvokeResult<ShuttleTaskSealCarQueryRes> fetchShuttleTaskSealCarInfo(ShuttleTaskSealCarQueryReq request);
 
-    InvokeResult<Void> shuttleTaskSealCar(ShuttleTaskSealCarReq request);
-
     InvokeResult<Void> aviationTaskSealCar(AviationTaskSealCarReq request);
 
     InvokeResult<AviationToSendAndSendingListRes> fetchAviationToSendAndSendingList(AviationSendTaskListReq request);

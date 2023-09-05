@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.*;
@@ -14,11 +13,10 @@ import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CarrierQueryWSManager;
+import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
-import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
-import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
@@ -31,10 +29,14 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.service.seal.JySeaCarlCacheService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
 import com.jd.bluedragon.distribution.jy.service.summary.JyStatisticsSummaryService;
-import com.jd.bluedragon.distribution.jy.service.task.*;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskBindService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.summary.BusinessKeyTypeEnum;
 import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryCondition;
 import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
@@ -44,21 +46,16 @@ import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.jsf.gd.util.StringUtils;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.util.SiteSignTool;
 import com.jd.ql.dms.common.constants.CodeConstants;
-import com.jd.tms.basic.dto.CommonDto;
-import com.jd.tms.basic.dto.TransportResourceDto;
+import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.job.SendBoxAgg;
 import com.jdl.jy.realtime.model.es.job.SendPackageEsDto;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,14 +64,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskQueryEnum.SEND_TASK_LIST;
 import static com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskQueryEnum.TASK_RECOMMEND;
-import static com.jd.bluedragon.utils.TimeUtils.yyyy_MM_dd_HH_mm_ss;
 
 /**
  * @Author zhengchengfa
@@ -96,7 +90,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
 
     @Autowired
-    private JyAviationRailwaySendSealCacheService jyAviationRailwaySendSealCacheService;
+    private JySeaCarlCacheService jySeaCarlCacheService;
     @Autowired
     private JyBizTaskSendAviationPlanService jyBizTaskSendAviationPlanService;
     @Autowired
@@ -124,25 +118,26 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     private JyStatisticsSummaryService statisticsSummaryService;
     @Autowired
     private JySendSealCodeService jySendSealCodeService;
-
     @Autowired
     private IJySendVehicleJsfManager sendVehicleJsfManager;
-
     @Autowired
     private SortingService sortingService;
     @Autowired
     private UccPropertyConfiguration uccConfig;
-
     @Autowired
     private JySealVehicleService jySealVehicleService;
-    
+    @Autowired
+    private JdiQueryWSManager jdiQueryWSManager;
+
+
+
     @Override
     public InvokeResult<Void> sendTaskBinding(SendTaskBindReq request) {
         final String methodDesc = "JyAviationRailwaySendSealServiceImpl:sendTaskBinding:任务绑定：";
         InvokeResult<Void> res = new InvokeResult<>();
         res.success();
         //并发锁（和封车同一把锁，避免封车期间绑定并发问题）
-        if(!jyAviationRailwaySendSealCacheService.lockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.VEHICLE.getCode())) {
+        if(!jySeaCarlCacheService.lockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.VEHICLE.getCode())) {
             res.error("多人操作中，请稍后重试");
             return res;
         }
@@ -204,7 +199,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             return res;
         }finally {
             //释放锁
-            jyAviationRailwaySendSealCacheService.unlockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.VEHICLE.getCode());
+            jySeaCarlCacheService.unlockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.VEHICLE.getCode());
         }
     }
 
@@ -235,7 +230,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         InvokeResult<Void> res = new InvokeResult<>();
         res.success();
         //并发锁（和封车同一把锁，避免封车期间并发问题）
-        if(!jyAviationRailwaySendSealCacheService.lockSendTaskSeal(request.getDetailBizId(), SendTaskTypeEnum.VEHICLE.getCode())) {
+        if(!jySeaCarlCacheService.lockSendTaskSeal(request.getDetailBizId(), SendTaskTypeEnum.VEHICLE.getCode())) {
             res.error("多人操作中，请稍后重试");
             return res;
         }
@@ -274,7 +269,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             return res;
         }finally {
             //释放锁
-            jyAviationRailwaySendSealCacheService.unlockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.VEHICLE.getCode());
+            jySeaCarlCacheService.unlockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.VEHICLE.getCode());
         }
     }
 
@@ -412,16 +407,11 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         return res;
     }
 
-    @Override
-    public InvokeResult<Void> shuttleTaskSealCar(ShuttleTaskSealCarReq request) {
-        //todo zcf
-        return null;
-    }
 
     @Override
     public InvokeResult<Void> aviationTaskSealCar(AviationTaskSealCarReq request) {
         InvokeResult<Void> res = new InvokeResult<>();
-        if(!jyAviationRailwaySendSealCacheService.lockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.AVIATION.getCode())) {
+        if(!jySeaCarlCacheService.lockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.AVIATION.getCode())) {
             res.error("多人操作中，请稍后重试");
             return res;
         }
@@ -456,7 +446,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             log.error("航空任务发货提交封车异常：request={},errMsg={}", JsonHelper.toJson(request), e.getMessage(), e);
             throw new JyBizException("航空任务发货提交封车异常");
         }finally {
-            jyAviationRailwaySendSealCacheService.unlockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.AVIATION.getCode());
+            jySeaCarlCacheService.unlockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.AVIATION.getCode());
         }
     }
 
@@ -779,7 +769,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                     ShuttleSendTaskDto taskDto = new ShuttleSendTaskDto();
                     taskDto.setBizId(sendTask.getSendVehicleBizId());
                     taskDto.setDetailBizId(sendTask.getBizId());
-                    taskDto.setVehicleNumber(sendTask.getVehicleNumber());
+                    String vehicleNumber = this.getVehicleNumber(sendTask.getTransWorkCode());
+                    taskDto.setVehicleNumber(StringUtils.isBlank(vehicleNumber) ? "未知车牌号" : vehicleNumber);
                     taskDto.setNextSiteId(sendTask.getEndSiteId());
                     taskDto.setNextSiteName(sendTask.getEndSiteName());
                     taskDto.setTaskNum(0);
@@ -818,6 +809,17 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             resData.setTaskStatusStatisticsList(statusAggList);
         }
         return res;
+    }
+
+    private String getVehicleNumber(String transWorkCode){
+        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(transWorkCode);
+        if(!Objects.isNull(transWorkBillDto) && StringUtils.isNotBlank(transWorkBillDto.getVehicleNumber())) {
+            return transWorkBillDto.getVehicleNumber();
+        }
+        if(log.isInfoEnabled()) {
+            log.info("根据派车任务编码【{}】获取车牌号为空,运输返回={}", transWorkCode, JsonHelper.toJson(transWorkBillDto));
+        }
+        return StringUtils.EMPTY;
     }
 
     private JyBizTaskSendVehicleDetailQueryEntity generateShuttleTask(ShuttleSendTaskReq request, List<String> bizIdList) {

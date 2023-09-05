@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.service.send;
+package com.jd.bluedragon.distribution.jy.service.seal;
 
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -17,9 +17,9 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Service
-public class JyAviationRailwaySendSealCacheService {
+public class JySeaCarlCacheService {
 
-    private static final Logger log = LoggerFactory.getLogger(JyAviationRailwaySendSealCacheService.class);
+    private static final Logger log = LoggerFactory.getLogger(JySeaCarlCacheService.class);
 
     public static final String DEFAULT_VALUE_1 = "1";
 
@@ -49,7 +49,7 @@ public class JyAviationRailwaySendSealCacheService {
             String lockKey = this.getLockKeyShuttleTaskSealCarBizId(bizId, taskType);
             return jimDbLock.lock(lockKey,
                     DEFAULT_VALUE_1,
-                    JyAviationRailwaySendSealCacheService.LOCK_SEND_TASK_SEAL_TIMEOUT_SECONDS,
+                    JySeaCarlCacheService.LOCK_SEND_TASK_SEAL_TIMEOUT_SECONDS,
                     TimeUnit.SECONDS);
         }catch (Exception e) {
             log.error("lockTaskBindBizId:任务绑定加锁失败:bizId={},errMsg={}", bizId, e.getMessage(), e);
@@ -61,7 +61,7 @@ public class JyAviationRailwaySendSealCacheService {
         jimDbLock.releaseLock(lockKey, DEFAULT_VALUE_1);
     }
     private String getLockKeyShuttleTaskSealCarBizId(String bizId, Integer taskType) {
-        return String.format(JyAviationRailwaySendSealCacheService.LOCK_SEND_TASK_SEAL, bizId, taskType);
+        return String.format(JySeaCarlCacheService.LOCK_SEND_TASK_SEAL, bizId, taskType);
     }
 
 

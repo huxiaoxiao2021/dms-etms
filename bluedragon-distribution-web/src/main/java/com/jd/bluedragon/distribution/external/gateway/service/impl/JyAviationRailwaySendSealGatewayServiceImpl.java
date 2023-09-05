@@ -4,15 +4,18 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.ShuttleQuerySourceEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
+import com.jd.bluedragon.common.dto.seal.request.ShuttleTaskSealCarReq;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyAviationRailwaySendSealServiceImpl;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -44,12 +47,10 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
 
     private static final Logger log = LoggerFactory.getLogger(JyAviationRailwaySendSealGatewayServiceImpl.class);
 
-
-
-
     @Autowired
     private JyAviationRailwaySendSealServiceImpl jyAviationRailwaySendSealService;
-
+    @Autowired
+    private JySealVehicleService jySealVehicleService;
     @Autowired
     private BaseParamValidateService baseParamValidateService;
 
@@ -456,11 +457,25 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
-            //服务调用
-            if(log.isInfoEnabled()) {
-                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            //业务参数校验
+            if(StringUtils.isBlank(request.getBizId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务bizId为空", null);
             }
-            return retJdCResponse(jyAviationRailwaySendSealService.shuttleTaskSealCar(request));
+            if(StringUtils.isBlank(request.getDetailBizId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "摆渡任务detailBizId为空", null);
+            }
+            if(StringUtils.isBlank(request.getTransportCode())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "运力编码不能为空", null);
+            }
+            if(!NumberHelper.gt0(request.getVolume())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "体积不合法", null);
+            }
+            if(!NumberHelper.gt0(request.getPalletCount())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "托盘数不合法", null);
+            }
+            //服务调用
+            request.setSealCarType(SealCarTypeEnum.SEAL_BY_TRANSPORT_CAPABILITY.getType());
+            return retJdCResponse(jySealVehicleService.shuttleTaskSealCar(request));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常

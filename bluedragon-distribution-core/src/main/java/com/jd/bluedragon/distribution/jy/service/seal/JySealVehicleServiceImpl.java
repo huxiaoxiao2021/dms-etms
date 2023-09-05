@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.AviationTaskSealCarReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
@@ -30,6 +30,7 @@ import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
+import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
@@ -38,14 +39,13 @@ import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.send.*;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskBindService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.summary.BusinessKeyTypeEnum;
 import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 import com.jd.bluedragon.distribution.jy.summary.SummarySourceEnum;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
@@ -81,6 +81,7 @@ import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
@@ -155,6 +156,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Autowired
     @Qualifier("jySendVehicleServiceTys")
     private IJySendVehicleService jySendVehicleServiceTys;
+    @Autowired
+    private JySeaCarlCacheService jySeaCarlCacheService;
+    @Autowired
+    private JyBizTaskBindService jyBizTaskBindService;
+
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -362,25 +368,33 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     private void saveSealSendCode(List<String> batchCodes, SealVehicleReq sealVehicleReq) {
+        this.saveSealSendCode(batchCodes,
+                sealVehicleReq.getSendVehicleBizId(),
+                sealVehicleReq.getSendVehicleDetailBizId(),
+                sealVehicleReq.getUser().getUserErp(),
+                sealVehicleReq.getUser().getUserName());
+    }
+
+    private void saveSealSendCode(List<String> batchCodes, String bizId, String detailBizId, String userErp, String userName) {
         try {
             Date now =new Date();
             List<JySendCodeEntity> jySendCodeEntityList =new ArrayList<>();
             for (String batchCode :batchCodes){
                 JySendCodeEntity entity =new JySendCodeEntity();
                 entity.setSendCode(batchCode);
-                entity.setSendVehicleBizId(sealVehicleReq.getSendVehicleBizId());
-                entity.setSendDetailBizId(sealVehicleReq.getSendVehicleDetailBizId());
+                entity.setSendVehicleBizId(bizId);
+                entity.setSendDetailBizId(detailBizId);
                 entity.setCreateTime(now);
                 entity.setUpdateTime(now);
-                entity.setCreateUserErp(sealVehicleReq.getUser().getUserErp());
-                entity.setCreateUserName(sealVehicleReq.getUser().getUserName());
-                entity.setUpdateUserErp(sealVehicleReq.getUser().getUserErp());
-                entity.setUpdateUserName(sealVehicleReq.getUser().getUserName());
+                entity.setCreateUserErp(userErp);
+                entity.setCreateUserName(userName);
+                entity.setUpdateUserErp(userErp);
+                entity.setUpdateUserName(userName);
                 jySendCodeEntityList.add(entity);
             }
             jyVehicleSendRelationService.saveSealSendCode(jySendCodeEntityList);
         } catch (Exception e) {
-            log.error("传站封车存储批次号异常",e);
+            log.error("传站摆渡封车存储批次号异常",e);
         }
 
     }
@@ -390,14 +404,23 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     public InvokeResult<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq) {
     	return jyAppDataSealService.savePageData(sealVehicleReq);
     }
-    private void updateTaskStatus(SealVehicleReq sealVehicleReq, SealCarDto sealCarDto) {
-        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(sealVehicleReq.getSendVehicleDetailBizId());
-        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(sealVehicleReq.getSendVehicleBizId());
-        taskSend.setUpdateTime(new Date());
-        taskSend.setUpdateUserErp(sealVehicleReq.getUser().getUserErp());
-        taskSend.setUpdateUserName(sealVehicleReq.getUser().getUserName());
 
-        taskSendDetail.setSealCarTime(DateHelper.parseDate(sealCarDto.getSealCarTime(), Constants.DATE_TIME_FORMAT));
+    private void updateTaskStatus(SealVehicleReq sealVehicleReq, SealCarDto sealCarDto) {
+        this.updateTaskStatus(sealVehicleReq.getSendVehicleBizId(),
+                sealVehicleReq.getSendVehicleDetailBizId(),
+                sealVehicleReq.getUser().getUserErp(),
+                sealVehicleReq.getUser().getUserName(),
+                sealCarDto.getSealCarTime());
+    }
+
+    private void updateTaskStatus(String bizId, String detailBizId, String userErp, String userName, String sealCarTime) {
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(detailBizId);
+        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(bizId);
+        taskSend.setUpdateTime(new Date());
+        taskSend.setUpdateUserErp(userErp);
+        taskSend.setUpdateUserName(userName);
+
+        taskSendDetail.setSealCarTime(DateHelper.parseDate(sealCarTime, Constants.DATE_TIME_FORMAT));
         taskSendDetail.setUpdateTime(taskSend.getUpdateTime());
         taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
         taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
@@ -459,8 +482,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         sealCarDto.setSealSiteName(sealVehicleReq.getCurrentOperate().getSiteName());
         sealCarDto.setSealUserCode(sealVehicleReq.getUser().getUserErp());
         sealCarDto.setSealUserName(sealVehicleReq.getUser().getUserName());
-        //转换体积单位 立方厘米转换为立方米
-        sealCarDto.setVolume(NumberHelper.cm3ToM3(sealVehicleReq.getVolume()));
+        if(!Objects.isNull(sealVehicleReq.getFuncType()) && JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(sealVehicleReq.getFuncType())) {
+            sealCarDto.setVolume(sealVehicleReq.getVolume());
+        }else {
+            //转换体积单位 立方厘米转换为立方米
+            sealCarDto.setVolume(NumberHelper.cm3ToM3(sealVehicleReq.getVolume()));
+        }
         return sealCarDto;
     }
 
@@ -1039,4 +1066,199 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
 
+    @Override
+    public InvokeResult<Void> shuttleTaskSealCar(ShuttleTaskSealCarReq request) {
+        final String methodDesc = "JySealVehicleServiceImpl:shuttleTaskSealCar:摆渡任务封车：";
+        InvokeResult<Void> res = new InvokeResult<>();
+        res.success();
+        if(!jySeaCarlCacheService.lockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.VEHICLE.getCode())) {
+            res.error("多人操作中，请稍后重试");
+            return res;
+        }
+        try{
+            if(log.isInfoEnabled()) {
+                log.info("{}request={}", methodDesc, JsonHelper.toJson(request));
+            }
+            //封车任务校验
+            if(!this.sealCarShuttleTaskCheck(request, res)) {
+                return res;
+            }
+            //封车批次汇总
+            List<String> sealAllBatchCodes = this.getSealBatchCodes(request);
+            if(CollectionUtils.isEmpty(sealAllBatchCodes)) {
+                res.error("封车批次为空");
+                return res;
+            }
+            //封签码汇总
+            List<String> allSealCodes = this.getAllSealCodes(request);
+
+            SealCarDto sealCarDto = this.convertSealCarDto(request, sealAllBatchCodes, allSealCodes);
+            //封车执行
+            List<SealCarDto> sealCarDtoList = Arrays.asList(sealCarDto);
+            Map<String, String> emptyBatchCode = new HashMap<>();
+            NewSealVehicleResponse sealResp = newSealVehicleService.doSealCarWithVehicleJob(sealCarDtoList,emptyBatchCode);
+
+            if (!Objects.isNull(sealResp) && JdResponse.CODE_OK.equals(sealResp.getCode())) {
+                //封签码暂存
+                if(org.apache.commons.collections.CollectionUtils.isNotEmpty(request.getScanSealCodes())){
+                    List<JySendSealCodeEntity> entityList = this.generateSendSealCodeList(request);
+                    jySendSealCodeService.addBatch(entityList);
+                }
+                //发车任务状态修改
+                this.updateTaskStatus(request.getBizId(), request.getDetailBizId(), request.getUser().getUserErp(), request.getUser().getUserName(), sealCarDto.getSealCarTime());
+                //任务明细绑定批次号重置
+                if (ObjectHelper.isNotNull(sealResp.getData())){
+                    List<SealCarDto> successSealCarList =(List<SealCarDto>)sealResp.getData();
+                    this.saveSealSendCode(successSealCarList.get(0).getBatchCodes(), request.getBizId(), request.getDetailBizId(), request.getUser().getUserErp(), request.getUser().getUserName());
+                }
+                return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+            }
+            res.setCode(sealResp.getCode());
+            res.setMessage(sealResp.getMessage());
+            return res;
+        }catch (Exception e) {
+            log.error("{}摆渡封车服务异常，request={],errMsg={}", methodDesc, JsonHelper.toJson(request), e.getMessage(), e);
+            res.error("摆渡封车服务异常");
+            return res;
+        }finally {
+            //释放锁
+            jySeaCarlCacheService.unlockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.VEHICLE.getCode());
+        }
+    }
+    //摆渡封车-前置任务校验
+    private boolean sealCarShuttleTaskCheck(ShuttleTaskSealCarReq request, InvokeResult<Void> res) {
+        if(Objects.isNull(request) || Objects.isNull(res)) {
+            return true;
+        }
+        res.success();
+        //校验被绑摆渡任务是否封车，已封车禁绑
+        JyBizTaskSendVehicleDetailEntity sendTaskDetailInfo = jyBizTaskSendVehicleDetailService.findByBizId(request.getDetailBizId());
+        if(Objects.isNull(sendTaskDetailInfo)) {
+            res.error("未找到派车任务.bizId:" + request.getBizId());
+            return false;
+        }
+        if(JyBizTaskSendStatusEnum.SEALED.getCode().equals(sendTaskDetailInfo.getVehicleStatus())) {
+            res.error("该流向已封车不支持绑定");
+            return false;
+        }
+        if(JyBizTaskSendStatusEnum.CANCEL.getCode().equals(sendTaskDetailInfo.getVehicleStatus())) {
+            res.error("已作废不支持绑定");
+            return false;
+        }
+        if(com.jd.jsf.gd.util.StringUtils.isBlank(request.getVehicleNumber())) {
+            JyBizTaskSendVehicleEntity sendTaskInfo = jyBizTaskSendVehicleService.findByBizId(request.getBizId());
+            if(Objects.isNull(sendTaskInfo) || com.jd.jsf.gd.util.StringUtils.isEmpty(sendTaskInfo.getTransWorkCode())) {
+                res.error("没有找到该任务派车信息");
+                return false;
+            }
+            String vehicleNumber = this.getVehicleNumber(sendTaskInfo.getTransWorkCode());
+            if(com.jd.jsf.gd.util.StringUtils.isNotBlank(vehicleNumber)) {
+                request.setVehicleNumber(vehicleNumber);
+            }
+        }
+        return true;
+    }
+    /**
+     * TW号获取派车任务车牌号
+     */
+    private String getVehicleNumber(String transWorkCode){
+        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(transWorkCode);
+        if(!Objects.isNull(transWorkBillDto) && com.jd.jsf.gd.util.StringUtils.isNotBlank(transWorkBillDto.getVehicleNumber())) {
+            return transWorkBillDto.getVehicleNumber();
+        }
+        if(log.isInfoEnabled()) {
+            log.info("根据派车任务编码【{}】获取车牌号为空,运输返回={}", transWorkCode, JsonHelper.toJson(transWorkBillDto));
+        }
+        return StringUtils.EMPTY;
+    }
+    //摆渡封车-批次号获取
+    private List<String> getSealBatchCodes(ShuttleTaskSealCarReq request) {
+        List<String> res = new ArrayList<>();
+        //PDA扫描的批次号
+        if(org.apache.commons.collections.CollectionUtils.isNotEmpty(request.getScanBatchCodes())) {
+            res.addAll(request.getScanBatchCodes());
+        }
+        if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(request.getPost())) {
+            //空铁-任务绑定的批次号
+            List<String> bindBatchCodes = this.queryBindTaskBatchCodes(request.getBizId(), request.getDetailBizId(), request.getCurrentOperate().getSiteCode());
+            if(org.apache.commons.collections.CollectionUtils.isNotEmpty(bindBatchCodes)) {
+                res.addAll(bindBatchCodes);
+            }
+        }
+        //同批次可以封多次摆渡，不做批次封车校验
+
+        return res;
+    }
+    //摆渡封车-绑定航空任务批次号获取
+    private List<String> queryBindTaskBatchCodes(String bizId, String detailBizId, int siteCode) {
+        JyBizTaskBindEntityQueryCondition condition = new JyBizTaskBindEntityQueryCondition();
+        condition.setBizId(bizId);
+        condition.setDetailBizId(detailBizId);
+        condition.setOperateSiteCode(siteCode);
+        condition.setType(TaskBindTypeEnum.BIND_TYPE_AVIATION.getCode());
+        List<JyBizTaskBindEntity> bindEntityList = jyBizTaskBindService.queryBindTaskList(condition);
+        if(org.apache.commons.collections.CollectionUtils.isEmpty(bindEntityList)) {
+            return null;
+        }
+        List<String> bindDetailBizId = bindEntityList.stream().map(JyBizTaskBindEntity::getBindDetailBizId).collect(Collectors.toList());
+        return jyVehicleSendRelationService.findSendCodesByDetailBizIds(bindDetailBizId);
+    }
+    //摆渡封车-封签码获取
+    private List<String> getAllSealCodes(ShuttleTaskSealCarReq request) {
+        HashSet<String> allSealCodes = new HashSet();
+        if(org.apache.commons.collections.CollectionUtils.isNotEmpty(request.getScanSealCodes())) {
+            allSealCodes.addAll(request.getScanSealCodes());
+        }
+        //车上已经封了的封签号
+        List<String> sealCodes = jySendSealCodeService.selectSealCodeByBizId(request.getBizId());
+        if(org.apache.commons.collections.CollectionUtils.isNotEmpty(sealCodes)) {
+            allSealCodes.addAll(sealCodes);
+        }
+        return allSealCodes.stream().collect(Collectors.toList());
+    }
+    //摆渡封车-封车实体转换
+    private SealCarDto convertSealCarDto(ShuttleTaskSealCarReq request, List<String> batchCodes, List<String> sealCodes) {
+        SealCarDto sealCarDto = BeanUtils.copy(request, SealCarDto.class);
+        sealCarDto.setSealCarTime(TimeUtils.date2string(new Date(), yyyy_MM_dd_HH_mm_ss));
+        sealCarDto.setSealSiteId(request.getCurrentOperate().getSiteCode());
+        sealCarDto.setSealSiteName(request.getCurrentOperate().getSiteName());
+        sealCarDto.setSealUserCode(request.getUser().getUserErp());
+        sealCarDto.setSealUserName(request.getUser().getUserName());
+        sealCarDto.setBatchCodes(batchCodes);
+        sealCarDto.setSealCodes(sealCodes);
+        return sealCarDto;
+    }
+    //摆渡封车-批次号处理
+    private List<JySendSealCodeEntity> generateSendSealCodeList(ShuttleTaskSealCarReq sealCarReq) {
+        List<JySendSealCodeEntity> entityList = new ArrayList<>();
+        Date now = new Date();
+        for (String sealCode : sealCarReq.getScanSealCodes()) {
+            JySendSealCodeEntity jySendSealCodeEntity = new JySendSealCodeEntity();
+            jySendSealCodeEntity.setSealCode(sealCode);
+            jySendSealCodeEntity.setSendVehicleBizId(sealCarReq.getBizId());
+            jySendSealCodeEntity.setOperateSiteId(Long.valueOf(sealCarReq.getCurrentOperate().getSiteCode()));
+            jySendSealCodeEntity.setOperateTime(now);
+            jySendSealCodeEntity.setCreateTime(now);
+            jySendSealCodeEntity.setUpdateTime(now);
+            jySendSealCodeEntity.setCreateUserErp(sealCarReq.getUser().getUserErp());
+            jySendSealCodeEntity.setCreateUserName(sealCarReq.getUser().getUserName());
+            entityList.add(jySendSealCodeEntity);
+        }
+        //航空摆渡发车关注流向维度数据  todo zcf 批次号模型怎么兼容
+        if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(sealCarReq.getPost())) {
+            for (String sealCode : sealCarReq.getScanSealCodes()) {
+                JySendSealCodeEntity jySendSealCodeEntity = new JySendSealCodeEntity();
+                jySendSealCodeEntity.setSealCode(sealCode);
+                jySendSealCodeEntity.setSendVehicleBizId(sealCarReq.getDetailBizId());
+                jySendSealCodeEntity.setOperateSiteId(Long.valueOf(sealCarReq.getCurrentOperate().getSiteCode()));
+                jySendSealCodeEntity.setOperateTime(now);
+                jySendSealCodeEntity.setCreateTime(now);
+                jySendSealCodeEntity.setUpdateTime(now);
+                jySendSealCodeEntity.setCreateUserErp(sealCarReq.getUser().getUserErp());
+                jySendSealCodeEntity.setCreateUserName(sealCarReq.getUser().getUserName());
+                entityList.add(jySendSealCodeEntity);
+            }
+        }
+        return entityList;
+    }
 }

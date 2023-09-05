@@ -18,7 +18,7 @@ public class AviationTaskSealCarReq extends BaseReq implements Serializable {
     private String bookingCode;
     //kg
     private Double weight;
-    //立方厘米
+    //立方米
     private Double volume;
     //件数
     private Integer itemNum;

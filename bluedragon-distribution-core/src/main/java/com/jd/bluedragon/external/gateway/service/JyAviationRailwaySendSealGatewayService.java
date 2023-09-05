@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
+import com.jd.bluedragon.common.dto.seal.request.ShuttleTaskSealCarReq;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 
 import java.util.List;
@@ -115,7 +116,6 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 摆渡任务封车
-     * todo zcf
      * @param request
      * @return
      */
