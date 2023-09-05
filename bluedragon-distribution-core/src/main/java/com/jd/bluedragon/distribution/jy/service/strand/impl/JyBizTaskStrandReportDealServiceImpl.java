@@ -536,6 +536,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
                 throw new JyBizException("扫描条码所属容器的流向和任务流向不一致!");
             }
         } catch (Exception e) {
+            logger.error("queryBatchInnerScanCount error:",e);
             throw new JyBizException("扫描条码所属容器的流向和任务流向不一致!");
         }
         //获取批次号下的（包裹，运单，箱,板）数量

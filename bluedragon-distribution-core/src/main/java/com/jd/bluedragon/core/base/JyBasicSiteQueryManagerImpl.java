@@ -153,11 +153,9 @@ public class JyBasicSiteQueryManagerImpl implements JyBasicSiteQueryManager {
         //根据岗位编码获取当前的场地编码
         if (getFlowDirectionQuery.getSupportQueryType().contains(GetFlowDirectionQuery.SupportQueryTypeEnum.PACKAGE_CODE.getCode())) {
             Integer siteCode = selectFlowDirection(getFlowDirectionQuery, searchStr);
-            if (ObjectHelper.isEmpty(siteCode)) {
-                pagerResult.toFail("该包裹未获取到流向");
-                return pagerResult;
+            if (ObjectHelper.isNotEmpty(siteCode)) {
+                searchStr = String.valueOf(siteCode);
             }
-            searchStr = String.valueOf(siteCode);
         }
         Pager<BasicSiteVO> basicSiteVOPager = this.querySitePageByConditionFromBasicSite(convertStreamlinedBasicSiteQuery(searchStr, request.getPageNo(), request.getPageSize()));
         if (basicSiteVOPager == null) {
