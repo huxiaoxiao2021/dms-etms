@@ -1962,7 +1962,9 @@ public class BusinessUtil {
             return false;
         }
         return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
-                (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15);
+                (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15) ||
+                (materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 14) ||
+                (materialCode.toUpperCase().startsWith(COLLECTION_LL_PREFIX) && materialCode.length() == 15);
     }
 
     /**
