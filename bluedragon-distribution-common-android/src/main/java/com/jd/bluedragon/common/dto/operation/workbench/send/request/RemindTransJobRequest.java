@@ -16,6 +16,11 @@ public class RemindTransJobRequest implements Serializable {
     private String transJobCode;
 
     /**
+     * 运力资源编码
+     */
+    private String transportCode;
+
+    /**
      * 用户erp
      */
     private String userErp;
@@ -24,4 +29,44 @@ public class RemindTransJobRequest implements Serializable {
      * 用户姓名
      */
     private String userName;
+
+    public Integer getSourceSiteCode() {
+        return sourceSiteCode;
+    }
+
+    public void setSourceSiteCode(Integer sourceSiteCode) {
+        this.sourceSiteCode = sourceSiteCode;
+    }
+
+    public String getTransJobCode() {
+        return transJobCode;
+    }
+
+    public void setTransJobCode(String transJobCode) {
+        this.transJobCode = transJobCode;
+    }
+
+    public String getTransportCode() {
+        return transportCode;
+    }
+
+    public void setTransportCode(String transportCode) {
+        this.transportCode = transportCode;
+    }
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }

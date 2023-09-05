@@ -301,4 +301,6 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<Pager<WaitingVehicleDistribution>> fetchWaitingVehicleDistributionList(WaitingVehicleDistributionRequest request);
+
+    InvokeResult<String> remindTransJob(RemindTransJobRequest request);
 }

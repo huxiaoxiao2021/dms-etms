@@ -253,5 +253,8 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
         return ResultConverter.convertResultToJdcResponse(jySendVehicleService.getSpecialProductTypeToScanList(request));
     }
 
-
+    @Override
+    public JdCResponse<String> remindTransJob(RemindTransJobRequest request) {
+        return retJdCResponse(jySendVehicleService.remindTransJob(request));
+    }
 }

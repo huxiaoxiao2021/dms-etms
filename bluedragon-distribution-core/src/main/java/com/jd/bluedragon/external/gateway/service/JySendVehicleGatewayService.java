@@ -196,4 +196,8 @@ public interface JySendVehicleGatewayService {
      */
     JdCResponse<SendVehicleToScanTipsDto> getSpecialProductTypeToScanList(SendVehicleToScanTipsRequest request);
 
+    /**
+     * 运输催派
+     */
+    JdCResponse<String> remindTransJob(RemindTransJobRequest request);
 }

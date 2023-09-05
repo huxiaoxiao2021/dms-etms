@@ -11,6 +11,11 @@ public class WaitingVehicleDistribution extends BaseSendVehicle{
     private String transJobCode;
 
     /**
+     * 运力资源编码
+     */
+    private String transportCode;
+
+    /**
      * 预计派车时间
      */
     private Date planDispatchVehicleTime;
@@ -55,5 +60,13 @@ public class WaitingVehicleDistribution extends BaseSendVehicle{
 
     public void setDestSiteName(String destSiteName) {
         this.destSiteName = destSiteName;
+    }
+
+    public String getTransportCode() {
+        return transportCode;
+    }
+
+    public void setTransportCode(String transportCode) {
+        this.transportCode = transportCode;
     }
 }

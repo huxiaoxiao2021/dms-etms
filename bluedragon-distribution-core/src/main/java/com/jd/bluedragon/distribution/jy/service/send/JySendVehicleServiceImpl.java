@@ -4666,4 +4666,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
         return true;
     }
+
+    @Override
+    public InvokeResult<String> remindTransJob(RemindTransJobRequest request) {
+        return null;
+    }
 }
