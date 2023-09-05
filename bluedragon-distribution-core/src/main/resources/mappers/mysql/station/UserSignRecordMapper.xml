@@ -144,6 +144,7 @@
 		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="id_card" property="idCard" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
 
 
