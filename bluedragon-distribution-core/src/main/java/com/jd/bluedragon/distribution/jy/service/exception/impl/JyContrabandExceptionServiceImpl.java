@@ -186,11 +186,6 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                 sendContrabandSecurityCheckWaybillBDTrance(dto);
             }
             //第一条全程跟踪和第二条全程跟踪间隔五秒
-            try {
-                TimeUnit.SECONDS.sleep(5);
-            } catch (InterruptedException e) {
-                logger.error("TimeUnit.SECONDS.sleep exception");
-            }
             boolean sendMQFlag = false;
             switch (enumResult){
                case DETAIN_PACKAGE://扣件
@@ -333,8 +328,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         traceDto.setOperatorUserName(dto.getCreateStaffName());
         traceDto.setOperatorTime(new Date());
         traceDto.setWaybillTraceType(Constants.WAYBILL_TRACE_TYPE);
-        //Map<String, Object> extendParameter = new HashMap<>();
-        //extendParameter.put("traceDisplay",1);
+
         logger.info("违禁品运单维度安检全程跟踪-{}",JSON.toJSONString(traceDto));
         waybillQueryManager.sendBdTrace(traceDto);
     }
@@ -355,7 +349,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         parameter.setOperatorCode(waybillCode);
         parameter.setOperatorId(dto.getCreateUserId());
         parameter.setOperatorName(dto.getCreateStaffName());
-        parameter.setOperateTime(new Date());
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.SECOND,5);
+        Date time = calendar.getTime();
+        parameter.setOperateTime(time);
         parameter.setZdId(dto.getSiteCode());
         parameter.setZdType(Constants.DMS_SITE_TYPE);
         parameter.setZdName(dto.getSiteName());
@@ -390,8 +387,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         traceDto.setOperatorSiteId(dto.getSiteCode());
         traceDto.setOperatorSiteName(dto.getSiteName());
         traceDto.setOperatorUserName(dto.getCreateStaffName());
-
-        traceDto.setOperatorTime(new Date());
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.SECOND,5);
+        Date time = calendar.getTime();
+        traceDto.setOperatorTime(time);
         traceDto.setWaybillTraceType(3);
         logger.info("违禁品包裹维度退回全程跟踪-{}",JSON.toJSONString(traceDto));
         waybillQueryManager.sendBdTrace(traceDto);
