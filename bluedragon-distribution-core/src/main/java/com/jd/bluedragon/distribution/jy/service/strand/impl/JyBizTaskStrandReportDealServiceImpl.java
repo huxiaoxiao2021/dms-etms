@@ -528,7 +528,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
     private ImmutablePair<String, Integer> queryBatchInnerScanCount(JyStrandReportScanReq scanRequest, Integer nextSiteCode) {
         String sendCode = null;
         //获取批次号
-        sendCode = getScanSendCOde(scanRequest);
+        sendCode = getScanSendCode(scanRequest);
         //校验批次号
         try {
             Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
@@ -548,7 +548,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
      * @param scanRequest
      * @return
      */
-    private String getScanSendCOde(JyStrandReportScanReq scanRequest) {
+    private String getScanSendCode(JyStrandReportScanReq scanRequest) {
         SendDetail sendDetail = new SendDetail();
         sendDetail.setCreateSiteCode(scanRequest.getCurrentOperate().getSiteCode());
         if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode()) || BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
