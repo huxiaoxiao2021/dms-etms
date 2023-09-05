@@ -189,6 +189,12 @@ public class WorkGridManagerReportVo  implements Serializable {
 	 * 数据库时间
 	 */
 	private Date ts;
+
+	/**
+	 * @See com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum
+	 * 是否符合,0-未选择,1-符合 2-不符合
+	 */
+	private Integer isMatch;
 	public Long getId() {
 		return id;
 	}
@@ -412,4 +418,11 @@ public class WorkGridManagerReportVo  implements Serializable {
 		this.ts = ts;
 	}
 
+	public Integer getIsMatch() {
+		return isMatch;
+	}
+
+	public void setIsMatch(Integer isMatch) {
+		this.isMatch = isMatch;
+	}
 }

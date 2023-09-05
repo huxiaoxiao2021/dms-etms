@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
+import com.jd.bluedragon.utils.*;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,11 +60,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.NoticeUtils;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ump.annotation.JProEnum;
@@ -249,13 +246,42 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				}
 			}
 		}
-		
+		//巡检任务表增加是否匹配字段  0-未选择,1-符合 2-不符合
+		extracted(taskData, updateTaskData);
+
 		jyWorkGridManagerCaseService.batchInsert(addCase);
 		jyWorkGridManagerCaseService.batchUpdate(updateCase);
 		jyWorkGridManagerCaseItemService.batchInsert(addCaseItem);
 		jyAttachmentDetailService.batchInsert(addAttachmentList);
 		jyBizTaskWorkGridManagerService.finishTask(updateTaskData);
 		return result;
+	}
+
+	/**
+	 * 巡检任务表增加是否匹配字段
+	 * TaskType=3时 0-未选择,1-符合 2-不符合    TaskType=1或者2时  1-符合
+	 *
+	 * @param taskData
+	 * @param updateTaskData
+	 */
+	private void extracted(JyWorkGridManagerData taskData, JyBizTaskWorkGridManager updateTaskData) {
+		if (taskData.getTaskType().equals(BaseContants.NUMBER_THREE)) {
+			for (JyWorkGridManagerCaseData caseData : taskData.getCaseList()) {
+				if (WorkCheckResultEnum.UNDO.getCode().equals(caseData.getCheckResult())) {
+					updateTaskData.setIsMatch(WorkCheckResultEnum.UNDO.getCode());
+				}
+				if (WorkCheckResultEnum.UNPASS.getCode().equals(caseData.getCheckResult())) {
+					updateTaskData.setIsMatch(WorkCheckResultEnum.UNPASS.getCode());
+					break;
+				}
+				if (WorkCheckResultEnum.PASS.getCode().equals(caseData.getCheckResult())) {
+					updateTaskData.setIsMatch(WorkCheckResultEnum.PASS.getCode());
+				}
+			}
+		}
+		if (taskData.getTaskType().equals(BaseContants.NUMBER_ONE) || taskData.getTaskType().equals(BaseContants.NUMBER_TWO)) {
+			updateTaskData.setIsMatch(WorkCheckResultEnum.PASS.getCode());
+		}
 	}
 
 	private JyWorkGridManagerCase toJyWorkGridManagerCaseForUpdate(String userErp, Date currentTime,

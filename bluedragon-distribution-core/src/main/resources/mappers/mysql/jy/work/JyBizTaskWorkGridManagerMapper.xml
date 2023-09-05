@@ -41,6 +41,7 @@
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="is_match" property="isMatch" javaType="java.lang.Integer" jdbcType="TINYINT" />
     </resultMap>
     <resultMap id="JyBizTaskWorkGridManagerCount" type="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount" >
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
@@ -54,7 +55,7 @@
         pre_finish_time,handler_erp,handler_user_name,handler_user_position_code,handler_user_position_name,
         handler_position_code,status,process_begin_time,process_end_time,create_user,
         create_user_name,update_user,update_user_name,create_time,update_time,
-        yn,ts
+        yn,ts,is_match
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" useGeneratedKeys="true" keyProperty="id">
@@ -478,6 +479,7 @@
                  update_user = #{updateUser,jdbcType=VARCHAR},
                  update_user_name = #{updateUserName,jdbcType=VARCHAR},
                  update_time = #{updateTime,jdbcType=TIMESTAMP}
+                 is_match = #{isMatch,jdbcType=TINYINT}
         where id = #{id,jdbcType=BIGINT}
     </update>
 	<update id="deleteById" parameterType="java.lang.Long">
