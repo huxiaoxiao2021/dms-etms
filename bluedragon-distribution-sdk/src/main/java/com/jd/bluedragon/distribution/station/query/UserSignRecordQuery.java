@@ -161,11 +161,24 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	private List<String> businessKeyList;
 
 	private List<Integer> jobCodeList;
+
+	/**
+	 * 身份证号
+	 */
+	private String idCard;
 	
 	/**
 	 * 补签人姓名模糊查询
 	 */
 	private String userNameLike;
+
+	public String getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(String idCard) {
+		this.idCard = idCard;
+	}
 
 	public String getUserNameLike() {
 		return userNameLike;

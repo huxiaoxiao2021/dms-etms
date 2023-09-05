@@ -1106,10 +1106,11 @@
             and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
         </if>
         <if test="userCode != null and userCode != '' " >
-            and (r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
-				or r.id_card like concat(#{userCode,jdbcType=VARCHAR},'%')
-			)
+            and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
         </if>
+		<if test="idCard != null and idCard != '' " >
+			and or r.id_card = #{idCard,jdbcType=VARCHAR}
+		</if>
 		<if test="userNameLike != null and userNameLike != '' " >
 			and r.user_name like concat(#{userNameLike,jdbcType=VARCHAR},'%')
 		</if>
