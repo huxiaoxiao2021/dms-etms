@@ -574,6 +574,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 		funcUsageConfigRequestDto.setFuncCode(checkMenuAuthRequest.getMenuCode());
 		com.jd.bluedragon.common.dto.base.request.OperateUser operateUser = new com.jd.bluedragon.common.dto.base.request.OperateUser();
         operateUser.setSiteCode(checkMenuAuthRequest.getSiteCode());
+		operateUser.setUserCode(checkMenuAuthRequest.getUserCode());
         funcUsageConfigRequestDto.setOperateUser(operateUser);
         FuncUsageProcessDto menuUsageConfig = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
         if(menuUsageConfig != null) {
