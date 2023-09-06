@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.enums.JyBizDriverTagEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -73,6 +74,12 @@ public class TmsTransWorkDriverNodeConsumer extends MessageBaseConsumer {
         // 只能按照顺序更新 但每个节点并不会一定有 比如不一定会超时未进
         // 超时未进->扫码靠台->超时未离
         if (driverTagEnum.getTag() > entity.getDriverTag()) {
+            // 超时未离只有已封车的才会有 不是已封车状态则丢弃
+            if (driverTagEnum.getDriverNodeCode().equals(JyBizDriverTagEnum.LEAVE_TIMEOUT.getDriverNodeCode())
+                    && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getVehicleStatus())) {
+                logger.warn("超时未离节点, 发货状态不为已封车 bizId{}", entity.getBizId());
+                return;
+            }
             entity.setDriverTag(driverTagEnum.getTag());
             jyBizTaskSendVehicleService.updateSendVehicleTask(entity);
             return;

@@ -4659,8 +4659,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 waitingVehicleDistribution.setVehicleNumber(dto.getVehicleNumber());
                 waitingVehicleDistribution.setLineType(dto.getTransType());
                 waitingVehicleDistribution.setLineTypeName(dto.getTransTypeName());
-                waitingVehicleDistribution.setPlanDispatchVehicleTime(dto.getPlanDispatchVehicleTime());
-                waitingVehicleDistribution.setDestSiteName(dto.getEndNodeName());
+//                waitingVehicleDistribution.setPlanDispatchVehicleTime(dto.getPlanDispatchVehicleTime());
+//                waitingVehicleDistribution.setDestSiteName(dto.getEndNodeName());
 
                 JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
                 entity.setVehicleType(dto.getVehicleType());
