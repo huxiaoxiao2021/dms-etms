@@ -3,7 +3,18 @@ package com.jd.bluedragon.distribution.jy.service.work.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.basedata.response.AttachmentDetailData;
+import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseData;
+import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseItemData;
+import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
+import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseQuery;
+import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
+import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseService;
+import com.jd.bluedragon.distribution.work.domain.*;
+import com.jd.bluedragon.utils.BeanHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -18,8 +29,6 @@ import com.jd.bluedragon.distribution.jy.dao.work.JyBizTaskWorkGridManagerDao;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
 import com.jd.bluedragon.distribution.jy.service.work.WorkGridManagerReportService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
-import com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportQuery;
-import com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportVo;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -44,6 +53,14 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 	
 	@Value("${beans.workGridManagerReportService.queryRangeDays:6}")
 	private int queryRangeDays;
+
+	@Autowired
+	@Qualifier("jyBizTaskWorkGridManagerService")
+	private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
+
+	@Autowired
+	@Qualifier("jyWorkGridManagerCaseService")
+	private JyWorkGridManagerCaseService jyWorkGridManagerCaseService;
 
 	private Result<Boolean> checkAndInitQuery(WorkGridManagerReportQuery query) {
 		Result<Boolean> result = Result.success();
@@ -148,5 +165,72 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 		
 		result.setData(pageData);
 		return result;
+	}
+
+	/**
+	 * 根据bizId调后端获取任务详细信息
+	 *
+	 * @param bizId
+	 * @return
+	 */
+	@Override
+	public Result<WorkGridManagerReportVo> queryTaskDataByBizId(String bizId) {
+		Result<WorkGridManagerReportVo> result = new Result<WorkGridManagerReportVo>();
+		result.toSuccess("查询成功！");
+		JyWorkGridManagerData taskData = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(bizId);
+		if (taskData == null) {
+			result.toFail("任务数据不存在！");
+			return result;
+		}
+		JyWorkGridManagerCaseQuery taskCaseQuery = new JyWorkGridManagerCaseQuery();
+		taskCaseQuery.setBizId(taskData.getBizId());
+		taskCaseQuery.setSiteCode(taskData.getSiteCode());
+		taskCaseQuery.setTaskType(taskData.getTaskType());
+		taskCaseQuery.setTaskCode(taskData.getTaskCode());
+		List<JyWorkGridManagerCaseData> caseList = jyWorkGridManagerCaseService.loadCaseListForTaskData(taskCaseQuery);
+		taskData.setCaseList(caseList);
+		//数据转化 JyWorkGridManagerData 转化为 WorkGridManagerReportVo
+		WorkGridManagerReportVo workGridManagerReportVo = covertWorkGridManagerReportVo(taskData);
+		result.setData(workGridManagerReportVo);
+		return result;
+
+	}
+
+	/**
+	 * 数据转化
+	 * JyWorkGridManagerData 转化为 WorkGridManagerReportVo
+	 *
+	 * @param taskData
+	 * @return
+	 */
+	private WorkGridManagerReportVo covertWorkGridManagerReportVo(JyWorkGridManagerData taskData) {
+		WorkGridManagerReportVo workGridManagerReportVo = new WorkGridManagerReportVo();
+		BeanUtils.copyProperties(taskData, workGridManagerReportVo);
+		List<JyWorkGridManagerCaseDataVO> jyWorkGridManagerCaseDataVOList = new ArrayList<JyWorkGridManagerCaseDataVO>();
+		for (JyWorkGridManagerCaseData jyWorkGridManagerCaseData : taskData.getCaseList()) {
+			JyWorkGridManagerCaseDataVO jyWorkGridManagerCaseDataVO = new JyWorkGridManagerCaseDataVO();
+			List<AttachmentDetailDataVO> attachmentDetailDataVOList = new ArrayList<AttachmentDetailDataVO>();
+			List<JyWorkGridManagerCaseItemDataVO> jyWorkGridManagerCaseItemDataVOList = new ArrayList<JyWorkGridManagerCaseItemDataVO>();
+			//AttachmentDetailData 转为 AttachmentDetailDataVO
+			for (AttachmentDetailData detailData : jyWorkGridManagerCaseData.getAttachmentList()) {
+				AttachmentDetailDataVO attachmentDetailDataVO = new AttachmentDetailDataVO();
+				BeanUtils.copyProperties(detailData, attachmentDetailDataVO);
+				attachmentDetailDataVOList.add(attachmentDetailDataVO);
+			}
+			//JyWorkGridManagerCaseItemData 转为 JyWorkGridManagerCaseItemDataVO
+			for (JyWorkGridManagerCaseItemData jyWorkGridManagerCaseItemData : jyWorkGridManagerCaseData.getItemList()) {
+				JyWorkGridManagerCaseItemDataVO jyWorkGridManagerCaseItemDataVO = new JyWorkGridManagerCaseItemDataVO();
+				BeanUtils.copyProperties(jyWorkGridManagerCaseItemData, jyWorkGridManagerCaseItemDataVO);
+				jyWorkGridManagerCaseItemDataVOList.add(jyWorkGridManagerCaseItemDataVO);
+			}
+			//JyWorkGridManagerCaseData 转为 JyWorkGridManagerCaseDataVO
+			BeanUtils.copyProperties(jyWorkGridManagerCaseData, jyWorkGridManagerCaseDataVO);
+			jyWorkGridManagerCaseDataVO.setAttachmentList(attachmentDetailDataVOList);
+			jyWorkGridManagerCaseDataVO.setItemList(jyWorkGridManagerCaseItemDataVOList);
+			jyWorkGridManagerCaseDataVOList.add(jyWorkGridManagerCaseDataVO);
+		}
+
+		workGridManagerReportVo.setCaseList(jyWorkGridManagerCaseDataVOList);
+		return workGridManagerReportVo;
 	}
 }

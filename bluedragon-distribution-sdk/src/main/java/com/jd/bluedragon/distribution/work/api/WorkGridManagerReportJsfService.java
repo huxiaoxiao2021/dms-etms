@@ -33,4 +33,12 @@ public interface WorkGridManagerReportJsfService {
 	 * @return
 	 */
 	Result<PageDto<WorkGridManagerReportVo>> queryPageList(WorkGridManagerReportQuery query);
+
+	/**
+	 * 根据bizId调后端获取任务详细信息
+	 *
+	 * @param bizId
+	 * @return
+	 */
+	Result<WorkGridManagerReportVo> queryTaskDataByBizId(String bizId);
 }

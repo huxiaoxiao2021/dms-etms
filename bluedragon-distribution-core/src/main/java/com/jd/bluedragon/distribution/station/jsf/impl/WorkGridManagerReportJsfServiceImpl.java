@@ -43,4 +43,15 @@ public class WorkGridManagerReportJsfServiceImpl implements WorkGridManagerRepor
 	public Result<PageDto<WorkGridManagerReportVo>> queryPageList(WorkGridManagerReportQuery query) {
 		return workGridManagerReportService.queryPageList(query);
 	}
+
+	/**
+	 * 根据bizId调后端获取任务详细信息
+	 *
+	 * @param bizId
+	 * @return
+	 */
+	@Override
+	public Result<WorkGridManagerReportVo> queryTaskDataByBizId(String bizId) {
+		return workGridManagerReportService.queryTaskDataByBizId(bizId);
+	}
 }

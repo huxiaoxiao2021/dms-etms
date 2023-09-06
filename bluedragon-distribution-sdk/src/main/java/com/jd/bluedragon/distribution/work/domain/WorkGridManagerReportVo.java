@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.work.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class WorkGridManagerReportVo  implements Serializable {
 	
@@ -195,6 +196,8 @@ public class WorkGridManagerReportVo  implements Serializable {
 	 * 是否符合,0-未选择,1-符合 2-不符合
 	 */
 	private Integer isMatch;
+
+	private List<JyWorkGridManagerCaseDataVO> caseList;
 	public Long getId() {
 		return id;
 	}
@@ -424,5 +427,13 @@ public class WorkGridManagerReportVo  implements Serializable {
 
 	public void setIsMatch(Integer isMatch) {
 		this.isMatch = isMatch;
+	}
+
+	public List<JyWorkGridManagerCaseDataVO> getCaseList() {
+		return caseList;
+	}
+
+	public void setCaseList(List<JyWorkGridManagerCaseDataVO> caseList) {
+		this.caseList = caseList;
 	}
 }
