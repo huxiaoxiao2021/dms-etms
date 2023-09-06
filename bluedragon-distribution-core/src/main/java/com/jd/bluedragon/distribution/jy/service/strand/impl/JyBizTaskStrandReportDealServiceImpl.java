@@ -530,14 +530,9 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         //获取批次号
         sendCode = getScanSendCode(scanRequest);
         //校验批次号
-        try {
-            Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
-            if (receiveSiteCode == null || !Objects.equals(receiveSiteCode, nextSiteCode)) {
-                throw new JyBizException("扫描条码所属容器的流向和任务流向不一致!");
-            }
-        } catch (Exception e) {
-            logger.error("queryBatchInnerScanCount error:",e);
-            throw new JyBizException("扫描条码所属容器的流向和任务流向不一致!");
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
+        if (receiveSiteCode == null || !Objects.equals(receiveSiteCode, nextSiteCode)) {
+            throw new JyBizException("扫描批次号所属容器的流向和任务流向不一致!");
         }
         //获取批次号下的（包裹，运单，箱,板）数量
         return ImmutablePair.of(sendCode, getBatchScanCount(scanRequest, sendCode));

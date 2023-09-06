@@ -201,9 +201,11 @@ public class JyBasicSiteQueryManagerImpl implements JyBasicSiteQueryManager {
                     RouteNextDto routeNextDto = routerService.matchRouterNextNode(getFlowDirectionQuery.getCurrentOperate().getSiteCode(), waybillCode);
                     if (ObjectHelper.isNotEmpty(routeNextDto) && ObjectHelper.isNotEmpty(routeNextDto.getFirstNextSiteId())) {
                         return routeNextDto.getFirstNextSiteId();
+                    }else{
+                        throw new JyBizException("该包裹未获取到流向！");
                     }
                 }catch (Exception e) {
-                    logger.error("调用查询流向接口报错，入参：getFlowDirectionQuery:{},searchStr:{}",JSONObject.toJSONString(getFlowDirectionQuery),searchStr);
+                    logger.error("调用查询流向接口报错，入参：getFlowDirectionQuery:{},searchStr:{}",JSONObject.toJSONString(getFlowDirectionQuery),searchStr,e);
                     throw new JyBizException("调用查询流向接口报错！");
                 }
             }
