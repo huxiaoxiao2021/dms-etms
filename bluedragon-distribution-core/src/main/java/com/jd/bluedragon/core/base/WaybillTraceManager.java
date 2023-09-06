@@ -52,6 +52,13 @@ public interface WaybillTraceManager {
     boolean isOpCodeWaste(String opCodeCode);
 
     /**
+     * 判断是否为异常退回
+     * 
+     * @return
+     */
+    boolean isExReturn(String waybillCode);
+
+    /**
      * 获取包裹的全程跟踪状态
      * @param packageCode
      * @return

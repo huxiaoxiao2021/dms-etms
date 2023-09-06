@@ -439,7 +439,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         }
 
         // 站点判断
-        Site receiveSite = convertToOwnSite(this.siteService.getSite(filterContext.getReceiveSiteCode()));
+        Site receiveSite = siteService.getOwnSite(filterContext.getReceiveSiteCode());
         if (receiveSite == null) {
             throw new SortingCheckException(SortingResponse.CODE_29202, filterContext.getReceiveSiteCode() + SortingResponse.MESSAGE_29202);
         } else {
@@ -447,7 +447,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         }
 
         // 操作站点
-        Site createSite = convertToOwnSite(this.siteService.getSite(filterContext.getCreateSiteCode()));
+        Site createSite = siteService.getOwnSite(filterContext.getCreateSiteCode());
         filterContext.setCreateSite(createSite);
 
         String sReceiveSiteSubType = String.valueOf(receiveSite.getSubType());
@@ -459,7 +459,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         }
         filterContext.setsReceiveSiteCode(sReceiveSiteCode.toString());
         // 箱子的收货站点和站点类型 (中转站和速递中心判断使用)
-        Site sReceiveBoxSite = convertToOwnSite(this.siteService.getSite(sReceiveSiteCode));
+        Site sReceiveBoxSite = siteService.getOwnSite(sReceiveSiteCode);
         filterContext.setsReceiveBoxSite(sReceiveBoxSite);
 
         //运单判断
@@ -527,26 +527,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
 
         return filterContext;
     }
-
-    private Site convertToOwnSite(BaseStaffSiteOrgDto basicSite) {
-        if(basicSite == null){
-            return null;
-        }
-        Site ownSite = new Site();
-        ownSite.setOrgId(basicSite.getOrgId());
-        ownSite.setCode(basicSite.getSiteCode());
-        ownSite.setDmsCode(basicSite.getDmsSiteCode());
-        ownSite.setName(basicSite.getSiteName());
-        ownSite.setType(basicSite.getSiteType());
-        ownSite.setSubType(basicSite.getSubType());
-        ownSite.setProvinceId(basicSite.getProvinceId());
-        ownSite.setCityId(basicSite.getCityId());
-        ownSite.setSortType(basicSite.getSortType());
-        ownSite.setSortSubType(basicSite.getSortSubType());
-        ownSite.setSortThirdType(basicSite.getSortThirdType());
-        return ownSite;
-    }
-
+    
     /*
      * 初始化板号拦截链上下文
      * */

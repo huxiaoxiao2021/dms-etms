@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
-import IceInternal.Ex;
 import cn.jdl.oms.express.model.ModifyExpressOrderRequest;
 import com.google.common.collect.Lists;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
@@ -75,8 +74,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.etms.sdk.util.DateUtil;
-import com.jd.etms.waybill.api.WaybillRepaireApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
@@ -1980,6 +1977,9 @@ public class WaybillResource {
 				waybillReverseResult = coldChainReverseManager.createReverseWbOrder(coldChainReverseRequest,errorMessage);
 			}else {
 				log.info("换单方法createReturnsWaybillNew走原有流程,运单号{}",waybillCode);
+				// fill request
+				request.setReverseReasonCode(queryReverseReasonCode(request.getCreateSiteCode(), request.getWaybillCode()));
+				// build waybillReverseDTO
 				DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
 				waybillReverseResult = waybillReverseManager.waybillReverse(waybillReverseDTO,errorMessage);
 			}
@@ -2000,6 +2000,21 @@ public class WaybillResource {
 			invokeResult.setMessage("系统异常");
 		}
         return invokeResult;
+	}
+
+	private Integer queryReverseReasonCode(Integer createSiteCode, String waybillCode) {
+		// 外单逆向换单 && 中转站 && 港澳单 && 全程跟踪-3040节点 则设置清关异常
+		if(SiteHelper.isSortTransferSite(siteService.getOwnSite(createSiteCode))){
+			com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+			if(waybill != null && waybill.getWaybillExt() != null 
+					&& BusinessUtil.isGAWaybill(waybill.getWaybillExt().getStartFlowDirection(), waybill.getWaybillExt().getEndFlowDirection())){
+				if(waybillTraceManager.isExReturn(waybillCode)){
+					// fill reverseReasonCode
+					return Constants.INTERCEPT_REVERSE_CODE_3;
+				}
+			}
+		}
+		return null;
 	}
 
 
@@ -2031,6 +2046,9 @@ public class WaybillResource {
 		try {
 			DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
+			// fill request
+			request.setReverseReasonCode(queryReverseReasonCode(request.getCreateSiteCode(), request.getWaybillCode()));
+			// build dmsWaybillReverseResponseDTO
 			DmsWaybillReverseResponseDTO waybillReverseResponseDTO = waybillReverseManager.queryReverseWaybill(waybillReverseDTO,errorMessage);
 			if(waybillReverseResponseDTO == null){
 				//失败

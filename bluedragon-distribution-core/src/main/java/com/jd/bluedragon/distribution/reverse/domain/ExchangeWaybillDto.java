@@ -46,6 +46,12 @@ public class ExchangeWaybillDto implements Serializable{
      * 二次换单标识
      */
     private Boolean twiceExchangeFlag = Boolean.FALSE;
+
+    /**
+     * 逆向原因编码
+     */
+    private Integer reverseReasonCode;
+    
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -150,4 +156,11 @@ public class ExchangeWaybillDto implements Serializable{
 		this.twiceExchangeFlag = twiceExchangeFlag;
 	}
 
+    public Integer getReverseReasonCode() {
+        return reverseReasonCode;
+    }
+
+    public void setReverseReasonCode(Integer reverseReasonCode) {
+        this.reverseReasonCode = reverseReasonCode;
+    }
 }
