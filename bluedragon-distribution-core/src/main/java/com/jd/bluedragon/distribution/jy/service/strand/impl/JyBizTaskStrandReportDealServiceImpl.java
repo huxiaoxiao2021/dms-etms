@@ -772,9 +772,9 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
             return false;
         }
         if (Objects.equals(request.getScanType(), JyBizStrandScanTypeEnum.BATCH.getCode())
-                && (!WaybillUtil.isPackageCode(request.getScanBarCode()) && !WaybillUtil.isWaybillCode(request.getScanBarCode())
-                && !BusinessHelper.isBoxcode(request.getScanBarCode()) && !BusinessUtil.isBoardCode(request.getScanBarCode()))) {
-            result.error("扫货方式【批次】只能扫描包裹号/运单号/箱号/板号!");
+                && (!WaybillUtil.isPackageCode(request.getScanBarCode()) && !BusinessHelper.isBoxcode(request.getScanBarCode())
+                && !BusinessUtil.isBoardCode(request.getScanBarCode()))) {
+            result.error("扫货方式【批次】只能扫描包裹号/箱号/板号!");
             return false;
         }
         return true;
