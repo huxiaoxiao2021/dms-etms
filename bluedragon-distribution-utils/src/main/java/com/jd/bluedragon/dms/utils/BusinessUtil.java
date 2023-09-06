@@ -1968,7 +1968,7 @@ public class BusinessUtil {
     }
 
     /**
-     * 判断是否是集包袋编号
+     * 判断是否是LL集包袋编号
      * @param materialCode
      * @return
      */
@@ -1979,7 +1979,19 @@ public class BusinessUtil {
         return (materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 14) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_LL_PREFIX) && materialCode.length() == 15);
     }
-    
+
+    /**
+     * 判断集包袋编号类型 非LL
+     * @param materialCode
+     * @return
+     */
+    public static boolean collectionBagCheckNotLLType(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
+                (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15);
+    }
     /**
      * 判断是否无人车配送，sendpay第307位=1
      *
