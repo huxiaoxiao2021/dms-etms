@@ -27,8 +27,8 @@ public class ASCPContants {
     public static final String DAMAGE_EXPT_TWO_LEVEL = "4130101";//破损 异常一级原因编码
     public static final String DAMAGE_EXPT_TWO_LEVEL_NAME = "破损无法下传";//破损 异常一级原因名称
 
-    public static final Integer WAYBILL_TYPE_SELF = 1;//破损 自营订单类型
-    public static final Integer WAYBILL_TYPE_OTHER = 5;//破损 其他订单类型
+    public static final Integer WAYBILL_TYPE_SELF = 1;// 自营订单类型
+    public static final Integer WAYBILL_TYPE_OTHER = 5;// 其他订单类型
 
 
     //违禁品业务类型标识
@@ -41,10 +41,6 @@ public class ASCPContants {
     public static final String CONTRABAND_EXPT_TWO_LEVEL ="4130102";
     //异常二级原因名称
     public static final String CONTRABAND_EXPT_TWO_LEVEL_NAME ="违禁品退回";
-
-    public static final int WAYBILL_TYPE_SELF =1;
-
-    public static final int WAYBILL_TYPE_OTHER =5;
 
 
 }

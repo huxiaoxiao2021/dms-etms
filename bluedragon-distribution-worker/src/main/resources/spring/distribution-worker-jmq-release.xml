@@ -725,13 +725,12 @@
         <jmq:listener topic="${jmq.topic.jy.send.predict.aggs.bak}" listener="jySendPredictAggsConsumer"/>
     </jmq:consumer>
 
-    </jmq:consumer>
+
     <!-- 拣运发货流向纬度首次扫描 -->
     <jmq:consumer id="jmq.jyTaskSendDetailFirstSendConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jyTaskSendDetailFirstSend}" listener="jyTaskSendDetailFirstSendConsumer"/>
     </jmq:consumer>
 
-    </jmq:consumer>
 
     <!-- 违禁品上报消息处理 -->
     <jmq:consumer id="jmq.jyExceptionContrabandUploadConsumer" transport="jmq4.dmsWorker.transport">
