@@ -934,4 +934,22 @@
         <property name="timeout" value="3000"/>
     </bean>
 
+    <!-- 违禁品上报处理 -->
+    <bean id="jyExceptionContrabandUploadProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.exception.contraband.upload}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!-- 异常-大陆单违禁品数据通知客服 -->
+    <bean id="dmsContrabandMainLandNoticeKFProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.exception.contrabandNoticKF}"/>
+        <property name="timeout" value="3000"/>
+    </bean>
+
+    <!-- 异常-港澳单违禁品数据通知客服 -->
+    <bean id="dmsContrabandHKOrMONoticeKFProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.exception.contrabandNoticKF}"/>
+        <property name="timeout" value="3000"/>
+    </bean>
+
 </beans>
