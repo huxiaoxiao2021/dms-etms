@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.jy.exception;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.core.message.base.MessageBaseWithoutUATConsumer;
 import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
@@ -23,7 +24,7 @@ import org.springframework.stereotype.Service;
  * @date 2023/3/16 10:39 AM
  */
 @Service("dmsExpCustomerReturnConsumer")
-public class DmsExpCustomerReturnConsumer extends MessageBaseConsumer {
+public class DmsExpCustomerReturnConsumer extends MessageBaseWithoutUATConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(DmsExpCustomerReturnConsumer.class);
 
@@ -32,6 +33,7 @@ public class DmsExpCustomerReturnConsumer extends MessageBaseConsumer {
     
     @Override
     public void consume(Message message) throws Exception {
+
         CallerInfo info = Profiler.registerInfo("DmsExpCustomerReturnConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER, false, true);
         try {
             logger.info("客服异常信息回传消息体-{}",message.getText());

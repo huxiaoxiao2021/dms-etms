@@ -368,7 +368,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         mq.setCodeInfo(entity.getBarCode());
         mq.setCodeType(ASCPContants.CODE_TYPE);
         mq.setExptCreateTime(DateHelper.formatDateTime(entity.getCreateTime()));
-
+        mq.setExptCreator(entity.getCreateUserErp());
         JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum twoLevelEnum = JyExpNoticCustomerExpReasonEnum
                 .ExpReasonTwoLevelEnum.getEnumByCode(twoLevelExceptionCode);
         if(twoLevelEnum == null){
@@ -583,9 +583,15 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         request.setSiteCode(exceptionEntity.getSiteCode().intValue());
         request.setSiteName(exceptionEntity.getSiteName());
         request.setUserName(exceptionEntity.getUpdateUserName());
+        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(exceptionEntity.getUpdateUserErp());
+        if(baseStaff != null){
+            request.setUserCode(baseStaff.getStaffNo());
+        }
         request.setReasonCode(103);//滞留原因管理-破损异常
+        request.setReasonMessage("破损异常");
         request.setReportType(ReportTypeEnum.WAYBILL_CODE.getCode());
         request.setBusinessType(10);//业务类型-正向
+        request.setOperateTime(DateHelper.formatDateTime(new Date()));
         //调用滞留上报接口
         logger.info("破损调用运单滞留上报入参-{}", JsonHelper.toJson(request));
         InvokeResult<Boolean> report = strandService.report(request);
