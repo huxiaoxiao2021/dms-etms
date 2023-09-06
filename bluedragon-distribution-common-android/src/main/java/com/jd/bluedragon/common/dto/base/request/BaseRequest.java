@@ -28,11 +28,6 @@ public class BaseRequest implements Serializable {
      */
     private Integer bizSource;
 
-    /**
-     * 岗位编码
-     */
-    private String PositionCode;
-
     public BaseRequest() {
     }
 
@@ -61,13 +56,5 @@ public class BaseRequest implements Serializable {
     public BaseRequest setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
         return this;
-    }
-
-    public String getPositionCode() {
-        return PositionCode;
-    }
-
-    public void setPositionCode(String positionCode) {
-        PositionCode = positionCode;
     }
 }
