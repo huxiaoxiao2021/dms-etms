@@ -305,6 +305,8 @@
 		<property name="cttGroupDataLimit" value="${cttGroupDataLimit:200}"/>
 		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
 		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
+		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -615,6 +617,7 @@
 				<value>uccPropertyConfiguration.qingChangDataOpenSwitch</value>
 				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
 				<value>uccPropertyConfiguration.jyExceptionCreateBizIdSwitch</value>
+				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
 			</list>
 		</property>
 	</bean>

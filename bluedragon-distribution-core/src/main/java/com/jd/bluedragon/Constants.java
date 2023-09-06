@@ -2070,4 +2070,29 @@ public class Constants {
      * 功能可用配置白名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
+
+    /**
+     * 运单全程跟踪记录类型（强校验）
+     * 枚举类型：1:运单维度不记录各包裹全程跟踪,2:运单维度记录各包裹全程跟踪,3:包裹维度记录包裹全程跟踪
+     */
+    public static final Integer WAYBILL_TRACE_TYPE =1;
+
+    /**
+     * 逆向退货类型:拒收退回
+     */
+    public static final Integer REVERSE_TYPE_REJECT_BACK =7;
+
+    /**
+     * 换单来源 2: 分拣/SORT_CENTER
+     */
+    public static final Integer CHANGE_WAYBILL_OPERATE_SOURCE_SORT_CENTER =2;
+
+    /**
+     *  逆向原因编码
+     *
+     * 2-拦截逆向
+     */
+    public static final Integer INTERCEPT_REVERSE_CODE = 2;
+
+
 }

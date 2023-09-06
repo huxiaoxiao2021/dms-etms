@@ -8,6 +8,8 @@ import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
 import com.jd.bluedragon.distribution.jy.exception.JyAssignExpTaskDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
+import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
@@ -331,4 +333,53 @@ public class JyExceptionServiceTest {
 
 
 
+    @Autowired
+    private JyContrabandExceptionService jyContrabandExceptionService;
+
+    @Test
+    public void processTaskOfContrabandTest(){
+
+        ExpContrabandReq req = new ExpContrabandReq();
+        req.setUserErp("wuyoude");
+        req.setSiteId(910);
+        req.setPositionCode("GW00003001");
+        req.setBarCode("JDVE00088304206-1-1-");
+        req.setContrabandType(3);
+        req.setDescription("hahahahahahaha");
+
+
+        List<String> imageUrlList = new ArrayList<>();
+        imageUrlList.add("1.jpg");
+        imageUrlList.add("2.jpg");
+        req.setImageUrlList(imageUrlList);
+
+        JdCResponse<Boolean> response = jyContrabandExceptionService.processTaskOfContraband(req);
+
+        System.out.println(JSON.toJSONString(response));
+
+    }
+
+    @Test
+    public void dealContrabandUploadDataTest(){
+
+        JyExceptionContrabandDto dto = new JyExceptionContrabandDto();
+        dto.setBarCode("JD0003421542886-1-1-");
+        dto.setBizId("JD0003421542886-1-1-_40240");
+        dto.setContrabandType(3);
+        dto.setCreateStaffName("wuyoude");
+        dto.setCreateStaffName("吴有德");
+        dto.setCreateUserId(17331);
+        dto.setDescription("hhhhhhhh");
+        dto.setSiteCode(40240);
+        dto.setSiteName("北京通州分拣中心");
+
+
+        try {
+            jyContrabandExceptionService.dealContrabandUploadData(dto);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+    }
 }

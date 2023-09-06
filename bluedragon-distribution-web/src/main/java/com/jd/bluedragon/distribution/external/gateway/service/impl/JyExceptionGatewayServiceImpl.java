@@ -21,6 +21,7 @@ import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
@@ -49,6 +50,9 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
 
     @Autowired
     private JySanwuExceptionService jySanwuExceptionService;
+
+    @Autowired
+    private JyContrabandExceptionService jyContrabandExceptionService;
 
     @Autowired
     private JyDamageExceptionService jyDamageExceptionService;
@@ -294,4 +298,9 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
         return JdCResponse.ok();
     }
 
+
+    @Override
+    public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {
+        return jyContrabandExceptionService.processTaskOfContraband(req);
+    }
 }
