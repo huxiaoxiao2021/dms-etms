@@ -21,7 +21,7 @@ public class JyExceptionContrabandDao extends BaseDao<JyExceptionContrabandEntit
     }
 
     public int insertSelective(JyExceptionContrabandEntity entity) {
-        entity.setId(this.generateId());
+
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
     }
 
