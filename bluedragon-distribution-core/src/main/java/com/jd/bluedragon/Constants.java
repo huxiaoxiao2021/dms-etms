@@ -2065,4 +2065,9 @@ public class Constants {
      * 异常上报原因与二次安检关系-老版异常上报
      */
     public static final Long SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID = 27000L;
+
+    /**
+     * 功能可用配置白名单
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
 }

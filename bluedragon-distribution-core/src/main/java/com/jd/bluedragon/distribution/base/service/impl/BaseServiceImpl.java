@@ -1083,6 +1083,11 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             return null;
         }
 
+		// 检验白名单
+		if (checkFuncUsageWhiteListByUserErp(funcUsageConfigRequestDto)) {
+			return null;
+		}
+		
         final FuncUsageProcessDto clientMenuUsageByCodeConfig = getFuncUsageByCodeConfig4SpecificList(funcUsageConfigRequestDto);
         if (clientMenuUsageByCodeConfig != null) {
             return clientMenuUsageByCodeConfig;
@@ -1097,7 +1102,28 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
         return funcUsageProcessDto;
     }
 
-    /**
+	private boolean checkFuncUsageWhiteListByUserErp(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
+
+		// 无用户信息，直接返回false
+		if (StringUtils.isEmpty(funcUsageConfigRequestDto.getOperateUser().getUserCode())) {
+			return false;
+		}
+
+		final SysConfig sysConfigByCode = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_WHITE_LIST + funcUsageConfigRequestDto.getFuncCode());
+		// 如果配置都为空，则直接返回false
+		if (sysConfigByCode == null) {
+			return false;
+		}
+
+		final FuncUsageWhiteListDto funcUsageWhiteListDto = JSON.parseObject(sysConfigByCode.getConfigContent(), FuncUsageWhiteListDto.class);
+		if (funcUsageWhiteListDto == null || CollectionUtils.isEmpty(funcUsageWhiteListDto.getUserList())) {
+			return false;
+		}
+
+		return funcUsageWhiteListDto.getUserList().contains(funcUsageConfigRequestDto.getOperateUser().getUserCode());
+	}
+
+	/**
      * 获取指定具体场地或区域的配置
      */
     public FuncUsageProcessDto getFuncUsageByCodeConfig4SpecificList(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
