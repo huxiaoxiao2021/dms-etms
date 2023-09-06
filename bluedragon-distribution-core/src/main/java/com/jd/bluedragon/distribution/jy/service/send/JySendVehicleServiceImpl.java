@@ -151,10 +151,7 @@ import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.tms.jdi.dto.TransWorkFuzzyQueryParam;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.tms.jdi.param.TransWorkItemQueueCallParam;
-import com.jd.tms.workbench.dto.AccountDto;
-import com.jd.tms.workbench.dto.PageDto;
-import com.jd.tms.workbench.dto.TmsTransJobBillDto;
-import com.jd.tms.workbench.dto.TransJobPdaQueryDto;
+import com.jd.tms.workbench.dto.*;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
@@ -175,6 +172,7 @@ import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -799,21 +797,34 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     public List<LabelOption> resolveTaskTag(JyBizTaskSendVehicleEntity entity, TransWorkBillDto transWorkBillDto) {
         List<LabelOption> tagList = new ArrayList<>();
 
-
-        //车辆到达状态 高于司机领取
-        SendVehicleLabelOptionEnum carCome = setCarCome(entity);
-        if(carCome != null) {
-            tagList.add(new LabelOption(carCome.getCode(), carCome.getName(), carCome.getDisplayOrder()));
-        }else{
-            // 司机是否领取任务
-            if (transWorkBillDto != null) {
-                // work_status = 20(已开始), status > 15(待接受)
-                if (Objects.equals(TRANS_BILL_WORK_STATUS, transWorkBillDto.getWorkStatus()) && NumberHelper.gt(transWorkBillDto.getStatus(), TRANS_BILL_STATUS_CONFIRM)) {
-                    SendVehicleLabelOptionEnum driverRecvTaskTag = SendVehicleLabelOptionEnum.DRIVER_RECEIVE;
-                    tagList.add(new LabelOption(driverRecvTaskTag.getCode(), driverRecvTaskTag.getName(), driverRecvTaskTag.getDisplayOrder()));
+        // 车辆到达标签与司机领取标签不在 tmsTransWorkDriverNodeConsumer 中
+        // 走历史逻辑
+        if (entity.getDriverTag() == null || entity.getDriverTag() <= Constants.NUMBER_ZERO) {
+            //车辆到达状态 高于司机领取
+            SendVehicleLabelOptionEnum carCome = setCarCome(entity);
+            if (carCome != null) {
+                tagList.add(new LabelOption(carCome.getCode(), carCome.getName(), carCome.getDisplayOrder()));
+            } else {
+                // 司机是否领取任务
+                if (transWorkBillDto != null) {
+                    // work_status = 20(已开始), status > 15(待接受)
+                    if (Objects.equals(TRANS_BILL_WORK_STATUS, transWorkBillDto.getWorkStatus()) && NumberHelper.gt(transWorkBillDto.getStatus(), TRANS_BILL_STATUS_CONFIRM)) {
+                        SendVehicleLabelOptionEnum driverRecvTaskTag = SendVehicleLabelOptionEnum.DRIVER_RECEIVE;
+                        tagList.add(new LabelOption(driverRecvTaskTag.getCode(), driverRecvTaskTag.getName(), driverRecvTaskTag.getDisplayOrder()));
+                    }
                 }
             }
+        } else {
+            JyBizDriverTagEnum tagEnum = JyBizDriverTagEnum.getTagEnumByTag(entity.getDriverTag());
+            if (tagEnum == null) {
+                log.warn("司机标签异常！driverTag={}, bizId={}", entity.getDriverTag(), entity.getBizId());
+            } else {
+                SendVehicleLabelOptionEnum optionEnum = SendVehicleLabelOptionEnum.getSendVehicleLabelOptionEnumByCode(tagEnum.getVehicleLabelOption());
+                tagList.add(new LabelOption(optionEnum.getCode(), optionEnum.getName(), optionEnum.getDisplayOrder()));
+            }
         }
+
+
 
         // 车长
         String carLengthDesc = setCarLength(entity);
@@ -4591,15 +4602,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (!checkWaitingVehicleDistributionRequest(request, invokeResult)) {
             return invokeResult;
         }
-        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(request.getSiteCode());
 
-        AccountDto accountDto = new AccountDto();
-        accountDto.setAccountCode(request.getUserErp());
-        accountDto.setAccountName(request.getUserName());
-        accountDto.setAccountType(TMS_INTERNAL_ERP_ACCOUNT_TYPE);
-
-        TransJobPdaQueryDto queryDto = new TransJobPdaQueryDto();
-        queryDto.setBeginNodeCode(siteOrgDto.getDmsSiteCode());
+        AccountDto accountDto = getAccountDto(request.getUserErp(), request.getUserName());
+        TransJobPdaQueryDto queryDto = getTransJobPdaQueryDto(request);
 
         PageDto<TmsTransJobBillDto> pageDto = new PageDto<>();
         pageDto.setCurrentPage(request.getPageNumber());
@@ -4622,7 +4627,33 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return invokeResult;
         }
 
-        for (TmsTransJobBillDto dto : commonDto.getData().getResult()) {
+        assembleWaitingVehicleDistributionList(commonDto.getData().getResult(), waitingVehicleDistributions);
+
+        invokeResult.setData(pager);
+        return invokeResult;
+    }
+
+    private AccountDto getAccountDto(String userErp, String userName) {
+        AccountDto accountDto = new AccountDto();
+        accountDto.setAccountCode(userErp);
+        accountDto.setAccountName(userName);
+        accountDto.setAccountType(TMS_INTERNAL_ERP_ACCOUNT_TYPE);
+        return accountDto;
+    }
+
+    private TransJobPdaQueryDto getTransJobPdaQueryDto(WaitingVehicleDistributionRequest request) {
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(request.getSiteCode());
+
+        TransJobPdaQueryDto queryDto = new TransJobPdaQueryDto();
+        Date now = new Date();
+        queryDto.setBeginNodeCode(siteOrgDto.getDmsSiteCode());
+        queryDto.setPlanDepartTimeBegin(new Date());
+        queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, uccConfig.getFetchCarDistributionTimeRange()));
+        return queryDto;
+    }
+
+    private void assembleWaitingVehicleDistributionList(List<TmsTransJobBillDto> dtoList, List<WaitingVehicleDistribution> waitingVehicleDistributions) {
+        for (TmsTransJobBillDto dto : dtoList) {
             if (dto != null) {
                 WaitingVehicleDistribution waitingVehicleDistribution = new WaitingVehicleDistribution();
                 waitingVehicleDistribution.setVehicleNumber(dto.getVehicleNumber());
@@ -4636,22 +4667,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 waitingVehicleDistribution.setTags(resolveTaskTag(entity, null));
 
                 waitingVehicleDistributions.add(waitingVehicleDistribution);
-            } else {
-                log.warn("分页查询待派车任务列表存在null记录！ 入参accountDto{} transJobBillDto{} pageDto{}", JsonHelper.toJson(accountDto), JsonHelper.toJson(queryDto), JsonHelper.toJson(pageDto));
             }
         }
-
-        invokeResult.setData(pager);
-        return invokeResult;
     }
 
     private boolean checkWaitingVehicleDistributionRequest(WaitingVehicleDistributionRequest request, InvokeResult<com.jd.bluedragon.common.dto.base.request.Pager<WaitingVehicleDistribution>> invokeResult) {
         if (StringUtils.isEmpty(request.getUserErp())) {
             invokeResult.parameterError("用户erp不能为空！");
-            return false;
-        }
-        if (StringUtils.isEmpty(request.getUserName())) {
-            invokeResult.parameterError("用户姓名不能为空！");
             return false;
         }
         if (request.getSiteCode() == null) {
@@ -4669,6 +4691,47 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Override
     public InvokeResult<String> remindTransJob(RemindTransJobRequest request) {
-        return null;
+        InvokeResult<String> invokeResult = new InvokeResult<>();
+        if (!checkRemindTransJobRequest(request, invokeResult)) {
+            return invokeResult;
+        }
+
+        AccountDto accountDto = getAccountDto(request.getUserErp(), request.getUserName());
+        RemindTransJobRequestDTO requestDTO = getRemindTransJobRequestDTO(request);
+        com.jd.tms.workbench.dto.CommonDto<RemindTransJobReponseDTO> commonDto = pdaSorterApiManager.remindTransJob(accountDto, requestDTO);
+        if (commonDto == null) {
+            invokeResult.error("获取待派车列表异常！");
+            return invokeResult;
+        }
+        if (!commonDto.isSuccess() || commonDto.getData() == null) {
+            invokeResult.setMessage(commonDto.getMessage());
+            return invokeResult;
+        }
+        invokeResult.setData(commonDto.getData().getTransJobCode());
+        invokeResult.setMessage(commonDto.getData().getMessage());
+        return invokeResult;
+    }
+
+    private boolean checkRemindTransJobRequest(RemindTransJobRequest request, InvokeResult<String> invokeResult) {
+        if (StringUtils.isEmpty(request.getUserErp())) {
+            invokeResult.parameterError("用户erp不能为空！");
+            return false;
+        }
+        if (request.getSourceSiteCode() == null) {
+            invokeResult.parameterError("始发网点不能为空！");
+            return false;
+        }
+        if (StringUtils.isEmpty(request.getTransportCode())) {
+            invokeResult.parameterError("运力资源编码不能为空！");
+            return false;
+        }
+        return true;
+    }
+
+    private RemindTransJobRequestDTO getRemindTransJobRequestDTO(RemindTransJobRequest request) {
+        RemindTransJobRequestDTO requestDTO = new RemindTransJobRequestDTO();
+        requestDTO.setTransJobCode(requestDTO.getTransJobCode());
+        requestDTO.setTransportCode(request.getTransportCode());
+        return requestDTO;
     }
 }
