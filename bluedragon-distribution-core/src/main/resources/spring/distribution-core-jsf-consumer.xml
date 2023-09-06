@@ -1464,6 +1464,6 @@
 
     <!--  推送运输月台号和联系人  -->
     <jsf:consumer id="workGridBusinessJsfService" interface="com.jdl.basic.api.service.workStation.WorkGridBusinessJsfService"
-                  protocol="jsf" alias="${workGridBusinessJsfService.jsf.alias}" timeout="${cloudPrint.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+                  protocol="jsf" alias="${jsf.alias.jy_basic}" timeout="${jsf.jy_basic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 </beans>

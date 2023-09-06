@@ -253,6 +253,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     InvokeResult<TableTrolleyResp> result = new InvokeResult<>();
     TableTrolleyResp tableTrolleyResp = new TableTrolleyResp();
+    tableTrolleyResp.setSendFlowCountLimitUnderCtt(Constants.SEND_FLOW_COUNT_LIMIT_DEFAULT);
+    if (ObjectHelper.isNotNull(ucc.getCttGroupSendFLowLimit()) && ucc.getCttGroupSendFLowLimit()>0){
+      tableTrolleyResp.setSendFlowCountLimitUnderCtt(ucc.getCttGroupSendFLowLimit());
+    }
     result.setData(tableTrolleyResp);
 
     TableTrolleyQuery query = new TableTrolleyQuery();
@@ -374,7 +378,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (request.getTableTrolleyDtoList().size() > ucc.getCttGroupSendFLowLimit()) {
       throw new JyBizException("混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个！");
     }
-    
+
     String templateCode = jyGroupSortCrossDetailService.createGroup(request);
     CreateGroupCTTResp resp = new CreateGroupCTTResp();
     if (templateCode == null ) {
@@ -382,7 +386,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }else {
       resp.setTemplateCode(templateCode);
     }
-    
+
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
@@ -511,7 +515,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         return new InvokeResult( UPDATE_CTT_GROUP_LIST_CODE, "混扫任务流向不能超过"+ ucc.getCttGroupSendFLowLimit()+"个");
       }
     }
-    
+
     try {
       if (jyGroupSortCrossDetailService.addCTTGroup(request)) {
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);

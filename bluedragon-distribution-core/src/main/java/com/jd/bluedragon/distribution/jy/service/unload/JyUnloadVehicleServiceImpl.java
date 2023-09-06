@@ -549,7 +549,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         JyBizTaskUnloadVehicleEntity taskUnloadVehicle = unloadVehicleService.findByBizId(request.getBizId());
         if (taskUnloadVehicle == null) {
-            result.addPromptBox(0, "卸车任务不存在，请刷新卸车任务列表后再扫描！");
+            result.toCustomError(InvokeResult.CODE_HINT, "卸车任务不存在，请刷新卸车任务列表后再扫描！");
             return result;
         }
 
@@ -708,7 +708,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             message = getDepponAlarmSiteDmsCode(alarmSite);
         }
         // 添加toast提示
-        result.addPromptBox(0, message);
+        result.toCustomError(InvokeResult.CODE_HINT, message);
     }
 
     private final Integer sorting_sortType = 12351;
@@ -826,7 +826,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private boolean checkBeforeScan(JdVerifyResponse<Integer> result, UnloadScanRequest request) {
         // 一个单号只能扫描一次
         if (checkBarScannedAlready(request)) {
-            result.addPromptBox(0, "单号已扫描！");
+            result.toCustomError(InvokeResult.CODE_HINT, "单号已扫描！");
             return false;
         }
 
