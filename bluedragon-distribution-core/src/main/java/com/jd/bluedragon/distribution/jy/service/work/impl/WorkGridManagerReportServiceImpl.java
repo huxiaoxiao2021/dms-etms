@@ -207,29 +207,34 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 		WorkGridManagerReportVo workGridManagerReportVo = new WorkGridManagerReportVo();
 		BeanUtils.copyProperties(taskData, workGridManagerReportVo);
 		List<JyWorkGridManagerCaseDataVO> jyWorkGridManagerCaseDataVOList = new ArrayList<JyWorkGridManagerCaseDataVO>();
-		for (JyWorkGridManagerCaseData jyWorkGridManagerCaseData : taskData.getCaseList()) {
-			JyWorkGridManagerCaseDataVO jyWorkGridManagerCaseDataVO = new JyWorkGridManagerCaseDataVO();
-			List<AttachmentDetailDataVO> attachmentDetailDataVOList = new ArrayList<AttachmentDetailDataVO>();
-			List<JyWorkGridManagerCaseItemDataVO> jyWorkGridManagerCaseItemDataVOList = new ArrayList<JyWorkGridManagerCaseItemDataVO>();
-			//AttachmentDetailData 转为 AttachmentDetailDataVO
-			for (AttachmentDetailData detailData : jyWorkGridManagerCaseData.getAttachmentList()) {
-				AttachmentDetailDataVO attachmentDetailDataVO = new AttachmentDetailDataVO();
-				BeanUtils.copyProperties(detailData, attachmentDetailDataVO);
-				attachmentDetailDataVOList.add(attachmentDetailDataVO);
+		if (!CollectionUtils.isEmpty(taskData.getCaseList())) {
+			for (JyWorkGridManagerCaseData jyWorkGridManagerCaseData : taskData.getCaseList()) {
+				JyWorkGridManagerCaseDataVO jyWorkGridManagerCaseDataVO = new JyWorkGridManagerCaseDataVO();
+				List<AttachmentDetailDataVO> attachmentDetailDataVOList = new ArrayList<AttachmentDetailDataVO>();
+				List<JyWorkGridManagerCaseItemDataVO> jyWorkGridManagerCaseItemDataVOList = new ArrayList<JyWorkGridManagerCaseItemDataVO>();
+				//AttachmentDetailData 转为 AttachmentDetailDataVO
+				if (!CollectionUtils.isEmpty(jyWorkGridManagerCaseData.getAttachmentList())) {
+					for (AttachmentDetailData detailData : jyWorkGridManagerCaseData.getAttachmentList()) {
+						AttachmentDetailDataVO attachmentDetailDataVO = new AttachmentDetailDataVO();
+						BeanUtils.copyProperties(detailData, attachmentDetailDataVO);
+						attachmentDetailDataVOList.add(attachmentDetailDataVO);
+					}
+				}
+				//JyWorkGridManagerCaseItemData 转为 JyWorkGridManagerCaseItemDataVO
+				if (!CollectionUtils.isEmpty(jyWorkGridManagerCaseData.getItemList())) {
+					for (JyWorkGridManagerCaseItemData jyWorkGridManagerCaseItemData : jyWorkGridManagerCaseData.getItemList()) {
+						JyWorkGridManagerCaseItemDataVO jyWorkGridManagerCaseItemDataVO = new JyWorkGridManagerCaseItemDataVO();
+						BeanUtils.copyProperties(jyWorkGridManagerCaseItemData, jyWorkGridManagerCaseItemDataVO);
+						jyWorkGridManagerCaseItemDataVOList.add(jyWorkGridManagerCaseItemDataVO);
+					}
+				}
+				//JyWorkGridManagerCaseData 转为 JyWorkGridManagerCaseDataVO
+				BeanUtils.copyProperties(jyWorkGridManagerCaseData, jyWorkGridManagerCaseDataVO);
+				jyWorkGridManagerCaseDataVO.setAttachmentList(attachmentDetailDataVOList);
+				jyWorkGridManagerCaseDataVO.setItemList(jyWorkGridManagerCaseItemDataVOList);
+				jyWorkGridManagerCaseDataVOList.add(jyWorkGridManagerCaseDataVO);
 			}
-			//JyWorkGridManagerCaseItemData 转为 JyWorkGridManagerCaseItemDataVO
-			for (JyWorkGridManagerCaseItemData jyWorkGridManagerCaseItemData : jyWorkGridManagerCaseData.getItemList()) {
-				JyWorkGridManagerCaseItemDataVO jyWorkGridManagerCaseItemDataVO = new JyWorkGridManagerCaseItemDataVO();
-				BeanUtils.copyProperties(jyWorkGridManagerCaseItemData, jyWorkGridManagerCaseItemDataVO);
-				jyWorkGridManagerCaseItemDataVOList.add(jyWorkGridManagerCaseItemDataVO);
-			}
-			//JyWorkGridManagerCaseData 转为 JyWorkGridManagerCaseDataVO
-			BeanUtils.copyProperties(jyWorkGridManagerCaseData, jyWorkGridManagerCaseDataVO);
-			jyWorkGridManagerCaseDataVO.setAttachmentList(attachmentDetailDataVOList);
-			jyWorkGridManagerCaseDataVO.setItemList(jyWorkGridManagerCaseItemDataVOList);
-			jyWorkGridManagerCaseDataVOList.add(jyWorkGridManagerCaseDataVO);
 		}
-
 		workGridManagerReportVo.setCaseList(jyWorkGridManagerCaseDataVOList);
 		return workGridManagerReportVo;
 	}
