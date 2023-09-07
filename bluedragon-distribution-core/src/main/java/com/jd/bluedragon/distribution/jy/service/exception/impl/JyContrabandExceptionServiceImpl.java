@@ -395,9 +395,6 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         Date time = calendar.getTime();
         traceDto.setOperatorTime(time);
         traceDto.setWaybillTraceType(Constants.WAYBILL_TRACE_TYPE_PACKAGE);
-        Map<String, Object> extendParameter  = new HashMap<>();
-        extendParameter.put("traceDisplay",Constants.WAYBILL_TRACE_DISPLAY);
-        traceDto.setExtendParameter(extendParameter);
         logger.info("违禁品包裹维度退回全程跟踪-{}",JSON.toJSONString(traceDto));
         waybillQueryManager.sendBdTrace(traceDto);
     }
