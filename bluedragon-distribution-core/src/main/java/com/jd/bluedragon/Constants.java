@@ -1147,6 +1147,11 @@ public class Constants {
      */
     public static final String WAYBILLTRACE_WASTE_GA = "750";
 
+    /**
+     * 运单状态  异常退回
+     */
+    public static final String WAYBILLTRACE_EX_RETURN = "-3040";
+
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
 
@@ -2092,9 +2097,8 @@ public class Constants {
     /**
      *  逆向原因编码
      *
-     * 2-拦截逆向
+     * 2-拦截逆向 3-清关异常
      */
     public static final Integer INTERCEPT_REVERSE_CODE = 2;
-
-
+    public static final Integer INTERCEPT_REVERSE_CODE_3 = 3;
 }

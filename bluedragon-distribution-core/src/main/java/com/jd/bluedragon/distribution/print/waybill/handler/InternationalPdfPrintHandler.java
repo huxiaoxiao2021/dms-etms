@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
+import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 国际化PDF打印处理链
@@ -56,6 +58,12 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
             return interceptResult;
         }
         
+        // 判断是否需要打印
+        if(checkIsNeedPrintAndFillPack(context)){
+            interceptResult.toFail("包裹已打印!");
+            return interceptResult;
+        }
+        
         // 调用云打印获取pdf链接
         String pdfUrl = generateCloudPrintPdfUrl(request);
         if(StringUtils.isEmpty(pdfUrl)){
@@ -63,13 +71,30 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
             return interceptResult;
         }
         context.getBasePrintWaybill().setLabelFileDownloadUrl(pdfUrl);
+        
         // 推送咚咚-pdf链接
 //        noticeToDD(context);
         
         interceptResult.toBreak(WaybillPrintMessages.CODE_INTERNATIONAL_SUC, "云打印成功");
         return interceptResult;
     }
-    
+
+    private boolean checkIsNeedPrintAndFillPack(WaybillPrintContext context) {
+        WaybillPrintRequest request = context.getRequest();
+        if(Objects.equals(request.getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())){
+            // 换单打印需判断是否已操作过打印
+            Optional<String> optional = context.getResponse().getPackList()
+                    .stream().filter(item -> !item.getIsPrintPack())
+                    .map(PrintPackage::getPackageCode)
+                    .findFirst();
+            // 当前需打印包裹号
+            String packageCode = optional.orElse(null);
+            // fill request packageCode
+            request.setPackageBarCode(packageCode);
+            return StringUtils.isEmpty(packageCode);
+        }
+        return false;
+    }
     
     private boolean checkIsGA(WaybillPrintContext context) {
         WaybillExtVO waybillExtVO = context.getWaybill().getWaybillExtVO();
