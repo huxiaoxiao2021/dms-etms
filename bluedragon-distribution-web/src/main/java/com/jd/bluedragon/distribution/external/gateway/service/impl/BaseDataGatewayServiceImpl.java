@@ -284,24 +284,18 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
         response.toSucceed();
         Pager<StreamlinedBasicSite> pageData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
         response.setData(pageData);
-        try {
-            Result<Pager<BasicSiteVO>> flowDirection = jyBasicSiteQueryManager.getFlowDirection(request);
-            if (!flowDirection.isSuccess()) {
-                log.warn("BaseService.getFlowDirection error " + JsonHelper.toJson(flowDirection));
-                response.toFail("该包裹获取流向异常");
-                return response;
-            }
-            Pager<StreamlinedBasicSite> streamlinedBasicSitePager = new Pager<>();
-            if(ObjectHelper.isNotEmpty(flowDirection)){
-                streamlinedBasicSitePager.setData(JsonHelper.jsonToList(JsonHelper.toJson(flowDirection.getData().getData()), StreamlinedBasicSite.class));
-                streamlinedBasicSitePager.setTotal(flowDirection.getData().getTotal());
-            }
-            response.setData(streamlinedBasicSitePager);
-        } catch (Exception e) {
-            log.error("BaseDataGatewayServiceImpl.getFlowDirection exception ", e);
-            response.toError("接口处理异常");
+        Result<Pager<BasicSiteVO>> flowDirection = jyBasicSiteQueryManager.getFlowDirection(request);
+        if (!flowDirection.isSuccess()) {
+            log.warn("BaseService.getFlowDirection error " + JsonHelper.toJson(flowDirection));
+            response.toFail("该包裹获取流向异常");
+            return response;
         }
-
+        Pager<StreamlinedBasicSite> streamlinedBasicSitePager = new Pager<>();
+        if(ObjectHelper.isNotEmpty(flowDirection)){
+            streamlinedBasicSitePager.setData(JsonHelper.jsonToList(JsonHelper.toJson(flowDirection.getData().getData()), StreamlinedBasicSite.class));
+            streamlinedBasicSitePager.setTotal(flowDirection.getData().getTotal());
+        }
+        response.setData(streamlinedBasicSitePager);
         return response;
     }
 }
