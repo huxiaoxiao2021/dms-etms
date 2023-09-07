@@ -595,7 +595,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				if(!map.isEmpty()) {
 					bdTraceDto.setExtendParameter(map);
 				}
-                this.log.info("向运单系统回传全程跟踪，逆向换单打印调用：" );
+                this.log.info("向运单系统回传全程跟踪，逆向换单打印调用：{}", JsonHelper.toJson(bdTraceDto));
                 waybillQueryManager.sendBdTrace(bdTraceDto);
 //                this.taskService.doDone(task);
                 task.setYn(0);
