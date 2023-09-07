@@ -170,14 +170,14 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 	/**
 	 * 根据bizId调后端获取任务详细信息
 	 *
-	 * @param bizId
+	 * @param query
 	 * @return
 	 */
 	@Override
-	public Result<WorkGridManagerReportVo> queryTaskDataByBizId(String bizId) {
+	public Result<WorkGridManagerReportVo> queryTaskDataByBizId(WorkGridMangerReportdetailQuery query) {
 		Result<WorkGridManagerReportVo> result = new Result<WorkGridManagerReportVo>();
 		result.toSuccess("查询成功！");
-		JyWorkGridManagerData taskData = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(bizId);
+		JyWorkGridManagerData taskData = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(query.getBizId());
 		if (taskData == null) {
 			result.toFail("任务数据不存在！");
 			return result;
