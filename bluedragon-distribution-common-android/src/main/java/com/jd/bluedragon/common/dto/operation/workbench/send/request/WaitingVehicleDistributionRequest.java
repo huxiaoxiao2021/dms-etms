@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.send.request;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *  待派车列表请求体
@@ -27,6 +28,12 @@ public class WaitingVehicleDistributionRequest implements Serializable {
      * 用户姓名
      */
     private String userName;
+
+    /**
+     * 待派车任务状态
+     * @see com.jd.bluedragon.common.dto.operation.workbench.enums.TmsDistributeVehicleStatusEnum
+     */
+    private List<Integer> statusList;
 
     /**
      * 当前页数
@@ -68,6 +75,14 @@ public class WaitingVehicleDistributionRequest implements Serializable {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public List<Integer> getStatusList() {
+        return statusList;
+    }
+
+    public void setStatusList(List<Integer> statusList) {
+        this.statusList = statusList;
     }
 
     public Integer getPageNumber() {

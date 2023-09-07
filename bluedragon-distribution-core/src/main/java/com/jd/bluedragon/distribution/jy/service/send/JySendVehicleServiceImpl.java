@@ -4654,6 +4654,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             BaseStaffSiteOrgDto destSite = baseMajorManager.getBaseSiteBySiteId(request.getDestSiteCode());
             queryDto.setEndNodeCode(destSite.getDmsSiteCode());
         }
+        // 目前已确认状态必填
+        if (CollectionUtils.isEmpty(request.getStatusList())) {
+            List<Integer> statusList = new ArrayList<>();
+            statusList.add(TmsDistributeVehicleStatusEnum.CONFIRMED.getCode());
+            queryDto.setStatusList(statusList);
+        }
         return queryDto;
     }
 
