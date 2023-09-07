@@ -328,7 +328,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         traceDto.setOperatorUserName(dto.getCreateStaffName());
         traceDto.setOperatorTime(new Date());
         traceDto.setWaybillTraceType(Constants.WAYBILL_TRACE_TYPE);
-
+        Map<String, Object> extendParameter  = new HashMap<>();
+        extendParameter.put("traceDisplay",Constants.WAYBILL_TRACE_DISPLAY);
+        traceDto.setExtendParameter(extendParameter);
         logger.info("违禁品运单维度安检全程跟踪-{}",JSON.toJSONString(traceDto));
         waybillQueryManager.sendBdTrace(traceDto);
     }
