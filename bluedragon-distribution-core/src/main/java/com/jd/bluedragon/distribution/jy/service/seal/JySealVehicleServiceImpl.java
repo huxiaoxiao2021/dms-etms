@@ -427,6 +427,22 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         sendVehicleTransactionManager.updateTaskStatus(taskSend, taskSendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
     }
 
+    private void sealCarStatusUpdateAndSummary(String bizId, String detailBizId, String userErp, String userName, String sealCarTime,
+                                  JyStatisticsSummaryEntity summaryEntity) {
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(detailBizId);
+        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(bizId);
+        taskSend.setUpdateTime(new Date());
+        taskSend.setUpdateUserErp(userErp);
+        taskSend.setUpdateUserName(userName);
+
+        taskSendDetail.setSealCarTime(DateHelper.parseDate(sealCarTime, Constants.DATE_TIME_FORMAT));
+        taskSendDetail.setUpdateTime(taskSend.getUpdateTime());
+        taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
+        taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
+
+        sendVehicleTransactionManager.sealCarStatusUpdateAndSummary(taskSend, taskSendDetail, summaryEntity);
+    }
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.getTransWorkItemByWorkItemCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<TransportResp> getTransWorkItemByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq) {
@@ -1105,7 +1121,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     jySendSealCodeService.addBatch(entityList);
                 }
                 //发车任务状态修改
-                this.updateTaskStatus(request.getBizId(), request.getDetailBizId(), request.getUser().getUserErp(), request.getUser().getUserName(), sealCarDto.getSealCarTime());
+                JyStatisticsSummaryEntity summaryEntity = this.generateSealSummaryEntity(request, sealAllBatchCodes);
+                this.sealCarStatusUpdateAndSummary(request.getBizId(), request.getDetailBizId(), request.getUser().getUserErp(), request.getUser().getUserName(), sealCarDto.getSealCarTime(), summaryEntity);
                 //任务明细绑定批次号重置
                 if (ObjectHelper.isNotNull(sealResp.getData())){
                     List<com.jd.etms.vos.dto.SealCarDto> successSealCarList =(List<com.jd.etms.vos.dto.SealCarDto>)sealResp.getData();
@@ -1125,6 +1142,38 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             //释放锁
             jySeaCarlCacheService.unlockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.VEHICLE.getCode());
         }
+    }
+
+    private JyStatisticsSummaryEntity generateSealSummaryEntity(ShuttleTaskSealCarReq request, List<String> batchCodes){
+
+        String businessKey ;
+        String businessKeyType ;
+        if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(request.getPost())) {
+            businessKey = request.getDetailBizId();
+            businessKeyType = BusinessKeyTypeEnum.JY_SEND_TASK_DETAIL.getCode();
+        }else {
+            businessKey = request.getBizId();
+            businessKeyType = BusinessKeyTypeEnum.JY_SEND_TASK.getCode();
+        }
+        Date time = new Date();
+        JyStatisticsSummaryEntity summaryEntity = new JyStatisticsSummaryEntity(
+                businessKey, businessKeyType,
+                request.getCurrentOperate().getSiteCode(), SummarySourceEnum.SEAL.getCode());
+        summaryEntity.setWeight(request.getWeight());
+        summaryEntity.setVolume(request.getVolume());
+        summaryEntity.setItemNum(request.getItemNum());
+        summaryEntity.setSealBatchCodeNum(batchCodes.size());
+        summaryEntity.setSubBusinessNum(1);
+        summaryEntity.setTransportCode(request.getTransportCode());
+        summaryEntity.setCreateTime(time);
+        summaryEntity.setUpdateTime(time);
+        summaryEntity.setCreateUserErp(request.getUser().getUserErp());
+        summaryEntity.setCreateUserName(request.getUser().getUserName());
+        summaryEntity.setUpdateUserErp(request.getUser().getUserErp());
+        summaryEntity.setUpdateUserName(request.getUser().getUserName());
+        summaryEntity.setDepartTime(request.getDepartureTimeStr());
+
+        return summaryEntity;
     }
     //摆渡封车-前置任务校验
     private boolean sealCarShuttleTaskCheck(ShuttleTaskSealCarReq request, InvokeResult<Void> res) {

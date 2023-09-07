@@ -260,6 +260,17 @@ public class SendVehicleTransactionManager {
         return true;
     }
 
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.sealCarStatusUpdateAndSummary",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean sealCarStatusUpdateAndSummary(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity sendDetail, JyStatisticsSummaryEntity summaryEntity) {
+        if(sendVehicleTransactionManager.updateTaskStatus(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.SEALED)) {
+            if(!Objects.isNull(summaryEntity)) {
+                statisticsSummaryService.insertSelective(summaryEntity);
+            }
+        }
+        return true;
+    }
 
     /**
      * 更新发货任务状态--航空类型发货任务

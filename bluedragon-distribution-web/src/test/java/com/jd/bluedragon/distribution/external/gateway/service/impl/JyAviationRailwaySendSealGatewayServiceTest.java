@@ -297,10 +297,10 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
     @Test
     public void testShuttleTaskSealCar() {
 
-        String transportCode = "T200820001041";
+        String transportCode = "T200312000816";
         Integer endSiteId = 40240;
-        String bizId = "SST23090600000027";
-        String detailBizId = "TW23090600977709-001";
+        String bizId = "SST23090700000025";
+        String detailBizId = "TW23090700977922-001";
 
 
         ScanAndCheckTransportInfoReq request = new ScanAndCheckTransportInfoReq();
@@ -326,7 +326,7 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         sealReq.setDetailBizId(detailBizId);
         sealReq.setTransportCode(transportCode);
 
-        List<String> batchCodes = Arrays.asList("910-40240-20230831148514042");
+        List<String> batchCodes = Arrays.asList("910-40240-20230425114453733");
         sealReq.setScanBatchCodes(batchCodes);
         List<String> sealCodes = Arrays.asList("1111111111C","2222222222C","3333333333C");
         sealReq.setScanSealCodes(sealCodes);
