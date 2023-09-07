@@ -2005,7 +2005,7 @@ public class WaybillResource {
 	private Integer queryReverseReasonCode(Integer createSiteCode, String waybillCode) {
 		// 外单逆向换单 && 中转站 && 港澳单 && 全程跟踪-3040节点 则设置清关异常
 		if(SiteHelper.isSortTransferSite(siteService.getOwnSite(createSiteCode))){
-			com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+			com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
 			if(waybill != null && waybill.getWaybillExt() != null 
 					&& BusinessUtil.isGAWaybill(waybill.getWaybillExt().getStartFlowDirection(), waybill.getWaybillExt().getEndFlowDirection())){
 				if(waybillTraceManager.isExReturn(waybillCode)){
