@@ -165,9 +165,16 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 发货任务完成
-     * @param req
+     * @param request
      * @return
      */
-    JdCResponse<Void> aviationSendComplete(AviationSendCompleteReq req);
+    JdCResponse<Void> aviationSendComplete(AviationSendCompleteReq request);
+
+    /**
+     * 扫描批次号校验运力
+     * @param request
+     * @return
+     */
+    JdCResponse<ScanSendCodeValidRes> validateTranCodeAndSendCode(ScanSendCodeValidReq request);
 
 } 

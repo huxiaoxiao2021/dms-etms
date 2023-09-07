@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendScanResp;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendVehicleProgressResp;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.TransportDataDto;
+import com.jd.bluedragon.common.dto.seal.request.ShuttleTaskSealCarReq;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -21,10 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @Author zhengchengfa
@@ -298,7 +296,56 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
     @Test
     public void testShuttleTaskSealCar() {
-        aviationRailwaySendSealGatewayService.shuttleTaskSealCar(null);
+
+        String transportCode = "T200820001041";
+        Integer endSiteId = 40240;
+        String bizId = "SST23090600000027";
+        String detailBizId = "TW23090600977709-001";
+
+
+        ScanAndCheckTransportInfoReq request = new ScanAndCheckTransportInfoReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+        request.setTransportCode(transportCode);
+        request.setNextSiteId(endSiteId);
+        request.setTaskType(SendTaskTypeEnum.VEHICLE.getCode());
+
+
+        ShuttleTaskSealCarReq sealReq = new ShuttleTaskSealCarReq();
+        sealReq.setCurrentOperate(SITE_910);
+        sealReq.setUser(USER_wuyoude);
+        sealReq.setGroupCode(GROUP_CODE);
+        sealReq.setPost(POST);
+        sealReq.setWeight(11d);
+        sealReq.setVolume(12d);
+        sealReq.setItemNum(100);
+        sealReq.setPalletCount(10);
+        sealReq.setBizId(bizId);
+        sealReq.setDetailBizId(detailBizId);
+        sealReq.setTransportCode(transportCode);
+
+        List<String> batchCodes = Arrays.asList("910-40240-20230831148514042");
+        sealReq.setScanBatchCodes(batchCodes);
+        List<String> sealCodes = Arrays.asList("1111111111C","2222222222C","3333333333C");
+        sealReq.setScanSealCodes(sealCodes);
+
+        int i = 0;
+        while (i++ < 100) {
+            JdCResponse<TransportDataDto> transportDataDtoJdCResponse = aviationRailwaySendSealGatewayService.scanAndCheckTransportInfo(request);
+            if(!transportDataDtoJdCResponse.isSucceed() || Objects.isNull(transportDataDtoJdCResponse.getData())) {
+                continue;
+            }
+            TransportDataDto transportDataDto = transportDataDtoJdCResponse.getData();
+
+
+            sealReq.setDepartureTimeStr(transportDataDto.getDepartureTimeStr());
+            sealReq.setTransWay(transportDataDto.getTransWay());
+            sealReq.setTransWayName(transportDataDto.getTransTypeName());
+            JdCResponse<Void> res = aviationRailwaySendSealGatewayService.shuttleTaskSealCar(sealReq);
+            System.out.println("succ");
+        }
 
     }
 
@@ -407,5 +454,26 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setSendVehicleBizId("SST23082400000051");
         JdCResponse<Void> response = aviationRailwaySendSealGatewayService.aviationSendComplete(request);
         System.out.println(JsonHelper.toJson(response));
+    }
+
+
+    @Test
+    public void testValidateTranCodeAndSendCode() {
+        String transportCode = "T200820001041";
+        String sendCode = "910-40240-20230831148514042";
+        ScanSendCodeValidReq request = new ScanSendCodeValidReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+
+        request.setSendCode(sendCode);
+        request.setTransportCode(transportCode);
+        int i = 0;
+        while(i++<100) {
+            Object obj = aviationRailwaySendSealGatewayService.validateTranCodeAndSendCode(request);
+            System.out.println("succ");
+        }
+
     }
 }

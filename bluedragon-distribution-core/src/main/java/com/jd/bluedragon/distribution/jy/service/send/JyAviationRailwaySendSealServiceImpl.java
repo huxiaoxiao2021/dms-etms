@@ -1,14 +1,17 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
+import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
+import com.jd.bluedragon.common.dto.seal.request.ValidSendCodeReq;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -45,6 +48,8 @@ import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
@@ -128,7 +133,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     private JySealVehicleService jySealVehicleService;
     @Autowired
     private JdiQueryWSManager jdiQueryWSManager;
-
+    @Autowired
+    private SendDatailDao sendDatailDao;
 
 
     @Override
@@ -1367,5 +1373,50 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         taskDto.setAirType(entity.getAirType());
         taskDto.setNextSiteId(entity.getNextSiteId());
         taskDto.setNextSiteName(entity.getNextSiteName());
+    }
+
+
+    @Override
+    public InvokeResult<ScanSendCodeValidRes> validateTranCodeAndSendCode(ScanSendCodeValidReq request) {
+        InvokeResult<ScanSendCodeValidRes> res = new InvokeResult<>();
+
+        ValidSendCodeReq sealVehicleReq = new ValidSendCodeReq();
+        sealVehicleReq.setSendCode(request.getSendCode());
+        sealVehicleReq.setTransportCode(request.getTransportCode());
+        sealVehicleReq.setVehicleNumber(request.getVehicleNumber());
+        sealVehicleReq.setSealCarType(SealCarTypeEnum.SEAL_BY_TASK.getType());
+        sealVehicleReq.setSealCarSource(SealCarSourceEnum.COMMON_SEAL_CAR.getCode());
+        InvokeResult<SealCarSendCodeResp> weightVolumeRes = jySealVehicleService.validateTranCodeAndSendCode(sealVehicleReq);
+        if(!weightVolumeRes.codeSuccess()) {
+            res.setCode(weightVolumeRes.getCode());
+            res.setMessage(weightVolumeRes.getMessage());
+            return res;
+        }
+
+        ScanSendCodeValidRes resData = new ScanSendCodeValidRes();
+        resData.setBatchCode(request.getSendCode());
+        resData.setWeight(0d);
+        resData.setVolume(0d);
+        resData.setItemNum(0);
+        res.setData(resData);
+
+        if(!Objects.isNull(weightVolumeRes) && !Objects.isNull(weightVolumeRes.getData())) {
+            BigDecimal bdWeight = weightVolumeRes.getData().getPackageWeightTotal();
+            BigDecimal bdVolume = weightVolumeRes.getData().getPackageVolumeTotal();
+            if(!Objects.isNull(bdWeight) && NumberHelper.gt0(bdWeight)) {
+                resData.setWeight(bdWeight.doubleValue());
+            }
+            if(!Objects.isNull(bdVolume) && NumberHelper.gt0(bdVolume)) {
+                resData.setVolume(bdVolume.doubleValue());
+            }
+        }
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+        sendDetail.setSendCode(request.getSendCode());
+        Integer itemNum = sendDatailDao.countBoxCodeSingleBySendCode(sendDetail);
+        if(NumberHelper.gt0(itemNum)) {
+            resData.setItemNum(itemNum);
+        }
+        return res;
     }
 }

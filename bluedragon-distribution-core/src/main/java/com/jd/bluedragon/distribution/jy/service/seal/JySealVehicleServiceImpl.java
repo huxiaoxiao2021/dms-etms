@@ -1108,7 +1108,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 this.updateTaskStatus(request.getBizId(), request.getDetailBizId(), request.getUser().getUserErp(), request.getUser().getUserName(), sealCarDto.getSealCarTime());
                 //任务明细绑定批次号重置
                 if (ObjectHelper.isNotNull(sealResp.getData())){
-                    List<SealCarDto> successSealCarList =(List<SealCarDto>)sealResp.getData();
+                    List<com.jd.etms.vos.dto.SealCarDto> successSealCarList =(List<com.jd.etms.vos.dto.SealCarDto>)sealResp.getData();
+
                     this.saveSealSendCode(successSealCarList.get(0).getBatchCodes(), request.getBizId(), request.getDetailBizId(), request.getUser().getUserErp(), request.getUser().getUserName());
                 }
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);

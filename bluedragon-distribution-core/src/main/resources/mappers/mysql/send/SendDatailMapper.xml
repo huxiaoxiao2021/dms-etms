@@ -907,6 +907,16 @@
 		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		group by box_code
 	</select>
+
+	<select id="countBoxCodeSingleBySendCode" parameterType="SendDetail" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM send_d
+		WHERE is_cancel=0
+		AND yn = 1
+		AND send_code = #{sendCode,jdbcType=VARCHAR}
+		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		group by box_code
+	</select>
     
     <select id="queryWaybillsByDepartID" parameterType="java.lang.Long" resultMap="SendDetail">
         SELECT sd.waybill_code,sd.package_barcode

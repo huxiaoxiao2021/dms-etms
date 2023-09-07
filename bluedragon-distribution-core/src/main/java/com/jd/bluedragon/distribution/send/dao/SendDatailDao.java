@@ -310,6 +310,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return	this.getSqlSession().selectList(SendDatailDao.namespace + ".queryBoxCodeSingleBySendCode", sendDetail);
     }
 
+    public Integer countBoxCodeSingleBySendCode(SendDetail sendDetail){
+        return	this.getSqlSession().selectOne(SendDatailDao.namespace + ".countBoxCodeSingleBySendCode", sendDetail);
+    }
+
     public List<SendDetail> queryWaybillsByDepartID(Long departureID) {
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".queryWaybillsByDepartID", departureID);

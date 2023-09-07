@@ -643,4 +643,34 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             return new JdCResponse<>(JdCResponse.CODE_ERROR, JsonHelper.toJson(ex), null);//500+非自定义异常
         }
     }
+
+    @Override
+    public JdCResponse<ScanSendCodeValidRes> validateTranCodeAndSendCode(ScanSendCodeValidReq request) {
+        if(Objects.isNull(request)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.validateTranCodeAndSendCode:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
+            if(StringUtils.isBlank(request.getTransportCode())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "运力编码为空", null);
+            }
+            if(StringUtils.isBlank(request.getSendCode())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "批次号为空", null);
+            }
+            //服务调用
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            }
+            return retJdCResponse(jyAviationRailwaySendSealService.validateTranCodeAndSendCode(request));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "扫描批次号服务异常", null);//500+非自定义异常
+        }
+    }
 }
