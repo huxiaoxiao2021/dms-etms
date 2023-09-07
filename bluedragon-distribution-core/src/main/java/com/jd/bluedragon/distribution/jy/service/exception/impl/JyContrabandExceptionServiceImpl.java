@@ -378,6 +378,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         }
         if(!WaybillUtil.isPackageCode(dto.getBarCode())){
             logger.warn("barCode 不是包裹号!");
+            return;
         }
         BdTraceDto traceDto = new BdTraceDto();
         traceDto.setPackageBarCode(dto.getBarCode());
@@ -391,7 +392,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         calendar.add(Calendar.SECOND,5);
         Date time = calendar.getTime();
         traceDto.setOperatorTime(time);
-        traceDto.setWaybillTraceType(3);
+        traceDto.setWaybillTraceType(Constants.WAYBILL_TRACE_TYPE_PACKAGE);
+        Map<String, Object> extendParameter  = new HashMap<>();
+        extendParameter.put("traceDisplay",Constants.WAYBILL_TRACE_DISPLAY);
+        traceDto.setExtendParameter(extendParameter);
         logger.info("违禁品包裹维度退回全程跟踪-{}",JSON.toJSONString(traceDto));
         waybillQueryManager.sendBdTrace(traceDto);
     }
