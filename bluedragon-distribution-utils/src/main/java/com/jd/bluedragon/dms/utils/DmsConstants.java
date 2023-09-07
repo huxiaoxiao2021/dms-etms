@@ -479,5 +479,5 @@ public class DmsConstants {
     /**
      * 笼车前缀
      */
-    public static final String COLLECTION_LL_PREFIX = "JL";
+    public static final String COLLECTION_JL_PREFIX = "JL";
 }

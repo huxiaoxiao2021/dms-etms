@@ -2622,7 +2622,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 if (needBindMaterialBag) {
                     // 箱号未绑定集包袋
                     if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
-                        if (!BusinessUtil.collectionBagCheckNotLLType(request.getMaterialCode())) {
+                        if (!BusinessUtil.isCollectionBag(request.getMaterialCode()) || BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
                             response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
                             response.addInterceptBox(0, "请扫描或输入正确的集包袋！");
                             return false;
@@ -2637,7 +2637,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
                     if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
                         response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
-                        response.addInterceptBox(0, CODE_BINDING_MATERIAL_TYPE_MESSAGE);
+                        response.addInterceptBox(0, HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR, Boolean.TRUE));
                         return false;
                     }
                 }

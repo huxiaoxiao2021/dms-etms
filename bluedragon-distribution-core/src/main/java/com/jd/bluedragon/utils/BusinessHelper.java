@@ -1106,7 +1106,7 @@ public class BusinessHelper {
     }
 
     /**
-     * 校验是否是BC箱号类型
+     * 校验是否是LL箱号类型
      */
     public static Boolean isLLBoxType(String boxType){
         if(StringUtils.isEmpty(boxType)){

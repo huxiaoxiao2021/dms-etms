@@ -300,10 +300,6 @@ public class InvokeResult<T> implements Serializable {
     // 生鲜特保
     public static final int CODE_FRESH_SPECIAL = 348;
     public static final String CODE_FRESH_SPECIAL_MESSAGE = "生鲜特保件";
-
-    // 绑定循环集包袋
-    public static final int CODE_BINDING_MATERIAL_TYPE_CODE = 3071;
-    public static final String CODE_BINDING_MATERIAL_TYPE_MESSAGE = "扫描的笼车/围板箱集包袋号不正确，请扫描笼车/围板箱上面的固定物资条码";
     
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
