@@ -108,6 +108,12 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
         return list != null && list.size() > 0;
     }
 
+    public boolean isExReturn(String waybillCode){
+        List<PackageState> list = getAllOperationsByOpeCodeAndState(waybillCode,
+                new HashSet<>(Lists.newArrayList(Integer.valueOf(Constants.WAYBILLTRACE_EX_RETURN))));
+        return list != null && list.size() > 0;
+    }
+
     /**
      * 获取包裹的全程跟踪状态
      * @param packageCode

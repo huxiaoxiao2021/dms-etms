@@ -28,13 +28,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.reverse.domain.DmsPackageDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillAddress;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
-import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
-import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
+import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -43,14 +37,7 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.cp.wbms.client.api.ReverseWaybillApi;
-import com.jd.cp.wbms.client.dto.ConsigneeDto;
-import com.jd.cp.wbms.client.dto.ReverseWaybillRequest;
-import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
-import com.jd.cp.wbms.client.dto.WaybillConsigneeDto;
-import com.jd.cp.wbms.client.dto.WaybillConsignorDto;
-import com.jd.cp.wbms.client.dto.WaybillPackageDto;
-import com.jd.cp.wbms.client.dto.WbmsApiResult;
-import com.jd.cp.wbms.client.dto.WbmsRequestProfile;
+import com.jd.cp.wbms.client.dto.*;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.receive.api.response.GrossReturnResponse;
@@ -491,7 +478,9 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
         boolean isFullOrderFail = waybillCancelService.isFullOrderFail(exchangeWaybillDto.getWaybillCode());
         if(isFullOrderFail) {
             waybillReverseDTO.setChargeType(CHARGE_TYPE_2);
-        }        
+        }
+        // 逆向原因编码
+        waybillReverseDTO.setReverseReasonCode(exchangeWaybillDto.getReverseReasonCode());
         return waybillReverseDTO;
     }
 
