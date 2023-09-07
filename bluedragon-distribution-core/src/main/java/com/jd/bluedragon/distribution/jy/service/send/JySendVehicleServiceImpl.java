@@ -71,7 +71,6 @@ import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -4659,8 +4658,26 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 waitingVehicleDistribution.setVehicleNumber(dto.getVehicleNumber());
                 waitingVehicleDistribution.setLineType(dto.getTransType());
                 waitingVehicleDistribution.setLineTypeName(dto.getTransTypeName());
-//                waitingVehicleDistribution.setPlanDispatchVehicleTime(dto.getPlanDispatchVehicleTime());
-//                waitingVehicleDistribution.setDestSiteName(dto.getEndNodeName());
+
+                List<WaitingVehicleDistributionDetail> flowList = new ArrayList<>();
+                waitingVehicleDistribution.setFlowList(flowList);
+                if (CollectionUtils.isNotEmpty(dto.getTransJobItemDtoList())) {
+                    for (TmsTransJobItemDto itemDto : dto.getTransJobItemDtoList()) {
+                        WaitingVehicleDistributionDetail detail = new WaitingVehicleDistributionDetail();
+                        detail.setTransJobItemCode(itemDto.getTransJobItemCode());
+                        detail.setTransportCode(itemDto.getTransportCode());
+                        detail.setPlanDepartTime(itemDto.getPlanDepartTime());
+
+                        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteByDmsCode(itemDto.getEndNodeCode());
+                        if (siteOrgDto != null) {
+                            detail.setEndSiteId(siteOrgDto.getSiteCode().longValue());
+                            detail.setEndSiteName(siteOrgDto.getSiteName());
+                        }
+
+
+                        flowList.add(detail);
+                    }
+                }
 
                 JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
                 entity.setVehicleType(dto.getVehicleType());

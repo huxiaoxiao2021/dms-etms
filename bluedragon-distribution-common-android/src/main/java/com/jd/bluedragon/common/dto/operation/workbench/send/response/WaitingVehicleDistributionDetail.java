@@ -1,65 +1,27 @@
 package com.jd.bluedragon.common.dto.operation.workbench.send.response;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class WaitingVehicleDistributionDetail{
+public class WaitingVehicleDistributionDetail extends BaseSendVehicleDetail {
     private static final long serialVersionUID = 7945709655964500422L;
 
     /**
      * 待派车任务号
      */
-    private String transJobCode;
+    private String transJobItemCode;
 
     /**
      * 运力资源编码
      */
     private String transportCode;
 
-    /**
-     * 预计派车时间
-     */
-    private Date planDispatchVehicleTime;
-
-    /**
-     * 目的场地编码
-     */
-    private Integer destSiteCode;
-
-    /**
-     * 目的场地名称
-     */
-    private String destSiteName;
-
-    public String getTransJobCode() {
-        return transJobCode;
+    public String getTransJobItemCode() {
+        return transJobItemCode;
     }
 
-    public void setTransJobCode(String transJobCode) {
-        this.transJobCode = transJobCode;
-    }
-
-    public Date getPlanDispatchVehicleTime() {
-        return planDispatchVehicleTime;
-    }
-
-    public void setPlanDispatchVehicleTime(Date planDispatchVehicleTime) {
-        this.planDispatchVehicleTime = planDispatchVehicleTime;
-    }
-
-    public Integer getDestSiteCode() {
-        return destSiteCode;
-    }
-
-    public void setDestSiteCode(Integer destSiteCode) {
-        this.destSiteCode = destSiteCode;
-    }
-
-    public String getDestSiteName() {
-        return destSiteName;
-    }
-
-    public void setDestSiteName(String destSiteName) {
-        this.destSiteName = destSiteName;
+    public void setTransJobItemCode(String transJobItemCode) {
+        this.transJobItemCode = transJobItemCode;
     }
 
     public String getTransportCode() {
