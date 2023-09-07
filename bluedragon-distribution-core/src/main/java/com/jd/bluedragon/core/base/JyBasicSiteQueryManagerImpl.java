@@ -201,7 +201,7 @@ public class JyBasicSiteQueryManagerImpl implements JyBasicSiteQueryManager {
                     if (ObjectHelper.isNotEmpty(routeNextDto) && ObjectHelper.isNotEmpty(routeNextDto.getFirstNextSiteId())) {
                         getFlowDirectionQuery.setSearchStr(String.valueOf(routeNextDto.getFirstNextSiteId()));
                     } else {
-                        logger.error("该包裹未获取到流向，入参：getFlowDirectionQuery:{},searchStr:{}", JSONObject.toJSONString(getFlowDirectionQuery), getFlowDirectionQuery.getSearchStr(), e);
+                        logger.error("该包裹未获取到流向，入参：getFlowDirectionQuery:{},routeNextDto:{}", JSONObject.toJSONString(getFlowDirectionQuery), routeNextDto);
                         throw new JyBizException("该包裹未获取到流向！");
                     }
                 }
