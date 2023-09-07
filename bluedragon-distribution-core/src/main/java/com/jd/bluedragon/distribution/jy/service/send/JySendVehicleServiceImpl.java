@@ -4652,7 +4652,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         // 目的网点非必填
         if (request.getDestSiteCode() != null) {
             BaseStaffSiteOrgDto destSite = baseMajorManager.getBaseSiteBySiteId(request.getDestSiteCode());
-            queryDto.setEndNodeCode(destSite.getDmsSiteCode());
+            if (destSite != null) {
+                queryDto.setEndNodeCode(destSite.getDmsSiteCode());
+            }
         }
         // 目前已确认状态必填
         if (CollectionUtils.isEmpty(request.getStatusList())) {
