@@ -11,7 +11,12 @@ public class WaitingVehicleDistributionRequest implements Serializable {
     /**
      * 始发网点
      */
-    private Integer siteCode;
+    private Integer sourceSiteCode;
+
+    /**
+     * 目的网点
+     */
+    private Integer destSiteCode;
 
     /**
      * 用户erp
@@ -33,12 +38,20 @@ public class WaitingVehicleDistributionRequest implements Serializable {
      */
     private Integer pageSize;
 
-    public Integer getSiteCode() {
-        return siteCode;
+    public Integer getSourceSiteCode() {
+        return sourceSiteCode;
     }
 
-    public void setSiteCode(Integer siteCode) {
-        this.siteCode = siteCode;
+    public void setSourceSiteCode(Integer sourceSiteCode) {
+        this.sourceSiteCode = sourceSiteCode;
+    }
+
+    public Integer getDestSiteCode() {
+        return destSiteCode;
+    }
+
+    public void setDestSiteCode(Integer destSiteCode) {
+        this.destSiteCode = destSiteCode;
     }
 
     public String getUserErp() {

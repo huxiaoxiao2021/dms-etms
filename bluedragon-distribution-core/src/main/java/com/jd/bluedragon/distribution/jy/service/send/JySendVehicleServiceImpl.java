@@ -4641,13 +4641,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     private TransJobPdaQueryDto getTransJobPdaQueryDto(WaitingVehicleDistributionRequest request) {
-        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(request.getSiteCode());
+        BaseStaffSiteOrgDto sourceSite = baseMajorManager.getBaseSiteBySiteId(request.getSourceSiteCode());
 
         TransJobPdaQueryDto queryDto = new TransJobPdaQueryDto();
         Date now = new Date();
-        queryDto.setBeginNodeCode(siteOrgDto.getDmsSiteCode());
+        queryDto.setBeginNodeCode(sourceSite.getDmsSiteCode());
         queryDto.setPlanDepartTimeBegin(new Date());
         queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, uccConfig.getFetchCarDistributionTimeRange()));
+
+        // 目的网点非必填
+        if (request.getDestSiteCode() != null) {
+            BaseStaffSiteOrgDto destSite = baseMajorManager.getBaseSiteBySiteId(request.getDestSiteCode());
+            queryDto.setEndNodeCode(destSite.getDmsSiteCode());
+        }
         return queryDto;
     }
 
@@ -4693,8 +4699,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             invokeResult.parameterError("用户erp不能为空！");
             return false;
         }
-        if (request.getSiteCode() == null) {
-            invokeResult.parameterError("场地编码不能为空！");
+        if (request.getSourceSiteCode() == null) {
+            invokeResult.parameterError("始发网点不能为空！");
             return false;
         }
         if (request.getPageNumber() == null) {
