@@ -4661,6 +4661,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             List<Integer> statusList = new ArrayList<>();
             statusList.add(TmsDistributeVehicleStatusEnum.CONFIRMED.getCode());
             queryDto.setStatusList(statusList);
+        } else {
+            queryDto.setStatusList(request.getStatusList());
         }
         return queryDto;
     }
