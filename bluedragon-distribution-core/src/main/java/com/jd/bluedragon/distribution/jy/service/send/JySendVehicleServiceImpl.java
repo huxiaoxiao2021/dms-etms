@@ -4611,10 +4611,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         List<WaitingVehicleDistribution> waitingVehicleDistributions = new ArrayList<>();
         com.jd.bluedragon.common.dto.base.request.Pager<WaitingVehicleDistribution> pager = new com.jd.bluedragon.common.dto.base.request.Pager<>();
-        pager.setPageNo(request.getPageNumber());
-        pager.setPageSize(request.getPageSize());
-        pager.setTotal(0L);
-        pager.setData(waitingVehicleDistributions);
+
 
         com.jd.tms.workbench.dto.CommonDto<PageDto<TmsTransJobBillDto>> commonDto = pdaSorterApiManager.queryTransJobPage(accountDto, queryDto, pageDto);
         if (commonDto == null) {
@@ -4627,6 +4624,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
         assembleWaitingVehicleDistributionList(commonDto.getData().getResult(), waitingVehicleDistributions);
+        pager.setPageNo(request.getPageNumber());
+        pager.setPageSize(request.getPageSize());
+        pager.setTotal((long) waitingVehicleDistributions.size());
+        pager.setData(waitingVehicleDistributions);
 
         invokeResult.setData(pager);
         return invokeResult;
