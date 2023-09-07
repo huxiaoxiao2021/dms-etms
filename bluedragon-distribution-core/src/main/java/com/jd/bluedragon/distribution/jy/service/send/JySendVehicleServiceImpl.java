@@ -4603,7 +4603,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
         AccountDto accountDto = getAccountDto(request.getUserErp(), request.getUserName());
-        TransJobPdaQueryDto queryDto = getTransJobPdaQueryDto(request);
+        TransJobPdaQueryDto queryDto = getTransJobPdaQueryDto(request, invokeResult);
 
         PageDto<TmsTransJobBillDto> pageDto = new PageDto<>();
         pageDto.setCurrentPage(request.getPageNumber());
@@ -4641,7 +4641,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return accountDto;
     }
 
-    private TransJobPdaQueryDto getTransJobPdaQueryDto(WaitingVehicleDistributionRequest request) {
+    private TransJobPdaQueryDto getTransJobPdaQueryDto(WaitingVehicleDistributionRequest request, InvokeResult<com.jd.bluedragon.common.dto.base.request.Pager<WaitingVehicleDistribution>> invokeResult) {
         BaseStaffSiteOrgDto sourceSite = baseMajorManager.getBaseSiteBySiteId(request.getSourceSiteCode());
 
         TransJobPdaQueryDto queryDto = new TransJobPdaQueryDto();
@@ -4649,13 +4649,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         queryDto.setBeginNodeCode(sourceSite.getDmsSiteCode());
         queryDto.setPlanDepartTimeBegin(new Date());
         queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, uccConfig.getFetchCarDistributionTimeRange()));
+        queryDto.setTransType(request.getLineType());
 
         // 目的网点非必填
         if (request.getDestSiteCode() != null) {
             BaseStaffSiteOrgDto destSite = baseMajorManager.getBaseSiteBySiteId(request.getDestSiteCode());
-            if (destSite != null) {
-                queryDto.setEndNodeCode(destSite.getDmsSiteCode());
+            if (destSite == null) {
+                invokeResult.error("请扫描或输入正确的场地编码！");
+                return queryDto;
             }
+            queryDto.setEndNodeCode(destSite.getDmsSiteCode());
         }
         // 目前已确认状态必填
         if (CollectionUtils.isEmpty(request.getStatusList())) {

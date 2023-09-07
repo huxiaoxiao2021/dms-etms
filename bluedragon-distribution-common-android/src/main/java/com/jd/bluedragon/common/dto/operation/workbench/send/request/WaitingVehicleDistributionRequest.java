@@ -20,6 +20,12 @@ public class WaitingVehicleDistributionRequest implements Serializable {
     private Integer destSiteCode;
 
     /**
+     * 线路类型
+     * @see com.jd.bluedragon.distribution.jy.enums.JySendLineTypeEnum
+     */
+    private Integer lineType;
+
+    /**
      * 用户erp
      */
     private String userErp;
@@ -83,6 +89,14 @@ public class WaitingVehicleDistributionRequest implements Serializable {
 
     public void setStatusList(List<Integer> statusList) {
         this.statusList = statusList;
+    }
+
+    public Integer getLineType() {
+        return lineType;
+    }
+
+    public void setLineType(Integer lineType) {
+        this.lineType = lineType;
     }
 
     public Integer getPageNumber() {
