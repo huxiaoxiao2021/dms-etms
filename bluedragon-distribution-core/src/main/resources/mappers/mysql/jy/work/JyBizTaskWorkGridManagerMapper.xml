@@ -478,7 +478,7 @@
                  process_end_time = #{processEndTime,jdbcType=TIMESTAMP},
                  update_user = #{updateUser,jdbcType=VARCHAR},
                  update_user_name = #{updateUserName,jdbcType=VARCHAR},
-                 update_time = #{updateTime,jdbcType=TIMESTAMP}
+                 update_time = #{updateTime,jdbcType=TIMESTAMP},
                  is_match = #{isMatch,jdbcType=TINYINT}
         where id = #{id,jdbcType=BIGINT}
     </update>
