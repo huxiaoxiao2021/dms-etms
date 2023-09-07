@@ -2044,11 +2044,11 @@ public class WaybillResource {
 		}
 		
 		try {
-			DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
-			StringBuilder errorMessage = new StringBuilder();
 			// fill request
 			request.setReverseReasonCode(queryReverseReasonCode(request.getCreateSiteCode(), request.getWaybillCode()));
-			// build dmsWaybillReverseResponseDTO
+			// build waybillReverseDTO
+			DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
+			StringBuilder errorMessage = new StringBuilder();
 			DmsWaybillReverseResponseDTO waybillReverseResponseDTO = waybillReverseManager.queryReverseWaybill(waybillReverseDTO,errorMessage);
 			if(waybillReverseResponseDTO == null){
 				//失败
