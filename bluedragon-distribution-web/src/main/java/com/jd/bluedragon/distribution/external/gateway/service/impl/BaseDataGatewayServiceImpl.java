@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.external.gateway.service.BaseDataGatewayService;
@@ -284,16 +285,24 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
         response.toSucceed();
         Pager<StreamlinedBasicSite> pageData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
         response.setData(pageData);
-        Result<Pager<BasicSiteVO>> flowDirection = jyBasicSiteQueryManager.getFlowDirection(request);
-        if (!flowDirection.isSuccess()) {
-            log.warn("BaseService.getFlowDirection error " + JsonHelper.toJson(flowDirection));
-            response.toFail("该包裹获取流向异常");
-            return response;
-        }
         Pager<StreamlinedBasicSite> streamlinedBasicSitePager = new Pager<>();
-        if(ObjectHelper.isNotEmpty(flowDirection)){
-            streamlinedBasicSitePager.setData(JsonHelper.jsonToList(JsonHelper.toJson(flowDirection.getData().getData()), StreamlinedBasicSite.class));
-            streamlinedBasicSitePager.setTotal(flowDirection.getData().getTotal());
+        try {
+            Result<Pager<BasicSiteVO>> flowDirection = jyBasicSiteQueryManager.getFlowDirection(request);
+            if (!flowDirection.isSuccess()) {
+                log.warn("BaseService.getFlowDirection error " + JsonHelper.toJson(flowDirection));
+                response.toFail("该包裹获取流向异常");
+                return response;
+            }
+            if (ObjectHelper.isNotEmpty(flowDirection)) {
+                streamlinedBasicSitePager.setData(JsonHelper.jsonToList(JsonHelper.toJson(flowDirection.getData().getData()), StreamlinedBasicSite.class));
+                streamlinedBasicSitePager.setTotal(flowDirection.getData().getTotal());
+            }
+        } catch (JyBizException e) {
+            log.error("BaseDataGatewayServiceImpl.selectSiteList JyBizException ", e);
+            response.toError(e.getMessage());
+        } catch (Exception e) {
+            log.error("BaseDataGatewayServiceImpl.selectSiteList exception ", e);
+            response.toError("接口处理异常");
         }
         response.setData(streamlinedBasicSitePager);
         return response;
