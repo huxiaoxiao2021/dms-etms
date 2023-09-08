@@ -429,7 +429,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	public BaseStaffSiteOrgDto queryDriverByDriverCode(Integer drivercode) {
 		try {
 			BaseStaffSiteOrgDto staffdto = baseMajorManager.getBaseStaffByStaffId(drivercode);
-			return staffdto;
+			return (staffdto == null || !Objects.equals(staffdto.getRole(), 2)) ? null : staffdto;
 		} catch (Exception e) {
 			log.error("调用basicMajorServiceProxy.getBaseStaffByStaffId(drivercode)异常,drivercode={}",drivercode, e);
 			return null;
