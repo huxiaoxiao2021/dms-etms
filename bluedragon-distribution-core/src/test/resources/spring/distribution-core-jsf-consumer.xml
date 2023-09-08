@@ -951,5 +951,14 @@
                   timeout="${jsf.waybill.timeout}"
                   retries="${jsf.retries}"
                   serialization="hessian"/>
-
+    <!--  出勤黑名单  -->
+    <jsf:consumer id="basicAttendanceBlackListJsfService"
+                  interface="com.jdl.basic.api.service.attBlackList.AttendanceBlackListJsfService"
+                  alias="test-att"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
 </beans>
