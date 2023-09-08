@@ -482,12 +482,13 @@
       and group_code = #{groupCode}
       and id
       &lt;
-          (select min(id)
-           from jy_group_sort_cross_detail
-           where group_code = #{groupCode}
-           group by template_code
-           order by min(id) desc
-      limit #{limit}
-        , 1)
+          (select minId.id
+           from (select min(id) as id
+                 from jy_group_sort_cross_detail
+                 where group_code = #{groupCode}
+                 group by template_code
+                 order by min(id) desc
+                   limit #{limit}
+                        , 1) minId)
   </update>
 </mapper>
