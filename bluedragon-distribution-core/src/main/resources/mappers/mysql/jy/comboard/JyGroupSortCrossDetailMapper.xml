@@ -475,12 +475,19 @@
   </select>
 
   <update id="deleteCTTGroupDataByGroupCode"
-          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto"
-  >
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto">
     update jy_group_sort_cross_detail
-    set yn = 0 where yn = 1 and group_code = #{groupCode} and id
-    <
-    (select min(id) from jy_group_sort_cross_detail where group_code = #{groupCode} group by template_code order by
-    min(id) desc limit #{limit}, 1)
+    set yn = 0
+    where yn = 1
+      and group_code = #{groupCode}
+      and id
+      &lt;
+          (select min(id)
+           from jy_group_sort_cross_detail
+           where group_code = #{groupCode}
+           group by template_code
+           order by min(id) desc
+      limit #{limit}
+        , 1)
   </update>
 </mapper>
