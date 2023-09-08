@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -23,6 +24,9 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
     
     @Autowired
     private JyExceptionService jyExceptionService;
+    
+    @Autowired
+    private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
 
     @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.timingHandlerOverTimeException",
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -44,5 +48,10 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
         }
         // 查询已领取的生鲜报废任务明细并通知领取人
         jyExceptionService.queryFreshScrapDetailAndNotice();
+    }
+
+    @Override
+    public void timingHandlerDeleteCTTGroupData() {
+        jyGroupSortCrossDetailService.deleteMixScanTaskOutLimit();
     }
 }

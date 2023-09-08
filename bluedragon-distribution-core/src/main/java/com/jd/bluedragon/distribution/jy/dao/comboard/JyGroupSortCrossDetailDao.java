@@ -123,4 +123,22 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
         return this.getSqlSession().update(NAMESPACE + ".deleteBySiteAndBizId", condition);
     }
 
+    /**
+     * 查询岗位下的网格信息
+     * @param code
+     * @return
+     */
+    public List<String> queryGroupCodeByFuncCode(String code) {
+        JyGroupSortCrossDetailEntityQueryDto condition = new JyGroupSortCrossDetailEntityQueryDto();
+        condition.setFuncType(code);
+        return this.getSqlSession().selectList(NAMESPACE + ".queryGroupCodeByFuncCode", condition);
+    }
+
+    /**
+     * 根据网格删除混扫任务
+     * @param queryDto
+     */
+    public int deleteCTTGroupDataByGroupCode(JyGroupSortCrossDetailEntityQueryDto queryDto) {
+        return this.getSqlSession().update(NAMESPACE + ".deleteCTTGroupDataByGroupCode", queryDto);
+    }
 }

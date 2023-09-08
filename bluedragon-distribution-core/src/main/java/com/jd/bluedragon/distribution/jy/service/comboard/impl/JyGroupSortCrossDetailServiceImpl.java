@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -438,5 +439,20 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             condition.setUpdateTime(new Date());
         }
         jyGroupSortCrossDetailDao.deleteBySiteAndBizId(condition);
+    }
+
+    @Override
+    public void deleteMixScanTaskOutLimit() {
+        Integer limit = ucc.getCttGroupDataLimit();
+        // 查询组板岗混扫任务下的所有网格信息
+        List<String> groupCodeList = jyGroupSortCrossDetailDao.queryGroupCodeByFuncCode(COMBOARD_SEND_POSITION.getCode());
+        
+        // 根据网格删除查询limit外的数据
+        for (String groupCode : groupCodeList) {
+            JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+            queryDto.setLimit(limit);
+            queryDto.setGroupCode(groupCode);
+            jyGroupSortCrossDetailDao.deleteCTTGroupDataByGroupCode(queryDto);
+        }
     }
 }
