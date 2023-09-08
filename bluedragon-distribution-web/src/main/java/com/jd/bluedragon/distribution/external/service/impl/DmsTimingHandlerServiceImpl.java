@@ -51,6 +51,8 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.timingHandlerFreshScrapNotice",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public void timingHandlerDeleteCTTGroupData() {
         jyGroupSortCrossDetailService.deleteMixScanTaskOutLimit();
     }
