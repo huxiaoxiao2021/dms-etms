@@ -466,8 +466,7 @@
   </update>
   
   <select id="queryGroupCodeByFuncCode"           
-          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto"
-          resultMap="BaseResultMap">
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto">
     select distinct group_code
     from jy_group_sort_cross_detail
     where func_type = #{funcType}
