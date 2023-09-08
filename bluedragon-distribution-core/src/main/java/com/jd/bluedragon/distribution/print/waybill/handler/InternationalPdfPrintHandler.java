@@ -70,6 +70,10 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
             interceptResult.toFail("单号:" + request.getPackageBarCode() + "调用云打印失败，请联系分拣小秘!");
             return interceptResult;
         }
+        
+        if(log.isInfoEnabled()){
+            log.info("单号:{}操作云打印的标签链接:{}", request.getPackageBarCode(), pdfUrl);
+        }
         context.getBasePrintWaybill().setLabelFileDownloadUrl(pdfUrl);
         
         // 推送咚咚-pdf链接
