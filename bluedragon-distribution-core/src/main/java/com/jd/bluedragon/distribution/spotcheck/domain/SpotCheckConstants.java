@@ -143,4 +143,8 @@ public class SpotCheckConstants {
      */
     public static final Integer SPOT_CHECK_AI_EXC_CODE = 40001;
 
+    /**
+     * AI图片识别原因：软包
+     */
+    public static final String PIC_AI_REASON_RB = "软包";
 }

@@ -107,11 +107,8 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
                 spotCheckServiceProxy.insertOrUpdateProxyReform(updateSpotDto);
             }
 
-            // 下发抽检数据
-            if(spotCheckDealService.spotCheckIssueIsRelyOnMachineStatus(weightVolumeSpotCheckDto.getReviewSiteCode())
-                    && Objects.equals(waybillMachineStatus, JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
-                spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
-            }
+            // 下发抽检数据处理
+            spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
 
         } catch (Exception e) {
             Profiler.functionError(info);
