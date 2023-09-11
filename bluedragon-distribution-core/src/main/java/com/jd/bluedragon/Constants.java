@@ -2028,4 +2028,12 @@ public class Constants {
      * 功能可用配置白名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
+
+
+    // 新版分拣中心规范-分拣中心类型
+    public static final Integer SORTING_SORT_TYPE = 12351;
+    // 新版分拣中心规范-分拣中心子类型
+    public static final Integer SORTING_SORT_SUBTYPE = 123511;
+    // 新版分拣中心规范-接货仓类型
+    public static final Integer JHC_SORT_TYPE = 12352;
 }

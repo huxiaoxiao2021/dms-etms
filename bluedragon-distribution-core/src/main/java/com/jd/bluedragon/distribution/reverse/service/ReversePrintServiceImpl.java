@@ -55,12 +55,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
 import com.jd.eclp.bbp.notice.enums.ChannelEnum;
@@ -250,6 +245,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     private WaybillAddApi waybillAddApi;
 
+    @Qualifier("bdBlockerCompleteMQ")
+    @Autowired
+    private DefaultJMQProducer bdBlockerCompleteMQ;
+
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -322,6 +321,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         //pushMqService.pubshMq(REVERSE_PRINT_MQ_TOPIC, createMqBody(domain.getOldCode()), domain.getOldCode());
         //  这里将要下掉  modified by zhanglei 20161025
 //        bdBlockerCompleteMQ.sendOnFailPersistent(domain.getOldCode(),createMqBody(domain.getOldCode()));
+        
+        // 推送拦截系统
+        pushMq2Block(domain);
+        
         /**
          * 逆向换单打印发送换单mq added by zhanglei 20161123
          */
@@ -361,6 +364,41 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
         return true;
+    }
+
+    private void pushMq2Block(ReversePrintRequest request) {
+        // 换单打印-满足以下情况则推送快速退款拦截消息
+        // 1、分拣、接货仓场地操作
+        // 2、自营生鲜
+        // 3、正向单预分拣站点是自营营业部
+        // 4、生成的JDT新单号的预分拣站点类型为仓或备件库
+        int operateSiteCode = request.getSiteCode();
+        Site operateSite = siteService.getOwnSite(operateSiteCode);
+        if(!SiteHelper.isSortingCenter(operateSite) && !SiteHelper.isReceiveWms(operateSite)){
+            return;
+        }
+        String oldWaybillCode = request.getOldCode();
+        com.jd.etms.waybill.domain.Waybill oldWaybill = waybillService.getWaybillByWayCode(oldWaybillCode);
+        if(oldWaybill == null || !BusinessUtil.isSelfFresh(oldWaybill.getSendPay())){
+            return;
+        }
+        Site oldSite = siteService.getOwnSite(oldWaybill.getOldSiteId());
+        if(!SiteHelper.isSelfSalesDeptSite(oldSite)){
+            return;
+        }
+        com.jd.etms.waybill.domain.Waybill newWaybill = waybillService.getWaybillByWayCode(request.getNewCode());
+        if(newWaybill == null){
+            return;
+        }
+        Site newOldSite = siteService.getOwnSite(newWaybill.getOldSiteId());
+        if(!SiteHelper.isSpsHouse(newOldSite) && !SiteHelper.isStoreHouse(newOldSite)){
+            return;
+        }
+        if(log.isInfoEnabled()){
+            log.info("老单号:{}操作换单打印推送快速退款拦截消息!", oldWaybillCode);
+        }
+        bdBlockerCompleteMQ.sendOnFailPersistent(oldWaybillCode,
+                BusinessUtil.bdBlockerCompleteMQ(oldWaybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_DMS, DateHelper.formatDateTimeMs(new Date())));
     }
 
     /**
