@@ -54,7 +54,7 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
         }
         inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
         inspection.setOperatorId(inspection.getMachineCode());
-
+        inspection.setOperatorData(uploadData.getOperatorData());
         TaskRequest request=new TaskRequest();
         request.setBusinessType(businessType);
         request.setKeyword1(String.valueOf(config.getCreateSiteCode()));
