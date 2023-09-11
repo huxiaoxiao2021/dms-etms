@@ -236,6 +236,7 @@ public interface WaybillSignConstants {
 	char CHAR_116_2 = '2';
 	char CHAR_116_3 = '3';
 	char CHAR_116_4 = '4';
+	char CHAR_116_5 = '5';
 	
 	/**
 	 * waybillsign第31位
