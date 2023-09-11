@@ -1,17 +1,27 @@
 package com.jd.bluedragon.distribution.collection;
 
-import com.jd.bluedragon.distribution.collection.entity.*;
-import com.jd.bluedragon.distribution.collection.enums.*;
+import com.jd.bluedragon.distribution.collection.entity.CollectionCodeEntity;
+import com.jd.bluedragon.distribution.collection.entity.CollectionCollectorEntity;
+import com.jd.bluedragon.distribution.collection.entity.CollectionCreatorEntity;
+import com.jd.bluedragon.distribution.collection.entity.CollectionScanCodeEntity;
+import com.jd.bluedragon.distribution.collection.enums.CollectionAggCodeTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionBusinessTypeEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionConditionKeyEnum;
+import com.jd.bluedragon.distribution.collection.enums.CollectionScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.collection.service.CollectionRecordService;
 import com.jd.bluedragon.distribution.test.AbstractTestCase;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.coo.sa.sn.GenContextItem;
+import com.jd.coo.sa.sn.SmartSNGen;
 import com.jd.dms.java.utils.sdk.base.Result;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -28,6 +38,11 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
 
     @Autowired
     private CollectionRecordService collectionRecordService;
+    @Autowired
+    private SmartSNGen smartJQCodeSNGen;
+
+    @Autowired
+    private SmartSNGen smartSendCodeSNGen;
 
     private static final CollectionCodeEntity collectionCodeEntityUnload = new CollectionCodeEntity(CollectionBusinessTypeEnum.unload_collection);
     static {
@@ -83,9 +98,24 @@ public class CollectionRecordServiceTest extends AbstractTestCase {
      */
     @Test
     public void getJQCodeByBusinessType() {
-        System.out.println(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntityUnload, "wzx"));
-        System.out.println(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntitySite1, "wzx"));
-        System.out.println(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntitySite2, "wzx"));
+        while (true) {
+
+            String jqCode = smartJQCodeSNGen.gen("dms");
+            System.out.println(jqCode);
+
+
+            GenContextItem[] genContextItems = new GenContextItem[3];
+            genContextItems[0] = GenContextItem.create("createSiteCode", "910");
+            genContextItems[1] = GenContextItem.create("receiveSiteCode", "10186");
+            genContextItems[2] = GenContextItem.create("currentTimeLong", DateHelper.formatDate(new Date(),"yyyyMMddHH"));
+
+            String sendCode = smartSendCodeSNGen.gen("dms", genContextItems);
+            System.out.println(sendCode);
+
+        }
+//        System.out.println(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntityUnload, "wzx"));
+//        System.out.println(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntitySite1, "wzx"));
+//        System.out.println(collectionRecordService.getOrGenJQCodeByBusinessType(collectionCodeEntitySite2, "wzx"));
     }
 
     /**

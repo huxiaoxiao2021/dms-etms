@@ -88,12 +88,10 @@ public class DwsAIDistinguishNotifyConsumer extends MessageBaseConsumer {
             dto.setPicIsQualify(picIsQualify ? Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
             spotCheckServiceProxy.insertOrUpdateProxyReform(dto);
             
-            // 图片合规则下发数据
-            if(picIsQualify){
-                WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = spotCheckDtoList.get(0);
-                weightVolumeSpotCheckDto.setPicIsQualify(Constants.NUMBER_ONE);
-                spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
-            }
+            // 下发数据处理
+            WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = spotCheckDtoList.get(0);
+            weightVolumeSpotCheckDto.setPicIsQualify(dto.getPicIsQualify());
+            spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
         } catch (SpotCheckSysException e) {
             logger.warn("设备图片AI识别MQ处理异常进行重试", e);
             throw e;
