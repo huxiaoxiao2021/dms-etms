@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.waybill.domain;
 
 import com.google.common.collect.Maps;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 
 import java.util.Date;
 import java.util.Map;
