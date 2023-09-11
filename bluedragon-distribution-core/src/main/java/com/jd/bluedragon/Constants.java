@@ -2101,4 +2101,16 @@ public class Constants {
      */
     public static final Integer INTERCEPT_REVERSE_CODE = 2;
     public static final Integer INTERCEPT_REVERSE_CODE_3 = 3;
+
+    /**
+     * 运单全程跟踪记录类型-包裹维度记录包裹全程跟踪 （packageBarCode为包裹号)
+     */
+    public static final Integer  WAYBILL_TRACE_TYPE_PACKAGE =3;
+
+    /**
+     * 对外展示话术标识  1 - 对外不展示话术
+     */
+    public static final Integer  WAYBILL_TRACE_DISPLAY =1;
+
+
 }
