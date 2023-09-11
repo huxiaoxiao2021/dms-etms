@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.jy.enums.JyBizDriverTagEnum;
+import com.jd.bluedragon.enums.JyBizDriverTagEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
@@ -10,7 +10,6 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
-import com.jd.tms.jdi.constans.TransDriverNodeNotifyTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +50,13 @@ public class TmsTransWorkDriverNodeConsumer extends MessageBaseConsumer {
             return;
         }
 
+        JyBizDriverTagEnum driverTagEnum = JyBizDriverTagEnum.getTagEnumByNodeCode(mqBody.getType());
+
+        if (driverTagEnum == null) {
+            logger.warn("根据type没找到司机动作枚举{}", mqBody.getType());
+            return;
+        }
+
         JyBizTaskSendVehicleDetailEntity detailRequest = new JyBizTaskSendVehicleDetailEntity();
         detailRequest.setTransWorkItemCode(mqBody.getTransWorkItemCode());
         // 任务明细
@@ -65,12 +71,7 @@ public class TmsTransWorkDriverNodeConsumer extends MessageBaseConsumer {
             logger.warn("找不到bizId对应的发货任务, BizId: {}", detailEntity.getSendVehicleBizId());
             return;
         }
-        JyBizDriverTagEnum driverTagEnum = JyBizDriverTagEnum.getTagEnumByNodeCode(mqBody.getType());
 
-        if (driverTagEnum == null) {
-            logger.warn("根据type没找到司机动作枚举{}", mqBody.getType());
-            return;
-        }
         // 只能按照顺序更新 但每个节点并不会一定有 比如不一定会超时未进
         // 超时未进->扫码靠台->超时未离
         if (driverTagEnum.getTag() > entity.getDriverTag()) {
@@ -90,16 +91,35 @@ public class TmsTransWorkDriverNodeConsumer extends MessageBaseConsumer {
 
     private class TmsTransWorkDriverNodeMqBody implements Serializable {
         private static final long serialVersionUID = 6850609984597965111L;
+        /**
+         * 派车编码
+         */
         private String transWorkCode;
 
+        /**
+         * 派车单明细编码
+         */
         private String transWorkItemCode;
 
+        /**
+         * 司机节点
+         */
         private String type;
 
+        /**
+         * 始发网点实际进场时间
+         */
         private Date beginRealArriveCarTime;
 
+        /**
+         * 扫码进场类型
+         * 1、扫码靠台；2、扫码异常无法扫码
+         */
         private Integer dockScanType;
 
+        /**
+         * 扫码靠台时间
+         */
         private Date dockTime;
 
         public String getTransWorkCode() {

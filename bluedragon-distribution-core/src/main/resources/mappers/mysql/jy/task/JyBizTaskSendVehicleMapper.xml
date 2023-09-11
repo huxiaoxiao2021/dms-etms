@@ -291,7 +291,7 @@
                 line_type_name = #{lineTypeName,jdbcType=VARCHAR},
             </if>
             <if test="driverTag != null">
-                driver_tag = #{driver_tag,jdbcType=TINYINT},
+                driver_tag = #{driver_tag,jdbcType=INTEGER},
             </if>
             <if test="lastPlanDepartTime != null">
                 last_plan_depart_time = #{lastPlanDepartTime,jdbcType=TIMESTAMP},
@@ -382,7 +382,7 @@
                 line_type_name = #{lineTypeName,jdbcType=VARCHAR},
             </if>
             <if test="driverTag != null">
-                driver_tag = #{driverTag,jdbcType=TINYINT},
+                driver_tag = #{driverTag,jdbcType=INTEGER},
             </if>
             <if test="lastPlanDepartTime != null">
                 last_plan_depart_time = #{lastPlanDepartTime,jdbcType=TIMESTAMP},

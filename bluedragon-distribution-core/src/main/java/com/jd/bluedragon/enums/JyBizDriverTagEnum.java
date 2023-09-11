@@ -1,4 +1,7 @@
-package com.jd.bluedragon.distribution.jy.enums;
+package com.jd.bluedragon.enums;
+
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleLabelOptionEnum;
+import com.jd.tms.jdi.constans.TransDriverNodeNotifyTypeEnum;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,13 +11,14 @@ import java.util.Map;
  */
 public enum JyBizDriverTagEnum {
 
-    DRIVER_TIMEOUT(1, "driverTimeOut", 6),
-    SCAN_DOCK(2, "scanDock", 5),
-    LEAVE_TIMEOUT(3, "leaveTimeOut", 7),
+    DRIVER_TIMEOUT(100,TransDriverNodeNotifyTypeEnum.DRIVER_TIME_OUT.getCode(), SendVehicleLabelOptionEnum.DRIVER_TIMEOUT.getCode()),
+    SCAN_DOCK(200, TransDriverNodeNotifyTypeEnum.SCAN_DOCK.getCode(), SendVehicleLabelOptionEnum.SCAN_DOCK.getCode()),
+    LEAVE_TIMEOUT(300, TransDriverNodeNotifyTypeEnum.LEAVE_TIME_OUT.getCode(), SendVehicleLabelOptionEnum.LEAVE_TIMEOUT.getCode()),
     ;
 
     private Integer tag;
     private String driverNodeCode;
+
     private Integer vehicleLabelOption;
 
     private static Map<Integer, JyBizDriverTagEnum> tagToVehicleTagEnumMap;
