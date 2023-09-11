@@ -1963,8 +1963,8 @@ public class BusinessUtil {
         }
         return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15) ||
-                (materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 14) ||
-                (materialCode.toUpperCase().startsWith(COLLECTION_JL_PREFIX) && materialCode.length() == 15);
+                (materialCode.toUpperCase().startsWith(COLLECTION_AD02_PREFIX) && materialCode.length() == 16) ||
+                (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
     }
 
     /**
@@ -1976,8 +1976,8 @@ public class BusinessUtil {
         if (StringUtils.isBlank(materialCode)) {
             return false;
         } 
-        return (materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 14) ||
-                (materialCode.toUpperCase().startsWith(COLLECTION_JL_PREFIX) && materialCode.length() == 15);
+        return (materialCode.toUpperCase().startsWith(COLLECTION_AD02_PREFIX) && materialCode.length() == 16) ||
+                (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
     }
     
     /**
