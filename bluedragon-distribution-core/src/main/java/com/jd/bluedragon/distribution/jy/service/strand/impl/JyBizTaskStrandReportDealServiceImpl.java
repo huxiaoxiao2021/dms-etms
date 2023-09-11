@@ -547,9 +547,11 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
     private String getScanSendCode(JyStrandReportScanReq scanRequest) {
         SendDetail sendDetail = new SendDetail();
         sendDetail.setCreateSiteCode(scanRequest.getCurrentOperate().getSiteCode());
-        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode()) || BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
+        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode()) ) {
+            sendDetail.setPackageBarcode(scanRequest.getScanBarCode());
+        } else if (BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
             sendDetail.setBoxCode(scanRequest.getScanBarCode());
-        } else if (WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
+        }else if (WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
             sendDetail.setWaybillCode(scanRequest.getScanBarCode());
         } else if (BusinessUtil.isBoardCode(scanRequest.getScanBarCode())) {
             SendM sendM = sendMDao.selectSendByBoardCode(scanRequest.getCurrentOperate().getSiteCode(), scanRequest.getScanBarCode(), SendStatusEnum.HAS_BEEN_SENDED.getCode());
