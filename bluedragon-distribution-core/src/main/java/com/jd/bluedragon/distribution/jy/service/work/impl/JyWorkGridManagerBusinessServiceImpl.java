@@ -267,19 +267,21 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	 */
 	private void reportAddMatchField(JyWorkGridManagerData taskData, JyBizTaskWorkGridManager updateTaskData) {
 		if (taskData.getTaskType().equals(BaseContants.NUMBER_THREE)) {
-			List<Integer> resultList = taskData.getCaseList().stream().map(JyWorkGridManagerCaseData::getCheckResult).collect(Collectors.toList());
-			//任务中有一个不符合      不符合
-			//任务中有符合和未选择    不符合
-			//任务中全是符合         符合
-			//任务中全是未选择       未选择
-			if (resultList.contains(WorkCheckResultEnum.UNPASS.getCode())) {
-				updateTaskData.setIsMatch(WorkCheckResultEnum.UNPASS.getCode());
-			} else if (resultList.contains(WorkCheckResultEnum.UNDO.getCode()) && resultList.contains(WorkCheckResultEnum.PASS.getCode())) {
-				updateTaskData.setIsMatch(WorkCheckResultEnum.UNPASS.getCode());
-			} else if (!resultList.contains(WorkCheckResultEnum.UNDO.getCode()) && !resultList.contains(WorkCheckResultEnum.UNPASS.getCode())) {
-				updateTaskData.setIsMatch(WorkCheckResultEnum.PASS.getCode());
-			} else if (!resultList.contains(WorkCheckResultEnum.PASS.getCode()) && !resultList.contains(WorkCheckResultEnum.UNPASS.getCode())) {
-				updateTaskData.setIsMatch(WorkCheckResultEnum.UNDO.getCode());
+			if (!CollectionUtils.isEmpty(taskData.getCaseList())) {
+				List<Integer> resultList = taskData.getCaseList().stream().map(JyWorkGridManagerCaseData::getCheckResult).collect(Collectors.toList());
+				//任务中有一个不符合      不符合
+				//任务中有符合和未选择    不符合
+				//任务中全是符合         符合
+				//任务中全是未选择       未选择
+				if (resultList.contains(WorkCheckResultEnum.UNPASS.getCode())) {
+					updateTaskData.setIsMatch(WorkCheckResultEnum.UNPASS.getCode());
+				} else if (resultList.contains(WorkCheckResultEnum.UNDO.getCode()) && resultList.contains(WorkCheckResultEnum.PASS.getCode())) {
+					updateTaskData.setIsMatch(WorkCheckResultEnum.UNPASS.getCode());
+				} else if (!resultList.contains(WorkCheckResultEnum.UNDO.getCode()) && !resultList.contains(WorkCheckResultEnum.UNPASS.getCode())) {
+					updateTaskData.setIsMatch(WorkCheckResultEnum.PASS.getCode());
+				} else if (!resultList.contains(WorkCheckResultEnum.PASS.getCode()) && !resultList.contains(WorkCheckResultEnum.UNPASS.getCode())) {
+					updateTaskData.setIsMatch(WorkCheckResultEnum.UNDO.getCode());
+				}
 			}
 		}
 		if (taskData.getTaskType().equals(BaseContants.NUMBER_ONE) || taskData.getTaskType().equals(BaseContants.NUMBER_TWO)) {
