@@ -4661,13 +4661,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             queryDto.setEndNodeCode(destSite.getDmsSiteCode());
         }
         // 目前已确认状态必填
-        if (CollectionUtils.isEmpty(request.getStatusList())) {
-            List<Integer> statusList = new ArrayList<>();
-            statusList.add(TmsDistributeVehicleStatusEnum.CONFIRMED.getCode());
-            queryDto.setStatusList(statusList);
-        } else {
-            queryDto.setStatusList(request.getStatusList());
-        }
+        List<Integer> statusList = new ArrayList<>();
+        statusList.add(TmsDistributeVehicleStatusEnum.INIT.getCode());
+        statusList.add(TmsDistributeVehicleStatusEnum.CONFIRMED.getCode());
+        queryDto.setStatusList(statusList);
         return queryDto;
     }
 
