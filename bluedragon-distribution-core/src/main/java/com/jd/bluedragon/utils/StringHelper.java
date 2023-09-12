@@ -1,6 +1,5 @@
 package com.jd.bluedragon.utils;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
@@ -13,8 +12,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
-
-import static com.jd.bluedragon.dms.utils.DmsConstants.LANDLINE_FIRST_NUMBER;
 
 public class StringHelper {
 
