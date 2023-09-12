@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.goodsPrint.service.GoodsPrintService;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
@@ -24,10 +25,14 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.dms.utils.WaybillVasUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
@@ -49,7 +54,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT;
@@ -77,6 +86,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private BaseMinorManager baseMinorManager;
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private GoodsPrintService goodsPrintService;
 
     /**
      * 奢侈品订单打标位起始值
@@ -186,6 +198,10 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             loadBasicData(context,context.getResponse());
             //加载路由信息
             waybillCommonService.loadWaybillRouter(context.getRequest(),context.getResponse(),context.getResponse().getOriginalDmsCode(),context.getResponse().getPurposefulDmsCode(),context.getWaybill().getWaybillSign());
+            //加载商品基础数据
+            loadGoodsInfo(context,context.getResponse());
+            //加载验证码
+            loadVerificationCode(context,context.getResponse());
         }catch (Exception ex){
             log.error("标签打印接口异常，运单号:{}", waybillCode,ex);
             interceptResult.toError();
@@ -218,6 +234,56 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             }
         }
         return true;
+    }
+
+    /**
+     * 加载增值服务
+     *
+     * @param context
+     * @param waybill
+     */
+    private void loadVerificationCode(WaybillPrintContext context, final PrintWaybill waybill) {
+        BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
+        if (ObjectHelper.isNotEmpty(bigWaybillDto)) {
+            List<WaybillVasDto> waybillVasList = bigWaybillDto.getWaybillVasList();
+            if (ObjectHelper.isNotEmpty(waybillVasList)) {
+                waybillVasList.forEach(waybillVas -> {
+                    if (StringUtils.isNotEmpty(waybillVas.getVasNo()) && waybillVas.getVasNo().equals(DmsConstants.AUTH_CODE)) {
+                        String verificationCode = waybillVas.getExtendMap().get(DmsConstants.VERIFICATION_CODE);
+                        waybill.setVerificationCodeWithTitle("核销码:" + verificationCode);
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * 加载商品信息
+     *
+     * @param context
+     */
+    private final void loadGoodsInfo(WaybillPrintContext context, final PrintWaybill waybill) {
+        if (BusinessUtil.isGetGoodsInfo(context.getWaybillSign())) {
+            //调查询商品的接口
+            try {
+                BaseEntity<Page<Goods>> goodsNameEntity = goodsPrintService.getTwentyGoodsNamePrint(context.getWaybill().getWaybillCode());
+                if (ObjectHelper.isNotEmpty(goodsNameEntity) && ObjectHelper.isNotEmpty(goodsNameEntity.getData())) {
+                    List<Goods> goodsList = goodsNameEntity.getData().getResult();
+                    if (ObjectHelper.isNotEmpty(goodsList)) {
+                        String spliceGoodsName = goodsList.stream().map(Goods::getGoodName).collect(Collectors.joining(";"));
+                        if (StringUtils.isNotEmpty(spliceGoodsName)) {
+                            if (spliceGoodsName.length() >= DmsConstants.NUMBER_HUNDRED) {
+                                waybill.setSpliceGoodsNameWithTitle("商品名称:" + spliceGoodsName.substring(DmsConstants.NUMBER_ONE, DmsConstants.NUMBER_HUNDRED));
+                            } else {
+                                waybill.setSpliceGoodsNameWithTitle("商品名称:" + spliceGoodsName);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("loadGoodsInfo加载商品信息失败! 入参：{}", JsonHelper.toJson(context), e);
+            }
+        }
     }
 
     /**
