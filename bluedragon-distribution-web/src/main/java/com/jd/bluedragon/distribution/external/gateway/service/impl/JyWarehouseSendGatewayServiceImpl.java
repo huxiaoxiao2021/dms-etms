@@ -967,7 +967,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.getSealVehicleInfo",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq) {
-        return retJdCResponse(jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq));
+        InvokeResult<SealVehicleInfoResp> sealVehicleInfo = jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq);
+        if (sealVehicleInfo != null && sealVehicleInfo.getData() != null) {
+            sealVehicleInfo.getData().setTransportCode("");
+        }
+        return retJdCResponse(sealVehicleInfo);
     }
 
     @Override
