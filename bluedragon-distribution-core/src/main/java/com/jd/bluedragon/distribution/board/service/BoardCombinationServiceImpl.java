@@ -1243,10 +1243,13 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         tWaybillStatus.setOperator(request.getUserName());
         tWaybillStatus.setOperateTime(new Date());
         tWaybillStatus.setOperateType(operateType);
-		OperatorData operatorData = new OperatorData();
-		operatorData.setOperatorTypeCode(request.getOperatorTypeCode());
-		operatorData.setOperatorId(request.getOperatorId());
-		tWaybillStatus.setOperatorData(operatorData);
+		tWaybillStatus.setOperatorData(request.getOperatorData());
+		if(request.getOperatorData() == null) {
+			OperatorData operatorData = new OperatorData();
+			operatorData.setOperatorTypeCode(request.getOperatorTypeCode());
+			operatorData.setOperatorId(request.getOperatorId());
+			tWaybillStatus.setOperatorData(operatorData);
+		}
         if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
             tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode() + "，等待送往" + request.getReceiveSiteName());
         } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {

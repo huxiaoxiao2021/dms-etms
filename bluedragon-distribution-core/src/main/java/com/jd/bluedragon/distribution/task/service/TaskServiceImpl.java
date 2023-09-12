@@ -6,6 +6,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.redis.TaskModeAgent;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -1000,6 +1001,13 @@ public class TaskServiceImpl implements TaskService {
         request.setBizSource(AUTOMATIC_SORTING_MACHINE_SORTING.getCode());
         request.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
         request.setOperatorId(dto.getMachineCode());
+        request.setOperatorData(dto.getOperatorData());
+    	if(request.getOperatorData() == null) {
+    		OperatorData operatorData = new OperatorData();
+    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+    		operatorData.setOperatorId(dto.getMachineCode());
+    		request.setOperatorData(operatorData);
+    	}        
         list.add(request);
         taskSorting.setBody(JsonHelper.toJson(list));
         return taskSorting;
@@ -1047,6 +1055,21 @@ public class TaskServiceImpl implements TaskService {
         inspectionAS.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
         inspectionAS.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
         inspectionAS.setOperatorId(uPackage.getMachineCode());
+        inspectionAS.setOperatorData(uPackage.getOperatorData());
+    	if(inspectionAS.getOperatorData() == null) {
+    		OperatorData operatorData = new OperatorData();
+    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+    		operatorData.setOperatorId(uPackage.getMachineCode());
+    		inspectionAS.setOperatorData(operatorData);
+    	}    	
+        if(uPackage.getOperatorData() != null) {
+    		inspectionAS.setOperatorData(uPackage.getOperatorData());
+    	}else {
+    		OperatorData operatorData = new OperatorData();
+    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+    		operatorData.setOperatorId(uPackage.getMachineCode());
+    		inspectionAS.setOperatorData(operatorData);
+    	}        
         inspectionASes.add(inspectionAS);
         return inspectionASes;
     }

@@ -52,9 +52,8 @@ public interface VirtualBoardService {
 
     SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode, Date operateTime);
     
-    void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName,
-                          Integer operateType, Integer bizSource);
-
+    void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, OperatorData operatorData,String boardCode, String destinationName,
+            Integer operateType, Integer bizSource);
     /**
      * 删除流向
      * @param removeDestinationPo 删除流向请求参数

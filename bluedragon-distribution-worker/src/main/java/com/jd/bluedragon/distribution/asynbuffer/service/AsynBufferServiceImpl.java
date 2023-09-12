@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
@@ -118,6 +119,12 @@ public class AsynBufferServiceImpl implements AsynBufferService {
                 if(request.getOperatorTypeCode() == null && StringUtils.isNotBlank(request.getMachineCode())){
                     request.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
                     request.setOperatorId(request.getMachineCode());
+                	if(request.getOperatorData() == null) {
+                		OperatorData operatorData = new OperatorData();
+                		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+                		operatorData.setOperatorId(request.getMachineCode());
+                		request.setOperatorData(operatorData);
+                	}
                 }
                 inspectionTaskExeStrategy.decideExecutor(request).process(request);
             }

@@ -96,7 +96,7 @@ public class WaybillComboardConsumer extends MessageBaseConsumer  {
     }
     private void sendComboardWaybillTrace(ComboardTaskDto dto) {
         OperatorInfo operatorInfo = assembleComboardOperatorInfo(dto);
-        virtualBoardService.sendWaybillTrace(dto.getBarCode(), operatorInfo, dto.getBoardCode(),
+        virtualBoardService.sendWaybillTrace(dto.getBarCode(), operatorInfo,dto.getOperatorData(), dto.getBoardCode(),
                 dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION, BizSourceEnum.PDA.getValue());
     }
 

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.ql.dms.common.domain.JdRequest;
 
 /**
@@ -52,6 +53,11 @@ public class BoardCombinationRequest extends JdRequest {
      * 操作者id
      */
 	private String operatorId;
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;	
+	
     
     public String getBoardCode() {
         return boardCode;
@@ -147,5 +153,13 @@ public class BoardCombinationRequest extends JdRequest {
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

@@ -94,7 +94,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
             }else {
                 // 发送取消组板全程跟踪
                 OperatorInfo operatorInfo = assembleComboardOperatorInfo(dto);
-                virtualBoardService.sendWaybillTrace(barCode, operatorInfo, dto.getBoardCode(),
+                virtualBoardService.sendWaybillTrace(barCode, operatorInfo,dto.getOperatorData(), dto.getBoardCode(),
                         dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
                         dto.getBizSource().getValue());
             }
@@ -123,6 +123,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         taskDto.setUserCode(request.getUserCode());
         taskDto.setOperatorTypeCode(request.getOperatorTypeCode());
         taskDto.setOperatorId(request.getOperatorId()); 
+        taskDto.setOperatorData(request.getOperatorData());
         for (int i = 0; i < pageTotal; i++) {
             taskDto.setPageNo(i + 1);
             taskDto.setPageSize(onePageSize);
@@ -158,6 +159,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         sendM.setYn(Constants.YN_NO);
         sendM.setOperatorTypeCode(request.getOperatorTypeCode());
         sendM.setOperatorId(request.getOperatorId());
+        sendM.setOperatorData(request.getOperatorData());
         return sendM;
     }
 }

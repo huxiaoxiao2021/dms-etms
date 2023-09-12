@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.common.JyOperateFlowDao" >
+
+	<resultMap id="JyOperateFlow" type="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlow" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="operate_biz_type" property="operateBizType" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_biz_sub_type" property="operateBizSubType" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_biz_key" property="operateBizKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_site_code" property="operateSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="operate_key" property="operateKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_value" property="operateValue" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,operate_biz_type,operate_biz_sub_type,operate_biz_key,operate_site_code,operate_key,
+		operate_value,operate_time,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlow" useGeneratedKeys="true" keyProperty="id">
+		insert into jy_operate_flow
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="operateBizType != null" >
+					operate_biz_type,
+				</if>
+				<if test="operateBizSubType != null" >
+					operate_biz_sub_type,
+				</if>
+				<if test="operateBizKey != null" >
+					operate_biz_key,
+				</if>
+				<if test="operateSiteCode != null" >
+					operate_site_code,
+				</if>
+				<if test="operateKey != null" >
+					operate_key,
+				</if>
+				<if test="operateValue != null" >
+					operate_value,
+				</if>
+				<if test="operateTime != null" >
+					operate_time,
+				</if>
+				<if test="ts != null" >
+					ts,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="operateBizType != null" >
+					#{operateBizType,jdbcType=VARCHAR},
+				</if>
+				<if test="operateBizSubType != null" >
+					#{operateBizSubType,jdbcType=VARCHAR},
+				</if>
+				<if test="operateBizKey != null" >
+					#{operateBizKey,jdbcType=VARCHAR},
+				</if>
+				<if test="operateSiteCode != null" >
+					#{operateSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="operateKey != null" >
+					#{operateKey,jdbcType=VARCHAR},
+				</if>
+				<if test="operateValue != null" >
+					#{operateValue,jdbcType=VARCHAR},
+				</if>
+				<if test="operateTime != null" >
+					#{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="ts != null" >
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlow">
+		update jy_operate_flow
+			<set>
+				<if test="id != null" >
+					id = #{id,jdbcType=BIGINT},
+				</if>
+				<if test="operateBizType != null" >
+					operate_biz_type = #{operateBizType,jdbcType=VARCHAR},
+				</if>
+				<if test="operateBizSubType != null" >
+					operate_biz_sub_type = #{operateBizSubType,jdbcType=VARCHAR},
+				</if>
+				<if test="operateBizKey != null" >
+					operate_biz_key = #{operateBizKey,jdbcType=VARCHAR},
+				</if>
+				<if test="operateSiteCode != null" >
+					operate_site_code = #{operateSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="operateKey != null" >
+					operate_key = #{operateKey,jdbcType=VARCHAR},
+				</if>
+				<if test="operateValue != null" >
+					operate_value = #{operateValue,jdbcType=VARCHAR},
+				</if>
+				<if test="operateTime != null" >
+					operate_time = #{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="ts != null" >
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="java.lang.Long">
+		update jy_operate_flow
+			set yn = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="queryById" parameterType="java.lang.Long" resultMap="JyOperateFlow">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			jy_operate_flow t
+		where yn = 1 and id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="queryListByConditionWithPage" parameterType="java.util.Map" resultMap="JyOperateFlow">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			jy_operate_flow t
+		where yn = 1 
+	</select>
+
+</mapper>

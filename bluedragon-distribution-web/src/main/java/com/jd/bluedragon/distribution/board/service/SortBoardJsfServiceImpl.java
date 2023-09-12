@@ -14,14 +14,17 @@ import com.jd.bluedragon.common.dto.comboard.request.ComboardDetailDto;
 import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
 import com.jd.bluedragon.common.dto.comboard.response.ComboardScanResp;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
+import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.*;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.sdk.modules.board.BoardChuteJsfService;
@@ -212,7 +215,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             //发送全程跟踪
             com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request);
 
-            virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
+            virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo,request.getOperatorData(), request.getBoard().getCode(),
                     request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
                     request.getBizSource());
             response.toSucceed();
@@ -735,11 +738,30 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setYn(1);
         domain.setCreateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
         domain.setOperateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
-        domain.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        domain.setOperatorId(request.getMachineCode());
+        setOperatorData(domain,request);
         return domain;
     }
-
+    /**
+     * 设置sendM操作信息
+     * @param sendM
+     * @param uploadData
+     * @param config
+     */
+    private void setOperatorData(SendM sendM,BindBoardRequest request) {
+    	if(sendM == null || request == null) {
+    		return;
+    	}
+    	sendM.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+    	sendM.setOperatorId(request.getMachineCode());
+    	if(request.getOperatorData() != null) {
+    		sendM.setOperatorData(request.getOperatorData());
+    	}else {
+    		OperatorData operatorData = new OperatorData();
+    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+    		operatorData.setOperatorId(request.getMachineCode());
+    		sendM.setOperatorData(operatorData);
+    	}
+    }
 
 
     public BoardChuteJsfService getBoardChuteJsfService() {

@@ -69,6 +69,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jsf.vehicle.VehicleBasicManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
@@ -133,6 +134,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
@@ -2360,8 +2362,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         Date date = new Date();
         domain.setCreateTime(date);
         domain.setOperateTime(date);
-        domain.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
-        domain.setOperatorId(request.getCurrentOperate().getOperatorId());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        domain.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        domain.setOperatorId(operatorData.getOperatorId());
+        domain.setOperatorData(operatorData);
         return domain;
     }
 

@@ -126,6 +126,7 @@ import com.jd.bluedragon.external.crossbow.itms.domain.ItmsCancelSendCheckSendCo
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
 import com.jd.bluedragon.external.crossbow.itms.service.TibetBizService;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -1935,6 +1936,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         sortDomain.setReceiveSiteName(receiveSiteName);
         sortDomain.setOperatorTypeCode(domain.getOperatorTypeCode());
         sortDomain.setOperatorId(domain.getOperatorId());
+        sortDomain.setOperatorData(domain.getOperatorData());
         sortDomain.setBizSource(domain.getBizSource());
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
         taskService.add(task, true);
@@ -3243,7 +3245,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     sendMItem.setUpdateUserCode(tSendM.getUpdateUserCode());
                     sendMItem.setOperatorId(tSendM.getOperatorId());
                     sendMItem.setOperatorTypeCode(tSendM.getOperatorTypeCode());
-
+                    sendMItem.setOperatorData(tSendM.getOperatorData());
                     //将板号添加到板号集合中
                     if(StringUtils.isNotBlank(sendMItem.getBoardCode())){
                         boardSet.add(sendMItem.getBoardCode());
@@ -3737,11 +3739,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         status.setOperatorId(tSendM.getUpdateUserCode());
         status.setRemark("取消发货，批次号为：" +sendDetail.getSendCode());
         status.setCreateSiteCode(tSendM.getCreateSiteCode());
-        OperatorData operatorData = new OperatorData();
-        operatorData.setOperatorId(tSendM.getOperatorId());
-        operatorData.setOperatorTypeCode(tSendM.getOperatorTypeCode());
-        status.setOperatorData(operatorData);
-
+        status.setOperatorData(BeanConverter.convertToOperatorData(tSendM));
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
 
         status.setCreateSiteName(dto.getSiteName());

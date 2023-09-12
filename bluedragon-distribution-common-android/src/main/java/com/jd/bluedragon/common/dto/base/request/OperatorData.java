@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.api.domain;
+package com.jd.bluedragon.common.dto.base.request;
 
 import java.io.Serializable;
 

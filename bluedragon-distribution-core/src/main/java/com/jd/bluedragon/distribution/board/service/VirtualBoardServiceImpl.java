@@ -43,6 +43,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
 import com.jd.eclp.common.util.DateUtil;
@@ -463,7 +464,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 result.setData(virtualBoardResultDto);
         		
                 // 发送全称跟踪，整板则按板中所有包裹号进行处理
-                sendWaybillTrace(bindToVirtualBoardPo.getBarCode(), bindToVirtualBoardPo.getOperatorInfo(),
+                OperatorData operatorData = BeanConverter.convertToOperatorData(bindToVirtualBoardPo.getOperatorInfo());
+                sendWaybillTrace(bindToVirtualBoardPo.getBarCode(), bindToVirtualBoardPo.getOperatorInfo(),operatorData,
                         virtualBoardResultDto.getBoardCode(), virtualBoardResultDto.getDestinationName(),
                         WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION, bindToVirtualBoardPo.getBizSource());
 
@@ -683,17 +685,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
      * @param operateType
      */
     @Override
-    public void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName,
+    public void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, OperatorData operatorData, String boardCode, String destinationName,
                                  Integer operateType, Integer bizSource) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             WaybillStatus waybillStatus = new WaybillStatus();
-            OperatorData operatorData = null;
-    		if(operatorInfo != null) {
-    			operatorData = new OperatorData();
-        		operatorData.setOperatorTypeCode(operatorInfo.getOperatorTypeCode());
-        		operatorData.setOperatorId(operatorInfo.getOperatorId()); 
-    		}
+            
             //设置站点相关属性
             waybillStatus.setPackageCode(barcode);
 
@@ -712,6 +709,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
             waybillStatus.setOperateType(operateType);
             waybillStatus.setOperatorData(operatorData);
+    		if(operatorData == null && operatorInfo != null) {
+        		waybillStatus.setOperatorData(BeanConverter.convertToOperatorData(operatorInfo));
+    		}
             if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
                 waybillStatus.setRemark("包裹号：" + waybillStatus.getPackageCode() + "已进行组板，板号" + boardCode + "，等待送往" + destinationName);
             } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
@@ -966,13 +966,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
                 waybillStatus.setRemark("已取消组板，板号" + boardCode);
             }
-    		OperatorData operatorData = null;
     		if(operatorInfo != null) {
-    			operatorData = new OperatorData();
-        		operatorData.setOperatorTypeCode(operatorInfo.getOperatorTypeCode());
-        		operatorData.setOperatorId(operatorInfo.getOperatorId()); 
+    	    	waybillStatus.setOperatorData(BeanConverter.convertToOperatorData(operatorInfo));   			
     		} 
-    		waybillStatus.setOperatorData(operatorData);
             // 添加到task表
             taskService.add(toTask(waybillStatus));
 

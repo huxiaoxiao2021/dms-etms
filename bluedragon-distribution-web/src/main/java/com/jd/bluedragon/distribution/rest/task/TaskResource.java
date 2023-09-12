@@ -5,6 +5,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -137,8 +138,8 @@ public class TaskResource {
             }
 
             //inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
-            inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-            inspection.setOperatorId(inspection.getMachineCode());	
+            setOperatorData(inspection);
+            
         }
         if(inspections.size() ==0){
             return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
@@ -147,6 +148,24 @@ public class TaskResource {
         request.setBody(JsonHelper.toJson(inspections));
         return add(request);
     }
+    /**
+     * 设置sendM操作信息
+     * @param inspection
+     */
+    private void setOperatorData(InspectionAS inspection) {
+    	if(inspection == null) {
+    		return;
+    	}
+		inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+		inspection.setOperatorId(inspection.getMachineCode());    	
+
+    	if(inspection.getOperatorData() == null) {
+    		OperatorData operatorData = new OperatorData();
+    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+    		operatorData.setOperatorId(inspection.getMachineCode());
+    		inspection.setOperatorData(operatorData);
+    	}
+    }    
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.addPack", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     @SuppressWarnings("unchecked")

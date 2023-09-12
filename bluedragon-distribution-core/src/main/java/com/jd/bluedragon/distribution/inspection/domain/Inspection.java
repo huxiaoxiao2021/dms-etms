@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.inspection.domain;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -159,7 +160,11 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
      * 操作者id
      */
 	private String operatorId;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
+	
     public Date getOperateTime() {
         return operateTime;
     }
@@ -583,6 +588,7 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 		inspection.setBizSource(requestBean.getBizSource());
 		inspection.setOperatorTypeCode(requestBean.getOperatorTypeCode());
 		inspection.setOperatorId(requestBean.getOperatorId());
+		inspection.setOperatorData(requestBean.getOperatorData());
 		return inspection;
 	}
 
@@ -708,5 +714,13 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

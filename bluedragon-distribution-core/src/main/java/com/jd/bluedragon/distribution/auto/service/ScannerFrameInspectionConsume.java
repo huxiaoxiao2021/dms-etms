@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.auto.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -11,6 +13,9 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +36,8 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
 
     @Override
     public boolean onMessage(UploadData uploadData, GantryDeviceConfig config) {
+    	CallerInfo callerInfo = ProfilerHelper.registerInfo("dmsWork.ScannerFrameInspectionConsume.onMessage");
+    	Profiler.registerInfoEnd(callerInfo);
         //默认验货为正向验货
         Integer businessType = Constants.BUSSINESS_TYPE_POSITIVE;
         if(config.getWaybillBusinessType() != null){
@@ -52,9 +59,11 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
         if (StringUtils.isNotEmpty(uploadData.getRegisterNo())){
             inspection.setMachineCode(uploadData.getRegisterNo());
         }
-        inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        inspection.setOperatorId(inspection.getMachineCode());
-        inspection.setOperatorData(uploadData.getOperatorData());
+        /**
+         * 设置操作对象信息
+         */
+        setOperatorData(inspection,uploadData);
+        
         TaskRequest request=new TaskRequest();
         request.setBusinessType(businessType);
         request.setKeyword1(String.valueOf(config.getCreateSiteCode()));
@@ -75,5 +84,20 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
         }
         int result= this.taskService.add(task, true);
         return result>0;
+    }
+    private void setOperatorData(InspectionRequest inspection,UploadData uploadData) {
+    	if(inspection == null || uploadData == null) {
+    		return;
+    	}
+        inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+        inspection.setOperatorId(inspection.getMachineCode());
+    	if(uploadData.getOperatorData() != null) {
+    		inspection.setOperatorData(uploadData.getOperatorData());
+    	}else {
+    		OperatorData operatorData = new OperatorData();
+    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+    		operatorData.setOperatorId(inspection.getMachineCode());
+    		inspection.setOperatorData(operatorData);
+    	}
     }
 }

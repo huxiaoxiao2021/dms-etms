@@ -47,6 +47,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.ucc.common.utils.JsonUtils;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -282,10 +283,8 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         Date operateTime = request.getOperateTime() == null ? new Date() : new Date(request.getOperateTime());
         tWaybillStatus.setOperateTime(operateTime);
         tWaybillStatus.setOperateType(operateType);
-		OperatorData operatorData = new OperatorData();
-		operatorData.setOperatorTypeCode(request.getOperatorTypeCode());
-		operatorData.setOperatorId(request.getOperatorId());
-		tWaybillStatus.setOperatorData(operatorData);
+        tWaybillStatus.setOperatorData(BeanConverter.convertToOperatorData(request));
+
         if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
             String boardReceiveSiteName = request.getReceiveSiteName();
             if(StringUtils.isBlank(boardReceiveSiteName)) {

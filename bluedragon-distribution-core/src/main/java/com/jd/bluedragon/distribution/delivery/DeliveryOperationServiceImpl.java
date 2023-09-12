@@ -478,7 +478,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
 
     private void sendComboardWaybillTrace(ComboardTaskDto dto) {
         OperatorInfo operatorInfo = assembleComboardOperatorInfo(dto);
-        virtualBoardService.sendWaybillTrace(dto.getBarCode(), operatorInfo, dto.getBoardCode(),
+        virtualBoardService.sendWaybillTrace(dto.getBarCode(), operatorInfo,dto.getOperatorData(), dto.getBoardCode(),
             dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION, BizSourceEnum.PDA.getValue());
     }
 
@@ -564,7 +564,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             operatorInfo.setOperatorTypeCode(dto.getOperatorTypeCode());
             operatorInfo.setOperatorId(dto.getOperatorId()); 
             virtualBoardService.sendWaybillTrace(packageD.getPackageBarcode(),
-                    operatorInfo,dto.getBoardCode(),dto.getSiteName(),
+                    operatorInfo,dto.getOperatorData(),dto.getBoardCode(),dto.getSiteName(),
                     WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
                     BizSourceEnum.PDA.getValue());
         }
