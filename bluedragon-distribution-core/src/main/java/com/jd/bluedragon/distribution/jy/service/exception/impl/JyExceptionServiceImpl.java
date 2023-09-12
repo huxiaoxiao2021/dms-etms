@@ -815,7 +815,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("条码不能为空!");
         }
         // 三无系统只处理大写字母
-        req.setBarCode(req.getBarCode().toUpperCase());
+        req.setBarCode(WaybillUtil.getWaybillCode(req.getBarCode().toUpperCase()));
 
         String positionCode = req.getPositionCode();
         PositionDetailRecord position = getPosition(positionCode);
