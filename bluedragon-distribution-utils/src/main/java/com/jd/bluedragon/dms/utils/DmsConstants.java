@@ -503,4 +503,11 @@ public class DmsConstants {
         add("HK");
         add("MO");
     }};
+    //authCode
+    public static final String AUTH_CODE = "authCode";
+    // verificationCode
+    public static final String VERIFICATION_CODE = "verificationCode";
+
+    public static final Integer NUMBER_ZERO = 0; //数字0
+    public static final Integer NUMBER_HUNDRED = 100; //数字100
 }

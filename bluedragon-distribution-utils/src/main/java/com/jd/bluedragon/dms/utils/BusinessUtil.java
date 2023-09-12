@@ -2850,4 +2850,17 @@ public class BusinessUtil {
     public static boolean isGAWaybill(String waybillStart, String waybillEnd){
         return DmsConstants.HK_MO_REGION.contains(waybillStart) || DmsConstants.HK_MO_REGION.contains(waybillEnd);
     }
+
+    /**
+     * 是否是售后取件单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAfterSalePickupSlip(String waybillSign) {
+        if (StringUtils.isEmpty(waybillSign)){
+            return false;
+        }
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_124,WaybillSignConstants.CHAR_124_2);
+    }
 }
