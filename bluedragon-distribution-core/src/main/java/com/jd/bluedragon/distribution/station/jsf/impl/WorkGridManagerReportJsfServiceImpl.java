@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.jsf.impl;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.work.domain.WorkGridMangerReportdetailQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,5 +43,16 @@ public class WorkGridManagerReportJsfServiceImpl implements WorkGridManagerRepor
 	@Override
 	public Result<PageDto<WorkGridManagerReportVo>> queryPageList(WorkGridManagerReportQuery query) {
 		return workGridManagerReportService.queryPageList(query);
+	}
+
+	/**
+	 * 根据bizId调后端获取任务详细信息
+	 *
+	 * @param query
+	 * @return
+	 */
+	@Override
+	public Result<WorkGridManagerReportVo> queryTaskDataByBizId(WorkGridMangerReportdetailQuery query) {
+		return workGridManagerReportService.queryTaskDataByBizId(query);
 	}
 }
