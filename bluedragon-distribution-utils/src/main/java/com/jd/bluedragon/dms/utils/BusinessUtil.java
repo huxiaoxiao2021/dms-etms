@@ -2852,12 +2852,12 @@ public class BusinessUtil {
     }
 
     /**
-     * 获取商品信息
+     * 是否是售后取件单
      *
      * @param waybillSign
      * @return
      */
-    public static boolean isGetGoodsInfo(String waybillSign) {
+    public static boolean isAfterSalePickupSlip(String waybillSign) {
         if (StringUtils.isEmpty(waybillSign)){
             return false;
         }

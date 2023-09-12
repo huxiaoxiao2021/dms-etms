@@ -263,17 +263,17 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * @param context
      */
     private final void loadGoodsInfo(WaybillPrintContext context, final PrintWaybill waybill) {
-        if (BusinessUtil.isGetGoodsInfo(context.getWaybillSign())) {
+        if (BusinessUtil.isAfterSalePickupSlip(context.getWaybillSign())) {
             //调查询商品的接口
             try {
                 BaseEntity<Page<Goods>> goodsNameEntity = goodsPrintService.getTwentyGoodsNamePrint(context.getWaybill().getWaybillCode());
                 if (ObjectHelper.isNotEmpty(goodsNameEntity) && ObjectHelper.isNotEmpty(goodsNameEntity.getData())) {
                     List<Goods> goodsList = goodsNameEntity.getData().getResult();
-                    if (ObjectHelper.isNotEmpty(goodsList)) {
+                    if (CollectionUtils.isNotEmpty(goodsList)) {
                         String spliceGoodsName = goodsList.stream().map(Goods::getGoodName).collect(Collectors.joining(";"));
                         if (StringUtils.isNotEmpty(spliceGoodsName)) {
                             if (spliceGoodsName.length() >= DmsConstants.NUMBER_HUNDRED) {
-                                waybill.setSpliceGoodsNameWithTitle("商品名称:" + spliceGoodsName.substring(DmsConstants.NUMBER_ONE, DmsConstants.NUMBER_HUNDRED));
+                                waybill.setSpliceGoodsNameWithTitle("商品名称:" + spliceGoodsName.substring(DmsConstants.NUMBER_ZERO, DmsConstants.NUMBER_HUNDRED));
                             } else {
                                 waybill.setSpliceGoodsNameWithTitle("商品名称:" + spliceGoodsName);
                             }

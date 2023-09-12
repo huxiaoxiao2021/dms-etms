@@ -508,6 +508,6 @@ public class DmsConstants {
     // verificationCode
     public static final String VERIFICATION_CODE = "verificationCode";
 
-    public static final Integer NUMBER_ONE = 0; //数字0
+    public static final Integer NUMBER_ZERO = 0; //数字0
     public static final Integer NUMBER_HUNDRED = 100; //数字100
 }
