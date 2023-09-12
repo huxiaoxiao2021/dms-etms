@@ -69,8 +69,7 @@ public interface JyAviationRailwaySendSealGatewayService {
 
 
     /**
-     * 获取运力编码列表
-     * todo zcf 确认接口是否分页, 如果分页，需要单独给个查最近运力的接口，
+     * 获取航空任务运力编码列表
      * 入参业务字段待确认
      * @param request
      * @return

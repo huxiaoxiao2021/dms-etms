@@ -18,6 +18,11 @@ public class TransportCodeQueryReq extends BaseReq implements Serializable {
     private String detailBizId;
 
     private Integer nextSiteCode;
+    /**
+     * 运输方式： 2 散航（默认）
+     */
+    private Integer airTransportType;
+
 
     public String getBizId() {
         return bizId;
@@ -41,5 +46,13 @@ public class TransportCodeQueryReq extends BaseReq implements Serializable {
 
     public void setNextSiteCode(Integer nextSiteCode) {
         this.nextSiteCode = nextSiteCode;
+    }
+
+    public Integer getAirTransportType() {
+        return airTransportType;
+    }
+
+    public void setAirTransportType(Integer airTransportType) {
+        this.airTransportType = airTransportType;
     }
 }

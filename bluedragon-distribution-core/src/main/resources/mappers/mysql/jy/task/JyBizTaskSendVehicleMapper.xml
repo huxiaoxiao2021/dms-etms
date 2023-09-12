@@ -497,7 +497,6 @@
         WHERE yn = 1
           AND trans_work_code = #{transWorkCode, jdbcType=VARCHAR}
           AND start_site_id = #{startSiteId, jdbcType=BIGINT}
-          <include refid="default_task_type_vehicle"/>
         ORDER BY ts DESC limit 1
     </select>
 
@@ -508,7 +507,6 @@
         FROM jy_biz_task_send_vehicle
         WHERE yn = 1
           AND trans_work_code = #{transWorkCode, jdbcType=VARCHAR}
-          <include refid="default_task_type_vehicle"/>
     </select>
 
     <insert id="initTaskSendVehicle" parameterType="JyBizTaskSendVehicleEntity">

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -111,9 +112,35 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setPageNo(1);
         request.setPageSize(30);
 
+        String json = "{\n" +
+                "    \"currentOperate\": {\n" +
+                "        \"dmsCode\": \"010F002\",\n" +
+                "        \"operateTime\": 1694506313778,\n" +
+                "        \"operatorId\": \"58476\",\n" +
+                "        \"operatorTypeCode\": 1,\n" +
+                "        \"orgId\": 6,\n" +
+                "        \"orgName\": \"华北\",\n" +
+                "        \"siteCode\": 910,\n" +
+                "        \"siteName\": \"北京马驹桥分拣中心\"\n" +
+                "    },\n" +
+                "    \"filterConditionDto\": {},\n" +
+                "    \"groupCode\": \"G00000124001\",\n" +
+                "    \"keyword\": \"\",\n" +
+                "    \"pageNo\": 1,\n" +
+                "    \"pageSize\": 10,\n" +
+                "    \"post\": \"AVIATION_RAILWAY_SEND_SEAL_POSITION\",\n" +
+                "    \"requestId\": \"b3cad29537dd43d68249dc260efc8815\",\n" +
+                "    \"statusCode\": 21,\n" +
+                "    \"user\": {\n" +
+                "        \"userCode\": 17331,\n" +
+                "        \"userErp\": \"wuyoude\",\n" +
+                "        \"userName\": \"吴有德\"\n" +
+                "    }\n" +
+                "}";
+        AviationSendTaskSealListReq jsonParam = JSONObject.parseObject(json, AviationSendTaskSealListReq.class);
         int i = 0;
         while(i++<100) {
-            Object obj = aviationRailwaySendSealGatewayService.pageFetchAviationToSealAndSealedList(request);
+            Object obj = aviationRailwaySendSealGatewayService.pageFetchAviationToSealAndSealedList(jsonParam);
             System.out.println("succ");
         }
 

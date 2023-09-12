@@ -456,4 +456,9 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             return null;
         }
     }
+
+    @Override
+    public List<Object> queryAirLineByAirLineReq(Object request) {
+        return null;
+    }
 }

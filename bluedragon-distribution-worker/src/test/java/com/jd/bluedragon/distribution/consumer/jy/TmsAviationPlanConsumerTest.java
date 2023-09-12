@@ -48,8 +48,8 @@ public class TmsAviationPlanConsumerTest {
         param.setStartNodeCode("010F002");//910
         param.setStartNodeName("马驹桥分拣中心cs");
         param.setFlightNumber("CA-1001");
-        param.setTakeOffTime(OFF_TIME);
-        param.setTouchDownTime(DOWN_TIME);
+        param.setTakeOffTime("");
+        param.setTouchDownTime("");
         param.setAirCompanyCode("nan.hang");
         param.setAirCompanyName("南方航空cs");
         param.setBeginNodeCode("bj0001");

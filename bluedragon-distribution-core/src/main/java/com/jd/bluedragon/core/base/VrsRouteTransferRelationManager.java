@@ -93,5 +93,12 @@ public interface VrsRouteTransferRelationManager {
      * @return
      */
     List<WaybillRouteLinkCustDetailResp> waybillRouteLinkQueryCondition(String packageCode, String siteCode,WaybillRouteEnum.RealTimeOperateType operateType);
+
+    /**
+     * 查询航空线路信息
+     * @param request
+     * @return
+     */
+    List<Object> queryAirLineByAirLineReq(Object request);
 }
 

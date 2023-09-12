@@ -17,6 +17,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
+import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
@@ -62,6 +63,7 @@ import com.jdl.jy.realtime.model.es.job.SendPackageEsDto;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,7 +137,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     private JdiQueryWSManager jdiQueryWSManager;
     @Autowired
     private SendDatailDao sendDatailDao;
-
+    @Autowired
+    private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
     @Override
     public InvokeResult<Void> sendTaskBinding(SendTaskBindReq request) {
@@ -345,8 +348,16 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
     @Override
     public InvokeResult<TransportInfoQueryRes> fetchTransportCodeList(TransportCodeQueryReq request) {
+        InvokeResult<TransportInfoQueryRes> res = new InvokeResult<>();
         //todo zcf
-        return null;
+        Object obj = new Object();
+
+        Object crsRes = vrsRouteTransferRelationManager.queryAirLineByAirLineReq(obj);
+
+
+        TransportInfoQueryRes resData = new TransportInfoQueryRes();
+        res.setData(resData);
+        return res;
     }
 
     @Override
@@ -559,7 +570,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         for (TaskStatusStatistics statistics : statusAggList) {
             Integer taskStatus = JyAviationRailwaySendVehicleStatusEnum.getSendTaskStatusByCode(statistics.getTaskStatus());
             if(!Objects.isNull(map.get(taskStatus))) {
-                statistics.setTotal(map.get(statistics.getTaskStatus()));
+                statistics.setTotal(map.get(JyAviationRailwaySendVehicleStatusEnum.getSendTaskStatusByCode(statistics.getTaskStatus())));
             }
         }
         return statusAggList;
@@ -586,9 +597,11 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         else if(Character.isLetter(keyword.charAt(0))) {
             entity.setFlightNumber(keyword);
         }
-        //默认流向
-        else {
+        else if (NumberUtils.isDigits(keyword)) {
             entity.setNextSiteId(Integer.valueOf(keyword));
+        }
+        else {
+            throw new JyBizException("不支持当前关键字类型查询");
         }
 
     }

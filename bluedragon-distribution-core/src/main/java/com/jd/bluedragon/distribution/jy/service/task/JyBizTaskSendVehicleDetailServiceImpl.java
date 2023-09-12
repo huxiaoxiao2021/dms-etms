@@ -62,7 +62,7 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     public int saveAviationTaskSendDetail(JyBizTaskSendVehicleDetailEntity detailEntity) {
         JyBizTaskSendVehicleDetailEntity detail = jyBizTaskSendVehicleDetailDao.findByBizId(detailEntity.getBizId());
         if (!Objects.isNull(detail)) {
-            logger.warn("派车单明细已经存在. id:{}, {}", detail.getId(), JsonHelper.toJson(detailEntity));
+            logger.warn("航空发货任务明细已经存在. id:{}, {}", detail.getId(), JsonHelper.toJson(detailEntity));
             return 0;
         }
         return jyBizTaskSendVehicleDetailDao.save(detailEntity);

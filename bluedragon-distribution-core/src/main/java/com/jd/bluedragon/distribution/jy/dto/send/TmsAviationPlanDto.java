@@ -38,8 +38,8 @@ public class TmsAviationPlanDto implements Serializable {
     private String startNodeCode;//始发分拣编码
     private String startNodeName;
     private String flightNumber;//航班号
-    private Date takeOffTime;//起飞时间
-    private Date touchDownTime;
+    private String takeOffTime;//起飞时间
+    private String touchDownTime;
     private String airCompanyCode;//航空公司编码
     private String airCompanyName;
     private String beginNodeCode;//始发机场编码
@@ -59,6 +59,10 @@ public class TmsAviationPlanDto implements Serializable {
      * AirTypeEnum
      */
     private Integer airType;
+    //    订舱状态
+    private Integer bookedStatus;
+    //操作时间
+    private Date operateTime;
 
     public String getBusinessId() {
         return businessId;
@@ -100,19 +104,19 @@ public class TmsAviationPlanDto implements Serializable {
         this.flightNumber = flightNumber;
     }
 
-    public Date getTakeOffTime() {
+    public String getTakeOffTime() {
         return takeOffTime;
     }
 
-    public void setTakeOffTime(Date takeOffTime) {
+    public void setTakeOffTime(String takeOffTime) {
         this.takeOffTime = takeOffTime;
     }
 
-    public Date getTouchDownTime() {
+    public String getTouchDownTime() {
         return touchDownTime;
     }
 
-    public void setTouchDownTime(Date touchDownTime) {
+    public void setTouchDownTime(String touchDownTime) {
         this.touchDownTime = touchDownTime;
     }
 
@@ -204,4 +208,19 @@ public class TmsAviationPlanDto implements Serializable {
         this.airType = airType;
     }
 
+    public Integer getBookedStatus() {
+        return bookedStatus;
+    }
+
+    public void setBookedStatus(Integer bookedStatus) {
+        this.bookedStatus = bookedStatus;
+    }
+
+    public Date getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime;
+    }
 }

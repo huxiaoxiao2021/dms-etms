@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.TmsAviationPlanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.exception.JyBizIgnoreException;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanCacheService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.distribution.jy.service.task.enums.JySendTaskTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -24,6 +26,8 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,24 +96,18 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
 
         mqBody.setBusinessId(message.getBusinessId());
 
+        //无效数据
+        if(invalidDataFilter(mqBody)) {
+            log.warn("无效航空计划丢弃：{}", JsonHelper.toJson(mqBody));
+            return;
+        }
+
         this.generateAviationSendPlanTask(mqBody);
         if (log.isInfoEnabled()) {
             log.info("tmsAviationPlanConsumer航空计划生成航空发货任务成功，businessId={}，订舱号={}", message.getBusinessId(), mqBody.getBookingCode());
         }
     }
 
-    /**
-     * 前置处理
-     * @param mqBody
-     */
-    private void fieldBeforeHandler(TmsAviationPlanDto mqBody) {
-        if(Objects.isNull(mqBody)) {
-            return;
-        }
-        if(Objects.isNull(mqBody.getBookingWeight())) {
-            mqBody.setBookingWeight(0d);
-        }
-    }
 
     /**
      * 生成航空发货任务
@@ -117,21 +115,21 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
      * @return
      */
     private void generateAviationSendPlanTask(TmsAviationPlanDto mqBody) {
-        //无效数据
-        if(invalidDataFilter(mqBody)) {
-            log.warn("无效航空计划丢弃：{}", JsonHelper.toJson(mqBody));
-            return;
-        }
-        //可能为空的字段前置处理
-        fieldBeforeHandler(mqBody);
-
         //订舱号唯一：并发锁处理
         if(!this.lockGenerateSendAviationPlan(mqBody.getBookingCode())) {
             String warnMsg = String.format("（并发锁需要重试）航空计划发货任务生成-订舱号%s正在处理中!", mqBody.getBookingCode());
             log.warn(warnMsg, JsonHelper.toJson(mqBody));
             throw new JyBizException(warnMsg);
         }
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.TmsAviationPlanConsumer.generateAviationSendPlanTask", false, true);
+
         try{
+            Long bornCancelTime = this.getCacheBornCancelTime(mqBody.getBookingCode());
+            if(!Objects.isNull(bornCancelTime)) {
+                log.warn("首次消费【{}】时订舱量为0该发货计划已经取消，不在消费,mqBody={}", bornCancelTime, JsonHelper.toJson(mqBody));
+                return;
+            }
+
             BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(mqBody.getStartNodeCode());
             if (Objects.isNull(currSite)) {
                 log.warn("航空计划发货任务创建：基础资料未查到始发分拣【{}】场地信息：mqBody={}" , mqBody.getStartNodeCode(), JsonHelper.toJson(mqBody));
@@ -141,7 +139,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
             if(Objects.isNull(existSendTaskMain)) {
                 //0订舱量丢弃&记录缓存
                 if(!NumberHelper.gt0(mqBody.getBookingWeight())) {
-                    this.saveBornCancel(mqBody.getBookingCode());
+                    this.saveCacheBornCancel(mqBody.getBookingCode(), mqBody.getOperateTime());
                     log.warn("航空计划订舱号【{}】首次消费订舱量0，直接丢弃，mqBody={}", JsonHelper.toJsonMs(mqBody));
                     return;
                 }
@@ -190,12 +188,17 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
                     log.error("航空发货数据异常，发货主表数据航空任务和航空发货计划数据差异了，发货任务bizId={},mqBody={}", existSendTaskMain.getBizId(), JsonHelper.toJson(mqBody));
                 }
             }
+        }catch (JyBizIgnoreException ignoreEx){
+            log.warn("消费运输航空计划生成航空发货任务，查询路由系统任务下一流向为空或者服务不可用，丢弃该消息，订舱号={},mqBody={}", mqBody.getBookingCode(), JsonHelper.toJson(mqBody), ignoreEx);
+            return;
         }catch (Exception e) {
+            Profiler.functionError(info);
             log.error("运输航空计划消费生成航空发货任务出错，errMsg={},mqBody={}", e.getMessage(), JsonHelper.toJson(mqBody), e);
             throw new JyBizException("运输航空计划消费生成航空发货任务出错" + mqBody.getBookingCode());
         }finally {
             //释放锁
             unlockGenerateSendAviationPlan(mqBody.getBookingCode());
+            Profiler.registerInfoEnd(info);
         }
     }
 
@@ -214,8 +217,8 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         entity.setStartSiteId(currSite.getSiteCode());
         entity.setStartSiteName(mqBody.getStartNodeName());
         entity.setFlightNumber(mqBody.getFlightNumber());
-        entity.setTakeOffTime(mqBody.getTakeOffTime());
-        entity.setTouchDownTime(mqBody.getTouchDownTime());
+        entity.setTakeOffTime(DateHelper.parseAllFormatDateTime(mqBody.getTakeOffTime()));
+        entity.setTouchDownTime(DateHelper.parseAllFormatDateTime(mqBody.getTouchDownTime()));
         entity.setAirCompanyCode(mqBody.getAirCompanyCode());
         entity.setAirCompanyName(mqBody.getAirCompanyName());
         entity.setBeginNodeCode(mqBody.getBeginNodeCode());
@@ -282,11 +285,43 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
      */
     private boolean invalidDataFilter(TmsAviationPlanDto mqBody) {
         if(StringUtils.isBlank(mqBody.getBookingCode())) {
-            log.error("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：订舱号为空，内容为【{}】", JsonHelper.toJson(mqBody));
+            log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：订舱号为空，内容为【{}】", JsonHelper.toJson(mqBody));
             return true;
         }
-        if(Objects.isNull(mqBody.getStartNodeCode())) {
-            log.error("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：操作场地StartNodeCode为空，内容为【{}】", JsonHelper.toJson(mqBody));
+        if(StringUtils.isBlank(mqBody.getStartNodeCode())) {
+            log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：操作场地StartNodeCode为空，内容为【{}】", JsonHelper.toJson(mqBody));
+            return true;
+        }
+        if(StringUtils.isBlank(mqBody.getFlightNumber())) {
+            log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：航班号flightNumber为空，内容为【{}】", JsonHelper.toJson(mqBody));
+            return true;
+        }
+        if(StringUtils.isBlank(mqBody.getTakeOffTime())) {
+            log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：七分时间takeOffTime为空，内容为【{}】", JsonHelper.toJson(mqBody));
+            return true;
+        }
+        if(StringUtils.isBlank(mqBody.getTouchDownTime())) {
+            log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：降落时间touchDownTime为空，内容为【{}】", JsonHelper.toJson(mqBody));
+            return true;
+        }
+        if(StringUtils.isBlank(mqBody.getBeginNodeCode()) || StringUtils.isBlank(mqBody.getBeginNodeName())) {
+            log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：始发机场信息beginNodeCode|beginNodeName为空，内容为【{}】", JsonHelper.toJson(mqBody));
+            return true;
+        }
+        if(StringUtils.isBlank(mqBody.getEndNodeCode()) || StringUtils.isBlank(mqBody.getEndNodeName())) {
+            log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：目的机场信息endNodeCode|endNodeName为空，内容为【{}】", JsonHelper.toJson(mqBody));
+            return true;
+        }
+        if(Objects.isNull(mqBody.getBookingWeight())) {
+            log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：订舱量bookingWeigh为空，内容为【{}】", JsonHelper.toJson(mqBody));
+            return true;
+        }
+        if(Objects.isNull(mqBody.getAirType())) {
+            log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：航空类型airType为空，内容为【{}】", JsonHelper.toJson(mqBody));
+            return true;
+        }
+        if(Objects.isNull(mqBody.getOperateTime())) {
+            log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：下发消息时间operateTime为空，内容为【{}】", JsonHelper.toJson(mqBody));
             return true;
         }
         return false;
@@ -318,11 +353,15 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
      * @param bookingCode
      * @return
      */
-    private void saveBornCancel(String bookingCode){
-        redisClientOfJy.setEx(this.getBornCancelKey(bookingCode), "1", 24, TimeUnit.HOURS);
+    private void saveCacheBornCancel(String bookingCode, Date operateTime){
+        redisClientOfJy.setEx(this.getBornCancelKey(bookingCode), Long.toString(operateTime.getTime()), 24, TimeUnit.HOURS);
     }
-    private boolean isBornCancel(String bookingCode) {
-        return StringUtils.isNotBlank(redisClientOfJy.get(this.getBornCancelKey(bookingCode)));
+    private Long getCacheBornCancelTime(String bookingCode) {
+        String timeStamp = redisClientOfJy.get(this.getBornCancelKey(bookingCode));
+        if(StringUtils.isBlank(timeStamp)) {
+            return null;
+        }
+        return Long.valueOf(timeStamp);
     }
     private String getBornCancelKey(String bookingCode) {
         return String.format(JY_CACHE_AVIATION_PLAN_CANCEL, bookingCode);
