@@ -547,7 +547,9 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
     private String getScanSendCode(JyStrandReportScanReq scanRequest) {
         SendDetail sendDetail = new SendDetail();
         sendDetail.setCreateSiteCode(scanRequest.getCurrentOperate().getSiteCode());
-        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode()) || BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
+        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode())) {
+            sendDetail.setPackageBarcode(scanRequest.getScanBarCode());
+        } else if (BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
             sendDetail.setBoxCode(scanRequest.getScanBarCode());
         } else if (WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
             sendDetail.setWaybillCode(scanRequest.getScanBarCode());
@@ -561,10 +563,13 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
             throw new JyBizException("扫描批次的目的地和任务流向不一致!");
         }
         List<SendDetail> sendDetails = sendDatailDao.querySendDatailsBySelective(sendDetail);
-        if (CollectionUtils.isEmpty(sendDetails)) {
+        List<SendDetail> collect = sendDetails.stream().sorted((o1, o2) -> {
+            return o2.getOperateTime().compareTo(o1.getOperateTime());
+        }).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(collect)) {
             throw new JyBizException("未查询到单号: " + scanRequest.getScanBarCode() + " 对应的批次号");
         }
-        return sendDetails.get(0).getSendCode();
+        return collect.get(0).getSendCode();
     }
 
     /**
