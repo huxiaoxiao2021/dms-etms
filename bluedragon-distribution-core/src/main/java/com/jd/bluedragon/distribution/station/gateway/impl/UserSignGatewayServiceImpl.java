@@ -250,6 +250,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toFail("用户编码不能为空！");
 			return result;
 		}
+
+
 		String userCode=userSignRequest.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 		if(isCarId){
