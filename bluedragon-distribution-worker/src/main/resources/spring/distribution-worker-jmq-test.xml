@@ -678,5 +678,9 @@
     <jmq:consumer id="jmq.jyTaskSendDetailFirstSendConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jyTaskSendDetailFirstSend}" listener="jyTaskSendDetailFirstSendConsumer"/>
     </jmq:consumer>
+    <!-- 运输通知司机节点 -->
+    <jmq:consumer id="jmq.tmsTransWorkDriverNodeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tmsTransWorkDriverNode}" listener="tmsTransWorkDriverNodeConsumer"/>
+    </jmq:consumer>
 </beans>
 
