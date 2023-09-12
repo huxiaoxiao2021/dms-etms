@@ -805,7 +805,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         tagList.add(new LabelOption(carLengthTag.getCode(), carLengthDesc, carLengthTag.getDisplayOrder()));
 
         // 车辆到达标签与司机领取标签不在 tmsTransWorkDriverNodeConsumer 中
-        if (entity.getDriverTag() != null || entity.getDriverTag() > Constants.NUMBER_ZERO) {
+        if (entity.getDriverTag() != null && entity.getDriverTag() > Constants.NUMBER_ZERO) {
             JyBizDriverTagEnum tagEnum = JyBizDriverTagEnum.getTagEnumByTag(entity.getDriverTag());
             if (tagEnum == null) {
                 log.warn("司机标签异常！driverTag={}, bizId={}", entity.getDriverTag(), entity.getBizId());
