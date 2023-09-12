@@ -25,7 +25,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service("jyEvaluateTargetInitConsumer")
 public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
@@ -186,11 +188,11 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
     }
 
     private String getUserCodesStr(List<JyTaskGroupMemberEntity> taskGroupMembers) {
-        StringBuilder userCodesStr = new StringBuilder();
+        Set<String> set = new HashSet<>();
         for (JyTaskGroupMemberEntity taskGroupMember : taskGroupMembers) {
-            userCodesStr.append(Constants.SEPARATOR_COMMA).append(taskGroupMember.getUserCode());
+            set.add(taskGroupMember.getUserCode());
         }
-        return userCodesStr.substring(1);
+        return String.join(Constants.SEPARATOR_COMMA, set);
     }
 
     private void setSummaryData(EvaluateTargetInitDto targetInitDto, EvaluateTargetResultDto targetResultDto) {
