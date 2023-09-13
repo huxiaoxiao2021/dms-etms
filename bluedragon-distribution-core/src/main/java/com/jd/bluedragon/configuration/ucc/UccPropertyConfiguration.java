@@ -1402,6 +1402,19 @@ public class UccPropertyConfiguration {
      */
     private double vehicleIntegralPriorityFraction;
 
+    public Integer getFetchCarDistributionTimeRange() {
+        return fetchCarDistributionTimeRange;
+    }
+
+    public void setFetchCarDistributionTimeRange(Integer fetchCarDistributionTimeRange) {
+        this.fetchCarDistributionTimeRange = fetchCarDistributionTimeRange;
+    }
+
+    /**
+     * 待派车查询时间范围  单位小时
+     */
+    private Integer fetchCarDistributionTimeRange;
+
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
     }

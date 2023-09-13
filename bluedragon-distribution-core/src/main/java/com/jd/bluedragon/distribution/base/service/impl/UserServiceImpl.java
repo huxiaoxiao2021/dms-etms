@@ -439,6 +439,15 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 					showCallButtonFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_CALL_BUTTON.getCode(), siteId, userErp);
 				}
 				result.getData().getBusinessConfigInfo().setShowCallButtonFlag(showCallButtonFlag);
+				// pda运输任务是否显示催派按钮
+				boolean showRemindTransJobFlag;
+				if (dmsClientHeartbeatRequest.getSiteCode() != null) {
+					showRemindTransJobFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_REMIND_BUTTON.getCode(), dmsClientHeartbeatRequest.getSiteCode(), userErp);
+				} else {
+					log.warn("sendHeartbeat 客户端缺少网格码所在场地编码 {}", JsonHelper.toJson(dmsClientHeartbeatRequest));
+					showRemindTransJobFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_REMIND_BUTTON.getCode(), siteId, userErp);
+				}
+				result.getData().getBusinessConfigInfo().setShowRemindTransJobFlag(showRemindTransJobFlag);
 			}
 		}
 		return result;
@@ -586,6 +595,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 		funcUsageConfigRequestDto.setFuncCode(checkMenuAuthRequest.getMenuCode());
 		com.jd.bluedragon.common.dto.base.request.OperateUser operateUser = new com.jd.bluedragon.common.dto.base.request.OperateUser();
         operateUser.setSiteCode(checkMenuAuthRequest.getSiteCode());
+		operateUser.setUserCode(checkMenuAuthRequest.getUserCode());
         funcUsageConfigRequestDto.setOperateUser(operateUser);
         FuncUsageProcessDto menuUsageConfig = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
         if(menuUsageConfig != null) {
