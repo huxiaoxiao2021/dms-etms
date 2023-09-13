@@ -339,7 +339,7 @@ public class HideInfoServiceImpl implements HideInfoService{
      */
     private void hideCustomerContacts(BasePrintWaybill waybill,int hideRule, boolean switchHidePhoneNewVersion){
         if(switchHidePhoneNewVersion){
-            hideConsignerTel6Char(waybill, hideRule);
+            hideCustomerContacts6Char(waybill, hideRule);
             return;
         }
 
