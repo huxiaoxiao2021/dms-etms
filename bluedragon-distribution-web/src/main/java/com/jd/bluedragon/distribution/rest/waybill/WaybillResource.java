@@ -3109,7 +3109,8 @@ public class WaybillResource {
 					if(entity != null){
 						continue;
 					}
-					jyAttachmentDetailDao.insertWithId(entity);
+					jyAttachmentDetailDao.deleteById(item);
+					jyAttachmentDetailDao.insertWithId(item);
 				}
 			}
 			try {
