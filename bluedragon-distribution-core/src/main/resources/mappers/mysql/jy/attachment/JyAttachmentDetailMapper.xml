@@ -237,5 +237,103 @@
         and site_code = #{siteCode}
         limit 1
     </select>
+    <update id="deleteById" parameterType="com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity">
+        update jy_attachment_detail
+        <set>
+            yn = 0,
+            update_time = now()
+        </set>
+        <where>
+            yn = 1
+            and id = #{id}
+        </where>
+    </update>
+    <insert id="insertWithId" parameterType="com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO jy_attachment_detail (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="bizId != null">
+                biz_id,
+            </if>
+            <if test="bizType != null">
+                biz_type,
+            </if>
+            <if test="bizSubType != null">
+                biz_sub_type,
+            </if>
+            <if test="siteCode != null">
+                site_code,
+            </if>
+            <if test="attachmentType != null">
+                attachment_type,
+            </if>
+            <if test="attachmentUrl != null">
+                attachment_url,
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts
+            </if>
+        </trim>
+        ) VALUES (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="bizId != null">
+                #{bizId},
+            </if>
+            <if test="bizType != null">
+                #{bizType},
+            </if>
+            <if test="bizSubType != null">
+                #{bizSubType},
+            </if>
+            <if test="siteCode != null">
+                #{siteCode},
+            </if>
+            <if test="attachmentType != null">
+                #{attachmentType},
+            </if>
+            <if test="attachmentUrl != null">
+                #{attachmentUrl},
+            </if>
+            <if test="createUserErp != null">
+                #{createUserErp},
+            </if>
+            <if test="updateUserErp != null">
+                #{updateUserErp},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+            <if test="ts != null">
+                #{ts}
+            </if>
+        </trim>
+        )
+    </insert>
     <!--repair end-->
 </mapper>

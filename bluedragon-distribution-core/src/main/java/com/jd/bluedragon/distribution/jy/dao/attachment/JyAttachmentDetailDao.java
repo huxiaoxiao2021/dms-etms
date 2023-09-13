@@ -37,7 +37,7 @@ public class JyAttachmentDetailDao extends BaseDao<JyAttachmentDetailEntity> {
     }
 
     public int delete(JyAttachmentDetailEntity entity){
-        return this.getSqlSession().delete(NAMESPACE + ".delete", entity);
+        return this.getSqlSession().update(NAMESPACE + ".delete", entity);
     }
 
     public int deleteBatch(JyAttachmentDetailQuery entity){
@@ -63,6 +63,9 @@ public class JyAttachmentDetailDao extends BaseDao<JyAttachmentDetailEntity> {
     }
     public int insertWithId(JyAttachmentDetailEntity entity){
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+    public int deleteById(JyAttachmentDetailEntity entity){
+        return this.getSqlSession().update(NAMESPACE + ".deleteById", entity);
     }
     
 }
