@@ -71,4 +71,28 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
         logger.info("集包袋解绑箱号：{}集包袋号：{}，结果:{}", boxCode, materialCode, count);
         return result;
     }
+
+    /**
+     * 根据箱号查询集包袋绑定信息
+     * @param boxCode
+     * @return
+     */
+    @Override
+    public InvokeResult<BoxMaterialRelationDto> getBoxMaterialRelation(String boxCode) {
+        logger.info("查询集包袋信息,箱号：{}", boxCode);
+        InvokeResult<BoxMaterialRelationDto> result = new InvokeResult<BoxMaterialRelationDto>();
+        if(!BusinessUtil.isBoxcode(boxCode)){
+            result.parameterError("箱号不合法");
+            return result;
+        }
+        BoxMaterialRelation boxMaterialRelation = boxMaterialRelationService.getDataByBoxCode(boxCode);
+        if (boxMaterialRelation == null){
+            result.parameterError("未查询到绑定信息");
+            return result;
+        }
+        BoxMaterialRelationDto dto = new BoxMaterialRelationDto();
+        BeanUtils.copyProperties(boxMaterialRelation,dto);
+        result.setData(dto);
+        return result;
+    }
 }
