@@ -347,59 +347,8 @@ public class HideInfoServiceImpl implements HideInfoService{
         String lastMobile = StringUtils.trimToEmpty(waybill.getMobileLast());
         String firstTel = StringUtils.trimToEmpty(waybill.getTelFirst());
         String lastTel = StringUtils.trimToEmpty(waybill.getTelLast());
-        boolean success = setPhone(waybill);
-        if(success){
-            firstMobile = StringUtils.trimToEmpty(waybill.getMobileFirst());
-            lastMobile = StringUtils.trimToEmpty(waybill.getMobileLast());
-            firstTel = StringUtils.trimToEmpty(waybill.getTelFirst());
-            lastTel = StringUtils.trimToEmpty(waybill.getTelLast());
-        }else{
-            log.warn("微笑面单手机号错误，运单号：{};手机号：{}",waybill.getWaybillCode(),waybill.getCustomerContacts());
-            return;
-        }
-        StringBuilder customerContacts =new StringBuilder();
-        //国内：普通城市座机、4位数区号+7位数座机电话号码=11位
-        //国内：一线城市座机：3位数区号+8位数座机电话号码=11位
-        //国内：手机 11位
-        //电话大于等于7位，则显示为：前3位+^_^+后4位。
-        //新 10位以上（不包括10）的显示前一+笑脸(6位以上)+后四 10位以下（包括10）的显示笑脸(6位)+剩余位数
-        if(StringUtils.isNotBlank(firstMobile)){
-            if(firstMobile.length() > StringHelper.LANDLINE_FIRST_NUMBER){
-                customerContacts.append(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER)).append(StringHelper.SMILE).append(lastMobile);
-                waybill.setMobileFirst(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE );
-            } else{
-                customerContacts.append(StringHelper.SMILE).append(lastMobile);
-                waybill.setMobileFirst(StringHelper.SMILE);
-            }
-        }
-        if(StringUtils.isNotBlank(firstTel)){
-            if(customerContacts.length() > 0){
-                customerContacts.append(",");
-            }
-            if(firstTel.length() > StringHelper.LANDLINE_FIRST_NUMBER){
-                customerContacts.append(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE + lastTel);
-                waybill.setTelFirst(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE);
-            }else{
-                customerContacts.append(StringHelper.SMILE).append(lastTel);
-                waybill.setTelFirst(StringHelper.SMILE);
-            }
-        }
-        if(customerContacts.length() > 0){
-            waybill.setCustomerContacts(customerContacts.toString());
-        }
-    }
-
-    /**
-     * 设置客户电话隐藏信息
-     * @param waybill 运单
-     */
-    private void hideCustomerContacts6Char(BasePrintWaybill waybill,int hideRule){
-        String firstMobile = StringUtils.trimToEmpty(waybill.getMobileFirst());
-        String lastMobile = StringUtils.trimToEmpty(waybill.getMobileLast());
-        String firstTel = StringUtils.trimToEmpty(waybill.getTelFirst());
-        String lastTel = StringUtils.trimToEmpty(waybill.getTelLast());
         if(StringUtils.isBlank(firstMobile) && StringUtils.isBlank(firstTel)){//没有设值或者手机号错填只有4位，需要进一步处理
-            boolean success = setPhoneHide6Char(waybill);
+            boolean success = setPhone(waybill);
             if(success){
                 firstMobile = StringUtils.trimToEmpty(waybill.getMobileFirst());
                 lastMobile = StringUtils.trimToEmpty(waybill.getMobileLast());
@@ -434,6 +383,57 @@ public class HideInfoServiceImpl implements HideInfoService{
             }else{
                 customerContacts.append(firstTel + StringHelper.SMILE + lastTel);
                 waybill.setTelFirst(firstTel + StringHelper.SMILE);
+            }
+        }
+        if(customerContacts.length() > 0){
+            waybill.setCustomerContacts(customerContacts.toString());
+        }
+    }
+
+    /**
+     * 设置客户电话隐藏信息
+     * @param waybill 运单
+     */
+    private void hideCustomerContacts6Char(BasePrintWaybill waybill,int hideRule){
+        String firstMobile = StringUtils.trimToEmpty(waybill.getMobileFirst());
+        String lastMobile = StringUtils.trimToEmpty(waybill.getMobileLast());
+        String firstTel = StringUtils.trimToEmpty(waybill.getTelFirst());
+        String lastTel = StringUtils.trimToEmpty(waybill.getTelLast());
+        boolean success = setPhoneHide6Char(waybill);
+        if(success){
+            firstMobile = StringUtils.trimToEmpty(waybill.getMobileFirst());
+            lastMobile = StringUtils.trimToEmpty(waybill.getMobileLast());
+            firstTel = StringUtils.trimToEmpty(waybill.getTelFirst());
+            lastTel = StringUtils.trimToEmpty(waybill.getTelLast());
+        }else{
+            log.warn("微笑面单手机号错误，运单号：{};手机号：{}",waybill.getWaybillCode(),waybill.getCustomerContacts());
+            return;
+        }
+        StringBuilder customerContacts =new StringBuilder();
+        //国内：普通城市座机、4位数区号+7位数座机电话号码=11位
+        //国内：一线城市座机：3位数区号+8位数座机电话号码=11位
+        //国内：手机 11位
+        //电话大于等于7位，则显示为：前3位+^_^+后4位。
+        //新 10位以上（不包括10）的显示前一+笑脸(6位以上)+后四 10位以下（包括10）的显示笑脸(6位)+剩余位数
+        if(StringUtils.isNotBlank(firstMobile)){
+            if(firstMobile.length() > StringHelper.LANDLINE_FIRST_NUMBER){
+                customerContacts.append(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER)).append(StringHelper.SMILE).append(lastMobile);
+                waybill.setMobileFirst(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE );
+            } else{
+                customerContacts.append(StringHelper.SMILE).append(lastMobile);
+                waybill.setMobileFirst(StringHelper.SMILE);
+            }
+        }
+        if(StringUtils.isNotBlank(firstTel)){
+            if(customerContacts.length() > 0){
+                customerContacts.append(",");
+            }
+            if(firstTel.length() > StringHelper.LANDLINE_FIRST_NUMBER){
+                customerContacts.append(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE + lastTel);
+                waybill.setTelFirst(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE);
+            }else{
+                customerContacts.append(StringHelper.SMILE).append(lastTel);
+                waybill.setTelFirst(StringHelper.SMILE);
             }
         }
         if(customerContacts.length() > 0){
