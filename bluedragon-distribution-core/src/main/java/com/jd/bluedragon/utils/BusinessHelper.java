@@ -1164,4 +1164,18 @@ public class BusinessHelper {
         }
         return false;
     }
+
+    /**
+     * 校验是否是LL箱号类型
+     */
+    public static Boolean isLLBoxType(String boxType){
+        if(StringUtils.isEmpty(boxType)){
+            return Boolean.FALSE;
+        }
+
+        if(BoxTypeEnum.TYPE_LL.getCode().equals(boxType)){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
 }

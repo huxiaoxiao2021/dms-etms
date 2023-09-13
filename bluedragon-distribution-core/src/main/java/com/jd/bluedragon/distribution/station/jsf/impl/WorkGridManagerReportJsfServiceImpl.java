@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.station.jsf.impl;
 
 import java.util.List;
 
-import com.jd.bluedragon.distribution.work.domain.WorkGridMangerReportdetailQuery;
+import com.jd.bluedragon.distribution.work.domain.WorkGridMangerReportDetailQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class WorkGridManagerReportJsfServiceImpl implements WorkGridManagerRepor
 	 * @return
 	 */
 	@Override
-	public Result<WorkGridManagerReportVo> queryTaskDataByBizId(WorkGridMangerReportdetailQuery query) {
+	public Result<WorkGridManagerReportVo> queryTaskDataByBizId(WorkGridMangerReportDetailQuery query) {
 		return workGridManagerReportService.queryTaskDataByBizId(query);
 	}
 }

@@ -1061,4 +1061,7 @@ public class HintCodeConstants {
 
     //疑似虚假操作，当前AD码已锁定，请使用其它循环袋 20100
     public static String CYCLE_BOX_IS_LOCK_ERROR = "20100";
+    
+    // 扫描的笼车/围板箱集包袋号不正确，请扫描笼车/围板箱上面的固定物资条码
+    public static String LL_BOX_BINDING_MATERIAL_TYPE_ERROR = "20104";
 }
