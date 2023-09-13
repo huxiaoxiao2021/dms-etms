@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseQuery;
 import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseService;
 import com.jd.bluedragon.distribution.work.domain.*;
+import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.BeanHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,6 +138,10 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 		WorkGridManagerReportVo taskData  = new WorkGridManagerReportVo();
 		BeanUtils.copyProperties(jyTaskData, taskData);
 		taskData.setStatusName(WorkTaskStatusEnum.getNameByCode(taskData.getStatus()));
+		//省区位物流总部的时候显示相应的枢纽
+		if (taskData.getProvinceAgencyCode().equals(BaseContants.LOGISTICS_HEADQUARTERS)) {
+			taskData.setProvinceAgencyName(taskData.getAreaHubName());
+		}
 		return taskData;
 	}	
 	@Override
