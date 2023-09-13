@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
-import IceInternal.Ex;
 import cn.jdl.oms.express.model.ModifyExpressOrderRequest;
 import com.google.common.collect.Lists;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
@@ -44,6 +43,9 @@ import com.jd.bluedragon.distribution.eclpPackage.service.EclpLwbB2bPackageItemS
 import com.jd.bluedragon.distribution.eclpPackage.service.EclpPackageApiService;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
+import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
+import com.jd.bluedragon.distribution.jy.dao.attachment.JyAttachmentDetailDao;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
@@ -75,8 +77,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.etms.sdk.util.DateUtil;
-import com.jd.etms.waybill.api.WaybillRepaireApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
@@ -2809,5 +2809,48 @@ public class WaybillResource {
 		// 一单一件默认包裹维度抽检
 		spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
 		return spotCheckDto;
+	}
+
+	@Autowired
+	private JyAttachmentDetailDao jyAttachmentDetailDao;
+	
+	@GET
+	@Path("/repair/attachment/{queryStartTsStr}/{queryEndTsStr}/{intervalHours}")
+	public void repairAttachment(@PathParam("queryStartTsStr") Long queryStartTsStr, 
+								 @PathParam("queryEndTsStr") Long queryEndTsStr,
+								 @PathParam("intervalHours") Integer intervalHours) {
+
+		Date queryStartTs = new Date(queryStartTsStr);
+		Date queryEndTs = DateHelper.addHours(queryStartTs, intervalHours);
+		
+		JyAttachmentDetailQuery condition = new JyAttachmentDetailQuery();
+		while (queryEndTs.before(new Date(queryEndTsStr)) )
+		{
+			condition.setQueryStartTs(queryStartTs);
+			condition.setQueryEndTs(queryEndTs);
+			List<JyAttachmentDetailEntity> list = jyAttachmentDetailDao.queryAllByTs(condition);
+			if(!CollectionUtils.isEmpty(list)){
+				for (JyAttachmentDetailEntity item : list) {
+					JyAttachmentDetailQuery query = new JyAttachmentDetailQuery();
+					query.setId(item.getId());
+					query.setSiteCode(item.getSiteCode());
+					JyAttachmentDetailEntity entity = jyAttachmentDetailDao.queryOneById(query);
+					if(entity != null){
+						continue;
+					}
+					jyAttachmentDetailDao.deleteById(item);
+					jyAttachmentDetailDao.insertWithId(item);
+				}
+			}
+			try {
+				Thread.sleep(10);
+			}catch (Exception e){
+				log.error("服务异常!");
+			}
+			queryStartTs = queryEndTs;
+			queryEndTs = DateHelper.addHours(queryEndTs, intervalHours);
+		}
+		
+		
 	}
 }
