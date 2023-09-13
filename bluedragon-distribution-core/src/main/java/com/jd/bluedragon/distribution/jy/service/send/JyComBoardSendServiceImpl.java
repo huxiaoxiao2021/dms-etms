@@ -214,6 +214,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Autowired
   private NewSealVehicleService newsealVehicleService;
 
+  @Autowired
+  @Qualifier("jyComboardTaskFirstSaveProducer")
+  private DefaultJMQProducer jyComboardTaskFirstSaveProducer;
+
   private static final Integer BOX_TYPE = 1;
 
   private static final Integer PACKAGE_TYPE = 2;
@@ -1204,6 +1208,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         record.setCreateTime(request.getCurrentOperate().getOperateTime());
         record.setUnsealTime(request.getCurrentOperate().getOperateTime());
         jyBizTaskComboardService.save(record);
+        // 板创建成功后，发送延时消息，处理两小时没有操作过组板的板号
+        pushDelayMQ(record);
         request.setBizId(record.getBizId());
       }else{
         request.setBizId(entity.getBizId());
@@ -1224,6 +1230,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
     } finally {
       jimDbLock.releaseLock(boardLockKey, request.getRequestId());
+    }
+  }
+
+  private void pushDelayMQ(JyBizTaskComboardEntity record) {
+    try {
+      jyComboardTaskFirstSaveProducer.send(record.getBoardCode(), JsonHelper.toJson(record));
+    } catch (Exception e) {
+      log.info("首次保存组板任务发送jmq消息异常{}", JsonHelper.toJson(record));
     }
   }
 
@@ -1496,6 +1510,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         JyBizTaskComboardEntity record = assembleJyBizTaskComboardParam(request);
         //空板是不确定-是大宗还是非大宗，组板扫描成功后再确定
         jyBizTaskComboardService.save(record);
+        // 板创建成功后，发送延时消息，删除两小时没有操作过组板的板号
+        pushDelayMQ(record);
       }
     } finally {
       if (ucc.getCreateBoardBySendFlowSwitch()){
