@@ -520,7 +520,7 @@ public class WaybillServiceImpl implements WaybillService {
 		response.setTransferStationName(transferSite != null ? transferSite.getSiteName() : null);
 
 		this.appendPackages(packageCode, isIncludePackage, waybillDto, response);
-        response.setMobile(StringHelper.phoneEncrypt(response.getMobile()));
+        response.setMobile(StringHelper.phoneEncryptSmile6Char(response.getMobile()));
 		return response;
 	}
 
