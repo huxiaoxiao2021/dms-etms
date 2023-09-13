@@ -681,6 +681,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
             AviationSendTaskDto taskDto = new AviationSendTaskDto();
             taskDto.setBizId(dbQueryDto.getBizId());
+            taskDto.setDetailBizId(dbQueryDto.getBookingCode());
             taskDto.setBookingCode(dbQueryDto.getBookingCode());
             taskDto.setFlightNumber(dbQueryDto.getFlightNumber());
             taskDto.setTakeOffTime(Objects.isNull(dbQueryDto.getTakeOffTime()) ? null : dbQueryDto.getTakeOffTime().getTime());

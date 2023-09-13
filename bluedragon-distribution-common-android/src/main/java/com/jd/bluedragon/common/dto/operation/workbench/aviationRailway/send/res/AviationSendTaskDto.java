@@ -13,6 +13,8 @@ public class AviationSendTaskDto implements Serializable {
 
 
     private String bizId;
+
+    private String detailBizId;
     /**
      * 订舱号
      */
@@ -202,5 +204,13 @@ public class AviationSendTaskDto implements Serializable {
 
     public void setScanWeight(Double scanWeight) {
         this.scanWeight = scanWeight;
+    }
+
+    public String getDetailBizId() {
+        return detailBizId;
+    }
+
+    public void setDetailBizId(String detailBizId) {
+        this.detailBizId = detailBizId;
     }
 }
