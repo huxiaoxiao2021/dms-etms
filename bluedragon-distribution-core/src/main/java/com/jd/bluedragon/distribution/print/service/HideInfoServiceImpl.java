@@ -399,7 +399,7 @@ public class HideInfoServiceImpl implements HideInfoService{
         String firstTel = StringUtils.trimToEmpty(waybill.getTelFirst());
         String lastTel = StringUtils.trimToEmpty(waybill.getTelLast());
         if(StringUtils.isBlank(firstMobile) && StringUtils.isBlank(firstTel)){//没有设值或者手机号错填只有4位，需要进一步处理
-            boolean success = setPhone(waybill);
+            boolean success = setPhoneHide6Char(waybill);
             if(success){
                 firstMobile = StringUtils.trimToEmpty(waybill.getMobileFirst());
                 lastMobile = StringUtils.trimToEmpty(waybill.getMobileLast());
@@ -466,6 +466,40 @@ public class HideInfoServiceImpl implements HideInfoService{
      * @return
      */
     private static boolean setPhone(BasePrintWaybill waybill){
+        String firstMobile = null;
+        String firstTel = null;
+        String contacts = waybill.getCustomerContacts();
+        if(StringUtils.isBlank(contacts)){
+            return false;
+        }
+        String[] acontacts  = contacts.split(",");
+        String mobile = acontacts[0];
+        String tel = null;
+        if(acontacts.length == 2){
+            tel = acontacts[1];
+        }
+        if (StringUtils.isNotBlank(mobile) && mobile.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
+            firstMobile = mobile.substring(0, mobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER);
+            waybill.setMobileFirst(firstMobile);
+            waybill.setMobileLast(mobile.substring(mobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
+        }
+        if (StringUtils.isNotBlank(tel) && tel.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
+            firstTel = tel.substring(0, tel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER);
+            waybill.setTelFirst(firstTel);
+            waybill.setTelLast(tel.substring(tel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
+        }
+        if(StringUtils.isBlank(firstMobile) && StringUtils.isBlank(firstTel) ){
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 将手机号分段
+     * @param waybill
+     * @return
+     */
+    private static boolean setPhoneHide6Char(BasePrintWaybill waybill){
         String firstMobile = null;
         String firstTel = null;
         waybill.setMobileFirst("");
