@@ -76,7 +76,6 @@ import com.jd.bluedragon.utils.*;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.sdk.util.DateUtil;
-import com.jd.etms.waybill.api.WaybillRepaireApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
@@ -185,10 +184,6 @@ public class WaybillResource {
 
 	@Autowired
 	private SysConfigService sysConfigService;
-
-	@Autowired
-	@Qualifier("waybillRepaireManager")
-	private WaybillRepaireManager waybillRepaireManager;
 
 	/**
 	 * 运单路由字段使用的分隔符
@@ -332,74 +327,8 @@ public class WaybillResource {
 		InvokeResult<List<WaybillErrorDomain>> result = new InvokeResult<>();
 		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 		List<WaybillErrorDomain> waybillErrorDomains = new ArrayList<>();
-
-		//校验入参
-		String opeCode = param.getOpeCode();
-		if(StringUtils.isBlank(opeCode) ||
-				(!WaybillUtil.isWaybillCode(opeCode) && !WaybillUtil.isPackageCode(opeCode))){
-			//为空 或者  不是运单号且不是包裹号 直接失败
-			result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,InvokeResult.PARAM_ERROR);
-			return result;
-		}
-
-		//截取运单号
-		String waybillCode = WaybillUtil.getWaybillCode(opeCode);
-
-		//检查是否在本次校验池中
-		final boolean hasIntercept = waybillCancelService.checkWaybillCancelInterceptType99(waybillCode);
-		if(!hasIntercept){
-			//不在校验拦截范围内 直接返回成功
-			log.info("checkWaybillErrorV2 不在拦截范围内 拦截表类型99 不处理 {}",JsonHelper.toJson(param));
-			return result;
-		}
-
-		try {
-
-			//仍继续拦截开关
-			if(sysConfigService.getConfigByName(SysConfigService.SYS_CONFIG_CHECK_REPRINT_230201)){
-				//不需要补打 提示错误提示语
-				result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
-				return result;
-			}
-			//检查是否是自营（包含正向和逆向）
-			if(!(WaybillUtil.isJDWaybillCode(waybillCode) || WaybillUtil.isSwitchCode(waybillCode))){
-				//非自营直接返回拦截
-				log.info("checkWaybillErrorV2 非自营 不处理 {}",JsonHelper.toJson(param));
-				result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
-				return result;
-			}
-			//调用运单获取新单
-			WaybillRegionDto waybillRegionDtoReq = new WaybillRegionDto();
-			waybillRegionDtoReq.setErp(param.getErp());
-			waybillRegionDtoReq.setOpeCode(param.getOpeCode());
-			waybillRegionDtoReq.setOrgId(param.getOrgId());
-			waybillRegionDtoReq.setOpeTime(new Date());
-			BaseEntity<WaybillRegionDto> baseEntity = waybillRepaireManager.getPackageCodeByOrgId(waybillRegionDtoReq);
-			if(baseEntity!=null && baseEntity.getData()!=null && StringUtils.isNotBlank(baseEntity.getData().getPackageCode())){
-				WaybillErrorDomain waybillErrorDomain = new WaybillErrorDomain();
-				waybillErrorDomain.setPackageCode(baseEntity.getData().getPackageCode());
-				waybillErrorDomain.setWaybillCode(WaybillUtil.getWaybillCode(baseEntity.getData().getPackageCode()));
-				waybillErrorDomains.add(waybillErrorDomain);
-				result.setData(waybillErrorDomains);
-				//获取到运单的数据并给出用户明确操作指引
-				result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_ERROR_OPE_GUIDE));
-				//返回成功的新单
-				log.info("checkWaybillErrorV2 处理成功并从运单获取到新单 {},新单号{}",JsonHelper.toJson(param),baseEntity.getData().getPackageCode());
-				return result;
-			}else{
-				//存在拦截范围内但是运单没返回数据必须拦截
-				log.error("checkWaybillErrorV2 getPackageCodeByOrgId 未获取到数据 {},运单系统返回值{}",JsonHelper.toJson(param),JsonHelper.toJson(baseEntity));
-				result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
-				return result;
-			}
-
-		}catch (Exception e){
-			log.error("checkWaybillErrorV2 error {}",JsonHelper.toJson(param),e);
-			//已经在拦截池内的异常拦截用户操作
-			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.SERVER_ERROR_MESSAGE);
-			return result;
-		}
-
+		result.setData(waybillErrorDomains);
+		return result;
 	}
 
 	/**
@@ -412,82 +341,7 @@ public class WaybillResource {
 	@JProfiler(jKey = "DMS.WEB.WaybillResource.checkWaybillError", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<List<WaybillErrorDomain>> checkWaybillError(WaybillErrorDomain param){
 		InvokeResult<List<WaybillErrorDomain>> result = new InvokeResult<>();
-		if(param == null || StringUtils.isBlank(param.getWaybillCode())){
-			log.error("checkWaybillError缺少必要参数,{}",JsonHelper.toJson(param));
-			result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,InvokeResult.PARAM_ERROR);
-			return result;
-		}
-
-		try{
-			//不存在拦截直接返回
-			List<CancelWaybill> cancelWaybills = waybillCancelService.getByWaybillCode(param.getWaybillCode());
-			if(CollectionUtils.isEmpty(cancelWaybills)){
-				//不存在 直接返回
-				log.info("checkWaybillError not found CancelWaybill {}",param.getWaybillCode());
-				return result;
-			}
-			boolean existCustomInterceptFlag = false;
-			for(CancelWaybill cancelWaybill : cancelWaybills){
-				if(cancelWaybill.getInterceptType() != null){
-					if(WaybillCancelInterceptTypeEnum.CUSTOM_INTERCEPT.getCode() == cancelWaybill.getInterceptType()){
-						//存在新版自定义异常
-						existCustomInterceptFlag = true;
-					}
-				}
-			}
-			if(!existCustomInterceptFlag){
-				//不存在新版自定义异常 直接返回
-				log.info("checkWaybillError not found CancelWaybill 99 Intercept {}",param.getWaybillCode());
-				return result;
-			}
-			//获取运单异常差异数据
-			AbnormalWaybillDiff queryParam = new AbnormalWaybillDiff();
-			queryParam.setWaybillCodeE(param.getWaybillCode());
-			List<AbnormalWaybillDiff> waybillDiffs = abnormalWaybillDiffService.query(queryParam);
-			if(log.isInfoEnabled()){
-				log.info("abnormalWaybillDiffService query req: {}  resp {}",JsonHelper.toJson(queryParam),JsonHelper.toJson(waybillDiffs));
-			}
-			if(CollectionUtils.isEmpty(waybillDiffs)){
-				//不存在 直接返回
-				log.info("checkWaybillError not found AbnormalWaybillDiff {}",param.getWaybillCode());
-				return result;
-			}
-
-			List<AbnormalWaybillDiff> waybillDiffListNew = new ArrayList<>();
-			if (waybillDiffs.size() > 1) {
-				for (AbnormalWaybillDiff waybillDiff : waybillDiffs) {
-					if (!Objects.equals(waybillDiff.getType(),"3")) {
-						waybillDiffListNew.add(waybillDiff);
-					}
-				}
-			} else {
-				waybillDiffListNew = waybillDiffs;
-			}
-
-			if(CollectionUtils.isEmpty(waybillDiffListNew)){
-				//不存在 直接返回
-				log.info("checkWaybillError not found AbnormalWaybillDiff {}",param.getWaybillCode());
-				return result;
-			}
-
-			if(!TypeEnum.SYS_AUTO.getCode().equals(waybillDiffListNew.get(0).getType())){
-				//不需要补打 提示错误提示语
-				result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,HintService.getHint(HintCodeConstants.WAYBILL_ERROR_RE_PRINT));
-				return result;
-			}
-			//存在则 不允许有多个 判断是否需要补打
-			List<WaybillErrorDomain> waybillErrorDomains = Lists.newArrayList();
-			for (AbnormalWaybillDiff waybillDiff : waybillDiffListNew) {
-				waybillErrorDomains.addAll(waybillCommonService.complementWaybillError(waybillDiff.getWaybillCodeC()));
-			}
-			result.setData(waybillErrorDomains);
-			result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_ERROR_OPE_GUIDE));
-			return result;
-
-		}catch (Exception e) {
-			log.error("checkWaybillError error! {} ",JsonHelper.toJson(param),e);
-		}
-
+		result.success();
 		return result;
 	}
 
