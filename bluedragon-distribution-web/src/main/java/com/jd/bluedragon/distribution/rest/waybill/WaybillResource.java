@@ -3098,6 +3098,9 @@ public class WaybillResource {
 			condition.setQueryEndTs(queryEndTs);
 			List<JyAttachmentDetailEntity> list = jyAttachmentDetailDao.queryAllByTs(condition);
 			if(!CollectionUtils.isEmpty(list)){
+				if (log.isInfoEnabled()){
+					log.info("查询到时间:{}-{}的数据量:{} 并开始执行刷数!", DateHelper.formatDateTime(queryStartTs), DateHelper.formatDateTime(queryEndTs), list.size());
+				}
 				for (JyAttachmentDetailEntity item : list) {
 					JyAttachmentDetailQuery query = new JyAttachmentDetailQuery();
 					query.setId(item.getId());
