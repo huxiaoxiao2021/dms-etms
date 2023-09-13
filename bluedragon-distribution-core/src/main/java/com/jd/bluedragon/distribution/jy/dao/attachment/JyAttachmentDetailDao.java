@@ -50,5 +50,15 @@ public class JyAttachmentDetailDao extends BaseDao<JyAttachmentDetailEntity> {
     public Integer countByCondition(JyAttachmentDetailQuery condition) {
         return this.getSqlSession().selectOne(NAMESPACE + ".countByCondition", condition);
     }
-
+    
+    public List<JyAttachmentDetailEntity> queryAllByTs(JyAttachmentDetailQuery condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryAllByTs", condition);
+    }
+    public JyAttachmentDetailEntity queryOneById(JyAttachmentDetailQuery condition) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryOneById", condition);
+    }
+    public int insertWithId(JyAttachmentDetailEntity entity){
+        return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+    
 }
