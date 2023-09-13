@@ -58,7 +58,7 @@ public class JyAttachmentDetailDao extends BaseDao<JyAttachmentDetailEntity> {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryOneById", condition);
     }
     public int insertWithId(JyAttachmentDetailEntity entity){
-        return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+        return this.getSqlSession().insert(NAMESPACE + ".insertWithId", entity);
     }
     public int deleteById(JyAttachmentDetailEntity entity){
         return this.getSqlSession().update(NAMESPACE + ".deleteById", entity);
