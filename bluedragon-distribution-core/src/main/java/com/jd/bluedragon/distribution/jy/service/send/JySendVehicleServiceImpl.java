@@ -1718,10 +1718,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
             // 包裹首次扫描逻辑
             boolean firstScanFlag = this.dealTaskFirstScan(request, taskSend, curSendDetail);
-            // 扫描第一枪推送给运输
-            if (firstScanFlag) {
-                productOperateProgressMsg(taskSend, new BigDecimal(0));
-            }
 
             SendScanResponse sendScanResponse = new SendScanResponse();
             result.setData(sendScanResponse);
@@ -1957,6 +1953,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             distributeAndStartScheduleTask(request);
 
             recordTaskMembers(request);
+            // 扫描第一枪推送给运输
+            productOperateProgressMsg(taskSend, new BigDecimal(0));
         }
         return firstScanFlag;
     }
@@ -4626,7 +4624,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         assembleWaitingVehicleDistributionList(commonDto.getData().getResult(), waitingVehicleDistributions);
         pager.setPageNo(request.getPageNumber());
         pager.setPageSize(request.getPageSize());
-        pager.setTotal((long) waitingVehicleDistributions.size());
+        pager.setTotal((long) commonDto.getData().getTotalRow());
         pager.setData(waitingVehicleDistributions);
 
         invokeResult.setData(pager);
