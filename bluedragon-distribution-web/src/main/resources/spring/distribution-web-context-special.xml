@@ -92,6 +92,7 @@
 		<entry key="LP" value="理赔完成" />
         <entry key="WJ" value="文件" />
 		<entry key="MS" value="医药直发" />
+		<entry key="LL" value="笼车/围板箱"/>
 	</util:map>
 
 </beans>
