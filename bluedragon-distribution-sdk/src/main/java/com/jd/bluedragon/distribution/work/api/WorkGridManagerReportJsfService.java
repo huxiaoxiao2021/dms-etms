@@ -5,7 +5,7 @@ import java.util.List;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportQuery;
 import com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportVo;
-import com.jd.bluedragon.distribution.work.domain.WorkGridMangerReportdetailQuery;
+import com.jd.bluedragon.distribution.work.domain.WorkGridMangerReportDetailQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -41,5 +41,5 @@ public interface WorkGridManagerReportJsfService {
 	 * @param query
 	 * @return
 	 */
-	Result<WorkGridManagerReportVo> queryTaskDataByBizId(WorkGridMangerReportdetailQuery query);
+	Result<WorkGridManagerReportVo> queryTaskDataByBizId(WorkGridMangerReportDetailQuery query);
 }

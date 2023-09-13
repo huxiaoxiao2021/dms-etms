@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.work.domain;
 import java.io.Serializable;
 
 
-public class WorkGridMangerReportdetailQuery implements Serializable {
+public class WorkGridMangerReportDetailQuery implements Serializable {
     private String bizId;
 
     public String getBizId() {
