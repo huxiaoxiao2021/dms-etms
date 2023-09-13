@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.attachment;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Date;
 
 /**
  * 拣运-附件数据库-查询实体
@@ -55,6 +56,10 @@ public class JyAttachmentDetailQuery implements Serializable {
 	private Integer pageSize = 10;
 	
 	private String userErp;
+	
+	private Date queryStartTs;
+	private Date queryEndTs;
+	private Long id;
 
 	public String getUserErp() {
 		return userErp;
@@ -142,5 +147,28 @@ public class JyAttachmentDetailQuery implements Serializable {
 
 	public void setBizIdList(List<String> bizIdList) {
 		this.bizIdList = bizIdList;
+	}
+	public Date getQueryStartTs() {
+		return queryStartTs;
+	}
+
+	public void setQueryStartTs(Date queryStartTs) {
+		this.queryStartTs = queryStartTs;
+	}
+
+	public Date getQueryEndTs() {
+		return queryEndTs;
+	}
+
+	public void setQueryEndTs(Date queryEndTs) {
+		this.queryEndTs = queryEndTs;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 }
