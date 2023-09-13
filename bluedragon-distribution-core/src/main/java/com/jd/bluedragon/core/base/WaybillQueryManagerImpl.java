@@ -1089,7 +1089,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                     res += TextConstants.PRODUCT_NAME_SXTK_JR;
                 }
                 if ((BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)
-                        || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3))
+                        || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_5))
                     && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)) {
                     // 生鲜特快次晨
                     res += TextConstants.PRODUCT_NAME_SXTK_CC;
