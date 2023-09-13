@@ -476,4 +476,13 @@ public class DmsConstants {
         add(3);
     }};
 
+    /**
+     * 笼车前缀
+     */
+    public static final String COLLECTION_AL_PREFIX = "AL";
+    
+    /**
+     * 围板箱前缀
+     */
+    public static final String COLLECTION_AD02_PREFIX= "AD02";
 }
