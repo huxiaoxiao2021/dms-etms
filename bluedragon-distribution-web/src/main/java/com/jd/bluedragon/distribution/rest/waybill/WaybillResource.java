@@ -2816,15 +2816,15 @@ public class WaybillResource {
 	
 	@GET
 	@Path("/repair/attachment/{queryStartTsStr}/{queryEndTsStr}/{intervalHours}")
-	public void repairAttachment(@PathParam("queryStartTsStr") String queryStartTsStr, 
-								 @PathParam("queryEndTsStr") String queryEndTsStr,
+	public void repairAttachment(@PathParam("queryStartTsStr") Long queryStartTsStr, 
+								 @PathParam("queryEndTsStr") Long queryEndTsStr,
 								 @PathParam("intervalHours") Integer intervalHours) {
 
-		Date queryStartTs = DateHelper.parseDate(queryStartTsStr, DateHelper.DATE_TIME_FORMAT);
+		Date queryStartTs = new Date(queryStartTsStr);
 		Date queryEndTs = DateHelper.addHours(queryStartTs, intervalHours);
 		
 		JyAttachmentDetailQuery condition = new JyAttachmentDetailQuery();
-		while (queryEndTs.before(DateHelper.parseDate(queryEndTsStr, DateHelper.DATE_TIME_FORMAT)) )
+		while (queryEndTs.before(new Date(queryEndTsStr)) )
 		{
 			condition.setQueryStartTs(queryStartTs);
 			condition.setQueryEndTs(queryEndTs);
