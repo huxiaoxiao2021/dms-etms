@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class LogDto {
     
-    private List<String> request;
+    private String request;
     
     private String response;
     
@@ -26,7 +26,12 @@ public class LogDto {
         this.log = log;
         this.status = 1;
     }
-    public LogDto(List<String> request, String response, Integer status, String log, String method, String exception) {
+    public LogDto(String log, String request) {
+        this.log = log;
+        this.request = request;
+        this.status = 1;
+    }
+    public LogDto(String request, String response, Integer status, String log, String method, String exception) {
         this.request = request;
         this.response = response;
         this.status = status;
@@ -42,11 +47,11 @@ public class LogDto {
         this.method = method;
     }
 
-    public List<String> getRequest() {
+    public String getRequest() {
         return request;
     }
 
-    public void setRequest(List<String> request) {
+    public void setRequest(String request) {
         this.request = request;
     }
 

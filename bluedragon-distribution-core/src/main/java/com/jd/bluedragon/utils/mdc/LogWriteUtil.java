@@ -44,10 +44,6 @@ public class LogWriteUtil {
         }
         MDC.clear();
     }
-    
-    public static Boolean isNeedWriteLog() {
-        return !StringUtils.isEmpty(MDC.get(MDC_LOG_KEY));
-    }
 
     public static List<LogDto> getLogList() {
         String key = MDC.get(MDC_LOG_KEY);

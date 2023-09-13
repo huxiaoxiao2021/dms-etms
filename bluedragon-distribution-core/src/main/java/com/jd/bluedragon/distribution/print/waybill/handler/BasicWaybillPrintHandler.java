@@ -560,9 +560,16 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     		context.setUseEndDmsId(true);
     		context.setWaybillEndDmsId(endDmsId);
     		JdResult<SortCrossDetail> remoteResult = baseMinorManager.queryCrossDetailByDmsIdAndSiteCode(waybill.getOriginalDmsCode(), endDmsId.toString(), waybill.getOriginalCrossType());
+
+            String params = "{" + "OriginalDmsCode: "+ waybill.getOriginalDmsCode() + ",siteCode: " + endDmsId + ",OriginalCrossType: " + waybill.getOriginalCrossType() +"}";
+
             if(remoteResult.isSucceed()) {
+                LogWriteUtil.addLog(new LogDto(params, JsonHelper.toJson(remoteResult), Constants.YN_YES
+                        ,"根据始发和目的分拣中心获取滑道信息成功","basicSortCrossDetailWS.queryCrossDetailByDmsIdAndSiteCode",""));
             	crossDetail=remoteResult.getData();
             }else{
+                LogWriteUtil.addLog(new LogDto(params, JsonHelper.toJson(remoteResult), Constants.YN_NO
+                        ,"根据始发和目的分拣中心获取滑道信息失败:" + remoteResult.getMessage(),"basicSortCrossDetailWS.queryCrossDetailByDmsIdAndSiteCode",""));
                 log.warn("打印业务：未获取到滑道号及笼车号信息:{}", remoteResult.getMessage());
             }
            	BaseStaffSiteOrgDto endDmsInfo =baseMajorManager.getBaseSiteBySiteId(endDmsId);
@@ -597,9 +604,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             baseDmsStore.setOrgId(waybill.getOrgId());//机构编号
             baseDmsStore.setDmsId(waybill.getOriginalDmsCode());//分拣中心编号
                 JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode(),waybill.getTempOriginalCrossType());
-                if (LogWriteUtil.isNeedWriteLog()) {
-                    LogWriteUtil.addLog(new LogDto("查询青龙基础资料返回结果", JsonHelper.toJson(jdResult), Constants.YN_YES, "baseMinorManager.queryCrossPackageTagForPrint"));
-                }
+                LogWriteUtil.addLog(new LogDto("查询青龙基础资料返回结果", JsonHelper.toJson(jdResult), Constants.YN_YES, "baseMinorManager.queryCrossPackageTagForPrint"));
                 if(jdResult.isSucceed()) {
                     tag=jdResult.getData();
                 }else{
@@ -620,6 +625,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                         || BusinessUtil.isZiTiGuiByWaybillSign(waybill.getWaybillSign())
                         || BusinessUtil.isZiTiDianByWaybillSign(waybill.getWaybillSign())
                         || BusinessUtil.isWrcps(waybill.getSendPay())) {
+                    LogWriteUtil.addLog(new LogDto("自提类型，打印的地址是自提柜地址，而非客户地址(运单系统)"));
                     if (StringHelper.isNotEmpty(tag.getPrintAddress()) && !BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
                         waybill.setPrintAddress(tag.getPrintAddress());
                     }
@@ -645,26 +651,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setDestinationCrossCode(tag.getDestinationCrossCode());
                 
                 hiddenCrossInfo(waybill);
-                if (LogWriteUtil.isNeedWriteLog()) {
-                    writeResult(tag);
-                }
         }
 	}
-
-    private void writeResult(CrossPackageTagNew tag) {
-        PrintWaybill waybill = new PrintWaybill();
-        //笼车号
-        waybill.setOriginalTabletrolley(tag.getOriginalTabletrolleyCode());
-        waybill.setOriginalTabletrolleyCode(tag.getOriginalTabletrolleyCode());
-
-        waybill.setPurposefulTableTrolley(tag.getDestinationTabletrolleyCode());
-        waybill.setDestinationTabletrolleyCode(tag.getDestinationTabletrolleyCode());
-        //道口号
-        waybill.setOriginalCrossCode(tag.getOriginalCrossCode());
-        waybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
-        waybill.setDestinationCrossCode(tag.getDestinationCrossCode());
-        LogWriteUtil.addLog(new LogDto("获取滑道笼车最终结果", JsonHelper.toJson(waybill), Constants.YN_YES, ""));
-    }
 
     /**
      * 隐藏滑道信息
@@ -672,7 +660,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      */
     private void hiddenCrossInfo(PrintWaybill waybill) {
                 if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')){
-                    LogWriteUtil.addLog(new LogDto("隐藏滑道信息", "", Constants.YN_NO, "BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')"));
+                    LogWriteUtil.addLog(new LogDto("隐藏滑道信息,waybillSign的第31位标位是3", "", Constants.YN_NO, ""));
                     waybill.setOriginalDmsName("");
                     waybill.setPurposefulDmsName("");
                     waybill.setDestinationDmsName("");
