@@ -3106,7 +3106,7 @@ public class WaybillResource {
 					query.setId(item.getId());
 					query.setSiteCode(item.getSiteCode());
 					JyAttachmentDetailEntity entity = jyAttachmentDetailDao.queryOneById(query);
-					if(entity == null){
+					if(entity != null){
 						continue;
 					}
 					jyAttachmentDetailDao.insertWithId(entity);
