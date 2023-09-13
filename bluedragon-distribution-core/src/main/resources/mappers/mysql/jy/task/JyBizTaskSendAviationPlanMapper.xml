@@ -391,8 +391,11 @@
         <if test="nextSiteId != null" >
             and next_site_id = #{nextSiteId}
         </if>
-        <if test="takeOffTime != null" >
-            and take_off_time &gt;= #{takeOffTime}
+        <if test="takeOffTimeStart != null" >
+            and take_off_time &gt;= #{takeOffTimeStart}
+        </if>
+        <if test="createTimeStart != null" >
+            and create_time &gt;= #{createTimeStart}
         </if>
     </sql>
 
@@ -503,7 +506,7 @@
         yn = 1
         and start_site_id = #{startSiteId}
         and next_site_id = #{startSiteId}
-        and (task_status = 0 and take_off_time &gt;= #{takeOffTime}) or (task_status = 1)
+        and (task_status = 0 and take_off_time &gt;= #{takeOffTimeStart}) or (task_status = 1)
         order by
         take_off_time
         limit #{offset},#{pageSize}

@@ -32,6 +32,8 @@ public interface JyBizTaskSendAviationPlanService {
 
     List<AviationNextSiteStatisticsDto> queryNextSitesByStartSite(JyBizTaskSendAviationPlanQueryCondition param);
 
+    List<JyBizTaskAviationStatusStatistics> toSendAndSendingStatusStatistics(JyBizTaskSendAviationPlanQueryCondition condition);
+
     List<JyBizTaskAviationStatusStatistics> statusStatistics(JyBizTaskSendAviationPlanQueryCondition condition);
 
     List<JyBizTaskSendAviationPlanEntity> pageFetchAviationTaskByNextSite(JyBizTaskSendAviationPlanQueryCondition condition);

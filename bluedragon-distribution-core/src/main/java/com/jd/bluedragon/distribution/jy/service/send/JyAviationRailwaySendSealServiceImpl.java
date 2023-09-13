@@ -94,7 +94,10 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     private int shuttlePlanTimeBeginHour;
     @Value("${jyAviationRailwayShuttleSendTaskPlanTimeEndHour:24}")
     private int shuttlePlanTimeEndHour;
-
+    @Value("${jyAviationSendSealListQueryCreateTimeStartDay:7}")
+    private int listQueryCreateTimeStartDay;
+    @Value("${jyAviationSendSealToSendQueryTakeOffTimeStartHour:24}")
+    private int toSendQueryTakeOffTimeStartHour;
 
     @Autowired
     private JySeaCarlCacheService jySeaCarlCacheService;
@@ -482,7 +485,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 request.getFilterConditionDto(),
                 request.getKeyword());
 
-        List<JyBizTaskAviationStatusStatistics> taskStatusStatisticsList = jyBizTaskSendAviationPlanService.statusStatistics(condition);
+        List<JyBizTaskAviationStatusStatistics> taskStatusStatisticsList = jyBizTaskSendAviationPlanService.toSendAndSendingStatusStatistics(condition);
         List<TaskStatusStatistics> taskStatusStatistics = this.convertFillStatusDefaultValue(taskStatusStatisticsList, true);
         resData.setTaskStatusStatisticsList(taskStatusStatistics);
 
@@ -522,8 +525,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
         if(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(statusCode)) {
             //起飞时间
-            condition.setTakeOffTime(DateHelper.newTimeRangeHoursAgo(new Date(), 24));
+            condition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), toSendQueryTakeOffTimeStartHour));
         }
+        condition.setCreateTimeStart(DateHelper.getZeroFromDay(new Date(), listQueryCreateTimeStartDay));
         //条件筛选
         this.parseQueryCondition(filterConditionDto, condition);
         //关键词搜索
@@ -1083,6 +1087,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         AviationSealListDto res = new AviationSealListDto();
         res.setBizId(entity.getBizId());
         res.setBookingCode(entity.getBookingCode());
+        res.setDetailBizId(entity.getBookingCode());
         res.setFlightNumber(entity.getFlightNumber());
         res.setCargoType(entity.getCargoType());
         res.setAirType(entity.getAirType());

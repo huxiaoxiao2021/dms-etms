@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendAviationPlanDao;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
 import com.jd.bluedragon.distribution.jy.task.*;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,9 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author zhengchengfa
@@ -29,7 +30,8 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
 
     @Value("${jyAviationSendSealListNextSiteQueryLimit:50}")
     private int aviationSendSealListNextSiteQueryLimit;
-
+    @Value("${jyAviationSendSealToSendQueryTakeOffTimeStartHour:24}")
+    private int toSendQueryTakeOffTimeStartHour;
 
     @Autowired
     private JyBizTaskSendAviationPlanDao jyBizTaskSendAviationPlanDao;
@@ -94,6 +96,40 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
         queryCondition.setPageSize(aviationSendSealListNextSiteQueryLimit);
         return jyBizTaskSendAviationPlanDao.queryNextSitesByStartSite(queryCondition);
     }
+
+    @Override
+    public List<JyBizTaskAviationStatusStatistics> toSendAndSendingStatusStatistics(JyBizTaskSendAviationPlanQueryCondition condition) {
+        //待发货统计
+        JyBizTaskSendAviationPlanQueryCondition toSendQueryCondition = new JyBizTaskSendAviationPlanQueryCondition();
+        BeanUtils.copyProperties(condition, toSendQueryCondition);
+        if(!JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getSendTaskStatus().equals(condition.getTaskStatus())) {
+            toSendQueryCondition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), toSendQueryTakeOffTimeStartHour));
+        }
+        List<JyBizTaskAviationStatusStatistics> toSendRes = jyBizTaskSendAviationPlanDao.statusStatistics(toSendQueryCondition);
+
+        //发货中统计
+        JyBizTaskSendAviationPlanQueryCondition sendingQueryCondition = new JyBizTaskSendAviationPlanQueryCondition();
+        BeanUtils.copyProperties(condition, sendingQueryCondition);
+        sendingQueryCondition.setTakeOffTimeStart(null);
+        List<JyBizTaskAviationStatusStatistics> sendingRes = jyBizTaskSendAviationPlanDao.statusStatistics(sendingQueryCondition);
+
+        if(CollectionUtils.isEmpty(toSendRes) && CollectionUtils.isEmpty(sendingRes)) {
+            return null;
+        }
+
+        Map<Integer, JyBizTaskAviationStatusStatistics> toSendMap = toSendRes.stream().collect(Collectors.toMap(k->k.getTaskStatus(), v->v));
+        Map<Integer, JyBizTaskAviationStatusStatistics> sendingMap = sendingRes.stream().collect(Collectors.toMap(k->k.getTaskStatus(), v->v));
+
+        List<JyBizTaskAviationStatusStatistics> res = new ArrayList<>();
+        if(null != toSendMap.get(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getSendTaskStatus())) {
+            res.add(toSendMap.get(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getSendTaskStatus()));
+        }
+        if(null != sendingMap.get(JyAviationRailwaySendVehicleStatusEnum.SENDING.getSendTaskStatus())) {
+            res.add(sendingMap.get(JyAviationRailwaySendVehicleStatusEnum.SENDING.getSendTaskStatus()));
+        }
+        return res;
+    }
+
 
     @Override
     public List<JyBizTaskAviationStatusStatistics> statusStatistics(JyBizTaskSendAviationPlanQueryCondition condition) {

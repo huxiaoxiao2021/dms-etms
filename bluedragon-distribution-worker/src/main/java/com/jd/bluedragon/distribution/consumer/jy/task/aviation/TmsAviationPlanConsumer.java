@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.jy.task.aviation;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.send.TmsAviationPlanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
@@ -72,7 +73,8 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
     private JyBizTaskSendAviationPlanCacheService aviationPlanCacheService;
     @Autowired
     private BaseMajorManager baseMajorManager;
-
+    @Autowired
+    private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.tmsAviationPlanConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -217,8 +219,8 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         entity.setStartSiteId(currSite.getSiteCode());
         entity.setStartSiteName(mqBody.getStartNodeName());
         entity.setFlightNumber(mqBody.getFlightNumber());
-        entity.setTakeOffTime(DateHelper.parseAllFormatDateTime(mqBody.getTakeOffTime()));
-        entity.setTouchDownTime(DateHelper.parseAllFormatDateTime(mqBody.getTouchDownTime()));
+        entity.setTakeOffTime(mqBody.getTakeOffTime());
+        entity.setTouchDownTime(mqBody.getTouchDownTime());
         entity.setAirCompanyCode(mqBody.getAirCompanyCode());
         entity.setAirCompanyName(mqBody.getAirCompanyName());
         entity.setBeginNodeCode(mqBody.getBeginNodeCode());
@@ -230,11 +232,6 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         entity.setBookingWeight(mqBody.getBookingWeight());
         entity.setCargoType(mqBody.getCargoType());
         entity.setAirType(mqBody.getAirType());
-        //todo zcf 根据航空计划获取路由系统中流向场地信息： 待确认  下面是写死的测试代码
-        entity.setNextSiteCode("010F016");
-        entity.setNextSiteId(40240);
-        entity.setNextSiteName("北京通州分拣中心cs");
-
         entity.setCreateUserErp(Constants.SYS_NAME);
         entity.setCreateUserName(Constants.SYS_NAME);
         entity.setCreateTime(new Date());
@@ -242,7 +239,27 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         entity.setYn(Constants.YN_YES);
         entity.setIntercept(0);
         entity.setTaskStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+
+        this.fillNextSiteInfo(entity);
         return entity;
+    }
+
+
+    private void fillNextSiteInfo(JyBizTaskSendAviationPlanEntity entity) {
+        if(Objects.isNull(entity)) {
+            return;
+        }
+        //测试代码
+        entity.setNextSiteCode("010F016");
+        entity.setNextSiteId(40240);
+        entity.setNextSiteName("北京通州分拣中心cs");
+        try{
+//            todo zcf
+            Object crsRes = vrsRouteTransferRelationManager.queryAirLineByAirLineReq(null);
+        }catch (Exception ignoreEx) {
+            throw new JyBizIgnoreException();
+        }
+
     }
 
 
@@ -296,11 +313,11 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
             log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：航班号flightNumber为空，内容为【{}】", JsonHelper.toJson(mqBody));
             return true;
         }
-        if(StringUtils.isBlank(mqBody.getTakeOffTime())) {
+        if(Objects.isNull(mqBody.getTakeOffTime())) {
             log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：七分时间takeOffTime为空，内容为【{}】", JsonHelper.toJson(mqBody));
             return true;
         }
-        if(StringUtils.isBlank(mqBody.getTouchDownTime())) {
+        if(Objects.isNull(mqBody.getTouchDownTime())) {
             log.warn("tmsAviationPlanConsumer.invalidDataFilter:无效数据丢弃：降落时间touchDownTime为空，内容为【{}】", JsonHelper.toJson(mqBody));
             return true;
         }

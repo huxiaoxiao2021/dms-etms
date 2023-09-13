@@ -12,6 +12,7 @@ public class AviationSealListDto implements Serializable {
     private static final long serialVersionUID = -5005890642092421853L;
 
     private String bizId;
+    private String detailBizId;
     /**
      * 订舱号
      */
@@ -158,5 +159,13 @@ public class AviationSealListDto implements Serializable {
 
     public void setBindFlag(Boolean bindFlag) {
         this.bindFlag = bindFlag;
+    }
+
+    public String getDetailBizId() {
+        return detailBizId;
+    }
+
+    public void setDetailBizId(String detailBizId) {
+        this.detailBizId = detailBizId;
     }
 }

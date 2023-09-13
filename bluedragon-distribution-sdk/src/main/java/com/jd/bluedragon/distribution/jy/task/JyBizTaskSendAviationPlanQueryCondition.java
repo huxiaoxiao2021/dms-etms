@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.task;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,6 +22,13 @@ public class JyBizTaskSendAviationPlanQueryCondition extends JyBizTaskSendAviati
     private Integer pageSize;
 
     private Integer offset;
+    //起止创建时间
+    private Date createTimeStart;
+    private Date createTimeEnd;
+
+    //起止起飞时间
+    private Date takeOffTimeStart;
+    private Date takeOffTimeEnd;
 
     public List<Integer> getNextSiteIdList() {
         return nextSiteIdList;
@@ -60,5 +68,37 @@ public class JyBizTaskSendAviationPlanQueryCondition extends JyBizTaskSendAviati
 
     public void setBizIdList(List<String> bizIdList) {
         this.bizIdList = bizIdList;
+    }
+
+    public Date getCreateTimeStart() {
+        return createTimeStart;
+    }
+
+    public void setCreateTimeStart(Date createTimeStart) {
+        this.createTimeStart = createTimeStart;
+    }
+
+    public Date getCreateTimeEnd() {
+        return createTimeEnd;
+    }
+
+    public void setCreateTimeEnd(Date createTimeEnd) {
+        this.createTimeEnd = createTimeEnd;
+    }
+
+    public Date getTakeOffTimeStart() {
+        return takeOffTimeStart;
+    }
+
+    public void setTakeOffTimeStart(Date takeOffTimeStart) {
+        this.takeOffTimeStart = takeOffTimeStart;
+    }
+
+    public Date getTakeOffTimeEnd() {
+        return takeOffTimeEnd;
+    }
+
+    public void setTakeOffTimeEnd(Date takeOffTimeEnd) {
+        this.takeOffTimeEnd = takeOffTimeEnd;
     }
 }

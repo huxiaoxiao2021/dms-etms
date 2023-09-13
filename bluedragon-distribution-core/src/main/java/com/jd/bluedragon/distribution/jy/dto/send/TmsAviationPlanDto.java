@@ -38,8 +38,8 @@ public class TmsAviationPlanDto implements Serializable {
     private String startNodeCode;//始发分拣编码
     private String startNodeName;
     private String flightNumber;//航班号
-    private String takeOffTime;//起飞时间
-    private String touchDownTime;
+    private Date takeOffTime;//起飞时间
+    private Date touchDownTime;
     private String airCompanyCode;//航空公司编码
     private String airCompanyName;
     private String beginNodeCode;//始发机场编码
@@ -104,19 +104,19 @@ public class TmsAviationPlanDto implements Serializable {
         this.flightNumber = flightNumber;
     }
 
-    public String getTakeOffTime() {
+    public Date getTakeOffTime() {
         return takeOffTime;
     }
 
-    public void setTakeOffTime(String takeOffTime) {
+    public void setTakeOffTime(Date takeOffTime) {
         this.takeOffTime = takeOffTime;
     }
 
-    public String getTouchDownTime() {
+    public Date getTouchDownTime() {
         return touchDownTime;
     }
 
-    public void setTouchDownTime(String touchDownTime) {
+    public void setTouchDownTime(Date touchDownTime) {
         this.touchDownTime = touchDownTime;
     }
 
