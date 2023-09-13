@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
+import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.utils.*;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
@@ -266,7 +267,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	 * @param updateTaskData
 	 */
 	private void reportAddMatchField(JyWorkGridManagerData taskData, JyBizTaskWorkGridManager updateTaskData) {
-		if (taskData.getTaskType().equals(BaseContants.NUMBER_THREE)) {
+		if (taskData.getTaskType().equals(WorkTaskTypeEnum.WORKING.getCode())) {
 			if (!CollectionUtils.isEmpty(taskData.getCaseList())) {
 				List<Integer> resultList = taskData.getCaseList().stream().map(JyWorkGridManagerCaseData::getCheckResult).collect(Collectors.toList());
 				//任务中有一个不符合      不符合
@@ -284,7 +285,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				}
 			}
 		}
-		if (taskData.getTaskType().equals(BaseContants.NUMBER_ONE) || taskData.getTaskType().equals(BaseContants.NUMBER_TWO)) {
+		if (taskData.getTaskType().equals(WorkTaskTypeEnum.MEETING.getCode()) || taskData.getTaskType().equals(WorkTaskTypeEnum.MEETING_RECORD.getCode())) {
 			updateTaskData.setIsMatch(WorkCheckResultEnum.PASS.getCode());
 		}
 	}

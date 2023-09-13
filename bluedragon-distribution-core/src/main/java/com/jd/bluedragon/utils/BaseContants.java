@@ -152,7 +152,4 @@ public class BaseContants {
 	public static final String SITE_CODE_SEQ = "站点Code序列";
 
 	public static final int NUMBER_ZERO = 0;//数字0
-	public static final int NUMBER_ONE = 1;//数字1
-	public static final int NUMBER_TWO = 2;//数字2
-	public static final int NUMBER_THREE = 3;//数字3
 }

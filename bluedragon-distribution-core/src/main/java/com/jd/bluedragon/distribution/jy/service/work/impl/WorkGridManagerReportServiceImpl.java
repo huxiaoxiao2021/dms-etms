@@ -174,7 +174,7 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 	 * @return
 	 */
 	@Override
-	public Result<WorkGridManagerReportVo> queryTaskDataByBizId(WorkGridMangerReportdetailQuery query) {
+	public Result<WorkGridManagerReportVo> queryTaskDataByBizId(WorkGridMangerReportDetailQuery query) {
 		Result<WorkGridManagerReportVo> result = new Result<WorkGridManagerReportVo>();
 		result.toSuccess("查询成功！");
 		JyWorkGridManagerData taskData = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(query.getBizId());
