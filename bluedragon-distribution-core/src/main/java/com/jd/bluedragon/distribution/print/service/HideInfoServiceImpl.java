@@ -69,7 +69,7 @@ public class HideInfoServiceImpl implements HideInfoService{
             hideRule = LLKB_CP_CP_YYLD_RULE;
         }
 
-        final boolean switchHidePhoneNewVersion = sysConfigService.getCsonfigByName(Constants.SYS_CONFIG_HIDE_PHONE_6Char);
+        final boolean switchHidePhoneNewVersion = sysConfigService.getConfigByName(Constants.SYS_CONFIG_HIDE_PHONE_6Char);
         // 面单输出方式为'预览'时：收寄人姓名电话地址都隐藏
         if(Objects.equals(waybill.getOutputType(), SurfaceOutputTypeEnum.OUTPUT_TYPE_PREVIEW.getCode())){
             customerInfoHide(CHAR_VAL_7, waybill, hideRule, switchHidePhoneNewVersion);
