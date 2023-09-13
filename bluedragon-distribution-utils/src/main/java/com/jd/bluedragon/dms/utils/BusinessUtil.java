@@ -2843,5 +2843,26 @@ public class BusinessUtil {
         }
         return false;
     }
+
+    /**
+     * 判断医药单是否打印企业名称 0-否 1-是
+     */
+    public static boolean isPrintSendPrincipalCompany(String traderSign){
+        if(StringUtils.isBlank(traderSign)){
+            return false;
+        }
+        return BusinessUtil.isSignChar(traderSign, TraderSignConstants.POSITION_157, TraderSignConstants.CHAR_157_1);
+    }
+
+
+    /**
+     * 判断医药单是否打印企业电话 0-否 1-是
+     */
+    public static boolean isPrinttextContact(String traderSign){
+        if(StringUtils.isBlank(traderSign)){
+            return false;
+        }
+        return BusinessUtil.isSignChar(traderSign, TraderSignConstants.POSITION_158, TraderSignConstants.CHAR_158_1);
+    }
     
 }

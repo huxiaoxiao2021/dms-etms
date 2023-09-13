@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -20,8 +21,11 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,5 +156,31 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
                 }
             }
         }
+    }
+
+    /**
+     * 包裹补打拦截
+     * @param context
+     * @param result
+     * @return
+     */
+    private void interceptPackageReprint(WaybillPrintContext context,InterceptResult<String> result){
+
+        // 包裹补打拦截
+        Waybill waybill = context.getBigWaybillDto().getWaybill();
+        WaybillManageDomain waybillState = context.getBigWaybillDto().getWaybillState();
+        log.info("waybill-{}   waybillState-{}", JSON.toJSONString(waybill),JSON.toJSONString(waybillState));
+        if(waybill == null ||waybill.getWaybillExt() == null  || waybillState ==null || waybillState.getWaybillState() == null){
+            return ;
+        }
+        String oldWaybillCode = waybill.getWaybillExt().getOldWaybillCode();
+        if(StringUtils.isBlank(oldWaybillCode)){
+            return ;
+        }
+        if(Constants.WAYBILL_TRACE_STATE_EXCHANGE.equals(waybillState.getWaybillState().toString())){
+            log.info("运单换单完成-{}",waybill.getWaybillCode());
+            result.toFail(1,"shibai");
+        }
+        return ;
     }
 }
