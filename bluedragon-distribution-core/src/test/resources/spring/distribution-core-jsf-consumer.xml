@@ -954,7 +954,7 @@
     <!--  出勤黑名单  -->
     <jsf:consumer id="basicAttendanceBlackListJsfService"
                   interface="com.jdl.basic.api.service.attBlackList.AttendanceBlackListJsfService"
-                  alias="test-att"
+                  alias="${jsf.alias.jy_basic}"
                   timeout="${jsf.jy_basic.timeout}"
                   retries="${jsf.retries}"
                   serialization="hessian"

@@ -5,8 +5,10 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
 import com.jd.bluedragon.core.jsf.attBlackList.impl.AttendanceBlackListManagerImpl;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
 import com.jdl.basic.api.service.attBlackList.AttendanceBlackListJsfService;
 import com.jdl.basic.common.utils.DateUtil;
@@ -27,10 +29,13 @@ import java.util.Date;
 public class UserSignGatewayServiceImplWithSpringTest {
 
     @Autowired
-    AttendanceBlackListManagerImpl attendanceBlackListManager;
+    AttendanceBlackListManager attendanceBlackListManager;
 
     @Autowired
     AttendanceBlackListJsfService basicAttendanceBlackListJsfService;
+
+    @Autowired
+    private UserSignRecordService userSignRecordService;
 
     @Autowired
     UserSignGatewayServiceImpl userSignGatewayService;

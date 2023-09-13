@@ -9,7 +9,7 @@ import com.jdl.basic.common.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.jd.bluedragon.Constants;
-@Service("attendanceBlackListManagerImpl")
+@Service
 public class AttendanceBlackListManagerImpl implements AttendanceBlackListManager {
     @Autowired
     private AttendanceBlackListJsfService basicAttendanceBlackListJsfService;
