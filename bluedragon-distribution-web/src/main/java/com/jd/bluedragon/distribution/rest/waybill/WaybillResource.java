@@ -44,6 +44,9 @@ import com.jd.bluedragon.distribution.eclpPackage.service.EclpLwbB2bPackageItemS
 import com.jd.bluedragon.distribution.eclpPackage.service.EclpPackageApiService;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
+import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
+import com.jd.bluedragon.distribution.jy.dao.attachment.JyAttachmentDetailDao;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
@@ -3074,5 +3077,47 @@ public class WaybillResource {
 		public void setGoodPrice(String goodPrice) {
 			this.goodPrice = goodPrice;
 		}
+	}
+
+	@Autowired
+	private JyAttachmentDetailDao jyAttachmentDetailDao;
+	
+	@GET
+	@Path("/repair/attachment/{queryStartTsStr}/{queryEndTsStr}/{intervalHours}")
+	public void repairAttachment(@PathParam("queryStartTsStr") String queryStartTsStr, 
+								 @PathParam("queryEndTsStr") String queryEndTsStr,
+								 @PathParam("intervalHours") Integer intervalHours) {
+
+		Date queryStartTs = DateHelper.parseDate(queryStartTsStr, DateHelper.DATE_TIME_FORMAT);
+		Date queryEndTs = DateHelper.addHours(queryStartTs, intervalHours);
+		
+		JyAttachmentDetailQuery condition = new JyAttachmentDetailQuery();
+		while (queryEndTs.before(DateHelper.parseDate(queryEndTsStr, DateHelper.DATE_TIME_FORMAT)) )
+		{
+			condition.setQueryStartTs(queryStartTs);
+			condition.setQueryEndTs(queryEndTs);
+			List<JyAttachmentDetailEntity> list = jyAttachmentDetailDao.queryAllByTs(condition);
+			if(!CollectionUtils.isEmpty(list)){
+				for (JyAttachmentDetailEntity item : list) {
+					JyAttachmentDetailQuery query = new JyAttachmentDetailQuery();
+					query.setId(item.getId());
+					query.setSiteCode(item.getSiteCode());
+					JyAttachmentDetailEntity entity = jyAttachmentDetailDao.queryOneById(query);
+					if(entity == null){
+						continue;
+					}
+					jyAttachmentDetailDao.insertWithId(entity);
+				}
+			}
+			try {
+				Thread.sleep(10);
+			}catch (Exception e){
+				log.error("服务异常!");
+			}
+			queryStartTs = queryEndTs;
+			queryEndTs = DateHelper.addHours(queryEndTs, intervalHours);
+		}
+		
+		
 	}
 }
