@@ -260,7 +260,7 @@ public class HideInfoServiceImpl implements HideInfoService{
             consignerTel = consignerTel.replaceAll("\\s*", "");
 
             if(consignerTel.length() > StringHelper.LANDLINE_NUMBER ){
-                waybill.setConsignerTel(consignerTel.substring(0,StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE +
+                waybill.setConsignerTel(consignerTel.substring(0,StringHelper.PHONE_FIRST_NUMBER_SHOW1) + StringHelper.SMILE +
                         consignerTel.substring(consignerTel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
             }else if (consignerTel.length() > StringHelper.LANDLINE_FIRST_NUMBER) {
                 waybill.setConsignerTel(StringHelper.SMILE + consignerTel.substring(StringHelper.LANDLINE_FIRST_NUMBER));
@@ -273,7 +273,7 @@ public class HideInfoServiceImpl implements HideInfoService{
             consignerMobile = consignerMobile.replaceAll("\\s*", "");
 
             if(consignerMobile.length() > StringHelper.LANDLINE_NUMBER ){
-                waybill.setConsignerMobile(consignerMobile.substring(0,StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE +
+                waybill.setConsignerMobile(consignerMobile.substring(0,StringHelper.PHONE_FIRST_NUMBER_SHOW1) + StringHelper.SMILE +
                         consignerMobile.substring(consignerMobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
             }else if (consignerMobile.length() > StringHelper.LANDLINE_FIRST_NUMBER) {
                 waybill.setConsignerMobile(StringHelper.SMILE + consignerMobile.substring(StringHelper.LANDLINE_FIRST_NUMBER));
@@ -417,8 +417,8 @@ public class HideInfoServiceImpl implements HideInfoService{
         //新 10位以上（不包括10）的显示前一+笑脸(6位以上)+后四 10位以下（包括10）的显示笑脸(6位)+剩余位数
         if(StringUtils.isNotBlank(firstMobile)){
             if(firstMobile.length() > StringHelper.LANDLINE_FIRST_NUMBER){
-                customerContacts.append(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER)).append(StringHelper.SMILE).append(lastMobile);
-                waybill.setMobileFirst(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE );
+                customerContacts.append(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER_SHOW1)).append(StringHelper.SMILE).append(lastMobile);
+                waybill.setMobileFirst(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER_SHOW1) + StringHelper.SMILE );
             } else{
                 customerContacts.append(StringHelper.SMILE).append(lastMobile);
                 waybill.setMobileFirst(StringHelper.SMILE);
@@ -429,8 +429,8 @@ public class HideInfoServiceImpl implements HideInfoService{
                 customerContacts.append(",");
             }
             if(firstTel.length() > StringHelper.LANDLINE_FIRST_NUMBER){
-                customerContacts.append(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE + lastTel);
-                waybill.setTelFirst(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE);
+                customerContacts.append(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER_SHOW1) + StringHelper.SMILE + lastTel);
+                waybill.setTelFirst(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER_SHOW1) + StringHelper.SMILE);
             }else{
                 customerContacts.append(StringHelper.SMILE).append(lastTel);
                 waybill.setTelFirst(StringHelper.SMILE);
