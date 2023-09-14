@@ -37,11 +37,7 @@ public class AviationSendScanReq  extends BaseReq implements Serializable {
      * 集包袋号
      */
     private String materialCode;
-
-    /**
-     * 任务组号
-     */
-    private String groupCode;
+    
 
     private String taskId;
 
@@ -49,6 +45,11 @@ public class AviationSendScanReq  extends BaseReq implements Serializable {
      * 跳过发货拦截强制提交
      */
     private Boolean forceSubmit;
+
+    /**
+     * 用户确认的发货目的地
+     */
+    private Long confirmSendDestId;
 
     public String getSendVehicleBizId() {
         return sendVehicleBizId;
@@ -109,4 +110,11 @@ public class AviationSendScanReq  extends BaseReq implements Serializable {
     }
 
 
+    public Long getConfirmSendDestId() {
+        return confirmSendDestId;
+    }
+
+    public void setConfirmSendDestId(Long confirmSendDestId) {
+        this.confirmSendDestId = confirmSendDestId;
+    }
 }
