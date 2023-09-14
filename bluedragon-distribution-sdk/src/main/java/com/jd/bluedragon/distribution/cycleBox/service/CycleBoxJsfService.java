@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.cycleBox.service;
 
+import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.cycleBox.domain.BoxMaterialRelationDto;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 
@@ -21,4 +22,11 @@ public interface CycleBoxJsfService {
      * @return
      */
     InvokeResult<BoxMaterialRelationDto> getBoxMaterialRelation(String boxCode);
+
+    /**
+     * 箱号绑定集包袋
+     * @param request
+     * @return
+     */
+    InvokeResult<String> addBoxMaterialRelation(BoxMaterialRelationRequest request);
 }

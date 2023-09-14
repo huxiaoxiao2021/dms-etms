@@ -1,11 +1,16 @@
 package com.jd.bluedragon.distribution.cycleBox.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.recyclematerial.request.BoxMaterialRelationJSFRequest;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.cycleBox.domain.BoxMaterialRelationDto;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.distribution.cyclebox.service.BoxMaterialRelationService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.wb.report.util.BusinessUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -22,6 +27,8 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
 
     @Autowired
     BoxMaterialRelationService boxMaterialRelationService;
+    @Autowired
+    private CycleBoxService cycleBoxService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.CycleBoxJsfServiceImpl.getBoxMaterialRelationByMaterialCode", mState = JProEnum.TP)
@@ -79,7 +86,7 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
      */
     @Override
     public InvokeResult<BoxMaterialRelationDto> getBoxMaterialRelation(String boxCode) {
-        logger.info("查询集包袋信息,箱号：{}", boxCode);
+        logger.info("CycleBoxJsfServiceImpl->getBoxMaterialRelation查询集包袋信息,箱号：{}", boxCode);
         InvokeResult<BoxMaterialRelationDto> result = new InvokeResult<BoxMaterialRelationDto>();
         if(!BusinessUtil.isBoxcode(boxCode)){
             result.parameterError("箱号不合法");
@@ -93,6 +100,30 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
         BoxMaterialRelationDto dto = new BoxMaterialRelationDto();
         BeanUtils.copyProperties(boxMaterialRelation,dto);
         result.setData(dto);
+        return result;
+    }
+
+    /**
+     * 箱号绑定集包袋
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult<String> addBoxMaterialRelation(BoxMaterialRelationRequest request) {
+        logger.info("CycleBoxJsfServiceImpl->boxMaterialRelationAlter绑定集包袋,入参：{}", JsonHelper.toJson(request));
+        InvokeResult<String> result = new InvokeResult<String>();
+        if (null == request) {
+            result.parameterError("入参不能为空");
+            return result;
+        }
+
+        com.jd.bluedragon.distribution.base.domain.InvokeResult invokeResultResult = cycleBoxService.boxMaterialRelationAlter(request);
+        if (invokeResultResult == null){
+            result.parameterError("绑定失败，请重试");
+        }
+        if(!invokeResultResult.codeSuccess()){
+            result.parameterError(invokeResultResult.getMessage());
+        }
         return result;
     }
 }
