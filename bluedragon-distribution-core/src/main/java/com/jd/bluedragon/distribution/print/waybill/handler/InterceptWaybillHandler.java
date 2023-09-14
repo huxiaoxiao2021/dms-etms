@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
@@ -23,6 +24,7 @@ import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +51,8 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
     @Autowired
     private WaybillService waybillService;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 	/**
 	 * 存储需要拦截的编码、消息对应关系
 	 */
@@ -165,6 +169,16 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
      * @return
      */
     private void interceptPackageReprint(WaybillPrintContext context,InterceptResult<String> result){
+
+        
+        if(WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())){
+
+            Integer siteCode = context.getRequest().getSiteCode();
+
+             baseMajorManager.getSiteBySiteCode(siteCode);
+
+        }
+
 
         // 包裹补打拦截
         Waybill waybill = context.getBigWaybillDto().getWaybill();

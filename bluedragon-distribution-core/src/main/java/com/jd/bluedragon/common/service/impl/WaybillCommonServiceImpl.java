@@ -764,7 +764,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      */
     @JProfiler(jKey = "DMS.BASE.WaybillCommonServiceImpl.setBasePrintInfoByWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BasePrintWaybill setBasePrintInfoByWaybill(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill){
-    	if(target==null||waybill==null){
+
+        log.info("setBasePrintInfoByWaybill------------");
+        if(target==null||waybill==null){
     		return target;
     	}
 		waybillPrintService.dealSignTexts(waybill.getWaybillSign(), target, Constants.DIC_NAME_WAYBILL_SIGN_CONFIG);
@@ -1000,6 +1002,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setjZDFlag(TextConstants.PECIAL_TIMELY_MARK);
         }
 
+        log.info("特快送-次晨 或者 生鲜特快-次晨");
         // 判断 特快送-次晨 或者 生鲜特快-次晨
         if(BusinessUtil.isTKSCC(waybill.getWaybillSign()) || BusinessUtil.isSXTKCC(waybill.getWaybillSign())){
             log.info("满足特快送-次晨 或者 生鲜特快-次晨");
