@@ -1716,8 +1716,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				int cancelFlag=attendanceBlackList.getCancelFlag();
 				Date takeTime=attendanceBlackList.getTakeTime();
 				Date loseTime=attendanceBlackList.getLoseTime();
-				String dateStr= DateUtil.format(new Date(),DateUtil.FORMAT_DATE);
-				Date currentTime=DateUtil.parse(dateStr,DateUtil.FORMAT_DATE);
+				String dateStr= DateUtil.format(new Date(),DateUtil.FORMAT_DATE_MINUTE);
+				Date currentTime=DateUtil.parse(dateStr,DateUtil.FORMAT_DATE_MINUTE);
 				if(cancelFlag ==Constants.NUMBER_ZERO && (currentTime.compareTo(takeTime) < Constants.NUMBER_ZERO)){
 					//待生效
 					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TOBE_EFFECTIVE_MSG, userCode,DateUtil.format(takeTime,DateUtil.FORMAT_DATE));
