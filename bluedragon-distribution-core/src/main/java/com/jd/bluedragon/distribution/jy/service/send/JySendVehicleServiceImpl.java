@@ -2622,7 +2622,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 if (needBindMaterialBag) {
                     // 箱号未绑定集包袋
                     if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
-                        if (!BusinessUtil.isCollectionBag(request.getMaterialCode()) || BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
+                        if (!BusinessUtil.isCollectionBag(request.getMaterialCode()) || BusinessUtil.isTrolleyCollectionBag(request.getMaterialCode())) {
                             response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
                             response.addInterceptBox(0, "请扫描或输入正确的集包袋！");
                             return false;
