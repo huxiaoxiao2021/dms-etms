@@ -1002,8 +1002,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         // 判断 特快送-次晨 或者 生鲜特快-次晨
         if(BusinessUtil.isTKSCC(waybill.getWaybillSign()) || BusinessUtil.isSXTKCC(waybill.getWaybillSign())){
+            log.info("满足特快送-次晨 或者 生鲜特快-次晨");
             String requireTimeStr = DateHelper.formatDate(waybill.getRequireTime(), DateHelper.DATE_FORMAT_HHmm);
-            target.appendSpecialMark(requireTimeStr);
+            String specialMark = target.getSpecialMark();
+            target.appendSpecialMark(requireTimeStr+specialMark);
         }
 
         /* waybill_sign标识位，第七十九位为2，打提字标
