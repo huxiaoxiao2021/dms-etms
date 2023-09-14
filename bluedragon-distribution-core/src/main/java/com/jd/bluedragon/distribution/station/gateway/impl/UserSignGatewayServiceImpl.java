@@ -255,9 +255,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		String userCode=userSignRequest.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 		if(isCarId){
-			String  msg=checkAttendanceBlackList(userCode);
+			String  msg=checkAttendanceBlackList(result,userCode);
 			if(StringUtils.isNotBlank(msg)){
-				result.toFail(msg);
 				return result;
 			}
 		}
@@ -367,7 +366,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		}
 		return result;
 	}
-	private String checkAttendanceBlackList(String userCode){
+	private String checkAttendanceBlackList(JdCResponse<UserSignRecordData> result,String userCode){
 		//查询出勤黑名单，并校验
 		com.jdl.basic.common.utils.Result<AttendanceBlackList> rs=attendanceBlackListManager.queryByUserCode(userCode);
 		if(rs == null){
@@ -384,10 +383,12 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				if(cancelFlag ==Constants.NUMBER_ZERO && (currentTime.compareTo(takeTime) < Constants.NUMBER_ZERO)){
 					//待生效
 					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TOBE_EFFECTIVE_MSG, userCode,DateUtil.format(takeTime,DateUtil.FORMAT_DATE));
+					result.toConfirm(defaultMsg);
 					return defaultMsg;
 				}else if(cancelFlag ==Constants.NUMBER_ZERO && ((loseTime ==null && currentTime.compareTo(takeTime) >=0) ||  (loseTime !=null && currentTime.compareTo(takeTime) >=0 && currentTime.compareTo(loseTime) <0))){//已生效
 					//已生效
 					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG, userCode);
+					result.toFail(defaultMsg);
 					return defaultMsg;
 				}
 			}

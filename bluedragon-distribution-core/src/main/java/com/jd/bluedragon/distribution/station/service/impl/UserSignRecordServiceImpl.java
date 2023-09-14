@@ -912,14 +912,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		String userCode = signInData.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 
-		if(isCarId){
-			String  msg=checkAttendanceBlackList(userCode);
-			if(StringUtils.isNotBlank(msg)){
-				result.toFail(msg);
-				return result;
-			}
-		}
+//      与测试caidan6 沟通其他签到暂不需要校验出勤黑名单
 
+//		if(isCarId){
+//			String  msg=checkAttendanceBlackList(userCode);
+//			if(StringUtils.isNotBlank(msg)){
+//				result.toFail(msg);
+//				return result;
+//			}
+//		}
 		String checkMsg = checkJobCodeSignIn(gridInfo, jobCode);
 		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
 		if(StringUtils.isNotBlank(checkMsg)){
