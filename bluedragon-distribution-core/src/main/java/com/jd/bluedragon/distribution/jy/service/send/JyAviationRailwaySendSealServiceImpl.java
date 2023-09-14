@@ -1165,7 +1165,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         SendScanRequest sendScanRequest = new SendScanRequest();
         com.jd.ql.erp.util.BeanUtils.copyProperties(request, sendScanRequest);
         // 空铁发货 前置校验
-        if (AviationCheckBeforeSendScan(request, result)) {
+        if (!AviationCheckBeforeSendScan(request, result)) {
             return result;
         }
         
