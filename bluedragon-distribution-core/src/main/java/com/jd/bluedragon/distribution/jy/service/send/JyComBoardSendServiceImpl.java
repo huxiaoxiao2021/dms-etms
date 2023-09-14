@@ -1255,6 +1255,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
       condition.setBoardCode(request.getBoardCode());
       JyBizTaskComboardEntity entity = jyBizTaskComboardService.queryBizTaskByBoardCode(condition);
+      
+      if (ObjectHelper.isEmpty(entity)) {
+        throw new JyBizException("该板以被清理，请重新扫描！");
+      }
+      
       if (!entity.getBulkFlag() && entity.getHaveScanCount() < ucc.getJyComboardCountLimit()) {
         Date now = new Date();
         if (entity.getHaveScanCount()<= Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {

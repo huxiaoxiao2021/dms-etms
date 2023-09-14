@@ -468,10 +468,10 @@
   <select id="queryGroupCodeByFuncCode"           
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto"
           resultType="java.lang.String">
-    select distinct group_code
+    select group_code
     from jy_group_sort_cross_detail
     where func_type = #{funcType}
-      and yn = 1 limit 5000
+      and yn = 1 group by group_code limit 5000
   </select>
 
   <update id="deleteCTTGroupDataByGroupCode"
@@ -480,15 +480,16 @@
     set yn = 0
     where yn = 1
       and group_code = #{groupCode}
-      and id
-      &lt;
-          (select minId.id
-           from (select min(id) as id
-                 from jy_group_sort_cross_detail
-                 where group_code = #{groupCode}
-                 group by template_code
-                 order by min(id) desc
-                   limit #{limit}
-                        , 1) minId)
+      and id &lt; #{id}
   </update>
+  
+  <select id="queryMinIdByGroupCode"
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto">
+    select min(id) as id
+    from jy_group_sort_cross_detail
+    where group_code = #{groupCode}
+    group by template_code
+    order by id desc
+      limit #{limit}, 1
+  </select>
 </mapper>

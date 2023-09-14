@@ -141,4 +141,14 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
     public int deleteCTTGroupDataByGroupCode(JyGroupSortCrossDetailEntityQueryDto queryDto) {
         return this.getSqlSession().update(NAMESPACE + ".deleteCTTGroupDataByGroupCode", queryDto);
     }
+
+    /**
+     * 查询limit条最新创建的混扫任务的最小ID
+     * @param queryDto
+     * @return
+     */
+    public Long queryMinIdByGroupCode(JyGroupSortCrossDetailEntityQueryDto queryDto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryMinIdByGroupCode", queryDto);
+    }
+    
 }

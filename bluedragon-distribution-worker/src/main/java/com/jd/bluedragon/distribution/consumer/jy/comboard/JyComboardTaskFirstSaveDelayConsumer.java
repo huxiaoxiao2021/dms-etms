@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.consumer.jy.comboard;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
@@ -15,6 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 
 /**
  * @author liwenji
@@ -30,6 +37,9 @@ public class JyComboardTaskFirstSaveDelayConsumer extends MessageBaseConsumer {
 
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
+
+    @Autowired
+    private JimDbLock jimDbLock;
     
     @Override
     public void consume(Message message) throws Exception {
@@ -48,19 +58,32 @@ public class JyComboardTaskFirstSaveDelayConsumer extends MessageBaseConsumer {
             log.error("jyComboardTaskFirstSaveDelayConsumer 批次号或板号为空: {}", JsonHelper.toJson(entity));
             return;
         }
+
+        //板加锁
+        String boardLockKey = String.format(Constants.JY_COMBOARD_BOARD_LOCK_PREFIX, entity.getBoardCode());
+        String uuid = UUID.randomUUID().toString();
+        if (!jimDbLock.lock(boardLockKey, uuid, LOCK_EXPIRE, TimeUnit.SECONDS)) {
+            throw new JyBizException("当前系统繁忙,请稍后再试！");
+        }
         
-        // 查询当前批次发货记录
-        List<SendM> sendMList = sendMService
-                .selectBoxCodeBySiteAndSendCode(entity.getStartSiteId().intValue(), entity.getSendCode(), 1, 1);
-        
-        // 没有发货记录逻辑删除当前板号
-        if (CollectionUtils.isEmpty(sendMList)) {
-            JyBizTaskComboardEntity updateDetail = new JyBizTaskComboardEntity();
-            updateDetail.setYn(Boolean.FALSE);
-            updateDetail.setId(entity.getId());
-            if (jyBizTaskComboardService.updateBizTaskById(updateDetail) < 0) {
-                log.info("逻辑删除板号失败：{}", JsonHelper.toJson(updateDetail));
+        try {
+            // 查询当前批次发货记录
+            List<SendM> sendMList = sendMService
+                    .selectBoxCodeBySiteAndSendCode(entity.getStartSiteId().intValue(), entity.getSendCode(), 1, 1);
+
+            // 没有发货记录逻辑删除当前板号
+            if (CollectionUtils.isEmpty(sendMList)) {
+                JyBizTaskComboardEntity updateDetail = new JyBizTaskComboardEntity();
+                updateDetail.setYn(Boolean.FALSE);
+                updateDetail.setId(entity.getId());
+                if (jyBizTaskComboardService.updateBizTaskById(updateDetail) < 0) {
+                    log.info("逻辑删除板号失败：{}", JsonHelper.toJson(updateDetail));
+                }
             }
+        }catch (Exception e) {
+            log.error("延时删除板数据异常：{}", JsonHelper.toJson(entity),e);
+        } finally {
+            jimDbLock.releaseLock(boardLockKey, uuid);
         }
     }
 
