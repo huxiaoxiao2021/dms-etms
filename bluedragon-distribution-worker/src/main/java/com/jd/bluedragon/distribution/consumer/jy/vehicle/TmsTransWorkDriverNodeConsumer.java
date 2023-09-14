@@ -53,7 +53,7 @@ public class TmsTransWorkDriverNodeConsumer extends MessageBaseConsumer {
         JyBizDriverTagEnum driverTagEnum = JyBizDriverTagEnum.getTagEnumByNodeCode(mqBody.getType());
 
         if (driverTagEnum == null) {
-            logger.warn("根据type没找到司机动作枚举{}", mqBody.getType());
+            logger.warn("根据type没找到司机动作枚举{}", message.getText());
             return;
         }
 
@@ -86,7 +86,7 @@ public class TmsTransWorkDriverNodeConsumer extends MessageBaseConsumer {
             return;
         }
 
-        logger.warn("节点逆序，消息被丢弃 {}", mqBody.getType());
+        logger.warn("节点逆序，消息被丢弃 {}", message.getText());
     }
 
     private class TmsTransWorkDriverNodeMqBody implements Serializable {
