@@ -1987,7 +1987,6 @@ public class BusinessUtil {
         }
         return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15) ||
-                (materialCode.toUpperCase().startsWith(COLLECTION_AD02_PREFIX) && materialCode.length() == 16) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
     }
 
@@ -2002,6 +2001,18 @@ public class BusinessUtil {
         } 
         return (materialCode.toUpperCase().startsWith(COLLECTION_AD02_PREFIX) && materialCode.length() == 16) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
+    }
+
+    /**
+     * 判断是否是笼车编号
+     * @param materialCode
+     * @return
+     */
+    public static boolean isTrolleyCollectionBag(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
     }
     
     /**
@@ -2062,13 +2073,44 @@ public class BusinessUtil {
         return getHidePhone(phone,HIDE_SMILE);
     }
     /**
+     * 隐藏手机号：7位以上手机号返回前3位+hideStr+后四位，否则返回原值
+     * @param phone 原手机号
+     * @param hideStr 隐藏后替换字符串，传值为空时默认^_^
+     * @return
+     */
+    public static String getHidePhone(String phone,String hideStr) {
+        if(StringUtils.isNotBlank(phone)){
+            String hidePlaceStr = hideStr;
+            if(StringUtils.isBlank(hidePlaceStr)){
+                hidePlaceStr = HIDE_SMILE;
+            }
+            //去除号码中间的空白字符
+            String hidePhone = phone.replaceAll("\\s*", "");
+            if(hidePhone.length() >= PHONE_LEAST_NUMBER ){
+                return hidePhone.substring(0,PHONE_FIRST_NUMBER)
+                        + hidePlaceStr
+                        + hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
+            }
+        }
+        return phone;
+    }
+
+    /**
+     * 隐藏手机号：7位以上手机号返回前3位+^_^+后四位，否则返回原值
+     * @param phone 原手机号
+     * @return
+     */
+    public static String getHidePhone6Char(String phone) {
+        return getHidePhone6Char(phone,HIDE_SMILE);
+    }
+    /**
      * 隐藏手机号： 原 7位以上手机号返回前3位+hideStr+后四位，否则返回原值
      *            新 10位以上（不包括10）的显示前一+笑脸(6位以上)+后四 10位以下（包括10）的显示笑脸(6位)+剩余位数
      * @param phone 原手机号
      * @param hideStr 隐藏后替换字符串，传值为空时默认^_^
      * @return
      */
-    public static String getHidePhone(String phone,String hideStr) {
+    public static String getHidePhone6Char(String phone,String hideStr) {
         if(StringUtils.isNotBlank(phone)){
             String hidePlaceStr = hideStr;
             if(StringUtils.isBlank(hidePlaceStr)){

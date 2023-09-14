@@ -522,7 +522,12 @@ public class WaybillServiceImpl implements WaybillService {
 		response.setTransferStationName(transferSite != null ? transferSite.getSiteName() : null);
 
 		this.appendPackages(packageCode, isIncludePackage, waybillDto, response);
-        response.setMobile(StringHelper.phoneEncrypt(response.getMobile()));
+        final boolean switchHidePhoneNewVersion = sysConfigService.getConfigByName(Constants.SYS_CONFIG_HIDE_PHONE_6Char);
+        if(switchHidePhoneNewVersion) {
+            response.setMobile(StringHelper.phoneEncryptSmile6Char(response.getMobile()));
+        } else {
+            response.setMobile(StringHelper.phoneEncrypt(response.getMobile()));
+        }
 		return response;
 	}
 

@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
 import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseQuery;
 import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseService;
+import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.work.domain.*;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.BeanHelper;
@@ -138,8 +139,15 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 		WorkGridManagerReportVo taskData  = new WorkGridManagerReportVo();
 		BeanUtils.copyProperties(jyTaskData, taskData);
 		taskData.setStatusName(WorkTaskStatusEnum.getNameByCode(taskData.getStatus()));
+		if (WorkCheckResultEnum.UNDO.getCode().equals(taskData.getIsMatch())) {
+			taskData.setIsMatchName(WorkCheckResultEnum.UNDO.getName());
+		} else if (WorkCheckResultEnum.PASS.getCode().equals(taskData.getIsMatch())) {
+			taskData.setIsMatchName(WorkCheckResultEnum.PASS.getName());
+		} else if (WorkCheckResultEnum.UNPASS.getCode().equals(taskData.getIsMatch())) {
+			taskData.setIsMatchName(WorkCheckResultEnum.UNPASS.getName());
+		}
 		//省区位物流总部的时候显示相应的枢纽
-		if (taskData.getProvinceAgencyCode().equals(BaseContants.LOGISTICS_HEADQUARTERS)) {
+		if (BaseContants.LOGISTICS_HEADQUARTERS.equals(taskData.getProvinceAgencyCode())) {
 			taskData.setProvinceAgencyName(taskData.getAreaHubName());
 		}
 		return taskData;
