@@ -1156,6 +1156,10 @@ public class Constants {
      * 运单状态  异常退回
      */
     public static final String WAYBILLTRACE_EX_RETURN = "-3040";
+    /**
+     * 运单状态  清关失败
+     */
+    public static final String WAYBILLTRACE_FAIL_QG = "700";
 
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
