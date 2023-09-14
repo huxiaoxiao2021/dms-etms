@@ -651,7 +651,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setDestinationCrossCode(tag.getDestinationCrossCode());
                 
                 hiddenCrossInfo(waybill);
-        }
+
+                LogWriteUtil.addLog(new LogDto("始发地滑道："+ waybill.getOriginalCrossCode() + "; 始发地笼车：" 
+                        + waybill.getOriginalTabletrolleyCode() + "; 目的地滑道：" + waybill.getDestinationCrossCode() 
+                        + "; 目的地笼车：" + waybill.getDestinationTabletrolleyCode() + ";"));
+            }
 	}
 
     /**

@@ -1,14 +1,14 @@
 package com.jd.bluedragon.distribution.print.domain;
 
 
-import java.util.List;
+import java.io.Serializable;
 
 /**
  * @author liwenji
  * @description 
  * @date 2023-06-06 16:05
  */
-public class LogDto {
+public class LogDto implements Serializable {
     
     private String request;
     
