@@ -389,7 +389,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             }
         }else {
             if (!BusinessUtil.isCollectionBag(request.getMaterialCode()) 
-                    || BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
+                    || BusinessUtil.isTrolleyCollectionBag(request.getMaterialCode())) {
                 result.setCode(Integer.valueOf(HintCodeConstants.CYCLE_BOX_RULE_ERROR));
                 result.setMessage(HintService.getHint(HintCodeConstants.CYCLE_BOX_RULE_ERROR, Boolean.TRUE));
                 return result;

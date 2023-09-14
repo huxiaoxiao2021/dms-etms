@@ -1963,7 +1963,6 @@ public class BusinessUtil {
         }
         return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15) ||
-                (materialCode.toUpperCase().startsWith(COLLECTION_AD02_PREFIX) && materialCode.length() == 16) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
     }
 
@@ -1978,6 +1977,18 @@ public class BusinessUtil {
         } 
         return (materialCode.toUpperCase().startsWith(COLLECTION_AD02_PREFIX) && materialCode.length() == 16) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
+    }
+
+    /**
+     * 判断是否是笼车编号
+     * @param materialCode
+     * @return
+     */
+    public static boolean isTrolleyCollectionBag(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
     }
     
     /**
