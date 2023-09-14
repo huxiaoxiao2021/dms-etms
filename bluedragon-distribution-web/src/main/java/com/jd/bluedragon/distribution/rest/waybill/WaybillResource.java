@@ -1940,6 +1940,7 @@ public class WaybillResource {
 
 	private void getInfoHide(DmsWaybillReverseResponseDTO data, ExchangeWaybillQuery request) {
 		try {
+			final boolean switchHidePhoneNewVersion = sysConfigService.getConfigByName(Constants.SYS_CONFIG_HIDE_PHONE_6Char);
 			List<String> hideInfo = request.getHideInfo();
 			if (!hideInfo.contains(HIDE_PROPERTY[0])){
 				data.setSenderName(getHideName(data.getSenderName()));
@@ -1948,10 +1949,18 @@ public class WaybillResource {
 				data.setSenderAddress(getHideAddress(data.getSenderAddress()));
 			}
 			if (!hideInfo.contains(HIDE_PROPERTY[2])){
-				data.setSenderTel(getHidePhone(data.getSenderTel()));
+				if(switchHidePhoneNewVersion){
+					data.setSenderTel(getHidePhone6Char(data.getSenderTel()));
+				}else {
+					data.setSenderTel(getHidePhone(data.getSenderTel()));
+				}
 			}
 			if (!hideInfo.contains(HIDE_PROPERTY[3])){
-				data.setSenderMobile(getHidePhone(data.getSenderMobile()));
+				if(switchHidePhoneNewVersion) {
+					data.setSenderMobile(getHidePhone6Char(data.getSenderMobile()));
+				} else {
+					data.setSenderMobile(getHidePhone(data.getSenderMobile()));
+				}
 			}
 			if (!hideInfo.contains(HIDE_PROPERTY[4])){
 				data.setReceiveName(getHideName(data.getReceiveName()));
@@ -1960,10 +1969,18 @@ public class WaybillResource {
 				data.setReceiveAddress(getHideAddress(data.getReceiveAddress()));
 			}
 			if (!hideInfo.contains(HIDE_PROPERTY[6])){
-				data.setReceiveTel(getHidePhone(data.getReceiveTel()));
+				if(switchHidePhoneNewVersion) {
+					data.setReceiveTel(getHidePhone6Char(data.getReceiveTel()));
+				} else {
+					data.setReceiveTel(getHidePhone(data.getReceiveTel()));
+				}
 			}
 			if (!hideInfo.contains(HIDE_PROPERTY[7])){
-				data.setReceiveMobile(getHidePhone(data.getReceiveMobile()));
+				if(switchHidePhoneNewVersion) {
+					data.setReceiveMobile(getHidePhone6Char(data.getReceiveMobile()));
+				} else {
+					data.setReceiveMobile(getHidePhone(data.getReceiveMobile()));
+				}
 			}
 		}catch (Exception e){
 			log.error("包裹{}敏感信息隐藏失败",data.getWaybillCode(),e);

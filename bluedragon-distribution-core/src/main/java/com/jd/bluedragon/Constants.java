@@ -878,6 +878,11 @@ public class Constants {
     public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
 
     /**
+     * 隐藏面单手机号信息
+     */
+    public static final String SYS_CONFIG_HIDE_PHONE_6Char= "hide_phone_6char";
+
+    /**
      * 安卓菜单可用性配置，按场地id配置
      */
     public static final String SYS_CONFIG_FUNC_USAGE_BY_SITE_CODE = "func_usage_by_site_code_";

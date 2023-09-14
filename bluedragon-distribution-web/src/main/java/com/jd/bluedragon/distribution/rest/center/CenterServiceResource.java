@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -74,6 +75,9 @@ public class CenterServiceResource {
 
 	@Autowired
 	private WaybillCacheService waybillCacheService;
+
+	@Autowired
+	private SysConfigService sysConfigService;
 
 	@GET
 	@Path("/centerService/getBaseSiteBySiteId/")
@@ -215,10 +219,18 @@ public class CenterServiceResource {
 			if (waybill != null) {
 				waybill.setReceiverName(getHideName(waybill.getReceiverName()));
 				waybill.setConsigner(getHideName(waybill.getConsigner()));
-				waybill.setConsignerMobile(getHidePhone(waybill.getConsignerMobile()));
-				waybill.setConsignerTel(getHidePhone(waybill.getConsignerTel()));
-				waybill.setReceiverMobile(getHidePhone(waybill.getReceiverMobile()));
-				waybill.setReceiverTel(getHidePhone(waybill.getReceiverTel()));
+				final boolean switchHidePhoneNewVersion = sysConfigService.getConfigByName(Constants.SYS_CONFIG_HIDE_PHONE_6Char);
+				if(switchHidePhoneNewVersion){
+					waybill.setConsignerMobile(getHidePhone6Char(waybill.getConsignerMobile()));
+					waybill.setConsignerTel(getHidePhone6Char(waybill.getConsignerTel()));
+					waybill.setReceiverMobile(getHidePhone6Char(waybill.getReceiverMobile()));
+					waybill.setReceiverTel(getHidePhone6Char(waybill.getReceiverTel()));
+				} else {
+					waybill.setConsignerMobile(getHidePhone(waybill.getConsignerMobile()));
+					waybill.setConsignerTel(getHidePhone(waybill.getConsignerTel()));
+					waybill.setReceiverMobile(getHidePhone(waybill.getReceiverMobile()));
+					waybill.setReceiverTel(getHidePhone(waybill.getReceiverTel()));
+				}
 				waybill.setConsignerAddress(getHideAddress(waybill.getConsignerAddress()));
 				waybill.setReceiverAddress(getHideAddress(waybill.getReceiverAddress()));
 			}

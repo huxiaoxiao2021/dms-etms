@@ -40,6 +40,7 @@ import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressStatusEnum;
 import com.jd.bluedragon.distribution.business.service.BusinessReturnAdressService;
@@ -255,6 +256,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired
     private WaybillAddApi waybillAddApi;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     /**
      * 处理逆向打印数据
@@ -1164,8 +1168,13 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 						phone = backInfoData.getContractMobile();
 					}
 					twiceExchangeResponse.setPhone(phone);
-					twiceExchangeResponse.setHidePhone(BusinessUtil.getHidePhone(phone));
-					
+                    final boolean switchHidePhoneNewVersion = sysConfigService.getConfigByName(Constants.SYS_CONFIG_HIDE_PHONE_6Char);
+                    if(switchHidePhoneNewVersion){
+                        twiceExchangeResponse.setHidePhone(BusinessUtil.getHidePhone6Char(phone));
+                    } else {
+                        twiceExchangeResponse.setHidePhone(BusinessUtil.getHidePhone(phone));
+                    }
+
 					twiceExchangeResponse.setNeedFillReturnInfo(Boolean.TRUE);
 				}
 			}
