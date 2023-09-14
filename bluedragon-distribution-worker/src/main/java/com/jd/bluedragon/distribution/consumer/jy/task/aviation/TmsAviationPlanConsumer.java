@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.consumer.jy.task.aviation;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.AirTypeEnum;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.TmsAviationPlanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
@@ -22,6 +24,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.api.resource.req.AirlineReq;
+import com.jd.etms.api.resource.resp.AirLineResp;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -29,6 +33,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -244,22 +248,66 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         return entity;
     }
 
-
+    //该接口可以决定航空计划始发有效
     private void fillNextSiteInfo(JyBizTaskSendAviationPlanEntity entity) {
-        if(Objects.isNull(entity)) {
-            return;
-        }
         //测试代码
         entity.setNextSiteCode("010F016");
         entity.setNextSiteId(40240);
         entity.setNextSiteName("北京通州分拣中心cs");
-        try{
-//            todo zcf
-            Object crsRes = vrsRouteTransferRelationManager.queryAirLineByAirLineReq(null);
-        }catch (Exception ignoreEx) {
-            throw new JyBizIgnoreException();
-        }
 
+        String nextSiteCode = null;
+        Integer nextSiteId = null;
+        String nextSiteName = null;
+        try{
+            AirlineReq airlineReq = new AirlineReq();
+            if(AirTypeEnum.AIR_TYPE_BULK.getCode().equals(entity.getAirType())) {
+                airlineReq.setAirTransportType(2);
+            }else {
+                airlineReq.setAirTransportType(1);//todo zcf 确认1是什么类型
+            }
+            airlineReq.setEndAirportCode(entity.getEndNodeCode());
+            airlineReq.setStartAirportCode(entity.getBeginNodeCode());
+            airlineReq.setValidDate(new Date());
+            InvokeResult<List<AirLineResp>> invokeResult = vrsRouteTransferRelationManager.queryAirLineByAirLineReq(airlineReq);
+            //可能流向多个
+            Set<String> nextSiteSet = new HashSet<>();
+            if(invokeResult.codeSuccess() && CollectionUtils.isNotEmpty(invokeResult.getData())) {
+                invokeResult.getData().forEach(po -> {
+                    if(StringUtils.isNotBlank(po.getEndNodeCode())) {
+                        nextSiteSet.add(po.getEndNodeCode());
+                    }
+                });
+            }
+            if(CollectionUtils.isNotEmpty(nextSiteSet)) {
+                for(String siteCode : nextSiteSet) {
+                    BaseStaffSiteOrgDto nextSite ;
+                    try{
+                        nextSite = baseMajorManager.getBaseSiteByDmsCode(siteCode);
+                    }catch (Exception e) {
+                        log.error("根据场地分拣编码【{}】获取场地异常, errMsg={}", siteCode, e.getMessage(), e);
+                        continue;
+                    }
+                    if(Objects.isNull(nextSite)) {
+                        continue;
+                    }
+                    nextSiteCode = siteCode;
+                    nextSiteId = nextSite.getSiteCode();
+                    nextSiteName = nextSite.getSiteName();
+                    break;
+                }
+            }
+            if(Objects.isNull(nextSiteId)) {
+                throw new JyBizIgnoreException("航空计划生成发货任务没有找到流向，无效计划");
+            }
+            if(nextSiteSet.size() > 1) {
+                log.warn("航空发货任务【订舱号：{}】查找路由运力找到多个目的地{}，取任一个【{}|{}】", entity.getBookingWeight(), JsonHelper.toJson(nextSiteSet), nextSiteId, nextSiteName);
+            }
+        }catch (Exception ignoreEx) {
+            throw new JyBizIgnoreException(ignoreEx.getMessage());
+        }
+        entity.setNextSiteCode(nextSiteCode);
+        entity.setNextSiteId(nextSiteId);
+        entity.setNextSiteName(nextSiteName);
     }
 
 

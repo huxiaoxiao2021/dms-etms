@@ -288,9 +288,6 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
             }
-            if(Objects.isNull(request.getAirTransportType())) {
-                request.setAirTransportType(2);
-            }
             return retJdCResponse(jyAviationRailwaySendSealService.fetchTransportCodeList(request));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());

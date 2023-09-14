@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
@@ -54,6 +55,8 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.etms.api.resource.req.AirlineReq;
+import com.jd.etms.api.resource.resp.AirLineResp;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
@@ -352,16 +355,100 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Override
     public InvokeResult<TransportInfoQueryRes> fetchTransportCodeList(TransportCodeQueryReq request) {
         InvokeResult<TransportInfoQueryRes> res = new InvokeResult<>();
-        //todo zcf
-        Object obj = new Object();
 
-        Object crsRes = vrsRouteTransferRelationManager.queryAirLineByAirLineReq(obj);
+        JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(request.getBizId());
+        AirlineReq airlineReq = new AirlineReq();
+        if(!Objects.isNull(request.getAirTransportType())) {
+            airlineReq.setAirTransportType(request.getAirTransportType());
+        }else {
+            if(AirTypeEnum.AIR_TYPE_BULK.getCode().equals(entity.getAirType())) {
+                airlineReq.setAirTransportType(2);
+            }else {
+                airlineReq.setAirTransportType(1);
+            }
+        }
+        airlineReq.setEndAirportCode(entity.getEndNodeCode());
+        airlineReq.setStartAirportCode(entity.getBeginNodeCode());
+        airlineReq.setValidDate(new Date());
+        InvokeResult<List<AirLineResp>> invokeResult = vrsRouteTransferRelationManager.queryAirLineByAirLineReq(airlineReq);
 
-
+        if(!invokeResult.codeSuccess()) {
+            res.error(invokeResult.getMessage());
+            return res;
+        }
         TransportInfoQueryRes resData = new TransportInfoQueryRes();
         res.setData(resData);
+
+        List<TransportDataDto> transportDataDtoList = new ArrayList<>();
+        for(AirLineResp airLineResp : invokeResult.getData()){
+            TransportDataDto transportDataDto = new TransportDataDto();
+            if(StringUtils.isBlank(airLineResp.getLineCode())) {
+                continue;
+            }
+            transportDataDto.setTransportCode(airLineResp.getLineCode());
+            String departTime = "";//todo zcf 离场时间字段还没有
+            transportDataDto.setDepartureTimeStr(departTime);
+            transportDataDto.setFocusFlag(false);
+            transportDataDtoList.add(transportDataDto);
+        };
+
+        String focusLineCode = this.getFocusLineCode(transportDataDtoList);
+
+        if(StringUtils.isNotBlank(focusLineCode)) {
+            for(TransportDataDto data : transportDataDtoList) {
+                if(focusLineCode.equals(data.getTransportCode())) {
+                    data.setFocusFlag(true);
+                }
+                break;
+            }
+        }
         return res;
     }
+
+    private String getFocusLineCode(List<TransportDataDto> transportDataDtoList) {
+        if(CollectionUtils.isEmpty(transportDataDtoList)) {
+            return null;
+        }
+        Long curTime = System.currentTimeMillis();
+        String transportCode = null;
+        Long focusTransportCodeTime = null;
+
+        for(TransportDataDto data : transportDataDtoList){
+            if(StringUtils.isBlank(data.getDepartureTimeStr())) {
+                continue;
+            }
+            String[] todayTimeStr = data.getDepartureTimeStr().split(Constants.SEPARATOR_COLON);
+            Calendar todayCalendar = Calendar.getInstance();
+            todayCalendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(todayTimeStr[0]));
+            todayCalendar.set(Calendar.MINUTE, Integer.valueOf(todayTimeStr[1]));
+            if(todayCalendar.getTime().getTime() > curTime) {
+                if(focusTransportCodeTime == null) {
+                    focusTransportCodeTime = todayCalendar.getTime().getTime();
+                    transportCode = data.getTransportCode();
+                }else if(todayCalendar.getTime().getTime() < focusTransportCodeTime){
+                    focusTransportCodeTime = todayCalendar.getTime().getTime();
+                    transportCode = data.getTransportCode();
+                }
+            } else {
+                String[] tomorrowTimeStr = data.getDepartureTimeStr().split(Constants.SEPARATOR_COLON);
+                Calendar tomorrowCalendar = Calendar.getInstance();
+                tomorrowCalendar.add(Calendar.DAY_OF_YEAR, 1);
+                tomorrowCalendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(tomorrowTimeStr[0]));
+                tomorrowCalendar.set(Calendar.MINUTE, Integer.valueOf(tomorrowTimeStr[1]));
+                Long tomorrowStamp = tomorrowCalendar.getTime().getTime();
+                if(focusTransportCodeTime == null) {
+                    focusTransportCodeTime = tomorrowStamp;
+                    transportCode = data.getTransportCode();
+                }else if(tomorrowStamp < focusTransportCodeTime){
+                    focusTransportCodeTime = tomorrowStamp;
+                    transportCode = data.getTransportCode();
+                }
+            }
+        };
+
+        return transportCode;
+    }
+
 
     @Override
     public InvokeResult<TransportDataDto> scanAndCheckTransportInfo(ScanAndCheckTransportInfoReq request) {
@@ -752,6 +839,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
                 //重量、体积、件数及运力
                 this.fillAviationSealListStatistics(sealListDtoArrayList, bizIdList, request.getStatusCode(), request.getCurrentOperate().getSiteCode());
+
+                //获取运力信息
+                this.fillFocusTransportInfo(sealListDtoArrayList.get(0));
 
                 resData.setAviationSealListDtoList(sealListDtoArrayList);
             }else {
@@ -1188,9 +1278,6 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 sealListDto.setVolume(volume);
                 sealListDto.setItemNum(itemNum);
 
-                //获取运力信息  todo zcf 待确认
-                //        res.setDepartureTimeStr();
-                //        res.setTransportCode();
             });
 
         }
@@ -1214,6 +1301,26 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
     }
 
+    private void fillFocusTransportInfo(AviationSealListDto sealListDto) {
+        TransportCodeQueryReq param = new TransportCodeQueryReq();
+        param.setBizId(sealListDto.getBizId());
+        param.setDetailBizId(sealListDto.getDetailBizId());
+        InvokeResult<TransportInfoQueryRes> invokeResult = this.fetchTransportCodeList(param);
+        if(!invokeResult.codeSuccess()) {
+            //辅助功能不卡实操
+            log.warn("航空任务查询推荐运力信息出错，sealListDto={}, res={}", JsonHelper.toJson(sealListDto), JsonHelper.toJson(invokeResult));
+            return;
+        }
+        if(!Objects.isNull(invokeResult.getData()) && CollectionUtils.isNotEmpty(invokeResult.getData().getTransportInfoDtoList())) {
+            for (TransportDataDto data : invokeResult.getData().getTransportInfoDtoList()) {
+                if(!Objects.isNull(data) && data.getFocusFlag()) {
+                    sealListDto.setDepartureTimeStr(data.getDepartureTimeStr());
+                    sealListDto.setTransportCode(data.getTransportCode());
+                    break;
+                }
+            }
+        }
+    }
 
     public JyBizTaskSendVehicleEntity getSendVehicleByBizId(String bizId) {
         JyBizTaskSendAviationPlanEntity entity= jyBizTaskSendAviationPlanService.findByBizId(bizId);

@@ -1,8 +1,11 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.etms.api.common.dto.PageDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.api.common.enums.WaybillRouteEnum;
+import com.jd.etms.api.resource.req.AirlineReq;
+import com.jd.etms.api.resource.resp.AirLineResp;
 import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorDetailResp;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorResp;
@@ -99,6 +102,6 @@ public interface VrsRouteTransferRelationManager {
      * @param request
      * @return
      */
-    List<Object> queryAirLineByAirLineReq(Object request);
+    InvokeResult<List<AirLineResp>> queryAirLineByAirLineReq(AirlineReq request);
 }
 
