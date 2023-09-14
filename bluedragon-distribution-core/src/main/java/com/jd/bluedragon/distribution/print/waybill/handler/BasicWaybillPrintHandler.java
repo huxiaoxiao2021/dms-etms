@@ -31,6 +31,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.fastjson.JSON;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ql.basic.domain.BaseDmsStore;
@@ -171,6 +172,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 return interceptResult;
             }
             BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getWaybillDataForPrint(waybillCode);
+            log.info("BasicWaybillPrintHandler -{}",JSON.toJSONString(baseEntity));
             if (null == baseEntity){
                 interceptResult.toError(InterceptResult.CODE_ERROR, "运单数据为空！");
                 return interceptResult;
@@ -467,6 +469,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             markingWaybillVasSign(context);
             //加载始发站点信息
             waybillCommonService.loadOriginalDmsInfo(context,commonWaybill,bigWaybillDto);
+            log.info("setBasePrintInfoByWaybill -{}", JSON.toJSONString(tmsWaybill));
             waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
         } finally {
             Profiler.registerInfoEnd(callerInfo);

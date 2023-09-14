@@ -765,7 +765,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @JProfiler(jKey = "DMS.BASE.WaybillCommonServiceImpl.setBasePrintInfoByWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BasePrintWaybill setBasePrintInfoByWaybill(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill){
 
-        log.info("setBasePrintInfoByWaybill------------");
+        log.info("setBasePrintInfoByWaybill------------{}",waybill.getWaybillCode());
         if(target==null||waybill==null){
     		return target;
     	}
@@ -1005,7 +1005,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         log.info("特快送-次晨 或者 生鲜特快-次晨");
         // 判断 特快送-次晨 或者 生鲜特快-次晨
         if(BusinessUtil.isTKSCC(waybill.getWaybillSign()) || BusinessUtil.isSXTKCC(waybill.getWaybillSign())){
-            log.info("满足特快送-次晨 或者 生鲜特快-次晨");
+            log.info("满足特快送-次晨 或者 生鲜特快-次晨-{}",waybill.getRequireTime());
             String requireTimeStr = DateHelper.formatDate(waybill.getRequireTime(), DateHelper.DATE_FORMAT_HHmm);
             String specialMark = target.getSpecialMark();
             target.appendSpecialMark(requireTimeStr+specialMark);
