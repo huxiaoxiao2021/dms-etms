@@ -10,27 +10,27 @@ public class AviationSendVehicleProgressResp extends AviationSendTaskDto{
     /**
      * 已扫件数
      */
-    private Integer scannedCount;
+    private Integer scannedCount = 0;
     
     /**
      * 已扫包裹数
      */
-    private Integer scannedPackCount;
+    private Integer scannedPackCount = 0;
 
     /**
      * 已扫箱数
      */
-    private Integer scannedBoxCount;
+    private Integer scannedBoxCount = 0;
 
     /**
      * 拦截包裹数
      */
-    private Integer interceptedPackCount;
+    private Integer interceptedPackCount = 0;
 
     /**
      * 强制发包裹数
      */
-    private Integer forceSendPackCount;
+    private Integer forceSendPackCount = 0;
 
     /**
      * 任务ID
