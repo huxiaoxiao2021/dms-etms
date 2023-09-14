@@ -308,18 +308,18 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 
 	private String getQueryParamsForLog(BaseDmsStore baseDmsStore, Integer targetSiteId, Integer originalDmsId) {
 		List<String> params = new ArrayList<>();
-		params.add(JsonHelper.toJson(baseDmsStore));
-		params.add("targetSiteId" + targetSiteId);
-		params.add("originalDmsId" + originalDmsId);
+		params.add("baseDmsStore：" + JsonHelper.toJson(baseDmsStore));
+		params.add("targetSiteId：" + targetSiteId);
+		params.add("originalDmsId：" + originalDmsId);
 		return JsonHelper.toJson(params);
 	}
 
 	private String getQueryParamsForLog(BaseDmsStore baseDmsStore, Integer targetSiteId, Integer originalDmsId, Integer originalCrossType) {
 		List<String> params = new ArrayList<>();
-		params.add(JsonHelper.toJson(baseDmsStore));
-		params.add("targetSiteId" + targetSiteId);
-		params.add("originalDmsId" + originalDmsId);
-		params.add("originalCrossType" + originalCrossType);
+		params.add("baseDmsStore：" + JsonHelper.toJson(baseDmsStore));
+		params.add("targetSiteId：" + targetSiteId);
+		params.add("originalDmsId：" + originalDmsId);
+		params.add("originalCrossType：" + originalCrossType);
 		return JsonHelper.toJson(params);
 	}
 
