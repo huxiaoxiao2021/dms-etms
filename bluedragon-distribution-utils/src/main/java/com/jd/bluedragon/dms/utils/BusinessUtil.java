@@ -2806,12 +2806,9 @@ public class BusinessUtil {
      */
     public static boolean isTKSCC(String waybillSign){
         if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
-            if((BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4)
-                    && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)
-                )
-                || (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+            if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
                         && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_5)
-                        && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4))){
+                        && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)){
                 return true;
             }
         }
