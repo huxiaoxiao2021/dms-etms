@@ -1143,6 +1143,10 @@ public class Constants {
      * 运单状态  异常退回
      */
     public static final String WAYBILLTRACE_EX_RETURN = "-3040";
+    /**
+     * 运单状态  清关失败
+     */
+    public static final String WAYBILLTRACE_FAIL_QG = "700";
 
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
@@ -1989,8 +1993,9 @@ public class Constants {
 
     /**
      *  逆向原因编码
-     *
-     * 3-清关异常
+     * 1-拦截逆向 
+     * 3-清关逆向
      */
+    public static final Integer INTERCEPT_REVERSE_CODE_1 = 1;
     public static final Integer INTERCEPT_REVERSE_CODE_3 = 3;
 }
