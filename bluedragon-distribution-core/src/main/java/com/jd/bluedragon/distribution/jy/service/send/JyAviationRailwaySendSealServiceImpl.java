@@ -1072,8 +1072,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Override
     public JdVerifyResponse<AviationSendScanResp> scan(AviationSendScanReq request) {
         JdVerifyResponse<AviationSendScanResp> result = new JdVerifyResponse<>();
-        SendScanRequest sendScanRequest = BeanUtils.copy(request, SendScanRequest.class);
-
+        SendScanRequest sendScanRequest = new SendScanRequest();
+        com.jd.ql.erp.util.BeanUtils.copyProperties(request, sendScanRequest);
         // 空铁发货 前置校验
         if (AviationCheckBeforeSendScan(request, result)) {
             return result;
