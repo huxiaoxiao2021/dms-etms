@@ -197,6 +197,11 @@ public class WorkGridManagerReportVo  implements Serializable {
 	 */
 	private Integer isMatch;
 
+	/**
+	 * 任务名称
+	 */
+	private String isMatchName;
+
 	private List<JyWorkGridManagerCaseDataVO> caseList;
 	public Long getId() {
 		return id;
@@ -435,5 +440,13 @@ public class WorkGridManagerReportVo  implements Serializable {
 
 	public void setCaseList(List<JyWorkGridManagerCaseDataVO> caseList) {
 		this.caseList = caseList;
+	}
+
+	public String getIsMatchName() {
+		return isMatchName;
+	}
+
+	public void setIsMatchName(String isMatchName) {
+		this.isMatchName = isMatchName;
 	}
 }

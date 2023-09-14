@@ -267,7 +267,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	 * @param updateTaskData
 	 */
 	private void reportAddMatchField(JyWorkGridManagerData taskData, JyBizTaskWorkGridManager updateTaskData) {
-		if (taskData.getTaskType().equals(WorkTaskTypeEnum.WORKING.getCode())) {
+		if (WorkTaskTypeEnum.WORKING.getCode().equals(taskData.getTaskType())) {
 			if (!CollectionUtils.isEmpty(taskData.getCaseList())) {
 				List<Integer> resultList = taskData.getCaseList().stream().map(JyWorkGridManagerCaseData::getCheckResult).collect(Collectors.toList());
 				//任务中有一个不符合      不符合
@@ -285,7 +285,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				}
 			}
 		}
-		if (taskData.getTaskType().equals(WorkTaskTypeEnum.MEETING.getCode()) || taskData.getTaskType().equals(WorkTaskTypeEnum.MEETING_RECORD.getCode())) {
+		if (WorkTaskTypeEnum.MEETING.getCode().equals(taskData.getTaskType()) || WorkTaskTypeEnum.MEETING_RECORD.getCode().equals(taskData.getTaskType())) {
 			updateTaskData.setIsMatch(WorkCheckResultEnum.PASS.getCode());
 		}
 	}
