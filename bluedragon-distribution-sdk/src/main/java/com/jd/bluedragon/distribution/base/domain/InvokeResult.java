@@ -283,6 +283,8 @@ public class InvokeResult<T> implements Serializable {
     public static final int REVOKE_TEAN_CODE = 346;
     public static final String REVOKE_TEAN_MESSAGE = "特安件请注意分拣!";
 
+    public static final int AVIATION_TASK_OUT_WEIGHT_CODE = 3067;
+    public static final String AVIATION_TASK_OUT_WEIGHT_MESSAGE = "该任务已超载！!";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

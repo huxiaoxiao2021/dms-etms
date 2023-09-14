@@ -1073,6 +1073,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     public JdVerifyResponse<AviationSendScanResp> scan(AviationSendScanReq request) {
         JdVerifyResponse<AviationSendScanResp> result = new JdVerifyResponse<>();
         SendScanRequest sendScanRequest = BeanUtils.copy(request, SendScanRequest.class);
+
+        // 空铁发货 前置校验
+        if (AviationCheckBeforeSendScan(request, result)) {
+            return result;
+        }
+        
         JdVerifyResponse<SendScanResponse> response = super.sendScan(sendScanRequest);
         AviationSendScanResp resp = BeanUtils.copy(response,AviationSendScanResp.class);
         result.setCode(response.getCode());
@@ -1080,6 +1086,31 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         result.setMsgBoxes(response.getMsgBoxes());
         result.setData(resp);
         return result;
+    }
+
+    private boolean AviationCheckBeforeSendScan(AviationSendScanReq request, JdVerifyResponse<AviationSendScanResp> result) {
+        
+        // 校验是否超载
+        double scanWeight = 0L;
+        List<JySendAggsEntity> sendAggList = jySendAggsService.findBySendVehicleBiz(request.getSendVehicleBizId());
+        if (!CollectionUtils.isEmpty(sendAggList)) {
+            JySendAggsEntity sendAgg = sendAggList.get(0);
+            scanWeight = Objects.isNull(sendAgg.getTotalScannedWeight()) ? 0d : sendAgg.getTotalScannedWeight().doubleValue();
+        }
+        
+        JyBizTaskSendAviationPlanEntity entity= jyBizTaskSendAviationPlanService.findByBizId(request.getSendVehicleBizId());
+        if (entity == null) {
+            result.toFail("未获取到发货任务！");
+            return false;
+        }
+        double bookingWeight = entity.getBookingWeight();
+        
+        if (scanWeight > bookingWeight) {
+            result.setMessage(InvokeResult.AVIATION_TASK_OUT_WEIGHT_MESSAGE);
+            result.setCode(InvokeResult.AVIATION_TASK_OUT_WEIGHT_CODE);
+            return false;
+        }
+        return true;
     }
 
 
