@@ -2035,9 +2035,13 @@ public class Constants {
     /**
      *  逆向原因编码
      *
-     * 2-拦截逆向
+     * 1-拦截逆向
+     *
+     * 2-拒收逆向
+     *
+     * 3-清关逆向
      */
-    public static final Integer INTERCEPT_REVERSE_CODE = 2;
+    public static final Integer INTERCEPT_REVERSE_CODE = 1;
 
     /**
      * 运单全程跟踪记录类型-包裹维度记录包裹全程跟踪 （packageBarCode为包裹号)
