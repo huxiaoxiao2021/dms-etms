@@ -626,9 +626,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 barCode = list.get(0).getPackageBarcode();
             }
         }
-        Pager<JyVehicleTaskUnloadDetail> query = getIsShouldScanCondition(request, barCode);
+        // 应扫数
+        Long shouldScanCount = 0L;
+        // 只有非自建任务才需要查询es判断多扫
+        if (!Constants.NUMBER_ONE.equals(unloadScanDto.getManualCreatedFlag())) {
+            Pager<JyVehicleTaskUnloadDetail> query = getIsShouldScanCondition(request, barCode);
+            shouldScanCount = unloadVehicleManager.queryShouldScanCountByBarCode(query);
+        }
         // 判断是否是多扫(应扫数为0即多扫)
-        Long shouldScanCount = unloadVehicleManager.queryShouldScanCountByBarCode(query);
         if (Constants.LONG_ZERO.equals(shouldScanCount)) {
             unloadScanDto.setMoreFlag(Constants.MORE_LOCAL_SCAN);
             // 判断是否本场地
