@@ -466,7 +466,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
 
         if(!CollectionUtils.isEmpty(allImageUrlList)){
-            attachmentAddr = allImageUrlList.stream().collect(Collectors.joining(";"));
+            attachmentAddr = allImageUrlList.stream().collect(Collectors.joining(","));
         }
         return  attachmentAddr;
     }
