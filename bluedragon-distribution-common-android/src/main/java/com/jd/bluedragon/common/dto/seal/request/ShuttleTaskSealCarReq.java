@@ -51,6 +51,13 @@ public class ShuttleTaskSealCarReq extends BaseReq implements Serializable {
      * 扫描批次号
      */
     private List<String> scanBatchCodes;
+
+    /**
+     * 扫描批次号的总重量总体积
+     */
+    private Double scanBatchCodeTotalWeight;
+    private Double scanBatchCodeTotalVolume;
+    private Double scanBatchCodeTotalItemNum;
     /**
      * 封签号
      */
@@ -187,5 +194,29 @@ public class ShuttleTaskSealCarReq extends BaseReq implements Serializable {
 
     public void setTransWayName(String transWayName) {
         this.transWayName = transWayName;
+    }
+
+    public Double getScanBatchCodeTotalWeight() {
+        return scanBatchCodeTotalWeight;
+    }
+
+    public void setScanBatchCodeTotalWeight(Double scanBatchCodeTotalWeight) {
+        this.scanBatchCodeTotalWeight = scanBatchCodeTotalWeight;
+    }
+
+    public Double getScanBatchCodeTotalVolume() {
+        return scanBatchCodeTotalVolume;
+    }
+
+    public void setScanBatchCodeTotalVolume(Double scanBatchCodeTotalVolume) {
+        this.scanBatchCodeTotalVolume = scanBatchCodeTotalVolume;
+    }
+
+    public Double getScanBatchCodeTotalItemNum() {
+        return scanBatchCodeTotalItemNum;
+    }
+
+    public void setScanBatchCodeTotalItemNum(Double scanBatchCodeTotalItemNum) {
+        this.scanBatchCodeTotalItemNum = scanBatchCodeTotalItemNum;
     }
 }
