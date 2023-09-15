@@ -2040,4 +2040,9 @@ public class Constants {
      * 功能可用配置白名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
+
+    /**
+     * 运输内网账号类型
+     */
+    public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
 }
