@@ -39,6 +39,10 @@ public class ShuttleTaskSealCarQueryRes implements Serializable {
      * 封签码数量
      */
     private List<String> sealCodes;
+    /**
+     * 批次号
+     */
+    private List<String> bindBatchCodes;
 
 
     public Double getWeight() {
@@ -103,5 +107,13 @@ public class ShuttleTaskSealCarQueryRes implements Serializable {
 
     public void setSealCodes(List<String> sealCodes) {
         this.sealCodes = sealCodes;
+    }
+
+    public List<String> getBindBatchCodes() {
+        return bindBatchCodes;
+    }
+
+    public void setBindBatchCodes(List<String> bindBatchCodes) {
+        this.bindBatchCodes = bindBatchCodes;
     }
 }

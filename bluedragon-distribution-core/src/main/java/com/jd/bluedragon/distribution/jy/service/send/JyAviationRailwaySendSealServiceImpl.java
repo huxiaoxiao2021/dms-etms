@@ -1601,17 +1601,25 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         Double volume = 0.0;
         Integer itemNum = 0;
         Integer taskNum = 0;
+
+        List<String> bindDetailBizIdList = new ArrayList<>();
         if(bindRes.codeSuccess()) {
             if(!Objects.isNull(bindRes.getData()) && CollectionUtils.isNotEmpty(bindRes.getData().getSendTaskBindQueryDtoList())) {
                 taskNum = bindRes.getData().getSendTaskBindQueryDtoList().size();
                 for(SendTaskBindQueryDto o : bindRes.getData().getSendTaskBindQueryDtoList()){
+                    bindDetailBizIdList.add(o.getBindDetailBizId());
                     weight += o.getWeight();
                     volume += o.getVolume();
                     itemNum += o.getItemNum();
                 }
             }
         }
+
         ShuttleTaskSealCarQueryRes resData = new ShuttleTaskSealCarQueryRes();
+        if(CollectionUtils.isNotEmpty(bindDetailBizIdList)) {
+            List<String> batchCodes = jyVehicleSendRelationService.findSendCodesByDetailBizIds(bindDetailBizIdList);
+            resData.setBindBatchCodes(batchCodes);
+        }
         resData.setWeight(weight);
         resData.setVolume(volume);
         resData.setItemNum(itemNum);

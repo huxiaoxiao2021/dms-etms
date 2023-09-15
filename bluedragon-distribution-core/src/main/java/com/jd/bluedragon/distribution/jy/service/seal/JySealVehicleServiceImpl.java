@@ -1250,8 +1250,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         if(org.apache.commons.collections.CollectionUtils.isEmpty(bindEntityList)) {
             return null;
         }
-        List<String> bindDetailBizId = bindEntityList.stream().map(JyBizTaskBindEntity::getBindDetailBizId).collect(Collectors.toList());
-        return jyVehicleSendRelationService.findSendCodesByDetailBizIds(bindDetailBizId);
+        List<String> bindDetailBizIdList = bindEntityList.stream().map(JyBizTaskBindEntity::getBindDetailBizId).collect(Collectors.toList());
+        return jyVehicleSendRelationService.findSendCodesByDetailBizIds(bindDetailBizIdList);
     }
     //摆渡封车-封签码获取
     private List<String> getAllSealCodes(ShuttleTaskSealCarReq request) {
