@@ -81,7 +81,7 @@ public class TmsTransWorkDriverNodeConsumer extends MessageBaseConsumer {
                 logger.warn("超时未离节点, 发货状态不为已封车 bizId: {}", entity.getBizId());
                 return;
             }
-            // 不是超时未离且发货状态是已封车
+            // 不是超时未离且发货状态是已封车 则丢弃消息
             if (!driverTagEnum.getDriverNodeCode().equals(JyBizDriverTagEnum.LEAVE_TIMEOUT.getDriverNodeCode())
                     && isSealed(entity.getVehicleStatus())) {
                 logger.warn("非超时未离节点, 发货状态为已封车 bizId: {}", entity.getBizId());
@@ -96,7 +96,7 @@ public class TmsTransWorkDriverNodeConsumer extends MessageBaseConsumer {
     }
 
     private boolean isSealed(Integer vehicleStatus) {
-        return JyBizTaskSendStatusEnum.UN_SEALED_STATUS.contains(vehicleStatus);
+        return JyBizTaskSendStatusEnum.SEALED.getCode().equals(vehicleStatus);
     }
 
     private class TmsTransWorkDriverNodeMqBody implements Serializable {
