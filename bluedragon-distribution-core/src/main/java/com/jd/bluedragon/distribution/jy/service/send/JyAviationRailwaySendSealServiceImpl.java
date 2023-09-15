@@ -245,7 +245,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         InvokeResult<Void> res = new InvokeResult<>();
         res.success();
         //并发锁（和封车同一把锁，避免封车期间并发问题）
-        if(!jySeaCarlCacheService.lockSendTaskSeal(request.getDetailBizId(), SendTaskTypeEnum.VEHICLE.getCode())) {
+        if(!jySeaCarlCacheService.lockSendTaskSeal(request.getBizId(), SendTaskTypeEnum.VEHICLE.getCode())) {
             res.error("多人操作中，请稍后重试");
             return res;
         }
@@ -1578,6 +1578,45 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         if(NumberHelper.gt0(itemNum)) {
             resData.setItemNum(itemNum);
         }
+        return res;
+    }
+
+    @Override
+    public InvokeResult<ShuttleTaskSealCarQueryRes> fetchToSealShuttleTaskDetail(ShuttleTaskSealCarQueryReq request) {
+        SendTaskBindQueryReq param = new SendTaskBindQueryReq();
+        param.setType(TaskBindTypeEnum.BIND_TYPE_AVIATION.getCode());
+        param.setBizId(request.getBizId());
+        param.setDetailBizId(request.getDetailBizId());
+        param.setShuttleQuerySource(ShuttleQuerySourceEnum.SEAL_Y.getCode());
+        param.setVehicleNumber(request.getVehicleNumber());
+        param.setCurrentOperate(request.getCurrentOperate());
+        param.setUser(request.getUser());
+
+        InvokeResult<ShuttleTaskSealCarQueryRes> res = new InvokeResult<>();
+        InvokeResult<SendTaskBindQueryRes> bindRes = this.queryBindTaskList(param);
+        res.setCode(bindRes.getCode());
+        res.setMessage(bindRes.getMessage());
+
+        Double weight = 0.0;
+        Double volume = 0.0;
+        Integer itemNum = 0;
+        Integer taskNum = 0;
+        if(bindRes.codeSuccess()) {
+            if(!Objects.isNull(bindRes.getData()) && CollectionUtils.isNotEmpty(bindRes.getData().getSendTaskBindQueryDtoList())) {
+                taskNum = bindRes.getData().getSendTaskBindQueryDtoList().size();
+                for(SendTaskBindQueryDto o : bindRes.getData().getSendTaskBindQueryDtoList()){
+                    weight += o.getWeight();
+                    volume += o.getVolume();
+                    itemNum += o.getItemNum();
+                }
+            }
+        }
+        ShuttleTaskSealCarQueryRes resData = new ShuttleTaskSealCarQueryRes();
+        resData.setWeight(weight);
+        resData.setVolume(volume);
+        resData.setItemNum(itemNum);
+        resData.setTaskNum(taskNum);
+        res.setData(resData);
         return res;
     }
 }

@@ -515,6 +515,25 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             Object obj = aviationRailwaySendSealGatewayService.validateTranCodeAndSendCode(request);
             System.out.println("succ");
         }
+    }
 
+
+    @Test
+    public void testfetchToSealShuttleTaskDetail() {
+        String transportCode = "T200820001041";
+        String sendCode = "910-40240-20230831148514042";
+        ShuttleTaskSealCarQueryReq request = new ShuttleTaskSealCarQueryReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+
+        request.setDetailBizId("TW23082500975485-001");
+        request.setBizId("SST23082500000051");
+        int i = 0;
+        while(i++<100) {
+            Object obj = aviationRailwaySendSealGatewayService.fetchToSealShuttleTaskDetail(request);
+            System.out.println("succ");
+        }
     }
 }
