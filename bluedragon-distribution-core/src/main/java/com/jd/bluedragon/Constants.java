@@ -2035,4 +2035,26 @@ public class Constants {
      * 功能可用配置白名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
+
+    /**
+     * 本场地多扫标识
+     */
+    public static final Integer MORE_LOCAL_SCAN = 1;
+
+    /**
+     * 非本场地多扫标识
+     */
+    public static final Integer MORE_OUT_SCAN = 2;
+
+    /**
+     * 本场地部分多扫标识
+     */
+    public static final Integer MORE_LOCAL_PART_SCAN = 3;
+
+    /**
+     *  配置信息-非本场地多扫弱提醒开关
+     *
+     */
+    public static final String MORE_OUT_SCAN_NOTIFY_SWITCH = "more.out.scan.notify.switch";
+
 }

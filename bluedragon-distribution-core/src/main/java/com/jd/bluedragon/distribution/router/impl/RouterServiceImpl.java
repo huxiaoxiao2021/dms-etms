@@ -138,4 +138,23 @@ public class RouterServiceImpl implements RouterService {
 
         return new RouteNextDto(firstNextSiteId,Boolean.TRUE,nextSiteIdList, firstLastSiteId);
     }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.RouterServiceImpl.hasCurrentNodeInRouteLink", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public boolean hasCurrentNodeInRouteLink(Integer siteCode, String waybillCode) {
+        if (siteCode == null || StringUtils.isEmpty(waybillCode)) {
+            return false;
+        }
+        String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
+        if (StringUtils.isEmpty(routerStr)) {
+            return false;
+        }
+        String [] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
+        for (String node : routers) {
+            if (node.equals(String.valueOf(siteCode))) {
+                return  true;
+            }
+        }
+        return false;
+    }
 }
