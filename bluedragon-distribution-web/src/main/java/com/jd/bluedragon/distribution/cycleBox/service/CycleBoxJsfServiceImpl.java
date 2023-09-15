@@ -85,6 +85,7 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
      * @return
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.CycleBoxJsfServiceImpl.getBoxMaterialRelation", mState = JProEnum.TP)
     public InvokeResult<BoxMaterialRelationDto> getBoxMaterialRelation(String boxCode) {
         logger.info("CycleBoxJsfServiceImpl->getBoxMaterialRelation查询集包袋信息,箱号：{}", boxCode);
         InvokeResult<BoxMaterialRelationDto> result = new InvokeResult<BoxMaterialRelationDto>();
@@ -109,6 +110,7 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
      * @return
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.CycleBoxJsfServiceImpl.addBoxMaterialRelation", mState = JProEnum.TP)
     public InvokeResult<String> addBoxMaterialRelation(BoxMaterialRelationRequest request) {
         logger.info("CycleBoxJsfServiceImpl->boxMaterialRelationAlter绑定集包袋,入参：{}", JsonHelper.toJson(request));
         InvokeResult<String> result = new InvokeResult<String>();

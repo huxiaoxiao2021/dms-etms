@@ -596,4 +596,11 @@
                   ref="dockCodeAndPhoneJsfService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 箱包裹绑定关系业务操作相关JSF接口 -->
+    <jsf:provider id="jsfDmsSortingService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsSortingService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsSortingService" server="dmsjsf">
+    </jsf:provider>
 </beans>
