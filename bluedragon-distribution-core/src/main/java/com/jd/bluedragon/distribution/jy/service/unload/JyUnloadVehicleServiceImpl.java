@@ -1300,20 +1300,22 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             // 本场地多扫：比较redis与数据库的值，取最大者
             String moreScanLocalCount = redisClientOfJy.hGet(pdaOpeCacheKey, RedisHashKeyConstants.UNLOAD_MORE_SCAN_LOCAL_COUNT);
             if (StringUtils.isNotBlank(moreScanLocalCount) && NumberHelper.isNumber(moreScanLocalCount)) {
-                Integer redisMoreScanLocalCount = Integer.valueOf(moreScanLocalCount);
+                Integer rightMoreScanLocalCount = Integer.valueOf(moreScanLocalCount);
                 // PDA进度快以PDA为准
-                if (unloadAggEntity.getMoreScanLocalCount() != null && NumberHelper.gt(unloadAggEntity.getMoreScanLocalCount(), redisMoreScanLocalCount)) {
-                    unloadAggEntity.setMoreScanLocalCount(redisMoreScanLocalCount);
+                if (unloadAggEntity.getMoreScanLocalCount() != null && NumberHelper.gt(unloadAggEntity.getMoreScanLocalCount(), rightMoreScanLocalCount)) {
+                    rightMoreScanLocalCount = unloadAggEntity.getMoreScanLocalCount();
                 }
+                unloadAggEntity.setMoreScanLocalCount(rightMoreScanLocalCount);
             }
             // 非本场地多扫：比较redis与数据库的值，取最大者
             String moreScanOutCount = redisClientOfJy.hGet(pdaOpeCacheKey, RedisHashKeyConstants.UNLOAD_MORE_SCAN_OUT_COUNT);
             if (StringUtils.isNotBlank(moreScanOutCount) && NumberHelper.isNumber(moreScanOutCount)) {
-                Integer redisMoreScanOutCount = Integer.valueOf(moreScanOutCount);
+                Integer rightMoreScanOutCount = Integer.valueOf(moreScanOutCount);
                 // PDA进度快以PDA为准
-                if (unloadAggEntity.getMoreScanOutCount() != null && NumberHelper.gt(unloadAggEntity.getMoreScanOutCount(), redisMoreScanOutCount)) {
-                    unloadAggEntity.setMoreScanOutCount(redisMoreScanOutCount);
+                if (unloadAggEntity.getMoreScanOutCount() != null && NumberHelper.gt(unloadAggEntity.getMoreScanOutCount(), rightMoreScanOutCount)) {
+                    rightMoreScanOutCount = unloadAggEntity.getMoreScanOutCount();
                 }
+                unloadAggEntity.setMoreScanOutCount(rightMoreScanOutCount);
             }
         }
         else {
