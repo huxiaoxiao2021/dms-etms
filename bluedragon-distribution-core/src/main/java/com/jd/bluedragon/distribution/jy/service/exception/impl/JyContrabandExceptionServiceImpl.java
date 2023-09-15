@@ -17,7 +17,9 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
+import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpContrabandNoticCustomerMQ;
@@ -58,6 +60,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @Author: ext.xuwenrui
@@ -303,9 +306,36 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             mq.setWaybillType(ASCPContants.WAYBILL_TYPE_OTHER);
         }
         mq.setWaybillCode(waybillCode);
+        mq.setAttachmentAddr(assembleAttachmentAddr(dto));
         logger.info("组装违禁品发送客服MQ-{}",JSON.toJSONString(mq));
         return mq;
     }
+
+
+    /**
+     * 组装客服需要的图片附件数据
+     * @param dto
+     * @return
+     */
+    private String assembleAttachmentAddr(JyExceptionContrabandDto dto){
+        String attachmentAddr = "";
+        JyAttachmentDetailQuery queryBefore = new JyAttachmentDetailQuery();
+        queryBefore.setBizId(dto.getBizId());
+        queryBefore.setSiteCode(dto.getSiteCode());
+        queryBefore.setBizType(JyAttachmentBizTypeEnum.CONTRABAND_UPLOAD_EXCEPTION.getCode());
+        // 删除老数据
+        List<String> imagsList = new ArrayList<>();
+        List<JyAttachmentDetailEntity> entityList = jyAttachmentDetailService.queryDataListByCondition(queryBefore);
+        if (!CollectionUtils.isEmpty(entityList)) {
+            imagsList =  entityList.stream().map(JyAttachmentDetailEntity::getAttachmentUrl)
+                    .collect(Collectors.toList());
+        }
+        if(!CollectionUtils.isEmpty(imagsList)){
+            attachmentAddr = imagsList.stream().collect(Collectors.joining(","));
+        }
+        return  attachmentAddr;
+    }
+
 
     /**
      * 违禁品运单维度安检全程跟踪
