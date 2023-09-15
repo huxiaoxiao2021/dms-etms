@@ -764,9 +764,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      */
     @JProfiler(jKey = "DMS.BASE.WaybillCommonServiceImpl.setBasePrintInfoByWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BasePrintWaybill setBasePrintInfoByWaybill(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill){
-
-        log.info("setBasePrintInfoByWaybill------------{}",waybill.getWaybillCode());
-        if(target==null||waybill==null){
+    	if(target==null||waybill==null){
     		return target;
     	}
 		waybillPrintService.dealSignTexts(waybill.getWaybillSign(), target, Constants.DIC_NAME_WAYBILL_SIGN_CONFIG);

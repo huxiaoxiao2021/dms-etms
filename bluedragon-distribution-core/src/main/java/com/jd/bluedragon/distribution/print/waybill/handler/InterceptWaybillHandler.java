@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.jy.enums.SiteTypeLevel;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -24,6 +25,7 @@ import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -111,6 +113,11 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
 				result.toFail(waybillCancelJsfResponse.getCode(), NEED_INTERCEPT_CODES_MAP.get(waybillCancelJsfResponse.getCode()));
 			}
 		}
+
+        if(interceptPackageReprint(context)){
+            result.toFail("");
+        }
+
 		return result;
 	}
 	//设置运单状态及信息
@@ -165,36 +172,43 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
     /**
      * 包裹补打拦截
      * @param context
-     * @param result
      * @return
      */
-    private void interceptPackageReprint(WaybillPrintContext context,InterceptResult<String> result){
+    private boolean interceptPackageReprint(WaybillPrintContext context){
 
         
         if(WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())){
 
             Integer siteCode = context.getRequest().getSiteCode();
 
-             baseMajorManager.getSiteBySiteCode(siteCode);
+            BaseSiteInfoDto baseSite = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+            if(baseSite == null) {
+                return false;
+            }
+            if(!SiteTypeLevel.SiteTypeOneLevelEnum.THIRD_PARTY.equals(baseSite.getSiteType())){
+                return false;
+            }
+
+            if(SiteTypeLevel.SiteTypeTwoLevelEnum.CONVENIENT_SERVICE_POINT.getCode().equals(baseSite.getSubType())
+                || SiteTypeLevel.SiteTypeTwoLevelEnum.DEEP_COOPERATION_SELF_PICKUP_CABINETS.getCode().equals(baseSite.getSubType())){
+                return true;
+            }
+
+            if(SiteTypeLevel.SiteTypeTwoLevelEnum.CAMPUS_JD_SCHOOL.getCode().equals(baseSite.getSubType())) {
+                if (SiteTypeLevel.SiteTypeThreeLevelEnum.CAMPUS_SCHOOL.getCode().equals(baseSite.getThirdType())
+                        || SiteTypeLevel.SiteTypeThreeLevelEnum.JD_STAR_DISTRIBUTION.equals(baseSite.getThirdType())) {
+                    return true;
+                }
+
+            }else if(SiteTypeLevel.SiteTypeTwoLevelEnum.SHARE_DISTRIBUTION_STATION.getCode().equals(baseSite.getSubType())){
+                if (SiteTypeLevel.SiteTypeThreeLevelEnum.TOWN_SHARE_DISTRIBUTION_STATION.getCode().equals(baseSite.getThirdType())
+                        || SiteTypeLevel.SiteTypeThreeLevelEnum.CITY_SHARE_DISTRIBUTION_STATION.equals(baseSite.getThirdType())) {
+                    return true;
+                }
+            }
 
         }
-
-
-        // 包裹补打拦截
-        Waybill waybill = context.getBigWaybillDto().getWaybill();
-        WaybillManageDomain waybillState = context.getBigWaybillDto().getWaybillState();
-        log.info("waybill-{}   waybillState-{}", JSON.toJSONString(waybill),JSON.toJSONString(waybillState));
-        if(waybill == null ||waybill.getWaybillExt() == null  || waybillState ==null || waybillState.getWaybillState() == null){
-            return ;
-        }
-        String oldWaybillCode = waybill.getWaybillExt().getOldWaybillCode();
-        if(StringUtils.isBlank(oldWaybillCode)){
-            return ;
-        }
-        if(Constants.WAYBILL_TRACE_STATE_EXCHANGE.equals(waybillState.getWaybillState().toString())){
-            log.info("运单换单完成-{}",waybill.getWaybillCode());
-            result.toFail(1,"shibai");
-        }
-        return ;
+        return  false;
     }
+
 }

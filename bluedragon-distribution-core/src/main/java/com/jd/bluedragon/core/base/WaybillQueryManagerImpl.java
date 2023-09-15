@@ -1034,7 +1034,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @Override
     public String getTransportMode(Waybill waybill){
         String res="";
-        log.info(" getTransportMode 特快送-次晨 或者 生鲜特快-次晨-{}",waybill.getWaybillCode());
+
         if(waybill == null){
             return res;
         }
