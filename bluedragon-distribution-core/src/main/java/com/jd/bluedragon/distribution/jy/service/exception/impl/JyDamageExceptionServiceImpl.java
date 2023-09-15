@@ -438,10 +438,38 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             mq.setWaybillType(ASCPContants.WAYBILL_TYPE_OTHER);
         }
         mq.setWaybillCode(entity.getBarCode());
+        //组装图片附件
+        mq.setAttachmentAddr(assembleAttachmentAddr(entity));
         logger.info("组装发送给客服破损数据-{}",JSON.toJSONString(mq));
         return mq;
     }
 
+    /**
+     * 组装客服需要的图片附件数据
+     * @param entity
+     * @return
+     */
+    private String assembleAttachmentAddr(JyBizTaskExceptionEntity entity){
+        String attachmentAddr ="";
+        JyExceptionDamageEntity damageEntity = new JyExceptionDamageEntity();
+        damageEntity.setBizId(entity.getBizId());
+        damageEntity.setSiteCode(entity.getSiteCode().intValue());
+
+        List<String> allImageUrlList = new ArrayList();
+        List<String> beforImageUrlList = this.getImageUrlList(damageEntity, JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_BEFORE.getCode());
+        if(!CollectionUtils.isEmpty(beforImageUrlList)){
+            allImageUrlList.addAll(beforImageUrlList);
+        }
+        List<String> afterImageUrlList = this.getImageUrlList(damageEntity, JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_AFTER.getCode());
+        if(!CollectionUtils.isEmpty(afterImageUrlList)){
+            allImageUrlList.addAll(afterImageUrlList);
+        }
+
+        if(!CollectionUtils.isEmpty(allImageUrlList)){
+            attachmentAddr = allImageUrlList.stream().collect(Collectors.joining(";"));
+        }
+        return  attachmentAddr;
+    }
 
     /**
      * 检验条件是否满足给客服发送消息
