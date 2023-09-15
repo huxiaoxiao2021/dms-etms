@@ -484,7 +484,8 @@
   </update>
   
   <select id="queryMinIdByGroupCode"
-          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto">
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto" 
+          resultType="long">
     select min(id) as id
     from jy_group_sort_cross_detail
     where group_code = #{groupCode}
