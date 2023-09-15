@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
  * @copyright jd.com 京东物流JDL
  * @time 2023-09-15 09:46:20 周五
  */
-@Service("ySendTmsUrgeVehicleConsumer")
-public class JySendTmsUrgeVehicleConsumer  extends MessageBaseConsumer {
+@Service("jySendTmsUrgeVehicleConsumer")
+public class JySendTmsUrgeVehicleConsumer extends MessageBaseConsumer {
 
     private static final Logger log = LoggerFactory.getLogger(JyTaskSendDetailFirstSendConsumer.class);
 
