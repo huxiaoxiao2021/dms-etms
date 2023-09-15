@@ -73,9 +73,16 @@ public class JyComboardTaskFirstSaveDelayConsumer extends MessageBaseConsumer {
 
             // 没有发货记录逻辑删除当前板号
             if (CollectionUtils.isEmpty(sendMList)) {
+                // 查询板信息
+                JyBizTaskComboardEntity task = jyBizTaskComboardService.queryBizTaskByBoardCode(entity.getStartSiteId().intValue(), entity.getBoardCode());
+                if (task == null) {
+                    log.info("未获取到板详情：{}", JsonHelper.toJson(task));
+                    return;
+                }
+                
                 JyBizTaskComboardEntity updateDetail = new JyBizTaskComboardEntity();
                 updateDetail.setYn(Boolean.FALSE);
-                updateDetail.setId(entity.getId());
+                updateDetail.setId(task.getId());
                 if (jyBizTaskComboardService.updateBizTaskById(updateDetail) < 0) {
                     log.info("逻辑删除板号失败：{}", JsonHelper.toJson(updateDetail));
                 }
