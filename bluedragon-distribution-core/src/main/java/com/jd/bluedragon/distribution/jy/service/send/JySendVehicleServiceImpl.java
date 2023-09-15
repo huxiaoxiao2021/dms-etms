@@ -4289,10 +4289,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             result.parameterError("站点id不能为空！");
             return result;
         }
-        if(request.getFlag() ==null){
-            result.parameterError("波次标识不能为空！");
-            return result;
-        }
         try {
             List<SendVehicleProductTypeAgg> productTypeList = Lists.newArrayList();
             result.setData(productTypeList);
