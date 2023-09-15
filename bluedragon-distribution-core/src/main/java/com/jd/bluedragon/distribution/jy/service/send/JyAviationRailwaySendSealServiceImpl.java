@@ -385,9 +385,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             if(StringUtils.isBlank(airLineResp.getLineCode())) {
                 continue;
             }
+            if(!entity.getNextSiteCode().equals(airLineResp.getEndNodeCode())) {
+                //路由可能返回多个流向运力线路，仅过滤当前流向
+                continue;
+            }
             transportDataDto.setTransportCode(airLineResp.getLineCode());
-            String departTime = "";//todo zcf 离场时间字段还没有
-            transportDataDto.setDepartureTimeStr(departTime);
+            transportDataDto.setDepartureTimeStr(airLineResp.getDepartTime());
             transportDataDto.setFocusFlag(false);
             transportDataDtoList.add(transportDataDto);
         };
@@ -402,6 +405,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 break;
             }
         }
+        resData.setTransportInfoDtoList(transportDataDtoList);
         return res;
     }
 

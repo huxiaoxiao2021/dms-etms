@@ -460,6 +460,16 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         }
     }
 
+    /**
+     * 入参：
+     * airTransportType:  1全货机  2 散航（默认）    该类型运输和路由系统定义相反
+     * validDate 当前时间
+     * @param request
+     * @return
+     *
+     * 文档：https://joyspace.jd.com/pages/njkLJHaYUHRnIsrq4x8x
+     * 路由侧新增接口，对接研发：yanghongqiang
+     */
     @Override
     @JProfiler(jKey = "DMS.BASE.vrsQueryAPI.queryAirLineByAirLineReq", jAppName = Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -484,5 +494,28 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             res.error(String.format("查路由系统航空线路服务异常:%s", ex.getMessage()));
             return res;
         }
+    }
+
+    private CommonDto<List<AirLineResp>> testQueryAirLineByAirLineReq() {
+        CommonDto<List<AirLineResp>> res = new CommonDto<>();
+        res.setCode(CommonDto.CODE_SUCCESS);
+        List<AirLineResp> resData = new ArrayList<>();
+
+        AirLineResp data1 = new AirLineResp();
+        data1.setDepartTime("10:30");
+        data1.setLineCode("T230831003803");
+        data1.setEndNodeCode("010F002");
+        data1.setEndNodeName("马驹桥分拣中心");
+        resData.add(data1);
+
+        AirLineResp data2 = new AirLineResp();
+        data2.setDepartTime("20:30");
+        data2.setLineCode("T230831003803");
+        data2.setEndNodeCode("010F016");
+        data2.setEndNodeName("北京通州分拣中心");
+        resData.add(data2);
+
+        res.setData(resData);
+        return res;
     }
 }

@@ -204,7 +204,21 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
     @Test
     public void testfetchTransportCodeList() {
-        aviationRailwaySendSealGatewayService.fetchTransportCodeList(null);
+
+        TransportCodeQueryReq request = new TransportCodeQueryReq();
+        request.setCurrentOperate(SITE_910);
+        request.setUser(USER_wuyoude);
+        request.setGroupCode(GROUP_CODE);
+        request.setPost(POST);
+
+        request.setBizId("SST23082300000007");
+        request.setDetailBizId("DCH202308230002");
+
+        int i = 0;
+        while(i++<100) {
+            Object obj = aviationRailwaySendSealGatewayService.fetchTransportCodeList(request);
+            System.out.println("succ");
+        }
 
     }
 

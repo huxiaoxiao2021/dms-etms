@@ -720,4 +720,9 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "扫描批次号服务异常", null);//500+非自定义异常
         }
     }
+
+    @Override
+    public JdCResponse<ShuttleTaskSealCarQueryRes> fetchToSealShuttleTaskDetail(ShuttleTaskSealCarQueryReq request) {
+        return null;
+    }
 }

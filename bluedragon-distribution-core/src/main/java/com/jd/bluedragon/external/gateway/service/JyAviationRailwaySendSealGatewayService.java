@@ -176,4 +176,12 @@ public interface JyAviationRailwaySendSealGatewayService {
      */
     JdCResponse<ScanSendCodeValidRes> validateTranCodeAndSendCode(ScanSendCodeValidReq request);
 
+
+    /**
+     * 待封车摆渡明细查询
+     * @param request
+     * @return
+     */
+    JdCResponse<ShuttleTaskSealCarQueryRes> fetchToSealShuttleTaskDetail(ShuttleTaskSealCarQueryReq request);
+
 } 

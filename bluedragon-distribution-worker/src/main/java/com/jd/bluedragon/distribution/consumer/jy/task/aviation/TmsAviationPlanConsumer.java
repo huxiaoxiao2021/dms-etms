@@ -251,9 +251,9 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
     //该接口可以决定航空计划始发有效
     private void fillNextSiteInfo(JyBizTaskSendAviationPlanEntity entity) {
         //测试代码
-        entity.setNextSiteCode("010F016");
-        entity.setNextSiteId(40240);
-        entity.setNextSiteName("北京通州分拣中心cs");
+//        entity.setNextSiteCode("010F016");
+//        entity.setNextSiteId(40240);
+//        entity.setNextSiteName("北京通州分拣中心cs");
 
         String nextSiteCode = null;
         Integer nextSiteId = null;
@@ -261,9 +261,9 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         try{
             AirlineReq airlineReq = new AirlineReq();
             if(AirTypeEnum.AIR_TYPE_BULK.getCode().equals(entity.getAirType())) {
-                airlineReq.setAirTransportType(2);
+                airlineReq.setAirTransportType(2);//运输侧1位散航类型2全货机，路由侧2散航方式1全货机
             }else {
-                airlineReq.setAirTransportType(1);//todo zcf 确认1是什么类型
+                airlineReq.setAirTransportType(1);
             }
             airlineReq.setEndAirportCode(entity.getEndNodeCode());
             airlineReq.setStartAirportCode(entity.getBeginNodeCode());
