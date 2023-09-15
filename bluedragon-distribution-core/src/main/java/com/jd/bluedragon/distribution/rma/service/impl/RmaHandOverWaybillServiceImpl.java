@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.rma.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.rma.PrintStatusEnum;
 import com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
@@ -64,6 +66,9 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     @Autowired
     private BaseService baseService;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     /**
      * 分隔符号
@@ -141,11 +146,17 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         if(CollectionUtils.isEmpty(list)){
            return;
         }
+        final boolean switchHidePhoneNewVersion = sysConfigService.getConfigByName(Constants.SYS_CONFIG_HIDE_PHONE_6Char);
         for (RmaHandoverWaybill record : list) {
             record.setSendUserName(BusinessUtil.getHideName(record.getSendUserName()));
             record.setReceiver(BusinessUtil.getHideName(record.getReceiver()));
-            record.setSendUserMobile(BusinessUtil.getHidePhone(record.getSendUserMobile()));
-            record.setReceiverMobile(BusinessUtil.getHidePhone(record.getReceiverMobile()));
+            if(switchHidePhoneNewVersion){
+                record.setSendUserMobile(BusinessUtil.getHidePhone6Char(record.getSendUserMobile()));
+                record.setReceiverMobile(BusinessUtil.getHidePhone6Char(record.getReceiverMobile()));
+            } else {
+                record.setSendUserMobile(BusinessUtil.getHidePhone(record.getSendUserMobile()));
+                record.setReceiverMobile(BusinessUtil.getHidePhone(record.getReceiverMobile()));
+            }
             record.setReceiverAddress(BusinessUtil.getHideAddress(record.getReceiverAddress()));
         }
     }

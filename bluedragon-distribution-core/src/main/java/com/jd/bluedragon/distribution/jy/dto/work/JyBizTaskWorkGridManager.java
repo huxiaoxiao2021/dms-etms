@@ -205,6 +205,11 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	private Date ts;
 
 	/**
+	 * @See com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum
+	 * 是否符合,0-未选择,1-符合 2-不符合
+	 */
+	private Integer isMatch;
+	/**
 	 *
 	 * @param id
 	 */
@@ -810,5 +815,13 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 */
 	public Date getTs() {
 		return this.ts;
+	}
+
+	public Integer getIsMatch() {
+		return isMatch;
+	}
+
+	public void setIsMatch(Integer isMatch) {
+		this.isMatch = isMatch;
 	}
 }
