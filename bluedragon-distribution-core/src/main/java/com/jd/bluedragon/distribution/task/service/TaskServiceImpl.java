@@ -32,6 +32,7 @@ import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -999,15 +1000,10 @@ public class TaskServiceImpl implements TaskService {
         request.setUserCode(dto.getOperatorID());
         request.setUserName(dto.getOperatorName());
         request.setBizSource(AUTOMATIC_SORTING_MACHINE_SORTING.getCode());
-        request.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        request.setOperatorId(dto.getMachineCode());
-        request.setOperatorData(dto.getOperatorData());
-    	if(request.getOperatorData() == null) {
-    		OperatorData operatorData = new OperatorData();
-    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-    		operatorData.setOperatorId(dto.getMachineCode());
-    		request.setOperatorData(operatorData);
-    	}        
+        OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(dto);
+        request.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        request.setOperatorId(operatorData.getOperatorId());
+        request.setOperatorData(operatorData);
         list.add(request);
         taskSorting.setBody(JsonHelper.toJson(list));
         return taskSorting;
@@ -1053,23 +1049,10 @@ public class TaskServiceImpl implements TaskService {
         inspectionAS.setBusinessType(50);
 		inspectionAS.setMachineCode(uPackage.getMachineCode());
         inspectionAS.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
-        inspectionAS.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        inspectionAS.setOperatorId(uPackage.getMachineCode());
-        inspectionAS.setOperatorData(uPackage.getOperatorData());
-    	if(inspectionAS.getOperatorData() == null) {
-    		OperatorData operatorData = new OperatorData();
-    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-    		operatorData.setOperatorId(uPackage.getMachineCode());
-    		inspectionAS.setOperatorData(operatorData);
-    	}    	
-        if(uPackage.getOperatorData() != null) {
-    		inspectionAS.setOperatorData(uPackage.getOperatorData());
-    	}else {
-    		OperatorData operatorData = new OperatorData();
-    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-    		operatorData.setOperatorId(uPackage.getMachineCode());
-    		inspectionAS.setOperatorData(operatorData);
-    	}        
+        OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(uPackage);
+        inspectionAS.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        inspectionAS.setOperatorId(operatorData.getOperatorId());
+        inspectionAS.setOperatorData(operatorData);   	        
         inspectionASes.add(inspectionAS);
         return inspectionASes;
     }

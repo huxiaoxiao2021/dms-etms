@@ -74,15 +74,14 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
     	if(sendM == null || uploadData == null || config == null) {
     		return;
     	}
-    	sendM.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-    	sendM.setOperatorId(config.getMachineId());
-    	if(uploadData.getOperatorData() != null) {
-    		sendM.setOperatorData(uploadData.getOperatorData());
-    	}else {
-    		OperatorData operatorData = new OperatorData();
+    	OperatorData operatorData = uploadData.getOperatorData();
+    	if(operatorData == null) {
+    		operatorData = new OperatorData();
     		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
     		operatorData.setOperatorId(config.getMachineId());
-    		sendM.setOperatorData(operatorData);
     	}
+    	sendM.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+    	sendM.setOperatorId(operatorData.getMachineCode());
+    	sendM.setOperatorData(operatorData);
     }
 }

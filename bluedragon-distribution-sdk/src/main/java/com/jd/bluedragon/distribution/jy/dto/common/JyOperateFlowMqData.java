@@ -1,24 +1,19 @@
 package com.jd.bluedragon.distribution.jy.dto.common;
 
-import java.util.Date;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
- * @ClassName: JyOperateFlow
- * @Description: 分拣-业务操作流水表-实体类
+ * @ClassName: JyOperateFlowMqData
+ * @Description: 分拣-业务操作流水表-消息体
  * @author wuyoude
  * @date 2023年09月12日 17:07:43
  *
  */
-public class JyOperateFlow implements Serializable {
+public class JyOperateFlowMqData implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	/**
-	 * 主键ID
-	 */
-	private Long id;
-
 	/**
 	 * 业务类型：目前是表名
 	 */
@@ -45,35 +40,14 @@ public class JyOperateFlow implements Serializable {
 	private String operateKey;
 
 	/**
-	 * 操作业务信息,json格式
+	 * 操作业务数据
 	 */
-	private String operateValue;
+	private JyOperateFlowData jyOperateFlowData;
 
 	/**
 	 * 操作时间
 	 */
 	private Date operateTime;
-
-	/**
-	 * 时间戳
-	 */
-	private Date ts;
-
-	/**
-	 *
-	 * @param id
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	/**
-	 *
-	 * @return id
-	 */
-	public Long getId() {
-		return this.id;
-	}
 
 	/**
 	 *
@@ -157,22 +131,6 @@ public class JyOperateFlow implements Serializable {
 
 	/**
 	 *
-	 * @param operateValue
-	 */
-	public void setOperateValue(String operateValue) {
-		this.operateValue = operateValue;
-	}
-
-	/**
-	 *
-	 * @return operateValue
-	 */
-	public String getOperateValue() {
-		return this.operateValue;
-	}
-
-	/**
-	 *
 	 * @param operateTime
 	 */
 	public void setOperateTime(Date operateTime) {
@@ -187,21 +145,12 @@ public class JyOperateFlow implements Serializable {
 		return this.operateTime;
 	}
 
-	/**
-	 *
-	 * @param ts
-	 */
-	public void setTs(Date ts) {
-		this.ts = ts;
+	public JyOperateFlowData getJyOperateFlowData() {
+		return jyOperateFlowData;
 	}
 
-	/**
-	 *
-	 * @return ts
-	 */
-	public Date getTs() {
-		return this.ts;
+	public void setJyOperateFlowData(JyOperateFlowData jyOperateFlowData) {
+		this.jyOperateFlowData = jyOperateFlowData;
 	}
-
-
+	
 }

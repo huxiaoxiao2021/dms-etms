@@ -54,6 +54,9 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionJsfService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
@@ -69,6 +72,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.asset.material.base.ResultData;
 import com.jd.etms.asset.material.base.ResultStateEnum;
@@ -191,6 +195,10 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
     private DmsPackingConsumableService dmsPackingConsumableService;
     @Autowired
     private BaseService baseService;
+    
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;    
+    
 
     public boolean isExists(Integer Storeid)
     {
@@ -398,7 +406,9 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
     public void saveData(Inspection inspection, String methodName) {//FIXME:private
         this.insertOrUpdate(inspection);
         addOperationLog(inspection,methodName);
-
+        JyOperateFlowMqData inspectionFlowMq = BeanConverter.convertToJyOperateFlowMqData(inspection);
+        inspectionFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.INSPECTION.getCode());
+		jyOperateFlowService.sendMq(inspectionFlowMq);
         cenConfirmService.saveOrUpdateCenConfirm(cenConfirmService
                 .createCenConfirmByInspection(inspection));
         // 如果是三方,则插入异常信息inspection_e_c表
@@ -1298,7 +1308,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 		}
 	}
     /**
-     * 设置sendM操作信息
+     * 设置操作信息
      * @param inspection
      */
     private void setOperatorData(InspectionAS inspection) {
@@ -1306,14 +1316,11 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
     		return;
     	}
 		inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-		inspection.setOperatorId(inspection.getMachineCode());    	
-
-    	if(inspection.getOperatorData() == null) {
-    		OperatorData operatorData = new OperatorData();
-    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-    		operatorData.setOperatorId(inspection.getMachineCode());
-    		inspection.setOperatorData(operatorData);
-    	}
+		inspection.setOperatorId(inspection.getMachineCode());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(inspection);
+        inspection.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        inspection.setOperatorId(operatorData.getOperatorId());
+        inspection.setOperatorData(operatorData);
     }
     @Override
     public JdVerifyResponse<InspectionCheckResultDto> checkBeforeInspection(com.jd.bluedragon.common.dto.inspection.request.InspectionRequest request) {

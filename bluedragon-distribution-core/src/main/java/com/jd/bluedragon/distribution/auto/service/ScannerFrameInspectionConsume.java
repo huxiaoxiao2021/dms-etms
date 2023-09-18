@@ -89,15 +89,14 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
     	if(inspection == null || uploadData == null) {
     		return;
     	}
-        inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        inspection.setOperatorId(inspection.getMachineCode());
-    	if(uploadData.getOperatorData() != null) {
-    		inspection.setOperatorData(uploadData.getOperatorData());
-    	}else {
-    		OperatorData operatorData = new OperatorData();
+    	OperatorData operatorData = uploadData.getOperatorData();
+    	if(operatorData == null) {
+    		operatorData = new OperatorData();
     		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
     		operatorData.setOperatorId(inspection.getMachineCode());
-    		inspection.setOperatorData(operatorData);
     	}
+    	inspection.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+    	inspection.setOperatorId(operatorData.getMachineCode());
+    	inspection.setOperatorData(operatorData);
     }
 }

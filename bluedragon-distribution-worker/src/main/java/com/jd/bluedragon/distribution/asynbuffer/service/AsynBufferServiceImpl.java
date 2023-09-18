@@ -42,6 +42,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.RandomUtils;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
 import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
@@ -116,15 +117,12 @@ public class AsynBufferServiceImpl implements AsynBufferService {
                     }
                 }
                 //添加自动化设备信息
-                if(request.getOperatorTypeCode() == null && StringUtils.isNotBlank(request.getMachineCode())){
-                    request.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-                    request.setOperatorId(request.getMachineCode());
-                	if(request.getOperatorData() == null) {
-                		OperatorData operatorData = new OperatorData();
-                		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-                		operatorData.setOperatorId(request.getMachineCode());
-                		request.setOperatorData(operatorData);
-                	}
+                if(request.getOperatorTypeCode() == null 
+                		&& StringUtils.isNotBlank(request.getMachineCode())){
+                    OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(request);
+                    request.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+                    request.setOperatorId(operatorData.getOperatorId());
+                    request.setOperatorData(operatorData); 
                 }
                 inspectionTaskExeStrategy.decideExecutor(request).process(request);
             }

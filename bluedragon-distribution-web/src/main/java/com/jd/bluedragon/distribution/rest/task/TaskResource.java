@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.common.authorization.RestAuthorization;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -138,7 +139,11 @@ public class TaskResource {
             }
 
             //inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
-            setOperatorData(inspection);
+            
+            OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(inspection);
+            inspection.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+            inspection.setOperatorId(operatorData.getOperatorId());
+            inspection.setOperatorData(operatorData); 
             
         }
         if(inspections.size() ==0){
@@ -147,25 +152,7 @@ public class TaskResource {
         }
         request.setBody(JsonHelper.toJson(inspections));
         return add(request);
-    }
-    /**
-     * 设置sendM操作信息
-     * @param inspection
-     */
-    private void setOperatorData(InspectionAS inspection) {
-    	if(inspection == null) {
-    		return;
-    	}
-		inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-		inspection.setOperatorId(inspection.getMachineCode());    	
-
-    	if(inspection.getOperatorData() == null) {
-    		OperatorData operatorData = new OperatorData();
-    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-    		operatorData.setOperatorId(inspection.getMachineCode());
-    		inspection.setOperatorData(operatorData);
-    	}
-    }    
+    }  
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.addPack", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     @SuppressWarnings("unchecked")

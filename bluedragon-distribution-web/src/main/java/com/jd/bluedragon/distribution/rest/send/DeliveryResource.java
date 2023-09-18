@@ -12,6 +12,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -47,6 +48,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -309,8 +311,11 @@ public class DeliveryResource {
         domain.setYn(1);
         domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
         domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
-        domain.setOperatorTypeCode(request.getOperatorTypeCode());
-        domain.setOperatorId(request.getOperatorId());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request);
+        domain.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        domain.setOperatorId(operatorData.getOperatorId());
+        domain.setOperatorData(operatorData);
+        
         return domain;
     }
 

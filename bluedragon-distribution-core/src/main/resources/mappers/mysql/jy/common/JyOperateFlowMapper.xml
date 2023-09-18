@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.jy.dao.common.JyOperateFlowDao" >
 
-	<resultMap id="JyOperateFlow" type="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlow" >
+	<resultMap id="JyOperateFlowDto" type="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="operate_biz_type" property="operateBizType" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_biz_sub_type" property="operateBizSubType" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -19,7 +19,7 @@
 		operate_value,operate_time,ts
 	</sql>
 
-	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlow" useGeneratedKeys="true" keyProperty="id">
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto" useGeneratedKeys="true" keyProperty="id">
 		insert into jy_operate_flow
 			(
 			<trim suffixOverrides=",">
@@ -46,9 +46,6 @@
 				</if>
 				<if test="operateTime != null" >
 					operate_time,
-				</if>
-				<if test="ts != null" >
-					ts,
 				</if>
 			</trim>
 			)
@@ -78,9 +75,6 @@
 				</if>
 				<if test="operateTime != null" >
 					#{operateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="ts != null" >
-					#{ts,jdbcType=TIMESTAMP},
 				</if>
 			</trim>
 			)

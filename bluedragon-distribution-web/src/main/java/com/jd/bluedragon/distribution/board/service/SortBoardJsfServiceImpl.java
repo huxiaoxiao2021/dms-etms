@@ -39,6 +39,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -292,8 +293,11 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         }
         currentOperate.setSiteName(request.getOperatorInfo().getSiteName());
         currentOperate.setOperateTime(request.getOperatorInfo().getOperateTime());
-        currentOperate.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        currentOperate.setOperatorId(request.getMachineCode());
+        com.jd.bluedragon.common.dto.base.request.OperatorData operatorData = BeanConverter.convertToPdaOperatorDataForAuto(request);
+        currentOperate.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        currentOperate.setOperatorId(operatorData.getOperatorId());
+        currentOperate.setOperatorData(operatorData);
+        
         req.setCurrentOperate(currentOperate);
     }
 
@@ -363,8 +367,10 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         operator.setUserName(operatorInfo.getUserName());
             operator.setUserErp(operatorInfo.getUserErp());
         }
-        operator.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        operator.setOperatorId(request.getMachineCode());
+        com.jd.bluedragon.common.dto.base.request.OperatorData operatorData = BeanConverter.convertToPdaOperatorDataForAuto(request);
+        operator.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        operator.setOperatorId(operatorData.getOperatorId());
+        operator.setOperatorData(operatorData); 
         return operator;
     }
 
@@ -738,31 +744,12 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setYn(1);
         domain.setCreateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
         domain.setOperateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
-        setOperatorData(domain,request);
+        OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(request);
+        domain.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        domain.setOperatorId(operatorData.getOperatorId());
+        domain.setOperatorData(operatorData);        
         return domain;
     }
-    /**
-     * 设置sendM操作信息
-     * @param sendM
-     * @param uploadData
-     * @param config
-     */
-    private void setOperatorData(SendM sendM,BindBoardRequest request) {
-    	if(sendM == null || request == null) {
-    		return;
-    	}
-    	sendM.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-    	sendM.setOperatorId(request.getMachineCode());
-    	if(request.getOperatorData() != null) {
-    		sendM.setOperatorData(request.getOperatorData());
-    	}else {
-    		OperatorData operatorData = new OperatorData();
-    		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-    		operatorData.setOperatorId(request.getMachineCode());
-    		sendM.setOperatorData(operatorData);
-    	}
-    }
-
 
     public BoardChuteJsfService getBoardChuteJsfService() {
         return boardChuteJsfService;

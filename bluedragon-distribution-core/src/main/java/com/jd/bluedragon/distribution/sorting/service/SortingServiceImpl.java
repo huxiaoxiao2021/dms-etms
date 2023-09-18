@@ -37,6 +37,9 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
@@ -61,6 +64,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -194,6 +198,9 @@ public class SortingServiceImpl implements SortingService {
 	@Autowired
 	@Qualifier("redisClientCache")
 	private Cluster redisClient;
+	
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;	
 
 	public Integer add(Sorting sorting) {
 		return this.sortingDao.add(SortingDao.namespace, sorting);
@@ -232,6 +239,9 @@ public class SortingServiceImpl implements SortingService {
 		boolean result = this.sortingDao.canCancel(sorting)
 				&& this.deliveryService.canCancel(this.parseSendDetail(sorting));
 		if (result) {
+            JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
+            sortingCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING_CANCEL.getCode());
+			jyOperateFlowService.sendMq(sortingCancelFlowMq);
 			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelSorting");
 		}
 		return result;
@@ -248,6 +258,9 @@ public class SortingServiceImpl implements SortingService {
 			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelSorting2");
 			//发送取消建箱全程跟踪，MQ
 			this.sendSortingCancelWaybillTrace(sorting);
+            JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
+            sortingCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING_CANCEL.getCode());
+			jyOperateFlowService.sendMq(sortingCancelFlowMq);
 		}
 		return result;
 	}
@@ -314,10 +327,7 @@ public class SortingServiceImpl implements SortingService {
 		waybillStatus.setOperateType(true == sorting.isForward() ? WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_SORTING
 				: WaybillStatus.WAYBILL_STATUS_CODE_REVERSE_SORTING);
 		waybillStatus.setOperateTime(sorting.getOperateTime());
-		OperatorData operatorData = new OperatorData();
-		operatorData.setOperatorTypeCode(sorting.getOperatorTypeCode());
-		operatorData.setOperatorId(sorting.getOperatorId());
-		waybillStatus.setOperatorData(operatorData);
+		waybillStatus.setOperatorData(BeanConverter.convertToOperatorData(sorting));
 		return waybillStatus;
 	}
 
@@ -435,6 +445,9 @@ public class SortingServiceImpl implements SortingService {
 				// this.updatedBoxStatus(sorting); // 将箱号更新为分拣状态
 				// 添加发货记录 FIXME:非主线任务
 				sendDList.add(this.addSendDetail(sorting));
+	            JyOperateFlowMqData sortingFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
+	            sortingFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING.getCode());
+				jyOperateFlowService.sendMq(sortingFlowMq);
 			} else if (sorting.getIsCancel().equals(SORTING_CANCEL)) {// 离线取消分拣
 				return this.canCancel(sorting);
 			}
@@ -1402,10 +1415,7 @@ public class SortingServiceImpl implements SortingService {
 			waybillStatus.setOperateTime(sorting.getOperateTime() == null ? new Date() : sorting.getOperateTime());
 			waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL);
 			waybillStatus.setRemark("取消建箱，箱号：" + boxCode);
-	        OperatorData operatorData = new OperatorData();
-	        operatorData.setOperatorId(sorting.getOperatorId());
-	        operatorData.setOperatorTypeCode(sorting.getOperatorTypeCode());
-	        waybillStatus.setOperatorData(operatorData);
+	        waybillStatus.setOperatorData(BeanConverter.convertToOperatorData(sorting));
 	        
 			Task task = new Task();
 			task.setTableName(Task.TABLE_NAME_POP);

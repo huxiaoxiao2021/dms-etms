@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.receive.domain;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.util.Date;
 
 public class CenConfirm implements java.io.Serializable,Comparable<CenConfirm>{
@@ -74,7 +76,11 @@ public class CenConfirm implements java.io.Serializable,Comparable<CenConfirm>{
     /**
      * 操作者id
      */
-	private String operatorId;    
+	private String operatorId;
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;	
 
 	public CenConfirm() {
 		super();
@@ -379,5 +385,13 @@ public class CenConfirm implements java.io.Serializable,Comparable<CenConfirm>{
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

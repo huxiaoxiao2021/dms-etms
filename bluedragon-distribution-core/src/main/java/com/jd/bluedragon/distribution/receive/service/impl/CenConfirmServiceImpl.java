@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -161,6 +162,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 			}
 			cenConfirm.setOperatorTypeCode(inspection.getOperatorTypeCode());
 			cenConfirm.setOperatorId(inspection.getOperatorId());
+			cenConfirm.setOperatorData(inspection.getOperatorData());
 		} else {
 			// 收货表中只抽取大件包裹数据
 			cenConfirm
@@ -332,10 +334,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		tWaybillStatus.setWaybillCode(cenConfirm.getWaybillCode());
 		tWaybillStatus.setBoxCode(cenConfirm.getBoxCode());
 		tWaybillStatus.setRemark(cenConfirm.getExceptionType());
-		OperatorData operatorData = new OperatorData();
-		operatorData.setOperatorTypeCode(cenConfirm.getOperatorTypeCode());
-		operatorData.setOperatorId(cenConfirm.getOperatorId());
-		tWaybillStatus.setOperatorData(operatorData);
+		tWaybillStatus.setOperatorData(BeanConverter.convertToOperatorData(cenConfirm));
 		return tWaybillStatus;
 	}
 	
