@@ -13,6 +13,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.fastjson.JSON;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -150,7 +151,7 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 					// B商家ID
 					Integer busiId = context.getBigWaybillDto().getWaybill().getBusiId();
 					BasicTraderNeccesaryInfoDTO baseTraderNeccesaryInfo = baseMajorManager.getBaseTraderNeccesaryInfoById(busiId);
-					log.info("获取B商家信息-{}",baseTraderNeccesaryInfo);
+					log.info("获取B商家信息-{}", JSON.toJSONString(baseTraderNeccesaryInfo));
 					if(baseTraderNeccesaryInfo != null){
 						sendPrincipalCompanyFlag = BusinessUtil.isPrintSendPrincipalCompany(baseTraderNeccesaryInfo.getTraderSign());
 						textContactFlag = BusinessUtil.isPrinttextContact(baseTraderNeccesaryInfo.getTraderSign());
