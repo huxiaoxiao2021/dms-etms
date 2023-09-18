@@ -161,28 +161,24 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 					//企业名称
 					String sendPrincipalCompany = context.getBigWaybillDto().getWaybill().getWaybillExt().getSendPrincipalCompany();
 					log.info("sendPrincipalCompany-{}",sendPrincipalCompany);
-					if (StringHelper.isNotEmpty(sendPrincipalCompany)) {
+					if (StringHelper.isNotEmpty(sendPrincipalCompany) && sendPrincipalCompanyFlag) {
 						if (remark.length() > 0) {
 							remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
 						}
 						remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_COMPANY);
-						if(sendPrincipalCompanyFlag){
-							remark = StringHelper.append(remark, sendPrincipalCompany);
-						}
+						remark = StringHelper.append(remark, sendPrincipalCompany);
 					}
 					//联系方式
 					String textContact = StringHelper.isNotEmpty(context.getBigWaybillDto().getWaybill().getConsignerTel()) ?
 							context.getBigWaybillDto().getWaybill().getConsignerTel() :
 							context.getBigWaybillDto().getWaybill().getConsignerMobile();
 					log.info("textContact-{}",textContact);
-					if (StringHelper.isNotEmpty(textContact)) {
+					if (StringHelper.isNotEmpty(textContact) && textContactFlag) {
 						if (remark.length() > 0) {
 							remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
 						}
 						remark = StringHelper.append(remark, TextConstants.COMMON_TEXT_CONTACT);
-						if(textContactFlag){
-							remark = StringHelper.append(remark, textContact);
-						}
+						remark = StringHelper.append(remark, textContact);
 					}
 					//存储条件
 					if (remark.length() > 0) {
