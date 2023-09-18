@@ -13,11 +13,24 @@
 <script type="text/javascript" src="#springUrl('/static/js/common/plugin-helper.js')"></script>
 <script type="text/javascript" src="#springUrl('/static/js/jquery-plugins/jquery.md5.js')"></script>
 <script type="text/javascript" src="#springUrl('/static/js/utils/clickFrequency.js')"></script>
+#parse("system/common/baseImport.vm")
 <script type="application/javascript" src="/static/js/exportConcurrencyLimit/exportConcurrencyLimit.js"></script>
 </head>
 
 <script type="text/javascript">
 $(document).ready(function() {
+	//加载站点组件
+	$('#switchSiteDom').sitePluginSelect({
+		#if($!{userInfo.siteCode})
+			'createSiteCode' : $!{userInfo.siteCode},
+		#elseif( $!popAbnormalQuery.createSiteCode)
+			'createSiteCode' : $!popAbnormalQuery.createSiteCode,
+		#end
+		'changeBtnShow': false,
+		'provinceOrOrgMode' : 'province',
+		'onlySiteAndProvinceSelect' : true
+	});
+
 	$("#mainType").change(function(){
 		selectInt("#subType");
 		if (this.value == '') {
@@ -192,39 +205,41 @@ function cancel(abnormalId) {
           <tbody>
             <tr>
 			  <th align="right">分拣中心：</th>
-              <td width="25%">
-				<select class="select12" id="orgCode" name="orgCode">
-                    #if($null.isNull($!orgList) || $!orgList.size() != 1)
-						<option value="">请选择</option>
-					#end
-					#if(!$null.isNull($!orgList))
-        				#foreach($baseOrg in $orgList)
-                            <option value="${baseOrg.orgId}"
-								#if( $!{userInfo.orgId} == ${baseOrg.orgId})
-                                      selected="selected" 
-								#elseif( $!popAbnormalQuery.orgCode == $baseOrg.orgId)
-                                      selected="selected" 
-                                #end
-								>${baseOrg.orgName}</option>
-    					#end
-					#end
-                </select>
-                <select class="select18" name="createSiteCode" id="createSiteCode">
-                    #if($null.isNull($!siteList) || $!siteList.size() != 1)
-						<option value="">请选择</option>
-					#end
-					#if(!$null.isNull($!siteList))
-    					#foreach($baseStaffSiteOrgDto in $siteList)
-                            <option value="${baseStaffSiteOrgDto.siteCode}"
-								#if( $!{userInfo.siteCode} == ${baseStaffSiteOrgDto.siteCode})
-                                      selected="selected" 
-								#elseif( $!popAbnormalQuery.createSiteCode == ${baseStaffSiteOrgDto.siteCode})
-                                      selected="selected" 
-                                #end
-								>${baseStaffSiteOrgDto.siteName}</option>
-    					#end
-					#end
-                </select>
+              <td width="25%" >
+				  <switchSiteDom id = "switchSiteDom">
+					<select class="select12" id="orgCode" name="orgCode">
+						#if($null.isNull($!orgList) || $!orgList.size() != 1)
+							<option value="">请选择</option>
+						#end
+						#if(!$null.isNull($!orgList))
+							#foreach($baseOrg in $orgList)
+								<option value="${baseOrg.orgId}"
+									#if( $!{userInfo.orgId} == ${baseOrg.orgId})
+										  selected="selected"
+									#elseif( $!popAbnormalQuery.orgCode == $baseOrg.orgId)
+										  selected="selected"
+									#end
+									>${baseOrg.orgName}</option>
+							#end
+						#end
+					</select>
+					<select class="select18" name="createSiteCode" id="createSiteCode">
+						#if($null.isNull($!siteList) || $!siteList.size() != 1)
+							<option value="">请选择</option>
+						#end
+						#if(!$null.isNull($!siteList))
+							#foreach($baseStaffSiteOrgDto in $siteList)
+								<option value="${baseStaffSiteOrgDto.siteCode}"
+									#if( $!{userInfo.siteCode} == ${baseStaffSiteOrgDto.siteCode})
+										  selected="selected"
+									#elseif( $!popAbnormalQuery.createSiteCode == ${baseStaffSiteOrgDto.siteCode})
+										  selected="selected"
+									#end
+									>${baseStaffSiteOrgDto.siteName}</option>
+							#end
+						#end
+					</select>
+				  </switchSiteDom>
 			  </td>
               <th align="right">时间类型：</th>
               <td colspan="5">
@@ -334,6 +349,8 @@ function cancel(abnormalId) {
             <tr>
 			  <th>序号</th>
               <th>区域</th>
+              <th>省区名称</th>
+              <th>枢纽名称</th>
               <th>分拣中心</th>
               <th>异常类型</th>
               <th>运单号</th>
@@ -360,6 +377,8 @@ function cancel(abnormalId) {
 				<tr class="a2" style="">
                   <td>$velocityCount</td>
                   <td>$!popAbnormal.orgName</td>
+                  <td>$!popAbnormal.provinceAgencyName</td>
+                  <td>$!popAbnormal.areaHubName</td>
                   <td>$!popAbnormal.createSiteName</td>
                   <td>
 					$!popAbnormal.mainTypeName

@@ -1,11 +1,6 @@
 package com.jd.bluedragon;
 
-import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -829,6 +824,13 @@ public class Constants {
      */
     public static final String SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF = "waybill.print.addiOwnNumberConf";
 
+
+    /**
+     *  配置信息-切换百川流量场地列表
+     *
+     */
+    public static final String BAICHUAN_REVERSE_SITE_CONF = "baichuan.reverse.site.conf";
+
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
      */
@@ -870,6 +872,11 @@ public class Constants {
      * 功能可用性配置
      */
     public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
+
+    /**
+     * 隐藏面单手机号信息
+     */
+    public static final String SYS_CONFIG_HIDE_PHONE_6Char= "hide_phone_6char";
 
     /**
      * 安卓菜单可用性配置，按场地id配置
@@ -2008,6 +2015,31 @@ public class Constants {
      */
     public static final String JY_FINDGOODS_TASK_LOCK_PREFIX  = "jy_findGoods_task_lock_%s";
 
+
+    /**
+     * 安检场地关系配置
+     */
+    public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
+
+    public static final Integer SEND_FLOW_COUNT_LIMIT_DEFAULT=6;
+
+    /**
+     * 异常上报原因与二次安检关系-新版异常上报
+     */
+    public static final Map<Long, List<Long>> SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP = new HashMap<Long, List<Long>>(){{
+        put(20009L, new ArrayList<>(Collections.singletonList(20010L)));
+        put(20006L, new ArrayList<>(Collections.singletonList(20088L)));
+    }};
+
+    /**
+     * 异常上报原因与二次安检关系-老版异常上报
+     */
+    public static final Long SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID = 27000L;
+
+    /**
+     * 功能可用配置白名单
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
 
     /**
      * 波次数据主备数据源映射

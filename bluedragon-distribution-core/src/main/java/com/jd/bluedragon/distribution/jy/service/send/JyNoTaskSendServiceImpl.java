@@ -318,6 +318,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         startData.setSiteCode(request.getCurrentOperate().getSiteCode());
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(startData.getSiteCode());
         startData.setOrgCode(baseSite != null ? baseSite.getOrgId() : -1);
+        startData.setProvinceAgencyCode(baseSite == null ? null : baseSite.getProvinceAgencyCode());
+        startData.setAreaHubCode(baseSite == null ? null : baseSite.getAreaCode());
 
         startData.setCreateUser(request.getUser().getUserErp());
         startData.setCreateUserName(request.getUser().getUserName());
@@ -718,7 +720,6 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.cancelSendTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq request) {
         log.info("jy取消发货，按{}进行取消,扫描号码：{}", CancelSendTypeEnum.getReportTypeName(request.getType()), request.getCode());
         validateCancelReq(request);

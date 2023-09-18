@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ public interface BoxService {
     
     Box findBoxByBoxCode(Box box);
 
-    List<String> generateRecycleBasketCode(int quantity);
+    List<String> generateRecycleBasketCode(int quantity, RecycleBasketTypeEnum typeEnum);
 
     Integer updateVolumeByCode(Box box);
     /**  

@@ -44,4 +44,11 @@ public interface SendMManager {
      */
     int batchSaveSendM(List<SendM> sendMList);
 
+
+    /**
+     * 批量获取发货数据
+     * @param sendM
+     * @return
+     */
+    List<SendM> batchQuerySendMListBySiteAndBoxes(SendM sendM);
 }

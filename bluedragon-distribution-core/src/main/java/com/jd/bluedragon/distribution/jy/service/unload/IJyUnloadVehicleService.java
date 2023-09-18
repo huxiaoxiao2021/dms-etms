@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -28,7 +29,7 @@ public interface IJyUnloadVehicleService {
      * @param request
      * @return
      */
-    InvokeResult<Integer> unloadScan(UnloadScanRequest request);
+    JdVerifyResponse<Integer> unloadScan(UnloadScanRequest request);
 
     /**
      * 查询卸车进度

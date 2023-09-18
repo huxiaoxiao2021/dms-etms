@@ -17,6 +17,35 @@ public class QualityControlRequest implements Serializable{
     private Date operateTime;       // 操作时间
     private Integer qcType;         // 传过来的qcValue类型
     private String qcValue;         // 1:包裹号|2:运单号|3:箱号|4:批次号|5:车次号
+    /**
+     * 异常一级原因ID
+     */
+    private Long abnormalReasonFirstId;
+
+    /**
+     * 异常一级原因名称
+     */
+    private String abnormalReasonFirstName;
+
+    /**
+     * 异常二级原因ID
+     */
+    private Long abnormalReasonSecondId;
+
+    /**
+     * 异常二级原因名称
+     */
+    private String abnormalReasonSecondName;
+
+    /**
+     * 异常三级原因ID
+     */
+    private Long abnormalReasonThirdId;
+
+    /**
+     * 异常三级原因名称
+     */
+    private String abnormalReasonThirdName;
     private Integer qcCode;         // 质控异常类型ID
     private String qcName;          // 质控异常名称
     private boolean isSortingReturn; //是否生成分拣退货数据
@@ -86,6 +115,54 @@ public class QualityControlRequest implements Serializable{
 
     public void setQcValue(String qcValue) {
         this.qcValue = qcValue;
+    }
+
+    public Long getAbnormalReasonFirstId() {
+        return abnormalReasonFirstId;
+    }
+
+    public void setAbnormalReasonFirstId(Long abnormalReasonFirstId) {
+        this.abnormalReasonFirstId = abnormalReasonFirstId;
+    }
+
+    public String getAbnormalReasonFirstName() {
+        return abnormalReasonFirstName;
+    }
+
+    public void setAbnormalReasonFirstName(String abnormalReasonFirstName) {
+        this.abnormalReasonFirstName = abnormalReasonFirstName;
+    }
+
+    public Long getAbnormalReasonSecondId() {
+        return abnormalReasonSecondId;
+    }
+
+    public void setAbnormalReasonSecondId(Long abnormalReasonSecondId) {
+        this.abnormalReasonSecondId = abnormalReasonSecondId;
+    }
+
+    public String getAbnormalReasonSecondName() {
+        return abnormalReasonSecondName;
+    }
+
+    public void setAbnormalReasonSecondName(String abnormalReasonSecondName) {
+        this.abnormalReasonSecondName = abnormalReasonSecondName;
+    }
+
+    public Long getAbnormalReasonThirdId() {
+        return abnormalReasonThirdId;
+    }
+
+    public void setAbnormalReasonThirdId(Long abnormalReasonThirdId) {
+        this.abnormalReasonThirdId = abnormalReasonThirdId;
+    }
+
+    public String getAbnormalReasonThirdName() {
+        return abnormalReasonThirdName;
+    }
+
+    public void setAbnormalReasonThirdName(String abnormalReasonThirdName) {
+        this.abnormalReasonThirdName = abnormalReasonThirdName;
     }
 
     public Integer getQcCode() {

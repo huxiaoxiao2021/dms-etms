@@ -1,4 +1,14 @@
 $(function() {
+    
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        'createSiteCode' : $("#loginUserCreateSiteCode").val(),
+        'siteTypes': null,
+        'changeBtnShow': false,
+        'provinceOrOrgMode' : 'province',
+        'createSiteCodeReadOnly' : true,
+        'onlySiteSelect' : true
+    });
 	var saveUrl = '/collect/collectGoodsDetail/save';
 	var deleteUrl = '/collect/collectGoodsDetail/deleteByIds';
   var detailUrl = '/collect/collectGoodsDetail/detail/';
@@ -155,7 +165,7 @@ $(function() {
 		    	tableInit().refresh();
 			});
 			$('#btn_add').click(function() {
-			    $('.edit-param').each(function () {
+			    $('dataEditDiv .edit-param').each(function () {
 			    	var _k = this.id;
 			        if(_k){
 			        	$(this).val('');
@@ -179,7 +189,7 @@ $(function() {
 				}
 			    $.ajaxHelper.doPostSync(detailUrl+rows[0].id,null,function(res){
 			    	if(res&&res.succeed&&res.data){
-					    $('.edit-param').each(function () {
+					    $('dataEditDiv .edit-param').each(function () {
 					    	var _k = this.id;
 					        var _v = res.data[_k];
 					        if(_k){

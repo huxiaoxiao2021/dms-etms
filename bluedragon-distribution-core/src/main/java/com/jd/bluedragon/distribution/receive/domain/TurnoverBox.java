@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.receive.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Date;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TurnoverBox implements java.io.Serializable {
 
 	private static final long serialVersionUID = -5342873771896641567L;
@@ -42,6 +45,15 @@ public class TurnoverBox implements java.io.Serializable {
 	public Integer end;
 	
 	public Integer orgCode;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
 
 	public Integer getOrgCode() {
 		return orgCode;
@@ -186,5 +198,20 @@ public class TurnoverBox implements java.io.Serializable {
 	public void setEnd(Integer end) {
 		this.end = end;
 	}
-	
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		this.areaHubCode = areaHubCode;
+	}
 }

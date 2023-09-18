@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.base.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 /**
@@ -10,6 +11,7 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
  * @date 2018年03月13日 16:25:45
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DmsStorageAreaCondition extends BasePagerCondition {
 
 	private static final long serialVersionUID = 1L;
@@ -55,6 +57,15 @@ public class DmsStorageAreaCondition extends BasePagerCondition {
 
 	 /** 更新人名称 */
 	private String updateUserName;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
 
 	/**
 	 * The set method for storageType.
@@ -280,5 +291,19 @@ public class DmsStorageAreaCondition extends BasePagerCondition {
 		return this.updateUserName;
 	}
 
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
 
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		this.areaHubCode = areaHubCode;
+	}
 }

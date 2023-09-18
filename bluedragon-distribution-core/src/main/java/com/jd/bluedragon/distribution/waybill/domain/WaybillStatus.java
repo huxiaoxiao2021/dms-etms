@@ -7,6 +7,10 @@ import java.util.Map;
 
 public class WaybillStatus {
 
+    public static final Integer waybillTraceType1 = 1;
+    public static final Integer waybillTraceType2 = 2;
+    public static final Integer waybillTraceType3 = 3;
+
     public static final int RESULT_CODE_PARAM_IS_NULL = 10001;
     public static final int RESULT_CODE_REPEAT_TASK = 10003;
 
@@ -267,6 +271,15 @@ public class WaybillStatus {
      * 滞留上报
      */
     public static final Integer WAYBILL_STRAND_REPORT = 18000;
+
+    /**
+     * 全称跟踪-杭州亚运会安检
+     * 节点状态码：-3080
+     * 操作码：20700
+     * topic:0_7600
+     */
+    public static final Integer WAYBILL_TRACK_SECURITY_CHECK = 22000;
+    public static final Integer WAYBILL_TRACK_SECURITY_CHECK_STATE = -3080;
 
     /**
      * https://cf.jd.com/pages/viewpage.action?pageId=1050064709

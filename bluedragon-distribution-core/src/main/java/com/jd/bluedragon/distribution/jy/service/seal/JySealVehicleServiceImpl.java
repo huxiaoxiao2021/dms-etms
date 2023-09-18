@@ -65,6 +65,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -440,6 +441,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         sealCarDto.setSealUserName(sealVehicleReq.getUser().getUserName());
         //转换体积单位 立方厘米转换为立方米
         sealCarDto.setVolume(NumberHelper.cm3ToM3(sealVehicleReq.getVolume()));
+        if (!StringUtils.isEmpty(sealVehicleReq.getPalletCount())) {
+            String palletCount = sealVehicleReq.getPalletCount().trim();
+            if (NumberUtils.isDigits(palletCount)) {
+                sealCarDto.setPalletCount(Integer.valueOf(palletCount));
+            }
+        }
         return sealCarDto;
     }
 

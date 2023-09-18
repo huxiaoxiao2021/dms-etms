@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressStatusEnum;
 import com.jd.bluedragon.distribution.business.service.BusinessReturnAdressService;
@@ -249,6 +250,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired
     private WaybillAddApi waybillAddApi;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     /**
      * 处理逆向打印数据
@@ -722,6 +726,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 domain.setSiteType(siteDomain.getSiteType());
                 domain.setOrgName(siteDomain.getOrgName());
                 domain.setOrgId(siteDomain.getOrgId());
+                domain.setProvinceAgencyCode(siteDomain.getProvinceAgencyCode());
+                domain.setProvinceAgencyName(siteDomain.getProvinceAgencyName());
+                domain.setAreaHubCode(siteDomain.getAreaCode());
+                domain.setAreaHubName(siteDomain.getAreaName());
             }else {
                 result.customMessage(2, MessageFormat.format("获取站点【ID={0}】信息为空",domain.getSiteId()));
                 log.warn("自营换单获取站点【ID={}】信息为空",domain.getSiteId());
@@ -1133,8 +1141,13 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 						phone = backInfoData.getContractMobile();
 					}
 					twiceExchangeResponse.setPhone(phone);
-					twiceExchangeResponse.setHidePhone(BusinessUtil.getHidePhone(phone));
-					
+                    final boolean switchHidePhoneNewVersion = sysConfigService.getConfigByName(Constants.SYS_CONFIG_HIDE_PHONE_6Char);
+                    if(switchHidePhoneNewVersion){
+                        twiceExchangeResponse.setHidePhone(BusinessUtil.getHidePhone6Char(phone));
+                    } else {
+                        twiceExchangeResponse.setHidePhone(BusinessUtil.getHidePhone(phone));
+                    }
+
 					twiceExchangeResponse.setNeedFillReturnInfo(Boolean.TRUE);
 				}
 			}

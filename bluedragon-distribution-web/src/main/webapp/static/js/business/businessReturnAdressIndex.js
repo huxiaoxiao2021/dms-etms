@@ -1,7 +1,4 @@
 $(function() {
-	var saveUrl = '/collect/collectGoodsDetail/save';
-	var deleteUrl = '/collect/collectGoodsDetail/deleteByIds';
-  var detailUrl = '/collect/collectGoodsDetail/detail/';
   var queryUrl = '/business/businessReturnAdress/queryBusinessReturnAdressList';
   var exportUrl = '/business/businessReturnAdress/exportBusinessReturnAdressList';
 	var tableInit = function() {
@@ -102,7 +99,8 @@ $(function() {
         },{
             field : 'deptNo',
             title : '签约区域',
-            align: 'center'
+            align: 'center',
+			visible: false
         },{
             field : 'returnAdressStatusDesc',
             title : '此时是否已维护退货信息',

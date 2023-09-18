@@ -22,27 +22,27 @@
                 <fieldset>
                 	<div class="row">
                         <div class="col-xs-12">
-                            <div class="col-xs-3">
+
+                            <div class="col-xs-6">
                                 <div class="form-group" >
-                                    <label class="control-label col-xs-4" for="box-code-input">复核区域 ：</label>
-                                    <div class="col-xs-6 ">
+                                    <label class="control-label col-xs-2" for="box-code-input">复核场地 ：</label>
+                                    <switchSiteDom id="switchSiteDom">
+                                    <div class="col-xs-4 ">
                                         <select id="site-group-select" class="form-control " name="site-group-select"
                                                 value=""></select>
                                     </div>
                                     <input type="hidden" id="reviewOrgCode" name="reviewOrgCode"
                                            class="form-control search-param " >
-                                </div>
-                            </div>
-                            <div class="col-xs-3">
-                                <div class="form-group">
-                                    <label class="control-label col-xs-4" for="site-select">复核分拣 ：</label>
-                                    <div class=" col-xs-6 ">
+                                    <div class=" col-xs-4 ">
                                         <select id="site-select" class="form-control" name="site-select" value=""></select>
                                     </div>
                                     <input type="hidden" id="reviewSiteCode" name="reviewSiteCode"
                                            class="form-control search-param " >
+                                    </switchSiteDom>
                                 </div>
                             </div>
+
+
                             <div class="col-xs-3">
                                 <div class="form-group">
                                     <label class="control-label col-xs-4 ">复核日期 ：</label>

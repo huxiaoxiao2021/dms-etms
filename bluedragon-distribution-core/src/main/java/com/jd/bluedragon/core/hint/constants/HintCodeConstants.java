@@ -1040,4 +1040,16 @@ public class HintCodeConstants {
 
     public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE = "40026";
     public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG = "仅支持【取消订单拦截】【理赔拦截】【理赔破损拦截】的运单提交异常！";
+
+    // 请扫描正确的循环集包袋编码 20098
+    public static String CYCLE_BOX_RULE_ERROR = "20098";
+
+    //该集包袋不归属于本场地，请确认是否绑定 20099
+    public static String CYCLE_BOX_NOT_BELONG_ERROR = "20099";
+
+    //疑似虚假操作，当前AD码已锁定，请使用其它循环袋 20100
+    public static String CYCLE_BOX_IS_LOCK_ERROR = "20100";
+    
+    // 扫描的笼车/围板箱集包袋号不正确，请扫描笼车/围板箱上面的固定物资条码
+    public static String LL_BOX_BINDING_MATERIAL_TYPE_ERROR = "20104";
 }

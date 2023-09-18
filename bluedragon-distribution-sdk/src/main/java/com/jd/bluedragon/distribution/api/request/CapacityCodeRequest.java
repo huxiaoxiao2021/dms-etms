@@ -53,6 +53,16 @@ public class CapacityCodeRequest implements Serializable{
 	 * 承运商信息
 	 * */
 	private String carrierId;
+
+	/**
+	 * 始发省区编码
+	 * */
+	private String startProvinceAgencyCode;
+
+	/**
+	 * 目的省区编码
+	 * */
+	private String destProvinceAgencyCode;
 	
 
 	public Integer getSorgid() {
@@ -127,5 +137,19 @@ public class CapacityCodeRequest implements Serializable{
 		this.carrierId = carrierId;
 	}
 
-	
+	public String getStartProvinceAgencyCode() {
+		return startProvinceAgencyCode;
+	}
+
+	public void setStartProvinceAgencyCode(String startProvinceAgencyCode) {
+		this.startProvinceAgencyCode = startProvinceAgencyCode;
+	}
+
+	public String getDestProvinceAgencyCode() {
+		return destProvinceAgencyCode;
+	}
+
+	public void setDestProvinceAgencyCode(String destProvinceAgencyCode) {
+		this.destProvinceAgencyCode = destProvinceAgencyCode;
+	}
 }

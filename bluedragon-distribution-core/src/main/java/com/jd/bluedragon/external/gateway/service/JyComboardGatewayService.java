@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -80,7 +81,7 @@ public interface JyComboardGatewayService {
   /**
    * 扫描(组板+发货)
    */
-  JdCResponse<ComboardScanResp> comboardScan(ComboardScanReq request);
+  JdVerifyResponse<ComboardScanResp> comboardScan(ComboardScanReq request);
 
   /**
    * 查询流向下组板统计信息列表-支撑下钻2

@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -914,6 +915,19 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
             if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_STRAND_REPORT).equals(task.getKeyword2())) {
                 toWaybillStatus(tWaybillStatus, bdTraceDto);
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+                waybillQueryManager.sendBdTrace(bdTraceDto);
+                task.setYn(0);
+            }
+
+            // 特殊安检
+            if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK).equals(task.getKeyword2())) {
+                toWaybillStatus(tWaybillStatus, bdTraceDto);
+                bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+                if(Objects.equals(BusinessUtil.getBarCodeType(tWaybillStatus.getPackageCode()), BarCodeType.WAYBILL_CODE)){
+                    bdTraceDto.setWaybillTraceType(WaybillStatus.waybillTraceType2);
+                    bdTraceDto.setWaybillCode(tWaybillStatus.getPackageCode());
+                    bdTraceDto.setPackageBarCode(null);
+                }
                 waybillQueryManager.sendBdTrace(bdTraceDto);
                 task.setYn(0);
             }
