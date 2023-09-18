@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.BindVehicleResp;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TransferVehicleResp;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
+import com.jd.bluedragon.distribution.jy.dto.tms.SameDestinationSendTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.tms.TmsUrgeVehicleMq;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -220,10 +221,16 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
             // 查询是否有相同流向的运输任务，有则提示 是否跳转到该发货任务，无则提示是否跳转至加车申请页面
             if(createVehicleTaskReq.getDestinationSiteId() != null && !Objects.equals(createVehicleTaskReq.getConfirmCreate(), true)) {
-                final Result<TmsTransJobBillDto> checkResult = this.checkHasSameDestinationTmsTask(createVehicleTaskReq);
+                final Result<SameDestinationSendTaskDto> checkResult = this.checkHasSameDestinationTmsTask(createVehicleTaskReq);
                 if (checkResult.getData() != null) {
-                    createVehicleTaskResp.setHasSameDestinationTmsTask(true);
-                    return result;
+                    if(checkResult.getData().getJyBizTaskSendVehicleDetailEntity() != null){
+                        createVehicleTaskResp.setHasSameDestinationTask(true);
+                        return result;
+                    }
+                    if(checkResult.getData().getTmsTransJobBillDto() != null){
+                        createVehicleTaskResp.setHasSameDestinationTaskOfTms(true);
+                        return result;
+                    }
                 }
             }
 
@@ -249,9 +256,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
             if(createVehicleTaskReq.getDestinationSiteId() != null) {
                 // 发送催派任务
-                final Result<TmsTransJobBillDto> checkResult = this.checkHasSameDestinationTmsTask(createVehicleTaskReq);
-                if (checkResult.getData() != null) {
-                    this.sendTmsUrgeVehicleMq(createVehicleTaskReq, jyBizTaskSendVehicleEntity, checkResult.getData());
+                final Result<SameDestinationSendTaskDto> checkResult = this.checkHasSameDestinationTmsTask(createVehicleTaskReq);
+                if (checkResult.getData() != null && checkResult.getData().getTmsTransJobBillDto() != null) {
+                    this.sendTmsUrgeVehicleMq(createVehicleTaskReq, jyBizTaskSendVehicleEntity, checkResult.getData().getTmsTransJobBillDto());
                 }
             }
         } catch (JyBizException e) {
@@ -262,9 +269,21 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         return result;
     }
 
-    private Result<TmsTransJobBillDto> checkHasSameDestinationTmsTask(CreateVehicleTaskReq createVehicleTaskReq) {
-        Result<TmsTransJobBillDto> result = Result.success();
+    private Result<SameDestinationSendTaskDto> checkHasSameDestinationTmsTask(CreateVehicleTaskReq createVehicleTaskReq) {
+        final SameDestinationSendTaskDto sameDestinationSendTaskDto = new SameDestinationSendTaskDto();
+        Result<SameDestinationSendTaskDto> result = Result.success(sameDestinationSendTaskDto);
+
         final User user = createVehicleTaskReq.getUser();
+        final CurrentOperate currentOperate = createVehicleTaskReq.getCurrentOperate();
+        // 先查分拣自己的待发货任务
+        JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity((long)currentOperate.getSiteCode(), createVehicleTaskReq.getDestinationSiteId());
+        List<Integer> statusList = new ArrayList<>(Arrays.asList(JyBizTaskSendStatusEnum.TO_SEND.getCode()));
+        final List<JyBizTaskSendVehicleDetailEntity> sendVehicleDetailExistList = jyBizTaskSendVehicleDetailService.findBySiteAndStatus(detailQ, statusList);
+        if (CollectionUtils.isNotEmpty(sendVehicleDetailExistList)) {
+            sameDestinationSendTaskDto.setJyBizTaskSendVehicleDetailEntity(sendVehicleDetailExistList.get(0));
+            return result;
+        }
+        // 再查运输的任务
         AccountDto accountDto = getAccountDto(user.getUserErp(), user.getUserName());
         TransJobPdaQueryDto queryDto = getTransJobPdaQueryDto(createVehicleTaskReq, result);
         if(queryDto == null || result.isFail()){
@@ -287,7 +306,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
         final PageDto<TmsTransJobBillDto> pageData = commonDto.getData();
         if (pageData != null && CollectionUtils.isNotEmpty(pageData.getResult())) {
-            result.setData(pageData.getResult().get(0));
+            sameDestinationSendTaskDto.setTmsTransJobBillDto(pageData.getResult().get(0));
         }
         return result;
     }
@@ -300,7 +319,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         return accountDto;
     }
 
-    private TransJobPdaQueryDto getTransJobPdaQueryDto(CreateVehicleTaskReq createVehicleTaskReq, Result<TmsTransJobBillDto> result) {
+    private TransJobPdaQueryDto getTransJobPdaQueryDto(CreateVehicleTaskReq createVehicleTaskReq, Result<SameDestinationSendTaskDto> result) {
         TransJobPdaQueryDto queryDto = new TransJobPdaQueryDto();
         final CurrentOperate currentOperate = createVehicleTaskReq.getCurrentOperate();
         BaseStaffSiteOrgDto sourceSite = baseMajorManager.getBaseSiteBySiteId(currentOperate.getSiteCode());

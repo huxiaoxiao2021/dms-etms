@@ -18,9 +18,14 @@ public class CreateVehicleTaskResp implements Serializable {
     private String createUserErp;
 
     /**
-     * 是否有相同流向的运输任务
+     * 是否有相同流向的发货任务
      */
-    public Boolean hasSameDestinationTmsTask;
+    public Boolean hasSameDestinationTask;
+
+    /**
+     * 是否有相同流向的TMS运输任务
+     */
+    public Boolean hasSameDestinationTaskOfTms;
 
     public String getBizId() {
         return bizId;
@@ -54,11 +59,19 @@ public class CreateVehicleTaskResp implements Serializable {
         this.createUserErp = createUserErp;
     }
 
-    public Boolean getHasSameDestinationTmsTask() {
-        return hasSameDestinationTmsTask;
+    public Boolean getHasSameDestinationTask() {
+        return hasSameDestinationTask;
     }
 
-    public void setHasSameDestinationTmsTask(Boolean hasSameDestinationTmsTask) {
-        this.hasSameDestinationTmsTask = hasSameDestinationTmsTask;
+    public void setHasSameDestinationTask(Boolean hasSameDestinationTask) {
+        this.hasSameDestinationTask = hasSameDestinationTask;
+    }
+
+    public Boolean getHasSameDestinationTaskOfTms() {
+        return hasSameDestinationTaskOfTms;
+    }
+
+    public void setHasSameDestinationTaskOfTms(Boolean hasSameDestinationTaskOfTms) {
+        this.hasSameDestinationTaskOfTms = hasSameDestinationTaskOfTms;
     }
 }
