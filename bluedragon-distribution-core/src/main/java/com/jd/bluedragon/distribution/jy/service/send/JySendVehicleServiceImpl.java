@@ -4177,7 +4177,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             List<JySendVehicleProductType> sendVehicleProductTypeList = new ArrayList<>();
 
             //兼容PDA不发版问题
-            if(Objects.equals(request.getFlag(),1)){
+            if(request.getFlag() != null ){
                 JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
                 query.setSendVehicleBizId(request.getSendVehicleBizId());
                 List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(query);
