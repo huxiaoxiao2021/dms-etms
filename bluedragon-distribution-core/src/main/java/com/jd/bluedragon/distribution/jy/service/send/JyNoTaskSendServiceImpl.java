@@ -217,6 +217,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
         InvokeResult<CreateVehicleTaskResp> result = new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         CreateVehicleTaskResp createVehicleTaskResp = new CreateVehicleTaskResp();
+        result.setData(createVehicleTaskResp);
         try {
 
             // 查询是否有相同流向的运输任务，有则提示 是否跳转到该发货任务，无则提示是否跳转至加车申请页面
@@ -252,7 +253,6 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 log.error("创建发货调度任务失败！bizId:{}",jyBizTaskSendVehicleEntity.getBizId());
                 result.error("创建任务失败！");
             }
-            result.setData(createVehicleTaskResp);
 
             if(createVehicleTaskReq.getDestinationSiteId() != null) {
                 // 发送催派任务
