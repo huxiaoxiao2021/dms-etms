@@ -29,6 +29,11 @@ public class SendVehicleProgressRequest implements Serializable {
      */
     private String vehicleNumber;
 
+    /**
+     * 波次标识 1 当前波次 2 上波次
+     */
+    private Integer flag;
+
     public User getUser() {
         return user;
     }
@@ -59,5 +64,13 @@ public class SendVehicleProgressRequest implements Serializable {
 
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public Integer getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
     }
 }
