@@ -95,6 +95,12 @@ public class SendVehicleProgress implements Serializable {
      */
     private ClientAutoRefreshConfig clientAutoRefreshConfig;
 
+
+    /**
+     * 波次标识 1 当前波次 2 上波次
+     */
+    private Integer flag;
+
     public BigDecimal getLoadRate() {
         return loadRate;
     }
@@ -221,5 +227,13 @@ public class SendVehicleProgress implements Serializable {
 
     public void setClientAutoRefreshConfig(ClientAutoRefreshConfig clientAutoRefreshConfig) {
         this.clientAutoRefreshConfig = clientAutoRefreshConfig;
+    }
+
+    public Integer getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
     }
 }
