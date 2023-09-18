@@ -852,6 +852,29 @@ public class UccPropertyConfiguration {
 
     private String qingChangDataOpenSwitch;
 
+    public Boolean getCheckAkboxConfig() {
+        return checkAkboxConfig;
+    }
+
+    public void setCheckAkboxConfig(Boolean checkAkboxConfig) {
+        this.checkAkboxConfig = checkAkboxConfig;
+    }
+
+    public Long getPrintCacheTime() {
+        return printCacheTime;
+    }
+
+    public void setPrintCacheTime(Long printCacheTime) {
+        this.printCacheTime = printCacheTime;
+    }
+
+    /**
+     * 检查是否需要检查周转筐数量和实施数量对比
+     */
+    private Boolean checkAkboxConfig;
+
+    private Long printCacheTime;
+
     public String getQingChangDataOpenSwitch(){
         return qingChangDataOpenSwitch;
     }
@@ -3661,4 +3684,6 @@ public class UccPropertyConfiguration {
     public void setJySendSpecialProductTypeToScanShowRemainMinutes(Integer jySendSpecialProductTypeToScanShowRemainMinutes) {
         this.jySendSpecialProductTypeToScanShowRemainMinutes = jySendSpecialProductTypeToScanShowRemainMinutes;
     }
+
+
 }

@@ -298,6 +298,9 @@
 		<property name="cttGroupDataLimit" value="${cttGroupDataLimit:200}"/>
 		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
 		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
+
+		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
+		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -585,6 +588,9 @@
 				<value>uccPropertyConfiguration.cttGroupDataLimit</value>
 				<value>uccPropertyConfiguration.qingChangDataOpenSwitch</value>
 				<value>uccPropertyConfiguration.jySendSpecialProductTypeToScanShowRemainMinutes</value>
+
+				<value>uccPropertyConfiguration.checkAkboxConfig</value>
+				<value>uccPropertyConfiguration.printCacheTime</value>
 			</list>
 		</property>
 	</bean>

@@ -1430,4 +1430,15 @@
     <jsf:consumer id="workGridBusinessJsfService" interface="com.jdl.basic.api.service.workStation.WorkGridBusinessJsfService"
                   protocol="jsf" alias="${jsf.alias.jy_basic}" timeout="${jsf.jy_basic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+
+    <!--  集箱包裹数量限制服务  -->
+    <jsf:consumer id="akboxConfigJsf"
+                  interface="com.jdl.basic.api.service.akbox.AkboxConfigJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
 </beans>
