@@ -12,6 +12,8 @@ public enum OperateBizSubTypeEnum {
 	SORTING_CANCEL("sorting_cancel","取消分拣"),
 	SEND("send_d","发货"),
 	SEND_CANCEL("send_cancel","取消发货"),
+	BOARD("board","组板"),
+	BOARD_CANCEL("board_cancel","取消组板"),
     ;
 	
 	private OperateBizSubTypeEnum(String code, String name) {

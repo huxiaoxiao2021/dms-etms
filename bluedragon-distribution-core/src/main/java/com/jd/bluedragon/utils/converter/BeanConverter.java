@@ -1,5 +1,7 @@
 package com.jd.bluedragon.utils.converter;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -313,6 +315,25 @@ public class BeanConverter {
 		mqData.setJyOperateFlowData(data);
 		return mqData;
 	}
+	public static JyOperateFlowMqData convertToJyOperateFlowMqData(BoardCommonRequest request) {
+		if(request == null) {
+			return null;
+		}
+		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
+		mqData.setOperateBizKey(request.getBarCode());
+		mqData.setOperateBizType(OperateBizTypeEnum.BOARD.getCode());
+		mqData.setOperateKey(request.getBarCode());
+		if(request.getOperateTime() != null) {
+			mqData.setOperateTime(new Date(request.getOperateTime()));
+		}else {
+			mqData.setOperateTime(new Date());
+		}
+		mqData.setOperateSiteCode(request.getOperateSiteCode());
+		JyOperateFlowData data = new JyOperateFlowData();
+		data.setOperatorData(request.getOperatorData());
+		mqData.setJyOperateFlowData(data);
+		return mqData;
+	}	
 	/**
 	 * 对象转换为数据库实体
 	 * @param jyOperateFlow

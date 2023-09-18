@@ -10,6 +10,7 @@ public enum OperateBizTypeEnum {
 	INSPECTION("inspection","验货"),
 	SORTING("sorting","分拣"),
 	SEND_D("send_d","发货明细"),
+	BOARD("board","组板"),	
     ;
 	
 	private OperateBizTypeEnum(String code, String name) {

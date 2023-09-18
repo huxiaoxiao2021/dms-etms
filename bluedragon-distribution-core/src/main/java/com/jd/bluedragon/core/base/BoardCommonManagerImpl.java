@@ -23,6 +23,9 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
 import com.jd.bluedragon.distribution.router.RouterService;
@@ -149,6 +152,9 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 
     @Autowired
     private RouterService routerService;
+    
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
 
     /**
      * 包裹是否发货校验
@@ -400,11 +406,15 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             //取消组板的全称跟踪 -- 旧板号
             request.setBoardCode(boardOld);
             sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
-
+            JyOperateFlowMqData boardCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
+            boardCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.BOARD_CANCEL.getCode());
+            jyOperateFlowService.sendMq(boardCancelFlowMq);
             //组板的全称跟踪 -- 新板号
             request.setBoardCode(boardNew);
             sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-
+            JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
+            boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.BOARD.getCode());
+            jyOperateFlowService.sendMq(boardFlowMq);
             result.setData(tcResponse.getData());
         }else {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"组板失败!");
