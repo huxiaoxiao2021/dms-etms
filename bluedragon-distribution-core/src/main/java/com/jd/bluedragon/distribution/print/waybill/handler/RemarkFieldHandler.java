@@ -160,6 +160,7 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 
 					//企业名称
 					String sendPrincipalCompany = context.getBigWaybillDto().getWaybill().getWaybillExt().getSendPrincipalCompany();
+					log.info("sendPrincipalCompany-{}",sendPrincipalCompany);
 					if (StringHelper.isNotEmpty(sendPrincipalCompany)) {
 						if (remark.length() > 0) {
 							remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
@@ -173,6 +174,7 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 					String textContact = StringHelper.isNotEmpty(context.getBigWaybillDto().getWaybill().getConsignerTel()) ?
 							context.getBigWaybillDto().getWaybill().getConsignerTel() :
 							context.getBigWaybillDto().getWaybill().getConsignerMobile();
+					log.info("textContact-{}",textContact);
 					if (StringHelper.isNotEmpty(textContact)) {
 						if (remark.length() > 0) {
 							remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
