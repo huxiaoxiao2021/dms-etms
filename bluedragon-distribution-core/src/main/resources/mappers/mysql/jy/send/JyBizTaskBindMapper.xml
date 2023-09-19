@@ -103,11 +103,24 @@
         limit #{limit}
     </select>
 
-    <!-- 根据条件查询没有绑在bizId中的任务 -->
     <select id="countBind" parameterType="java.lang.String" resultType="java.lang.Integer" >
         select count(*) from jy_biz_task_bind
         where yn = 1 and detail_biz_id = #{detailBizId}
     </select>
+
+
+    <update id="delByBindDetailBizIds" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntityQueryCondition" >
+        update jy_biz_task_bind
+        set yn = 0,
+            update_user_erp = #{updateUserErp},
+            update_user_name = #{updateUserName},
+            update_time = #{updateTime}
+        where  <include refid="Base_Condition_Sql" />
+            and detail_biz_id in
+            <foreach collection="bindDetailBizIdList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+    </update>
             <!--    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--        select-->
 <!--        <include refid="Base_Column_List" />-->

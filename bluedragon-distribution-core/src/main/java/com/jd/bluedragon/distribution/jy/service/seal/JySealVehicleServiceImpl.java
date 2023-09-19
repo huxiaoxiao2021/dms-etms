@@ -1173,6 +1173,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         summaryEntity.setUpdateUserName(request.getUser().getUserName());
         summaryEntity.setDepartTime(request.getDepartureTimeStr());
 
+        if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(request.getPost())) {
+            summaryEntity.setSealBindAviationTaskNum(jyBizTaskBindService.countBind(request.getDetailBizId()));
+        }
         return summaryEntity;
     }
     //摆渡封车-前置任务校验

@@ -19,7 +19,7 @@ public interface JyBizTaskBindService {
      */
     List<JyBizTaskBindEntity> queryBindTaskByBindDetailBizIds(List<String> needDetailBizIdList, Integer type);
 
-    void taskBinding(List<JyBizTaskBindEntity> jyBizTaskBindEntityList);
+    void taskBinding(List<JyBizTaskBindEntity> jyBizTaskBindEntityList, JyBizTaskBindEntityQueryCondition delBindData);
 
     void taskUnbinding(JyBizTaskBindEntity entity);
 

@@ -7,6 +7,8 @@ import com.jd.bluedragon.utils.NumberHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,7 +36,11 @@ public class JyBizTaskBindServiceImpl implements JyBizTaskBindService {
     }
 
     @Override
-    public void taskBinding(List<JyBizTaskBindEntity> jyBizTaskBindEntityList) {
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void taskBinding(List<JyBizTaskBindEntity> jyBizTaskBindEntityList, JyBizTaskBindEntityQueryCondition delBindData) {
+        if(!Objects.isNull(delBindData)) {
+            jyBizTaskBindDao.delByBindDetailBizIds(delBindData);
+        }
         jyBizTaskBindDao.batchAdd(jyBizTaskBindEntityList);
     }
 

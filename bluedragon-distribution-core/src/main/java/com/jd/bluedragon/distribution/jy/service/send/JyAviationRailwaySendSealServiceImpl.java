@@ -53,6 +53,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.resource.req.AirlineReq;
@@ -189,15 +190,13 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
             //校验需绑空铁任务中是否已经绑定其他摆渡车辆
             List<JyBizTaskBindEntity> existBindEntityList = jyBizTaskBindService.queryBindTaskByBindDetailBizIds(needDetailBizIdList, request.getType());
+            List<String> elseVehicleBindDetailBizId = new ArrayList<>();
             if(CollectionUtils.isNotEmpty(existBindEntityList)) {
-                //todo 体验优化点 批量操作时部分拦截如何提示更友好
-                String flightNumber = needBindSendTaskMap.get(existBindEntityList.get(0).getBindDetailBizId()).getFlightNumber();
-                if(request.getDetailBizId().equals(existBindEntityList.get(0).getDetailBizId())) {
-                    res.error(String.format("任务%s已经绑定当前车辆，请勿重复操作", flightNumber));
-                }else {
-                    res.error(String.format("任务%s已经被其他摆渡车辆绑定", flightNumber));
-                }
-                return res;
+                existBindEntityList.forEach(o -> {
+                    if(!request.getDetailBizId().equals(o.getDetailBizId())) {
+                        elseVehicleBindDetailBizId.add(o.getBindDetailBizId());
+                    }
+                });
             }
             //校验需绑空铁任务是否封车，仅绑已封车
             List<JyBizTaskSendAviationPlanEntity> entityList = jyBizTaskSendAviationPlanService.findNoSealTaskByBizIds(needDetailBizIdList);
@@ -206,7 +205,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 return res;
             }
             //绑定
-            this.taskBinding(request);
+            this.taskBinding(request, elseVehicleBindDetailBizId);
             return res;
         }catch (Exception e) {
             log.error("{}空铁绑定服务异常，request={],errMsg={}", methodDesc, JsonHelper.toJson(request), e.getMessage(), e);
@@ -220,7 +219,18 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
 
     //绑定摆渡任务
-    private void taskBinding(SendTaskBindReq request) {
+    private void taskBinding(SendTaskBindReq request, List<String> delBindDetailBizId) {
+        JyBizTaskBindEntityQueryCondition delBindData = null;
+        if(CollectionUtils.isNotEmpty(delBindDetailBizId)) {
+            delBindData = new JyBizTaskBindEntityQueryCondition();
+            delBindData.setUpdateTime(new Date());
+            delBindData.setUpdateUserErp(DmsConstants.SYS_AUTO_USER_CODE);
+            delBindData.setUpdateUserName(DmsConstants.SYS_AUTO_USER_CODE);
+            delBindData.setBindDetailBizIdList(delBindDetailBizId);
+            delBindData.setType(request.getType());
+        }
+
+
         List<JyBizTaskBindEntity> bindEntityList = new ArrayList<>();
         request.getSendTaskBindDtoList().forEach(sendTaskBindDto -> {
             JyBizTaskBindEntity bindEntity = new JyBizTaskBindEntity();
@@ -235,7 +245,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             bindEntity.setCreateTime(new Date());
             bindEntityList.add(bindEntity);
         });
-        jyBizTaskBindService.taskBinding(bindEntityList);
+        jyBizTaskBindService.taskBinding(bindEntityList, delBindData);
     }
 
 
@@ -913,6 +923,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 resData.setShuttleSendTaskDtoList(shuttleSendTaskDtoList);
             }else {
                 count = 0;
+                List<ShuttleSendTaskDto> shuttleSendTaskDtoList = new ArrayList<>();
+                resData.setShuttleSendTaskDtoList(shuttleSendTaskDtoList);
+
             }
         }
 
