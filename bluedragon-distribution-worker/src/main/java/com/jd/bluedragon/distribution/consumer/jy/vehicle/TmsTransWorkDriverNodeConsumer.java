@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.enums.DockScanTypeEnum;
 import com.jd.bluedragon.enums.JyBizDriverTagEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -85,6 +86,13 @@ public class TmsTransWorkDriverNodeConsumer extends MessageBaseConsumer {
             if (!driverTagEnum.getDriverNodeCode().equals(JyBizDriverTagEnum.LEAVE_TIMEOUT.getDriverNodeCode())
                     && isSealed(entity.getVehicleStatus())) {
                 logger.warn("非超时未离节点, 发货状态为已封车 bizId: {}", entity.getBizId());
+                return;
+            }
+            // scan_dock包含  1、扫码靠台  2、扫码异常无法扫码  两种类型
+            // 扫码异常无法扫码的消息丢弃
+            if (driverTagEnum.getDriverNodeCode().equals(JyBizDriverTagEnum.SCAN_DOCK.getDriverNodeCode())
+                    && DockScanTypeEnum.SCAN_EXCEPTION.getCode().equals(mqBody.getDockScanType())) {
+                logger.info("扫码异常无法扫码类型  消息丢弃, {}", message.getText());
                 return;
             }
             entity.setDriverTag(driverTagEnum.getTag());
