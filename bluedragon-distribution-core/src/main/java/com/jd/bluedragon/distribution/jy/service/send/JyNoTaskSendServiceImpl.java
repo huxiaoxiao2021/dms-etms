@@ -221,10 +221,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         try {
 
             // 查询是否有相同流向的运输任务，有则提示 是否跳转到该发货任务，无则提示是否跳转至加车申请页面
+            Result<SameDestinationSendTaskDto> checkResult = null;
             if(createVehicleTaskReq.getDestinationSiteId() != null && !Objects.equals(createVehicleTaskReq.getConfirmCreate(), true)) {
                 createVehicleTaskResp.setHasSameDestinationTask(false);
                 createVehicleTaskResp.setHasSameDestinationTaskOfTms(false);
-                final Result<SameDestinationSendTaskDto> checkResult = this.checkHasSameDestinationTmsTask(createVehicleTaskReq);
+                checkResult = this.checkHasSameDestinationTmsTask(createVehicleTaskReq);
                 if (checkResult.getData() != null) {
                     if(checkResult.getData().getJyBizTaskSendVehicleDetailEntity() != null){
                         createVehicleTaskResp.setHasSameDestinationTask(true);
@@ -232,10 +233,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                     }
                     if(checkResult.getData().getTmsTransJobBillDto() != null){
                         createVehicleTaskResp.setHasSameDestinationTaskOfTms(true);
-                        return result;
                     }
                 }
-                return result;
+                if(createVehicleTaskResp.getHasSameDestinationTask() || (!createVehicleTaskResp.getHasSameDestinationTask() && !createVehicleTaskResp.getHasSameDestinationTaskOfTms())){
+                    return result;
+                }
             }
 
             JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity = initJyBizTaskSendVehicle(createVehicleTaskReq);
@@ -258,8 +260,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
             if(createVehicleTaskReq.getDestinationSiteId() != null) {
                 // 发送催派任务
-                final Result<SameDestinationSendTaskDto> checkResult = this.checkHasSameDestinationTmsTask(createVehicleTaskReq);
-                if (checkResult.getData() != null && checkResult.getData().getTmsTransJobBillDto() != null) {
+                if (checkResult != null && checkResult.getData() != null && checkResult.getData().getTmsTransJobBillDto() != null) {
                     this.sendTmsUrgeVehicleMq(createVehicleTaskReq, jyBizTaskSendVehicleEntity, checkResult.getData().getTmsTransJobBillDto());
                 }
             }
