@@ -398,7 +398,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             log.info("老单号:{}操作换单打印推送快速退款拦截消息!", oldWaybillCode);
         }
         bdBlockerCompleteMQ.sendOnFailPersistent(oldWaybillCode,
-                BusinessUtil.bdBlockerCompleteMQ(oldWaybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_DMS, DateHelper.formatDateTimeMs(new Date())));
+                BusinessUtil.bdBlockerCompleteMQ(oldWaybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_REVERSE_PRINT, DateHelper.formatDateTimeMs(new Date())));
     }
 
     /**
