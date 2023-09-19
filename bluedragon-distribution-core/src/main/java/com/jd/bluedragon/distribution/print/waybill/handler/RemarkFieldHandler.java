@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -12,6 +13,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.fastjson.JSON;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +55,9 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 	 * */
     private static final String VERSION_SUFFIX = "WM";
     private static final String NULL_STR = "";
+
+	@Autowired
+	private BaseMajorManager baseMajorManager;
     
 	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.RemarkFieldHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
@@ -139,9 +145,20 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 					&& StringUtils.isNotBlank(context.getBigWaybillDto().getWaybill().getWaybillExt().getProductType())) {
 				String productType = context.getBigWaybillDto().getWaybill().getWaybillExt().getProductType();
 				if (Constants.PRODUCT_TYPE_MEDICINE_SPECIAL_DELIVERY.equals(productType)) {
+
+					boolean sendPrincipalCompanyFlag = true;
+					boolean textContactFlag = true;
+					// B商家ID
+					Integer busiId = context.getBigWaybillDto().getWaybill().getBusiId();
+					BasicTraderNeccesaryInfoDTO baseTraderNeccesaryInfo = baseMajorManager.getBaseTraderNeccesaryInfoById(busiId);
+					log.info("获取B商家信息-{}", JSON.toJSONString(baseTraderNeccesaryInfo));
+					if(baseTraderNeccesaryInfo != null){
+						sendPrincipalCompanyFlag = BusinessUtil.isPrintSendPrincipalCompany(baseTraderNeccesaryInfo.getTraderSign());
+						textContactFlag = BusinessUtil.isPrinttextContact(baseTraderNeccesaryInfo.getTraderSign());
+					}
 					//企业名称
 					String sendPrincipalCompany = context.getBigWaybillDto().getWaybill().getWaybillExt().getSendPrincipalCompany();
-					if (StringHelper.isNotEmpty(sendPrincipalCompany)) {
+					if (StringHelper.isNotEmpty(sendPrincipalCompany) && sendPrincipalCompanyFlag) {
 						if (remark.length() > 0) {
 							remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
 						}
@@ -152,7 +169,8 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 					String textContact = StringHelper.isNotEmpty(context.getBigWaybillDto().getWaybill().getConsignerTel()) ?
 							context.getBigWaybillDto().getWaybill().getConsignerTel() :
 							context.getBigWaybillDto().getWaybill().getConsignerMobile();
-					if (StringHelper.isNotEmpty(textContact)) {
+					log.info("textContact-{}",textContact);
+					if (StringHelper.isNotEmpty(textContact) && textContactFlag) {
 						if (remark.length() > 0) {
 							remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);
 						}

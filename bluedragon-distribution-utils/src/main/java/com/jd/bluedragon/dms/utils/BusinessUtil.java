@@ -2921,4 +2921,59 @@ public class BusinessUtil {
         }
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_124,WaybillSignConstants.CHAR_124_2);
     }
+
+    /**
+     * 判断是否是 特快送-次晨(此判断只满足部分条件，使用前请判断标位是否满足)
+     *
+     * 1、waybillSign第55位等于0
+     * 2、（waybillSign第31位等于4 并且waybillSign第16位等于4）并且（
+     * waybillSign第31位等于1 并且 waybillSign第116位为 5 并且 waybillSign第 16位为4）
+     *
+     */
+    public static boolean isTKSCC(String waybillSign){
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+            if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                        && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_5)
+                        && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 生鲜特快次晨(此判断只满足部分条件，使用前请判断标位是否满足)
+     *
+     * 1、waybillSign第55位等于0
+     * 2、waybillSign第31位等于9
+     * 3、waybillSign第116位等于 5 waybillSign第16位等于4
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isSXTKCC(String waybillSign){
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)
+                && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9)){
+            if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_5)
+                    && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断医药单是否打印企业名称 0-否 1-是
+     */
+    public static boolean isPrintSendPrincipalCompany(String traderSign){
+        return BusinessUtil.isSignChar(traderSign, TraderSignConstants.POSITION_157, TraderSignConstants.CHAR_157_0);
+    }
+
+
+    /**
+     * 判断医药单是否打印企业电话 0-否 1-是
+     */
+    public static boolean isPrinttextContact(String traderSign){
+        return BusinessUtil.isSignChar(traderSign, TraderSignConstants.POSITION_158, TraderSignConstants.CHAR_158_0);
+    }
+
 }

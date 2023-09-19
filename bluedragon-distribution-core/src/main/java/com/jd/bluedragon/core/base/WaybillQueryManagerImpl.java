@@ -1111,7 +1111,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                 if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2)) {
                     res += TextConstants.PRODUCT_NAME_SXTK_JR;
                 }
-                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)
+                if (BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3, WaybillSignConstants.CHAR_116_5)
                     && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)) {
                     // 生鲜特快次晨
                     res += TextConstants.PRODUCT_NAME_SXTK_CC;
@@ -1134,7 +1134,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                         && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)
                         ) ||
                         (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
-                            && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)
+                            && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3,WaybillSignConstants.CHAR_116_5)
                             && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)
                         )
                     ){

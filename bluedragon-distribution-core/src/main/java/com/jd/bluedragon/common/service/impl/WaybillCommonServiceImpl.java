@@ -1016,6 +1016,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setjZDFlag(TextConstants.PECIAL_TIMELY_MARK);
         }
 
+        // 判断 特快送-次晨 或者 生鲜特快-次晨
+        if(BusinessUtil.isTKSCC(waybill.getWaybillSign()) || BusinessUtil.isSXTKCC(waybill.getWaybillSign())){
+            log.info("满足特快送-次晨 或者 生鲜特快-次晨-{}",waybill.getRequireTime());
+            String requireTimeStr = DateHelper.formatDate(waybill.getRequireTime(), DateHelper.DATE_FORMAT_HHmm);
+            String specialMark = target.getSpecialMark();
+            target.appendSpecialMark(requireTimeStr+specialMark);
+        }
+
         /* waybill_sign标识位，第七十九位为2，打提字标
            标位变更 ：2020-4-29
            详细见方法释义
