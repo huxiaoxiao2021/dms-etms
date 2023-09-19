@@ -235,6 +235,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                         return result;
                     }
                 }
+                return result;
             }
 
             JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity = initJyBizTaskSendVehicle(createVehicleTaskReq);
