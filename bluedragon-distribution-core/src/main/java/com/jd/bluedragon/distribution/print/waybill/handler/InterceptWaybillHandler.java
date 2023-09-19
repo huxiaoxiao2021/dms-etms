@@ -111,11 +111,8 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
 			}
 		}
         //终端包裹补打功能限制
-        log.info("终端包裹补打功能限制----");
-        //if(interceptPackageReprint(context)){
-        if(true){
-
-                result.toFail(SortingResponse.PACKAGE_PRINT_BAN_CODE,SortingResponse.PACKAGE_PRINT_BAN_MESSAGE);
+        if(interceptPackageReprint(context)){
+            result.toFail(SortingResponse.PACKAGE_PRINT_BAN_CODE,SortingResponse.PACKAGE_PRINT_BAN_MESSAGE);
         }
 		return result;
 	}
