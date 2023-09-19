@@ -75,7 +75,7 @@ public class AviationSendTaskDto implements Serializable {
     /**
      * 任务下扫描重量
      */
-    private Double scanWeight;
+    private Double scanWeight = 0d;
 
 
     public String getBizId() {

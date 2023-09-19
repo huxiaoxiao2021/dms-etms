@@ -1187,7 +1187,15 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
         
         JdVerifyResponse<SendScanResponse> response = super.sendScan(sendScanRequest);
-        AviationSendScanResp resp = BeanUtils.copy(response,AviationSendScanResp.class);
+        AviationSendScanResp resp = new AviationSendScanResp();
+        com.jd.ql.erp.util.BeanUtils.copyProperties(response,resp);
+        if (response != null && response.getData() != null) {
+            SendScanResponse sendScanResponse = response.getData();
+            resp.setScanPackCount(Objects.isNull(sendScanResponse.getScanPackCount()) ? 0 : sendScanResponse.getScanPackCount());
+            resp.setScanBoxCount(Objects.isNull(sendScanResponse.getScanBoxCount()) ? 0 : sendScanResponse.getScanBoxCount());
+            resp.setForceSendPackCount(Objects.isNull(sendScanResponse.getForceSendPackCount()) ? 0 : sendScanResponse.getForceSendPackCount());
+            resp.setInterceptPackCount(Objects.isNull(sendScanResponse.getInterceptPackCount()) ? 0 : sendScanResponse.getInterceptPackCount());
+        }
         result.setCode(response.getCode());
         result.setMessage(response.getMessage());
         result.setMsgBoxes(response.getMsgBoxes());
@@ -1389,8 +1397,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             taskDto.setScannedBoxCount(scanBoxNum);
             taskDto.setScannedPackCount(scanPackageNum);
             taskDto.setScannedCount(scanBoxNum + scanPackageNum);
-            taskDto.setInterceptedPackCount(sendAgg.getTotalInterceptCount());
-            taskDto.setForceSendPackCount(sendAgg.getTotalForceSendCount());
+            taskDto.setInterceptedPackCount(Objects.isNull(sendAgg.getTotalInterceptCount()) ? 0 : sendAgg.getTotalInterceptCount());
+            taskDto.setForceSendPackCount(Objects.isNull(sendAgg.getTotalForceSendCount()) ? 0 : sendAgg.getTotalForceSendCount());
         }
 
         taskDto.setTaskId(getJyScheduleTaskId(request.getBizId()));
@@ -1547,6 +1555,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         taskDto.setAirType(entity.getAirType());
         taskDto.setNextSiteId(entity.getNextSiteId());
         taskDto.setNextSiteName(entity.getNextSiteName());
+        taskDto.setScanWeight(0d);
     }
 
 

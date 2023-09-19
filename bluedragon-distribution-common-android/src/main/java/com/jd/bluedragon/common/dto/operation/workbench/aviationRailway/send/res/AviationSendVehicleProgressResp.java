@@ -1,11 +1,13 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res;
 
+import java.io.Serializable;
+
 /**
  * @author liwenji
  * @description 发货任务详情 + 统计请求
  * @date 2023-08-17 14:05
  */
-public class AviationSendVehicleProgressResp extends AviationSendTaskDto{
+public class AviationSendVehicleProgressResp extends AviationSendTaskDto implements Serializable {
 
     /**
      * 已扫件数
