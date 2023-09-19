@@ -827,7 +827,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 request.getKeyword());
         condition.setOffset((request.getPageNo() - 1) * request.getPageSize());
         condition.setPageSize(request.getPageSize());
-
+        if(StringUtils.isNotBlank(request.getToSealBizId())) {
+            condition.setBizId(request.getToSealBizId());
+        }
         List<JyBizTaskAviationStatusStatistics> taskStatusStatisticsList = jyBizTaskSendAviationPlanService.statusStatistics(condition);
         List<TaskStatusStatistics> taskStatusStatistics = this.convertFillStatusDefaultValue(taskStatusStatisticsList, false);
         resData.setTaskStatusStatisticsList(taskStatusStatistics);

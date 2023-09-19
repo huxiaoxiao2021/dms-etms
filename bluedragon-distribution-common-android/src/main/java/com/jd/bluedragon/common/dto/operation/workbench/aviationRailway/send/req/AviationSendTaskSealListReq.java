@@ -32,6 +32,11 @@ public class AviationSendTaskSealListReq extends BaseReq implements Serializable
      * 关键词
      */
     private String keyword;
+    /**
+     * 待封车detailBizId()
+     */
+    private String toSealBizId;
+
 
     public Integer getPageNo() {
         return pageNo;
@@ -81,4 +86,11 @@ public class AviationSendTaskSealListReq extends BaseReq implements Serializable
         this.keyword = keyword;
     }
 
+    public String getToSealBizId() {
+        return toSealBizId;
+    }
+
+    public void setToSealBizId(String toSealBizId) {
+        this.toSealBizId = toSealBizId;
+    }
 }

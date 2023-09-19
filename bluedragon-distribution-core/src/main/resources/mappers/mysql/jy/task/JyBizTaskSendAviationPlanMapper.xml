@@ -397,6 +397,9 @@
         <if test="createTimeStart != null" >
             and create_time &gt;= #{createTimeStart}
         </if>
+        <if test="bizId != null" >
+            and biz_id = #{bizId}
+        </if>
     </sql>
 
     <select id="statusStatistics" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="statusStatisticsRes">
