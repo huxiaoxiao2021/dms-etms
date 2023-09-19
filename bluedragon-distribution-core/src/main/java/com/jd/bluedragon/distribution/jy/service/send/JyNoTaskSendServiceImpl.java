@@ -222,6 +222,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
             // 查询是否有相同流向的运输任务，有则提示 是否跳转到该发货任务，无则提示是否跳转至加车申请页面
             if(createVehicleTaskReq.getDestinationSiteId() != null && !Objects.equals(createVehicleTaskReq.getConfirmCreate(), true)) {
+                createVehicleTaskResp.setHasSameDestinationTask(false);
+                createVehicleTaskResp.setHasSameDestinationTaskOfTms(false);
                 final Result<SameDestinationSendTaskDto> checkResult = this.checkHasSameDestinationTmsTask(createVehicleTaskReq);
                 if (checkResult.getData() != null) {
                     if(checkResult.getData().getJyBizTaskSendVehicleDetailEntity() != null){
