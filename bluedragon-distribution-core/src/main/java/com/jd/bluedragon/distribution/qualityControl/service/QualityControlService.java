@@ -272,11 +272,11 @@ public class QualityControlService {
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
             String waybillCode=WaybillUtil.getWaybillCode(request.getQcValue());
             //根据运单号校验是否存在原单号(是否是逆向单)，如果是 则可以正常提交异常处理，否则进行拦截校验
-            if(isExistOldWaybillCode(waybillCode)){
-                return result;
+            String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG, HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT);
+            if(!isExistOldWaybillCode(waybillCode)){
+                return result.toFail(tipMsg);
             }
             final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(waybillCode);
-            String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG, HintCodeConstants.EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE);
             if (CollectionUtils.isEmpty(waybillCancelList)) {
                 return result.toFail(tipMsg);
             }

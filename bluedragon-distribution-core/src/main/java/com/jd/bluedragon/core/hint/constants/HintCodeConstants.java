@@ -1041,6 +1041,10 @@ public class HintCodeConstants {
     public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE = "40026";
     public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG = "仅支持【取消订单拦截】【理赔拦截】【理赔破损拦截】的运单提交异常！";
 
+    public static String EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT = "40030";
+
+    public static String EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG = "“该单未发起拦截，请正常下传！";
+
     // 请扫描正确的循环集包袋编码 20098
     public static String CYCLE_BOX_RULE_ERROR = "20098";
 
