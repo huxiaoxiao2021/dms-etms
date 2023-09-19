@@ -534,8 +534,8 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             if(StringUtils.isBlank(request.getBookingCode())) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "订舱号为空", null);
             }
-            if(!NumberHelper.gt0(request.getWeight()) || !NumberHelper.gt0(request.getVolume()) || !NumberHelper.gt0(request.getItemNum())){
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "重量/体积/件数不能小于0", null);
+            if(!NumberHelper.gt0(request.getWeight()) || !NumberHelper.gt0(request.getVolume())){
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "重量/体积不能小于0", null);
             }
             if(StringUtils.isBlank(request.getTransportCode())) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "运力编码不能为空", null);
