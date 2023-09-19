@@ -115,7 +115,7 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
 		}
 
         if(interceptPackageReprint(context)){
-            result.toFail("");
+            result.toFail(SortingResponse.PACKAGE_PRINT_BAN_MESSAGE);
         }
 
 		return result;

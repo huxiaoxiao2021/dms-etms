@@ -580,6 +580,9 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_40008_1 = "此单为特安包裹，请勿与普通件进行混包！";
     public static final String MESSAGE_40008_2 = "此单为非特安包裹，请勿与特安件进行混包！";
 
+
+    public static final String PACKAGE_PRINT_BAN_MESSAGE ="营业部人员无法使用青龙分拣系统包裹补打功能，请通过小哥工作台及站长工作台进行包裹补打！";
+
     public static final Integer MESSAGE_SHOW_TYPE_TIP = 1;
     public static final Integer MESSAGE_SHOW_TYPE_CONFIRM = 2;
     public static final Integer MESSAGE_SHOW_TYPE_INTERCEPT = 3;
