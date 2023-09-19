@@ -332,7 +332,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         queryDto.setBeginNodeCode(sourceSite.getDmsSiteCode());
         queryDto.setPlanDepartTimeBegin(new Date());
         queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, uccConfig.getFetchCarDistributionTimeRange()));
-        // queryDto.setTransType(request.getLineType());
+        queryDto.setTransTypeList(new ArrayList<>(Arrays.asList(TmsLineTypeEnum.TRUNK_LINE.getCode(), TmsLineTypeEnum.BRANCH_LINE.getCode())));
 
         // 目的网点非必填
         if (createVehicleTaskReq.getDestinationSiteId() != null) {
