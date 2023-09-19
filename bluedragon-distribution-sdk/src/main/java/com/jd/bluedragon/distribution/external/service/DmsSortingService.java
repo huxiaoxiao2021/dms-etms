@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
-import com.jd.bluedragon.distribution.sorting.domain.SortingPageRequestDto;
+import com.jd.bluedragon.distribution.sorting.domain.SortingRequestDto;
 
 import java.util.List;
 
@@ -24,4 +24,10 @@ public interface DmsSortingService {
      */
     InvokeResult<List<SortingDto>> findSortingByPackageCode(String packageCode, Integer createSiteCode);
 
+    /**
+     * 包裹号绑定箱号
+     * @param request
+     * @return
+     */
+    InvokeResult<String> bindingBoxMaterialPackageRelation(SortingRequestDto request);
 }
