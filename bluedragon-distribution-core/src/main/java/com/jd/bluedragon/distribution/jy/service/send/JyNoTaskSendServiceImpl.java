@@ -247,11 +247,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
             createVehicleTaskResp.setBizId(jyBizTaskSendVehicleEntity.getBizId());
             createVehicleTaskResp.setBizNo(jyBizTaskSendVehicleEntity.getBizNo());
-            final User user = createVehicleTaskReq.getUser();
-            String userName = StringUtils.isNotBlank(user.getUserName()) ?
-                    (user.getUserName().length() > 4 ? user.getUserName().substring(0, 4) : user.getUserName()) : "";
-            createVehicleTaskResp.setTaskName(userName + "自建" + jyBizTaskSendVehicleEntity.getBizNo());
-            createVehicleTaskResp.setCreateUserErp(user.getUserErp());
+            createVehicleTaskResp.setTaskName(jyBizTaskSendVehicleEntity.getTaskName());
+            createVehicleTaskResp.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
             // 创建发货调度任务
             if (uccConfig.getSyncScheduleTaskSwitch() && !createSendScheduleTask(jyBizTaskSendVehicleEntity)){
                 log.error("创建发货调度任务失败！bizId:{}",jyBizTaskSendVehicleEntity.getBizId());
@@ -439,7 +436,10 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         entity.setBizId(genMainTaskBizId());
         String bizNo = genSendVehicleTaskBizNo(createVehicleTaskReq);
         entity.setBizNo(bizNo);
-        entity.setTaskName("自建" + bizNo);
+        final User user = createVehicleTaskReq.getUser();
+        String userName = StringUtils.isNotBlank(user.getUserName()) ?
+                (user.getUserName().length() > 4 ? user.getUserName().substring(0, 4) : user.getUserName()) : "";
+        entity.setTaskName(userName + "自建" + entity.getBizNo());
         entity.setStartSiteId(Long.valueOf(createVehicleTaskReq.getCurrentOperate().getSiteCode()));
         entity.setManualCreatedFlag(1);
         entity.setVehicleType(createVehicleTaskReq.getVehicleType());
