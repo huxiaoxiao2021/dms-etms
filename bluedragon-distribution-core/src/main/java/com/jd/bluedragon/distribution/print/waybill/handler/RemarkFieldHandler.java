@@ -156,11 +156,8 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 						sendPrincipalCompanyFlag = BusinessUtil.isPrintSendPrincipalCompany(baseTraderNeccesaryInfo.getTraderSign());
 						textContactFlag = BusinessUtil.isPrinttextContact(baseTraderNeccesaryInfo.getTraderSign());
 					}
-					log.info("sendPrincipalCompanyFlag-{},textContactFlag-{}",sendPrincipalCompanyFlag,textContactFlag);
-
 					//企业名称
 					String sendPrincipalCompany = context.getBigWaybillDto().getWaybill().getWaybillExt().getSendPrincipalCompany();
-					log.info("sendPrincipalCompany-{}",sendPrincipalCompany);
 					if (StringHelper.isNotEmpty(sendPrincipalCompany) && sendPrincipalCompanyFlag) {
 						if (remark.length() > 0) {
 							remark = StringHelper.append(remark, Constants.SEPARATOR_SEMICOLON);

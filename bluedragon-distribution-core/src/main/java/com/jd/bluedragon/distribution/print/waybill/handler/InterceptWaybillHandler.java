@@ -5,9 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
@@ -16,20 +14,14 @@ import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.jy.enums.SiteTypeLevel;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
-import com.jd.ql.basic.dto.BaseSiteInfoDto;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +45,6 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
     @Autowired
     private WaybillService waybillService;
 
-    @Autowired
-    private BaseMajorManager baseMajorManager;
 	/**
 	 * 存储需要拦截的编码、消息对应关系
 	 */
@@ -113,11 +103,6 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
 				result.toFail(waybillCancelJsfResponse.getCode(), NEED_INTERCEPT_CODES_MAP.get(waybillCancelJsfResponse.getCode()));
 			}
 		}
-
-        if(interceptPackageReprint(context)){
-            result.toFail(SortingResponse.PACKAGE_PRINT_BAN_MESSAGE);
-        }
-
 		return result;
 	}
 	//设置运单状态及信息
@@ -168,47 +153,4 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
             }
         }
     }
-
-    /**
-     * 包裹补打拦截
-     * @param context
-     * @return
-     */
-    private boolean interceptPackageReprint(WaybillPrintContext context){
-
-        
-        if(WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())){
-
-            Integer siteCode = context.getRequest().getSiteCode();
-
-            BaseSiteInfoDto baseSite = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
-            if(baseSite == null) {
-                return false;
-            }
-            if(!SiteTypeLevel.SiteTypeOneLevelEnum.THIRD_PARTY.equals(baseSite.getSiteType())){
-                return false;
-            }
-
-            if(SiteTypeLevel.SiteTypeTwoLevelEnum.CONVENIENT_SERVICE_POINT.getCode().equals(baseSite.getSubType())
-                || SiteTypeLevel.SiteTypeTwoLevelEnum.DEEP_COOPERATION_SELF_PICKUP_CABINETS.getCode().equals(baseSite.getSubType())){
-                return true;
-            }
-
-            if(SiteTypeLevel.SiteTypeTwoLevelEnum.CAMPUS_JD_SCHOOL.getCode().equals(baseSite.getSubType())) {
-                if (SiteTypeLevel.SiteTypeThreeLevelEnum.CAMPUS_SCHOOL.getCode().equals(baseSite.getThirdType())
-                        || SiteTypeLevel.SiteTypeThreeLevelEnum.JD_STAR_DISTRIBUTION.equals(baseSite.getThirdType())) {
-                    return true;
-                }
-
-            }else if(SiteTypeLevel.SiteTypeTwoLevelEnum.SHARE_DISTRIBUTION_STATION.getCode().equals(baseSite.getSubType())){
-                if (SiteTypeLevel.SiteTypeThreeLevelEnum.TOWN_SHARE_DISTRIBUTION_STATION.getCode().equals(baseSite.getThirdType())
-                        || SiteTypeLevel.SiteTypeThreeLevelEnum.CITY_SHARE_DISTRIBUTION_STATION.equals(baseSite.getThirdType())) {
-                    return true;
-                }
-            }
-
-        }
-        return  false;
-    }
-
 }
