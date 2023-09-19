@@ -23,4 +23,10 @@ public interface DmsTimingHandlerService {
      */
     void dealDamageExpTaskOverTwoDags();
     
+
+    /**
+     * 定时清理混扫任务信息
+     */
+    void timingHandlerDeleteCTTGroupData();
+
 }
