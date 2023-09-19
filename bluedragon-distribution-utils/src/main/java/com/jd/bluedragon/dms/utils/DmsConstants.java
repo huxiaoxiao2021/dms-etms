@@ -483,9 +483,16 @@ public class DmsConstants {
      * 笼车前缀
      */
     public static final String COLLECTION_AL_PREFIX = "AL";
-    
+
     /**
      * 围板箱前缀
      */
     public static final String COLLECTION_AD02_PREFIX= "AD02";
+    //authCode
+    public static final String AUTH_CODE = "authCode";
+    // verificationCode
+    public static final String VERIFICATION_CODE = "verificationCode";
+
+    public static final Integer NUMBER_ZERO = 0; //数字0
+    public static final Integer NUMBER_HUNDRED = 100; //数字100
 }
