@@ -545,7 +545,7 @@
 
     <!--  日志追踪接口接口   -->
     <jsf:provider id="logTrackServiceJsf" 
-                  interface="com.jd.bluedragon.distribution.logTrack.LogTrackService"
+                  interface="com.jd.bluedragon.distribution.logTrack.TrackService"
                   alias="${dms.jsf.alias}"
                   ref="logTrackService"
                   server="dmsjsf">

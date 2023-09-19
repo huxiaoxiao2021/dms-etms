@@ -4,13 +4,12 @@ import java.util.*;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
-import com.jd.bluedragon.distribution.logTrack.LogTrackService;
-import com.jd.bluedragon.distribution.print.domain.LogDto;
+import com.jd.bluedragon.distribution.logTrack.TrackService;
+import com.jd.bluedragon.distribution.print.domain.TrackDto;
 import com.jd.bluedragon.distribution.print.request.SiteTerminalPrintCompleteRequest;
 import com.jd.etms.waybill.domain.PackageState;
 import junit.framework.Assert;
 
-import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ public class PackagePrintServiceTestCase {
 	private UccPropertyConfiguration uccPropertyConfiguration;
 	
 	@Autowired
-	private LogTrackService logTrackService;
+	private TrackService logTrackService;
 	
     @Test
     public void testUseNewTemplate() throws Exception{
@@ -179,7 +178,7 @@ public class PackagePrintServiceTestCase {
 				"siteCode\\\":10098,\\\"siteName\\\":\\\"北京双树直送第一车队-测试\\\",\\\"operateTime\\\":\\\"" +
 				"2022-09-02 10:00:53\\\",\\\"cancelFeatherLetter\\\":false,\\\"featherLetterDeviceNo\\\":null,\\\"" +
 				"discernFlag\\\":false,\\\"businessId\\\":0,\\\"barCodeType\\\":5}\"}";
-		JdResult<List<LogDto>> jdResult = logTrackService.checkPrintCrossTableTrolley(req);
+		JdResult<List<TrackDto>> jdResult = logTrackService.checkPrintCrossTableTrolley(req);
 		System.out.println(JsonHelper.toJson(jdResult));
 	}
 }

@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.logTrack;
 
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.print.domain.LogDto;
+import com.jd.bluedragon.distribution.print.domain.TrackDto;
 
 import java.util.List;
 
@@ -10,12 +10,12 @@ import java.util.List;
  * @description 日志追踪服务
  * @date 2023-06-07 14:41
  */
-public interface LogTrackService {
+public interface TrackService {
 
     /**
      * 打印校验滑道笼车信息
      * @param printRequest
      * @return
      */
-    JdResult<List<LogDto>> checkPrintCrossTableTrolley(String printRequest);
+    JdResult<List<TrackDto>> checkPrintCrossTableTrolley(String printRequest);
 }
