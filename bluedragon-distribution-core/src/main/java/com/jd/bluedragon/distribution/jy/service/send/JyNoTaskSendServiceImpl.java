@@ -259,8 +259,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             }
 
             if(createVehicleTaskReq.getDestinationSiteId() != null) {
+                if(checkResult == null){
+                    checkResult = this.checkHasSameDestinationTmsTask(createVehicleTaskReq);
+                }
                 // 发送催派任务
-                if (checkResult != null && checkResult.getData() != null && checkResult.getData().getTmsTransJobBillDto() != null) {
+                if (checkResult.getData() != null && checkResult.getData().getTmsTransJobBillDto() != null) {
                     this.sendTmsUrgeVehicleMq(createVehicleTaskReq, jyBizTaskSendVehicleEntity, checkResult.getData().getTmsTransJobBillDto());
                 }
             }
