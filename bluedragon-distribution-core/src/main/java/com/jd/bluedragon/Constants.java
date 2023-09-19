@@ -823,6 +823,13 @@ public class Constants {
      *
      */
     public static final String SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF = "waybill.print.addiOwnNumberConf";
+    
+
+    /**
+     *  配置信息-切换百川流量场地列表
+     *
+     */
+    public static final String BAICHUAN_REVERSE_SITE_CONF = "baichuan.reverse.site.conf";
 
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
@@ -865,6 +872,11 @@ public class Constants {
      * 功能可用性配置
      */
     public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
+
+    /**
+     * 隐藏面单手机号信息
+     */
+    public static final String SYS_CONFIG_HIDE_PHONE_6Char= "hide_phone_6char";
 
     /**
      * 安卓菜单可用性配置，按场地id配置

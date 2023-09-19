@@ -83,7 +83,6 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			//每个运单只需要发一次就可以
 			SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
 			siteChangeMqDto.setWaybillCode(packTagPrint.getWaybillCode());
-			siteChangeMqDto.setPackageCode(packTagPrint.getPackageBarcode());
 			siteChangeMqDto.setNewSiteId(packTagPrint.getChangeSiteCode());
 			siteChangeMqDto.setNewSiteName(packTagPrint.getChangeSiteName());
 			siteChangeMqDto.setNewSiteRoadCode("0"); // 此操作无法触发预分拣 故传默认值0

@@ -11,7 +11,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEn
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
@@ -965,7 +967,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.getSealVehicleInfo",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq) {
-        return retJdCResponse(jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq));
+        InvokeResult<SealVehicleInfoResp> sealVehicleInfo = jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq);
+        if (sealVehicleInfo != null && sealVehicleInfo.getData() != null) {
+            sealVehicleInfo.getData().setTransportCode("");
+        }
+        return retJdCResponse(sealVehicleInfo);
     }
 
     @Override
@@ -1043,6 +1049,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, JdCResponse.MESSAGE_ERROR, null);//500+非自定义异常
         }
+    }
+
+    @Override
+    public JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request) {
+        return retJdCResponse(jyWarehouseSendVehicleService.sendTaskDetail(request));
     }
 
 
