@@ -245,8 +245,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
             createVehicleTaskResp.setBizId(jyBizTaskSendVehicleEntity.getBizId());
             createVehicleTaskResp.setBizNo(jyBizTaskSendVehicleEntity.getBizNo());
-            createVehicleTaskResp.setTaskName("自建" + jyBizTaskSendVehicleEntity.getBizNo());
-            createVehicleTaskResp.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
+            final User user = createVehicleTaskReq.getUser();
+            String userName = StringUtils.isNotBlank(user.getUserName()) ?
+                    (user.getUserName().length() > 4 ? user.getUserName().substring(0, 4) : user.getUserName()) : "";
+            createVehicleTaskResp.setTaskName(userName + "自建" + jyBizTaskSendVehicleEntity.getBizNo());
+            createVehicleTaskResp.setCreateUserErp(user.getUserErp());
             // 创建发货调度任务
             if (uccConfig.getSyncScheduleTaskSwitch() && !createSendScheduleTask(jyBizTaskSendVehicleEntity)){
                 log.error("创建发货调度任务失败！bizId:{}",jyBizTaskSendVehicleEntity.getBizId());
