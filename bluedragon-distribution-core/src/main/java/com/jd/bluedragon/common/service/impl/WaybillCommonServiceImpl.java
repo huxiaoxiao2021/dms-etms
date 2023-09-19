@@ -1627,7 +1627,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         Integer dmsCode = printWaybill.getOriginalDmsCode();
         String waybillCode = printWaybill.getWaybillCode();
         if(bigWaybillDto == null) {
-        	return;
+            TrackUtil.add(new TrackDto(GET_START_SITE_ID, String.format(GET_NOT_C2C_START_SITE_ID_1, dmsCode)));
+            return;
         }
         com.jd.etms.waybill.domain.Waybill etmsWaybill = bigWaybillDto.getWaybill();
         WaybillManageDomain waybillState = bigWaybillDto.getWaybillState();
