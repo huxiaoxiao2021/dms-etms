@@ -239,7 +239,6 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             jyBizTaskSendVehicleService.saveSendVehicleTask(jyBizTaskSendVehicleEntity);
 
             if(createVehicleTaskReq.getDestinationSiteId() != null){
-                jyBizTaskSendVehicleEntity.setYn(Constants.YN_YES);
                 final JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailEntity = this.initJyBizTaskSendVehicleDetail(createVehicleTaskReq, jyBizTaskSendVehicleEntity);
                 jyBizTaskSendVehicleDetailService.saveTaskSendDetail(jyBizTaskSendVehicleDetailEntity);
             }
@@ -446,6 +445,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setUpdateTime(now);
+        if(createVehicleTaskReq.getDestinationSiteId() != null) {
+            entity.setYn(Constants.YN_YES);
+        }
         return entity;
     }
 
