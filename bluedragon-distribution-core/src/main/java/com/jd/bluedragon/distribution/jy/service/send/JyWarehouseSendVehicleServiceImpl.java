@@ -1295,7 +1295,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                     receiveSite = selfSite;
                 }
                 /* 通过发货配置jsf接口调用 */
-                result = getSiteRoutersFromDMSAutoJsf(request.getMachineCode(), operateSiteCode, receiveSite, operateTime, waybillCode, nextRouters);
+                result = getSiteRoutersFromDMSAutoJsf(request.getBarCode(), request.getMachineCode(), operateSiteCode, receiveSite, operateTime, waybillCode, nextRouters);
             }
             siteRouters.addAll(nextRouters);
             result.setData(siteRouters);
@@ -1339,7 +1339,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @return
      */
     private InvokeResult<List<Integer>> getSiteRoutersFromDMSAutoJsf
-    (String machineCode, Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
+    (String packageCode, String machineCode, Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
 
         InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 
@@ -1349,6 +1349,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         jsfRequest.setOperateTime(operateTime);
         jsfRequest.setMachineId(machineCode);
         jsfRequest.setDeviceType(DeviceTypeEnum.GANTRY.getTypeCode());
+        jsfRequest.setPackageCode(packageCode);
         BaseDmsAutoJsfResponse<List<AreaDestJsfVo>> jsfResponse;
 
         CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.getSiteRoutersFromDMSAutoJsf.areaDestJsfService.findAreaDest", Constants.UMP_APP_NAME_DMSWEB,false, true);
