@@ -1693,8 +1693,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }else{
                 log.warn("组装包裹标签始发分拣中心信息，运单号：{} 对应的始发分拣中心:{}，有效分拣中心编码" ,waybillCode, dmsCode);
             }
-            TrackUtil.add(new TrackDto(GET_START_SITE_ID,String.format(GET_NOT_C2C_START_SITE_ID_1, dmsCode)));
         }
+        TrackUtil.add(new TrackDto(GET_START_SITE_ID,String.format(GET_NOT_C2C_START_SITE_ID_1, dmsCode)));
         printWaybill.setOriginalDmsCode(dmsCode);
     }
     /**
