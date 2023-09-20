@@ -1105,6 +1105,13 @@
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
+
+    <jsf:consumer id="positionQueryBasicJsfService"
+                  interface="com.jdl.basic.api.service.position.PositionQueryJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  protocol="jsf"  timeout="${jsf.jy_basic.timeout}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
     <!--  用户管理-jsf服务  -->
     <jsf:consumer id="userJsfService"
                   interface="com.jdl.basic.api.service.user.UserJsfService"
@@ -1440,5 +1447,46 @@
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!--  出勤黑名单  -->
+    <jsf:consumer id="basicAttendanceBlackListJsfService"
+                  interface="com.jdl.basic.api.service.attBlackList.AttendanceBlackListJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+    <jsf:consumer id="vrsQueryAPI" interface="com.jd.etms.api.resource.VrsQueryAPI"
+                  protocol="jsf" alias="${jsf.router.waybillRouteLinkCustAPI.alias}" timeout="${jsf.router.waybillRouteLinkCustAPI.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <jsf:consumer id="pdaSorterApi" interface="com.jd.tms.workbench.api.PdaSorterApi"
+                  protocol="jsf" alias="${tms.jsf.pdaSorterApi.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--  托盘物资jsf服务  -->
+    <jsf:consumer id="jsfBizHandoverProcessApi" interface="com.jd.hr.wlgz.api.service.BizHandoverProcessApi"
+                  protocol="jsf" alias="${jsf.bizHandoverProcessApi.alias}" serialization="hessian" timeout="${jsf.bizHandoverProcessApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- TMS PDA 接口 -->
+    <jsf:consumer id="tmsPdaSorterApi"
+                  interface="com.jd.tms.workbench.api.PdaSorterApi"
+                  alias="${tms.jsf.pdaSorterApi.alias}"
+                  timeout="${tms.jsf.pdaSorterApi.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+
+    <!-- 云打印接口 -->
+    <jsf:consumer id="cloudPrintRenderService" interface="com.jdl.print.service.RenderService"
+                  protocol="jsf" alias="${cloudPrint.jsf.alias}" timeout="${cloudPrint.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 </beans>
