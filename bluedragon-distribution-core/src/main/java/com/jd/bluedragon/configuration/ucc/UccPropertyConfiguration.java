@@ -3762,4 +3762,14 @@ public class UccPropertyConfiguration {
     public void setJyExceptionDamageTaskCustomerNotReturnHours(Integer jyExceptionDamageTaskCustomerNotReturnHours) {
         this.jyExceptionDamageTaskCustomerNotReturnHours = jyExceptionDamageTaskCustomerNotReturnHours;
     }
+
+    private List<String> identityRecogniseSiteSwitchList;
+
+    public List<String> getIdentityRecogniseSiteSwitchList() {
+        return identityRecogniseSiteSwitchList;
+    }
+
+    public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
+        this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
+    }
 }
