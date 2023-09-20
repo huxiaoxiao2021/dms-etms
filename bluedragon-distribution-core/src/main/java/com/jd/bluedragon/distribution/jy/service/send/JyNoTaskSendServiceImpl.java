@@ -318,7 +318,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             log.error("checkHasSameDestinationTmsTask call queryTransJobPage empty {} {} {}", JsonHelper.toJson(accountDto), JsonHelper.toJson(queryDto), JsonHelper.toJson(pageDto));
             return result.toFail("获取待派车列表异常！");
         }
-        if (Objects.equals(commonDto.getCode(), com.jd.tms.workbench.dto.CommonDto.CODE_SUCCESS)) {
+        if (!Objects.equals(commonDto.getCode(), com.jd.tms.workbench.dto.CommonDto.CODE_SUCCESS)) {
             log.error("checkHasSameDestinationTmsTask call queryTransJobPage fail {} {} {} {}", JsonHelper.toJson(commonDto), JsonHelper.toJson(accountDto), JsonHelper.toJson(queryDto), JsonHelper.toJson(pageDto));
             return result.toFail("获取待派车列表失败！");
         }
