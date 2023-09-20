@@ -625,6 +625,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                         || BusinessUtil.isZiTiDianByWaybillSign(waybill.getWaybillSign())
                         || BusinessUtil.isWrcps(waybill.getSendPay())) {
                     if (StringHelper.isNotEmpty(tag.getPrintAddress()) && !BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
+                        TrackUtil.add(new TrackDto(ZI_TI_TYPE,String.format(ZI_TI_TYPE_8, tag.getPrintAddress())));
                         waybill.setPrintAddress(tag.getPrintAddress());
                     }
                 }
