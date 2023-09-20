@@ -29,6 +29,7 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
+import com.jd.bluedragon.distribution.print.domain.TrackDto;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
@@ -42,6 +43,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.java.utils.sdk.base.Result;
+import com.jd.bluedragon.utils.mdc.TrackUtil;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -70,6 +72,8 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.distribution.print.domain.TrackDto.*;
 
 
 @Service("waybillCommonService")
@@ -1649,7 +1653,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         Integer dmsCode = printWaybill.getOriginalDmsCode();
         String waybillCode = printWaybill.getWaybillCode();
         if(bigWaybillDto == null) {
-        	return;
+            TrackUtil.add(new TrackDto(GET_START_SITE_ID, String.format(GET_NOT_C2C_START_SITE_ID_1, dmsCode)));
+            return;
         }
         com.jd.etms.waybill.domain.Waybill etmsWaybill = bigWaybillDto.getWaybill();
         WaybillManageDomain waybillState = bigWaybillDto.getWaybillState();
@@ -1660,6 +1665,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	//判断是否有效分拣中心
         	if(isVaildDms(dmsCodeC2c)) {
         		dmsCode = dmsCodeC2c;
+                TrackUtil.add(new TrackDto(GET_START_SITE_ID, String.format(GET_C2C_START_SITE_ID_1, dmsCode)));
         	}
         }
 
@@ -1714,6 +1720,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 log.warn("组装包裹标签始发分拣中心信息，运单号：{} 对应的始发分拣中心:{}，有效分拣中心编码" ,waybillCode, dmsCode);
             }
         }
+        TrackUtil.add(new TrackDto(GET_START_SITE_ID,String.format(GET_NOT_C2C_START_SITE_ID_1, dmsCode)));
         printWaybill.setOriginalDmsCode(dmsCode);
     }
     /**
