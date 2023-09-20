@@ -14,6 +14,7 @@ public class SiteTypeLevel {
      */
     public enum SiteTypeOneLevelEnum{
 
+        TERMINAL_SITE(4,"营业部"),
         THIRD_PARTY(16,"第三方")
 
         ;
@@ -40,7 +41,7 @@ public class SiteTypeLevel {
      * 二级站点类型
      */
     public enum SiteTypeTwoLevelEnum{
-        //Deep cooperation with self-pickup cabinets
+        TERMINAL_SITE(4,"营业部"),
         CONVENIENT_SERVICE_POINT(46,"便民服务点"),
         DEEP_COOPERATION_SELF_PICKUP_CABINETS(48,"深度合作自提柜"),
         CAMPUS_JD_SCHOOL(128,"校园京东派"),
