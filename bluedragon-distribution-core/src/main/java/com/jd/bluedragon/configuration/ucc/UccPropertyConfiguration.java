@@ -3685,5 +3685,14 @@ public class UccPropertyConfiguration {
         this.jySendSpecialProductTypeToScanShowRemainMinutes = jySendSpecialProductTypeToScanShowRemainMinutes;
     }
 
+    private int fetchCarDistributionTimeRange;
+
+    public int getFetchCarDistributionTimeRange() {
+        return fetchCarDistributionTimeRange;
+    }
+
+    public void setFetchCarDistributionTimeRange(int fetchCarDistributionTimeRange) {
+        this.fetchCarDistributionTimeRange = fetchCarDistributionTimeRange;
+    }
 
 }
