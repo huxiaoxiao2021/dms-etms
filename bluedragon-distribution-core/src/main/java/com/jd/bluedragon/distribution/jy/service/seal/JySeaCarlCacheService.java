@@ -31,6 +31,7 @@ public class JySeaCarlCacheService {
      */
     public static final String LOCK_SEND_TASK_SEAL = "lock:send:seal:%s:%s";
     public static final int LOCK_SEND_TASK_SEAL_TIMEOUT_SECONDS = 60;
+    public static final int LOCK_SEND_TASK_OUT_BOOKING_WEIGHT_TIMEOUT_SECONDS = 7;
 
 
     @Autowired
@@ -64,7 +65,21 @@ public class JySeaCarlCacheService {
         return String.format(JySeaCarlCacheService.LOCK_SEND_TASK_SEAL, bizId, taskType);
     }
 
-
+    /**
+     * 场景：保存任务超载提示
+     * @param bizId  任务bizId
+     */
+    public boolean lockOutBookingWeightTask(String bizId) {
+        try {
+            return jimDbLock.lock(bizId,
+                    DEFAULT_VALUE_1,
+                    JySeaCarlCacheService.LOCK_SEND_TASK_OUT_BOOKING_WEIGHT_TIMEOUT_SECONDS,
+                    TimeUnit.DAYS);
+        }catch (Exception e) {
+            log.error("lockOutBookingWeightTask:超载任务加锁失败 :bizId={},errMsg={}", bizId, e.getMessage(), e);
+            throw new JyBizException("超载任务加锁失败");
+        }
+    }
 
 
 
