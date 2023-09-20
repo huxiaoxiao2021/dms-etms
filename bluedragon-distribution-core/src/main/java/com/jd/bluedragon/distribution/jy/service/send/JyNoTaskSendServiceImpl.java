@@ -1180,7 +1180,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 log.error("JyNoTaskSendServiceImpl.remindTransJob call remindTransJob empty {} {}", JsonHelper.toJson(accountDto), JsonHelper.toJson(remindTransJobRequestDTO));
                 return result.toFail("催派接口调用失败！");
             }
-            if (Objects.equals(remoteResult.getCode(), com.jd.tms.workbench.dto.CommonDto.CODE_SUCCESS)) {
+            if (!Objects.equals(remoteResult.getCode(), com.jd.tms.workbench.dto.CommonDto.CODE_SUCCESS)) {
                 log.error("JyNoTaskSendServiceImpl.remindTransJob call remindTransJob fail {} {}", JsonHelper.toJson(accountDto), JsonHelper.toJson(remindTransJobRequestDTO));
                 return result.toFail("催派接口调用失败！");
             }
