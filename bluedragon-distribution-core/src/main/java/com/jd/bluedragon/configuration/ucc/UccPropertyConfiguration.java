@@ -3742,4 +3742,14 @@ public class UccPropertyConfiguration {
     public void setPlanSendTime(String planSendTime) {
         this.planSendTime = planSendTime;
     }
+
+    private Boolean isJyExceptionCreateBizIdSwitch;
+
+    public Boolean isJyExceptionCreateBizIdSwitch() {
+        return isJyExceptionCreateBizIdSwitch;
+    }
+
+    public void setJyExceptionCreateBizIdSwitch(Boolean jyExceptionCreateBizIdSwitch) {
+        isJyExceptionCreateBizIdSwitch = jyExceptionCreateBizIdSwitch;
+    }
 }
