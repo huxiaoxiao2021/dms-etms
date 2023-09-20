@@ -438,7 +438,11 @@ public class SortingServiceImpl implements SortingService {
 	public boolean taskToSorting(List<Sorting> sortings) {
 		CallerInfo callerInfo = Profiler.registerInfo("DMSWORKER.SortingService.taskToSorting", Constants.UMP_APP_NAME_DMSWORKER, false, true);
 		List<SendDetail> sendDList = new ArrayList<SendDetail>();
+		List<JyOperateFlowMqData> sortingFlowMqList = new ArrayList<>();
 		for (Sorting sorting : sortings) {
+			if(log.isDebugEnabled()) {
+				log.debug("taskToSorting:{},{}",sorting.getPackageCode(), JsonHelper.toJson(sorting));
+			}
 			if (sorting.getIsCancel().equals(SORTING_CANCEL_NORMAL)) {
 				this.addSorting(sorting, null); // 添加分拣记录
 				this.addSortingAdditionalTask(sorting); // 添加回传分拣的运单状态
@@ -447,11 +451,12 @@ public class SortingServiceImpl implements SortingService {
 				sendDList.add(this.addSendDetail(sorting));
 	            JyOperateFlowMqData sortingFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
 	            sortingFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING.getCode());
-				jyOperateFlowService.sendMq(sortingFlowMq);
+	            sortingFlowMqList.add(sortingFlowMq);
 			} else if (sorting.getIsCancel().equals(SORTING_CANCEL)) {// 离线取消分拣
 				return this.canCancel(sorting);
 			}
 		}
+		jyOperateFlowService.sendMqList(sortingFlowMqList);
 		this.fixSendDAndSendTrack(sortings.get(0), sendDList);
 		Profiler.registerInfoEnd(callerInfo);
 		return true;
