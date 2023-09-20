@@ -604,7 +604,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
                 ApiResult<Integer> integerApiResult = recycleMaterialManager.countMaterialByCondition(siteCode, recycleBasketEntity.getTypeCode());
                 if (integerApiResult.isSucceed()) {
-                    Integer num = integerApiResult.getData();
+                    Integer num = integerApiResult.getData() + recycleBasketEntity.getQuantity();
                     if (recycleBasketEntity.getTypeCode().equals(RecycleBasketTypeEnum.BIG.getCode())) {
                         if (akboxConfig.getLargeStock() != null && num > akboxConfig.getLargeStock()) {
                             logger.error("周转筐打印,超出当前站点库存总理：{}", akboxConfig.getLargeStock());
