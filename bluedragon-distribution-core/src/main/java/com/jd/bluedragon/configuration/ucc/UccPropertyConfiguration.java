@@ -3978,4 +3978,17 @@ public class UccPropertyConfiguration {
     public void setContrabandWaybillCacheTime(int contrabandWaybillCacheTime) {
         this.contrabandWaybillCacheTime = contrabandWaybillCacheTime;
     }
+
+    /**
+     * 终端站点-包裹补打限制开关
+     */
+    private boolean terminalSitePackagePrintLimitSwitch;
+
+    public boolean isTerminalSitePackagePrintLimitSwitch() {
+        return terminalSitePackagePrintLimitSwitch;
+    }
+
+    public void setTerminalSitePackagePrintLimitSwitch(boolean terminalSitePackagePrintLimitSwitch) {
+        this.terminalSitePackagePrintLimitSwitch = terminalSitePackagePrintLimitSwitch;
+    }
 }
