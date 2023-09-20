@@ -1546,6 +1546,14 @@ public class UccPropertyConfiguration {
     private String autoCloseJyBizTaskConfig;
     private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
 
+    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
+        return autoCloseJyBizTaskConfigObj;
+    }
+
+    public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {
+        this.autoCloseJyBizTaskConfigObj = autoCloseJyBizTaskConfigObj;
+    }
+
     public String getCzSiteTypeForbiddenList() {
         return czSiteTypeForbiddenList;
     }
@@ -3695,4 +3703,33 @@ public class UccPropertyConfiguration {
         this.fetchCarDistributionTimeRange = fetchCarDistributionTimeRange;
     }
 
+    private int contrabandWaybillCacheTime;
+
+    public int getContrabandWaybillCacheTime() {
+        return contrabandWaybillCacheTime;
+    }
+
+    public void setContrabandWaybillCacheTime(int contrabandWaybillCacheTime) {
+        this.contrabandWaybillCacheTime = contrabandWaybillCacheTime;
+    }
+
+    private Boolean isBeforeSealVehicleLoadRateLimitCheckSwitch;
+
+    public Boolean isBeforeSealVehicleLoadRateLimitCheckSwitch() {
+        return isBeforeSealVehicleLoadRateLimitCheckSwitch;
+    }
+
+    public void setBeforeSealVehicleLoadRateLimitCheckSwitch(Boolean beforeSealVehicleLoadRateLimitCheckSwitch) {
+        isBeforeSealVehicleLoadRateLimitCheckSwitch = beforeSealVehicleLoadRateLimitCheckSwitch;
+    }
+
+    private double beforeSealVehicleLoadRateLimit;
+
+    public double getBeforeSealVehicleLoadRateLimit() {
+        return beforeSealVehicleLoadRateLimit;
+    }
+
+    public void setBeforeSealVehicleLoadRateLimit(double beforeSealVehicleLoadRateLimit) {
+        this.beforeSealVehicleLoadRateLimit = beforeSealVehicleLoadRateLimit;
+    }
 }
