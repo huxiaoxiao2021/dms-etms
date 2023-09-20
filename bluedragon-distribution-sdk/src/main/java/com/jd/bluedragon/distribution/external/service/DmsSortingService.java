@@ -30,4 +30,12 @@ public interface DmsSortingService {
      * @return
      */
     InvokeResult<String> bindingBoxMaterialPackageRelation(SortingRequestDto request);
+
+    /**
+     * 取消分拣
+     * 取消包裹箱绑定关系
+     * @param request
+     * @return
+     */
+    InvokeResult<String> cancelSorting(SortingRequestDto request);
 }

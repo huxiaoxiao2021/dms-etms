@@ -118,7 +118,18 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
             result.parameterError("入参不能为空");
             return result;
         }
-
+        if(StringUtils.isBlank(request.getMaterialCode())){
+            result.parameterError("集包袋号不能为空");
+            return result;
+        }
+        if(!BusinessUtil.isBoxcode(request.getBoxCode())){
+            result.parameterError("箱号不合法");
+            return result;
+        }
+        if(!BusinessUtil.isCollectionBag(request.getMaterialCode())){
+            result.parameterError("集包袋号不合法");
+            return result;
+        }
         com.jd.bluedragon.distribution.base.domain.InvokeResult invokeResultResult = cycleBoxService.boxMaterialRelationAlter(request);
         if (invokeResultResult == null){
             result.parameterError("绑定失败，请重试");

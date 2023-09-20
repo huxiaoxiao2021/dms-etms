@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.sorting.domain;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author : caozhixing3
@@ -61,7 +60,7 @@ public class SortingRequestDto implements Serializable {
     /**
      * 创建时间
      */
-    private Date createTime;
+    private String operateTime;
     /**
      * 是否需要绑定集包袋编号
      * 1是，2否
@@ -161,12 +160,12 @@ public class SortingRequestDto implements Serializable {
         this.createUser = createUser;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public String getOperateTime() {
+        return operateTime;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setOperateTime(String operateTime) {
+        this.operateTime = operateTime;
     }
 
     public Integer getNeedBindMaterialFlag() {
