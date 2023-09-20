@@ -273,6 +273,9 @@ public class BeanConverter {
 		JyOperateFlowData data = new JyOperateFlowData();
 		data.setOperatorData(inspection.getOperatorData());
 		mqData.setJyOperateFlowData(data);
+		if(log.isDebugEnabled()) {
+			log.debug("inspection-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
+		}
 		return mqData;
 	}
 	/**
@@ -293,6 +296,9 @@ public class BeanConverter {
 		JyOperateFlowData data = new JyOperateFlowData();
 		data.setOperatorData(tSendDetail.getOperatorData());
 		mqData.setJyOperateFlowData(data);
+		if(log.isDebugEnabled()) {
+			log.debug("tSendDetail-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
+		}
 		return mqData;
 	}
 	/**
@@ -313,6 +319,9 @@ public class BeanConverter {
 		JyOperateFlowData data = new JyOperateFlowData();
 		data.setOperatorData(sorting.getOperatorData());
 		mqData.setJyOperateFlowData(data);
+		if(log.isDebugEnabled()) {
+			log.debug("soring-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
+		}
 		return mqData;
 	}
 	public static JyOperateFlowMqData convertToJyOperateFlowMqData(BoardCommonRequest request) {
