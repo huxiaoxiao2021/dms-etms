@@ -587,6 +587,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             waybill.setOriginalCrossCode(crossDetail.getCrossCode());
             hiddenCrossInfo(waybill);
     	}
+        // 记录滑道笼车获取的最终结果
+        crossInfoForLog(waybill);
 	}
 	/**
      * 根据大全表设置打印滑道信息
@@ -648,7 +650,17 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 
                 hiddenCrossInfo(waybill);
             }
+            // 记录滑道笼车获取的最终结果
+            crossInfoForLog(waybill);
 	}
+
+    private void crossInfoForLog(PrintWaybill waybill) {
+        String result = "{ 始发笼车号: " + waybill.getOriginalTabletrolley() 
+                + "; 始发道口号: " + waybill.getOriginalCrossCode()
+                + "; 目的笼车号: " + waybill.getPurposefulTableTrolley() 
+                + "; 目的道口号: " + waybill.getPurposefulCrossCode() + "; }";
+        TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT,String.format(PRINT_CROSS_RESULT_9, result)));
+    }
 
     /**
      * 隐藏滑道信息
