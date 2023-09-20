@@ -152,4 +152,6 @@ public class BaseContants {
 	public static final String SITE_CODE_SEQ = "站点Code序列";
 
 	public static final int NUMBER_ZERO = 0;//数字0
+
+	public static final String  LOGISTICS_HEADQUARTERS= "100000";//省区编号 物流总部
 }
