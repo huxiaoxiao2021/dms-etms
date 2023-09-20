@@ -3732,4 +3732,14 @@ public class UccPropertyConfiguration {
     public void setBeforeSealVehicleLoadRateLimit(double beforeSealVehicleLoadRateLimit) {
         this.beforeSealVehicleLoadRateLimit = beforeSealVehicleLoadRateLimit;
     }
+
+    private String planSendTime;
+
+    public String getPlanSendTime() {
+        return planSendTime;
+    }
+
+    public void setPlanSendTime(String planSendTime) {
+        this.planSendTime = planSendTime;
+    }
 }
