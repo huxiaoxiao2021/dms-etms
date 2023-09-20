@@ -314,6 +314,18 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         pageDto.setPageSize(50);
 
         com.jd.tms.workbench.dto.CommonDto<PageDto<TmsTransJobBillDto>> commonDto = pdaSorterApiManager.queryTransJobPage(accountDto, queryDto, pageDto);
+        /*commonDto = new com.jd.tms.workbench.dto.CommonDto<>();
+        final PageDto<TmsTransJobBillDto> tmsTransJobBillDtoPageDto = new PageDto<>();
+        commonDto.setData(tmsTransJobBillDtoPageDto);
+        tmsTransJobBillDtoPageDto.setTotalRow(1);
+        final TmsTransJobBillDto tmsTransJobBillDto = new TmsTransJobBillDto();
+        tmsTransJobBillDto.setAccountCode("wuyoude");
+        tmsTransJobBillDto.setTransportCode("testTransportCode");
+        tmsTransJobBillDto.setTransJobCode("testTransJobCode");
+        List<TmsTransJobBillDto> tmsTransJobBillDtos = new ArrayList<TmsTransJobBillDto>(){{
+            add(tmsTransJobBillDto);
+        }};
+        tmsTransJobBillDtoPageDto.setResult(tmsTransJobBillDtos);*/
         if (commonDto == null) {
             log.error("checkHasSameDestinationTmsTask call queryTransJobPage empty {} {} {}", JsonHelper.toJson(accountDto), JsonHelper.toJson(queryDto), JsonHelper.toJson(pageDto));
             return result.toFail("获取待派车列表异常！");
@@ -389,9 +401,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             tmsUrgeVehicleMq.setSiteCode(currentOperate.getSiteCode());
             tmsUrgeVehicleMq.setSiteName(currentOperate.getSiteName());
 
-            tmsUrgeVehicleMq.setTransportCode(tmsTransJobBillDto.getTransportCode());
             tmsUrgeVehicleMq.setTransJobCode(tmsTransJobBillDto.getTransJobCode());
-
+            if (CollectionUtils.isNotEmpty(tmsTransJobBillDto.getTransJobItemDtoList())) {
+                final TmsTransJobItemDto tmsTransJobItemDto = tmsTransJobBillDto.getTransJobItemDtoList().get(0);
+                tmsUrgeVehicleMq.setTransportCode(tmsTransJobItemDto.getTransportCode());
+            }
             tmsUrgeVehicleMq.setBizId(jyBizTaskSendVehicleEntity.getBizId());
 
             jySendTmsUrgeVehicleProducer.sendOnFailPersistent(jyBizTaskSendVehicleEntity.getBizId(), JsonHelper.toJson(tmsUrgeVehicleMq));
