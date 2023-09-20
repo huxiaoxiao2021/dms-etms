@@ -56,8 +56,7 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
 		log.info("站定类型打印拦截拦截信息处理");
         InterceptResult<String> result = context.getResult();
         //终端包裹补打功能限制
-        //if(interceptPackageReprint(context)){
-        if(true){
+        if(interceptPackageReprint(context)){
             result.toFail(SortingResponse.PACKAGE_PRINT_BAN_CODE,SortingResponse.PACKAGE_PRINT_BAN_MESSAGE);
         }
 		return result;
