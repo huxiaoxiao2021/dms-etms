@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.tms;
 
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.tms.workbench.dto.TmsTransJobBillDto;
 
 import java.io.Serializable;
@@ -16,7 +17,7 @@ public class SameDestinationSendTaskDto implements Serializable {
     private static final long serialVersionUID = -7345859904237072452L;
 
     // 同流向分拣TW任务
-    private JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailEntity;
+    private JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity;
 
     // 同流向运输TJ任务
     private TmsTransJobBillDto tmsTransJobBillDto;
@@ -24,12 +25,12 @@ public class SameDestinationSendTaskDto implements Serializable {
     public SameDestinationSendTaskDto() {
     }
 
-    public JyBizTaskSendVehicleDetailEntity getJyBizTaskSendVehicleDetailEntity() {
-        return jyBizTaskSendVehicleDetailEntity;
+    public JyBizTaskSendVehicleEntity getJyBizTaskSendVehicleEntity() {
+        return jyBizTaskSendVehicleEntity;
     }
 
-    public void setJyBizTaskSendVehicleDetailEntity(JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailEntity) {
-        this.jyBizTaskSendVehicleDetailEntity = jyBizTaskSendVehicleDetailEntity;
+    public void setJyBizTaskSendVehicleEntity(JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity) {
+        this.jyBizTaskSendVehicleEntity = jyBizTaskSendVehicleEntity;
     }
 
     public TmsTransJobBillDto getTmsTransJobBillDto() {

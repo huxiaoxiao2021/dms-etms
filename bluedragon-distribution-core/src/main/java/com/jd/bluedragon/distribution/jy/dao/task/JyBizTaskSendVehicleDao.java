@@ -1,13 +1,12 @@
 package com.jd.bluedragon.distribution.jy.dao.task;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.ObjectHelper;
 import org.apache.commons.collections4.CollectionUtils;
@@ -203,5 +202,17 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         Map<String,Object> params = new HashMap<>();
         params.put("bizIds", bizIds);
         return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByBizIds", params);
+    }
+
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByDestAndStatusesWithPage(JyBizTaskSendVehicleDetailQueryEntity entity, List<Integer> statuses,
+                                                                                  Integer offset, Integer limit) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        params.put("offset", offset);
+        params.put("limit", limit);
+        if (statuses != null && !statuses.isEmpty()) {
+            params.put("statuses", statuses.toArray());
+        }
+        return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByDestAndStatusesWithPage", params);
     }
 }
