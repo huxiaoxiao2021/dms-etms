@@ -73,7 +73,7 @@
         <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
 		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites:1}" />
-        <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
+        <property name="clickIntervalSecond" value="${clickIntervalSecond:5}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites:1}" />
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
 		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
