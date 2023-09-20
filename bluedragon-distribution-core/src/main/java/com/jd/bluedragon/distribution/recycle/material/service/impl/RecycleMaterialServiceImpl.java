@@ -567,13 +567,6 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             response.toError("获取站点信息失败，请稍后重试，或联系分拣小秘!");
             return response;
         }
-        //保存到循环物资表
-        ApiResult<Integer> addResult = addRecycleMaterials(codes, recycleBasketEntity, baseStaffSiteOrgDto);
-        if(!addResult.isSucceed()){
-            logger.error("周转筐打印,保存周转筐信息失败：{}", addResult.getMessage());
-            response.toFail(addResult.getMessage());
-            return response;
-        }
         if (uccPropertyConfiguration.getCheckAkboxConfig()) {
             JdResponse<RecycleBasketPrintInfo> recycleBasketPrintInfoJdResponse = checkAkboxConfig(baseStaffSiteOrgDto.getSiteCode(), recycleBasketEntity);
             if (recycleBasketPrintInfoJdResponse.isError()) {
@@ -581,6 +574,13 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             }
         }
 
+        //保存到循环物资表
+        ApiResult<Integer> addResult = addRecycleMaterials(codes, recycleBasketEntity, baseStaffSiteOrgDto);
+        if(!addResult.isSucceed()){
+            logger.error("周转筐打印,保存周转筐信息失败：{}", addResult.getMessage());
+            response.toFail(addResult.getMessage());
+            return response;
+        }
 
         //返回打印信息
         RecycleBasketPrintInfo printInfo = new RecycleBasketPrintInfo();
