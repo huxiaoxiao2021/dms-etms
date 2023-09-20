@@ -338,6 +338,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		}catch(Exception e){
 			result.toError("jsf-exception:baseCrossPackageTagWS.queryCrossPackageTagByParam!params:"+params+",msg:"+e.getMessage());
 			log.error(result.getMessage(), e);
+			Profiler.functionError(callerInfo);
 		}finally{
 			Profiler.registerInfoEnd(callerInfo);
 		}
