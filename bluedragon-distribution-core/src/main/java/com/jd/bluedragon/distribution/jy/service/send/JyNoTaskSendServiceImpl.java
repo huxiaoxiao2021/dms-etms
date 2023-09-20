@@ -402,10 +402,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             tmsUrgeVehicleMq.setSiteName(currentOperate.getSiteName());
 
             tmsUrgeVehicleMq.setTransJobCode(tmsTransJobBillDto.getTransJobCode());
-            if (CollectionUtils.isNotEmpty(tmsTransJobBillDto.getTransJobItemDtoList())) {
-                final TmsTransJobItemDto tmsTransJobItemDto = tmsTransJobBillDto.getTransJobItemDtoList().get(0);
-                tmsUrgeVehicleMq.setTransportCode(tmsTransJobItemDto.getTransportCode());
-            }
+            tmsUrgeVehicleMq.setTransportCode(tmsTransJobBillDto.getRouteLineCode());
             tmsUrgeVehicleMq.setBizId(jyBizTaskSendVehicleEntity.getBizId());
 
             jySendTmsUrgeVehicleProducer.sendOnFailPersistent(jyBizTaskSendVehicleEntity.getBizId(), JsonHelper.toJson(tmsUrgeVehicleMq));
