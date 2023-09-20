@@ -3752,4 +3752,14 @@ public class UccPropertyConfiguration {
     public void setJyExceptionCreateBizIdSwitch(Boolean jyExceptionCreateBizIdSwitch) {
         isJyExceptionCreateBizIdSwitch = jyExceptionCreateBizIdSwitch;
     }
+
+    private Integer jyExceptionDamageTaskCustomerNotReturnHours;
+
+    public Integer getJyExceptionDamageTaskCustomerNotReturnHours() {
+        return jyExceptionDamageTaskCustomerNotReturnHours;
+    }
+
+    public void setJyExceptionDamageTaskCustomerNotReturnHours(Integer jyExceptionDamageTaskCustomerNotReturnHours) {
+        this.jyExceptionDamageTaskCustomerNotReturnHours = jyExceptionDamageTaskCustomerNotReturnHours;
+    }
 }
