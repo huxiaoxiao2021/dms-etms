@@ -13,6 +13,7 @@ public enum JyBizStrandScanTypeEnum {
     WAYBILL(1, "按运单"),
     BOX(2, "按箱"),
     BOARD(3, "按板"),
+    BATCH(4, "按批次")
     ;
 
 

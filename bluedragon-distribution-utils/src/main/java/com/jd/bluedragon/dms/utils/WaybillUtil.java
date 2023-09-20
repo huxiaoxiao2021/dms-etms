@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author tangchunqing
@@ -341,6 +342,4 @@ public class WaybillUtil {
     public static boolean isEconomicNet(String waybillCode) {
         return UniformValidateUtil.isWaybillCodeMatchType(waybillCode, WaybillCodePattern.ENOCOMIC_WAYBILL_CODE);
     }
-
-
 }

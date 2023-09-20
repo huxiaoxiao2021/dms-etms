@@ -42,10 +42,15 @@ import com.jd.bluedragon.distribution.jy.strand.JyBizTaskStrandReportEntity;
 import com.jd.bluedragon.distribution.jy.strand.StrandDetailSumEntity;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.waybill.domain.Waybill;
@@ -75,6 +80,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 拣运app-滞留上报接口实现
@@ -143,6 +149,12 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
 
     @Autowired
     private RouterService routerService;
+
+    @Autowired
+    private SendDatailDao sendDatailDao;
+
+    @Autowired
+    private SendMDao sendMDao;
 
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.artificialCreateStrandReportTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -483,6 +495,8 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
                 return queryBoxInnerScanCount(scanRequest, nextSiteCode);
             case BOARD:
                 return queryBoardInnerScanCount(scanRequest, nextSiteCode);
+            case BATCH:
+                return queryBatchInnerScanCount(scanRequest, nextSiteCode);
             default:
                 throw new JyBizException("扫货方式不合法!");
         }
@@ -500,6 +514,79 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         Integer containerInnerCount = Objects.equals(scanRequest.getScanType(), JyBizStrandScanTypeEnum.PACK.getCode()) 
                 ? Constants.NUMBER_ONE : (waybill.getGoodNumber() == null ? Constants.NUMBER_ZERO : waybill.getGoodNumber());
         return ImmutablePair.of(containerCode, containerInnerCount);
+    }
+
+    /**
+     * 查询批次扫描件数量
+     *
+     * @param scanRequest
+     * @param nextSiteCode
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskStrandReportService.queryBatchInnerScanCount",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    private ImmutablePair<String, Integer> queryBatchInnerScanCount(JyStrandReportScanReq scanRequest, Integer nextSiteCode) {
+        String sendCode = null;
+        //获取批次号
+        sendCode = getScanSendCode(scanRequest);
+        //校验批次号
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
+        if (receiveSiteCode == null || !Objects.equals(receiveSiteCode, nextSiteCode)) {
+            throw new JyBizException("扫描批次号所属容器的流向和任务流向不一致!");
+        }
+        //获取批次号下的（包裹，运单，箱,板）数量
+        return ImmutablePair.of(sendCode, getBatchScanCount(scanRequest, sendCode));
+    }
+
+    /**
+     * 获取批次号
+     *
+     * @param scanRequest
+     * @return
+     */
+    private String getScanSendCode(JyStrandReportScanReq scanRequest) {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setCreateSiteCode(scanRequest.getCurrentOperate().getSiteCode());
+        if (WaybillUtil.isPackageCode(scanRequest.getScanBarCode())) {
+            sendDetail.setPackageBarcode(scanRequest.getScanBarCode());
+        } else if (BusinessHelper.isBoxcode(scanRequest.getScanBarCode())) {
+            sendDetail.setBoxCode(scanRequest.getScanBarCode());
+        } else if (WaybillUtil.isWaybillCode(scanRequest.getScanBarCode())) {
+            sendDetail.setWaybillCode(scanRequest.getScanBarCode());
+        } else if (BusinessUtil.isBoardCode(scanRequest.getScanBarCode())) {
+            SendM sendM = sendMDao.selectSendByBoardCode(scanRequest.getCurrentOperate().getSiteCode(), scanRequest.getScanBarCode(), SendStatusEnum.HAS_BEEN_SENDED.getCode());
+            if (ObjectHelper.isEmpty(sendM)) {
+                throw new JyBizException("未查询到板号: " + scanRequest.getScanBarCode() + " 对应的批次号");
+            }
+            return sendM.getSendCode();
+        } else {
+            throw new JyBizException("扫描批次的目的地和任务流向不一致!");
+        }
+        List<SendDetail> sendDetails = sendDatailDao.querySendDatailsBySelective(sendDetail);
+        List<SendDetail> collect = sendDetails.stream().sorted((o1, o2) -> {
+            return o2.getOperateTime().compareTo(o1.getOperateTime());
+        }).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(collect)) {
+            throw new JyBizException("未查询到单号: " + scanRequest.getScanBarCode() + " 对应的批次号");
+        }
+        return collect.get(0).getSendCode();
+    }
+
+    /**
+     * 获取批次号下的（包裹，运单，箱，板号）数量
+     *
+     * @param scanRequest
+     * @return
+     */
+    private Integer getBatchScanCount(JyStrandReportScanReq scanRequest, String sendCode) {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setCreateSiteCode(scanRequest.getCurrentOperate().getSiteCode());
+        sendDetail.setSendCode(sendCode);
+        List<String> sendDetailList = sendDatailDao.queryBoxCodeSingleBySendCode(sendDetail);
+        if (CollectionUtils.isEmpty(sendDetailList)) {
+            throw new JyBizException("未查询到批号: " + scanRequest.getScanBarCode() + " 对应的包裹号，运单号，箱号，板号等");
+        }
+        return sendDetailList.size();
     }
 
     /**
@@ -525,7 +612,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
                 return ImmutablePair.of(boardCode, boardInnerCount == null ? Constants.NUMBER_ZERO : boardInnerCount);
             }
         }catch (JyBizException e){
-            throw e;   
+            throw e;
         }catch (Exception e){
             Profiler.functionError(info);
         }finally {
@@ -626,6 +713,16 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         if(!result.codeSuccess()){
            return result; 
         }
+        //操作单位编号
+        if(ObjectHelper.isEmpty(request.getCurrentOperate())){
+            result.parameterError("参数错误-操作人不能为空!");
+            return result;
+        }
+        //操作单位编号
+        if(ObjectHelper.isEmpty(request.getCurrentOperate().getSiteCode())){
+            result.parameterError("参数错误-操作单位编号不能为空!");
+            return result;
+        }
         return result;
     }
 
@@ -677,6 +774,12 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         if(Objects.equals(request.getScanType(), JyBizStrandScanTypeEnum.BOARD.getCode())
                 && (!WaybillUtil.isPackageCode(request.getScanBarCode()) && !BusinessHelper.isBoxcode(request.getScanBarCode()))){
             result.error("扫货方式【按板】只能扫描包裹号/箱号!");
+            return false;
+        }
+        if (Objects.equals(request.getScanType(), JyBizStrandScanTypeEnum.BATCH.getCode())
+                && (!WaybillUtil.isPackageCode(request.getScanBarCode()) && !BusinessHelper.isBoxcode(request.getScanBarCode())
+                && !BusinessUtil.isBoardCode(request.getScanBarCode()))) {
+            result.error("扫货方式【批次】只能扫描包裹号/箱号/板号!");
             return false;
         }
         return true;
@@ -979,6 +1082,9 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
                 break;
             case BOARD:
                 request.setReportType(ReportTypeEnum.BOARD_NO.getCode());
+                break;
+            case BATCH:
+                request.setReportType(ReportTypeEnum.BATCH_NO.getCode());
                 break;
             default:
                 logger.warn("条码:{}通过非法扫描方式,不进行处理!", detailEntity.getScanBarCode());
