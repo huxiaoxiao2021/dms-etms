@@ -62,7 +62,7 @@ public class SortingRequestDto implements Serializable {
      */
     private String operateTime;
     /**
-     * 是否需要绑定集包袋编号
+     * 是否需要校验绑定集包袋编号
      * 1是，2否
      */
     private Integer needBindMaterialFlag;

@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
+import com.jd.bluedragon.distribution.coldChain.domain.ColdSendResult;
+import com.jd.bluedragon.distribution.coldChain.enums.ColdSendResultCodeNum;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.distribution.cyclebox.service.BoxMaterialRelationService;
@@ -117,14 +119,14 @@ public class DmsSortingServiceImpl implements DmsSortingService {
      * @return
      */
     @Override
-    public InvokeResult<String> bindingBoxMaterialPackageRelation(SortingRequestDto request) {
-        InvokeResult<String> result = new InvokeResult<String>();
+    public InvokeResult<ColdSendResult> bindingBoxMaterialPackageRelation(SortingRequestDto request) {
+        InvokeResult<ColdSendResult> result = new InvokeResult<ColdSendResult>();
         if(request == null){
             result.parameterError("入参为空");
             return result;
         }
-        if(StringUtils.isBlank(request.getPackageCode()) || request.getCreateSiteCode() == null){
-            result.parameterError("包裹号或操作单位不能为空");
+        if(request.getCreateSiteCode() == null){
+            result.parameterError("操作单位不能为空");
             return result;
         }
         String packageCode = request.getPackageCode();
@@ -137,22 +139,26 @@ public class DmsSortingServiceImpl implements DmsSortingService {
             result.parameterError("箱号不合法");
             return result;
         }
-        BoxMaterialRelation boxMaterialRelation = boxMaterialRelationService.getDataByBoxCode(boxCode);
-        if(boxMaterialRelation == null){
-            if(StringUtils.isBlank(request.getMaterialCode())) {
-                result.parameterError("您所扫描箱号未绑定容器号，请绑定");
-                return result;
-            }else{
-                if(!BusinessUtil.isCollectionBag(request.getMaterialCode())){
-                    result.parameterError("集包袋号不合法");
+        //是否需要校验绑定集包袋编号
+        if(Objects.equals(request.getNeedBindMaterialFlag(),Constants.CONSTANT_NUMBER_ONE)) {
+            BoxMaterialRelation boxMaterialRelation = boxMaterialRelationService.getDataByBoxCode(boxCode);
+            if (boxMaterialRelation == null || StringUtils.isBlank(boxMaterialRelation.getMaterialCode())) {
+                if (StringUtils.isBlank(request.getMaterialCode())) {
+                    //自定义失败，需要单独处理
+                    result.setData(new ColdSendResult(ColdSendResultCodeNum.CONFIRM.getCode(), "您所扫描箱号未绑定容器号，请绑定"));
                     return result;
-                }
-                //绑定集包袋
-                BoxMaterialRelationRequest boxMaterialRelationRequest = createBoxMaterialRelationRequest(request);
-                com.jd.bluedragon.distribution.base.domain.InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(boxMaterialRelationRequest);
-                if (!bindMaterialRet.codeSuccess()){
-                    result.parameterError(bindMaterialRet.getMessage());
-                    return result;
+                } else {
+                    if (!BusinessUtil.isCollectionBag(request.getMaterialCode())) {
+                        result.parameterError("集包袋号不合法");
+                        return result;
+                    }
+                    //绑定集包袋
+                    BoxMaterialRelationRequest boxMaterialRelationRequest = createBoxMaterialRelationRequest(request);
+                    com.jd.bluedragon.distribution.base.domain.InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(boxMaterialRelationRequest);
+                    if (!bindMaterialRet.codeSuccess()) {
+                        result.setData(new ColdSendResult(ColdSendResultCodeNum.INTERCEPT.getCode(), bindMaterialRet.getMessage()));
+                        return result;
+                    }
                 }
             }
         }
@@ -160,8 +166,10 @@ public class DmsSortingServiceImpl implements DmsSortingService {
         TaskRequest taskPdaRequest = createTaskPdaRequest(request);
         TaskResponse taskResponse = taskResource.add(taskPdaRequest);
         if(!Objects.equals(taskResponse.getCode(),TaskResponse.CODE_OK)){
-            result.parameterError(taskResponse.getMessage());
+            result.setData(new ColdSendResult(ColdSendResultCodeNum.INTERCEPT.getCode(),taskResponse.getMessage()));
+            return result;
         }
+        result.setData(new ColdSendResult(ColdSendResultCodeNum.SUCCESS.getCode(),InvokeResult.RESULT_SUCCESS_MESSAGE));
         return result;
     }
 
@@ -191,7 +199,7 @@ public class DmsSortingServiceImpl implements DmsSortingService {
     private TaskRequest createTaskPdaRequest(SortingRequestDto request) {
         PackSortTaskBody taskBody = new PackSortTaskBody();
         taskBody.setBoxCode(request.getBoxCode());
-        taskBody.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        taskBody.setBusinessType(request.getBusinessType());
         taskBody.setFeatureType(request.getFeatureType());
         taskBody.setIsCancel(request.getIsCancel());
         taskBody.setIsLoss(request.getIsLoss());
