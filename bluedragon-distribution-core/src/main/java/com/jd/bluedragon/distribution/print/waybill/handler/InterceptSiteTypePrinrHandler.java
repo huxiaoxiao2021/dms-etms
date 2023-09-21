@@ -47,10 +47,10 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
-    @Value("${'${siteTypeOfTwoLevelList}'.split(',')}")
+    @Value("#{'${siteTypeOfTwoLevelList}'.split(',')}")
     private List<Integer> siteTypeOfTwoLevelList;
 
-    @Value("${'${siteTypeOfThreeLevelList}'.split(',')}")
+    @Value("#{'${siteTypeOfThreeLevelList}'.split(',')}")
     private List<Integer> siteTypeOfThreeLevelList;
 
 
