@@ -990,6 +990,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         result.setData(scanCount);
 
+        if (waybill == null) {
+            return;
+        }
         //春节项目的特殊逻辑
         if (WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)) {
             ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy.queryMatchConditionRecord(request.getCurrentOperate().getSiteCode(),waybill.getOldSiteId());
