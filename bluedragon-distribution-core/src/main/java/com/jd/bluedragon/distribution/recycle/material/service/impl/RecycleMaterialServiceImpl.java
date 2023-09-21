@@ -610,13 +610,13 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
                     if (recycleBasketEntity.getTypeCode().equals(RecycleBasketTypeEnum.BIG.getCode())) {
                         if (akboxConfig.getLargeStock() != null && num > akboxConfig.getLargeStock()) {
                             logger.error("周转筐打印,超出当前站点库存总理：{}", akboxConfig.getLargeStock());
-                            response.toError("当前场地已打印条码为"+ num + "个超过库存数量"+ akboxConfig.getLargeStock() +"个，无法操作打印");
+                            response.toError("当前场地已打印条码为"+ integerApiResult.getData() + "个本次打印超过库存配置"+ akboxConfig.getLargeStock() +"个，无法操作打印");
                             return response;
                         }
                     } else {
                         if (akboxConfig.getSmallStock() != null && num > akboxConfig.getSmallStock()) {
                             logger.error("周转筐打印,超出当前站点库存总理：{}", akboxConfig.getSmallStock());
-                            response.toError("当前场地已打印条码为"+ num + "个超过库存数量"+ akboxConfig.getSmallStock() +"个，无法操作打印");
+                            response.toError("当前场地已打印条码为"+ integerApiResult.getData() + "个本次打印超过库存配置"+ akboxConfig.getSmallStock() +"个，无法操作打印");
                             return response;
                         }
                     }
