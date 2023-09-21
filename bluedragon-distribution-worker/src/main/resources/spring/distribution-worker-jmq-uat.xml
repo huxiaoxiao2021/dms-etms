@@ -653,5 +653,10 @@
     <jmq:consumer id="jmq.jyComboardTaskFirstSaveDelayConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jyComboardTaskFirstSave}" listener="jyComboardTaskFirstSaveDelayConsumer"/>
     </jmq:consumer>
+
+    <!-- 运输通知司机节点 -->
+    <jmq:consumer id="jmq.tmsTransWorkDriverNodeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tmsTransWorkDriverNode}" listener="tmsTransWorkDriverNodeConsumer"/>
+    </jmq:consumer>
 </beans>
 

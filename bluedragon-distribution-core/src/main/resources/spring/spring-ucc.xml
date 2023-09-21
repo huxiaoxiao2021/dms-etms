@@ -307,6 +307,7 @@
 		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
 		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
 
+		<property name="fetchCarDistributionTimeRange" value="${fetchCarDistributionTimeRange:48}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -618,6 +619,7 @@
 				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
 				<value>uccPropertyConfiguration.jyExceptionCreateBizIdSwitch</value>
 				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
+				<value>uccPropertyConfiguration.fetchCarDistributionTimeRange</value>
 			</list>
 		</property>
 	</bean>
