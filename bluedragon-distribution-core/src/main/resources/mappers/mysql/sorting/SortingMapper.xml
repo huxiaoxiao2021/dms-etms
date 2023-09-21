@@ -65,6 +65,7 @@
 	        AND package_code = #{packageCode}
 		    AND create_site_code = #{createSiteCode}
 			AND receive_site_code = #{receiveSiteCode}
+		limit 10
 	</select>    
 	<!-- Author by lixin456 指定更新时使用索引 解决更新死锁问题 若对该表索引进行调整 请注意修改此处 -->
 	<update id="update" parameterType="sorting" >

@@ -79,6 +79,7 @@
 			<if test="packageBarcode!=null">
 				and package_barcode = #{packageBarcode,jdbcType=INTEGER}
 			</if>
+			limit 10
 		</where>
 	</select>
 	<update id="update" parameterType="SendDetail" >
