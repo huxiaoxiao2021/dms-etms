@@ -487,6 +487,11 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
                 res.error(jsfRes.getMessage());
                 return res;
             }
+            if(Objects.isNull(jsfRes.getData())) {
+                if(log.isInfoEnabled()) {
+                    log.info("vrsQueryAPI.queryAirLineByAirLineReq服务查询成功，返回为空，request={}", JsonHelper.toJson(request));
+                }
+            }
             res.setData(jsfRes.getData());
             return res;
         }catch (Exception ex) {

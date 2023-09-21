@@ -297,12 +297,14 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
                 }
             }
             if(Objects.isNull(nextSiteId)) {
+                log.warn("航空计划(订舱号：{})生成发货任务根据流向场地编码【{}】查询场地为空", entity.getBookingCode(), JsonHelper.toJson(nextSiteSet));
                 throw new JyBizIgnoreException("航空计划生成发货任务没有找到流向，无效计划");
             }
             if(nextSiteSet.size() > 1) {
                 log.warn("航空发货任务【订舱号：{}】查找路由运力找到多个目的地{}，取任一个【{}|{}】", entity.getBookingWeight(), JsonHelper.toJson(nextSiteSet), nextSiteId, nextSiteName);
             }
         }catch (Exception ignoreEx) {
+            log.error("订舱号={}，查询航空计划发货目的流向服务时出错，errMsg={}", entity.getBookingCode(), ignoreEx.getMessage(), ignoreEx);
             throw new JyBizIgnoreException(ignoreEx.getMessage());
         }
         entity.setNextSiteCode(nextSiteCode);
