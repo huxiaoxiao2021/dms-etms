@@ -21,6 +21,7 @@
         <result property="vehicleTypeName" column="vehicle_type_name"/>
         <result property="lineType" column="line_type"/>
         <result property="lineTypeName" column="line_type_name"/>
+        <result property="driverTag" column="driver_tag"/>
         <result property="lastPlanDepartTime" column="last_plan_depart_time"/>
         <result property="lastSealCarTime" column="last_seal_car_time"/>
         <result property="comeTime" column="come_time"/>
@@ -49,7 +50,7 @@
     <sql id="Base_Column_List">
         id
         , biz_id,biz_no, trans_work_code, start_site_id, vehicle_number, vehicle_status, manual_created_flag, abnormal_flag,
-        bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, last_plan_depart_time, last_seal_car_time,come_time,near_come_time,
+        bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, driver_tag, last_plan_depart_time, last_seal_car_time,come_time,near_come_time,
         create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,task_name
     </sql>
 
@@ -103,6 +104,9 @@
             </if>
             <if test="lineTypeName != null">
                 line_type_name,
+            </if>
+            <if test="driverTag != null">
+                driver_tag,
             </if>
             <if test="lastPlanDepartTime != null">
                 last_plan_depart_time,
@@ -192,6 +196,9 @@
             </if>
             <if test="lineTypeName != null">
                 #{lineTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="driverTag != null">
+                #{driverTag,jdbcType=TINYINT},
             </if>
             <if test="lastPlanDepartTime != null">
                 #{lastPlanDepartTime,jdbcType=TIMESTAMP},
@@ -283,6 +290,9 @@
             <if test="lineTypeName != null">
                 line_type_name = #{lineTypeName,jdbcType=VARCHAR},
             </if>
+            <if test="driverTag != null">
+                driver_tag = #{driver_tag,jdbcType=INTEGER},
+            </if>
             <if test="lastPlanDepartTime != null">
                 last_plan_depart_time = #{lastPlanDepartTime,jdbcType=TIMESTAMP},
             </if>
@@ -370,6 +380,9 @@
             </if>
             <if test="lineTypeName != null">
                 line_type_name = #{lineTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="driverTag != null">
+                driver_tag = #{driverTag,jdbcType=INTEGER},
             </if>
             <if test="lastPlanDepartTime != null">
                 last_plan_depart_time = #{lastPlanDepartTime,jdbcType=TIMESTAMP},

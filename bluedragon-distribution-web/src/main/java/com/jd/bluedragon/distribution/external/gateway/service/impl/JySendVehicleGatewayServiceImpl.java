@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendModeEnum;
@@ -110,6 +111,13 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
         return retJdCResponse(jySendVehicleService.fetchSendVehicleTask(request));
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.fetchWaitingVehicleDistributionList",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<Pager<WaitingVehicleDistribution>> fetchWaitingVehicleDistributionList(WaitingVehicleDistributionRequest request) {
+        return retJdCResponse(jySendVehicleService.fetchWaitingVehicleDistributionList(request));
     }
 
     @Override
@@ -247,4 +255,8 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     }
 
 
+    @Override
+    public JdCResponse<String> remindTransJob(RemindTransJobRequest request) {
+        return retJdCResponse(jySendVehicleService.remindTransJob(request));
+    }
 }

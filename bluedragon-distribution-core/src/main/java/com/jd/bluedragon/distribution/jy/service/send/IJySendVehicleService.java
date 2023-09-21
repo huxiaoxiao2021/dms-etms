@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
@@ -294,4 +295,12 @@ public interface IJySendVehicleService {
      */
     InvokeResult<String> callByWorkItem(CallNumberRequest request);
 
+    /**
+     * 查询待派车列表
+     * @param request
+     * @return
+     */
+    InvokeResult<Pager<WaitingVehicleDistribution>> fetchWaitingVehicleDistributionList(WaitingVehicleDistributionRequest request);
+
+    InvokeResult<String> remindTransJob(RemindTransJobRequest request);
 }
