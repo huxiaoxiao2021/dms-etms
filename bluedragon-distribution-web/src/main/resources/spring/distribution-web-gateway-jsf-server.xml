@@ -7,6 +7,11 @@
 
     <!-- 发布jsf 到物流网关 安卓调用start -->
     <!-- 分拣 -->
+
+    <!--指定网关jsf的filter-->
+    <bean id="simpleComplexSwitchGatewayFilter" class="com.jd.bluedragon.external.gateway.filter.SimpleComplexSwitchGatewayFilter" scope="prototype"/>
+    <jsf:filter id="gatewayFilter" ref="simpleComplexSwitchGatewayFilter" providers="*" consumers=""/>
+    
     <bean id="sortingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SortingGatewayServiceImpl"/>
     <jsf:provider id="jsfSortingService"
                   interface="com.jd.bluedragon.external.gateway.service.SortingGatewayService"

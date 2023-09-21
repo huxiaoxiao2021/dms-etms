@@ -495,4 +495,11 @@ public class DmsConstants {
 
     public static final Integer NUMBER_ZERO = 0; //数字0
     public static final Integer NUMBER_HUNDRED = 100; //数字100
+    /**
+     * 香港澳门区域国标
+     */
+    public static final List<String> HK_MO_REGION = new ArrayList<String>(){{
+        add("HK");
+        add("MO");
+    }};
 }

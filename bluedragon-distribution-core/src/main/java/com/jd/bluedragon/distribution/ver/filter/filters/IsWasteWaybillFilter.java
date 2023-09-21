@@ -31,7 +31,7 @@ public class IsWasteWaybillFilter implements Filter {
 
         logger.info("do IsWasteWaybillFilter process waybillCode[{}]" + request.getWaybillCode());
         String waybillCode = request.getWaybillCode();
-        if (waybillTraceManager.isWaybillWaste(waybillCode)){
+        if (waybillTraceManager.isOpCodeWaste(waybillCode)){
             throw new SortingCheckException(SortingResponse.CODE_29320, HintService.getHintWithFuncModule(HintCodeConstants.WASTE_WAYBILL_TEMP_STORE, request.getFuncModule()));
         }
 
