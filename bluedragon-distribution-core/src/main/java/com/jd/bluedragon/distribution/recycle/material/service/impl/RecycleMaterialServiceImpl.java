@@ -597,14 +597,16 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
     private JdResponse<RecycleBasketPrintInfo> checkAkboxConfig(Integer siteCode, RecycleBasketEntity recycleBasketEntity) {
         JdResponse<RecycleBasketPrintInfo> response = new JdResponse<>();
         Result<AkboxConfig> akboxConfigResult = akboxConfigJsfService.queryBySiteCode(siteCode);
-
+        logger.error("获取站点zzz1：{}", JsonHelper.toJson(akboxConfigResult));
         if (akboxConfigResult.isSuccess()) {
             AkboxConfig akboxConfig = akboxConfigResult.getData();
             if (akboxConfig !=null) {
 
                 ApiResult<Integer> integerApiResult = recycleMaterialManager.countMaterialByCondition(siteCode, recycleBasketEntity.getTypeCode());
+                logger.error("获取站点zzz：{}", JsonHelper.toJson(integerApiResult));
                 if (integerApiResult.isSucceed()) {
                     Integer num = integerApiResult.getData() + recycleBasketEntity.getQuantity();
+                    logger.error("获取站点num：{}", num);
                     if (recycleBasketEntity.getTypeCode().equals(RecycleBasketTypeEnum.BIG.getCode())) {
                         if (akboxConfig.getLargeStock() != null && num > akboxConfig.getLargeStock()) {
                             logger.error("周转筐打印,超出当前站点库存总理：{}", akboxConfig.getLargeStock());
@@ -613,7 +615,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
                         }
                     } else {
                         if (akboxConfig.getSmallStock() != null && num > akboxConfig.getSmallStock()) {
-                            logger.error("周转筐打印,超出当前站点库存总理：{}", akboxConfig.getLargeStock());
+                            logger.error("周转筐打印,超出当前站点库存总理：{}", akboxConfig.getSmallStock());
                             response.toError("当前场地已打印条码为"+ num + "个超过库存数量"+ akboxConfig.getSmallStock() +"个，无法操作打印");
                             return response;
                         }
