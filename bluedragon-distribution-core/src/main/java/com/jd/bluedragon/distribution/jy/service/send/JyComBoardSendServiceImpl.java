@@ -1235,7 +1235,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   private void pushDelayMQ(JyBizTaskComboardEntity record) {
     try {
-      // jyComboardTaskFirstSaveProducer.send(record.getBoardCode(), JsonHelper.toJson(record));
+      jyComboardTaskFirstSaveProducer.send(record.getBoardCode(), JsonHelper.toJson(record));
     } catch (Exception e) {
       log.info("首次保存组板任务发送jmq消息异常{}", JsonHelper.toJson(record));
     }
