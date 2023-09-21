@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.dao.common.JyOperateFlowDao;
@@ -37,6 +38,9 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
     @Qualifier("jyOperateFlowMqProducer")
     private DefaultJMQProducer jyOperateFlowMqProducer;
     
+    @Autowired
+    UccPropertyConfiguration ucc;
+    
 	@Override
 	public int insert(JyOperateFlowDto data) {
 		if(data == null || StringUtils.isBlank(data.getOperateBizKey())) {
@@ -48,12 +52,18 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 
 	@Override
 	public int sendMq(JyOperateFlowMqData mqData) {
+		if(!Boolean.TRUE.equals(ucc.getSendJyOperateFlowMqSwitch())) {
+			return 0;
+		}
 		jyOperateFlowMqProducer.sendOnFailPersistent(mqData.getOperateBizKey(), JsonHelper.toJson(mqData));
 		return 1;
 	}
 
 	@Override
 	public int sendMqList(List<JyOperateFlowMqData> mqDataList) {
+		if(!Boolean.TRUE.equals(ucc.getSendJyOperateFlowMqSwitch())) {
+			return 0;
+		}
 		List<Message> msgList = new ArrayList<>();
 		if(CollectionUtils.isNotEmpty(mqDataList)) {
 			for(JyOperateFlowMqData mqData : mqDataList) {
