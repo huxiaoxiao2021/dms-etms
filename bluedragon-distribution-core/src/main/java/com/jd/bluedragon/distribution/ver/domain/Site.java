@@ -23,6 +23,11 @@ public class Site {
     private Integer siteBusinessType;                       // 站点开通的业务
     private String dmsCode;                                //分拣中心七位编码
 
+    // 新版分拣中心场地类型
+    private Integer sortType;
+    private Integer sortSubType;
+    private Integer sortThirdType;
+
     public Integer getSiteBusinessType() {
         return siteBusinessType;
     }
@@ -101,5 +106,29 @@ public class Site {
 
     public void setDmsCode(String dmsCode) {
         this.dmsCode = dmsCode;
+    }
+
+    public Integer getSortType() {
+        return sortType;
+    }
+
+    public void setSortType(Integer sortType) {
+        this.sortType = sortType;
+    }
+
+    public Integer getSortSubType() {
+        return sortSubType;
+    }
+
+    public void setSortSubType(Integer sortSubType) {
+        this.sortSubType = sortSubType;
+    }
+
+    public Integer getSortThirdType() {
+        return sortThirdType;
+    }
+
+    public void setSortThirdType(Integer sortThirdType) {
+        this.sortThirdType = sortThirdType;
     }
 }

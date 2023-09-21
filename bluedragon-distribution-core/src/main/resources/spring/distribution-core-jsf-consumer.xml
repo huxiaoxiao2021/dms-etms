@@ -1430,4 +1430,9 @@
     <jsf:consumer id="workGridBusinessJsfService" interface="com.jdl.basic.api.service.workStation.WorkGridBusinessJsfService"
                   protocol="jsf" alias="${jsf.alias.jy_basic}" timeout="${jsf.jy_basic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    
+    <!-- 云打印接口 -->
+    <jsf:consumer id="cloudPrintRenderService" interface="com.jdl.print.service.RenderService"
+                  protocol="jsf" alias="${cloudPrint.jsf.alias}" timeout="${cloudPrint.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>

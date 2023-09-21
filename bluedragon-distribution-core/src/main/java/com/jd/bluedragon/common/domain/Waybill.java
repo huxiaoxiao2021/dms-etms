@@ -222,6 +222,9 @@ public class Waybill implements Serializable {
 	// 来源于waybillExt中，sendPay超过500位则在sendPayMap中展示，格式：{"593":"1","590":"1"}
 	private Map<String, Object> sendPayMap;
 
+	// 运单额外属性
+	private WaybillExtVO waybillExtVO;
+
 	public Map<String, Object> getSendPayMap() {
 		return sendPayMap;
 	}
@@ -815,4 +818,12 @@ public class Waybill implements Serializable {
     public void setCodMoney(Double codMoney) {
         this.codMoney = codMoney;
     }
+
+	public WaybillExtVO getWaybillExtVO() {
+		return waybillExtVO;
+	}
+
+	public void setWaybillExtVO(WaybillExtVO waybillExtVO) {
+		this.waybillExtVO = waybillExtVO;
+	}
 }

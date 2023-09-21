@@ -693,7 +693,6 @@ public class BusinessUtil {
         return Boolean.FALSE;
     }
 
-
     /**
      * 通过运单标识 判断是否需求包装耗材
      * <p>
@@ -2871,5 +2870,17 @@ public class BusinessUtil {
             return false;
         }
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_124,WaybillSignConstants.CHAR_124_2);
+    }
+
+    /**
+     * 是否港澳运单
+     *  desc：运单的始发和目的其一是香港澳门则为港澳运单
+     * 
+     * @param waybillStart 运单始发
+     * @param waybillEnd 运单目的
+     * @return
+     */
+    public static boolean isGAWaybill(String waybillStart, String waybillEnd){
+        return DmsConstants.HK_MO_REGION.contains(waybillStart) || DmsConstants.HK_MO_REGION.contains(waybillEnd);
     }
 }

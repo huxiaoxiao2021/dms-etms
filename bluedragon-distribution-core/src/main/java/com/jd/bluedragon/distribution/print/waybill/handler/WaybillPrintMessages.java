@@ -82,4 +82,8 @@ public class WaybillPrintMessages{
 
     public static final String MESSAGE_PACKAGE_PRINTED = "订单标签已打印，如需打印请操作包裹补打或去站长工作台操作包裹打印";
 
+	/**
+	 * 港澳云打印成功状态码
+	 */
+	public static final Integer CODE_INTERNATIONAL_SUC = 200200;
 }
