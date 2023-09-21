@@ -596,7 +596,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
     private JdResponse<RecycleBasketPrintInfo> checkAkboxConfig(Integer siteCode, RecycleBasketEntity recycleBasketEntity) {
         JdResponse<RecycleBasketPrintInfo> response = new JdResponse<>();
-        Result<AkboxConfig> akboxConfigResult = akboxConfigJsfService.queryBySiteCode(siteCode.longValue());
+        Result<AkboxConfig> akboxConfigResult = akboxConfigJsfService.queryBySiteCode(siteCode);
 
         if (akboxConfigResult.isSuccess()) {
             AkboxConfig akboxConfig = akboxConfigResult.getData();
