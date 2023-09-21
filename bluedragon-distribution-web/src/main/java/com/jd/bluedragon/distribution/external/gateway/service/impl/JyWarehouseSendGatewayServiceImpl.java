@@ -38,6 +38,7 @@ import com.jd.bluedragon.distribution.jy.service.comboard.impl.JyGroupSortCrossD
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyWarehouseSendVehicleServiceImpl;
 import com.jd.bluedragon.dms.utils.BarCodeType;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -276,14 +277,18 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 res.toFail("强发时未指定发货任务");
                 return res;
             }
-
+            final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
+            if (barCodeType == null) {
+                res.toFail("请扫描正确的条码！");
+                return res;
+            }
             if (Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType()) &&
-                    (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), request.getBarCodeType()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), request.getBarCodeType()))) {
+                    (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))) {
                 res.toFail("请扫描包裹号或箱号！");
                 return res;
             }
-            else if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
-                if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), request.getBarCodeType()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), request.getBarCodeType())) {
+            if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
+                if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())) {
                     res.toFail("请扫描包裹号或运单号！");
                     return res;
                 }
