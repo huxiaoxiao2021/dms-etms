@@ -726,7 +726,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Transactional
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyDamageExceptionServiceImpl.dealCustomerReturnDamageResult", mState = {JProEnum.TP})
     public void dealCustomerReturnDamageResult(JyExpCustomerReturnMQ returnMQ) {
-        
+        if((returnMQ.getExptId().split("_", 2)).length < 2){
+            return ;
+        }
         String bizId = returnMQ.getExptId().split("_", 2)[1];
         //回传状态
         String resultType = returnMQ.getResultType();
