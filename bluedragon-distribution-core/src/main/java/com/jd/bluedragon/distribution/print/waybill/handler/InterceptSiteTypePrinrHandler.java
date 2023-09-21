@@ -25,12 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 
@@ -48,6 +46,13 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Value("${'${siteTypeOfTwoLevelList}'.split(',')}")
+    private List<Integer> siteTypeOfTwoLevelList;
+
+    @Value("${'${siteTypeOfThreeLevelList}'.split(',')}")
+    private List<Integer> siteTypeOfThreeLevelList;
+
 
 
 	@Override
@@ -84,28 +89,9 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
             if(baseSite == null) {
                 return false;
             }
-            //判断一级站点类型是营业部、第三方
-            if(!(SiteTypeLevel.SiteTypeOneLevelEnum.TERMINAL_SITE.getCode().equals(baseSite.getSiteType())
-                    ||SiteTypeLevel.SiteTypeOneLevelEnum.THIRD_PARTY.getCode().equals(baseSite.getSiteType()))){
-                return false;
-            }
-            //判断二级站点类型是 营业部、便民服务点
-            if(SiteTypeLevel.SiteTypeTwoLevelEnum.TERMINAL_SITE.getCode().equals(baseSite.getSubType())
-                    || SiteTypeLevel.SiteTypeTwoLevelEnum.CONVENIENT_SERVICE_POINT.getCode().equals(baseSite.getSubType())
-                    || SiteTypeLevel.SiteTypeTwoLevelEnum.DEEP_COOPERATION_SELF_PICKUP_CABINETS.getCode().equals(baseSite.getSubType())){
+            log.info("siteTypeOfTwoLevelList-{}   siteTypeOfThreeLevelList-{} ",JSON.toJSONString(siteTypeOfTwoLevelList),JSON.toJSONString(siteTypeOfThreeLevelList));
+            if(siteTypeOfTwoLevelList.contains(baseSite.getSubType()) || siteTypeOfThreeLevelList.contains(baseSite.getThirdType())){
                 return true;
-            }
-            if(SiteTypeLevel.SiteTypeTwoLevelEnum.CAMPUS_JD_SCHOOL.getCode().equals(baseSite.getSubType())) {
-                //
-                if (SiteTypeLevel.SiteTypeThreeLevelEnum.CAMPUS_SCHOOL.getCode().equals(baseSite.getThirdType())
-                        || SiteTypeLevel.SiteTypeThreeLevelEnum.JD_STAR_DISTRIBUTION.getCode().equals(baseSite.getThirdType())) {
-                    return true;
-                }
-            }else if(SiteTypeLevel.SiteTypeTwoLevelEnum.SHARE_DISTRIBUTION_STATION.getCode().equals(baseSite.getSubType())){
-                if (SiteTypeLevel.SiteTypeThreeLevelEnum.TOWN_SHARE_DISTRIBUTION_STATION.getCode().equals(baseSite.getThirdType())
-                        || SiteTypeLevel.SiteTypeThreeLevelEnum.CITY_SHARE_DISTRIBUTION_STATION.getCode().equals(baseSite.getThirdType())) {
-                    return true;
-                }
             }
         }
         return  false;
