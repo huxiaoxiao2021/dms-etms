@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 人员签到表--Dao接口
@@ -190,4 +191,10 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	List<BaseUserSignRecordVo> querySignInUserByCondition(UserSignRecordQuery query);
+
+	/**
+	 * 用business_key查询
+	 * @return
+	 */
+	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
 }

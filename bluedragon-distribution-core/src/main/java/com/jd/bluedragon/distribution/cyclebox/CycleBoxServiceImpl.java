@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.cyclebox;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
 import com.jd.bluedragon.core.base.TMSBossQueryManager;
@@ -57,6 +58,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR;
 
 @Service("cycleBoxService")
 public class CycleBoxServiceImpl implements CycleBoxService {
@@ -378,10 +381,20 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             return result;
         }
         //集包袋规则校验
-        if (!BusinessUtil.isCollectionBag(request.getMaterialCode())) {
-            result.setCode(Integer.valueOf(HintCodeConstants.CYCLE_BOX_RULE_ERROR));
-            result.setMessage(HintService.getHint(HintCodeConstants.CYCLE_BOX_RULE_ERROR, Boolean.TRUE));
-            return result;
+        // 如果是LL类型箱号，只能绑定围板箱或者笼车号
+        if (BusinessHelper.isLLBoxType(request.getBoxCode().substring(0, 2))) {
+            if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
+                result.setCode(Integer.valueOf(LL_BOX_BINDING_MATERIAL_TYPE_ERROR));
+                result.setMessage(HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR, Boolean.TRUE));
+            }
+        }else {
+            if (!BusinessUtil.isCollectionBag(request.getMaterialCode()) 
+                    || BusinessUtil.isTrolleyCollectionBag(request.getMaterialCode())) {
+                result.setCode(Integer.valueOf(HintCodeConstants.CYCLE_BOX_RULE_ERROR));
+                result.setMessage(HintService.getHint(HintCodeConstants.CYCLE_BOX_RULE_ERROR, Boolean.TRUE));
+                return result;
+            }
+            
         }
         //该箱号已发货，不能再绑定集包袋
         if (isBoxAlreadySent(request)) {
@@ -410,7 +423,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
         return result;
     }
-
+    
     /**
      * 跳过校验
      * @param request

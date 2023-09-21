@@ -11,7 +11,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEn
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
@@ -25,7 +27,6 @@ import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
@@ -36,6 +37,8 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetail
 import com.jd.bluedragon.distribution.jy.service.comboard.impl.JyGroupSortCrossDetailCacheService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyWarehouseSendVehicleServiceImpl;
+import com.jd.bluedragon.dms.utils.BarCodeType;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -44,7 +47,6 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.domain.cross.TableTrolleyJsfResp;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -275,7 +277,25 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 res.toFail("强发时未指定发货任务");
                 return res;
             }
-
+            final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
+            if (barCodeType == null) {
+                res.toFail("请扫描正确的条码！");
+                return res;
+            }
+            if (Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType())) {
+                if(!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode())) {
+                    res.toFail("请扫描包裹号或箱号！");
+                    return res;
+                }
+            } else if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
+                if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())) {
+                    res.toFail("请扫描包裹号或运单号！");
+                    return res;
+                }
+            } else {
+                res.toFail("请扫扫描单据类型不支持，请联系分拣小秘！");
+                return res;
+            }
             request.setPost(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
             return jyWarehouseSendVehicleService.scan(request, res);
         }catch (JyBizException ex) {
@@ -802,10 +822,15 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             checkGroupCode(mixScanTaskListQueryReq.getGroupCode());
             MixScanTaskQueryRes result = this.getMixScanTaskPage(mixScanTaskListQueryReq);
 
-            if(CollectionUtils.isEmpty(result.getMixScanTaskDtoList()) && StringUtils.isNotBlank(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
-                response.toFail("未搜索到混扫任务，如果是自建任务，需要先绑定到混扫任务中");
-            }
             response.setData(result);
+            if(CollectionUtils.isEmpty(result.getMixScanTaskDtoList()) && mixScanTaskListQueryReq.getPageNo() == 1) {
+                if(StringUtils.isNotBlank(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
+                    response.setCode(MixScanTaskQueryRes.FIND_NULL_CREATE_CODE);
+                    response.setMessage("未搜索到混扫任务，如果是自建任务，需要先绑定到混扫任务中");
+                }else {
+                    response.setMessage("查询为空");
+                }
+            }
         } catch (JyBizException e) {
             log.info("查询混扫任务失败：{}", JsonHelper.toJson(mixScanTaskListQueryReq), e);
             return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
@@ -959,7 +984,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.getSealVehicleInfo",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq) {
-        return retJdCResponse(jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq));
+        InvokeResult<SealVehicleInfoResp> sealVehicleInfo = jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq);
+        if (sealVehicleInfo != null && sealVehicleInfo.getData() != null) {
+            sealVehicleInfo.getData().setTransportCode("");
+        }
+        return retJdCResponse(sealVehicleInfo);
     }
 
     @Override
@@ -1037,6 +1066,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, JdCResponse.MESSAGE_ERROR, null);//500+非自定义异常
         }
+    }
+
+    @Override
+    public JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request) {
+        return retJdCResponse(jyWarehouseSendVehicleService.sendTaskDetail(request));
     }
 
 

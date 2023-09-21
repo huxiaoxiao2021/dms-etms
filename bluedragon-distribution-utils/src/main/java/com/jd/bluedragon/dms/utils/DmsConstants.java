@@ -333,6 +333,9 @@ public class DmsConstants {
     public static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
     public static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
     public static final int PHONE_LEAST_NUMBER = PHONE_FIRST_NUMBER + PHONE_HIGHLIGHT_NUMBER;//隐藏处理的最小长度
+
+    public static final int LANDLINE_FIRST_NUMBER = 6;//收件人和寄件人联系方式为10位(包括10)以下座机号要隐藏的位数
+    public static final int LANDLINE_NUMBER = 10;//收件人和寄件人联系方式为3位区号+7位座机号
     public static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
     public static final int ADDRESS_HIDE_LENGTH = 6; //地址信息需要隐藏的后几位，用微笑符号替代
     public static final int NAME_SHOW_LENGTH = 1; //姓名信息需要隐藏的位数
@@ -476,4 +479,20 @@ public class DmsConstants {
         add(3);
     }};
 
+    /**
+     * 笼车前缀
+     */
+    public static final String COLLECTION_AL_PREFIX = "AL";
+
+    /**
+     * 围板箱前缀
+     */
+    public static final String COLLECTION_AD02_PREFIX= "AD02";
+    //authCode
+    public static final String AUTH_CODE = "authCode";
+    // verificationCode
+    public static final String VERIFICATION_CODE = "verificationCode";
+
+    public static final Integer NUMBER_ZERO = 0; //数字0
+    public static final Integer NUMBER_HUNDRED = 100; //数字100
 }

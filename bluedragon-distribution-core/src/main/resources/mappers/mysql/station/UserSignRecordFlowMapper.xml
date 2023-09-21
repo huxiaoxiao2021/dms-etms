@@ -365,5 +365,15 @@
         <foreach collection="flowStatusList" item="item" open="(" close=")" separator=",">
             #{item, jdbcType=INTEGER}
         </foreach>          
-    </select>    
+    </select>
+	<select id="queryByRefGridKey"
+			resultType="com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow">
+		select
+		<include refid="Base_Column_List"/>
+		from user_sign_record_flow r
+		where r.ref_grid_key in
+		<foreach collection="businessKeys" item="item" open="(" close=")" separator=",">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</select>
 </mapper>
