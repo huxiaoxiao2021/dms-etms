@@ -947,7 +947,7 @@
     </bean>
     <!-- 异常-港澳单破损数据通知客服 -->
     <bean id="dmsDamageHKOrMONoticeKFProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.exception.damageNoticKFOfHKOrMO}"/>
+        <property name="topic" value="${jmq.topic.exception.damageNoticKF}"/>
         <property name="timeout" value="3000"/>
     </bean>
 
