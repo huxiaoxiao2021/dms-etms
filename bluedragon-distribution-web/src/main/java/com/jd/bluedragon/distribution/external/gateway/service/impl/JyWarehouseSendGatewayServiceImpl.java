@@ -282,18 +282,17 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 res.toFail("请扫描正确的条码！");
                 return res;
             }
-            if (Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType()) &&
-                    (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))) {
-                res.toFail("请扫描包裹号或箱号！");
-                return res;
-            }
-            if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
+            if (Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType())) {
+                if(!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode())) {
+                    res.toFail("请扫描包裹号或箱号！");
+                    return res;
+                }
+            } else if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
                 if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())) {
                     res.toFail("请扫描包裹号或运单号！");
                     return res;
                 }
-            }
-            else {
+            } else {
                 res.toFail("请扫扫描单据类型不支持，请联系分拣小秘！");
                 return res;
             }
