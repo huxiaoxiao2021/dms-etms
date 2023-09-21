@@ -2057,7 +2057,15 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     @Override
     public Integer update(SendDetail sendDetail) {
-        return this.sendDatailDao.update(SendDatailDao.namespace, sendDetail);
+    	List<SendDetail> updateList = sendDatailDao.querySendDatailForUpdate(sendDetail);
+    	if(updateList != null && updateList.size() > 0) {
+    		if(updateList.size() > 1) {
+    			this.log.warn("deliveryServiceImpl.update:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sendDetail));
+    		}
+    		sendDetail.setSendDId(updateList.get(0).getSendDId());
+    		return this.sendDatailDao.update(SendDatailDao.namespace, sendDetail);
+    	}
+        return 0;
     }
 
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.deliveryService.updateCancel", mState = {JProEnum.TP,

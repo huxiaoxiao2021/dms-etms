@@ -46,6 +46,7 @@ import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryD
 import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -207,7 +208,15 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	public Integer update(Sorting sorting) {
-		return this.sortingDao.update(SortingDao.namespace, sorting);
+    	List<Sorting> updateList = sortingDao.querySortingForUpdate(sorting);
+    	if(updateList != null && updateList.size() > 0) {
+    		if(updateList.size() > 1) {
+    			this.log.warn("sortingServiceImpl.update:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sorting));
+    		}
+    		sorting.setId(updateList.get(0).getId());
+    		return this.sortingDao.update(SortingDao.namespace, sorting);
+    	}		
+		return 0;
 	}
 
 	public boolean existSortingByPackageCode(Sorting sorting) {

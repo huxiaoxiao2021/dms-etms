@@ -55,7 +55,17 @@
 			0, NOW(), 1, 1, #{spareReason,jdbcType=VARCHAR}, #{isLoss,jdbcType=INTEGER}, #{featureType,jdbcType=INTEGER}, #{bizSource,jdbcType=INTEGER},
             #{operatorTypeCode,jdbcType=INTEGER},#{operatorId,jdbcType=VARCHAR})
     </insert>
-
+	<select id="querySortingForUpdate" resultMap="sorting" parameterType="sorting">
+		SELECT sorting_id, box_code, package_code, waybill_code, create_site_code, receive_site_code,create_time,
+		    create_user_code, create_user, update_user_code, update_user, excute_count, sorting_type, spare_reason
+		FROM Sorting
+	    WHERE yn = 1
+	        AND box_code = #{boxCode}
+	        AND sorting_type = #{type}
+	        AND package_code = #{packageCode}
+		    AND create_site_code = #{createSiteCode}
+			AND receive_site_code = #{receiveSiteCode}
+	</select>    
 	<!-- Author by lixin456 指定更新时使用索引 解决更新死锁问题 若对该表索引进行调整 请注意修改此处 -->
 	<update id="update" parameterType="sorting" >
 		UPDATE Sorting FORCE INDEX(IND_SORTING_PCODE_P)
@@ -83,11 +93,8 @@
                 ,operator_id = #{operatorId,jdbcType=VARCHAR}
             </if>
 	    WHERE yn = 1
-	        AND box_code = #{boxCode}
-	        AND sorting_type = #{type}
-	        AND package_code = #{packageCode}
 		    AND create_site_code = #{createSiteCode}
-			AND receive_site_code = #{receiveSiteCode}
+			AND sorting_id = #{id}
     </update>
 
 	<select id="findSortingPackages" resultMap="sorting" parameterType="sorting">

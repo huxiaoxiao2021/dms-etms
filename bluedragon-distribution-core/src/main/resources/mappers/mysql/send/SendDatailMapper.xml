@@ -66,7 +66,21 @@
 			#{operateTime,jdbcType=TIMESTAMP}, NOW(),
 			 0, #{isCancel,jdbcType=INTEGER}, 0, NOW(),-1, 1, #{spareReason,jdbcType=VARCHAR}, #{isLoss,jdbcType=INTEGER}, #{featureType,jdbcType=INTEGER})
     </insert>
-	
+	<select id="querySendDatailForUpdate" parameterType="SendDetail"
+		resultMap="SendDetail">
+		SELECT 
+		<include refid="Base_Column_List" />
+		FROM send_d
+		<where>
+		    yn = 1
+			AND box_code = #{boxCode,jdbcType=VARCHAR}
+		    AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+			<if test="packageBarcode!=null">
+				and package_barcode = #{packageBarcode,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
 	<update id="update" parameterType="SendDetail" >
 		UPDATE Send_d
 		<set>
@@ -119,12 +133,8 @@
 		</set>
 		<where>
 		    yn = 1
-			AND box_code = #{boxCode,jdbcType=VARCHAR}
 		    AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
-			AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-			<if test="packageBarcode!=null">
-				and package_barcode = #{packageBarcode,jdbcType=INTEGER}
-			</if>
+			AND send_d_id = #{sendDId,jdbcType=BIGINT}
 		</where>
     </update>
     
