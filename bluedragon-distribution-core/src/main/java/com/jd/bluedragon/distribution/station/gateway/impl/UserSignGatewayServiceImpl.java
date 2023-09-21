@@ -4,9 +4,11 @@ package com.jd.bluedragon.distribution.station.gateway.impl;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
-import com.jdl.basic.api.response.JDResponse;
+import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
+import com.jdl.basic.common.utils.DateUtil;
 import com.jdl.basic.common.utils.Result;
 
 import java.util.Date;
@@ -63,6 +65,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	
 	@Value("${beans.userSignGatewayService.needCheckAutoSignOutHours:2}")
 	private int needCheckAutoSignOutHours;
+
+	@Autowired
+	private AttendanceBlackListManager attendanceBlackListManager;
 
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithPosition",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -251,6 +256,16 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toFail("用户编码不能为空！");
 			return result;
 		}
+
+
+		String userCode=userSignRequest.getUserCode();
+		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
+		if(isCarId){
+			String  msg=checkAttendanceBlackList(result,userCode);
+			if(StringUtils.isNotBlank(msg)){
+				return result;
+			}
+		}
 		return checkUserSignStatus(positionCode,userSignRequest.getJobCode(),userSignRequest.getUserCode());
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryUserDataForLogin",
@@ -375,5 +390,34 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			}
 		}
 		return result;
+	}
+	private String checkAttendanceBlackList(JdCResponse<UserSignRecordData> result,String userCode){
+		//查询出勤黑名单，并校验
+		com.jdl.basic.common.utils.Result<AttendanceBlackList> rs=attendanceBlackListManager.queryByUserCode(userCode);
+		if(rs == null){
+			return "调用AttendanceBlackListJsfService失败";
+		}
+		if(rs.isSuccess()){
+			AttendanceBlackList attendanceBlackList=rs.getData();
+			if(attendanceBlackList !=null){
+				int cancelFlag=attendanceBlackList.getCancelFlag();
+				Date takeTime=attendanceBlackList.getTakeTime();
+				Date loseTime=attendanceBlackList.getLoseTime();
+				String dateStr= DateUtil.format(new Date(),DateUtil.FORMAT_DATE_MINUTE);
+				Date currentTime=DateUtil.parse(dateStr,DateUtil.FORMAT_DATE_MINUTE);
+				if(cancelFlag ==Constants.NUMBER_ZERO && (currentTime.compareTo(takeTime) < Constants.NUMBER_ZERO)){
+					//待生效
+					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TOBE_EFFECTIVE_MSG, userCode,DateUtil.format(takeTime,DateUtil.FORMAT_DATE));
+					result.toConfirm(defaultMsg);
+					return defaultMsg;
+				}else if(cancelFlag ==Constants.NUMBER_ZERO && ((loseTime ==null && currentTime.compareTo(takeTime) >=0) ||  (loseTime !=null && currentTime.compareTo(takeTime) >=0 && currentTime.compareTo(loseTime) <0))){//已生效
+					//已生效
+					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG, userCode);
+					result.toFail(defaultMsg);
+					return defaultMsg;
+				}
+			}
+		}
+		return  "";
 	}
 }
