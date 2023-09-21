@@ -15,6 +15,15 @@ public class CreateVehicleTaskReq extends BaseReq implements Serializable {
      * 车型名称
      */
     private String vehicleTypeName;
+    /**
+     * 目的地ID
+     */
+    private Long destinationSiteId;
+
+    /**
+     * 确定创建自建任务
+     */
+    private Boolean confirmCreate;
 
     public Integer getVehicleType() {
         return vehicleType;
@@ -30,5 +39,21 @@ public class CreateVehicleTaskReq extends BaseReq implements Serializable {
 
     public void setVehicleTypeName(String vehicleTypeName) {
         this.vehicleTypeName = vehicleTypeName;
+    }
+
+    public Long getDestinationSiteId() {
+        return destinationSiteId;
+    }
+
+    public void setDestinationSiteId(Long destinationSiteId) {
+        this.destinationSiteId = destinationSiteId;
+    }
+
+    public Boolean getConfirmCreate() {
+        return confirmCreate;
+    }
+
+    public void setConfirmCreate(Boolean confirmCreate) {
+        this.confirmCreate = confirmCreate;
     }
 }

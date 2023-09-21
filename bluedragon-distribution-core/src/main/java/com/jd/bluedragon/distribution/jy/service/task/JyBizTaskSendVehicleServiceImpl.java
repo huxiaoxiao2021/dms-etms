@@ -2,17 +2,14 @@ package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDao;
-import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -21,9 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service("jyBizTaskSendVehicleService")
 public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleService{
@@ -196,5 +191,25 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     @Override
     public List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> bizIds) {
         return jyBizTaskSendVehicleDao.findSendTaskByBizIds(bizIds);
+    }
+
+    /**
+     * 按流向和状态分页查询发货任务
+     * @param entity
+     * @param pageNum
+     * @param pageSize
+     * @param statuses
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.findSendTaskByDestAndStatusesWithPage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByDestAndStatusesWithPage(JyBizTaskSendVehicleDetailQueryEntity entity, List<Integer> statuses, Integer pageNum, Integer pageSize) {
+        Integer limit = pageSize;
+        Integer offset = (pageNum - 1) * pageSize;
+        // 超过最大分页数据量 直接返回空数据
+        if (offset + limit > ucc.getJyTaskPageMax()) {
+            return new ArrayList<>();
+        }
+        return jyBizTaskSendVehicleDao.findSendTaskByDestAndStatusesWithPage(entity,statuses, offset, limit);
     }
 }
