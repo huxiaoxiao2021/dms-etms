@@ -27,7 +27,6 @@ import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
@@ -38,7 +37,7 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetail
 import com.jd.bluedragon.distribution.jy.service.comboard.impl.JyGroupSortCrossDetailCacheService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyWarehouseSendVehicleServiceImpl;
-import com.jd.bluedragon.dms.utils.MathUtils;
+import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -47,7 +46,6 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.domain.cross.TableTrolleyJsfResp;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -279,6 +277,21 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 return res;
             }
 
+            if (Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType()) &&
+                    (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), request.getBarCodeType()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), request.getBarCodeType()))) {
+                res.toFail("请扫描包裹号或箱号！");
+                return res;
+            }
+            else if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
+                if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), request.getBarCodeType()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), request.getBarCodeType())) {
+                    res.toFail("请扫描包裹号或运单号！");
+                    return res;
+                }
+            }
+            else {
+                res.toFail("请扫扫描单据类型不支持，请联系分拣小秘！");
+                return res;
+            }
             request.setPost(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
             return jyWarehouseSendVehicleService.scan(request, res);
         }catch (JyBizException ex) {
