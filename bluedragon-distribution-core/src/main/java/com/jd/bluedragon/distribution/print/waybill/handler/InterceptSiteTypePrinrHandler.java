@@ -57,6 +57,7 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
         InterceptResult<String> result = context.getResult();
         //终端包裹补打功能限制
         if(interceptPackageReprint(context)){
+            log.warn("命中拦截逻辑-{}",context.getRequest().getBarCode());
             result.toFail(SortingResponse.PACKAGE_PRINT_BAN_CODE,SortingResponse.PACKAGE_PRINT_BAN_MESSAGE);
         }
 		return result;
@@ -68,7 +69,7 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
      * @return
      */
     private boolean interceptPackageReprint(WaybillPrintContext context){
-        log.info("interceptPackageReprint 操作类型-{}",context.getRequest().getOperateType());
+        log.info("interceptPackageReprint 操作类型-{}-单号-{}",context.getRequest().getOperateType(),context.getRequest().getBarCode());
 
         boolean terminalSitePackagePrintLimitSwitch = uccPropertyConfiguration.isTerminalSitePackagePrintLimitSwitch();
         if(!terminalSitePackagePrintLimitSwitch){
@@ -97,12 +98,12 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
             if(SiteTypeLevel.SiteTypeTwoLevelEnum.CAMPUS_JD_SCHOOL.getCode().equals(baseSite.getSubType())) {
                 //
                 if (SiteTypeLevel.SiteTypeThreeLevelEnum.CAMPUS_SCHOOL.getCode().equals(baseSite.getThirdType())
-                        || SiteTypeLevel.SiteTypeThreeLevelEnum.JD_STAR_DISTRIBUTION.equals(baseSite.getThirdType())) {
+                        || SiteTypeLevel.SiteTypeThreeLevelEnum.JD_STAR_DISTRIBUTION.getCode().equals(baseSite.getThirdType())) {
                     return true;
                 }
             }else if(SiteTypeLevel.SiteTypeTwoLevelEnum.SHARE_DISTRIBUTION_STATION.getCode().equals(baseSite.getSubType())){
                 if (SiteTypeLevel.SiteTypeThreeLevelEnum.TOWN_SHARE_DISTRIBUTION_STATION.getCode().equals(baseSite.getThirdType())
-                        || SiteTypeLevel.SiteTypeThreeLevelEnum.CITY_SHARE_DISTRIBUTION_STATION.equals(baseSite.getThirdType())) {
+                        || SiteTypeLevel.SiteTypeThreeLevelEnum.CITY_SHARE_DISTRIBUTION_STATION.getCode().equals(baseSite.getThirdType())) {
                     return true;
                 }
             }
