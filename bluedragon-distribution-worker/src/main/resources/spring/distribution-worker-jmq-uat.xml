@@ -658,5 +658,9 @@
     <jmq:consumer id="jmq.tmsTransWorkDriverNodeConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tmsTransWorkDriverNode}" listener="tmsTransWorkDriverNodeConsumer"/>
     </jmq:consumer>
+    <!-- 作业APP促发运输催派车辆 -->
+    <jmq:consumer id="jmq.jySendTmsUrgeVehicleConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jySendTmsUrgeVehicle}" listener="jySendTmsUrgeVehicleConsumer"/>
+    </jmq:consumer>
 </beans>
 
