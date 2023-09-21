@@ -88,7 +88,7 @@ public class SiteTypeLevel {
         CAMPUS_SCHOOL(12801,"校园派"),
         JD_STAR_DISTRIBUTION(12802,"京东星配"),
         TOWN_SHARE_DISTRIBUTION_STATION(160501,"乡镇共配站"),
-        CITY_SHARE_DISTRIBUTION_STATION(160501,"城市共配站"),
+        CITY_SHARE_DISTRIBUTION_STATION(160502,"城市共配站"),
         ;
 
         private Integer code;
