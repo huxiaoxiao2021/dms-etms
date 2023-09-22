@@ -362,9 +362,6 @@
 		<if test="idCard != null and idCard != '' " >
 			and r.id_card = #{idCard,jdbcType=VARCHAR}
 		</if>
-		<if test="userNameLike != null and userNameLike != '' " >
-			and r.user_name like concat(#{userNameLike,jdbcType=VARCHAR},'%')
-		</if>         
         </where>
     </sql>
     <select id="queryCountForCheckUnCompletedFlow" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery" resultType="java.lang.Integer">
