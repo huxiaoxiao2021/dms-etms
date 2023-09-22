@@ -341,6 +341,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         taskSendVehicleDetailEntity.setCreateUserName(aviationPlanEntity.getCreateUserName());
         taskSendVehicleDetailEntity.setCreateTime(aviationPlanEntity.getCreateTime());
         taskSendVehicleDetailEntity.setUpdateTime(aviationPlanEntity.getUpdateTime());
+        taskSendVehicleDetailEntity.setTaskType(JySendTaskTypeEnum.AVIATION.getCode());
         return taskSendVehicleDetailEntity;
     }
 

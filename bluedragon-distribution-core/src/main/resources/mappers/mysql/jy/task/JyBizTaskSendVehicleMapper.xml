@@ -913,9 +913,7 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
-                and ((m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{entity.createTimeBegin}))
-            </if>
+            and ((m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{entity.createTimeBegin}))
             <!-- detail -->
             AND d.yn = 1
             AND d.vehicle_status IN
@@ -923,8 +921,6 @@
                 #{item}
             </foreach>
             and d.excep_label =0
-        GROUP BY
-            d.send_vehicle_biz_id, d.biz_id
         ORDER BY
             m.last_plan_depart_time DESC
         LIMIT #{offset}, #{limit}
@@ -956,9 +952,7 @@
                         #{item}
                     </foreach>
                 </if>
-                <if test="lastPlanDepartTimeBegin !=null and lastPlanDepartTimeEnd !=null and createTimeBegin !=null">
-                    and ((m.last_plan_depart_time &gt;= #{lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{createTimeBegin}))
-                </if>
+                AND ((m.last_plan_depart_time &gt;= #{lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{createTimeBegin}))
                 <!-- detail -->
                 AND d.yn = 1
                 AND d.vehicle_status IN
@@ -966,8 +960,6 @@
                     #{item}
                 </foreach>
                 and d.excep_label =0
-            GROUP BY
-                d.send_vehicle_biz_id, d.biz_id
         ) t
     </select>
 
