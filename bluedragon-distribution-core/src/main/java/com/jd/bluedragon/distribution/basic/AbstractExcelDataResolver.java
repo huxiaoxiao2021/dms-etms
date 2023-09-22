@@ -23,10 +23,17 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 	
 	@Override
 	public <T> List<T> resolver(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory) throws Exception {
-		return resolver(in, cls,metaDataFactory,false,new ArrayList<String>());
+		return resolver(in, cls,metaDataFactory,false,new ArrayList<String>(), null);
+	}
+
+	@Override
+	public <T> List<T> resolverWithNum(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory, Integer maxNum) throws Exception {
+		return resolver(in, cls,metaDataFactory,false,new ArrayList<String>(), maxNum);
 	}
 	@Override
-	public <T> List<T> resolver(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory,boolean validateIsContinue,List<String> resultMessages) throws Exception{
+	public <T> List<T> resolver(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory,
+								boolean validateIsContinue, List<String> resultMessages,
+								Integer maxNum) throws Exception{
 		List<T> ret = new ArrayList<T>();
 		long startTime = System.currentTimeMillis();
 		Workbook workbook = this.createWorkbook(in);
@@ -43,7 +50,7 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 			throw new IllegalArgumentException("ExcelConfig对象为Null");
 		}
 		RowFilter rowFilter = excelConfig.getRowFilter();
-		if (null == sheet || sheet.getLastRowNum() > excelConfig.getMaxNumber() + 1
+		if (null == sheet || sheet.getLastRowNum() > (maxNum == null ? excelConfig.getMaxNumber() : maxNum) + 1
 				|| sheet.getLastRowNum() <= 0) {
 			return null;
 		}
