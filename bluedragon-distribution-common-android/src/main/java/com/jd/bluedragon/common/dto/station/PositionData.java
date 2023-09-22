@@ -85,15 +85,10 @@ public class PositionData implements Serializable {
 	 * 岗位名称：卸车，到车等
 	 */
 	private String positionName;
-    /**
-     * ref：work_station_grid业务主键
-     */
-    private String refGridKey;
-
-    /**
-     * 岗位编码
-     */
-    private String positionCode;
+	/**
+	 * 关联场地网格key:work_grid
+	 */
+	private String refWorkGridKey;    
     
 	public Long getId() {
 		return id;
@@ -215,19 +210,11 @@ public class PositionData implements Serializable {
 		this.positionName = positionName;
 	}
 
-	public String getRefGridKey() {
-		return refGridKey;
+	public String getRefWorkGridKey() {
+		return refWorkGridKey;
 	}
 
-	public void setRefGridKey(String refGridKey) {
-		this.refGridKey = refGridKey;
-	}
-
-	public String getPositionCode() {
-		return positionCode;
-	}
-
-	public void setPositionCode(String positionCode) {
-		this.positionCode = positionCode;
+	public void setRefWorkGridKey(String refWorkGridKey) {
+		this.refWorkGridKey = refWorkGridKey;
 	}
 }
