@@ -29,6 +29,6 @@ public class ExcelDataResolverestCase {
     	List<String> resultMessages = new ArrayList<String>();
 //    	InputStream fileIs = ExcelDataResolverestCase.class.getClassLoader().getResourceAsStream(fileName);
     	InputStream fileIs = new FileInputStream(new File(fileName));
-    	List<WaybillWeightVO> dataList = dataResolver.resolver(fileIs, WaybillWeightVO.class, new PropertiesMetaDataFactory("/excel/waybillWeight.properties"),true,resultMessages);
+    	List<WaybillWeightVO> dataList = dataResolver.resolver(fileIs, WaybillWeightVO.class, new PropertiesMetaDataFactory("/excel/waybillWeight.properties"),true,resultMessages,null);
     }
 }

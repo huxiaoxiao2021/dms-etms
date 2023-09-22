@@ -132,7 +132,7 @@ public class WeighByPackageController extends DmsBaseController {
             packageWeightImportResponse.setErrorList(errorList);
             packageWeightImportResponse.setSuccessList(successList);
             packageWeightImportResponse.setWarnList(warnList);
-            dataList = dataResolver.resolver(file.getInputStream(), PackageWeightVO.class, new PropertiesMetaDataFactory("/excel/packageWeight.properties"),true,resultMessages);
+            dataList = dataResolver.resolver(file.getInputStream(), PackageWeightVO.class, new PropertiesMetaDataFactory("/excel/packageWeight.properties"),true,resultMessages, null);
             log.info("WeighByWaybillController-uploadExcelByPackage转成WaybillWeightVO-List参数:{}", JsonUtils.toJSONString(dataList));
             if (dataList != null && dataList.size() > 0) {
                 //取出 成功的数据 继续校验重泡比 成功直接保存 失败的数据返回给前台
