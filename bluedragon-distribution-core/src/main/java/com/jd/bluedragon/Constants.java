@@ -2068,4 +2068,10 @@ public class Constants {
      */
     public static final Integer INTERCEPT_REVERSE_CODE_1 = 1;
     public static final Integer INTERCEPT_REVERSE_CODE_3 = 3;
+
+    /**
+     * 滞留原因-清场
+     */
+    public static final Integer REASON_CODE_FIND_GOODS = 115;
+    public static final String REASON_MESSAGE_FIND_GOODS = "清场找到";
 }
