@@ -812,6 +812,8 @@ public class TaskServiceImpl implements TaskService {
 		if(null != operateTime){
 			task.setOperateTime(StringUtils.isNotBlank(operateTime.toString()) ? DateHelper
 					.getSeverTime(operateTime.toString()) : new Date());
+		} else {
+			task.setOperateTime(new Date());
 		}
 
 		if (Task.TASK_TYPE_INSPECTION.equals(task.getType())
