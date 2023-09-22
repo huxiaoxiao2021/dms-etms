@@ -34,7 +34,7 @@ public class SendInspectionFlowMqHook extends AbstractTaskHook {
     	if(CollectionUtils.isNotEmpty(context.getInspectionList())) {
     		for(Inspection inspection : context.getInspectionList()) {
     	        JyOperateFlowMqData sortingFlowMq = BeanConverter.convertToJyOperateFlowMqData(inspection);
-    	        sortingFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING.getCode());
+    	        sortingFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.INSPECTION.getCode());
     	        sortingFlowMqList.add(sortingFlowMq);
     		}
             jyOperateFlowService.sendMqList(sortingFlowMqList);

@@ -4,13 +4,17 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.ISortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.utils.JsonHelper;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
     public static final String namespace = SortingDao.class.getName();
 
     @SuppressWarnings("unchecked")
@@ -36,7 +40,19 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
         Integer count = this.getSqlSession().update(namespace + ".canCancel", sorting);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
-
+    
+    public Boolean canCancel2ById(Sorting sorting) {
+    	Integer count = 0;
+    	List<Sorting> updateList = this.getSqlSession().selectList(namespace + ".querySortingForCanCancel2", sorting);
+    	if(updateList != null && updateList.size() > 0) {
+    		if(updateList.size() > 1) {
+    			this.log.warn("sortingServiceImpl.canCancel2ById:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sorting));
+    		}
+    		sorting.setId(updateList.get(0).getId());
+            count = this.getSqlSession().update(namespace + ".canCancel2ById", sorting);
+    	}
+        return count > 0 ? Boolean.TRUE : Boolean.FALSE;
+    }
     public Boolean canCancel2(Sorting sorting) {
         Integer count = this.getSqlSession().update(namespace + ".canCancel2", sorting);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;

@@ -258,7 +258,7 @@ public class SortingServiceImpl implements SortingService {
 
 	public Boolean canCancelSorting2(Sorting sorting) {
 		//fixme sorting send_d 分布式事务问题
-		boolean result = this.sortingDao.canCancel2(sorting)
+		boolean result = this.sortingDao.canCancel2ById(sorting)
 				&& this.deliveryService.canCancel2(this.parseSendDetail(sorting));
 		if(log.isInfoEnabled()) {
 			log.info("SortingServiceImpl.canCancelSorting2取消发货处理取消建箱逻辑，sorting={},result={}", JsonHelper.toJson(sorting), result);
@@ -290,7 +290,6 @@ public class SortingServiceImpl implements SortingService {
 				.receiveSiteCode(sorting.getReceiveSiteCode()).updateUser(sorting.getUpdateUser())
 				.updateUserCode(sorting.getUpdateUserCode())
 				.updateTime(null == sorting.getUpdateTime() ? new Date() : sorting.getUpdateTime()).build();
-
 		return this.inspectionECDao.updateYnByWaybillCode(inspectionEC) > 0;
 	}
 
