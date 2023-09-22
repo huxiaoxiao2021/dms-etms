@@ -1042,6 +1042,13 @@ public class HintCodeConstants {
     
     
 
+    /**
+     * 扫完网格码和人员码校验不通过时二次确认
+     */
+    public static final String CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE = "40024";
+
+    public static final String CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG = "当前网格码所属场地与人员所属场地不符，登录后会影响计提取量，是否确认登录？";
+
     public static String JY_SIGN_IN_JOB_TYPE_TIP_MSG = "作业区【%s】不允许工种【%s】进行签到，请联系网格负责人%s";
 
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED = "40024";
