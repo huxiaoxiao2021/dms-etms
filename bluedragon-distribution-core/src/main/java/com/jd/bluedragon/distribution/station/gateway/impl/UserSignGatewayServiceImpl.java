@@ -285,7 +285,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		// 校验网格码场地和用户场地是否一致
 		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
 			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
-					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE));
+					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
 		}
 		return result;
 	}
@@ -327,7 +327,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			// 校验网格码场地和用户场地是否一致
 			if (!this.checkOperatorBaseInfo(positionCode, scanRequest.getUserCode())) {
 				result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
-						HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE));
+						HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
 			}
 		}catch (Exception e){
 			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
