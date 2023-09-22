@@ -2,12 +2,14 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -40,7 +42,18 @@ public class JyBizTaskSendAviationPlanDao extends BaseDao<JyBizTaskSendAviationP
         return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
     }
 
+    private List<Integer> defaultAllStatus() {
+        return Arrays.asList(JyBizTaskSendDetailStatusEnum.TO_SEND.getCode(),
+                JyBizTaskSendDetailStatusEnum.SENDING.getCode(),
+                JyBizTaskSendDetailStatusEnum.TO_SEAL.getCode(),
+                JyBizTaskSendDetailStatusEnum.SEALED.getCode()
+                );
+    }
+
     public List<JyBizTaskAviationStatusStatistics> statusStatistics(JyBizTaskSendAviationPlanQueryCondition condition) {
+        if(CollectionUtils.isEmpty(condition.getTaskStatusList())) {
+            condition.setTaskStatusList(this.defaultAllStatus());
+        }
         return this.getSqlSession().selectList(NAMESPACE + ".statusStatistics", condition);
     }
 
@@ -53,10 +66,16 @@ public class JyBizTaskSendAviationPlanDao extends BaseDao<JyBizTaskSendAviationP
     }
 
     public List<JyBizTaskAviationAirTypeStatistics> airTypeStatistics(JyBizTaskSendAviationPlanQueryCondition condition) {
+        if(CollectionUtils.isEmpty(condition.getTaskStatusList())) {
+            condition.setTaskStatusList(this.defaultAllStatus());
+        }
         return this.getSqlSession().selectList(NAMESPACE + ".airTypeStatistics", condition);
     }
 
     public List<JyBizTaskSendAviationPlanEntity> pageFindAirportInfoByCurrentSite(JyBizTaskSendAviationPlanQueryCondition condition) {
+        if(CollectionUtils.isEmpty(condition.getTaskStatusList())) {
+            condition.setTaskStatusList(this.defaultAllStatus());
+        }
         return this.getSqlSession().selectList(NAMESPACE + ".pageFindAirportInfoByCurrentSite", condition);
     }
 

@@ -279,7 +279,6 @@
         WHERE
             yn = 1
             AND biz_id = #{bizId}
-            AND start_site_id = #{startSiteId}
     </update>
 
     <select id="findByBizId" parameterType="java.lang.String"  resultMap="BaseResultMap">
@@ -329,6 +328,11 @@
           jy_biz_task_send_aviation_plan
         WHERE yn = 1
           and start_site_id = #{startSiteId}
+          and task_status in
+            <foreach item="item" index="index" collection="taskStatusList" open="("
+                 separator="," close=")">
+                #{item}
+            </foreach>
           <include refid="list_query_condition" />
         group by
           task_status
@@ -373,6 +377,11 @@
             yn = 1
             and start_site_id = #{startSiteId}
             and create_time &gt;= #{createTimeStart}
+            and task_status in
+                <foreach item="item" index="index" collection="taskStatusList" open="("
+                         separator="," close=")">
+                    #{item}
+                </foreach>
         group by
             air_type
     </select>
@@ -386,6 +395,11 @@
             yn = 1
             and start_site_id = #{startSiteId}
             and create_time &gt;= #{createTimeStart}
+            and task_status in
+                <foreach item="item" index="index" collection="taskStatusList" open="("
+                         separator="," close=")">
+                    #{item}
+                </foreach>
         group by begin_node_code
         limit #{pageSize}
     </select>
