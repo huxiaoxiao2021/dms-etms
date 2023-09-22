@@ -830,8 +830,6 @@ public class UccPropertyConfiguration{
 
     private int sealStatusBatchSizeLimit;
 
-    private boolean syncScheduleTaskSwitch;
-
     /**
      * 组板封车查询版列表时间
      */
@@ -3269,14 +3267,6 @@ public class UccPropertyConfiguration{
         this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
     }
 
-    public Integer getJyComboardScanUserBeginDay() {
-        return jyComboardScanUserBeginDay;
-    }
-
-    public void setJyComboardScanUserBeginDay(Integer jyComboardScanUserBeginDay) {
-        this.jyComboardScanUserBeginDay = jyComboardScanUserBeginDay;
-    }
-
     public Integer getJyComboardSiteCTTPageSize() {
         return jyComboardSiteCTTPageSize;
     }
@@ -3342,34 +3332,6 @@ public class UccPropertyConfiguration{
         return false;
     }
 
-    public String getOffLineAllowedSites() {
-        return offLineAllowedSites;
-    }
-
-    public void setOffLineAllowedSites(String offLineAllowedSites) {
-        this.offLineAllowedSites = offLineAllowedSites;
-    }
-
-    public boolean isOffLineAllowedSite(Integer siteCode) {
-        return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
-    }
-
-    public Integer getBulkScanPackageMinCount() {
-        return bulkScanPackageMinCount;
-    }
-
-    public void setBulkScanPackageMinCount(Integer bulkScanPackageMinCount) {
-        this.bulkScanPackageMinCount = bulkScanPackageMinCount;
-    }
-
-    public Integer getJyComboardTaskCreateTimeBeginDay() {
-        return jyComboardTaskCreateTimeBeginDay;
-    }
-
-    public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
-        this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
-    }
-
     public Integer getJyComboardScanUserBeginDay() {
         return jyComboardScanUserBeginDay;
     }
@@ -3378,14 +3340,6 @@ public class UccPropertyConfiguration{
         this.jyComboardScanUserBeginDay = jyComboardScanUserBeginDay;
     }
 
-    public Integer getJyComboardSiteCTTPageSize() {
-        return jyComboardSiteCTTPageSize;
-    }
-
-
-    public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
-        this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
-    }
 
     public Integer getJyComboardTaskSealTimeBeginDay() {
         return jyComboardTaskSealTimeBeginDay;
