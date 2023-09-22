@@ -28,16 +28,7 @@
     seal_bind_aviation_task_num, seal_batch_code_num, sub_business_num, create_user_erp, create_user_name, update_user_erp,
     update_user_name, create_time, update_time, yn, transport_code, depart_time
   </sql>
-<!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
-<!--    select-->
-<!--    <include refid="Base_Column_List" />-->
-<!--    from jy_statistics_summary-->
-<!--    where id = #{id}-->
-<!--  </select>-->
-<!--  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >-->
-<!--    delete from jy_statistics_summary-->
-<!--    where id = #{id}-->
-<!--  </delete>-->
+
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity" >
     insert into jy_statistics_summary (
       business_key, business_key_type, source, operate_site_code, weight, volume,
@@ -171,8 +162,6 @@
     </trim>
   </insert>
 
-
-
   <select id="queryByBusinessKeysAndType" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryCondition">
     SELECT
       <include refid="Base_Column_List" />
@@ -189,7 +178,6 @@
         </foreach>
   </select>
 
-
   <select id="queryByBusinessKeyAndType" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryCondition">
     SELECT
       <include refid="Base_Column_List" />
@@ -204,79 +192,4 @@
     order by create_time desc
     limit 1
   </select>
-
-  <!--  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity" >-->
-<!--    update jy_statistics_summary-->
-<!--    <set >-->
-<!--      <if test="businessKey != null" >-->
-<!--        business_key = #{businessKey},-->
-<!--      </if>-->
-<!--      <if test="businessKeyType != null" >-->
-<!--        business_key_type = #{businessKeyType},-->
-<!--      </if>-->
-<!--      <if test="operateSiteCode != null" >-->
-<!--        operate_site_code = #{operateSiteCode},-->
-<!--      </if>-->
-<!--      <if test="weight != null" >-->
-<!--        weight = #{weight},-->
-<!--      </if>-->
-<!--      <if test="volume != null" >-->
-<!--        volume = #{volume},-->
-<!--      </if>-->
-<!--      <if test="itemNum != null" >-->
-<!--        item_num = #{itemNum},-->
-<!--      </if>-->
-<!--      <if test="batchCodeNum != null" >-->
-<!--        batch_code_num = #{batchCodeNum},-->
-<!--      </if>-->
-<!--      <if test="subBusinessNum != null" >-->
-<!--        sub_business_num = #{subBusinessNum},-->
-<!--      </if>-->
-<!--      <if test="createUserErp != null" >-->
-<!--        create_user_erp = #{createUserErp},-->
-<!--      </if>-->
-<!--      <if test="createUserName != null" >-->
-<!--        create_user_name = #{createUserName},-->
-<!--      </if>-->
-<!--      <if test="updateUserErp != null" >-->
-<!--        update_user_erp = #{updateUserErp},-->
-<!--      </if>-->
-<!--      <if test="updateUserName != null" >-->
-<!--        update_user_name = #{updateUserName},-->
-<!--      </if>-->
-<!--      <if test="createTime != null" >-->
-<!--        create_time = #{createTime},-->
-<!--      </if>-->
-<!--      <if test="updateTime != null" >-->
-<!--        update_time = #{updateTime},-->
-<!--      </if>-->
-<!--      <if test="yn != null" >-->
-<!--        yn = #{yn,jdbcType=BIT},-->
-<!--      </if>-->
-<!--      <if test="ts != null" >-->
-<!--        ts = #{ts},-->
-<!--      </if>-->
-<!--    </set>-->
-<!--    where id = #{id}-->
-<!--  </update>-->
-<!--  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity" >-->
-<!--    update jy_statistics_summary-->
-<!--    set business_key = #{businessKey},-->
-<!--    business_key_type = #{businessKeyType},-->
-<!--    operate_site_code = #{operateSiteCode},-->
-<!--    weight = #{weight},-->
-<!--    volume = #{volume},-->
-<!--    item_num = #{itemNum},-->
-<!--    batch_code_num = #{batchCodeNum},-->
-<!--    sub_business_num = #{subBusinessNum},-->
-<!--    create_user_erp = #{createUserErp},-->
-<!--    create_user_name = #{createUserName},-->
-<!--    update_user_erp = #{updateUserErp},-->
-<!--    update_user_name = #{updateUserName},-->
-<!--    create_time = #{createTime},-->
-<!--    update_time = #{updateTime},-->
-<!--    yn = #{yn,jdbcType=BIT},-->
-<!--    ts = #{ts}-->
-<!--    where id = #{id}-->
-<!--  </update>-->
 </mapper>

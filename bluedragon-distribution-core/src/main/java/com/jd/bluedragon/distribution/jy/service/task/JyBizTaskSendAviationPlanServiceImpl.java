@@ -144,11 +144,8 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     }
 
     @Override
-    public List<JyBizTaskAviationAirTypeStatistics> airTypeStatistics(Integer siteId) {
-        if(!NumberHelper.gt0(siteId)) {
-            return null;
-        }
-        return jyBizTaskSendAviationPlanDao.airTypeStatistics(siteId);
+    public List<JyBizTaskAviationAirTypeStatistics> airTypeStatistics(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return jyBizTaskSendAviationPlanDao.airTypeStatistics(condition);
     }
 
     @Override

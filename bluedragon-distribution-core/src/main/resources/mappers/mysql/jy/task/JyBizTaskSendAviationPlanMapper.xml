@@ -64,40 +64,7 @@
         update_user_name, create_time, update_time, yn, next_site_id, next_site_code,
         next_site_name,task_status,intercept,intercept_time
     </sql>
-<!--    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
-<!--        select-->
-<!--        <include refid="Base_Column_List" />-->
-<!--        from jy_biz_task_send_aviation_plan-->
-<!--        where id = #{id,jdbcType=BIGINT}-->
-<!--    </select>-->
-<!--    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >-->
-<!--        delete from jy_biz_task_send_aviation_plan-->
-<!--        where id = #{id,jdbcType=BIGINT}-->
-<!--    </delete>-->
-<!--    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity" >-->
-<!--        insert into jy_biz_task_send_aviation_plan (id, biz_id, booking_code,-->
-<!--        start_site_id, start_site_code, start_site_name,-->
-<!--        flight_number, take_off_time, touch_down_time,-->
-<!--        air_company_code, air_company_name, begin_node_code,-->
-<!--        begin_node_name, end_node_code, end_node_name,-->
-<!--        carrier_code, carrier_name, booking_weight,-->
-<!--        cargo_type, air_type,-->
-<!--        create_user_erp, create_user_name, update_user_erp,-->
-<!--        update_user_name, create_time, update_time,-->
-<!--        yn, ts, next_site_id, next_site_code,-->
-<!--        next_site_name)-->
-<!--        values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{bookingCode,jdbcType=VARCHAR},-->
-<!--        #{startSiteId,jdbcType=BIGINT}, #{startSiteCode,jdbcType=VARCHAR}, #{startSiteName,jdbcType=VARCHAR},-->
-<!--        #{flightNumber,jdbcType=VARCHAR}, #{takeOffTime,jdbcType=TIMESTAMP}, #{touchDownTime,jdbcType=TIMESTAMP},-->
-<!--        #{airCompanyCode,jdbcType=VARCHAR}, #{airCompanyName,jdbcType=VARCHAR}, #{beginNodeCode,jdbcType=VARCHAR},-->
-<!--        #{beginNodeName,jdbcType=VARCHAR}, #{endNodeCode,jdbcType=VARCHAR}, #{endNodeName,jdbcType=VARCHAR},-->
-<!--        #{carrierCode,jdbcType=VARCHAR}, #{carrierName,jdbcType=VARCHAR}, #{bookingWeight,jdbcType=DOUBLE},-->
-<!--        #{cargoType,jdbcType=INTEGER}, #{airType,jdbcType=INTEGER}, -->
-<!--        #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR},-->
-<!--        #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},-->
-<!--        #{yn,jdbcType=INTEGER}, #{ts,jdbcType=TIMESTAMP}, #{nextSiteId,jdbcType=BIGINT}, #{nextSiteCode,jdbcType=VARCHAR},-->
-<!--        #{nextSiteName,jdbcType=VARCHAR})-->
-<!--    </insert>-->
+
     <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity" >
         insert into jy_biz_task_send_aviation_plan
         <trim prefix="(" suffix=")" suffixOverrides="," >
@@ -301,7 +268,6 @@
         where yn = 1 and biz_id = #{bizId}
     </update>
 
-
     <update id="updateStatus">
         UPDATE
             jy_biz_task_send_aviation_plan
@@ -315,50 +281,6 @@
             AND biz_id = #{bizId}
             AND start_site_id = #{startSiteId}
     </update>
-<!--    <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity" >-->
-<!--        update jy_biz_task_send_aviation_plan-->
-<!--        set biz_id = #{bizId,jdbcType=VARCHAR},-->
-<!--        booking_code = #{bookingCode,jdbcType=VARCHAR},-->
-<!--        start_site_id = #{startSiteId,jdbcType=BIGINT},-->
-<!--        start_site_code = #{startSiteCode,jdbcType=VARCHAR},-->
-<!--        start_site_name = #{startSiteName,jdbcType=VARCHAR},-->
-<!--        flight_number = #{flightNumber,jdbcType=VARCHAR},-->
-<!--        take_off_time = #{takeOffTime,jdbcType=TIMESTAMP},-->
-<!--        touch_down_time = #{touchDownTime,jdbcType=TIMESTAMP},-->
-<!--        air_company_code = #{airCompanyCode,jdbcType=VARCHAR},-->
-<!--        air_company_name = #{airCompanyName,jdbcType=VARCHAR},-->
-<!--        begin_node_code = #{beginNodeCode,jdbcType=VARCHAR},-->
-<!--        begin_node_name = #{beginNodeName,jdbcType=VARCHAR},-->
-<!--        end_node_code = #{endNodeCode,jdbcType=VARCHAR},-->
-<!--        end_node_name = #{endNodeName,jdbcType=VARCHAR},-->
-<!--        carrier_code = #{carrierCode,jdbcType=VARCHAR},-->
-<!--        carrier_name = #{carrierName,jdbcType=VARCHAR},-->
-<!--        booking_weight = #{bookingWeight,jdbcType=DOUBLE},-->
-<!--        cargo_type = #{cargoType,jdbcType=INTEGER},-->
-<!--        air_type = #{airType,jdbcType=INTEGER},-->
-<!--        create_user_erp = #{createUserErp,jdbcType=VARCHAR},-->
-<!--        create_user_name = #{createUserName,jdbcType=VARCHAR},-->
-<!--        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},-->
-<!--        update_user_name = #{updateUserName,jdbcType=VARCHAR},-->
-<!--        create_time = #{createTime,jdbcType=TIMESTAMP},-->
-<!--        update_time = #{updateTime,jdbcType=TIMESTAMP},-->
-<!--        yn = #{yn,jdbcType=INTEGER},-->
-<!--        ts = #{ts,jdbcType=TIMESTAMP},-->
-<!--        next_site_id = #{nextSiteId,jdbcType=BIGINT},-->
-<!--        next_site_code = #{nextSiteCode,jdbcType=VARCHAR},-->
-<!--        next_site_name = #{nextSiteName,jdbcType=VARCHAR}-->
-<!--        where id = #{id,jdbcType=BIGINT}-->
-<!--    </update>-->
-
-
-
-
-
-
-
-
-
-
 
     <select id="findByBizId" parameterType="java.lang.String"  resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List" />
@@ -379,6 +301,7 @@
     </select>
 
     <sql id="list_query_condition" >
+        and create_time &gt;= #{createTimeStart}
         <if test="airType != null" >
             and air_type = #{airType}
         </if>
@@ -393,9 +316,6 @@
         </if>
         <if test="takeOffTimeStart != null" >
             and take_off_time &gt;= #{takeOffTimeStart}
-        </if>
-        <if test="createTimeStart != null" >
-            and create_time &gt;= #{createTimeStart}
         </if>
         <if test="bizId != null" >
             and biz_id = #{bizId}
@@ -439,12 +359,12 @@
             and start_site_id = #{startSiteId}
             and next_site_id = #{nextSiteId}
             and task_status = #{taskStatus}
+            <include refid="list_query_condition" />
         order by take_off_time
         limit #{offset},#{pageSize}
     </select>
 
-
-    <select id="airTypeStatistics" parameterType="java.lang.Integer"  resultMap="airTypeStatisticsRes">
+    <select id="airTypeStatistics" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="airTypeStatisticsRes">
         SELECT
             air_type, count(*) total
         FROM
@@ -452,10 +372,10 @@
         WHERE
             yn = 1
             and start_site_id = #{startSiteId}
+            and create_time &gt;= #{createTimeStart}
         group by
             air_type
     </select>
-
 
     <select id="pageFindAirportInfoByCurrentSite" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="BaseResultMap">
         SELECT
@@ -465,6 +385,7 @@
         WHERE
             yn = 1
             and start_site_id = #{startSiteId}
+            and create_time &gt;= #{createTimeStart}
         group by begin_node_code
         limit #{pageSize}
     </select>
@@ -483,8 +404,6 @@
             take_off_time
         limit #{offset},#{pageSize}
     </select>
-
-
 
     <select id="findNoSealTaskByBizIds" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition" resultMap="BaseResultMap">
         select
@@ -510,6 +429,7 @@
         and start_site_id = #{startSiteId}
         and next_site_id = #{startSiteId}
         and (task_status = 0 and take_off_time &gt;= #{takeOffTimeStart}) or (task_status = 1)
+        and create_time &gt;= #{createTimeStart}
         order by
         take_off_time
         limit #{offset},#{pageSize}

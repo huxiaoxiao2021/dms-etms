@@ -305,13 +305,18 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         FilterConditionQueryRes resData = new FilterConditionQueryRes();
         res.setData(resData);
         //订舱类型统计
-        List<JyBizTaskAviationAirTypeStatistics>  statisticsList = jyBizTaskSendAviationPlanService.airTypeStatistics(request.getCurrentOperate().getSiteCode());
+        //当前场地始发机场
+        JyBizTaskSendAviationPlanQueryCondition condition1 = new JyBizTaskSendAviationPlanQueryCondition();
+        condition1.setStartSiteId(request.getCurrentOperate().getSiteCode());
+        condition1.setCreateTimeStart(this.queryDefaultCreateTimeStart());
+        List<JyBizTaskAviationAirTypeStatistics>  statisticsList = jyBizTaskSendAviationPlanService.airTypeStatistics(condition1);
         resData.setBookingTypeDtoList(this.convertAirType(statisticsList));
 
         //当前场地始发机场
         JyBizTaskSendAviationPlanQueryCondition condition = new JyBizTaskSendAviationPlanQueryCondition();
         condition.setStartSiteId(request.getCurrentOperate().getSiteCode());
         condition.setPageSize(100);
+        condition.setCreateTimeStart(this.queryDefaultCreateTimeStart());
         List<JyBizTaskSendAviationPlanEntity> entityList = jyBizTaskSendAviationPlanService.pageFindAirportInfoByCurrentSite(condition);
         if(CollectionUtils.isNotEmpty(entityList)) {
             List<AirportDataDto> airportDataDtoList = new ArrayList<>();
@@ -628,7 +633,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             //起飞时间
             condition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), toSendQueryTakeOffTimeStartHour));
         }
-        condition.setCreateTimeStart(DateHelper.getZeroFromDay(new Date(), listQueryCreateTimeStartDay));
+        condition.setCreateTimeStart(this.queryDefaultCreateTimeStart());
         //条件筛选
         this.parseQueryCondition(filterConditionDto, condition);
         //关键词搜索
@@ -1080,6 +1085,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         this.parseKeyword(request.getKeyword(), request.getCurrentOperate().getSiteCode(),  condition);
         condition.setOffset((request.getPageNo() - 1) * request.getPageSize());
         condition.setPageSize(request.getPageSize());
+        condition.setCreateTimeStart(this.queryDefaultCreateTimeStart());
 
         //当前状态统计>0 查具体流向
         List<JyBizTaskSendAviationPlanEntity> aviationPlanEntityList = jyBizTaskSendAviationPlanService.pageQueryAviationPlanByCondition(condition);
@@ -1102,6 +1108,10 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             resData.setAviationSealListDtoList(sealListDtoList);
         }
         return res;
+    }
+
+    private Date queryDefaultCreateTimeStart() {
+        return DateHelper.getZeroFromDay(new Date(), listQueryCreateTimeStartDay);
     }
 
     @Override

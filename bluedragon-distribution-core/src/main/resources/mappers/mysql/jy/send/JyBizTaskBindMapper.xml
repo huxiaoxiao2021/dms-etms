@@ -27,7 +27,6 @@
         yn = 1 and type = #{type}
     </sql>
 
-
     <insert id="batchAdd" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntity">
         insert into jy_biz_task_bind (
         biz_id,
@@ -59,7 +58,6 @@
         </foreach>
     </insert>
 
-
     <!-- 根据条件查询没有绑在bizId中的任务 -->
     <select id="queryBindTaskByBindDetailBizIds" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntityQueryCondition"
             resultMap="BaseResultMap" >
@@ -83,9 +81,7 @@
             and detail_biz_id = #{detailBizId}
             and bind_biz_id = #{bindBizId}
             and bind_detail_biz_id = #{bindDetailBizId}
-
     </update>
-
 
     <select id="queryBindTaskList" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntityQueryCondition"
             resultMap="BaseResultMap" >
@@ -99,7 +95,6 @@
             <if test="operateSiteCode != null" >
                 and operate_site_code = #{operateSiteCode}
             </if>
-
         limit #{limit}
     </select>
 
@@ -107,7 +102,6 @@
         select count(*) from jy_biz_task_bind
         where yn = 1 and detail_biz_id = #{detailBizId}
     </select>
-
 
     <update id="delByBindDetailBizIds" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntityQueryCondition" >
         update jy_biz_task_bind
@@ -121,172 +115,4 @@
                 #{item}
             </foreach>
     </update>
-            <!--    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
-<!--        select-->
-<!--        <include refid="Base_Column_List" />-->
-<!--        from jy_biz_task_bind-->
-<!--        where id = #{id,jdbcType=BIGINT}-->
-<!--    </select>-->
-<!--    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntity" >-->
-<!--        insert into jy_biz_task_bind (biz_id,-->
-<!--        bind_biz_id, bind_detail_biz_id, operate_site_code, type,-->
-<!--        create_user_erp, create_user_name, update_user_erp,-->
-<!--        update_user_name, create_time, update_time,-->
-<!--        yn, ts)-->
-<!--        values (#{bizId},-->
-<!--        #{bindBizId}, #{bindDetailBizId}, #{operateSiteCode}, #{type},-->
-<!--        #{createUserErp}, #{createUserName}, #{updateUserErp},-->
-<!--        #{updateUserName}, #{createTime}, #{updateTime},-->
-<!--        #{yn}, #{ts})-->
-<!--    </insert>-->
-<!--    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntity" >-->
-<!--        insert into jy_biz_task_bind-->
-<!--        <trim prefix="(" suffix=")" suffixOverrides="," >-->
-<!--            <if test="bizId != null" >-->
-<!--                biz_id,-->
-<!--            </if>-->
-<!--            <if test="bindBizId != null" >-->
-<!--                bind_biz_id,-->
-<!--            </if>-->
-<!--            <if test="bindDetailBizId != null" >-->
-<!--                bind_detail_biz_id,-->
-<!--            </if>-->
-<!--            <if test="operateSiteCode != null" >-->
-<!--                operate_site_code,-->
-<!--            </if>-->
-<!--            <if test="type != null" >-->
-<!--                type,-->
-<!--            </if>-->
-<!--            <if test="createUserErp != null" >-->
-<!--                create_user_erp,-->
-<!--            </if>-->
-<!--            <if test="createUserName != null" >-->
-<!--                create_user_name,-->
-<!--            </if>-->
-<!--            <if test="updateUserErp != null" >-->
-<!--                update_user_erp,-->
-<!--            </if>-->
-<!--            <if test="updateUserName != null" >-->
-<!--                update_user_name,-->
-<!--            </if>-->
-<!--            <if test="createTime != null" >-->
-<!--                create_time,-->
-<!--            </if>-->
-<!--            <if test="updateTime != null" >-->
-<!--                update_time,-->
-<!--            </if>-->
-<!--            <if test="yn != null" >-->
-<!--                yn,-->
-<!--            </if>-->
-<!--            <if test="ts != null" >-->
-<!--                ts,-->
-<!--            </if>-->
-<!--        </trim>-->
-<!--        <trim prefix="values (" suffix=")" suffixOverrides="," >-->
-<!--            <if test="bizId != null" >-->
-<!--                #{bizId},-->
-<!--            </if>-->
-<!--            <if test="bindBizId != null" >-->
-<!--                #{bindBizId},-->
-<!--            </if>-->
-<!--            <if test="bindDetailBizId != null" >-->
-<!--                #{bindDetailBizId},-->
-<!--            </if>-->
-<!--            <if test="operateSiteCode != null" >-->
-<!--                #{operateSiteCode},-->
-<!--            </if>-->
-<!--            <if test="type != null" >-->
-<!--                #{type},-->
-<!--            </if>-->
-<!--            <if test="createUserErp != null" >-->
-<!--                #{createUserErp},-->
-<!--            </if>-->
-<!--            <if test="createUserName != null" >-->
-<!--                #{createUserName},-->
-<!--            </if>-->
-<!--            <if test="updateUserErp != null" >-->
-<!--                #{updateUserErp},-->
-<!--            </if>-->
-<!--            <if test="updateUserName != null" >-->
-<!--                #{updateUserName},-->
-<!--            </if>-->
-<!--            <if test="createTime != null" >-->
-<!--                #{createTime},-->
-<!--            </if>-->
-<!--            <if test="updateTime != null" >-->
-<!--                #{updateTime},-->
-<!--            </if>-->
-<!--            <if test="yn != null" >-->
-<!--                #{yn},-->
-<!--            </if>-->
-<!--            <if test="ts != null" >-->
-<!--                #{ts},-->
-<!--            </if>-->
-<!--        </trim>-->
-<!--    </insert>-->
-<!--    <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntity" >-->
-<!--        update jy_biz_task_bind-->
-<!--        <set >-->
-<!--            <if test="bizId != null" >-->
-<!--                biz_id = #{bizId},-->
-<!--            </if>-->
-<!--            <if test="bindBizId != null" >-->
-<!--                bind_biz_id = #{bindBizId},-->
-<!--            </if>-->
-<!--            <if test="bindDetailBizId != null" >-->
-<!--                bind_detail_biz_id = #{bindDetailBizId},-->
-<!--            </if>-->
-<!--            <if test="operateSiteCode != null" >-->
-<!--                operate_site_code = #{operateSiteCode},-->
-<!--            </if>-->
-<!--            <if test="type != null" >-->
-<!--                type = #{type},-->
-<!--            </if>-->
-<!--            <if test="createUserErp != null" >-->
-<!--                create_user_erp = #{createUserErp},-->
-<!--            </if>-->
-<!--            <if test="createUserName != null" >-->
-<!--                create_user_name = #{createUserName},-->
-<!--            </if>-->
-<!--            <if test="updateUserErp != null" >-->
-<!--                update_user_erp = #{updateUserErp},-->
-<!--            </if>-->
-<!--            <if test="updateUserName != null" >-->
-<!--                update_user_name = #{updateUserName},-->
-<!--            </if>-->
-<!--            <if test="createTime != null" >-->
-<!--                create_time = #{createTime},-->
-<!--            </if>-->
-<!--            <if test="updateTime != null" >-->
-<!--                update_time = #{updateTime},-->
-<!--            </if>-->
-<!--            <if test="yn != null" >-->
-<!--                yn = #{yn},-->
-<!--            </if>-->
-<!--            <if test="ts != null" >-->
-<!--                ts = #{ts},-->
-<!--            </if>-->
-<!--        </set>-->
-<!--        where id = #{id,jdbcType=BIGINT}-->
-<!--    </update>-->
-<!--    <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskBindEntity" >-->
-<!--        update jy_biz_task_bind-->
-<!--        set biz_id = #{bizId},-->
-<!--        bind_biz_id = #{bindBizId},-->
-<!--        bind_detail_biz_id = #{bindDetailBizId},-->
-<!--        operate_site_code = #{operateSiteCode},-->
-<!--        type = #{type},-->
-<!--        create_user_erp = #{createUserErp},-->
-<!--        create_user_name = #{createUserName},-->
-<!--        update_user_erp = #{updateUserErp},-->
-<!--        update_user_name = #{updateUserName},-->
-<!--        create_time = #{createTime},-->
-<!--        update_time = #{updateTime},-->
-<!--        yn = #{yn},-->
-<!--        ts = #{ts}-->
-<!--        where id = #{id,jdbcType=BIGINT}-->
-<!--    </update>-->
-
-
-
 </mapper>

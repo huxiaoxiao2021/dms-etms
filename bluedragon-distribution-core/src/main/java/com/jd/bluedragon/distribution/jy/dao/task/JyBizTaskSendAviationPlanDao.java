@@ -52,8 +52,8 @@ public class JyBizTaskSendAviationPlanDao extends BaseDao<JyBizTaskSendAviationP
         return this.getSqlSession().selectList(NAMESPACE + ".pageFetchAviationTaskByNextSite", condition);
     }
 
-    public List<JyBizTaskAviationAirTypeStatistics> airTypeStatistics(Integer siteId) {
-        return this.getSqlSession().selectList(NAMESPACE + ".airTypeStatistics", siteId);
+    public List<JyBizTaskAviationAirTypeStatistics> airTypeStatistics(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".airTypeStatistics", condition);
     }
 
     public List<JyBizTaskSendAviationPlanEntity> pageFindAirportInfoByCurrentSite(JyBizTaskSendAviationPlanQueryCondition condition) {
