@@ -165,6 +165,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			insertData.setAreaHubCode(baseSite == null ? null : baseSite.getAreaCode());
 			insertData.setAreaHubName(baseSite == null ? null : baseSite.getAreaName());	
 		}
+		insertData.setIdCard(BusinessUtil.encryptIdCardDoubleStar(insertData.getUserCode()));
 		result.setData(userSignRecordDao.insert(insertData) == 1);
 		return result;
 	 }

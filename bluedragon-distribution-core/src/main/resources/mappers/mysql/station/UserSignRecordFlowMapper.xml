@@ -42,6 +42,7 @@
 		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="biz_source" property="bizSource" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="id_card" property="idCard" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
 		
     <sql id="Base_Column_List" >
@@ -52,7 +53,7 @@
         r.job_code,r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,
         r.ref_grid_key,r.ref_station_key,r.create_user,r.create_user_name,r.update_user,
         r.update_user_name,r.create_time,r.update_time,r.yn,r.ts,
-        r.war_zone_code,r.war_zone_name,r.mode_type,r.biz_source
+        r.war_zone_code,r.war_zone_name,r.mode_type,r.biz_source,r.id_card
     </sql>	
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecordFlow" useGeneratedKeys="true" keyProperty="id">
@@ -173,7 +174,10 @@
 				</if>
                 <if test="bizSource != null">
                     biz_source,
-                </if>				
+                </if>
+				<if test="idCard != null">
+					id_card,
+				</if>
 			</trim>
 			)
 			values
@@ -293,7 +297,10 @@
 				</if>
                 <if test="bizSource != null" >
                     #{bizSource,jdbcType=INTEGER},
-                </if>				
+                </if>
+				<if test="idCard != null" >
+					#{idCard,jdbcType=VARCHAR},
+				</if>
 			</trim>
 			)
 	</insert>
@@ -350,9 +357,11 @@
             and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
         </if> 
         <if test="userCode != null and userCode != '' " >
-            and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle} 
-        </if>
-                     
+			and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+		</if>
+		<if test="idCard != null and idCard != '' " >
+			and r.id_card = #{idCard,jdbcType=VARCHAR}
+		</if>
         </where>
     </sql>
     <select id="queryCountForCheckUnCompletedFlow" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery" resultType="java.lang.Integer">

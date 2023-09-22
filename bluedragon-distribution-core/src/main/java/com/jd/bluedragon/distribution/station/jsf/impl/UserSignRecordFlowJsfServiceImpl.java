@@ -270,6 +270,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 				result.toFail(msg);
 				return result;
 			}
+			signData.setIdCard(BusinessUtil.encryptIdCardDoubleStar(addRequest.getUserCode()));
 		}else if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)){
 			signData.setSignInTimeNew(signInTimeNew);
 			signData.setSignOutTimeNew(signOutTimeNew);
@@ -397,7 +398,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		signData.setFlowTypeName(SignFlowTypeEnum.getNameByCode(signData.getFlowType()));
 		signData.setFlowStatusName(SignFlowStatusEnum.getNameByCode(signData.getFlowStatus()));
 		//身份证隐藏
-		signData.setUserCodeHidden(BusinessUtil.encryptIdCard(signData.getUserCode()));
+		signData.setUserCodeHidden(BusinessUtil.encryptIdCardDoubleStar(signData.getUserCode()));
 		signData.setUserNameHidden(BusinessUtil.encryptIdCard(signData.getUserName()));
 	}
 			
@@ -485,6 +486,11 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		query.setLimit(query.getPageSize());
 		if(query.getPageNumber() > 0) {
 			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
+		}
+		String userCode = query.getUserCode();
+		if (StringUtils.isNotBlank(query.getUserCode()) && query.getUserCode().contains("***")) {
+			query.setUserCode(null);
+			query.setIdCard(userCode);
 		}
 		return result;
 	 }
