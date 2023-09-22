@@ -115,7 +115,7 @@ public class BrushController extends DmsBaseController {
         pdaRequest.setReceiveSiteCode(item.getReceiveSiteCode());
         pdaRequest.setSiteCode(item.getSiteCode());
         pdaRequest.setType(Task.TASK_TYPE_SORTING);
-        pdaRequest.setBody(JsonHelper.toJson(item));
+        pdaRequest.setBody(JsonHelper.toJson(Lists.newArrayList(item)));
         if(log.isInfoEnabled()){
             log.info("分拣刷数任务发送: {}", JsonHelper.toJson(item));
         }
