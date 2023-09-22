@@ -209,33 +209,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         return interceptResult;
 	}
 
-    private boolean baseWaybillInfoCheck(BaseEntity<BigWaybillDto> baseEntity, WaybillPrintContext context) {
-        InterceptResult<String> result = context.getResult();
-        if (null == baseEntity || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
-            result.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
-            return false;
-        }
-        if(CollectionUtils.isEmpty(baseEntity.getData().getPackageList())){
-            result.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
-            return false;
-        }
-        String packageBarCode = context.getRequest().getPackageBarCode();
-        if(WaybillUtil.isPackageCode(packageBarCode)){
-            boolean packageCodeIsExist = false;
-            for (DeliveryPackageD packageD : baseEntity.getData().getPackageList()) {
-                if(Objects.equals(packageD.getPackageBarcode(), packageBarCode)){
-                    packageCodeIsExist = true;
-                    break;
-                }
-            }
-            if(!packageCodeIsExist){
-                result.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
-                return false;
-            }
-        }
-        return true;
-    }
-
     /**
      * 加载增值服务
      *
@@ -284,6 +257,33 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 log.error("loadGoodsInfo加载商品信息失败! 入参：{}", JsonHelper.toJson(context), e);
             }
         }
+    }
+
+    private boolean baseWaybillInfoCheck(BaseEntity<BigWaybillDto> baseEntity, WaybillPrintContext context) {
+        InterceptResult<String> result = context.getResult();
+        if (null == baseEntity || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
+            result.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
+            return false;
+        }
+        if(CollectionUtils.isEmpty(baseEntity.getData().getPackageList())){
+            result.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
+            return false;
+        }
+        String packageBarCode = context.getRequest().getPackageBarCode();
+        if(WaybillUtil.isPackageCode(packageBarCode)){
+            boolean packageCodeIsExist = false;
+            for (DeliveryPackageD packageD : baseEntity.getData().getPackageList()) {
+                if(Objects.equals(packageD.getPackageBarcode(), packageBarCode)){
+                    packageCodeIsExist = true;
+                    break;
+                }
+            }
+            if(!packageCodeIsExist){
+                result.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

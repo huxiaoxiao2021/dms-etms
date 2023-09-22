@@ -487,7 +487,7 @@ public class WeighByWaybillController extends DmsBaseController {
             waybillWeightImportResponse.setErrorList(errorList);
             waybillWeightImportResponse.setSuccessList(successList);
             waybillWeightImportResponse.setWarnList(warnList);
-            dataList = dataResolver.resolver(file.getInputStream(), WaybillWeightVO.class, new PropertiesMetaDataFactory("/excel/waybillWeight.properties"),true,resultMessages);
+            dataList = dataResolver.resolver(file.getInputStream(), WaybillWeightVO.class, new PropertiesMetaDataFactory("/excel/waybillWeight.properties"),true,resultMessages, null);
             if (dataList != null && dataList.size() > 0) {
                 if (dataList.size() > 1000) {
                     errorString = "导入数据超出1000条";

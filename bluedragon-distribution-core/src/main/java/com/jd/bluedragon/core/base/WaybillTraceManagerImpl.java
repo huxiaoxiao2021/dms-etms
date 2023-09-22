@@ -110,7 +110,7 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
 
     public boolean isExReturn(String waybillCode){
         List<PackageState> list = getAllOperationsByOpeCodeAndState(waybillCode,
-                new HashSet<>(Lists.newArrayList(Integer.valueOf(Constants.WAYBILLTRACE_EX_RETURN), Integer.valueOf(Constants.WAYBILLTRACE_FAIL_QG))));
+                new HashSet<>(Lists.newArrayList(Integer.valueOf(Constants.WAYBILLTRACE_EX_RETURN))));
         return list != null && list.size() > 0;
     }
 

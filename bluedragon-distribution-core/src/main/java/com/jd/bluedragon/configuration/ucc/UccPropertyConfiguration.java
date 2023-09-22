@@ -14,6 +14,8 @@ import java.util.*;
 
 /**
  * Created by xumei3 on 2017/12/15.
+ *  Note :
+ *      - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
  */
 public class UccPropertyConfiguration{
 
@@ -1601,6 +1603,8 @@ public class UccPropertyConfiguration{
 
     /**
      * 自动关闭任务配置，转换为对象
+     *  Note :
+     *       - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
      */
     private String autoCloseJyBizTaskConfig;
     private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
@@ -1691,6 +1695,8 @@ public class UccPropertyConfiguration{
     }
     /**
      * 拣运APP自动刷新时间配置
+     *  Note :
+     *      - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
      */
     private String jyWorkAppAutoRefreshConfig;
     private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
