@@ -1,8 +1,6 @@
 package com.jd.bluedragon.common.dto.base.response;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 只用于后台服务与android 相关业务交互使用
@@ -35,11 +33,7 @@ public class JdCResponse<E> implements Serializable {
 	public static final Integer CODE_PARTIAL_SUCCESS = 600;
 	public static final String  MESSAGE_PARTIAL_SUCCESS = "partial success";
 
-	public static final Integer CODE_SUCCESS_SITE_OR_PROVINCE_DIFF = 30002;
-	public static final String MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF = "当前网格码所属场地与人员所属场地不符，登录后会影响计提取量，是否确认登录？";
-
-
-	/** 响应状态码 */
+    /** 响应状态码 */
     protected Integer code;
 
     /** 响应消息 */
@@ -47,14 +41,7 @@ public class JdCResponse<E> implements Serializable {
 
     /** 响应数据 */
     protected E data;
-
-	/**
-	 * 消息盒子
-	 */
-	private List<JdCResponse.MsgBox> msgBoxList;
-
-
-	/**
+    /**
      * 构造方法，默认为成功
      */
     public JdCResponse() {
@@ -79,12 +66,6 @@ public class JdCResponse<E> implements Serializable {
 		super();
 		this.init(code, message, data);
 	}
-
-	public JdCResponse(Integer code, String message, E data, List<MsgBox> msgBoxList) {
-		super();
-		this.init(code, message, data, msgBoxList);
-	}
-
 	/**
 	 * 初始化方法
 	 * @param code
@@ -101,21 +82,6 @@ public class JdCResponse<E> implements Serializable {
 		this.message = message;
 		this.data = data;
 	}
-
-	public void init(Integer code, String message, E data, List<JdCResponse.MsgBox> msgBoxList) {
-		this.code = code;
-		this.message = message;
-		this.data = data;
-		this.msgBoxList = msgBoxList;
-	}
-
-	public JdCResponse<E> successNeedConfirm(E data, Integer msgBoxCode, String msgBoxMessage){
-		MsgBox msgBox = new MsgBox(MsgBoxTypeEnum.CONFIRM, msgBoxCode, msgBoxMessage);
-		List<MsgBox> msgBoxList = new ArrayList<MsgBox>();
-		msgBoxList.add(msgBox);
-		return new JdCResponse<E>(JdCResponse.CODE_SUCCESS,JdCResponse.MESSAGE_SUCCESS, data, msgBoxList);
-	}
-
 	/**
 	 * 状态判断
 	 * @return
@@ -144,7 +110,6 @@ public class JdCResponse<E> implements Serializable {
 	public void toSucceed() {
 		init(CODE_SUCCESS);
 	}
-	
 	/**
 	 * 状态转换并设置返回信息
 	 * @param message
@@ -227,77 +192,6 @@ public class JdCResponse<E> implements Serializable {
 
 	public static <E> JdCResponse<E> fail(String msg) {
 		return new JdCResponse<E>(CODE_FAIL, msg);
-	}
-
-	public static class MsgBox implements Serializable {
-
-		private static final long serialVersionUID = 3024545920925812168L;
-		/**
-		 * 校验结果类型 1-提示框 2-确认框 3-拦截框
-		 */
-		private MsgBoxTypeEnum type;
-
-		/**
-		 * 状态码
-		 */
-		private Integer code;
-
-		/**
-		 * 提示语
-		 */
-		private String msg;
-
-		protected Object data;
-
-		public MsgBox() {
-		}
-
-		public MsgBox(MsgBoxTypeEnum type, Integer code, String msg) {
-			this.type = type;
-			this.code = code;
-			this.msg = msg;
-		}
-
-		public MsgBoxTypeEnum getType() {
-			return type;
-		}
-
-		public void setType(MsgBoxTypeEnum type) {
-			this.type = type;
-		}
-
-		public Integer getCode() {
-			return code;
-		}
-
-		public void setCode(Integer code) {
-			this.code = code;
-		}
-
-		public String getMsg() {
-			return msg;
-		}
-
-		public void setMsg(String msg) {
-			this.msg = msg;
-		}
-
-		public Object getData() {
-			return data;
-		}
-
-		public void setData(Object data) {
-			this.data = data;
-		}
-
-	}
-
-	public List<MsgBox> getMsgBoxList() {
-		return msgBoxList;
-	}
-
-	public void setMsgBoxList(List<MsgBox> msgBoxList) {
-		this.msgBoxList = msgBoxList;
 	}
 
 }

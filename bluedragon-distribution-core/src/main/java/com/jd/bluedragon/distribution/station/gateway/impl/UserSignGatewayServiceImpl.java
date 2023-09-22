@@ -282,11 +282,10 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		data.setJobCode(jobCode);
 		data.setUserCode(userCode);
 		result.setData(data);
-		log.info("userSignGatewayService queryUserDataForLogin result:{}", JSON.toJSONString(result));
 		// 校验网格码场地和用户场地是否一致
 		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
-			return new JdCResponse<ScanUserData>().successNeedConfirm(data, JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
-					JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF);
+			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
+					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE));
 		}
 		return result;
 	}
@@ -326,10 +325,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			BeanUtils.copyProperties(apiResult.getData(),positionData);
 			result.setData(positionData);
 			// 校验网格码场地和用户场地是否一致
-			log.info("userSignGatewayService queryPositionDataForLogin result:{}", JSON.toJSONString(result));
 			if (!this.checkOperatorBaseInfo(positionCode, scanRequest.getUserCode())) {
-				return new JdCResponse<PositionData>().successNeedConfirm(positionData, JdCResponse.CODE_SUCCESS_SITE_OR_PROVINCE_DIFF,
-						JdCResponse.MESSAGE_SUCCESS_SITE_OR_PROVINCE_DIFF);
+				result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
+						HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE));
 			}
 		}catch (Exception e){
 			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
@@ -366,7 +364,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		}
 		return result;
 	}
-
+	
 	/**
 	 * 作业APP网格码错误检验
 	 */
@@ -375,35 +373,27 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			return true;
 		}
 		// 查询网格码信息
-		log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo positionCode:{}, userCode:{}", positionCode, userCode);
 		Result<PositionDetailRecord> apiResult = positionManager.queryOneByPositionCode(positionCode);
-		log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo apiResult:{}", JSON.toJSONString(apiResult));
 		if(apiResult == null || !apiResult.isSuccess()  || apiResult.getData() == null){
 			return true;
 		}
 		BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(apiResult.getData().getSiteCode());
-		log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo dtoStaff:{}", JSON.toJSONString(dtoStaff));
 		if (dtoStaff == null) {
 			return true;
 		}
 		// 查询人员信息
 		BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-		log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo baseStaffByErp:{}", JSON.toJSONString(baseStaffByErp));
 		if(baseStaffByErp == null) {
 			return true;
 		}
 		// 网格码为分拣场地类型
-		log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo getSortType:{}, getSortSubType:{}, getSortThirdType:{}",
-				dtoStaff.getSortType(), dtoStaff.getSortSubType(), dtoStaff.getSortThirdType());
 		if (BusinessUtil.isSortingCenter(dtoStaff.getSortType(), dtoStaff.getSortSubType(),dtoStaff.getSortThirdType())) {
 			// 所属场地是否与当前网格码对应场地一致
-			log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo baseStaffByErp.getSiteCode():{}, apiResult.getData().getSiteCode:{}", baseStaffByErp.getSiteCode(), apiResult.getData().getSiteCode());
 			return baseStaffByErp.getSiteCode().equals(apiResult.getData().getSiteCode());
 		}
 		// 网格码为接货仓场地类型
 		if (BusinessUtil.isReceivingWarehouse(dtoStaff.getSortType())) {
 			// 所属场地对应省区与网格码所属接货仓省区是否一致
-			log.info("UserSignGatewayServiceImpl checkOperatorBaseInfo baseStaffByErp.getProvinceAgencyCode():{}, apiResult.getData().getProvinceAgencyCode:{}", baseStaffByErp.getProvinceAgencyCode(), apiResult.getData().getProvinceAgencyCode());
 			if (StringUtils.isBlank(baseStaffByErp.getProvinceAgencyCode()) || StringUtils.isBlank(apiResult.getData().getProvinceAgencyCode())) {
 				return true;
 			}
