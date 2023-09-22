@@ -226,6 +226,19 @@ public class UserSignRecord implements Serializable {
 	
 	private String refWorkGridKey;
 
+	/**
+	 * 身份证号
+	 */
+	private String idCard;
+
+	public String getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(String idCard) {
+		this.idCard = idCard;
+	}
+
 	public String getRefWorkGridKey() {
 		return refWorkGridKey;
 	}
