@@ -110,6 +110,7 @@
 				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
+				<ref bean="interceptSiteTypePrinrHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
