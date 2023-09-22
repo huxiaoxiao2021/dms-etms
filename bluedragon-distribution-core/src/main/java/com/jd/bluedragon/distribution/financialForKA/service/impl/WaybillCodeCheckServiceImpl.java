@@ -225,7 +225,7 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
      */
     private WaybillCodeCheckDto trans2WaybillCodeCheckDto(WaybillCodeCheckCondition condition, Integer checkResult) {
         WaybillCodeCheckDto dto = new WaybillCodeCheckDto();
-        String waybillCode = condition.getBarCodeOfOne();
+        String waybillCode =  WaybillUtil.getWaybillCode(condition.getBarCodeOfOne());
         try {
             Integer busiId = waybillQueryManager.getBusiId(waybillCode);
             BasicTraderInfoDTO baseTraderInfoDTO = baseMinorManager.getBaseTraderById(busiId);
