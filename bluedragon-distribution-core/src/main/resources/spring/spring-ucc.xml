@@ -306,8 +306,9 @@
 		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
 		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
 		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
-
 		<property name="fetchCarDistributionTimeRange" value="${fetchCarDistributionTimeRange:48}"/>
+		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
+		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -620,6 +621,9 @@
 				<value>uccPropertyConfiguration.jyExceptionCreateBizIdSwitch</value>
 				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
 				<value>uccPropertyConfiguration.fetchCarDistributionTimeRange</value>
+
+				<value>uccPropertyConfiguration.checkAkboxConfig</value>
+				<value>uccPropertyConfiguration.printCacheTime</value>
 			</list>
 		</property>
 	</bean>

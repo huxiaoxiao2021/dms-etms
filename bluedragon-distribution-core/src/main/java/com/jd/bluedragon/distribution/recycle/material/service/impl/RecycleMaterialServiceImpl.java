@@ -3,12 +3,14 @@ package com.jd.bluedragon.distribution.recycle.material.service.impl;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.RecycleMaterialManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.basic.ExcelUtils;
 import com.jd.bluedragon.core.base.RecycleMaterialManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.request.material.collectionbag.CollectionBagRequest;
 import com.jd.bluedragon.distribution.api.request.material.recyclingbox.RecyclingBoxInOutboundRequest;
 import com.jd.bluedragon.distribution.api.request.material.warmbox.WarmBoxInOutBaseRequest;
@@ -36,6 +38,7 @@ import com.jd.bluedragon.distribution.recycle.material.enums.TransStatusEnum;
 import com.jd.bluedragon.distribution.recycle.material.service.RecycleMaterialService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.common.dto.ApiResult;
+import com.jd.bluedragon.sdk.modules.recyclematerial.RecycleMaterialJsfService;
 import com.jd.bluedragon.sdk.modules.recyclematerial.dto.MaterialAbolishReq;
 import com.jd.bluedragon.sdk.modules.recyclematerial.dto.MaterialAbolishRes;
 import com.jd.bluedragon.sdk.modules.recyclematerial.dto.MaterialAbolishVO;
@@ -49,6 +52,9 @@ import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.akbox.AkboxConfig;
+import com.jdl.basic.api.service.akbox.AkboxConfigJsfService;
+import com.jdl.basic.common.utils.Result;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -60,11 +66,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.distribution.recycle.material.enums.MaterialTypeEnum.BASKET;
@@ -75,7 +79,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
     @Value("${jss.waybillcheck.export.zip.bucket}")
     private String bucket;
-    
+
     @Autowired
     BoxService boxService;
     @Autowired
@@ -87,7 +91,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
-    
+
     @Autowired
     private JssService jssService;
 
@@ -101,10 +105,18 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
     @Autowired
     private MaterialServiceFactory materialServiceFactory;
 
+    @Resource
+    AkboxConfigJsfService akboxConfigJsfService;
+    @Resource
+    RedisCommonUtil redisCommonUtil;
+
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     private static final int DEFAULT_RECEIVE_NUM = 1;
 
     private static final byte COLLECTION_BAG_SEND = MaterialSendModeEnum.COLLECTION_BAG_SEND.getCode();
-    
+
     private static final int DEFAULT_SEND_NUM = 1;
 
     private static final byte WARM_BOX_SEND = MaterialSendModeEnum.WARM_BOX_SEND.getCode();
@@ -280,7 +292,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         // sheet页名称
         String sheetName = "批量报废周转筐异常单号";
         return ExcelUtils.writeExcel(title, data, sheetName, ExcelUtils.EXCEL_SUFFIX_XLSX);
-        
+
     }
 
     @Override
@@ -321,7 +333,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             response.setCode(com.jd.bluedragon.distribution.api.JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_SERVICE_ERROR);
         }
-        return response;    
+        return response;
     }
 
     private DmsMaterialSend createMaterialSendFromRequest(String collectionBagCode,
@@ -344,7 +356,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         send.setReceiveSiteType(receiveSite.getSiteType());
         return send;
     }
-    
+
     private JdResult<Boolean> CollectionCheckRequestParam(CollectionBagRequest request, boolean send) {
         JdResult<Boolean> response = new JdResult<>();
         response.toSuccess();
@@ -374,7 +386,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
         return response;
     }
-    
+
     @Override
     public JdResult<WarmBoxInOutResponse> warmBoxOutbound(WarmBoxOutboundRequest request) {
         JdResult<WarmBoxInOutResponse> response = new JdResult<>();
@@ -444,7 +456,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
         return send;
     }
-    
+
     private JdResult<WarmBoxInOutResponse> warmBoxCheckRequestParam(WarmBoxInOutBaseRequest request) {
         JdResult<WarmBoxInOutResponse> response = new JdResult<>();
         response.toSuccess();
@@ -489,7 +501,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
         return response;
     }
-    
+
     @Override
     public JdResult<RecyclingBoxInOutResponse> recyclingBoxOutbound(RecyclingBoxInOutboundRequest request) {
         JdResult<RecyclingBoxInOutResponse> response = new JdResult<>();
@@ -547,7 +559,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
         return materialSend;
     }
-    
+
     private JdResponse<RecycleBasketPrintInfo> generateRecycleBasketPrintInfo(RecycleBasketEntity recycleBasketEntity, RecycleBasketTypeEnum typeEnum){
         JdResponse<RecycleBasketPrintInfo> response = new JdResponse<>();
         List<String> codes = boxService.generateRecycleBasketCode(recycleBasketEntity.getQuantity(), typeEnum);
@@ -562,6 +574,13 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             response.toError("获取站点信息失败，请稍后重试，或联系分拣小秘!");
             return response;
         }
+        if (uccPropertyConfiguration.getCheckAkboxConfig()) {
+            JdResponse<RecycleBasketPrintInfo> recycleBasketPrintInfoJdResponse = checkAkboxConfig(baseStaffSiteOrgDto.getSiteCode(), recycleBasketEntity);
+            if (recycleBasketPrintInfoJdResponse.isError()) {
+                return recycleBasketPrintInfoJdResponse;
+            }
+        }
+
         //保存到循环物资表
         ApiResult<Integer> addResult = addRecycleMaterials(codes, recycleBasketEntity, baseStaffSiteOrgDto);
         if(!addResult.isSucceed()){
@@ -569,6 +588,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             response.toFail(addResult.getMessage());
             return response;
         }
+
         //返回打印信息
         RecycleBasketPrintInfo printInfo = new RecycleBasketPrintInfo();
         printInfo.setRecycleBasketCodes(codes);
@@ -577,6 +597,37 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         printInfo.setCreateSiteName(baseStaffSiteOrgDto.getSiteName());
         printInfo.setOrgAndSiteName(baseStaffSiteOrgDto.getProvinceAgencyName() + "-" + baseStaffSiteOrgDto.getSiteName());
         response.setData(printInfo);
+        return response;
+    }
+
+
+    private JdResponse<RecycleBasketPrintInfo> checkAkboxConfig(Integer siteCode, RecycleBasketEntity recycleBasketEntity) {
+        JdResponse<RecycleBasketPrintInfo> response = new JdResponse<>();
+        Result<AkboxConfig> akboxConfigResult = akboxConfigJsfService.queryBySiteCode(siteCode);
+        if (akboxConfigResult.isSuccess()) {
+            AkboxConfig akboxConfig = akboxConfigResult.getData();
+            if (akboxConfig !=null) {
+
+                ApiResult<Integer> integerApiResult = recycleMaterialManager.countMaterialByCondition(siteCode, recycleBasketEntity.getTypeCode());
+                if (integerApiResult.isSucceed()) {
+                    Integer num = integerApiResult.getData() + recycleBasketEntity.getQuantity();
+                    if (recycleBasketEntity.getTypeCode().equals(RecycleBasketTypeEnum.BIG.getCode())) {
+                        if (akboxConfig.getLargeStock() != null && num > akboxConfig.getLargeStock()) {
+                            logger.error("周转筐打印,超出当前站点库存总理：{}", akboxConfig.getLargeStock());
+                            response.toError("当前场地已打印条码为"+ integerApiResult.getData() + "个本次打印超过库存配置"+ akboxConfig.getLargeStock() +"个，无法操作打印");
+                            return response;
+                        }
+                    } else {
+                        if (akboxConfig.getSmallStock() != null && num > akboxConfig.getSmallStock()) {
+                            logger.error("周转筐打印,超出当前站点库存总理：{}", akboxConfig.getSmallStock());
+                            response.toError("当前场地已打印条码为"+ integerApiResult.getData() + "个本次打印超过库存配置"+ akboxConfig.getSmallStock() +"个，无法操作打印");
+                            return response;
+                        }
+                    }
+                }
+            }
+        }
+        response.toSucceed();
         return response;
     }
 
@@ -610,6 +661,17 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
     private  JdResponse<RecycleBasketPrintInfo> getReprintInfo(RecycleBasketEntity recycleBasketEntity){
         JdResponse<RecycleBasketPrintInfo> response = new JdResponse<>();
+        /**
+         * redis key 添加前缀
+         * 时间可以配置
+         */
+        if (redisCommonUtil.getData("printCode-" + recycleBasketEntity.getRecycleBasketCode()) == 0 ) {
+            redisCommonUtil.cacheDataEx("printCode-" +recycleBasketEntity.getRecycleBasketCode(), 1, uccPropertyConfiguration.getPrintCacheTime());
+        } else {
+            logger.error("一周内只能打印一次");
+            response.toFail("一周内只能打印一次，请稍后重试！");
+            return response;
+        }
 
         ApiResult<RecycleMaterial> recycleMaterialApiResult = recycleMaterialManager
                 .findByMaterialCode(recycleBasketEntity.getRecycleBasketCode());
