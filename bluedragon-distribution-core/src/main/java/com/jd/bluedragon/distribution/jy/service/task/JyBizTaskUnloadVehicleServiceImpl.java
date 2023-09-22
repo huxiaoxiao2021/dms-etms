@@ -129,6 +129,18 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     /**
+     * 根据bizId获取数据 忽略YN
+     *
+     * @param bizId
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByBizId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JyBizTaskUnloadVehicleEntity findByBizIdIgnoreYn(String bizId) {
+        return jyBizTaskUnloadVehicleDao.findByBizIdIgnoreYn(bizId);
+    }
+
+    /**
      * 获取6个小时内实际解封车顺序
      *
      * @param entity
