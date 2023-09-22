@@ -76,6 +76,7 @@
 		<result column="plan_attend_num" property="planAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="attend_num" property="attendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="now_attend_num" property="nowAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="id_card" property="idCard" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
 
 	<resultMap id="UserSignRecordReportSumVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo" >

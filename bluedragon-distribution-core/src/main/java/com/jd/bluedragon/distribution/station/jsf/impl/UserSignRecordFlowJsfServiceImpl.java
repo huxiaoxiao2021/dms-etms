@@ -270,7 +270,6 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 				result.toFail(msg);
 				return result;
 			}
-			log.info("checkParamForAddSignFlow flowType:{},addRequest.getUserCode():",flowType, addRequest.getUserCode());
 			signData.setIdCard(BusinessUtil.encryptIdCardDoubleStar(addRequest.getUserCode()));
 		}else if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)){
 			signData.setSignInTimeNew(signInTimeNew);
