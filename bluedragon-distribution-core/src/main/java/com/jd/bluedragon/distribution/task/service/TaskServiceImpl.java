@@ -765,9 +765,8 @@ public class TaskServiceImpl implements TaskService {
 		task.setKeyword1(request.getKeyword1());
 		task.setKeyword2(request.getKeyword2());
 		// insert keyword1 keyword2 businessType operateTime
-		this.initOthers(jsonVal, task);
-
 		task.setBody(jsonVal);
+		this.initOthers(jsonVal, task);
 		if (StringUtils.isNotBlank(request.getBoxCode())) {
 			task.setBoxCode(request.getBoxCode());
 		}
@@ -812,6 +811,15 @@ public class TaskServiceImpl implements TaskService {
 		if(null != operateTime){
 			task.setOperateTime(StringUtils.isNotBlank(operateTime.toString()) ? DateHelper
 					.getSeverTime(operateTime.toString()) : new Date());
+		} else {
+			Date requestTime = new Date();
+			task.setOperateTime(requestTime);
+			// 将操作时间再放回body里，因为worker是从body取时间，并没有用到task对象里的operateTime
+			map.put("operateTime", DateHelper.formatDateTime(requestTime));
+			String bodyStr = Constants.PUNCTUATION_OPEN_BRACKET
+					+ JsonHelper.toJson(map)
+					+ Constants.PUNCTUATION_CLOSE_BRACKET;
+			task.setBody(bodyStr);
 		}
 
 		if (Task.TASK_TYPE_INSPECTION.equals(task.getType())
