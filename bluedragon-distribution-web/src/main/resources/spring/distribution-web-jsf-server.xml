@@ -601,6 +601,6 @@
     <jsf:provider id="jsfDmsSortingService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsSortingService"
                   alias="${dms.jsf.alias}"
-                  ref="dmsSortingService" server="dmsjsf">
+                  ref="iDmsSortingService" server="dmsjsf">
     </jsf:provider>
 </beans>

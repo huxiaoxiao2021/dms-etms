@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit;
  * @Description:
  * @date Date : 2023年09月14日 15:14
  */
-@Service("dmsSortingService")
+@Service("iDmsSortingService")
 public class DmsSortingServiceImpl implements DmsSortingService {
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -296,7 +296,8 @@ public class DmsSortingServiceImpl implements DmsSortingService {
         String aPackageCode = request.getPackageCode();
         //todo 不能加，加了之后，按箱号取消绑定的
         //sorting.setBoxCode(request.getBoxCode());
-        sorting.setOperateTime(DateHelper.getSeverTime(request.getOperateTime()));//增加操作时间
+        //操作时间
+        sorting.setOperateTime(DateHelper.getSeverTime(request.getOperateTime()));
         sorting.setPackageCode(aPackageCode);
         sorting.setCreateSiteCode(request.getCreateSiteCode());
         sorting.setCreateSiteName(request.getCreateSiteName());
