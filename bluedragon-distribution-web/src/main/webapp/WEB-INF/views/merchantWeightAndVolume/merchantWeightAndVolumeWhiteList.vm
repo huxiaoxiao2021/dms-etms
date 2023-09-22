@@ -99,6 +99,9 @@
         <button id="btn_export" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
         </button>
+        <button id="btn_import_brush" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>刷数导入
+        </button>
     </div>
     <table id="dataTable"></table>
 </div>
@@ -132,6 +135,35 @@
         </div>
     </div>
 </div>
+
+<!-- 刷数导入 -->
+<div class="modal fade" tabindex="-1" id="import_modal_brush" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">导入</h4>
+            </div>
+            <div class="modal-body">
+                <form id="brush_upload_excel_form" enctype="multipart/form-data" method="POST">
+
+                    <div class="form-group">
+                        <label for="exampleInputFile">选择导入文件</label>
+                        <input type="file" id="importExcelFile_brush" name="importExcelFile_brush">
+                        <p class="help-block">请使用标准模板,记录条数不得超过10000条</p>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn_upload_brush">上传</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
     var jaq = jaq || [];
     jaq.push(['account', 'JA2016_112453']);
