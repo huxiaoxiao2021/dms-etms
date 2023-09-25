@@ -376,12 +376,8 @@
         WHERE
             yn = 1
             and start_site_id = #{startSiteId}
+            and task_status = #{taskStatus}
             and create_time &gt;= #{createTimeStart}
-            and task_status in
-                <foreach item="item" index="index" collection="taskStatusList" open="("
-                         separator="," close=")">
-                    #{item}
-                </foreach>
         group by
             air_type
     </select>
@@ -394,12 +390,8 @@
         WHERE
             yn = 1
             and start_site_id = #{startSiteId}
+            and task_status = #{taskStatus}
             and create_time &gt;= #{createTimeStart}
-            and task_status in
-                <foreach item="item" index="index" collection="taskStatusList" open="("
-                         separator="," close=")">
-                    #{item}
-                </foreach>
         group by begin_node_code
         limit #{pageSize}
     </select>

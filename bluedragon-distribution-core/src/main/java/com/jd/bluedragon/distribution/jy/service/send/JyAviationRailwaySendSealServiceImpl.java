@@ -306,17 +306,16 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         res.setData(resData);
         //订舱类型统计
         //当前场地始发机场
-        JyBizTaskSendAviationPlanQueryCondition condition1 = new JyBizTaskSendAviationPlanQueryCondition();
-        condition1.setStartSiteId(request.getCurrentOperate().getSiteCode());
-        condition1.setCreateTimeStart(this.queryDefaultCreateTimeStart());
-        List<JyBizTaskAviationAirTypeStatistics>  statisticsList = jyBizTaskSendAviationPlanService.airTypeStatistics(condition1);
+        JyBizTaskSendAviationPlanQueryCondition condition = this.convertListQueryCondition(
+                request.getCurrentOperate().getSiteCode(),
+                request.getStatusCode(),
+                null,
+                null);
+        List<JyBizTaskAviationAirTypeStatistics>  statisticsList = jyBizTaskSendAviationPlanService.airTypeStatistics(condition);
         resData.setBookingTypeDtoList(this.convertAirType(statisticsList));
 
         //当前场地始发机场
-        JyBizTaskSendAviationPlanQueryCondition condition = new JyBizTaskSendAviationPlanQueryCondition();
-        condition.setStartSiteId(request.getCurrentOperate().getSiteCode());
         condition.setPageSize(100);
-        condition.setCreateTimeStart(this.queryDefaultCreateTimeStart());
         List<JyBizTaskSendAviationPlanEntity> entityList = jyBizTaskSendAviationPlanService.pageFindAirportInfoByCurrentSite(condition);
         if(CollectionUtils.isNotEmpty(entityList)) {
             List<AirportDataDto> airportDataDtoList = new ArrayList<>();
@@ -1578,11 +1577,14 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         InvokeResult<ScanSendCodeValidRes> res = new InvokeResult<>();
 
         ValidSendCodeReq sealVehicleReq = new ValidSendCodeReq();
+        sealVehicleReq.setCurrentOperate(request.getCurrentOperate());
+        sealVehicleReq.setUser(request.getUser());
         sealVehicleReq.setSendCode(request.getSendCode());
         sealVehicleReq.setTransportCode(request.getTransportCode());
         sealVehicleReq.setVehicleNumber(request.getVehicleNumber());
-        sealVehicleReq.setSealCarType(SealCarTypeEnum.SEAL_BY_TASK.getType());
-        sealVehicleReq.setSealCarSource(SealCarSourceEnum.COMMON_SEAL_CAR.getCode());
+        //空铁封车摆渡按运力封车
+        sealVehicleReq.setSealCarType(SealCarTypeEnum.SEAL_BY_TRANSPORT_CAPABILITY.getType());
+        sealVehicleReq.setSealCarSource(SealCarSourceEnum.FERRY_SEAL_CAR.getCode());
         InvokeResult<SealCarSendCodeResp> weightVolumeRes = jySealVehicleService.validateTranCodeAndSendCode(sealVehicleReq);
         if(!weightVolumeRes.codeSuccess()) {
             res.setCode(weightVolumeRes.getCode());

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.seal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
@@ -526,18 +527,40 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 return invokeResult;
             }
             invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
-            final InvokeResult<Void> checkBatchCodeResult = newSealVehicleService.checkBatchCode(validSendCodeReq.getSendCode());
+
+            com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newSealVehicleService.getTransportResourceByTransCode(validSendCodeReq.getTransportCode());
+            if (commonDto == null) {
+                invokeResult.setCode(SERVER_ERROR_CODE);
+                invokeResult.setMessage("查询运力信息结果为空:" + validSendCodeReq.getTransportCode());
+                return invokeResult;
+            }
+
+            final InvokeResult<Void> checkBatchCodeResult = newSealVehicleService.checkBatchCode(validSendCodeReq, commonDto.getData());
             if (RESULT_SUCCESS_CODE == checkBatchCodeResult.getCode()) {
-                com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newSealVehicleService.getTransportResourceByTransCode(validSendCodeReq.getTransportCode());
-                if (commonDto == null) {
-                    invokeResult.setCode(SERVER_ERROR_CODE);
-                    invokeResult.setMessage("查询运力信息结果为空:" + validSendCodeReq.getSendCode());
-                    return invokeResult;
-                }
+//                com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newSealVehicleService.getTransportResourceByTransCode(validSendCodeReq.getTransportCode());
+//                if (commonDto == null) {
+//                    invokeResult.setCode(SERVER_ERROR_CODE);
+//                    invokeResult.setMessage("查询运力信息结果为空:" + validSendCodeReq.getSendCode());
+//                    return invokeResult;
+//                }
                 if (commonDto.getData() != null && Constants.RESULT_SUCCESS == commonDto.getCode()) {
                     Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(validSendCodeReq.getSendCode());
                     Integer endNodeId = commonDto.getData().getEndNodeId();
-                    if (receiveSiteCode.equals(endNodeId)) {
+                    if (SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(validSendCodeReq.getSealCarSource())
+                            && newsealVehicleService.isAirTransport(commonDto.getData())
+                            && validSendCodeReq.getTransportCode().startsWith("T")) {
+                        Integer createSiteCodeInSendCode = BusinessUtil.getCreateSiteCodeFromSendCode(validSendCodeReq.getSendCode());
+                        Integer receiveSiteCodeInSendCode = BusinessUtil.getReceiveSiteCodeFromSendCode(validSendCodeReq.getSendCode());
+                        if (Objects.equals(validSendCodeReq.getCurrentOperate().getSiteCode(), createSiteCodeInSendCode)
+                                || Objects.equals(validSendCodeReq.getCurrentOperate().getSiteCode(), receiveSiteCodeInSendCode)) {
+                            invokeResult.setCode(JdResponse.CODE_OK);
+                            invokeResult.setMessage(JdResponse.MESSAGE_OK);
+                        } else {
+                            invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                            invokeResult.setMessage(NewSealVehicleResponse.MESSAGE_TRANSPORT_START_END_RANGE_ERROR);
+                        }
+
+                    } else if (receiveSiteCode.equals(endNodeId)) {
                         invokeResult.setCode(JdResponse.CODE_OK);
                         invokeResult.setMessage(JdResponse.MESSAGE_OK);
                     } else {

@@ -221,6 +221,9 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
             }
+            if(Objects.isNull(JyAviationRailwaySendVehicleStatusEnum.getEnumByCode(request.getStatusCode()))) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "状态为空", null);
+            }
             return retJdCResponse(jyAviationRailwaySendSealService.pageFetchCurrentSiteStartAirport(request));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());

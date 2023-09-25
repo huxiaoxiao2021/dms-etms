@@ -13,5 +13,17 @@ public class FilterConditionQueryReq extends BaseReq implements Serializable {
 
     private static final long serialVersionUID = 4784612639942744950L;
 
+    /**
+     * 状态
+     * JyAviationRailwaySendVehicleStatusEnum
+     */
+    private Integer statusCode;
 
+    public Integer getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(Integer statusCode) {
+        this.statusCode = statusCode;
+    }
 }
