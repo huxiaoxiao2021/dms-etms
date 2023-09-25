@@ -88,7 +88,11 @@ public class PositionData implements Serializable {
 	/**
 	 * 关联场地网格key:work_grid
 	 */
-	private String refWorkGridKey;    
+	private String refWorkGridKey;
+	/**
+	 * 关联场地网格工序key:work_station_grid
+	 */
+	private String refGridKey;
     
 	public Long getId() {
 		return id;
@@ -216,5 +220,13 @@ public class PositionData implements Serializable {
 
 	public void setRefWorkGridKey(String refWorkGridKey) {
 		this.refWorkGridKey = refWorkGridKey;
+	}
+
+	public String getRefGridKey() {
+		return refGridKey;
+	}
+
+	public void setRefGridKey(String refGridKey) {
+		this.refGridKey = refGridKey;
 	}
 }
