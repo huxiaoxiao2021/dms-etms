@@ -1066,6 +1066,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           .listSendFlowByTemplateCodeOrEndSiteCode(entity);
       // 获取目的地
       List<Integer> endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
+      if (CollectionUtils.isEmpty(endSiteCodeList)) {
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+      }
       List<JyBizTaskComboardEntity> boardInProcess = jyBizTaskComboardService
               .queryInProcessBoardListBySendFlowList(startSiteId, endSiteCodeList,request.getGroupCode());
       if (CollectionUtils.isEmpty(boardInProcess)){
@@ -1242,7 +1245,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   private void pushDelayMQ(JyBizTaskComboardEntity record) {
     try {
-      // jyComboardTaskFirstSaveProducer.send(record.getBoardCode(), JsonHelper.toJson(record));
+      jyComboardTaskFirstSaveProducer.send(record.getBoardCode(), JsonHelper.toJson(record));
     } catch (Exception e) {
       log.info("首次保存组板任务发送jmq消息异常{}", JsonHelper.toJson(record));
     }

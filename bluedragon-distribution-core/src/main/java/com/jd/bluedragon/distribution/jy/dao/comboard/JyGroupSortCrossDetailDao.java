@@ -125,13 +125,10 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
 
     /**
      * 查询岗位下的网格信息
-     * @param code
      * @return
      */
-    public List<String> queryGroupCodeByFuncCode(String code) {
-        JyGroupSortCrossDetailEntityQueryDto condition = new JyGroupSortCrossDetailEntityQueryDto();
-        condition.setFuncType(code);
-        return this.getSqlSession().selectList(NAMESPACE + ".queryGroupCodeByFuncCode", condition);
+    public List<JyGroupSortCrossDetailEntity> queryGroupCodeByFuncCode() {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryGroupCodeByFuncCode");
     }
 
     /**
