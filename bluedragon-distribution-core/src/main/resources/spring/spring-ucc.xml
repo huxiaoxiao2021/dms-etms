@@ -627,7 +627,6 @@
 				<value>uccPropertyConfiguration.checkAkboxConfig</value>
 				<value>uccPropertyConfiguration.printCacheTime</value>
 				<value>uccPropertyConfiguration.terminalSitePackagePrintLimitSwitch</value>
-				<value>uccPropertyConfiguration.assignExpTaskQuantityLimit</value>
 				<value>uccPropertyConfiguration.reverseExchangeCount</value>
 			</list>
 		</property>
