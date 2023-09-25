@@ -466,12 +466,10 @@
   </update>
   
   <select id="queryGroupCodeByFuncCode"           
-          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto"
-          resultType="java.lang.String">
-    select group_code
+          resultMap="BaseResultMap">
+    select id, group_code
     from jy_group_sort_cross_detail
-    where func_type = #{funcType}
-      and yn = 1 group by group_code limit 5000
+    group by group_code limit 5000
   </select>
 
   <update id="deleteCTTGroupDataByGroupCode"
