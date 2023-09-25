@@ -109,15 +109,11 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
      */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.CycleBoxJsfServiceImpl.addBoxMaterialRelation", mState = JProEnum.TP)
-    public InvokeResult<String> addBoxMaterialRelation(BoxMaterialRelationRequest request) {
+    public InvokeResult<Boolean> addBoxMaterialRelation(BoxMaterialRelationRequest request) {
         logger.info("CycleBoxJsfServiceImpl->addBoxMaterialRelation绑定集包袋,入参：{}", JsonHelper.toJson(request));
-        InvokeResult<String> result = new InvokeResult<String>();
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if (null == request) {
             result.parameterError("入参不能为空");
-            return result;
-        }
-        if(StringUtils.isBlank(request.getMaterialCode())){
-            result.parameterError("集包袋号不能为空");
             return result;
         }
         if(!BusinessUtil.isBoxcode(request.getBoxCode())){
@@ -135,6 +131,7 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
         if(!invokeResultResult.codeSuccess()){
             result.parameterError(invokeResultResult.getMessage());
         }
+        result.setData(Boolean.TRUE);
         return result;
     }
 }

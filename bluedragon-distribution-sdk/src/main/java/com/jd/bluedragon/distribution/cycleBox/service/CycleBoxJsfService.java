@@ -27,5 +27,5 @@ public interface CycleBoxJsfService {
      * @param request
      * @return
      */
-    InvokeResult<String> addBoxMaterialRelation(BoxMaterialRelationRequest request);
+    InvokeResult<Boolean> addBoxMaterialRelation(BoxMaterialRelationRequest request);
 }

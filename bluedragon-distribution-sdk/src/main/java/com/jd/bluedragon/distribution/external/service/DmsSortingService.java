@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.external.service;
 
-import com.jd.bluedragon.distribution.coldChain.domain.ColdSendResult;
+
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
 import com.jd.bluedragon.distribution.sorting.domain.SortingRequestDto;
