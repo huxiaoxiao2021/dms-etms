@@ -4,14 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.sorting.request.PackSortTaskBody;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
-import com.jd.bluedragon.distribution.coldChain.domain.ColdSendResult;
-import com.jd.bluedragon.distribution.coldChain.enums.ColdSendResultCodeNum;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
-import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.distribution.cyclebox.service.BoxMaterialRelationService;
 import com.jd.bluedragon.distribution.external.service.DmsSortingService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
@@ -23,7 +19,6 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
 import com.jd.bluedragon.distribution.sorting.domain.SortingRequestDto;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -212,6 +207,10 @@ public class DmsSortingServiceImpl implements DmsSortingService {
             result.parameterError("包裹号不合法");
             return result;
         }
+        if(!Objects.equals(SortingBizSourceEnum.INTERFACE_SORTING.getCode(),request.getBizSource())){
+            result.parameterError("分拣来源不合法");
+            return result;
+        }
         //先查询是否有分拣理货绑定记录
         List<Sorting> sortingList = sortingService.findByWaybillCodeOrPackageCode(request.getCreateSiteCode(),WaybillUtil.getWaybillCodeByPackCode(packageCode),packageCode);
         if(CollectionUtils.isEmpty(sortingList)){
@@ -269,7 +268,7 @@ public class DmsSortingServiceImpl implements DmsSortingService {
         sorting.setUpdateUser(request.getCreateUser());
         sorting.setUpdateUserCode(request.getCreateUserCode());
         sorting.setType(Constants.BUSSINESS_TYPE_POSITIVE);
-        sorting.setBizSource(SortingBizSourceEnum.INTERFACE_SORTING.getCode());
+        sorting.setBizSource(request.getBizSource());
         return sorting;
     }
 }
