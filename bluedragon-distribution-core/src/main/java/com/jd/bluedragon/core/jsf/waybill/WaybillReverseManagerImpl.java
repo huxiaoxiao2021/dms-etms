@@ -29,7 +29,6 @@ import com.jd.etms.receive.api.saf.GrossReturnSaf;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.ldop.business.api.BackAddressInfoApi;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.receive.api.dto.OrderMsgDTO;
 import com.jd.ql.dms.receive.api.jsf.GetOrderMsgServiceJsf;
@@ -101,9 +100,6 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-    @Autowired
-    @Qualifier("backAddressInfoApi")
-    private BackAddressInfoApi backAddressInfoApi;
     @Autowired
     private LDOPManager lDOPManager;
     @Autowired
@@ -428,10 +424,17 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
         }else{
             waybillReverseDTO.setReverseType(2);// 包裹拒收
         }
-        //二次换单时设置换单次数限制
-        if(Boolean.TRUE.equals(exchangeWaybillDto.getTwiceExchangeFlag())){
-        	waybillReverseDTO.setLimitReverseFlag(Boolean.TRUE);
-        	waybillReverseDTO.setAllowReverseCount(twiceExchangeMaxTimes);
+        
+        // 换单次数限制
+        Integer reverseExchangeCount = uccPropertyConfiguration.getReverseExchangeCount();
+        if(reverseExchangeCount > -1){
+            waybillReverseDTO.setLimitReverseFlag(Boolean.TRUE);
+            waybillReverseDTO.setAllowReverseCount(reverseExchangeCount);
+        }else {
+            if(Boolean.TRUE.equals(exchangeWaybillDto.getTwiceExchangeFlag())){
+                waybillReverseDTO.setLimitReverseFlag(Boolean.TRUE);
+                waybillReverseDTO.setAllowReverseCount(twiceExchangeMaxTimes);
+            }
         }
         waybillReverseDTO.setWaybillCode(exchangeWaybillDto.getWaybillCode());
         waybillReverseDTO.setOperateUserId(exchangeWaybillDto.getOperatorId());

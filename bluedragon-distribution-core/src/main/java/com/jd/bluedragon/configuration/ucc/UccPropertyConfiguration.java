@@ -1380,6 +1380,11 @@ public class UccPropertyConfiguration {
      */
     private double vehicleIntegralPriorityFraction;
 
+    /**
+     * 外单逆向换单次数
+     */
+    private Integer reverseExchangeCount;
+
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
     }
@@ -3583,5 +3588,13 @@ public class UccPropertyConfiguration {
 
     public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
         this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
+    }
+
+    public Integer getReverseExchangeCount() {
+        return reverseExchangeCount;
+    }
+
+    public void setReverseExchangeCount(Integer reverseExchangeCount) {
+        this.reverseExchangeCount = reverseExchangeCount;
     }
 }

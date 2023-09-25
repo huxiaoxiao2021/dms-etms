@@ -2753,4 +2753,21 @@ public class BusinessUtil {
     public static boolean isGAWaybill(String waybillStart, String waybillEnd){
         return DmsConstants.HK_MO_REGION.contains(waybillStart) || DmsConstants.HK_MO_REGION.contains(waybillEnd);
     }
+
+    /**
+     * 判断是否是快运的运单
+     *  -hint use by reverseExchange function
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isKyWaybillOfReverseExchange(String waybillSign){
+        if (waybillSign == null){
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,40,'2')
+                && BusinessUtil.isSignChar(waybillSign,54,'0')
+                && BusinessUtil.isSignInChars(waybillSign,62,'0', '4', '9')
+                && BusinessUtil.isSignChar(waybillSign,89,'0');
+    }
 }
