@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rest.send;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.capability.send.service.ISendOfCapabilityAreaService;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
@@ -19,6 +20,7 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.BoxRelation;
 import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
@@ -53,6 +55,7 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ql.erp.util.BeanUtils;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
@@ -165,6 +168,11 @@ public class DeliveryResource {
     @Autowired
     private SendCodeService sendCodeService;
 
+    @Autowired
+    private ISendOfCapabilityAreaService sendOfCapabilityAreaService;
+
+    @Autowired
+    SysConfigService sysConfigService;
     /**
      * 原包发货【一车一件项目，发货专用】
      *
@@ -200,6 +208,33 @@ public class DeliveryResource {
         SendM domain = this.toSendMDomain(request);
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
+            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(request.getSiteCode()))){
+                log.info("newPackageSend 启用新模式 {}",request.getBoxCode());
+                //新接口
+                SendRequest sendRequest = new SendRequest();
+                BeanUtils.copyProperties(request,sendRequest);
+                if(sendRequest.getIsCancelLastSend() == null){
+                    sendRequest.setIsCancelLastSend(Boolean.FALSE);//与客户端保持一致
+                }
+                if(SendBizSourceEnum.getEnum(request.getBizSource()) == null){
+                    sendRequest.setBizSource(SendBizSourceEnum.NEW_PACKAGE_SEND.getCode());//默认初始化
+                }
+                if (BusinessUtil.isBoardCode(request.getBoxCode())) {
+                    sendRequest.setBizSource(SendBizSourceEnum.BOARD_SEND.getCode());
+                }
+                if (SendBizSourceEnum.WAYBILL_SEND.getCode().equals(request.getBizSource())) {
+                    // 按运单发货 客户端存在按包裹号传入的场景需要转换成运单
+                    sendRequest.setBarCode(WaybillUtil.getWaybillCode(request.getBoxCode()));
+                }else{
+                    sendRequest.setBarCode(request.getBoxCode());
+                }
+                JdVerifyResponse<SendResult>  response = sendOfCapabilityAreaService.doSend(sendRequest);
+                result.setCode(response.getCode());
+                result.setMessage(response.getMessage());
+                result.setData(response.getData());
+                return result;
+            }
+            log.info("newPackageSend 继续使用旧模式 {}",request.getBoxCode());
 
             // 校验批次号
             InvokeResult<Boolean> chkResult = sendCodeService.validateSendCodeEffective(request.getSendCode());
