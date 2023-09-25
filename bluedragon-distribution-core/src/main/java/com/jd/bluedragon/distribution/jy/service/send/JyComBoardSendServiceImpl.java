@@ -1072,6 +1072,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           .listSendFlowByTemplateCodeOrEndSiteCode(entity);
       // 获取目的地
       List<Integer> endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
+      if (CollectionUtils.isEmpty(endSiteCodeList)) {
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+      }
       List<JyBizTaskComboardEntity> boardInProcess = jyBizTaskComboardService
               .queryInProcessBoardListBySendFlowList(startSiteId, endSiteCodeList,request.getGroupCode());
       if (CollectionUtils.isEmpty(boardInProcess)){
