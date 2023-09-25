@@ -33,6 +33,11 @@ public class DmsWaybillReverseDTO implements Serializable {
 	private Boolean limitReverseFlag;
 	private Integer allowReverseCount;
 
+	/**
+	 * 逆向原因编码
+	 */
+	private Integer reverseReasonCode;
+
 	public Integer getSource() {
 		return source;
 	}
@@ -207,5 +212,13 @@ public class DmsWaybillReverseDTO implements Serializable {
 
 	public void setAllowReverseCount(Integer allowReverseCount) {
 		this.allowReverseCount = allowReverseCount;
+	}
+
+	public Integer getReverseReasonCode() {
+		return reverseReasonCode;
+	}
+
+	public void setReverseReasonCode(Integer reverseReasonCode) {
+		this.reverseReasonCode = reverseReasonCode;
 	}
 }

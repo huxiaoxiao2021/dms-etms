@@ -98,6 +98,15 @@ public class InventoryExceptionExportDto implements Serializable {
 
     private String inventoryScopeStr;
 
+    /**
+     * 省区名称
+     */
+    private String provinceAgencyName;
+    /**
+     * 枢纽名称
+     */
+    private String areaHubName;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -288,6 +297,22 @@ public class InventoryExceptionExportDto implements Serializable {
 
     public void setExpTypeStr(String expTypeStr) {
         this.expTypeStr = expTypeStr;
+    }
+
+    public String getProvinceAgencyName() {
+        return provinceAgencyName;
+    }
+
+    public void setProvinceAgencyName(String provinceAgencyName) {
+        this.provinceAgencyName = provinceAgencyName;
+    }
+
+    public String getAreaHubName() {
+        return areaHubName;
+    }
+
+    public void setAreaHubName(String areaHubName) {
+        this.areaHubName = areaHubName;
     }
 }
     

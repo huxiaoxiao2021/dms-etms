@@ -56,7 +56,7 @@ public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPr
             return result;
         }
 
-        if (waybillTraceManager.isWaybillWaste(oldWaybillCode)){
+        if (waybillTraceManager.isOpCodeWaste(oldWaybillCode)){
             LOGGER.info("ReverseChangeInterceptHandler.handle-->该运单{}为弃件单，不允许换单", oldWaybillCode);
             result.toError(JdResponse.CODE_WAYBILL_WASTE,
                     JdResponse.MESSAGE_WAYBILL_WASTE);

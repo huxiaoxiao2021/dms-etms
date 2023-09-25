@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -8,6 +10,7 @@ import java.util.Date;
  * @version 1.0
  * @date 2016/3/14
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GantryDeviceRequest implements Serializable{
     /**龙门架设备编号*/
     private Long machineId;
@@ -55,6 +58,15 @@ public class GantryDeviceRequest implements Serializable{
      * 龙门架版本号
      */
     private byte version;
+
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
 
     public Long getMachineId() {
         return machineId;
@@ -174,5 +186,21 @@ public class GantryDeviceRequest implements Serializable{
 
     public void setVersion(byte version) {
         this.version = version;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
     }
 }

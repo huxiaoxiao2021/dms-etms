@@ -432,6 +432,10 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
             response.setSiteType(dto.getSiteType());
             response.setSubType(dto.getSubType());
             response.setOrgId(dto.getOrgId());
+            response.setProvinceAgencyCode(dto.getProvinceAgencyCode());
+            response.setProvinceAgencyName(dto.getProvinceAgencyName());
+            response.setAreaHubCode(dto.getAreaCode());
+            response.setAreaHubName(dto.getAreaName());
             response.setSiteBusinessType(dto.getSiteBusinessType());
             result.setData(response);
 

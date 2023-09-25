@@ -9,6 +9,11 @@
 <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
 <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
 <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+<style type="text/css">
+    .tbl-bg table tbody tr td {
+        word-break: break-all;
+    }
+</style>
 </head>
 <script type="text/javascript">
 	$(document).ready(function() {

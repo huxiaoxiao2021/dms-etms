@@ -43,6 +43,16 @@ public class DmsClientHeartbeatRequest implements Serializable {
     private DeviceInfo deviceInfo;
 
 	/**
+	 * 用户erp
+	 */
+	private String userErp;
+
+	/**
+	 * 签到网格码所在的场地编码
+	 */
+	private Integer siteCode;
+
+	/**
 	 * @return the loginId
 	 */
 	public Long getLoginId() {
@@ -127,4 +137,20 @@ public class DmsClientHeartbeatRequest implements Serializable {
     public void setDeviceInfo(DeviceInfo deviceInfo) {
         this.deviceInfo = deviceInfo;
     }
+
+	public String getUserErp() {
+		return userErp;
+	}
+
+	public void setUserErp(String userErp) {
+		this.userErp = userErp;
+	}
+
+	public Integer getSiteCode() {
+		return siteCode;
+	}
+
+	public void setSiteCode(Integer siteCode) {
+		this.siteCode = siteCode;
+	}
 }

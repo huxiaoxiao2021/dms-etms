@@ -11,7 +11,10 @@ import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto;
 import com.jd.bluedragon.common.dto.comboard.response.TableTrolleyDto;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
@@ -22,11 +25,15 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jdl.basic.api.domain.cross.TableTrolleyJsfDto;
+import com.jdl.basic.api.domain.cross.TableTrolleyJsfResp;
+import com.jdl.basic.api.domain.cross.TableTrolleyQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,6 +59,11 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     private IGenerateObjectId genObjectId;
     @Autowired
     private JyGroupSortCrossDetailCacheService jyGroupSortCrossDetailCacheService;
+    @Autowired
+    private SortCrossJsfManager sortCrossJsfManager;
+
+    @Autowired
+    private UccPropertyConfiguration ucc;    
     
     public static final String COM_BOARD_SEND = "CTT%s";
 
@@ -106,9 +118,11 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     public CTTGroupDataResp queryCTTGroupDataByGroupOrSiteCode(CTTGroupDataReq request) {
         CTTGroupDataResp resp = new CTTGroupDataResp();
         List<CTTGroupDto> cttGroupDtos;
-        JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+        JyGroupSortCrossDetailEntityQueryDto entity = new JyGroupSortCrossDetailEntityQueryDto();
         entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         entity.setFuncType(COMBOARD_SEND_POSITION.getCode());
+        // 返回固定混扫任务数量
+        entity.setLimit(ucc.getCttGroupDataLimit());
         if (request.isGroupQueryFlag()) {
             entity.setGroupCode(request.getGroupCode());
             cttGroupDtos = jyGroupSortCrossDetailDao.queryCommonCTTGroupData(entity);
@@ -284,7 +298,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
 
     @Override
     public String createMixScanTask(CreateMixScanTaskReq request) {
-        String templateCode = getTemplateCode();
+        String templateCode = this.getTemplateCode();
         List<JyGroupSortCrossDetailEntity> entities = getMixScanTaskList(templateCode, request);
         if (this.createCTTGroup(entities)) {
             return templateCode;
@@ -293,6 +307,8 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     }
 
     private List<JyGroupSortCrossDetailEntity> getMixScanTaskList(String templateCode, CreateMixScanTaskReq request) {
+
+        Set<Integer> nextSiteCodeSet = new HashSet<>();
         List<JyGroupSortCrossDetailEntity> list = request.getSendFlowList().stream().map(item -> {
             JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
             entity.setSendVehicleDetailBizId(item.getSendVehicleDetailBizId());
@@ -310,9 +326,51 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             entity.setTemplateName(request.getTemplateName());
             entity.setFocus(FocusEnum.FOCUS.getCode());
             entity.setTemplateCode(templateCode);
+            if(StringUtils.isEmpty(item.getCrossCode()) || StringUtils.isEmpty(item.getTabletrolleyCode())) {
+                nextSiteCodeSet.add(item.getEndSiteId().intValue());
+                entity.setCrossCode(org.apache.commons.lang3.StringUtils.EMPTY);
+                entity.setTabletrolleyCode(org.apache.commons.lang3.StringUtils.EMPTY);
+            }
             return entity;
         }).collect(Collectors.toList());
+
+        this.fillCrossCodeAndTableTrolleyCode(request.getCurrentOperate().getSiteCode(), nextSiteCodeSet, list);
+
         return list;
+    }
+    //创建混扫任务补充滑道笼车号
+    private void fillCrossCodeAndTableTrolleyCode(int siteCode, Set<Integer> nextSiteCodeSet, List<JyGroupSortCrossDetailEntity> list) {
+        if(CollectionUtils.isEmpty(nextSiteCodeSet) || CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        try{
+            List<Integer> nextSiteCodeList = nextSiteCodeSet.stream().collect(Collectors.toList());
+            TableTrolleyQuery tableTrolleyQuery = new TableTrolleyQuery();
+            tableTrolleyQuery.setDmsId(siteCode);
+            tableTrolleyQuery.setSiteCodeList(nextSiteCodeList);
+            JdResult<TableTrolleyJsfResp> tableTrolleyRes = sortCrossJsfManager.queryCrossCodeTableTrolleyBySiteFlowList(tableTrolleyQuery);
+
+            if(!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() && !Objects.isNull(tableTrolleyRes.getData()) && !CollectionUtils.isEmpty(tableTrolleyRes.getData().getTableTrolleyDtoJsfList())) {
+                Map<Integer, TableTrolleyJsfDto> nextSiteTableTrolleyMap = new HashMap<>();
+                tableTrolleyRes.getData().getTableTrolleyDtoJsfList().forEach(tableTrolleyDto -> {
+                    if (!Objects.isNull(tableTrolleyDto.getEndSiteId())) {
+                        nextSiteTableTrolleyMap.put(tableTrolleyDto.getEndSiteId(), tableTrolleyDto);
+                    }
+                });
+
+                list.forEach(detailEntity -> {
+                    TableTrolleyJsfDto tableTrolleyJsfDto = nextSiteTableTrolleyMap.get(detailEntity.getEndSiteId().intValue());
+                    if(!Objects.isNull(tableTrolleyJsfDto)) {
+                        String crossCode = tableTrolleyJsfDto.getCrossCode();
+                        String tableTrolleyCode = tableTrolleyJsfDto.getTableTrolleyCode();
+                        detailEntity.setCrossCode(crossCode);
+                        detailEntity.setTabletrolleyCode(tableTrolleyCode);
+                    }
+                });
+            }
+        }catch (Exception e) {
+            log.error("创建混扫任务补充滑道笼车号出错，不卡实操，siteCode={}，nextSiteCodeSet={}", siteCode, JsonHelper.toJson(nextSiteCodeSet));
+        }
     }
 
     private JyGroupSortCrossDetailEntity assembleFocusReq(MixScanTaskFocusReq request) {

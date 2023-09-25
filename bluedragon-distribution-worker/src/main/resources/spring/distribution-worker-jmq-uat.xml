@@ -354,6 +354,11 @@
         <jmq:listener topic="${jmq.topic.jy.unload.complete}" listener="jyUnloadTaskCompleteConsumer"/>
     </jmq:consumer>
 
+    <!--  运输封车任务预计到达时间  -->
+    <jmq:consumer id="jmq.tmsJdiTransWorkItemEstimateArriveTimeConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.tms.jdi.trans.work.item.estimate.arrive.time}" listener="tmsJdiTransWorkItemEstimateArriveTimeConsumer"/>
+    </jmq:consumer>
+
     <!-- 保温箱逆向处理 -->
     <jmq:consumer id="jmq.dealMiniStoreOutConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.box.inOut}" listener="dealMiniStoreOutConsumer"/>
@@ -598,6 +603,10 @@
     <!--  网格删除mq消费  -->
     <jmq:consumer id="jmq.workGridModifyMqConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.workGridModifyMq}" listener="workGridModifyMqConsumer"/>
-    </jmq:consumer>    
+    </jmq:consumer>
+    <!-- 拣运发货流向纬度首次扫描 -->
+    <jmq:consumer id="jmq.jyTaskSendDetailFirstSendConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jyTaskSendDetailFirstSend}" listener="jyTaskSendDetailFirstSendConsumer"/>
+    </jmq:consumer>
 </beans>
 

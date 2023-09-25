@@ -135,7 +135,7 @@ public class WastePackageServiceImpl implements WastePackageService {
         }
 
         try {
-            if (!waybillTraceManager.isWaybillWaste(request.getWaybillCode())){
+            if (!waybillTraceManager.isOpCodeWaste(request.getWaybillCode())){
                 result.error("不是弃件，请勿操作弃件暂存");
                 return result;
             }
@@ -356,6 +356,10 @@ public class WastePackageServiceImpl implements WastePackageService {
         db.setSiteCity(siteDto.getCityName());
         db.setOrgCode(siteDto.getOrgId());
         db.setOrgName(siteDto.getOrgName());
+        db.setProvinceAgencyCode(siteDto.getProvinceAgencyCode());
+        db.setProvinceAgencyName(siteDto.getProvinceAgencyName());
+        db.setAreaHubCode(siteDto.getAreaCode());
+        db.setAreaHubName(siteDto.getAreaName());
         Integer prevSiteCode=getPreSiteCode(packageCode,request.getSiteCode());
             db.setPrevSiteCode(prevSiteCode);
             if(prevSiteCode!=null){

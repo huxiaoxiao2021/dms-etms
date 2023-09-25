@@ -11,7 +11,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEn
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
@@ -25,7 +27,6 @@ import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
@@ -36,6 +37,8 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetail
 import com.jd.bluedragon.distribution.jy.service.comboard.impl.JyGroupSortCrossDetailCacheService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyWarehouseSendVehicleServiceImpl;
+import com.jd.bluedragon.dms.utils.BarCodeType;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -44,8 +47,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.domain.cross.TableTrolleyJsfResp;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -274,7 +277,25 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 res.toFail("强发时未指定发货任务");
                 return res;
             }
-
+            final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
+            if (barCodeType == null) {
+                res.toFail("请扫描正确的条码！");
+                return res;
+            }
+            if (Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType())) {
+                if(!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode())) {
+                    res.toFail("请扫描包裹号或箱号！");
+                    return res;
+                }
+            } else if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
+                if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())) {
+                    res.toFail("请扫描包裹号或运单号！");
+                    return res;
+                }
+            } else {
+                res.toFail("请扫扫描单据类型不支持，请联系分拣小秘！");
+                return res;
+            }
             request.setPost(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
             return jyWarehouseSendVehicleService.scan(request, res);
         }catch (JyBizException ex) {
@@ -449,7 +470,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             checkGroupCode(createMixScanTaskReq.getGroupCode());
             // 混扫任务流向校验
             checkFlowMaxAndEndSite(createMixScanTaskReq);
-            
+
             String templateCode = jyGroupSortCrossDetailService.createMixScanTask(createMixScanTaskReq);
             if (templateCode == null) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL,"创建混扫任务失败");
@@ -460,7 +481,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             response.setData(res);
             return response;
         } catch (JyBizException e) {
-            log.info("创建混扫任务失败：{}", JsonHelper.toJson(createMixScanTaskReq), e);
+            log.warn("创建混扫任务失败：req={},msg={}", JsonHelper.toJson(createMixScanTaskReq), e.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
         } catch (Exception e) {
             log.error("JyGroupSortCrossDetailServiceImpl createMixScanTask 创建混扫任务异常 {}", JsonHelper.toJson(createMixScanTaskReq), e);
@@ -481,22 +502,28 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             if (endSiteSet.contains(detailDto.getEndSiteId())) {
                 throw new JyBizException("混扫任务不能包含相同流向: " + detailDto.getEndSiteName());
             }
-            // 如果滑道笼车为空 不能创建混扫任务
-            if (detailDto.getCrossCode() == null || detailDto.getTabletrolleyCode() == null) {
-                JdResult<TableTrolleyJsfResp> tableTrolleyRes = jyWarehouseSendVehicleService.fetchCrossTableTrolley(createMixScanTaskReq.getCurrentOperate().getSiteCode(), detailDto.getEndSiteId().intValue());
-                if (!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() &&
-                        !Objects.isNull(tableTrolleyRes.getData()) && CollectionUtils.isNotEmpty(tableTrolleyRes.getData().getTableTrolleyDtoJsfList())) {
-                    String crossCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getCrossCode();
-                    String tableTrolleyCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getTableTrolleyCode();
-                    detailDto.setCrossCode(crossCode);
-                    detailDto.setTabletrolleyCode(tableTrolleyCode);
-                } else {
-                    if (log.isInfoEnabled()) {
-                        log.info("fillWareHouseFocusField:滑道笼车查询为空或者查询失败，request={}", JsonHelper.toJson(detailDto));
-                    }
-                    throw new JyBizException("流向" + detailDto.getEndSiteName() + "未获取到滑道笼车信息，创建混扫任务失败: ");
-                }
+            if(StringUtils.isBlank(detailDto.getCrossCode())) {
+                detailDto.setCrossCode(StringUtils.EMPTY);
             }
+            if(StringUtils.isBlank(detailDto.getTabletrolleyCode())) {
+                detailDto.setTabletrolleyCode(StringUtils.EMPTY);
+            }
+            // 如果滑道笼车为空 不能创建混扫任务
+//            if (detailDto.getCrossCode() == null || detailDto.getTabletrolleyCode() == null) {
+//                JdResult<TableTrolleyJsfResp> tableTrolleyRes = jyWarehouseSendVehicleService.fetchCrossTableTrolley(createMixScanTaskReq.getCurrentOperate().getSiteCode(), detailDto.getEndSiteId().intValue());
+//                if (!Objects.isNull(tableTrolleyRes) && tableTrolleyRes.isSucceed() &&
+//                        !Objects.isNull(tableTrolleyRes.getData()) && CollectionUtils.isNotEmpty(tableTrolleyRes.getData().getTableTrolleyDtoJsfList())) {
+//                    String crossCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getCrossCode();
+//                    String tableTrolleyCode = tableTrolleyRes.getData().getTableTrolleyDtoJsfList().get(0).getTableTrolleyCode();
+//                    detailDto.setCrossCode(crossCode);
+//                    detailDto.setTabletrolleyCode(tableTrolleyCode);
+//                } else {
+//                    if (log.isInfoEnabled()) {
+//                        log.info("fillWareHouseFocusField:滑道笼车查询为空或者查询失败，request={}", JsonHelper.toJson(detailDto));
+//                    }
+//                    throw new JyBizException("流向" + detailDto.getEndSiteName() + "未获取到滑道笼车信息，创建混扫任务失败: ");
+//                }
+//            }
             endSiteSet.add(detailDto.getEndSiteId());
         }
     }
@@ -578,8 +605,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             if (endSiteSet.contains(item.getEndSiteId())) {
                 throw new JyBizException("包含重复流向！请重新选择新增流向");
             }
-            if(StringUtils.isBlank(item.getCrossCode()) || StringUtils.isBlank(item.getTabletrolleyCode())) {
-                throw new JyBizException("未知滑道笼车号无法添加混扫任务");
+            if(StringUtils.isBlank(item.getCrossCode())) {
+                item.setCrossCode(StringUtils.EMPTY);
+            }
+            if(StringUtils.isBlank(item.getTabletrolleyCode())) {
+                item.setTabletrolleyCode(StringUtils.EMPTY);
             }
             endSiteSet.add(item.getEndSiteId());
         });
@@ -710,6 +740,16 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 return response;
             }
 
+            JyGroupSortCrossDetailEntityQueryDto countQuery = new JyGroupSortCrossDetailEntityQueryDto();
+            countQuery.setGroupCode(mixScanTaskReq.getGroupCode());
+            countQuery.setTemplateCode(mixScanTaskReq.getTemplateCode());
+            countQuery.setStartSiteId((long)mixScanTaskReq.getCurrentOperate().getSiteCode());
+            countQuery.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
+            if (jyGroupSortCrossDetailService.countByCondition(countQuery) < 1) {
+                response.toFail("该混扫任务已被删除，请前往混扫任务列表！");
+                return response;
+            }
+            
             // 完成混扫任务 修改派车任务状态
             if (!jyWarehouseSendVehicleService.mixScanTaskComplete(mixScanTaskReq)){
                 response.toFail("完成混扫任务失败！");
@@ -782,10 +822,15 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             checkGroupCode(mixScanTaskListQueryReq.getGroupCode());
             MixScanTaskQueryRes result = this.getMixScanTaskPage(mixScanTaskListQueryReq);
 
-            if(CollectionUtils.isEmpty(result.getMixScanTaskDtoList()) && StringUtils.isNotBlank(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
-                response.toFail("未搜索到混扫任务，如果是自建任务，需要先绑定到混扫任务中");
-            }
             response.setData(result);
+            if(CollectionUtils.isEmpty(result.getMixScanTaskDtoList()) && mixScanTaskListQueryReq.getPageNo() == 1) {
+                if(StringUtils.isNotBlank(mixScanTaskListQueryReq.getSendVehicleDetailBizId())) {
+                    response.setCode(MixScanTaskQueryRes.FIND_NULL_CREATE_CODE);
+                    response.setMessage("未搜索到混扫任务，如果是自建任务，需要先绑定到混扫任务中");
+                }else {
+                    response.setMessage("查询为空");
+                }
+            }
         } catch (JyBizException e) {
             log.info("查询混扫任务失败：{}", JsonHelper.toJson(mixScanTaskListQueryReq), e);
             return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
@@ -809,7 +854,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
 
     private JyGroupSortCrossDetailEntity assembleCondition(MixScanTaskListQueryReq mixScanTaskListQueryReq) {
         String barCode = mixScanTaskListQueryReq.getBarCode();
-        JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+        JyGroupSortCrossDetailEntityQueryDto condition = new JyGroupSortCrossDetailEntityQueryDto();
         
         if (StringUtils.isNotBlank(barCode)) {
             // 获取目的地站点或者滑道笼车号
@@ -939,7 +984,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.getSealVehicleInfo",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq) {
-        return retJdCResponse(jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq));
+        InvokeResult<SealVehicleInfoResp> sealVehicleInfo = jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq);
+        if (sealVehicleInfo != null && sealVehicleInfo.getData() != null) {
+            sealVehicleInfo.getData().setTransportCode("");
+        }
+        return retJdCResponse(sealVehicleInfo);
     }
 
     @Override
@@ -953,9 +1002,14 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.saveSealVehicle",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq) {
+        if (StringUtils.isEmpty(sealVehicleReq.getPalletCount()) 
+                || !NumberUtils.isDigits(sealVehicleReq.getPalletCount().trim())
+                || !(Integer.parseInt(sealVehicleReq.getPalletCount().trim()) > 0)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL,"请录入正确托盘数！");
+        }
         return retJdCResponse(jySealVehicleService.saveSealVehicle(sealVehicleReq));
     }
-
+    
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.validateTranCodeAndSendCode",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -967,6 +1021,12 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.sealVehicle",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> sealVehicle(SealVehicleReq sealVehicleReq) {
+        if (sealVehicleReq == null) {
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "请求参数为空！");
+        }
+        if (CollectionUtils.isEmpty(sealVehicleReq.getSealCodes()) && CollectionUtils.isNotEmpty(sealVehicleReq.getScannedSealCodes())) {
+            sealVehicleReq.setSealCodes(sealVehicleReq.getScannedSealCodes());
+        }
         return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
     }
 
@@ -1006,6 +1066,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, JdCResponse.MESSAGE_ERROR, null);//500+非自定义异常
         }
+    }
+
+    @Override
+    public JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request) {
+        return retJdCResponse(jyWarehouseSendVehicleService.sendTaskDetail(request));
     }
 
 

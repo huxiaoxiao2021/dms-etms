@@ -14,6 +14,8 @@ public class CancelWaybill {
     public static final Integer FEATURE_TYPE_INTERCEPT = 4; // 外单拦截订单
     public static final Integer FEATURE_TYPE_INTERCEPT_BUSINESS = 5; // B商家外单拦截订单
     public static final Integer FEATURE_TYPE_INTERCEPT_LP = 10; // 理赔拦截订单
+    public static final Integer FEATURE_TYPE_INTERCEPT_GA_EXAMINE = 11; // 港澳审核中拦截订单
+    public static final Integer FEATURE_TYPE_INTERCEPT_GA_EXAMINE_FAIL = 12; // 港澳审核失败拦截订单
     public static final Integer FEATURE_TYPE_ORDER_MODIFY = 6; // 运单修改配送方式拦截订单
     public static final Integer FEATURE_TYPE_C_TRANSPORT_B= 7; // 运单C网转B网
     public static final Integer FEATURE_TYPE_B_TRANSPORT_C = 8; //运单B网转C网

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -87,7 +88,7 @@ public interface JyComBoardSendService {
   /**
    * 扫描(组板+发货)
    */
-  InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request);
+  JdVerifyResponse<ComboardScanResp> comboardScan(ComboardScanReq request);
 
   /**
    * 扫描(组板+发货)

@@ -157,13 +157,6 @@ public class B2BRouterController {
     public B2BRouterResponse<Pager<List<B2BRouter>>> query(B2BRouterRequest b2bRouterRequest, Pager<List<B2BRouter>> pager) {
         B2BRouterResponse<Pager<List<B2BRouter>>> b2bRouterResponse = new B2BRouterResponse<Pager<List<B2BRouter>>>();
         try {
-            if(StringHelper.isEmpty(b2bRouterRequest.getOriginalSiteName())){
-                b2bRouterRequest.setOriginalSiteCode(null);
-            }
-            if(StringHelper.isEmpty(b2bRouterRequest.getDestinationSiteName())){
-                b2bRouterRequest.setDestinationSiteCode(null);
-            }
-
             List<B2BRouter> resultList = b2bRouterService.queryByCondition(b2bRouterRequest, pager);
 
             // 设置分页对象

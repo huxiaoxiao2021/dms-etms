@@ -7,6 +7,11 @@ $(document).ready(init);
  * 页面加载执行
  * */
 function init() {
+
+    $('#switchSiteDom').sitePluginSelect({
+        'createSiteCodeName': 'siteCode'
+    });
+    
     $("#gantry_device_org").change(function () {
         org_change($(this).val());
     });

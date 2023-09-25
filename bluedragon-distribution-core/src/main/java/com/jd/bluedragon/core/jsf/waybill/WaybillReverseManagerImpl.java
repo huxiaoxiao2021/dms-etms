@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +27,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.reverse.domain.DmsPackageDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillAddress;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
-import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
-import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
+import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -41,14 +36,7 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.cp.wbms.client.api.ReverseWaybillApi;
-import com.jd.cp.wbms.client.dto.ConsigneeDto;
-import com.jd.cp.wbms.client.dto.ReverseWaybillRequest;
-import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
-import com.jd.cp.wbms.client.dto.WaybillConsigneeDto;
-import com.jd.cp.wbms.client.dto.WaybillConsignorDto;
-import com.jd.cp.wbms.client.dto.WaybillPackageDto;
-import com.jd.cp.wbms.client.dto.WbmsApiResult;
-import com.jd.cp.wbms.client.dto.WbmsRequestProfile;
+import com.jd.cp.wbms.client.dto.*;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.receive.api.response.GrossReturnResponse;
@@ -107,6 +95,9 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     private static final String UMP_KEY_RECEIVE_PREFIX = "dmsWeb.jsf.client.receive.";
 
     private static final String SUB_MSG_KEY = "submessage";
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @Autowired
     private LogEngine logEngine;
@@ -170,7 +161,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
      * @return
      */
     public boolean waybillReverse(DmsWaybillReverseDTO dmsWaybillReverseDTO,JdResponse<Boolean> rest){
-        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode())) {
+        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode(),dmsWaybillReverseDTO.getSortCenterId())) {
         	return this.waybillReverseNew(dmsWaybillReverseDTO, rest);
         }else {
         	return lDOPManager.waybillReverse(dmsWaybillReverseDTO, rest);
@@ -188,7 +179,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     }
     @Override
     public DmsWaybillReverseResult waybillReverse(DmsWaybillReverseDTO dmsWaybillReverseDTO,StringBuilder errorMessage) {
-        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode())) {
+        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode(),dmsWaybillReverseDTO.getSortCenterId())) {
         	return this.waybillReverseNew(dmsWaybillReverseDTO, errorMessage);
         }else {
         	return lDOPManager.waybillReverse(dmsWaybillReverseDTO, errorMessage);
@@ -228,7 +219,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
      */
 	@Override
     public DmsWaybillReverseResponseDTO queryReverseWaybill(DmsWaybillReverseDTO dmsWaybillReverseDTO,StringBuilder errorMessage) {
-        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode())) {
+        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode(),dmsWaybillReverseDTO.getSortCenterId())) {
         	return this.queryReverseWaybillNew(dmsWaybillReverseDTO, errorMessage);
         }else {
         	return lDOPManager.queryReverseWaybill(dmsWaybillReverseDTO, errorMessage);
@@ -328,7 +319,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     		}else if(rpcResult != null){
     			log.warn("调用运单换单查询接口失败reverseWaybillApi.queryWaybill,入参：{}  返回结果：{}",JsonHelper.toJson(dmsWaybillReverseDTO),JsonHelper.toJson(rpcResult));
                 String errorMsg = rpcResult.getMessage();
-                if( rpcResult.getExt() != null ){
+                if( rpcResult.getExt() != null && StringUtils.isNotBlank(rpcResult.getExt().get(SUB_MSG_KEY))){
                     errorMsg += Constants.SEPARATOR_COMMA + rpcResult.getExt().get(SUB_MSG_KEY);
                 }
                 result.toFail(errorMsg);
@@ -373,7 +364,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     		}else if(rpcResult != null){
     			log.warn("调用运单换单提交接口失败reverseWaybillApi.submitWaybill,入参：{}  返回结果：{}",JsonHelper.toJson(dmsWaybillReverseDTO),JsonHelper.toJson(rpcResult));
                 String errorMsg = rpcResult.getMessage();
-                if( rpcResult.getExt() != null ){
+                if( rpcResult.getExt() != null && StringUtils.isNotBlank(rpcResult.getExt().get(SUB_MSG_KEY))){
                     errorMsg += Constants.SEPARATOR_COMMA + rpcResult.getExt().get(SUB_MSG_KEY);
                 }
     			result.toFail(errorMsg);
@@ -486,7 +477,9 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
         boolean isFullOrderFail = waybillCancelService.isFullOrderFail(exchangeWaybillDto.getWaybillCode());
         if(isFullOrderFail) {
             waybillReverseDTO.setChargeType(CHARGE_TYPE_2);
-        }        
+        }
+        // 逆向原因编码
+        waybillReverseDTO.setReverseReasonCode(exchangeWaybillDto.getReverseReasonCode());
         return waybillReverseDTO;
     }
 
@@ -523,34 +516,45 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 	 * @param waybillCode
 	 * @return
 	 */
-	private boolean needUseNewReverseApi(String waybillCode){
+	private boolean needUseNewReverseApi(String waybillCode,Integer siteCode){
 		//先判断是否开启ucc配置
 		if(!uccPropertyConfiguration.isNeedUseNewReverseApi()) {
 			log.info("百川接口切换-0：不调百川接口{}",waybillCode);
 			return false;
 		}
-        if(StringHelper.isNotEmpty(waybillCode)){
-        	WChoice wChoice = new WChoice();
-        	wChoice.setQueryWaybillC(true);
-        	wChoice.setQueryWaybillExtend(true);
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
-            if(baseEntity != null
-                    && baseEntity.getData() != null
-                    && baseEntity.getData().getWaybill() != null
-                    && baseEntity.getData().getWaybill().getWaybillExt() != null){
-	            if(StringHelper.isNotEmpty(baseEntity.getData().getWaybill().getWaybillExt().getOmcOrderCode())){
-	            	log.info("百川接口切换-1：调用百川接口{}",waybillCode);
-	            	return true;
-	            }
+        //获取新单的地方没有场地列表，正好这次不做切换，等提交接口切换全国的时候一起切换
+        if(siteCode == null){
+            log.info("百川接口切换-0：不调百川接口{} siteCode is null",waybillCode);
+            return false;
+        }
+        List<String> siteCodes = sysConfigService.getStringListConfig(Constants.BAICHUAN_REVERSE_SITE_CONF);
+        //判断是否覆盖场地  如不维护那就是全切
+        if(siteCodes.isEmpty() || siteCodes.contains(String.valueOf(siteCode))){
+            log.info("百川接口切换-1：符合场地流量，调用运单判断此单是否符合百川{},场地{}",waybillCode,siteCode);
+            if(StringHelper.isNotEmpty(waybillCode)){
+                WChoice wChoice = new WChoice();
+                wChoice.setQueryWaybillC(true);
+                wChoice.setQueryWaybillExtend(true);
+                BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
+                if(baseEntity != null
+                        && baseEntity.getData() != null
+                        && baseEntity.getData().getWaybill() != null
+                        && baseEntity.getData().getWaybill().getWaybillExt() != null){
+                    if(StringHelper.isNotEmpty(baseEntity.getData().getWaybill().getWaybillExt().getOmcOrderCode())){
+                        log.info("百川接口切换-1：调用百川接口{}",waybillCode);
+                        return true;
+                    }
+                }
             }
         }
+
         log.info("百川接口切换-0：不调百川接口{}",waybillCode);
 		return false;
 	}
 
 	@Override
 	public Waybill getQuickProduceWabillFromDrec(String waybillCode) {
-        if(needUseNewReverseApi(waybillCode)) {
+        if(needUseNewReverseApi(waybillCode,null)) {
         	return getQuickProduceWabillFromDrecNew(waybillCode);
         }else {
         	return getQuickProduceWabillFromDrecOld(waybillCode);
@@ -623,7 +627,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 	 */
 	@Override
 	public JdResult<String> queryWaybillCodeByOldWaybillCode(String oldWaybillCode) {
-        if(needUseNewReverseApi(oldWaybillCode)) {
+        if(needUseNewReverseApi(oldWaybillCode,null)) {
         	return queryWaybillCodeByOldWaybillCodeNew(oldWaybillCode);
         }else {
         	return queryWaybillCodeByOldWaybillCodeOld(oldWaybillCode);
@@ -714,6 +718,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 				consigneeDto.setConsigneeAddress(waybillAddress.getAddress ());
 				reverseWaybillRequest.setConsigneeDto(consigneeDto);
 			}
+            reverseWaybillRequest.setReverseReasonCode(dmsWaybillReverseDTO.getReverseReasonCode());
 			return reverseWaybillRequest;
 		}
 		return null;

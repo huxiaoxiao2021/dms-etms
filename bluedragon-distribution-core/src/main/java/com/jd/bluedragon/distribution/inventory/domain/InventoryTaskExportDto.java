@@ -93,6 +93,14 @@ public class InventoryTaskExportDto implements Serializable {
      */
     private String hourRangeTime;
 
+    /**
+     * 省区名称
+     */
+    private String provinceAgencyName;
+    /**
+     * 枢纽名称
+     */
+    private String areaHubName;
 
     public String getInventoryTaskId() {
         return inventoryTaskId;
@@ -253,6 +261,22 @@ public class InventoryTaskExportDto implements Serializable {
 
     public void setInventoryScopeStr(String inventoryScopeStr) {
         this.inventoryScopeStr = inventoryScopeStr;
+    }
+
+    public String getProvinceAgencyName() {
+        return provinceAgencyName;
+    }
+
+    public void setProvinceAgencyName(String provinceAgencyName) {
+        this.provinceAgencyName = provinceAgencyName;
+    }
+
+    public String getAreaHubName() {
+        return areaHubName;
+    }
+
+    public void setAreaHubName(String areaHubName) {
+        this.areaHubName = areaHubName;
     }
 }
     

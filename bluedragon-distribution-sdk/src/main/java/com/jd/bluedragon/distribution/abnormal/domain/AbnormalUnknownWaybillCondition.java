@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormal.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.List;
  * @Description: 三无订单申请-查询条件
  * @date 2018年05月08日 15:16:15
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AbnormalUnknownWaybillCondition extends BasePagerCondition {
 
     private static final long serialVersionUID = 1L;
@@ -96,6 +98,15 @@ public class AbnormalUnknownWaybillCondition extends BasePagerCondition {
      * 发起截止时间
      */
     private Date endTime;
+
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
 
     /**
      * The set method for waybillCode.
@@ -371,5 +382,21 @@ public class AbnormalUnknownWaybillCondition extends BasePagerCondition {
 
     public void setWaybillCodes(List<String> waybillCodes) {
         this.waybillCodes = waybillCodes;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
     }
 }
