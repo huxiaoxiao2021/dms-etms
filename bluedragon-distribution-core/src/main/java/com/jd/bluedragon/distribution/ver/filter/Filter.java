@@ -9,5 +9,7 @@ import com.jd.bluedragon.distribution.ver.domain.FilterContext;
  */
 public interface Filter {
 
+     boolean skipFilter = false;
+
     public void doFilter(FilterContext request, FilterChain chain) throws Exception;
 }
