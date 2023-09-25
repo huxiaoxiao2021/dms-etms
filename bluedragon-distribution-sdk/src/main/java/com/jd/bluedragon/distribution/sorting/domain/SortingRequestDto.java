@@ -148,22 +148,6 @@ public class SortingRequestDto implements Serializable {
         this.operateTime = operateTime;
     }
 
-    public Integer getNeedBindMaterialFlag() {
-        return needBindMaterialFlag;
-    }
-
-    public void setNeedBindMaterialFlag(Integer needBindMaterialFlag) {
-        this.needBindMaterialFlag = needBindMaterialFlag;
-    }
-
-    public String getMaterialCode() {
-        return materialCode;
-    }
-
-    public void setMaterialCode(String materialCode) {
-        this.materialCode = materialCode;
-    }
-
     public Integer getBizSource() {
         return bizSource;
     }
