@@ -27,6 +27,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -146,29 +147,12 @@ public class DmsSortingServiceImpl implements DmsSortingService {
         //添加分拣理货任务
         TaskRequest taskPdaRequest = createTaskPdaRequest(request);
         TaskResponse taskResponse = taskResource.add(taskPdaRequest);
+        logger.info("DmsSortingServiceImpl->bindingBoxMaterialPackageRelation,入参：{}，结果：{}", JsonHelper.toJson(request),JsonHelper.toJson(taskResponse));
         if(!Objects.equals(taskResponse.getCode(),TaskResponse.CODE_OK)){
             result.parameterError(taskResponse.getMessage());
             return result;
         }
         return result;
-    }
-
-    /**
-     * 绑定集包袋参数构造
-     * @param request
-     * @return
-     */
-    private BoxMaterialRelationRequest createBoxMaterialRelationRequest(SortingRequestDto request) {
-        BoxMaterialRelationRequest req = new BoxMaterialRelationRequest();
-        req.setBoxCode(request.getBoxCode());
-        req.setMaterialCode(request.getMaterialCode());
-        req.setBindFlag(Constants.CONSTANT_NUMBER_ONE);
-        req.setUserCode(request.getCreateUserCode());
-        req.setUserName(request.getCreateUser());
-        req.setOperatorERP(request.getCreateUser());
-        req.setSiteCode(request.getCreateSiteCode());
-        req.setSiteName(request.getCreateSiteName());
-        return req;
     }
 
     /**
@@ -218,6 +202,7 @@ public class DmsSortingServiceImpl implements DmsSortingService {
             result.parameterError("入参为空");
             return result;
         }
+        logger.info("DmsSortingServiceImpl->cancelSorting,入参：{}", JsonHelper.toJson(request));
         if(StringUtils.isBlank(request.getPackageCode()) || request.getCreateSiteCode() == null){
             result.parameterError("包裹号或操作单位不能为空");
             return result;
