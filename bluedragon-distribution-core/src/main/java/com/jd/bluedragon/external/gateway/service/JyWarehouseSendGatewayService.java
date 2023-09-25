@@ -4,8 +4,10 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
@@ -191,5 +193,16 @@ public interface JyWarehouseSendGatewayService {
      * @return
      */
     JdCResponse<Void> checkBeforeSealCar(SealCarCheckDtoReq req);
+
+
+    /**
+     * 任务详情
+     * @param request
+     * @return
+     */
+    JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
+
+
+
 
 }

@@ -693,7 +693,6 @@ public class BusinessUtil {
         return Boolean.FALSE;
     }
 
-
     /**
      * 通过运单标识 判断是否需求包装耗材
      * <p>
@@ -1829,6 +1828,15 @@ public class BusinessUtil {
     }
 
     /**
+     * 航空件
+     * @param waybillSign 运单标位
+     * @return 判断结果标识
+     */
+    public static Boolean isAirLineMode(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3);
+    }
+
+    /**
      * 京航达运单
      *  sendPay第137位为1
      * @param sendPay
@@ -1953,8 +1961,35 @@ public class BusinessUtil {
             return false;
         }
         return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
-                (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15);
+                (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15) ||
+                (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
     }
+
+    /**
+     * 判断是否是LL箱号绑定的笼车|围板箱集包袋编号
+     * @param materialCode
+     * @return
+     */
+    public static boolean isLLBoxBindingCollectionBag(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        } 
+        return (materialCode.toUpperCase().startsWith(COLLECTION_AD02_PREFIX) && materialCode.length() == 16) ||
+                (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
+    }
+
+    /**
+     * 判断是否是笼车编号
+     * @param materialCode
+     * @return
+     */
+    public static boolean isTrolleyCollectionBag(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
+    }
+    
     /**
      * 判断是否无人车配送，sendpay第307位=1
      *
@@ -2020,16 +2055,53 @@ public class BusinessUtil {
      */
     public static String getHidePhone(String phone,String hideStr) {
         if(StringUtils.isNotBlank(phone)){
-        	String hidePlaceStr = hideStr;
-        	if(StringUtils.isBlank(hidePlaceStr)){
-        		hidePlaceStr = HIDE_SMILE;
-        	}
+            String hidePlaceStr = hideStr;
+            if(StringUtils.isBlank(hidePlaceStr)){
+                hidePlaceStr = HIDE_SMILE;
+            }
             //去除号码中间的空白字符
-        	String hidePhone = phone.replaceAll("\\s*", "");
+            String hidePhone = phone.replaceAll("\\s*", "");
             if(hidePhone.length() >= PHONE_LEAST_NUMBER ){
                 return hidePhone.substring(0,PHONE_FIRST_NUMBER)
-                		+ hidePlaceStr
-                		+ hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
+                        + hidePlaceStr
+                        + hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
+            }
+        }
+        return phone;
+    }
+
+    /**
+     * 隐藏手机号：7位以上手机号返回前3位+^_^+后四位，否则返回原值
+     * @param phone 原手机号
+     * @return
+     */
+    public static String getHidePhone6Char(String phone) {
+        return getHidePhone6Char(phone,HIDE_SMILE);
+    }
+    /**
+     * 隐藏手机号： 原 7位以上手机号返回前3位+hideStr+后四位，否则返回原值
+     *            新 10位以上（不包括10）的显示前一+笑脸(6位以上)+后四 10位以下（包括10）的显示笑脸(6位)+剩余位数
+     * @param phone 原手机号
+     * @param hideStr 隐藏后替换字符串，传值为空时默认^_^
+     * @return
+     */
+    public static String getHidePhone6Char(String phone,String hideStr) {
+        if(StringUtils.isNotBlank(phone)){
+            String hidePlaceStr = hideStr;
+            if(StringUtils.isBlank(hidePlaceStr)){
+                hidePlaceStr = HIDE_SMILE;
+            }
+            //去除号码中间的空白字符
+            String hidePhone = phone.replaceAll("\\s*", "");
+            if(hidePhone.length() > LANDLINE_NUMBER ){
+                return hidePhone.substring(0,PHONE_FIRST_NUMBER)
+                        + hidePlaceStr
+                        + hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
+            }else if (hidePhone.length() <= LANDLINE_FIRST_NUMBER) {
+                return hidePlaceStr;
+            }else {
+                return  hidePlaceStr
+                        + hidePhone.substring(LANDLINE_FIRST_NUMBER);
             }
         }
         return phone;
@@ -2765,5 +2837,50 @@ public class BusinessUtil {
             return false;
         }
         return businessKey.startsWith(DmsConstants.CODE_PREFIX_WORK_STATION_GRID);
-    }    
+    }
+
+    /**
+     * 判断周转筐型号
+     * 通过第13位判断周转筐型号
+     * 1,2,3,对应小型 4对应大型
+     * @param code
+     * @return
+     */
+    public static RecycleBasketTypeEnum getRecycleBasketType(String code) {
+        if (!StringUtils.isEmpty(code) && isMatchBoxCode(code)) {
+            Integer type = Integer.valueOf(code.substring(12,13));
+            if (SMALL_RECYCLE_BASKET_TYPE.contains(type)) {
+                return RecycleBasketTypeEnum.SMALL;
+            }
+            if (RecycleBasketTypeEnum.BIG.getCode().equals(type)){
+                return RecycleBasketTypeEnum.BIG;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 是否是售后取件单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAfterSalePickupSlip(String waybillSign) {
+        if (StringUtils.isEmpty(waybillSign)){
+            return false;
+        }
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_124,WaybillSignConstants.CHAR_124_2);
+    }
+
+    /**
+     * 是否港澳运单
+     *  desc：运单的始发和目的其一是香港澳门则为港澳运单
+     * 
+     * @param waybillStart 运单始发
+     * @param waybillEnd 运单目的
+     * @return
+     */
+    public static boolean isGAWaybill(String waybillStart, String waybillEnd){
+        return DmsConstants.HK_MO_REGION.contains(waybillStart) || DmsConstants.HK_MO_REGION.contains(waybillEnd);
+    }
 }

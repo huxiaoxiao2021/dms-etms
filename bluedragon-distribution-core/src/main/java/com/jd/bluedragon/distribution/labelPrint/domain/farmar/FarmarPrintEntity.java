@@ -39,6 +39,23 @@ public class FarmarPrintEntity implements Serializable {
     // 砝码条码集合
     private List<String> farmarCodeList;
 
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 省区名称
+     */
+    private String provinceAgencyName;
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
+    /**
+     * 枢纽名称
+     */
+    private String areaHubName;
+
     public Integer getOrgId() {
         return orgId;
     }
@@ -133,5 +150,37 @@ public class FarmarPrintEntity implements Serializable {
 
     public void setFarmarCodeList(List<String> farmarCodeList) {
         this.farmarCodeList = farmarCodeList;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getProvinceAgencyName() {
+        return provinceAgencyName;
+    }
+
+    public void setProvinceAgencyName(String provinceAgencyName) {
+        this.provinceAgencyName = provinceAgencyName;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
+    }
+
+    public String getAreaHubName() {
+        return areaHubName;
+    }
+
+    public void setAreaHubName(String areaHubName) {
+        this.areaHubName = areaHubName;
     }
 }

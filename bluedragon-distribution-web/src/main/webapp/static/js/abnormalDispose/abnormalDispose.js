@@ -1,4 +1,11 @@
 $(function () {
+
+    $('#switchSiteDom').sitePluginSelect({
+        'changeBtnShow': false,
+        'provinceOrOrgMode' : 'province',
+        'onlySiteAndProvinceSelect' : true
+    });
+
     var mainQueryUrl = '/abnormalDispose/abnormalDispose/listData';
     var tableInit = function () {
         var oTableInit = new Object();

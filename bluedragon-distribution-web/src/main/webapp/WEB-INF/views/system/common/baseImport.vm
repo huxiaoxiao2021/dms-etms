@@ -80,3 +80,6 @@
     }
 </script>
 <script src="/static/js/jd/jd.ajax.js"></script>
+
+<script type="text/javascript" src="#springUrl('/static/js/common/provinceModeSite.js')"></script>
+

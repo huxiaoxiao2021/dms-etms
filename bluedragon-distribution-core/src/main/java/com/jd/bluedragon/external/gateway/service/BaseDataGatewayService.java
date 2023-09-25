@@ -2,8 +2,10 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.basedata.request.GetFlowDirectionQuery;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.basedata.response.BaseDataDictDto;
+import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
@@ -13,7 +15,6 @@ import com.jd.bluedragon.common.dto.voice.request.HintVoiceReq;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceResp;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
-import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 
 import java.util.List;
 
@@ -87,4 +88,12 @@ public interface BaseDataGatewayService {
      * @time 2023-05-04 18:41:33 周四
      */
     JdCResponse<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo);
+
+    /**
+     * 获取流向
+     *
+     * @param request 请求参数
+     * @return 返回结果
+     */
+    JdCResponse<Pager<StreamlinedBasicSite>> getFlowDirection(Pager<GetFlowDirectionQuery> request);
 }

@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.whitelist;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -7,6 +9,7 @@ import java.util.Date;
  * @author lijie
  * @date 2020/3/10 16:01
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WhiteList implements Serializable {
 
     private static final long serialVersionUID = 1L;

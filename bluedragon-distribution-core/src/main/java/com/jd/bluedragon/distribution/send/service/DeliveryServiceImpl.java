@@ -1132,7 +1132,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * 按运单发货任务
      * @param domain 发货数据
      */
-    private void pushWaybillSendTask(SendM domain,Integer taskType) {
+    public void pushWaybillSendTask(SendM domain,Integer taskType) {
         if (WaybillUtil.isPackageCode(domain.getBoxCode())) {
             domain.setBoxCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
         }
@@ -1162,7 +1162,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      *
      * 锁定运单发货
      */
-    private boolean lockWaybillSend(String waybillCode, Integer createSiteCode,int totalPackNum) {
+    public boolean lockWaybillSend(String waybillCode, Integer createSiteCode,int totalPackNum) {
         String redisKey = getSendByWaybillLockKey(waybillCode, createSiteCode);
 
         // 避免消费数据重复逻辑 插入redis 如果插入失败 说明有其他线程正在消费相同数据信息
@@ -1177,7 +1177,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * 解锁运单发货
      *
      */
-    private void unlockWaybillSend(String waybillCode, Integer createSiteCode) {
+    public void unlockWaybillSend(String waybillCode, Integer createSiteCode) {
         String redisKey = getSendByWaybillLockKey(waybillCode, createSiteCode);
         redisClientCache.del(redisKey);
         log.info("按运单发货移除运单锁:key={}",redisKey);
@@ -1252,7 +1252,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      *
      * @param domain
      */
-    private void doCancelLastSend(SendM domain) {
+    public void doCancelLastSend(SendM domain) {
         CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.doCancelLastSend", false, true);
         SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
         if (lastSendM != null) {
@@ -1326,7 +1326,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      *
      * @param domain
      */
-    private void autoBoardCombinationCancel(SendM domain){
+    public void autoBoardCombinationCancel(SendM domain){
         //判断是否进行过组板，如果已经组板则从板中取消，并发送取消组板的全称跟踪
         SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES);
         if (content != null) {
@@ -1341,7 +1341,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      *
      * @param domain
      */
-    private void sendDmsOperateHintTrackMQ(SendM domain) {
+    public void sendDmsOperateHintTrackMQ(SendM domain) {
         try {
             DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
             dmsOperateHintTrack.setWaybillCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
@@ -1659,26 +1659,26 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.boardSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public SendResult boardSend(SendM domain,boolean isForceSend) {
         String boardCode = domain.getBoardCode();
-        if(!isForceSend){
-            //1.组板发货批次，板号校验（强校验）
-            if(!checkSendM(domain)){
-                return new SendResult(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.BATCH_ORIGIN_AND_OPERATOR_ORIGIN_DIFFERENCE));
-            }
-            //2.判断批次号是否已经封车
-            StringBuffer customMsg = new StringBuffer().append(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
-            if (newSealVehicleService.newCheckSendCodeSealed(domain.getSendCode(), customMsg)) {
-                return new SendResult(SendResult.CODE_SENDED, customMsg.toString());
-            }
-            //3.校验是否操作过按板发货,按板号和createSiteCode查询send_m表看是是否有记录
-            if(sendMDao.checkSendByBoard(domain)){
-                return new SendResult(SendResult.CODE_SENDED,HintService.getHint(HintCodeConstants.BOARD_SENT_ALREADY));
-            }
-            //4.校验板号和批次号的目的地是否一致，并校验板号的合法性
-            SendResult checkResponse = checkBoard(boardCode, domain);
-            if(!SendResult.CODE_OK.equals(checkResponse.getKey())){
-                return checkResponse;
-            }
+
+        //1.组板发货批次，板号校验（强校验）
+        if(!checkSendM(domain)){
+            return new SendResult(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.BATCH_ORIGIN_AND_OPERATOR_ORIGIN_DIFFERENCE));
         }
+        //2.判断批次号是否已经封车
+        StringBuffer customMsg = new StringBuffer().append(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
+        if (newSealVehicleService.newCheckSendCodeSealed(domain.getSendCode(), customMsg)) {
+            return new SendResult(SendResult.CODE_SENDED, customMsg.toString());
+        }
+        //3.校验是否操作过按板发货,按板号和createSiteCode查询send_m表看是是否有记录
+        if(sendMDao.checkSendByBoard(domain)){
+            return new SendResult(SendResult.CODE_SENDED,HintService.getHint(HintCodeConstants.BOARD_SENT_ALREADY));
+        }
+        //4.校验板号和批次号的目的地是否一致，并校验板号的合法性
+        SendResult checkResponse = checkBoard(boardCode, domain,isForceSend);
+        if(!SendResult.CODE_OK.equals(checkResponse.getKey())){
+            return checkResponse;
+        }
+
 
         //5.写发货任务
         pushBoardSendTask(domain,Task.TASK_TYPE_BOARD_SEND);
@@ -1690,9 +1690,18 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     }
 
     /**
+     * 封装校验板号是否已发货服务
+     * @param domain
+     * @return
+     */
+    public boolean checkSendByBoard(SendM domain){
+        return sendMDao.checkSendByBoard(domain);
+    }
+
+    /**
      * 写组板发货任务完成，调用TC修改板状态为发货
      */
-    private void changeBoardStatusSend(String boardCode, SendM domain){
+    public void changeBoardStatusSend(String boardCode, SendM domain){
         try{
             Response<Boolean> closeBoardResponse = boardCombinationService.changeBoardStatusSend(boardCode);
             if(!JdResponse.CODE_OK.equals(closeBoardResponse.getCode()) || !closeBoardResponse.getData()){
@@ -1723,7 +1732,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param domain
      * @return
      */
-    private SendResult checkBoard(String boardCode, SendM domain){
+    public SendResult checkBoard(String boardCode, SendM domain,Boolean isForceSend){
         try{
             BoardResponse boardResponse=boardCombinationService.getBoardByBoardCode(boardCode);
             if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
@@ -1735,7 +1744,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if(SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode())==null){
                 return new SendResult(SendResult.CODE_SENDED,HintService.getHint(HintCodeConstants.FAIL_TO_GET_BATCH_DEST));
             }
-            if(!SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode()).equals(boardResponse.getReceiveSiteCode())){
+            if(!isForceSend && !SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode()).equals(boardResponse.getReceiveSiteCode())){
                 return new SendResult(SendResult.CODE_CONFIRM,HintService.getHint(HintCodeConstants.BOARD_AND_BATCH_DEST_DIFFERENCE));
             }
         }catch (Exception e){
@@ -1814,7 +1823,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * 箱子已发货则返回已发货批次号
      * @param domain
      */
-    private String getSendedCode(SendM domain) {
+    public String getSendedCode(SendM domain) {
         SendM sendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), domain.getReceiveSiteCode(), null);
         if (sendM != null) {
             return sendM.getSendCode();
@@ -1990,7 +1999,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param domain
      * @return
      */
-    private boolean pushBoardSendTask(SendM domain,Integer taskType) {
+    public boolean pushBoardSendTask(SendM domain,Integer taskType) {
         Task tTask = new Task();
         tTask.setBoxCode(domain.getBoardCode());
         tTask.setBody(JsonHelper.toJson(domain));
@@ -2165,7 +2174,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * 发送发货业务通知MQ 自消费
      * @param sdm
      */
-     private void deliverGoodsNoticeMQ(SendM sdm) {
+     public void deliverGoodsNoticeMQ(SendM sdm) {
          BoxMaterialRelationMQ mq = makeBoxMaterialRelationFromSendM(sdm);
 
          cycleMaterialNoticeService.deliverySendGoodsMessage(mq);
@@ -2888,7 +2897,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if(WaybillUtil.isPackageCode(tSendM.getBoxCode())){
                 waybill=WaybillUtil.getWaybillCode(tSendM.getBoxCode());
             }
-            if (waybillTraceManager.isWaybillWaste(waybill)){
+            if (waybillTraceManager.isOpCodeWaste(waybill)){
                 response.setCode(DeliveryResponse.CODE_WAYBILL_IS_WASTE);
                 response.setMessage(HintService.getHint(HintCodeConstants.WASTE_WAYBILL_TEMP_STORE));
             }

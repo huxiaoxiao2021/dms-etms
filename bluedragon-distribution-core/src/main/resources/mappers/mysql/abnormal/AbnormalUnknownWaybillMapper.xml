@@ -12,6 +12,10 @@
         <result column="dms_site_name" property="dmsSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="area_id" property="areaId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="province_agency_name" property="provinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_hub_code" property="areaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="area_hub_name" property="areaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="receipt_from" property="receiptFrom" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="receipt_time" property="receiptTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="is_receipt" property="isReceipt" javaType="java.lang.Integer" jdbcType="TINYINT"/>
@@ -27,7 +31,9 @@
 
     <sql id="Base_Column_List">
 		id,waybill_code,order_number,trader_id,trader_name,dms_site_code,
-		dms_site_name,area_id,area_name,receipt_time,is_receipt,receipt_from,
+		dms_site_name,area_id,area_name,
+        province_agency_code,province_agency_name,area_hub_code,area_hub_name,
+        receipt_time,is_receipt,receipt_from,
 		receipt_content,create_user_code,create_user,create_user_name,create_time,
 		update_time,is_delete,ts
 	</sql>
@@ -62,6 +68,18 @@
             </if>
             <if test="areaName != null">
                 area_name,
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code,
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                province_agency_name,
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code,
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                area_hub_name,
             </if>
             <if test="receiptTime != null">
                 receipt_time,
@@ -125,6 +143,18 @@
             <if test="areaName != null">
                 #{areaName,jdbcType=VARCHAR},
             </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                #{areaHubName,jdbcType=VARCHAR},
+            </if>
             <if test="receiptTime != null">
                 #{receiptTime,jdbcType=TIMESTAMP},
             </if>
@@ -163,7 +193,9 @@
         insert into abnormal_unknown_waybill
         (
         waybill_code,order_number,trader_id,trader_name,
-        dms_site_code,dms_site_name,area_id,area_name,receipt_time,
+        dms_site_code,dms_site_name,area_id,area_name,
+        province_agency_code,province_agency_name,area_hub_code,area_hub_name,
+         receipt_time,
         is_receipt,receipt_from,receipt_content,create_user_code,create_user,create_user_name,
         create_time,update_time,is_delete,ts
         )
@@ -178,6 +210,7 @@
             #{item.dmsSiteName,jdbcType=VARCHAR},
             #{item.areaId,jdbcType=INTEGER},
             #{item.areaName,jdbcType=VARCHAR},
+            #{item.provinceAgencyCode,jdbcType=VARCHAR},#{item.provinceAgencyName,jdbcType=VARCHAR},#{item.areaHubCode,jdbcType=VARCHAR},#{item.areaHubName,jdbcType=VARCHAR},
             #{item.receiptTime,jdbcType=TIMESTAMP},
             #{item.isReceipt,jdbcType=TINYINT},
             #{item.receiptFrom,jdbcType=VARCHAR},
@@ -219,6 +252,18 @@
             </if>
             <if test="areaName != null">
                 area_name = #{areaName,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                area_hub_name = #{areaHubName,jdbcType=VARCHAR},
             </if>
             <if test="receiptTime != null">
                 receipt_time = #{receiptTime,jdbcType=TIMESTAMP},
@@ -327,6 +372,12 @@
         </if>
         <if test="areaId !=null">
             AND area_id = #{areaId,jdbcType=INTEGER}
+        </if>
+        <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+            AND province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+        </if>
+        <if test="areaHubCode != null and areaHubCode != ''" >
+            AND area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
         </if>
         <if test="dmsSiteCode !=null">
             AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}

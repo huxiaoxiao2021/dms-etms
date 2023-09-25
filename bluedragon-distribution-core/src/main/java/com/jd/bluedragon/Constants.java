@@ -1,13 +1,6 @@
 package com.jd.bluedragon;
 
-import com.jd.cp.wbms.client.enums.RejectionEnum;
-
-import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -831,6 +824,19 @@ public class Constants {
      */
     public static final String SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF = "waybill.print.addiOwnNumberConf";
 
+
+    /**
+     *  配置信息-切换百川流量场地列表
+     *
+     */
+    public static final String BAICHUAN_REVERSE_SITE_CONF = "baichuan.reverse.site.conf";
+
+
+    /**
+     *发货统一服务切换
+     */
+    public static final String SEND_CAPABILITY_SITE_CONF = "send.capability.site.conf";
+
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
      */
@@ -872,6 +878,11 @@ public class Constants {
      * 功能可用性配置
      */
     public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
+
+    /**
+     * 隐藏面单手机号信息
+     */
+    public static final String SYS_CONFIG_HIDE_PHONE_6Char= "hide_phone_6char";
 
     /**
      * 安卓菜单可用性配置，按场地id配置
@@ -1138,6 +1149,19 @@ public class Constants {
      * 运单状态  弃件
      */
     public static final String WAYBILLTRACE_WASTE = "620";
+    /**
+     * 运单状态  弃件（港澳单节点）
+     */
+    public static final String WAYBILLTRACE_WASTE_GA = "750";
+
+    /**
+     * 运单状态  异常退回
+     */
+    public static final String WAYBILLTRACE_EX_RETURN = "-3040";
+    /**
+     * 运单状态  清关失败
+     */
+    public static final String WAYBILLTRACE_FAIL_QG = "700";
 
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
@@ -2015,6 +2039,41 @@ public class Constants {
      * 安检场地关系配置
      */
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
+
+    public static final Integer SEND_FLOW_COUNT_LIMIT_DEFAULT=6;
+
+    /**
+     * 异常上报原因与二次安检关系-新版异常上报
+     */
+    public static final Map<Long, List<Long>> SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP = new HashMap<Long, List<Long>>(){{
+        put(20009L, new ArrayList<>(Collections.singletonList(20010L)));
+        put(20006L, new ArrayList<>(Collections.singletonList(20088L)));
+    }};
+
+    /**
+     * 异常上报原因与二次安检关系-老版异常上报
+     */
+    public static final Long SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID = 27000L;
+
+    /**
+     * 功能可用配置白名单
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
+
+    // 新版分拣中心规范-分拣中心类型
+    public static final Integer SORTING_SORT_TYPE = 12351;
+    // 新版分拣中心规范-分拣中心子类型
+    public static final Integer SORTING_SORT_SUBTYPE = 123511;
+    // 新版分拣中心规范-分拣中心下中转站
+    public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
+
+    /**
+     *  逆向原因编码
+     * 1-拦截逆向
+     * 3-清关逆向
+     */
+    public static final Integer INTERCEPT_REVERSE_CODE_1 = 1;
+    public static final Integer INTERCEPT_REVERSE_CODE_3 = 3;
 
     /**
      * 运单全程跟踪记录类型（强校验）

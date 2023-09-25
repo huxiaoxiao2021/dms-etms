@@ -559,6 +559,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 ? null : MathUtils.keepScale(Double.parseDouble(reportInfo.getRecheckVolume()), 2));
         spotCheckContrastDetail.setContrastOrgId(reportInfo == null ? null : reportInfo.getDutyOrgId());
         spotCheckContrastDetail.setContrastOrgName(reportInfo == null ? null : reportInfo.getDutyOrgName());
+        spotCheckContrastDetail.setContrastProvinceAgencyCode(reportInfo == null ? null : reportInfo.getDutyProvinceAgencyCode());
+        spotCheckContrastDetail.setContrastProvinceAgencyName(reportInfo == null ? null : reportInfo.getDutyProvinceAgencyName());
         spotCheckContrastDetail.setContrastWarZoneCode(reportInfo == null ? null : reportInfo.getDutyProvinceCompanyCode());
         spotCheckContrastDetail.setContrastWarZoneName(reportInfo == null ? null : reportInfo.getDutyProvinceCompanyName());
         spotCheckContrastDetail.setContrastAreaCode(reportInfo == null ? null : reportInfo.getDutyAreaCode());
@@ -630,6 +632,11 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      */
     @Override
     public void executeIssue(WeightVolumeSpotCheckDto spotCheckDto) {
+        if(!Objects.equals(spotCheckDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
+            // 抽检不超标不下发
+            logger.warn("单号:{}的抽检数据不执行下发!", spotCheckDto.getPackageCode());
+            return;
+        }
         // 校验运单是否已下发
         if(checkWaybillHasIssued(spotCheckDto.getWaybillCode())){
             logger.info("spotCheckWaybill has issued will not send {}", spotCheckDto.getWaybillCode());
@@ -650,10 +657,6 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             spotCheckIssueZDMQ.setReviewVolume(spotCheckDto.getReviewVolume());
             spotCheckIssueZDMQ.setReviewTime(spotCheckDto.getReviewDate());
             spotCheckIssueZDProducer.sendOnFailPersistent(spotCheckIssueZDMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueZDMQ));
-            // 体积超标是否下发判断
-            if(!checkVolumeExcessIsIssue(spotCheckDto)){
-                return;
-            }
         }
         // 下发超标数据至称重再造系统条件
         // 1、图片
@@ -665,13 +668,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 return;
             }
         }else if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){ // 设备抽检
-            if(spotCheckIssueIsRelyOnMachineStatus(spotCheckDto.getReviewSiteCode())
-                    && !Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
+            if(!Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
                 // 设备抽检设备不合格不下发
                 logger.warn("单号:{}设备编码:{}的抽检数据不执行下发!", spotCheckDto.getPackageCode(), spotCheckDto.getMachineCode());
                 return;
             }
-            if(!Objects.equals(spotCheckDto.getPicIsQualify(), Constants.CONSTANT_NUMBER_ONE)){
+            // 图片AI识别判断是否下发
+            if(!checkIsDownByPicAI(spotCheckDto)){
                 logger.warn("设备抽检的单号:{}的图片不合格,不执行下发!", spotCheckDto.getWaybillCode());
                 return;
             }
@@ -687,16 +690,16 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         buildAndIssue(spotCheckDto);
     }
 
-    private boolean checkVolumeExcessIsIssue(WeightVolumeSpotCheckDto spotCheckDto) {
-        String volumeExcessIssueSites = uccPropertyConfiguration.getVolumeExcessIssueSites();
-        if(StringUtils.isEmpty(volumeExcessIssueSites)){
-            return false;
-        }
-        if(Objects.equals(volumeExcessIssueSites, Constants.STR_ALL)){
+    private boolean checkIsDownByPicAI(WeightVolumeSpotCheckDto spotCheckDto) {
+        if(Objects.equals(spotCheckDto.getPicIsQualify(), Constants.CONSTANT_NUMBER_ONE)){
             return true;
         }
-        return Arrays.asList(volumeExcessIssueSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(spotCheckDto.getReviewSiteCode()));
+        // 目前图片不合格的场景：只有图片类型是软包&&超标类型是重量超标会下发，其他场景都不下发
+        return StringUtils.isNotEmpty(spotCheckDto.getPictureAIDistinguishReason())
+                && spotCheckDto.getPictureAIDistinguishReason().contains(SpotCheckConstants.PIC_AI_REASON_RB)
+                && Objects.equals(spotCheckDto.getExcessType(), SpotCheckConstants.EXCESS_TYPE_WEIGHT);
     }
+
 
     /**
      * 构建并下发数据

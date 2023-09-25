@@ -21,7 +21,7 @@
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<jmq.version>2.3.2</jmq.version>
-		<etms.waybill.agent.version>4.2-test-SNAPSHOT</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.301</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -38,7 +38,7 @@
 		<!--jim redis-->
 		<jimdb.version>3.1.2-SNAPSHOT</jimdb.version>
 		<tms-workbench-api.version>1.0-SNAPSHOT</tms-workbench-api.version>
-		<cp-wbms-client.version>1.0.0-TEST-SNAPSHOT</cp-wbms-client.version>
+		<cp-wbms-client.version>1.0.156</cp-wbms-client.version>
         <jd-ql-3pl-client.version>2.0.7-SNAPSHOT</jd-ql-3pl-client.version>
 		<addressTranslation-api.version>1.6.9-SNAPSHOT</addressTranslation-api.version>
 		<block-presort-rpc-aoi-api.version>1.0.2-SNAPSHOT</block-presort-rpc-aoi-api.version>
@@ -77,7 +77,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.40-SNAPSHOT</version>
+			<version>1.1.41-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -242,12 +242,12 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>2.0.15-SNAPSHOT</version>
+			<version>2.0.17-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.5.3-SNAPSHOT</version>
+			<version>1.5.4-SNAPSHOT</version>
 		</dependency>
 <!--		积分-->
 		<dependency>
@@ -276,7 +276,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.7.0-contraband-SNAPSHOT</version>
+            <version>1.7.2-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -2240,6 +2240,14 @@
 					<groupId>org.aspectj</groupId>
 					<artifactId>aspectjrt</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>io.netty</groupId>
+					<artifactId>netty-all</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.ibm.etcd</groupId>
+					<artifactId>etcd-java</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -2485,6 +2493,12 @@
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-recipes</artifactId>
 			<version>2.7.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>netty</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
         <dependency>
             <groupId>com.jdl.basic</groupId>
@@ -2670,6 +2684,16 @@
 			<groupId>com.jd.wl.cs.abnormal.portal</groupId>
 			<artifactId>abnormal-portal-api</artifactId>
 			<version>${abnormal-portal-api.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.houbb</groupId>
+			<artifactId>opencc4j</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.cloud.print</groupId>
+			<artifactId>print-api</artifactId>
 		</dependency>
 
     </dependencies>

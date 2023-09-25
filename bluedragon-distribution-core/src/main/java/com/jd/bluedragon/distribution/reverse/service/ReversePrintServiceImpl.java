@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressStatusEnum;
 import com.jd.bluedragon.distribution.business.service.BusinessReturnAdressService;
@@ -249,6 +250,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired
     private WaybillAddApi waybillAddApi;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     /**
      * 处理逆向打印数据
@@ -722,6 +726,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 domain.setSiteType(siteDomain.getSiteType());
                 domain.setOrgName(siteDomain.getOrgName());
                 domain.setOrgId(siteDomain.getOrgId());
+                domain.setProvinceAgencyCode(siteDomain.getProvinceAgencyCode());
+                domain.setProvinceAgencyName(siteDomain.getProvinceAgencyName());
+                domain.setAreaHubCode(siteDomain.getAreaCode());
+                domain.setAreaHubName(siteDomain.getAreaName());
             }else {
                 result.customMessage(2, MessageFormat.format("获取站点【ID={0}】信息为空",domain.getSiteId()));
                 log.warn("自营换单获取站点【ID={}】信息为空",domain.getSiteId());
@@ -845,7 +853,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
         //2.判断运单是否为弃件，如果是弃件禁止换单
-        if (waybillTraceManager.isWaybillWaste(wayBillCode)){
+        if (waybillTraceManager.isOpCodeWaste(wayBillCode)){
             result.setData(false);
             result.setMessage("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
             return result;
@@ -941,7 +949,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
         //2.判断运单是否为弃件，如果是弃件禁止换单
-        if (waybillTraceManager.isWaybillWaste(wayBillCode)){
+        if (waybillTraceManager.isOpCodeWaste(wayBillCode)){
             result.setData(false);
             result.setMessage("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
             return result;
@@ -1133,8 +1141,13 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 						phone = backInfoData.getContractMobile();
 					}
 					twiceExchangeResponse.setPhone(phone);
-					twiceExchangeResponse.setHidePhone(BusinessUtil.getHidePhone(phone));
-					
+                    final boolean switchHidePhoneNewVersion = sysConfigService.getConfigByName(Constants.SYS_CONFIG_HIDE_PHONE_6Char);
+                    if(switchHidePhoneNewVersion){
+                        twiceExchangeResponse.setHidePhone(BusinessUtil.getHidePhone6Char(phone));
+                    } else {
+                        twiceExchangeResponse.setHidePhone(BusinessUtil.getHidePhone(phone));
+                    }
+
 					twiceExchangeResponse.setNeedFillReturnInfo(Boolean.TRUE);
 				}
 			}

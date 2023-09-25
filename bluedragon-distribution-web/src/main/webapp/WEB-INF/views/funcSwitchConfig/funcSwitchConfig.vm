@@ -52,26 +52,21 @@
                		</div>
                     <div class="row">
                         <div class="col-xs-12">
-                            <div class="col-xs-4">
+
+                            <div class="col-xs-8">
                                 <div class="form-group">
-                                    <label class="control-label col-xs-4" for="site-select">区域 ：</label>
-                                    <div class="col-xs-6 ">
-                                        <select id="orgId" class="form-control search-param" name="orgId"
-                                                value=""></select>
-                                    </div>
+                                    <label class="control-label col-xs-2" for="site-select">分拣中心 ：</label>
+                                    <switchSiteDom id="switchSiteDom">
+                                        <div class="col-xs-8 ">
+                                            <select id="orgId" class="form-control search-param" name="orgId"
+                                                    value=""></select>
+                                            <select id="siteCode" class="form-control search-param" name="siteCode"
+                                                    value=""></select>
+                                        </div>
+                                    </switchSiteDom>
                                 </div>
                             </div>
-                            <div class="col-xs-4">
-                                <div class="form-group">
-                                    <label class="control-label col-xs-4" for="site-select">分拣中心 ：</label>
-                                    <div class="col-xs-6 ">
-                                        <select id="siteCode" class="form-control search-param" name="siteCode"
-                                                value=""></select>
-                                        <input type="hidden" id="createSiteCode" name="createSiteCode"
-                                               class="form-control search-param " >
-                                    </div>
-                                </div>
-                            </div>
+
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <label class="control-label col-xs-4" for="site-select">操作人ERP ：</label>
@@ -139,20 +134,15 @@
                             </div>
                             <font class="star" style = "color:red">*</font>
                         </div>
-                        <div class="form-group" >
-                            <label class="col-xs-3 control-label" for="box-code-input">区域 ：</label>
-                            <div class="col-xs-5 ">
-                                <select id="orgId-EG" class="form-control " name="orgId-EG"
-                                        value=""></select>
-                            </div>
-                            <font class="star" style = "color:red">*</font>
-                        </div>
+                        
                         <div class="form-group">
                             <label class="col-xs-3 control-label" for="site-select">分拣中心 ：</label>
+                            <switchSiteDom id="switchSiteDom_add">
                             <div class=" col-xs-5 ">
                                 <select id="siteCode-EG" class="form-control" name="siteCode-EG" value=""></select>
                             </div>
                             <font class="star" style = "color:red">*</font>
+                            </switchSiteDom>
                         </div>
                         <div class="form-group">
                             <label class="col-xs-3 control-label" for="box-code-input">是否有效 ：</label>

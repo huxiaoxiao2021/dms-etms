@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.common.domain.WaybillExtVO;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.waybill.dao.WaybillCacheDao;
@@ -12,8 +13,6 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,6 +148,11 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
         waybillCache.setCustomerCode(waybillWS.getCustomerCode());// add by liming 2020.11.08
         if(waybillWS.getWaybillExt() != null) {
         	waybillCache.setEndDmsId(waybillWS.getWaybillExt().getEndDmsId());//add by wuyoude 2021.10.15
+            // 设置运单额外属性
+            waybillCache.setWaybillExtVO(new WaybillExtVO()
+                    .clearanceType(waybillWS.getWaybillExt().getClearanceType())
+                    .startFlowDirection(waybillWS.getWaybillExt().getStartFlowDirection())
+                    .endFlowDirection(waybillWS.getWaybillExt().getEndFlowDirection()));
         }
         
         return waybillCache;
