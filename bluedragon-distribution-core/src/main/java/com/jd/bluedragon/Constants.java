@@ -835,6 +835,12 @@ public class Constants {
      */
     public static final String BAICHUAN_REVERSE_SITE_CONF = "baichuan.reverse.site.conf";
 
+
+    /**
+     *发货统一服务切换
+     */
+    public static final String SEND_CAPABILITY_SITE_CONF = "send.capability.site.conf";
+
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
      */

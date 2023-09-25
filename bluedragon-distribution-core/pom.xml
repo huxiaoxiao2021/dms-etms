@@ -2227,6 +2227,14 @@
 					<groupId>org.aspectj</groupId>
 					<artifactId>aspectjrt</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>io.netty</groupId>
+					<artifactId>netty-all</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.ibm.etcd</groupId>
+					<artifactId>etcd-java</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -2482,6 +2490,12 @@
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-recipes</artifactId>
 			<version>2.7.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>netty</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jdl.basic</groupId>
