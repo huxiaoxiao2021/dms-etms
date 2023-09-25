@@ -119,8 +119,8 @@ public class DmsSortingServiceImpl implements DmsSortingService {
      * @return
      */
     @Override
-    public InvokeResult<ColdSendResult> bindingBoxMaterialPackageRelation(SortingRequestDto request) {
-        InvokeResult<ColdSendResult> result = new InvokeResult<ColdSendResult>();
+    public InvokeResult<String> bindingBoxMaterialPackageRelation(SortingRequestDto request) {
+        InvokeResult<String> result = new InvokeResult<String>();
         if(request == null){
             result.parameterError("入参为空");
             return result;
@@ -139,37 +139,17 @@ public class DmsSortingServiceImpl implements DmsSortingService {
             result.parameterError("箱号不合法");
             return result;
         }
-        //是否需要校验绑定集包袋编号
-        if(Objects.equals(request.getNeedBindMaterialFlag(),Constants.CONSTANT_NUMBER_ONE)) {
-            BoxMaterialRelation boxMaterialRelation = boxMaterialRelationService.getDataByBoxCode(boxCode);
-            if (boxMaterialRelation == null || StringUtils.isBlank(boxMaterialRelation.getMaterialCode())) {
-                if (StringUtils.isBlank(request.getMaterialCode())) {
-                    //自定义失败，需要单独处理
-                    result.setData(new ColdSendResult(ColdSendResultCodeNum.CONFIRM.getCode(), "您所扫描箱号未绑定容器号，请绑定"));
-                    return result;
-                } else {
-                    if (!BusinessUtil.isCollectionBag(request.getMaterialCode())) {
-                        result.parameterError("集包袋号不合法");
-                        return result;
-                    }
-                    //绑定集包袋
-                    BoxMaterialRelationRequest boxMaterialRelationRequest = createBoxMaterialRelationRequest(request);
-                    com.jd.bluedragon.distribution.base.domain.InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(boxMaterialRelationRequest);
-                    if (!bindMaterialRet.codeSuccess()) {
-                        result.setData(new ColdSendResult(ColdSendResultCodeNum.INTERCEPT.getCode(), bindMaterialRet.getMessage()));
-                        return result;
-                    }
-                }
-            }
+        if(!Objects.equals(SortingBizSourceEnum.INTERFACE_SORTING.getCode(),request.getBizSource())){
+            result.parameterError("分拣来源不合法");
+            return result;
         }
         //添加分拣理货任务
         TaskRequest taskPdaRequest = createTaskPdaRequest(request);
         TaskResponse taskResponse = taskResource.add(taskPdaRequest);
         if(!Objects.equals(taskResponse.getCode(),TaskResponse.CODE_OK)){
-            result.setData(new ColdSendResult(ColdSendResultCodeNum.INTERCEPT.getCode(),taskResponse.getMessage()));
+            result.parameterError(taskResponse.getMessage());
             return result;
         }
-        result.setData(new ColdSendResult(ColdSendResultCodeNum.SUCCESS.getCode(),InvokeResult.RESULT_SUCCESS_MESSAGE));
         return result;
     }
 
@@ -199,10 +179,10 @@ public class DmsSortingServiceImpl implements DmsSortingService {
     private TaskRequest createTaskPdaRequest(SortingRequestDto request) {
         PackSortTaskBody taskBody = new PackSortTaskBody();
         taskBody.setBoxCode(request.getBoxCode());
-        taskBody.setBusinessType(request.getBusinessType());
-        taskBody.setFeatureType(request.getFeatureType());
-        taskBody.setIsCancel(request.getIsCancel());
-        taskBody.setIsLoss(request.getIsLoss());
+        taskBody.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        taskBody.setFeatureType(Constants.CONSTANT_NUMBER_ZERO);
+        taskBody.setIsCancel(Constants.CONSTANT_NUMBER_ZERO);
+        taskBody.setIsLoss(Constants.CONSTANT_NUMBER_ZERO);
         taskBody.setSiteCode(request.getCreateSiteCode());
         taskBody.setSiteName(request.getCreateSiteName());
         taskBody.setPackageCode(request.getPackageCode());
@@ -211,7 +191,7 @@ public class DmsSortingServiceImpl implements DmsSortingService {
 
         taskBody.setUserCode(request.getCreateUserCode());
         taskBody.setUserName(request.getCreateUser());
-        taskBody.setBizSource(SortingBizSourceEnum.INTERFACE_SORTING.getCode());
+        taskBody.setBizSource(request.getBizSource());
         List<PackSortTaskBody> bodyList = new ArrayList<>();
         bodyList.add(taskBody);
         TaskRequest taskRequest = new TaskRequest();

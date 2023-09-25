@@ -62,30 +62,10 @@ public class SortingRequestDto implements Serializable {
      */
     private String operateTime;
     /**
-     * 是否需要校验绑定集包袋编号
-     * 1是，2否
+     * 分拣来源字段
      */
-    private Integer needBindMaterialFlag;
-    /**
-     * 集包袋编号
-     */
-    private String materialCode;
-    /**
-     * 业务类型
-     */
-    private Integer businessType;
-    /**
-     *  是否取消分拣：0-正常分拣;1-取消分拣
-     */
-    private Integer isCancel;
-    /**
-     * form C# pda 报丢分拣的标识：默认 0 ；0表示正常分拣，1表示报丢分拣，C# 没有设置值，默认0
-     */
-    private Integer isLoss;
-    /**
-     * form C# pda逆向分拣标示（1：报损 2：三方七折退备件库），C# 没有设置值 默认0
-     */
-    private Integer featureType;
+    private Integer bizSource;
+
     //======================================
 
     public String getBoxCode() {
@@ -184,35 +164,11 @@ public class SortingRequestDto implements Serializable {
         this.materialCode = materialCode;
     }
 
-    public Integer getBusinessType() {
-        return businessType;
+    public Integer getBizSource() {
+        return bizSource;
     }
 
-    public void setBusinessType(Integer businessType) {
-        this.businessType = businessType;
-    }
-
-    public Integer getIsCancel() {
-        return isCancel;
-    }
-
-    public void setIsCancel(Integer isCancel) {
-        this.isCancel = isCancel;
-    }
-
-    public Integer getIsLoss() {
-        return isLoss;
-    }
-
-    public void setIsLoss(Integer isLoss) {
-        this.isLoss = isLoss;
-    }
-
-    public Integer getFeatureType() {
-        return featureType;
-    }
-
-    public void setFeatureType(Integer featureType) {
-        this.featureType = featureType;
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

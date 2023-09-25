@@ -76,7 +76,7 @@ public enum SortingBizSourceEnum {
     /**
      * 外部接口调用
      */
-    INTERFACE_SORTING(76, "接口调用"),
+    INTERFACE_SORTING(76, "冷链车队绑定接口调用"),
 
     ;
 
