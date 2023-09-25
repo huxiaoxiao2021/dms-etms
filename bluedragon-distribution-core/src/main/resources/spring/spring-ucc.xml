@@ -310,6 +310,7 @@
 		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
 		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
 		<property name="terminalSitePackagePrintLimitSwitch" value="${terminalSitePackagePrintLimitSwitch:true}"/>
+		<property name="reverseExchangeCount" value="${reverseExchangeCount:-1}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -626,6 +627,7 @@
 				<value>uccPropertyConfiguration.checkAkboxConfig</value>
 				<value>uccPropertyConfiguration.printCacheTime</value>
 				<value>uccPropertyConfiguration.terminalSitePackagePrintLimitSwitch</value>
+				<value>uccPropertyConfiguration.reverseExchangeCount</value>
 			</list>
 		</property>
 	</bean>
