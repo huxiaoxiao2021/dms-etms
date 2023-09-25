@@ -5,6 +5,7 @@ import java.util.List;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportQuery;
 import com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportVo;
+import com.jd.bluedragon.distribution.work.domain.WorkGridMangerReportDetailQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -33,4 +34,12 @@ public interface WorkGridManagerReportJsfService {
 	 * @return
 	 */
 	Result<PageDto<WorkGridManagerReportVo>> queryPageList(WorkGridManagerReportQuery query);
+
+	/**
+	 * 根据bizId调后端获取任务详细信息
+	 *
+	 * @param query
+	 * @return
+	 */
+	Result<WorkGridManagerReportVo> queryTaskDataByBizId(WorkGridMangerReportDetailQuery query);
 }

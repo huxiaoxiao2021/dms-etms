@@ -693,7 +693,6 @@ public class BusinessUtil {
         return Boolean.FALSE;
     }
 
-
     /**
      * 通过运单标识 判断是否需求包装耗材
      * <p>
@@ -1963,7 +1962,6 @@ public class BusinessUtil {
         }
         return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15) ||
-                (materialCode.toUpperCase().startsWith(COLLECTION_AD02_PREFIX) && materialCode.length() == 16) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
     }
 
@@ -1978,6 +1976,18 @@ public class BusinessUtil {
         } 
         return (materialCode.toUpperCase().startsWith(COLLECTION_AD02_PREFIX) && materialCode.length() == 16) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
+    }
+
+    /**
+     * 判断是否是笼车编号
+     * @param materialCode
+     * @return
+     */
+    public static boolean isTrolleyCollectionBag(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
     }
     
     /**
@@ -2848,5 +2858,29 @@ public class BusinessUtil {
         }
         return null;
     }
-    
+
+    /**
+     * 是否是售后取件单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAfterSalePickupSlip(String waybillSign) {
+        if (StringUtils.isEmpty(waybillSign)){
+            return false;
+        }
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_124,WaybillSignConstants.CHAR_124_2);
+    }
+
+    /**
+     * 是否港澳运单
+     *  desc：运单的始发和目的其一是香港澳门则为港澳运单
+     * 
+     * @param waybillStart 运单始发
+     * @param waybillEnd 运单目的
+     * @return
+     */
+    public static boolean isGAWaybill(String waybillStart, String waybillEnd){
+        return DmsConstants.HK_MO_REGION.contains(waybillStart) || DmsConstants.HK_MO_REGION.contains(waybillEnd);
+    }
 }

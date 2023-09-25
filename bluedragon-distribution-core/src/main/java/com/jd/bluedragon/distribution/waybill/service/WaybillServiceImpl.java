@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.easyFreeze.EasyFreezeSiteDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -57,7 +57,6 @@ import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -1142,6 +1141,22 @@ public class WaybillServiceImpl implements WaybillService {
             return claimDamagedCancelWaybill;
         }
 
+        return null;
+    }
+
+    @Override
+    public CancelWaybill queryGAExamineCancelWaybill(String waybillCode) {
+        List<CancelWaybill> list = cancelWaybillDao.findWaybillCancelByCodeAndFeatureTypes(waybillCode,
+                CancelWaybill.BUSINESS_TYPE_LOCK, 
+                Lists.newArrayList(CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE, CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE_FAIL));
+        if(CollectionUtils.isEmpty(list)){
+            return null;
+        }
+        for (CancelWaybill item : list) {
+            if(Objects.equals(item.getBusinessType(), CancelWaybill.BUSINESS_TYPE_LOCK)){
+                return item;
+            }
+        }
         return null;
     }
 

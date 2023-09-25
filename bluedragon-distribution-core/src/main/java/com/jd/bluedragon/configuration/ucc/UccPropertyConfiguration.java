@@ -1,5 +1,6 @@
 package com.jd.bluedragon.configuration.ucc;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
@@ -7,11 +8,14 @@ import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.util.*;
 
 /**
  * Created by xumei3 on 2017/12/15.
+ *  Note :
+ *      - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
  */
 public class UccPropertyConfiguration {
 
@@ -989,7 +993,7 @@ public class UccPropertyConfiguration {
     }
 
     public List<String> getNeedInterceptUrlList() {
-        return needInterceptUrlList;
+        return Lists.newArrayList(needInterceptUrlList);
     }
 
     public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -1519,6 +1523,8 @@ public class UccPropertyConfiguration {
 
     /**
      * 自动关闭任务配置，转换为对象
+     *  Note :
+     *       - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
      */
     private String autoCloseJyBizTaskConfig;
     private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
@@ -1599,6 +1605,8 @@ public class UccPropertyConfiguration {
     }
     /**
      * 拣运APP自动刷新时间配置
+     *  Note :
+     *      - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
      */
     private String jyWorkAppAutoRefreshConfig;
     private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
@@ -3313,7 +3321,9 @@ public class UccPropertyConfiguration {
     }
 
     public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
-        return autoCloseJyBizTaskConfigObj;
+        AutoCloseJyBizTaskConfig config = new AutoCloseJyBizTaskConfig();
+        BeanUtils.copyProperties(autoCloseJyBizTaskConfigObj, config);
+        return config;
     }
 
     public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
@@ -3445,7 +3455,7 @@ public class UccPropertyConfiguration {
     }
 
     public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
-        return jyWorkAppAutoRefreshConfigList;
+        return Lists.newArrayList(jyWorkAppAutoRefreshConfigList);
     }
 
     public void setJyWorkAppAutoRefreshConfigList(String jyWorkAppAutoRefreshConfig) {
@@ -3461,7 +3471,9 @@ public class UccPropertyConfiguration {
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
             if(first.isPresent()){
-                return first.get();
+                ClientAutoRefreshConfig config = new ClientAutoRefreshConfig();
+                BeanUtils.copyProperties(first.get(), config);
+                return config;
             }
         }
         return null;

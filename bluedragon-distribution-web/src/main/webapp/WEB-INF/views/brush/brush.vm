@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>研发刷数页面</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
+    <script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
+    <script src="/static/js/brush/brush.js"></script>
+</head>
+<body>
+<input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>
+<input type="hidden" id="loginUserCreateSiteCode" value="$!{createSiteCode}"/>
+<div id="dataTableDiv" class="main">
+    <ol class="breadcrumb">
+        <li><a href="#">工具</a></li>
+        <li class="active">研发刷数</li>
+    </ol>
+    <!-- 主页面操作按钮 -->
+    <div id="toolbar" class="btn-group">
+        <button id="btn_import_brush" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>刷数导入
+        </button>
+    </div>
+    <table id="dataTable"></table>
+</div>
+
+<!-- 刷数导入 -->
+<div class="modal fade" tabindex="-1" id="import_modal_brush" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">导入（分拣全程跟踪问题刷数）</h4>
+            </div>
+            <div class="modal-body">
+                <form id="brush_upload_excel_form" enctype="multipart/form-data" method="POST">
+
+                    <div class="form-group">
+                        <label for="exampleInputFile">选择导入文件</label>
+                        <input type="file" id="importExcelFile_brush" name="importExcelFile_brush">
+                        <p class="help-block">请使用标准模板,记录条数不得超过10000条</p>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn_upload_brush">上传</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var jaq = jaq || [];
+    jaq.push(['account', 'JA2016_112453']);
+    jaq.push(['domain', 'dms.etms.jd.com']);
+    (function () {
+        var ja = document.createElement('script');
+        ja.type = 'text/javascript';
+        ja.async = true;
+        ja.src = '//wl.jd.com/joya.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ja, s);
+    })()
+</script>
+#parse("system/security/watermark.vm")
+</body>
+</html>
