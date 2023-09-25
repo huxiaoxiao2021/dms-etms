@@ -342,6 +342,25 @@ public class BeanConverter {
 		data.setOperatorData(request.getOperatorData());
 		mqData.setJyOperateFlowData(data);
 		return mqData;
+	}
+	public static JyOperateFlowMqData convertToJyOperateFlowMqData(BindBoardRequest request) {
+		if(request == null) {
+			return null;
+		}
+		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
+		mqData.setOperateBizKey(request.getBarcode());
+		mqData.setOperateBizType(OperateBizTypeEnum.BOARD.getCode());
+		mqData.setOperateKey(request.getBarcode());
+		if(request.getOperatorInfo() != null && request.getOperatorInfo().getOperateTime() != null) {
+			mqData.setOperateTime(request.getOperatorInfo().getOperateTime());
+		}else {
+			mqData.setOperateTime(new Date());
+		}
+		mqData.setOperateSiteCode(request.getOperatorInfo().getSiteCode());
+		JyOperateFlowData data = new JyOperateFlowData();
+		data.setOperatorData(request.getOperatorData());
+		mqData.setJyOperateFlowData(data);
+		return mqData;
 	}	
 	/**
 	 * 对象转换为数据库实体
