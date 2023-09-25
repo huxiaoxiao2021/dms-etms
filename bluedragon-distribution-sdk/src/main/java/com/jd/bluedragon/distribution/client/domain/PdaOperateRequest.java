@@ -73,7 +73,17 @@ public class PdaOperateRequest {
     Integer operateNode;
 
     Integer onlineStatus;
-	
+
+	private boolean skipFilter;
+
+	public boolean getSkipFilter() {
+		return skipFilter;
+	}
+
+	public void setSkipFilter(boolean skipFilter) {
+		this.skipFilter = skipFilter;
+	}
+
 	public Integer getOperateType() {
 		return operateType;
 	}

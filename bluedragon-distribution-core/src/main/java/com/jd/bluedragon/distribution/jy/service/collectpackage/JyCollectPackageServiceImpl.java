@@ -3,11 +3,14 @@ package com.jd.bluedragon.distribution.jy.service.collectpackage;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ObjectHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -17,6 +20,9 @@ import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCC
 @Service
 @Slf4j
 public class JyCollectPackageServiceImpl implements JyCollectPackageService{
+
+    @Autowired
+    private SortingService sortingService;
     @Override
     public InvokeResult<CollectPackageResp> collectScan(CollectPackageReq request) {
         //基础校验
@@ -34,6 +40,20 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     }
 
     private void collectPackageBizCheck(CollectPackageReq request) {
+        //校验箱号：是否存在 +是否已打印+状态合法性+是否已经发货
+        boxCheck(request);
+        execIntecepterChain(request);
+    }
+
+    private void execIntecepterChain(CollectPackageReq request) {
+        PdaOperateRequest pdaOperateRequest =assemblePdaOperateRequest(request);
+        sortingService.check(pdaOperateRequest);
+    }
+
+    private PdaOperateRequest assemblePdaOperateRequest(CollectPackageReq request) {
+    }
+
+    private void boxCheck(CollectPackageReq request) {
     }
 
     private void collectPackageBaseCheck(CollectPackageReq request) {
