@@ -257,6 +257,10 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int COMBOARD_SCAN_FORCE_SEND_WARNING = 3062;
 
+    public static final int FORCE_COLLECT_PACKAGE_WARNING = 3068;
+
+    public static final int CONFIRM_COLLECT_PACKAGE_WARNING = 3069;
+
     public static final int BOARD_HAS_BEEN_FULL_REPLENISH_SCAN_CODE = 3063;
     public static final String BOARD_HAS_BEEN_FULL_REPLENISH_SCAN_MESSAGE = "已达上限，不允许补扫！";
 
