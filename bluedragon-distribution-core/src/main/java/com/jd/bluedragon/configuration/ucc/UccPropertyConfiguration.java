@@ -856,6 +856,29 @@ public class UccPropertyConfiguration {
 
     private String qingChangDataOpenSwitch;
 
+    public Boolean getCheckAkboxConfig() {
+        return checkAkboxConfig;
+    }
+
+    public void setCheckAkboxConfig(Boolean checkAkboxConfig) {
+        this.checkAkboxConfig = checkAkboxConfig;
+    }
+
+    public Long getPrintCacheTime() {
+        return printCacheTime;
+    }
+
+    public void setPrintCacheTime(Long printCacheTime) {
+        this.printCacheTime = printCacheTime;
+    }
+
+    /**
+     * 检查是否需要检查周转筐数量和实施数量对比
+     */
+    private Boolean checkAkboxConfig;
+
+    private Long printCacheTime;
+
     public String getQingChangDataOpenSwitch(){
         return qingChangDataOpenSwitch;
     }
@@ -993,7 +1016,7 @@ public class UccPropertyConfiguration {
     }
 
     public List<String> getNeedInterceptUrlList() {
-        return Lists.newArrayList(needInterceptUrlList);
+        return needInterceptUrlList;
     }
 
     public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -3471,9 +3494,7 @@ public class UccPropertyConfiguration {
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
             if(first.isPresent()){
-                ClientAutoRefreshConfig config = new ClientAutoRefreshConfig();
-                BeanUtils.copyProperties(first.get(), config);
-                return config;
+                return first.get();
             }
         }
         return null;

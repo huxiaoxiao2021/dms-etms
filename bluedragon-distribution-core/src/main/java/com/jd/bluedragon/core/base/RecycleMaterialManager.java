@@ -17,7 +17,7 @@ public interface RecycleMaterialManager {
 
     /**
      * 批量新增物资
-     * 
+     *
      * @param list
      * @return
      */
@@ -25,7 +25,7 @@ public interface RecycleMaterialManager {
 
     /**
      * 查询物资详情
-     * 
+     *
      * @param materialCode
      * @return
      */
@@ -33,14 +33,14 @@ public interface RecycleMaterialManager {
 
     /**
      * 作废物资
-     * 
+     *
      * @param materialCode
      * @param operateUserErp
      * @param operateSiteCode
      * @return
      */
     ApiResult<RecycleMaterial> disableMaterialByCode(String materialCode, String operateUserErp, Integer operateSiteCode);
-    
+
     /**
      * 批量作废物资
      *
@@ -48,4 +48,12 @@ public interface RecycleMaterialManager {
      * @return
      */
     ApiResult<MaterialAbolishRes> batchAbolishMaterial(MaterialAbolishReq abolishRequest);
+
+    /**
+     *
+     * @param siteCode
+     * @param typeCode 3 小 4 大
+     * @return
+     */
+    ApiResult<Integer> countMaterialByCondition(Integer siteCode, Integer typeCode);
 }
