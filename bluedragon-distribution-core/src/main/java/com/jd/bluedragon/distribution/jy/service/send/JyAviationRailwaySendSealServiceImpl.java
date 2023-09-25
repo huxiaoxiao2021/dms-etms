@@ -1214,6 +1214,14 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         return result;
     }
 
+    public Integer getTaskSendDetailCount(JyBizTaskSendVehicleDetailEntity detail) {
+        List<JyBizTaskSendAviationPlanEntity> entity = jyBizTaskSendAviationPlanService.findByBizIdList(Collections.singletonList(detail.getSendVehicleBizId()));
+        if (CollectionUtils.isEmpty(entity)) {
+            return 0;
+        }
+        return entity.size();
+    }
+    
     private boolean AviationCheckBeforeSendScan(AviationSendScanReq request, JdVerifyResponse<AviationSendScanResp> result) {
         
         // 校验是否超载 提示过超载的任务不再提示

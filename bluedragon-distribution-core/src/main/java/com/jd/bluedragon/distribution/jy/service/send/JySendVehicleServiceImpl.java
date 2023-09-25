@@ -2476,7 +2476,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return false;
         }
 
-        Integer existSendDetail = taskSendVehicleDetailService.countByCondition(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
+        Integer existSendDetail = getTaskSendDetailCount(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
         if (!NumberHelper.gt0(existSendDetail)) {
             // 无任务发货未确认目的地信息
             if (taskSend.manualCreatedTask()) {
@@ -2563,6 +2563,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return true;
     }
 
+    public Integer getTaskSendDetailCount(JyBizTaskSendVehicleDetailEntity detail) {
+        return taskSendVehicleDetailService.countByCondition(detail);
+    }
 
 
     private void TEANCheck(SendScanRequest request, JdVerifyResponse<SendScanResponse> response){
