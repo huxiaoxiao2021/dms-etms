@@ -10,7 +10,7 @@ import java.util.List;
  * @Date 2023/8/18 11:10
  * @Description
  */
-public interface JyStatisticsSummaryService {
+public interface JySealStatisticsSummaryService {
 
     int insertSelective(JyStatisticsSummaryEntity entity) ;
 

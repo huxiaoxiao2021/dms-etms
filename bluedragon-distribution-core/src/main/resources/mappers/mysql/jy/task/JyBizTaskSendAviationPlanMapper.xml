@@ -349,7 +349,7 @@
           and task_status = #{taskStatus}
           <include refid="list_query_condition" />
         group by
-            next_site_id,next_site_name
+            next_site_id
         limit #{pageSize}
     </select>
 

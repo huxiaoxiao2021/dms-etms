@@ -37,7 +37,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.seal.JySeaCarlCacheService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
-import com.jd.bluedragon.distribution.jy.service.summary.JyStatisticsSummaryService;
+import com.jd.bluedragon.distribution.jy.service.summary.JySealStatisticsSummaryService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskBindService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -129,7 +129,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Qualifier("sendVehicleTransactionManager")
     private SendVehicleTransactionManager sendVehicleTransactionManager;
     @Autowired
-    private JyStatisticsSummaryService statisticsSummaryService;
+    private JySealStatisticsSummaryService statisticsSummaryService;
     @Autowired
     private JySendSealCodeService jySendSealCodeService;
     @Autowired

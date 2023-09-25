@@ -104,7 +104,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
 
         //无效数据
         if(invalidDataFilter(mqBody)) {
-            log.warn("无效航空计划丢弃：{}", JsonHelper.toJson(mqBody));
+            log.error("无效航空计划丢弃：{}", JsonHelper.toJson(mqBody));
             return;
         }
 
@@ -153,7 +153,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
                 if(log.isInfoEnabled()) {
                     log.info("航空计划订舱号【{}】发货任务插入开始，mqBody={}", JsonHelper.toJsonMs(mqBody));
                 }
-                JyBizTaskSendAviationPlanEntity aviationPlanEntity = this.generateAviationPlanEntity(mqBody);
+                JyBizTaskSendAviationPlanEntity aviationPlanEntity = this.generateAviationPlanEntity(mqBody, currSite);
                 JyBizTaskSendVehicleEntity sendVehicleEntity = this.aviationPlanConvertSendTask(aviationPlanEntity);
                 JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity = this.aviationPlanConvertSendTaskDetail(aviationPlanEntity);
                 transactionManager.saveAviationPlanAndTaskSendAndDetail(aviationPlanEntity, sendVehicleEntity, sendVehicleDetailEntity);
@@ -209,17 +209,12 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
     }
 
 
-    private JyBizTaskSendAviationPlanEntity generateAviationPlanEntity(TmsAviationPlanDto mqBody) {
+    private JyBizTaskSendAviationPlanEntity generateAviationPlanEntity(TmsAviationPlanDto mqBody, BaseStaffSiteOrgDto currSite) {
         JyBizTaskSendAviationPlanEntity entity = new JyBizTaskSendAviationPlanEntity();
 //        entity.setBizId(tmsTransWorkItemOperateConsumer.genMainTaskBizId());
         entity.setBizId(jyBizTaskSendVehicleService.genMainTaskBizId());
         entity.setBookingCode(mqBody.getBookingCode());
         entity.setStartSiteCode(mqBody.getStartNodeCode());
-        BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(mqBody.getStartNodeCode());
-        if (Objects.isNull(currSite)) {
-            log.warn("航空计划发货任务创建：基础资料未查到始发分拣【{}】场地信息：mqBody={}" , mqBody.getStartNodeCode(), JsonHelper.toJson(mqBody));
-            throw new JyBizException();
-        }
         entity.setStartSiteId(currSite.getSiteCode());
         entity.setStartSiteName(mqBody.getStartNodeName());
         entity.setFlightNumber(mqBody.getFlightNumber());
@@ -297,11 +292,11 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
                 }
             }
             if(Objects.isNull(nextSiteId)) {
-                log.warn("航空计划(订舱号：{})生成发货任务根据流向场地编码【{}】查询场地为空", entity.getBookingCode(), JsonHelper.toJson(nextSiteSet));
+                log.error("航空计划(订舱号：{})生成发货任务根据流向场地编码【{}】查询场地为空", entity.getBookingCode(), JsonHelper.toJson(nextSiteSet));
                 throw new JyBizIgnoreException("航空计划生成发货任务没有找到流向，无效计划");
             }
             if(nextSiteSet.size() > 1) {
-                log.warn("航空发货任务【订舱号：{}】查找路由运力找到多个目的地{}，取任一个【{}|{}】", entity.getBookingWeight(), JsonHelper.toJson(nextSiteSet), nextSiteId, nextSiteName);
+                log.error("航空发货任务【订舱号：{}】查找路由运力找到多个目的地{}，取任一个【{}|{}】", entity.getBookingWeight(), JsonHelper.toJson(nextSiteSet), nextSiteId, nextSiteName);
             }
         }catch (Exception ignoreEx) {
             log.error("订舱号={}，查询航空计划发货目的流向服务时出错，errMsg={}", entity.getBookingCode(), ignoreEx.getMessage(), ignoreEx);

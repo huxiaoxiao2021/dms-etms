@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.jd.bluedragon.distribution.jy.dao.summary.JyStatisticsSummaryDao" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.summary.JySealStatisticsSummaryDao" >
   <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity" >
     <id column="id" property="id" jdbcType="BIGINT" />
     <result column="business_key" property="businessKey" jdbcType="VARCHAR" />
@@ -30,7 +30,7 @@
   </sql>
 
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity" >
-    insert into jy_statistics_summary (
+    insert into jy_seal_statistics_summary (
       business_key, business_key_type, source, operate_site_code, weight, volume,
     item_num, seal_batch_code_num, seal_bind_aviation_task_num, sub_business_num, transport_code,depart_time
     create_user_erp, create_user_name, update_user_erp,
@@ -45,7 +45,7 @@
       #{yn,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity" >
-    insert into jy_statistics_summary
+    insert into jy_seal_statistics_summary
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="businessKey != null" >
         business_key,
@@ -166,7 +166,7 @@
     SELECT
       <include refid="Base_Column_List" />
     FROM
-      jy_statistics_summary
+      jy_seal_statistics_summary
     WHERE
       yn = 1
       and business_key_type = #{businessKeyType}
@@ -182,7 +182,7 @@
     SELECT
       <include refid="Base_Column_List" />
     FROM
-      jy_statistics_summary
+      jy_seal_statistics_summary
     WHERE
       yn = 1
       and business_key_type = #{businessKeyType}

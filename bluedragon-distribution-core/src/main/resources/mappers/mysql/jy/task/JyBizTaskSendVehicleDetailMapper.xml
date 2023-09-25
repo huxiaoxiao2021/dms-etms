@@ -30,6 +30,7 @@
         <result property="excepLabel" column="excep_label"/>
         <result property="lineType" column="line_type"/>
         <result property="taskSimpleCode" column="task_simple_code"/>
+        <result property="taskType" column="task_type"/>
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
@@ -40,7 +41,8 @@
     <sql id="Base_Column_List">
         id, send_vehicle_biz_id, biz_id, trans_work_item_code, vehicle_status, start_site_id, start_site_name,
         end_site_id, end_site_name, plan_depart_time,come_time,near_come_time, seal_car_time,
-        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,excep_label,line_type,task_simple_code
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn,
+        ts,excep_label,line_type,task_simple_code, task_type
     </sql>
 
     <!-- todo 空铁需求：2023.08.07 发货表增加类型字段task_type（默认1：表示发车任务）， 根据业务场景使用不同类型隔离数据-->
@@ -416,7 +418,15 @@
         WHERE
             yn = 1
             AND start_site_id = #{entity.startSiteId}
-            <include refid="default_task_type_vehicle"/>
+            and task_type =
+                <choose>
+                    <when test="entity.taskType != null">
+                        #{entity.taskType}
+                    </when>
+                    <otherwise>
+                        1
+                    </otherwise>
+                </choose>
             <if test="entity.sendVehicleBizId != null">
                 AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
             </if>

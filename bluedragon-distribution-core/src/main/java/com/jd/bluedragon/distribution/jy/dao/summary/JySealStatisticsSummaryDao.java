@@ -6,9 +6,9 @@ import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 
 import java.util.List;
 
-public class JyStatisticsSummaryDao extends BaseDao<JyStatisticsSummaryEntity> {
+public class JySealStatisticsSummaryDao extends BaseDao<JyStatisticsSummaryEntity> {
 
-    private final static String NAMESPACE = JyStatisticsSummaryDao.class.getName();
+    private final static String NAMESPACE = JySealStatisticsSummaryDao.class.getName();
 
 //    int deleteByPrimaryKey(Long id){
 //        return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", id);

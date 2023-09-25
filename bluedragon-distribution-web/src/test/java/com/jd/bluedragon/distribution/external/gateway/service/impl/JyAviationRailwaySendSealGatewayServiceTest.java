@@ -372,19 +372,55 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         List<String> sealCodes = Arrays.asList("1111111111C","2222222222C","3333333333C");
         sealReq.setScanSealCodes(sealCodes);
 
+        String json = "    {\n" +
+                "        \"bizId\": \"SST23092500000032\",\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"dmsCode\": \"010K001\",\n" +
+                "            \"operateTime\": 1695636528602,\n" +
+                "            \"operatorId\": \"59942\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 6,\n" +
+                "            \"orgName\": \"华北\",\n" +
+                "            \"siteCode\": 65396,\n" +
+                "            \"siteName\": \"JD北京顺义分拣中心\"\n" +
+                "        },\n" +
+                "        \"departureTimeStr\": \"00:02\",\n" +
+                "        \"detailBizId\": \"TW23092500979878-001\",\n" +
+                "        \"groupCode\": \"G00000130001\",\n" +
+                "        \"itemNum\": 0,\n" +
+                "        \"palletCount\": 1,\n" +
+                "        \"post\": \"AVIATION_RAILWAY_SEND_SEAL_POSITION\",\n" +
+                "        \"requestId\": \"556f2202037945e6ad713dce4e11fc9a\",\n" +
+                "        \"scanBatchCodes\": [\n" +
+                "            \"65396-66316-20230924119443735\"\n" +
+                "        ],\n" +
+                "        \"scanSealCodes\": [],\n" +
+                "        \"transWay\": 2,\n" +
+                "        \"transWayName\": \"公路整车\",\n" +
+                "        \"transportCode\": \"T230925003960\",\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 18225,\n" +
+                "            \"userErp\": \"xumigen\",\n" +
+                "            \"userName\": \"徐迷根\"\n" +
+                "        },\n" +
+                "        \"vehicleNumber\": \"京F88882\",\n" +
+                "        \"volume\": 100,\n" +
+                "        \"weight\": 0\n" +
+                "    }";
         int i = 0;
         while (i++ < 100) {
-            JdCResponse<TransportDataDto> transportDataDtoJdCResponse = aviationRailwaySendSealGatewayService.scanAndCheckTransportInfo(request);
-            if(!transportDataDtoJdCResponse.isSucceed() || Objects.isNull(transportDataDtoJdCResponse.getData())) {
-                continue;
-            }
-            TransportDataDto transportDataDto = transportDataDtoJdCResponse.getData();
-
-
-            sealReq.setDepartureTimeStr(transportDataDto.getDepartureTimeStr());
-            sealReq.setTransWay(transportDataDto.getTransWay());
-            sealReq.setTransWayName(transportDataDto.getTransTypeName());
-            JdCResponse<Void> res = aviationRailwaySendSealGatewayService.shuttleTaskSealCar(sealReq);
+            ShuttleTaskSealCarReq param = JSONObject.parseObject(json, ShuttleTaskSealCarReq.class);
+//            JdCResponse<TransportDataDto> transportDataDtoJdCResponse = aviationRailwaySendSealGatewayService.scanAndCheckTransportInfo(param);
+//            if(!transportDataDtoJdCResponse.isSucceed() || Objects.isNull(transportDataDtoJdCResponse.getData())) {
+//                continue;
+//            }
+//            TransportDataDto transportDataDto = transportDataDtoJdCResponse.getData();
+//
+//
+//            sealReq.setDepartureTimeStr(transportDataDto.getDepartureTimeStr());
+//            sealReq.setTransWay(transportDataDto.getTransWay());
+//            sealReq.setTransWayName(transportDataDto.getTransTypeName());
+            JdCResponse<Void> res = aviationRailwaySendSealGatewayService.shuttleTaskSealCar(param);
             System.out.println("succ");
         }
 
@@ -421,21 +457,50 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         sealRequest.setVolume(12d);
         sealRequest.setItemNum(100);
 
+        String json = "{\n" +
+                "    \"bizId\": \"SST23092500000037\",\n" +
+                "    \"bookingCode\": \"DC23092100200517\",\n" +
+                "    \"currentOperate\": {\n" +
+                "        \"dmsCode\": \"010K001\",\n" +
+                "        \"operateTime\": 1695636843366,\n" +
+                "        \"operatorId\": \"59942\",\n" +
+                "        \"operatorTypeCode\": 1,\n" +
+                "        \"orgId\": 6,\n" +
+                "        \"orgName\": \"华北\",\n" +
+                "        \"siteCode\": 65396,\n" +
+                "        \"siteName\": \"JD北京顺义分拣中心\"\n" +
+                "    },\n" +
+                "    \"departureTimeStr\": \"02:00:00\",\n" +
+                "    \"groupCode\": \"G00000130001\",\n" +
+                "    \"itemNum\": 0,\n" +
+                "    \"post\": \"AVIATION_RAILWAY_SEND_SEAL_POSITION\",\n" +
+                "    \"requestId\": \"85683a9cbb5047f5bc1de7be865af590\",\n" +
+                "    \"transportCode\": \"R2203172797800\",\n" +
+                "    \"user\": {\n" +
+                "        \"userCode\": 18225,\n" +
+                "        \"userErp\": \"xumigen\",\n" +
+                "        \"userName\": \"徐迷根\"\n" +
+                "    },\n" +
+                "    \"volume\": 0.1,\n" +
+                "    \"weight\": 1\n" +
+                "}";
+
         int i = 0;
         while (i++ < 100) {
+            AviationTaskSealCarReq param = JSONObject.parseObject(json, AviationTaskSealCarReq.class);
 
-            JdCResponse<TransportDataDto> transportDataDtoJdCResponse = aviationRailwaySendSealGatewayService.scanAndCheckTransportInfo(request);
-            if(!transportDataDtoJdCResponse.isSucceed() || Objects.isNull(transportDataDtoJdCResponse.getData())) {
-                continue;
-            }
-            TransportDataDto transportDataDto = transportDataDtoJdCResponse.getData();
+//            JdCResponse<TransportDataDto> transportDataDtoJdCResponse = aviationRailwaySendSealGatewayService.scanAndCheckTransportInfo(request);
+//            if(!transportDataDtoJdCResponse.isSucceed() || Objects.isNull(transportDataDtoJdCResponse.getData())) {
+//                continue;
+//            }
+//            TransportDataDto transportDataDto = transportDataDtoJdCResponse.getData();
+//
+//
+//            sealRequest.setDepartureTimeStr(transportDataDto.getDepartureTimeStr());
+//            sealRequest.setTransWay(transportDataDto.getTransWay());
+//            sealRequest.setTransWayName(transportDataDto.getTransTypeName());
 
-
-            sealRequest.setDepartureTimeStr(transportDataDto.getDepartureTimeStr());
-            sealRequest.setTransWay(transportDataDto.getTransWay());
-            sealRequest.setTransWayName(transportDataDto.getTransTypeName());
-
-            Object obj = aviationRailwaySendSealGatewayService.aviationTaskSealCar(sealRequest);
+            Object obj = aviationRailwaySendSealGatewayService.aviationTaskSealCar(param);
             System.out.println("succ");
         }
 
