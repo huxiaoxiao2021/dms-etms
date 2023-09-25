@@ -30,7 +30,7 @@ public interface DmsSortingService {
      * @param request
      * @return
      */
-    InvokeResult<String> bindingBoxMaterialPackageRelation(SortingRequestDto request);
+    InvokeResult<Boolean> bindingBoxMaterialPackageRelation(SortingRequestDto request);
 
     /**
      * 取消分拣
@@ -38,5 +38,5 @@ public interface DmsSortingService {
      * @param request
      * @return
      */
-    InvokeResult<String> cancelSorting(SortingRequestDto request);
+    InvokeResult<Boolean> cancelSorting(SortingRequestDto request);
 }

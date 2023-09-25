@@ -115,8 +115,8 @@ public class DmsSortingServiceImpl implements DmsSortingService {
      * @return
      */
     @Override
-    public InvokeResult<String> bindingBoxMaterialPackageRelation(SortingRequestDto request) {
-        InvokeResult<String> result = new InvokeResult<String>();
+    public InvokeResult<Boolean> bindingBoxMaterialPackageRelation(SortingRequestDto request) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(request == null){
             result.parameterError("入参为空");
             return result;
@@ -147,6 +147,7 @@ public class DmsSortingServiceImpl implements DmsSortingService {
             result.parameterError(taskResponse.getMessage());
             return result;
         }
+        result.setData(Boolean.TRUE);
         return result;
     }
 
@@ -191,8 +192,8 @@ public class DmsSortingServiceImpl implements DmsSortingService {
      * @return
      */
     @Override
-    public InvokeResult<String> cancelSorting(SortingRequestDto request) {
-        InvokeResult<String> result = new InvokeResult<String>();
+    public InvokeResult<Boolean> cancelSorting(SortingRequestDto request) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(request == null){
             result.parameterError("入参为空");
             return result;
@@ -239,6 +240,7 @@ public class DmsSortingServiceImpl implements DmsSortingService {
             if (!JdResponse.CODE_OK.equals(sr.getCode())) {
                 result.parameterError(sr.getMessage());
             }
+            result.setData(Boolean.TRUE);
         } catch (Exception e) {
             logger.error("{}取消分拣服务异常",request.getPackageCode(), e);
             result.parameterError(SortingResponse.MESSAGE_SORTING_RECORD_NOT_FOUND);
