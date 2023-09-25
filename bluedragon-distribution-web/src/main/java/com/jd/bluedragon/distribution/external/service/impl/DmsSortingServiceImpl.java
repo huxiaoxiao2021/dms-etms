@@ -105,6 +105,7 @@ public class DmsSortingServiceImpl implements DmsSortingService {
         for(Sorting temp : sortingList){
             SortingDto dto = new SortingDto();
             BeanUtils.copyProperties(temp,dto);
+            result.add(dto);
         }
         return result;
     }
