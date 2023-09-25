@@ -2092,17 +2092,6 @@ public class Constants {
     public static final Integer CHANGE_WAYBILL_OPERATE_SOURCE_SORT_CENTER =2;
 
     /**
-     *  逆向原因编码
-     *
-     * 1-拦截逆向
-     *
-     * 2-拒收逆向
-     *
-     * 3-清关逆向
-     */
-    public static final Integer INTERCEPT_REVERSE_CODE_1 = 1;
-
-    /**
      * 运单全程跟踪记录类型-包裹维度记录包裹全程跟踪 （packageBarCode为包裹号)
      */
     public static final Integer  WAYBILL_TRACE_TYPE_PACKAGE =3;
