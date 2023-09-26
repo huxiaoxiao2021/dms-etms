@@ -258,7 +258,7 @@ public class AmazonS3ClientWrapper implements InitializingBean {
         if (!isExists(folder,fileName)) {
             return null;
         }
-        URL url = amazonS3.getUrl(bucketName,spliceFolderFileName(folder,fileName));
+        URL url = this.generatePresignedUrl(365,bucketName,spliceFolderFileName(folder,fileName));
         log.info("云oss-getUrl查询图片链接[{}]url[{}]",fileName,url.toString());
         return url;
     }
