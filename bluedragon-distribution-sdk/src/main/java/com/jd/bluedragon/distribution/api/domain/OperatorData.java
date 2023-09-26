@@ -30,6 +30,10 @@ public class OperatorData implements Serializable{
      * 网格key:关联场地网格业务主键
      */
     private String workGridKey;
+    /**
+     * 网格工序key:关联场地网格工序业务主键
+     */
+    private String workStationGridKey;
 	
 	public Integer getOperatorTypeCode() {
 		return operatorTypeCode;
@@ -66,6 +70,12 @@ public class OperatorData implements Serializable{
 	}	
 	public void setWorkGridKey(String workGridKey) {
 		this.workGridKey = workGridKey;
+	}
+	public String getWorkStationGridKey() {
+		return workStationGridKey;
+	}
+	public void setWorkStationGridKey(String workStationGridKey) {
+		this.workStationGridKey = workStationGridKey;
 	}
 	
 }
