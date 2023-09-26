@@ -1064,6 +1064,10 @@ public class HintCodeConstants {
 
     public static String ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG ="【%s】 已被限制入场，请勿安排该员工在场内作业！";
 
+    public static String EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT = "40030";
+
+    public static String EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG = "“该单未发起拦截，请正常下传！";
+
     // 请扫描正确的循环集包袋编码 20098
     public static String CYCLE_BOX_RULE_ERROR = "20098";
 

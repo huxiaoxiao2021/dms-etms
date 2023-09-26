@@ -1870,7 +1870,8 @@ public class WaybillResource {
 	private Integer queryReverseReasonCode(String waybillCode) {
 		// 外单逆向换单
 		// 1、港澳单-默认设置1（拦截逆向）；全程跟踪节点是-3040|700节点则设置3（清关逆向）
-		// 2、非港澳单-默认不设置
+		// 2、快运单子-默认设置1
+		// 3、其它-默认不设置
 		com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
 		if(waybill != null && waybill.getWaybillExt() != null
 				&& BusinessUtil.isGAWaybill(waybill.getWaybillExt().getStartFlowDirection(), waybill.getWaybillExt().getEndFlowDirection())){
@@ -1878,6 +1879,9 @@ public class WaybillResource {
 				// fill reverseReasonCode
 				return Constants.INTERCEPT_REVERSE_CODE_3;
 			}
+			return Constants.INTERCEPT_REVERSE_CODE_1;
+		}
+		if(waybill != null && BusinessUtil.isKyWaybillOfReverseExchange(waybill.getWaybillSign())){
 			return Constants.INTERCEPT_REVERSE_CODE_1;
 		}
 		return null;

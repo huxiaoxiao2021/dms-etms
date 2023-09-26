@@ -1502,6 +1502,11 @@ public class UccPropertyConfiguration{
      */
     private Integer fetchCarDistributionTimeRange;
 
+    /**
+     * 外单逆向换单次数
+     */
+    private Integer reverseExchangeCount;
+
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
     }
@@ -3973,5 +3978,13 @@ public class UccPropertyConfiguration{
 
     public void setContrabandWaybillCacheTime(int contrabandWaybillCacheTime) {
         this.contrabandWaybillCacheTime = contrabandWaybillCacheTime;
+    }
+
+    public Integer getReverseExchangeCount() {
+        return reverseExchangeCount;
+    }
+
+    public void setReverseExchangeCount(Integer reverseExchangeCount) {
+        this.reverseExchangeCount = reverseExchangeCount;
     }
 }

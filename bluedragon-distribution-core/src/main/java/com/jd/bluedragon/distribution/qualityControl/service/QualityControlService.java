@@ -54,8 +54,12 @@ import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillExt;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import com.jd.ldop.business.api.AbnormalOrderApi;
 import com.jd.ldop.business.api.dto.request.AbnormalOrderDTO;
@@ -273,15 +277,19 @@ public class QualityControlService {
                 return result;
             }
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
-            final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(WaybillUtil.getWaybillCode(request.getQcValue()));
-            String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG, HintCodeConstants.EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE);
-            if (CollectionUtils.isEmpty(waybillCancelList)) {
-                return result.toFail(tipMsg);
+            String waybillCode=WaybillUtil.getWaybillCode(request.getQcValue());
+            final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(waybillCode);
+            if(isExistOldWaybillCode(waybillCode) || CollectionUtils.isNotEmpty(waybillCancelList)){
+                return result;
             }
+            String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG, HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT);
+            return result.toFail(tipMsg);
+            // 运单拦截中心下发的存在全部拦截。如果需要判断存在部分拦截则放开下面注释代码
+           /*
             final long matchCount = waybillCancelList.parallelStream().filter(item -> uccPropertyConfiguration.matchExceptionSubmitCheckWaybillInterceptType(item.getInterceptType())).count();
             if(matchCount <= 0){
                 return result.toFail(tipMsg);
-            }
+            }*/
             // 增加取消拦截校验
         } catch (Exception e) {
             log.error("checkCanSubmit exception {}", JsonHelper.toJson(request), e);
@@ -1071,5 +1079,21 @@ public class QualityControlService {
         task.setOwnSign(BusinessHelper.getOwnSign());
         return task;
     }
-
+    private  boolean isExistOldWaybillCode(String waybillCode){
+        //根据运单号校验是否存在原单号(是否是逆向单)，如果是 则可以正常提交异常处理，否则进行拦截校验
+        boolean flag=false;
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillE(true);
+        wChoice.setQueryWaybillM(true);
+        wChoice.setQueryWaybillExtend(true);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
+        if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null && baseEntity.getData().getWaybill().getWaybillExt() !=null) {
+            WaybillExt waybillExt=baseEntity.getData().getWaybill().getWaybillExt();
+            if(StringUtils.isNotBlank(waybillExt.getOldWaybillCode())){
+                flag=true;
+            }
+        }
+        return flag;
+    }
 }
