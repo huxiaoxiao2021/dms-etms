@@ -77,28 +77,6 @@ public class JssServiceImpl implements JssService {
     }
 
     @Override
-    public URI getURI(String bucket, String keyName, int timeout) throws JssStorageException {
-        try {
-            URL url = dmswebAmazonS3ClientWrapper.getUrl(bucket,keyName);
-            if(url != null){
-                return URI.create(url.toString());
-            }
-            return null;
-        } catch (Exception e) {
-            throw new JssStorageException("[JSS存储服务]调用JSS服务异常", e);
-        }
-    }
-
-    @Override
-    public String getPublicBucketUrl(String bucket, String keyName) {
-        URL wrapperUrl = dmswebAmazonS3ClientWrapper.getUrl(bucket,keyName);
-        if(wrapperUrl != null){
-            return wrapperUrl.toString();
-        }
-        return null;
-    }
-
-    @Override
     public String uploadImage(String bucket, byte[] bytes) {
         return uploadFile(bucket, bytes, "jpg");
     }
