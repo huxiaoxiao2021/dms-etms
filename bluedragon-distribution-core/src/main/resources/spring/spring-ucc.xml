@@ -73,7 +73,7 @@
         <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
 		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites:1}" />
-        <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
+        <property name="clickIntervalSecond" value="${clickIntervalSecond:5}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites:1}" />
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
 		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
@@ -300,6 +300,9 @@
 		<property name="cttGroupDataLimit" value="${cttGroupDataLimit:200}"/>
 		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
 		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
+
+		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
+		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
 		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -588,6 +591,9 @@
 				<value>uccPropertyConfiguration.cttGroupDataLimit</value>
 				<value>uccPropertyConfiguration.qingChangDataOpenSwitch</value>
 				<value>uccPropertyConfiguration.jySendSpecialProductTypeToScanShowRemainMinutes</value>
+
+				<value>uccPropertyConfiguration.checkAkboxConfig</value>
+				<value>uccPropertyConfiguration.printCacheTime</value>
 				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
 				<value>uccPropertyConfiguration.jyExceptionCreateBizIdSwitch</value>
 				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
