@@ -414,17 +414,16 @@ public class CacheKeyConstants {
     public static final String JY_SEND_PREDICT_AGG_LOCK_KEY = JY_CACHE_PREFIX + "jySendPredictAggLock:%s";
 
     /**
-     * 拣运波次发货统计锁key
-     */
-    public static final String JY_SEND_PREDICT_AGG_KEY = JY_CACHE_PREFIX + "jySendPredictAgg:%s";
-
-
-
-    /**
      * 亚运会安检运单缓存
      */
     public static final String CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL = "AsiaSportSecurityCheckWaybill:%s";
     public static final int CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL_TIMEOUT = 5;
+
+    /**
+     * 拣运波次发货统计锁key
+     */
+    public static final String JY_SEND_PREDICT_AGG_KEY = JY_CACHE_PREFIX + "jySendPredictAgg:%s";
+
 
     /**
      * 拣运-违禁品运单全程跟踪Key

@@ -80,6 +80,8 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      */
     private boolean needSkipWeakIntercept;
 
+    private boolean needIntercept;
+
     public boolean getNeedSkipWeakIntercept() {
         return needSkipWeakIntercept;
     }
@@ -222,5 +224,13 @@ public class ComboardScanReq extends BaseReq implements Serializable {
 
     public void setScanDetailCount(Integer scanDetailCount) {
         this.scanDetailCount = scanDetailCount;
+    }
+
+    public boolean getNeedIntercept() {
+        return needIntercept;
+    }
+
+    public void setNeedIntercept(boolean needIntercept) {
+        this.needIntercept = needIntercept;
     }
 }

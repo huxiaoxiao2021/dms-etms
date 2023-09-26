@@ -1145,7 +1145,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   //是否需要强拦截提醒
   private boolean checkIntercept(ComboardScanReq request) {
-    if (ucc.getInterceptBlackList().equals(Constants.TOTAL_URL_INTERCEPTOR) || checkContainsCurrentSite(request)){
+    if ((ucc.getInterceptBlackList().equals(Constants.TOTAL_URL_INTERCEPTOR) || checkContainsCurrentSite(request)) && request.getNeedIntercept()){
       return true;
     }
     return false;
@@ -1714,7 +1714,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (ObjectHelper.isNotNull(entity)) {
       Date comboardTime = entity.getCreateTime();
       if (comboardTime != null && System.currentTimeMillis() - comboardTime.getTime() <=  ucc.getReComboardTimeLimit() * 3600L * 1000L) {
-        log.error("组板失败：该单号以及组过板，{}", JsonHelper.toJson(entity));
+        log.warn("组板失败：该单号以及组过板，{}", JsonHelper.toJson(entity));
         throw new JyBizException("该单号已组过板");
       }
     }
@@ -1805,6 +1805,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
             throw new JyBizException(InvokeResult.COMBOARD_SCAN_WEAK_INTECEPTER_CODE,chainResp.getMessage());
           }
         }
+        request.setNeedIntercept(true);
         throw new JyBizException(chainResp.getMessage());
       }
     }
@@ -1962,6 +1963,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         if (interceptResult.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
           throw new JyBizException(InvokeResult.COMBOARD_SCAN_WEAK_INTECEPTER_CODE,interceptResult.getMessage());
         }
+        request.setNeedIntercept(true);
         throw new JyBizException(interceptResult.getMessage());
       }
     }

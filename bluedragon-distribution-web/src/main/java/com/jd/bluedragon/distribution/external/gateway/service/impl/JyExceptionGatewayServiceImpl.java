@@ -259,7 +259,6 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     public JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req) {
         return jySanwuExceptionService.getAssignExpTaskCount(req);
     }
-
     @Override
     public JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req) {
         return jyDamageExceptionService.processTaskOfDamage(req);
@@ -297,7 +296,6 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
         jyDamageExceptionService.dealCustomerReturnDamageResult(returnMQ);
         return JdCResponse.ok();
     }
-
 
     @Override
     public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {

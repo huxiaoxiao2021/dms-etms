@@ -527,6 +527,16 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     private ImmutablePair<String, Integer> queryBatchInnerScanCount(JyStrandReportScanReq scanRequest, Integer nextSiteCode) {
         String sendCode = null;
+        //操作单位编号
+        if(ObjectHelper.isEmpty(scanRequest.getCurrentOperate())){
+            logger.warn("参数错误-操作人员不能为空!",JsonHelper.toJson(scanRequest.getCurrentOperate()));
+            return null;
+        }
+        //操作单位编号
+        if(ObjectHelper.isEmpty(scanRequest.getCurrentOperate().getSiteCode())){
+            logger.warn("参数错误-操作单位编号不能为空! {}",scanRequest.getCurrentOperate().getSiteCode());
+            return null;
+        }
         //获取批次号
         sendCode = getScanSendCode(scanRequest);
         //校验批次号
@@ -712,16 +722,6 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         strandTaskCheck(request.getBizId(), result);
         if(!result.codeSuccess()){
            return result; 
-        }
-        //操作单位编号
-        if(ObjectHelper.isEmpty(request.getCurrentOperate())){
-            result.parameterError("参数错误-操作人不能为空!");
-            return result;
-        }
-        //操作单位编号
-        if(ObjectHelper.isEmpty(request.getCurrentOperate().getSiteCode())){
-            result.parameterError("参数错误-操作单位编号不能为空!");
-            return result;
         }
         return result;
     }

@@ -1554,6 +1554,10 @@ public class Constants {
     public static final int  ALL_MAIL_CACHE_SECONDS = 5;
 
     /**
+     * 常量值：0
+     * */
+    public static final int  CONSTANT_NUMBER_ZERO = 0;
+    /**
      * 常量值：1
      * */
     public static final int  CONSTANT_NUMBER_ONE = 1;
@@ -2134,9 +2138,4 @@ public class Constants {
     public static final Integer  WAYBILL_TRACE_DISPLAY =1;
 
 
-
-    /**
-     * 运输内网账号类型
-     */
-    public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
 }

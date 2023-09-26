@@ -951,6 +951,7 @@
         <property name="timeout" value="3000"/>
     </bean>
 
+
     <!-- 违禁品上报处理 -->
     <bean id="jyExceptionContrabandUploadProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.exception.contraband.upload}"/>
@@ -974,4 +975,5 @@
         <property name="topic" value="${jmq.topic.jyComboardTaskFirstSave}" />
         <property name="timeout" value="3000" />
     </bean>
+
 </beans>
