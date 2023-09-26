@@ -52,6 +52,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
@@ -908,7 +909,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         unloadScanDto.setGroupCode(request.getGroupCode());
         unloadScanDto.setTaskId(request.getTaskId());
-
+        unloadScanDto.setOperatorData(BeanConverter.convertToOperatorData(request.getCurrentOperate()));
         return unloadScanDto;
     }
 

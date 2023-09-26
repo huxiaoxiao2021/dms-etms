@@ -388,6 +388,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         inspectionVO.setUserName(unloadScanDto.getCreateUserName());
 
         inspectionVO.setOperateTime(DateHelper.formatDateTime(unloadScanDto.getOperateTime()));
+        inspectionVO.setOperatorData(unloadScanDto.getOperatorData());
         return inspectionService.addInspection(inspectionVO, InspectionBizSourceEnum.JY_UNLOAD_INSPECTION);
     }
 
