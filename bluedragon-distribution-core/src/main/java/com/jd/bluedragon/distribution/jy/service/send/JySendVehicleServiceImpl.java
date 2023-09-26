@@ -1718,7 +1718,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (!sendRequestBaseCheck(result, request)) {
             return result;
         }
-        JyBizTaskSendVehicleEntity taskSend = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
+
+        JyBizTaskSendVehicleEntity taskSend = this.getSendVehicleByBizId(request.getSendVehicleBizId());
         if (taskSend == null) {
             result.toFail("发货任务不存在！");
             return result;
@@ -1735,7 +1736,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         String barCode = request.getBarCode();
         SendKeyTypeEnum sendType = getSendType(barCode);
         // 获取本次扫描匹配的发货目的地
-        List<JyBizTaskSendVehicleDetailEntity> taskSendDetails = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
+        List<JyBizTaskSendVehicleDetailEntity> taskSendDetails = this.getSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
         Set<Long> allDestId = new HashSet<>();
         for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
             allDestId.add(sendDetail.getEndSiteId());
@@ -1862,6 +1863,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
         return result;
+    }
+
+     public List<JyBizTaskSendVehicleDetailEntity> getSendVehicleDetail(JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailEntity) {
+        return taskSendVehicleDetailService.findEffectiveSendVehicleDetail(jyBizTaskSendVehicleDetailEntity);
+    }
+
+    public JyBizTaskSendVehicleEntity getSendVehicleByBizId(String sendVehicleBizId) {
+        return taskSendVehicleService.findByBizId(sendVehicleBizId);
     }
 
     void asyncProductOperateProgress(JyBizTaskSendVehicleEntity taskSend) {
@@ -2143,7 +2152,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return req;
     }
 
-    private void updateSendVehicleStatus(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail) {
+    public void updateSendVehicleStatus(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail) {
         taskSend.setUpdateTime(new Date());
         taskSend.setUpdateUserErp(request.getUser().getUserErp());
         taskSend.setUpdateUserName(request.getUser().getUserName());
@@ -2698,7 +2707,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return false;
         }
 
-        Integer existSendDetail = taskSendVehicleDetailService.countByCondition(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
+        Integer existSendDetail = getTaskSendDetailCount(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
         if (!NumberHelper.gt0(existSendDetail)) {
             // 无任务发货未确认目的地信息
             if (taskSend.manualCreatedTask()) {
@@ -2793,6 +2802,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
         return true;
+    }
+
+    public Integer getTaskSendDetailCount(JyBizTaskSendVehicleDetailEntity detail) {
+        return taskSendVehicleDetailService.countByCondition(detail);
     }
 
     private void businessTips(SendScanRequest request, JdVerifyResponse<SendScanResponse> response){

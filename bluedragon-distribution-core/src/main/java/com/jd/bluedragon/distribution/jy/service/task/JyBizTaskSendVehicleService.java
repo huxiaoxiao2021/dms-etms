@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizSendTaskAssociationDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
@@ -10,6 +11,12 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import java.util.List;
 
 public interface JyBizTaskSendVehicleService {
+
+    /**
+     * 获取任务bizId
+     * @return
+     */
+    String genMainTaskBizId();
     /**
      * 根据bizId获取数据
      * @return
@@ -47,6 +54,12 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
     int initTaskSendVehicle(JyBizTaskSendVehicleEntity entity);
+    /**
+     * 初始化——航空发货任务
+     * @param entity
+     * @return
+     */
+    int initAviationTaskSendVehicle(JyBizTaskSendVehicleEntity entity);
 
     /**
      * 按状态统计发货任务数量
@@ -169,4 +182,31 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
     List<JyBizTaskSendVehicleEntity> findSendTaskByDestAndStatusesWithPage(JyBizTaskSendVehicleDetailQueryEntity entity, List<Integer> statuses, Integer pageNum, Integer pageSize);
+
+    /**
+     * 根据订舱号查询发货任务
+     * @param bookingCode
+     * @return
+     */
+    JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode, Long startSiteId);
+
+    /**
+     * 根据订舱号查询发货任务, 忽略yn
+     * @param bookingCode
+     * @return
+     */
+    JyBizTaskSendVehicleEntity findByBookingCodeIgnoreYn(String bookingCode, Long startSiteId);
+
+    /**
+     * 关联查询，查询条件内子任务数量
+     * @param entity
+     * @return
+     */
+    Integer countDetailSendTaskByCondition(JyBizTaskSendVehicleDetailEntity entity);
+    /**
+     * 关联查询，查询符合条件的子任务信息
+     * @param entity
+     * @return
+     */
+    List<JyBizSendTaskAssociationDto> pageFindDetailSendTaskByCondition(JyBizTaskSendVehicleDetailQueryEntity entity, Integer pageNo, Integer pageSize);
 }

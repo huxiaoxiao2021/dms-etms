@@ -169,6 +169,16 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	 */
 	private List<Integer> lineTypeList;
 
+	private List<String> bizIdList;
+
+	private List<Integer> statusList;
+
+	/**
+	 * 任务分类
+	 * JySendTaskTypeEnum
+	 */
+	private Integer taskType;
+
 	public String getTaskSimpleCode() {
 		return taskSimpleCode;
 	}
@@ -442,5 +452,29 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	public void setLineTypeList(List<Integer> lineTypeList) {
 		this.lineTypeList = lineTypeList;
+	}
+
+	public List<String> getBizIdList() {
+		return bizIdList;
+	}
+
+	public void setBizIdList(List<String> bizIdList) {
+		this.bizIdList = bizIdList;
+	}
+
+	public List<Integer> getStatusList() {
+		return statusList;
+	}
+
+	public void setStatusList(List<Integer> statusList) {
+		this.statusList = statusList;
+	}
+
+	public Integer getTaskType() {
+		return taskType;
+	}
+
+	public void setTaskType(Integer taskType) {
+		this.taskType = taskType;
 	}
 }
