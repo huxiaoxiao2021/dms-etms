@@ -37,7 +37,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.seal.JySeaCarlCacheService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
-import com.jd.bluedragon.distribution.jy.service.summary.JyStatisticsSummaryService;
+import com.jd.bluedragon.distribution.jy.service.summary.JySealStatisticsSummaryService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskBindService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -50,8 +50,7 @@ import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
-import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -129,7 +128,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Qualifier("sendVehicleTransactionManager")
     private SendVehicleTransactionManager sendVehicleTransactionManager;
     @Autowired
-    private JyStatisticsSummaryService statisticsSummaryService;
+    private JySealStatisticsSummaryService statisticsSummaryService;
     @Autowired
     private JySendSealCodeService jySendSealCodeService;
     @Autowired
@@ -143,7 +142,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Autowired
     private JdiQueryWSManager jdiQueryWSManager;
     @Autowired
-    private SendDatailDao sendDatailDao;
+    private SendMDao sendMDao;
     @Autowired
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
@@ -404,7 +403,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 continue;
             }
             transportDataDto.setTransportCode(airLineResp.getLineCode());
-            transportDataDto.setDepartureTimeStr(airLineResp.getDepartTime());
+            transportDataDto.setDepartureTimeStr(this.convertSendTime(airLineResp));
             transportDataDto.setFocusFlag(false);
             transportDataDtoList.add(transportDataDto);
         };
@@ -421,6 +420,21 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
         resData.setTransportInfoDtoList(transportDataDtoList);
         return res;
+    }
+
+    private String convertSendTime(AirLineResp airLineResp) {
+        if(Objects.isNull(airLineResp)) {
+            return StringUtils.EMPTY;
+        }
+        if(StringUtils.isNotBlank(airLineResp.getDepartTime())) {
+            try{
+                String[] timeArr = airLineResp.getDepartTime().split(DmsConstants.KEYS_SPLIT);
+                return String.format("%s:%s", timeArr[0], timeArr[1]);
+            }catch (Exception e){
+                log.warn("运力编码{}查询发车时间{}异常", airLineResp.getLineCode(), airLineResp.getDepartTime());
+            }
+        }
+        return StringUtils.EMPTY;
     }
 
     private String getFocusLineCode(List<TransportDataDto> transportDataDtoList) {
@@ -1617,10 +1631,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 resData.setVolume(bdVolume.doubleValue());
             }
         }
-        SendDetail sendDetail = new SendDetail();
-        sendDetail.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
-        sendDetail.setSendCode(request.getSendCode());
-        Integer itemNum = sendDatailDao.countBoxCodeSingleBySendCode(sendDetail);
+        Integer itemNum = sendMDao.countBoxCodeNumBySendCode(request.getSendCode(), request.getCurrentOperate().getSiteCode());
         if(NumberHelper.gt0(itemNum)) {
             resData.setItemNum(itemNum);
         }

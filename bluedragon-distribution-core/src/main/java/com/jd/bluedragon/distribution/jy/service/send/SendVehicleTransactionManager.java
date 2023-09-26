@@ -21,7 +21,7 @@ import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
-import com.jd.bluedragon.distribution.jy.service.summary.JyStatisticsSummaryService;
+import com.jd.bluedragon.distribution.jy.service.summary.JySealStatisticsSummaryService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
@@ -35,7 +35,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
@@ -108,7 +107,7 @@ public class SendVehicleTransactionManager {
     private SendVehicleTransactionManager sendVehicleTransactionManager;
 
     @Autowired
-    private JyStatisticsSummaryService statisticsSummaryService;
+    private JySealStatisticsSummaryService statisticsSummaryService;
 
 
 
@@ -431,6 +430,7 @@ public class SendVehicleTransactionManager {
         sendStatusQ.setUpdateTime(sendDetail.getUpdateTime());
         sendStatusQ.setUpdateUserName(sendDetail.getUpdateUserName());
         sendStatusQ.setUpdateUserErp(sendDetail.getUpdateUserErp());
+        sendStatusQ.setTaskType(sendDetail.getTaskType());
         // 封车时更新发货任务最晚封车时间
         if (JyBizTaskSendDetailStatusEnum.SEALED.equals(updateStatus)) {
             sendStatusQ.setLastSealCarTime(this.getLastSealCarTime(sendStatusQ));
@@ -440,6 +440,7 @@ public class SendVehicleTransactionManager {
 
     private Date getLastSealCarTime(JyBizTaskSendVehicleEntity taskSend) {
         JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(taskSend.getStartSiteId(), taskSend.getBizId());
+        detailQ.setTaskType(taskSend.getTaskType());
         List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);
         Date lastSealCarTime = vehicleDetailList.get(0).getSealCarTime();
         for (JyBizTaskSendVehicleDetailEntity detailEntity : vehicleDetailList) {

@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.summary.impl;
 
-import com.jd.bluedragon.distribution.jy.dao.summary.JyStatisticsSummaryDao;
-import com.jd.bluedragon.distribution.jy.service.summary.JyStatisticsSummaryService;
+import com.jd.bluedragon.distribution.jy.dao.summary.JySealStatisticsSummaryDao;
+import com.jd.bluedragon.distribution.jy.service.summary.JySealStatisticsSummaryService;
 import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryCondition;
 import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -19,11 +19,11 @@ import java.util.List;
  */
 @Slf4j
 @Service
-public class JyStatisticsSummaryServiceImpl implements JyStatisticsSummaryService {
+public class JySealStatisticsSummaryServiceImpl implements JySealStatisticsSummaryService {
 
 
     @Autowired
-    private JyStatisticsSummaryDao statisticsSummaryDao;
+    private JySealStatisticsSummaryDao statisticsSummaryDao;
 
     @Override
     public int insertSelective(JyStatisticsSummaryEntity entity) {

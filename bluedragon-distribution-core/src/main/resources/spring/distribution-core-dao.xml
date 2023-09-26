@@ -960,7 +960,7 @@
     <bean id="jyBizTaskBindDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskBindDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
-    <bean id="jyStatisticsSummaryDao" class="com.jd.bluedragon.distribution.jy.dao.summary.JyStatisticsSummaryDao">
+    <bean id="jyStatisticsSummaryDao" class="com.jd.bluedragon.distribution.jy.dao.summary.JySealStatisticsSummaryDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 </beans>

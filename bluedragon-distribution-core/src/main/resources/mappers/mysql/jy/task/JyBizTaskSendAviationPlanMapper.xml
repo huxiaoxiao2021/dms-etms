@@ -349,7 +349,7 @@
           and task_status = #{taskStatus}
           <include refid="list_query_condition" />
         group by
-            next_site_id,next_site_name
+            next_site_id
         limit #{pageSize}
     </select>
 
@@ -418,7 +418,7 @@
             jy_biz_task_send_aviation_plan
         where
             yn = 1
-            and task_status != 3
+            and task_status != #{taskStatus}
             and biz_id in
                 <foreach collection="bizIdList" separator="," open="(" close=")" item="item">
                     #{item}

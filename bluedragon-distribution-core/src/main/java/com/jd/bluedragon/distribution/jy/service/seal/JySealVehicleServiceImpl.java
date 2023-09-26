@@ -284,7 +284,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 }
                 return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
             } catch (Exception e) {
-                log.error("newSealVehicleService.seal封车异常", e);
+                log.error("newSealVehicleService.seal封车异常,request={},errMsg={}", JsonHelper.toJson(sealVehicleReq), e.getMessage(), e);
                 return new InvokeResult(COMMIT_SEAL_CAR_EXCEPTION_CODE, COMMIT_SEAL_CAR_EXCEPTION_MESSAGE);
             }
         }
@@ -1091,7 +1091,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         summaryEntity.setVolume(sealVehicleReq.getVolume());
         summaryEntity.setItemNum(sealVehicleReq.getItemNum());
         summaryEntity.setSealBatchCodeNum(batchCodes.size());
-        summaryEntity.setSubBusinessNum(1);
+        summaryEntity.setSubBusinessNum(Constants.NUMBER_ONE);
         summaryEntity.setTransportCode(sealVehicleReq.getTransportCode());
         summaryEntity.setCreateTime(time);
         summaryEntity.setUpdateTime(time);
@@ -1186,7 +1186,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         summaryEntity.setVolume(request.getVolume());
         summaryEntity.setItemNum(request.getItemNum());
         summaryEntity.setSealBatchCodeNum(batchCodes.size());
-        summaryEntity.setSubBusinessNum(1);
+        summaryEntity.setSubBusinessNum(Constants.NUMBER_ONE);
         summaryEntity.setTransportCode(request.getTransportCode());
         summaryEntity.setCreateTime(time);
         summaryEntity.setUpdateTime(time);
