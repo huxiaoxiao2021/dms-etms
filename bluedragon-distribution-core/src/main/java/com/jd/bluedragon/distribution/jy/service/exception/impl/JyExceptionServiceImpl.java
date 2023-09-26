@@ -871,9 +871,14 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Override
     public JdCResponse<ExpTaskDto> queryByBarcode(ExpReceiveReq req) {
         JdCResponse<ExpTaskDto> validateResult = this.validateExpReceiveReq(req);
-        if (validateResult != null) return validateResult;
-
-        String bizId = getBizId(req.getBarCode(), req.getSiteId());
+        if (validateResult != null){
+            return validateResult;
+        }
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            return JdCResponse.fail("岗位码有误!" + req.getPositionCode());
+        }
+        String bizId = getBizId(req.getBarCode(), position.getSiteCode());
         JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if (taskEntity == null) {
             return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
@@ -897,8 +902,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isBlank(req.getBarCode())) {
             return JdCResponse.fail("条形码不能为空!");
         }
-        if (req.getSiteId() == null) {
-            return JdCResponse.fail("场地id不能为空!");
+        if (req.getPositionCode() == null) {
+            return JdCResponse.fail("岗位码不能为空!");
         }
         return null;
     }
