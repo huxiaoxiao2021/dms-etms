@@ -116,45 +116,6 @@ public class JssServiceImpl implements JssService {
     }
 
     @Override
-    public URI getURI(String bucket, String keyName, int timeout) throws JssStorageException {
-        try {
-            URL url = dmswebAmazonS3ClientWrapper.getUrl(bucket,keyName);
-            if(url != null){
-                return URI.create(url.toString());
-            }
-            JingdongStorageService jss = jssStorageClient.getStorageService();
-            URI uri;
-            if (httpsSet.contains(jssStorageClient.getEndpoint())){
-                uri = jss.bucket(bucket).object(keyName).
-                        presignedUrlProtocol(Scheme.HTTPS).generatePresignedUrl(timeout);
-            }
-            else{
-                uri = jss.bucket(bucket).object(keyName).generatePresignedUrl(timeout);
-            }
-            if(log.isInfoEnabled()){
-                log.info("文件[{}]生成的URL为[{}]",keyName,uri);
-            }
-            return uri;
-        } catch (Exception e) {
-            throw new JssStorageException("[JSS存储服务]调用JSS服务异常", e);
-        }
-    }
-
-    @Override
-    public String getPublicBucketUrl(String bucket, String keyName) {
-        URL wrapperUrl = dmswebAmazonS3ClientWrapper.getUrl(bucket,keyName);
-        if(wrapperUrl != null){
-            return wrapperUrl.toString();
-        }
-        String url = "http://" + jssStorageClient.getEndpoint() + "/" + bucket + "/" + keyName;
-        if (httpsSet.contains(jssStorageClient.getEndpoint())){
-            url = "https://" + jssStorageClient.getEndpoint() + "/" + bucket + "/" + keyName;
-        }
-        log.info("文件 {} 生成的URL为 {}",keyName,url);
-        return url;
-    }
-
-    @Override
     public String uploadImage(String bucket, byte[] bytes) {
         return uploadFile(bucket, bytes, "jpg");
     }
