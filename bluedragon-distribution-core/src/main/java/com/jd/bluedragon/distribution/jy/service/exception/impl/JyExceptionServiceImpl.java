@@ -902,7 +902,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isBlank(req.getBarCode())) {
             return JdCResponse.fail("条形码不能为空!");
         }
-        if (req.getPositionCode() == null) {
+        if (StringUtils.isBlank(req.getPositionCode())) {
             return JdCResponse.fail("岗位码不能为空!");
         }
         return null;
