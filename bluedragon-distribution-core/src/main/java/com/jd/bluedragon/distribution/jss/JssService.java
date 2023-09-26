@@ -53,25 +53,6 @@ public interface JssService {
      */
     boolean exist(String bucket, String keyName) throws JssStorageException;
 
-    /**
-     * 根据keyName获取下载链接
-     *
-     * @param bucket
-     * @param keyName
-     * @param timeout
-     * @return
-     * @throws JssStorageException
-     */
-    URI getURI(String bucket, String keyName, int timeout) throws JssStorageException;
-
-    /**
-     * 公有bucket文件URL
-     *
-     * @param bucket
-     * @param keyName
-     * @return
-     */
-    String getPublicBucketUrl(String bucket, String keyName);
 
     /**
      * 上传图片
