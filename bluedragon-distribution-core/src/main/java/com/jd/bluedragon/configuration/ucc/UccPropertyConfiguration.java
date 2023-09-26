@@ -856,6 +856,29 @@ public class UccPropertyConfiguration {
 
     private String qingChangDataOpenSwitch;
 
+    public Boolean getCheckAkboxConfig() {
+        return checkAkboxConfig;
+    }
+
+    public void setCheckAkboxConfig(Boolean checkAkboxConfig) {
+        this.checkAkboxConfig = checkAkboxConfig;
+    }
+
+    public Long getPrintCacheTime() {
+        return printCacheTime;
+    }
+
+    public void setPrintCacheTime(Long printCacheTime) {
+        this.printCacheTime = printCacheTime;
+    }
+
+    /**
+     * 检查是否需要检查周转筐数量和实施数量对比
+     */
+    private Boolean checkAkboxConfig;
+
+    private Long printCacheTime;
+
     public String getQingChangDataOpenSwitch(){
         return qingChangDataOpenSwitch;
     }
@@ -993,7 +1016,7 @@ public class UccPropertyConfiguration {
     }
 
     public List<String> getNeedInterceptUrlList() {
-        return Lists.newArrayList(needInterceptUrlList);
+        return needInterceptUrlList;
     }
 
     public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -1593,6 +1616,16 @@ public class UccPropertyConfiguration {
      * 发货运输车辆靠台验证码允许访问上几次验证码个数
      */
     private Integer jyTransportSendVehicleValidateDockAllowRefreshTimes;
+
+    /**
+     * 异常破损任务客服未反馈时间（小时）
+     */
+    private int jyExceptionDamageTaskCustomerNotReturnHours;
+
+    /**
+     * 异常任务生成id开关
+     */
+    private boolean jyExceptionCreateBizIdSwitch;
 
     private String aggsDataSource;
 
@@ -3471,9 +3504,7 @@ public class UccPropertyConfiguration {
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
             if(first.isPresent()){
-                ClientAutoRefreshConfig config = new ClientAutoRefreshConfig();
-                BeanUtils.copyProperties(first.get(), config);
-                return config;
+                return first.get();
             }
         }
         return null;
@@ -3672,5 +3703,34 @@ public class UccPropertyConfiguration {
 
     public void setJySendSpecialProductTypeToScanShowRemainMinutes(Integer jySendSpecialProductTypeToScanShowRemainMinutes) {
         this.jySendSpecialProductTypeToScanShowRemainMinutes = jySendSpecialProductTypeToScanShowRemainMinutes;
+    }
+
+    public int getJyExceptionDamageTaskCustomerNotReturnHours() {
+        return jyExceptionDamageTaskCustomerNotReturnHours;
+    }
+
+    public void setJyExceptionDamageTaskCustomerNotReturnHours(int jyExceptionDamageTaskCustomerNotReturnHours) {
+        this.jyExceptionDamageTaskCustomerNotReturnHours = jyExceptionDamageTaskCustomerNotReturnHours;
+    }
+
+    public boolean isJyExceptionCreateBizIdSwitch() {
+        return jyExceptionCreateBizIdSwitch;
+    }
+
+    public void setJyExceptionCreateBizIdSwitch(boolean jyExceptionCreateBizIdSwitch) {
+        this.jyExceptionCreateBizIdSwitch = jyExceptionCreateBizIdSwitch;
+    }
+
+    /**
+     * 违禁品运单缓存时长
+     */
+    private int contrabandWaybillCacheTime;
+
+    public int getContrabandWaybillCacheTime() {
+        return contrabandWaybillCacheTime;
+    }
+
+    public void setContrabandWaybillCacheTime(int contrabandWaybillCacheTime) {
+        this.contrabandWaybillCacheTime = contrabandWaybillCacheTime;
     }
 }

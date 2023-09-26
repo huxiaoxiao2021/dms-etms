@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
 import com.jd.bluedragon.distribution.newseal.service.DmsSendRelationService;
@@ -199,6 +200,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     private AbnormalWayBillService abnormalWayBillService;
 
+    @Autowired
+    private JyDamageExceptionService jyDamageExceptionService;
+
     @Override
     public void consume(Message message) {
         if (!JsonHelper.isJsonString(message.getText())) {
@@ -210,6 +214,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         try {
             Long operateTime = context.getOperateTime();
             if (StringUtils.isNotEmpty(context.getPackageBarcode()) && operateTime != null && operateTime > 0) {
+                jyDamageExceptionService.dealDamageExpTaskStatus(context.getPackageBarcode(),context.getCreateSiteCode());
                 // 设置redis缓存锁
                 String lastOperateTime = this.setCacheLock(context);
                 if (lastOperateTime == null) {
