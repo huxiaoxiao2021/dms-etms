@@ -65,6 +65,7 @@
 	        AND package_code = #{packageCode}
 		    AND create_site_code = #{createSiteCode}
 			AND receive_site_code = #{receiveSiteCode}
+		order by operate_time desc
 		limit 10
 	</select>    
 	<!-- Author by lixin456 指定更新时使用索引 解决更新死锁问题 若对该表索引进行调整 请注意修改此处 -->
@@ -94,8 +95,11 @@
                 ,operator_id = #{operatorId,jdbcType=VARCHAR}
             </if>
 	    WHERE yn = 1
+	        AND box_code = #{boxCode}
+	        AND sorting_type = #{type}
+	        AND package_code = #{packageCode}
 		    AND create_site_code = #{createSiteCode}
-			AND sorting_id = #{id}
+			AND receive_site_code = #{receiveSiteCode}
     </update>
 
 	<select id="findSortingPackages" resultMap="sorting" parameterType="sorting">
@@ -316,16 +320,9 @@
 		<if test=" null!=receiveSiteCode and ''!=receiveSiteCode ">
 			AND receive_site_code = #{receiveSiteCode,jdbcType=VARCHAR}
 		</if>
+		order by operate_time desc
 		limit 10
 	</select>
-	<update id="canCancel2ById" parameterType="sorting">
-		UPDATE Sorting
-		SET is_cancel = 1, update_user_code = #{updateUserCode,jdbcType=INTEGER},
-		update_user = #{updateUser,jdbcType=VARCHAR}, update_time = NOW()
-		WHERE yn=1 AND is_cancel = 0
-		AND create_site_code = #{createSiteCode}
-		and SORTING_ID =#{id}
-	</update>	
 	<update id="canCancel2" parameterType="sorting">
 		UPDATE Sorting
 		SET is_cancel = 1, update_user_code = #{updateUserCode,jdbcType=INTEGER},

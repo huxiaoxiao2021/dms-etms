@@ -10,15 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.dao.common.JyOperateFlowDao;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 /**
  * 拣运-附件接口实现类
@@ -41,6 +43,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
     @Autowired
     UccPropertyConfiguration ucc;
     
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.insert", mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public int insert(JyOperateFlowDto data) {
 		if(data == null || StringUtils.isBlank(data.getOperateBizKey())) {
@@ -51,6 +54,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	}
 
 	@Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.sendMq", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public int sendMq(JyOperateFlowMqData mqData) {
 		if(!Boolean.TRUE.equals(ucc.getSendJyOperateFlowMqSwitch())) {
 			return 0;
@@ -58,7 +62,8 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 		jyOperateFlowMqProducer.sendOnFailPersistent(mqData.getOperateBizKey(), JsonHelper.toJson(mqData));
 		return 1;
 	}
-
+	
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.sendMqList", mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public int sendMqList(List<JyOperateFlowMqData> mqDataList) {
 		if(!Boolean.TRUE.equals(ucc.getSendJyOperateFlowMqSwitch())) {

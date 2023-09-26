@@ -415,19 +415,22 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
         if (inspection.getInspectionType().equals(Inspection.BUSSINESS_TYPE_THIRD_PARTY))
             this.thirdPartyWorker(inspection);
     }
-
 	public Integer insertOrUpdate(Inspection inspection) {
 		int result = Constants.NO_MATCH_DATA;
+		Long inspectionId = null;
 		List<Inspection> updateList = inspectionDao.queryInspectionForUpdate(inspection);
     	if(updateList != null && updateList.size() > 0) {
     		if(updateList.size() > 1) {
     			this.log.warn("inspectionServiceImpl.insertOrUpdate:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(inspection));
     		}
-    		inspection.setInspectionId(updateList.get(0).getInspectionId());
+    		inspectionId = updateList.get(0).getInspectionId();
     		result = inspectionDao.update(InspectionDao.namespace, inspection);
     	}
 		if (Constants.NO_MATCH_DATA == result) {
 			result = inspectionDao.add(InspectionDao.namespace, inspection);
+		}
+		if(inspectionId != null) {
+			inspection.setInspectionId(inspectionId);
 		}
 		return result;
 	}

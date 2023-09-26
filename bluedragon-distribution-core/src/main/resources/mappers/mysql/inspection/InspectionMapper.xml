@@ -467,6 +467,7 @@
         AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
         AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
         AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		order by operate_time desc
         limit 10
     </select>    
     <update id="update" parameterType="Inspection">
@@ -491,8 +492,19 @@
             </if>
         </set>
         WHERE yn = 1
+        <if test="null!=boxCode and ''!=boxCode">
+            AND box_code = #{boxCode}
+        </if>
+        <if test="null!=operateType">
+            AND operate_type = #{operateType,jdbcType=INTEGER}
+        </if>
+        AND inspection_type = #{inspectionType,jdbcType=INTEGER}
+        <if test="null!=waybillCode">
+            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        </if>
+        AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
         AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
-        AND inspection_id = #{inspectionId,jdbcType=BIGINT}
+        AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
     </update>
 
     <update id="updatePop" parameterType="Inspection">

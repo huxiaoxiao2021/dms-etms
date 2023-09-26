@@ -208,15 +208,20 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	public Integer update(Sorting sorting) {
-    	List<Sorting> updateList = sortingDao.querySortingForUpdate(sorting);
+    	Integer count = 0;
+    	Long sortingId = null;
+		List<Sorting> updateList = sortingDao.querySortingForUpdate(sorting);
     	if(updateList != null && updateList.size() > 0) {
     		if(updateList.size() > 1) {
     			this.log.warn("sortingServiceImpl.update:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sorting));
     		}
-    		sorting.setId(updateList.get(0).getId());
-    		return this.sortingDao.update(SortingDao.namespace, sorting);
-    	}		
-		return 0;
+    		sortingId = updateList.get(0).getId();
+    		count = this.sortingDao.update(SortingDao.namespace, sorting);
+    	}
+    	if(sortingId != null && count > 0) {
+    		sorting.setId(sortingId);
+    	}
+		return count;
 	}
 
 	public boolean existSortingByPackageCode(Sorting sorting) {
@@ -258,7 +263,7 @@ public class SortingServiceImpl implements SortingService {
 
 	public Boolean canCancelSorting2(Sorting sorting) {
 		//fixme sorting send_d 分布式事务问题
-		boolean result = this.sortingDao.canCancel2ById(sorting)
+		boolean result = this.sortingDao.canCancel2(sorting)
 				&& this.deliveryService.canCancel2(this.parseSendDetail(sorting));
 		if(log.isInfoEnabled()) {
 			log.info("SortingServiceImpl.canCancelSorting2取消发货处理取消建箱逻辑，sorting={},result={}", JsonHelper.toJson(sorting), result);

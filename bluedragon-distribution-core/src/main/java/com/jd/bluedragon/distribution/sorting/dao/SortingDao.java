@@ -40,21 +40,21 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
         Integer count = this.getSqlSession().update(namespace + ".canCancel", sorting);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
-    
-    public Boolean canCancel2ById(Sorting sorting) {
+
+    public Boolean canCancel2(Sorting sorting) {
     	Integer count = 0;
+    	Long sortingId = null;
     	List<Sorting> updateList = this.getSqlSession().selectList(namespace + ".querySortingForCanCancel2", sorting);
     	if(updateList != null && updateList.size() > 0) {
     		if(updateList.size() > 1) {
-    			this.log.warn("sortingServiceImpl.canCancel2ById:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sorting));
+    			this.log.warn("sortingServiceImpl.canCancel2:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sorting));
     		}
-    		sorting.setId(updateList.get(0).getId());
-            count = this.getSqlSession().update(namespace + ".canCancel2ById", sorting);
+    		sortingId = updateList.get(0).getId();
+            count = this.getSqlSession().update(namespace + ".canCancel2", sorting);
     	}
-        return count > 0 ? Boolean.TRUE : Boolean.FALSE;
-    }
-    public Boolean canCancel2(Sorting sorting) {
-        Integer count = this.getSqlSession().update(namespace + ".canCancel2", sorting);
+    	if(sortingId != null && count > 0) {
+    		sorting.setId(sortingId);
+    	}
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
 
