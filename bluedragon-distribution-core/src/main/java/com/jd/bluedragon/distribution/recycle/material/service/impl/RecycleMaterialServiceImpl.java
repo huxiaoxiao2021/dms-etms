@@ -590,8 +590,6 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         printInfo.setCreateSiteName(baseStaffSiteOrgDto.getSiteName());
         printInfo.setOrgAndSiteName(baseStaffSiteOrgDto.getProvinceAgencyName() + "-" + baseStaffSiteOrgDto.getSiteName());
         response.setData(printInfo);
-
-        redisCommonUtil.cacheDataEx("printCode-" +recycleBasketEntity.getRecycleBasketCode(), 1, uccPropertyConfiguration.getPrintCacheTime());
         return response;
     }
 
@@ -650,6 +648,8 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             recycleMaterial.setOperatorErp(recycleBasketEntity.getUserErp());
             recycleMaterial.setCreateUser(recycleBasketEntity.getUserErp());
             list.add(recycleMaterial);
+
+            redisCommonUtil.cacheDataEx("printCode-" + code, 1, uccPropertyConfiguration.getPrintCacheTime());
         }
         return recycleMaterialManager.batchInsertRecycleMaterial(list);
     }
