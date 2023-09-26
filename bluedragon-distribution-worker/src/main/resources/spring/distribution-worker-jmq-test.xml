@@ -697,5 +697,9 @@
     <jmq:consumer id="jmq.dmsExpWaybillRefuseConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.waybill.bd_refuse_flag}" listener="dmsExpWaybillRefuseConsumer"/>
     </jmq:consumer>
+    <!-- 违禁品上报消息处理 -->
+    <jmq:consumer id="jmq.jyExceptionContrabandUploadConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.contraband.upload}" listener="jyExceptionContrabandUploadConsumer"/>
+    </jmq:consumer>
 </beans>
 

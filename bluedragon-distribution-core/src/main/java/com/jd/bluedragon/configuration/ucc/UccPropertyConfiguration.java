@@ -3699,4 +3699,17 @@ public class UccPropertyConfiguration {
     public void setJyExceptionCreateBizIdSwitch(boolean jyExceptionCreateBizIdSwitch) {
         this.jyExceptionCreateBizIdSwitch = jyExceptionCreateBizIdSwitch;
     }
+
+    /**
+     * 违禁品运单缓存时长
+     */
+    private int contrabandWaybillCacheTime;
+
+    public int getContrabandWaybillCacheTime() {
+        return contrabandWaybillCacheTime;
+    }
+
+    public void setContrabandWaybillCacheTime(int contrabandWaybillCacheTime) {
+        this.contrabandWaybillCacheTime = contrabandWaybillCacheTime;
+    }
 }

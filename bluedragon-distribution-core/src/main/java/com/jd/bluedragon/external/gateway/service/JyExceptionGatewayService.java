@@ -197,4 +197,9 @@ public interface JyExceptionGatewayService {
 
 
     JdCResponse<Boolean> dealCustomerReturnDamageResult(JyExpCustomerReturnMQ returnMQ);
+
+    /**
+     * 违禁品任务处理
+     */
+    JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req);
 }

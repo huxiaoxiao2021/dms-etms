@@ -693,5 +693,9 @@
         <jmq:listener topic="${jmq.topic.jyTaskSendDetailFirstSend}" listener="jyTaskSendDetailFirstSendConsumer"/>
     </jmq:consumer>
 
+    <!-- 违禁品上报消息处理 -->
+    <jmq:consumer id="jmq.jyExceptionContrabandUploadConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.contraband.upload}" listener="jyExceptionContrabandUploadConsumer"/>
+    </jmq:consumer>
 </beans>
 

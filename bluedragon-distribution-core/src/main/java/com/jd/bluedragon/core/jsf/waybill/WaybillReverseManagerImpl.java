@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -342,7 +343,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
      * @param dmsWaybillReverseDTO
      * @return
      */
-    private JdResult<SubmitWaybillResponse> submitWaybill(DmsWaybillReverseDTO dmsWaybillReverseDTO){
+    public JdResult<SubmitWaybillResponse> submitWaybill(DmsWaybillReverseDTO dmsWaybillReverseDTO){
     	JdResult<SubmitWaybillResponse> result = new JdResult<SubmitWaybillResponse>();
     	WbmsApiResult<SubmitWaybillResponse> rpcResult = null;
     	CallerInfo info = null;
@@ -719,7 +720,8 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 				reverseWaybillRequest.setConsigneeDto(consigneeDto);
 			}
             reverseWaybillRequest.setReverseReasonCode(dmsWaybillReverseDTO.getReverseReasonCode());
-			return reverseWaybillRequest;
+			log.info("convertReverseWaybillRequest-{}", JSON.toJSONString(reverseWaybillRequest));
+            return reverseWaybillRequest;
 		}
 		return null;
 	}

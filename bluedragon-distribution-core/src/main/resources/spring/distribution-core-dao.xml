@@ -948,6 +948,10 @@
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
 
+    <bean id="jyExceptionContrabandDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
+    </bean>
     <!--################################## jy_core 相关DAO END ############################################ -->
 
 
