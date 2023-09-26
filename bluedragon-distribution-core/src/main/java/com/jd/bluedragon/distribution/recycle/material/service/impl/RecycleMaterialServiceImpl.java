@@ -590,6 +590,8 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         printInfo.setCreateSiteName(baseStaffSiteOrgDto.getSiteName());
         printInfo.setOrgAndSiteName(baseStaffSiteOrgDto.getProvinceAgencyName() + "-" + baseStaffSiteOrgDto.getSiteName());
         response.setData(printInfo);
+
+        redisCommonUtil.cacheDataEx("printCode-" +recycleBasketEntity.getRecycleBasketCode(), 1, uccPropertyConfiguration.getPrintCacheTime());
         return response;
     }
 
