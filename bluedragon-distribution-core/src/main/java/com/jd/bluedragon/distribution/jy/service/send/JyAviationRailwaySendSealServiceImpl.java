@@ -404,7 +404,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 continue;
             }
             transportDataDto.setTransportCode(airLineResp.getLineCode());
-            transportDataDto.setDepartureTimeStr(airLineResp.getDepartTime());
+            transportDataDto.setDepartureTimeStr(this.convertSendTime(airLineResp));
             transportDataDto.setFocusFlag(false);
             transportDataDtoList.add(transportDataDto);
         };
@@ -421,6 +421,21 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
         resData.setTransportInfoDtoList(transportDataDtoList);
         return res;
+    }
+
+    private String convertSendTime(AirLineResp airLineResp) {
+        if(Objects.isNull(airLineResp)) {
+            return StringUtils.EMPTY;
+        }
+        if(StringUtils.isNotBlank(airLineResp.getDepartTime())) {
+            try{
+                String[] timeArr = airLineResp.getDepartTime().split(DmsConstants.KEYS_SPLIT);
+                return String.format("%s:%s", timeArr[0], timeArr[1]);
+            }catch (Exception e){
+                log.warn("运力编码{}查询发车时间{}异常", airLineResp.getLineCode(), airLineResp.getDepartTime());
+            }
+        }
+        return StringUtils.EMPTY;
     }
 
     private String getFocusLineCode(List<TransportDataDto> transportDataDtoList) {
