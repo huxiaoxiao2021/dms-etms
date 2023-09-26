@@ -907,7 +907,7 @@
 		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		group by box_code
 	</select>
-    
+
     <select id="queryWaybillsByDepartID" parameterType="java.lang.Long" resultMap="SendDetail">
         SELECT sd.waybill_code,sd.package_barcode
         FROM departure_send ds

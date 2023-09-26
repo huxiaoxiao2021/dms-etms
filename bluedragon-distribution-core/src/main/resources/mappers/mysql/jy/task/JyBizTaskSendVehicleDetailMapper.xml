@@ -31,6 +31,7 @@
         <result property="lineType" column="line_type"/>
         <result property="taskSimpleCode" column="task_simple_code"/>
         <result property="onlyLoadNoUnload" column="only_load_no_unload"/>
+        <result property="taskType" column="task_type"/>
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
@@ -41,7 +42,16 @@
     <sql id="Base_Column_List">
         id, send_vehicle_biz_id, biz_id, trans_work_item_code, vehicle_status, start_site_id, start_site_name,
         end_site_id, end_site_name, plan_depart_time,come_time,near_come_time, seal_car_time,
-        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,excep_label,line_type,task_simple_code, only_load_no_unload
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time,
+        yn, ts,excep_label,line_type,task_simple_code, only_load_no_unload, task_type
+    </sql>
+
+
+    <!-- todo 空铁需求：2023.08.07 发货表增加类型字段task_type（默认1：表示发车任务）， 根据业务场景使用不同类型隔离数据-->
+    <!-- todo 所有非指定bizId、非指定ID操作 都添加任务类型过滤，不同类型发货任务数据隔离  JySendTaskTypeEnum-->
+    <!-- todo 空铁需求上线前历史任务都是发车任务，发车任务查询条件过滤必须添加类型过滤  -->
+    <sql id="default_task_type_vehicle">
+        and task_type = 1
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleDetailEntity">
@@ -347,7 +357,7 @@
         <if test="endSiteId != null">
             AND end_site_id = #{endSiteId}
         </if>
-
+        <include refid="default_task_type_vehicle"/>
         ORDER BY ts DESC limit 1
     </select>
 
@@ -377,6 +387,9 @@
             <if test="taskSimpleCode != null">
                 task_simple_code,
             </if>
+            <if test="taskType != null">
+                task_type,
+            </if>
              yn
         )
         VALUES
@@ -404,6 +417,9 @@
             <if test="taskSimpleCode != null">
                 #{taskSimpleCode},
             </if>
+            <if test="taskType != null">
+                #{taskType},
+            </if>
             1
        )
     </insert>
@@ -415,6 +431,15 @@
         WHERE
             yn = 1
             AND start_site_id = #{entity.startSiteId}
+            and task_type =
+                <choose>
+                    <when test="entity.taskType != null">
+                        #{entity.taskType}
+                    </when>
+                    <otherwise>
+                        1
+                    </otherwise>
+                </choose>
             <if test="entity.sendVehicleBizId != null">
                 AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
             </if>
@@ -568,6 +593,7 @@
         FROM jy_biz_task_send_vehicle_detail
         WHERE
             yn = 1
+        <include refid="default_task_type_vehicle"/>
         <if test="sendVehicleBizId != null">
             AND send_vehicle_biz_id = #{sendVehicleBizId}
         </if>
@@ -598,6 +624,7 @@
         WHERE
             yn = 1
         AND start_site_id = #{startSiteId}
+        <include refid="default_task_type_vehicle"/>
         <if test="sendVehicleBizId != null">
             AND send_vehicle_biz_id = #{sendVehicleBizId}
         </if>
@@ -667,6 +694,7 @@
             and start_site_id = #{startSiteId}
             and end_site_id = #{endSiteId}
             and create_time &gt;= #{createTimeBegin}
+            <include refid="default_task_type_vehicle"/>
     </select>
 
     <select id="findSendVehicleDetailByTransWorkCode" parameterType="JyBizTaskSendVehicleEntity" resultMap="jyBizTaskSendVehicleDetailMap">
@@ -697,6 +725,7 @@
             <foreach collection="entity.endSiteIdList" separator="," open="(" close=")" item="item">
                 #{item}
             </foreach>
+            <include refid="default_task_type_vehicle"/>
         group by send_vehicle_biz_id
         limit #{entity.pageSize}
     </select>

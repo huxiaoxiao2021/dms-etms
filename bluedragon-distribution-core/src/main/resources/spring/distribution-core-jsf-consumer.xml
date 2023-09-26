@@ -1468,4 +1468,8 @@
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 
+    <!-- erp 路由查询线路 杨金宇 -->
+    <jsf:consumer id="vrsQueryAPI" interface="com.jd.etms.api.resource.VrsQueryAPI"
+                  protocol="jsf" alias="${jsf.router.waybillRouteLinkCustAPI.alias}" timeout="${jsf.router.waybillRouteLinkCustAPI.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>

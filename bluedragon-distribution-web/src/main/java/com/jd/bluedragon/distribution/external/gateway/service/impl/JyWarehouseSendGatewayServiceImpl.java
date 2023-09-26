@@ -721,6 +721,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 response.toFail("未获取到混扫任务编号！");
                 return response;
             }
+
             JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
             queryDto.setGroupCode(mixScanTaskReq.getGroupCode());
             queryDto.setTemplateCode(mixScanTaskReq.getTemplateCode());
