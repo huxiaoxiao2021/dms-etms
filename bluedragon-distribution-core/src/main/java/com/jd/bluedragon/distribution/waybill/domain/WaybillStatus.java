@@ -279,8 +279,8 @@ public class WaybillStatus {
      * topic:0_7600
      */
     public static final Integer WAYBILL_TRACK_SECURITY_CHECK = 22000;
-    public static final String WAYBILL_TRACK_SECURITY_CHECK_DESC="空铁安检查验不通过";
     public static final Integer WAYBILL_TRACK_SECURITY_CHECK_STATE = -3080;
+    public static final String WAYBILL_TRACK_SECURITY_CHECK_DESC="空铁安检查验不通过";
 
     /**
      * https://cf.jd.com/pages/viewpage.action?pageId=1050064709

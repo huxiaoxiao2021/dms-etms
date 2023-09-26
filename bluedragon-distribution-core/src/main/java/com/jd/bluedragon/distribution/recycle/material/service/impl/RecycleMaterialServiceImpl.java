@@ -655,6 +655,8 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             recycleMaterial.setOperatorErp(recycleBasketEntity.getUserErp());
             recycleMaterial.setCreateUser(recycleBasketEntity.getUserErp());
             list.add(recycleMaterial);
+
+            redisCommonUtil.cacheDataEx("printCode-" + code, 1, uccPropertyConfiguration.getPrintCacheTime());
         }
         return recycleMaterialManager.batchInsertRecycleMaterial(list);
     }

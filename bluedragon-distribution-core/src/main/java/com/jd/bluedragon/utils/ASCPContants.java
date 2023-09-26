@@ -17,20 +17,6 @@ public class ASCPContants {
     public static final int CODE_TYPE = 50;//业务类型标识
 
 
-
-
-    public static final int DAMAGE_BUSINESS_ID = 413;//破损业务类型标识
-
-    public static final String DAMAGE_EXPT_ONE_LEVEL = "4130100";//破损 异常一级原因编码
-    public static final String DAMAGE_EXPT_ONE_LEVEL_NAME = "配送异常报备";//破损 异常一级原因名称
-
-    public static final String DAMAGE_EXPT_TWO_LEVEL = "4130101";//破损 异常一级原因编码
-    public static final String DAMAGE_EXPT_TWO_LEVEL_NAME = "破损无法下传";//破损 异常一级原因名称
-
-    public static final Integer WAYBILL_TYPE_SELF = 1;// 自营订单类型
-    public static final Integer WAYBILL_TYPE_OTHER = 5;// 其他订单类型
-
-
     //违禁品业务类型标识
     public static final int CONTRABAND_BUSINESS_ID =413;
     //异常一级原因编码
@@ -41,6 +27,18 @@ public class ASCPContants {
     public static final String CONTRABAND_EXPT_TWO_LEVEL ="4130102";
     //异常二级原因名称
     public static final String CONTRABAND_EXPT_TWO_LEVEL_NAME ="违禁品退回";
+
+    public static final int DAMAGE_BUSINESS_ID = 413;//破损业务类型标识
+
+    public static final String DAMAGE_EXPT_ONE_LEVEL = "4130100";//破损 异常一级原因编码
+    public static final String DAMAGE_EXPT_ONE_LEVEL_NAME = "配送异常报备";//破损 异常一级原因名称
+
+    public static final String DAMAGE_EXPT_TWO_LEVEL = "4130101";//破损 异常一级原因编码
+    public static final String DAMAGE_EXPT_TWO_LEVEL_NAME = "破损无法下传";//破损 异常一级原因名称
+
+    public static final Integer WAYBILL_TYPE_SELF = 1;//破损 自营订单类型
+    public static final Integer WAYBILL_TYPE_OTHER = 5;//破损 其他订单类型
+
 
 
 }

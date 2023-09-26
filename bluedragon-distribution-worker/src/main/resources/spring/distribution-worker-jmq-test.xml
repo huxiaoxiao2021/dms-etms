@@ -720,8 +720,6 @@
     <jmq:consumer id="jmq.dmsExpCustomerReturnConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.exception.customerReturn}" listener="dmsExpCustomerReturnConsumer"/>
     </jmq:consumer>
-
-
     <!--运单妥投-->
     <jmq:consumer id="jmq.dmsExpWaybillDeliveryConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.waybill.bd.dlok.flag}" listener="dmsExpWaybillDeliveryConsumer"/>

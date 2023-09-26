@@ -629,10 +629,17 @@
     </jsf:provider>
 
     <!--  日志追踪接口接口   -->
-    <jsf:provider id="logTrackServiceJsf" 
+    <jsf:provider id="logTrackServiceJsf"
                   interface="com.jd.bluedragon.distribution.logTrack.TrackService"
                   alias="${dms.jsf.alias}"
                   ref="logTrackService"
                   server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 箱包裹绑定关系业务操作相关JSF接口 -->
+    <jsf:provider id="jsfDmsSortingService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsSortingService"
+                  alias="${dms.jsf.alias}"
+                  ref="iDmsSortingService" server="dmsjsf">
     </jsf:provider>
 </beans>
