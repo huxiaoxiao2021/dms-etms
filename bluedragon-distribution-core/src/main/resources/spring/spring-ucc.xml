@@ -269,6 +269,8 @@
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 		<property name="assignExpTaskQuantityLimit" value="${assignExpTaskQuantityLimit:50}"/>
+		<property name="jyExceptionDamageTaskCustomerNotReturnHours" value="${jyExceptionDamageTaskCustomerNotReturnHours:48}"/>
+		<property name="jyExceptionCreateBizIdSwitch" value="${jyExceptionCreateBizIdSwitch:true}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
@@ -301,6 +303,7 @@
 
 		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
 		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
+		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -591,6 +594,9 @@
 
 				<value>uccPropertyConfiguration.checkAkboxConfig</value>
 				<value>uccPropertyConfiguration.printCacheTime</value>
+				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
+				<value>uccPropertyConfiguration.jyExceptionCreateBizIdSwitch</value>
+				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
 			</list>
 		</property>
 	</bean>

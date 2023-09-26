@@ -823,7 +823,7 @@ public class Constants {
      *
      */
     public static final String SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF = "waybill.print.addiOwnNumberConf";
-    
+
 
     /**
      *  配置信息-切换百川流量场地列表
@@ -2036,6 +2036,11 @@ public class Constants {
 
 
     /**
+     * 异常运单任务缓存key
+     */
+    public static final String EXP_WAYBILL_CACHE_KEY_PREFIX ="exp.waybill.cache:";
+
+    /**
      * 安检场地关系配置
      */
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
@@ -2059,7 +2064,7 @@ public class Constants {
      * 功能可用配置白名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
-    
+
     // 新版分拣中心规范-分拣中心类型
     public static final Integer SORTING_SORT_TYPE = 12351;
     // 新版分拣中心规范-分拣中心子类型
@@ -2069,9 +2074,37 @@ public class Constants {
 
     /**
      *  逆向原因编码
-     * 1-拦截逆向 
+     * 1-拦截逆向
      * 3-清关逆向
      */
     public static final Integer INTERCEPT_REVERSE_CODE_1 = 1;
     public static final Integer INTERCEPT_REVERSE_CODE_3 = 3;
+
+    /**
+     * 运单全程跟踪记录类型（强校验）
+     * 枚举类型：1:运单维度不记录各包裹全程跟踪,2:运单维度记录各包裹全程跟踪,3:包裹维度记录包裹全程跟踪
+     */
+    public static final Integer WAYBILL_TRACE_TYPE =1;
+
+    /**
+     * 逆向退货类型:拒收退回
+     */
+    public static final Integer REVERSE_TYPE_REJECT_BACK =7;
+
+    /**
+     * 换单来源 2: 分拣/SORT_CENTER
+     */
+    public static final Integer CHANGE_WAYBILL_OPERATE_SOURCE_SORT_CENTER =2;
+
+    /**
+     * 运单全程跟踪记录类型-包裹维度记录包裹全程跟踪 （packageBarCode为包裹号)
+     */
+    public static final Integer  WAYBILL_TRACE_TYPE_PACKAGE =3;
+
+    /**
+     * 对外展示话术标识  1 - 对外不展示话术
+     */
+    public static final Integer  WAYBILL_TRACE_DISPLAY =1;
+
+
 }

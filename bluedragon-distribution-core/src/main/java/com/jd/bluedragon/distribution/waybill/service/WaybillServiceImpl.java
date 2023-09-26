@@ -1820,4 +1820,18 @@ public class WaybillServiceImpl implements WaybillService {
         }
         return result;
     }
+
+    @Override
+    public boolean isHKorMOWaybill(String waybillCode) {
+        Waybill waybill = getWaybillByWayCode(waybillCode);
+        if(waybill != null &&  waybill.getWaybillExt() != null){
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            if((org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
+                    || (org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
+                log.info("港澳单-{}",waybillCode);
+                return true;
+            }
+        }
+        return false;
+    }
 }
