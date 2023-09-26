@@ -75,6 +75,8 @@ public class InspectionRequest extends JdRequest{
      */
 	private OperatorData operatorData;
 	
+	private String operatorDataJson;
+	
     public int getPageNo() {
         return pageNo;
     }
@@ -272,5 +274,13 @@ public class InspectionRequest extends JdRequest{
 
 	public void setOperatorData(OperatorData operatorData) {
 		this.operatorData = operatorData;
+	}
+
+	public String getOperatorDataJson() {
+		return operatorDataJson;
+	}
+
+	public void setOperatorDataJson(String operatorDataJson) {
+		this.operatorDataJson = operatorDataJson;
 	}
 }

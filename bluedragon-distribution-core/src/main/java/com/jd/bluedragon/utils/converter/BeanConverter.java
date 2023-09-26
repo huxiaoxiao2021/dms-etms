@@ -30,6 +30,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.jsf.gd.util.StringUtils;
 
 /**
  * 对象转换工具类
@@ -105,9 +106,15 @@ public class BeanConverter {
 		if(requestBean.getOperatorData() != null) {
 			return requestBean.getOperatorData();
 		}
-        OperatorData operatorData = new OperatorData();
-        operatorData.setOperatorId(requestBean.getOperatorId());
-        operatorData.setOperatorTypeCode(requestBean.getOperatorTypeCode());
+		OperatorData operatorData = null;
+		if(StringUtils.isNotBlank(requestBean.getOperatorDataJson())) {
+			operatorData = JsonHelper.fromJson(requestBean.getOperatorDataJson(), OperatorData.class);
+		}
+		if(operatorData == null) {
+			operatorData = new OperatorData();
+	        operatorData.setOperatorId(requestBean.getOperatorId());
+	        operatorData.setOperatorTypeCode(requestBean.getOperatorTypeCode());
+		}
 		return operatorData;
 	}
 	public static OperatorData convertToOperatorDataForAuto(InspectionRequest requestBean) {
