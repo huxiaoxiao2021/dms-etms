@@ -7,9 +7,12 @@ import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
 import com.jd.bluedragon.distribution.jy.exception.JyAssignExpTaskDto;
+import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -36,21 +40,22 @@ public class JyExceptionServiceTest {
     @Autowired
     private JyScrappedExceptionServiceImpl jyScrappedExceptionService;
 
+    @Autowired
+    private JyDamageExceptionService jyDamageExceptionService;
+
     @Test
     public void uploadScanTest() {
         ExpUploadScanReq req = new ExpUploadScanReq();
 
         req.setUserErp("wuyoude");
         req.setSiteId(910);
-        req.setSource(0);
         req.setPositionCode("GW00003001");
 
-//        req.setBarCode("SW1111112225");
-//        req.setType(0);
+       //req.setBarCode("SW2111111111");
+        req.setSource(0);
 
-
-        req.setBarCode("JDVA00255154794");
-        req.setType(1);
+        req.setBarCode("JD0003421266039");
+        //req.setType(1);
 
         JdCResponse<Object> response = jyExceptionService.uploadScan(req);
         System.out.println(JSON.toJSONString(response));
@@ -140,15 +145,26 @@ public class JyExceptionServiceTest {
     }
 
     @Test
+    public void getJyExceptionPackageTypeListTest(){
+        JdCResponse<List<JyExceptionPackageTypeDto>> list = jyDamageExceptionService.getJyExceptionPackageTypeList(null);
+        Assert.assertEquals(list.isSucceed(),true);
+    }
+
+    @Test
     public void processTaskOfscrappedTest(){
         ExpScrappedDetailReq req = new ExpScrappedDetailReq();
         req.setUserErp("wuyoude");
         req.setPositionCode("GW00003001");
-        req.setBizId("SANWU_sw000001");
+        req.setBarCode("JDVA00255154794");
+        req.setBizId("JDVA00255154794_910");
+        req.setSiteId(910);
+        req.setScrappedTypCode(1);
+        req.setCertifyImageUrl("123.jpg,1456.jpg");
+        req.setGoodsImageUrl("123.jpg,1456.jpg");
         req.setSaveType(1);
 
         JdCResponse<Boolean> response = jyScrappedExceptionService.processTaskOfscrapped(req);
-        Assert.assertEquals(response.isSucceed(),true);
+        System.out.println(JSON.toJSONString(response));
     }
 
     @Test
@@ -264,5 +280,55 @@ public class JyExceptionServiceTest {
         JdCResponse<Integer> response = jySanwuExceptionService.getAssignExpTaskCount(req);
         System.out.println(JSON.toJSONString(response));
     }
+
+    @Test
+    public void exceptionTaskCheckByExceptionTypeTest(){
+
+        ExpTypeCheckReq req = new ExpTypeCheckReq();
+
+        req.setBarCode("JDX000253957820");
+        req.setType(2);
+
+        JdCResponse<Boolean> response = jyExceptionService.exceptionTaskCheckByExceptionType(req);
+        System.out.println(JSON.toJSONString(response));
+    }
+
+    @Test
+    public void dealExpDamageInfoByAbnormalReportOutCallTest(){
+        QcReportJmqDto dto = new QcReportJmqDto();
+        //dto.setAbnormalDocumentNum("JDVA00255154794");
+        dto.setAbnormalDocumentNum("JDX000201044026");
+        dto.setAbnormalFirstId(20009l);
+        dto.setAbnormalFirstName("外呼类");
+        dto.setAbnormalSecondId(20051L);
+        dto.setAbnormalSecondName("揽收派送异常");
+        dto.setAbnormalThirdId(230502L);
+        dto.setAbnormalThirdName("派送联系不上客户");
+        dto.setCreateDept("40240");
+        dto.setCreateDeptName("资阳娇子营业部");
+        dto.setCreateRegion("4");
+        dto.setCreateTime(1691137481000L);
+        dto.setCreateUser("jiangchengjie5");
+        dto.setEndStatus("1");
+        dto.setId(404341744L);
+        dto.setPackageNumber("JDVA21647328198-1-1-");
+        dto.setRemark("空号");
+        dto.setReportSystem("xiaoge");
+
+        jyDamageExceptionService.dealExpDamageInfoByAbnormalReportOutCall(dto);
+    }
+
+    @Test
+    public void dealDamageExpTaskStatusTest(){
+
+        jyDamageExceptionService.dealDamageExpTaskStatus("JDX000201044026",null);
+    }
+
+    @Test
+    public void dealDamageExpTaskOverTwoDagsTest(){
+        jyDamageExceptionService.dealDamageExpTaskOverTwoDags();
+    }
+
+
 
 }

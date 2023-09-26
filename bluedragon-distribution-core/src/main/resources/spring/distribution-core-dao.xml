@@ -943,6 +943,10 @@
     <bean id="jyExceptionScrappedDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionScrappedDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
+    <bean id="jyExceptionDamageDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDamageDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
+    </bean>
 
     <!--################################## jy_core 相关DAO END ############################################ -->
 

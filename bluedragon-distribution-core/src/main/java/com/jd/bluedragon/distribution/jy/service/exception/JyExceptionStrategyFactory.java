@@ -42,9 +42,6 @@ public class JyExceptionStrategyFactory implements InitializingBean, Application
     }
 
     public JyExceptionStrategy getStrategy(Integer type) {
-        if(Objects.isNull(type)){
-            return jySanwuExceptionService;
-        }
         return strategyMap.get(type);
     }
 
