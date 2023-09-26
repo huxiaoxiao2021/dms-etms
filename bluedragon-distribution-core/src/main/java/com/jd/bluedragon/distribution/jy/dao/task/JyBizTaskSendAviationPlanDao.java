@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
@@ -89,7 +90,7 @@ public class JyBizTaskSendAviationPlanDao extends BaseDao<JyBizTaskSendAviationP
         }
         JyBizTaskSendAviationPlanQueryCondition entity = new JyBizTaskSendAviationPlanQueryCondition();
         entity.setBizIdList(bizIds);
-//        entity.setTaskStatus(JyBizTaskSendStatusEnum.SEALED.getCode());
+        entity.setTaskStatus(JyBizTaskSendStatusEnum.SEALED.getCode());
         return this.getSqlSession().selectList(NAMESPACE + ".findNoSealTaskByBizIds", entity);
     }
 

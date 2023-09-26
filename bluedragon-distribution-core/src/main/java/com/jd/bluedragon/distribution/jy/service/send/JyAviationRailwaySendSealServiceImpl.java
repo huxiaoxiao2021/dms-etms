@@ -50,8 +50,7 @@ import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
-import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -143,7 +142,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Autowired
     private JdiQueryWSManager jdiQueryWSManager;
     @Autowired
-    private SendDatailDao sendDatailDao;
+    private SendMDao sendMDao;
     @Autowired
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
@@ -1632,10 +1631,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 resData.setVolume(bdVolume.doubleValue());
             }
         }
-        SendDetail sendDetail = new SendDetail();
-        sendDetail.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
-        sendDetail.setSendCode(request.getSendCode());
-        Integer itemNum = sendDatailDao.countBoxCodeSingleBySendCode(sendDetail);
+        Integer itemNum = sendMDao.countBoxCodeNumBySendCode(request.getSendCode(), request.getCurrentOperate().getSiteCode());
         if(NumberHelper.gt0(itemNum)) {
             resData.setItemNum(itemNum);
         }
