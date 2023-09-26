@@ -76,6 +76,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskQueryEnum.TASK_RECOMMEND;
@@ -190,12 +191,27 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             //校验需绑空铁任务中是否已经绑定其他摆渡车辆
             List<JyBizTaskBindEntity> existBindEntityList = jyBizTaskBindService.queryBindTaskByBindDetailBizIds(needDetailBizIdList, request.getType());
             List<String> elseVehicleBindDetailBizId = new ArrayList<>();
+            List<String> curVehicleExistBindDetailBizId = new ArrayList<>();
             if(CollectionUtils.isNotEmpty(existBindEntityList)) {
                 existBindEntityList.forEach(o -> {
                     if(!request.getDetailBizId().equals(o.getDetailBizId())) {
                         elseVehicleBindDetailBizId.add(o.getBindDetailBizId());
+                    }else {
+                        curVehicleExistBindDetailBizId.add(o.getBindDetailBizId());
                     }
                 });
+            }
+            //重复绑定去除
+            if(CollectionUtils.isNotEmpty(curVehicleExistBindDetailBizId)) {
+                needDetailBizIdList.removeAll(curVehicleExistBindDetailBizId);
+                Map<String,Object> map = curVehicleExistBindDetailBizId.stream().collect(Collectors.toMap(Function.identity(),Function.identity()));
+                List<SendTaskBindDto> distinctList = new ArrayList<>();
+                request.getSendTaskBindDtoList().forEach(o -> {
+                    if(Objects.isNull(map.get(o.getDetailBizId()))) {
+                        distinctList.add(o);
+                    }
+                });
+                request.setSendTaskBindDtoList(distinctList);
             }
             //校验需绑空铁任务是否封车，仅绑已封车
             List<JyBizTaskSendAviationPlanEntity> entityList = jyBizTaskSendAviationPlanService.findNoSealTaskByBizIds(needDetailBizIdList);

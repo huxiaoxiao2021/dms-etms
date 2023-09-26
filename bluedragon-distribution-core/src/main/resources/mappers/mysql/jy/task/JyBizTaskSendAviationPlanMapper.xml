@@ -378,6 +378,9 @@
             and start_site_id = #{startSiteId}
             and task_status = #{taskStatus}
             and create_time &gt;= #{createTimeStart}
+            <if test="takeOffTimeStart != null" >
+                and take_off_time &gt;= #{takeOffTimeStart}
+            </if>
         group by
             air_type
     </select>
