@@ -2138,4 +2138,10 @@ public class Constants {
     public static final Integer  WAYBILL_TRACE_DISPLAY =1;
 
 
+    /**
+     * 运输内网账号类型
+     */
+    public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
+
+
 }
