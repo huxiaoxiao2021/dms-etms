@@ -2036,6 +2036,11 @@ public class Constants {
 
 
     /**
+     * 异常运单任务缓存key
+     */
+    public static final String EXP_WAYBILL_CACHE_KEY_PREFIX ="exp.waybill.cache:";
+
+    /**
      * 安检场地关系配置
      */
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";

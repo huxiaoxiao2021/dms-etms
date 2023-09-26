@@ -683,6 +683,20 @@
     <jmq:consumer id="jmq.jyTaskSendDetailFirstSendConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jyTaskSendDetailFirstSend}" listener="jyTaskSendDetailFirstSendConsumer"/>
     </jmq:consumer>
+
+    <!--  异常破损-客服回传消费  -->
+    <jmq:consumer id="jmq.dmsExpCustomerReturnConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.customerReturn}" listener="dmsExpCustomerReturnConsumer"/>
+    </jmq:consumer>
+    <!--运单妥投-->
+    <jmq:consumer id="jmq.dmsExpWaybillDeliveryConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybill.bd.dlok.flag}" listener="dmsExpWaybillDeliveryConsumer"/>
+    </jmq:consumer>
+
+    <!--运单拒收-->
+    <jmq:consumer id="jmq.dmsExpWaybillRefuseConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybill.bd_refuse_flag}" listener="dmsExpWaybillRefuseConsumer"/>
+    </jmq:consumer>
     <!-- 违禁品上报消息处理 -->
     <jmq:consumer id="jmq.jyExceptionContrabandUploadConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.exception.contraband.upload}" listener="jyExceptionContrabandUploadConsumer"/>

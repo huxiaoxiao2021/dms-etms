@@ -1,18 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpBaseReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpReceiveReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.common.dto.jyexpection.request.*;
+import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionCycleTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
@@ -61,7 +52,7 @@ public interface JyExceptionService {
     /**
      * 按条码查询
      */
-    JdCResponse<ExpTaskDto> queryByBarcode(Integer type,String barcode,String erp);
+    JdCResponse<ExpTaskDto> queryByBarcode(ExpReceiveReq req);
 
     /**
      * 任务明细
@@ -137,6 +128,20 @@ public interface JyExceptionService {
      */
     JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req);
 
+    /**
+     * 异常任务类型校验
+     * @param req
+     * @return
+     */
+    JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req);
+
+    void recordLog(JyBizTaskExceptionCycleTypeEnum cycle, JyBizTaskExceptionEntity entity);
+
+    void delivered(String bizId);
+
     PositionDetailRecord getPosition(String positionCode);
 
+    String getGridRid(PositionDetailRecord data);
+
+    void pushScrapTrace(JyBizTaskExceptionEntity exTaskEntity);
 }

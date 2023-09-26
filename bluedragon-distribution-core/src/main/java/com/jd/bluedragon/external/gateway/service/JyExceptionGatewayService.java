@@ -2,7 +2,22 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.common.dto.jyexpection.response.DmsBarCode;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpSignUserResp;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskStatisticsOfWaitReceiveDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
+import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 
 import java.util.List;
 
@@ -75,6 +90,12 @@ public interface JyExceptionGatewayService {
     JdCResponse<List<JyExceptionScrappedTypeDto>> getJyExceptionScrappedTypeList();
 
     /**
+     * 获取破损包裹类型集合
+     * @return
+     */
+    JdCResponse<List<JyExceptionPackageTypeDto>> getJyExceptionPackageTypeList(String barCode);
+
+    /**
      * 报废处理任务接口
      * @param req
      * @return
@@ -93,6 +114,13 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<Boolean> checkExceptionPrincipal(ExpBaseReq req);
+
+    /**
+     * 异常任务类型校验
+     * @param req
+     * @return
+     */
+    JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req);
 
 
     /**
@@ -131,6 +159,44 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req);
+
+    /**
+     * 破损任务处理
+     */
+    JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req);
+
+    /**
+     * 获取待处理和新增的破损异常数量
+     * @return
+     */
+    JdCResponse<JyDamageExceptionToProcessCountDto> getToProcessDamageCount(String positionCode);
+
+    /**
+     * 读取破损异常为已读
+     * @param positionCode
+     * @return
+     */
+    JdCResponse<Boolean> readToProcessDamage(String positionCode);
+
+    /**
+     * 获取破损任务详情
+     * @param req
+     * @return
+     */
+    JdCResponse<JyExceptionDamageDto> getTaskDetailOfDamage(ExpDamageDetailReq req);
+
+    JdCResponse<Boolean> writeToProcessDamage(String bizId);
+
+    /**
+     * 根据质控异常提报mq 处理破损异常
+     *
+     * @param qcReportJmqDto
+     * @return
+     */
+    JdCResponse<Boolean> dealExpDamageInfoByAbnormalReportOutCall(QcReportJmqDto qcReportJmqDto);
+
+
+    JdCResponse<Boolean> dealCustomerReturnDamageResult(JyExpCustomerReturnMQ returnMQ);
 
     /**
      * 违禁品任务处理
