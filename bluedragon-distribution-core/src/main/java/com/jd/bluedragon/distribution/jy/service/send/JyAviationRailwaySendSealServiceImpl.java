@@ -1385,7 +1385,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         if (entity != null) {
             JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
             detailEntity.setBizId(entity.getBookingCode());
-            detailEntity.setSendVehicleBizId(detail.getBizId());
+            detailEntity.setSendVehicleBizId(entity.getBizId());
             detailEntity.setEndSiteId(Long.valueOf(entity.getNextSiteId()));
             detailEntity.setVehicleStatus(entity.getTaskStatus());
             detailEntity.setExcepLabel(entity.getIntercept());

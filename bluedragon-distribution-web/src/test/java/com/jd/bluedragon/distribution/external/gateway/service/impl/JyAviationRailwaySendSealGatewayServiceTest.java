@@ -37,12 +37,12 @@ import java.util.*;
 public class JyAviationRailwaySendSealGatewayServiceTest {
 
 
-    private static final CurrentOperate SITE_910 = new CurrentOperate(910,"马驹桥分拣中心",new Date());
+    private static final CurrentOperate SITE_910 = new CurrentOperate(65396,"马驹桥分拣中心",new Date());
     public static final CurrentOperate SITE_40240 = new CurrentOperate(40240, "北京通州分拣中心", new Date());
 
-    public static final User USER_wuyoude = new User(17331,"吴有德");
+    public static final User USER_wuyoude = new User(65396,"吴有德");
 
-    public static final String GROUP_CODE = "G00000059567";
+    public static final String GROUP_CODE = "G00000130001";
     public static final String POST = JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode();
 
     static {
@@ -447,10 +447,12 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
         request.setGroupCode(GROUP_CODE);
-        request.setSendVehicleBizId("SST23082400000051");
-        request.setSendVehicleDetailBizId("DCH20230824144926");
-        request.setBarCodeType(2);
-        request.setBarCode("JD0003421571498-1-1-");
+        request.setSendVehicleBizId("SST23092500000020");
+        request.setSendVehicleDetailBizId("DC23092100200516");
+        request.setBarCodeType(1);
+        request.setBarCode("JD0003422003922-1-1-");
+        request.setConfirmSendDestId(121674L);
+        request.setForceSubmit(true);
         JdVerifyResponse<AviationSendScanResp> jdVerifyResponse = aviationRailwaySendSealGatewayService.scan(request);
         System.out.println(JsonHelper.toJson(jdVerifyResponse));
     }
