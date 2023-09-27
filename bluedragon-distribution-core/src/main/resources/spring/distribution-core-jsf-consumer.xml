@@ -1431,4 +1431,15 @@
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
     </jsf:consumer>
+
+    <!-- 查询整板装车数据 -->
+    <jsf:consumer id="jdiBoardLoadWS"
+                  interface="com.jd.tms.jdi.ws.JdiBoardLoadWS"
+                  protocol="jsf"
+                  alias="${jsf.alias.jdiBoardLoadWS}"
+                  timeout="${jsf.jdiBoardLoadWS.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>

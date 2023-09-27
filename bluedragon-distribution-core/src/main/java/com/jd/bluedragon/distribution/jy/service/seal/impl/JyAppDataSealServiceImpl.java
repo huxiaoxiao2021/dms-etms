@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.jd.bluedragon.utils.jddl.DmsJddlUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,5 +196,16 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
         	jyAppDataSealSendCodeDao.batchInsert(sendCodes);
         }
         return new InvokeResult<Boolean>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+	}
+
+	@Override
+	public Boolean saveSendCodeList(List<JyAppDataSealSendCode> sendCodes) {
+		return jyAppDataSealSendCodeDao.batchInsert(sendCodes) > 0;
+	}
+
+	@Override
+	public Boolean checkExistSaveData(String sendVehicleDetailBizId) {
+		List<String> sendCodeList = jyAppDataSealSendCodeDao.querySendCodeList(sendVehicleDetailBizId);
+		return !CollectionUtils.isEmpty(sendCodeList);
 	}
 }

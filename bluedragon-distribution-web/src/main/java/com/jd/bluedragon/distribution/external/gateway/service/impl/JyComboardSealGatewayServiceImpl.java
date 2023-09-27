@@ -101,6 +101,8 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   @Override
   public JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(
       SealVehicleInfoReq sealVehicleInfoReq) {
+    // 自动选择板号
+    jySealVehicleService.selectBoardByTms(sealVehicleInfoReq);
     return retJdCResponse(jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq));
   }
 
