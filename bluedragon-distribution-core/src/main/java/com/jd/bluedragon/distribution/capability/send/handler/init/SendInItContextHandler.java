@@ -49,7 +49,7 @@ public class SendInItContextHandler extends SendDimensionStrategyHandler {
         //初始化sendM实体
         context.setRequestTurnToSendM(toSendMDomain(context.getRequest()));
         //初始换返回内容
-        context.getResponse().setData(new SendResult());
+        context.getResponse().setData(new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK));
 
         return super.doHandler(context);
     }
