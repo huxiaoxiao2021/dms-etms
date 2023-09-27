@@ -951,6 +951,11 @@
         <property name="timeout" value="3000"/>
     </bean>
 
+    <!-- 操作流水mq -->
+    <bean id="jyOperateFlowMqProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jyOperateFlowMq}" />
+        <property name="timeout" value="3000" />
+    </bean>
 
     <!-- 违禁品上报处理 -->
     <bean id="jyExceptionContrabandUploadProducer" parent="jmq4DmsWebDefaultJMQProducer">

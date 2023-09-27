@@ -26,12 +26,14 @@ import com.jd.bluedragon.distribution.jy.dao.config.WaybillConfigDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.BoardScanTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.collect.*;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageRespDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadCollectDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.ScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.ScanTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -41,6 +43,7 @@ import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectBatchUpdat
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectSiteTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
@@ -55,6 +58,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
@@ -171,7 +175,9 @@ public class JyUnloadVehicleCheckTysService {
     @Autowired
     @Qualifier(value = "jyCollectStatusBatchUpdateWaybillSplitProducer")
     private DefaultJMQProducer jyCollectStatusBatchUpdateWaybillSplitProducer;
-
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
+    
 
     /**
      * 操作中心为始发中心+揽收类型为网点自送+运单状态为取消

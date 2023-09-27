@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.jy.dto.comboard;
 
 import java.util.Date;
+
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import lombok.Data;
 
 @Data
@@ -27,5 +30,9 @@ public class ComboardTaskDto {
   /**
    * 操作者id
    */
-	private String operatorId;  
+	private String operatorId;
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
 }

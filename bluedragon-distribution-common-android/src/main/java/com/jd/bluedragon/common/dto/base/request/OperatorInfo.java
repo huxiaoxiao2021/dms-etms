@@ -77,7 +77,11 @@ public class OperatorInfo implements Serializable {
      * 操作者id
      */
 	private String operatorId;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
+	
     /**
      * 模式： 1单流向模式   2：多流向模式   初始化：null(默认多流向模式)
      */
@@ -202,5 +206,13 @@ public class OperatorInfo implements Serializable {
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

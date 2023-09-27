@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.comboard.request;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
 
 import java.io.Serializable;
 

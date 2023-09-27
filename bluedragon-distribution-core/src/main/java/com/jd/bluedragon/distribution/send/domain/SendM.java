@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.send.domain;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.util.Date;
 import java.util.List;
 
@@ -159,7 +161,11 @@ public class SendM implements Cloneable, java.io.Serializable, Comparable<SendM>
     private transient Integer offset;
 
     private transient Integer limit;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
+	
     public Integer getCancelPackageCount() {
         return cancelPackageCount;
     }
@@ -470,4 +476,12 @@ public class SendM implements Cloneable, java.io.Serializable, Comparable<SendM>
     public void setLimit(Integer limit) {
         this.limit = limit;
     }
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 }

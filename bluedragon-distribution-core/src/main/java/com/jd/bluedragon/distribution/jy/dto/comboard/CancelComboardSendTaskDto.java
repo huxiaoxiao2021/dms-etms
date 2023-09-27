@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.comboard;
 
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 
 import java.util.List;
 
@@ -59,7 +60,11 @@ public class CancelComboardSendTaskDto {
      * 操作者id
      */
 	private String operatorId;  
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
+	
     public BizSourceEnum getBizSource() {
         return bizSource;
     }
@@ -146,5 +151,13 @@ public class CancelComboardSendTaskDto {
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

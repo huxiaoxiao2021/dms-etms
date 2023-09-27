@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.api.request;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.api.JdRequest;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 
 public class SortingRequest extends JdRequest {
 
@@ -53,7 +54,11 @@ public class SortingRequest extends JdRequest {
     /**
      * 操作者id
      */
-	private String operatorId;    
+	private String operatorId;
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;	
 
     public String getBoxCode() {
         return this.boxCode;
@@ -202,6 +207,14 @@ public class SortingRequest extends JdRequest {
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 
 }
