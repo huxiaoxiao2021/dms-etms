@@ -752,9 +752,6 @@ public class JyUnloadVehicleCheckTysService {
                 boardCommonRequest.setOperateTime(System.currentTimeMillis() + 1000L);
                 // 组板全程跟踪
                 boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-                JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(boardCommonRequest);
-                boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.BOARD.getCode());
-                jyOperateFlowService.sendMq(boardFlowMq);
                 return;
             }
             /*

@@ -406,15 +406,9 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             //取消组板的全称跟踪 -- 旧板号
             request.setBoardCode(boardOld);
             sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
-            JyOperateFlowMqData boardCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
-            boardCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.BOARD_CANCEL.getCode());
-            jyOperateFlowService.sendMq(boardCancelFlowMq);
             //组板的全称跟踪 -- 新板号
             request.setBoardCode(boardNew);
             sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-            JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
-            boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.BOARD.getCode());
-            jyOperateFlowService.sendMq(boardFlowMq);
             result.setData(tcResponse.getData());
         }else {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"组板失败!");

@@ -1983,9 +1983,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 boxToBoardSuccessAfter(request, null, isSurplusPackage);
                 // 组板全程跟踪
                 boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-                JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(boardCommonRequest);
-                boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.BOARD.getCode());
-                jyOperateFlowService.sendMq(boardFlowMq);
                 return;
             }
             /**
