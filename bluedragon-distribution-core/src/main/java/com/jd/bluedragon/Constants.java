@@ -2057,4 +2057,10 @@ public class Constants {
      */
     public static final String MORE_OUT_SCAN_NOTIFY_SWITCH = "more.out.scan.notify.switch";
 
+    /**
+     *  配置信息-查询es卸车扫描是否多扫开关
+     *
+     */
+    public static final String MORE_SCAN_QUERY_ES_SWITCH = "more.scan.query.es.switch";
+
 }

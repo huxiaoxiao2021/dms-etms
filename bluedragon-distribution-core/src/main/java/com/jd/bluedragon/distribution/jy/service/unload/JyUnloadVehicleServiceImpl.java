@@ -50,6 +50,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -574,7 +575,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             // 保存扫描记录，发运单全程跟踪。首次扫描分配卸车任务
             UnloadScanDto unloadScanDto = createUnloadDto(request, taskUnloadVehicle);
             // 判断是否本场地单子
-            this.handleMoreLocalOrOutScan(request, unloadScanDto, result);
+            this.handleMoreLocalOrOutScan(request, unloadScanDto, taskUnloadVehicle, result);
             unloadScanProducer.sendOnFailPersistent(unloadScanDto.getBarCode(), JsonHelper.toJson(unloadScanDto));
 
             // 统计本次扫描的包裹数
@@ -604,7 +605,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return result;
     }
 
-    private void handleMoreLocalOrOutScan(UnloadScanRequest request, UnloadScanDto unloadScanDto, JdVerifyResponse<Integer> result) {
+    private void handleMoreLocalOrOutScan(UnloadScanRequest request, UnloadScanDto unloadScanDto, JyBizTaskUnloadVehicleEntity taskUnloadVehicle, JdVerifyResponse<Integer> result) {
         // 降级开关
         if (!sysConfigService.getConfigByName(Constants.MORE_OUT_SCAN_NOTIFY_SWITCH)) {
             log.info("handleMoreLocalOrOutScan|卸车扫描非本场地多扫弱提醒开关已关闭");
@@ -630,6 +631,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         Long shouldScanCount = 0L;
         // 只有非自建任务才需要查询es判断多扫
         if (!Constants.NUMBER_ONE.equals(unloadScanDto.getManualCreatedFlag())) {
+            // 查询es增加降级开关
+            if (!sysConfigService.getConfigByName(Constants.MORE_SCAN_QUERY_ES_SWITCH)) {
+                log.info("handleMoreLocalOrOutScan|卸车扫描查询es是否多扫开关已关闭");
+                return;
+            }
             Pager<JyVehicleTaskUnloadDetail> query = getIsShouldScanCondition(request, barCode);
             shouldScanCount = unloadVehicleManager.queryShouldScanCountByBarCode(query);
         }
@@ -637,24 +643,49 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (Constants.LONG_ZERO.equals(shouldScanCount)) {
             unloadScanDto.setMoreFlag(Constants.MORE_LOCAL_SCAN);
             // 判断是否本场地
-            if (!routerService.hasCurrentNodeInRouteLink(siteCode, waybillCode)) {
+            if (!hasCurrentNodeInRouteLink(siteCode, waybillCode, taskUnloadVehicle)) {
                 unloadScanDto.setMoreFlag(Constants.MORE_OUT_SCAN);
                 result.addPromptBox(InvokeResult.CODE_MORE_OUT_SCAN, InvokeResult.CODE_MORE_OUT_SCAN_MESSAGE);
             }
-            // 如果应扫数量大于0，并且本次是按单扫描，则继续判断是否部分多扫
-        } else if (UnloadScanTypeEnum.SCAN_WAYBILL.getCode().equals(request.getScanType())) {
-            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
-            if (waybill == null || waybill.getGoodNumber() == null) {
-                return;
-            }
-            // 本场地运单部分多扫数量 = 运单包裹总数 - 任务里运单下包裹应扫数量
-            int moreLocalPartCount = waybill.getGoodNumber() - shouldScanCount.intValue();
-            // 差值大于0证明有部分多扫
-            if (moreLocalPartCount > 0) {
-                unloadScanDto.setMoreFlag(Constants.MORE_LOCAL_PART_SCAN);
-                unloadScanDto.setMoreLocalPartCount(moreLocalPartCount);
+            // 如果应扫数量大于0
+        } else {
+            // 并且本次是按单扫描，则继续判断是否部分多扫
+            if (UnloadScanTypeEnum.SCAN_WAYBILL.getCode().equals(request.getScanType())) {
+                Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+                if (waybill == null || waybill.getGoodNumber() == null) {
+                    return;
+                }
+                // 本场地运单部分多扫数量 = 运单包裹总数 - 任务里运单下包裹应扫数量
+                int moreLocalPartCount = waybill.getGoodNumber() - shouldScanCount.intValue();
+                // 差值大于0证明有部分多扫
+                if (moreLocalPartCount > 0) {
+                    unloadScanDto.setMoreFlag(Constants.MORE_LOCAL_PART_SCAN);
+                    unloadScanDto.setMoreLocalPartCount(moreLocalPartCount);
+                }
             }
         }
+    }
+
+    private boolean hasCurrentNodeInRouteLink(int operateSiteCode, String waybillCode, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
+        // 根据已知路由链路倒序查上一网点
+        RouteNextDto routeDto = routerService.matchNextNodeAndLastNodeByRouter(operateSiteCode, waybillCode, null);
+        if (routeDto == null) {
+            return false;
+        }
+        // 运单路由是否存在当前操作站点
+        if (!routeDto.isRoutExistCurrentSite()) {
+            return false;
+        }
+        // 如果是自建任务，只需要判断操作站点是否在运单路由链路中
+        if (Constants.NUMBER_ONE.equals(taskUnloadVehicle.getManualCreatedFlag())) {
+            return true;
+        }
+        // 运单路由中当前操作站点的上游场地ID
+        Integer firstLastSiteId = routeDto.getFirstLastSiteId();
+        // 卸车任务上游封车场地ID
+        int taskStartSiteId = taskUnloadVehicle.getStartSiteId().intValue();
+        // 如果是运输任务，则还需要判断firstLastSiteId与卸车任务的上游封车场地是否一致
+        return Integer.valueOf(taskStartSiteId).equals(firstLastSiteId);
     }
 
     /**
@@ -990,15 +1021,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         result.setData(scanCount);
 
-        if (waybill == null) {
-            return;
-        }
         //春节项目的特殊逻辑
         if (WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)) {
-            ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy.queryMatchConditionRecord(request.getCurrentOperate().getSiteCode(),waybill.getOldSiteId());
-            if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, waybill.getWaybillSign())) {
-                result.setCode(InvokeResult.DP_SPECIAL_CODE);
-                result.setMessage(MessageFormat.format(InvokeResult.DP_SPECIAL_HINT_MESSAGE, barCode));
+            if (waybill != null) {
+                ConfigTransferDpSite configTransferDpSite = jyTransferConfigProxy.queryMatchConditionRecord(request.getCurrentOperate().getSiteCode(), waybill.getOldSiteId());
+                if (jyTransferConfigProxy.isMatchConfig(configTransferDpSite, waybill.getWaybillSign())) {
+                    result.setCode(InvokeResult.DP_SPECIAL_CODE);
+                    result.setMessage(MessageFormat.format(InvokeResult.DP_SPECIAL_HINT_MESSAGE, barCode));
+                }
             }
         }
 

@@ -35,13 +35,4 @@ public interface RouterService {
      * @return
      */
     public RouteNextDto matchNextNodeAndLastNodeByRouter(Integer siteCode, String waybillCode, String routerStr);
-
-    /**
-     * 判断运单路由链路中是否包含该网点
-     * @param siteCode   必填
-     * @param waybillCode   必填
-     * @return
-     */
-    public boolean hasCurrentNodeInRouteLink(Integer siteCode, String waybillCode);
-
 }
