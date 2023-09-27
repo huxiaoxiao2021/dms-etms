@@ -204,6 +204,10 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             //重复绑定去除
             if(CollectionUtils.isNotEmpty(curVehicleExistBindDetailBizId)) {
                 needDetailBizIdList.removeAll(curVehicleExistBindDetailBizId);
+                if(CollectionUtils.isEmpty(needDetailBizIdList)) {
+                    res.error("航空任务已全部绑定，无需重复绑定");
+                    return res;
+                }
                 Map<String,Object> map = curVehicleExistBindDetailBizId.stream().collect(Collectors.toMap(Function.identity(),Function.identity()));
                 List<SendTaskBindDto> distinctList = new ArrayList<>();
                 request.getSendTaskBindDtoList().forEach(o -> {
@@ -223,7 +227,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             this.taskBinding(request, elseVehicleBindDetailBizId);
             return res;
         }catch (Exception e) {
-            log.error("{}空铁绑定服务异常，request={],errMsg={}", methodDesc, JsonHelper.toJson(request), e.getMessage(), e);
+            log.error("{}空铁绑定服务异常，request={},errMsg={}", methodDesc, JsonHelper.toJson(request), e.getMessage(), e);
             res.error("空铁绑定服务异常");
             return res;
         }finally {
