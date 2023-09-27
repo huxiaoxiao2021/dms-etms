@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.auto.domain;
 import java.io.Serializable;
 import java.util.*;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 /**
  * 龙门架上传数据
  * Created by wangtingwei on 2016/3/10.
@@ -110,7 +112,11 @@ public class UploadData implements Serializable {
      * 操作人名称【可选，来源为自动分拣机时必填】
      */
     private String operatorName;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
+	
     public Date getScannerTime() {
         return scannerTime;
     }
@@ -255,5 +261,13 @@ public class UploadData implements Serializable {
     public void setOperatorName(String operatorName) {
         this.operatorName = operatorName;
     }
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 
 }

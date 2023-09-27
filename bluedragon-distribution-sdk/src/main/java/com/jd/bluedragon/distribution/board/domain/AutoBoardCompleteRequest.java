@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.board.domain;
 
 import java.io.Serializable;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 public class AutoBoardCompleteRequest implements Serializable {
     /**
      * 分拣机编码
@@ -19,7 +21,11 @@ public class AutoBoardCompleteRequest implements Serializable {
      * 操作人所属场地
      */
     private Integer siteCode;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
+	
     public String getMachineCode() {
         return machineCode;
     }
@@ -51,4 +57,12 @@ public class AutoBoardCompleteRequest implements Serializable {
     public void setSiteCode(Integer siteCode) {
         this.siteCode = siteCode;
     }
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 }

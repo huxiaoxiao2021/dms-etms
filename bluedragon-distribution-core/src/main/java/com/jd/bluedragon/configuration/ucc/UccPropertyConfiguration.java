@@ -983,6 +983,11 @@ public class UccPropertyConfiguration{
      * 组板岗板列表sql开关
      */
     private Boolean jyComboardListBoardSqlSwitch;
+    
+    /**
+     * 操作流水-发送开关
+     */
+    private Boolean sendJyOperateFlowMqSwitch;
 
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
@@ -3987,4 +3992,12 @@ public class UccPropertyConfiguration{
     public void setReverseExchangeCount(Integer reverseExchangeCount) {
         this.reverseExchangeCount = reverseExchangeCount;
     }
+
+	public Boolean getSendJyOperateFlowMqSwitch() {
+		return sendJyOperateFlowMqSwitch;
+	}
+
+	public void setSendJyOperateFlowMqSwitch(Boolean sendJyOperateFlowMqSwitch) {
+		this.sendJyOperateFlowMqSwitch = sendJyOperateFlowMqSwitch;
+	}
 }

@@ -23,6 +23,9 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
 import com.jd.bluedragon.distribution.router.RouterService;
@@ -39,7 +42,7 @@ import com.jd.bluedragon.distribution.trace.BarcodeTraceDto;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
-import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -49,6 +52,7 @@ import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.ucc.common.utils.JsonUtils;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -152,6 +156,9 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 
     @Autowired
     private RouterService routerService;
+    
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
 
     /**
      * 包裹是否发货校验
@@ -286,10 +293,8 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         Date operateTime = request.getOperateTime() == null ? new Date() : new Date(request.getOperateTime());
         tWaybillStatus.setOperateTime(operateTime);
         tWaybillStatus.setOperateType(operateType);
-		OperatorData operatorData = new OperatorData();
-		operatorData.setOperatorTypeCode(request.getOperatorTypeCode());
-		operatorData.setOperatorId(request.getOperatorId());
-		tWaybillStatus.setOperatorData(operatorData);
+        tWaybillStatus.setOperatorData(BeanConverter.convertToOperatorData(request));
+
         if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
             String boardReceiveSiteName = request.getReceiveSiteName();
             if(StringUtils.isBlank(boardReceiveSiteName)) {
@@ -441,11 +446,9 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             //取消组板的全称跟踪 -- 旧板号
             request.setBoardCode(boardOld);
             sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
-
             //组板的全称跟踪 -- 新板号
             request.setBoardCode(boardNew);
             sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-
             result.setData(tcResponse.getData());
         }else {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"组板失败!");

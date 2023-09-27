@@ -30,6 +30,9 @@ import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanService
 import com.jd.bluedragon.distribution.loadAndUnload.*;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.*;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.loadAndUnload.*;
 import com.jd.bluedragon.distribution.loadAndUnload.constants.UnloadCarConstant;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanDao;
@@ -58,6 +61,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.ucc.common.utils.JsonUtils;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -235,7 +239,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     private Cluster redisClientOfJy;
     @Autowired
     private TransferService transferService;
-
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();

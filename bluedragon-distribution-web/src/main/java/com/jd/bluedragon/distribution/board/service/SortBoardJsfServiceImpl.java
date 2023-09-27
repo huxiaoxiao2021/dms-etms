@@ -14,14 +14,20 @@ import com.jd.bluedragon.common.dto.comboard.request.ComboardDetailDto;
 import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
 import com.jd.bluedragon.common.dto.comboard.response.ComboardScanResp;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
+import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.*;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.sdk.modules.board.BoardChuteJsfService;
@@ -36,6 +42,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -92,6 +99,9 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     private BaseMajorManager baseMajorManager;
     @Autowired
     private JyComBoardSendService jyComBoardSendService;
+    
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.combinationBoardNew", mState = JProEnum.TP)
@@ -211,10 +221,14 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
             //发送全程跟踪
             com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request);
-
-            virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
+            
+            virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo,request.getOperatorData(), request.getBoard().getCode(),
                     request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
                     request.getBizSource());
+            JyOperateFlowMqData boardCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
+            boardCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.BOARD.getCode());
+            jyOperateFlowService.sendMq(boardCancelFlowMq);
+            
             response.toSucceed();
             return response;
         }catch (Exception e){
@@ -289,8 +303,11 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         }
         currentOperate.setSiteName(request.getOperatorInfo().getSiteName());
         currentOperate.setOperateTime(request.getOperatorInfo().getOperateTime());
-        currentOperate.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        currentOperate.setOperatorId(request.getMachineCode());
+        com.jd.bluedragon.common.dto.base.request.OperatorData operatorData = BeanConverter.convertToPdaOperatorDataForAuto(request);
+        currentOperate.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        currentOperate.setOperatorId(operatorData.getOperatorId());
+        currentOperate.setOperatorData(operatorData);
+        
         req.setCurrentOperate(currentOperate);
     }
 
@@ -360,8 +377,10 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         operator.setUserName(operatorInfo.getUserName());
             operator.setUserErp(operatorInfo.getUserErp());
         }
-        operator.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        operator.setOperatorId(request.getMachineCode());
+        com.jd.bluedragon.common.dto.base.request.OperatorData operatorData = BeanConverter.convertToPdaOperatorDataForAuto(request);
+        operator.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        operator.setOperatorId(operatorData.getOperatorId());
+        operator.setOperatorData(operatorData); 
         return operator;
     }
 
@@ -735,12 +754,12 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setYn(1);
         domain.setCreateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
         domain.setOperateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
-        domain.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        domain.setOperatorId(request.getMachineCode());
+        OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(request);
+        domain.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        domain.setOperatorId(operatorData.getOperatorId());
+        domain.setOperatorData(operatorData);        
         return domain;
     }
-
-
 
     public BoardChuteJsfService getBoardChuteJsfService() {
         return boardChuteJsfService;
