@@ -116,6 +116,7 @@ public class DmsSortingServiceImpl implements DmsSortingService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsSortingServiceImpl.bindingBoxMaterialPackageRelation", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<Boolean> bindingBoxMaterialPackageRelation(SortingRequestDto request) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(request == null){
@@ -193,6 +194,7 @@ public class DmsSortingServiceImpl implements DmsSortingService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsSortingServiceImpl.cancelSorting", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<Boolean> cancelSorting(SortingRequestDto request) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(request == null){
