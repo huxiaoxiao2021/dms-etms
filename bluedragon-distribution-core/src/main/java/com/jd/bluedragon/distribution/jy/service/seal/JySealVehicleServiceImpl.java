@@ -911,6 +911,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.selectBoardByTms", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void selectBoardByTms(SealVehicleInfoReq sealVehicleInfoReq) {
         // 校验当前任务是否存在暂存数据，如果不存在暂存数据，则自动选择板号
         if (!jyAppDataSealService.checkExistSaveData(sealVehicleInfoReq.getSendVehicleDetailBizId())) {
