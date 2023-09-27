@@ -304,6 +304,7 @@
 		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
 		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
 		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
+		<property name="reverseExchangeCount" value="${reverseExchangeCount:-1}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -597,6 +598,7 @@
 				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
 				<value>uccPropertyConfiguration.jyExceptionCreateBizIdSwitch</value>
 				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
+				<value>uccPropertyConfiguration.reverseExchangeCount</value>
 			</list>
 		</property>
 	</bean>
