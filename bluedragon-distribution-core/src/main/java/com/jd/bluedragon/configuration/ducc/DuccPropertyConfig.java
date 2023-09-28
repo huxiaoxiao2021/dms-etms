@@ -1607,7 +1607,7 @@ public class DuccPropertyConfig {
 	@LafUcc
 	private boolean syncScheduleTaskSwitch;
 
-	@Value("${duccPropertyConfig.teAnSiteWhitelist:}")
+	@Value("${duccPropertyConfig.teAnSiteWhitelist}")
 	@LafUcc
 	private String teAnSiteWhitelist;
 
@@ -1645,6 +1645,77 @@ public class DuccPropertyConfig {
 	@Value("${duccPropertyConfig.waybillSysNonExistPackageInterceptSwitch:true}")
 	@LafUcc
 	private Boolean waybillSysNonExistPackageInterceptSwitch;
+	
+    /**
+     * 操作流水-发送开关
+     */
+	@Value("${duccPropertyConfig.sendJyOperateFlowMqSwitch:true}")
+	@LafUcc	
+    private Boolean sendJyOperateFlowMqSwitch;
+	
+	@Value("${duccPropertyConfig.needValidateMainLineBizSources}")
+	@LafUcc	
+    private String needValidateMainLineBizSources;
+	
+    /**
+     * 是否使用设备抽检图片AI识别结果
+     */
+	@Value("${duccPropertyConfig.useEquipmentSpotCheckAIDistinguishResult:false}")
+	@LafUcc	
+    private boolean useEquipmentSpotCheckAIDistinguishResult;
+	
+	@Value("${duccPropertyConfig.oldSendForbiddenSwitch:false}")
+	@LafUcc
+    private boolean oldSendForbiddenSwitch;
+    /**
+     * 接货仓发货岗查询发货明细表，默认limit最大值
+     */
+	@Value("${duccPropertyConfig.JyWarehouseSendVehicleDetailQueryDefaultLimitSize:30}")
+	@LafUcc	
+    private Integer JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    /**
+     * 接货仓发货岗混扫任务下流向数量配置： 当前ucc配置，而且改为PC报表控制
+     * ,38:10,,10186:15,,,  配置：38场地支持10个流向， 10186支持15个流向
+     */
+	@Value("${duccPropertyConfig.JyWarehouseSendVehicleMixScanTaskFlowNumConfig:,38:10,,,10186:15,,,910:20,,,223094:13}")
+	@LafUcc		
+    private String JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    /**
+     * 拣运扫描没有限制最大数量，取消可能存在巨大值，当取消特大时，需要关注是否为异常
+     */
+	@Value("${duccPropertyConfig.JyBuQiWaybillCodeMaxSum:50000}")
+	@LafUcc	
+    private Integer JyBuQiWaybillCodeMaxSum;
+    /**
+     * 封车前装载率限制
+     */
+	@Value("${duccPropertyConfig.beforeSealVehicleLoadRateLimit:0.0}")
+	@LafUcc	
+    private double beforeSealVehicleLoadRateLimit;
+	@Value("${duccPropertyConfig.beforeSendVehicleLoadRateLimit:0.0}")
+	@LafUcc
+    private double beforeSendVehicleLoadRateLimit;
+	@Value("${duccPropertyConfig.beforeSealVehicleLoadRateLimitCheckSwitch:false}")
+	@LafUcc
+    private boolean beforeSealVehicleLoadRateLimitCheckSwitch;
+    /**
+     * 航空发货封车岗列表查询
+     */
+	@Value("${duccPropertyConfig.aviationSendSealListNextSiteQueryLimit}")
+	@LafUcc
+    private Integer aviationSendSealListNextSiteQueryLimit;
+    /**
+     * 待派车查询时间范围  单位小时
+     */
+	@Value("${duccPropertyConfig.fetchCarDistributionTimeRange:48}")
+	@LafUcc
+    private Integer fetchCarDistributionTimeRange;
+    /**
+     * 作业APP发货特殊产品类型提示，到指定剩余分钟数才提示
+     */
+	@Value("${duccPropertyConfig.jySendSpecialProductTypeToScanShowRemainMinutes:30}")
+	@LafUcc	
+    private Integer jySendSpecialProductTypeToScanShowRemainMinutes;
 	
 	public boolean isUseDucc() {
 		return useDucc;
@@ -4051,5 +4122,37 @@ public class DuccPropertyConfig {
 
 	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
 		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
+	}
+
+	public Boolean getSendJyOperateFlowMqSwitch() {
+		return sendJyOperateFlowMqSwitch;
+	}
+
+	public void setSendJyOperateFlowMqSwitch(Boolean sendJyOperateFlowMqSwitch) {
+		this.sendJyOperateFlowMqSwitch = sendJyOperateFlowMqSwitch;
+	}
+
+	public String getNeedValidateMainLineBizSources() {
+		return needValidateMainLineBizSources;
+	}
+
+	public void setNeedValidateMainLineBizSources(String needValidateMainLineBizSources) {
+		this.needValidateMainLineBizSources = needValidateMainLineBizSources;
+	}
+
+	public boolean isUseEquipmentSpotCheckAIDistinguishResult() {
+		return useEquipmentSpotCheckAIDistinguishResult;
+	}
+
+	public void setUseEquipmentSpotCheckAIDistinguishResult(boolean useEquipmentSpotCheckAIDistinguishResult) {
+		this.useEquipmentSpotCheckAIDistinguishResult = useEquipmentSpotCheckAIDistinguishResult;
+	}
+
+	public boolean isOldSendForbiddenSwitch() {
+		return oldSendForbiddenSwitch;
+	}
+
+	public void setOldSendForbiddenSwitch(boolean oldSendForbiddenSwitch) {
+		this.oldSendForbiddenSwitch = oldSendForbiddenSwitch;
 	}	
 }
