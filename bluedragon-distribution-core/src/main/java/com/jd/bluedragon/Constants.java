@@ -2154,4 +2154,32 @@ public class Constants {
     public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
 
 
+
+    /**
+     * 本场地多扫标识
+     */
+    public static final Integer MORE_LOCAL_SCAN = 1;
+
+    /**
+     * 非本场地多扫标识
+     */
+    public static final Integer MORE_OUT_SCAN = 2;
+
+    /**
+     * 本场地部分多扫标识
+     */
+    public static final Integer MORE_LOCAL_PART_SCAN = 3;
+
+    /**
+     *  配置信息-非本场地多扫弱提醒开关
+     *
+     */
+    public static final String MORE_OUT_SCAN_NOTIFY_SWITCH = "more.out.scan.notify.switch";
+
+    /**
+     *  配置信息-查询es卸车扫描是否多扫开关
+     *
+     */
+    public static final String MORE_SCAN_QUERY_ES_SWITCH = "more.scan.query.es.switch";
+
 }
