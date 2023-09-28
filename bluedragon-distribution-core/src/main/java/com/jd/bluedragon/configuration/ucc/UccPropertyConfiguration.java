@@ -3495,24 +3495,20 @@ public class UccPropertyConfiguration{
 
     public void setJyWorkAppAutoRefreshConfig(String jyWorkAppAutoRefreshConfig) {
         this.jyWorkAppAutoRefreshConfig = jyWorkAppAutoRefreshConfig;
-        this.setJyWorkAppAutoRefreshConfigList(jyWorkAppAutoRefreshConfig);
+        if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
+            final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
+            if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
+                jyWorkAppAutoRefreshConfigList = clientAutoRefreshConfigList;
+            }
+        }        
     }
 
     public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
         return Lists.newArrayList(jyWorkAppAutoRefreshConfigList);
     }
 
-    public void setJyWorkAppAutoRefreshConfigList(String jyWorkAppAutoRefreshConfig) {
-        if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
-            final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
-            if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
-                jyWorkAppAutoRefreshConfigList = clientAutoRefreshConfigList;
-            }
-        }
-    }
-
-    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
-        return jyWorkAppAutoRefreshConfigList;
+    public void setJyWorkAppAutoRefreshConfigList(List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList) {
+        this.jyWorkAppAutoRefreshConfigList = jyWorkAppAutoRefreshConfigList;
     }
     public ClientAutoRefreshConfig getJyWorkAppAutoRefreshConfigByBusinessType(String businessType) {
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
@@ -3622,7 +3618,7 @@ public class UccPropertyConfiguration{
 
     private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
 
-    public boolean matchExceptionSubmitCheckWaybillInterceptType(int interceptType) {
+    public boolean matchExceptionSubmitCheckWaybillInterceptType(Integer interceptType) {
         if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
             return false;
         }
@@ -3827,10 +3823,6 @@ public class UccPropertyConfiguration{
 
 	public void setDpSpringSiteCodeList(List<Integer> dpSpringSiteCodeList) {
 		this.dpSpringSiteCodeList = dpSpringSiteCodeList;
-	}
-
-	public void setJyWorkAppAutoRefreshConfigList(List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList) {
-		this.jyWorkAppAutoRefreshConfigList = jyWorkAppAutoRefreshConfigList;
 	}
 
 	public void setDewuCustomerCodeList(List<String> dewuCustomerCodeList) {
