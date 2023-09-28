@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.beans.BeanUtils;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
@@ -3376,7 +3378,9 @@ public class DuccPropertyConfig {
     }
 
 	public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
-		return autoCloseJyBizTaskConfigObj;
+        AutoCloseJyBizTaskConfig config = new AutoCloseJyBizTaskConfig();
+        BeanUtils.copyProperties(autoCloseJyBizTaskConfigObj, config);
+        return config;
 	}
 
 	public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {
@@ -3821,7 +3825,7 @@ public class DuccPropertyConfig {
 	}
 
 	public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
-		return jyWorkAppAutoRefreshConfigList;
+        return Lists.newArrayList(jyWorkAppAutoRefreshConfigList);
 	}
 
 	public void setJyWorkAppAutoRefreshConfigList(List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList) {
