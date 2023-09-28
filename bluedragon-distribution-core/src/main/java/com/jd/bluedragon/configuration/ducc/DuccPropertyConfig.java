@@ -1718,6 +1718,12 @@ public class DuccPropertyConfig {
 	@Value("${duccPropertyConfig.jySendSpecialProductTypeToScanShowRemainMinutes:30}")
 	@LafUcc	
     private Integer jySendSpecialProductTypeToScanShowRemainMinutes;
+    /**
+     * 抽检数据是否下发给计费
+     */
+	@Value("${duccPropertyConfig.isIssueToFinance:false}")
+	@LafUcc	
+    private boolean isIssueToFinance;
 	
 	public boolean isUseDucc() {
 		return useDucc;
