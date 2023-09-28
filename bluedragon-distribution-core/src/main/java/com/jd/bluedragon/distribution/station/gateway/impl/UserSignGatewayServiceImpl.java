@@ -377,18 +377,12 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			if(attendanceBlackList !=null){
 				int cancelFlag=attendanceBlackList.getCancelFlag();
 				Date takeTime=attendanceBlackList.getTakeTime();
-				Date loseTime=attendanceBlackList.getLoseTime();
 				String dateStr= DateUtil.format(new Date(),DateUtil.FORMAT_DATE_MINUTE);
 				Date currentTime=DateUtil.parse(dateStr,DateUtil.FORMAT_DATE_MINUTE);
 				if(cancelFlag ==Constants.NUMBER_ZERO && (currentTime.compareTo(takeTime) < Constants.NUMBER_ZERO)){
 					//待生效
 					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TOBE_EFFECTIVE_MSG, userCode,DateUtil.format(takeTime,DateUtil.FORMAT_DATE));
 					result.toConfirm(defaultMsg);
-					return defaultMsg;
-				}else if(cancelFlag ==Constants.NUMBER_ZERO && ((loseTime ==null && currentTime.compareTo(takeTime) >=0) ||  (loseTime !=null && currentTime.compareTo(takeTime) >=0 && currentTime.compareTo(loseTime) <0))){//已生效
-					//已生效
-					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG, userCode);
-					result.toFail(defaultMsg);
 					return defaultMsg;
 				}
 			}

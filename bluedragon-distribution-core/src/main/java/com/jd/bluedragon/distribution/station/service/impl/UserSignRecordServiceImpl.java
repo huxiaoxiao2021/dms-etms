@@ -106,8 +106,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 	@Autowired
 	private PositionManager positionManager;
-	@Autowired
-	private AttendanceBlackListManager attendanceBlackListManager;
 
 	@Autowired
 	@Qualifier("jyGroupMemberService")
@@ -127,7 +125,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	@Value("${beans.userSignRecordService.deleteCheckHours:4}")
 	private double deleteCheckHours;
-
+	@Autowired
+	private AttendanceBlackListManager attendanceBlackListManager;
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";
@@ -912,15 +911,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		String userCode = signInData.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 
-//      与测试caidan6 沟通其他签到暂不需要校验出勤黑名单
-
-//		if(isCarId){
-//			String  msg=checkAttendanceBlackList(userCode);
-//			if(StringUtils.isNotBlank(msg)){
-//				result.toFail(msg);
-//				return result;
-//			}
-//		}
+		if(isCarId){
+			String  msg=checkAttendanceBlackList(result,userCode);
+			if(StringUtils.isNotBlank(msg)){
+				return result;
+			}
+		}
 		String checkMsg = checkJobCodeSignIn(gridInfo, jobCode);
 		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
 		if(StringUtils.isNotBlank(checkMsg)){
@@ -1705,7 +1701,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			throw new JyBizException("参数错误：场地编码为空！");
 		}
 	}
-	private String checkAttendanceBlackList(String userCode){
+
+	private String checkAttendanceBlackList(JdCResponse<UserSignRecordData> result,String userCode){
 		//查询出勤黑名单，并校验
 		com.jdl.basic.common.utils.Result<AttendanceBlackList> rs=attendanceBlackListManager.queryByUserCode(userCode);
 		if(rs == null){
@@ -1719,13 +1716,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				Date loseTime=attendanceBlackList.getLoseTime();
 				String dateStr= DateUtil.format(new Date(),DateUtil.FORMAT_DATE_MINUTE);
 				Date currentTime=DateUtil.parse(dateStr,DateUtil.FORMAT_DATE_MINUTE);
-				if(cancelFlag ==Constants.NUMBER_ZERO && (currentTime.compareTo(takeTime) < Constants.NUMBER_ZERO)){
-					//待生效
-					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TOBE_EFFECTIVE_MSG, userCode,DateUtil.format(takeTime,DateUtil.FORMAT_DATE));
-					return defaultMsg;
-				}else if(cancelFlag ==Constants.NUMBER_ZERO && ((loseTime ==null && currentTime.compareTo(takeTime) >=0) ||  (loseTime !=null && currentTime.compareTo(takeTime) >=0 && currentTime.compareTo(loseTime) <0))){//已生效
+				if(cancelFlag ==Constants.NUMBER_ZERO && ((loseTime ==null && currentTime.compareTo(takeTime) >=0) ||  (loseTime !=null && currentTime.compareTo(takeTime) >=0 && currentTime.compareTo(loseTime) <0))){//已生效
 					//已生效
 					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG, userCode);
+					result.toFail(defaultMsg);
 					return defaultMsg;
 				}
 			}
