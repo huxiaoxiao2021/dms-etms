@@ -3,6 +3,7 @@ package com.jd.bluedragon.configuration.ucc;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
+import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -17,7 +18,7 @@ import java.util.*;
  *  Note :
  *      - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
  */
-public class UccPropertyConfiguration {
+public class UccPropertyConfiguration{
 
     /** 开启的多级异步缓冲组件的任务类型列表 **/
     private String asynbufferEnabledTaskType;
@@ -1189,6 +1190,8 @@ public class UccPropertyConfiguration {
      * 身份证识别切量开关，全量上线之后，可以删除
      */
     private String identityRecogniseSiteSwitch;
+    
+    private List<String> identityRecogniseSiteSwitchList;
     /**
      * 传摆发货-干支限制业务列表
      */
@@ -2833,6 +2836,7 @@ public class UccPropertyConfiguration {
     }
 
     public void setDpSiteCodes(String dpSiteCodes) {
+    	this.dpSiteCodes = dpSiteCodes;
         if(StringUtils.isBlank(dpSiteCodes)){
             return;
         }
@@ -2873,14 +2877,16 @@ public class UccPropertyConfiguration {
         this.faceAbnormalReportConfig = faceAbnormalReportConfig;
     }
 
-    public List<String> getIdentityRecogniseSiteSwitch() {
-        return StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
-                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
-                : Collections.singletonList("0");
+    public String getIdentityRecogniseSiteSwitch() {
+        return identityRecogniseSiteSwitch;
     }
 
     public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
+        
+        identityRecogniseSiteSwitchList = (StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
+                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
+                : Collections.singletonList("0"));
     }
 
     public Integer getJySendTaskPlanTimeBeginDay() {
@@ -3505,6 +3511,9 @@ public class UccPropertyConfiguration {
         }
     }
 
+    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
+        return jyWorkAppAutoRefreshConfigList;
+    }
     public ClientAutoRefreshConfig getJyWorkAppAutoRefreshConfigByBusinessType(String businessType) {
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
@@ -3576,18 +3585,14 @@ public class UccPropertyConfiguration {
 
     public void setExceptionSubmitCheckSites(String exceptionSubmitCheckSites) {
         this.exceptionSubmitCheckSites = exceptionSubmitCheckSites;
-        this.setExceptionSubmitCheckSiteList(exceptionSubmitCheckSites);
-    }
-
-    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
-
-    public void setExceptionSubmitCheckSiteList(String exceptionSubmitCheckSites) {
         if(exceptionSubmitCheckSites == null){
             exceptionSubmitCheckSiteList = new ArrayList<>();
             return;
         }
         exceptionSubmitCheckSiteList = Arrays.asList(exceptionSubmitCheckSites.split(Constants.SEPARATOR_COMMA));
     }
+
+    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
 
     public boolean matchExceptionSubmitCheckSite(int siteId) {
         if(StringUtils.isBlank(exceptionSubmitCheckSites)){
@@ -3608,12 +3613,6 @@ public class UccPropertyConfiguration {
 
     public void setExceptionSubmitCheckWaybillInterceptTypes(String exceptionSubmitCheckWaybillInterceptTypes) {
         this.exceptionSubmitCheckWaybillInterceptTypes = exceptionSubmitCheckWaybillInterceptTypes;
-        this.setExceptionSubmitCheckWaybillInterceptTypeList(exceptionSubmitCheckWaybillInterceptTypes);
-    }
-
-    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
-
-    public void setExceptionSubmitCheckWaybillInterceptTypeList(String exceptionSubmitCheckWaybillInterceptTypes) {
         if(exceptionSubmitCheckWaybillInterceptTypes == null){
             exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
             return;
@@ -3621,7 +3620,9 @@ public class UccPropertyConfiguration {
         exceptionSubmitCheckWaybillInterceptTypeList = Arrays.asList(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA));
     }
 
-    public boolean matchExceptionSubmitCheckWaybillInterceptType(Integer interceptType) {
+    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
+
+    public boolean matchExceptionSubmitCheckWaybillInterceptType(int interceptType) {
         if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
             return false;
         }
@@ -3746,4 +3747,105 @@ public class UccPropertyConfiguration {
     public void setReverseExchangeCount(Integer reverseExchangeCount) {
         this.reverseExchangeCount = reverseExchangeCount;
     }
+
+	public boolean iseNetSyncWaybillCodeAndBoxCode() {
+		return eNetSyncWaybillCodeAndBoxCode;
+	}
+
+	public void seteNetSyncWaybillCodeAndBoxCode(boolean eNetSyncWaybillCodeAndBoxCode) {
+		this.eNetSyncWaybillCodeAndBoxCode = eNetSyncWaybillCodeAndBoxCode;
+	}
+
+	public List<Integer> getNeedValidateMainLineBizSourceCodes() {
+		return needValidateMainLineBizSourceCodes;
+	}
+
+	public void setNeedValidateMainLineBizSourceCodes(List<Integer> needValidateMainLineBizSourceCodes) {
+		this.needValidateMainLineBizSourceCodes = needValidateMainLineBizSourceCodes;
+	}
+
+	public List<Integer> getNotValidateTransTypeCodes() {
+		return notValidateTransTypeCodes;
+	}
+
+	public void setNotValidateTransTypeCodes(List<Integer> notValidateTransTypeCodes) {
+		this.notValidateTransTypeCodes = notValidateTransTypeCodes;
+	}
+
+	public List<String> get_multiplePackageSpotCheckSitesList() {
+		return _multiplePackageSpotCheckSitesList;
+	}
+
+	public void set_multiplePackageSpotCheckSitesList(List<String> _multiplePackageSpotCheckSitesList) {
+		this._multiplePackageSpotCheckSitesList = _multiplePackageSpotCheckSitesList;
+	}
+
+	public int getHideSpecialStartSitePrintReplaceSymbolMaxLength() {
+		return hideSpecialStartSitePrintReplaceSymbolMaxLength;
+	}
+
+	public void setJySendTaskLoadRateUpperLimit(Integer jySendTaskLoadRateUpperLimit) {
+		this.jySendTaskLoadRateUpperLimit = jySendTaskLoadRateUpperLimit;
+	}
+
+	public void setJySendTaskLoadRateLowerLimit(Integer jySendTaskLoadRateLowerLimit) {
+		this.jySendTaskLoadRateLowerLimit = jySendTaskLoadRateLowerLimit;
+	}
+
+	public void setHideSpecialStartSitPrintDestinationSiteStrList(
+			List<String> hideSpecialStartSitPrintDestinationSiteStrList) {
+		this.hideSpecialStartSitPrintDestinationSiteStrList = hideSpecialStartSitPrintDestinationSiteStrList;
+	}
+
+	public void setVirtualBoardCanUseSiteList(List<String> virtualBoardCanUseSiteList) {
+		this.virtualBoardCanUseSiteList = virtualBoardCanUseSiteList;
+	}
+
+	public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
+		return autoCloseJyBizTaskConfigObj;
+	}
+
+	public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {
+		this.autoCloseJyBizTaskConfigObj = autoCloseJyBizTaskConfigObj;
+	}
+
+	public List<String> getExceptionSubmitCheckSiteList() {
+		return exceptionSubmitCheckSiteList;
+	}
+
+	public void setExceptionSubmitCheckSiteList(List<String> exceptionSubmitCheckSiteList) {
+		this.exceptionSubmitCheckSiteList = exceptionSubmitCheckSiteList;
+	}
+
+	public List<String> getExceptionSubmitCheckWaybillInterceptTypeList() {
+		return exceptionSubmitCheckWaybillInterceptTypeList;
+	}
+
+	public void setExceptionSubmitCheckWaybillInterceptTypeList(List<String> exceptionSubmitCheckWaybillInterceptTypeList) {
+		this.exceptionSubmitCheckWaybillInterceptTypeList = exceptionSubmitCheckWaybillInterceptTypeList;
+	}
+
+	public void setDpSpringSiteCodeList(List<Integer> dpSpringSiteCodeList) {
+		this.dpSpringSiteCodeList = dpSpringSiteCodeList;
+	}
+
+	public void setJyWorkAppAutoRefreshConfigList(List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList) {
+		this.jyWorkAppAutoRefreshConfigList = jyWorkAppAutoRefreshConfigList;
+	}
+
+	public void setDewuCustomerCodeList(List<String> dewuCustomerCodeList) {
+		this.dewuCustomerCodeList = dewuCustomerCodeList;
+	}
+
+	public void setTeAnSiteWhitelistStrList(List<String> teAnSiteWhitelistStrList) {
+		this.teAnSiteWhitelistStrList = teAnSiteWhitelistStrList;
+	}
+
+	public List<String> getIdentityRecogniseSiteSwitchList() {
+		return identityRecogniseSiteSwitchList;
+	}
+
+	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
+		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
+	}
 }
