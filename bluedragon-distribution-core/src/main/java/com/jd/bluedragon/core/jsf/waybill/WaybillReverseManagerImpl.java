@@ -174,7 +174,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
      * @return
      */
     public boolean waybillReverse(DmsWaybillReverseDTO dmsWaybillReverseDTO,JdResponse<Boolean> rest){
-        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode(),dmsWaybillReverseDTO.getSortCenterId())) {
+        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode(),dmsWaybillReverseDTO.getSortCenterId(),dmsWaybillReverseDTO.getReturnType())) {
         	return this.waybillReverseNew(dmsWaybillReverseDTO, rest);
         }else {
         	return lDOPManager.waybillReverse(dmsWaybillReverseDTO, rest);
@@ -192,7 +192,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     }
     @Override
     public DmsWaybillReverseResult waybillReverse(DmsWaybillReverseDTO dmsWaybillReverseDTO,StringBuilder errorMessage) {
-        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode(),dmsWaybillReverseDTO.getSortCenterId())) {
+        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode(),dmsWaybillReverseDTO.getSortCenterId(),dmsWaybillReverseDTO.getReturnType())) {
         	return this.waybillReverseNew(dmsWaybillReverseDTO, errorMessage);
         }else {
         	return lDOPManager.waybillReverse(dmsWaybillReverseDTO, errorMessage);
@@ -232,7 +232,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
      */
 	@Override
     public DmsWaybillReverseResponseDTO queryReverseWaybill(DmsWaybillReverseDTO dmsWaybillReverseDTO,StringBuilder errorMessage) {
-        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode(),dmsWaybillReverseDTO.getSortCenterId())) {
+        if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode(),dmsWaybillReverseDTO.getSortCenterId(),dmsWaybillReverseDTO.getReturnType())) {
         	return this.queryReverseWaybillNew(dmsWaybillReverseDTO, errorMessage);
         }else {
         	return lDOPManager.queryReverseWaybill(dmsWaybillReverseDTO, errorMessage);
@@ -527,12 +527,24 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 	 * @param waybillCode
 	 * @return
 	 */
-	private boolean needUseNewReverseApi(String waybillCode,Integer siteCode){
+	private boolean needUseNewReverseApi(String waybillCode,Integer siteCode,Integer returnType){
 		//先判断是否开启ucc配置
 		if(!uccPropertyConfiguration.isNeedUseNewReverseApi()) {
 			log.info("百川接口切换-0：不调百川接口{}",waybillCode);
 			return false;
 		}
+        //问题运单白名单列表匹配到的直接不走百川，走老逻辑
+        List<String> waybillList = sysConfigService.getStringListConfig(Constants.BAICHUAN_REVERSE_WAYBILL_OLD_L_CONF);
+        if(!waybillList.isEmpty() && waybillList.contains(waybillCode)){
+            log.info("百川接口切换-0：运单匹配强制老逻辑列表,不调百川接口 {}",waybillCode);
+            return false;
+        }
+        //退货类型配置 直接不走百川，走老逻辑
+        List<String> returnTypeList = sysConfigService.getStringListConfig(Constants.BAICHUAN_REVERSE_TYPE_CONF);
+        if(returnType != null && !returnTypeList.isEmpty() && returnTypeList.contains(String.valueOf(returnType))){
+            log.info("百川接口切换-0：退货类型配置强制老逻辑列表,不调百川接口 {}",waybillCode);
+            return false;
+        }
         //获取新单的地方没有场地列表，正好这次不做切换，等提交接口切换全国的时候一起切换
         if(siteCode == null){
             log.info("百川接口切换-0：不调百川接口{} siteCode is null",waybillCode);
@@ -565,7 +577,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 
 	@Override
 	public Waybill getQuickProduceWabillFromDrec(String waybillCode) {
-        if(needUseNewReverseApi(waybillCode,null)) {
+        if(needUseNewReverseApi(waybillCode,null,null)) {
         	return getQuickProduceWabillFromDrecNew(waybillCode);
         }else {
         	return getQuickProduceWabillFromDrecOld(waybillCode);
@@ -638,7 +650,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 	 */
 	@Override
 	public JdResult<String> queryWaybillCodeByOldWaybillCode(String oldWaybillCode) {
-        if(needUseNewReverseApi(oldWaybillCode,null)) {
+        if(needUseNewReverseApi(oldWaybillCode,null,null)) {
         	return queryWaybillCodeByOldWaybillCodeNew(oldWaybillCode);
         }else {
         	return queryWaybillCodeByOldWaybillCodeOld(oldWaybillCode);
