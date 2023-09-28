@@ -182,7 +182,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         unloadEntity.setCreateTime(unloadScanDto.getCreateTime());
         unloadEntity.setUpdateTime(unloadScanDto.getUpdateTime());
         unloadEntity.setStageBizId(unloadScanDto.getStageBizId());
-
+        unloadEntity.setMoreFlag(unloadScanDto.getMoreFlag());
         return unloadEntity;
     }
 

@@ -232,4 +232,20 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
         }
         return waybillAggPager;
     }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleManagerImpl.queryShouldScanCountByBarCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Long queryShouldScanCountByBarCode(Pager<JyVehicleTaskUnloadDetail> query) {
+        try {
+            ServiceResult<Long> serviceResult = unloadVehicleJsfService.queryShouldScanCountByBarCode(query);
+            if (serviceResult.retSuccess()) {
+                return serviceResult.getData();
+            } else {
+                log.warn("卸车任务根据barCode查询应扫包裹数量失败:query={},serviceResult={}", JsonHelper.toJson(query), JsonHelper.toJson(serviceResult));
+            }
+        } catch (Exception ex) {
+            log.error("卸车任务根据barCode查询应扫包裹数量异常:query={}", JsonHelper.toJson(query), ex);
+        }
+        return 0L;
+    }
 }
