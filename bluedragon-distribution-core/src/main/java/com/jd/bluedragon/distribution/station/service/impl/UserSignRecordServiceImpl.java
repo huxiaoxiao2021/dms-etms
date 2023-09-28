@@ -513,7 +513,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
                     UserSignRecord updateData = new UserSignRecord();
                     updateData.setSignOutTime(now);
                     updateData.setUpdateTime(now);
-                    updateData.setUpdateUser("sys.dms");
+					updateData.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
                     updateData.setUpdateUserName(updateData.getUpdateUser());
 
                     updateRows += userSignRecordDao.signOutById(updateData, toSignOutPks);
