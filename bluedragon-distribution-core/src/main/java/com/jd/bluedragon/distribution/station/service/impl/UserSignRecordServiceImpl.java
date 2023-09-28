@@ -130,7 +130,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	@Value("${beans.userSignRecordService.autoSignOutByMqSenconds:30}")
 	private int autoSignOutByMqOffSenconds;
-	
+
+	@Autowired
+	private AttendanceBlackListManager attendanceBlackListManager;
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";
@@ -146,7 +148,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Autowired
 	private WorkStationGridManager workStationGridManager;
     @Autowired
-    private SysConfigService sysConfigService;	
+    private SysConfigService sysConfigService;
 
 	/**
 	 * 插入一条数据
@@ -508,7 +510,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
                     UserSignRecord updateData = new UserSignRecord();
                     updateData.setSignOutTime(now);
                     updateData.setUpdateTime(now);
-                    updateData.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
+                    updateData.setUpdateUser("sys.dms");
                     updateData.setUpdateUserName(updateData.getUpdateUser());
 
                     updateRows += userSignRecordDao.signOutById(updateData, toSignOutPks);
@@ -580,14 +582,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         if (lastUnSignOutRecord.getSiteCode() == null) {
         	log.info("autoHandleSignOutByAttendJmq：站点为空，无需处理！");
         	return result;
-        }		
+        }
         SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES);
-        if (content != null 
-        		&& !Boolean.TRUE.equals(content.getMasterSwitch()) 
+        if (content != null
+        		&& !Boolean.TRUE.equals(content.getMasterSwitch())
         		&& !content.getSiteCodes().contains(lastUnSignOutRecord.getSiteCode())) {
         	log.info("autoHandleSignOutByAttendJmq：站点【{}】未开启自动签退，无需处理！",lastUnSignOutRecord.getSiteCode());
         	return result;
-        }		
+        }
 		//执行-签退逻辑
 		List<Long> toSignOutPks = new ArrayList<>();
         UserSignRecord updateData = new UserSignRecord();
@@ -621,7 +623,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		//自动签退完发送咚咚通知
         NoticeUtils.noticeToTimelineWithNoUrl(MSG_FORMAT_AUTO_SIGN_OUT_TITLE, String.format(MSG_FORMAT_AUTO_SIGN_OUT_CONTENT, gridName,ownerUserErp), erpList);
 		return result;
-	}     
+	}
     /**
      * 根据条件查询-转成通知对象
      * @param query
@@ -1008,6 +1010,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		String userCode = signInData.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 
+		if(isCarId){
+			String  msg=checkAttendanceBlackList(result,userCode);
+			if(StringUtils.isNotBlank(msg)){
+				return result;
+			}
+		}
 		String checkMsg = checkJobCodeSignIn(gridInfo, jobCode);
 		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
 		if(StringUtils.isNotBlank(checkMsg)){
@@ -1792,5 +1800,30 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if (ObjectHelper.isEmpty(query.getSiteCode())){
 			throw new JyBizException("参数错误：场地编码为空！");
 		}
+	}
+
+	private String checkAttendanceBlackList(JdCResponse<UserSignRecordData> result,String userCode){
+		//查询出勤黑名单，并校验
+		com.jdl.basic.common.utils.Result<AttendanceBlackList> rs=attendanceBlackListManager.queryByUserCode(userCode);
+		if(rs == null){
+			return "调用AttendanceBlackListJsfService失败";
+		}
+		if(rs.isSuccess()){
+			AttendanceBlackList attendanceBlackList=rs.getData();
+			if(attendanceBlackList !=null){
+				int cancelFlag=attendanceBlackList.getCancelFlag();
+				Date takeTime=attendanceBlackList.getTakeTime();
+				Date loseTime=attendanceBlackList.getLoseTime();
+				String dateStr= DateUtil.format(new Date(),DateUtil.FORMAT_DATE_MINUTE);
+				Date currentTime=DateUtil.parse(dateStr,DateUtil.FORMAT_DATE_MINUTE);
+				if(cancelFlag ==Constants.NUMBER_ZERO && ((loseTime ==null && currentTime.compareTo(takeTime) >=0) ||  (loseTime !=null && currentTime.compareTo(takeTime) >=0 && currentTime.compareTo(loseTime) <0))){//已生效
+					//已生效
+					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG, userCode);
+					result.toFail(defaultMsg);
+					return defaultMsg;
+				}
+			}
+		}
+		return  "";
 	}
 }
