@@ -838,6 +838,16 @@ public class Constants {
     public static final String SEND_CAPABILITY_SITE_CONF = "send.capability.site.conf";
 
     /**
+     *  配置信息-切换百川流量,强制走老逻辑运单列表
+     */
+    public static final String BAICHUAN_REVERSE_WAYBILL_OLD_L_CONF = "baichuan.reverse.waybill.old.logic.conf";
+
+    /**
+     *  配置信息-切换百川流量,强制走老逻辑退货类型列表
+     */
+    public static final String BAICHUAN_REVERSE_TYPE_CONF = "baichuan.reverse.type.old.logic.conf";
+
+    /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
      */
     public static final String SYS_CONFIG_PDD_PRINT_TYPE_NOT_USE = "pdd.print.type.not.use";
