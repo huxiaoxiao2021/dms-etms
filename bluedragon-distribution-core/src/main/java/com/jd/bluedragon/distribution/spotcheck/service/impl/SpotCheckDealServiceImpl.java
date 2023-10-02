@@ -72,10 +72,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     private static final Logger logger = LoggerFactory.getLogger(SpotCheckDealServiceImpl.class);
 
-    /**外部 访问域名 */
-    private static final String STORAGE_DOMAIN_COM = "storage.jd.com";
-    /**内部 访问域名 */
-    private static final String STORAGE_DOMAIN_LOCAL = "storage.jd.local";
+    @Value("${oss.innerNet}")
+    private String innerOssUrl;
+    @Value("${oss.outerNet}")
+    private String outOssUrl;
 
     private static final int OUT_EXCESS_STATUS = 3; // 外部门定义的未超标值
 
@@ -607,7 +607,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             List<DwsAIDistinguishMQ.Package> list = new ArrayList<>();
             DwsAIDistinguishMQ.Package packageUrl = new DwsAIDistinguishMQ.Package();
             packageUrl.setPackageCode(spotCheckDto.getPackageCode());
-            packageUrl.setPicUrl(picUrl.replace(STORAGE_DOMAIN_COM, STORAGE_DOMAIN_LOCAL));
+            packageUrl.setPicUrl(replaceOutIn(picUrl));
             list.add(packageUrl);
             DwsAIDistinguishMQ dwsAIDistinguishMQ = new DwsAIDistinguishMQ();
             dwsAIDistinguishMQ.setUuid(spotCheckDto.getWaybillCode().concat(Constants.SEPARATOR_HYPHEN).concat(String.valueOf(System.currentTimeMillis())));
@@ -795,11 +795,30 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         return picList;
     }
 
-    private String replaceInOut(String inAddress) {
-        if(StringUtils.isEmpty(inAddress)){
+    /**
+     * 内网转外网
+     * 
+     * @param address
+     * @return
+     */
+    private String replaceInOut(String address) {
+        if(StringUtils.isEmpty(address)){
             return Constants.EMPTY_FILL;
         }
-        return inAddress.replace(STORAGE_DOMAIN_LOCAL, STORAGE_DOMAIN_COM);
+        return address.contains(innerOssUrl) ? address.replace(innerOssUrl, outOssUrl) : address;
+    }
+
+    /**
+     * 外网转内网
+     *
+     * @param packagePicUrl
+     * @return
+     */
+    private String replaceOutIn(String packagePicUrl) {
+        if(StringUtils.isEmpty(packagePicUrl)){
+            return Constants.EMPTY_FILL;
+        }
+        return packagePicUrl.contains(outOssUrl) ? packagePicUrl.replace(outOssUrl, innerOssUrl) : packagePicUrl;
     }
 
     @Override

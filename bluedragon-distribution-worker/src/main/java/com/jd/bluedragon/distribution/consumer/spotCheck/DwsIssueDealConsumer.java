@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,6 +42,11 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
 
     private final Logger logger = LoggerFactory.getLogger(DwsIssueDealConsumer.class);
 
+    @Value("${oss.innerNet}")
+    private String innerOssUrl;
+    @Value("${oss.outerNet}")
+    private String outOssUrl;
+    
     @Autowired
     private SpotCheckDealService spotCheckDealService;
 
@@ -98,7 +104,7 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
                 }
                 DwsAIDistinguishMQ.Package packageUrl = new DwsAIDistinguishMQ.Package();
                 packageUrl.setPackageCode(detailSpotCheck.getPackageCode());
-                packageUrl.setPicUrl(packagePicUrl);
+                packageUrl.setPicUrl(replaceOutIn(packagePicUrl));
                 list.add(packageUrl);
             }
             DwsAIDistinguishMQ dwsAIDistinguishMQ = new DwsAIDistinguishMQ();
@@ -122,6 +128,19 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
         } finally {
             Profiler.registerInfoEnd(info);
         }
+    }
+
+    /**
+     * 外网转内网
+     * 
+     * @param packagePicUrl
+     * @return
+     */
+    private String replaceOutIn(String packagePicUrl) {
+        if(StringUtils.isEmpty(packagePicUrl)){
+            return Constants.EMPTY_FILL;
+        }
+        return packagePicUrl.contains(outOssUrl) ? packagePicUrl.replace(outOssUrl, innerOssUrl) : packagePicUrl;
     }
 
     /**
