@@ -1724,7 +1724,70 @@ public class DuccPropertyConfig {
 	@Value("${duccPropertyConfig.isIssueToFinance:false}")
 	@LafUcc	
     private boolean isIssueToFinance;
+    /**
+     * 检查是否需要检查周转筐数量和实施数量对比
+     */
+	@Value("${duccPropertyConfig.checkAkboxConfig:true}")
+	@LafUcc	
+    private Boolean checkAkboxConfig;
+    /**
+     * 违禁品运单缓存时长
+     */
+	@Value("${duccPropertyConfig.contrabandWaybillCacheTime:0}")
+	@LafUcc	
+    private int contrabandWaybillCacheTime;
 	
+	@Value("${duccPropertyConfig.printCacheTime:50000}")
+	@LafUcc
+    private Long printCacheTime;
+    /**
+     * 组板岗混扫任务查询限制
+     */
+	@Value("${duccPropertyConfig.cttGroupDataLimit:5}")
+	@LafUcc	
+    private Integer cttGroupDataLimit;
+    /**
+     * 是否执行BC融合
+     */
+    /**
+     * 组板岗混扫任务查询限制
+     */
+	@Value("${duccPropertyConfig.executeBCFuse:false}")
+	@LafUcc		
+    private boolean executeBCFuse;	
+	
+	@Value("${duccPropertyConfig.interceptBlackList:*}")
+	@LafUcc	
+    private String interceptBlackList;
+    /**
+     * 异常任务生成id开关
+     */
+	@Value("${duccPropertyConfig.jyExceptionCreateBizIdSwitch:false}")
+	@LafUcc	
+    private boolean jyExceptionCreateBizIdSwitch;
+    /**
+     * 异常破损任务客服未反馈时间（小时）
+     */
+	@Value("${duccPropertyConfig.jyExceptionDamageTaskCustomerNotReturnHours:0}")
+	@LafUcc		
+    private int jyExceptionDamageTaskCustomerNotReturnHours;
+	@Value("${duccPropertyConfig.qingChangDataOpenSwitch:test}")
+	@LafUcc	
+    private String qingChangDataOpenSwitch;
+    
+    /**
+     * 外单逆向换单次数
+     */
+	@Value("${duccPropertyConfig.reverseExchangeCount:3}")
+	@LafUcc	
+    private Integer reverseExchangeCount;
+    /**
+     * 终端站点-包裹补打限制开关
+     */
+	@Value("${duccPropertyConfig.terminalSitePackagePrintLimitSwitch:false}")
+	@LafUcc	
+    private boolean terminalSitePackagePrintLimitSwitch;
+    
 	public boolean isUseDucc() {
 		return useDucc;
 	}
@@ -4164,5 +4227,183 @@ public class DuccPropertyConfig {
 
 	public void setOldSendForbiddenSwitch(boolean oldSendForbiddenSwitch) {
 		this.oldSendForbiddenSwitch = oldSendForbiddenSwitch;
+	}
+
+	public Integer getJyWarehouseSendVehicleDetailQueryDefaultLimitSize() {
+		return JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+	}
+
+	public void setJyWarehouseSendVehicleDetailQueryDefaultLimitSize(
+			Integer jyWarehouseSendVehicleDetailQueryDefaultLimitSize) {
+		JyWarehouseSendVehicleDetailQueryDefaultLimitSize = jyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+	}
+
+	public String getJyWarehouseSendVehicleMixScanTaskFlowNumConfig() {
+		return JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+	}
+
+	public void setJyWarehouseSendVehicleMixScanTaskFlowNumConfig(String jyWarehouseSendVehicleMixScanTaskFlowNumConfig) {
+		JyWarehouseSendVehicleMixScanTaskFlowNumConfig = jyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+	}
+
+	public Integer getJyBuQiWaybillCodeMaxSum() {
+		return JyBuQiWaybillCodeMaxSum;
+	}
+
+	public void setJyBuQiWaybillCodeMaxSum(Integer jyBuQiWaybillCodeMaxSum) {
+		JyBuQiWaybillCodeMaxSum = jyBuQiWaybillCodeMaxSum;
+	}
+
+	public double getBeforeSealVehicleLoadRateLimit() {
+		return beforeSealVehicleLoadRateLimit;
+	}
+
+	public void setBeforeSealVehicleLoadRateLimit(double beforeSealVehicleLoadRateLimit) {
+		this.beforeSealVehicleLoadRateLimit = beforeSealVehicleLoadRateLimit;
+	}
+
+	public double getBeforeSendVehicleLoadRateLimit() {
+		return beforeSendVehicleLoadRateLimit;
+	}
+
+	public void setBeforeSendVehicleLoadRateLimit(double beforeSendVehicleLoadRateLimit) {
+		this.beforeSendVehicleLoadRateLimit = beforeSendVehicleLoadRateLimit;
+	}
+
+	public boolean isBeforeSealVehicleLoadRateLimitCheckSwitch() {
+		return beforeSealVehicleLoadRateLimitCheckSwitch;
+	}
+
+	public void setBeforeSealVehicleLoadRateLimitCheckSwitch(boolean beforeSealVehicleLoadRateLimitCheckSwitch) {
+		this.beforeSealVehicleLoadRateLimitCheckSwitch = beforeSealVehicleLoadRateLimitCheckSwitch;
+	}
+
+	public Integer getAviationSendSealListNextSiteQueryLimit() {
+		return aviationSendSealListNextSiteQueryLimit;
+	}
+
+	public void setAviationSendSealListNextSiteQueryLimit(Integer aviationSendSealListNextSiteQueryLimit) {
+		this.aviationSendSealListNextSiteQueryLimit = aviationSendSealListNextSiteQueryLimit;
+	}
+
+	public Integer getFetchCarDistributionTimeRange() {
+		return fetchCarDistributionTimeRange;
+	}
+
+	public void setFetchCarDistributionTimeRange(Integer fetchCarDistributionTimeRange) {
+		this.fetchCarDistributionTimeRange = fetchCarDistributionTimeRange;
+	}
+
+	public Integer getJySendSpecialProductTypeToScanShowRemainMinutes() {
+		return jySendSpecialProductTypeToScanShowRemainMinutes;
+	}
+
+	public void setJySendSpecialProductTypeToScanShowRemainMinutes(
+			Integer jySendSpecialProductTypeToScanShowRemainMinutes) {
+		this.jySendSpecialProductTypeToScanShowRemainMinutes = jySendSpecialProductTypeToScanShowRemainMinutes;
+	}
+
+	public boolean isIssueToFinance() {
+		return isIssueToFinance;
+	}
+
+	public void setIssueToFinance(boolean isIssueToFinance) {
+		this.isIssueToFinance = isIssueToFinance;
+	}
+
+	public Boolean getCheckAkboxConfig() {
+		return checkAkboxConfig;
+	}
+
+	public void setCheckAkboxConfig(Boolean checkAkboxConfig) {
+		this.checkAkboxConfig = checkAkboxConfig;
+	}
+
+	public int getContrabandWaybillCacheTime() {
+		return contrabandWaybillCacheTime;
+	}
+
+	public void setContrabandWaybillCacheTime(int contrabandWaybillCacheTime) {
+		this.contrabandWaybillCacheTime = contrabandWaybillCacheTime;
+	}
+
+	public Long getPrintCacheTime() {
+		return printCacheTime;
+	}
+
+	public void setPrintCacheTime(Long printCacheTime) {
+		this.printCacheTime = printCacheTime;
+	}
+
+	public Integer getCttGroupDataLimit() {
+		return cttGroupDataLimit;
+	}
+
+	public void setCttGroupDataLimit(Integer cttGroupDataLimit) {
+		this.cttGroupDataLimit = cttGroupDataLimit;
+	}
+
+	public boolean isExecuteBCFuse() {
+		return executeBCFuse;
+	}
+
+	public void setExecuteBCFuse(boolean executeBCFuse) {
+		this.executeBCFuse = executeBCFuse;
+	}
+
+	public String getInterceptBlackList() {
+		return interceptBlackList;
+	}
+
+	public void setInterceptBlackList(String interceptBlackList) {
+		this.interceptBlackList = interceptBlackList;
+	}
+
+	public boolean isJyExceptionCreateBizIdSwitch() {
+		return jyExceptionCreateBizIdSwitch;
+	}
+
+	public void setJyExceptionCreateBizIdSwitch(boolean jyExceptionCreateBizIdSwitch) {
+		this.jyExceptionCreateBizIdSwitch = jyExceptionCreateBizIdSwitch;
+	}
+
+	public int getJyExceptionDamageTaskCustomerNotReturnHours() {
+		return jyExceptionDamageTaskCustomerNotReturnHours;
+	}
+
+	public void setJyExceptionDamageTaskCustomerNotReturnHours(int jyExceptionDamageTaskCustomerNotReturnHours) {
+		this.jyExceptionDamageTaskCustomerNotReturnHours = jyExceptionDamageTaskCustomerNotReturnHours;
+	}
+
+	public String getQingChangDataOpenSwitch() {
+		return qingChangDataOpenSwitch;
+	}
+
+	public void setQingChangDataOpenSwitch(String qingChangDataOpenSwitch) {
+		this.qingChangDataOpenSwitch = qingChangDataOpenSwitch;
+	}
+
+	public Integer getReverseExchangeCount() {
+		return reverseExchangeCount;
+	}
+
+	public void setReverseExchangeCount(Integer reverseExchangeCount) {
+		this.reverseExchangeCount = reverseExchangeCount;
+	}
+
+	public boolean isTerminalSitePackagePrintLimitSwitch() {
+		return terminalSitePackagePrintLimitSwitch;
+	}
+
+	public void setTerminalSitePackagePrintLimitSwitch(boolean terminalSitePackagePrintLimitSwitch) {
+		this.terminalSitePackagePrintLimitSwitch = terminalSitePackagePrintLimitSwitch;
+	}
+
+	public static Logger getLog() {
+		return log;
+	}
+
+	public static String getConfigFromLocal() {
+		return CONFIG_FROM_LOCAL;
 	}	
 }
