@@ -3364,10 +3364,8 @@ public class UccPropertyConfiguration{
         this.volumeExcessIssueSites = volumeExcessIssueSites;
     }
 
-    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
-        AutoCloseJyBizTaskConfig config = new AutoCloseJyBizTaskConfig();
-        BeanUtils.copyProperties(autoCloseJyBizTaskConfigObj, config);
-        return config;
+    public String getAutoCloseJyBizTaskConfig() {
+        return this.autoCloseJyBizTaskConfig;
     }
 
     public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
@@ -3798,7 +3796,9 @@ public class UccPropertyConfiguration{
 	}
 
 	public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
-		return autoCloseJyBizTaskConfigObj;
+        AutoCloseJyBizTaskConfig config = new AutoCloseJyBizTaskConfig();
+        BeanUtils.copyProperties(autoCloseJyBizTaskConfigObj, config);
+        return config;
 	}
 
 	public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {
