@@ -3746,8 +3746,6 @@ public class UccPropertyConfiguration{
         exceptionSubmitCheckWaybillInterceptTypeList = Arrays.asList(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA));
     }
 
-    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
-
     public boolean matchExceptionSubmitCheckWaybillInterceptType(Integer interceptType) {
         if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
             return false;
