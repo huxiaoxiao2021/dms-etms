@@ -1191,7 +1191,7 @@ public class UccPropertyConfiguration{
      */
     private String identityRecogniseSiteSwitch;
     
-    private List<String> identityRecogniseSiteSwitchList;
+    private List<String> identityRecogniseSiteSwitchList = new ArrayList<>();
     /**
      * 传摆发货-干支限制业务列表
      */
