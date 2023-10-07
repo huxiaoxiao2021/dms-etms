@@ -777,7 +777,7 @@ public class UccPropertyConfiguration{
      * @return
      */
     private String dpSiteCodes;
-    private List<Integer> dpSiteCodeList;
+    private List<Integer> dpSiteCodeList = new ArrayList<>();
 
     /**
      * 批量一车一单 德邦单匹配德邦批次号开关
@@ -1217,8 +1217,8 @@ public class UccPropertyConfiguration{
      * 身份证识别切量开关，全量上线之后，可以删除
      */
     private String identityRecogniseSiteSwitch;
-
-    private List<String> identityRecogniseSiteSwitchList;
+    
+    private List<String> identityRecogniseSiteSwitchList = new ArrayList<>();
     /**
      * 传摆发货-干支限制业务列表
      */
@@ -2957,6 +2957,7 @@ public class UccPropertyConfiguration{
     }
 
     public void setDpSiteCodes(String dpSiteCodes) {
+    	this.dpSiteCodes=dpSiteCodes;
         if(StringUtils.isBlank(dpSiteCodes)){
             return;
         }
@@ -2997,14 +2998,15 @@ public class UccPropertyConfiguration{
         this.faceAbnormalReportConfig = faceAbnormalReportConfig;
     }
 
-    public List<String> getIdentityRecogniseSiteSwitch() {
-        return StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
-                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
-                : Collections.singletonList("0");
+    public String getIdentityRecogniseSiteSwitch() {
+        return identityRecogniseSiteSwitch;
     }
 
     public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
+        this.identityRecogniseSiteSwitchList = StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
+                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
+                : Collections.singletonList("0");
     }
 
     public Integer getJySendTaskPlanTimeBeginDay() {

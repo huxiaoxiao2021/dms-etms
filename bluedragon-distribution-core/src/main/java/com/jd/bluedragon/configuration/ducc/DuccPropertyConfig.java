@@ -458,7 +458,7 @@ public class DuccPropertyConfig {
 	/**
 	 *身份证识别功能，站点开关。","为分隔符
 	 */
-	@Value("${duccPropertyConfig.identityRecogniseSiteSwitch:''}")
+	@Value("${duccPropertyConfig.identityRecogniseSiteSwitch:}")
 	@LafUcc
 	private String identityRecogniseSiteSwitch;
     
