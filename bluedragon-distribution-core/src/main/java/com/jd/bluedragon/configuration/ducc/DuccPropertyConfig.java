@@ -1,10 +1,11 @@
 package com.jd.bluedragon.configuration.ducc;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import org.springframework.beans.BeanUtils;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -14,352 +15,424 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
+import com.jd.laf.config.spring.annotation.LafUcc;
 import com.jd.ql.dms.print.utils.JsonHelper;
 
 @Component("duccPropertyConfig")
+	@LafUcc
 public class DuccPropertyConfig {
 	private static final Logger log = LoggerFactory.getLogger(DuccPropertyConfig.class);
+	
+	public static final String CONFIG_FROM_LOCAL = "local";
 	/**
 	 * 使用ducc
 	 */
 	@Value("${duccPropertyConfig.useDucc:false}")
+	@LafUcc
 	private boolean useDucc;
-	
-	@Value("${duccPropertyConfig.testUcc:test1}")
-	private String testUcc;
+	/**
+	 * 配置来源-默认是local，正常加载ducc，应该是ducc配置的值
+	 */
+	@Value("${duccPropertyConfig.configFrom:local}")
+	@LafUcc
+	private String configFrom;
+	/**
+	 * 配置检查标识，比较ucc和ducc配置，不一致抛出异常
+	 */
+	@Value("${duccPropertyConfig.checkConfig:false}")
+	@LafUcc
+	private boolean checkConfig;
+
 	/**
 	 *BC箱号绑定WJ箱号个数
 	 */
 	@Value("${duccPropertyConfig.BCContainWJNumberLimit:10}")
+	@LafUcc
 	private int BCContainWJNumberLimit;
 
 	/**
 	 *WJ箱号包裹数量限制
 	 */
 	@Value("${duccPropertyConfig.WJPackageNumberLimit:1000}")
+	@LafUcc
 	private int WJPackageNumberLimit;
 
 	private List<String> _multiplePackageSpotCheckSitesList = new ArrayList<>();
 
 	@Value("${duccPropertyConfig.addiOwnNumberConf:010K1961638,}")
+	@LafUcc
 	private String addiOwnNumberConf;
 
 	/**
 	 *人工抽检是否开启AI图片识别
 	 */
 	@Value("${duccPropertyConfig.aiDistinguishSwitch:true}")
+	@LafUcc
 	private boolean aiDistinguishSwitch;
 
 	/**
 	 *BC箱号强制绑定循环集包袋拦截黑名单  1代表不拦截  参数是站点代表站点拦截
 	 */
 	@Value("${duccPropertyConfig.allBCBoxFilterWebSite:-1}")
+	@LafUcc
 	private String allBCBoxFilterWebSite;
 
 	/**
 	 *纯配外单0重量拦截黑名单： 1 是全部不拦截，如果是 站点，站点  代表站点是拦截黑名单
 	 */
 	@Value("${duccPropertyConfig.allPureValidateWeightWebSite:-1}")
+	@LafUcc
 	private String allPureValidateWeightWebSite;
 
 	/**
 	 *转运抽检是否执行新抽检模式
 	 */
 	@Value("${duccPropertyConfig.androidIsExecuteNewSpotCheck:false}")
+	@LafUcc
 	private boolean androidIsExecuteNewSpotCheck;
 
 	@Value("${duccPropertyConfig.approvalSwitch:false}")
+	@LafUcc
 	private boolean approvalSwitch;
 
 	/**
 	 *JMQ 直接存入JMQ,TBSCHEDULE 直接存入DB或者Redis,FAILOVER 在JMQ、TBSCHEDULE按顺序failover
 	 */
 	@Value("${duccPropertyConfig.asynBufferDynamicProducerProducerType:TBSCHEDULE}")
+	@LafUcc
 	private String asynBufferDynamicProducerProducerType;
 
 	/**
 	 *是否存储消费成功的任务信息
 	 */
 	@Value("${duccPropertyConfig.asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled:true}")
+	@LafUcc
 	private boolean asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled;
 
 	/**
 	 *不开启jmq模式的task类型,配置规则：taskType-keyword1；taskType-keyword1
 	 */
 	@Value("${duccPropertyConfig.asynBufferNotenabledTaskKeyword1:1300-4;1300-6}")
+	@LafUcc
 	private String asynBufferNotenabledTaskKeyword1;
 
 	/**
 	 *开启的多级异步缓冲组件的任务类型列表，任务类型为整形值，多个类型以分号隔开，如1;2
 	 */
 	@Value("${duccPropertyConfig.asynbufferEnabledTaskType:3300;0;1;30;40;60;80;1300;4300;6667;1200;1210;1220;1110;1130;1600;1140;1120;1601;1400;1300;1160;6666;1800;7779;1180;1260}")
+	@LafUcc
 	private String asynbufferEnabledTaskType;
 
 	/**
 	 *龙门架上传称重任务接口切换，开放的场地
 	 */
 	@Value("${duccPropertyConfig.automaticWeightVolumeExchangeSiteCode:''}")
+	@LafUcc
 	private String automaticWeightVolumeExchangeSiteCode;
 
 	/**
 	 *龙门架上传称重任务接口切换
 	 */
 	@Value("${duccPropertyConfig.automaticWeightVolumeExchangeSwitch:false}")
+	@LafUcc
 	private boolean automaticWeightVolumeExchangeSwitch;
 
 	/**
 	 *反调度校验
 	 */
 	@Value("${duccPropertyConfig.backDispatchCheck:true}")
+	@LafUcc
 	private boolean backDispatchCheck;
 
 	/**
 	 *大运单报警
 	 */
 	@Value("${duccPropertyConfig.bigWaybillWaringSize:5000}")
+	@LafUcc
 	private Integer bigWaybillWaringSize;
 
 	/**
 	 *组板校验切换开关
 	 */
 	@Value("${duccPropertyConfig.boardCombinationSwitchVerToWebSites:-1}")
+	@LafUcc
 	private String boardCombinationSwitchVerToWebSites;
 
 	/**
 	 *PDA建箱包裹数量限制 试用站点
 	 */
 	@Value("${duccPropertyConfig.boxLimitSites:''}")
+	@LafUcc
 	private String boxLimitSites;
 
 	/**
 	 *日志查询开关 0：关闭 1：开启
 	 */
 	@Value("${duccPropertyConfig.businessLogQueryPageSwitch:'1'}")
+	@LafUcc
 	private String businessLogQueryPageSwitch;
 
 	/**
 	 *取消鸡毛信切换OMS接口开关，true：切换；false：不切换
 	 */
 	@Value("${duccPropertyConfig.cancelJimaoxinSwitchToOMS:false}")
+	@LafUcc
 	private boolean cancelJimaoxinSwitchToOMS;
 
 	/**
 	 *cassandra服务的全局开关，若资源不可用则可以关闭写入。
 	 */
 	@Value("${duccPropertyConfig.cassandraGlobalSwitch:true}")
+	@LafUcc
 	private boolean cassandraGlobalSwitch;
 
 	/**
 	 *箱号是否发货开关（true:老逻辑，false:新逻辑）
 	 */
 	@Value("${duccPropertyConfig.checkBoxSendedSwitchOn:true}")
+	@LafUcc
 	private boolean checkBoxSendedSwitchOn;
 
 	@Value("${duccPropertyConfig.checkDeviceLocationInRealTimeSwitch:-1}")
+	@LafUcc
 	private Integer checkDeviceLocationInRealTimeSwitch;
 
 	/**
 	 *是否调度终端 判断签单返还审批
 	 */
 	@Value("${duccPropertyConfig.checkSignAndReturn:true}")
+	@LafUcc
 	private boolean checkSignAndReturn;
 
 	/**
 	 *校验站点子类型是否三方:16
 	 */
 	@Value("${duccPropertyConfig.checkSiteSubType:false}")
+	@LafUcc
 	private boolean checkSiteSubType;
 
 	/**
 	 *出管国际化页面查询接口开关 true查新接口，false 查旧接口
 	 */
 	@Value("${duccPropertyConfig.chuguanNewPageQuerySwitch:false}")
+	@LafUcc
 	private boolean chuguanNewPageQuerySwitch;
 
 	/**
 	 *写出管是否开启供应链中台二期逻辑true开启，false不开启
 	 */
 	@Value("${duccPropertyConfig.chuguanPurchaseAndSaleSwitch:true}")
+	@LafUcc
 	private boolean chuguanPurchaseAndSaleSwitch;
 
 	/**
 	 *限制按钮点击间隔时间（秒），配置-1关闭提示
 	 */
 	@Value("${duccPropertyConfig.clickIntervalSecond:-1}")
+	@LafUcc
 	private int clickIntervalSecond;
 
 	/**
 	 *客户端下线菜单配置
 	 */
 	@Value("${duccPropertyConfig.clientOfflineMenuConfig:''}")
+	@LafUcc
 	private String clientOfflineMenuConfig;
 
 	/**
 	 *打印客户端大查询限制查询间隔时间
 	 */
 	@Value("${duccPropertyConfig.clientPrintQueryGapTime:10}")
+	@LafUcc
 	private int clientPrintQueryGapTime;
 
 	/**
 	 *异步缓冲框架，JMQ消费失败不再降级为TB任务  1：关闭DB模式
 	 */
 	@Value("${duccPropertyConfig.closeAsynBufferSaveTaskToDb:0}")
+	@LafUcc
 	private String closeAsynBufferSaveTaskToDb;
 
 	/**
 	 *集货区是否删除站点配置
 	 */
 	@Value("${duccPropertyConfig.collectGoodsDeleteSites:-1}")
+	@LafUcc
 	private String collectGoodsDeleteSites;
 
 	/**
 	 *集包地配置开启开关（站点以","分开）
 	 */
 	@Value("${duccPropertyConfig.collectionAddressSiteCodes:910,364605}")
+	@LafUcc
 	private String collectionAddressSiteCodes;
 
 	/**
 	 *开关控制是否校验包裹号  true 校验  false 不校验
 	 */
 	@Value("${duccPropertyConfig.controlCheckPackage:true}")
+	@LafUcc
 	private boolean controlCheckPackage;
 
 	/**
 	 *开关控制是否校验路由异常提醒  true 提醒  false不提醒
 	 */
 	@Value("${duccPropertyConfig.controlCheckRoute:true}")
+	@LafUcc
 	private boolean controlCheckRoute;
 
 	/**
 	 *老发货改造兜底task可以执行任务的次数阈值
 	 */
 	@Value("${duccPropertyConfig.createSendTaskExecuteCount:30}")
+	@LafUcc
 	private Integer createSendTaskExecuteCount;
 
 	/**
 	 *老发货改造-兜底task超时时间阈值
 	 */
 	@Value("${duccPropertyConfig.createSendTasktimeOut:30}")
+	@LafUcc
 	private Integer createSendTasktimeOut;
 
 	/**
 	 *快运大宗订单包裹数定义
 	 */
 	@Value("${duccPropertyConfig.dazongPackageOperateMax:100}")
+	@LafUcc
 	private Integer dazongPackageOperateMax;
 
 	/**
 	 *安卓快运发货隐藏站点编号
 	 */
 	@Value("${duccPropertyConfig.deliverHideSites:910}")
+	@LafUcc
 	private String deliverHideSites;
 
 	/**
 	 *老发货异步处理开关
 	 */
 	@Value("${duccPropertyConfig.deliverySendAsyncSite:''}")
+	@LafUcc
 	private String deliverySendAsyncSite;
 
 	/**
 	 *老发货异步任务延时消费毫秒数
 	 */
 	@Value("${duccPropertyConfig.deliverySendTaskSleepMills:1000}")
+	@LafUcc
 	private int deliverySendTaskSleepMills;
 
 	/**
 	 *取消发货校验封车业务开关。0：关闭  非0：开启
 	 */
 	@Value("${duccPropertyConfig.dellCancelDeliveryCheckSealCar:1}")
+	@LafUcc
 	private String dellCancelDeliveryCheckSealCar;
 
 	/**
 	 *dws抽检AI识别大包裹限制
 	 */
 	@Value("${duccPropertyConfig.deviceAIDistinguishPackNum:100}")
+	@LafUcc
 	private int deviceAIDistinguishPackNum;
 
 	/**
 	 *dws抽检AI识别开关，多个场地以,分隔
 	 */
 	@Value("${duccPropertyConfig.deviceAIDistinguishSwitch:910}")
+	@LafUcc
 	private String deviceAIDistinguishSwitch;
 
 	/**
 	 *禁用登陆老接口
 	 */
 	@Value("${duccPropertyConfig.disablePdaOldLogin:false}")
+	@LafUcc
 	private boolean disablePdaOldLogin;
 
-	private List<Integer> dpSiteCodeList;
+	private List<Integer> dpSiteCodeList = new ArrayList<>();
 
 	/**
 	 *DP上海虚拟分拣中心
 	 */
 	@Value("${duccPropertyConfig.dpSiteCodes:''}")
+	@LafUcc
 	private String dpSiteCodes;
 
 	/**
 	 *批量一车一单发货，德邦单匹配德邦批次号开关
 	 */
 	@Value("${duccPropertyConfig.dpWaybillMatchSendCodeSwitch:true}")
+	@LafUcc
 	private boolean dpWaybillMatchSendCodeSwitch;
 
 	/**
 	 *接受经济网推送箱包关系  false-不接收永远返回成功
 	 */
 	@Value("${duccPropertyConfig.eNetSyncWaybillCodeAndBoxCode:true}")
+	@LafUcc
 	private boolean eNetSyncWaybillCodeAndBoxCode;
 
 	/**
 	 *经济网推送智腾达失败重试
 	 */
 	@Value("${duccPropertyConfig.economicNetPushZTDRetry:true}")
+	@LafUcc
 	private boolean economicNetPushZTDRetry;
 
 	/**
 	 *众邮重量拦截 true 拦截，false 不拦截
 	 */
 	@Value("${duccPropertyConfig.economicNetValidateWeightSwitch:true}")
+	@LafUcc
 	private boolean economicNetValidateWeightSwitch;
 
 	@Value("${duccPropertyConfig.enableGoodsAreaOfTysScan:true}")
+	@LafUcc
 	private boolean enableGoodsAreaOfTysScan;
 
 	/**
 	 *单个导出页面限制最大并行导出执行数   -1 作为系统降级不支持导出
 	 */
 	@Value("${duccPropertyConfig.exportConcurrencyLimitNum:50}")
+	@LafUcc
 	private Integer exportConcurrencyLimitNum;
 
 	/**
 	 *抽检导出最大限制
 	 */
 	@Value("${duccPropertyConfig.exportSpotCheckMaxSize:10000}")
+	@LafUcc
 	private Integer exportSpotCheckMaxSize;
 
 	/**
 	 *面单举报一二级类型配置
 	 */
 	@Value("${duccPropertyConfig.faceAbnormalReportConfig:''}")
+	@LafUcc
 	private String faceAbnormalReportConfig;
 
 	@Value("${duccPropertyConfig.filterSendCodeSwitch:false}")
+	@LafUcc
 	private boolean filterSendCodeSwitch;
 
 	/**
 	 *易冻损货物暂存时间最小限制时间
 	 */
 	@Value("${duccPropertyConfig.goodsResidenceTime:3}")
+	@LafUcc
 	private int goodsResidenceTime;
 
 	/**
 	 *隐藏特殊始发场地目的场地名单
 	 */
 	@Value("${duccPropertyConfig.hideSpecialStartSitPrintDestinationSiteList:''}")
+	@LafUcc
 	private String hideSpecialStartSitPrintDestinationSiteList;
 
 	private List<String> hideSpecialStartSitPrintDestinationSiteStrList = new ArrayList<>();
@@ -368,584 +441,687 @@ public class DuccPropertyConfig {
 	 *隐藏特殊始发场地替换字符
 	 */
 	@Value("${duccPropertyConfig.hideSpecialStartSitePrintReplaceSymbol:''}")
+	@LafUcc
 	private String hideSpecialStartSitePrintReplaceSymbol;
 
 	@Value("${duccPropertyConfig.hideSpecialStartSitePrintReplaceSymbolMaxLength:20}")
+	@LafUcc
 	private int hideSpecialStartSitePrintReplaceSymbolMaxLength;
 
 	/**
 	 *隐藏特殊始发场地名称开关，0-关，1-开
 	 */
 	@Value("${duccPropertyConfig.hideSpecialStartSitePrintSwitch:0}")
+	@LafUcc
 	private int hideSpecialStartSitePrintSwitch;
 
 	/**
 	 *身份证识别功能，站点开关。","为分隔符
 	 */
 	@Value("${duccPropertyConfig.identityRecogniseSiteSwitch:''}")
+	@LafUcc
 	private String identityRecogniseSiteSwitch;
     
-    private List<String> identityRecogniseSiteSwitchList;
+    private List<String> identityRecogniseSiteSwitchList = new ArrayList<>();
 
 	/**
 	 *单次插入数据库的条数
 	 */
 	@Value("${duccPropertyConfig.insertDbRowsOneTime:100}")
+	@LafUcc
 	private int insertDbRowsOneTime;
 
 	@Value("${duccPropertyConfig.inspectNoSendNoLoadWaybillDemotion:false}")
+	@LafUcc
 	private boolean inspectNoSendNoLoadWaybillDemotion;
 
 	/**
 	 *提供标准包裹验货消息
 	 */
 	@Value("${duccPropertyConfig.inspectionAggEffectiveSites:-1}")
+	@LafUcc
 	private String inspectionAggEffectiveSites;
 
 	/**
 	 *验货依赖物料开关 true：不依赖
 	 */
 	@Value("${duccPropertyConfig.inspectionAssertDemotion:false}")
+	@LafUcc
 	private boolean inspectionAssertDemotion;
 
 	/**
 	 *大运单拆分包裹验货的分拣中心，配置-1则关闭，配置ALL全部开启
 	 */
 	@Value("${duccPropertyConfig.inspectionBigWaybillEffectiveSites:-1}")
+	@LafUcc
 	private String inspectionBigWaybillEffectiveSites;
 
     /**
      * 西藏模式业务场景开关，按分拣中心归属的省份配置，不配置业务场景不生效，配置ALL全国生效
      */
 	@Value("${duccPropertyConfig.itmsBizEnableSwitch:''}")
+	@LafUcc
 	private String itmsBizEnableSwitch;
 
 	/**
 	 *判断包裹是否打印的逻辑，包含终端首次打印的数据。默认不包含 0：不包含；1：包含
 	 */
 	@Value("${duccPropertyConfig.judgePackagePrintedIncludeSiteTerminal:'0'}")
+	@LafUcc
 	private String judgePackagePrintedIncludeSiteTerminal;
 
 	/**
 	 *拣运基础服务开关
 	 */
 	@Value("${duccPropertyConfig.jyBasicServerSwitch:false}")
+	@LafUcc
 	private boolean jyBasicServerSwitch;
 
 	/**
 	 *拣运功能降级开关配置
 	 */
 	@Value("${duccPropertyConfig.jyDemotionConfig:''}")
+	@LafUcc
 	private String jyDemotionConfig;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.jySendTaskCreateTimeBeginDay:30}")
+	@LafUcc
 	private Integer jySendTaskCreateTimeBeginDay;
 
 	/**
 	 *拣运发货任务装载率上下限配置
 	 */
 	@Value("${duccPropertyConfig.jySendTaskLoadRateLimit:80,150}")
+	@LafUcc
 	private String jySendTaskLoadRateLimit;
 
 	@Value("${duccPropertyConfig.jySendTaskLoadRateLowerLimit:80}")
+	@LafUcc
 	private Integer jySendTaskLoadRateLowerLimit;
 
 	@Value("${duccPropertyConfig.jySendTaskLoadRateUpperLimit:150}")
+	@LafUcc
 	private Integer jySendTaskLoadRateUpperLimit;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.jySendTaskPlanTimeBeginDay:1}")
+	@LafUcc
 	private Integer jySendTaskPlanTimeBeginDay;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.jySendTaskPlanTimeEndDay:2}")
+	@LafUcc
 	private Integer jySendTaskPlanTimeEndDay;
 
 	@Value("${duccPropertyConfig.jyTaskPageMax:200}")
+	@LafUcc
 	private Integer jyTaskPageMax;
 
 	/**
 	 *到车任务按积分排序开关 1：开启
 	 */
 	@Value("${duccPropertyConfig.jyUnSealTaskOrderByIntegral:0}")
+	@LafUcc
 	private Integer jyUnSealTaskOrderByIntegral;
 
 	@Value("${duccPropertyConfig.jyUnSealTaskSwitchToEs:0}")
+	@LafUcc
 	private Integer jyUnSealTaskSwitchToEs;
 
 	/**
 	 *转运卸车岗查询列表时间过滤
 	 */
 	@Value("${duccPropertyConfig.jyUnloadCarListQueryDayFilter:3}")
+	@LafUcc
 	private Integer jyUnloadCarListQueryDayFilter;
 
 	/**
 	 *拣运卸车逐单卸阈值
 	 */
 	@Value("${duccPropertyConfig.jyUnloadSingleWaybillThreshold:20}")
+	@LafUcc
 	private Integer jyUnloadSingleWaybillThreshold;
 
 	/**
 	 *是否限制终端人员使用包裹补打 1：限制 0：不限制
 	 */
 	@Value("${duccPropertyConfig.limitSiteUsePackReprint:'0'}")
+	@LafUcc
 	private String limitSiteUsePackReprint;
 
 	/**
 	 *装车任务-最大包裹数限制
 	 */
 	@Value("${duccPropertyConfig.loadScanTaskPackageMaxSize:500}")
+	@LafUcc
 	private int loadScanTaskPackageMaxSize;
 
 	/**
 	 *装车-版号转包裹号最大包裹数限制
 	 */
 	@Value("${duccPropertyConfig.loadScanTaskPackageSize:100}")
+	@LafUcc
 	private int loadScanTaskPackageSize;
 
 	/**
 	 *装车扫描每个任务下的运单数量上线
 	 */
 	@Value("${duccPropertyConfig.loadScanTaskWaybillSize:200}")
+	@LafUcc
 	private int loadScanTaskWaybillSize;
 
 	/**
 	 *决定是否使用kafka写入日志
 	 */
 	@Value("${duccPropertyConfig.logToBusinessLogByKafka:true}")
+	@LafUcc
 	private boolean logToBusinessLogByKafka;
 
 	/**
 	 *打印客户端菜单功能配置，根据菜单编码和站点类型和站点子类型获取功能权限
 	 */
 	@Value("${duccPropertyConfig.menuCodeFuncConfig:}")
+	@LafUcc
 	private String menuCodeFuncConfig;
 
 	/**
 	 *打印客户端菜单功能配置，根据菜单编码和站点类型和站点子类型获取功能权限（新）
 	 */
 	@Value("${duccPropertyConfig.menuCodeFuncConfigNew:}")
+	@LafUcc
 	private String menuCodeFuncConfigNew;
 
 	/**
 	 *bool值，表示数据库写复制到备份数据库（mysql）的开关，true表示开
 	 */
 	@Value("${duccPropertyConfig.migrationDbBackupReplicateEnable:true}")
+	@LafUcc
 	private boolean migrationDbBackupReplicateEnable;
 
 	/**
 	 *bool值，数据库复制中是否忽略异常，true表示忽略异常，false表示不忽
 	 */
 	@Value("${duccPropertyConfig.migrationDbBackupReplicateIgnoreExp:true}")
+	@LafUcc
 	private boolean migrationDbBackupReplicateIgnoreExp;
 
 	/**
 	 *一单多件抽检场地配置
 	 */
 	@Value("${duccPropertyConfig.multiplePackageSpotCheckSites:''}")
+	@LafUcc
 	private String multiplePackageSpotCheckSites;
 
 	/**
 	 *一单多件抽检开关，0-关，1-开
 	 */
 	@Value("${duccPropertyConfig.multiplePackageSpotCheckSwitch:0}")
+	@LafUcc
 	private int multiplePackageSpotCheckSwitch;
 
-	private List<String> needInterceptUrlList;
+	private List<String> needInterceptUrlList = new ArrayList<>();
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.needInterceptUrls:*}")
+	@LafUcc
 	private String needInterceptUrls;
 
 	/**
 	 *百川接口-开关 true  false
 	 */
 	@Value("${duccPropertyConfig.needUseNewReverseApi:true}")
+	@LafUcc
 	private boolean needUseNewReverseApi;
 
-	private List<Integer> needValidateMainLineBizSourceCodes;
+	private List<Integer> needValidateMainLineBizSourceCodes = new ArrayList<>();
 
 	/**
 	 *传摆发货-干支限制业务列表[25,2]
 	 */
 	@Value("${duccPropertyConfig.needValidateMainLineBizSourceList:[25]}")
+	@LafUcc
 	private String needValidateMainLineBizSourceList;
 
 	/**
 	 *日志页面提示
 	 */
 	@Value("${duccPropertyConfig.newLogPageTips:''}")
+	@LafUcc
 	private String newLogPageTips;
 
 	/**
 	 *打印客户端无权限菜单编码配置，根据站点类型和站点子类型配置不同菜单编码
 	 */
 	@Value("${duccPropertyConfig.noAuthMenuConfig:}")
+	@LafUcc
 	private String noAuthMenuConfig;
 
 	/**
 	 *打印客户端无权限菜单编码配置，根据站点类型和站点子类型配置不同菜单编码（新）
 	 */
 	@Value("${duccPropertyConfig.noAuthMenuConfigNew:}")
+	@LafUcc
 	private String noAuthMenuConfigNew;
 
 	/**
 	 *自动签退超过多少小时未签退的数据
 	 */
 	@Value("${duccPropertyConfig.notSignedOutRecordMoreThanHours:-1}")
+	@LafUcc
 	private int notSignedOutRecordMoreThanHours;
 
 	@Value("${duccPropertyConfig.notSignedOutRecordRangeHours:12}")
+	@LafUcc
 	private int notSignedOutRecordRangeHours;
 
-	private List<Integer> notValidateTransTypeCodes;
+	private List<Integer> notValidateTransTypeCodes = new ArrayList<>();
 
 	@Value("${duccPropertyConfig.notValidateTransTypeCodesList:[3,4,10,11]}")
+	@LafUcc
 	private String notValidateTransTypeCodesList;
 
 	@Value("${duccPropertyConfig.offlineCurrentLimitingCount:-1}")
+	@LafUcc
 	private Integer offlineCurrentLimitingCount;
 
 	/**
 	 *true：保存日志 false：不再保存
 	 */
 	@Value("${duccPropertyConfig.offlineLogGlobalSwitch:true}")
+	@LafUcc
 	private boolean offlineLogGlobalSwitch;
 
 	/**
 	 *pda下线菜单编码
 	 */
 	@Value("${duccPropertyConfig.offlinePdaMenuCode:0101015}")
+	@LafUcc
 	private String offlinePdaMenuCode;
 
 	/**
 	 *下线一键封车
 	 */
 	@Value("${duccPropertyConfig.offlineQuickSeal:false}")
+	@LafUcc
 	private boolean offlineQuickSeal;
 
 	/**
 	 *离线任务操作时间限制：默认在系统时间之前96h丢弃，之内则记录上传的操作时间
 	 */
 	@Value("${duccPropertyConfig.offlineTaskOperateTimeBeforeNowLimitHours:96}")
+	@LafUcc
 	private int offlineTaskOperateTimeBeforeNowLimitHours;
 
 	/**
 	 *离线任务矫正操作时间得时间范围，超过该值则会被纠正为当前时间（单位：h）
 	 */
 	@Value("${duccPropertyConfig.offlineTaskOperateTimeCorrectHours:24}")
+	@LafUcc
 	private int offlineTaskOperateTimeCorrectHours;
 
 	/**
 	 *离线任务上传拦截报表，0 - 全部开启，-1 - 全部关闭，类似1243,3534表示具体场地
 	 */
 	@Value("${duccPropertyConfig.offlineTaskReportInterceptSites:-1}")
+	@LafUcc
 	private String offlineTaskReportInterceptSites;
 
 	/**
 	 *老日志页面提示
 	 */
 	@Value("${duccPropertyConfig.oldLogPageTips:''}")
+	@LafUcc
 	private String oldLogPageTips;
 
 	@Value("${duccPropertyConfig.oldSendSplitPageSize:30}")
+	@LafUcc
 	private Integer oldSendSplitPageSize;
 
 	/**
 	 *导出分页单次查询数据量
 	 */
 	@Value("${duccPropertyConfig.oneQuerySize:1000}")
+	@LafUcc
 	private Integer oneQuerySize;
 
 	/**
 	 *0不关闭入口；1关闭基础资料维护入口；2关闭耗材明细的增加和删除按钮；3关闭两者
 	 */
 	@Value("${duccPropertyConfig.packConsumableSwitch:0}")
+	@LafUcc
 	private Integer packConsumableSwitch;
 
 	/**
 	 *包裹补打强制拦截状态码
 	 */
 	@Value("${duccPropertyConfig.packRePrintInterceptStatus:-790}")
+	@LafUcc
 	private String packRePrintInterceptStatus;
 
 	/**
 	 *转运单个包裹重量阈值（单位kg）
 	 */
 	@Value("${duccPropertyConfig.packageWeightLimit:'2000'}")
+	@LafUcc
 	private String packageWeightLimit;
 
 	/**
 	 *并发获取包裹明细 false 关闭
 	 */
 	@Value("${duccPropertyConfig.paralleGetPackageSwitch:false}")
+	@LafUcc
 	private boolean paralleGetPackageSwitch;
 
 	/**
 	 *PDA通知自动拉取间隔时间(单位秒)
 	 */
 	@Value("${duccPropertyConfig.pdaNoticePullIntervalTime:1800}")
+	@LafUcc
 	private Integer pdaNoticePullIntervalTime;
 
 	/**
 	 *现场预分拣 超区运单拦截开关;true 开启拦截
 	 */
 	@Value("${duccPropertyConfig.preOutZoneSwitch:true}")
+	@LafUcc
 	private boolean preOutZoneSwitch;
 
 	/**
 	 *一键封车空批次剔除开关 1：开启剔除 0：关闭
 	 */
 	@Value("${duccPropertyConfig.preSealVehicleRemoveEmptyBatchCode:1}")
+	@LafUcc
 	private String preSealVehicleRemoveEmptyBatchCode;
 
 	/**
 	 *现场预分拣校验开关
 	 */
 	@Value("${duccPropertyConfig.preSortOnSiteSwitchOn:true}")
+	@LafUcc
 	private boolean preSortOnSiteSwitchOn;
 
 	/**
 	 *按运单大打印回调异步处理的包裹数限制
 	 */
 	@Value("${duccPropertyConfig.printCompleteCallbackAsyncPackageNum:500}")
+	@LafUcc
 	private int printCompleteCallbackAsyncPackageNum;
 
 	/**
 	 *打印交接清单新查询开通场地,1)、字符串false代表不开启, 2)、多个场地以,分隔,3)、字符串true代表全国
 	 */
 	@Value("${duccPropertyConfig.printHandoverListSites:false}")
+	@LafUcc
 	private String printHandoverListSites;
 
 	@Value("${duccPropertyConfig.printScrollQueryCountLimit:200}")
+	@LafUcc
 	private int printScrollQueryCountLimit;
 
 	/**
 	 *查询敏感数据开关
 	 */
 	@Value("${duccPropertyConfig.querySensitiveFlag:false}")
+	@LafUcc
 	private boolean querySensitiveFlag;
 
 	/**
 	 *一键封车友情提示
 	 */
 	@Value("${duccPropertyConfig.quickSealTips:''}")
+	@LafUcc
 	private String quickSealTips;
 
 	/**
 	 *读转运卸车表开关
 	 */
 	@Value("${duccPropertyConfig.readUnloadFromTys:false}")
+	@LafUcc
 	private boolean readUnloadFromTys;
 
 	/**
 	 *#任务redis开关0-关闭 1-开启
 	 */
 	@Value("${duccPropertyConfig.redisSwitchOn:0}")
+	@LafUcc
 	private String redisSwitchOn;
 
 	/**
 	 *封车是否剔除空批次  1：开启剔除 0：关闭
 	 */
 	@Value("${duccPropertyConfig.removeEmptyBatchCode:1}")
+	@LafUcc
 	private String removeEmptyBatchCode;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.restApiOuthSwitch:true}")
+	@LafUcc
 	private boolean restApiOuthSwitch;
 
 	@Value("${duccPropertyConfig.scannerOperateCalculateIfInterceptSites:''}")
+	@LafUcc
 	private String scannerOperateCalculateIfInterceptSites;
 
 	/**
 	 *预分拣返调度校验同城 1:开启；0：关闭
 	 */
 	@Value("${duccPropertyConfig.scheduleSiteCheckSameCity:''}")
+	@LafUcc
 	private String scheduleSiteCheckSameCity;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.scrollQuerySize:2000}")
+	@LafUcc
 	private int scrollQuerySize;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.sealStatusBatchSizeLimit:30}")
+	@LafUcc
 	private int sealStatusBatchSizeLimit;
 
 	/**
 	 *作业工作台待解封车强制降级 1：强制 0：不强制
 	 */
 	@Value("${duccPropertyConfig.sealTaskForceFallback:0}")
+	@LafUcc
 	private int sealTaskForceFallback;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.sealTaskHystrixProps: ''}")
+	@LafUcc
 	private String sealTaskHystrixProps;
 
 	/**
 	 *封车体积校验开关（站点以","分开）
 	 */
 	@Value("${duccPropertyConfig.sealVolumeCheckSites:-1}")
+	@LafUcc
 	private String sealVolumeCheckSites;
 
 	/**
 	 *安全次数开关
 	 */
 	@Value("${duccPropertyConfig.securitySwitch:true}")
+	@LafUcc
 	private boolean securitySwitch;
 
 	/**
 	 *批次有效性校验的场地
 	 */
 	@Value("${duccPropertyConfig.sendCodeEffectiveValidation:''}")
+	@LafUcc
 	private String sendCodeEffectiveValidation;
 
 	/**
 	 *切换新的批次号生成器的开关
 	 */
 	@Value("${duccPropertyConfig.sendCodeGenSwitchOn:false}")
+	@LafUcc
 	private boolean sendCodeGenSwitchOn;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.sensitiveInfoHideSwitch:false}")
+	@LafUcc
 	private Boolean sensitiveInfoHideSwitch;
 
 	/**
 	 *一车一单发货分拣验证开关
 	 */
 	@Value("${duccPropertyConfig.singleSendSwitchVerToWebSites:-1}")
+	@LafUcc
 	private String singleSendSwitchVerToWebSites;
 
 	/**
 	 *启用批次有效性校验的分拣中心. 分拣中心ID逗号分隔
 	 */
 	@Value("${duccPropertyConfig.siteEnableSendCodeEffectiveValidation:''}")
+	@LafUcc
 	private String siteEnableSendCodeEffectiveValidation;
 
 	/**
 	 *站点平台打印菜单是否校验功能
 	 */
 	@Value("${duccPropertyConfig.sitePlateIsCheckFunc:false}")
+	@LafUcc
 	private boolean sitePlateIsCheckFunc;
 
 	/**
 	 *站点查询最大限制
 	 */
 	@Value("${duccPropertyConfig.siteQueryLimit:500}")
+	@LafUcc
 	private Integer siteQueryLimit;
 
 	/**
 	 *分拣查询使用的模式，可配置DMS、MIDDLEEND、FAILOVER三个值
 	 */
 	@Value("${duccPropertyConfig.sortingQueryMode:FAILOVER}")
+	@LafUcc
 	private String sortingQueryMode;
 
 	/**
 	 *分拣实操模式，可设置DMS、MIDDLEEND、FAILOVER三个值
 	 */
 	@Value("${duccPropertyConfig.sortingServiceMode:FAILOVER}")
+	@LafUcc
 	private String sortingServiceMode;
 
 	/**
 	 *抽检是否控制下发
 	 */
 	@Value("${duccPropertyConfig.spotCheckIssueControl:true}")
+	@LafUcc
 	private boolean spotCheckIssueControl;
 
 	@Value("${duccPropertyConfig.spotCheckNoExcessLimit:1.5}")
+	@LafUcc
 	private double spotCheckNoExcessLimit;
 
 	/**
 	 *执行抽检改造的站点集合（以英文逗号分隔，true表示全国，false表示全部不开启）
 	 */
 	@Value("${duccPropertyConfig.spotCheckReformSiteCodes:true}")
+	@LafUcc
 	private String spotCheckReformSiteCodes;
 
 	/**
 	 *停止写分拣卸车表开关
 	 */
 	@Value("${duccPropertyConfig.stopWriteUnloadFromDms:false}")
+	@LafUcc
 	private boolean stopWriteUnloadFromDms;
 
 	/**
 	 *uccPropertyConfiguration.switchVerToWebSites
 	 */
 	@Value("${duccPropertyConfig.switchVerToWebSites:-1}")
+	@LafUcc
 	private String switchVerToWebSites;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.syncJySealStatusSwitch:false}")
+	@LafUcc
 	private boolean syncJySealStatusSwitch;
 
 	/**
 	 *true：保存日志 false：不保存
 	 */
 	@Value("${duccPropertyConfig.systemLogGlobalSwitch:true}")
+	@LafUcc
 	private boolean systemLogGlobalSwitch;
 
 	/**
 	 *转运卸车岗交班次数最大数量
 	 */
 	@Value("${duccPropertyConfig.tysUnloadTaskHandoverMaxSize:3}")
+	@LafUcc
 	private Integer tysUnloadTaskHandoverMaxSize;
 
 	/**
 	 *转运卸车完成后补扫时间限制（小时），过后禁止补扫
 	 */
 	@Value("${duccPropertyConfig.tysUnloadTaskSupplementScanLimitHours:72}")
+	@LafUcc
 	private Integer tysUnloadTaskSupplementScanLimitHours;
 
 	/**
 	 *转运组板最大包裹数
 	 */
 	@Value("${duccPropertyConfig.unloadBoardBindingsMaxCount:100}")
+	@LafUcc
 	private Integer unloadBoardBindingsMaxCount;
 
 	/**
 	 *转运卸车缓存时长（单位小时）
 	 */
 	@Value("${duccPropertyConfig.unloadCacheDurationHours:24}")
+	@LafUcc
 	private Integer unloadCacheDurationHours;
 
 	@Value("${duccPropertyConfig.uploadDeviceLocationInterval:-1}")
+	@LafUcc
 	private Integer uploadDeviceLocationInterval;
 
 	/**
 	 *装车扫描采用新ES库存查询方式的站点
 	 */
 	@Value("${duccPropertyConfig.useNewInventorySiteCodes:''}")
+	@LafUcc
 	private String useNewInventorySiteCodes;
 
 	/**
 	 *虚拟组板自动完结时间，单位：天
 	 */
 	@Value("${duccPropertyConfig.virtualBoardAutoCloseDays:1}")
+	@LafUcc
 	private Integer virtualBoardAutoCloseDays;
 
 	/**
 	 *分拣组板功能开通场地
 	 */
 	@Value("${duccPropertyConfig.virtualBoardCanUseSite:-1}")
+	@LafUcc
 	private String virtualBoardCanUseSite;
 
 	private List<String> virtualBoardCanUseSiteList = new ArrayList<>();
@@ -954,80 +1130,95 @@ public class DuccPropertyConfig {
 	 *虚拟组板最多流向个数
 	 */
 	@Value("${duccPropertyConfig.virtualBoardMaxDestinationCount:5}")
+	@LafUcc
 	private int virtualBoardMaxDestinationCount;
 
 	/**
 	 *虚拟组板最多放置包裹个数
 	 */
 	@Value("${duccPropertyConfig.virtualBoardMaxItemCount:50}")
+	@LafUcc
 	private int virtualBoardMaxItemCount;
 
 	@Value("${duccPropertyConfig.virtualSiteCode:1721378}")
+	@LafUcc
 	private Integer virtualSiteCode;
 
 	/**
 	 *运单最大包裹数
 	 */
 	@Value("${duccPropertyConfig.waybillMaxPackNum:40000}")
+	@LafUcc
 	private int waybillMaxPackNum;
 
 	/**
 	 *分拣拆分任务分页包裹数
 	 */
 	@Value("${duccPropertyConfig.waybillSplitPageSize:1000}")
+	@LafUcc
 	private int waybillSplitPageSize;
 
 	/**
 	 *转运单个运单重量阈值（单位kg）
 	 */
 	@Value("${duccPropertyConfig.waybillWeightLimit:'10000'}")
+	@LafUcc
 	private String waybillWeightLimit;
 
 	/**
 	 *称重量方拦截开关
 	 */
 	@Value("${duccPropertyConfig.weightVolumeFilterWholeCountryFlag:false}")
+	@LafUcc
 	private boolean weightVolumeFilterWholeCountryFlag;
 
 	/**
 	 *称重量方规则标准值（kg、cm单位）
 	 */
 	@Value("${duccPropertyConfig.weightVolumeRuleStandard:''}")
+	@LafUcc
 	private String weightVolumeRuleStandard;
 
 	/**
 	 *称重量方的规则一直在变化，为了有一个版本的切换过程，这里加一个开关
 	 */
 	@Value("${duccPropertyConfig.weightVolumeSwitchVersion:0}")
+	@LafUcc
 	private Integer weightVolumeSwitchVersion;
 
 	/**
 	 *配置哪些任务失败后不再重复抓取的
 	 */
 	@Value("${duccPropertyConfig.workerFetchWithoutFailedTable:task_inspection}")
+	@LafUcc
 	private String workerFetchWithoutFailedTable;
 
 	/**
 	 *写转运卸车表开关
 	 */
 	@Value("${duccPropertyConfig.writeUnloadFromTys:false}")
+	@LafUcc
 	private boolean writeUnloadFromTys;
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.aggsDataSource:jyCore}")
+	@LafUcc
 	private String aggsDataSource;
 
 	@Value("${duccPropertyConfig.allianceBusinessSwitch:true}")
+	@LafUcc
 	private boolean allianceBusinessSwitch;
 
 	/**
 	 *三无任务指派数量限制
 	 */
 	@Value("${duccPropertyConfig.assignExpTaskQuantityLimit:50}")
+	@LafUcc
 	private int assignExpTaskQuantityLimit;
 
 	@Value("${duccPropertyConfig.autoCloseJyBizTaskConfig:{}}")
+	@LafUcc
 	private String autoCloseJyBizTaskConfig;
 
 	private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
@@ -1036,80 +1227,98 @@ public class DuccPropertyConfig {
 	 *
 	 */
 	@Value("${duccPropertyConfig.autoPackageSendInspectionSiteCodes:3}")
+	@LafUcc
 	private String autoPackageSendInspectionSiteCodes;
 
 	@Value("${duccPropertyConfig.batchGenerateSendCodeMaxNum:100}")
+	@LafUcc
 	private Integer batchGenerateSendCodeMaxNum;
 
 	@Value("${duccPropertyConfig.batchQueryEndSiteLimit:30}")
+	@LafUcc
 	private int batchQueryEndSiteLimit;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.batchSendForbiddenSwitch:false}")
+	@LafUcc
 	private boolean batchSendForbiddenSwitch;
 
 	/**
 	 *组板路由校验-是否开启路由校验开关
 	 */
 	@Value("${duccPropertyConfig.boardCombinationRouterSwitch:false}")
+	@LafUcc
 	private boolean boardCombinationRouterSwitch;
 
 	@Value("${duccPropertyConfig.boardListQuerySwitch:true}")
+	@LafUcc
 	private Boolean boardListQuerySwitch;
 
 	/**
 	 *大宗包裹最小数量
 	 */
 	@Value("${duccPropertyConfig.bulkScanPackageMinCount:100}")
+	@LafUcc
 	private Integer bulkScanPackageMinCount;
 
 	@Value("${duccPropertyConfig.checkTeAnSwitch:true}")
+	@LafUcc
 	private boolean checkTeAnSwitch;
 
 	@Value("${duccPropertyConfig.cloudOssInsertSwitch:false}")
+	@LafUcc
 	private boolean cloudOssInsertSwitch;
 
 	/**
 	 *完成状态的异常任务获取天数限制
 	 */
 	@Value("${duccPropertyConfig.completeExpDayNumLimit:15}")
+	@LafUcc
 	private int completeExpDayNumLimit;
 
 	@Value("${duccPropertyConfig.createBoardBySendFlowSwitch:true}")
+	@LafUcc
 	private boolean createBoardBySendFlowSwitch;
 
 	@Value("${duccPropertyConfig.cttGroupSendFLowLimit:10}")
+	@LafUcc
 	private Integer cttGroupSendFLowLimit;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.czOrgForbiddenList:''}")
+	@LafUcc
 	private String czOrgForbiddenList;
 
 	@Value("${duccPropertyConfig.czQuerySwitch:true}")
+	@LafUcc
 	private boolean czQuerySwitch;
 
 	@Value("${duccPropertyConfig.czSiteForbiddenList:''}")
+	@LafUcc
 	private String czSiteForbiddenList;
 
 	/**
 	 *拦截传站-网点类型黑名单
 	 */
 	@Value("${duccPropertyConfig.czSiteTypeForbiddenList:''}")
+	@LafUcc
 	private String czSiteTypeForbiddenList;
 
 	private List<String> dewuCustomerCodeList = new ArrayList<>();
 
 	@Value("${duccPropertyConfig.dewuCustomerCodes:-1}")
+	@LafUcc
 	private String dewuCustomerCodes;
 
 	/**
 	 *德邦春节模式场地
 	 */
-	@Value("${duccPropertyConfig.dpSpringSiteCode:-1}")
+	@Value("${duccPropertyConfig.dpSpringSiteCode:}")
+	@LafUcc
 	private String dpSpringSiteCode;
 
 	private List<Integer> dpSpringSiteCodeList = new ArrayList<>();
@@ -1118,177 +1327,217 @@ public class DuccPropertyConfig {
 	 *交接至德邦校验开关
 	 */
 	@Value("${duccPropertyConfig.dpTransferSwitch:true}")
+	@LafUcc
 	private boolean dpTransferSwitch;
 
 	/**
 	 *易冻品校验开关
 	 */
 	@Value("${duccPropertyConfig.easyFreezeSwitch:true}")
+	@LafUcc
 	private boolean easyFreezeSwitch;
 
 	@Value("${duccPropertyConfig.exScrapApproveLevelCountLimit:50,100}")
+	@LafUcc
 	private String exScrapApproveLevelCountLimit;
 
-	private List<String> exceptionSubmitCheckSiteList;
+	private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
 
 	/**
 	 *异常处理检查场地名单
 	 */
 	@Value("${duccPropertyConfig.exceptionSubmitCheckSites:}")
+	@LafUcc
 	private String exceptionSubmitCheckSites;
 
-	private List<String> exceptionSubmitCheckWaybillInterceptTypeList;
+	private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
 
 	/**
 	 *异常处理检查运单拦截类型
 	 */
 	@Value("${duccPropertyConfig.exceptionSubmitCheckWaybillInterceptTypes:}")
+	@LafUcc
 	private String exceptionSubmitCheckWaybillInterceptTypes;
 
 	@Value("${duccPropertyConfig.forceSendSiteList:''}")
+	@LafUcc
 	private String forceSendSiteList;
 
 	@Value("${duccPropertyConfig.ignoreTysTrackSwitch:false}")
+	@LafUcc
 	private boolean ignoreTysTrackSwitch;
 
 	/**
 	 *网格工种签到限制开关
 	 */
 	@Value("${duccPropertyConfig.jobTypeLimitSwitch:false}")
+	@LafUcc
 	private boolean jobTypeLimitSwitch;
 
 	@Value("${duccPropertyConfig.jyArtificialStrandTaskCloseTime:28800000}")
+	@LafUcc
 	private Long jyArtificialStrandTaskCloseTime;
 
 	@Value("${duccPropertyConfig.jyCollectSiteWhitelist:}")
+	@LafUcc
 	private String jyCollectSiteWhitelist;
 
 	@Value("${duccPropertyConfig.jyComboardCountLimit:100}")
+	@LafUcc
 	private Integer jyComboardCountLimit;
 
 	/**
 	 *板列表查询sql执行开关
 	 */
 	@Value("${duccPropertyConfig.jyComboardListBoardSqlSwitch:true}")
+	@LafUcc
 	private Boolean jyComboardListBoardSqlSwitch;
 
 	@Value("${duccPropertyConfig.jyComboardRefreshTimerInterval:30}")
+	@LafUcc
 	private Integer jyComboardRefreshTimerInterval;
 
 	@Value("${duccPropertyConfig.jyComboardScanUserBeginDay:1}")
+	@LafUcc
 	private Integer jyComboardScanUserBeginDay;
 
 	@Value("${duccPropertyConfig.jyComboardSealBoardListLimit:3}")
+	@LafUcc
 	private Integer jyComboardSealBoardListLimit;
 
 	/**
 	 *封车板数选择上限
 	 */
 	@Value("${duccPropertyConfig.jyComboardSealBoardListSelectLimit:3}")
+	@LafUcc
 	private Integer jyComboardSealBoardListSelectLimit;
 
 	/**
 	 *组板封车岗查询待封车板时间限制
 	 */
 	@Value("${duccPropertyConfig.jyComboardSealQueryBoardListTime:'2'}")
+	@LafUcc
 	private String jyComboardSealQueryBoardListTime;
 
 	/**
 	 *组板岗场地笼车查询分页参数
 	 */
 	@Value("${duccPropertyConfig.jyComboardSiteCTTPageSize:5000}")
+	@LafUcc
 	private Integer jyComboardSiteCTTPageSize;
 
 	@Value("${duccPropertyConfig.jyComboardTaskCreateTimeBeginDay:7}")
+	@LafUcc
 	private Integer jyComboardTaskCreateTimeBeginDay;
 
 	@Value("${duccPropertyConfig.jyComboardTaskSealTimeBeginDay:2}")
+	@LafUcc
 	private Integer jyComboardTaskSealTimeBeginDay;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.jyCzSendTaskPlanTimeBeginDay:0}")
+	@LafUcc
 	private Integer jyCzSendTaskPlanTimeBeginDay;
 
 	@Value("${duccPropertyConfig.jyCzSendTaskPlanTimeEndDay:1}")
+	@LafUcc
 	private Integer jyCzSendTaskPlanTimeEndDay;
 
 	@Value("${duccPropertyConfig.jyStrandScanNumLimit:200}")
+	@LafUcc
 	private Integer jyStrandScanNumLimit;
 
 	@Value("${duccPropertyConfig.jySysStrandTaskCloseTime:14400000}")
+	@LafUcc
 	private Long jySysStrandTaskCloseTime;
 
 	/**
 	 *发货运输车辆靠台验证码允许访问上几次验证码个数
 	 */
 	@Value("${duccPropertyConfig.jyTransportSendVehicleValidateDockAllowRefreshTimes:2}")
+	@LafUcc
 	private Integer jyTransportSendVehicleValidateDockAllowRefreshTimes;
 
 	/**
 	 *发货运输车辆靠台验证刷新间隔
 	 */
 	@Value("${duccPropertyConfig.jyTransportSendVehicleValidateDockRefreshTime:10}")
+	@LafUcc
 	private Integer jyTransportSendVehicleValidateDockRefreshTime;
 
 	@Value("${duccPropertyConfig.jyUnSealTaskLastHourTime:6}")
+	@LafUcc
 	private Long jyUnSealTaskLastHourTime;
 
 	@Value("${duccPropertyConfig.jyUnloadCarListDoneQueryDayFilter:5}")
+	@LafUcc
 	private Integer jyUnloadCarListDoneQueryDayFilter;
 
 	@Value("${duccPropertyConfig.jyWorkAppAutoRefreshConfig:''}")
+	@LafUcc
 	private String jyWorkAppAutoRefreshConfig;
 
 	private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
 
 	@Value("${duccPropertyConfig.loadCarEvaluateSwitch:true}")
+	@LafUcc
 	private boolean loadCarEvaluateSwitch;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.loadProgressByVehicleVolume:false}")
+	@LafUcc
 	private boolean loadProgressByVehicleVolume;
 
 	/**
 	 *设备两次合格间隔时间（用于抽检下发校验，默认8h，毫秒）
 	 */
 	@Value("${duccPropertyConfig.machineCalibrateIntervalTimeOfSpotCheck:28800000}")
+	@LafUcc
 	private Long machineCalibrateIntervalTimeOfSpotCheck;
 
 	/**
 	 *dws设备校完成后更新非超标抽检记录设备状态开关
 	 */
 	@Value("${duccPropertyConfig.machineCalibrateSpotCheckSwitch:true}")
+	@LafUcc
 	private boolean machineCalibrateSpotCheckSwitch;
 
 	/**
 	 *设备校准任务时长，默认8h（毫秒）
 	 */
 	@Value("${duccPropertyConfig.machineCalibrateTaskDuration:10800000}")
+	@LafUcc
 	private Long machineCalibrateTaskDuration;
 
 	/**
 	 *设备任务强制创建的间隔时间，默认2h（毫秒）
 	 */
 	@Value("${duccPropertyConfig.machineCalibrateTaskForceCreateIntervalTime:720000}")
+	@LafUcc
 	private Long machineCalibrateTaskForceCreateIntervalTime;
 
 	@Value("${duccPropertyConfig.machineCalibrateTaskQueryRange:172800000}")
+	@LafUcc
 	private Long machineCalibrateTaskQueryRange;
 
 	@Value("${duccPropertyConfig.needIsolateBoardByGroupCodeSiteList:''}")
+	@LafUcc
 	private String needIsolateBoardByGroupCodeSiteList;
 
 	@Value("${duccPropertyConfig.needValidateBatchCodeHasSealed:false}")
+	@LafUcc
 	private boolean needValidateBatchCodeHasSealed;
 
 	@Value("${duccPropertyConfig.offLineAllowedSites:''}")
+	@LafUcc
 	private String offLineAllowedSites;
 
 	@Value("${duccPropertyConfig.onlineGetTaskSimpleCodeThreshold:50}")
+	@LafUcc
 	private int onlineGetTaskSimpleCodeThreshold;
 
 	private List<Integer> operateProgressRegionList = new ArrayList<>();
@@ -1297,57 +1546,71 @@ public class DuccPropertyConfig {
 	 *
 	 */
 	@Value("${duccPropertyConfig.operateProgressRegions:10}")
+	@LafUcc
 	private String operateProgressRegions;
 
 	@Value("${duccPropertyConfig.pdaLoginSkipSwitch:false}")
+	@LafUcc
 	private Boolean pdaLoginSkipSwitch;
 
 	@Value("${duccPropertyConfig.pdaVersionSwitch:true}")
+	@LafUcc
 	private boolean pdaVersionSwitch;
 
 	/**
 	 *是否是所有包裹补打后再取消拦截
 	 */
 	@Value("${duccPropertyConfig.printCompeteAllPackageUpdateCancel:true}")
+	@LafUcc
 	private boolean printCompeteAllPackageUpdateCancel;
 
 	/**
 	 *是否处理重复运单取消拦截
 	 */
 	@Value("${duccPropertyConfig.printCompeteUpdateCancel:false}")
+	@LafUcc
 	private boolean printCompeteUpdateCancel;
 
 	/**
 	 *生成装车进度数据消息的开关
 	 */
 	@Value("${duccPropertyConfig.productOperateProgressSwitch:false}")
+	@LafUcc
 	private boolean productOperateProgressSwitch;
 
 	@Value("${duccPropertyConfig.reComboardSwitch:true}")
+	@LafUcc
 	private boolean reComboardSwitch;
 
 	@Value("${duccPropertyConfig.reComboardTimeLimit:3}")
+	@LafUcc
 	private Long reComboardTimeLimit;
 
 	@Value("${duccPropertyConfig.spotCheckIssueRelyOMachineStatus:true}")
+	@LafUcc
 	private boolean spotCheckIssueRelyOMachineStatus;
 
 	@Value("${duccPropertyConfig.spotCheckIssueRelyOnMachineStatusSiteSwitch:ALL}")
+	@LafUcc
 	private String spotCheckIssueRelyOnMachineStatusSiteSwitch;
 
 	/**
 	 *
 	 */
 	@Value("${duccPropertyConfig.supportMutilScan:false}")
+	@LafUcc
 	private boolean supportMutilScan;
 
 	@Value("${duccPropertyConfig.syncJyCZSealStatusSwitch:false}")
+	@LafUcc
 	private boolean syncJyCZSealStatusSwitch;
 
 	@Value("${duccPropertyConfig.syncScheduleTaskSwitch:true}")
+	@LafUcc
 	private boolean syncScheduleTaskSwitch;
 
 	@Value("${duccPropertyConfig.teAnSiteWhitelist:}")
+	@LafUcc
 	private String teAnSiteWhitelist;
 
 	private List<String> teAnSiteWhitelistStrList = new ArrayList<>();
@@ -1356,29 +1619,175 @@ public class DuccPropertyConfig {
 	 *集齐服务开关（true: 降级）
 	 */
 	@Value("${duccPropertyConfig.tysUnloadCarCollectDemoteSwitch:false}")
+	@LafUcc
 	private Boolean tysUnloadCarCollectDemoteSwitch;
 
 	@Value("${duccPropertyConfig.unloadTaskBoardMaxCount:100}")
+	@LafUcc
 	private Integer unloadTaskBoardMaxCount;
 
 	@Value("${duccPropertyConfig.uploadOverWeightSwitch:true}")
+	@LafUcc
 	private boolean uploadOverWeightSwitch;
 
 	/**
 	 *车型优先分数默认值
 	 */
 	@Value("${duccPropertyConfig.vehicleIntegralPriorityFraction:200.0}")
+	@LafUcc
 	private double vehicleIntegralPriorityFraction;
 
 	@Value("${duccPropertyConfig.volumeExcessIssueSites:910}")
+	@LafUcc
 	private String volumeExcessIssueSites;
 
 	/**
 	 *转运验货拦截包裹号是否在运单系统存在（true:拦截， false不拦截）
 	 */
 	@Value("${duccPropertyConfig.waybillSysNonExistPackageInterceptSwitch:true}")
+	@LafUcc
 	private Boolean waybillSysNonExistPackageInterceptSwitch;
 	
+    /**
+     * 操作流水-发送开关
+     */
+	@Value("${duccPropertyConfig.sendJyOperateFlowMqSwitch:true}")
+	@LafUcc	
+    private Boolean sendJyOperateFlowMqSwitch;
+	
+	@Value("${duccPropertyConfig.needValidateMainLineBizSources}")
+	@LafUcc	
+    private String needValidateMainLineBizSources;
+	
+    /**
+     * 是否使用设备抽检图片AI识别结果
+     */
+	@Value("${duccPropertyConfig.useEquipmentSpotCheckAIDistinguishResult:false}")
+	@LafUcc	
+    private boolean useEquipmentSpotCheckAIDistinguishResult;
+	
+	@Value("${duccPropertyConfig.oldSendForbiddenSwitch:false}")
+	@LafUcc
+    private boolean oldSendForbiddenSwitch;
+    /**
+     * 接货仓发货岗查询发货明细表，默认limit最大值
+     */
+	@Value("${duccPropertyConfig.JyWarehouseSendVehicleDetailQueryDefaultLimitSize:30}")
+	@LafUcc	
+    private Integer JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+    /**
+     * 接货仓发货岗混扫任务下流向数量配置： 当前ucc配置，而且改为PC报表控制
+     * ,38:10,,10186:15,,,  配置：38场地支持10个流向， 10186支持15个流向
+     */
+	@Value("${duccPropertyConfig.JyWarehouseSendVehicleMixScanTaskFlowNumConfig:,38:10,,,10186:15,,,910:20,,,223094:13}")
+	@LafUcc		
+    private String JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+    /**
+     * 拣运扫描没有限制最大数量，取消可能存在巨大值，当取消特大时，需要关注是否为异常
+     */
+	@Value("${duccPropertyConfig.JyBuQiWaybillCodeMaxSum:50000}")
+	@LafUcc	
+    private Integer JyBuQiWaybillCodeMaxSum;
+    /**
+     * 封车前装载率限制
+     */
+	@Value("${duccPropertyConfig.beforeSealVehicleLoadRateLimit:0.0}")
+	@LafUcc	
+    private double beforeSealVehicleLoadRateLimit;
+	@Value("${duccPropertyConfig.beforeSendVehicleLoadRateLimit:0.0}")
+	@LafUcc
+    private double beforeSendVehicleLoadRateLimit;
+	@Value("${duccPropertyConfig.beforeSealVehicleLoadRateLimitCheckSwitch:false}")
+	@LafUcc
+    private boolean beforeSealVehicleLoadRateLimitCheckSwitch;
+    /**
+     * 航空发货封车岗列表查询
+     */
+	@Value("${duccPropertyConfig.aviationSendSealListNextSiteQueryLimit:}")
+	@LafUcc
+    private Integer aviationSendSealListNextSiteQueryLimit;
+    /**
+     * 待派车查询时间范围  单位小时
+     */
+	@Value("${duccPropertyConfig.fetchCarDistributionTimeRange:48}")
+	@LafUcc
+    private Integer fetchCarDistributionTimeRange;
+    /**
+     * 作业APP发货特殊产品类型提示，到指定剩余分钟数才提示
+     */
+	@Value("${duccPropertyConfig.jySendSpecialProductTypeToScanShowRemainMinutes:30}")
+	@LafUcc	
+    private Integer jySendSpecialProductTypeToScanShowRemainMinutes;
+    /**
+     * 抽检数据是否下发给计费
+     */
+	@Value("${duccPropertyConfig.isIssueToFinance:false}")
+	@LafUcc	
+    private boolean isIssueToFinance;
+    /**
+     * 检查是否需要检查周转筐数量和实施数量对比
+     */
+	@Value("${duccPropertyConfig.checkAkboxConfig:true}")
+	@LafUcc	
+    private Boolean checkAkboxConfig;
+    /**
+     * 违禁品运单缓存时长
+     */
+	@Value("${duccPropertyConfig.contrabandWaybillCacheTime:0}")
+	@LafUcc	
+    private int contrabandWaybillCacheTime;
+	
+	@Value("${duccPropertyConfig.printCacheTime:50000}")
+	@LafUcc
+    private Long printCacheTime;
+    /**
+     * 组板岗混扫任务查询限制
+     */
+	@Value("${duccPropertyConfig.cttGroupDataLimit:5}")
+	@LafUcc	
+    private Integer cttGroupDataLimit;
+    /**
+     * 是否执行BC融合
+     */
+    /**
+     * 组板岗混扫任务查询限制
+     */
+	@Value("${duccPropertyConfig.executeBCFuse:false}")
+	@LafUcc		
+    private boolean executeBCFuse;	
+	
+	@Value("${duccPropertyConfig.interceptBlackList:*}")
+	@LafUcc	
+    private String interceptBlackList;
+    /**
+     * 异常任务生成id开关
+     */
+	@Value("${duccPropertyConfig.jyExceptionCreateBizIdSwitch:false}")
+	@LafUcc	
+    private boolean jyExceptionCreateBizIdSwitch;
+    /**
+     * 异常破损任务客服未反馈时间（小时）
+     */
+	@Value("${duccPropertyConfig.jyExceptionDamageTaskCustomerNotReturnHours:0}")
+	@LafUcc		
+    private int jyExceptionDamageTaskCustomerNotReturnHours;
+	@Value("${duccPropertyConfig.qingChangDataOpenSwitch:test}")
+	@LafUcc	
+    private String qingChangDataOpenSwitch;
+    
+    /**
+     * 外单逆向换单次数
+     */
+	@Value("${duccPropertyConfig.reverseExchangeCount:3}")
+	@LafUcc	
+    private Integer reverseExchangeCount;
+    /**
+     * 终端站点-包裹补打限制开关
+     */
+	@Value("${duccPropertyConfig.terminalSitePackagePrintLimitSwitch:false}")
+	@LafUcc	
+    private boolean terminalSitePackagePrintLimitSwitch;
+    
 	public boolean isUseDucc() {
 		return useDucc;
 	}
@@ -1388,15 +1797,23 @@ public class DuccPropertyConfig {
 		this.useDucc = useDucc;
 	}
 
-	public String getTestUcc() {
-		return testUcc;
+   public String getConfigFrom() {
+		return configFrom;
 	}
 
-	public void setTestUcc(String testUcc) {
-		log.info("DuccPropertyConfig.setTestUcc");		
-		this.testUcc = testUcc;
+	public void setConfigFrom(String configFrom) {
+		this.configFrom = configFrom;
 	}
-   //get、set方法	
+
+	public boolean isCheckConfig() {
+		return checkConfig;
+	}
+
+	public void setCheckConfig(boolean checkConfig) {
+		this.checkConfig = checkConfig;
+	}
+
+	//get、set方法	
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2537,6 +2954,7 @@ public class DuccPropertyConfig {
     }
 
     public void setDpSiteCodes(String dpSiteCodes) {
+    	this.dpSiteCodes=dpSiteCodes;
         if(StringUtils.isBlank(dpSiteCodes)){
             return;
         }
@@ -3029,7 +3447,9 @@ public class DuccPropertyConfig {
     }
 
 	public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
-		return autoCloseJyBizTaskConfigObj;
+        AutoCloseJyBizTaskConfig config = new AutoCloseJyBizTaskConfig();
+        BeanUtils.copyProperties(autoCloseJyBizTaskConfigObj, config);
+        return config;
 	}
 
 	public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {
@@ -3474,7 +3894,7 @@ public class DuccPropertyConfig {
 	}
 
 	public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
-		return jyWorkAppAutoRefreshConfigList;
+        return Lists.newArrayList(jyWorkAppAutoRefreshConfigList);
 	}
 
 	public void setJyWorkAppAutoRefreshConfigList(List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList) {
@@ -3703,10 +4123,11 @@ public class DuccPropertyConfig {
 
 	public void setTeAnSiteWhitelist(String teAnSiteWhitelist) {
 		this.teAnSiteWhitelist = teAnSiteWhitelist;
-        if(teAnSiteWhitelist == null){
+        if(StringUtils.isBlank(teAnSiteWhitelist)){
         	teAnSiteWhitelistStrList = new ArrayList<>();
+        }else {
+        	teAnSiteWhitelistStrList =  Arrays.asList(teAnSiteWhitelist.split(Constants.SEPARATOR_COMMA));
         }
-        teAnSiteWhitelistStrList =  Arrays.asList(teAnSiteWhitelist.split(Constants.SEPARATOR_COMMA));		
 	}
 
 	public List<String> getTeAnSiteWhitelistStrList() {
@@ -3775,5 +4196,215 @@ public class DuccPropertyConfig {
 
 	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
 		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
+	}
+
+	public Boolean getSendJyOperateFlowMqSwitch() {
+		return sendJyOperateFlowMqSwitch;
+	}
+
+	public void setSendJyOperateFlowMqSwitch(Boolean sendJyOperateFlowMqSwitch) {
+		this.sendJyOperateFlowMqSwitch = sendJyOperateFlowMqSwitch;
+	}
+
+	public String getNeedValidateMainLineBizSources() {
+		return needValidateMainLineBizSources;
+	}
+
+	public void setNeedValidateMainLineBizSources(String needValidateMainLineBizSources) {
+		this.needValidateMainLineBizSources = needValidateMainLineBizSources;
+	}
+
+	public boolean isUseEquipmentSpotCheckAIDistinguishResult() {
+		return useEquipmentSpotCheckAIDistinguishResult;
+	}
+
+	public void setUseEquipmentSpotCheckAIDistinguishResult(boolean useEquipmentSpotCheckAIDistinguishResult) {
+		this.useEquipmentSpotCheckAIDistinguishResult = useEquipmentSpotCheckAIDistinguishResult;
+	}
+
+	public boolean isOldSendForbiddenSwitch() {
+		return oldSendForbiddenSwitch;
+	}
+
+	public void setOldSendForbiddenSwitch(boolean oldSendForbiddenSwitch) {
+		this.oldSendForbiddenSwitch = oldSendForbiddenSwitch;
+	}
+
+	public Integer getJyWarehouseSendVehicleDetailQueryDefaultLimitSize() {
+		return JyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+	}
+
+	public void setJyWarehouseSendVehicleDetailQueryDefaultLimitSize(
+			Integer jyWarehouseSendVehicleDetailQueryDefaultLimitSize) {
+		JyWarehouseSendVehicleDetailQueryDefaultLimitSize = jyWarehouseSendVehicleDetailQueryDefaultLimitSize;
+	}
+
+	public String getJyWarehouseSendVehicleMixScanTaskFlowNumConfig() {
+		return JyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+	}
+
+	public void setJyWarehouseSendVehicleMixScanTaskFlowNumConfig(String jyWarehouseSendVehicleMixScanTaskFlowNumConfig) {
+		JyWarehouseSendVehicleMixScanTaskFlowNumConfig = jyWarehouseSendVehicleMixScanTaskFlowNumConfig;
+	}
+
+	public Integer getJyBuQiWaybillCodeMaxSum() {
+		return JyBuQiWaybillCodeMaxSum;
+	}
+
+	public void setJyBuQiWaybillCodeMaxSum(Integer jyBuQiWaybillCodeMaxSum) {
+		JyBuQiWaybillCodeMaxSum = jyBuQiWaybillCodeMaxSum;
+	}
+
+	public double getBeforeSealVehicleLoadRateLimit() {
+		return beforeSealVehicleLoadRateLimit;
+	}
+
+	public void setBeforeSealVehicleLoadRateLimit(double beforeSealVehicleLoadRateLimit) {
+		this.beforeSealVehicleLoadRateLimit = beforeSealVehicleLoadRateLimit;
+	}
+
+	public double getBeforeSendVehicleLoadRateLimit() {
+		return beforeSendVehicleLoadRateLimit;
+	}
+
+	public void setBeforeSendVehicleLoadRateLimit(double beforeSendVehicleLoadRateLimit) {
+		this.beforeSendVehicleLoadRateLimit = beforeSendVehicleLoadRateLimit;
+	}
+
+	public boolean isBeforeSealVehicleLoadRateLimitCheckSwitch() {
+		return beforeSealVehicleLoadRateLimitCheckSwitch;
+	}
+
+	public void setBeforeSealVehicleLoadRateLimitCheckSwitch(boolean beforeSealVehicleLoadRateLimitCheckSwitch) {
+		this.beforeSealVehicleLoadRateLimitCheckSwitch = beforeSealVehicleLoadRateLimitCheckSwitch;
+	}
+
+	public Integer getAviationSendSealListNextSiteQueryLimit() {
+		return aviationSendSealListNextSiteQueryLimit;
+	}
+
+	public void setAviationSendSealListNextSiteQueryLimit(Integer aviationSendSealListNextSiteQueryLimit) {
+		this.aviationSendSealListNextSiteQueryLimit = aviationSendSealListNextSiteQueryLimit;
+	}
+
+	public Integer getFetchCarDistributionTimeRange() {
+		return fetchCarDistributionTimeRange;
+	}
+
+	public void setFetchCarDistributionTimeRange(Integer fetchCarDistributionTimeRange) {
+		this.fetchCarDistributionTimeRange = fetchCarDistributionTimeRange;
+	}
+
+	public Integer getJySendSpecialProductTypeToScanShowRemainMinutes() {
+		return jySendSpecialProductTypeToScanShowRemainMinutes;
+	}
+
+	public void setJySendSpecialProductTypeToScanShowRemainMinutes(
+			Integer jySendSpecialProductTypeToScanShowRemainMinutes) {
+		this.jySendSpecialProductTypeToScanShowRemainMinutes = jySendSpecialProductTypeToScanShowRemainMinutes;
+	}
+
+	public boolean isIssueToFinance() {
+		return isIssueToFinance;
+	}
+
+	public void setIssueToFinance(boolean isIssueToFinance) {
+		this.isIssueToFinance = isIssueToFinance;
+	}
+
+	public Boolean getCheckAkboxConfig() {
+		return checkAkboxConfig;
+	}
+
+	public void setCheckAkboxConfig(Boolean checkAkboxConfig) {
+		this.checkAkboxConfig = checkAkboxConfig;
+	}
+
+	public int getContrabandWaybillCacheTime() {
+		return contrabandWaybillCacheTime;
+	}
+
+	public void setContrabandWaybillCacheTime(int contrabandWaybillCacheTime) {
+		this.contrabandWaybillCacheTime = contrabandWaybillCacheTime;
+	}
+
+	public Long getPrintCacheTime() {
+		return printCacheTime;
+	}
+
+	public void setPrintCacheTime(Long printCacheTime) {
+		this.printCacheTime = printCacheTime;
+	}
+
+	public Integer getCttGroupDataLimit() {
+		return cttGroupDataLimit;
+	}
+
+	public void setCttGroupDataLimit(Integer cttGroupDataLimit) {
+		this.cttGroupDataLimit = cttGroupDataLimit;
+	}
+
+	public boolean isExecuteBCFuse() {
+		return executeBCFuse;
+	}
+
+	public void setExecuteBCFuse(boolean executeBCFuse) {
+		this.executeBCFuse = executeBCFuse;
+	}
+
+	public String getInterceptBlackList() {
+		return interceptBlackList;
+	}
+
+	public void setInterceptBlackList(String interceptBlackList) {
+		this.interceptBlackList = interceptBlackList;
+	}
+
+	public boolean isJyExceptionCreateBizIdSwitch() {
+		return jyExceptionCreateBizIdSwitch;
+	}
+
+	public void setJyExceptionCreateBizIdSwitch(boolean jyExceptionCreateBizIdSwitch) {
+		this.jyExceptionCreateBizIdSwitch = jyExceptionCreateBizIdSwitch;
+	}
+
+	public int getJyExceptionDamageTaskCustomerNotReturnHours() {
+		return jyExceptionDamageTaskCustomerNotReturnHours;
+	}
+
+	public void setJyExceptionDamageTaskCustomerNotReturnHours(int jyExceptionDamageTaskCustomerNotReturnHours) {
+		this.jyExceptionDamageTaskCustomerNotReturnHours = jyExceptionDamageTaskCustomerNotReturnHours;
+	}
+
+	public String getQingChangDataOpenSwitch() {
+		return qingChangDataOpenSwitch;
+	}
+
+	public void setQingChangDataOpenSwitch(String qingChangDataOpenSwitch) {
+		this.qingChangDataOpenSwitch = qingChangDataOpenSwitch;
+	}
+
+	public Integer getReverseExchangeCount() {
+		return reverseExchangeCount;
+	}
+
+	public void setReverseExchangeCount(Integer reverseExchangeCount) {
+		this.reverseExchangeCount = reverseExchangeCount;
+	}
+
+	public boolean isTerminalSitePackagePrintLimitSwitch() {
+		return terminalSitePackagePrintLimitSwitch;
+	}
+
+	public void setTerminalSitePackagePrintLimitSwitch(boolean terminalSitePackagePrintLimitSwitch) {
+		this.terminalSitePackagePrintLimitSwitch = terminalSitePackagePrintLimitSwitch;
+	}
+
+	public static Logger getLog() {
+		return log;
+	}
+
+	public static String getConfigFromLocal() {
+		return CONFIG_FROM_LOCAL;
 	}	
 }
