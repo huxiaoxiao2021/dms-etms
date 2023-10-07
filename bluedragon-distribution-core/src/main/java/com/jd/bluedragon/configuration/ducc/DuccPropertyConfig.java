@@ -1317,7 +1317,7 @@ public class DuccPropertyConfig {
 	/**
 	 *德邦春节模式场地
 	 */
-	@Value("${duccPropertyConfig.dpSpringSiteCode:-1}")
+	@Value("${duccPropertyConfig.dpSpringSiteCode:}")
 	@LafUcc
 	private String dpSpringSiteCode;
 
@@ -1609,7 +1609,7 @@ public class DuccPropertyConfig {
 	@LafUcc
 	private boolean syncScheduleTaskSwitch;
 
-	@Value("${duccPropertyConfig.teAnSiteWhitelist}")
+	@Value("${duccPropertyConfig.teAnSiteWhitelist:}")
 	@LafUcc
 	private String teAnSiteWhitelist;
 
@@ -1703,7 +1703,7 @@ public class DuccPropertyConfig {
     /**
      * 航空发货封车岗列表查询
      */
-	@Value("${duccPropertyConfig.aviationSendSealListNextSiteQueryLimit}")
+	@Value("${duccPropertyConfig.aviationSendSealListNextSiteQueryLimit:}")
 	@LafUcc
     private Integer aviationSendSealListNextSiteQueryLimit;
     /**
@@ -4123,10 +4123,11 @@ public class DuccPropertyConfig {
 
 	public void setTeAnSiteWhitelist(String teAnSiteWhitelist) {
 		this.teAnSiteWhitelist = teAnSiteWhitelist;
-        if(teAnSiteWhitelist == null){
+        if(StringUtils.isBlank(teAnSiteWhitelist)){
         	teAnSiteWhitelistStrList = new ArrayList<>();
+        }else {
+        	teAnSiteWhitelistStrList =  Arrays.asList(teAnSiteWhitelist.split(Constants.SEPARATOR_COMMA));
         }
-        teAnSiteWhitelistStrList =  Arrays.asList(teAnSiteWhitelist.split(Constants.SEPARATOR_COMMA));		
 	}
 
 	public List<String> getTeAnSiteWhitelistStrList() {
