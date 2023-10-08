@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.jd.fastjson.JSON;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -488,10 +489,11 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
 		}
 		String userCode = query.getUserCode();
-		if (StringUtils.isNotBlank(query.getUserCode()) && query.getUserCode().contains("***")) {
+		if (StringUtils.isNotBlank(userCode) && userCode.contains("***")) {
 			query.setUserCode(null);
 			query.setIdCard(userCode);
 		}
+		log.info("UserSignRecordFlowJsfServiceImpl.checkParamForQueryPageList query:{}", JSON.toJSONString(query));
 		return result;
 	 }
 }
