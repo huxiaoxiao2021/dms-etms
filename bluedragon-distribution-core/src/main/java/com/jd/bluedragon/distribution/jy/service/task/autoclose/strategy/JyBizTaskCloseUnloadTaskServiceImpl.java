@@ -153,7 +153,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
             autoCloseTaskContextDto.setOperateUserName(this.sysOperateUserName);
             autoCloseTaskContextDto.setBizId(taskUnloadVehicleExist.getBizId());
 
-            AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+            AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfigObj();
             if(autoCloseJyBizTaskConfig == null){
                 return result;
             }
