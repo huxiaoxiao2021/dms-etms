@@ -298,7 +298,7 @@
 		<property name="cttGroupDataLimit" value="${cttGroupDataLimit:200}"/>
 		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
 		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
-		<property name="terminalSitePackagePrintLimitSwitch" value="${terminalSitePackagePrintLimitSwitch:true}"/>
+		<property name="terminalSitePackagePrintLimitSwitch" value="${terminalSitePackagePrintLimitSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
