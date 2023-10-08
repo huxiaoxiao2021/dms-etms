@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.api.request.material.warmbox.WarmBoxOutbou
 import com.jd.bluedragon.distribution.api.response.material.warmbox.WarmBoxInOutResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.external.intensive.enums.MaterialSendModeEnum;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialReceive;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialSend;
 import com.jd.bluedragon.distribution.material.enums.MaterialReceiveTypeEnum;
@@ -49,7 +50,7 @@ public class CollectionBagOperationResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CollectionBagOperationResource.class);
 
-    private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.COLLECTION_BAG_SEND.getCode();
+    private static final byte SEND_MODE = MaterialSendModeEnum.COLLECTION_BAG_SEND.getCode();
 
     @Autowired
     private SiteService siteService;
