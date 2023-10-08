@@ -25,6 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.test.utils.FileHelper;
@@ -114,7 +115,7 @@ public class TestDucc {
 				 
 				 if(!typeName.toLowerCase().contains("lis")) {
 //					 String key = "duccPropertyConfig."+field.getName();
-					 String key = "dmsConfigManager.getUccPropertyConfig()."+field.getName();
+					 String key = "uccPropertyConfiguration."+field.getName();
 					 if(duccMap.containsKey(key)) {
 						 DuccItem duccItem = duccMap.get(key);
 						 
@@ -167,7 +168,7 @@ public class TestDucc {
 			 }
 			 StringBuffer sf = new StringBuffer();
 			 
-			 for(String item:dmsConfigManager.getUccPropertyConfig().getWeakList()) {
+			 for(String item:uccConfig.getWeakList()) {
 				 sf.append("<laf-config:listener-field key=\"");
 				 sf.append(item+"\" field=\"");
 				 String beanName = item;
