@@ -573,6 +573,14 @@ public class HintCodeConstants {
      */
     public static String TEAN_BOX_INTERCEPT = "20094";
 
+    // 港澳单-审核中拦截提示语：此单报关审核中，请稍后尝试，通过后可正常操作!
+    public static String EXCEPTION_GA_EXAMINE_INTERCEPT_TYPE = "20101";
+    // 港澳单-审核失败拦截提示语：此单报关审单失败，请操作逆向换单后退回!
+    public static String EXCEPTION_GA_EXAMINE_FAIL_INTERCEPT_TYPE = "20102";
+    //  港澳单-D类运单拦截提示语：此单为D类报关运单，禁止集包，请操作原包发货
+    public static String EXCEPTION_GA_D_SORT_INTERCEPT_TYPE = "20103";
+    
+
     /*##############################################拦截相关END#########################################################*/
 
 
@@ -1040,6 +1048,10 @@ public class HintCodeConstants {
 
     public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE = "40026";
     public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG = "仅支持【取消订单拦截】【理赔拦截】【理赔破损拦截】的运单提交异常！";
+
+    public static String ATTENDANCE_BLACK_LIST_TOBE_EFFECTIVE_MSG = "【%s】将于【%s】限制入场操作，请勿安排该员工在此时间后在场内作业！";
+
+    public static String ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG ="【%s】 已被限制入场，请勿安排该员工在场内作业！";
 
     // 请扫描正确的循环集包袋编码 20098
     public static String CYCLE_BOX_RULE_ERROR = "20098";

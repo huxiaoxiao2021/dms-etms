@@ -28,6 +28,10 @@ public class ExpScrappedDetailReq extends  ExpBaseReq{
      */
     private String certifyImageUrl;
 
+    /**
+     * 运单号
+     */
+    private String barCode;
 
 
 
@@ -69,5 +73,13 @@ public class ExpScrappedDetailReq extends  ExpBaseReq{
 
     public void setCertifyImageUrl(String certifyImageUrl) {
         this.certifyImageUrl = certifyImageUrl;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
     }
 }

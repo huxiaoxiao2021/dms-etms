@@ -1,19 +1,24 @@
 package com.jd.bluedragon.configuration.ucc;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
+import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.util.*;
 
 /**
  * Created by xumei3 on 2017/12/15.
+ *  Note :
+ *      - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
  */
-public class UccPropertyConfiguration {
+public class UccPropertyConfiguration{
 
     /** 开启的多级异步缓冲组件的任务类型列表 **/
     private String asynbufferEnabledTaskType;
@@ -852,6 +857,29 @@ public class UccPropertyConfiguration {
 
     private String qingChangDataOpenSwitch;
 
+    public Boolean getCheckAkboxConfig() {
+        return checkAkboxConfig;
+    }
+
+    public void setCheckAkboxConfig(Boolean checkAkboxConfig) {
+        this.checkAkboxConfig = checkAkboxConfig;
+    }
+
+    public Long getPrintCacheTime() {
+        return printCacheTime;
+    }
+
+    public void setPrintCacheTime(Long printCacheTime) {
+        this.printCacheTime = printCacheTime;
+    }
+
+    /**
+     * 检查是否需要检查周转筐数量和实施数量对比
+     */
+    private Boolean checkAkboxConfig;
+
+    private Long printCacheTime;
+
     public String getQingChangDataOpenSwitch(){
         return qingChangDataOpenSwitch;
     }
@@ -924,6 +952,11 @@ public class UccPropertyConfiguration {
      * 组板岗板列表sql开关
      */
     private Boolean jyComboardListBoardSqlSwitch;
+    
+    /**
+     * 操作流水-发送开关
+     */
+    private Boolean sendJyOperateFlowMqSwitch;
 
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
@@ -1162,6 +1195,8 @@ public class UccPropertyConfiguration {
      * 身份证识别切量开关，全量上线之后，可以删除
      */
     private String identityRecogniseSiteSwitch;
+    
+    private List<String> identityRecogniseSiteSwitchList = new ArrayList<>();
     /**
      * 传摆发货-干支限制业务列表
      */
@@ -1402,6 +1437,11 @@ public class UccPropertyConfiguration {
      */
     private double vehicleIntegralPriorityFraction;
 
+    /**
+     * 外单逆向换单次数
+     */
+    private Integer reverseExchangeCount;
+
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
     }
@@ -1532,6 +1572,8 @@ public class UccPropertyConfiguration {
 
     /**
      * 自动关闭任务配置，转换为对象
+     *  Note :
+     *       - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
      */
     private String autoCloseJyBizTaskConfig;
     private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
@@ -1601,6 +1643,16 @@ public class UccPropertyConfiguration {
      */
     private Integer jyTransportSendVehicleValidateDockAllowRefreshTimes;
 
+    /**
+     * 异常破损任务客服未反馈时间（小时）
+     */
+    private int jyExceptionDamageTaskCustomerNotReturnHours;
+
+    /**
+     * 异常任务生成id开关
+     */
+    private boolean jyExceptionCreateBizIdSwitch;
+
     private String aggsDataSource;
 
     public String getAggsDataSource() {
@@ -1612,6 +1664,8 @@ public class UccPropertyConfiguration {
     }
     /**
      * 拣运APP自动刷新时间配置
+     *  Note :
+     *      - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
      */
     private String jyWorkAppAutoRefreshConfig;
     private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
@@ -2800,6 +2854,7 @@ public class UccPropertyConfiguration {
     }
 
     public void setDpSiteCodes(String dpSiteCodes) {
+    	this.dpSiteCodes = dpSiteCodes;
         if(StringUtils.isBlank(dpSiteCodes)){
             return;
         }
@@ -2840,14 +2895,16 @@ public class UccPropertyConfiguration {
         this.faceAbnormalReportConfig = faceAbnormalReportConfig;
     }
 
-    public List<String> getIdentityRecogniseSiteSwitch() {
-        return StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
-                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
-                : Collections.singletonList("0");
+    public String getIdentityRecogniseSiteSwitch() {
+        return identityRecogniseSiteSwitch;
     }
 
     public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
+        
+        identityRecogniseSiteSwitchList = (StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
+                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
+                : Collections.singletonList("0"));
     }
 
     public Integer getJySendTaskPlanTimeBeginDay() {
@@ -3325,8 +3382,8 @@ public class UccPropertyConfiguration {
         this.volumeExcessIssueSites = volumeExcessIssueSites;
     }
 
-    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
-        return autoCloseJyBizTaskConfigObj;
+    public String getAutoCloseJyBizTaskConfig() {
+        return this.autoCloseJyBizTaskConfig;
     }
 
     public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
@@ -3454,22 +3511,21 @@ public class UccPropertyConfiguration {
 
     public void setJyWorkAppAutoRefreshConfig(String jyWorkAppAutoRefreshConfig) {
         this.jyWorkAppAutoRefreshConfig = jyWorkAppAutoRefreshConfig;
-        this.setJyWorkAppAutoRefreshConfigList(jyWorkAppAutoRefreshConfig);
-    }
-
-    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
-        return jyWorkAppAutoRefreshConfigList;
-    }
-
-    public void setJyWorkAppAutoRefreshConfigList(String jyWorkAppAutoRefreshConfig) {
         if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
             final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
             if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
                 jyWorkAppAutoRefreshConfigList = clientAutoRefreshConfigList;
             }
-        }
+        }        
     }
 
+    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
+        return Lists.newArrayList(jyWorkAppAutoRefreshConfigList);
+    }
+
+    public void setJyWorkAppAutoRefreshConfigList(List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList) {
+        this.jyWorkAppAutoRefreshConfigList = jyWorkAppAutoRefreshConfigList;
+    }
     public ClientAutoRefreshConfig getJyWorkAppAutoRefreshConfigByBusinessType(String businessType) {
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
@@ -3541,18 +3597,14 @@ public class UccPropertyConfiguration {
 
     public void setExceptionSubmitCheckSites(String exceptionSubmitCheckSites) {
         this.exceptionSubmitCheckSites = exceptionSubmitCheckSites;
-        this.setExceptionSubmitCheckSiteList(exceptionSubmitCheckSites);
-    }
-
-    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
-
-    public void setExceptionSubmitCheckSiteList(String exceptionSubmitCheckSites) {
         if(exceptionSubmitCheckSites == null){
             exceptionSubmitCheckSiteList = new ArrayList<>();
             return;
         }
         exceptionSubmitCheckSiteList = Arrays.asList(exceptionSubmitCheckSites.split(Constants.SEPARATOR_COMMA));
     }
+
+    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
 
     public boolean matchExceptionSubmitCheckSite(int siteId) {
         if(StringUtils.isBlank(exceptionSubmitCheckSites)){
@@ -3573,18 +3625,14 @@ public class UccPropertyConfiguration {
 
     public void setExceptionSubmitCheckWaybillInterceptTypes(String exceptionSubmitCheckWaybillInterceptTypes) {
         this.exceptionSubmitCheckWaybillInterceptTypes = exceptionSubmitCheckWaybillInterceptTypes;
-        this.setExceptionSubmitCheckWaybillInterceptTypeList(exceptionSubmitCheckWaybillInterceptTypes);
-    }
-
-    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
-
-    public void setExceptionSubmitCheckWaybillInterceptTypeList(String exceptionSubmitCheckWaybillInterceptTypes) {
         if(exceptionSubmitCheckWaybillInterceptTypes == null){
             exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
             return;
         }
         exceptionSubmitCheckWaybillInterceptTypeList = Arrays.asList(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA));
     }
+
+    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
 
     public boolean matchExceptionSubmitCheckWaybillInterceptType(Integer interceptType) {
         if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
@@ -3674,4 +3722,148 @@ public class UccPropertyConfiguration {
     public void setJySendSpecialProductTypeToScanShowRemainMinutes(Integer jySendSpecialProductTypeToScanShowRemainMinutes) {
         this.jySendSpecialProductTypeToScanShowRemainMinutes = jySendSpecialProductTypeToScanShowRemainMinutes;
     }
+
+    public int getJyExceptionDamageTaskCustomerNotReturnHours() {
+        return jyExceptionDamageTaskCustomerNotReturnHours;
+    }
+
+    public void setJyExceptionDamageTaskCustomerNotReturnHours(int jyExceptionDamageTaskCustomerNotReturnHours) {
+        this.jyExceptionDamageTaskCustomerNotReturnHours = jyExceptionDamageTaskCustomerNotReturnHours;
+    }
+
+    public boolean isJyExceptionCreateBizIdSwitch() {
+        return jyExceptionCreateBizIdSwitch;
+    }
+
+    public void setJyExceptionCreateBizIdSwitch(boolean jyExceptionCreateBizIdSwitch) {
+        this.jyExceptionCreateBizIdSwitch = jyExceptionCreateBizIdSwitch;
+    }
+
+    /**
+     * 违禁品运单缓存时长
+     */
+    private int contrabandWaybillCacheTime;
+
+    public int getContrabandWaybillCacheTime() {
+        return contrabandWaybillCacheTime;
+    }
+
+    public void setContrabandWaybillCacheTime(int contrabandWaybillCacheTime) {
+        this.contrabandWaybillCacheTime = contrabandWaybillCacheTime;
+    }
+
+    public Integer getReverseExchangeCount() {
+        return reverseExchangeCount;
+    }
+
+    public void setReverseExchangeCount(Integer reverseExchangeCount) {
+        this.reverseExchangeCount = reverseExchangeCount;
+    }
+
+	public Boolean getSendJyOperateFlowMqSwitch() {
+		return sendJyOperateFlowMqSwitch;
+	}
+
+	public void setSendJyOperateFlowMqSwitch(Boolean sendJyOperateFlowMqSwitch) {
+		this.sendJyOperateFlowMqSwitch = sendJyOperateFlowMqSwitch;
+	}
+
+	public boolean iseNetSyncWaybillCodeAndBoxCode() {
+		return eNetSyncWaybillCodeAndBoxCode;
+	}
+
+	public void seteNetSyncWaybillCodeAndBoxCode(boolean eNetSyncWaybillCodeAndBoxCode) {
+		this.eNetSyncWaybillCodeAndBoxCode = eNetSyncWaybillCodeAndBoxCode;
+	}
+
+	public List<Integer> getNeedValidateMainLineBizSourceCodes() {
+		return needValidateMainLineBizSourceCodes;
+	}
+
+	public void setNeedValidateMainLineBizSourceCodes(List<Integer> needValidateMainLineBizSourceCodes) {
+		this.needValidateMainLineBizSourceCodes = needValidateMainLineBizSourceCodes;
+	}
+
+	public List<Integer> getNotValidateTransTypeCodes() {
+		return notValidateTransTypeCodes;
+	}
+
+	public void setNotValidateTransTypeCodes(List<Integer> notValidateTransTypeCodes) {
+		this.notValidateTransTypeCodes = notValidateTransTypeCodes;
+	}
+
+	public List<String> get_multiplePackageSpotCheckSitesList() {
+		return _multiplePackageSpotCheckSitesList;
+	}
+
+	public void set_multiplePackageSpotCheckSitesList(List<String> _multiplePackageSpotCheckSitesList) {
+		this._multiplePackageSpotCheckSitesList = _multiplePackageSpotCheckSitesList;
+	}
+
+	public int getHideSpecialStartSitePrintReplaceSymbolMaxLength() {
+		return hideSpecialStartSitePrintReplaceSymbolMaxLength;
+	}
+
+	public void setJySendTaskLoadRateUpperLimit(Integer jySendTaskLoadRateUpperLimit) {
+		this.jySendTaskLoadRateUpperLimit = jySendTaskLoadRateUpperLimit;
+	}
+
+	public void setJySendTaskLoadRateLowerLimit(Integer jySendTaskLoadRateLowerLimit) {
+		this.jySendTaskLoadRateLowerLimit = jySendTaskLoadRateLowerLimit;
+	}
+
+	public void setHideSpecialStartSitPrintDestinationSiteStrList(
+			List<String> hideSpecialStartSitPrintDestinationSiteStrList) {
+		this.hideSpecialStartSitPrintDestinationSiteStrList = hideSpecialStartSitPrintDestinationSiteStrList;
+	}
+
+	public void setVirtualBoardCanUseSiteList(List<String> virtualBoardCanUseSiteList) {
+		this.virtualBoardCanUseSiteList = virtualBoardCanUseSiteList;
+	}
+
+	public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
+        AutoCloseJyBizTaskConfig config = new AutoCloseJyBizTaskConfig();
+        BeanUtils.copyProperties(autoCloseJyBizTaskConfigObj, config);
+        return config;
+	}
+
+	public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {
+		this.autoCloseJyBizTaskConfigObj = autoCloseJyBizTaskConfigObj;
+	}
+
+	public List<String> getExceptionSubmitCheckSiteList() {
+		return exceptionSubmitCheckSiteList;
+	}
+
+	public void setExceptionSubmitCheckSiteList(List<String> exceptionSubmitCheckSiteList) {
+		this.exceptionSubmitCheckSiteList = exceptionSubmitCheckSiteList;
+	}
+
+	public List<String> getExceptionSubmitCheckWaybillInterceptTypeList() {
+		return exceptionSubmitCheckWaybillInterceptTypeList;
+	}
+
+	public void setExceptionSubmitCheckWaybillInterceptTypeList(List<String> exceptionSubmitCheckWaybillInterceptTypeList) {
+		this.exceptionSubmitCheckWaybillInterceptTypeList = exceptionSubmitCheckWaybillInterceptTypeList;
+	}
+
+	public void setDpSpringSiteCodeList(List<Integer> dpSpringSiteCodeList) {
+		this.dpSpringSiteCodeList = dpSpringSiteCodeList;
+	}
+
+	public void setDewuCustomerCodeList(List<String> dewuCustomerCodeList) {
+		this.dewuCustomerCodeList = dewuCustomerCodeList;
+	}
+
+	public void setTeAnSiteWhitelistStrList(List<String> teAnSiteWhitelistStrList) {
+		this.teAnSiteWhitelistStrList = teAnSiteWhitelistStrList;
+	}
+
+	public List<String> getIdentityRecogniseSiteSwitchList() {
+		return identityRecogniseSiteSwitchList;
+	}
+
+	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
+		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
+	}
 }

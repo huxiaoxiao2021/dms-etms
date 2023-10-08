@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.easyFreeze.EasyFreezeSiteDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -57,7 +57,6 @@ import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -1145,6 +1144,22 @@ public class WaybillServiceImpl implements WaybillService {
         return null;
     }
 
+    @Override
+    public CancelWaybill queryGAExamineCancelWaybill(String waybillCode) {
+        List<CancelWaybill> list = cancelWaybillDao.findWaybillCancelByCodeAndFeatureTypes(waybillCode,
+                CancelWaybill.BUSINESS_TYPE_LOCK, 
+                Lists.newArrayList(CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE, CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE_FAIL));
+        if(CollectionUtils.isEmpty(list)){
+            return null;
+        }
+        for (CancelWaybill item : list) {
+            if(Objects.equals(item.getBusinessType(), CancelWaybill.BUSINESS_TYPE_LOCK)){
+                return item;
+            }
+        }
+        return null;
+    }
+
 
     /**
      *
@@ -1804,5 +1819,19 @@ public class WaybillServiceImpl implements WaybillService {
             result.error("系统异常，请联系分拣小秘！");
         }
         return result;
+    }
+
+    @Override
+    public boolean isHKorMOWaybill(String waybillCode) {
+        Waybill waybill = getWaybillByWayCode(waybillCode);
+        if(waybill != null &&  waybill.getWaybillExt() != null){
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            if((org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
+                    || (org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
+                log.info("港澳单-{}",waybillCode);
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
@@ -46,12 +47,14 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.workStation.*;
 
 import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
+import com.jdl.basic.common.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -122,7 +125,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	@Value("${beans.userSignRecordService.deleteCheckHours:4}")
 	private double deleteCheckHours;
-
+	@Autowired
+	private AttendanceBlackListManager attendanceBlackListManager;
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";
@@ -907,6 +911,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		String userCode = signInData.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 
+		if(isCarId){
+			String  msg=checkAttendanceBlackList(result,userCode);
+			if(StringUtils.isNotBlank(msg)){
+				return result;
+			}
+		}
 		String checkMsg = checkJobCodeSignIn(gridInfo, jobCode);
 		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
 		if(StringUtils.isNotBlank(checkMsg)){
@@ -1690,5 +1700,30 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if (ObjectHelper.isEmpty(query.getSiteCode())){
 			throw new JyBizException("参数错误：场地编码为空！");
 		}
+	}
+
+	private String checkAttendanceBlackList(JdCResponse<UserSignRecordData> result,String userCode){
+		//查询出勤黑名单，并校验
+		com.jdl.basic.common.utils.Result<AttendanceBlackList> rs=attendanceBlackListManager.queryByUserCode(userCode);
+		if(rs == null){
+			return "调用AttendanceBlackListJsfService失败";
+		}
+		if(rs.isSuccess()){
+			AttendanceBlackList attendanceBlackList=rs.getData();
+			if(attendanceBlackList !=null){
+				int cancelFlag=attendanceBlackList.getCancelFlag();
+				Date takeTime=attendanceBlackList.getTakeTime();
+				Date loseTime=attendanceBlackList.getLoseTime();
+				String dateStr= DateUtil.format(new Date(),DateUtil.FORMAT_DATE_MINUTE);
+				Date currentTime=DateUtil.parse(dateStr,DateUtil.FORMAT_DATE_MINUTE);
+				if(cancelFlag ==Constants.NUMBER_ZERO && ((loseTime ==null && currentTime.compareTo(takeTime) >=0) ||  (loseTime !=null && currentTime.compareTo(takeTime) >=0 && currentTime.compareTo(loseTime) <0))){//已生效
+					//已生效
+					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG, userCode);
+					result.toFail(defaultMsg);
+					return defaultMsg;
+				}
+			}
+		}
+		return  "";
 	}
 }

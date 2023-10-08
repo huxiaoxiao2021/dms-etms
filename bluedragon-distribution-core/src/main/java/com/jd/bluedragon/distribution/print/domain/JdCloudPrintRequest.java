@@ -50,6 +50,8 @@ public class JdCloudPrintRequest<M> implements Serializable {
 	 * 打印数据模型列表
 	 */
 	private List<M> model;
+	
+	private Boolean useAmazon;
 	/**
 	 * @return the sys
 	 */
@@ -157,5 +159,11 @@ public class JdCloudPrintRequest<M> implements Serializable {
 	 */
 	public void setModel(List<M> model) {
 		this.model = model;
+	}
+	public Boolean getUseAmazon() {
+		return useAmazon;
+	}
+	public void setUseAmazon(Boolean useAmazon) {
+		this.useAmazon = useAmazon;
 	}
 }

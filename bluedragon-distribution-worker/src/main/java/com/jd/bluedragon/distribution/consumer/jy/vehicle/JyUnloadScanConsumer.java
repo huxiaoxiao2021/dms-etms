@@ -227,7 +227,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     private void updateAutoCloseTaskCacheLastScanTime(UnloadScanDto unloadScanDto){
         // 更新最后扫描事件缓存，每次续期4小时
-        final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+        final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfigObj();
         if (autoCloseJyBizTaskConfig == null) {
             logger.info("pushBizTaskAutoCloseTask no config, will not push auto close task");
         } else {
@@ -406,6 +406,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         inspectionVO.setUserName(unloadScanDto.getCreateUserName());
 
         inspectionVO.setOperateTime(DateHelper.formatDateTime(unloadScanDto.getOperateTime()));
+        inspectionVO.setOperatorData(unloadScanDto.getOperatorData());
         return inspectionService.addInspection(inspectionVO, InspectionBizSourceEnum.JY_UNLOAD_INSPECTION);
     }
 

@@ -446,6 +446,11 @@
         <jmq:listener topic="${jmq.topic.jy.unload.complete}" listener="jyUnloadTaskCompleteConsumer"/>
     </jmq:consumer>
 
+    <!--  运输封车任务预计到达时间  -->
+    <jmq:consumer id="jmq.tmsJdiTransWorkItemEstimateArriveTimeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.jdi.trans.work.item.estimate.arrive.time}" listener="tmsJdiTransWorkItemEstimateArriveTimeConsumer"/>
+    </jmq:consumer>
+
     <!-- 保温箱逆向处理 -->
     <jmq:consumer id="jmq.dealMiniStoreOutConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.box.inOut}" listener="dealMiniStoreOutConsumer"/>
@@ -663,6 +668,22 @@
     <jmq:consumer id="jmq.jyCancelScanConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.cancel.scan}" listener="jyCancelScanConsumer"/>
     </jmq:consumer>
+
+    <!--  异常破损-客服回传消费  -->
+    <jmq:consumer id="jmq.dmsExpCustomerReturnConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.customerReturn}" listener="dmsExpCustomerReturnConsumer"/>
+    </jmq:consumer>
+
+
+    <!--运单妥投-->
+    <jmq:consumer id="jmq.dmsExpWaybillDeliveryConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybill.bd.dlok.flag}" listener="dmsExpWaybillDeliveryConsumer"/>
+    </jmq:consumer>
+    <!--运单拒收-->
+    <jmq:consumer id="jmq.dmsExpWaybillRefuseConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybill.bd_refuse_flag}" listener="dmsExpWaybillRefuseConsumer"/>
+    </jmq:consumer>
+
     <!--  网格删除mq消费  -->
     <jmq:consumer id="jmq.workGridModifyMqConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.workGridModifyMq}" listener="workGridModifyMqConsumer"/>
@@ -672,5 +693,13 @@
         <jmq:listener topic="${jmq.topic.jyTaskSendDetailFirstSend}" listener="jyTaskSendDetailFirstSendConsumer"/>
     </jmq:consumer>
 
+    <!-- 违禁品上报消息处理 -->
+    <jmq:consumer id="jmq.jyExceptionContrabandUploadConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.contraband.upload}" listener="jyExceptionContrabandUploadConsumer"/>
+    </jmq:consumer>
+    <!--  操作流水mq消费  -->
+    <jmq:consumer id="jmq.jyOperateFlowMqConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jyOperateFlowMq}" listener="jyOperateFlowMqConsumer"/>
+    </jmq:consumer>
 </beans>
 

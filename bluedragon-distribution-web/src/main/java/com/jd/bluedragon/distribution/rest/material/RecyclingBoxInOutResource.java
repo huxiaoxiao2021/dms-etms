@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.request.material.recyclingbox.Recyclin
 import com.jd.bluedragon.distribution.api.response.material.recyclingbox.RecyclingBoxInOutResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.external.intensive.enums.MaterialSendModeEnum;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialReceive;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialSend;
 import com.jd.bluedragon.distribution.material.enums.MaterialReceiveTypeEnum;
@@ -55,7 +56,7 @@ public class RecyclingBoxInOutResource {
     private RecycleMaterialService recycleMaterialService;
 
     private static final int DEFAULT_RECEIVE_NUM = 1;
-    private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.MATERIAL_TAG_SEND.getCode();
+    private static final byte SEND_MODE = MaterialSendModeEnum.MATERIAL_TAG_SEND.getCode();
 
     @POST
     @Path("/recyclingBox/inbound")

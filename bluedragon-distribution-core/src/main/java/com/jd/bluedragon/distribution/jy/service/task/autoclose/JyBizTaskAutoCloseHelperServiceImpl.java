@@ -68,7 +68,7 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
             String ownSign = BusinessHelper.getOwnSign();
             tTask.setOwnSign(ownSign);
             tTask.setFingerprint(Md5Helper.encode(String.format("%s_%s_%s", tTask.getKeyword1(), tTask.getKeyword2(), jyBizTaskUnloadVehicleExist.getEndSiteId())));
-            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfigObj();
             if (autoCloseJyBizTaskConfig == null) {
                 log.info("JyUnloadVehicleServiceImpl.pushBizTaskAutoCloseTask no config, will not push auto close task");
                 return true;
@@ -111,7 +111,7 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
             String ownSign = BusinessHelper.getOwnSign();
             tTask.setOwnSign(ownSign);
             tTask.setFingerprint(Md5Helper.encode(String.format("%s_%s_%s", tTask.getKeyword1(), tTask.getKeyword2(), jyBizTaskUnloadVehicleExist.getEndSiteId())));
-            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfigObj();
             if (autoCloseJyBizTaskConfig == null) {
                 log.info("JyBizTaskAutoCloseServiceImpl.pushBizTaskAutoCloseTask no config, will not push auto close task");
                 return true;

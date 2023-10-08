@@ -76,6 +76,12 @@ public interface DeliveryService {
     void doPackageSendByWaybill(SendM domain);
 
     /**
+     * 箱子已发货则返回已发货批次号
+     * @param domain
+     */
+    String getSendedCode(SendM domain);
+
+    /**
      * 推分拣任务
      *
      * @param domain
@@ -100,6 +106,13 @@ public interface DeliveryService {
     SendResult boardSend(SendM domain, boolean isForceSend);
 
     /**
+     * 封装校验板号是否已发货服务
+     * @param domain
+     * @return
+     */
+    public boolean checkSendByBoard(SendM domain);
+
+    /**
      * 龙门架自动发货原包发货，去掉原有的分拣发货拦截验证
      *
      * @param domain 发货对象
@@ -116,6 +129,19 @@ public interface DeliveryService {
     int pushStatusTask(SendM domain);
 
     /**
+     * 推组板发货任务
+     * @param domain
+     * @return
+     */
+    boolean pushBoardSendTask(SendM domain,Integer taskType);
+
+    /**
+     * 写组板发货任务完成，调用TC修改板状态为发货
+     */
+    public void changeBoardStatusSend(String boardCode, SendM domain);
+
+    SendResult checkBoard(String boardCode, SendM domain,Boolean isForceSend);
+    /**
      * 查询箱号发货记录
      *
      * @param boxCode 箱号
@@ -127,6 +153,12 @@ public interface DeliveryService {
 
     Integer update(SendDetail sendDetail);
 
+    /**
+     * 重置发货明细数据状态
+     * @param sendDetail
+     * @return
+     */
+    Integer updateCancel(SendDetail sendDetail);
     void saveOrUpdate(SendDetail sendDetail);
 
     /**
@@ -143,6 +175,12 @@ public interface DeliveryService {
      * 通过创建站点、业务类型、模糊匹配的包裹号，判断其分拣记录能否被取消
      */
     Boolean canCancelFuzzy(SendDetail parseSendDetail);
+
+    /**
+     * 推送通知消息
+     * @param sdm
+     */
+    void deliverGoodsNoticeMQ(SendM sdm);
 
     /**
      * 查找需要更改运单状态的数据
@@ -268,6 +306,13 @@ public interface DeliveryService {
      * 快运发货差异查询
      */
     ThreeDeliveryResponse differentialQuery(List<SendM> sendMList, Integer queryType);
+
+    /**
+     * 按箱路由校验
+     * @param queryPara
+     * @return
+     */
+    DeliveryResponse checkRouterForCBox(SendM queryPara);
 
     /**
      * 快运发货路由信息验证
@@ -479,11 +524,29 @@ public interface DeliveryService {
     DeliveryResponse dealJpWaybill(Integer siteCode, String waybillCode);
 
     /**
+     * 取消上次发货
+     * @param domain
+     */
+    void doCancelLastSend(SendM domain);
+
+    /**
      * 执行取消上次发货逻辑
      *
      * @param domain
      */
     ThreeDeliveryResponse cancelLastSend(SendM domain);
+
+    /**
+     * 自动取消组板
+     * @param domain
+     */
+    void autoBoardCombinationCancel(SendM domain);
+
+    /**
+     * 加急提示消息
+     * @param domain
+     */
+    void sendDmsOperateHintTrackMQ(SendM domain);
 
     /**
      * 根据箱号查询箱号的运单号
@@ -560,4 +623,27 @@ public interface DeliveryService {
     boolean multiSendVerification(SendM domain, SendResult result);
 
     boolean packageSendByRealWaybill(SendM domain, Boolean isCancelLastSend, SendResult result);
+
+    /**
+     * 按运单发货任务
+     * @param domain
+     * @param taskType
+     */
+    void pushWaybillSendTask(SendM domain,Integer taskType);
+
+    /**
+     * 运单锁
+     * @param waybillCode
+     * @param createSiteCode
+     * @param totalPackNum
+     * @return
+     */
+    boolean lockWaybillSend(String waybillCode, Integer createSiteCode,int totalPackNum);
+
+    /**
+     * 运单解锁
+     * @param waybillCode
+     * @param createSiteCode
+     */
+    void unlockWaybillSend(String waybillCode, Integer createSiteCode);
 }

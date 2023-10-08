@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.comboard.request;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
 
 import java.io.Serializable;
 
@@ -79,6 +80,8 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      * 是否跳过弱拦截
      */
     private boolean needSkipWeakIntercept;
+
+    private boolean needIntercept;
 
     public boolean getNeedSkipWeakIntercept() {
         return needSkipWeakIntercept;
@@ -222,5 +225,13 @@ public class ComboardScanReq extends BaseReq implements Serializable {
 
     public void setScanDetailCount(Integer scanDetailCount) {
         this.scanDetailCount = scanDetailCount;
+    }
+
+    public boolean getNeedIntercept() {
+        return needIntercept;
+    }
+
+    public void setNeedIntercept(boolean needIntercept) {
+        this.needIntercept = needIntercept;
     }
 }

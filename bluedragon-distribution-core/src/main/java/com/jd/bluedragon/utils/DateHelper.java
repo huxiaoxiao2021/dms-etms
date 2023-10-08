@@ -82,7 +82,16 @@ public class DateHelper {
      * 一天的小时数
      */
     public static final int ONE_DAY_HOURS = 24;
-
+    
+    /**
+     * 一个月 （30天）
+     */
+    public static final int ONE_MONTH_DAYS = 30;    
+    /**
+     * 三个月 （90天）
+     */
+    public static final int THREE_MONTH_DAYS = 90;
+    
     public static final String DATE_FORMAT_YYYYMMDDHHmmssSSS = "yyyyMMddHHmmssSSS";
 
     public static final String DATE_FORMAT_YYYYMMDDHHmmssSS = "yyyyMMddHHmmssSS";

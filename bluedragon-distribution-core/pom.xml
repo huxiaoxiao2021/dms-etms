@@ -21,7 +21,7 @@
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<jmq.version>2.3.2</jmq.version>
-		<etms.waybill.agent.version>4.2.298</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.301</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -38,12 +38,13 @@
 		<!--jim redis-->
 		<jimdb.version>3.1.2-SNAPSHOT</jimdb.version>
 		<tms-workbench-api.version>1.0-SNAPSHOT</tms-workbench-api.version>
-		<cp-wbms-client.version>1.0.110</cp-wbms-client.version>
+		<cp-wbms-client.version>1.0.156</cp-wbms-client.version>
         <jd-ql-3pl-client.version>2.0.7-SNAPSHOT</jd-ql-3pl-client.version>
 		<addressTranslation-api.version>1.6.9-SNAPSHOT</addressTranslation-api.version>
 		<block-presort-rpc-aoi-api.version>1.0.2-SNAPSHOT</block-presort-rpc-aoi-api.version>
 		<fusionds-lib.version>1.4.1</fusionds-lib.version>
 		<abnormal-portal-api.version>1.3.0-java8-SNAPSHOT</abnormal-portal-api.version>
+		<laf.client.version>1.4.0</laf.client.version>
 	</properties>
 
 	<dependencies>
@@ -242,7 +243,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>2.0.17-SNAPSHOT</version>
+			<version>2.0.18-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -276,7 +277,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.7.2-SNAPSHOT</version>
+            <version>1.7.3-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -2240,6 +2241,14 @@
 					<groupId>org.aspectj</groupId>
 					<artifactId>aspectjrt</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>io.netty</groupId>
+					<artifactId>netty-all</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.ibm.etcd</groupId>
+					<artifactId>etcd-java</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -2485,6 +2494,12 @@
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-recipes</artifactId>
 			<version>2.7.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>netty</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
         <dependency>
             <groupId>com.jdl.basic</groupId>
@@ -2624,7 +2639,23 @@
 		  <artifactId>addressTranslation-api</artifactId>
 		  <version>${addressTranslation-api.version}</version>
 		</dependency>
-
+        <!-- ducc -->
+        <dependency>
+         <groupId>com.jd.laf.config</groupId>
+         <artifactId>laf-config-client-jd-spring</artifactId>
+         <version>${laf.client.version}</version>
+         <type>pom</type>
+         <exclusions>
+            <exclusion>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+            </exclusion>
+         </exclusions>
+        </dependency>
         <!-- see https://lbsapi.jd.com/iframe.html?nav=2&childNav=0-1&childURL=/doc/guide/addressService/geocodingService/ -->
         <!--京图开放平台，地图及围栏相关工具-->
         <!--根据IP获取经纬度，计算两点间的直线距离-->
@@ -2670,6 +2701,16 @@
 			<groupId>com.jd.wl.cs.abnormal.portal</groupId>
 			<artifactId>abnormal-portal-api</artifactId>
 			<version>${abnormal-portal-api.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.houbb</groupId>
+			<artifactId>opencc4j</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.cloud.print</groupId>
+			<artifactId>print-api</artifactId>
 		</dependency>
 
     </dependencies>

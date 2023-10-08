@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.strand;
 
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizStrandTaskTypeEnum;
 
 import java.io.Serializable;
@@ -79,6 +81,10 @@ public class JyStrandReportTaskCreateReq implements Serializable {
      * @see JyBizStrandTaskTypeEnum
      */
     private Integer taskType;
+
+    private User user;
+
+    private CurrentOperate currentOperate;
 
     public String getBizId() {
         return bizId;
@@ -182,5 +188,21 @@ public class JyStrandReportTaskCreateReq implements Serializable {
 
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public CurrentOperate getCurrentOperate() {
+        return currentOperate;
+    }
+
+    public void setCurrentOperate(CurrentOperate currentOperate) {
+        this.currentOperate = currentOperate;
     }
 }
