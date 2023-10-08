@@ -247,6 +247,11 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toFail("用户编码不能为空！");
 			return result;
 		}
+		// 校验网格码场地和用户场地是否一致
+		if (!this.checkOperatorBaseInfo(positionCode, userSignRequest.getUserCode())) {
+			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
+					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
+		}
 		return checkUserSignStatus(positionCode,userSignRequest.getJobCode(),userSignRequest.getUserCode());
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryUserDataForLogin",
