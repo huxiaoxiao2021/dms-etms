@@ -251,6 +251,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		if (!this.checkOperatorBaseInfo(positionCode, userSignRequest.getUserCode())) {
 			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
 					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
+			return result;
 		}
 		return checkUserSignStatus(positionCode,userSignRequest.getJobCode(),userSignRequest.getUserCode());
 	}
