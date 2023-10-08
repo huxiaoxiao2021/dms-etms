@@ -75,6 +75,9 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
@@ -111,7 +114,7 @@ import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
-import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
@@ -126,6 +129,7 @@ import com.jd.bluedragon.external.crossbow.itms.domain.ItmsCancelSendCheckSendCo
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
 import com.jd.bluedragon.external.crossbow.itms.service.TibetBizService;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -432,6 +436,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     @Autowired
     private WaybillCancelService waybillCancelService;
+    
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
+    
 
     /**
      * 自动过期时间 30分钟
@@ -1942,8 +1950,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         sortDomain.setWaybillCode(SerialRuleUtil.getWaybillCode(domain.getBoxCode()));
         sortDomain.setReceiveSiteCode(domain.getReceiveSiteCode());
         sortDomain.setReceiveSiteName(receiveSiteName);
-        sortDomain.setOperatorTypeCode(domain.getOperatorTypeCode());
-        sortDomain.setOperatorId(domain.getOperatorId());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(domain);
+        sortDomain.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        sortDomain.setOperatorId(operatorData.getOperatorId());
+        sortDomain.setOperatorData(operatorData);
+        
         sortDomain.setBizSource(domain.getBizSource());
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
         taskService.add(task, true);
@@ -2055,7 +2066,20 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     @Override
     public Integer update(SendDetail sendDetail) {
-        return this.sendDatailDao.update(SendDatailDao.namespace, sendDetail);
+    	Integer count = 0;
+    	Long sendDId = null;
+    	List<SendDetail> updateList = sendDatailDao.querySendDatailForUpdate(sendDetail);
+    	if(updateList != null && updateList.size() > 0) {
+    		if(updateList.size() > 1) {
+    			this.log.warn("deliveryServiceImpl.update:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sendDetail));
+    		}
+    		sendDId = updateList.get(0).getSendDId();
+    		count = this.sendDatailDao.update(SendDatailDao.namespace, sendDetail);
+    	}
+    	if(sendDId != null && count > 0) {
+    		sendDetail.setSendDId(sendDId);
+    	}
+        return count;
     }
 
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.deliveryService.updateCancel", mState = {JProEnum.TP,
@@ -3250,9 +3274,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     sendMItem.setUpdateTime(tSendM.getUpdateTime());
                     sendMItem.setUpdaterUser(tSendM.getUpdaterUser());
                     sendMItem.setUpdateUserCode(tSendM.getUpdateUserCode());
-                    sendMItem.setOperatorId(tSendM.getOperatorId());
-                    sendMItem.setOperatorTypeCode(tSendM.getOperatorTypeCode());
-
+                    
+                    OperatorData operatorData = BeanConverter.convertToOperatorData(tSendM);
+                    sendMItem.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+                    sendMItem.setOperatorId(operatorData.getOperatorId());
+                    sendMItem.setOperatorData(operatorData);   
+       
                     //将板号添加到板号集合中
                     if(StringUtils.isNotBlank(sendMItem.getBoardCode())){
                         boardSet.add(sendMItem.getBoardCode());
@@ -3746,11 +3773,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         status.setOperatorId(tSendM.getUpdateUserCode());
         status.setRemark("取消发货，批次号为：" +sendDetail.getSendCode());
         status.setCreateSiteCode(tSendM.getCreateSiteCode());
-        OperatorData operatorData = new OperatorData();
-        operatorData.setOperatorId(tSendM.getOperatorId());
-        operatorData.setOperatorTypeCode(tSendM.getOperatorTypeCode());
-        status.setOperatorData(operatorData);
-
+        status.setOperatorData(BeanConverter.convertToOperatorData(tSendM));
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
 
         status.setCreateSiteName(dto.getSiteName());
@@ -3816,8 +3839,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 					.updateTime(new Date()).build();
 			//如果按包裹取消发货，需取消分拣，更新取消分拣的操作时间晚取消分拣一秒
             sorting.setOperateTime(new Date(tSendM.getUpdateTime().getTime() + 1000));
-            sorting.setOperatorTypeCode(tSendM.getOperatorTypeCode());
-            sorting.setOperatorId(tSendM.getOperatorId());
+            OperatorData operatorData = BeanConverter.convertToOperatorData(tSendM);
+            sorting.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+            sorting.setOperatorId(operatorData.getOperatorId());
+            sorting.setOperatorData(operatorData);
 			tSortingService.canCancel2(sorting);
 		}
 		return new ThreeDeliveryResponse(JdResponse.CODE_OK,
@@ -3945,13 +3970,18 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             List<WaybillStatus> waybillStatusList = new ArrayList<WaybillStatus>(sendDetails.size());
             List<Integer> sendTypeList = new ArrayList<Integer>(sendDetails.size());
             List<Message> sendDetailMQList = new ArrayList<Message>(sendDetails.size());
-
+            List<JyOperateFlowMqData> sendFlowMqList = new ArrayList<JyOperateFlowMqData>();
+            List<JyOperateFlowMqData> sendCancelFlowMqList = new ArrayList<JyOperateFlowMqData>();
+            
             CallerInfo info0 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.0", false, true);
             // 增加获取订单类型判断是否是LBP订单e
             for (SendDetail tSendDetail : sendDetails) {
                 tSendDetail.setStatus(1);
                 if (tSendDetail.getIsCancel().equals(1)) {
                     cancelSendList.add(tSendDetail);
+                    JyOperateFlowMqData sendCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(tSendDetail);
+                    sendCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SEND_CANCEL.getCode());
+                    sendCancelFlowMqList.add(sendCancelFlowMq);
                 } else {
                     BaseStaffSiteOrgDto createSiteDto = this.getBaseStaffSiteDto(tSendDetail.getCreateSiteCode());
                     BaseStaffSiteOrgDto receiveSiteDto = this.getBaseStaffSiteDto(tSendDetail.getReceiveSiteCode());
@@ -4006,6 +4036,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         }
                     }
                     sendDetailList.add(tSendDetail);
+                    JyOperateFlowMqData sendFlowMq = BeanConverter.convertToJyOperateFlowMqData(tSendDetail);
+                    sendFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SEND.getCode());
+                    sendFlowMqList.add(sendFlowMq);
                 }
             }
             if(log.isInfoEnabled() && sendDetails.size() > 10) {
@@ -4034,7 +4067,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 this.updateSendStatusByPackage(cancelSendList);
             }
             Profiler.registerInfoEnd(info3);
-
+            CallerInfo info4 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.4", false, true);
+            jyOperateFlowService.sendMqList(sendCancelFlowMqList);
+            jyOperateFlowService.sendMqList(sendFlowMqList);
+            Profiler.registerInfoEnd(info4);
         }
         return true;
     }
@@ -4057,10 +4093,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         tWaybillStatus.setWaybillCode(tSendDetail.getWaybillCode());
         tWaybillStatus.setSendCode(tSendDetail.getSendCode());
         tWaybillStatus.setBoxCode(tSendDetail.getBoxCode());
-        OperatorData operatorData = new OperatorData();
-        operatorData.setOperatorTypeCode(tSendDetail.getOperatorTypeCode());
-        operatorData.setOperatorId(tSendDetail.getOperatorId());
-        tWaybillStatus.setOperatorData(operatorData);
+        tWaybillStatus.setOperatorData(BeanConverter.convertToOperatorData(tSendDetail));
         return tWaybillStatus;
     }
 
@@ -4250,8 +4283,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 	                dSendDetail.setCreateUserCode(newSendM.getCreateUserCode());
 	                dSendDetail.setBoardCode(newSendM.getBoardCode());
 	                dSendDetail.setBizSource(newSendM.getBizSource());
-                    dSendDetail.setOperatorId(newSendM.getOperatorId());
-                    dSendDetail.setOperatorTypeCode(newSendM.getOperatorTypeCode());
+	                OperatorData operatorData = BeanConverter.convertToOperatorData(newSendM);
+	                dSendDetail.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+	                dSendDetail.setOperatorId(operatorData.getOperatorId());
+	                dSendDetail.setOperatorData(operatorData);   
 	                sendDetailList.add(dSendDetail);
 	            }
 	        }
@@ -5998,8 +6033,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         tTask.setOwnSign(ownSign);
         tTask.setKeyword1("5");//5 中转发货补全数据
         tTask.setFingerprint(Md5Helper.encode(domain.getBoxCode() + "_" + domain.getCreateSiteCode() + "_" + domain.getReceiveSiteCode() + "-" + tTask.getKeyword1()));
-        tTask.setOperatorTypeCode(domain.getOperatorTypeCode());
-        tTask.setOperatorId(domain.getOperatorId());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(domain);
+        tTask.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        tTask.setOperatorId(operatorData.getOperatorId());
+        tTask.setOperatorData(operatorData);
+        
         log.info("插入中转发车任务，箱号：{}，批次号：{}" ,domain.getBoxCode(), domain.getSendCode());
         return tTask;
     }
@@ -6059,9 +6097,13 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 tSendDetail.setExcuteTime(new Date());
                 tSendDetail.setExcuteCount(0);
                 tSendDetail.setOperateTime(task.getCreateTime());
-                tSendDetail.setOperatorTypeCode(task.getOperatorTypeCode());
-                tSendDetail.setOperatorId(task.getOperatorId());
-                if(sendM != null) {
+
+                OperatorData operatorData = BeanConverter.convertToOperatorData(task);
+                tSendDetail.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+                tSendDetail.setOperatorId(operatorData.getOperatorId());
+                tSendDetail.setOperatorData(operatorData);
+                //task中operatorId信息为空，以sendM为准
+                if(sendM != null && StringUtils.isBlank(operatorData.getOperatorId())) {
                     tSendDetail.setOperatorTypeCode(sendM.getOperatorTypeCode());
                     tSendDetail.setOperatorId(sendM.getOperatorId());
                 }
@@ -7017,8 +7059,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }else{
             inspection.setPackageBarOrWaybillCode(domain.getBoxCode());
         }
-        inspection.setOperatorTypeCode(domain.getOperatorTypeCode());
-        inspection.setOperatorId(domain.getOperatorId());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(domain);
+        inspection.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        inspection.setOperatorId(operatorData.getOperatorId());
+        inspection.setOperatorData(operatorData);
 
         TaskRequest request=new TaskRequest();
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);

@@ -701,5 +701,9 @@
     <jmq:consumer id="jmq.jyExceptionContrabandUploadConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.exception.contraband.upload}" listener="jyExceptionContrabandUploadConsumer"/>
     </jmq:consumer>
+    <!--  操作流水mq消费  -->
+    <jmq:consumer id="jmq.jyOperateFlowMqConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jyOperateFlowMq}" listener="jyOperateFlowMqConsumer"/>
+    </jmq:consumer>    
 </beans>
 

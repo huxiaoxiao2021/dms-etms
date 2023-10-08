@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.comboard;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 /**
  * @author liwenji
  * @date 2022-12-03 17:23
@@ -55,7 +57,11 @@ public class CancelComboardTaskDto {
     /**
      * 操作者id
      */
-	private String operatorId;  
+	private String operatorId;
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;	
 
     public String getUserName() {
         return userName;
@@ -151,5 +157,13 @@ public class CancelComboardTaskDto {
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

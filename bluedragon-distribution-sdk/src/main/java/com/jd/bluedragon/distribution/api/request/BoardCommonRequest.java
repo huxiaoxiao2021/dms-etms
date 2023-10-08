@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.api.request;
 
 import java.io.Serializable;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 /**
  * 组板公共请求
  *
@@ -81,6 +83,10 @@ public class BoardCommonRequest implements Serializable {
      * 跳过路由校验标识
      */
     private boolean skipRouterCheckFlag;
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
 
     public String getBoardCode() {
         return boardCode;
@@ -209,4 +215,12 @@ public class BoardCommonRequest implements Serializable {
     public void setSkipRouterCheckFlag(boolean skipRouterCheckFlag) {
         this.skipRouterCheckFlag = skipRouterCheckFlag;
     }
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 }

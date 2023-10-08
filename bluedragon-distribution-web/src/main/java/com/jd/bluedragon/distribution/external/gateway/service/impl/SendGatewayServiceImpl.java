@@ -16,6 +16,7 @@ import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.common.dto.send.response.SendThreeDetailDto;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.ColdChainDeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.request.TransPlanScheduleRequest;
@@ -40,6 +41,7 @@ import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeServic
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.external.gateway.service.SendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
@@ -114,8 +116,12 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         request.setUserName(cRequest.getUser().getUserName());
         request.setSiteCode(cRequest.getCurrentOperate().getSiteCode());
         request.setSiteName(cRequest.getCurrentOperate().getSiteName());
-        request.setOperatorTypeCode(cRequest.getCurrentOperate().getOperatorTypeCode());
-        request.setOperatorId(cRequest.getCurrentOperate().getOperatorId());
+        
+        OperatorData operatorData = BeanConverter.convertToOperatorData(cRequest.getCurrentOperate());
+        request.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        request.setOperatorId(operatorData.getOperatorId());
+        request.setOperatorData(operatorData); 
+        
         request.setBusinessType(cRequest.getBusinessType());
 //        request.setId(0);
         request.setOperateTime(DateUtil.format(cRequest.getCurrentOperate().getOperateTime(),DateUtil.FORMAT_DATE_TIME));

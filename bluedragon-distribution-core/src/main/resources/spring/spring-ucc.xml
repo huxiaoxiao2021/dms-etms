@@ -204,6 +204,8 @@
 		<property name="jyComboardSiteCTTPageSize" value="${jyComboardSiteCTTPageSize:5000}"/>
 		<property name="jyComboardTaskSealTimeBeginDay" value="${jyComboardTaskSealTimeBeginDay:2}"/>
 		<property name="jyComboardListBoardSqlSwitch" value="${jyComboardListBoardSqlSwitch:true}"/>
+		<property name="sendJyOperateFlowMqSwitch" value="${sendJyOperateFlowMqSwitch:true}"/>
+		
 
 
 
@@ -527,6 +529,7 @@
 				<value>uccPropertyConfiguration.pdaLoginSkipSwitch</value>
 				<value>uccPropertyConfiguration.jyComboardTaskSealTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jyComboardListBoardSqlSwitch</value>
+				<value>uccPropertyConfiguration.sendJyOperateFlowMqSwitch</value>
 				<value>uccPropertyConfiguration.czQuerySwitch</value>
 				<value>uccPropertyConfiguration.jyComboardSealQueryBoardListTime</value>
 				<value>uccPropertyConfiguration.jyComboardSealBoardListSelectLimit</value>

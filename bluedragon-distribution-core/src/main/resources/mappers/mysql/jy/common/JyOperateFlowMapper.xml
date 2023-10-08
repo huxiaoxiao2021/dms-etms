@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.common.JyOperateFlowDao" >
+
+	<resultMap id="JyOperateFlowDto" type="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="operate_biz_type" property="operateBizType" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_biz_sub_type" property="operateBizSubType" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_biz_key" property="operateBizKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_site_code" property="operateSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="operate_key" property="operateKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_value" property="operateValue" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,operate_biz_type,operate_biz_sub_type,operate_biz_key,operate_site_code,operate_key,
+		operate_value,operate_time,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto" useGeneratedKeys="true" keyProperty="id">
+		insert into jy_operate_flow
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="operateBizType != null" >
+					operate_biz_type,
+				</if>
+				<if test="operateBizSubType != null" >
+					operate_biz_sub_type,
+				</if>
+				<if test="operateBizKey != null" >
+					operate_biz_key,
+				</if>
+				<if test="operateSiteCode != null" >
+					operate_site_code,
+				</if>
+				<if test="operateKey != null" >
+					operate_key,
+				</if>
+				<if test="operateValue != null" >
+					operate_value,
+				</if>
+				<if test="operateTime != null" >
+					operate_time,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="operateBizType != null" >
+					#{operateBizType,jdbcType=VARCHAR},
+				</if>
+				<if test="operateBizSubType != null" >
+					#{operateBizSubType,jdbcType=VARCHAR},
+				</if>
+				<if test="operateBizKey != null" >
+					#{operateBizKey,jdbcType=VARCHAR},
+				</if>
+				<if test="operateSiteCode != null" >
+					#{operateSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="operateKey != null" >
+					#{operateKey,jdbcType=VARCHAR},
+				</if>
+				<if test="operateValue != null" >
+					#{operateValue,jdbcType=VARCHAR},
+				</if>
+				<if test="operateTime != null" >
+					#{operateTime,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+</mapper>
