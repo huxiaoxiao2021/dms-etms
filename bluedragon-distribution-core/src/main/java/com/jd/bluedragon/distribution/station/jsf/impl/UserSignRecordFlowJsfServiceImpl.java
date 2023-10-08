@@ -493,7 +493,6 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 			query.setUserCode(null);
 			query.setIdCard(userCode);
 		}
-		log.info("UserSignRecordFlowJsfServiceImpl.checkParamForQueryPageList query:{}", JSON.toJSONString(query));
 		return result;
 	 }
 }
