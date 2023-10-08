@@ -11,7 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
@@ -50,7 +50,7 @@ public class CenterServiceResource {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private UccPropertyConfiguration uccConfig;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -164,7 +164,7 @@ public class CenterServiceResource {
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,
 					isWaybillC, isWaybillE, isWaybillM, isGoodList, isPackList, isPickupTask, isServiceBillPay);
-			if (uccConfig.getSensitiveInfoHideSwitch()&&result.getData()!= null) {
+			if (dmsConfigManager.getUccPropertyConfig().getSensitiveInfoHideSwitch()&&result.getData()!= null) {
 				hideInfo(result.getData().getWaybill(),result.getData().getWaybillPickup());
 			}
 		} catch (Exception e) {
@@ -205,7 +205,7 @@ public class CenterServiceResource {
 		BaseEntity<BigWaybillDto> result = null;
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,choice);
-			if (uccConfig.getSensitiveInfoHideSwitch()&&result.getData()!= null) {
+			if (dmsConfigManager.getUccPropertyConfig().getSensitiveInfoHideSwitch()&&result.getData()!= null) {
 				hideInfo(result.getData().getWaybill(),result.getData().getWaybillPickup());
 			}
 		} catch (Exception e) {

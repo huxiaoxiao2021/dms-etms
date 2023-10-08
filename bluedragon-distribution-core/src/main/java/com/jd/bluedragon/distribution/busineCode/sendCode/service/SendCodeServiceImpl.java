@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.busineCode.sendCode.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.response.sendcode.SendCodeResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.BusinessCodeManager;
@@ -55,7 +55,7 @@ public class SendCodeServiceImpl implements SendCodeService {
     private BusinessCodeManager businessCodeManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     @JProfiler(jKey = "DMS.CORE.SendCodeService.createSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -68,7 +68,7 @@ public class SendCodeServiceImpl implements SendCodeService {
         String sendCode = "";
         /* 判断UCC的批次开关是否开启：开启则使用新的生成器生成，未开启则使用原来的工具类生成 */
         CallerInfo callerInfo = Profiler.registerInfo("DMS.CORE.SendCodeService.createSendCode.gen",Constants.UMP_APP_NAME_DMSWEB,false, true);
-        if (uccPropertyConfiguration.isSendCodeGenSwitchOn()) {
+        if (dmsConfigManager.getUccPropertyConfig().isSendCodeGenSwitchOn()) {
             GenContextItem[] genContextItems = new GenContextItem[3];
             genContextItems[0] = GenContextItem.create("createSiteCode", attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code));
             genContextItems[1] = GenContextItem.create("receiveSiteCode", attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code));
@@ -203,7 +203,7 @@ public class SendCodeServiceImpl implements SendCodeService {
      * @return 开关状态 true：开启
      */
     private boolean switchIsOpen(Integer createSiteCode) {
-        String configSites = uccPropertyConfiguration.getSendCodeEffectiveValidation();
+        String configSites = dmsConfigManager.getUccPropertyConfig().getSendCodeEffectiveValidation();
         if (StringUtils.isBlank(configSites)) {
             return false;
         }

@@ -8,7 +8,7 @@ import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -153,7 +153,7 @@ public class DeliveryResource {
     private CacheService jimdbCacheService;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private BoxRelationService boxRelationService;
@@ -430,7 +430,7 @@ public class DeliveryResource {
 
     private boolean needInterceptOfCz(String sendCode) {
         try {
-            if (uccPropertyConfiguration.getBatchSendForbiddenSwitch() && BusinessUtil.isSendCode(sendCode)){
+            if (dmsConfigManager.getUccPropertyConfig().getBatchSendForbiddenSwitch() && BusinessUtil.isSendCode(sendCode)){
                 Integer[] sites = BusinessUtil.getSiteCodeBySendCode(sendCode);
                 Integer createSite = sites[0];
                 Integer receiveSite = sites[1];
@@ -1255,7 +1255,7 @@ public class DeliveryResource {
      * @return true 滑道号正确，或者非包裹号，false 不正确
      */
     private boolean checkPackageCrossCodeSucc(String packageCode){
-        if(!uccPropertyConfiguration.isControlCheckPackage()){
+        if(!dmsConfigManager.getUccPropertyConfig().isControlCheckPackage()){
             return true;
         }
         return jsfSortingResourceService.checkPackageCrossCode(WaybillUtil.getWaybillCode(packageCode),packageCode);

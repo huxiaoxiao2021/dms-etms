@@ -35,7 +35,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageE
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSaveTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSourceEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DeliveryWSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -211,7 +211,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private JyExceptionStrategyFactory jyExceptionStrategyFactory;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private DeliveryWSManager deliveryWSManager;
@@ -393,7 +393,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         String gridRid = getGridRid(position);
 
-        int completeExpDayNumLimit = uccPropertyConfiguration.getCompleteExpDayNumLimit();
+        int completeExpDayNumLimit = dmsConfigManager.getUccPropertyConfig().getCompleteExpDayNumLimit();
         List<StatisticsByStatusDto> statisticStatusResps = jyBizTaskExceptionDao.getCommonStatusStatistic(gridRid);
         List<StatisticsByStatusDto> specialStatusStatistic = jyBizTaskExceptionDao.getSpecialStatusStatistic(gridRid, req.getUserErp());
         logger.info("getCompleteStatusStatistic-入参gridRid-{} limit-{}",gridRid,completeExpDayNumLimit);
@@ -594,7 +594,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             req.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
             req.setHandlerErp(req.getUserErp());
         }else if(Objects.equals(req.getStatus(), JyExpStatusEnum.COMPLETE.getCode())){
-            int completeExpDayNumLimit = uccPropertyConfiguration.getCompleteExpDayNumLimit();
+            int completeExpDayNumLimit = dmsConfigManager.getUccPropertyConfig().getCompleteExpDayNumLimit();
             req.setLimitDay(completeExpDayNumLimit);
         }
         logger.info("queryExceptionTaskList 查询条件-{}",JSON.toJSONString(req));
@@ -1731,7 +1731,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if(BusinessUtil.isSanWuCode(barCode)){
             return JyBizTaskExceptionTypeEnum.SANWU.name() + "_" + barCode;
         }else {
-            boolean bizIdSwith = uccPropertyConfiguration.isJyExceptionCreateBizIdSwitch();
+            boolean bizIdSwith = dmsConfigManager.getUccPropertyConfig().isJyExceptionCreateBizIdSwitch();
             if(bizIdSwith){
                 String bizid = JyBizTaskExceptionTypeEnum.SCRAPPED.name() + "_" + barCode;
                 JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(bizid);

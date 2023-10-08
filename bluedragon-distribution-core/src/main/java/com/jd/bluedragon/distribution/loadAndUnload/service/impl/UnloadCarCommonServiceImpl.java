@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
@@ -28,13 +28,13 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
     private UnloadCarForTysDao unloadCarForTysDao;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 
     @Override
     public int add(UnloadCar detail) {
-        if (uccPropertyConfiguration.isStopWriteUnloadFromDms()) {
-            if (uccPropertyConfiguration.isWriteUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isStopWriteUnloadFromDms()) {
+            if (dmsConfigManager.getUccPropertyConfig().isWriteUnloadFromTys()) {
                 return unloadCarForTysDao.add(detail);
             }
             throw new LoadIllegalException(Constants.UNLOAD_TRANSFER_WARN_MESSAGE);
@@ -44,7 +44,7 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public UnloadCar selectBySealCarCode(String sealCarCode) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isReadUnloadFromTys()) {
             return unloadCarForTysDao.selectBySealCarCode(sealCarCode);
         }
         return unloadCarDao.selectBySealCarCode(sealCarCode);
@@ -52,7 +52,7 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public UnloadCar selectBySealCarCodeWithStatus(String sealCarCode) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isReadUnloadFromTys()) {
             return unloadCarForTysDao.selectBySealCarCodeWithStatus(sealCarCode);
         }
         return unloadCarDao.selectBySealCarCodeWithStatus(sealCarCode);
@@ -60,7 +60,7 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public List<UnloadCarTask> queryByCondition(UnloadCarCondition condition) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isReadUnloadFromTys()) {
             return unloadCarForTysDao.queryByCondition(condition);
         }
         return unloadCarDao.queryByCondition(condition);
@@ -68,7 +68,7 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public int queryCountByCondition(UnloadCarCondition condition) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isReadUnloadFromTys()) {
             return unloadCarForTysDao.queryCountByCondition(condition);
         }
         return unloadCarDao.queryCountByCondition(condition);
@@ -76,8 +76,8 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public Integer distributeTaskByParams(Map<String, Object> params) {
-        if (uccPropertyConfiguration.isStopWriteUnloadFromDms()) {
-            if (uccPropertyConfiguration.isWriteUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isStopWriteUnloadFromDms()) {
+            if (dmsConfigManager.getUccPropertyConfig().isWriteUnloadFromTys()) {
                 log.info("转运DB卸车任务分配负责人{}", JsonUtils.toJSONString(params));
                 return unloadCarForTysDao.distributeTaskByParams(params);
             }
@@ -89,7 +89,7 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public List<UnloadCar> getUnloadCarTaskByParams(UnloadCar params) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isReadUnloadFromTys()) {
             return unloadCarForTysDao.getUnloadCarTaskByParams(params);
         }
         return unloadCarDao.getUnloadCarTaskByParams(params);
@@ -97,8 +97,8 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public int updateUnloadCarTaskStatus(UnloadCar params) {
-        if (uccPropertyConfiguration.isStopWriteUnloadFromDms()) {
-            if (uccPropertyConfiguration.isWriteUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isStopWriteUnloadFromDms()) {
+            if (dmsConfigManager.getUccPropertyConfig().isWriteUnloadFromTys()) {
                 return unloadCarForTysDao.updateUnloadCarTaskStatus(params);
             }
             throw new LoadIllegalException(Constants.UNLOAD_TRANSFER_WARN_MESSAGE);
@@ -108,7 +108,7 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public List<UnloadCar> getUnloadCarTaskScan(List<String> sealCarCodes) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isReadUnloadFromTys()) {
             return unloadCarForTysDao.getUnloadCarTaskScan(sealCarCodes);
         }
         return unloadCarDao.getUnloadCarTaskScan(sealCarCodes);
@@ -116,7 +116,7 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public List<UnloadCar> selectByUnloadCar(UnloadCar unloadCar) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isReadUnloadFromTys()) {
             return unloadCarForTysDao.selectByUnloadCar(unloadCar);
         }
         return unloadCarDao.selectByUnloadCar(unloadCar);
@@ -124,7 +124,7 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public List<UnloadCar> selectTaskByLicenseNumberAndSiteCode(UnloadCar params) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isReadUnloadFromTys()) {
             return unloadCarForTysDao.selectTaskByLicenseNumberAndSiteCode(params);
         }
         return unloadCarDao.selectTaskByLicenseNumberAndSiteCode(params);
@@ -132,8 +132,8 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public int updateStartTime(UnloadCar params) {
-        if (uccPropertyConfiguration.isStopWriteUnloadFromDms()) {
-            if (uccPropertyConfiguration.isWriteUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isStopWriteUnloadFromDms()) {
+            if (dmsConfigManager.getUccPropertyConfig().isWriteUnloadFromTys()) {
                 return unloadCarForTysDao.updateStartTime(params);
             }
             throw new LoadIllegalException(Constants.UNLOAD_TRANSFER_WARN_MESSAGE);
@@ -143,7 +143,7 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
     @Override
     public List<UnloadCar> selectByCondition(UnloadCar unloadCar) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isReadUnloadFromTys()) {
             return unloadCarForTysDao.selectByCondition(unloadCar);
         }
         return unloadCarDao.selectByCondition(unloadCar);
@@ -152,7 +152,7 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
     //
     @Override
     public List<UnloadCar> getTaskInfoBySealCarCodes(List<String> sealCarCodes) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+        if (dmsConfigManager.getUccPropertyConfig().isReadUnloadFromTys()) {
             return unloadCarForTysDao.getTaskInfoBySealCarCodes(sealCarCodes);
         }
         return null;

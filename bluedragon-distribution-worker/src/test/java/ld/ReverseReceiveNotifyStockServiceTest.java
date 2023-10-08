@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import com.google.common.collect.Lists;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
@@ -76,7 +76,7 @@ public class ReverseReceiveNotifyStockServiceTest {
     private OrderBankService orderBankService;
 
     @Mock
-    protected UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Mock
     private DefaultJMQProducer wmsStockChuGuanMQ;
@@ -110,7 +110,7 @@ public class ReverseReceiveNotifyStockServiceTest {
         kuGuanDomain.setLblWay("出库");
         kuGuanDomain.setLblType("销售");
         when(stockExportManager.queryByWaybillCode(anyString())).thenReturn(kuGuanDomain);
-        when(uccPropertyConfiguration.isChuguanPurchaseAndSaleSwitch()).thenReturn(true);
+        when(dmsConfigManager.getUccPropertyConfig().isChuguanPurchaseAndSaleSwitch()).thenReturn(true);
         List<AllotResponseDetail> allotResponseDetailList = Lists.newArrayList();
         AllotResponseDetail allotResponseDetail = new AllotResponseDetail();
         allotResponseDetail.setSkuId(0L);

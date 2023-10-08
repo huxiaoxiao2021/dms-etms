@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.auto.dao;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameMeasureConsume;
@@ -38,7 +38,7 @@ public class ScannerFrameMeasureConsumeTest {
     private BaseMajorManager baseMajorManager;
 
     @Mock
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     private BaseStaffSiteOrgDto dto;
 
@@ -54,7 +54,7 @@ public class ScannerFrameMeasureConsumeTest {
         result = new InvokeResult<Boolean>();
         result.setData(true);
 
-        when(uccPropertyConfiguration.getAutomaticWeightVolumeExchangeSwitch()).thenReturn(true);
+        when(dmsConfigManager.getUccPropertyConfig().getAutomaticWeightVolumeExchangeSwitch()).thenReturn(true);
         when(baseMajorManager.getBaseStaffByStaffIdNoCache(anyInt())).thenReturn(dto);
         when(dmsWeightVolumeService.dealWeightAndVolume(any(WeightVolumeEntity.class))).thenReturn(result);
     }

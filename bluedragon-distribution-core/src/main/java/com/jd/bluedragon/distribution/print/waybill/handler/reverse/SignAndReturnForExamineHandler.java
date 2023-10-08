@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.reverse;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -30,7 +30,7 @@ public class SignAndReturnForExamineHandler implements InterceptHandler<WaybillP
     private SignBillReturnApiManager signBillReturnApiManager;
 
     @Autowired
-    private UccPropertyConfiguration uccConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.SignAndReturnForExamineHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})

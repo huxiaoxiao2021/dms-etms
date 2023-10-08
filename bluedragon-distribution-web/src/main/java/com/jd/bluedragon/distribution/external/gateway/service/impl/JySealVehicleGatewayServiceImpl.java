@@ -13,7 +13,7 @@ import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyUnSealStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
@@ -49,7 +49,7 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
     private IJyUnSealVehicleService jyUnSealVehicleService;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySealVehicleGatewayService.fetchSealTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -75,7 +75,7 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
         if (!checkQueryParam(response, request)) {
             return response;
         }
-        if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, uccConfig.getJyUnSealTaskSwitchToEs())) {
+        if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, dmsConfigManager.getUccPropertyConfig().getJyUnSealTaskSwitchToEs())) {
             return retJdCResponse(jyUnSealVehicleService.fetchSealTask(request));
         }
         else {

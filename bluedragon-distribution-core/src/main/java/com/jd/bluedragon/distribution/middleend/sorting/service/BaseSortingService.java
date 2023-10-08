@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.middleend.sorting.service;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -60,7 +60,7 @@ public abstract class BaseSortingService {
     protected SortingService dmsSortingService;
 
     @Resource
-    protected UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     protected WaybillQueryManager waybillQueryManager;
@@ -306,7 +306,7 @@ public abstract class BaseSortingService {
         }
 
         //每页容量
-        int pageSize = uccPropertyConfiguration.getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : uccPropertyConfiguration.getWaybillSplitPageSize();
+        int pageSize = dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize();
         //1.按包裹理货
         if(SortingObjectType.PACKAGE.equals(sorting.getMiddleEndSorting().getObjectType())){
             sorting.setPackagePageIndex(0);

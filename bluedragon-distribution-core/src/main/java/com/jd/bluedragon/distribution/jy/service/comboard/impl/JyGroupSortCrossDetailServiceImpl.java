@@ -11,7 +11,7 @@ import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto;
 import com.jd.bluedragon.common.dto.comboard.response.TableTrolleyDto;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -63,7 +63,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     private SortCrossJsfManager sortCrossJsfManager;
 
     @Autowired
-    private UccPropertyConfiguration ucc;    
+    private DmsConfigManager dmsConfigManager;    
     
     public static final String COM_BOARD_SEND = "CTT%s";
 
@@ -122,7 +122,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         entity.setFuncType(COMBOARD_SEND_POSITION.getCode());
         // 返回固定混扫任务数量
-        entity.setLimit(ucc.getCttGroupDataLimit());
+        entity.setLimit(dmsConfigManager.getUccPropertyConfig().getCttGroupDataLimit());
         if (request.isGroupQueryFlag()) {
             entity.setGroupCode(request.getGroupCode());
             cttGroupDtos = jyGroupSortCrossDetailDao.queryCommonCTTGroupData(entity);

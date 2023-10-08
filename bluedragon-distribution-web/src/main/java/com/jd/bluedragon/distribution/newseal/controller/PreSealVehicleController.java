@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.newseal.controller;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -77,7 +77,7 @@ public class PreSealVehicleController extends DmsBaseController{
     private static final Integer SEAL_LIMIT = 5;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 	/**
 	 * 返回主页面
@@ -86,7 +86,7 @@ public class PreSealVehicleController extends DmsBaseController{
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex(Model model) {
-        model.addAttribute("quickSealTips", uccPropertyConfiguration.getQuickSealTips());
+        model.addAttribute("quickSealTips", dmsConfigManager.getUccPropertyConfig().getQuickSealTips());
 		return "/newseal/preSealVehicle";
 	}
 	/**
@@ -108,7 +108,7 @@ public class PreSealVehicleController extends DmsBaseController{
 	@RequestMapping(value = "/queryPreSeals")
     public @ResponseBody JdResponse<List<PreSealVehicle>>  queryPreSeals(@RequestBody PreSealVehicleCondition condition) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-        if(uccPropertyConfiguration.getOfflineQuickSeal()){
+        if(dmsConfigManager.getUccPropertyConfig().getOfflineQuickSeal()){
             rest.toFail("一键封车已下线，请使用PDA进行封车！");
             return rest;
         }
@@ -328,7 +328,7 @@ public class PreSealVehicleController extends DmsBaseController{
         if(log.isDebugEnabled()){
             log.debug("一键封车请求参数：{}", JsonHelper.toJson(data));
         }
-        if(uccPropertyConfiguration.getOfflineQuickSeal()){
+        if(dmsConfigManager.getUccPropertyConfig().getOfflineQuickSeal()){
             rest.toFail("一键封车已下线，请使用PDA进行封车！");
             return rest;
         }

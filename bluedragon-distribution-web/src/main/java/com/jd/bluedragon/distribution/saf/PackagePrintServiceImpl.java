@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.saf;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
@@ -96,7 +96,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     private PackagePrintInternalService packagePrintInternalService;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private TaskService taskService;
@@ -700,7 +700,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     }
 
     private int getSyncDealPackageCount() {
-        return 0 == uccConfig.getPrintCompleteCallbackAsyncPackageNum() ? 500 : uccConfig.getPrintCompleteCallbackAsyncPackageNum();
+        return 0 == dmsConfigManager.getUccPropertyConfig().getPrintCompleteCallbackAsyncPackageNum() ? 500 : dmsConfigManager.getUccPropertyConfig().getPrintCompleteCallbackAsyncPackageNum();
     }
 
 }

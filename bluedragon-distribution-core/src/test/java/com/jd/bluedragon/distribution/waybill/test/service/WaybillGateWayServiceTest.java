@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.waybill.test.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -52,7 +52,7 @@ public class WaybillGateWayServiceTest {
     private PdaOperateRequest request;
 
     @Mock
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Before
     public void initMocks() throws Exception {
@@ -70,7 +70,7 @@ public class WaybillGateWayServiceTest {
 
         when(cancelWaybillDao.getByWaybillCode(cancelWaybill.getWaybillCode())).thenReturn(cancelWaybills);
 //        when(taskService.toTask(any(TaskRequest.class), anyString())).thenReturn(any(Task.class));
-        when(uccPropertyConfiguration.isPreOutZoneSwitch()).thenReturn(Boolean.TRUE);
+        when(dmsConfigManager.getUccPropertyConfig().isPreOutZoneSwitch()).thenReturn(Boolean.TRUE);
     }
 
     @Test

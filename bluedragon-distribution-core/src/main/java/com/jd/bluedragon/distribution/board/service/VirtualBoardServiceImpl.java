@@ -10,7 +10,7 @@ import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -114,7 +114,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     private CacheService jimdbCacheService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private SendMService sendMService;
@@ -205,7 +205,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                     result.setMessage("操作太快，正在处理中");
                     return result;
                 }
-                addOrGetVirtualBoardPo.setMaxDestinationCount(uccPropertyConfiguration.getVirtualBoardMaxDestinationCount());
+                addOrGetVirtualBoardPo.setMaxDestinationCount(dmsConfigManager.getUccPropertyConfig().getVirtualBoardMaxDestinationCount());
                 final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.createOrGetBoard(this.getConvertToTcParam(addOrGetVirtualBoardPo));
                 if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
                     log.error("VirtualBoardServiceImpl.createOrGetBoard--fail-- param {} result {}", JsonHelper.toJson(addOrGetVirtualBoardPo), JsonHelper.toJson(handleResult));
@@ -442,7 +442,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 }
 
                 // 调板号服务绑定到板号
-                bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
+                bindToVirtualBoardPo.setMaxItemCount(dmsConfigManager.getUccPropertyConfig().getVirtualBoardMaxItemCount());
                 final com.jd.transboard.api.dto.BindToVirtualBoardPo convertToTcParam = this.getConvertToTcParam(bindToVirtualBoardPo);
                 convertToTcParam.setDestinationId(destinationId);
                 convertToTcParam.setBarcodeType(isPackageCode ? BoardBarcodeTypeEnum.PACKAGE.getCode() : BoardBarcodeTypeEnum.BOX.getCode());
@@ -541,7 +541,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             tTask.setOwnSign(ownSign);
             tTask.setKeyword2(operatorInfo.getSiteCode().toString());
             tTask.setFingerprint(Md5Helper.encode(operatorInfo.getSiteCode() + "_" + tTask.getKeyword1() + virtualBoardResultDto.getBoardCode() + tTask.getKeyword2()));
-            final Integer virtualBoardAutoCloseDays = uccPropertyConfiguration.getVirtualBoardAutoCloseDays();
+            final Integer virtualBoardAutoCloseDays = dmsConfigManager.getUccPropertyConfig().getVirtualBoardAutoCloseDays();
             tTask.setExecuteTime(DateUtil.addDate(new Date(), (virtualBoardAutoCloseDays != null && virtualBoardAutoCloseDays > 0) ? virtualBoardAutoCloseDays : 1));
 
             CloseVirtualBoardPo closeVirtualBoardPo = new CloseVirtualBoardPo();
@@ -994,7 +994,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         result.setData(false);
         result.toSucceed();
         try {
-            final boolean matchVirtualSiteCanUseSite = uccPropertyConfiguration.matchVirtualSiteCanUseSite(operatorInfo.getSiteCode());
+            final boolean matchVirtualSiteCanUseSite = dmsConfigManager.getUccPropertyConfig().matchVirtualSiteCanUseSite(operatorInfo.getSiteCode());
             result.setData(matchVirtualSiteCanUseSite);
             if(!matchVirtualSiteCanUseSite){
                 result.setMessage(HintService.getHint(HintCodeConstants.YOUR_SITE_CAN_NOT_USE_FUNC));

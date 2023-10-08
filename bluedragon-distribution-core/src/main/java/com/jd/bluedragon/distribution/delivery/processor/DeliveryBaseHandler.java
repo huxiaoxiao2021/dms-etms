@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -88,7 +88,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     protected SequenceGenAdaptor sequenceGenAdaptor;
 
     @Autowired
-    protected UccPropertyConfiguration uccConfig;
+    protected DmsConfigManager dmsConfigManager;
 
     @Autowired
     protected TaskService taskService;
@@ -158,7 +158,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     @Override
     public DeliveryResponse initDeliveryTask(SendMWrapper wrapper) {
 
-        int onePageSize = uccConfig.getOldSendSplitPageSize() <= 0 ? SEND_SPLIT_NUM : uccConfig.getOldSendSplitPageSize();
+        int onePageSize = dmsConfigManager.getUccPropertyConfig().getOldSendSplitPageSize() <= 0 ? SEND_SPLIT_NUM : dmsConfigManager.getUccPropertyConfig().getOldSendSplitPageSize();
         int totalNum = wrapper.getBarCodeList().size();
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
 
@@ -214,7 +214,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     public DeliveryResponse initTransferTask(SendMWrapper wrapper) {
         SendM sendM = wrapper.getSendM();
 
-        int onePageSize = uccConfig.getOldSendSplitPageSize() <= 0 ? SEND_SPLIT_NUM : uccConfig.getOldSendSplitPageSize();
+        int onePageSize = dmsConfigManager.getUccPropertyConfig().getOldSendSplitPageSize() <= 0 ? SEND_SPLIT_NUM : dmsConfigManager.getUccPropertyConfig().getOldSendSplitPageSize();
         int totalNum = wrapper.getBarCodeList().size();
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
         List<List<String>> pageBarCode = CollectionHelper.splitList(wrapper.getBarCodeList(), onePageSize);

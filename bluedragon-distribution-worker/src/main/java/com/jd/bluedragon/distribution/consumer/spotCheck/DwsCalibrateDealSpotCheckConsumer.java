@@ -5,7 +5,7 @@ import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckAroundRecord;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckPackageRequest;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateStatusEnum;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
@@ -54,7 +54,7 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
     private DWSCheckManager dwsCheckManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -146,7 +146,7 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
                         && Objects.equals(dwsCheckAroundRecord.getNextMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())
                         && dwsCheckAroundRecord.getPreviousCalibrateTime() != null
                         && dwsCheckAroundRecord.getNextCalibrateTime() != null
-                        && (dwsCheckAroundRecord.getNextCalibrateTime() - dwsCheckAroundRecord.getPreviousCalibrateTime() > uccPropertyConfiguration.getMachineCalibrateIntervalTimeOfSpotCheck())){
+                        && (dwsCheckAroundRecord.getNextCalibrateTime() - dwsCheckAroundRecord.getPreviousCalibrateTime() > dmsConfigManager.getUccPropertyConfig().getMachineCalibrateIntervalTimeOfSpotCheck())){
                     return JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode();
                 }
                 if(dwsCheckAroundRecord.getNextMachineStatus() == null){

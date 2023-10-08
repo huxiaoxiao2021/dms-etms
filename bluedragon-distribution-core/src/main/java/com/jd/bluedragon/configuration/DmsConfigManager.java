@@ -40,7 +40,12 @@ public class DmsConfigManager {
 	public DuccPropertyConfig getDuccPropertyConfig() {
 		return duccPropertyConfig;
 	}
-
+	public UccPropertyConfiguration getUccPropertyConfig() {
+		if(duccPropertyConfig.isUseDucc()) {
+			return duccPropertyConfig;
+		}
+		return uccPropertyConfiguration;
+	}
 	public UccPropertyConfiguration getUccPropertyConfiguration() {
 		return uccPropertyConfiguration;
 	}

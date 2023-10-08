@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.worker.offline;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
@@ -85,7 +85,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
     private DefaultJMQProducer dmsBusinessOperateOfflineTaskSendProducer;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 	@Override
 	public Task parse(Task task, String ownSign) {
@@ -107,7 +107,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             if (!Objects.equals(taskType,Task.TASK_TYPE_AR_RECEIVE)
                     && !Objects.equals(taskType, Task.TASK_TYPE_AR_SEND_REGISTER)
                     && !Objects.equals(taskType, Task.TASK_TYPE_AR_RECEIVE_AND_SEND)
-                    && !uccPropertyConfiguration.isOffLineAllowedSite(createSiteCode)) {
+                    && !dmsConfigManager.getUccPropertyConfig().isOffLineAllowedSite(createSiteCode)) {
                 log.info("OfflineCoreTaskExecutor.execute--> 不被允许的操作场地: {}", createSiteCode);
                 return false;
             }

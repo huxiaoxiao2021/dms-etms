@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.worker.delivery;
 
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.framework.SendDBSingleScheduler;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -22,7 +22,7 @@ public class CreateSendTask extends SendDBSingleScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(CreateSendTask.class);
     @Autowired
-    protected UccPropertyConfiguration uccConfig;
+    protected DmsConfigManager dmsConfigManager;
     @Autowired
     @Qualifier("redisClientCache")
     protected Cluster redisClientCache;
@@ -58,10 +58,10 @@ public class CreateSendTask extends SendDBSingleScheduler {
         } else {
             Date now = new Date();
             int passedTime = DateHelper.getMiniDiff(createTime, now);
-            if (passedTime > uccConfig.getCreateSendTasktimeOut()*2/3){
+            if (passedTime > dmsConfigManager.getUccPropertyConfig().getCreateSendTasktimeOut()*2/3){
                 log.error("CreateSendTask--批次 {} 任务超时时间预警...{}",uiqueId);
             }
-            if (passedTime > uccConfig.getCreateSendTasktimeOut()) {
+            if (passedTime > dmsConfigManager.getUccPropertyConfig().getCreateSendTasktimeOut()) {
                 log.error("批次 {} 任务未执行完毕，但已超过时间阈值，调用deliveryService.addTaskSend...",uiqueId);
                 deliveryService.addTaskSend(sendM);
                 deleteRedisCountKey(initialCountKey,compeletedCountKey);
@@ -94,7 +94,7 @@ public class CreateSendTask extends SendDBSingleScheduler {
                 fetchNum = fetchNum * queueNum / queryCondition.size();
             }
 
-            List<Task> Tasks = taskService.findTasksUnderOptimizeSendTask(this.type, fetchNum, this.keyType, queryCondition, ownSign, ownSignList, uccConfig.getCreateSendTaskExecuteCount());
+            List<Task> Tasks = taskService.findTasksUnderOptimizeSendTask(this.type, fetchNum, this.keyType, queryCondition, ownSign, ownSignList, dmsConfigManager.getUccPropertyConfig().getCreateSendTaskExecuteCount());
             for (Task task : Tasks) {
                 if (!isMyTask(queueNum, task.getId(), queryCondition)) {
                     continue;

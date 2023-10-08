@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.box.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.dao.BoxRelationDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -49,7 +49,7 @@ public class BoxRelationServiceImpl implements BoxRelationService {
     private BoxRelationDao boxRelationDao;
 
     @Autowired
-    private UccPropertyConfiguration uccConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private BoxService boxService;
@@ -171,7 +171,7 @@ public class BoxRelationServiceImpl implements BoxRelationService {
         // 超过绑定数量限制不能绑定
         int existRelations = boxRelationDao.countByBoxCode(relation);
         if (uccConfiguration.getBCContainWJNumberLimit() > 0
-                && existRelations >= uccConfiguration.getBCContainWJNumberLimit()) {
+                && existRelations >= dmsConfigManager.getUccPropertyConfig().getBCContainWJNumberLimit()) {
             result.customMessage(DmsMessageConstants.CODE_50001, MessageFormat.format(DmsMessageConstants.MESSAGE_50001, uccConfiguration.getBCContainWJNumberLimit()));
             return result;
         }

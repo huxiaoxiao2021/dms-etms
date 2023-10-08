@@ -1,6 +1,6 @@
 package com.jd.bluedragon.common.dao.migration;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import org.apache.ibatis.session.SqlSessionFactory;
 import com.jd.ql.framework.migration.replication.transaction.ReplicationSqlSessionFactory;
 import javax.annotation.Resource;
@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 public class DynamicConfigReplicationSqlSessionFactory extends ReplicationSqlSessionFactory {
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 	public DynamicConfigReplicationSqlSessionFactory( SqlSessionFactory targetSqlSessionFactory) {
 		 super(targetSqlSessionFactory);
@@ -21,7 +21,7 @@ public class DynamicConfigReplicationSqlSessionFactory extends ReplicationSqlSes
 
 	@Override
 	public boolean isEnable() {
-		Boolean value = uccPropertyConfiguration.getMigrationDbBackupReplicateEnable();
+		Boolean value = dmsConfigManager.getUccPropertyConfig().getMigrationDbBackupReplicateEnable();
 		if(value!=null){
 			return value;
 		}
@@ -30,7 +30,7 @@ public class DynamicConfigReplicationSqlSessionFactory extends ReplicationSqlSes
 
 	@Override
 	public boolean isIgnoreExceptionWhenReplication() {
-        Boolean value = uccPropertyConfiguration.getMigrationDbBackupReplicateIgnoreExp();
+        Boolean value = dmsConfigManager.getUccPropertyConfig().getMigrationDbBackupReplicateIgnoreExp();
 		if(value!=null){
 			return value;
 		}

@@ -1,7 +1,7 @@
 package com.jd.bluedragon.core.cassandra;
 
 import com.datastax.driver.core.*;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ump.annotation.JProEnum;
@@ -25,7 +25,7 @@ public class BaseCassandraDao{
     protected long  ttl;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     private  Session session ;
 
@@ -40,7 +40,7 @@ public class BaseCassandraDao{
 	@JProfiler(jKey = "baseCassandra.batchInsert", mState = { JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError })
 	public void batchInsert(List<BoundStatement> bstatementList, Map<String, Object> values) throws Exception {
 		// UCC开关控制保存Cassandra
-	    if (!uccPropertyConfiguration.getCassandraGlobalSwitch()) {
+	    if (!dmsConfigManager.getUccPropertyConfig().getCassandraGlobalSwitch()) {
 		    return;
         }
 	    BatchStatement batch = new BatchStatement();
@@ -62,7 +62,7 @@ public class BaseCassandraDao{
     @JProfiler(jKey = "baseCassandra.insert", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public void insert(String tableName,Map<String,Object> values) throws Exception{
         // UCC开关控制保存Cassandra
-        if (!uccPropertyConfiguration.getCassandraGlobalSwitch()) {
+        if (!dmsConfigManager.getUccPropertyConfig().getCassandraGlobalSwitch()) {
             return;
         }
         if(StringUtils.isBlank(tableName)){

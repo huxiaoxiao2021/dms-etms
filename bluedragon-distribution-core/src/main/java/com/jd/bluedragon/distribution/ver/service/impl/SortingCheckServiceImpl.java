@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -97,7 +97,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     private LogEngine logEngine;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
@@ -141,7 +141,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             filterContext = this.initContext(pdaOperateRequest);
             ProceedFilterChain proceedFilterChain = getProceedFilterChain();
             proceedFilterChain.doFilter(filterContext, proceedFilterChain);
-            if (this.isNeedCheck(uccPropertyConfiguration.getSwitchVerToWebSites(), pdaOperateRequest.getCreateSiteCode())) {
+            if (this.isNeedCheck(dmsConfigManager.getUccPropertyConfig().getSwitchVerToWebSites(), pdaOperateRequest.getCreateSiteCode())) {
                 Integer businessType = pdaOperateRequest.getBusinessType();
                 if (BusinessUtil.isForward(businessType)) {
                     filterContext.setFuncModule(HintModuleConstants.FORWARD_SORTING);
@@ -342,7 +342,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         BoardCombinationJsfResponse response = new BoardCombinationJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         FilterContext filterContext = null;
         try {
-            if (this.isNeedCheck(uccPropertyConfiguration.getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
+            if (this.isNeedCheck(dmsConfigManager.getUccPropertyConfig().getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
                 //初始化拦截链上下文
                 filterContext = this.initFilterParam(boardCombinationRequest);
                 filterContext.setFuncModule(HintModuleConstants.BOARD_COMBINATION);
@@ -489,7 +489,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         // 获取包裹数据
         if (WaybillUtil.isPackageCode(filterContext.getPackageCode())){
             filterContext.setPackageNum(1);
-            if(uccPropertyConfiguration.isControlCheckPackage()){
+            if(dmsConfigManager.getUccPropertyConfig().isControlCheckPackage()){
                 String packageCode = filterContext.getPackageCode();
                 BaseEntity<List<DeliveryPackageD>> baseEntity = this.getPageBaseEntityByPackageCode(packageCode);
 

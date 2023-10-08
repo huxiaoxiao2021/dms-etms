@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.collectNew.service;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDao;
 import com.jd.bluedragon.distribution.collectNew.dao.JyCollectRecordDetailDao;
@@ -57,7 +57,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
     @Autowired
     private WaybillQueryManager waybillQueryManager;
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.JyScanCollectServiceImpl.insertCollectionRecordDetail",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -252,7 +252,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
      * @return
      */
     private int getBuQiWaybillCodeMaxSum(){
-        Integer buQiWaybillMaxSize = uccPropertyConfiguration.getJyBuQiWaybillCodeMaxSum();
+        Integer buQiWaybillMaxSize = dmsConfigManager.getUccPropertyConfig().getJyBuQiWaybillCodeMaxSum();
         if(buQiWaybillMaxSize < JyScanCollectServiceImpl.BUQI_WAYBILL_NUM_MIN) {
             return JyScanCollectServiceImpl.BUQI_WAYBILL_NUM_MIN;
         }

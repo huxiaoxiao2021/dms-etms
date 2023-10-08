@@ -1,6 +1,6 @@
 package ld;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -52,7 +52,7 @@ public class ReverseTest {
     @Autowired
     private AsynBufferDemotionUtil asynBufferDemotionUtil;
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Test
     public void testOffline(){
@@ -62,7 +62,7 @@ public class ReverseTest {
         try {
             int index = 0;
             while (index++ <= 10){
-                uccPropertyConfiguration.setOfflineCurrentLimitingCount(3);
+                dmsConfigManager.getUccPropertyConfig().setOfflineCurrentLimitingCount(3);
                 List<Boolean> r = new ArrayList<>();
                 for(int i = 0 ; i< 10 ; i++){
                     r.add(asynBufferDemotionUtil.isDemotionOfSite(task.getSiteCode(),task.getBody()));

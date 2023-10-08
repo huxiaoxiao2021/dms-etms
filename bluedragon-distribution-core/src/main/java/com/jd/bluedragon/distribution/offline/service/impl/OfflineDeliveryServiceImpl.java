@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.offline.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
@@ -65,7 +65,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 	private IOfflineTaskCheckBusinessInterceptService offlineTaskCheckBusinessInterceptService;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private SendCodeService sendCodeService;
@@ -201,7 +201,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
     private void sendOfflineSortingBusinessInterceptTaskMq(List<OfflineLogRequest> offlineLogRequestList) {
         // offlineTaskCheckBusinessInterceptService.batchSendOfflineTaskMq(offlineLogRequestList);
         for (OfflineLogRequest offlineLogRequest : offlineLogRequestList) {
-			if(!uccPropertyConfiguration.getOfflineTaskReportInterceptNeedHandle(offlineLogRequest.getSiteCode())){
+			if(!dmsConfigManager.getUccPropertyConfig().getOfflineTaskReportInterceptNeedHandle(offlineLogRequest.getSiteCode())){
 				continue;
 			}
             Response<Boolean> handleResult = offlineTaskCheckBusinessInterceptService.handleOfflineTask(offlineLogRequest);

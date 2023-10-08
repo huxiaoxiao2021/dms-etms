@@ -2,7 +2,7 @@ package com.jd.bluedragon.common.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -34,7 +34,7 @@ public class ExportConcurrencyLimitServiceImpl implements ExportConcurrencyLimit
     private Cluster redisClientCache;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     /**
      * 导出最大限制
@@ -53,8 +53,8 @@ public class ExportConcurrencyLimitServiceImpl implements ExportConcurrencyLimit
                 // 一天一个key
                 String redisKey = getRedisDateKey(key);
                 Integer concurrencyLimit = Constants.CONCURRENCY_EXPORT_LIMIT;
-                if(uccPropertyConfiguration.getExportConcurrencyLimitNum()!=null){
-                    concurrencyLimit = uccPropertyConfiguration.getExportConcurrencyLimitNum();
+                if(dmsConfigManager.getUccPropertyConfig().getExportConcurrencyLimitNum()!=null){
+                    concurrencyLimit = dmsConfigManager.getUccPropertyConfig().getExportConcurrencyLimitNum();
                 }
 
                 //1.用于系统降级,限制导出
@@ -123,8 +123,8 @@ public class ExportConcurrencyLimitServiceImpl implements ExportConcurrencyLimit
     @JProfiler(jKey = "com.jd.bluedragon.distribution.web.ExportConcurrencyLimitServiceImpl.uccSpotCheckMaxSize", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public Integer uccSpotCheckMaxSize(){
         // 设置总导出数据
-        Integer uccSpotCheckMaxSize = uccPropertyConfiguration.getExportSpotCheckMaxSize();
-        if(uccPropertyConfiguration.getExportSpotCheckMaxSize() == null){
+        Integer uccSpotCheckMaxSize = dmsConfigManager.getUccPropertyConfig().getExportSpotCheckMaxSize();
+        if(dmsConfigManager.getUccPropertyConfig().getExportSpotCheckMaxSize() == null){
             uccSpotCheckMaxSize = EXPORT_MAX_SIZE;
         }
         return uccSpotCheckMaxSize;
@@ -137,7 +137,7 @@ public class ExportConcurrencyLimitServiceImpl implements ExportConcurrencyLimit
     @Override
     @JProfiler(jKey = "com.jd.bluedragon.distribution.web.ExportConcurrencyLimitServiceImpl.uccSpotCheckMaxSize", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public Integer getOneQuerySizeLimit(){
-        return uccPropertyConfiguration.getOneQuerySize();
+        return dmsConfigManager.getUccPropertyConfig().getOneQuerySize();
     }
 
 

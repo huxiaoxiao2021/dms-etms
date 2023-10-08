@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BoxOperateApiManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -80,7 +80,7 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
     private BoxOperateApiManager boxOperateApiManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     protected void weightVolumeRuleCheckHandler(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
@@ -305,7 +305,7 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         logger.warn("推送箱号信息至经济网异常:{}", JsonHelper.toJson(response));
         // 出现异常、无响应结果、响应结果非成功code码 则 抛出异常 自动重试
         if (e != null || result == null || !"0000".equals(result.getCode())) {
-            if(uccPropertyConfiguration.getEconomicNetPushZTDRetry()){
+            if(dmsConfigManager.getUccPropertyConfig().getEconomicNetPushZTDRetry()){
                 throw new RuntimeException(MessageFormat.format(entity.getBoxCode()+"推送箱号信息至经济网失败,异常原因：{0}", JsonHelper.toJson(response)));
             }
         }

@@ -13,7 +13,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.strand.*;
 import com.jd.bluedragon.common.dto.strandreport.request.ConfigStrandReasonData;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -116,7 +116,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
     private BoxService boxService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private StrandService strandService;
@@ -241,8 +241,8 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         entity.setTaskStatus(JyBizStrandTaskStatusEnum.TODO.getCode());
         entity.setCreateUserErp(request.getOperateUserErp());
         entity.setCreateUserName(request.getOperateUserName());
-        Long sysCloseTime = uccPropertyConfiguration.getJySysStrandTaskCloseTime();
-        Long artificialCloseTime = uccPropertyConfiguration.getJyArtificialStrandTaskCloseTime();
+        Long sysCloseTime = dmsConfigManager.getUccPropertyConfig().getJySysStrandTaskCloseTime();
+        Long artificialCloseTime = dmsConfigManager.getUccPropertyConfig().getJyArtificialStrandTaskCloseTime();
         Date expectedCloseTime = new Date(System.currentTimeMillis() +
                 (Objects.equals(request.getTaskType(), JyBizStrandTaskTypeEnum.ARTIFICIAL.getCode()) ? artificialCloseTime : sysCloseTime));
         entity.setExpectCloseTime(expectedCloseTime);
@@ -385,7 +385,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
 
     private void scanNumLimit(String bizId) {
         // 拣运-滞留扫描数量上线
-        Integer jyStrandScanNumLimit = uccPropertyConfiguration.getJyStrandScanNumLimit();
+        Integer jyStrandScanNumLimit = dmsConfigManager.getUccPropertyConfig().getJyStrandScanNumLimit();
         Integer totalScanNum = jyBizStrandReportDetailService.queryTotalScanNum(bizId);
         if(totalScanNum >= jyStrandScanNumLimit){
             throw new JyBizException("当前任务已扫数量超限,请更换任务扫描!");

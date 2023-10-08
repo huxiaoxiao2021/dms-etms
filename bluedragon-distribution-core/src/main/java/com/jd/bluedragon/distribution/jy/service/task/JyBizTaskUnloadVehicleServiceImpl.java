@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -90,7 +90,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -267,7 +267,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             offset = (pageNum - 1) * pageSize;
         }
         //超过最大分页数据量 直接返回空数据
-        if (offset + limit > uccPropertyConfiguration.getJyTaskPageMax()) {
+        if (offset + limit > dmsConfigManager.getUccPropertyConfig().getJyTaskPageMax()) {
             return new ArrayList<>();
         }
 
@@ -876,7 +876,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     private void setAutoRefreshConfig(ScanStatisticsDto scanStatisticsDto){
         // 增加刷新间隔配置
         try {
-            final ClientAutoRefreshConfig jyWorkAppAutoRefreshConfig = uccPropertyConfiguration.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.TYS_UNLOAD_PROGRESS.name());
+            final ClientAutoRefreshConfig jyWorkAppAutoRefreshConfig = dmsConfigManager.getUccPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.TYS_UNLOAD_PROGRESS.name());
             if (jyWorkAppAutoRefreshConfig != null) {
                 final com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig clientAutoRefreshConfig = new com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig();
                 BeanCopyUtil.copy(jyWorkAppAutoRefreshConfig, clientAutoRefreshConfig);

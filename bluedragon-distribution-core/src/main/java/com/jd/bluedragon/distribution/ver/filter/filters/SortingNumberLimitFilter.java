@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -55,7 +55,7 @@ public class SortingNumberLimitFilter implements Filter {
     private BoxLimitService boxLimitService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
@@ -155,7 +155,7 @@ public class SortingNumberLimitFilter implements Filter {
      * @return ucc中配置中包含此站点ID 则 返回 true , 表示需要走 包裹限制流程
      */
     private boolean needCheckSitesFromUcc(Integer siteCode) {
-        String sites = uccPropertyConfiguration.getBoxLimitSites();
+        String sites = dmsConfigManager.getUccPropertyConfig().getBoxLimitSites();
         if (StringUtils.isEmpty(sites)) {
             return false;
         }

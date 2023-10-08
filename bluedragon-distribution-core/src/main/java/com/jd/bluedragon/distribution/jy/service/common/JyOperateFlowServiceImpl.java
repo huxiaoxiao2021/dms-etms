@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.jy.dao.common.JyOperateFlowDao;
@@ -41,7 +41,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
     private DefaultJMQProducer jyOperateFlowMqProducer;
     
     @Autowired
-    UccPropertyConfiguration ucc;
+    DmsConfigManager dmsConfigManager;
     
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.insert", mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
@@ -56,7 +56,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	@Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.sendMq", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public int sendMq(JyOperateFlowMqData mqData) {
-		if(!Boolean.TRUE.equals(ucc.getSendJyOperateFlowMqSwitch())) {
+		if(!Boolean.TRUE.equals(dmsConfigManager.getUccPropertyConfig().getSendJyOperateFlowMqSwitch())) {
 			return 0;
 		}
 		jyOperateFlowMqProducer.sendOnFailPersistent(mqData.getOperateBizKey(), JsonHelper.toJson(mqData));
@@ -66,7 +66,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.sendMqList", mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public int sendMqList(List<JyOperateFlowMqData> mqDataList) {
-		if(!Boolean.TRUE.equals(ucc.getSendJyOperateFlowMqSwitch())) {
+		if(!Boolean.TRUE.equals(dmsConfigManager.getUccPropertyConfig().getSendJyOperateFlowMqSwitch())) {
 			return 0;
 		}
 		List<Message> msgList = new ArrayList<>();

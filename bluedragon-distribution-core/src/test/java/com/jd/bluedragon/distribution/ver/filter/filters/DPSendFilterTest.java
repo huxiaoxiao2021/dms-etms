@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.common.domain.WaybillCache;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.router.RouterService;
@@ -33,7 +33,7 @@ public class DPSendFilterTest extends TestCase {
     private DPSendFilter dpSendFilter;
 
     @Mock
-    private UccPropertyConfiguration uccConfiguration;
+    private DmsConfigManager dmsConfigManager;
     @Mock
     private WaybillQueryManager waybillQueryManager;
     @Test

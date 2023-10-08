@@ -10,7 +10,7 @@ import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -124,7 +124,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     private GroupBoardManager groupBoardManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     private static final Integer STATUS_BOARD_CLOSED = 2;
 
@@ -497,7 +497,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 nextSiteCode = routeNextDto.getFirstNextSiteId();
                 if (nextSiteCode == null) {
                     log.warn("根据运单号【{}】操作站点【{}】获取路由下一节点为空!", waybillCode, request.getSiteCode());
-                    if(uccPropertyConfiguration.getBoardCombinationRouterSwitch()){
+                    if(dmsConfigManager.getUccPropertyConfig().getBoardCombinationRouterSwitch()){
                         // 首包裹开板，包裹目的地（路由）不存在，则使用约定编码提示前端让其选择目的地
                         boardResponse.assembleStatusInfo(BoardResponse.CODE_SPECIAL_PACK_NO_ROUTER, HintService.getHint(HintCodeConstants.JY_UNLOAD_VEHICLE_PACK_NO_ROUTER));
                     }else {

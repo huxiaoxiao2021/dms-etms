@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.weightVolume.handler;
 
 import com.esotericsoftware.minlog.Log;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -62,7 +62,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     private DefaultJMQProducer dmsWeightVolumeFlowProducer;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -107,7 +107,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
      * @param entity
      */
     protected boolean uploadOverWeightInfo(WeightVolumeEntity entity) {
-    	if(!uccPropertyConfiguration.isUploadOverWeightSwitch()
+    	if(!dmsConfigManager.getUccPropertyConfig().isUploadOverWeightSwitch()
     			|| !Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
     			|| CollectionUtils.isEmpty(entity.getOverLengthAndWeightTypes())) {
     		restLongPackage(entity);
@@ -170,9 +170,9 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
                 return result;
             }
             // 校验处理
-            if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 0) {
+            if (dmsConfigManager.getUccPropertyConfig().getWeightVolumeSwitchVersion() == 0) {
                 weightVolumeRuleCheckHandler(weightVolumeContext, result);
-            } else if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 1 && !WeightVolumeBusinessTypeEnum.BY_BOX.name().equals(condition.getBusinessType())) {
+            } else if (dmsConfigManager.getUccPropertyConfig().getWeightVolumeSwitchVersion() == 1 && !WeightVolumeBusinessTypeEnum.BY_BOX.name().equals(condition.getBusinessType())) {
                 weightVolumeRuleCheckHandlerNew(weightVolumeContext, result);
             }
         }catch (Exception e){
@@ -238,7 +238,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         weightVolumeContext.setOperateSite(operateSite);
 
         // 设置称重量方规则
-        weightVolumeContext.setWeightVolumeRuleConstant(JsonHelper.fromJson(uccPropertyConfiguration.getWeightVolumeRuleStandard(), WeightVolumeRuleConstant.class));
+        weightVolumeContext.setWeightVolumeRuleConstant(JsonHelper.fromJson(dmsConfigManager.getUccPropertyConfig().getWeightVolumeRuleStandard(), WeightVolumeRuleConstant.class));
         return weightVolumeContext;
     }
 

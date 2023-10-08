@@ -1,7 +1,7 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.jim.cli.Cluster;
@@ -37,7 +37,7 @@ public class AsynBufferDemotionUtil {
     private Cluster redisClient;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     /**
      * 任务限流 按场地
@@ -66,7 +66,7 @@ public class AsynBufferDemotionUtil {
 
             String key = String.format(OFFLINE_TASK_MAX_E_KEY,siteCode);
 
-            Integer currentLimitingCount = uccPropertyConfiguration.getOfflineCurrentLimitingCount();
+            Integer currentLimitingCount = dmsConfigManager.getUccPropertyConfig().getOfflineCurrentLimitingCount();
             // 限流数量为正整数时才会启用限流
             if(currentLimitingCount > 0){
 

@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.consumer.spotCheck;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -56,7 +56,7 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
     private DefaultJMQProducer dwsAIDistinguishSmallProducer;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -106,7 +106,7 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
             dwsAIDistinguishMQ.setWaybillCode(spotCheckDto.getWaybillCode());
             dwsAIDistinguishMQ.setSiteCode(spotCheckDto.getReviewSiteCode());
             dwsAIDistinguishMQ.setPackages(list);
-            if(list.size() > uccPropertyConfiguration.getDeviceAIDistinguishPackNum()){
+            if(list.size() > dmsConfigManager.getUccPropertyConfig().getDeviceAIDistinguishPackNum()){
                 dwsAIDistinguishBigProducer.sendOnFailPersistent(dwsAIDistinguishMQ.getWaybillCode(), JsonHelper.toJson(dwsAIDistinguishMQ));
             }else {
                 dwsAIDistinguishSmallProducer.sendOnFailPersistent(dwsAIDistinguishMQ.getWaybillCode(), JsonHelper.toJson(dwsAIDistinguishMQ));

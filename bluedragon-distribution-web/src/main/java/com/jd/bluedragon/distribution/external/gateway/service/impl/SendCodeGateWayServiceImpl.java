@@ -15,7 +15,7 @@ import com.jd.bluedragon.common.dto.sendcode.response.SendCodeInfoDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeSealInfoDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BasicSelectWsManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
@@ -86,7 +86,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     @Qualifier("siteResource")
     private SiteResource siteResource;
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
 

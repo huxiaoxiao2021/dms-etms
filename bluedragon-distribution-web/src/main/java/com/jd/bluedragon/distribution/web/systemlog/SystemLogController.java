@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.web.systemlog;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.systemLog.service.SystemLogService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
@@ -32,13 +32,13 @@ public class SystemLogController {
 	private SystemLogService systemLogService;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 	@Authorization(Constants.DMS_WEB_DEVELOP_SYSTEMLOG_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
     @JProfiler(jKey = "DMSWEB.SystemLogController.goListpage", mState = JProEnum.TP)
 	public String goListpage(Model model) {
-        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
+        model.addAttribute("oldLogPageTips",dmsConfigManager.getUccPropertyConfig().getOldLogPageTips());
 		return "systemLog/systemLog";
 	}
 
@@ -75,7 +75,7 @@ public class SystemLogController {
 		}catch(Exception e){
 			log.error("查询SystemLog出错", e);
 		}
-        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
+        model.addAttribute("oldLogPageTips",dmsConfigManager.getUccPropertyConfig().getOldLogPageTips());
 		return "systemLog/systemLog";
 	}
 
@@ -111,7 +111,7 @@ public class SystemLogController {
 		model.addAttribute("systemlogs", logList);
 		model.addAttribute("systemLogQueryDto", systemLog);
 		model.addAttribute("pager", pager);
-		model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
+		model.addAttribute("oldLogPageTips",dmsConfigManager.getUccPropertyConfig().getOldLogPageTips());
 		}catch(Exception e){
 			log.error("查询SystemLog出错", e);
 		}

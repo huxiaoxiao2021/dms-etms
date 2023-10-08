@@ -6,7 +6,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.Evaluat
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
@@ -78,7 +78,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     @Qualifier("evaluateTargetInitProducer")
     private DefaultJMQProducer evaluateTargetInitProducer;
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 
     @Override
@@ -104,7 +104,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.checkIsEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Boolean checkIsEvaluate(EvaluateTargetReq request) {
         // 装车评价开关如果关闭，直接返回已评价
-        if (!uccPropertyConfiguration.isLoadCarEvaluateSwitch()) {
+        if (!dmsConfigManager.getUccPropertyConfig().isLoadCarEvaluateSwitch()) {
             return Boolean.TRUE;
         }
         JyEvaluateRecordEntity evaluateRecord = jyEvaluateRecordDao.findRecordBySourceBizId(request.getSourceBizId());

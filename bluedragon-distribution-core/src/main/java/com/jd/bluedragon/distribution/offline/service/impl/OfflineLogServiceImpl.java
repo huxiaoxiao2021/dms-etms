@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.offline.service.impl;
 
 import com.jd.bluedragon.Constants;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.offline.dao.OfflineDao;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
@@ -48,7 +48,7 @@ public class OfflineLogServiceImpl implements OfflineLogService {
     private LogEngine logEngine;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public Integer addOfflineLog(OfflineLog offlineLog) {
@@ -129,7 +129,7 @@ public class OfflineLogServiceImpl implements OfflineLogService {
 
         logEngine.addLog(businessLogProfiler);
 
-        if (uccPropertyConfiguration.isOfflineLogGlobalSwitch()) {
+        if (dmsConfigManager.getUccPropertyConfig().isOfflineLogGlobalSwitch()) {
 
             return offlineDao.add(OfflineDao.namespace, offlineLog);
         }

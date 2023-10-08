@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.operationLog.service.impl;
 
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.operationLog.dao.OperationLogReadDao;
@@ -51,7 +51,7 @@ public class OperationLogServiceImpl implements OperationLogService {
     private LogEngine logEngine;
 	
 	@Resource
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
     /**
      * 记录log到cassandra中
@@ -212,7 +212,7 @@ public class OperationLogServiceImpl implements OperationLogService {
         CallerInfo info = null;
         try {
             info = Profiler.registerInfo("DMSWEB.OperationLogService.add", false, true);
-            if (uccPropertyConfiguration.getCassandraGlobalSwitch()) {
+            if (dmsConfigManager.getUccPropertyConfig().getCassandraGlobalSwitch()) {
                 logCassandra.batchInsert(operationLog);
             }
         } catch (Throwable e) {

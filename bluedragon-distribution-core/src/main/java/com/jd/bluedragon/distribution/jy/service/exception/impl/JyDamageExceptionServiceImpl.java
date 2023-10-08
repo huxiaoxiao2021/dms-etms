@@ -10,7 +10,7 @@ import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -127,7 +127,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private WaybillService waybillService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 
     public Integer getExceptionType() {
@@ -1296,7 +1296,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         JdCResponse response = new JdCResponse();
         response.toSucceed();
         //查询 处理中-客服介入中的超48小时的任务列表
-        int hours = uccPropertyConfiguration.getJyExceptionDamageTaskCustomerNotReturnHours();
+        int hours = dmsConfigManager.getUccPropertyConfig().getJyExceptionDamageTaskCustomerNotReturnHours();
         JyBizTaskExceptionEntity query = new JyBizTaskExceptionEntity();
         query.setType(JyBizTaskExceptionTypeEnum.DAMAGE.getCode());
         query.setStatus(JyExpStatusEnum.PROCESSING.getCode());

@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.systemLog.service.impl;
 
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao;
@@ -51,14 +51,14 @@ public class SystemLogServiceImpl implements SystemLogService {
 	private BaseService baseService;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 	
 	//cassandra开关
 	public static final String CASSANDRA_SWITCH = "CASSANDRA_SWITCH";
 
 	public int add(SystemLog systemLog) {
 
-	    if (!uccPropertyConfiguration.isSystemLogGlobalSwitch()) {
+	    if (!dmsConfigManager.getUccPropertyConfig().isSystemLogGlobalSwitch()) {
 	        return 0;
         }
 

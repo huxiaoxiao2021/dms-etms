@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -23,7 +23,7 @@ import javax.annotation.Resource;
 public class SortingWaybillServiceImpl extends SortingCommonSerivce{
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     public static int WAYBILL_SPLIT_NUM = 100;
 
@@ -39,7 +39,7 @@ public class SortingWaybillServiceImpl extends SortingCommonSerivce{
             BaseStaffSiteOrgDto createSite = sorting.getCreateSite();
             int pakcageListSize = sorting.getPackageListSize();
             //每页容量
-            int pageSize = uccPropertyConfiguration.getWaybillSplitPageSize()==0?WAYBILL_SPLIT_NUM:uccPropertyConfiguration.getWaybillSplitPageSize();
+            int pageSize = dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize()==0?WAYBILL_SPLIT_NUM:dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize();
             //计算总页数
             if(pakcageListSize>0){
                 int pagesSize = Double.valueOf(Math.floor(pakcageListSize/pageSize)).intValue();

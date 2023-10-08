@@ -2,7 +2,7 @@ package com.jd.bluedragon.core.jsf.dms.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -33,7 +33,7 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     @Qualifier("groupBoardService")
     private GroupBoardService groupBoardService;
     @Autowired
-    UccPropertyConfiguration ucc;
+    DmsConfigManager dmsConfigManager;
 
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.resuseBoards",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -57,7 +57,7 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
 
     @Override
     public Response<Integer> addBoxToBoardV2(AddBoardBox addBoardBox) {
-        if (ucc.getReComboardSwitch()){
+        if (dmsConfigManager.getUccPropertyConfig().getReComboardSwitch()){
             return groupBoardService.addBoxToBoardV2(addBoardBox);
         }
         return groupBoardService.addBoxToBoard(addBoardBox);

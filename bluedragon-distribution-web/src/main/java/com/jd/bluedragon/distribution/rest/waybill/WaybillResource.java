@@ -13,7 +13,7 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
 import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -225,7 +225,7 @@ public class WaybillResource {
     private OmsManager omsManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private ColdChainReverseManager coldChainReverseManager;
@@ -2582,7 +2582,7 @@ public class WaybillResource {
 
         InvokeResult<String> invokeResult;
         String omcOrderCode = waybillService.baiChuanEnableSwitch(waybill);
-        if (uccPropertyConfiguration.isCancelJimaoxinSwitchToOMS() && StringUtils.isNotBlank(omcOrderCode)) {
+        if (dmsConfigManager.getUccPropertyConfig().isCancelJimaoxinSwitchToOMS() && StringUtils.isNotBlank(omcOrderCode)) {
 
             ModifyExpressOrderRequest cancelRequest = omsManager.makeCancelLetterRequest(request, omcOrderCode);
             invokeResult = omsManager.cancelFeatherLetterByWaybillCode(request.getWaybillCode(), cancelRequest);

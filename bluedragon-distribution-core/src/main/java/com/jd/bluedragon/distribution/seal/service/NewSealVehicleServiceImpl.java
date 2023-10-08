@@ -11,7 +11,7 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
@@ -139,7 +139,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private SortingMaterialSendService sortingMaterialSendService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private SendDetailService sendDetailService;
@@ -346,12 +346,12 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     private void syncJySealStatus(List<SealCarDto> sealCarDtos) {
         try {
-            if (uccPropertyConfiguration.getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
+            if (dmsConfigManager.getUccPropertyConfig().getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
                 List<String> sendCodes =new ArrayList();
                 for (SealCarDto sealCarDto:sealCarDtos){
                     sendCodes.addAll(sealCarDto.getBatchCodes());
                 }
-                if (sendCodes.size()>uccPropertyConfiguration.getSealStatusBatchSizeLimit()){
+                if (sendCodes.size()>dmsConfigManager.getUccPropertyConfig().getSealStatusBatchSizeLimit()){
                     return;
                 }
                 List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodes);
@@ -368,12 +368,12 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     private void syncJyCZSealStatus(List<SealCarDto> sealCarDtos) {
         try {
-            if (uccPropertyConfiguration.getSyncJyCZSealStatusSwitch() && ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
+            if (dmsConfigManager.getUccPropertyConfig().getSyncJyCZSealStatusSwitch() && ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
                 List<String> sendCodes =new ArrayList();
                 for (SealCarDto sealCarDto:sealCarDtos){
                     sendCodes.addAll(sealCarDto.getBatchCodes());
                 }
-                if (sendCodes.size()>uccPropertyConfiguration.getSealStatusBatchSizeLimit()){
+                if (sendCodes.size()>dmsConfigManager.getUccPropertyConfig().getSealStatusBatchSizeLimit()){
                     return;
                 }
                 JyBizTaskComboardEntity condition =new JyBizTaskComboardEntity();
@@ -486,7 +486,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Override
     @JProfiler(jKey = "com.jd.bluedragon.distribution.seal.service.NewSealVehicleServiceImpl.checkBatchCodeIsSendPreSealVehicle",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean checkBatchCodeIsSendPreSealVehicle(String batchCode){
-        String removeEmptyBatchCode=uccPropertyConfiguration.getPreSealVehicleRemoveEmptyBatchCode();
+        String removeEmptyBatchCode=dmsConfigManager.getUccPropertyConfig().getPreSealVehicleRemoveEmptyBatchCode();
         if(!Constants.STRING_FLG_TRUE.equals(removeEmptyBatchCode)){
             return true;
         }
@@ -497,7 +497,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Override
     @JProfiler(jKey = "com.jd.bluedragon.distribution.seal.service.NewSealVehicleServiceImpl.checkBatchCodeIsNewSealVehicle",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean checkBatchCodeIsNewSealVehicle(String batchCode){
-        String removeEmptyBatchCode=uccPropertyConfiguration.getRemoveEmptyBatchCode();
+        String removeEmptyBatchCode=dmsConfigManager.getUccPropertyConfig().getRemoveEmptyBatchCode();
         if(!Constants.STRING_FLG_TRUE.equals(removeEmptyBatchCode)){
             return true;
         }
@@ -869,8 +869,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     private void recoverTaskStatusIfNeed(List<String> sendCodeList) {
         try {
-            if (uccPropertyConfiguration.getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0
-            && sendCodeList.size()<=uccPropertyConfiguration.getSealStatusBatchSizeLimit()){
+            if (dmsConfigManager.getUccPropertyConfig().getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0
+            && sendCodeList.size()<=dmsConfigManager.getUccPropertyConfig().getSealStatusBatchSizeLimit()){
                 List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodeList);
                 if (ObjectHelper.isNotNull(sendCodeEntityList)){
                     for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){

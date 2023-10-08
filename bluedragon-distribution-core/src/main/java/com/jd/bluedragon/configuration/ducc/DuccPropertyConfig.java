@@ -18,13 +18,14 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.laf.config.spring.annotation.LafUcc;
 import com.jd.ql.dms.print.utils.JsonHelper;
 
 @Component("duccPropertyConfig")
 	@LafUcc
-public class DuccPropertyConfig {
+public class DuccPropertyConfig extends UccPropertyConfiguration{
 	private static final Logger log = LoggerFactory.getLogger(DuccPropertyConfig.class);
 	
 	public static final String CONFIG_FROM_LOCAL = "local";
@@ -1051,7 +1052,7 @@ public class DuccPropertyConfig {
 	private boolean stopWriteUnloadFromDms;
 
 	/**
-	 *uccPropertyConfiguration.switchVerToWebSites
+	 *switchVerToWebSites
 	 */
 	@Value("${duccPropertyConfig.switchVerToWebSites:-1}")
 	@LafUcc

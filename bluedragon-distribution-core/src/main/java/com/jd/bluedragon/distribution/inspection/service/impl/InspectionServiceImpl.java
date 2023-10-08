@@ -11,7 +11,7 @@ import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponse
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.AssertQueryManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -117,7 +117,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	private final String PERFORMANCE_DMSSITECODE_SWITCH = "performance.dmsSiteCode.switch";
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private InspectionDao inspectionDao;
@@ -172,7 +172,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
     private WaybillPackageManager waybillPackageManager;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private DmsOperateHintService dmsOperateHintService;
@@ -1014,7 +1014,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
     public boolean checkIsBindMaterial(String waybillCode) {
 
         try {
-        	if(uccPropertyConfiguration.getInspectionAssertDemotion()){
+        	if(dmsConfigManager.getUccPropertyConfig().getInspectionAssertDemotion()){
         		//降级 不依赖集包袋服务
         		return false;
 			}
@@ -1117,14 +1117,14 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
      */
     @Override
     public int getInspectionTaskPackageSplitNum() {
-        return 0 == uccConfig.getWaybillSplitPageSize() ?
+        return 0 == dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize() ?
                 BIG_WAYBILL_LIMIT_NUM :
-                uccConfig.getWaybillSplitPageSize();
+                dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize();
     }
 
     @Override
     public boolean siteEnableInspectionAgg(Integer siteCode) {
-        String configSite = uccConfig.getInspectionAggEffectiveSites();
+        String configSite = dmsConfigManager.getUccPropertyConfig().getInspectionAggEffectiveSites();
         if (StringUtils.isBlank(configSite)) {
             return false;
         }

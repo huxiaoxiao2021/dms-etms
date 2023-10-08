@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.task.asynBuffer;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.ql.framework.asynBuffer.producer.AbstractProducer;
 import com.jd.ql.framework.asynBuffer.producer.DynamicProducer;
@@ -16,13 +16,13 @@ import java.util.Set;
 public class DmsDynamicProducer extends DynamicProducer<Task> {
 
 	@Resource
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	/**
 	 * 正式启用了AsynBuffer组建的任务类型列表，若不在其中的任务类型则还是采用原来的Tbschedule方式处理任务。
 	 */
 	public String getEnabledTypes() {
-		return uccPropertyConfiguration.getAsynbufferEnabledTaskType();
+		return dmsConfigManager.getUccPropertyConfig().getAsynbufferEnabledTaskType();
 	}
 
 
@@ -33,7 +33,7 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 	 * @return
      */
 	public Set<String> getNotEnabledKeyWord(){
-		String [] notEnabledKeyWords = uccPropertyConfiguration.getAsynBufferNotenabledTaskKeyword1().trim().split(";");
+		String [] notEnabledKeyWords = dmsConfigManager.getUccPropertyConfig().getAsynBufferNotenabledTaskKeyword1().trim().split(";");
 		Set<String> type_keyword = new HashSet<String>();
 		for(String s : notEnabledKeyWords){
 			type_keyword.add(s);
@@ -43,7 +43,7 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 
 	@Override
 	public ProducerType getProducerType() {
-		ProducerType producerType = ProducerType.valueOf(uccPropertyConfiguration.getAsynBufferDynamicProducerProducerType());
+		ProducerType producerType = ProducerType.valueOf(dmsConfigManager.getUccPropertyConfig().getAsynBufferDynamicProducerProducerType());
 		this.setProducerType(producerType);
 		return producerType;
 	}

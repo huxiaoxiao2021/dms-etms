@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.transport.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -61,7 +61,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
     private Cluster redisClientOfJy;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     /**
      * 验证运输发货车辆到达月台合法性
@@ -190,7 +190,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             vehicleArriveDockBaseDataDto.setTimeMillSeconds(System.currentTimeMillis());
             vehicleArriveDockBaseDataDto.setTimeFormatStr(DateUtil.FORMAT_DATE_TIME);
             vehicleArriveDockBaseDataDto.setTimeStr(DateUtil.format(new Date(vehicleArriveDockBaseDataDto.getTimeMillSeconds()), DateUtil.FORMAT_DATE_TIME));
-            vehicleArriveDockBaseDataDto.setValidateStrRefreshIntervalTime(uccPropertyConfiguration.getJyTransportSendVehicleValidateDockRefreshTime());
+            vehicleArriveDockBaseDataDto.setValidateStrRefreshIntervalTime(dmsConfigManager.getUccPropertyConfig().getJyTransportSendVehicleValidateDockRefreshTime());
 
             final BaseStaffSiteOrgDto baseSiteInfo = baseMajorManager.getBaseSiteBySiteId(qo.getStartSiteId());
             if (baseSiteInfo == null) {
@@ -270,7 +270,7 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             vehicleArriveDockDataDto.setTimeFormatStr(DateUtil.FORMAT_DATE_TIME);
             vehicleArriveDockDataDto.setTimeStr(DateUtil.format(new Date(vehicleArriveDockDataDto.getTimeMillSeconds()), DateUtil.FORMAT_DATE_TIME));
             vehicleArriveDockDataDto.setDockCode(qo.getDockCode());
-            vehicleArriveDockDataDto.setValidateStrRefreshIntervalTime(uccPropertyConfiguration.getJyTransportSendVehicleValidateDockRefreshTime());
+            vehicleArriveDockDataDto.setValidateStrRefreshIntervalTime(dmsConfigManager.getUccPropertyConfig().getJyTransportSendVehicleValidateDockRefreshTime());
 
             result.setData(vehicleArriveDockDataDto);
 
@@ -328,17 +328,17 @@ public class JyTransportSendVehicleServiceImpl implements JyTransportSendVehicle
             vehicleArriveDockDataCacheDto.setCreateUserCode(operateUser.getUserCode());
             // 保存10分钟缓存，验证码的信息
             final String validateStrGenerateCacheKey = this.getValidateGenerateCacheKey(validateStr);
-            redisClientOfJy.setEx(validateStrGenerateCacheKey, JsonHelper.toJSONString(vehicleArriveDockDataCacheDto), (int)(uccPropertyConfiguration.getJyTransportSendVehicleValidateDockRefreshTime() * uccPropertyConfiguration.getJyTransportSendVehicleValidateDockAllowRefreshTimes()), JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_TIME_UINT);
+            redisClientOfJy.setEx(validateStrGenerateCacheKey, JsonHelper.toJSONString(vehicleArriveDockDataCacheDto), (int)(dmsConfigManager.getUccPropertyConfig().getJyTransportSendVehicleValidateDockRefreshTime() * dmsConfigManager.getUccPropertyConfig().getJyTransportSendVehicleValidateDockAllowRefreshTimes()), JyCacheKeyConstants.JY_TRANSPORT_SEND_VEHICLE_VALIDATE_STR_TIME_UINT);
 
             // 将上几次验证字符缓存删除，来验证有效性
-            int validateLastGenerateStrExpired = uccPropertyConfiguration.getJyTransportSendVehicleValidateDockRefreshTime() * uccPropertyConfiguration.getJyTransportSendVehicleValidateDockAllowRefreshTimes() + 5;
+            int validateLastGenerateStrExpired = dmsConfigManager.getUccPropertyConfig().getJyTransportSendVehicleValidateDockRefreshTime() * dmsConfigManager.getUccPropertyConfig().getJyTransportSendVehicleValidateDockAllowRefreshTimes() + 5;
             List<String> lastGenerateValidateStrArr = new ArrayList<>();
             final String validateLastGenerateCacheKey = this.getValidateLastGenerateCacheKey(baseSiteInfo.getSiteCode(), operateUser.getUserCode());
             final String validateLastGenerateVal = redisClientOfJy.get(validateLastGenerateCacheKey);
             if (StringUtils.isNotEmpty(validateLastGenerateVal)) {
                 final List<String> validateLastGenerateArrExist = JSON.parseArray(validateLastGenerateVal, String.class);
                 // 如果上次验证码缓存总数已超过允许的刷新个数，则删除队首
-                if(validateLastGenerateArrExist.size() >= uccPropertyConfiguration.getJyTransportSendVehicleValidateDockAllowRefreshTimes()){
+                if(validateLastGenerateArrExist.size() >= dmsConfigManager.getUccPropertyConfig().getJyTransportSendVehicleValidateDockAllowRefreshTimes()){
                     final String validateStrDiscarded = validateLastGenerateArrExist.get(0);
                     redisClientOfJy.del(validateStrDiscarded);
                     validateLastGenerateArrExist.remove(0);

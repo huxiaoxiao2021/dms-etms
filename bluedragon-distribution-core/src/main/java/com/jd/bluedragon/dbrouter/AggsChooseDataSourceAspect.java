@@ -1,7 +1,7 @@
 package com.jd.bluedragon.dbrouter;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.enums.ReadWriteTypeEnum;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -31,7 +31,7 @@ public class AggsChooseDataSourceAspect {
   protected String readWriteType;
 
   @Autowired
-  UccPropertyConfiguration ucc;
+  DmsConfigManager dmsConfigManager;
 
   @Value("${jmq4.dmsWeb.app}")
   protected String jmq4GroupWeb;
@@ -45,9 +45,9 @@ public class AggsChooseDataSourceAspect {
     try {
       if (ReadWriteTypeEnum.READ.getType().equals(readWriteType)) {
         logger.info("===================AggsChooseDataSourceAspect read=========================");
-        if (ObjectHelper.isNotNull(ucc.getAggsDataSource())) {
-          logger.info("===================AggsChooseDataSourceAspect read {} =========================",ucc.getAggsDataSource());
-          DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(ucc.getAggsDataSource());
+        if (ObjectHelper.isNotNull(dmsConfigManager.getUccPropertyConfig().getAggsDataSource())) {
+          logger.info("===================AggsChooseDataSourceAspect read {} =========================",dmsConfigManager.getUccPropertyConfig().getAggsDataSource());
+          DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dmsConfigManager.getUccPropertyConfig().getAggsDataSource());
           if (ObjectHelper.isNotNull(dataSourceType)) {
             logger.info("===================AggsChooseDataSourceAspect read dataSourceType {} =========================",dataSourceType);
             DynamicDataSourceHolders.putDataSource(dataSourceType);

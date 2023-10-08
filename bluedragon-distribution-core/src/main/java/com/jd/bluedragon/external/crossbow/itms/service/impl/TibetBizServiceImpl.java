@@ -1,7 +1,7 @@
 package com.jd.bluedragon.external.crossbow.itms.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.external.crossbow.itms.domain.*;
 import com.jd.bluedragon.external.crossbow.itms.manager.ItmsManager;
@@ -36,7 +36,7 @@ public class TibetBizServiceImpl implements TibetBizService {
     private String partnerNo;
 
     @Autowired
-    private UccPropertyConfiguration uccSwitch;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -68,13 +68,13 @@ public class TibetBizServiceImpl implements TibetBizService {
     @Override
     public boolean tibetModeSwitch(Integer createSiteCode, Integer receiveSiteCode) {
 
-        if (StringUtils.isBlank(uccSwitch.getItmsBizEnableSwitch())) {
+        if (StringUtils.isBlank(dmsConfigManager.getUccPropertyConfig().getItmsBizEnableSwitch())) {
             return false;
         }
 
         List<Integer> enableProvIds = null;
         try {
-            String[] ids = uccSwitch.getItmsBizEnableSwitch().split(Constants.SEPARATOR_COMMA);
+            String[] ids = dmsConfigManager.getUccPropertyConfig().getItmsBizEnableSwitch().split(Constants.SEPARATOR_COMMA);
             if (ids.length > 0) {
                 enableProvIds = new ArrayList<>();
                 for (String id : ids) {

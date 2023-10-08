@@ -6,7 +6,7 @@ import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -132,7 +132,7 @@ public class BaseResource {
 	private CarrierQueryWSManager carrierQueryWSManager;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private JyBasicSiteQueryManager jyBasicSiteQueryManager;
@@ -1887,7 +1887,7 @@ public class BaseResource {
 	public InvokeResult<Boolean>  checkMenuIsOffline(PdaSystemMenuRequest request){
 		InvokeResult<Boolean> result = new InvokeResult<>();
 		// 待下线||已下线PDA菜单编码集合
-		String offlinePdaMenuCodes = uccPropertyConfiguration.getOfflinePdaMenuCode();
+		String offlinePdaMenuCodes = dmsConfigManager.getUccPropertyConfig().getOfflinePdaMenuCode();
 		boolean menuCodeIsOffline = false;
 		if(StringUtils.isNotEmpty(offlinePdaMenuCodes)){
 			menuCodeIsOffline = Arrays.asList(offlinePdaMenuCodes.split(Constants.SEPARATOR_COMMA)).contains(request.getMenuCode());

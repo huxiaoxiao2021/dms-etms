@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.easyFreeze.EasyFreezeSiteDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillRouteLinkQueryManager;
@@ -120,7 +120,7 @@ public class WaybillServiceImpl implements WaybillService {
     private TaskService taskService;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private WaybillCacheService waybillCacheService;
@@ -475,7 +475,7 @@ public class WaybillServiceImpl implements WaybillService {
             return false;
         }
         //-136 代表超区；具体逻辑上游（预分拣）控制
-        if(uccPropertyConfiguration.isPreOutZoneSwitch()
+        if(dmsConfigManager.getUccPropertyConfig().isPreOutZoneSwitch()
                 && BusinessUtil.isForeignForwardAndWaybillMarkForward(waybill.getWaybillSign())
                 && waybill.getOldSiteId() != null && waybill.getOldSiteId() == Constants.WAYBILL_SITE_ID_OUT_ZONE){
             log.info("疫情超区或者春节禁售运单判断-拦截运单waybillCode{}",waybill.getWaybillCode());
@@ -1281,7 +1281,7 @@ public class WaybillServiceImpl implements WaybillService {
             return false;
         }
         int miniDiff = DateHelper.getMiniDiff(scanTime, planSendvehicleTime);
-        int goodsResidenceTime = uccPropertyConfiguration.getGoodsResidenceTime();
+        int goodsResidenceTime = dmsConfigManager.getUccPropertyConfig().getGoodsResidenceTime();
         //使用分钟更精确些
         if(miniDiff > (goodsResidenceTime * 60)){
             log.info("超过三小时");
@@ -1519,7 +1519,7 @@ public class WaybillServiceImpl implements WaybillService {
     public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();
-        if (!uccPropertyConfiguration.getPreSortOnSiteSwitchOn()){
+        if (!dmsConfigManager.getUccPropertyConfig().getPreSortOnSiteSwitchOn()){
             return result;
         }
         // 信息安全校验
@@ -1694,8 +1694,8 @@ public class WaybillServiceImpl implements WaybillService {
                 return false;
             }
             log.info("matchTerminalSiteReSortDewuCondition siteInfo siteType: {} subType: {}", siteInfo.getSiteType(), siteInfo.getSubType());
-            log.info("matchTerminalSiteReSortDewuCondition check: {}, {}", uccPropertyConfiguration.matchDewuCustomerCode(customerCode), BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType()));
-            if(uccPropertyConfiguration.matchDewuCustomerCode(customerCode) && BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())){
+            log.info("matchTerminalSiteReSortDewuCondition check: {}, {}", dmsConfigManager.getUccPropertyConfig().matchDewuCustomerCode(customerCode), BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType()));
+            if(dmsConfigManager.getUccPropertyConfig().matchDewuCustomerCode(customerCode) && BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())){
                 return true;
             }
         } catch (Exception e) {

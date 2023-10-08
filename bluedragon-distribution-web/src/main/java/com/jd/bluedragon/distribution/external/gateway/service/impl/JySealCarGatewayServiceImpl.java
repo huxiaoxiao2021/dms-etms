@@ -14,7 +14,7 @@ import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
 import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
@@ -49,7 +49,7 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     @Autowired
     JyVehicleSendRelationService jyVehicleSendRelationService;
     @Autowired
-    private UccPropertyConfiguration uccConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public JdCResponse<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq) {

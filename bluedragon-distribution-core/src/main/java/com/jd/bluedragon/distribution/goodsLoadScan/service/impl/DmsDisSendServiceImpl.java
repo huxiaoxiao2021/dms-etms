@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.DmsDisSendService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
@@ -39,7 +39,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
     private LoadScanPackageDetailService loadScanPackageDetailService;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.DmsDisSendServiceImpl.getLoadScanListByWaybillCode",mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
@@ -183,7 +183,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
     }
 
     private boolean isUseNewInventory(String createSiteCode) {
-        String siteCodes = uccPropertyConfiguration.getUseNewInventorySiteCodes();
+        String siteCodes = dmsConfigManager.getUccPropertyConfig().getUseNewInventorySiteCodes();
         if (StringUtils.isBlank(siteCodes)) {
             return false;
         }

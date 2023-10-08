@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -60,7 +60,7 @@ public class WeightVolumeFilter implements Filter {
     PackageWeightingService packageWeightingService;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private FuncSwitchConfigService funcSwitchConfigService;
@@ -174,7 +174,7 @@ public class WeightVolumeFilter implements Filter {
     private boolean getValidateWeightSwitch(FilterContext request){
         boolean switchOn = false;
         //默认false 不开全国校验
-        if(uccPropertyConfiguration.getWeightVolumeFilterWholeCountryFlag()){
+        if(dmsConfigManager.getUccPropertyConfig().getWeightVolumeFilterWholeCountryFlag()){
             switchOn = true;
         }else{
             //加一个分拣规则

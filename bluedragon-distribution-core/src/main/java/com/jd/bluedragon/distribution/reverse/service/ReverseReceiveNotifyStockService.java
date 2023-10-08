@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.exception.StockCallPayTypeException;
@@ -135,7 +135,7 @@ public class ReverseReceiveNotifyStockService {
 	private GeneralStockAllotOutInterfaceManager generalStockAllotOutInterfaceManager;
 
     @Resource
-    protected UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 	public Long receive(String message) {
 		
@@ -317,7 +317,7 @@ public class ReverseReceiveNotifyStockService {
         boolean isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
         OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(orderId));
         List<ChuguanDetailVo> chuguanDetailVos = getChuguanDetailVos(orderId);
-        if(uccPropertyConfiguration.isChuguanPurchaseAndSaleSwitch() && CollectionUtils.isNotEmpty(chuguanDetailVos)) {
+        if(dmsConfigManager.getUccPropertyConfig().isChuguanPurchaseAndSaleSwitch() && CollectionUtils.isNotEmpty(chuguanDetailVos)) {
             boolean purchaseFlag = purchaseAndSaleInsertChuguan(orderId,products, order, payType, isOldForNewType, orderBank, chuguanDetailVos);
             if(!purchaseFlag){
                 chuguanDetailVos.clear();
