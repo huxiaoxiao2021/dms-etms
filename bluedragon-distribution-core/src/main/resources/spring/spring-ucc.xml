@@ -307,6 +307,7 @@
 		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
 		<property name="reverseExchangeCount" value="${reverseExchangeCount:-1}"/>
 		<property name="terminalSitePackagePrintLimitSwitch" value="${terminalSitePackagePrintLimitSwitch:false}"/>
+		<property name="dmsToVendorSendMQSwitch" value="${dmsToVendorSendMQSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -602,6 +603,7 @@
 				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
 				<value>uccPropertyConfiguration.reverseExchangeCount</value>
 				<value>uccPropertyConfiguration.terminalSitePackagePrintLimitSwitch</value>
+				<value>uccPropertyConfiguration.dmsToVendorSendMQSwitch</value>
 			</list>
 		</property>
 	</bean>

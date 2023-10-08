@@ -1441,6 +1441,21 @@ public class UccPropertyConfiguration{
      */
     private Integer reverseExchangeCount;
 
+
+    /**
+     * dmsToVendor 通知调度系统发送MQ消息 开关
+     */
+    private boolean dmsToVendorSendMQSwitch;
+
+    public boolean isDmsToVendorSendMQSwitch() {
+        return dmsToVendorSendMQSwitch;
+    }
+
+    public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
+        this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
+    }
+
+
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
     }
