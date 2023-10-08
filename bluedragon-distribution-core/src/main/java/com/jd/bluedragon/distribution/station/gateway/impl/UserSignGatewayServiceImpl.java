@@ -247,12 +247,6 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toFail("用户编码不能为空！");
 			return result;
 		}
-		// 校验网格码场地和用户场地是否一致
-		if (!this.checkOperatorBaseInfo(positionCode, userSignRequest.getUserCode())) {
-			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
-					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
-			return result;
-		}
 		return checkUserSignStatus(positionCode,userSignRequest.getJobCode(),userSignRequest.getUserCode());
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryUserDataForLogin",
@@ -276,6 +270,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toFail("请扫描[正式工、派遣工、支援]人员码！");
 			return result;
 		}
+		
+		//设置返回值对象
+		ScanUserData data = new ScanUserData();
+		data.setJobCode(jobCode);
+		data.setUserCode(userCode);
+		result.setData(data);
+
 		//已扫描岗位码，校验在岗状态
 		if(StringUtils.isNotBlank(positionCode)) {
 			JdCResponse<UserSignRecordData> checkResult = checkUserSignStatus(positionCode,jobCode,userCode);
@@ -283,16 +284,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				result.toConfirm(checkResult.getMessage());
 			}
 		}
-		//设置返回值对象
-		ScanUserData data = new ScanUserData();
-		data.setJobCode(jobCode);
-		data.setUserCode(userCode);
-		result.setData(data);
-		// 校验网格码场地和用户场地是否一致
-		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
-			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
-					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
-		}
+		
 		return result;
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryPositionDataForLogin",
@@ -318,22 +310,18 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				result.toFail("扫描的网格码无效！");
 				return result;
 			}
+
+			//设置返回值对象
+			PositionData positionData = new PositionData();
+			BeanUtils.copyProperties(apiResult.getData(),positionData);
+			result.setData(positionData);
+
 			//已扫描人员码，校验在岗状态
 			if(StringUtils.isNotBlank(scanRequest.getUserCode())) {
 				JdCResponse<UserSignRecordData> checkResult = checkUserSignStatus(positionCode,scanRequest.getJobCode(),scanRequest.getUserCode());
 				if(checkResult.needConfirm()) {
 					result.toConfirm(checkResult.getMessage());
 				}
-			}
-			
-			//设置返回值对象
-			PositionData positionData = new PositionData();
-			BeanUtils.copyProperties(apiResult.getData(),positionData);
-			result.setData(positionData);
-			// 校验网格码场地和用户场地是否一致
-			if (!this.checkOperatorBaseInfo(positionCode, scanRequest.getUserCode())) {
-				result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
-						HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
 			}
 		}catch (Exception e){
 			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
@@ -367,6 +355,14 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
             argsMap.put(HintArgsConstants.ARG_FIRST, workName);
             String defaultMsg = String.format(HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN_MSG, workName);
 			result.toConfirm(HintService.getHint(defaultMsg,HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN, argsMap));
+			return result;
+		}
+		
+		// 校验网格码场地和用户场地是否一致
+		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
+			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
+					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
+			return result;
 		}
 		return result;
 	}
