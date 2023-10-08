@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 
 /**
  * 原包发货对象
@@ -36,7 +37,11 @@ public class PackageSendRequest extends DeliveryRequest {
     /**
      * 操作者id
      */
-	private String operatorId;    
+	private String operatorId;   
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;	
 
     public boolean getIsForceSend() {
         return isForceSend;
@@ -85,5 +90,13 @@ public class PackageSendRequest extends DeliveryRequest {
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

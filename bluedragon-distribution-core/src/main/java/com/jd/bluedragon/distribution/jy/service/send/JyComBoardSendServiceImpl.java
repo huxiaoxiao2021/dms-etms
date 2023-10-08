@@ -27,6 +27,7 @@ import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
@@ -76,6 +77,7 @@ import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -1304,6 +1306,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     dto.setUserName(request.getUser().getUserName());
     dto.setUserCode(request.getUser().getUserCode());
     dto.setOperateTime(new Date());
+    dto.setOperatorData(BeanConverter.convertToOperatorData(request.getCurrentOperate()));
     // 获取运单包裹数
     Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(dto.getWaybillCode());
     if (waybill == null || waybill.getGoodNumber() == null) {
@@ -1357,7 +1360,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private void sendComboardWaybillTrace(ComboardScanReq request, Integer waybillTrackBoardCombination) {
 
     OperatorInfo operatorInfo = assembleComboardOperatorInfo(request);
-    virtualBoardService.sendWaybillTrace(request.getBarCode(), operatorInfo, request.getBoardCode(),
+    OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+    virtualBoardService.sendWaybillTrace(request.getBarCode(), operatorInfo,operatorData, request.getBoardCode(),
         request.getEndSiteName(), waybillTrackBoardCombination,getBizSourceEnum(request).getValue());
   }
 
@@ -1855,8 +1859,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       domain.setOperateTime(new Date(System.currentTimeMillis()+ Constants.COMBOARD_SEND_DELAY_TIME));//固定加1秒
     }
     if(request.getCurrentOperate() != null) {
-        domain.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
-        domain.setOperatorId(request.getCurrentOperate().getOperatorId());
+    	OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+		domain.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+		domain.setOperatorId(operatorData.getOperatorId());
+    	domain.setOperatorData(operatorData);        
     }
     return domain;
   }
@@ -2690,7 +2696,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       operatorInfo.setOperatorId(request.getCurrentOperate().getOperatorId());
       if (!CollectionUtils.isEmpty(barCodeList)) {
         String barCode = barCodeList.get(0);
-        virtualBoardService.sendWaybillTrace(barCode, operatorInfo, request.getBoardCode(),
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        virtualBoardService.sendWaybillTrace(barCode, operatorInfo,operatorData, request.getBoardCode(),
                 request.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
                 getBizSourceEnum(request).getValue());
         // 取消发货
@@ -2722,8 +2729,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     taskDto.setUserCode(request.getUser().getUserCode());
     taskDto.setBizSource(getBizSourceEnum(request));
     if(request.getCurrentOperate() != null) {
-    	taskDto.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
-    	taskDto.setOperatorId(request.getCurrentOperate().getOperatorId());
+    	OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+    	taskDto.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+    	taskDto.setOperatorId(operatorData.getOperatorId());
+    	taskDto.setOperatorData(operatorData);
     }
     try {
       cancelComboardSendProducer.send(request.getBoardCode(), JsonHelper.toJson(taskDto));
@@ -2756,8 +2765,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if(request.getCurrentOperate() != null) {
         taskDto.setSiteName(request.getCurrentOperate().getSiteName());
         taskDto.setSiteCode(request.getCurrentOperate().getSiteCode());
-    	taskDto.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
-    	taskDto.setOperatorId(request.getCurrentOperate().getOperatorId());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+    	taskDto.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+    	taskDto.setOperatorId(operatorData.getOperatorId());
+    	taskDto.setOperatorData(operatorData);
     }
     for (int i = 0; i < pageTotal; i++) {
       taskDto.setPageNo(i + 1);
@@ -2792,8 +2803,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     sendM.setUpdateTime(now);
     sendM.setYn(0);
     if(request.getCurrentOperate() != null) {
-    	sendM.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
-    	sendM.setOperatorId(request.getCurrentOperate().getOperatorId());
+    	OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+    	sendM.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+    	sendM.setOperatorId(operatorData.getOperatorId());
+    	sendM.setOperatorData(operatorData);
     }
     return sendM;
   }

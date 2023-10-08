@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.basic.ExcelUtils;
 import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.external.intensive.enums.MaterialSendModeEnum;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialSend;
 import com.jd.bluedragon.distribution.material.enums.MaterialSendTypeEnum;
@@ -108,13 +109,13 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
     private static final int DEFAULT_RECEIVE_NUM = 1;
 
-    private static final byte COLLECTION_BAG_SEND = MaterialServiceFactory.MaterialSendModeEnum.COLLECTION_BAG_SEND.getCode();
+    private static final byte COLLECTION_BAG_SEND = MaterialSendModeEnum.COLLECTION_BAG_SEND.getCode();
 
     private static final int DEFAULT_SEND_NUM = 1;
 
-    private static final byte WARM_BOX_SEND = MaterialServiceFactory.MaterialSendModeEnum.WARM_BOX_SEND.getCode();
+    private static final byte WARM_BOX_SEND = MaterialSendModeEnum.WARM_BOX_SEND.getCode();
 
-    private static final byte MATERIAL_TAG_SEND = MaterialServiceFactory.MaterialSendModeEnum.MATERIAL_TAG_SEND.getCode();
+    private static final byte MATERIAL_TAG_SEND = MaterialSendModeEnum.MATERIAL_TAG_SEND.getCode();
 
     @Override
     @JProfiler(jKey = "dms.web.RecycleMaterialServiceImpl.getPrintInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})

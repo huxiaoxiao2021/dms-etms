@@ -77,7 +77,11 @@ public class OperatorInfo implements Serializable {
      * 操作者id
      */
 	private String operatorId;    
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
+	
     public Integer getUserCode() {
         return userCode;
     }
@@ -189,5 +193,13 @@ public class OperatorInfo implements Serializable {
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }
