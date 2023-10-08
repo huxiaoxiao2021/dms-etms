@@ -308,7 +308,7 @@
 		<property name="fetchCarDistributionTimeRange" value="${fetchCarDistributionTimeRange:48}"/>
 		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
 		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
-		<property name="terminalSitePackagePrintLimitSwitch" value="${terminalSitePackagePrintLimitSwitch:true}"/>
+		<property name="terminalSitePackagePrintLimitSwitch" value="${terminalSitePackagePrintLimitSwitch:false}"/>
 		<property name="reverseExchangeCount" value="${reverseExchangeCount:-1}"/>
 		<property name="sendJyOperateFlowMqSwitch" value="${sendJyOperateFlowMqSwitch:true}"/>
 	</bean>
