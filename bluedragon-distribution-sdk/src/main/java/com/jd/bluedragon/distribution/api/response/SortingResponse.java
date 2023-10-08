@@ -582,7 +582,7 @@ public class SortingResponse extends JdResponse {
 
 
     public static final Integer PACKAGE_PRINT_BAN_CODE =40009;
-    public static final String PACKAGE_PRINT_BAN_MESSAGE ="营业部人员无法使用青龙分拣系统包裹补打功能，请使用站长工作台http://z-ql.jd.com/#/workbench，分拣打印-包裹补打功能";
+    public static final String PACKAGE_PRINT_BAN_MESSAGE ="请使用站长工作台http://z-ql.jd.com/#/workbench，分拣打印-包裹打印功能!";
 
 
     public static final Integer MESSAGE_SHOW_TYPE_TIP = 1;
