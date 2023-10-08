@@ -247,7 +247,7 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			dmsEdnPickingVo.setDmsScheduleInfoList(this.queryEdnDmsScheduleInfoList(scheduleBillCode));
 			//储位排序
 			sortScheduleInfoByStorageCodes(dmsEdnPickingVo.getDmsScheduleInfoList());
-			JdCloudPrintRequest<DmsEdnPickingVo> printRequest = jdCloudPrintService.getDefaultPdfRequest();
+			JdCloudPrintRequest<DmsEdnPickingVo> printRequest = jdCloudPrintService.getDefaultPdfRequest(true);
 			printRequest.setOrderNum(scheduleBillCode);
 			printRequest.setTemplate(DmsConstants.TEMPLATE_NAME_EDN_PICKING);
 			SysConfig templateConfig = sysConfigService.findConfigContentByConfigName(DmsConstants.TEMPLATE_VERSION_KEY_EDN_PICKING);
