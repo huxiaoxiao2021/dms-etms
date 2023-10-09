@@ -205,7 +205,7 @@
 		<property name="jyComboardTaskSealTimeBeginDay" value="${jyComboardTaskSealTimeBeginDay:2}"/>
 		<property name="jyComboardListBoardSqlSwitch" value="${jyComboardListBoardSqlSwitch:true}"/>
 		<property name="sendJyOperateFlowMqSwitch" value="${sendJyOperateFlowMqSwitch:true}"/>
-		
+
 
 
 
@@ -302,11 +302,11 @@
 		<property name="cttGroupDataLimit" value="${cttGroupDataLimit:200}"/>
 		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
 		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
-
 		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
 		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
 		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
 		<property name="reverseExchangeCount" value="${reverseExchangeCount:-1}"/>
+		<property name="terminalSitePackagePrintLimitSwitch" value="${terminalSitePackagePrintLimitSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -595,13 +595,13 @@
 				<value>uccPropertyConfiguration.cttGroupDataLimit</value>
 				<value>uccPropertyConfiguration.qingChangDataOpenSwitch</value>
 				<value>uccPropertyConfiguration.jySendSpecialProductTypeToScanShowRemainMinutes</value>
-
 				<value>uccPropertyConfiguration.checkAkboxConfig</value>
 				<value>uccPropertyConfiguration.printCacheTime</value>
 				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
 				<value>uccPropertyConfiguration.jyExceptionCreateBizIdSwitch</value>
 				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
 				<value>uccPropertyConfiguration.reverseExchangeCount</value>
+				<value>uccPropertyConfiguration.terminalSitePackagePrintLimitSwitch</value>
 			</list>
 		</property>
 	</bean>

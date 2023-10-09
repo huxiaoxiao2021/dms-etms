@@ -1537,6 +1537,19 @@ public class UccPropertyConfiguration{
         this.batchSendForbiddenSwitch = batchSendForbiddenSwitch;
     }
 
+    /**
+     * 终端站点-包裹补打限制开关
+     */
+    private boolean terminalSitePackagePrintLimitSwitch;
+
+    public boolean isTerminalSitePackagePrintLimitSwitch() {
+        return terminalSitePackagePrintLimitSwitch;
+    }
+
+    public void setTerminalSitePackagePrintLimitSwitch(boolean terminalSitePackagePrintLimitSwitch) {
+        this.terminalSitePackagePrintLimitSwitch = terminalSitePackagePrintLimitSwitch;
+    }
+
     private boolean needValidateBatchCodeHasSealed;
 
     private String forceSendSiteList;
