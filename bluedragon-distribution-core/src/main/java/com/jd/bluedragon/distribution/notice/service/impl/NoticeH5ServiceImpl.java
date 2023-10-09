@@ -151,7 +151,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         Response<NoticeLastNewDto> result = new Response<>();
         result.toSucceed();
         NoticeLastNewDto noticeLastNewDto = new NoticeLastNewDto();
-        noticeLastNewDto.setPullIntervalTime(dmsConfigManager.getUccPropertyConfig().getPdaNoticePullIntervalTime() != null ? dmsConfigManager.getUccPropertyConfig().getPdaNoticePullIntervalTime() : pdaNoticePullIntervalTime);
+        noticeLastNewDto.setPullIntervalTime(dmsConfigManager.getPropertyConfig().getPdaNoticePullIntervalTime() != null ? dmsConfigManager.getPropertyConfig().getPdaNoticePullIntervalTime() : pdaNoticePullIntervalTime);
         noticeLastNewDto.setUnreadCount(0);
         result.setData(noticeLastNewDto);
         try {

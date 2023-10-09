@@ -76,9 +76,9 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
             obj.setpWeight(uploadData.getWeight());//增加称重  2016年12月12日10:54:53  by guoyongzhi
             opeEntity.getOpeDetails().add(obj);
 
-            if(dmsConfigManager.getUccPropertyConfig().getAutomaticWeightVolumeExchangeSwitch()
-                    && (StringUtils.isEmpty(dmsConfigManager.getUccPropertyConfig().getAutomaticWeightVolumeExchangeSiteCode()) ||
-                    dmsConfigManager.getUccPropertyConfig().getAutomaticWeightVolumeExchangeSiteCode().indexOf(config.getCreateSiteCode()+"")>-1)){
+            if(dmsConfigManager.getPropertyConfig().getAutomaticWeightVolumeExchangeSwitch()
+                    && (StringUtils.isEmpty(dmsConfigManager.getPropertyConfig().getAutomaticWeightVolumeExchangeSiteCode()) ||
+                    dmsConfigManager.getPropertyConfig().getAutomaticWeightVolumeExchangeSiteCode().indexOf(config.getCreateSiteCode()+"")>-1)){
                 WeightVolumeEntity weightVolumeEntity = new WeightVolumeEntity()
                         .barCode(uploadData.getBarCode())
                         .businessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE).sourceCode(FromSourceEnum.DMS_AUTOMATIC_MEASURE)

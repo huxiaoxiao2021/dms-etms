@@ -141,7 +141,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             filterContext = this.initContext(pdaOperateRequest);
             ProceedFilterChain proceedFilterChain = getProceedFilterChain();
             proceedFilterChain.doFilter(filterContext, proceedFilterChain);
-            if (this.isNeedCheck(dmsConfigManager.getUccPropertyConfig().getSwitchVerToWebSites(), pdaOperateRequest.getCreateSiteCode())) {
+            if (this.isNeedCheck(dmsConfigManager.getPropertyConfig().getSwitchVerToWebSites(), pdaOperateRequest.getCreateSiteCode())) {
                 Integer businessType = pdaOperateRequest.getBusinessType();
                 if (BusinessUtil.isForward(businessType)) {
                     filterContext.setFuncModule(HintModuleConstants.FORWARD_SORTING);
@@ -342,7 +342,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         BoardCombinationJsfResponse response = new BoardCombinationJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         FilterContext filterContext = null;
         try {
-            if (this.isNeedCheck(dmsConfigManager.getUccPropertyConfig().getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
+            if (this.isNeedCheck(dmsConfigManager.getPropertyConfig().getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
                 //初始化拦截链上下文
                 filterContext = this.initFilterParam(boardCombinationRequest);
                 filterContext.setFuncModule(HintModuleConstants.BOARD_COMBINATION);
@@ -489,7 +489,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         // 获取包裹数据
         if (WaybillUtil.isPackageCode(filterContext.getPackageCode())){
             filterContext.setPackageNum(1);
-            if(dmsConfigManager.getUccPropertyConfig().isControlCheckPackage()){
+            if(dmsConfigManager.getPropertyConfig().isControlCheckPackage()){
                 String packageCode = filterContext.getPackageCode();
                 BaseEntity<List<DeliveryPackageD>> baseEntity = this.getPageBaseEntityByPackageCode(packageCode);
 

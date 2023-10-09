@@ -158,7 +158,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     @Override
     public DeliveryResponse initDeliveryTask(SendMWrapper wrapper) {
 
-        int onePageSize = dmsConfigManager.getUccPropertyConfig().getOldSendSplitPageSize() <= 0 ? SEND_SPLIT_NUM : dmsConfigManager.getUccPropertyConfig().getOldSendSplitPageSize();
+        int onePageSize = dmsConfigManager.getPropertyConfig().getOldSendSplitPageSize() <= 0 ? SEND_SPLIT_NUM : dmsConfigManager.getPropertyConfig().getOldSendSplitPageSize();
         int totalNum = wrapper.getBarCodeList().size();
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
 
@@ -214,7 +214,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     public DeliveryResponse initTransferTask(SendMWrapper wrapper) {
         SendM sendM = wrapper.getSendM();
 
-        int onePageSize = dmsConfigManager.getUccPropertyConfig().getOldSendSplitPageSize() <= 0 ? SEND_SPLIT_NUM : dmsConfigManager.getUccPropertyConfig().getOldSendSplitPageSize();
+        int onePageSize = dmsConfigManager.getPropertyConfig().getOldSendSplitPageSize() <= 0 ? SEND_SPLIT_NUM : dmsConfigManager.getPropertyConfig().getOldSendSplitPageSize();
         int totalNum = wrapper.getBarCodeList().size();
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
         List<List<String>> pageBarCode = CollectionHelper.splitList(wrapper.getBarCodeList(), onePageSize);

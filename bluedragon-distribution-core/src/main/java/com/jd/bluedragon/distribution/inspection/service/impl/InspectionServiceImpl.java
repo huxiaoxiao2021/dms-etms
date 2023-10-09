@@ -1014,7 +1014,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
     public boolean checkIsBindMaterial(String waybillCode) {
 
         try {
-        	if(dmsConfigManager.getUccPropertyConfig().getInspectionAssertDemotion()){
+        	if(dmsConfigManager.getPropertyConfig().getInspectionAssertDemotion()){
         		//降级 不依赖集包袋服务
         		return false;
 			}
@@ -1117,14 +1117,14 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
      */
     @Override
     public int getInspectionTaskPackageSplitNum() {
-        return 0 == dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize() ?
+        return 0 == dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize() ?
                 BIG_WAYBILL_LIMIT_NUM :
-                dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize();
+                dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize();
     }
 
     @Override
     public boolean siteEnableInspectionAgg(Integer siteCode) {
-        String configSite = dmsConfigManager.getUccPropertyConfig().getInspectionAggEffectiveSites();
+        String configSite = dmsConfigManager.getPropertyConfig().getInspectionAggEffectiveSites();
         if (StringUtils.isBlank(configSite)) {
             return false;
         }

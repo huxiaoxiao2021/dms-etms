@@ -219,7 +219,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             UnloadVehicleTaskResponse response = new UnloadVehicleTaskResponse();
             // 增加刷新间隔配置
-            response.setClientAutoRefreshConfig(dmsConfigManager.getUccPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_TASK_LIST.name()));
+            response.setClientAutoRefreshConfig(dmsConfigManager.getPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_TASK_LIST.name()));
 
             // 封车状态数量统计
             assembleUnloadStatusAgg(vehicleStatusAggList, response);
@@ -1025,7 +1025,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             UnloadScanDetail scanProgress = JsonHelper.fromJson(JsonHelper.toJson(redisCache), UnloadScanDetail.class);
             // 增加刷新间隔配置
             if (scanProgress != null) {
-                scanProgress.setClientAutoRefreshConfig(dmsConfigManager.getUccPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_PROGRESS.name()));
+                scanProgress.setClientAutoRefreshConfig(dmsConfigManager.getPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_PROGRESS.name()));
             }
             result.setData(scanProgress);
             if(jyDemotionService.checkIsDemotion(JyConstants.JY_FLINK_UNLOAD_IS_DEMOTION)){

@@ -103,7 +103,7 @@ public class PackingConsumableInfoController extends DmsBaseController {
 		JdResponse<Map<String, String>> rest = new JdResponse<Map<String, String>>();
 		try {
 			//UCC配置1或者3限制分拣页面维护包装耗材信息（"分拣"和"其他"类型除外:因为分拣和其他属于分拣物资类型）
-			if (Objects.equals(dmsConfigManager.getUccPropertyConfig().getPackConsumableSwitch(),1) || Objects.equals(dmsConfigManager.getUccPropertyConfig().getPackConsumableSwitch(),3)) {
+			if (Objects.equals(dmsConfigManager.getPropertyConfig().getPackConsumableSwitch(),1) || Objects.equals(dmsConfigManager.getPropertyConfig().getPackConsumableSwitch(),3)) {
 				rest.setData(PackingTypeEnum.getMaterialTypeEnumMap());
 			} else {
 				rest.setData(PackingTypeEnum.getEnumMap());

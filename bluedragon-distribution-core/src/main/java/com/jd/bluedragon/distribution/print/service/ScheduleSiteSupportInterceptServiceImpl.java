@@ -63,7 +63,7 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> checkCrossInfo(String waybillSign, String sendPay , String waybillCode, Integer prepareSiteCode, Integer startSiteCode) {
         InvokeResult<String> result = new InvokeResult<>();
-        if(!dmsConfigManager.getUccPropertyConfig().getBackDispatchCheck()){
+        if(!dmsConfigManager.getPropertyConfig().getBackDispatchCheck()){
             return result;
         }
 
@@ -103,8 +103,8 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
     public InvokeResult<Boolean> checkSameCity(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest, Waybill waybill, BaseStaffSiteOrgDto userInfo) {
         InvokeResult<Boolean> result = new InvokeResult<>();
 
-        if (StringUtils.isEmpty(dmsConfigManager.getUccPropertyConfig().getScheduleSiteCheckSameCity())
-                || !Constants.SWITCH_OPEN.equals(dmsConfigManager.getUccPropertyConfig().getScheduleSiteCheckSameCity())) {
+        if (StringUtils.isEmpty(dmsConfigManager.getPropertyConfig().getScheduleSiteCheckSameCity())
+                || !Constants.SWITCH_OPEN.equals(dmsConfigManager.getPropertyConfig().getScheduleSiteCheckSameCity())) {
             return result;
         }
 

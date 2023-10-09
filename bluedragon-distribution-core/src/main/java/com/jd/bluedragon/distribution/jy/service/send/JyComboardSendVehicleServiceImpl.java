@@ -222,7 +222,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     List<Integer> queryStatus =assembleStatusCon(queryTaskSendDto.getVehicleStatuses().get(0));
 
 
-    if (!dmsConfigManager.getUccPropertyConfig().getCzQuerySwitch()){
+    if (!dmsConfigManager.getPropertyConfig().getCzQuerySwitch()){
       log.info("=============3.走兼容模式================");
       queryCondition.setLineType(null);
     }
@@ -517,7 +517,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
 
   @Override
   public <T> List<String> resolveSearchKeyword(InvokeResult<T> result, QueryTaskSendDto queryTaskSendDto) {
-    if (dmsConfigManager.getUccPropertyConfig().getCzQuerySwitch()){
+    if (dmsConfigManager.getPropertyConfig().getCzQuerySwitch()){
       log.info("=============1.走原有模式================");
       return resolveSearchKeywordRaw(result,queryTaskSendDto);
     }
@@ -528,7 +528,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   @Override
   List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity condition,
       List<String> sendVehicleBizList) {
-    if (!dmsConfigManager.getUccPropertyConfig().getCzQuerySwitch()){
+    if (!dmsConfigManager.getPropertyConfig().getCzQuerySwitch()){
       log.info("=============2.走兼容模式================");
       condition.setLineType(null);
     }
@@ -551,9 +551,9 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
     //设置默认预计发货时间查询范围
     try {
       Date now =new Date();
-      queryTaskSendDto.setLastPlanDepartTimeBegin(DateHelper.addHoursByDay(now,-Double.valueOf(dmsConfigManager.getUccPropertyConfig().getJyCzSendTaskPlanTimeBeginDay())));
-      queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addHoursByDay(now, Double.valueOf(dmsConfigManager.getUccPropertyConfig().getJyCzSendTaskPlanTimeEndDay())));
-      queryTaskSendDto.setCreateTimeBegin(DateHelper.addHoursByDay(now, -Double.valueOf(dmsConfigManager.getUccPropertyConfig().getJySendTaskCreateTimeBeginDay())));
+      queryTaskSendDto.setLastPlanDepartTimeBegin(DateHelper.addHoursByDay(now,-Double.valueOf(dmsConfigManager.getPropertyConfig().getJyCzSendTaskPlanTimeBeginDay())));
+      queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addHoursByDay(now, Double.valueOf(dmsConfigManager.getPropertyConfig().getJyCzSendTaskPlanTimeEndDay())));
+      queryTaskSendDto.setCreateTimeBegin(DateHelper.addHoursByDay(now, -Double.valueOf(dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay())));
 
     } catch (Exception e) {
       log.error("查询传站运输任务设置默认查询条件异常，入参{}", JsonHelper.toJson(request), e);
@@ -565,7 +565,7 @@ public class JyComboardSendVehicleServiceImpl extends JySendVehicleServiceImpl{
   public List<SendVehicleDetail> getSendVehicleDetail(QueryTaskSendDto queryTaskSendDto,
       JyBizTaskSendStatusEnum curQueryStatus, JyBizTaskSendVehicleEntity entity) {
     JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(queryTaskSendDto.getStartSiteId(), queryTaskSendDto.getEndSiteId(), entity.getBizId());
-    if (!dmsConfigManager.getUccPropertyConfig().getCzQuerySwitch()){
+    if (!dmsConfigManager.getPropertyConfig().getCzQuerySwitch()){
       detailQ.setLineType(queryTaskSendDto.getLineType());
     }
     List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);

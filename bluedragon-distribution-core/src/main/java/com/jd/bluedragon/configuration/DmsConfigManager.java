@@ -50,13 +50,8 @@ public class DmsConfigManager {
 	public DuccPropertyConfig getDuccPropertyConfig1() {
 		return duccPropertyConfig;
 	}
-	public UccPropertyConfiguration getUccPropertyConfig() {
-		if(duccPropertyConfig.isUseDucc()) {
-			UccPropertyConfiguration ucc = new UccPropertyConfiguration();
-			BeanUtils.copyProperties(duccPropertyConfig, ucc);
-			return ucc;
-		}
-		return uccPropertyConfiguration;
+	public DuccPropertyConfig getPropertyConfig() {
+		return duccPropertyConfig;
 	}
 	public UccPropertyConfiguration getUccPropertyConfiguration() {
 		return uccPropertyConfiguration;

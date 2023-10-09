@@ -111,7 +111,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         }
 
         int totalNum = waybill.getGoodNumber();
-        int onePageSize = dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize() == 0 ? COMBOARD_SPLIT_NUM : dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize();
+        int onePageSize = dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize() == 0 ? COMBOARD_SPLIT_NUM : dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize();
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
         // 插入分页任务
         CancelComboardTaskDto taskDto = new CancelComboardTaskDto();

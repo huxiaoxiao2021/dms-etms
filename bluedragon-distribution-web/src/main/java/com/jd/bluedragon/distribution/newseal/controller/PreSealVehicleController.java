@@ -86,7 +86,7 @@ public class PreSealVehicleController extends DmsBaseController{
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex(Model model) {
-        model.addAttribute("quickSealTips", dmsConfigManager.getUccPropertyConfig().getQuickSealTips());
+        model.addAttribute("quickSealTips", dmsConfigManager.getPropertyConfig().getQuickSealTips());
 		return "/newseal/preSealVehicle";
 	}
 	/**
@@ -108,7 +108,7 @@ public class PreSealVehicleController extends DmsBaseController{
 	@RequestMapping(value = "/queryPreSeals")
     public @ResponseBody JdResponse<List<PreSealVehicle>>  queryPreSeals(@RequestBody PreSealVehicleCondition condition) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-        if(dmsConfigManager.getUccPropertyConfig().getOfflineQuickSeal()){
+        if(dmsConfigManager.getPropertyConfig().getOfflineQuickSeal()){
             rest.toFail("一键封车已下线，请使用PDA进行封车！");
             return rest;
         }
@@ -328,7 +328,7 @@ public class PreSealVehicleController extends DmsBaseController{
         if(log.isDebugEnabled()){
             log.debug("一键封车请求参数：{}", JsonHelper.toJson(data));
         }
-        if(dmsConfigManager.getUccPropertyConfig().getOfflineQuickSeal()){
+        if(dmsConfigManager.getPropertyConfig().getOfflineQuickSeal()){
             rest.toFail("一键封车已下线，请使用PDA进行封车！");
             return rest;
         }

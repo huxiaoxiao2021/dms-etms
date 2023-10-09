@@ -74,7 +74,7 @@ public class RepeatWaybillCodeCanceltConsumer extends MessageBaseConsumer {
                 logger.warn("重复运单取消拦截 -->消息体非JSON格式，内容为【{}】", message.getText());
                 return;
             }
-            if(dmsConfigManager.getUccPropertyConfig().isPrintCompeteUpdateCancel()){
+            if(dmsConfigManager.getPropertyConfig().isPrintCompeteUpdateCancel()){
                 logger.warn("重复运单取消拦截开关已关闭");
                 return;
             }
@@ -102,7 +102,7 @@ public class RepeatWaybillCodeCanceltConsumer extends MessageBaseConsumer {
                 logger.error("重复运单取消拦截查询运单异常表为空WaybillCode[{}]",rePrintRecordMq.getWaybillCode());
                 return;
             }
-            if(dmsConfigManager.getUccPropertyConfig().isPrintCompeteAllPackageUpdateCancel()){
+            if(dmsConfigManager.getPropertyConfig().isPrintCompeteAllPackageUpdateCancel()){
                 int alreadyPringGoodNumber = reprintRecordService.selectCountByBarCode(rePrintRecordMq.getWaybillCode());
                 if(waybill.getGoodNumber() != 1 && alreadyPringGoodNumber < waybill.getGoodNumber() ){
                     logger.error("重复运单取消拦截包裹未完全补打WaybillCode[{}]GoodNumber[{}]alreadyPringGoodNumber[{}]",rePrintRecordMq.getWaybillCode(),waybill.getGoodNumber(),alreadyPringGoodNumber);

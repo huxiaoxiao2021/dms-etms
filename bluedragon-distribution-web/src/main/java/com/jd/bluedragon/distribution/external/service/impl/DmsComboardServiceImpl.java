@@ -72,10 +72,10 @@ public class DmsComboardServiceImpl implements DmsComboardService {
         List<BoardDto> boardDtos = new ArrayList<>();
         boardQueryResp.setBoardDtoList(boardDtos);
         invokeResult.setData(boardQueryResp);
-        Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getUccPropertyConfig().getJyComboardTaskCreateTimeBeginDay());
+        Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJyComboardTaskCreateTimeBeginDay());
 
         // 兼容组板新老版本，组板岗推全国后，关闭开关
-        if (dmsConfigManager.getUccPropertyConfig().getBoardListQuerySwitch()) {
+        if (dmsConfigManager.getPropertyConfig().getBoardListQuerySwitch()) {
             BoardListRequest boardListRequest = new BoardListRequest();
             boardListRequest.setPageSize(request.getPageSize());
             boardListRequest.setCreateTime(time);
@@ -159,7 +159,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
         }
 
         // 兼容组板新老版本，组板岗推全国后，关闭开关
-        if (dmsConfigManager.getUccPropertyConfig().getBoardListQuerySwitch()) {
+        if (dmsConfigManager.getPropertyConfig().getBoardListQuerySwitch()) {
             boardDto.setComboardSiteId(request.getStartSiteId());
             boardDto.setStartSiteId(request.getStartSiteId());
             boardDto.setEndSiteId(boardBoxInfoDto.getDestinationId());
@@ -226,7 +226,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
         if (CollectionUtils.isEmpty(request.getEndSiteIdList())){
             throw new JyBizException("参数错误：目的场地不能为空！");
         }
-        if (request.getEndSiteIdList().size() > dmsConfigManager.getUccPropertyConfig().getBatchQueryEndSiteLimit()){
+        if (request.getEndSiteIdList().size() > dmsConfigManager.getPropertyConfig().getBatchQueryEndSiteLimit()){
             throw new JyBizException("参数错误：目的地数量超过查询上限！");
         }
     }

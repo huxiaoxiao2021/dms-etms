@@ -248,7 +248,7 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
      */
     private void getPackReprintStatus(Set<Integer> needHitStatusSet, Set<Integer> needInterceptStatusSet) {
         try {
-            String packRePrintInterceptStatus = dmsConfigManager.getUccPropertyConfig().getPackRePrintInterceptStatus();
+            String packRePrintInterceptStatus = dmsConfigManager.getPropertyConfig().getPackRePrintInterceptStatus();
             if(StringUtils.isNotEmpty(packRePrintInterceptStatus)){
                 String[] interceptStatusArray = packRePrintInterceptStatus.split(Constants.SEPARATOR_COMMA);
                 for (String interceptStatus : interceptStatusArray) {

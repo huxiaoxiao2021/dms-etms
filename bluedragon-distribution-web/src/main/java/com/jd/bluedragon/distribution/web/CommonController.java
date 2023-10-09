@@ -206,7 +206,7 @@ public class CommonController extends DmsBaseController {
     public @ResponseBody JdResponse<Integer> getClickInterval() {
         JdResponse<Integer> response = new JdResponse<>();
         response.toSucceed();
-        response.setData(dmsConfigManager.getUccPropertyConfig().getClickIntervalSecond());
+        response.setData(dmsConfigManager.getPropertyConfig().getClickIntervalSecond());
         return response;
     }
 }

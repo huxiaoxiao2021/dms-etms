@@ -70,7 +70,7 @@ public class WaybillGateWayServiceTest {
 
         when(cancelWaybillDao.getByWaybillCode(cancelWaybill.getWaybillCode())).thenReturn(cancelWaybills);
 //        when(taskService.toTask(any(TaskRequest.class), anyString())).thenReturn(any(Task.class));
-        when(dmsConfigManager.getUccPropertyConfig().isPreOutZoneSwitch()).thenReturn(Boolean.TRUE);
+        when(dmsConfigManager.getPropertyConfig().isPreOutZoneSwitch()).thenReturn(Boolean.TRUE);
     }
 
     @Test

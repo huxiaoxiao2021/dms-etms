@@ -282,11 +282,11 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     private String getSendCodeByDpWaybillCode(String packageCode, Map<Integer, String> batchCodeMap){
         String dpSendCode = null;
         try {
-            if(!dmsConfigManager.getUccPropertyConfig().isDpWaybillMatchSendCodeSwitch()){
+            if(!dmsConfigManager.getPropertyConfig().isDpWaybillMatchSendCodeSwitch()){
                 logger.info("批量一单一件发货德邦运单匹配德邦批次号开关未开启，packageCode:{}", packageCode);
                 return null;
             }
-            List<Integer> dpSiteCodeList = dmsConfigManager.getUccPropertyConfig().getDpSiteCodeList();
+            List<Integer> dpSiteCodeList = dmsConfigManager.getPropertyConfig().getDpSiteCodeList();
             for(Integer siteCode : batchCodeMap.keySet()){
                 if(BusinessHelper.isDPSiteCode(dpSiteCodeList, siteCode)){
                     dpSendCode = batchCodeMap.get(siteCode);

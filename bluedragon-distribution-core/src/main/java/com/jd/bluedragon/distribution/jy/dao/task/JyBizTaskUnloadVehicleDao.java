@@ -74,7 +74,7 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
         params.put("endSiteId",entity.getEndSiteId());
         params.put("bizId",entity.getBizId());
         params.put("vehicleStatus",entity.getVehicleStatus());
-        Long lastHour = dmsConfigManager.getUccPropertyConfig().getJyUnSealTaskLastHourTime();
+        Long lastHour = dmsConfigManager.getPropertyConfig().getJyUnSealTaskLastHourTime();
         if(lastHour != null && lastHour > Constants.LONG_ZERO) {
             params.put("sortTimeBegin",entity.getSortTime());
             params.put("sortTimeEnd", DateHelper.newTimeRangeHoursAgo(entity.getSortTime(), - lastHour.intValue()));

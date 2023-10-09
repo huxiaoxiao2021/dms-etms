@@ -482,7 +482,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 		weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
 		result.setData(weightVolumeUploadResult);
 		
-    	if(!dmsConfigManager.getUccPropertyConfig().isUploadOverWeightSwitch()) {
+    	if(!dmsConfigManager.getPropertyConfig().isUploadOverWeightSwitch()) {
 			weightVolumeUploadResult.setCheckResult(Boolean.TRUE);
 			result.toSuccess("验证成功！");
 			return result;

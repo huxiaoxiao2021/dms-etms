@@ -502,7 +502,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
                     Collectors.collectingAndThen(Collectors.toCollection(
                             () -> new TreeSet<>(Comparator.comparing(String::toString))), ArrayList::new));
             //一次分配任务数量限制
-            int assignExpTaskQuantityLimit = dmsConfigManager.getUccPropertyConfig().getAssignExpTaskQuantityLimit();
+            int assignExpTaskQuantityLimit = dmsConfigManager.getPropertyConfig().getAssignExpTaskQuantityLimit();
             if(assignExpTaskQuantityLimit < allTaskBizids.size()){
                 response.toFail("一次指派任务条数不能超过限制条数:"+assignExpTaskQuantityLimit+"!");
                 response.setData(Boolean.FALSE);

@@ -40,7 +40,7 @@ public class BaseCassandraDao{
 	@JProfiler(jKey = "baseCassandra.batchInsert", mState = { JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError })
 	public void batchInsert(List<BoundStatement> bstatementList, Map<String, Object> values) throws Exception {
 		// UCC开关控制保存Cassandra
-	    if (!dmsConfigManager.getUccPropertyConfig().getCassandraGlobalSwitch()) {
+	    if (!dmsConfigManager.getPropertyConfig().getCassandraGlobalSwitch()) {
 		    return;
         }
 	    BatchStatement batch = new BatchStatement();
@@ -62,7 +62,7 @@ public class BaseCassandraDao{
     @JProfiler(jKey = "baseCassandra.insert", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public void insert(String tableName,Map<String,Object> values) throws Exception{
         // UCC开关控制保存Cassandra
-        if (!dmsConfigManager.getUccPropertyConfig().getCassandraGlobalSwitch()) {
+        if (!dmsConfigManager.getPropertyConfig().getCassandraGlobalSwitch()) {
             return;
         }
         if(StringUtils.isBlank(tableName)){

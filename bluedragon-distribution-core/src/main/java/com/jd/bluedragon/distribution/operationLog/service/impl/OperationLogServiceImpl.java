@@ -212,7 +212,7 @@ public class OperationLogServiceImpl implements OperationLogService {
         CallerInfo info = null;
         try {
             info = Profiler.registerInfo("DMSWEB.OperationLogService.add", false, true);
-            if (dmsConfigManager.getUccPropertyConfig().getCassandraGlobalSwitch()) {
+            if (dmsConfigManager.getPropertyConfig().getCassandraGlobalSwitch()) {
                 logCassandra.batchInsert(operationLog);
             }
         } catch (Throwable e) {

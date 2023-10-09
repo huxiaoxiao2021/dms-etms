@@ -201,7 +201,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
     private void sendOfflineSortingBusinessInterceptTaskMq(List<OfflineLogRequest> offlineLogRequestList) {
         // offlineTaskCheckBusinessInterceptService.batchSendOfflineTaskMq(offlineLogRequestList);
         for (OfflineLogRequest offlineLogRequest : offlineLogRequestList) {
-			if(!dmsConfigManager.getUccPropertyConfig().getOfflineTaskReportInterceptNeedHandle(offlineLogRequest.getSiteCode())){
+			if(!dmsConfigManager.getPropertyConfig().getOfflineTaskReportInterceptNeedHandle(offlineLogRequest.getSiteCode())){
 				continue;
 			}
             Response<Boolean> handleResult = offlineTaskCheckBusinessInterceptService.handleOfflineTask(offlineLogRequest);

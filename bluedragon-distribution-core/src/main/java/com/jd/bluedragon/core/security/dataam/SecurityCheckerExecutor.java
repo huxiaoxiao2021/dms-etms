@@ -39,7 +39,7 @@ public class SecurityCheckerExecutor{
     }
 
     public InvokeResult<Boolean> verifyWaybillDetailPermission(SecurityDataMapFuncEnum securityCheckEnums, String erpCode, String waybillNo) {
-        if(!dmsConfigManager.getUccPropertyConfig().getSecuritySwitch()){
+        if(!dmsConfigManager.getPropertyConfig().getSecuritySwitch()){
             return new InvokeResult<>();
         }
         InvokeResult<Boolean> result = securityCheckManager.verifyWaybillDetailPermissionByErp(erpCode, waybillNo, securityCheckEnumsStringMap.get(securityCheckEnums));

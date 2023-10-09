@@ -146,7 +146,7 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
                         && Objects.equals(dwsCheckAroundRecord.getNextMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())
                         && dwsCheckAroundRecord.getPreviousCalibrateTime() != null
                         && dwsCheckAroundRecord.getNextCalibrateTime() != null
-                        && (dwsCheckAroundRecord.getNextCalibrateTime() - dwsCheckAroundRecord.getPreviousCalibrateTime() > dmsConfigManager.getUccPropertyConfig().getMachineCalibrateIntervalTimeOfSpotCheck())){
+                        && (dwsCheckAroundRecord.getNextCalibrateTime() - dwsCheckAroundRecord.getPreviousCalibrateTime() > dmsConfigManager.getPropertyConfig().getMachineCalibrateIntervalTimeOfSpotCheck())){
                     return JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode();
                 }
                 if(dwsCheckAroundRecord.getNextMachineStatus() == null){

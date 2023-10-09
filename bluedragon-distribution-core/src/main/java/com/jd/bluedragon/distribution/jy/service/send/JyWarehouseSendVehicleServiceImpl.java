@@ -299,7 +299,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Integer getFlowMaxBySiteCode(Integer siteCode) {
         int mixScanTaskFlowNum = MIX_SCAN_TASK_DEFAULT_FLOW_NUM;
-        String mixScanTaskFlowNumConfig = dmsConfigManager.getUccPropertyConfig().getJyWarehouseSendVehicleMixScanTaskFlowNumConfig();
+        String mixScanTaskFlowNumConfig = dmsConfigManager.getPropertyConfig().getJyWarehouseSendVehicleMixScanTaskFlowNumConfig();
 
         String configKey = String.format("%s%s%s", Constants.SEPARATOR_COMMA, siteCode, Constants.SEPARATOR_COLON);
         if(StringUtils.isNotBlank(mixScanTaskFlowNumConfig) && mixScanTaskFlowNumConfig.contains(configKey)) {
@@ -515,7 +515,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      */
     private List<String> getSendVehicleBizIdList(long startSiteId, List<Long> nextSiteIdList) {
         Integer pageSize = DB_LIMIT_DEFAULT;
-        Integer defaultLimitSize = dmsConfigManager.getUccPropertyConfig().getJyWarehouseSendVehicleDetailQueryDefaultLimitSize();
+        Integer defaultLimitSize = dmsConfigManager.getPropertyConfig().getJyWarehouseSendVehicleDetailQueryDefaultLimitSize();
         if(!Objects.isNull(defaultLimitSize) && defaultLimitSize > 0 && defaultLimitSize <= DB_LIMIT_DEFAULT_MAX) {
             pageSize = defaultLimitSize;
         }
@@ -743,7 +743,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             } else {
                 queryEntity.setLastPlanDepartTimeEnd(this.defaultTaskPlanTimeEnd());
             }
-            queryEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getUccPropertyConfig().getJySendTaskCreateTimeBeginDay()));
+            queryEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
 
         } catch (Exception e) {
             log.error("查询发货任务设置默认查询条件异常，入参{}", JsonHelper.toJson(request), e.getMessage(), e);

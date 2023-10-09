@@ -54,7 +54,7 @@ public class QueryGapTimeUtil {
     @JProfiler(jKey = "DMSWEB.QueryGapTimeUtil.checkPass",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public boolean checkPass(String jsonStr,String methodName){
 
-        int gapTime = dmsConfigManager.getUccPropertyConfig().getClientPrintQueryGapTime();
+        int gapTime = dmsConfigManager.getPropertyConfig().getClientPrintQueryGapTime();
 
         if(gapTime <= 0){
             return true;

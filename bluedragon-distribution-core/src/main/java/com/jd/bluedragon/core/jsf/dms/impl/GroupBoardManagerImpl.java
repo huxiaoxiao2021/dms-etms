@@ -57,7 +57,7 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
 
     @Override
     public Response<Integer> addBoxToBoardV2(AddBoardBox addBoardBox) {
-        if (dmsConfigManager.getUccPropertyConfig().getReComboardSwitch()){
+        if (dmsConfigManager.getPropertyConfig().getReComboardSwitch()){
             return groupBoardService.addBoxToBoardV2(addBoardBox);
         }
         return groupBoardService.addBoxToBoard(addBoardBox);

@@ -306,7 +306,7 @@ public abstract class BaseSortingService {
         }
 
         //每页容量
-        int pageSize = dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize();
+        int pageSize = dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize();
         //1.按包裹理货
         if(SortingObjectType.PACKAGE.equals(sorting.getMiddleEndSorting().getObjectType())){
             sorting.setPackagePageIndex(0);

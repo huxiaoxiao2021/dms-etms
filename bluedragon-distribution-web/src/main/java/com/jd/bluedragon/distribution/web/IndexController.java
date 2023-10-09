@@ -134,8 +134,8 @@ public class IndexController {
             model.addAttribute("userName", erpUser.getUserName());
             model.addAttribute("userCode", erpUser.getStaffNo());
 
-            boolean flag = Objects.equals(dmsConfigManager.getUccPropertyConfig().getPackConsumableSwitch(),1)
-                    || Objects.equals(dmsConfigManager.getUccPropertyConfig().getPackConsumableSwitch(), 3);
+            boolean flag = Objects.equals(dmsConfigManager.getPropertyConfig().getPackConsumableSwitch(),1)
+                    || Objects.equals(dmsConfigManager.getPropertyConfig().getPackConsumableSwitch(), 3);
 
             model.addAttribute("banAddAndDeleteFlag", flag);
 

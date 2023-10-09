@@ -242,7 +242,7 @@ public class TaskServiceImpl implements TaskService {
 		String newOperateTime = operateTime;
 		if(operateTimeDate.before(systemTimeDate)){
 			// 操作时间在系统时间之前
-			int offlineBeforeNowLimit = dmsConfigManager.getUccPropertyConfig().getOfflineTaskOperateTimeBeforeNowLimitHours();
+			int offlineBeforeNowLimit = dmsConfigManager.getPropertyConfig().getOfflineTaskOperateTimeBeforeNowLimitHours();
 			Date limitDate = DateHelper.newTimeRangeHoursAgo(systemTimeDate, offlineBeforeNowLimit);
 			if(operateTimeDate.before(limitDate)){
 				log.error("离线任务的操作时间【{}】超过了系统时间【{}】设定上传时间范围【{}h】,此任务为超时无效数据，过滤不接收!",
@@ -252,7 +252,7 @@ public class TaskServiceImpl implements TaskService {
 			}
 		} else {
 			// 操作时间在系统时间之后
-			int offlineAfterNowLimit = dmsConfigManager.getUccPropertyConfig().getOfflineTaskOperateTimeCorrectHours();
+			int offlineAfterNowLimit = dmsConfigManager.getPropertyConfig().getOfflineTaskOperateTimeCorrectHours();
 			newOperateTime = DateHelper.formatDate(
 					DateHelper.adjustTimeToNow(DateHelper.parseDate(operateTime, dateFormat),offlineAfterNowLimit),
 					dateFormat
@@ -547,7 +547,7 @@ public class TaskServiceImpl implements TaskService {
         return 0;
     }
 	public boolean isRedisSwitchON(){
-		return Constants.STRING_FLG_TRUE.equals(this.dmsConfigManager.getUccPropertyConfig().getRedisSwitchOn());
+		return Constants.STRING_FLG_TRUE.equals(this.dmsConfigManager.getPropertyConfig().getRedisSwitchOn());
 	}
 	public Integer add(Task task) {
 		return add(task, false);
@@ -592,7 +592,7 @@ public class TaskServiceImpl implements TaskService {
 
     public String getFetchWithoutFailedTableName() {
 	    try {
-            return dmsConfigManager.getUccPropertyConfig().getWorkerFetchWithoutFailedTable();
+            return dmsConfigManager.getPropertyConfig().getWorkerFetchWithoutFailedTable();
         } catch (Throwable e) {
 	        return null;
         }

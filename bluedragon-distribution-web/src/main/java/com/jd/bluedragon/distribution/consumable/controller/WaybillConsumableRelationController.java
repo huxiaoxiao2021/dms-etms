@@ -62,8 +62,8 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/toIndex", method = RequestMethod.GET)
 	public String toIndex(Model model) {
-		boolean flag = Objects.equals(dmsConfigManager.getUccPropertyConfig().getPackConsumableSwitch(),2)
-				|| Objects.equals(dmsConfigManager.getUccPropertyConfig().getPackConsumableSwitch(), 3);
+		boolean flag = Objects.equals(dmsConfigManager.getPropertyConfig().getPackConsumableSwitch(),2)
+				|| Objects.equals(dmsConfigManager.getPropertyConfig().getPackConsumableSwitch(), 3);
 
 		model.addAttribute("banAddAndDeleteFlag", flag);
 		return "/consumable/waybillConsumableRelation";

@@ -20,6 +20,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
 import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;

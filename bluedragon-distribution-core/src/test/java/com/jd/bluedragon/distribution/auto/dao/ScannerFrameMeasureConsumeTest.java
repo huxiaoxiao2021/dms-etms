@@ -54,7 +54,7 @@ public class ScannerFrameMeasureConsumeTest {
         result = new InvokeResult<Boolean>();
         result.setData(true);
 
-        when(dmsConfigManager.getUccPropertyConfig().getAutomaticWeightVolumeExchangeSwitch()).thenReturn(true);
+        when(dmsConfigManager.getPropertyConfig().getAutomaticWeightVolumeExchangeSwitch()).thenReturn(true);
         when(baseMajorManager.getBaseStaffByStaffIdNoCache(anyInt())).thenReturn(dto);
         when(dmsWeightVolumeService.dealWeightAndVolume(any(WeightVolumeEntity.class))).thenReturn(result);
     }

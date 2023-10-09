@@ -218,11 +218,11 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
                 configFraction = vehicleIntegralConfig.getPriorityFraction();
             } else {
                 // ucc默认分数
-                configFraction = dmsConfigManager.getUccPropertyConfig().getVehicleIntegralPriorityFraction();
+                configFraction = dmsConfigManager.getPropertyConfig().getVehicleIntegralPriorityFraction();
             }
         } else {
             // ucc默认分数
-            configFraction = dmsConfigManager.getUccPropertyConfig().getVehicleIntegralPriorityFraction();
+            configFraction = dmsConfigManager.getPropertyConfig().getVehicleIntegralPriorityFraction();
         }
         // 实际的积分
         Double realFraction = mqDto.getPriorityFraction();
@@ -295,7 +295,7 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         if (null != damageCntObj && null != lostCntObj) {
             Long damageCnt = Long.valueOf(damageCntObj + "");
             Long lostCnt = Long.valueOf(lostCntObj + "");
-            if (dmsConfigManager.getUccPropertyConfig().getJyUnloadSingleWaybillThreshold() < (damageCnt + lostCnt)) {
+            if (dmsConfigManager.getPropertyConfig().getJyUnloadSingleWaybillThreshold() < (damageCnt + lostCnt)) {
                 unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_2, JyUnloadTaskSignConstants.CHAR_2_1));
             }
         }

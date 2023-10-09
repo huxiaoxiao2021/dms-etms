@@ -700,7 +700,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     }
 
     private int getSyncDealPackageCount() {
-        return 0 == dmsConfigManager.getUccPropertyConfig().getPrintCompleteCallbackAsyncPackageNum() ? 500 : dmsConfigManager.getUccPropertyConfig().getPrintCompleteCallbackAsyncPackageNum();
+        return 0 == dmsConfigManager.getPropertyConfig().getPrintCompleteCallbackAsyncPackageNum() ? 500 : dmsConfigManager.getPropertyConfig().getPrintCompleteCallbackAsyncPackageNum();
     }
 
 }

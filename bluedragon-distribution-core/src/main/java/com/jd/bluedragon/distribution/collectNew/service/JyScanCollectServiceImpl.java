@@ -252,7 +252,7 @@ public class JyScanCollectServiceImpl implements JyScanCollectService {
      * @return
      */
     private int getBuQiWaybillCodeMaxSum(){
-        Integer buQiWaybillMaxSize = dmsConfigManager.getUccPropertyConfig().getJyBuQiWaybillCodeMaxSum();
+        Integer buQiWaybillMaxSize = dmsConfigManager.getPropertyConfig().getJyBuQiWaybillCodeMaxSum();
         if(buQiWaybillMaxSize < JyScanCollectServiceImpl.BUQI_WAYBILL_NUM_MIN) {
             return JyScanCollectServiceImpl.BUQI_WAYBILL_NUM_MIN;
         }

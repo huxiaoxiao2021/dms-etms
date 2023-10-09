@@ -21,7 +21,7 @@ public class DynamicConfigReplicationSqlSessionFactory extends ReplicationSqlSes
 
 	@Override
 	public boolean isEnable() {
-		Boolean value = dmsConfigManager.getUccPropertyConfig().getMigrationDbBackupReplicateEnable();
+		Boolean value = dmsConfigManager.getPropertyConfig().getMigrationDbBackupReplicateEnable();
 		if(value!=null){
 			return value;
 		}
@@ -30,7 +30,7 @@ public class DynamicConfigReplicationSqlSessionFactory extends ReplicationSqlSes
 
 	@Override
 	public boolean isIgnoreExceptionWhenReplication() {
-        Boolean value = dmsConfigManager.getUccPropertyConfig().getMigrationDbBackupReplicateIgnoreExp();
+        Boolean value = dmsConfigManager.getPropertyConfig().getMigrationDbBackupReplicateIgnoreExp();
 		if(value!=null){
 			return value;
 		}

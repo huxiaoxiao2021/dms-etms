@@ -102,7 +102,7 @@ public class ExcessSpecialFieldHandler implements Handler<WaybillPrintContext, J
             if(siteCode == null){
                 return false;
             }
-            String collectionAddressSiteCodes = dmsConfigManager.getUccPropertyConfig().getCollectionAddressSiteCodes();
+            String collectionAddressSiteCodes = dmsConfigManager.getPropertyConfig().getCollectionAddressSiteCodes();
             if(StringUtils.isEmpty(collectionAddressSiteCodes)){
                 return false;
             }

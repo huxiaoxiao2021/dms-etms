@@ -117,7 +117,7 @@ public class SendMManagerImpl implements SendMManager {
             sendM.setSendMId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         }
 
-        int insertDbRows = dmsConfigManager.getUccPropertyConfig().getInsertDbRowsOneTime();
+        int insertDbRows = dmsConfigManager.getPropertyConfig().getInsertDbRowsOneTime();
         List<List<SendM>> splitList = CollectionHelper.splitList(sendMList, insertDbRows);
         int affectedRows = 0;
         for (List<SendM> subList : splitList) {

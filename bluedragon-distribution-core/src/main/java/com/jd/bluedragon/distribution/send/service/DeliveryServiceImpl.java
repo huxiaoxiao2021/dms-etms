@@ -983,7 +983,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @return true 滑道号正确，或者非包裹号，false 不正确
      */
     private boolean checkPackageCrossCodeSucc(String packageCode){
-        if(!dmsConfigManager.getUccPropertyConfig().isControlCheckPackage()){
+        if(!dmsConfigManager.getPropertyConfig().isControlCheckPackage()){
             return true;
         }
         return jsfSortingResourceService.checkPackageCrossCode(WaybillUtil.getWaybillCode(packageCode),packageCode);
@@ -1523,7 +1523,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
         SortingJsfResponse response = null;
         try {
-            if (sortingCheckService.isNeedCheck(dmsConfigManager.getUccPropertyConfig().getSingleSendSwitchVerToWebSites(), sortingCheck.getCreateSiteCode())) {
+            if (sortingCheckService.isNeedCheck(dmsConfigManager.getPropertyConfig().getSingleSendSwitchVerToWebSites(), sortingCheck.getCreateSiteCode())) {
                 response = sortingCheckService.singleSendCheckAndReportIntercept(sortingCheck);
             } else {
                 response = jsfSortingResourceService.check(sortingCheck);
@@ -3386,7 +3386,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     public DeliveryResponse dellCancelDeliveryCheckSealCar(SendM tSendM) {
         try {
 
-            String isCheck=dmsConfigManager.getUccPropertyConfig().getDellCancelDeliveryCheckSealCar();
+            String isCheck=dmsConfigManager.getPropertyConfig().getDellCancelDeliveryCheckSealCar();
             if(Constants.STRING_FLG_FALSE.equals(isCheck)){
                 return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
             }
@@ -4000,7 +4000,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SEND);
                                 }
                                 // 如果业务来源是转运装车扫描，不再发送全程跟踪
-                                if (dmsConfigManager.getUccPropertyConfig().isIgnoreTysTrackSwitch()) {
+                                if (dmsConfigManager.getPropertyConfig().isIgnoreTysTrackSwitch()) {
                                     if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {
                                         waybillStatusList.add(tWaybillStatus);
                                         sendTypeList.add(tSendDetail.getSendType());
@@ -4023,7 +4023,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SORTING);
                                 }
                                 // 如果业务来源是是转运装车扫描，不再发送全程跟踪
-                                if (dmsConfigManager.getUccPropertyConfig().isIgnoreTysTrackSwitch()) {
+                                if (dmsConfigManager.getPropertyConfig().isIgnoreTysTrackSwitch()) {
                                     if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {
                                         waybillStatusList.add(tWaybillStatus);
                                         sendTypeList.add(tSendDetail.getSendType());
@@ -6964,7 +6964,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
         /* 如果是分拣机原包发货的话，需要补上验货任务 */
         if (uploadData.getSource() != null && uploadData.getSource() == 2) {
-            long count = Arrays.stream(dmsConfigManager.getUccPropertyConfig().getAutoPackageSendInspectionSiteCodes()
+            long count = Arrays.stream(dmsConfigManager.getPropertyConfig().getAutoPackageSendInspectionSiteCodes()
                             .split(";"))
                     .filter(siteCode -> Objects.equals(domain.getCreateSiteCode()+"", siteCode))
                     .count();
@@ -7148,7 +7148,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
 
         String waybillCode = domain.getBoxCode();
-        int pageSize = dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize();
+        int pageSize = dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize();
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
         if (waybill.getGoodNumber() == null) {
             log.error("获取运单中的包裹数量异常!{}", JsonHelper.toJsonMs(task));

@@ -68,13 +68,13 @@ public class TibetBizServiceImpl implements TibetBizService {
     @Override
     public boolean tibetModeSwitch(Integer createSiteCode, Integer receiveSiteCode) {
 
-        if (StringUtils.isBlank(dmsConfigManager.getUccPropertyConfig().getItmsBizEnableSwitch())) {
+        if (StringUtils.isBlank(dmsConfigManager.getPropertyConfig().getItmsBizEnableSwitch())) {
             return false;
         }
 
         List<Integer> enableProvIds = null;
         try {
-            String[] ids = dmsConfigManager.getUccPropertyConfig().getItmsBizEnableSwitch().split(Constants.SEPARATOR_COMMA);
+            String[] ids = dmsConfigManager.getPropertyConfig().getItmsBizEnableSwitch().split(Constants.SEPARATOR_COMMA);
             if (ids.length > 0) {
                 enableProvIds = new ArrayList<>();
                 for (String id : ids) {

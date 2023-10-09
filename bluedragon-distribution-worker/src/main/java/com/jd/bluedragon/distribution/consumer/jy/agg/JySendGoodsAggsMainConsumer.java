@@ -75,7 +75,7 @@ public class JySendGoodsAggsMainConsumer extends MessageBaseConsumer {
             return;
         }
         try {
-            if (!dmsConfigManager.getUccPropertyConfig().getProductOperateProgressSwitch() && ObjectHelper.isNotNull(entity.getOperateSiteId())) {
+            if (!dmsConfigManager.getPropertyConfig().getProductOperateProgressSwitch() && ObjectHelper.isNotNull(entity.getOperateSiteId())) {
                 BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(entity.getOperateSiteId().intValue());
                 if (ObjectHelper.isNotNull(baseStaffSiteOrgDto)){
                     BigDecimal operateProgress = BusinessHelper.isBSite(baseStaffSiteOrgDto.getSubType())?

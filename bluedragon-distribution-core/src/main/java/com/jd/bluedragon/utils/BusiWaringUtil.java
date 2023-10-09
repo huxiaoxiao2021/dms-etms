@@ -24,7 +24,7 @@ public class BusiWaringUtil {
 
     public void bigWaybillWarning(String waybillCode,Integer packSize){
         try{
-            if(dmsConfigManager.getUccPropertyConfig().getBigWaybillWaringSize().compareTo(packSize)<0){
+            if(dmsConfigManager.getPropertyConfig().getBigWaybillWaringSize().compareTo(packSize)<0){
                 String msg = String.format("大运单来了！请做好准备！运单号%s,包裹总数%s",waybillCode,packSize);
                 Profiler.businessAlarm("BusiWaringUtil.bigWaybillWaring", System.currentTimeMillis(), msg);
             }

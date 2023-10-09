@@ -256,7 +256,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
 
   private ClientAutoRefreshConfig getClientAutoRefreshConfig() {
     try {
-      return dmsConfigManager.getUccPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.FIND_GOODS_TASK_PROGRESS.name());
+      return dmsConfigManager.getPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.FIND_GOODS_TASK_PROGRESS.name());
     }catch (Exception ex) {
       log.error("找货刷新间隔获取错误，errMsg={}", ex.getMessage(), ex);
     }

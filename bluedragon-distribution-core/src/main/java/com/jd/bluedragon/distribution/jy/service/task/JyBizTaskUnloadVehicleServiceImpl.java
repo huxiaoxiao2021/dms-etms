@@ -267,7 +267,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             offset = (pageNum - 1) * pageSize;
         }
         //超过最大分页数据量 直接返回空数据
-        if (offset + limit > dmsConfigManager.getUccPropertyConfig().getJyTaskPageMax()) {
+        if (offset + limit > dmsConfigManager.getPropertyConfig().getJyTaskPageMax()) {
             return new ArrayList<>();
         }
 
@@ -876,7 +876,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     private void setAutoRefreshConfig(ScanStatisticsDto scanStatisticsDto){
         // 增加刷新间隔配置
         try {
-            final ClientAutoRefreshConfig jyWorkAppAutoRefreshConfig = dmsConfigManager.getUccPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.TYS_UNLOAD_PROGRESS.name());
+            final ClientAutoRefreshConfig jyWorkAppAutoRefreshConfig = dmsConfigManager.getPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.TYS_UNLOAD_PROGRESS.name());
             if (jyWorkAppAutoRefreshConfig != null) {
                 final com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig clientAutoRefreshConfig = new com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig();
                 BeanCopyUtil.copy(jyWorkAppAutoRefreshConfig, clientAutoRefreshConfig);

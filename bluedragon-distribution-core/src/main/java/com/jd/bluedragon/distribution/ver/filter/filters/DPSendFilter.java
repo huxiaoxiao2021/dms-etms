@@ -50,7 +50,7 @@ public class DPSendFilter implements Filter {
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         String waybillCode = request.getWaybillCode();
         Integer receiveSiteCode = request.getReceiveSiteCode();
-        List<Integer> dpSiteCodeList = dmsConfigManager.getUccPropertyConfig().getDpSiteCodeList();
+        List<Integer> dpSiteCodeList = dmsConfigManager.getPropertyConfig().getDpSiteCodeList();
         CallerInfo info = Profiler.registerInfo("DMSWEB.DPSendFilter.doFilter", false, true);
         try{
             //发货目的非德邦不校验

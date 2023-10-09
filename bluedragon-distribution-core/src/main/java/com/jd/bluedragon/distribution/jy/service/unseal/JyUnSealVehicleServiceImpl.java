@@ -261,7 +261,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             }
             else {
                 // 查询最近6小时的待解封车任务
-                Long lastHour = dmsConfigManager.getUccPropertyConfig().getJyUnSealTaskLastHourTime();
+                Long lastHour = dmsConfigManager.getPropertyConfig().getJyUnSealTaskLastHourTime();
                 if(lastHour != null && lastHour > Constants.LONG_ZERO){
                     condition.setSortTime(DateHelper.newTimeRangeHoursAgo(new Date(), lastHour.intValue()));
                 }
@@ -271,7 +271,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             result.setData(response);
 
             // 增加刷新间隔配置
-            response.setClientAutoRefreshConfig(dmsConfigManager.getUccPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNSEAL_TASK_LIST.name()));
+            response.setClientAutoRefreshConfig(dmsConfigManager.getPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNSEAL_TASK_LIST.name()));
 
             List<JyBizTaskUnloadCountDto> vehicleStatusAggList =
                     jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(condition, null, JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.size()]));
@@ -330,7 +330,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
             condition.setEndSiteId(unloadVehicle.getEndSiteId());
             // 查询以解封车时间为准前默认时间内的待解封车任务中所在的顺序
-            Long lastHour = dmsConfigManager.getUccPropertyConfig().getJyUnSealTaskLastHourTime();
+            Long lastHour = dmsConfigManager.getPropertyConfig().getJyUnSealTaskLastHourTime();
             if(lastHour != null && lastHour > Constants.LONG_ZERO) {
                 condition.setSortTime(DateHelper.newTimeRangeHoursAgo(unSealTime, lastHour.intValue()));
             }
@@ -430,7 +430,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     private JyBizTaskUnloadOrderTypeEnum setTaskOrderType(JyBizTaskUnloadStatusEnum curQueryStatus) {
         switch (curQueryStatus) {
             case WAIT_UN_SEAL:
-                if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, dmsConfigManager.getUccPropertyConfig().getJyUnSealTaskOrderByIntegral())) {
+                if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, dmsConfigManager.getPropertyConfig().getJyUnSealTaskOrderByIntegral())) {
                     return JyBizTaskUnloadOrderTypeEnum.RANKING;
                 }
                 else {
@@ -1371,7 +1371,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         condition.setEndSiteId(endSiteId);
         // 查询以解封车时间为准前默认时间内的待解封车任务中所在的顺序
         Date currentDate = new Date();
-        Long lastHour = dmsConfigManager.getUccPropertyConfig().getJyUnSealTaskLastHourTime();
+        Long lastHour = dmsConfigManager.getPropertyConfig().getJyUnSealTaskLastHourTime();
         if(lastHour != null && lastHour > Constants.LONG_ZERO) {
             condition.setSortTime(DateHelper.newTimeRangeHoursAgo(currentDate, lastHour.intValue()));
         }

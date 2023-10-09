@@ -39,7 +39,7 @@ public class SortingWaybillServiceImpl extends SortingCommonSerivce{
             BaseStaffSiteOrgDto createSite = sorting.getCreateSite();
             int pakcageListSize = sorting.getPackageListSize();
             //每页容量
-            int pageSize = dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize()==0?WAYBILL_SPLIT_NUM:dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize();
+            int pageSize = dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize()==0?WAYBILL_SPLIT_NUM:dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize();
             //计算总页数
             if(pakcageListSize>0){
                 int pagesSize = Double.valueOf(Math.floor(pakcageListSize/pageSize)).intValue();

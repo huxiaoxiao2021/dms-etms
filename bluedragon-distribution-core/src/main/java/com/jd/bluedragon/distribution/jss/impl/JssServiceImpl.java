@@ -51,7 +51,7 @@ public class JssServiceImpl implements JssService {
     @Override
     public void uploadFile(String bucket, String keyName, long length, InputStream inputStream) throws JssStorageException {
         try {
-            if(dmsConfigManager.getUccPropertyConfig().isCloudOssInsertSwitch()){
+            if(dmsConfigManager.getPropertyConfig().isCloudOssInsertSwitch()){
                 dmswebAmazonS3ClientWrapper.putObject(inputStream,bucket,keyName,length);
                 return;
             }
@@ -129,7 +129,7 @@ public class JssServiceImpl implements JssService {
         ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
         try {
             String key = UUID.randomUUID().toString() + "." + extName;
-            if(dmsConfigManager.getUccPropertyConfig().isCloudOssInsertSwitch()){
+            if(dmsConfigManager.getPropertyConfig().isCloudOssInsertSwitch()){
                 return dmswebAmazonS3ClientWrapper.putObjectThenGetUrl(inStream,bucket,key,bytes.length,365);
             }
             JingdongStorageService jss = jssStorageClient.getStorageService();

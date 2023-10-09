@@ -517,7 +517,7 @@ public class SendVehicleTransactionManager {
     public boolean needInterceptOfCz(Integer receiveSiteId,CurrentOperate currentOperate){
         Integer orgId =currentOperate.getOrgId();
         Integer siteId =currentOperate.getSiteCode();
-        if ((dmsConfigManager.getUccPropertyConfig().getCzOrgForbiddenList().contains(String.valueOf(orgId)) || dmsConfigManager.getUccPropertyConfig().getCzSiteForbiddenList().contains(String.valueOf(siteId)))
+        if ((dmsConfigManager.getPropertyConfig().getCzOrgForbiddenList().contains(String.valueOf(orgId)) || dmsConfigManager.getPropertyConfig().getCzSiteForbiddenList().contains(String.valueOf(siteId)))
             && checkIsCz(receiveSiteId)){
             return true;
         }
@@ -526,7 +526,7 @@ public class SendVehicleTransactionManager {
 
     private boolean checkIsCz(Integer receiveSiteId) {
         BaseStaffSiteOrgDto baseSiteInfoDto = baseService.getSiteBySiteID(Integer.valueOf(receiveSiteId));
-        if (ObjectHelper.isNotNull(baseSiteInfoDto) && dmsConfigManager.getUccPropertyConfig().getCzSiteTypeForbiddenList().contains(String.valueOf(baseSiteInfoDto.getSiteType()))){
+        if (ObjectHelper.isNotNull(baseSiteInfoDto) && dmsConfigManager.getPropertyConfig().getCzSiteTypeForbiddenList().contains(String.valueOf(baseSiteInfoDto.getSiteType()))){
             return true;
         }
         return false;

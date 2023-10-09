@@ -110,7 +110,7 @@ public class ReverseReceiveNotifyStockServiceTest {
         kuGuanDomain.setLblWay("出库");
         kuGuanDomain.setLblType("销售");
         when(stockExportManager.queryByWaybillCode(anyString())).thenReturn(kuGuanDomain);
-        when(dmsConfigManager.getUccPropertyConfig().isChuguanPurchaseAndSaleSwitch()).thenReturn(true);
+        when(dmsConfigManager.getPropertyConfig().isChuguanPurchaseAndSaleSwitch()).thenReturn(true);
         List<AllotResponseDetail> allotResponseDetailList = Lists.newArrayList();
         AllotResponseDetail allotResponseDetail = new AllotResponseDetail();
         allotResponseDetail.setSkuId(0L);

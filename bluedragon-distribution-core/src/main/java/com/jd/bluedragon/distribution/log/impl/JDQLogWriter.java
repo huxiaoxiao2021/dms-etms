@@ -36,7 +36,7 @@ public class JDQLogWriter implements LogWriter {
     @JProfiler(jKey = "DMSWEB.JDQLogWriter.addLog", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public void addLog(BusinessLogProfiler businessLogProfiler) {
         //ucc开关，是否启用
-        if (dmsConfigManager.getUccPropertyConfig().isLogToBusinessLogByKafka() == false) {
+        if (dmsConfigManager.getPropertyConfig().isLogToBusinessLogByKafka() == false) {
             return;
         }
 

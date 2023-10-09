@@ -89,7 +89,7 @@ public class OfflineController {
 		businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
 		BusinessLogWriter.writeLog(businessLogProfiler);
 
-        model.addAttribute("oldLogPageTips",dmsConfigManager.getUccPropertyConfig().getOldLogPageTips());
+        model.addAttribute("oldLogPageTips",dmsConfigManager.getPropertyConfig().getOldLogPageTips());
 		return "offline/offline";
 	}
 
@@ -120,7 +120,7 @@ public class OfflineController {
 				offlineLogService.queryByParams(params));
 		model.addAttribute("offlineLogqueryDto", offlineLog);
 		model.addAttribute("pager", pager);
-        model.addAttribute("oldLogPageTips",dmsConfigManager.getUccPropertyConfig().getOldLogPageTips());
+        model.addAttribute("oldLogPageTips",dmsConfigManager.getPropertyConfig().getOldLogPageTips());
 		return "offline/offline";
 	}
 

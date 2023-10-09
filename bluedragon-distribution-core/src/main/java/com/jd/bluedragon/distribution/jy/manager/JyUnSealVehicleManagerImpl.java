@@ -52,7 +52,7 @@ public class JyUnSealVehicleManagerImpl implements IJyUnSealVehicleManager {
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.jySealVehicleManager.querySealCarByStatus");
 
         try {
-            if (dmsConfigManager.getUccPropertyConfig().getSealTaskForceFallback() == Constants.YN_YES) {
+            if (dmsConfigManager.getPropertyConfig().getSealTaskForceFallback() == Constants.YN_YES) {
                 log.info("解封车任务列表服务强制降级. query:{}", JsonHelper.toJson(pager));
                 throw new SealVehicleTaskBusinessException("解封车任务列表服务强制降级");
             }

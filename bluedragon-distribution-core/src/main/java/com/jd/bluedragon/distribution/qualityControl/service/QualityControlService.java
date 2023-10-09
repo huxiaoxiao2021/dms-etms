@@ -262,7 +262,7 @@ public class QualityControlService {
         Result<Void> result = Result.success();
         try {
             // ucc开关
-            if(!dmsConfigManager.getUccPropertyConfig().matchExceptionSubmitCheckSite(request.getDistCenterID())){
+            if(!dmsConfigManager.getPropertyConfig().matchExceptionSubmitCheckSite(request.getDistCenterID())){
                 return result;
             }
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
@@ -271,7 +271,7 @@ public class QualityControlService {
             if (CollectionUtils.isEmpty(waybillCancelList)) {
                 return result.toFail(tipMsg);
             }
-            final long matchCount = waybillCancelList.parallelStream().filter(item -> dmsConfigManager.getUccPropertyConfig().matchExceptionSubmitCheckWaybillInterceptType(item.getInterceptType())).count();
+            final long matchCount = waybillCancelList.parallelStream().filter(item -> dmsConfigManager.getPropertyConfig().matchExceptionSubmitCheckWaybillInterceptType(item.getInterceptType())).count();
             if(matchCount <= 0){
                 return result.toFail(tipMsg);
             }

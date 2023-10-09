@@ -1887,7 +1887,7 @@ public class BaseResource {
 	public InvokeResult<Boolean>  checkMenuIsOffline(PdaSystemMenuRequest request){
 		InvokeResult<Boolean> result = new InvokeResult<>();
 		// 待下线||已下线PDA菜单编码集合
-		String offlinePdaMenuCodes = dmsConfigManager.getUccPropertyConfig().getOfflinePdaMenuCode();
+		String offlinePdaMenuCodes = dmsConfigManager.getPropertyConfig().getOfflinePdaMenuCode();
 		boolean menuCodeIsOffline = false;
 		if(StringUtils.isNotEmpty(offlinePdaMenuCodes)){
 			menuCodeIsOffline = Arrays.asList(offlinePdaMenuCodes.split(Constants.SEPARATOR_COMMA)).contains(request.getMenuCode());

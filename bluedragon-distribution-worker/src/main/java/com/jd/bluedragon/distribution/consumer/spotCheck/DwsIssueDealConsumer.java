@@ -106,7 +106,7 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
             dwsAIDistinguishMQ.setWaybillCode(spotCheckDto.getWaybillCode());
             dwsAIDistinguishMQ.setSiteCode(spotCheckDto.getReviewSiteCode());
             dwsAIDistinguishMQ.setPackages(list);
-            if(list.size() > dmsConfigManager.getUccPropertyConfig().getDeviceAIDistinguishPackNum()){
+            if(list.size() > dmsConfigManager.getPropertyConfig().getDeviceAIDistinguishPackNum()){
                 dwsAIDistinguishBigProducer.sendOnFailPersistent(dwsAIDistinguishMQ.getWaybillCode(), JsonHelper.toJson(dwsAIDistinguishMQ));
             }else {
                 dwsAIDistinguishSmallProducer.sendOnFailPersistent(dwsAIDistinguishMQ.getWaybillCode(), JsonHelper.toJson(dwsAIDistinguishMQ));

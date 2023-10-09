@@ -56,7 +56,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	@Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.sendMq", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public int sendMq(JyOperateFlowMqData mqData) {
-		if(!Boolean.TRUE.equals(dmsConfigManager.getUccPropertyConfig().getSendJyOperateFlowMqSwitch())) {
+		if(!Boolean.TRUE.equals(dmsConfigManager.getPropertyConfig().getSendJyOperateFlowMqSwitch())) {
 			return 0;
 		}
 		jyOperateFlowMqProducer.sendOnFailPersistent(mqData.getOperateBizKey(), JsonHelper.toJson(mqData));
@@ -66,7 +66,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.sendMqList", mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public int sendMqList(List<JyOperateFlowMqData> mqDataList) {
-		if(!Boolean.TRUE.equals(dmsConfigManager.getUccPropertyConfig().getSendJyOperateFlowMqSwitch())) {
+		if(!Boolean.TRUE.equals(dmsConfigManager.getPropertyConfig().getSendJyOperateFlowMqSwitch())) {
 			return 0;
 		}
 		List<Message> msgList = new ArrayList<>();

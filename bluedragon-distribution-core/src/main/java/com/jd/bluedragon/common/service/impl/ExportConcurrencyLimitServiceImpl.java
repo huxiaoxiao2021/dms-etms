@@ -53,8 +53,8 @@ public class ExportConcurrencyLimitServiceImpl implements ExportConcurrencyLimit
                 // 一天一个key
                 String redisKey = getRedisDateKey(key);
                 Integer concurrencyLimit = Constants.CONCURRENCY_EXPORT_LIMIT;
-                if(dmsConfigManager.getUccPropertyConfig().getExportConcurrencyLimitNum()!=null){
-                    concurrencyLimit = dmsConfigManager.getUccPropertyConfig().getExportConcurrencyLimitNum();
+                if(dmsConfigManager.getPropertyConfig().getExportConcurrencyLimitNum()!=null){
+                    concurrencyLimit = dmsConfigManager.getPropertyConfig().getExportConcurrencyLimitNum();
                 }
 
                 //1.用于系统降级,限制导出
@@ -123,8 +123,8 @@ public class ExportConcurrencyLimitServiceImpl implements ExportConcurrencyLimit
     @JProfiler(jKey = "com.jd.bluedragon.distribution.web.ExportConcurrencyLimitServiceImpl.uccSpotCheckMaxSize", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public Integer uccSpotCheckMaxSize(){
         // 设置总导出数据
-        Integer uccSpotCheckMaxSize = dmsConfigManager.getUccPropertyConfig().getExportSpotCheckMaxSize();
-        if(dmsConfigManager.getUccPropertyConfig().getExportSpotCheckMaxSize() == null){
+        Integer uccSpotCheckMaxSize = dmsConfigManager.getPropertyConfig().getExportSpotCheckMaxSize();
+        if(dmsConfigManager.getPropertyConfig().getExportSpotCheckMaxSize() == null){
             uccSpotCheckMaxSize = EXPORT_MAX_SIZE;
         }
         return uccSpotCheckMaxSize;
@@ -137,7 +137,7 @@ public class ExportConcurrencyLimitServiceImpl implements ExportConcurrencyLimit
     @Override
     @JProfiler(jKey = "com.jd.bluedragon.distribution.web.ExportConcurrencyLimitServiceImpl.uccSpotCheckMaxSize", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public Integer getOneQuerySizeLimit(){
-        return dmsConfigManager.getUccPropertyConfig().getOneQuerySize();
+        return dmsConfigManager.getPropertyConfig().getOneQuerySize();
     }
 
 

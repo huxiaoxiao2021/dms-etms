@@ -567,7 +567,7 @@ public class SortingServiceImpl implements SortingService {
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSortingAdditionalTask", false, true);
 
 		// 如果业务来源是转运装车扫描，不再发送全程跟踪
-		if (dmsConfigManager.getUccPropertyConfig().isIgnoreTysTrackSwitch()) {
+		if (dmsConfigManager.getPropertyConfig().isIgnoreTysTrackSwitch()) {
 			if (SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(sorting.getBizSource())) {
 				return;
 			}
@@ -1666,7 +1666,7 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	private SortingJsfResponse checkTeAnWaybillSorting(PdaOperateRequest pdaOperateRequest){
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		if(!dmsConfigManager.getUccPropertyConfig().isCheckTeAnSwitch()){
+		if(!dmsConfigManager.getPropertyConfig().isCheckTeAnSwitch()){
 			log.warn("分拣理货-特安校验开关关闭!");
 			return sortingJsfResponse;
 		}

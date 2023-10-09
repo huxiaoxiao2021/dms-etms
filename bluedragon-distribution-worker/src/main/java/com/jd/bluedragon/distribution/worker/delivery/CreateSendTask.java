@@ -58,10 +58,10 @@ public class CreateSendTask extends SendDBSingleScheduler {
         } else {
             Date now = new Date();
             int passedTime = DateHelper.getMiniDiff(createTime, now);
-            if (passedTime > dmsConfigManager.getUccPropertyConfig().getCreateSendTasktimeOut()*2/3){
+            if (passedTime > dmsConfigManager.getPropertyConfig().getCreateSendTasktimeOut()*2/3){
                 log.error("CreateSendTask--批次 {} 任务超时时间预警...{}",uiqueId);
             }
-            if (passedTime > dmsConfigManager.getUccPropertyConfig().getCreateSendTasktimeOut()) {
+            if (passedTime > dmsConfigManager.getPropertyConfig().getCreateSendTasktimeOut()) {
                 log.error("批次 {} 任务未执行完毕，但已超过时间阈值，调用deliveryService.addTaskSend...",uiqueId);
                 deliveryService.addTaskSend(sendM);
                 deleteRedisCountKey(initialCountKey,compeletedCountKey);
@@ -94,7 +94,7 @@ public class CreateSendTask extends SendDBSingleScheduler {
                 fetchNum = fetchNum * queueNum / queryCondition.size();
             }
 
-            List<Task> Tasks = taskService.findTasksUnderOptimizeSendTask(this.type, fetchNum, this.keyType, queryCondition, ownSign, ownSignList, dmsConfigManager.getUccPropertyConfig().getCreateSendTaskExecuteCount());
+            List<Task> Tasks = taskService.findTasksUnderOptimizeSendTask(this.type, fetchNum, this.keyType, queryCondition, ownSign, ownSignList, dmsConfigManager.getPropertyConfig().getCreateSendTaskExecuteCount());
             for (Task task : Tasks) {
                 if (!isMyTask(queueNum, task.getId(), queryCondition)) {
                     continue;

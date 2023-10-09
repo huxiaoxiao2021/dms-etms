@@ -45,9 +45,9 @@ public class AggsChooseDataSourceAspect {
     try {
       if (ReadWriteTypeEnum.READ.getType().equals(readWriteType)) {
         logger.info("===================AggsChooseDataSourceAspect read=========================");
-        if (ObjectHelper.isNotNull(dmsConfigManager.getUccPropertyConfig().getAggsDataSource())) {
-          logger.info("===================AggsChooseDataSourceAspect read {} =========================",dmsConfigManager.getUccPropertyConfig().getAggsDataSource());
-          DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dmsConfigManager.getUccPropertyConfig().getAggsDataSource());
+        if (ObjectHelper.isNotNull(dmsConfigManager.getPropertyConfig().getAggsDataSource())) {
+          logger.info("===================AggsChooseDataSourceAspect read {} =========================",dmsConfigManager.getPropertyConfig().getAggsDataSource());
+          DynamicDataSourceType dataSourceType = DynamicDataSourceHolders.getDataSources(dmsConfigManager.getPropertyConfig().getAggsDataSource());
           if (ObjectHelper.isNotNull(dataSourceType)) {
             logger.info("===================AggsChooseDataSourceAspect read dataSourceType {} =========================",dataSourceType);
             DynamicDataSourceHolders.putDataSource(dataSourceType);

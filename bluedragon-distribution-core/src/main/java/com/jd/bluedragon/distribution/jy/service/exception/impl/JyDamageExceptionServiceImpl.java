@@ -1296,7 +1296,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         JdCResponse response = new JdCResponse();
         response.toSucceed();
         //查询 处理中-客服介入中的超48小时的任务列表
-        int hours = dmsConfigManager.getUccPropertyConfig().getJyExceptionDamageTaskCustomerNotReturnHours();
+        int hours = dmsConfigManager.getPropertyConfig().getJyExceptionDamageTaskCustomerNotReturnHours();
         JyBizTaskExceptionEntity query = new JyBizTaskExceptionEntity();
         query.setType(JyBizTaskExceptionTypeEnum.DAMAGE.getCode());
         query.setStatus(JyExpStatusEnum.PROCESSING.getCode());

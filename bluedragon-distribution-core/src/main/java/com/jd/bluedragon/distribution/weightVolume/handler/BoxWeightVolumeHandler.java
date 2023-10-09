@@ -305,7 +305,7 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         logger.warn("推送箱号信息至经济网异常:{}", JsonHelper.toJson(response));
         // 出现异常、无响应结果、响应结果非成功code码 则 抛出异常 自动重试
         if (e != null || result == null || !"0000".equals(result.getCode())) {
-            if(dmsConfigManager.getUccPropertyConfig().getEconomicNetPushZTDRetry()){
+            if(dmsConfigManager.getPropertyConfig().getEconomicNetPushZTDRetry()){
                 throw new RuntimeException(MessageFormat.format(entity.getBoxCode()+"推送箱号信息至经济网失败,异常原因：{0}", JsonHelper.toJson(response)));
             }
         }

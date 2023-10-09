@@ -630,7 +630,7 @@ public class WeighByWaybillController extends DmsBaseController {
             }
 
             //校验重泡比
-            if(dmsConfigManager.getUccPropertyConfig().getWeightVolumeSwitchVersion() == 0 && !BusinessHelper.checkWaybillWeightAndVolume(waybillWeightVO.getWeight(),waybillWeightVO.getVolume())){
+            if(dmsConfigManager.getPropertyConfig().getWeightVolumeSwitchVersion() == 0 && !BusinessHelper.checkWaybillWeightAndVolume(waybillWeightVO.getWeight(),waybillWeightVO.getVolume())){
                 //没通过
                 waybillWeightVO.setErrorMessage(Constants.CBM_DIV_KG_MESSAGE);
                 waybillWeightVO.setErrorCode(Constants.CBM_DIV_KG_CODE);
@@ -709,9 +709,9 @@ public class WeighByWaybillController extends DmsBaseController {
     @RequestMapping("/checkIsExcess")
     public InvokeResult checkIsExcess(@QueryParam("codeStr") String codeStr,
                                                @QueryParam("weight") String weight,@QueryParam("volume") String volume){
-        if (dmsConfigManager.getUccPropertyConfig().getWeightVolumeSwitchVersion() == 0) {
+        if (dmsConfigManager.getPropertyConfig().getWeightVolumeSwitchVersion() == 0) {
             return service.checkIsExcess(codeStr, weight, volume);
-        } else if (dmsConfigManager.getUccPropertyConfig().getWeightVolumeSwitchVersion() == 1) {
+        } else if (dmsConfigManager.getPropertyConfig().getWeightVolumeSwitchVersion() == 1) {
             String erp = Objects.requireNonNull(ErpUserClient.getCurrUser()).getUserCode();
             BaseStaffSiteOrgDto staffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(erp);
             InvokeResult result = service.checkIsExcessNew(codeStr, weight, volume, staffSiteOrgDto.getSiteCode());

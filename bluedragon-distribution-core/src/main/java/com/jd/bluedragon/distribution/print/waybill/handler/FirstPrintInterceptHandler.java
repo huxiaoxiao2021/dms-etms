@@ -59,7 +59,7 @@ public class FirstPrintInterceptHandler implements Handler<WaybillPrintContext, 
         InterceptResult<String> interceptResult = context.getResult();
 
         // 未首次打印的单子，限制营业部人员使用包裹补打
-        if (Constants.SWITCH_OFF.equals(dmsConfigManager.getUccPropertyConfig().getLimitSiteUsePackReprint())) {
+        if (Constants.SWITCH_OFF.equals(dmsConfigManager.getPropertyConfig().getLimitSiteUsePackReprint())) {
             return interceptResult;
         }
 

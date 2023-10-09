@@ -46,7 +46,7 @@ public class WJBoxSortingNumberLimitFilter implements Filter {
 
     private void limitNumCheck(FilterContext request) throws SortingCheckException {
 
-        int boxLimitNum = dmsConfigManager.getUccPropertyConfig().getWJPackageNumberLimit();
+        int boxLimitNum = dmsConfigManager.getPropertyConfig().getWJPackageNumberLimit();
         if (boxLimitNum <= 0) {
             return;
         }

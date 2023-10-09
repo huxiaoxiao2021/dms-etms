@@ -83,9 +83,9 @@ public class BoardCombinationRouterFilter implements Filter {
                             .replace(Constants.SUFFIX_TRANSIT,"");
                     throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
                             SortingResponse.MESSAGE_BOARD_ROUTER_ERROR + "路由下一站：" + routerShortNames);
-                } else if (routeNextDto == null && dmsConfigManager.getUccPropertyConfig().isControlCheckRoute()){
+                } else if (routeNextDto == null && dmsConfigManager.getPropertyConfig().isControlCheckRoute()){
                     // 跳过路由校验
-                    if(dmsConfigManager.getUccPropertyConfig().getBoardCombinationRouterSwitch()){
+                    if(dmsConfigManager.getPropertyConfig().getBoardCombinationRouterSwitch()){
                         chain.doFilter(request, chain);
                         return;
                     }

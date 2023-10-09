@@ -38,7 +38,7 @@ public class SystemLogController {
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
     @JProfiler(jKey = "DMSWEB.SystemLogController.goListpage", mState = JProEnum.TP)
 	public String goListpage(Model model) {
-        model.addAttribute("oldLogPageTips",dmsConfigManager.getUccPropertyConfig().getOldLogPageTips());
+        model.addAttribute("oldLogPageTips",dmsConfigManager.getPropertyConfig().getOldLogPageTips());
 		return "systemLog/systemLog";
 	}
 
@@ -75,7 +75,7 @@ public class SystemLogController {
 		}catch(Exception e){
 			log.error("查询SystemLog出错", e);
 		}
-        model.addAttribute("oldLogPageTips",dmsConfigManager.getUccPropertyConfig().getOldLogPageTips());
+        model.addAttribute("oldLogPageTips",dmsConfigManager.getPropertyConfig().getOldLogPageTips());
 		return "systemLog/systemLog";
 	}
 
@@ -111,7 +111,7 @@ public class SystemLogController {
 		model.addAttribute("systemlogs", logList);
 		model.addAttribute("systemLogQueryDto", systemLog);
 		model.addAttribute("pager", pager);
-		model.addAttribute("oldLogPageTips",dmsConfigManager.getUccPropertyConfig().getOldLogPageTips());
+		model.addAttribute("oldLogPageTips",dmsConfigManager.getPropertyConfig().getOldLogPageTips());
 		}catch(Exception e){
 			log.error("查询SystemLog出错", e);
 		}

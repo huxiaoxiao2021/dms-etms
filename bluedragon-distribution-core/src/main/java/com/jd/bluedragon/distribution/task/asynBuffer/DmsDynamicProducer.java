@@ -22,7 +22,7 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 	 * 正式启用了AsynBuffer组建的任务类型列表，若不在其中的任务类型则还是采用原来的Tbschedule方式处理任务。
 	 */
 	public String getEnabledTypes() {
-		return dmsConfigManager.getUccPropertyConfig().getAsynbufferEnabledTaskType();
+		return dmsConfigManager.getPropertyConfig().getAsynbufferEnabledTaskType();
 	}
 
 
@@ -33,7 +33,7 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 	 * @return
      */
 	public Set<String> getNotEnabledKeyWord(){
-		String [] notEnabledKeyWords = dmsConfigManager.getUccPropertyConfig().getAsynBufferNotenabledTaskKeyword1().trim().split(";");
+		String [] notEnabledKeyWords = dmsConfigManager.getPropertyConfig().getAsynBufferNotenabledTaskKeyword1().trim().split(";");
 		Set<String> type_keyword = new HashSet<String>();
 		for(String s : notEnabledKeyWords){
 			type_keyword.add(s);
@@ -43,7 +43,7 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 
 	@Override
 	public ProducerType getProducerType() {
-		ProducerType producerType = ProducerType.valueOf(dmsConfigManager.getUccPropertyConfig().getAsynBufferDynamicProducerProducerType());
+		ProducerType producerType = ProducerType.valueOf(dmsConfigManager.getPropertyConfig().getAsynBufferDynamicProducerProducerType());
 		this.setProducerType(producerType);
 		return producerType;
 	}

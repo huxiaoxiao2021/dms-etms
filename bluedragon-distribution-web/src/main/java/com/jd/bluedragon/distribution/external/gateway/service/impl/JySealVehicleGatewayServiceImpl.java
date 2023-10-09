@@ -75,7 +75,7 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
         if (!checkQueryParam(response, request)) {
             return response;
         }
-        if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, dmsConfigManager.getUccPropertyConfig().getJyUnSealTaskSwitchToEs())) {
+        if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, dmsConfigManager.getPropertyConfig().getJyUnSealTaskSwitchToEs())) {
             return retJdCResponse(jyUnSealVehicleService.fetchSealTask(request));
         }
         else {

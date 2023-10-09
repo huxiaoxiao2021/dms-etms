@@ -53,7 +53,7 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.login", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseResponse login(LoginRequest request) {
-        if (dmsConfigManager.getUccPropertyConfig().isDisablePdaOldLogin()) {
+        if (dmsConfigManager.getPropertyConfig().isDisablePdaOldLogin()) {
             //登陆已经切换到新clientlogin,此接口关闭,提示强制升级
             BaseResponse response = new BaseResponse();
             response.setErpAccount(request.getErpAccount());

@@ -324,7 +324,7 @@ public class SendCodeResource {
             log.warn("生成数量Quantity:{}非法！", request.getQuantity());
             return false;
         }
-        int maxQuantity = dmsConfigManager.getUccPropertyConfig().getBatchGenerateSendCodeMaxNum();
+        int maxQuantity = dmsConfigManager.getPropertyConfig().getBatchGenerateSendCodeMaxNum();
         if(maxQuantity <= 0 || maxQuantity > 500) {
             maxQuantity = 100;
         }

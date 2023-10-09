@@ -442,7 +442,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
         }
         
         // 换单次数限制
-        Integer reverseExchangeCount = dmsConfigManager.getUccPropertyConfig().getReverseExchangeCount();
+        Integer reverseExchangeCount = dmsConfigManager.getPropertyConfig().getReverseExchangeCount();
         if(reverseExchangeCount > -1){
             waybillReverseDTO.setLimitReverseFlag(Boolean.TRUE);
             waybillReverseDTO.setAllowReverseCount(reverseExchangeCount);
@@ -522,7 +522,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 	 */
 	private boolean needUseNewReverseApi(String waybillCode,Integer siteCode,Integer returnType){
 		//先判断是否开启ucc配置
-		if(!dmsConfigManager.getUccPropertyConfig().isNeedUseNewReverseApi()) {
+		if(!dmsConfigManager.getPropertyConfig().isNeedUseNewReverseApi()) {
 			log.info("百川接口切换-0：不调百川接口{}",waybillCode);
 			return false;
 		}

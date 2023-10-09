@@ -149,7 +149,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
 
         String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, sendM.getSendCode()+"_"+uniqueId);
         try {
-            redisClientCache.set(compeletedCountKey,"0",dmsConfigManager.getUccPropertyConfig().getCreateSendTasktimeOut(), TimeUnit.MINUTES,false);
+            redisClientCache.set(compeletedCountKey,"0",dmsConfigManager.getPropertyConfig().getCreateSendTasktimeOut(), TimeUnit.MINUTES,false);
         } catch (Exception e) {
             log.error("redis给发货任务compeletedCountKey设置过期时间异常",e);
         }
@@ -248,7 +248,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         }
 
         int totalNum = waybill.getGoodNumber();
-        int onePageSize = dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize() == 0 ? SEND_SPLIT_NUM : dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize();
+        int onePageSize = dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize() == 0 ? SEND_SPLIT_NUM : dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize();
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
         dto.setTotalPage(pageTotal);
 
@@ -411,7 +411,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
      */
     @Override
     public boolean deliverySendAsyncSwitch(Integer createSiteCode) {
-        String configSites = dmsConfigManager.getUccPropertyConfig().getDeliverySendAsyncSite();
+        String configSites = dmsConfigManager.getPropertyConfig().getDeliverySendAsyncSite();
         if (StringUtils.isBlank(configSites)) {
             return false;
         }
@@ -513,7 +513,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         }
 
         int totalNum = waybill.getGoodNumber();
-        int onePageSize = dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize() == 0 ? COMBOARD_SPLIT_NUM : dmsConfigManager.getUccPropertyConfig().getWaybillSplitPageSize();
+        int onePageSize = dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize() == 0 ? COMBOARD_SPLIT_NUM : dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize();
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
         // 插入分页任务
         for (int i = 0; i < pageTotal; i++) {

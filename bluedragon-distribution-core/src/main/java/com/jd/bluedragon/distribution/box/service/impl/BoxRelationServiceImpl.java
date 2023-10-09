@@ -171,7 +171,7 @@ public class BoxRelationServiceImpl implements BoxRelationService {
         // 超过绑定数量限制不能绑定
         int existRelations = boxRelationDao.countByBoxCode(relation);
         if (uccConfiguration.getBCContainWJNumberLimit() > 0
-                && existRelations >= dmsConfigManager.getUccPropertyConfig().getBCContainWJNumberLimit()) {
+                && existRelations >= dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit()) {
             result.customMessage(DmsMessageConstants.CODE_50001, MessageFormat.format(DmsMessageConstants.MESSAGE_50001, uccConfiguration.getBCContainWJNumberLimit()));
             return result;
         }

@@ -393,7 +393,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         String gridRid = getGridRid(position);
 
-        int completeExpDayNumLimit = dmsConfigManager.getUccPropertyConfig().getCompleteExpDayNumLimit();
+        int completeExpDayNumLimit = dmsConfigManager.getPropertyConfig().getCompleteExpDayNumLimit();
         List<StatisticsByStatusDto> statisticStatusResps = jyBizTaskExceptionDao.getCommonStatusStatistic(gridRid);
         List<StatisticsByStatusDto> specialStatusStatistic = jyBizTaskExceptionDao.getSpecialStatusStatistic(gridRid, req.getUserErp());
         logger.info("getCompleteStatusStatistic-入参gridRid-{} limit-{}",gridRid,completeExpDayNumLimit);
@@ -594,7 +594,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             req.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
             req.setHandlerErp(req.getUserErp());
         }else if(Objects.equals(req.getStatus(), JyExpStatusEnum.COMPLETE.getCode())){
-            int completeExpDayNumLimit = dmsConfigManager.getUccPropertyConfig().getCompleteExpDayNumLimit();
+            int completeExpDayNumLimit = dmsConfigManager.getPropertyConfig().getCompleteExpDayNumLimit();
             req.setLimitDay(completeExpDayNumLimit);
         }
         logger.info("queryExceptionTaskList 查询条件-{}",JSON.toJSONString(req));
@@ -1731,7 +1731,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if(BusinessUtil.isSanWuCode(barCode)){
             return JyBizTaskExceptionTypeEnum.SANWU.name() + "_" + barCode;
         }else {
-            boolean bizIdSwith = dmsConfigManager.getUccPropertyConfig().isJyExceptionCreateBizIdSwitch();
+            boolean bizIdSwith = dmsConfigManager.getPropertyConfig().isJyExceptionCreateBizIdSwitch();
             if(bizIdSwith){
                 String bizid = JyBizTaskExceptionTypeEnum.SCRAPPED.name() + "_" + barCode;
                 JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(bizid);

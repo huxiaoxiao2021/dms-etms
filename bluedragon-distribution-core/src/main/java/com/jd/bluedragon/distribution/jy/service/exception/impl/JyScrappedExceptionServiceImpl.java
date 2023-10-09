@@ -606,7 +606,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         entity.setProcessBeginTime(DateHelper.getFirstDateOfMonth());
         Integer count = jyBizTaskExceptionDao.queryScrapCountByCondition(entity);
         // 报废审批级别数量阈值，默认：50,100
-        String exScrapApproveLevelCountLimit = dmsConfigManager.getUccPropertyConfig().getExScrapApproveLevelCountLimit();
+        String exScrapApproveLevelCountLimit = dmsConfigManager.getPropertyConfig().getExScrapApproveLevelCountLimit();
         String[] split = exScrapApproveLevelCountLimit.split(Constants.SEPARATOR_COMMA);
 
         // 场地当月报废数量小于50走一级审批

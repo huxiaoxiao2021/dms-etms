@@ -323,7 +323,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @param entity
      */
     protected boolean uploadOverWeightInfo(WaybillWeightDTO entity) {
-    	if(!dmsConfigManager.getUccPropertyConfig().isUploadOverWeightSwitch()
+    	if(!dmsConfigManager.getPropertyConfig().isUploadOverWeightSwitch()
     			|| !Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
     			|| CollectionUtils.isEmpty(entity.getOverLengthAndWeightTypes())) {
     		restLongPackage(entity);

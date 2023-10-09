@@ -67,7 +67,7 @@ public class BoxWeightTest {
         try {
             int index = 0;
             while (index++ <= 10){
-                dmsConfigManager.getUccPropertyConfig().setOfflineCurrentLimitingCount(3);
+                dmsConfigManager.getPropertyConfig().setOfflineCurrentLimitingCount(3);
                 List<Boolean> r = new ArrayList<>();
                 for(int i = 0 ; i< 10 ; i++){
                     r.add(asynBufferDemotionUtil.isDemotionOfSite(task.getSiteCode(),task.getBody()));

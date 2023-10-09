@@ -475,7 +475,7 @@ public class WaybillServiceImpl implements WaybillService {
             return false;
         }
         //-136 代表超区；具体逻辑上游（预分拣）控制
-        if(dmsConfigManager.getUccPropertyConfig().isPreOutZoneSwitch()
+        if(dmsConfigManager.getPropertyConfig().isPreOutZoneSwitch()
                 && BusinessUtil.isForeignForwardAndWaybillMarkForward(waybill.getWaybillSign())
                 && waybill.getOldSiteId() != null && waybill.getOldSiteId() == Constants.WAYBILL_SITE_ID_OUT_ZONE){
             log.info("疫情超区或者春节禁售运单判断-拦截运单waybillCode{}",waybill.getWaybillCode());
@@ -1281,7 +1281,7 @@ public class WaybillServiceImpl implements WaybillService {
             return false;
         }
         int miniDiff = DateHelper.getMiniDiff(scanTime, planSendvehicleTime);
-        int goodsResidenceTime = dmsConfigManager.getUccPropertyConfig().getGoodsResidenceTime();
+        int goodsResidenceTime = dmsConfigManager.getPropertyConfig().getGoodsResidenceTime();
         //使用分钟更精确些
         if(miniDiff > (goodsResidenceTime * 60)){
             log.info("超过三小时");
@@ -1519,7 +1519,7 @@ public class WaybillServiceImpl implements WaybillService {
     public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();
-        if (!dmsConfigManager.getUccPropertyConfig().getPreSortOnSiteSwitchOn()){
+        if (!dmsConfigManager.getPropertyConfig().getPreSortOnSiteSwitchOn()){
             return result;
         }
         // 信息安全校验
@@ -1694,8 +1694,8 @@ public class WaybillServiceImpl implements WaybillService {
                 return false;
             }
             log.info("matchTerminalSiteReSortDewuCondition siteInfo siteType: {} subType: {}", siteInfo.getSiteType(), siteInfo.getSubType());
-            log.info("matchTerminalSiteReSortDewuCondition check: {}, {}", dmsConfigManager.getUccPropertyConfig().matchDewuCustomerCode(customerCode), BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType()));
-            if(dmsConfigManager.getUccPropertyConfig().matchDewuCustomerCode(customerCode) && BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())){
+            log.info("matchTerminalSiteReSortDewuCondition check: {}, {}", dmsConfigManager.getPropertyConfig().matchDewuCustomerCode(customerCode), BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType()));
+            if(dmsConfigManager.getPropertyConfig().matchDewuCustomerCode(customerCode) && BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())){
                 return true;
             }
         } catch (Exception e) {

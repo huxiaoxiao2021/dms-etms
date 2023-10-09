@@ -568,7 +568,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             response.toError("获取站点信息失败，请稍后重试，或联系分拣小秘!");
             return response;
         }
-        if (dmsConfigManager.getUccPropertyConfig().getCheckAkboxConfig()) {
+        if (dmsConfigManager.getPropertyConfig().getCheckAkboxConfig()) {
             JdResponse<RecycleBasketPrintInfo> recycleBasketPrintInfoJdResponse = checkAkboxConfig(baseStaffSiteOrgDto.getSiteCode(), recycleBasketEntity);
             if (recycleBasketPrintInfoJdResponse.isError()) {
                 return recycleBasketPrintInfoJdResponse;
@@ -650,7 +650,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             recycleMaterial.setCreateUser(recycleBasketEntity.getUserErp());
             list.add(recycleMaterial);
 
-            redisCommonUtil.cacheDataEx("printCode-" + code, 1, dmsConfigManager.getUccPropertyConfig().getPrintCacheTime());
+            redisCommonUtil.cacheDataEx("printCode-" + code, 1, dmsConfigManager.getPropertyConfig().getPrintCacheTime());
         }
         return recycleMaterialManager.batchInsertRecycleMaterial(list);
     }
@@ -662,7 +662,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
          * 时间可以配置
          */
         if (redisCommonUtil.getData("printCode-" + recycleBasketEntity.getRecycleBasketCode()) == 0 ) {
-            redisCommonUtil.cacheDataEx("printCode-" +recycleBasketEntity.getRecycleBasketCode(), 1, dmsConfigManager.getUccPropertyConfig().getPrintCacheTime());
+            redisCommonUtil.cacheDataEx("printCode-" +recycleBasketEntity.getRecycleBasketCode(), 1, dmsConfigManager.getPropertyConfig().getPrintCacheTime());
         } else {
             logger.error("一周内只能打印一次");
             response.toFail("一周内只能打印一次，请稍后重试！");

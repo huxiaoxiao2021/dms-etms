@@ -37,33 +37,33 @@ public class HideSpecialStartSiteNameHandler implements InterceptHandler<Waybill
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> interceptResult = context.getResult();
         try {
-            if(!dmsConfigManager.getUccPropertyConfig().getHidePrintSpecialStartSiteNameSwitchOn()){
+            if(!dmsConfigManager.getPropertyConfig().getHidePrintSpecialStartSiteNameSwitchOn()){
                 return interceptResult;
             }
             final BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
             Integer purposefulDmsCode = basePrintWaybill.getPurposefulDmsCode();
-            if(purposefulDmsCode != null && dmsConfigManager.getUccPropertyConfig().matchHidePrintSpecialStartSitDestinationSiteList(purposefulDmsCode)){
+            if(purposefulDmsCode != null && dmsConfigManager.getPropertyConfig().matchHidePrintSpecialStartSitDestinationSiteList(purposefulDmsCode)){
                 log.info("hideSpecialStartSiteNameHandler match waybillCode [{}], purposefulDmsCode [{}]", basePrintWaybill.getWaybillCode(), purposefulDmsCode);
                 // 始发分拣中心名称改为空
-                basePrintWaybill.setOriginalDmsName(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setOriginalDmsName(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
                 // 寄件人信息修改为空
-                basePrintWaybill.setConsignerAddress(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setConsigner(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setConsignerTel(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setConsignerMobile(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setConsigneeCompany(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setConsignerTelText(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setConsignerPrefixText(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setSenderCompany(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setConsignerAddress(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setConsigner(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setConsignerTel(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setConsignerMobile(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setConsigneeCompany(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setConsignerTelText(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setConsignerPrefixText(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setSenderCompany(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
                 // 隐藏路由信息
-                basePrintWaybill.setRouterNode1(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setRouterNode2(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setRouterNode3(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setRouterNode4(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setRouterNode5(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setRouterNode6(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setRouterNode7(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
-                basePrintWaybill.setRouterNode8(dmsConfigManager.getUccPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setRouterNode1(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setRouterNode2(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setRouterNode3(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setRouterNode4(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setRouterNode5(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setRouterNode6(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setRouterNode7(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setRouterNode8(dmsConfigManager.getPropertyConfig().getHideSpecialStartSitePrintReplaceSymbol());
             }
         } catch (Exception e) {
             log.error("HideSpecialStartSiteNameHandler.handle exception ", e);

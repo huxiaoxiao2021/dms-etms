@@ -326,7 +326,7 @@ public class WeighByPackageController extends DmsBaseController {
             }
 
             //校验重量体积是否超标
-            if (dmsConfigManager.getUccPropertyConfig().getWeightVolumeSwitchVersion() == 0) {
+            if (dmsConfigManager.getPropertyConfig().getWeightVolumeSwitchVersion() == 0) {
                 InvokeResult invokeResult = service.checkIsExcess(codeStr, weight.toString(), volume.toString());
                 if(invokeResult != null && invokeResult.getCode() == EXCESS_CODE){
                     //没通过
@@ -346,7 +346,7 @@ public class WeighByPackageController extends DmsBaseController {
                     vo.setCanSubmit(1);
                     return false;
                 }
-            } else if (dmsConfigManager.getUccPropertyConfig().getWeightVolumeSwitchVersion() == 1) {
+            } else if (dmsConfigManager.getPropertyConfig().getWeightVolumeSwitchVersion() == 1) {
                 WeightVolumeRuleCheckDto condition = new WeightVolumeRuleCheckDto();
                 condition.setBarCode(codeStr);
                 condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name());

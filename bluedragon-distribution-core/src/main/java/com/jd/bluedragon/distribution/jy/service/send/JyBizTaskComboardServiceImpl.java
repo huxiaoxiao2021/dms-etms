@@ -50,7 +50,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
     condition.setBoardStatus(ComboardStatusEnum.PROCESSING.getCode());
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
-    if (!dmsConfigManager.getUccPropertyConfig().getCreateBoardBySendFlowSwitch()) {
+    if (!dmsConfigManager.getPropertyConfig().getCreateBoardBySendFlowSwitch()) {
       condition.setGroupCode(sendFlowDto.getGroupCode());
     }
     List<JyBizTaskComboardEntity> bizTaskList = jyBizTaskComboardDao.queryBoardTask(condition);
@@ -76,7 +76,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     List<Integer> comboardSourceList = new ArrayList<>();
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
     req.setComboardSourceList(comboardSourceList);
-    if (!dmsConfigManager.getUccPropertyConfig().getCreateBoardBySendFlowSwitch()) {
+    if (!dmsConfigManager.getPropertyConfig().getCreateBoardBySendFlowSwitch()) {
       req.setGroupCode(groupCode);
     }
     return jyBizTaskComboardDao.queryInProcessBoardListBySendFlowList(req);
@@ -121,7 +121,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     }
     condition.setStatusList(sendFlowDto.getStatusList());
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
-    if (!dmsConfigManager.getUccPropertyConfig().getCreateBoardBySendFlowSwitch() && ObjectHelper.isNotNull(sendFlowDto.getGroupCode())){
+    if (!dmsConfigManager.getPropertyConfig().getCreateBoardBySendFlowSwitch() && ObjectHelper.isNotNull(sendFlowDto.getGroupCode())){
       condition.setGroupCode(sendFlowDto.getGroupCode());
     }
     return jyBizTaskComboardDao.listBoardTaskBySendFlow(condition);
@@ -144,7 +144,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
     condition.setSealTime(sendFlowDto.getQuerySealTimeBegin());
     // 执行sql开关，默认执行or
-    if (dmsConfigManager.getUccPropertyConfig().getJyComboardListBoardSqlSwitch()) {
+    if (dmsConfigManager.getPropertyConfig().getJyComboardListBoardSqlSwitch()) {
       return jyBizTaskComboardDao.listSealOrUnSealedBoardTaskBySendFlow(condition);
     }else {
       return jyBizTaskComboardDao.listSealOrUnSealedBoardTaskBySendFlowUnionAll(condition);

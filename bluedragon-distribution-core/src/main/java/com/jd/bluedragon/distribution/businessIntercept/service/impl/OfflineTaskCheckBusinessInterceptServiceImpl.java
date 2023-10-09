@@ -317,7 +317,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
         try {
             List<Message> messageList = new ArrayList<>();
             for (OfflineLogRequest offlineLogRequest : offlineLogRequests) {
-                if(!dmsConfigManager.getUccPropertyConfig().getOfflineTaskReportInterceptNeedHandle(offlineLogRequest.getSiteCode())){
+                if(!dmsConfigManager.getPropertyConfig().getOfflineTaskReportInterceptNeedHandle(offlineLogRequest.getSiteCode())){
                     continue;
                 }
                 Message message = new Message();

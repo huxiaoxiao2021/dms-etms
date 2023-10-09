@@ -63,7 +63,7 @@ public class GoddessController {
         request.put("operatorCode",erpUser.getUserCode());
         businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
         BusinessLogWriter.writeLog(businessLogProfiler);
-        model.addAttribute("oldLogPageTips",dmsConfigManager.getUccPropertyConfig().getOldLogPageTips());
+        model.addAttribute("oldLogPageTips",dmsConfigManager.getPropertyConfig().getOldLogPageTips());
         return "admin/goddess/index";
     }
 }

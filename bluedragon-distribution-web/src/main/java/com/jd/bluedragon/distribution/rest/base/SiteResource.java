@@ -276,8 +276,8 @@ public class SiteResource {
 			return result;
 		}
 		// 查询数量限制：100
-		Integer siteQueryLimit = dmsConfigManager.getUccPropertyConfig().getSiteQueryLimit() == null
-				? MAX_QUERY_LIMIT : dmsConfigManager.getUccPropertyConfig().getSiteQueryLimit();
+		Integer siteQueryLimit = dmsConfigManager.getPropertyConfig().getSiteQueryLimit() == null
+				? MAX_QUERY_LIMIT : dmsConfigManager.getPropertyConfig().getSiteQueryLimit();
 		if(request.getFetchNum() > siteQueryLimit){
 			request.setFetchNum(siteQueryLimit);
 		}

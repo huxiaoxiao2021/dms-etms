@@ -184,7 +184,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
     @Override
     public BaseEntity<List<DeliveryPackageD>> getPackageByWaybillCode(String waybillCode){
-        if(dmsConfigManager.getUccPropertyConfig().isParalleGetPackageSwitch()){
+        if(dmsConfigManager.getPropertyConfig().isParalleGetPackageSwitch()){
             return getPackageByWaybillCodeParallel(waybillCode);
         }
         return getPackageByWaybillCodeDefault(waybillCode);

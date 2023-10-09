@@ -241,8 +241,8 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         entity.setTaskStatus(JyBizStrandTaskStatusEnum.TODO.getCode());
         entity.setCreateUserErp(request.getOperateUserErp());
         entity.setCreateUserName(request.getOperateUserName());
-        Long sysCloseTime = dmsConfigManager.getUccPropertyConfig().getJySysStrandTaskCloseTime();
-        Long artificialCloseTime = dmsConfigManager.getUccPropertyConfig().getJyArtificialStrandTaskCloseTime();
+        Long sysCloseTime = dmsConfigManager.getPropertyConfig().getJySysStrandTaskCloseTime();
+        Long artificialCloseTime = dmsConfigManager.getPropertyConfig().getJyArtificialStrandTaskCloseTime();
         Date expectedCloseTime = new Date(System.currentTimeMillis() +
                 (Objects.equals(request.getTaskType(), JyBizStrandTaskTypeEnum.ARTIFICIAL.getCode()) ? artificialCloseTime : sysCloseTime));
         entity.setExpectCloseTime(expectedCloseTime);
@@ -385,7 +385,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
 
     private void scanNumLimit(String bizId) {
         // 拣运-滞留扫描数量上线
-        Integer jyStrandScanNumLimit = dmsConfigManager.getUccPropertyConfig().getJyStrandScanNumLimit();
+        Integer jyStrandScanNumLimit = dmsConfigManager.getPropertyConfig().getJyStrandScanNumLimit();
         Integer totalScanNum = jyBizStrandReportDetailService.queryTotalScanNum(bizId);
         if(totalScanNum >= jyStrandScanNumLimit){
             throw new JyBizException("当前任务已扫数量超限,请更换任务扫描!");

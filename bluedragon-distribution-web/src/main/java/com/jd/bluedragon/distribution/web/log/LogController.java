@@ -69,7 +69,7 @@ public class LogController {
         BusinessLogWriter.writeLog(businessLogProfiler);
         Map<String,String> orderByFiels = new HashMap<>(1);
         orderByFiels.put("time_stamp","响应时间");
-        model.addAttribute("newLogPageTips",dmsConfigManager.getUccPropertyConfig().getNewLogPageTips());
+        model.addAttribute("newLogPageTips",dmsConfigManager.getPropertyConfig().getNewLogPageTips());
         model.addAttribute("orderByFields",orderByFiels);
         return "businesslog/log";
     }
@@ -140,7 +140,7 @@ public class LogController {
     public TableResult getBusinessLog(@RequestBody HashMap request) {
         request.put("sourceSys","112"); //只从实操日志里面查
         TableResult businessLogList=new TableResult();
-        if (Constants.STRING_FLG_FALSE.equals(dmsConfigManager.getUccPropertyConfig().getBusinessLogQueryPageSwitch())) {
+        if (Constants.STRING_FLG_FALSE.equals(dmsConfigManager.getPropertyConfig().getBusinessLogQueryPageSwitch())) {
             businessLogList.setStatusCode(TableResult.NULL_CODE);
             businessLogList.setStatusMessage("此功能已下线！");
             return businessLogList;

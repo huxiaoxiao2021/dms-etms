@@ -183,7 +183,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
     }
 
     private boolean isUseNewInventory(String createSiteCode) {
-        String siteCodes = dmsConfigManager.getUccPropertyConfig().getUseNewInventorySiteCodes();
+        String siteCodes = dmsConfigManager.getPropertyConfig().getUseNewInventorySiteCodes();
         if (StringUtils.isBlank(siteCodes)) {
             return false;
         }

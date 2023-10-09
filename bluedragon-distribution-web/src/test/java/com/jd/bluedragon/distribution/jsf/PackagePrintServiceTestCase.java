@@ -100,7 +100,7 @@ public class PackagePrintServiceTestCase {
 
 		printRequest.setData(JsonHelper.toJson(packagePrintRequest));
 
-		dmsConfigManager.getUccPropertyConfig().setHideSpecialStartSitPrintDestinationSiteList(null);
+		dmsConfigManager.getPropertyConfig().setHideSpecialStartSitPrintDestinationSiteList(null);
 		JdResult<Map<String, Object>> printResult = packagePrintService.getPrintInfo(printRequest);
 		Map<String, Object> printDataMap = printResult.getData();
 		String originalDmsName = (String) printDataMap.get("originalDmsName");

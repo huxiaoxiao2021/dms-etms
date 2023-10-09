@@ -1338,7 +1338,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
         try {
             int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
-            if(packageNum < dmsConfigManager.getUccPropertyConfig().getDazongPackageOperateMax()){
+            if(packageNum < dmsConfigManager.getPropertyConfig().getDazongPackageOperateMax()){
                 invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "此单非大宗超量运单，请进行逐包裹扫描操作！");
                 return invokeResult;
             }

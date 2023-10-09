@@ -58,7 +58,7 @@ public class SystemLogServiceImpl implements SystemLogService {
 
 	public int add(SystemLog systemLog) {
 
-	    if (!dmsConfigManager.getUccPropertyConfig().isSystemLogGlobalSwitch()) {
+	    if (!dmsConfigManager.getPropertyConfig().isSystemLogGlobalSwitch()) {
 	        return 0;
         }
 

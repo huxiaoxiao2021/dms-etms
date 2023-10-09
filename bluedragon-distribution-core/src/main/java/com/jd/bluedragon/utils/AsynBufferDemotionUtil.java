@@ -66,7 +66,7 @@ public class AsynBufferDemotionUtil {
 
             String key = String.format(OFFLINE_TASK_MAX_E_KEY,siteCode);
 
-            Integer currentLimitingCount = dmsConfigManager.getUccPropertyConfig().getOfflineCurrentLimitingCount();
+            Integer currentLimitingCount = dmsConfigManager.getPropertyConfig().getOfflineCurrentLimitingCount();
             // 限流数量为正整数时才会启用限流
             if(currentLimitingCount > 0){
 

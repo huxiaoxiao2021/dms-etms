@@ -2582,7 +2582,7 @@ public class WaybillResource {
 
         InvokeResult<String> invokeResult;
         String omcOrderCode = waybillService.baiChuanEnableSwitch(waybill);
-        if (dmsConfigManager.getUccPropertyConfig().isCancelJimaoxinSwitchToOMS() && StringUtils.isNotBlank(omcOrderCode)) {
+        if (dmsConfigManager.getPropertyConfig().isCancelJimaoxinSwitchToOMS() && StringUtils.isNotBlank(omcOrderCode)) {
 
             ModifyExpressOrderRequest cancelRequest = omsManager.makeCancelLetterRequest(request, omcOrderCode);
             invokeResult = omsManager.cancelFeatherLetterByWaybillCode(request.getWaybillCode(), cancelRequest);

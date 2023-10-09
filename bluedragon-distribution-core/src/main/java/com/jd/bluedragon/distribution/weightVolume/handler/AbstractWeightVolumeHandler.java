@@ -107,7 +107,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
      * @param entity
      */
     protected boolean uploadOverWeightInfo(WeightVolumeEntity entity) {
-    	if(!dmsConfigManager.getUccPropertyConfig().isUploadOverWeightSwitch()
+    	if(!dmsConfigManager.getPropertyConfig().isUploadOverWeightSwitch()
     			|| !Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
     			|| CollectionUtils.isEmpty(entity.getOverLengthAndWeightTypes())) {
     		restLongPackage(entity);
@@ -170,9 +170,9 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
                 return result;
             }
             // 校验处理
-            if (dmsConfigManager.getUccPropertyConfig().getWeightVolumeSwitchVersion() == 0) {
+            if (dmsConfigManager.getPropertyConfig().getWeightVolumeSwitchVersion() == 0) {
                 weightVolumeRuleCheckHandler(weightVolumeContext, result);
-            } else if (dmsConfigManager.getUccPropertyConfig().getWeightVolumeSwitchVersion() == 1 && !WeightVolumeBusinessTypeEnum.BY_BOX.name().equals(condition.getBusinessType())) {
+            } else if (dmsConfigManager.getPropertyConfig().getWeightVolumeSwitchVersion() == 1 && !WeightVolumeBusinessTypeEnum.BY_BOX.name().equals(condition.getBusinessType())) {
                 weightVolumeRuleCheckHandlerNew(weightVolumeContext, result);
             }
         }catch (Exception e){
@@ -238,7 +238,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         weightVolumeContext.setOperateSite(operateSite);
 
         // 设置称重量方规则
-        weightVolumeContext.setWeightVolumeRuleConstant(JsonHelper.fromJson(dmsConfigManager.getUccPropertyConfig().getWeightVolumeRuleStandard(), WeightVolumeRuleConstant.class));
+        weightVolumeContext.setWeightVolumeRuleConstant(JsonHelper.fromJson(dmsConfigManager.getPropertyConfig().getWeightVolumeRuleStandard(), WeightVolumeRuleConstant.class));
         return weightVolumeContext;
     }
 

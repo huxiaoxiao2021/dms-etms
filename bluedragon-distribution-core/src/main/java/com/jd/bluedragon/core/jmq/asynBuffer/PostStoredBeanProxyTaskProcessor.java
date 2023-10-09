@@ -49,7 +49,7 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 	 * @return
 	 */
 	public boolean isStoreSucessTask(){
-		Boolean enabled = dmsConfigManager.getUccPropertyConfig().getAsynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled();
+		Boolean enabled = dmsConfigManager.getPropertyConfig().getAsynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled();
 		if(enabled==null ){
             enabled = true;
 		}
@@ -65,7 +65,7 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 		boolean result = super.process(tasks);
 
 		// JMQ消费失败，不降级TB任务
-		if (Constants.SWITCH_OPEN.equals(dmsConfigManager.getUccPropertyConfig().getCloseAsynBufferSaveTaskToDb())) {
+		if (Constants.SWITCH_OPEN.equals(dmsConfigManager.getPropertyConfig().getCloseAsynBufferSaveTaskToDb())) {
 		    if (log.isInfoEnabled()) {
 		        log.info("异步缓冲框架关闭DB模式");
             }

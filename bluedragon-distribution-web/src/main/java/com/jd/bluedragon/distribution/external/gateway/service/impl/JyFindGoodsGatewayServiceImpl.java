@@ -98,7 +98,7 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
     String methodDesc = "JyFindGoodsGatewayServiceImpl.findCurrentInventoryTask:获取当前时刻找货任务服务:";
     JdCResponse<InventoryTaskDto> res = new JdCResponse<>();
     res.toSucceed();
-    if (!(dmsConfigManager.getUccPropertyConfig().getQingChangDataOpenSwitch().equals("*") || dmsConfigManager.getUccPropertyConfig().getQingChangDataOpenSwitch().contains(env))){
+    if (!(dmsConfigManager.getPropertyConfig().getQingChangDataOpenSwitch().equals("*") || dmsConfigManager.getPropertyConfig().getQingChangDataOpenSwitch().contains(env))){
         return res;
     }
 

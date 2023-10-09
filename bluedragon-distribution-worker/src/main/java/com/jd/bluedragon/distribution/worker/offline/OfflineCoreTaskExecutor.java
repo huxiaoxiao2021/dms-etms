@@ -107,7 +107,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             if (!Objects.equals(taskType,Task.TASK_TYPE_AR_RECEIVE)
                     && !Objects.equals(taskType, Task.TASK_TYPE_AR_SEND_REGISTER)
                     && !Objects.equals(taskType, Task.TASK_TYPE_AR_RECEIVE_AND_SEND)
-                    && !dmsConfigManager.getUccPropertyConfig().isOffLineAllowedSite(createSiteCode)) {
+                    && !dmsConfigManager.getPropertyConfig().isOffLineAllowedSite(createSiteCode)) {
                 log.info("OfflineCoreTaskExecutor.execute--> 不被允许的操作场地: {}", createSiteCode);
                 return false;
             }

@@ -104,7 +104,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.checkIsEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Boolean checkIsEvaluate(EvaluateTargetReq request) {
         // 装车评价开关如果关闭，直接返回已评价
-        if (!dmsConfigManager.getUccPropertyConfig().isLoadCarEvaluateSwitch()) {
+        if (!dmsConfigManager.getPropertyConfig().isLoadCarEvaluateSwitch()) {
             return Boolean.TRUE;
         }
         JyEvaluateRecordEntity evaluateRecord = jyEvaluateRecordDao.findRecordBySourceBizId(request.getSourceBizId());

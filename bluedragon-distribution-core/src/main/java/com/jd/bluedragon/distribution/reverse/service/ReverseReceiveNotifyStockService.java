@@ -317,7 +317,7 @@ public class ReverseReceiveNotifyStockService {
         boolean isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
         OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(orderId));
         List<ChuguanDetailVo> chuguanDetailVos = getChuguanDetailVos(orderId);
-        if(dmsConfigManager.getUccPropertyConfig().isChuguanPurchaseAndSaleSwitch() && CollectionUtils.isNotEmpty(chuguanDetailVos)) {
+        if(dmsConfigManager.getPropertyConfig().isChuguanPurchaseAndSaleSwitch() && CollectionUtils.isNotEmpty(chuguanDetailVos)) {
             boolean purchaseFlag = purchaseAndSaleInsertChuguan(orderId,products, order, payType, isOldForNewType, orderBank, chuguanDetailVos);
             if(!purchaseFlag){
                 chuguanDetailVos.clear();

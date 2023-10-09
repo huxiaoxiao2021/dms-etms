@@ -66,7 +66,7 @@ public class CrossDistributionFilter implements Filter {
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         //发货目的地为德邦虚拟分拣中心的不校验
-        List<Integer> dpSiteCodeList = dmsConfigManager.getUccPropertyConfig().getDpSiteCodeList();
+        List<Integer> dpSiteCodeList = dmsConfigManager.getPropertyConfig().getDpSiteCodeList();
         if(BusinessHelper.isDPSiteCode(dpSiteCodeList, request.getReceiveSiteCode())){
             chain.doFilter(request,chain);
             return;

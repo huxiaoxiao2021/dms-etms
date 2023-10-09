@@ -174,7 +174,7 @@ public class WeightVolumeFilter implements Filter {
     private boolean getValidateWeightSwitch(FilterContext request){
         boolean switchOn = false;
         //默认false 不开全国校验
-        if(dmsConfigManager.getUccPropertyConfig().getWeightVolumeFilterWholeCountryFlag()){
+        if(dmsConfigManager.getPropertyConfig().getWeightVolumeFilterWholeCountryFlag()){
             switchOn = true;
         }else{
             //加一个分拣规则

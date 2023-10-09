@@ -403,7 +403,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     @Override
     public boolean isExecuteSpotCheckReform(Integer siteCode) {
         try {
-            String newSpotCheckSiteCodes = dmsConfigManager.getUccPropertyConfig().getSpotCheckReformSiteCodes();
+            String newSpotCheckSiteCodes = dmsConfigManager.getPropertyConfig().getSpotCheckReformSiteCodes();
             // 全部关闭
             if(StringUtils.isEmpty(newSpotCheckSiteCodes)){
                 return false;
@@ -422,7 +422,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     @Override
     public boolean isExecuteDwsAIDistinguish(Integer siteCode) {
         try {
-            String dwsAIDistinguishSiteCodes = dmsConfigManager.getUccPropertyConfig().getDeviceAIDistinguishSwitch();
+            String dwsAIDistinguishSiteCodes = dmsConfigManager.getPropertyConfig().getDeviceAIDistinguishSwitch();
             // 全部关闭
             if(StringUtils.isEmpty(dwsAIDistinguishSiteCodes)){
                 return false;
@@ -440,7 +440,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     @Override
     public ImmutablePair<Integer, String> singlePicAutoDistinguish(String waybillCode, Double weight, String picUrl, Integer uploadPicType, Integer excessType) {
-        if(!dmsConfigManager.getUccPropertyConfig().getAiDistinguishSwitch()){
+        if(!dmsConfigManager.getPropertyConfig().getAiDistinguishSwitch()){
             return ImmutablePair.of(InvokeResult.RESULT_SUCCESS_CODE, InvokeResult.RESULT_SUCCESS_MESSAGE);
         }
         boolean isDistinguish = false;
@@ -882,7 +882,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         boolean isEligible = Objects.equals(currentMachineStatus, JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())
                 && Objects.equals(previousMachineStatus, JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())
                 && currentCalibrateTime != null && previousCalibrateTime != null
-                && (currentCalibrateTime - previousCalibrateTime <= dmsConfigManager.getUccPropertyConfig().getMachineCalibrateIntervalTimeOfSpotCheck());
+                && (currentCalibrateTime - previousCalibrateTime <= dmsConfigManager.getPropertyConfig().getMachineCalibrateIntervalTimeOfSpotCheck());
 
         // 获取时间范围内的抽检数据后分批处理
         SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
@@ -894,7 +894,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         condition.setReviewStartTime(previousMachineEligibleTime);
         condition.setReviewEndTime(currentMachineEligibleTime);
         condition.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
-        if (dmsConfigManager.getUccPropertyConfig().getMachineCalibrateSpotCheckSwitch()) {
+        if (dmsConfigManager.getPropertyConfig().getMachineCalibrateSpotCheckSwitch()) {
             condition.setExcessStatusList(Lists.newArrayList(ExcessStatusEnum.EXCESS_ENUM_NO.getCode(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode()));
         } else {
             condition.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
@@ -943,7 +943,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     @Override
     public boolean spotCheckIssueIsRelyOnMachineStatus(Integer siteCode) {
-        String spotCheckIssueByMachineStatusSwitch = dmsConfigManager.getUccPropertyConfig().getSpotCheckIssueRelyOnMachineStatusSiteSwitch();
+        String spotCheckIssueByMachineStatusSwitch = dmsConfigManager.getPropertyConfig().getSpotCheckIssueRelyOnMachineStatusSiteSwitch();
         if(Objects.equals(spotCheckIssueByMachineStatusSwitch, "ALL")){
             return true;
         }

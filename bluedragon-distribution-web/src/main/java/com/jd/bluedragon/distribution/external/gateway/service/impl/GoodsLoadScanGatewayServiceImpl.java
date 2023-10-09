@@ -558,7 +558,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(req.getTransfer())) {
                 log.info("暂存包裹--包裹号转大宗：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
                 int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
-                if(packageNum < dmsConfigManager.getUccPropertyConfig().getDazongPackageOperateMax()){
+                if(packageNum < dmsConfigManager.getPropertyConfig().getDazongPackageOperateMax()){
                     response.setCode(JdCResponse.CODE_FAIL);
                     response.setMessage("此单非大宗超量运单，请进行逐包裹扫描操作！");
                     return response;
@@ -640,7 +640,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     public JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req) {
         JdCResponse<LoadScanDetailDto> res = new JdCResponse<>();
         try{
-            if(dmsConfigManager.getUccPropertyConfig().getInspectNoSendNoLoadWaybillDemotion()){
+            if(dmsConfigManager.getPropertyConfig().getInspectNoSendNoLoadWaybillDemotion()){
                 res.setCode(JdCResponse.CODE_FAIL);
                 res.setMessage("该服务已操作降级处理，暂时不支持查询，请联系研发处理");
                 return res;

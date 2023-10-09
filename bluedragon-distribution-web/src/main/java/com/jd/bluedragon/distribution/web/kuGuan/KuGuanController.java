@@ -56,7 +56,7 @@ public class KuGuanController {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.KuGuanController.queryOperateLog", mState = JProEnum.TP)
 	public String queryOperateLog(KuGuanDomain kuGuanDomain, Model model) {
 	    // 开关控制新旧页面查询功能
-        if(dmsConfigManager.getUccPropertyConfig().isChuguanNewPageQuerySwitch()){
+        if(dmsConfigManager.getPropertyConfig().isChuguanNewPageQuerySwitch()){
             model.addAttribute("errorMesage", "请使用新库管查询界面操作查询");
             return "kuguan/kuguan";
         }
@@ -109,7 +109,7 @@ public class KuGuanController {
 	}
 
     private KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao){
-        if(dmsConfigManager.getUccPropertyConfig().isChuguanNewPageQuerySwitch()){
+        if(dmsConfigManager.getPropertyConfig().isChuguanNewPageQuerySwitch()){
             return chuguanExportManager.queryByOrderCode(orderCode,lKdanhao);
         }
         return stockExportManager.queryByOrderCode(orderCode,lKdanhao);

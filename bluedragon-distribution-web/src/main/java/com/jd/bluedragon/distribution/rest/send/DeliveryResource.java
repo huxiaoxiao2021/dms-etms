@@ -430,7 +430,7 @@ public class DeliveryResource {
 
     private boolean needInterceptOfCz(String sendCode) {
         try {
-            if (dmsConfigManager.getUccPropertyConfig().getBatchSendForbiddenSwitch() && BusinessUtil.isSendCode(sendCode)){
+            if (dmsConfigManager.getPropertyConfig().getBatchSendForbiddenSwitch() && BusinessUtil.isSendCode(sendCode)){
                 Integer[] sites = BusinessUtil.getSiteCodeBySendCode(sendCode);
                 Integer createSite = sites[0];
                 Integer receiveSite = sites[1];
@@ -1255,7 +1255,7 @@ public class DeliveryResource {
      * @return true 滑道号正确，或者非包裹号，false 不正确
      */
     private boolean checkPackageCrossCodeSucc(String packageCode){
-        if(!dmsConfigManager.getUccPropertyConfig().isControlCheckPackage()){
+        if(!dmsConfigManager.getPropertyConfig().isControlCheckPackage()){
             return true;
         }
         return jsfSortingResourceService.checkPackageCrossCode(WaybillUtil.getWaybillCode(packageCode),packageCode);

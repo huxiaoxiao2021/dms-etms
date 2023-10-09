@@ -164,7 +164,7 @@ public class CenterServiceResource {
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,
 					isWaybillC, isWaybillE, isWaybillM, isGoodList, isPackList, isPickupTask, isServiceBillPay);
-			if (dmsConfigManager.getUccPropertyConfig().getSensitiveInfoHideSwitch()&&result.getData()!= null) {
+			if (dmsConfigManager.getPropertyConfig().getSensitiveInfoHideSwitch()&&result.getData()!= null) {
 				hideInfo(result.getData().getWaybill(),result.getData().getWaybillPickup());
 			}
 		} catch (Exception e) {
@@ -205,7 +205,7 @@ public class CenterServiceResource {
 		BaseEntity<BigWaybillDto> result = null;
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,choice);
-			if (dmsConfigManager.getUccPropertyConfig().getSensitiveInfoHideSwitch()&&result.getData()!= null) {
+			if (dmsConfigManager.getPropertyConfig().getSensitiveInfoHideSwitch()&&result.getData()!= null) {
 				hideInfo(result.getData().getWaybill(),result.getData().getWaybillPickup());
 			}
 		} catch (Exception e) {

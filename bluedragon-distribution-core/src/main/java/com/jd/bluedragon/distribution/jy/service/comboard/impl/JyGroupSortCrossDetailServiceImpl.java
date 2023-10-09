@@ -122,7 +122,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         entity.setFuncType(COMBOARD_SEND_POSITION.getCode());
         // 返回固定混扫任务数量
-        entity.setLimit(dmsConfigManager.getUccPropertyConfig().getCttGroupDataLimit());
+        entity.setLimit(dmsConfigManager.getPropertyConfig().getCttGroupDataLimit());
         if (request.isGroupQueryFlag()) {
             entity.setGroupCode(request.getGroupCode());
             cttGroupDtos = jyGroupSortCrossDetailDao.queryCommonCTTGroupData(entity);

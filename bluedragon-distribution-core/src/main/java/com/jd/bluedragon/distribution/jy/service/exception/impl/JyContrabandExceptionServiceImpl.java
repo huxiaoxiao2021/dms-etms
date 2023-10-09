@@ -205,7 +205,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                     logger.warn("未知的违禁品类型--");
                     return ;
            }
-            int contrabandWaybillCacheTime = dmsConfigManager.getUccPropertyConfig().getContrabandWaybillCacheTime();
+            int contrabandWaybillCacheTime = dmsConfigManager.getPropertyConfig().getContrabandWaybillCacheTime();
             logger.info("缓存时长-{}",contrabandWaybillCacheTime);
             //缓存当前单号
             Boolean setResult = redisClientOfJy.set(cacheKey, "1", contrabandWaybillCacheTime, TimeUnit.MINUTES, false);

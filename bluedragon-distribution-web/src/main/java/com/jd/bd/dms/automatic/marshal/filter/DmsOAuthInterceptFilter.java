@@ -96,7 +96,7 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
 
     private boolean pathMatch(String url) {
         DmsConfigManager dmsConfigManager =(DmsConfigManager)SpringHelper.getBean("dmsConfigManager");
-        List<String> urlAllowedList =dmsConfigManager.getUccPropertyConfig().getNeedInterceptUrlList();
+        List<String> urlAllowedList =dmsConfigManager.getPropertyConfig().getNeedInterceptUrlList();
 
         if (CollectionUtils.isEmpty(urlAllowedList)) {
             return false;

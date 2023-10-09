@@ -417,7 +417,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jdCResponse.toFail("操作站点编号不能为空");
             return jdCResponse;
         }
-        String sites = dmsConfigManager.getUccPropertyConfig().getDeliverHideSites();
+        String sites = dmsConfigManager.getPropertyConfig().getDeliverHideSites();
         log.info("发货菜单隐藏配置信息={}", sites);
         if (StringUtils.isBlank(sites)) {
             jdCResponse.toSucceed();

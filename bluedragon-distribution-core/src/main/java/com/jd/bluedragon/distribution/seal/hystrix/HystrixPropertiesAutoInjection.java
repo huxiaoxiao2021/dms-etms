@@ -45,7 +45,7 @@ public class HystrixPropertiesAutoInjection implements PolledConfigurationSource
     public PollResult poll(boolean initial, Object checkPoint) throws Exception {
         Map<String, Object> allPropMap = new HashMap<>();
 
-        String hystrixProps = dmsConfigManager.getUccPropertyConfig().getSealTaskHystrixProps();
+        String hystrixProps = dmsConfigManager.getPropertyConfig().getSealTaskHystrixProps();
         if (StringUtils.isNotBlank(hystrixProps)) {
             Map<String, Object> uccConfigMap = JsonHelper.fromJson(hystrixProps, Map.class);
             Map<String, Object> defaultPropMap = (Map<String, Object>) uccConfigMap.get(DEFAULT_PROPS_KEY);

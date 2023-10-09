@@ -90,7 +90,7 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 	private void removeAddiConsigner(WaybillPrintContext context) {
 		try {
 			//获取阿迪 ucc配置
-			String addiOwnNumberConf = dmsConfigManager.getUccPropertyConfig().getAddiOwnNumberConf();
+			String addiOwnNumberConf = dmsConfigManager.getPropertyConfig().getAddiOwnNumberConf();
 			Waybill waybill = context.getBigWaybillDto().getWaybill();
 			if(StringHelper.isNotEmpty(addiOwnNumberConf)){
 				List<String> asList = Arrays.asList(addiOwnNumberConf.split(Constants.SEPARATOR_COMMA));

@@ -864,7 +864,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         //4.如果是全国有效,直接返回不拦截
         if(!getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_COMPLETE_DELIVERY.getCode())){
             //ucc 配置为1 全国不拦截  配置站点编码:
-            if(isNeedCheckBlack(dmsConfigManager.getUccPropertyConfig().getAllPureValidateWeightWebSite(),request.getCreateSiteCode())){
+            if(isNeedCheckBlack(dmsConfigManager.getPropertyConfig().getAllPureValidateWeightWebSite(),request.getCreateSiteCode())){
                 return  true;
             }
             return false;
@@ -930,7 +930,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     public boolean getBcBoxFilterStatus(Integer menuCode,Integer siteCode){
         if(!getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode())){
             //ucc 配置为1 全国不拦截  配置站点编码:
-            if(isNeedCheckBlack(dmsConfigManager.getUccPropertyConfig().getAllBCBoxFilterWebSite(),siteCode)){
+            if(isNeedCheckBlack(dmsConfigManager.getPropertyConfig().getAllBCBoxFilterWebSite(),siteCode)){
                 return  true;
             }
             return false;

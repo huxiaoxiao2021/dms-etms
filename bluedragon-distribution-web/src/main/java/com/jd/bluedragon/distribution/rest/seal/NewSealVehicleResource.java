@@ -704,7 +704,7 @@ public class NewSealVehicleResource {
      * @return
      */
     private boolean isNeedCheck(Integer siteCode) {
-        String sealVolumeCheckSites = dmsConfigManager.getUccPropertyConfig().getSealVolumeCheckSites();
+        String sealVolumeCheckSites = dmsConfigManager.getPropertyConfig().getSealVolumeCheckSites();
         if(StringUtils.isEmpty(sealVolumeCheckSites)){
             return true;
         }

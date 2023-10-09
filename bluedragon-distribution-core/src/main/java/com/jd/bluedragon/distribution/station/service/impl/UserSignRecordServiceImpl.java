@@ -477,11 +477,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     @JProfiler(jKey = "DMS.WEB.UserSignRecordService.autoHandleSignInRecord", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
     public Result<Integer> autoHandleSignInRecord() {
         Result<Integer> result = Result.success();
-        int notSignedOutRecordMoreThanHours = dmsConfigManager.getUccPropertyConfig().getNotSignedOutRecordMoreThanHours();
+        int notSignedOutRecordMoreThanHours = dmsConfigManager.getPropertyConfig().getNotSignedOutRecordMoreThanHours();
         if (notSignedOutRecordMoreThanHours < 0) {
             return result;
         }
-        int notSignedOutRecordRangeHours = dmsConfigManager.getUccPropertyConfig().getNotSignedOutRecordRangeHours();
+        int notSignedOutRecordRangeHours = dmsConfigManager.getPropertyConfig().getNotSignedOutRecordRangeHours();
         //扫描范围不能小于1小时
         if(notSignedOutRecordRangeHours < 1) {
         	notSignedOutRecordRangeHours = 1;
@@ -962,7 +962,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	private String  checkJobCodeSignIn(WorkStationGrid workStationGrid,Integer jobCode){
 		//添加开关 以便于上线后没维护工种类型 都进行卡控
-		if(!dmsConfigManager.getUccPropertyConfig().isJobTypeLimitSwitch()){
+		if(!dmsConfigManager.getPropertyConfig().isJobTypeLimitSwitch()){
 			log.warn("网格工种限制功能开关关闭!");
 			return "";
 		}

@@ -34,7 +34,7 @@ public class UccConfigResource {
         String filedName = configureKey;
         String returnValue = null;
         try {
-            returnValue = filedName + "="+ObjectHelper.getValue(dmsConfigManager.getUccPropertyConfig(), filedName);
+            returnValue = filedName + "="+ObjectHelper.getValue(dmsConfigManager.getPropertyConfig(), filedName);
         } catch (Exception e) {
             returnValue = "获取ucc配置失败：" + e.getMessage();
             log.error(returnValue,e);
@@ -47,11 +47,11 @@ public class UccConfigResource {
     public String getAllConfigure() {
         StringBuilder returnValue = new StringBuilder();
         try {
-            Field[] fields = dmsConfigManager.getUccPropertyConfig().getClass().getDeclaredFields();
+            Field[] fields = dmsConfigManager.getPropertyConfig().getClass().getDeclaredFields();
             for (Field field : fields) {
                 String filedName = field.getName();
-                Method method = dmsConfigManager.getUccPropertyConfig().getClass().getDeclaredMethod("get" + filedName.substring(0, 1).toUpperCase() + filedName.substring(1), null);
-                Object value = method.invoke(dmsConfigManager.getUccPropertyConfig());
+                Method method = dmsConfigManager.getPropertyConfig().getClass().getDeclaredMethod("get" + filedName.substring(0, 1).toUpperCase() + filedName.substring(1), null);
+                Object value = method.invoke(dmsConfigManager.getPropertyConfig());
 
                 if (value != null) {
                     returnValue.append(filedName + "#" + String.valueOf(value) + "#" + value.getClass().getSimpleName());

@@ -129,7 +129,7 @@ public class OfflineLogServiceImpl implements OfflineLogService {
 
         logEngine.addLog(businessLogProfiler);
 
-        if (dmsConfigManager.getUccPropertyConfig().isOfflineLogGlobalSwitch()) {
+        if (dmsConfigManager.getPropertyConfig().isOfflineLogGlobalSwitch()) {
 
             return offlineDao.add(OfflineDao.namespace, offlineLog);
         }

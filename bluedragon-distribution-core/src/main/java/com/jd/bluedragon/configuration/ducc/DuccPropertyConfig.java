@@ -4406,5 +4406,34 @@ public class DuccPropertyConfig{
 
 	public static String getConfigFromLocal() {
 		return CONFIG_FROM_LOCAL;
-	}	
+	}
+
+    public boolean matchExceptionSubmitCheckSite(int siteId) {
+        if(StringUtils.isBlank(exceptionSubmitCheckSites)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckSites)){
+            return true;
+        }
+        if(exceptionSubmitCheckSiteList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean matchExceptionSubmitCheckWaybillInterceptType(Integer interceptType) {
+        if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckWaybillInterceptTypes)){
+            return true;
+        }
+        if(interceptType == null){
+            return false;
+        }
+        if(exceptionSubmitCheckWaybillInterceptTypeList.contains(String.valueOf(interceptType))){
+            return true;
+        }
+        return false;
+    }	
 }

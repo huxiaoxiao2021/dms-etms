@@ -134,7 +134,7 @@ public class PopPrintServiceImpl implements PopPrintService {
             log.info("传入运单号 waybillCode 为空");
         }
         // 只查询分拣打印的数据
-        if (Constants.SWITCH_OFF.equals(dmsConfigManager.getUccPropertyConfig().getJudgePackagePrintedIncludeSiteTerminal())) {
+        if (Constants.SWITCH_OFF.equals(dmsConfigManager.getPropertyConfig().getJudgePackagePrintedIncludeSiteTerminal())) {
             return popPrintDao.findAllByWaybillCodeAndSortingFirstPrint(waybillCode);
         }
 

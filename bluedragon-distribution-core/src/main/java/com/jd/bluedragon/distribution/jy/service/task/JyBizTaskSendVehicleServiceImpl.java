@@ -114,7 +114,7 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         Integer limit = pageSize;
         Integer offset = (pageNum - 1) * pageSize;
         // 超过最大分页数据量 直接返回空数据
-        if (offset + limit > dmsConfigManager.getUccPropertyConfig().getJyTaskPageMax()) {
+        if (offset + limit > dmsConfigManager.getPropertyConfig().getJyTaskPageMax()) {
             return new ArrayList<>();
         }
 
@@ -170,7 +170,7 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         Integer limit = pageSize;
         Integer offset = (pageNum - 1) * pageSize;
         // 超过最大分页数据量 直接返回空数据
-        if (offset + limit > dmsConfigManager.getUccPropertyConfig().getJyTaskPageMax()) {
+        if (offset + limit > dmsConfigManager.getPropertyConfig().getJyTaskPageMax()) {
             return new ArrayList<>();
         }
         return jyBizTaskSendVehicleDao.findSendTaskByDestOfPage(entity, offset, limit);

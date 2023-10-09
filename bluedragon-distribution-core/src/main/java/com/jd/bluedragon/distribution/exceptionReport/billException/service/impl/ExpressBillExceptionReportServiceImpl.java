@@ -532,7 +532,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     public List<FaceFirstAbnormalType> getFirstAbnormalType() {
         List<FaceFirstAbnormalType> firstList = new ArrayList<>();
         try {
-            FaceFirstAbnormalType[] faceFirstAbnormalTypes = JsonHelper.jsonToArray(dmsConfigManager.getUccPropertyConfig().getFaceAbnormalReportConfig(), FaceFirstAbnormalType[].class);
+            FaceFirstAbnormalType[] faceFirstAbnormalTypes = JsonHelper.jsonToArray(dmsConfigManager.getPropertyConfig().getFaceAbnormalReportConfig(), FaceFirstAbnormalType[].class);
             if(faceFirstAbnormalTypes != null){
                 firstList = Arrays.asList(faceFirstAbnormalTypes);
             }
@@ -553,7 +553,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     public List<FaceSecondAbnormalType> getSecondAbnormalType(Integer firstAbnormalType) {
         List<FaceSecondAbnormalType> secondList = new ArrayList<>();
         try {
-            FaceFirstAbnormalType[] faceFirstAbnormalTypes = JsonHelper.jsonToArray(dmsConfigManager.getUccPropertyConfig().getFaceAbnormalReportConfig(), FaceFirstAbnormalType[].class);
+            FaceFirstAbnormalType[] faceFirstAbnormalTypes = JsonHelper.jsonToArray(dmsConfigManager.getPropertyConfig().getFaceAbnormalReportConfig(), FaceFirstAbnormalType[].class);
             if(faceFirstAbnormalTypes != null){
                 for (FaceFirstAbnormalType item : faceFirstAbnormalTypes) {
                     if(Objects.equals(item.getAbnormalCode(), firstAbnormalType)){

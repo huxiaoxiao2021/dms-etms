@@ -202,7 +202,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         }
         try {
             // 延时消费
-            int sleepMills = dmsConfigManager.getUccPropertyConfig().getDeliverySendTaskSleepMills() <= 0 ? 1000 : dmsConfigManager.getUccPropertyConfig().getDeliverySendTaskSleepMills();
+            int sleepMills = dmsConfigManager.getPropertyConfig().getDeliverySendTaskSleepMills() <= 0 ? 1000 : dmsConfigManager.getPropertyConfig().getDeliverySendTaskSleepMills();
             Thread.sleep(new Random().nextInt(sleepMills));
 
             String umpKey = "DmsWorker.Task.deliverySendProcess.execute";
