@@ -138,7 +138,7 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
             sealCarPreRequest.setSealCarSource(SealCarSourceEnum.COMMON_SEAL_CAR.getCode());
             validSendCodeReq.setSealCarSource(SealCarSourceEnum.COMMON_SEAL_CAR.getCode());
         }
-        if (uccConfiguration.getFilterSendCodeSwitch() && checkIfBelongOthers(validSendCodeReq)){
+        if (dmsConfigManager.getPropertyConfig().getFilterSendCodeSwitch() && checkIfBelongOthers(validSendCodeReq)){
             return new JdCResponse(FORBID_SENDCODE_OF_OTHER_DETAIL_CODE,FORBID_SENDCODE_OF_OTHER_DETAIL_MESSAGE);
         }
         InvokeResult<SealCarSendCodeResp> invokeResult = jySealVehicleService.validateTranCodeAndSendCode(validSendCodeReq);

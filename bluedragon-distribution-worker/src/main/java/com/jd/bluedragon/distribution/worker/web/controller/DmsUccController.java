@@ -22,9 +22,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.configuration.ducc.DuccHystrixRoutePropertyConfig;
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
-import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.uim.annotation.Authorization;
@@ -39,9 +37,6 @@ import com.jd.uim.annotation.Authorization;
 public class DmsUccController {
 	
 	private static final Logger log = LoggerFactory.getLogger(DmsUccController.class);
-	
-	@Autowired
-	HystrixRouteUccPropertyConfiguration ucc1;
 	
 	@Autowired
 	DmsConfigManager dmsConfigManager;

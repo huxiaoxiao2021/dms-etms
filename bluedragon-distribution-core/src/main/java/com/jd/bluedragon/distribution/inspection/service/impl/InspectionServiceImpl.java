@@ -171,9 +171,6 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	@Autowired
     private WaybillPackageManager waybillPackageManager;
 
-    @Autowired
-    private DmsConfigManager dmsConfigManager;
-
 	@Autowired
 	private DmsOperateHintService dmsOperateHintService;
 

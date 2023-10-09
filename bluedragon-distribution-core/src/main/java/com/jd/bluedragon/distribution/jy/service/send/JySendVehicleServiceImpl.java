@@ -3727,7 +3727,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     @Override
     public InvokeResult checkMainLineSendTask(CheckSendCodeRequest request) {
         log.info("jy checkMainLineSendTask request:{}", JsonHelper.toJson(request));
-        if (ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())) {
+        if (ObjectHelper.isNotNull(request.getBizSource()) && dmsConfigManager.getPropertyConfig().needValidateMainLine(request.getBizSource())) {
             try {
                 Integer[] sites = BusinessUtil.getSiteCodeBySendCode(request.getSendCode());
                 Integer createSite = sites[0];
@@ -3759,7 +3759,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                             List<TransportResourceDto> transportResourceDtos = basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
                             if (transportResourceDtos != null) {
                                 for (TransportResourceDto trd : transportResourceDtos) {
-                                    if (uccConfig.notValidateTransType(trd.getTransWay())) {
+                                    if (dmsConfigManager.getPropertyConfig().notValidateTransType(trd.getTransWay())) {
                                         needIntercept = Boolean.FALSE;
                                         break;
                                     }
@@ -3838,7 +3838,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         productTypeAgg.setProductTypeName(UnloadProductTypeEnum.TEAN.getName());
         productTypeAgg.setCount(toScanCountSumOfTeAn);
         //场地白名单
-        if(!uccConfig.matchTeAnSiteWhitelist(request.getCurrentOperate().getSiteCode())){
+        if(!dmsConfigManager.getPropertyConfig().matchTeAnSiteWhitelist(request.getCurrentOperate().getSiteCode())){
             log.warn("此站点-{}-不在特安白名单配置中,直接返回!",request.getCurrentOperate().getSiteCode());
             invokeResult.setData(productTypeAgg);
             return invokeResult;

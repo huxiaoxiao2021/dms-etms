@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.configuration.ducc.DuccHystrixRoutePropertyConfig;
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
-import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -34,20 +33,7 @@ public class DmsConfigManager {
 	@Qualifier("duccHystrixRoutePropertyConfig")
 	private DuccHystrixRoutePropertyConfig duccHystrixRoutePropertyConfig;
 	
-	@Autowired
-	@Qualifier("hystrixRouteUccPropertyConfiguration")
-	private HystrixRouteUccPropertyConfiguration hystrixRouteUccPropertyConfiguration;
-
 	public DuccPropertyConfig getDuccPropertyConfig() {
-		if(!duccPropertyConfig.isUseDucc()) {
-			DuccPropertyConfig ducc = new DuccPropertyConfig();
-			BeanUtils.copyProperties(duccPropertyConfig, ducc);
-			BeanUtils.copyProperties(uccPropertyConfiguration, ducc);
-			return ducc;
-		}
-		return duccPropertyConfig;
-	}
-	public DuccPropertyConfig getDuccPropertyConfig1() {
 		return duccPropertyConfig;
 	}
 	public DuccPropertyConfig getPropertyConfig() {
@@ -61,9 +47,6 @@ public class DmsConfigManager {
 		return duccHystrixRoutePropertyConfig;
 	}
 
-	public HystrixRouteUccPropertyConfiguration getHystrixRouteUccPropertyConfiguration() {
-		return hystrixRouteUccPropertyConfiguration;
-	}
     public String check() throws Exception {
     	StringBuffer sf = new StringBuffer();
     	Map<String, Field> duccFilesMap = ObjectHelper.getDeclaredFields(DuccPropertyConfig.class);
@@ -86,17 +69,6 @@ public class DmsConfigManager {
 			 }
 		 }
 		 sf.append("\n");
-		 for(Field field: ObjectHelper.getDeclaredFieldsList(HystrixRouteUccPropertyConfiguration.class)) {
-			 Object uccValue = ObjectHelper.getValue(hystrixRouteUccPropertyConfiguration, field.getName());
-			 Object duccValue = ObjectHelper.getValue(duccHystrixRoutePropertyConfig, field.getName());
-			 boolean checkResult = isSameValue(uccValue, duccValue);
-			 if(checkResult) {
-				 log.info(field.getName()+":equal");
-			 }else {
-				 log.error(field.getName()+":no-equal"+",ucc1="+uccValue +",ducc1="+duccValue);
-				 sf.append(field.getName()+":no-equal"+" \nucc1="+uccValue +"\nducc1="+duccValue+"\n");
-			 }
-		 }		 
         return sf.toString();
     }
     private boolean isSameValue(Object o1,Object o2) {

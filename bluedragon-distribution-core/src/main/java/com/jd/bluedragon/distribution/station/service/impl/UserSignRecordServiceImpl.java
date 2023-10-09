@@ -133,9 +133,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private static final String MSG_FORMAT_HAS_NO_PERMISSION_1 = "您不可以操作，请联系签到操作人%s操作!";
 	private static final String MSG_FORMAT_HAS_NO_PERMISSION_2 = "您不可以操作，请联系签到操作人%s、网格负责人%s操作！";
 
-    @Autowired
-    private DmsConfigManager dmsConfigManager;
-
 	@Autowired
 	private WorkStationManager workStationManager;
 	@Autowired

@@ -37,7 +37,7 @@ public class SignAndReturnForExamineHandler implements InterceptHandler<WaybillP
     public InterceptResult<String> handle(WaybillPrintContext context) {
         logger.debug("签单返还拦截校验");
         InterceptResult<String> result = context.getResult();
-        if(!uccConfiguration.getCheckSignAndReturn()){
+        if(!dmsConfigManager.getPropertyConfig().getCheckSignAndReturn()){
              return result;
         }
 

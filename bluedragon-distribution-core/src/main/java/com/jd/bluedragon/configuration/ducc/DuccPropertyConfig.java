@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
 import org.springframework.beans.BeanUtils;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -3273,7 +3275,7 @@ public class DuccPropertyConfig{
 		this.businessLogQueryPageSwitch = businessLogQueryPageSwitch;
 	}
 
-	public boolean isCheckSignAndReturn() {
+	public boolean getCheckSignAndReturn() {
 		return checkSignAndReturn;
 	}
 
@@ -3321,7 +3323,7 @@ public class DuccPropertyConfig{
 		this.deliverySendTaskSleepMills = deliverySendTaskSleepMills;
 	}
 
-	public boolean isEnableGoodsAreaOfTysScan() {
+	public boolean getEnableGoodsAreaOfTysScan() {
 		return enableGoodsAreaOfTysScan;
 	}
 
@@ -3329,7 +3331,7 @@ public class DuccPropertyConfig{
 		this.enableGoodsAreaOfTysScan = enableGoodsAreaOfTysScan;
 	}
 
-	public boolean isFilterSendCodeSwitch() {
+	public boolean getFilterSendCodeSwitch() {
 		return filterSendCodeSwitch;
 	}
 
@@ -3403,7 +3405,7 @@ public class DuccPropertyConfig{
 		this.sealTaskHystrixProps = sealTaskHystrixProps;
 	}
 
-	public boolean isSyncJySealStatusSwitch() {
+	public boolean getSyncJySealStatusSwitch() {
 		return syncJySealStatusSwitch;
 	}
 
@@ -3480,7 +3482,7 @@ public class DuccPropertyConfig{
 		this.batchQueryEndSiteLimit = batchQueryEndSiteLimit;
 	}
 
-	public boolean isBatchSendForbiddenSwitch() {
+	public boolean getBatchSendForbiddenSwitch() {
 		return batchSendForbiddenSwitch;
 	}
 
@@ -3488,7 +3490,7 @@ public class DuccPropertyConfig{
 		this.batchSendForbiddenSwitch = batchSendForbiddenSwitch;
 	}
 
-	public boolean isBoardCombinationRouterSwitch() {
+	public boolean getBoardCombinationRouterSwitch() {
 		return boardCombinationRouterSwitch;
 	}
 
@@ -3536,7 +3538,7 @@ public class DuccPropertyConfig{
 		this.completeExpDayNumLimit = completeExpDayNumLimit;
 	}
 
-	public boolean isCreateBoardBySendFlowSwitch() {
+	public boolean getCreateBoardBySendFlowSwitch() {
 		return createBoardBySendFlowSwitch;
 	}
 
@@ -3560,7 +3562,7 @@ public class DuccPropertyConfig{
 		this.czOrgForbiddenList = czOrgForbiddenList;
 	}
 
-	public boolean isCzQuerySwitch() {
+	public boolean getCzQuerySwitch() {
 		return czQuerySwitch;
 	}
 
@@ -3602,7 +3604,15 @@ public class DuccPropertyConfig{
             this.dewuCustomerCodeList = Arrays.asList(dewuCustomerCodes.split(Constants.SEPARATOR_COMMA));
         }
 	}
-
+    public boolean matchDewuCustomerCode(String customerCode) {
+        if(StringUtils.isBlank(dewuCustomerCodes)){
+            return false;
+        }
+        if(dewuCustomerCodeList.contains(customerCode)){
+            return true;
+        }
+        return false;
+    }
 	public String getDpSpringSiteCode() {
 		return dpSpringSiteCode;
 	}
@@ -3619,7 +3629,9 @@ public class DuccPropertyConfig{
         }		
 		
 	}
-
+    public boolean isDpSpringSiteCode(Integer siteCode) {
+        return this.getDpSpringSiteCodeList().contains(siteCode);
+    }
 	public List<Integer> getDpSpringSiteCodeList() {
 		return dpSpringSiteCodeList;
 	}
@@ -3909,7 +3921,7 @@ public class DuccPropertyConfig{
 		this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
 	}
 
-	public boolean isLoadProgressByVehicleVolume() {
+	public boolean getLoadProgressByVehicleVolume() {
 		return loadProgressByVehicleVolume;
 	}
 
@@ -3925,7 +3937,7 @@ public class DuccPropertyConfig{
 		this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
 	}
 
-	public boolean isMachineCalibrateSpotCheckSwitch() {
+	public boolean getMachineCalibrateSpotCheckSwitch() {
 		return machineCalibrateSpotCheckSwitch;
 	}
 
@@ -3965,7 +3977,7 @@ public class DuccPropertyConfig{
 		this.needIsolateBoardByGroupCodeSiteList = needIsolateBoardByGroupCodeSiteList;
 	}
 
-	public boolean isNeedValidateBatchCodeHasSealed() {
+	public boolean getNeedValidateBatchCodeHasSealed() {
 		return needValidateBatchCodeHasSealed;
 	}
 
@@ -3980,7 +3992,9 @@ public class DuccPropertyConfig{
 	public void setOffLineAllowedSites(String offLineAllowedSites) {
 		this.offLineAllowedSites = offLineAllowedSites;
 	}
-
+    public boolean isOffLineAllowedSite(Integer siteCode) {
+        return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
+    }
 	public int getOnlineGetTaskSimpleCodeThreshold() {
 		return onlineGetTaskSimpleCodeThreshold;
 	}
@@ -4053,7 +4067,7 @@ public class DuccPropertyConfig{
 		this.printCompeteUpdateCancel = printCompeteUpdateCancel;
 	}
 
-	public boolean isProductOperateProgressSwitch() {
+	public boolean getProductOperateProgressSwitch() {
 		return productOperateProgressSwitch;
 	}
 
@@ -4061,7 +4075,7 @@ public class DuccPropertyConfig{
 		this.productOperateProgressSwitch = productOperateProgressSwitch;
 	}
 
-	public boolean isReComboardSwitch() {
+	public boolean getReComboardSwitch() {
 		return reComboardSwitch;
 	}
 
@@ -4093,7 +4107,7 @@ public class DuccPropertyConfig{
 		this.spotCheckIssueRelyOnMachineStatusSiteSwitch = spotCheckIssueRelyOnMachineStatusSiteSwitch;
 	}
 
-	public boolean isSupportMutilScan() {
+	public boolean getSupportMutilScan() {
 		return supportMutilScan;
 	}
 
@@ -4101,7 +4115,7 @@ public class DuccPropertyConfig{
 		this.supportMutilScan = supportMutilScan;
 	}
 
-	public boolean isSyncJyCZSealStatusSwitch() {
+	public boolean getSyncJyCZSealStatusSwitch() {
 		return syncJyCZSealStatusSwitch;
 	}
 
@@ -4109,7 +4123,7 @@ public class DuccPropertyConfig{
 		this.syncJyCZSealStatusSwitch = syncJyCZSealStatusSwitch;
 	}
 
-	public boolean isSyncScheduleTaskSwitch() {
+	public boolean getSyncScheduleTaskSwitch() {
 		return syncScheduleTaskSwitch;
 	}
 
@@ -4129,7 +4143,18 @@ public class DuccPropertyConfig{
         	teAnSiteWhitelistStrList =  Arrays.asList(teAnSiteWhitelist.split(Constants.SEPARATOR_COMMA));
         }
 	}
-
+    public boolean matchTeAnSiteWhitelist(int siteId) {
+        if(StringUtils.isBlank(teAnSiteWhitelist)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, teAnSiteWhitelist)){
+            return true;
+        }
+        if(teAnSiteWhitelistStrList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
 	public List<String> getTeAnSiteWhitelistStrList() {
 		return teAnSiteWhitelistStrList;
 	}
@@ -4435,5 +4460,14 @@ public class DuccPropertyConfig{
             return true;
         }
         return false;
+    }	
+    public ClientAutoRefreshConfig getJyWorkAppAutoRefreshConfigByBusinessType(String businessType) {
+        if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
+            final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
+            if(first.isPresent()){
+                return first.get();
+            }
+        }
+        return null;
     }	
 }

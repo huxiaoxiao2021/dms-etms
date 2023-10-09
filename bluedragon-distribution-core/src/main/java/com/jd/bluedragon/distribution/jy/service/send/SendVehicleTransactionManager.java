@@ -576,7 +576,7 @@ public class SendVehicleTransactionManager {
                         List<TransportResourceDto> transportResourceDtos = basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
                         if(transportResourceDtos!=null){
                             for(TransportResourceDto trd: transportResourceDtos){
-                                if(uccConfig.notValidateTransType(trd.getTransWay())){
+                                if(dmsConfigManager.getPropertyConfig().notValidateTransType(trd.getTransWay())){
                                     needIntercept = Boolean.FALSE;
                                     break;
                                 }
