@@ -15,7 +15,7 @@ import com.jd.bluedragon.common.dto.sendcode.response.SendCodeInfoDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeSealInfoDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BasicSelectWsManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
@@ -86,7 +86,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     @Qualifier("siteResource")
     private SiteResource siteResource;
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
 
@@ -229,7 +229,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
       }
         BaseStaffSiteOrgDto receiveSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
         BaseStaffSiteOrgDto createSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(createSite));
-        if(ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())){
+        if(ObjectHelper.isNotNull(request.getBizSource()) && dmsConfigManager.getPropertyConfig().needValidateMainLine(request.getBizSource())){
 	        try {
 				MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
 				menuUsageConfigRequestDto.setMenuCode(Constants.MENU_CODE_SEND_GZ);
@@ -256,7 +256,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
                             List<TransportResourceDto> transportResourceDtos = basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
                             if(transportResourceDtos!=null){
                                 for(TransportResourceDto trd: transportResourceDtos){
-                                    if(uccConfig.notValidateTransType(trd.getTransWay())){
+                                    if(dmsConfigManager.getPropertyConfig().notValidateTransType(trd.getTransWay())){
                                         needIntercept = Boolean.FALSE;
                                         break;
                                     }

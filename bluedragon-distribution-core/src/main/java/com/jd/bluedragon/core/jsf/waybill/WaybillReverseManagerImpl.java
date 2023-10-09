@@ -21,7 +21,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -123,7 +123,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     @Autowired
     private WaybillCommonService waybillCommonService;
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
     @Autowired
     private WaybillCancelService waybillCancelService;
     /**
@@ -442,7 +442,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
         }
         
         // 换单次数限制
-        Integer reverseExchangeCount = uccPropertyConfiguration.getReverseExchangeCount();
+        Integer reverseExchangeCount = dmsConfigManager.getPropertyConfig().getReverseExchangeCount();
         if(reverseExchangeCount > -1){
             waybillReverseDTO.setLimitReverseFlag(Boolean.TRUE);
             waybillReverseDTO.setAllowReverseCount(reverseExchangeCount);
@@ -522,7 +522,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 	 */
 	private boolean needUseNewReverseApi(String waybillCode,Integer siteCode,Integer returnType){
 		//先判断是否开启ucc配置
-		if(!uccPropertyConfiguration.isNeedUseNewReverseApi()) {
+		if(!dmsConfigManager.getPropertyConfig().isNeedUseNewReverseApi()) {
 			log.info("百川接口切换-0：不调百川接口{}",waybillCode);
 			return false;
 		}

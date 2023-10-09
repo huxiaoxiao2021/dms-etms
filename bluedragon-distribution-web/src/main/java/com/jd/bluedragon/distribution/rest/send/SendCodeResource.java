@@ -5,7 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GenerateSendCodeRequest;
 import com.jd.bluedragon.distribution.api.request.sendcode.SendCodeRequest;
@@ -92,7 +92,7 @@ public class SendCodeResource {
     private SendCodeGateWayService sendCodeGateWayService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @GET
     @Path("/trans/{waybillCode}")
@@ -324,7 +324,7 @@ public class SendCodeResource {
             log.warn("生成数量Quantity:{}非法！", request.getQuantity());
             return false;
         }
-        int maxQuantity = uccPropertyConfiguration.getBatchGenerateSendCodeMaxNum();
+        int maxQuantity = dmsConfigManager.getPropertyConfig().getBatchGenerateSendCodeMaxNum();
         if(maxQuantity <= 0 || maxQuantity > 500) {
             maxQuantity = 100;
         }

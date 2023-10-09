@@ -17,7 +17,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleS
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.enums.FocusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -131,7 +131,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration ;
+    private DmsConfigManager dmsConfigManager ;
     @Autowired
     private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
     @Autowired
@@ -299,7 +299,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Integer getFlowMaxBySiteCode(Integer siteCode) {
         int mixScanTaskFlowNum = MIX_SCAN_TASK_DEFAULT_FLOW_NUM;
-        String mixScanTaskFlowNumConfig = uccPropertyConfiguration.getJyWarehouseSendVehicleMixScanTaskFlowNumConfig();
+        String mixScanTaskFlowNumConfig = dmsConfigManager.getPropertyConfig().getJyWarehouseSendVehicleMixScanTaskFlowNumConfig();
 
         String configKey = String.format("%s%s%s", Constants.SEPARATOR_COMMA, siteCode, Constants.SEPARATOR_COLON);
         if(StringUtils.isNotBlank(mixScanTaskFlowNumConfig) && mixScanTaskFlowNumConfig.contains(configKey)) {
@@ -515,7 +515,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      */
     private List<String> getSendVehicleBizIdList(long startSiteId, List<Long> nextSiteIdList) {
         Integer pageSize = DB_LIMIT_DEFAULT;
-        Integer defaultLimitSize = uccPropertyConfiguration.getJyWarehouseSendVehicleDetailQueryDefaultLimitSize();
+        Integer defaultLimitSize = dmsConfigManager.getPropertyConfig().getJyWarehouseSendVehicleDetailQueryDefaultLimitSize();
         if(!Objects.isNull(defaultLimitSize) && defaultLimitSize > 0 && defaultLimitSize <= DB_LIMIT_DEFAULT_MAX) {
             pageSize = defaultLimitSize;
         }
@@ -743,7 +743,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             } else {
                 queryEntity.setLastPlanDepartTimeEnd(this.defaultTaskPlanTimeEnd());
             }
-            queryEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccPropertyConfiguration.getJySendTaskCreateTimeBeginDay()));
+            queryEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
 
         } catch (Exception e) {
             log.error("查询发货任务设置默认查询条件异常，入参{}", JsonHelper.toJson(request), e.getMessage(), e);
