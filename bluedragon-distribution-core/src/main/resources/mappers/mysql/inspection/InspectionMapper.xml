@@ -452,7 +452,7 @@
             parameterType="Inspection">
         SELECT
         <include refid="Base_Column_List"/>
-        FROM Inspection
+        FROM Inspection FORCE INDEX(IND_INSPECTION_PCODE_D)
         WHERE yn = 1
         <if test="null!=boxCode and ''!=boxCode">
             AND box_code = #{boxCode}
@@ -467,7 +467,6 @@
         AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
         AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
         AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-		order by operate_time desc
         limit 10
     </select>    
     <update id="update" parameterType="Inspection">

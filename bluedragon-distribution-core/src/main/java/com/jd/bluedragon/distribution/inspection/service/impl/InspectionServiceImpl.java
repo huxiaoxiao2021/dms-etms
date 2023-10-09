@@ -90,6 +90,9 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -418,12 +421,13 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	public Integer insertOrUpdate(Inspection inspection) {
 		int result = Constants.NO_MATCH_DATA;
 		Long inspectionId = null;
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.InspectionServiceImpl.update", false, true);
 		List<Inspection> updateList = inspectionDao.queryInspectionForUpdate(inspection);
     	if(updateList != null && updateList.size() > 0) {
     		if(updateList.size() > 1) {
     			this.log.warn("inspectionServiceImpl.insertOrUpdate:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(inspection));
     		}
-    		inspectionId = updateList.get(0).getInspectionId();
+    		inspectionId = BeanHelper.getLastOperateInspectionId(updateList);
     		result = inspectionDao.update(InspectionDao.namespace, inspection);
     	}
 		if (Constants.NO_MATCH_DATA == result) {
@@ -432,6 +436,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 		if(inspectionId != null) {
 			inspection.setInspectionId(inspectionId);
 		}
+		Profiler.registerInfoEnd(info);
 		return result;
 	}
 
