@@ -58,7 +58,7 @@
 	<select id="querySortingForUpdate" resultMap="sorting" parameterType="sorting">
 		SELECT sorting_id, box_code, package_code, waybill_code, create_site_code, receive_site_code,create_time,
 		    create_user_code, create_user, update_user_code, update_user, excute_count, sorting_type, spare_reason
-		FROM Sorting
+		FROM Sorting FORCE INDEX(IND_SORTING_PCODE_P)
 	    WHERE yn = 1
 	        AND box_code = #{boxCode}
 	        AND sorting_type = #{type}
@@ -320,7 +320,6 @@
 		<if test=" null!=receiveSiteCode and ''!=receiveSiteCode ">
 			AND receive_site_code = #{receiveSiteCode,jdbcType=VARCHAR}
 		</if>
-		order by operate_time desc
 		limit 10
 	</select>
 	<update id="canCancel2" parameterType="sorting">
