@@ -1236,7 +1236,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
-  private void pushDelayDeleteBoardMQ(JyBizTaskComboardEntity record) {、
+  private void pushDelayDeleteBoardMQ(JyBizTaskComboardEntity record) {
     try {
       jyComboardTaskFirstSaveProducer.send(record.getBoardCode(), JsonHelper.toJson(record));
     } catch (Exception e) {
