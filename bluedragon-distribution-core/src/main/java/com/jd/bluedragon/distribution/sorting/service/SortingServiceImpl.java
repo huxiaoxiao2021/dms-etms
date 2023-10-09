@@ -210,20 +210,21 @@ public class SortingServiceImpl implements SortingService {
 	public Integer update(Sorting sorting) {
     	Integer count = 0;
     	Long sortingId = null;
+    	CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.update", false, true);
 		List<Sorting> updateList = sortingDao.querySortingForUpdate(sorting);
     	if(updateList != null && updateList.size() > 0) {
     		if(updateList.size() > 1) {
     			this.log.warn("sortingServiceImpl.update:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sorting));
     		}
-    		sortingId = updateList.get(0).getId();
+    		sortingId = BeanHelper.getLastOperateSortingId(updateList);
     		count = this.sortingDao.update(SortingDao.namespace, sorting);
     	}
     	if(sortingId != null && count > 0) {
     		sorting.setId(sortingId);
     	}
+    	Profiler.registerInfoEnd(info);
 		return count;
 	}
-
 	public boolean existSortingByPackageCode(Sorting sorting) {
 		return dynamicSortingQueryDao.existSortingByPackageCode(sorting);
 	}

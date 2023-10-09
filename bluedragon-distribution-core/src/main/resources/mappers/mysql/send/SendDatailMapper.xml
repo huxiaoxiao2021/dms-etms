@@ -79,7 +79,6 @@
 			<if test="packageBarcode!=null">
 				and package_barcode = #{packageBarcode,jdbcType=INTEGER}
 			</if>
-			order by operate_time desc
 			limit 10
 		</where>
 	</select>

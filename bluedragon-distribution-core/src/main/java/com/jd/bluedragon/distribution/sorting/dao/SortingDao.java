@@ -4,7 +4,10 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.ISortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +45,7 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
     }
 
     public Boolean canCancel2(Sorting sorting) {
+    	CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingDao.canCancel2", false, true);
     	Integer count = 0;
     	Long sortingId = null;
     	List<Sorting> updateList = this.getSqlSession().selectList(namespace + ".querySortingForCanCancel2", sorting);
@@ -49,15 +53,15 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
     		if(updateList.size() > 1) {
     			this.log.warn("sortingServiceImpl.canCancel2:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sorting));
     		}
-    		sortingId = updateList.get(0).getId();
+    		sortingId = BeanHelper.getLastOperateSortingId(updateList);
             count = this.getSqlSession().update(namespace + ".canCancel2", sorting);
     	}
     	if(sortingId != null && count > 0) {
     		sorting.setId(sortingId);
     	}
+    	Profiler.registerInfoEnd(info);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
-
     public boolean canCancelFuzzy(Sorting sorting) {
     	Integer count = this.getSqlSession().update(namespace + ".canCancelFuzzy", sorting);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
