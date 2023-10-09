@@ -922,19 +922,24 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 return;
             }
             
-            Set<JyAppDataSealSendCode> sendCodes = new HashSet<>();
+            List<JyAppDataSealSendCode> sendCodes = new ArrayList<>();
+            Set<String> sendCodeSet = new HashSet<>();
             for (BoardLoadDto boardLoadDto : boardList) {
                 if (!LOADING_COMPLETEDC.equals(boardLoadDto.getBoardStatus())) {
                     // 只操作完成装车的板
                     continue;
                 }
+                if (sendCodeSet.contains(boardLoadDto.getBatchCode())){
+                    continue;
+                }
+                sendCodeSet.add(boardLoadDto.getBatchCode());
                 JyAppDataSealSendCode sealSendCode = new JyAppDataSealSendCode();
                 sealSendCode.setSendCode(boardLoadDto.getBatchCode());
                 sealSendCode.setSendDetailBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
                 sealSendCode.setCreateTime(new Date());
                 sendCodes.add(sealSendCode);
             }
-            jyAppDataSealService.saveSendCodeList(new ArrayList<>(sendCodes));
+            jyAppDataSealService.saveSendCodeList(sendCodes);
         }
     }
     
