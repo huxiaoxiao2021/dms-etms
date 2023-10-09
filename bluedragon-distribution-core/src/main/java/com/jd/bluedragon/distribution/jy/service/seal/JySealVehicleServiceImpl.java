@@ -157,6 +157,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     
     @Autowired
     private JdiBoardLoadWSManager jdiBoardLoadWSManager;
+    
+    public static final Integer LOADING_COMPLETEDC = 30;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -922,6 +924,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             
             List<JyAppDataSealSendCode> sendCodes = new ArrayList<>();
             for (BoardLoadDto boardLoadDto : boardList) {
+                if (!LOADING_COMPLETEDC.equals(boardLoadDto.getBoardStatus())) {
+                    // 只操作完成装车的板
+                    continue;
+                }
                 JyAppDataSealSendCode sealSendCode = new JyAppDataSealSendCode();
                 sealSendCode.setSendCode(boardLoadDto.getBatchCode());
                 sealSendCode.setSendDetailBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
@@ -943,8 +949,6 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             boardLoadDto.setEndNodeCode(siteInfo.getDmsSiteCode());
         }
         boardLoadDto.setTransWorkCode(sendVehicle.getTransWorkCode());
-        List<Integer> boardStatusList = Arrays.asList(PROCESSING.getCode(), FINISHED.getCode(), CANCEL_SEAL.getCode());
-        boardLoadDto.setBoardStatusList(boardStatusList);
         return boardLoadDto;
     }
 
