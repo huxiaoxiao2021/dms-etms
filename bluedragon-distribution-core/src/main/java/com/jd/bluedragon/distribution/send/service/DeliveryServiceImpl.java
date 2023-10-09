@@ -2066,6 +2066,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     @Override
     public Integer update(SendDetail sendDetail) {
+    	CallerInfo info = Profiler.registerInfo("DMSWORKER.DeliveryServiceImpl.update", false, true);
     	Integer count = 0;
     	Long sendDId = null;
     	List<SendDetail> updateList = sendDatailDao.querySendDatailForUpdate(sendDetail);
@@ -2073,15 +2074,15 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     		if(updateList.size() > 1) {
     			this.log.warn("deliveryServiceImpl.update:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sendDetail));
     		}
-    		sendDId = updateList.get(0).getSendDId();
+    		sendDId = BeanHelper.getLastOperateSendDetail(updateList);
     		count = this.sendDatailDao.update(SendDatailDao.namespace, sendDetail);
     	}
     	if(sendDId != null && count > 0) {
     		sendDetail.setSendDId(sendDId);
     	}
+    	Profiler.registerInfoEnd(info);
         return count;
     }
-
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.deliveryService.updateCancel", mState = {JProEnum.TP,
             JProEnum.FunctionError})
     public Integer updateCancel(SendDetail sendDetail) {
