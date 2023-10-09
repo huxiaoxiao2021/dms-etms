@@ -18,14 +18,13 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.laf.config.spring.annotation.LafUcc;
 import com.jd.ql.dms.print.utils.JsonHelper;
 
 @Component("duccPropertyConfig")
 	@LafUcc
-public class DuccPropertyConfig extends UccPropertyConfiguration{
+public class DuccPropertyConfig{
 	private static final Logger log = LoggerFactory.getLogger(DuccPropertyConfig.class);
 	
 	public static final String CONFIG_FROM_LOCAL = "local";
@@ -4362,7 +4361,7 @@ public class DuccPropertyConfig extends UccPropertyConfiguration{
 	}
 
 	public boolean isJyExceptionCreateBizIdSwitch() {
-		return jyExceptionCreateBizIdSwitch;
+		return this.jyExceptionCreateBizIdSwitch;
 	}
 
 	public void setJyExceptionCreateBizIdSwitch(boolean jyExceptionCreateBizIdSwitch) {
@@ -4370,7 +4369,7 @@ public class DuccPropertyConfig extends UccPropertyConfiguration{
 	}
 
 	public int getJyExceptionDamageTaskCustomerNotReturnHours() {
-		return jyExceptionDamageTaskCustomerNotReturnHours;
+		return this.jyExceptionDamageTaskCustomerNotReturnHours;
 	}
 
 	public void setJyExceptionDamageTaskCustomerNotReturnHours(int jyExceptionDamageTaskCustomerNotReturnHours) {
@@ -4378,7 +4377,7 @@ public class DuccPropertyConfig extends UccPropertyConfiguration{
 	}
 
 	public String getQingChangDataOpenSwitch() {
-		return qingChangDataOpenSwitch;
+		return this.qingChangDataOpenSwitch;
 	}
 
 	public void setQingChangDataOpenSwitch(String qingChangDataOpenSwitch) {
@@ -4386,7 +4385,7 @@ public class DuccPropertyConfig extends UccPropertyConfiguration{
 	}
 
 	public Integer getReverseExchangeCount() {
-		return reverseExchangeCount;
+		return this.reverseExchangeCount;
 	}
 
 	public void setReverseExchangeCount(Integer reverseExchangeCount) {
@@ -4394,7 +4393,7 @@ public class DuccPropertyConfig extends UccPropertyConfiguration{
 	}
 
 	public boolean isTerminalSitePackagePrintLimitSwitch() {
-		return terminalSitePackagePrintLimitSwitch;
+		return this.terminalSitePackagePrintLimitSwitch;
 	}
 
 	public void setTerminalSitePackagePrintLimitSwitch(boolean terminalSitePackagePrintLimitSwitch) {
