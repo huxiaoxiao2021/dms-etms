@@ -922,7 +922,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 return;
             }
             
-            List<JyAppDataSealSendCode> sendCodes = new ArrayList<>();
+            Set<JyAppDataSealSendCode> sendCodes = new HashSet<>();
             for (BoardLoadDto boardLoadDto : boardList) {
                 if (!LOADING_COMPLETEDC.equals(boardLoadDto.getBoardStatus())) {
                     // 只操作完成装车的板
@@ -934,10 +934,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 sealSendCode.setCreateTime(new Date());
                 sendCodes.add(sealSendCode);
             }
-            jyAppDataSealService.saveSendCodeList(sendCodes);
+            jyAppDataSealService.saveSendCodeList(new ArrayList<>(sendCodes));
         }
     }
-
+    
     private BoardLoadDto assembleBoardLoadDto(SealVehicleInfoReq sealVehicleInfoReq) {
         BoardLoadDto boardLoadDto = new BoardLoadDto();
         // 查询发货主任务信息
