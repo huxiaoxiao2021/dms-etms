@@ -782,7 +782,6 @@
 
     <bean id="dmsScheduleInfoDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.schedule.dao.impl.DmsScheduleInfoDaoImpl" />
-
     <bean id="businessReturnAdressDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.business.dao.impl.BusinessReturnAdressDaoImpl" />
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
@@ -799,6 +798,7 @@
         <property name="sqlSession" ref = "sessionTemplate_waybill"/>
     </bean>
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
+
     <!--面单异常举报-->
     <bean id="expressBillExceptionReportDao" class="com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -820,6 +820,15 @@
     <bean id="jyTaskGroupMemberDao" class="com.jd.bluedragon.distribution.jy.dao.group.JyTaskGroupMemberDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
+    <bean id="jyAppDataSealDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyAppDataSealCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealCodeDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyAppDataSealSendCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealSendCodeDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
     <bean id="jyBizTaskExceptionDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
@@ -831,15 +840,6 @@
     </bean>
     <bean id="jyExceptionDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao">
         <property name="sqlSession" ref="sessionTemplate"/>
-    </bean>
-    <bean id="jyAppDataSealDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealDao">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>
-    <bean id="jyAppDataSealCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealCodeDao">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>
-    <bean id="jyAppDataSealSendCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealSendCodeDao">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
     <bean id="jyBizTaskUnloadVehicleDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
@@ -885,10 +885,6 @@
     <bean id="jyComboardAggsDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardAggsDao">
         <property name="sqlSession" ref="dynamicSqlSessionTemplate"/>
     </bean>
-    <bean id="jySendPredictAggsDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendPredictAggsDao">
-        <property name="sqlSession" ref="dynamicSqlSessionTemplate"/>
-    </bean>
-
     <bean id="jyGroupSortCrossDetailDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
