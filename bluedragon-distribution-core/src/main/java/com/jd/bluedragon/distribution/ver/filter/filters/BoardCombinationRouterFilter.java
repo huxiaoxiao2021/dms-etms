@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.router.RouterService;
@@ -43,7 +43,7 @@ public class BoardCombinationRouterFilter implements Filter {
     private SiteService siteService;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private RouterService routerService;
@@ -83,9 +83,9 @@ public class BoardCombinationRouterFilter implements Filter {
                             .replace(Constants.SUFFIX_TRANSIT,"");
                     throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
                             SortingResponse.MESSAGE_BOARD_ROUTER_ERROR + "路由下一站：" + routerShortNames);
-                } else if (routeNextDto == null && uccPropertyConfiguration.isControlCheckRoute()){
+                } else if (routeNextDto == null && dmsConfigManager.getPropertyConfig().isControlCheckRoute()){
                     // 跳过路由校验
-                    if(uccPropertyConfiguration.getBoardCombinationRouterSwitch()){
+                    if(dmsConfigManager.getPropertyConfig().getBoardCombinationRouterSwitch()){
                         chain.doFilter(request, chain);
                         return;
                     }

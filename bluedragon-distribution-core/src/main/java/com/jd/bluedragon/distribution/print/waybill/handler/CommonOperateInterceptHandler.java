@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -44,7 +44,7 @@ public class CommonOperateInterceptHandler extends NeedPrepareDataInterceptHandl
     private ReprintRecordService reprintRecordService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     /**
      * 需要校验运单是否已经妥投的类型
@@ -271,7 +271,7 @@ public class CommonOperateInterceptHandler extends NeedPrepareDataInterceptHandl
      */
     private void getPackReprintStatus(Set<Integer> needHitStatusSet, Set<Integer> needInterceptStatusSet) {
         try {
-            String packRePrintInterceptStatus = uccPropertyConfiguration.getPackRePrintInterceptStatus();
+            String packRePrintInterceptStatus = dmsConfigManager.getPropertyConfig().getPackRePrintInterceptStatus();
             if(StringUtils.isNotEmpty(packRePrintInterceptStatus)){
                 String[] interceptStatusArray = packRePrintInterceptStatus.split(Constants.SEPARATOR_COMMA);
                 for (String interceptStatus : interceptStatusArray) {

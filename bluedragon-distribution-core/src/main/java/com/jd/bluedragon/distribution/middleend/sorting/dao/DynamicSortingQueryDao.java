@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.middleend.sorting.dao;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -15,7 +15,7 @@ public class DynamicSortingQueryDao implements ISortingDao{
     private final Logger log = LoggerFactory.getLogger(DynamicSortingQueryDao.class);
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private SortingDao sortingDao;

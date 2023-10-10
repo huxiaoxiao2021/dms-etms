@@ -7,7 +7,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionAssignDao;
@@ -81,7 +81,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
     private PositionQueryJsfManager positionQueryJsfManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private UserSignRecordDao userSignRecordDao;
@@ -502,7 +502,7 @@ public class JySanwuExceptionServiceImpl extends JyExceptionStrategy implements 
                     Collectors.collectingAndThen(Collectors.toCollection(
                             () -> new TreeSet<>(Comparator.comparing(String::toString))), ArrayList::new));
             //一次分配任务数量限制
-            int assignExpTaskQuantityLimit = uccPropertyConfiguration.getAssignExpTaskQuantityLimit();
+            int assignExpTaskQuantityLimit = dmsConfigManager.getPropertyConfig().getAssignExpTaskQuantityLimit();
             if(assignExpTaskQuantityLimit < allTaskBizids.size()){
                 response.toFail("一次指派任务条数不能超过限制条数:"+assignExpTaskQuantityLimit+"!");
                 response.setData(Boolean.FALSE);

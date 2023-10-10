@@ -677,7 +677,6 @@ public class UccPropertyConfiguration{
      * 打印客户端无权限菜单配置
      */
     private String noAuthMenuConfig;
-    private String noAuthMenuConfigUat;
     /**
      * 打印客户端无权限菜单配置
      */
@@ -687,7 +686,6 @@ public class UccPropertyConfiguration{
      * 打印客户端菜单功能配置
      */
     private String menuCodeFuncConfig;
-    private String menuCodeFuncConfigUat;
     /**
      * 打印客户端菜单功能配置
      */
@@ -1052,7 +1050,7 @@ public class UccPropertyConfiguration{
     }
 
     public List<String> getNeedInterceptUrlList() {
-        return needInterceptUrlList;
+		return Lists.newArrayList(needInterceptUrlList);
     }
 
     public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -2773,22 +2771,6 @@ public class UccPropertyConfiguration{
 
     public void setSitePlateIsCheckFunc(boolean sitePlateIsCheckFunc) {
         this.sitePlateIsCheckFunc = sitePlateIsCheckFunc;
-    }
-
-    public String getNoAuthMenuConfigUat() {
-        return noAuthMenuConfigUat;
-    }
-
-    public void setNoAuthMenuConfigUat(String noAuthMenuConfigUat) {
-        this.noAuthMenuConfigUat = noAuthMenuConfigUat;
-    }
-
-    public String getMenuCodeFuncConfigUat() {
-        return menuCodeFuncConfigUat;
-    }
-
-    public void setMenuCodeFuncConfigUat(String menuCodeFuncConfigUat) {
-        this.menuCodeFuncConfigUat = menuCodeFuncConfigUat;
     }
 
     public boolean getBTemplateRouterExecuteNew() {

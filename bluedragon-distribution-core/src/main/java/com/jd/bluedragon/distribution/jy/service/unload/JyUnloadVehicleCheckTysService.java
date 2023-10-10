@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
@@ -130,7 +130,7 @@ public class JyUnloadVehicleCheckTysService {
     private JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration ;
+    private DmsConfigManager dmsConfigManager ;
 
     @Autowired
     private JyUnloadVehicleBoardDao jyUnloadVehicleBoardDao;
@@ -229,7 +229,7 @@ public class JyUnloadVehicleCheckTysService {
     }
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.checkPackageOverWeight", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void checkPackageOverWeight(DeliveryPackageD packageD, Waybill waybill, ScanPackageRespDto response) {
-        String packageWeightLimit = uccPropertyConfiguration.getPackageWeightLimit();
+        String packageWeightLimit = dmsConfigManager.getPropertyConfig().getPackageWeightLimit();
         BigDecimal packageWeight = getPackageWeight(packageD, waybill);
         if (packageWeight != null && packageWeight.compareTo(new BigDecimal(packageWeightLimit)) > 0) {
             log.info("包裹超重:packageCode={},weight={},limit={}", response.getBarCode(), packageWeight.toPlainString(), packageWeightLimit);
@@ -239,7 +239,7 @@ public class JyUnloadVehicleCheckTysService {
     }
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.checkWaybillOverWeight", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void checkWaybillOverWeight(Waybill waybill) {
-        String waybillWeightLimit = uccPropertyConfiguration.getWaybillWeightLimit();
+        String waybillWeightLimit = dmsConfigManager.getPropertyConfig().getWaybillWeightLimit();
         if (waybill.getAgainWeight() != null && waybill.getAgainWeight() > 0) {
             if (waybill.getAgainWeight() > Double.parseDouble(waybillWeightLimit)) {
                 throw new UnloadPackageBoardException("运单重量大于" + waybillWeightLimit + "KG，请重新称重量方，谢谢。是否强制继续组板？");
@@ -332,7 +332,7 @@ public class JyUnloadVehicleCheckTysService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.inspectAndCollectDeal", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void inspectionInterceptAndCollectDeal(String barCode, Waybill waybill, UnloadScanDto unloadScanDto, ScanPackageDto scanPackageDto, InvokeResult<ScanPackageRespDto> invokeResult, Integer scanCodeType) throws LoadIllegalException {
         // 加盟商余额校验
-        if (uccPropertyConfiguration.isAllianceBusinessSwitch()) {
+        if (dmsConfigManager.getPropertyConfig().isAllianceBusinessSwitch()) {
             this.allianceBusiDeliveryCheck(waybill);
         }
         //处理验货
@@ -571,7 +571,7 @@ public class JyUnloadVehicleCheckTysService {
                 log.info("JyUnloadVehicleCheckTysService.routerCheck-按箱号卸车扫描开板-param={}", JsonUtils.toJSONString(boardCommonRequest));
             }
             if(boardCommonRequest.getReceiveSiteCode() == null) {
-                if(uccPropertyConfiguration.getBoardCombinationRouterSwitch()){
+                if(dmsConfigManager.getPropertyConfig().getBoardCombinationRouterSwitch()){
                     // 首包裹开板，包裹目的地（路由）不存在，则使用约定编码提示前端让其选择目的地
                     scanResult.customMessage(BoardResponse.CODE_SPECIAL_PACK_NO_ROUTER, HintService.getHint(HintCodeConstants.JY_UNLOAD_VEHICLE_PACK_NO_ROUTER));
                     return false;
@@ -611,7 +611,7 @@ public class JyUnloadVehicleCheckTysService {
 
         // 非首包裹无路由场景
         if (request.getNextSiteCode() == null) {
-            if(uccPropertyConfiguration.getBoardCombinationRouterSwitch()){
+            if(dmsConfigManager.getPropertyConfig().getBoardCombinationRouterSwitch()){
                 return true;
             }
             // 此处直接返回，因为ver组板校验链会判断
@@ -663,7 +663,7 @@ public class JyUnloadVehicleCheckTysService {
      */
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.packageCountCheck", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void packageCountCheck(ScanPackageDto scanPackageDto) {
-        Integer unloadBoardBindingsMaxCount = uccPropertyConfiguration.getUnloadBoardBindingsMaxCount();
+        Integer unloadBoardBindingsMaxCount = dmsConfigManager.getPropertyConfig().getUnloadBoardBindingsMaxCount();
         boardCommonManager.packageCountCheck(scanPackageDto.getBoardCode(), unloadBoardBindingsMaxCount);
     }
 
@@ -674,7 +674,7 @@ public class JyUnloadVehicleCheckTysService {
     public void boardCountCheck(ScanPackageDto request, String stageBizId) {
         // 只有开新板才校验
         if (request.isCreateNewBoard()) {
-            Integer unloadTaskBoardMaxCount = uccPropertyConfiguration.getUnloadTaskBoardMaxCount();
+            Integer unloadTaskBoardMaxCount = dmsConfigManager.getPropertyConfig().getUnloadTaskBoardMaxCount();
             int count = jyUnloadVehicleBoardDao.countByBizIdAndStageBizId(request.getBizId(), stageBizId);
             if (count >= unloadTaskBoardMaxCount) {
                 throw new LoadIllegalException("该任务绑定的组板数量已达上限" + count);
@@ -1147,7 +1147,7 @@ public class JyUnloadVehicleCheckTysService {
      */
     private void setCacheOfBoardAndPack(String boardCode, String packageCode) {
         try {
-            int unloadCacheDurationHours = uccPropertyConfiguration.getUnloadCacheDurationHours();
+            int unloadCacheDurationHours = dmsConfigManager.getPropertyConfig().getUnloadCacheDurationHours();
             String key = REDIS_PREFIX_BOARD_PACK + boardCode + Constants.SEPARATOR_HYPHEN + packageCode;
             redisClientCache.setEx(key, String.valueOf(true), unloadCacheDurationHours, TimeUnit.HOURS);
         } catch (Exception e) {
@@ -1192,7 +1192,7 @@ public class JyUnloadVehicleCheckTysService {
      */
     public void setCacheOfSealCarAndScanCodeIntercept(String bizId, String barCode) {
         try {
-            int unloadCacheDurationHours = uccPropertyConfiguration.getUnloadCacheDurationHours();
+            int unloadCacheDurationHours = dmsConfigManager.getPropertyConfig().getUnloadCacheDurationHours();
             String key = REDIS_PREFIX_SEAL_PACK_INTERCEPT + bizId + Constants.SEPARATOR_HYPHEN + barCode;
             redisClientCache.setEx(key, barCode, unloadCacheDurationHours, TimeUnit.HOURS);
         } catch (Exception e) {
@@ -1262,7 +1262,7 @@ public class JyUnloadVehicleCheckTysService {
         }
         if (StringUtils.isNotBlank(request.getGoodsAreaCode())) {
             if (!goodsAreaCode.equals(request.getGoodsAreaCode())) {
-                if(uccPropertyConfiguration.getEnableGoodsAreaOfTysScan()){
+                if(dmsConfigManager.getPropertyConfig().getEnableGoodsAreaOfTysScan()){
                     response.setGoodsAreaCode(goodsAreaCode);
                 }
                 return "扫描包裹非本货区，请移除本区！";
@@ -1398,7 +1398,7 @@ public class JyUnloadVehicleCheckTysService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.JyUnloadVehicleCheckTysService.checkIsMeetWaybillStandard", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String checkIsMeetWaybillStandard(Waybill waybill) {
         // 默认使用ucc的配置
-        int waybillLimit = uccPropertyConfiguration.getDazongPackageOperateMax();
+        int waybillLimit = dmsConfigManager.getPropertyConfig().getDazongPackageOperateMax();
         int packageNum = waybill.getGoodNumber();
         // 查询运单件数配置表最新的配置记录
         WaybillConfig configPo = waybillConfigDao.findLatestWaybillConfig();
@@ -1496,7 +1496,7 @@ public class JyUnloadVehicleCheckTysService {
         if(resData == null) {
             resData = new ScanPackageRespDto();
         }
-        if(uccPropertyConfiguration.getTysUnloadCarCollectDemoteSwitch()) {
+        if(dmsConfigManager.getPropertyConfig().getTysUnloadCarCollectDemoteSwitch()) {
             //默认关闭开关，手动开启降级 true
             if(log.isInfoEnabled()) {
                 log.info("JyUnloadVehicleCheckTysService.collectDeal：转运集齐功能降级处理中");
@@ -1505,7 +1505,7 @@ public class JyUnloadVehicleCheckTysService {
             return;
         }
         resData.setCollectDemoteSwitch(false);
-        String siteWhitelist = uccPropertyConfiguration.getJyCollectSiteWhitelist();
+        String siteWhitelist = dmsConfigManager.getPropertyConfig().getJyCollectSiteWhitelist();
         if(StringUtils.isBlank(siteWhitelist)) {
             if(log.isInfoEnabled()) {
                 log.info("转运卸车集齐服务场地白名单未配置，默认走全场， param={}", JsonUtils.toJSONString(unloadScanCollectDealDto));

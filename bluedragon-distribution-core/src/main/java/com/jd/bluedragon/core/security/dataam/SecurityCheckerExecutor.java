@@ -1,6 +1,6 @@
 package com.jd.bluedragon.core.security.dataam;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.security.dataam.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.core.security.dataam.manage.SecurityCheckManager;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
@@ -31,7 +31,7 @@ public class SecurityCheckerExecutor{
     private SecurityCheckManager securityCheckManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 
     public SecurityCheckerExecutor(Map<SecurityDataMapFuncEnum, String> securityCheckEnumsStringMap) {
@@ -39,7 +39,7 @@ public class SecurityCheckerExecutor{
     }
 
     public InvokeResult<Boolean> verifyWaybillDetailPermission(SecurityDataMapFuncEnum securityCheckEnums, String erpCode, String waybillNo) {
-        if(!uccPropertyConfiguration.getSecuritySwitch()){
+        if(!dmsConfigManager.getPropertyConfig().getSecuritySwitch()){
             return new InvokeResult<>();
         }
         InvokeResult<Boolean> result = securityCheckManager.verifyWaybillDetailPermissionByErp(erpCode, waybillNo, securityCheckEnumsStringMap.get(securityCheckEnums));

@@ -17,7 +17,7 @@ import com.jd.bluedragon.common.dto.inventory.enums.InventoryTaskStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
@@ -77,7 +77,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   @Autowired
   private PositionManager positionManager;
   @Autowired
-  private UccPropertyConfiguration uccConfig;
+  private DmsConfigManager dmsConfigManager;
   @Autowired
   JimDbLock jimDbLock;
 
@@ -299,7 +299,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
 
   private ClientAutoRefreshConfig getClientAutoRefreshConfig() {
     try {
-      return uccConfig.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.FIND_GOODS_TASK_PROGRESS.name());
+      return dmsConfigManager.getPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.FIND_GOODS_TASK_PROGRESS.name());
     }catch (Exception ex) {
       log.error("找货刷新间隔获取错误，errMsg={}", ex.getMessage(), ex);
     }

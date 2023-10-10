@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.rest.client;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.ClientAuthRequest;
@@ -43,7 +43,7 @@ public class ClientAuthResource {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     /**
      * 获取无权限的菜单编码
@@ -110,7 +110,7 @@ public class ClientAuthResource {
         Integer siteType = baseSite.getSiteType();
         Integer subType = baseSite.getSubType();
         // 打印客户端无权限的菜单编码
-        String noAuthMenuConfig = uccPropertyConfiguration.getNoAuthMenuConfigNew();
+        String noAuthMenuConfig = dmsConfigManager.getPropertyConfig().getNoAuthMenuConfigNew();
         List<ClientNoAuthMenuCodeConfig> list = JsonHelper.jsonToList(noAuthMenuConfig, ClientNoAuthMenuCodeConfig.class);
         if(CollectionUtils.isEmpty(list)){
             return noAuthMenuCodeList;
@@ -148,7 +148,7 @@ public class ClientAuthResource {
         Integer siteType = baseSite.getSiteType();
         Integer subType = baseSite.getSubType();
         // 打印客户端无权限的菜单编码
-        String noAuthMenuConfig = uccPropertyConfiguration.getNoAuthMenuConfigUat();
+        String noAuthMenuConfig = dmsConfigManager.getPropertyConfig().getNoAuthMenuConfig();
         List<ClientNoAuthMenuCodeConfig> list = JsonHelper.jsonToList(noAuthMenuConfig, ClientNoAuthMenuCodeConfig.class);
         if(CollectionUtils.isEmpty(list)){
             return noAuthMenuCodeList;
@@ -217,7 +217,7 @@ public class ClientAuthResource {
     private void checkMenuFuncAuthNew(ClientAuthRequest clientAuthRequest, ClientMenuDto clientMenuDto) {
         // 站点平台打印是否校验开关
         if(Objects.equals(clientAuthRequest.getMenuCode(), DeskClientMenuEnum.SITE_CLIENT_PRINT.getCode())
-                && !uccPropertyConfiguration.getSitePlateIsCheckFunc()){
+                && !dmsConfigManager.getPropertyConfig().getSitePlateIsCheckFunc()){
             return;
         }
         Integer siteType = null;
@@ -234,7 +234,7 @@ public class ClientAuthResource {
             logger.error("根据站点:{}查询站点信息异常!", clientAuthRequest.getSiteCode(), e);
             return;
         }
-        String menuCodeFuncConfig = uccPropertyConfiguration.getMenuCodeFuncConfigNew();
+        String menuCodeFuncConfig = dmsConfigManager.getPropertyConfig().getMenuCodeFuncConfigNew();
         List<ClientMenuFuncConfig> list = JsonHelper.jsonToList(menuCodeFuncConfig, ClientMenuFuncConfig.class);
         if(CollectionUtils.isEmpty(list)){
             // 无配置，均可操作
@@ -264,7 +264,7 @@ public class ClientAuthResource {
      */
     private void checkMenuFuncAuth(ClientAuthRequest clientAuthRequest, ClientMenuDto clientMenuDto) {
         // 站点平台打印是否校验开关
-        if(Objects.equals(clientAuthRequest.getMenuCode(), ClientMenuEnum.SITE_CLIENT_PRINT.getCode()) && !uccPropertyConfiguration.getSitePlateIsCheckFunc()){
+        if(Objects.equals(clientAuthRequest.getMenuCode(), ClientMenuEnum.SITE_CLIENT_PRINT.getCode()) && !dmsConfigManager.getPropertyConfig().getSitePlateIsCheckFunc()){
             return;
         }
         Integer siteType = null;
@@ -281,7 +281,7 @@ public class ClientAuthResource {
             logger.error("根据站点:{}查询站点信息异常!", clientAuthRequest.getSiteCode(), e);
             return;
         }
-        String menuCodeFuncConfig = uccPropertyConfiguration.getMenuCodeFuncConfigUat();
+        String menuCodeFuncConfig = dmsConfigManager.getPropertyConfig().getMenuCodeFuncConfig();
         List<ClientMenuFuncConfig> list = JsonHelper.jsonToList(menuCodeFuncConfig, ClientMenuFuncConfig.class);
         if(CollectionUtils.isEmpty(list)){
             // 无配置，均可操作

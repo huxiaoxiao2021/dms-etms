@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.web;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.domain.BaseDataDict;
@@ -51,7 +51,7 @@ public class IndexController {
     private String zyWeightConfigUrl;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private ErpSsoInterceptor springSSOInterceptor;
@@ -134,8 +134,8 @@ public class IndexController {
             model.addAttribute("userName", erpUser.getUserName());
             model.addAttribute("userCode", erpUser.getStaffNo());
 
-            boolean flag = Objects.equals(uccPropertyConfiguration.getPackConsumableSwitch(),1)
-                    || Objects.equals(uccPropertyConfiguration.getPackConsumableSwitch(), 3);
+            boolean flag = Objects.equals(dmsConfigManager.getPropertyConfig().getPackConsumableSwitch(),1)
+                    || Objects.equals(dmsConfigManager.getPropertyConfig().getPackConsumableSwitch(), 3);
 
             model.addAttribute("banAddAndDeleteFlag", flag);
 
