@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.jd.fastjson.JSON;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -270,6 +271,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 				result.toFail(msg);
 				return result;
 			}
+			signData.setIdCard(BusinessUtil.encryptIdCardDoubleStar(addRequest.getUserCode()));
 		}else if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)){
 			signData.setSignInTimeNew(signInTimeNew);
 			signData.setSignOutTimeNew(signOutTimeNew);
@@ -397,7 +399,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		signData.setFlowTypeName(SignFlowTypeEnum.getNameByCode(signData.getFlowType()));
 		signData.setFlowStatusName(SignFlowStatusEnum.getNameByCode(signData.getFlowStatus()));
 		//身份证隐藏
-		signData.setUserCodeHidden(BusinessUtil.encryptIdCard(signData.getUserCode()));
+		signData.setUserCodeHidden(BusinessUtil.encryptIdCardDoubleStar(signData.getUserCode()));
 		signData.setUserNameHidden(BusinessUtil.encryptIdCard(signData.getUserName()));
 	}
 			
@@ -485,6 +487,11 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		query.setLimit(query.getPageSize());
 		if(query.getPageNumber() > 0) {
 			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
+		}
+		String userCode = query.getUserCode();
+		if (StringUtils.isNotBlank(userCode) && userCode.contains("***")) {
+			query.setUserCode(null);
+			query.setIdCard(userCode);
 		}
 		return result;
 	 }
