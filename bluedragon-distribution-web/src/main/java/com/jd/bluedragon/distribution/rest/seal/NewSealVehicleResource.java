@@ -331,7 +331,7 @@ public class NewSealVehicleResource {
                 return sealVehicleResponse;
             }
         	//开关控制调用新接口
-        	if(BusinessHelper.isTrue(uccPropertyConfiguration.getUsePdaSorterApi())) {
+        	if(BusinessHelper.isTrue(dmsConfigManager.getPropertyConfig().getUsePdaSorterApi())) {
                 TransWorkItemSimpleDto transWorkItemSimpleDto = new TransWorkItemSimpleDto();
                 transWorkItemSimpleDto.setSimpleCode(request.getTransWorkItemCode());
                 transWorkItemSimpleDto.setVehicleNumber(request.getVehicleNumber());

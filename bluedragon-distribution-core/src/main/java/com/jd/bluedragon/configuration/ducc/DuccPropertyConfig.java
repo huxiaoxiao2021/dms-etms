@@ -1802,6 +1802,25 @@ public class DuccPropertyConfig{
 	@Value("${duccPropertyConfig.dmsToVendorSendMQSwitch:false}")
 	@LafUcc	
     private boolean dmsToVendorSendMQSwitch;	
+	
+    /**
+     * 解封车查看运单包裹是否集齐
+     */
+	@Value("${duccPropertyConfig.unSealCarHandlePackageFullCollectedSwitch:-1}")
+	@LafUcc	
+    private String unSealCarHandlePackageFullCollectedSwitch;
+    /**
+     * 是否开启新发货交接逻辑
+     */
+	@Value("${duccPropertyConfig.newPrintHandoverListSwitch:true}")
+	@LafUcc		
+    private boolean newPrintHandoverListSwitch;
+    /**
+     * 启用运输新接口-开关 1-开启 0-关闭
+     */
+	@Value("${duccPropertyConfig.usePdaSorterApi:0}")
+	@LafUcc
+    private Integer usePdaSorterApi;
     
 	public boolean isUseDucc() {
 		return useDucc;
@@ -4489,7 +4508,22 @@ public class DuccPropertyConfig{
         }
         return null;
     }
-
+    public Boolean getUnSealCarHandlePackageFullCollectedNeedHandle(Long siteId) {
+        if(StringUtils.isBlank(unSealCarHandlePackageFullCollectedSwitch)){
+            return false;
+        }
+        if(Objects.equals("all", unSealCarHandlePackageFullCollectedSwitch)){
+            return true;
+        }
+        if(Objects.equals("-1", unSealCarHandlePackageFullCollectedSwitch)){
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(unSealCarHandlePackageFullCollectedSwitch.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(siteId + "")){
+            return true;
+        }
+        return false;
+    }
 	public String getPlanSendTime() {
 		return planSendTime;
 	}
@@ -4504,5 +4538,29 @@ public class DuccPropertyConfig{
 
 	public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
 		this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
+	}
+
+	public String getUnSealCarHandlePackageFullCollectedSwitch() {
+		return unSealCarHandlePackageFullCollectedSwitch;
+	}
+
+	public void setUnSealCarHandlePackageFullCollectedSwitch(String unSealCarHandlePackageFullCollectedSwitch) {
+		this.unSealCarHandlePackageFullCollectedSwitch = unSealCarHandlePackageFullCollectedSwitch;
+	}
+
+	public boolean getNewPrintHandoverListSwitch() {
+		return newPrintHandoverListSwitch;
+	}
+
+	public void setNewPrintHandoverListSwitch(boolean newPrintHandoverListSwitch) {
+		this.newPrintHandoverListSwitch = newPrintHandoverListSwitch;
+	}
+
+	public Integer getUsePdaSorterApi() {
+		return usePdaSorterApi;
+	}
+
+	public void setUsePdaSorterApi(Integer usePdaSorterApi) {
+		this.usePdaSorterApi = usePdaSorterApi;
 	}	
 }
