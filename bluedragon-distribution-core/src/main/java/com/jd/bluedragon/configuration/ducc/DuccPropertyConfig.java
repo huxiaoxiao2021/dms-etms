@@ -1789,6 +1789,16 @@ public class DuccPropertyConfig{
 	@Value("${duccPropertyConfig.terminalSitePackagePrintLimitSwitch:false}")
 	@LafUcc	
     private boolean terminalSitePackagePrintLimitSwitch;
+	
+	@Value("${duccPropertyConfig.planSendTime:}")
+	@LafUcc	
+    private String planSendTime;
+    /**
+     * dmsToVendor 通知调度系统发送MQ消息 开关
+     */
+	@Value("${duccPropertyConfig.dmsToVendorSendMQSwitch:false}")
+	@LafUcc	
+    private boolean dmsToVendorSendMQSwitch;	
     
 	public boolean isUseDucc() {
 		return useDucc;
@@ -4247,7 +4257,7 @@ public class DuccPropertyConfig{
 		this.useEquipmentSpotCheckAIDistinguishResult = useEquipmentSpotCheckAIDistinguishResult;
 	}
 
-	public boolean isOldSendForbiddenSwitch() {
+	public boolean getOldSendForbiddenSwitch() {
 		return oldSendForbiddenSwitch;
 	}
 
@@ -4469,5 +4479,21 @@ public class DuccPropertyConfig{
             }
         }
         return null;
-    }	
+    }
+
+	public String getPlanSendTime() {
+		return planSendTime;
+	}
+
+	public void setPlanSendTime(String planSendTime) {
+		this.planSendTime = planSendTime;
+	}
+
+	public boolean isDmsToVendorSendMQSwitch() {
+		return dmsToVendorSendMQSwitch;
+	}
+
+	public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
+		this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
+	}	
 }
