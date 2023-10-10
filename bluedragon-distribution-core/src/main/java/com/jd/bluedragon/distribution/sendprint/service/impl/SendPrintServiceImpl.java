@@ -172,7 +172,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             // 判断是否走新汇总查询
-            if(uccPropertyConfiguration.getNewPrintHandoverListSwitch()){
+            if(dmsConfigManager.getPropertyConfig().getNewPrintHandoverListSwitch()){
                 return newBatchSummaryPrintQuery(criteria);
             }
             SendM nSendM = tosendM(criteria);
@@ -1345,7 +1345,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.setMessage("发货交接清单excel稍后将发送至您咚咚，请注意查收!");
         boolean isGoESQuery = checkGoESQuery(printExportCriteria.getCreateSiteCode());
-        if(!uccPropertyConfiguration.getNewPrintHandoverListSwitch() ){
+        if(!dmsConfigManager.getPropertyConfig().getNewPrintHandoverListSwitch() ){
             // 自定义编码10000表示：走老查询（非ES查询）
             result.setCode(BATCH_SUMMARY_QUERY_ES_CODE);
             result.setMessage("当前场地未开启新查询!（ES）");
@@ -1898,7 +1898,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     @Override
     public BasicQueryEntityResponse basicPrintQueryForPage(PrintQueryCriteria criteria) {
         // 检查是否走es查询
-        if(uccPropertyConfiguration.getNewPrintHandoverListSwitch()){
+        if(dmsConfigManager.getPropertyConfig().getNewPrintHandoverListSwitch()){
             return basicPrintQueryForPageByES(criteria);
         }
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.basicPrintQueryForPage", Constants.UMP_APP_NAME_DMSWEB, false, true);

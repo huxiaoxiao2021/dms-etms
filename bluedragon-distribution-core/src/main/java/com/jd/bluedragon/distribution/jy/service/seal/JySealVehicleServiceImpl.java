@@ -1021,7 +1021,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(Boolean.FALSE);
-        if(!ucc.isBeforeSealVehicleLoadRateLimitCheckSwitch()){
+        if(!dmsConfigManager.getPropertyConfig().isBeforeSealVehicleLoadRateLimitCheckSwitch()){
             result.error("封车前校验装载率开关关闭!");
             return result;
         }
@@ -1038,7 +1038,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             return result;
         }
 
-        double loadRateLimit = ucc.getBeforeSealVehicleLoadRateLimit();
+        double loadRateLimit = dmsConfigManager.getPropertyConfig().getBeforeSealVehicleLoadRateLimit();
         if(log.isInfoEnabled()){
             log.info("ucc loadRateLimit 配置-{}",loadRateLimit);
         }

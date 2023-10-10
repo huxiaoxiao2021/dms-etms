@@ -494,7 +494,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
 
     @Override
     public void deleteMixScanTaskOutLimit() {
-        Integer limit = ucc.getCttGroupDataLimit();
+        Integer limit = dmsConfigManager.getPropertyConfig().getCttGroupDataLimit();
         // 查询组板岗混扫任务下的所有网格信息
         List<JyGroupSortCrossDetailEntity> groupCodeList = jyGroupSortCrossDetailDao.queryGroupCodeByFuncCode();
         
