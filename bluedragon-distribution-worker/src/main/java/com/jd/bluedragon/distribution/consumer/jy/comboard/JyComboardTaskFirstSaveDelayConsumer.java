@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.seal.JyAppDataSealService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
@@ -38,6 +39,9 @@ public class JyComboardTaskFirstSaveDelayConsumer extends MessageBaseConsumer {
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
 
+    @Autowired
+    private JyAppDataSealService jyAppDataSealService;
+    
     @Autowired
     private JimDbLock jimDbLock;
     
@@ -85,7 +89,11 @@ public class JyComboardTaskFirstSaveDelayConsumer extends MessageBaseConsumer {
                 updateDetail.setId(task.getId());
                 if (jyBizTaskComboardService.updateBizTaskById(updateDetail) < 0) {
                     log.info("逻辑删除板号失败：{}", JsonHelper.toJson(updateDetail));
+                    return;
                 }
+                
+                // 删除暂存数据
+                jyAppDataSealService.deleteDataSealBySendCode(task.getSendCode());
             }
         }catch (Exception e) {
             log.error("延时删除板数据异常：{}", JsonHelper.toJson(entity),e);

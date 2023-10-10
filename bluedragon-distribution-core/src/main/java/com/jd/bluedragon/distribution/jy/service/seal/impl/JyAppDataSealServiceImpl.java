@@ -208,4 +208,9 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
 		List<String> sendCodeList = jyAppDataSealSendCodeDao.querySendCodeList(sendVehicleDetailBizId);
 		return !CollectionUtils.isEmpty(sendCodeList);
 	}
+
+	@Override
+	public Boolean deleteDataSealBySendCode(String sendCode) {
+		return jyAppDataSealSendCodeDao.deleteBySendCode(sendCode) > 0;
+	}
 }
