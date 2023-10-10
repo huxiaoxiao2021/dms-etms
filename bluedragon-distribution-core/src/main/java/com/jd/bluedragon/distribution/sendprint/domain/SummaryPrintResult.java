@@ -50,6 +50,9 @@ public class SummaryPrintResult implements Serializable {
 	/** 合计应收体积 */
 	private Double totalInVolume;
 
+	/** 包裹总重量（先取运单的AgainWeight，如果AgainWeight不存在再取GoodWeight） */
+	private Double totalPackWeight;
+
 	public List<SummaryPrintBoxEntity> getDetails() {
 		return details;
 	}
@@ -174,5 +177,13 @@ public class SummaryPrintResult implements Serializable {
 
 	public void setTotalInVolume(Double totalInVolume) {
 		this.totalInVolume = totalInVolume;
+	}
+
+	public Double getTotalPackWeight() {
+		return totalPackWeight;
+	}
+
+	public void setTotalPackWeight(Double totalPackWeight) {
+		this.totalPackWeight = totalPackWeight;
 	}
 }

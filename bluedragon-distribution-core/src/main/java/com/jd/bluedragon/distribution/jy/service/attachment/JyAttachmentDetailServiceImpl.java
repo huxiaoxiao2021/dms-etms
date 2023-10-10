@@ -21,7 +21,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
  */
 @Service("jyAttachmentDetailService")
 public class JyAttachmentDetailServiceImpl implements JyAttachmentDetailService {
-    
+
     @Autowired
     private JyAttachmentDetailDao jyAttachmentDetailDao;
 
@@ -50,5 +50,15 @@ public class JyAttachmentDetailServiceImpl implements JyAttachmentDetailService 
 			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
 		};
         return jyAttachmentDetailDao.queryDataListByCondition(query);
-    }    
+    }
+
+	@Override
+	public int delete(JyAttachmentDetailEntity entity) {
+		return jyAttachmentDetailDao.delete(entity);
+	}
+
+	@Override
+	public int deleteBatch(JyAttachmentDetailQuery entity) {
+		return jyAttachmentDetailDao.deleteBatch(entity);
+	}
 }

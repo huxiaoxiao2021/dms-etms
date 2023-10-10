@@ -6,6 +6,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.redis.TaskModeAgent;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -31,6 +32,7 @@ import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -765,9 +767,8 @@ public class TaskServiceImpl implements TaskService {
 		task.setKeyword1(request.getKeyword1());
 		task.setKeyword2(request.getKeyword2());
 		// insert keyword1 keyword2 businessType operateTime
-		this.initOthers(jsonVal, task);
-
 		task.setBody(jsonVal);
+		this.initOthers(jsonVal, task);
 		if (StringUtils.isNotBlank(request.getBoxCode())) {
 			task.setBoxCode(request.getBoxCode());
 		}
@@ -812,6 +813,15 @@ public class TaskServiceImpl implements TaskService {
 		if(null != operateTime){
 			task.setOperateTime(StringUtils.isNotBlank(operateTime.toString()) ? DateHelper
 					.getSeverTime(operateTime.toString()) : new Date());
+		} else {
+			Date requestTime = new Date();
+			task.setOperateTime(requestTime);
+			// 将操作时间再放回body里，因为worker是从body取时间，并没有用到task对象里的operateTime
+			map.put("operateTime", DateHelper.formatDateTime(requestTime));
+			String bodyStr = Constants.PUNCTUATION_OPEN_BRACKET
+					+ JsonHelper.toJson(map)
+					+ Constants.PUNCTUATION_CLOSE_BRACKET;
+			task.setBody(bodyStr);
 		}
 
 		if (Task.TASK_TYPE_INSPECTION.equals(task.getType())
@@ -998,8 +1008,10 @@ public class TaskServiceImpl implements TaskService {
         request.setUserCode(dto.getOperatorID());
         request.setUserName(dto.getOperatorName());
         request.setBizSource(AUTOMATIC_SORTING_MACHINE_SORTING.getCode());
-        request.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        request.setOperatorId(dto.getMachineCode());
+        OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(dto);
+        request.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        request.setOperatorId(operatorData.getOperatorId());
+        request.setOperatorData(operatorData);
         list.add(request);
         taskSorting.setBody(JsonHelper.toJson(list));
         return taskSorting;
@@ -1045,8 +1057,10 @@ public class TaskServiceImpl implements TaskService {
         inspectionAS.setBusinessType(50);
 		inspectionAS.setMachineCode(uPackage.getMachineCode());
         inspectionAS.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
-        inspectionAS.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        inspectionAS.setOperatorId(uPackage.getMachineCode());
+        OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(uPackage);
+        inspectionAS.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        inspectionAS.setOperatorId(operatorData.getOperatorId());
+        inspectionAS.setOperatorData(operatorData);   	        
         inspectionASes.add(inspectionAS);
         return inspectionASes;
     }

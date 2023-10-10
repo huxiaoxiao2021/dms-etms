@@ -607,6 +607,27 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
         return siteName.replace(Constants.SUFFIX_DMS_ONE,"").replace(Constants.SUFFIX_DMS_TWO,"").replace(Constants.SUFFIX_TRANSIT,"");
     }
 
+    @Override
+    public Site getOwnSite(Integer siteCode) {
+        BaseStaffSiteOrgDto basicSite = getSite(siteCode);
+        if(basicSite == null){
+            return null;
+        }
+        Site ownSite = new Site();
+        ownSite.setOrgId(basicSite.getOrgId());
+        ownSite.setCode(basicSite.getSiteCode());
+        ownSite.setDmsCode(basicSite.getDmsSiteCode());
+        ownSite.setName(basicSite.getSiteName());
+        ownSite.setType(basicSite.getSiteType());
+        ownSite.setSubType(basicSite.getSubType());
+        ownSite.setProvinceId(basicSite.getProvinceId());
+        ownSite.setCityId(basicSite.getCityId());
+        ownSite.setSortType(basicSite.getSortType());
+        ownSite.setSortSubType(basicSite.getSortSubType());
+        ownSite.setSortThirdType(basicSite.getSortThirdType());
+        return ownSite;
+    }
+
     private Site dealSiteType(Site site) {
         if (site == null) {
             return null;

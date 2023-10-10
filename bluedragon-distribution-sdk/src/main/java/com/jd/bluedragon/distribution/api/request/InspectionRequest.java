@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.JdRequest;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 /**
  * for inspection
  * @author wangzichen
@@ -69,7 +70,13 @@ public class InspectionRequest extends JdRequest{
 	 * 按单验货标识
 	 */
 	private Boolean waybillInspectionFlag;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
+	
+	private String operatorDataJson;
+	
     public int getPageNo() {
         return pageNo;
     }
@@ -259,5 +266,21 @@ public class InspectionRequest extends JdRequest{
 
 	public void setWaybillInspectionFlag(Boolean waybillInspectionFlag) {
 		this.waybillInspectionFlag = waybillInspectionFlag;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
+
+	public String getOperatorDataJson() {
+		return operatorDataJson;
+	}
+
+	public void setOperatorDataJson(String operatorDataJson) {
+		this.operatorDataJson = operatorDataJson;
 	}
 }

@@ -4,8 +4,8 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
+import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
-import com.jd.bluedragon.distribution.popPrint.dto.PushPrintRecordDto;
 import com.jd.bluedragon.distribution.print.domain.ChangeOrderPrintMq;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -40,6 +40,9 @@ public class ChangeOrderPrintConsumer extends MessageBaseConsumer {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private JyDamageExceptionService jyDamageExceptionService;
+
     @Override
     public void consume(Message message) throws Exception {
         logger.info("ChangeOrderPrintConsumer -message {}", message.getText());
@@ -60,6 +63,7 @@ public class ChangeOrderPrintConsumer extends MessageBaseConsumer {
             }
             JyExceptionPrintDto dto = getJyExceptionPrintDto(changeOrderPrintMq);
             jyExceptionService.printSuccess(dto);
+            jyDamageExceptionService.dealDamageExpTaskStatus(changeOrderPrintMq.getWaybillCode(),changeOrderPrintMq.getSiteCode());
         }finally {
             redisClientOfJy.del(lockKey);
         }

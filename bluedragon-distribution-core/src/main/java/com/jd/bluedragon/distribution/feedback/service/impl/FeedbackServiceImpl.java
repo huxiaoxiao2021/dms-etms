@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.feedback.domain.FeedbackNew;
 import com.jd.bluedragon.distribution.feedback.domain.ReplyResponse;
 import com.jd.bluedragon.distribution.feedback.service.FeedbackService;
 import com.jd.bluedragon.distribution.jss.JssService;
+import com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper;
 import com.jd.jdwl.feedback.dto.FeedbackDto;
 import com.jd.jdwl.feedback.dto.FeedbackQueryDto;
 import com.jd.jdwl.feedback.dto.UserInfoDto;
@@ -21,11 +22,13 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -44,6 +47,10 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Autowired
     private JssService jssService;
+
+    @Autowired
+    @Qualifier("dmswebAmazonS3ClientWrapper")
+    private AmazonS3ClientWrapper dmswebAmazonS3ClientWrapper;
 
     @Value("${jss.feedback.bucket}")
     private String bucket;
@@ -158,8 +165,7 @@ public class FeedbackServiceImpl implements FeedbackService {
             for (MultipartFile file : files) {
                 String fileName = file.getOriginalFilename();
                 String keyName = this.getKeyName(index, FileUtils.getFileExtName(fileName));
-                jssService.uploadFile(bucket, keyName, file.getSize(), file.getInputStream());
-                urlList.add(jssService.getPublicBucketUrl(bucket, keyName));
+                urlList.add(dmswebAmazonS3ClientWrapper.putObjectThenGetUrl(file.getInputStream(),bucket,keyName,file.getSize(),365));
                 index++;
             }
             return urlList;

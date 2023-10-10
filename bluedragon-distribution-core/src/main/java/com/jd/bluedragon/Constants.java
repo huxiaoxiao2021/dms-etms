@@ -824,6 +824,29 @@ public class Constants {
      */
     public static final String SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF = "waybill.print.addiOwnNumberConf";
 
+
+    /**
+     *  配置信息-切换百川流量场地列表
+     *
+     */
+    public static final String BAICHUAN_REVERSE_SITE_CONF = "baichuan.reverse.site.conf";
+
+
+    /**
+     *发货统一服务切换
+     */
+    public static final String SEND_CAPABILITY_SITE_CONF = "send.capability.site.conf";
+
+    /**
+     *  配置信息-切换百川流量,强制走老逻辑运单列表
+     */
+    public static final String BAICHUAN_REVERSE_WAYBILL_OLD_L_CONF = "baichuan.reverse.waybill.old.logic.conf";
+
+    /**
+     *  配置信息-切换百川流量,强制走老逻辑退货类型列表
+     */
+    public static final String BAICHUAN_REVERSE_TYPE_CONF = "baichuan.reverse.type.old.logic.conf";
+
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
      */
@@ -865,6 +888,11 @@ public class Constants {
      * 功能可用性配置
      */
     public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
+
+    /**
+     * 隐藏面单手机号信息
+     */
+    public static final String SYS_CONFIG_HIDE_PHONE_6Char= "hide_phone_6char";
 
     /**
      * 安卓菜单可用性配置，按场地id配置
@@ -1131,6 +1159,19 @@ public class Constants {
      * 运单状态  弃件
      */
     public static final String WAYBILLTRACE_WASTE = "620";
+    /**
+     * 运单状态  弃件（港澳单节点）
+     */
+    public static final String WAYBILLTRACE_WASTE_GA = "750";
+
+    /**
+     * 运单状态  异常退回
+     */
+    public static final String WAYBILLTRACE_EX_RETURN = "-3040";
+    /**
+     * 运单状态  清关失败
+     */
+    public static final String WAYBILLTRACE_FAIL_QG = "700";
 
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
@@ -2005,6 +2046,11 @@ public class Constants {
 
 
     /**
+     * 异常运单任务缓存key
+     */
+    public static final String EXP_WAYBILL_CACHE_KEY_PREFIX ="exp.waybill.cache:";
+
+    /**
      * 安检场地关系配置
      */
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
@@ -2028,4 +2074,47 @@ public class Constants {
      * 功能可用配置白名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
+
+    // 新版分拣中心规范-分拣中心类型
+    public static final Integer SORTING_SORT_TYPE = 12351;
+    // 新版分拣中心规范-分拣中心子类型
+    public static final Integer SORTING_SORT_SUBTYPE = 123511;
+    // 新版分拣中心规范-分拣中心下中转站
+    public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
+
+    /**
+     *  逆向原因编码
+     * 1-拦截逆向
+     * 3-清关逆向
+     */
+    public static final Integer INTERCEPT_REVERSE_CODE_1 = 1;
+    public static final Integer INTERCEPT_REVERSE_CODE_3 = 3;
+
+    /**
+     * 运单全程跟踪记录类型（强校验）
+     * 枚举类型：1:运单维度不记录各包裹全程跟踪,2:运单维度记录各包裹全程跟踪,3:包裹维度记录包裹全程跟踪
+     */
+    public static final Integer WAYBILL_TRACE_TYPE =1;
+
+    /**
+     * 逆向退货类型:拒收退回
+     */
+    public static final Integer REVERSE_TYPE_REJECT_BACK =7;
+
+    /**
+     * 换单来源 2: 分拣/SORT_CENTER
+     */
+    public static final Integer CHANGE_WAYBILL_OPERATE_SOURCE_SORT_CENTER =2;
+
+    /**
+     * 运单全程跟踪记录类型-包裹维度记录包裹全程跟踪 （packageBarCode为包裹号)
+     */
+    public static final Integer  WAYBILL_TRACE_TYPE_PACKAGE =3;
+
+    /**
+     * 对外展示话术标识  1 - 对外不展示话术
+     */
+    public static final Integer  WAYBILL_TRACE_DISPLAY =1;
+
+
 }

@@ -15,7 +15,7 @@ import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
@@ -83,7 +83,6 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			//每个运单只需要发一次就可以
 			SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
 			siteChangeMqDto.setWaybillCode(packTagPrint.getWaybillCode());
-			siteChangeMqDto.setPackageCode(packTagPrint.getPackageBarcode());
 			siteChangeMqDto.setNewSiteId(packTagPrint.getChangeSiteCode());
 			siteChangeMqDto.setNewSiteName(packTagPrint.getChangeSiteName());
 			siteChangeMqDto.setNewSiteRoadCode("0"); // 此操作无法触发预分拣 故传默认值0

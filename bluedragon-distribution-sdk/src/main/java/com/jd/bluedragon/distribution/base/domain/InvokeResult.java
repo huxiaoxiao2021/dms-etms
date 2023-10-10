@@ -300,7 +300,7 @@ public class InvokeResult<T> implements Serializable {
     // 生鲜特保
     public static final int CODE_FRESH_SPECIAL = 348;
     public static final String CODE_FRESH_SPECIAL_MESSAGE = "生鲜特保件";
-
+    
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

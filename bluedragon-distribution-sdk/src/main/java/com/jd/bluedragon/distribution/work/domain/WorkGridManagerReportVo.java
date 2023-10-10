@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.work.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class WorkGridManagerReportVo  implements Serializable {
 	
@@ -189,6 +190,19 @@ public class WorkGridManagerReportVo  implements Serializable {
 	 * 数据库时间
 	 */
 	private Date ts;
+
+	/**
+	 * @See com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum
+	 * 是否符合,0-未选择,1-符合 2-不符合
+	 */
+	private Integer isMatch;
+
+	/**
+	 * 任务名称
+	 */
+	private String isMatchName;
+
+	private List<JyWorkGridManagerCaseDataVO> caseList;
 	public Long getId() {
 		return id;
 	}
@@ -412,4 +426,27 @@ public class WorkGridManagerReportVo  implements Serializable {
 		this.ts = ts;
 	}
 
+	public Integer getIsMatch() {
+		return isMatch;
+	}
+
+	public void setIsMatch(Integer isMatch) {
+		this.isMatch = isMatch;
+	}
+
+	public List<JyWorkGridManagerCaseDataVO> getCaseList() {
+		return caseList;
+	}
+
+	public void setCaseList(List<JyWorkGridManagerCaseDataVO> caseList) {
+		this.caseList = caseList;
+	}
+
+	public String getIsMatchName() {
+		return isMatchName;
+	}
+
+	public void setIsMatchName(String isMatchName) {
+		this.isMatchName = isMatchName;
+	}
 }

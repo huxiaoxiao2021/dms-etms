@@ -66,6 +66,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jsf.vehicle.VehicleBasicManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -136,6 +137,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.WaybillVasDto;
@@ -2430,8 +2432,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         Date date = new Date();
         domain.setCreateTime(date);
         domain.setOperateTime(date);
-        domain.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
-        domain.setOperatorId(request.getCurrentOperate().getOperatorId());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        domain.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        domain.setOperatorId(operatorData.getOperatorId());
+        domain.setOperatorData(operatorData);
         return domain;
     }
 
@@ -2622,7 +2626,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 if (needBindMaterialBag) {
                     // 箱号未绑定集包袋
                     if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
-                        if (!BusinessUtil.isCollectionBag(request.getMaterialCode())) {
+                        if (!BusinessUtil.isCollectionBag(request.getMaterialCode()) || BusinessUtil.isTrolleyCollectionBag(request.getMaterialCode())) {
                             response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
                             response.addInterceptBox(0, "请扫描或输入正确的集包袋！");
                             return false;
@@ -2630,8 +2634,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     }
                 }
             }
+            
+            // 如果是LL类型箱号，绑定集包袋号校验
+            if (BusinessHelper.isLLBoxType(box.getType())) {
+                // 箱号未绑定集包袋
+                if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
+                    if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
+                        response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
+                        response.addInterceptBox(0, HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR, Boolean.TRUE));
+                        return false;
+                    }
+                }
+            }
         }
-
         return true;
     }
 

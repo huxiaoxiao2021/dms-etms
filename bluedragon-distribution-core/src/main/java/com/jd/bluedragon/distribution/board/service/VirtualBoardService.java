@@ -7,7 +7,7 @@ import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.transboard.api.dto.Response;
 
@@ -52,9 +52,8 @@ public interface VirtualBoardService {
 
     SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode, Date operateTime);
     
-    void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName,
-                          Integer operateType, Integer bizSource);
-
+    void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, OperatorData operatorData,String boardCode, String destinationName,
+            Integer operateType, Integer bizSource);
     /**
      * 删除流向
      * @param removeDestinationPo 删除流向请求参数
