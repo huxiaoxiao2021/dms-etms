@@ -73,6 +73,10 @@ public enum SortingBizSourceEnum {
     AUTOMATIC_SORTING_MACHINE_SORTING(74, "分拣机分拣"),
 
     MINI_STORE_SORTING(75, "移动微仓集包分拣"),
+    /**
+     * 外部接口调用
+     */
+    INTERFACE_SORTING(76, "冷链车队绑定接口调用"),
 
     ;
 
