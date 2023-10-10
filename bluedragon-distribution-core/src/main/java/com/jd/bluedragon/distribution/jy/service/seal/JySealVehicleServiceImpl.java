@@ -33,8 +33,10 @@ import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
+import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealSendCode;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.manager.JdiBoardLoadWSManager;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
@@ -94,6 +96,7 @@ import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
+import static com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum.*;
 import static com.jd.bluedragon.utils.TimeUtils.yyyy_MM_dd_HH_mm_ss;
 
 @Service
@@ -176,6 +179,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Autowired
     private VehicleBasicManager vehicleBasicManager;
+    
+    @Autowired
+    private JdiBoardLoadWSManager jdiBoardLoadWSManager;
+    
+    public static final Integer LOADING_COMPLETEDC = 30;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -1129,6 +1137,51 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             return BigDecimal.ZERO;
         }
         return BigDecimal.valueOf(BigDecimalHelper.div(scannedCount, volume, 6)).multiply(new BigDecimal(100)).setScale(6, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.selectBoardByTms", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void selectBoardByTms(SealVehicleInfoReq sealVehicleInfoReq) {
+        // 校验当前任务是否存在暂存数据，如果不存在暂存数据，则自动选择板号
+        if (!jyAppDataSealService.checkExistSaveData(sealVehicleInfoReq.getSendVehicleDetailBizId())) {
+            List<BoardLoadDto> boardList = jdiBoardLoadWSManager.queryBoardLoad(assembleBoardLoadDto(sealVehicleInfoReq));
+            if (CollectionUtils.isEmpty(boardList)) {
+                return;
+            }
+            
+            List<JyAppDataSealSendCode> sendCodes = new ArrayList<>();
+            Set<String> sendCodeSet = new HashSet<>();
+            for (BoardLoadDto boardLoadDto : boardList) {
+                if (!LOADING_COMPLETEDC.equals(boardLoadDto.getBoardStatus())) {
+                    // 只操作完成装车的板
+                    continue;
+                }
+                if (sendCodeSet.contains(boardLoadDto.getBatchCode())){
+                    continue;
+                }
+                sendCodeSet.add(boardLoadDto.getBatchCode());
+                JyAppDataSealSendCode sealSendCode = new JyAppDataSealSendCode();
+                sealSendCode.setSendCode(boardLoadDto.getBatchCode());
+                sealSendCode.setSendDetailBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
+                sealSendCode.setCreateTime(new Date());
+                sendCodes.add(sealSendCode);
+            }
+            jyAppDataSealService.saveSendCodeList(sendCodes);
+        }
+    }
+    
+    private BoardLoadDto assembleBoardLoadDto(SealVehicleInfoReq sealVehicleInfoReq) {
+        BoardLoadDto boardLoadDto = new BoardLoadDto();
+        // 查询发货主任务信息
+        JyBizTaskSendVehicleEntity sendVehicle = jyBizTaskSendVehicleService.findByBizId(sealVehicleInfoReq.getSendVehicleBizId());
+        // 查询发货子任务信息
+        JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyBizTaskSendVehicleDetailService.findByBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
+        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(sendVehicleDetail.getEndSiteId().intValue());
+        if (siteInfo != null) {
+            boardLoadDto.setEndNodeCode(siteInfo.getDmsSiteCode());
+        }
+        boardLoadDto.setTransWorkCode(sendVehicle.getTransWorkCode());
+        return boardLoadDto;
     }
 
     private void checkGetTaskSimpleCodeParams(GetTaskSimpleCodeReq request) {
