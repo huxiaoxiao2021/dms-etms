@@ -29,26 +29,6 @@ import com.jd.ql.dms.print.utils.JsonHelper;
 public class DuccPropertyConfig{
 	private static final Logger log = LoggerFactory.getLogger(DuccPropertyConfig.class);
 	
-	public static final String CONFIG_FROM_LOCAL = "local";
-	/**
-	 * 使用ducc
-	 */
-	@Value("${duccPropertyConfig.useDucc:false}")
-	@LafUcc
-	private boolean useDucc;
-	/**
-	 * 配置来源-默认是local，正常加载ducc，应该是ducc配置的值
-	 */
-	@Value("${duccPropertyConfig.configFrom:local}")
-	@LafUcc
-	private String configFrom;
-	/**
-	 * 配置检查标识，比较ucc和ducc配置，不一致抛出异常
-	 */
-	@Value("${duccPropertyConfig.checkConfig:false}")
-	@LafUcc
-	private boolean checkConfig;
-
 	/**
 	 *BC箱号绑定WJ箱号个数
 	 */
@@ -1828,31 +1808,6 @@ public class DuccPropertyConfig{
 	@Value("${duccPropertyConfig.bTemplateRouterExecuteNew:true}")
 	@LafUcc
     private boolean bTemplateRouterExecuteNew;
-    
-	public boolean isUseDucc() {
-		return useDucc;
-	}
-
-	public void setUseDucc(boolean useDucc) {
-		log.info("DuccPropertyConfig.setUseDucc");
-		this.useDucc = useDucc;
-	}
-
-   public String getConfigFrom() {
-		return configFrom;
-	}
-
-	public void setConfigFrom(String configFrom) {
-		this.configFrom = configFrom;
-	}
-
-	public boolean isCheckConfig() {
-		return checkConfig;
-	}
-
-	public void setCheckConfig(boolean checkConfig) {
-		this.checkConfig = checkConfig;
-	}
 
 	//get、set方法	
     public String getScheduleSiteCheckSameCity() {
@@ -4470,10 +4425,6 @@ public class DuccPropertyConfig{
 
 	public static Logger getLog() {
 		return log;
-	}
-
-	public static String getConfigFromLocal() {
-		return CONFIG_FROM_LOCAL;
 	}
 
     public boolean matchExceptionSubmitCheckSite(int siteId) {
