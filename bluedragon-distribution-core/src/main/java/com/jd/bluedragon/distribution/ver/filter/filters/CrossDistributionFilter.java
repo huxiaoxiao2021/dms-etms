@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -57,7 +57,7 @@ public class CrossDistributionFilter implements Filter {
     private MixedPackageConfigService mixedPackageConfigService;
 
     @Autowired
-    private UccPropertyConfiguration uccConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private JYTransferConfigProxy jyTransferConfigProxy;
@@ -67,7 +67,7 @@ public class CrossDistributionFilter implements Filter {
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         //发货目的地为德邦虚拟分拣中心的不校验
-        List<Integer> dpSiteCodeList = uccConfiguration.getDpSiteCodeList();
+        List<Integer> dpSiteCodeList = dmsConfigManager.getPropertyConfig().getDpSiteCodeList();
         if(BusinessHelper.isDPSiteCode(dpSiteCodeList, request.getReceiveSiteCode())){
             chain.doFilter(request,chain);
             return;
@@ -87,7 +87,7 @@ public class CrossDistributionFilter implements Filter {
         }
 
         // 德邦判断提示
-        if (uccConfiguration.isDpSpringSiteCode(request.getReceiveSiteCode())) {
+        if (dmsConfigManager.getPropertyConfig().isDpSpringSiteCode(request.getReceiveSiteCode())) {
             // 德邦春节项目的错发校验跳过
             final boolean dpSiteCode1Flag = BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType());
             if (BusinessHelper.isDPWaybill1_2(request.getWaybillCache().getWaybillSign())) {

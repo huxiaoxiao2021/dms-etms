@@ -12,7 +12,7 @@ import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckWaybillTy
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.common.dto.waybill.request.ThirdWaybillReq;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillRouteLinkQueryManager;
@@ -113,7 +113,7 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     private EasyFreezeSiteManager easyFreezeSiteManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     private final static Logger log = LoggerFactory.getLogger(InspectionGatewayServiceImpl.class);
 

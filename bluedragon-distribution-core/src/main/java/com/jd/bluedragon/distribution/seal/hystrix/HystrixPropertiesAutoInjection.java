@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.seal.hystrix;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.netflix.config.PollResult;
 import com.netflix.config.PolledConfigurationSource;
@@ -39,13 +39,13 @@ public class HystrixPropertiesAutoInjection implements PolledConfigurationSource
     }
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public PollResult poll(boolean initial, Object checkPoint) throws Exception {
         Map<String, Object> allPropMap = new HashMap<>();
 
-        String hystrixProps = uccConfig.getSealTaskHystrixProps();
+        String hystrixProps = dmsConfigManager.getPropertyConfig().getSealTaskHystrixProps();
         if (StringUtils.isNotBlank(hystrixProps)) {
             Map<String, Object> uccConfigMap = JsonHelper.fromJson(hystrixProps, Map.class);
             Map<String, Object> defaultPropMap = (Map<String, Object>) uccConfigMap.get(DEFAULT_PROPS_KEY);

@@ -11,7 +11,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
@@ -56,7 +56,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     WaybillTraceManager waybillTraceManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration ;
+    private DmsConfigManager dmsConfigManager ;
 
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsRemoveScanning",
@@ -566,7 +566,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(req.getTransfer())) {
                 log.info("暂存包裹--包裹号转大宗：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
                 int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
-                if(packageNum < uccPropertyConfiguration.getDazongPackageOperateMax()){
+                if(packageNum < dmsConfigManager.getPropertyConfig().getDazongPackageOperateMax()){
                     response.setCode(JdCResponse.CODE_FAIL);
                     response.setMessage("此单非大宗超量运单，请进行逐包裹扫描操作！");
                     return response;
@@ -648,7 +648,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     public JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req) {
         JdCResponse<LoadScanDetailDto> res = new JdCResponse<>();
         try{
-            if(uccPropertyConfiguration.getInspectNoSendNoLoadWaybillDemotion()){
+            if(dmsConfigManager.getPropertyConfig().getInspectNoSendNoLoadWaybillDemotion()){
                 res.setCode(JdCResponse.CODE_FAIL);
                 res.setMessage("该服务已操作降级处理，暂时不支持查询，请联系研发处理");
                 return res;

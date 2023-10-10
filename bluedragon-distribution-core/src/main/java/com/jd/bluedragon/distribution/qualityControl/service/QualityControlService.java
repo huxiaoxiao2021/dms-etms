@@ -6,7 +6,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -156,7 +156,7 @@ public class QualityControlService {
     private WaybillCancelService waybillCancelService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     /**
      * 协商再投状态校验
@@ -273,7 +273,7 @@ public class QualityControlService {
         Result<Void> result = Result.success();
         try {
             // ucc开关
-            if(!uccPropertyConfiguration.matchExceptionSubmitCheckSite(request.getDistCenterID())){
+            if(!dmsConfigManager.getPropertyConfig().matchExceptionSubmitCheckSite(request.getDistCenterID())){
                 return result;
             }
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());

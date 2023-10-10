@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.api.BizTaskService;
 import com.jd.bluedragon.distribution.jy.api.BizType;

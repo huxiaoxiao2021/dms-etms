@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -229,7 +229,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     private BoardCombinationService boardCombinationService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration ;
+    private DmsConfigManager dmsConfigManager ;
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
@@ -1338,7 +1338,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
         try {
             int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
-            if(packageNum < uccPropertyConfiguration.getDazongPackageOperateMax()){
+            if(packageNum < dmsConfigManager.getPropertyConfig().getDazongPackageOperateMax()){
                 invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "此单非大宗超量运单，请进行逐包裹扫描操作！");
                 return invokeResult;
             }

@@ -5,7 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
@@ -100,7 +100,7 @@ public class PopPrintServiceImpl implements PopPrintService {
     private RedisManager redisManager;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
@@ -134,7 +134,7 @@ public class PopPrintServiceImpl implements PopPrintService {
             log.info("传入运单号 waybillCode 为空");
         }
         // 只查询分拣打印的数据
-//        if (Constants.SWITCH_OFF.equals(uccConfig.getJudgePackagePrintedIncludeSiteTerminal())) {
+//        if (Constants.SWITCH_OFF.equals(dmsConfigManager.getPropertyConfig().getJudgePackagePrintedIncludeSiteTerminal())) {
 //            return popPrintDao.findAllByWaybillCodeAndSortingFirstPrint(waybillCode);
 //        }
 

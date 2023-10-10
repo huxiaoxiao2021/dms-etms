@@ -8,7 +8,7 @@ import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
@@ -122,7 +122,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private BaseMajorManager baseMajorManager;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 	/**
 	 * 签到作废-小时数限制
 	 */
@@ -143,9 +143,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private static final String MSG_FORMAT_HAS_NO_PERMISSION_2 = "您不可以操作，请联系签到操作人%s、网格负责人%s操作！";
 	private static final String MSG_FORMAT_AUTO_SIGN_OUT_TITLE = "自动签退通知";
 	private static final String MSG_FORMAT_AUTO_SIGN_OUT_CONTENT = "您好，系统识别当前您已通过人资人脸识别下班打卡，将自动签退您在%s的工作，有疑问可联系网格组长%s";
-    @Autowired
-    private UccPropertyConfiguration uccConfiguration;
-
 	@Autowired
 	private WorkStationManager workStationManager;
 	@Autowired
@@ -490,11 +487,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     @JProfiler(jKey = "DMS.WEB.UserSignRecordService.autoHandleSignInRecord", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
     public Result<Integer> autoHandleSignInRecord() {
         Result<Integer> result = Result.success();
-        int notSignedOutRecordMoreThanHours = uccConfiguration.getNotSignedOutRecordMoreThanHours();
+        int notSignedOutRecordMoreThanHours = dmsConfigManager.getPropertyConfig().getNotSignedOutRecordMoreThanHours();
         if (notSignedOutRecordMoreThanHours < 0) {
             return result;
         }
-        int notSignedOutRecordRangeHours = uccConfiguration.getNotSignedOutRecordRangeHours();
+        int notSignedOutRecordRangeHours = dmsConfigManager.getPropertyConfig().getNotSignedOutRecordRangeHours();
         //扫描范围不能小于1小时
         if(notSignedOutRecordRangeHours < 1) {
         	notSignedOutRecordRangeHours = 1;
@@ -1064,7 +1061,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	private String  checkJobCodeSignIn(WorkStationGrid workStationGrid,Integer jobCode){
 		//添加开关 以便于上线后没维护工种类型 都进行卡控
-		if(!uccPropertyConfiguration.isJobTypeLimitSwitch()){
+		if(!dmsConfigManager.getPropertyConfig().isJobTypeLimitSwitch()){
 			log.warn("网格工种限制功能开关关闭!");
 			return "";
 		}

@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
@@ -36,7 +36,7 @@ public class FirstPrintInterceptHandler implements Handler<WaybillPrintContext, 
     private PopPrintService popPrintService;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     private static final List<Integer> FIRST_PRINT_OPERATE_TYPE = new ArrayList<>();
 
@@ -59,7 +59,7 @@ public class FirstPrintInterceptHandler implements Handler<WaybillPrintContext, 
         InterceptResult<String> interceptResult = context.getResult();
 
         // 未首次打印的单子，限制营业部人员使用包裹补打
-//        if (Constants.SWITCH_OFF.equals(uccConfig.getJudgePackagePrintedIncludeSiteTerminal())) {
+//        if (Constants.SWITCH_OFF.equals(dmsConfigManager.getPropertyConfig().getJudgePackagePrintedIncludeSiteTerminal())) {
 //            return interceptResult;
 //        }
 

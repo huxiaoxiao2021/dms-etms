@@ -1,6 +1,6 @@
 package com.jd.bluedragon.utils;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +20,11 @@ public class BusiWaringUtil {
     private Logger log = LoggerFactory.getLogger(BusiWaringUtil.class);
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     public void bigWaybillWarning(String waybillCode,Integer packSize){
         try{
-            if(uccPropertyConfiguration.getBigWaybillWaringSize().compareTo(packSize)<0){
+            if(dmsConfigManager.getPropertyConfig().getBigWaybillWaringSize().compareTo(packSize)<0){
                 String msg = String.format("大运单来了！请做好准备！运单号%s,包裹总数%s",waybillCode,packSize);
                 Profiler.businessAlarm("BusiWaringUtil.bigWaybillWaring", System.currentTimeMillis(), msg);
             }

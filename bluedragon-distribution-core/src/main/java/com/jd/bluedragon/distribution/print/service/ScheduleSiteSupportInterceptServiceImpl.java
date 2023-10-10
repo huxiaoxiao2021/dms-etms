@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.print.service;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -47,7 +47,7 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
     private BaseMinorManager baseMinorManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -63,7 +63,7 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> checkCrossInfo(String waybillSign, String sendPay , String waybillCode, Integer prepareSiteCode, Integer startSiteCode) {
         InvokeResult<String> result = new InvokeResult<>();
-        if(!uccPropertyConfiguration.getBackDispatchCheck()){
+        if(!dmsConfigManager.getPropertyConfig().getBackDispatchCheck()){
             return result;
         }
 
@@ -103,8 +103,8 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
     public InvokeResult<Boolean> checkSameCity(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest, Waybill waybill, BaseStaffSiteOrgDto userInfo) {
         InvokeResult<Boolean> result = new InvokeResult<>();
 
-//        if (StringUtils.isEmpty(uccPropertyConfiguration.getScheduleSiteCheckSameCity())
-//                || !Constants.SWITCH_OPEN.equals(uccPropertyConfiguration.getScheduleSiteCheckSameCity())) {
+//        if (StringUtils.isEmpty(dmsConfigManager.getPropertyConfig().getScheduleSiteCheckSameCity())
+//                || !Constants.SWITCH_OPEN.equals(dmsConfigManager.getPropertyConfig().getScheduleSiteCheckSameCity())) {
 //            return result;
 //        }
 
