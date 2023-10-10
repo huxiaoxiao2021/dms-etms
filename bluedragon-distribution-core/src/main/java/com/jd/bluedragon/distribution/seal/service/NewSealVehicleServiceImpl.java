@@ -1048,7 +1048,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }
             Long siteId = (long)sealCars.get(0).getSealSiteId();
             // 增加UCC开关，不处理的直接返回
-            if(!uccPropertyConfiguration.getUnSealCarHandlePackageFullCollectedNeedHandle(siteId)){
+            if(!dmsConfigManager.getPropertyConfig().getUnSealCarHandlePackageFullCollectedNeedHandle(siteId)){
                 return;
             }
             List<String> sealCarCodeList = new ArrayList<>();
