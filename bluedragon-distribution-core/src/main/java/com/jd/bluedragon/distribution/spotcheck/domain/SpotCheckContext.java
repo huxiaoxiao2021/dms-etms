@@ -3,9 +3,11 @@ package com.jd.bluedragon.distribution.spotcheck.domain;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 抽检上下文
@@ -154,6 +156,11 @@ public class SpotCheckContext implements Serializable {
      * 视频链接
      */
     private String videoAddress;
+
+    /**
+     * 已抽检记录
+     */
+    private List<WeightVolumeSpotCheckDto> spotCheckRecords;
 
     public String getSpotCheckSourceFrom() {
         return spotCheckSourceFrom;
@@ -402,5 +409,13 @@ public class SpotCheckContext implements Serializable {
 
     public void setVideoAddress(String videoAddress) {
         this.videoAddress = videoAddress;
+    }
+
+    public List<WeightVolumeSpotCheckDto> getSpotCheckRecords() {
+        return spotCheckRecords;
+    }
+
+    public void setSpotCheckRecords(List<WeightVolumeSpotCheckDto> spotCheckRecords) {
+        this.spotCheckRecords = spotCheckRecords;
     }
 }
