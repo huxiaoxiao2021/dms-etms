@@ -148,7 +148,7 @@ public class ClientAuthResource {
         Integer siteType = baseSite.getSiteType();
         Integer subType = baseSite.getSubType();
         // 打印客户端无权限的菜单编码
-        String noAuthMenuConfig = dmsConfigManager.getPropertyConfig().getNoAuthMenuConfigUat();
+        String noAuthMenuConfig = dmsConfigManager.getPropertyConfig().getNoAuthMenuConfig();
         List<ClientNoAuthMenuCodeConfig> list = JsonHelper.jsonToList(noAuthMenuConfig, ClientNoAuthMenuCodeConfig.class);
         if(CollectionUtils.isEmpty(list)){
             return noAuthMenuCodeList;
@@ -281,7 +281,7 @@ public class ClientAuthResource {
             logger.error("根据站点:{}查询站点信息异常!", clientAuthRequest.getSiteCode(), e);
             return;
         }
-        String menuCodeFuncConfig = dmsConfigManager.getPropertyConfig().getMenuCodeFuncConfigUat();
+        String menuCodeFuncConfig = dmsConfigManager.getPropertyConfig().getMenuCodeFuncConfig();
         List<ClientMenuFuncConfig> list = JsonHelper.jsonToList(menuCodeFuncConfig, ClientMenuFuncConfig.class);
         if(CollectionUtils.isEmpty(list)){
             // 无配置，均可操作

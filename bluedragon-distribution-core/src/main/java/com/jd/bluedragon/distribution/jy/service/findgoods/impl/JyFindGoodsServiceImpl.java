@@ -8,6 +8,7 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.PACKAGE_HA
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.inventory.*;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailStatusEnum;
@@ -17,7 +18,11 @@ import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRef
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
+import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
+import com.jd.bluedragon.distribution.abnormal.service.StrandService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
@@ -37,6 +42,7 @@ import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.distribution.jy.service.task.autoRefresh.enums.ClientAutoRefreshBusinessTypeEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.common.utils.ObjectHelper;
@@ -75,6 +81,11 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
   @Autowired
   JimDbLock jimDbLock;
 
+  @Autowired
+  private BaseMajorManager baseMajorManager;
+  @Autowired
+  private StrandService strandService;
+
 
   @Override
   @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -109,12 +120,44 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
         findGoodsTaskDto.setUpdateUserErp(request.getUser().getUserErp());
         findGoodsTaskDto.setUpdateUserName(request.getUser().getUserName());
         updateTaskStatistics(findGoodsTaskDto);
+        addStrandReport(request);
       } finally {
         jimDbLock.releaseLock(findGoodsTaskLock,request.getRequestId());
       }
       return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
     }
     return new InvokeResult(PACKAGE_HASBEEN_SCAN,PACKAGE_HASBEEN_SCAN_MESSAGE);
+  }
+
+  /**
+   * 清场-滞留上报
+   */
+  private void addStrandReport(FindGoodsReq findGoodsReq){
+
+    try{
+      log.info("清场-滞留上报 入参-{}", JSON.toJSONString(findGoodsReq));
+      StrandReportRequest request = new StrandReportRequest();
+      request.setBarcode(findGoodsReq.getBarCode());
+      request.setSiteCode(findGoodsReq.getCurrentOperate().getSiteCode());
+      request.setSiteName(findGoodsReq.getCurrentOperate().getSiteName());
+      request.setUserName(findGoodsReq.getUser().getUserName());
+      BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(findGoodsReq.getUser().getUserErp());
+      if(baseStaff != null){
+        request.setUserCode(baseStaff.getStaffNo());
+      }
+      request.setReasonCode(Constants.REASON_CODE_FIND_GOODS);//滞留原因管理-清场找到
+      request.setReasonMessage(Constants.REASON_MESSAGE_FIND_GOODS);
+      request.setReportType(ReportTypeEnum.PACKAGE_CODE.getCode());
+      request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);//业务类型-正向
+      request.setOperateTime(DateHelper.formatDateTime(new Date()));
+      //调用滞留上报接口
+      log.info("清场触发包裹滞留上报入参-{}", JsonHelper.toJson(request));
+      InvokeResult<Boolean> report = strandService.report(request);
+      log.info("清场触发包裹滞留上报结果-{}", JsonHelper.toJson(report));
+    }catch (Exception e){
+      log.error("清场触发包裹滞留异常! request-{}",JsonHelper.toJson(findGoodsReq),e);
+    }
+
   }
 
   private JyBizTaskFindGoodsDetail assembleFindGoodsDetailQuery(FindGoodsReq request) {

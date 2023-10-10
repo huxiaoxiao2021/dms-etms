@@ -290,7 +290,7 @@ public class InvokeResult<T> implements Serializable {
     public static final String REVOKE_INTERCEPT_CONFIRM_MESSAGE = "此单原为客户取消订单，当前客户已撤回取消指令，无需操作逆向换单，是否仍要进行换单操作？";
 
     public static final int PACKAGE_HASBEEN_SCAN = 3067;
-    public static final String PACKAGE_HASBEEN_SCAN_MESSAGE = "该包裹已集被扫描过，请勿重复扫描!";
+    public static final String PACKAGE_HASBEEN_SCAN_MESSAGE = "该包裹已经被扫描过，请勿重复扫描!";
 
     public static final int NO_WAITFIND_DATA_CODE = 3068;
     public static final String NO_WAITFIND_DATA_MESSAGE = "未查询到对应的波次找货数据!";

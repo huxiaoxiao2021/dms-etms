@@ -727,6 +727,9 @@ public class DuccPropertyConfig{
 
 	private List<Integer> notValidateTransTypeCodes = new ArrayList<>();
 
+    /**
+     * 发货运力线路运输方式限制业务列表
+     */
 	@Value("${duccPropertyConfig.notValidateTransTypeCodesList:[3,4,10,11]}")
 	@LafUcc
 	private String notValidateTransTypeCodesList;
@@ -3074,7 +3077,11 @@ public class DuccPropertyConfig{
         notValidateTransTypeCodes = JsonHelper.jsonToList(notValidateTransTypeCodesList, Integer.class);
 
     }
-
+    /**
+     * 校验是否可用
+     * @param type
+     * @return
+     */
     public boolean notValidateTransType(Integer type) {
         if(!CollectionUtils.isEmpty(notValidateTransTypeCodes)) {
             return notValidateTransTypeCodes.contains(type);
@@ -3350,7 +3357,7 @@ public class DuccPropertyConfig{
 	}
 
 	public List<String> getNeedInterceptUrlList() {
-		return needInterceptUrlList;
+		return Lists.newArrayList(needInterceptUrlList);
 	}
 
 	public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -4475,7 +4482,9 @@ public class DuccPropertyConfig{
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
             if(first.isPresent()){
-                return first.get();
+                ClientAutoRefreshConfig config = new ClientAutoRefreshConfig();
+                BeanUtils.copyProperties(first.get(), config);
+                return config;
             }
         }
         return null;
