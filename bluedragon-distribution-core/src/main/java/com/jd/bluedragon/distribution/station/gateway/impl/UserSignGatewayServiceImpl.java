@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.PositionData;
@@ -28,18 +29,33 @@ import com.jd.bluedragon.common.dto.station.ScanUserData;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -62,6 +78,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 
 	@Autowired
 	private AttendanceBlackListManager attendanceBlackListManager;
+
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithPosition",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -283,6 +302,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toFail("请扫描[正式工、派遣工、支援]人员码！");
 			return result;
 		}
+
+		//设置返回值对象
+		ScanUserData data = new ScanUserData();
+		data.setJobCode(jobCode);
+		data.setUserCode(userCode);
+		result.setData(data);
+
 		//已扫描岗位码，校验在岗状态
 		if(StringUtils.isNotBlank(positionCode)) {
 			JdCResponse<UserSignRecordData> checkResult = checkUserSignStatus(positionCode,jobCode,userCode);
@@ -290,11 +316,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				result.toConfirm(checkResult.getMessage());
 			}
 		}
-		//设置返回值对象
-		ScanUserData data = new ScanUserData();
-		data.setJobCode(jobCode);
-		data.setUserCode(userCode);
-		result.setData(data);
+
 		return result;
 	}
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryPositionDataForLogin",
@@ -320,6 +342,12 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				result.toFail("扫描的网格码无效！");
 				return result;
 			}
+
+			//设置返回值对象
+			PositionData positionData = new PositionData();
+			BeanUtils.copyProperties(apiResult.getData(),positionData);
+			result.setData(positionData);
+
 			//已扫描人员码，校验在岗状态
 			if(StringUtils.isNotBlank(scanRequest.getUserCode())) {
 				JdCResponse<UserSignRecordData> checkResult = checkUserSignStatus(positionCode,scanRequest.getJobCode(),scanRequest.getUserCode());
@@ -327,10 +355,6 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 					result.toConfirm(checkResult.getMessage());
 				}
 			}
-			//设置返回值对象
-			PositionData positionData = new PositionData();
-			BeanUtils.copyProperties(apiResult.getData(),positionData);
-			result.setData(positionData);
 		}catch (Exception e){
 			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
 			result.toError("查询岗位信息异常");
@@ -363,8 +387,53 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
             argsMap.put(HintArgsConstants.ARG_FIRST, workName);
             String defaultMsg = String.format(HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN_MSG, workName);
 			result.toConfirm(HintService.getHint(defaultMsg,HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN, argsMap));
+			return result;
+		}
+
+		// 校验网格码场地和用户场地是否一致
+		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
+			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
+					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
+			return result;
 		}
 		return result;
+	}
+
+	/**
+	 * 作业APP网格码错误检验
+	 */
+	private boolean checkOperatorBaseInfo(String positionCode, String userCode) {
+		if (StringUtils.isBlank(positionCode) || StringUtils.isBlank(userCode)) {
+			return true;
+		}
+		// 查询网格码信息
+		Result<PositionDetailRecord> apiResult = positionManager.queryOneByPositionCode(positionCode);
+		if(apiResult == null || !apiResult.isSuccess()  || apiResult.getData() == null){
+			return true;
+		}
+		BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(apiResult.getData().getSiteCode());
+		if (dtoStaff == null) {
+			return true;
+		}
+		// 查询人员信息
+		BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+		if(baseStaffByErp == null) {
+			return true;
+		}
+		// 网格码为分拣场地类型
+		if (BusinessUtil.isSortingCenter(dtoStaff.getSortType(), dtoStaff.getSortSubType(),dtoStaff.getSortThirdType())) {
+			// 所属场地是否与当前网格码对应场地一致
+			return baseStaffByErp.getSiteCode().equals(apiResult.getData().getSiteCode());
+		}
+		// 网格码为接货仓场地类型
+		if (BusinessUtil.isReceivingWarehouse(dtoStaff.getSortType())) {
+			// 所属场地对应省区与网格码所属接货仓省区是否一致
+			if (StringUtils.isBlank(baseStaffByErp.getProvinceAgencyCode()) || StringUtils.isBlank(apiResult.getData().getProvinceAgencyCode())) {
+				return true;
+			}
+			return baseStaffByErp.getProvinceAgencyCode().equals(apiResult.getData().getProvinceAgencyCode());
+		}
+		return true;
 	}
 	private String checkAttendanceBlackList(JdCResponse<UserSignRecordData> result,String userCode){
 		//查询出勤黑名单，并校验
