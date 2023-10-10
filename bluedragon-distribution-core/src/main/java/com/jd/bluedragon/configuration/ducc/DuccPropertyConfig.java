@@ -1821,6 +1821,13 @@ public class DuccPropertyConfig{
 	@Value("${duccPropertyConfig.usePdaSorterApi:0}")
 	@LafUcc
     private Integer usePdaSorterApi;
+	
+    /**
+     * B网面单路由是否开启新模式
+     */
+	@Value("${duccPropertyConfig.bTemplateRouterExecuteNew:true}")
+	@LafUcc
+    private boolean bTemplateRouterExecuteNew;
     
 	public boolean isUseDucc() {
 		return useDucc;
@@ -4562,5 +4569,13 @@ public class DuccPropertyConfig{
 
 	public void setUsePdaSorterApi(Integer usePdaSorterApi) {
 		this.usePdaSorterApi = usePdaSorterApi;
+	}
+
+	public boolean getbTemplateRouterExecuteNew() {
+		return bTemplateRouterExecuteNew;
+	}
+
+	public void setbTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
+		this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
 	}	
 }
