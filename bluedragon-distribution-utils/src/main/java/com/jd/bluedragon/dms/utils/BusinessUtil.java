@@ -3,10 +3,12 @@ package com.jd.bluedragon.dms.utils;
 import com.jd.etms.waybill.constant.WaybillCodePattern;
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
-
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2857,6 +2859,45 @@ public class BusinessUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * 是否分拣中心
+     * 基础资料中sort_type = 12351且sort_sub_type = 123511且sort_third_type = 1235111或1235112或1235113或1235114或1235115
+     *
+     * @param sortType
+     * @param sortSubType
+     * @param sortThirdType
+     * @return
+     */
+    public static boolean isSortingCenter(Integer sortType, Integer sortSubType, Integer sortThirdType) {
+        if (sortType == null || sortSubType == null || sortThirdType == null) {
+            return false;
+        }
+
+        if (SortTypeConstants.SORT_TYPE_12351.equals(sortType) && SortTypeConstants.SORT_SUB_TYPE_123511.equals(sortSubType) 
+                && (SortTypeConstants.SORT_THIRD_TYPE_1235111.equals(sortThirdType) || SortTypeConstants.SORT_THIRD_TYPE_1235112.equals(sortThirdType) || SortTypeConstants.SORT_THIRD_TYPE_1235113.equals(sortThirdType) || SortTypeConstants.SORT_THIRD_TYPE_1235114.equals(sortThirdType) || SortTypeConstants.SORT_THIRD_TYPE_1235115.equals(sortThirdType))) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否接货仓
+     * 基础资料中sort_type = 12352
+     *
+     * @param sortType
+     * @return
+     */
+    public static boolean isReceivingWarehouse(Integer sortType) {
+        if (sortType == null) {
+            return false;
+        }
+
+        if (SortTypeConstants.SORT_TYPE_12352.equals(sortType)) {
+            return true;
+        }
+        return false;
     }
 
     /**
