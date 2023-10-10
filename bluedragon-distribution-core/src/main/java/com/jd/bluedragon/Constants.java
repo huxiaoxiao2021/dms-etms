@@ -2182,4 +2182,10 @@ public class Constants {
      */
     public static final String MORE_SCAN_QUERY_ES_SWITCH = "more.scan.query.es.switch";
 
+
+    /**
+     * 滞留原因-清场
+     */
+    public static final Integer REASON_CODE_FIND_GOODS = 115;
+    public static final String REASON_MESSAGE_FIND_GOODS = "清场找到";
 }
