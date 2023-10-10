@@ -151,8 +151,6 @@
 		<property name="noAuthMenuConfigNew" value="${noAuthMenuConfigNew:}"/>
 		<property name="menuCodeFuncConfig" value="${menuCodeFuncConfig:}"/>
 		<property name="menuCodeFuncConfigNew" value="${menuCodeFuncConfigNew:}"/>
-		<property name="noAuthMenuConfigUat" value="${noAuthMenuConfigUat:}"/>
-		<property name="menuCodeFuncConfigUat" value="${menuCodeFuncConfigUat:}"/>
 		<property name="sitePlateIsCheckFunc" value="${sitePlateIsCheckFunc:false}"/>
 		<property name="scheduleSiteCheckSameCity" value="${scheduleSiteCheckSameCity:''}"/>
 		<property name="bTemplateRouterExecuteNew" value="${bTemplateRouterExecuteNew:false}"/>
@@ -432,8 +430,6 @@
 				<value>uccPropertyConfiguration.noAuthMenuConfigNew</value>
 				<value>uccPropertyConfiguration.menuCodeFuncConfig</value>
 				<value>uccPropertyConfiguration.menuCodeFuncConfigNew</value>
-				<value>uccPropertyConfiguration.noAuthMenuConfigUat</value>
-				<value>uccPropertyConfiguration.menuCodeFuncConfigUat</value>
 				<value>uccPropertyConfiguration.sitePlateIsCheckFunc</value>
 				<value>uccPropertyConfiguration.bTemplateRouterExecuteNew</value>
 				<value>uccPropertyConfiguration.judgePackagePrintedIncludeSiteTerminal</value>
