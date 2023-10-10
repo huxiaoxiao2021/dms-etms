@@ -1982,6 +1982,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoxCode() + tTask.getKeyword1()));
             tTaskService.add(tTask, true);
         }
+        log.info("推全程跟踪task：{}", JsonHelper.toJson(tTask));
+        log.info("推全程跟踪domain：{}", JsonHelper.toJson(domain));
         return 0;
     }
 

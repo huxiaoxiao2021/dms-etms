@@ -1673,9 +1673,12 @@ public class WaybillResource {
 				if (null != areaDestJsfVo.getReceiveSiteCode() && areaDestJsfVo.getReceiveSiteCode() > 0) {
 					nextRouters.add(areaDestJsfVo.getReceiveSiteCode());
 				}
+				log.info("WaybillResource.getBarCodeAllRouters1-->areaDestJsfVo:{}", JsonHelper.toJson(areaDestJsfVo));
 			} else {
 				nextRouters.add(areaDestJsfVo.getTransferSiteCode());
 			}
+			log.info("WaybillResource.getBarCodeAllRouters2-->areaDestJsfVo:{}", JsonHelper.toJson(areaDestJsfVo));
+			log.info("WaybillResource.getBarCodeAllRouters-->nextRouters:{}", JsonHelper.toJson(nextRouters));
 		}
 		return result;
 	}
