@@ -727,6 +727,9 @@ public class DuccPropertyConfig{
 
 	private List<Integer> notValidateTransTypeCodes = new ArrayList<>();
 
+    /**
+     * 发货运力线路运输方式限制业务列表
+     */
 	@Value("${duccPropertyConfig.notValidateTransTypeCodesList:[3,4,10,11]}")
 	@LafUcc
 	private String notValidateTransTypeCodesList;
@@ -1799,6 +1802,25 @@ public class DuccPropertyConfig{
 	@Value("${duccPropertyConfig.dmsToVendorSendMQSwitch:false}")
 	@LafUcc	
     private boolean dmsToVendorSendMQSwitch;	
+	
+    /**
+     * 解封车查看运单包裹是否集齐
+     */
+	@Value("${duccPropertyConfig.unSealCarHandlePackageFullCollectedSwitch:-1}")
+	@LafUcc	
+    private String unSealCarHandlePackageFullCollectedSwitch;
+    /**
+     * 是否开启新发货交接逻辑
+     */
+	@Value("${duccPropertyConfig.newPrintHandoverListSwitch:true}")
+	@LafUcc		
+    private boolean newPrintHandoverListSwitch;
+    /**
+     * 启用运输新接口-开关 1-开启 0-关闭
+     */
+	@Value("${duccPropertyConfig.usePdaSorterApi:0}")
+	@LafUcc
+    private Integer usePdaSorterApi;
     
 	public boolean isUseDucc() {
 		return useDucc;
@@ -3074,7 +3096,11 @@ public class DuccPropertyConfig{
         notValidateTransTypeCodes = JsonHelper.jsonToList(notValidateTransTypeCodesList, Integer.class);
 
     }
-
+    /**
+     * 校验是否可用
+     * @param type
+     * @return
+     */
     public boolean notValidateTransType(Integer type) {
         if(!CollectionUtils.isEmpty(notValidateTransTypeCodes)) {
             return notValidateTransTypeCodes.contains(type);
@@ -3350,7 +3376,7 @@ public class DuccPropertyConfig{
 	}
 
 	public List<String> getNeedInterceptUrlList() {
-		return needInterceptUrlList;
+		return Lists.newArrayList(needInterceptUrlList);
 	}
 
 	public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -4475,12 +4501,29 @@ public class DuccPropertyConfig{
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
             if(first.isPresent()){
-                return first.get();
+                ClientAutoRefreshConfig config = new ClientAutoRefreshConfig();
+                BeanUtils.copyProperties(first.get(), config);
+                return config;
             }
         }
         return null;
     }
-
+    public Boolean getUnSealCarHandlePackageFullCollectedNeedHandle(Long siteId) {
+        if(StringUtils.isBlank(unSealCarHandlePackageFullCollectedSwitch)){
+            return false;
+        }
+        if(Objects.equals("all", unSealCarHandlePackageFullCollectedSwitch)){
+            return true;
+        }
+        if(Objects.equals("-1", unSealCarHandlePackageFullCollectedSwitch)){
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(unSealCarHandlePackageFullCollectedSwitch.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(siteId + "")){
+            return true;
+        }
+        return false;
+    }
 	public String getPlanSendTime() {
 		return planSendTime;
 	}
@@ -4495,5 +4538,29 @@ public class DuccPropertyConfig{
 
 	public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
 		this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
+	}
+
+	public String getUnSealCarHandlePackageFullCollectedSwitch() {
+		return unSealCarHandlePackageFullCollectedSwitch;
+	}
+
+	public void setUnSealCarHandlePackageFullCollectedSwitch(String unSealCarHandlePackageFullCollectedSwitch) {
+		this.unSealCarHandlePackageFullCollectedSwitch = unSealCarHandlePackageFullCollectedSwitch;
+	}
+
+	public boolean getNewPrintHandoverListSwitch() {
+		return newPrintHandoverListSwitch;
+	}
+
+	public void setNewPrintHandoverListSwitch(boolean newPrintHandoverListSwitch) {
+		this.newPrintHandoverListSwitch = newPrintHandoverListSwitch;
+	}
+
+	public Integer getUsePdaSorterApi() {
+		return usePdaSorterApi;
+	}
+
+	public void setUsePdaSorterApi(Integer usePdaSorterApi) {
+		this.usePdaSorterApi = usePdaSorterApi;
 	}	
 }
