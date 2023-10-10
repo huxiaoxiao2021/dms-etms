@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.task.UnloadVehicleMqDto;
@@ -55,7 +55,7 @@ public class RefreshUnloadVehicleProgressConsumer implements MessageListener {
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -232,7 +232,7 @@ public class RefreshUnloadVehicleProgressConsumer implements MessageListener {
         if (null != damageCntObj && null != lostCntObj) {
             Long damageCnt = Long.valueOf(damageCntObj + "");
             Long lostCnt = Long.valueOf(lostCntObj + "");
-            if (uccConfig.getJyUnloadSingleWaybillThreshold() < (damageCnt + lostCnt)) {
+            if (dmsConfigManager.getPropertyConfig().getJyUnloadSingleWaybillThreshold() < (damageCnt + lostCnt)) {
                 unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_2, JyUnloadTaskSignConstants.CHAR_2_1));
             }
         }

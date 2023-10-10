@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendAviationPlanDao;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
 import com.jd.bluedragon.distribution.jy.task.*;
@@ -37,9 +36,6 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     private JyBizTaskSendAviationPlanDao jyBizTaskSendAviationPlanDao;
     @Autowired
     private JyBizTaskSendAviationPlanCacheService aviationPlanCacheService;
-    @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
-
 
     @Override
     public int initTaskSendVehicle(JyBizTaskSendAviationPlanEntity entity) {

@@ -14,7 +14,7 @@ import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
 import com.jd.bluedragon.common.dto.seal.request.ValidSendCodeReq;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
@@ -137,7 +137,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Autowired
     private SortingService sortingService;
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
     @Autowired
     private JySealVehicleService jySealVehicleService;
     @Autowired
@@ -1011,7 +1011,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         Date curTime = new Date();
         detailEntity.setLastPlanDepartTimeBegin(DateHelper.addHours(curTime, -shuttlePlanTimeBeginHour));
         detailEntity.setLastPlanDepartTimeEnd(DateHelper.addHours(curTime, shuttlePlanTimeEndHour));
-        detailEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
+        detailEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
 
         return detailEntity;
     }
