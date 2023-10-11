@@ -490,7 +490,29 @@ public class StringHelper {
         }
         return true;
     }
-
+    /**
+     * 获取字符串的值，判断为null值则返回""，否则返回str值
+     * @param str
+     * @return
+     */
+    public static String getValueFormatNull(String str) {
+        if (str == null) {
+            return "";
+        }
+        return str;
+    }
+    /**
+     * 获取字符串的值，判断为null值则返回defaultVal值，否则返回str值
+     * @param str
+     * @param defaultVal
+     * @return
+     */
+    public static String getValueFormatNull(String str,String defaultVal) {
+        if (str == null) {
+            return defaultVal;
+        }
+        return str;
+    }    
     public static final void main(String[] args) {
         System.out.println(phoneEncrypt("18600399842"));
         System.out.println(phoneEncrypt("1860039942  d"));

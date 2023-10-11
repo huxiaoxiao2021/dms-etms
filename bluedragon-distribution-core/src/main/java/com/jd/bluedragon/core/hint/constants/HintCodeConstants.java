@@ -1037,6 +1037,9 @@ public class HintCodeConstants {
      */
     public static String CONFIRM_CHANGE_GW_FOR_SIGN = "40023";
     public static String CONFIRM_CHANGE_GW_FOR_SIGN_MSG = "此人在【%s】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";
+    public static String CONFIRM_AUTO_SIGN_OUT_FOR_SIGN_MSG = "该人员已经完成人脸打卡离场，请确认是否再次签到！";
+    
+    
 
     /**
      * 扫完网格码和人员码校验不通过时二次确认
