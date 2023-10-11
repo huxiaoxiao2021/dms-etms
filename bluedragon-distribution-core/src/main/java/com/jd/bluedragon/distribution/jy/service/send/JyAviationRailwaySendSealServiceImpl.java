@@ -758,11 +758,11 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             return;
         }
         //航空类型
-        if(Objects.isNull(filterConditionDto.getBookingType())) {
+        if(!Objects.isNull(filterConditionDto.getBookingType())) {
             entity.setAirType(filterConditionDto.getBookingType());
         }
         //始发机场
-        if(Objects.isNull(filterConditionDto.getAirportCode())) {
+        if(!Objects.isNull(filterConditionDto.getAirportCode())) {
             entity.setBeginNodeCode(filterConditionDto.getAirportCode());
         }
     }
