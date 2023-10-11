@@ -915,31 +915,37 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.selectBoardByTms", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void selectBoardByTms(SealVehicleInfoReq sealVehicleInfoReq) {
-        // 校验当前任务是否存在暂存数据，如果不存在暂存数据，则自动选择板号
-        if (!jyAppDataSealService.checkExistSaveData(sealVehicleInfoReq.getSendVehicleDetailBizId())) {
-            List<BoardLoadDto> boardList = jdiBoardLoadWSManager.queryBoardLoad(assembleBoardLoadDto(sealVehicleInfoReq));
-            if (CollectionUtils.isEmpty(boardList)) {
-                return;
-            }
-            
-            List<JyAppDataSealSendCode> sendCodes = new ArrayList<>();
-            Set<String> sendCodeSet = new HashSet<>();
-            for (BoardLoadDto boardLoadDto : boardList) {
-                if (!LOADING_COMPLETEDC.equals(boardLoadDto.getBoardStatus())) {
-                    // 只操作完成装车的板
-                    continue;
+        try {
+            // 校验当前任务是否存在暂存数据，如果不存在暂存数据，则自动选择板号
+            if (!jyAppDataSealService.checkExistSaveData(sealVehicleInfoReq.getSendVehicleDetailBizId())) {
+                List<BoardLoadDto> boardList = jdiBoardLoadWSManager.queryBoardLoad(assembleBoardLoadDto(sealVehicleInfoReq));
+                if (CollectionUtils.isEmpty(boardList)) {
+                    return;
                 }
-                if (sendCodeSet.contains(boardLoadDto.getBatchCode())){
-                    continue;
+
+                List<JyAppDataSealSendCode> sendCodes = new ArrayList<>();
+                Set<String> sendCodeSet = new HashSet<>();
+                for (BoardLoadDto boardLoadDto : boardList) {
+                    if (!LOADING_COMPLETEDC.equals(boardLoadDto.getBoardStatus())) {
+                        // 只操作完成装车的板
+                        continue;
+                    }
+                    if (sendCodeSet.contains(boardLoadDto.getBatchCode())) {
+                        continue;
+                    }
+                    sendCodeSet.add(boardLoadDto.getBatchCode());
+                    JyAppDataSealSendCode sealSendCode = new JyAppDataSealSendCode();
+                    sealSendCode.setSendCode(boardLoadDto.getBatchCode());
+                    sealSendCode.setSendDetailBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
+                    sealSendCode.setCreateTime(new Date());
+                    sendCodes.add(sealSendCode);
                 }
-                sendCodeSet.add(boardLoadDto.getBatchCode());
-                JyAppDataSealSendCode sealSendCode = new JyAppDataSealSendCode();
-                sealSendCode.setSendCode(boardLoadDto.getBatchCode());
-                sealSendCode.setSendDetailBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
-                sealSendCode.setCreateTime(new Date());
-                sendCodes.add(sealSendCode);
+                if (!CollectionUtils.isEmpty(sendCodes)) {
+                    jyAppDataSealService.saveSendCodeList(sendCodes);
+                }
             }
-            jyAppDataSealService.saveSendCodeList(sendCodes);
+        }catch (Exception e) {
+            log.error("自动选择板号失败，request: {}", JsonHelper.toJson(sealVehicleInfoReq),e);
         }
     }
     
