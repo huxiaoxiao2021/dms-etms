@@ -21,6 +21,13 @@ public interface JyCollectPackageGatewayService {
    */
   JdCResponse<CollectPackageTaskResp> listCollectPackageTask(CollectPackageTaskReq request);
 
+  /**
+   * 查询集包任务列表
+   * @param request
+   * @return
+   */
+  JdCResponse<CollectPackageTaskResp> searchPackageTask(SearchPackageTaskReq request);
+
 
   /**
    * 查询任务详情
