@@ -1799,7 +1799,7 @@ public class DuccPropertyConfig{
     /**
      * dmsToVendor 通知调度系统发送MQ消息 开关
      */
-	@Value("${duccPropertyConfig.dmsToVendorSendMQSwitch:false}")
+	@Value("${duccPropertyConfig.dmsToVendorSendMQSwitch:true}")
 	@LafUcc	
     private boolean dmsToVendorSendMQSwitch;	
 	
