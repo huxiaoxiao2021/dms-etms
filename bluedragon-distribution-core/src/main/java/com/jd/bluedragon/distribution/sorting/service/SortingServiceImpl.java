@@ -7,7 +7,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -193,7 +193,7 @@ public class SortingServiceImpl implements SortingService {
     private CycleMaterialNoticeService cycleMaterialNoticeService;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 
 	@Autowired
@@ -568,7 +568,7 @@ public class SortingServiceImpl implements SortingService {
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSortingAdditionalTask", false, true);
 
 		// 如果业务来源是转运装车扫描，不再发送全程跟踪
-		if (uccPropertyConfiguration.isIgnoreTysTrackSwitch()) {
+		if (dmsConfigManager.getPropertyConfig().isIgnoreTysTrackSwitch()) {
 			if (SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(sorting.getBizSource())) {
 				return;
 			}
@@ -1667,7 +1667,7 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	private SortingJsfResponse checkTeAnWaybillSorting(PdaOperateRequest pdaOperateRequest){
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		if(!uccPropertyConfiguration.isCheckTeAnSwitch()){
+		if(!dmsConfigManager.getPropertyConfig().isCheckTeAnSwitch()){
 			log.warn("分拣理货-特安校验开关关闭!");
 			return sortingJsfResponse;
 		}

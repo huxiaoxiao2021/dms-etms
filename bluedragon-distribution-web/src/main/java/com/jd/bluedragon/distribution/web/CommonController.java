@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.web;
 
 import com.google.common.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.JyBasicSiteQueryManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -199,14 +199,14 @@ public class CommonController extends DmsBaseController {
     }
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @RequestMapping("/getClickInterval")
     @JProfiler(jKey = "com.jd.bluedragon.distribution.web.CommonController.getClickInterval", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public @ResponseBody JdResponse<Integer> getClickInterval() {
         JdResponse<Integer> response = new JdResponse<>();
         response.toSucceed();
-        response.setData(uccPropertyConfiguration.getClickIntervalSecond());
+        response.setData(dmsConfigManager.getPropertyConfig().getClickIntervalSecond());
         return response;
     }
 }

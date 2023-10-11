@@ -10,7 +10,7 @@ import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ErpLoginServiceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -99,7 +99,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
     private ErpLoginServiceManager erpLoginServiceManager;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private JyDemotionService jyDemotionService;
@@ -165,7 +165,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             request.setBaseVersionCode(JSF_LOGIN_DEFAULT_BASE_VERSION_CODE);
         }
         LoginUserResponse loginUserResponse = clientLoginIn(request);
-		if(!uccPropertyConfiguration.getPdaLoginSkipSwitch()){
+		if(!dmsConfigManager.getPropertyConfig().getPdaLoginSkipSwitch()){
 			this.getAndSaveToken(request, loginUserResponse);
 			this.handleDeviceLocation(request, loginUserResponse);
 		}
@@ -600,7 +600,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	}
 
 	private boolean checkMenuIsOffline(String menuCode, JdResult<CheckMenuAuthResponse> result) {
-		Map<String, Map<String, Object>> stringMapMap = com.jd.bluedragon.utils.JsonHelper.json2Map(uccPropertyConfiguration.getClientOfflineMenuConfig());
+		Map<String, Map<String, Object>> stringMapMap = com.jd.bluedragon.utils.JsonHelper.json2Map(dmsConfigManager.getPropertyConfig().getClientOfflineMenuConfig());
 		if(stringMapMap == null){
 			return false;
 		}

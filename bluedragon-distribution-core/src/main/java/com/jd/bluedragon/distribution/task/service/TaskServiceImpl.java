@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.task.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.redis.TaskModeAgent;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -89,7 +89,7 @@ public class TaskServiceImpl implements TaskService {
     private DmsDynamicProducer dynamicProducer;
 
 	@Resource
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
     private TBTaskQueueService tbTaskQueueService;
@@ -242,7 +242,7 @@ public class TaskServiceImpl implements TaskService {
 		String newOperateTime = operateTime;
 		if(operateTimeDate.before(systemTimeDate)){
 			// 操作时间在系统时间之前
-			int offlineBeforeNowLimit = uccPropertyConfiguration.getOfflineTaskOperateTimeBeforeNowLimitHours();
+			int offlineBeforeNowLimit = dmsConfigManager.getPropertyConfig().getOfflineTaskOperateTimeBeforeNowLimitHours();
 			Date limitDate = DateHelper.newTimeRangeHoursAgo(systemTimeDate, offlineBeforeNowLimit);
 			if(operateTimeDate.before(limitDate)){
 				log.error("离线任务的操作时间【{}】超过了系统时间【{}】设定上传时间范围【{}h】,此任务为超时无效数据，过滤不接收!",
@@ -252,7 +252,7 @@ public class TaskServiceImpl implements TaskService {
 			}
 		} else {
 			// 操作时间在系统时间之后
-			int offlineAfterNowLimit = uccPropertyConfiguration.getOfflineTaskOperateTimeCorrectHours();
+			int offlineAfterNowLimit = dmsConfigManager.getPropertyConfig().getOfflineTaskOperateTimeCorrectHours();
 			newOperateTime = DateHelper.formatDate(
 					DateHelper.adjustTimeToNow(DateHelper.parseDate(operateTime, dateFormat),offlineAfterNowLimit),
 					dateFormat
@@ -547,7 +547,7 @@ public class TaskServiceImpl implements TaskService {
         return 0;
     }
 	public boolean isRedisSwitchON(){
-		return Constants.STRING_FLG_TRUE.equals(this.uccPropertyConfiguration.getRedisSwitchOn());
+		return Constants.STRING_FLG_TRUE.equals(this.dmsConfigManager.getPropertyConfig().getRedisSwitchOn());
 	}
 	public Integer add(Task task) {
 		return add(task, false);
@@ -592,7 +592,7 @@ public class TaskServiceImpl implements TaskService {
 
     public String getFetchWithoutFailedTableName() {
 	    try {
-            return uccPropertyConfiguration.getWorkerFetchWithoutFailedTable();
+            return dmsConfigManager.getPropertyConfig().getWorkerFetchWithoutFailedTable();
         } catch (Throwable e) {
 	        return null;
         }

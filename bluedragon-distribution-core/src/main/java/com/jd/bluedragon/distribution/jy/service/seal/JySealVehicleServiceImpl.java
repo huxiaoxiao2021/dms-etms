@@ -14,7 +14,7 @@ import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
 import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
@@ -130,7 +130,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     private JyComboardAggsService jyComboardAggsService;
 
     @Autowired
-    UccPropertyConfiguration ucc;
+    DmsConfigManager dmsConfigManager;
 
     @Autowired
     GroupBoardManager groupBoardManager;
@@ -292,7 +292,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             //校验批次是否已经封车
             if (sealVehicleReq.getFuncType() == null || sealVehicleReq.getFuncType().equals(JyFuncCodeEnum.COMBOARD_SEND_POSITION.getCode())) {
-                if (ucc.getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= ucc.getJyComboardSealBoardListSelectLimit()){
+                if (dmsConfigManager.getPropertyConfig().getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= dmsConfigManager.getPropertyConfig().getJyComboardSealBoardListSelectLimit()){
                     for (String sendCode:sealVehicleReq.getBatchCodes()){
                         if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
                             throw new JyBizException("该批次:"+sendCode+"已经封车,请勿重复勾选");
@@ -925,7 +925,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             :jySendVehicleServiceTys.calculateOperateProgress(sendAgg,false);
         if (ObjectHelper.isNotNull(operateProgress)){
             log.info("拍照上传获取任务简码-计算装车进度：{}",operateProgress.doubleValue());
-            if (operateProgress.compareTo(new BigDecimal(ucc.getOnlineGetTaskSimpleCodeThreshold()))<0){
+            if (operateProgress.compareTo(new BigDecimal(dmsConfigManager.getPropertyConfig().getOnlineGetTaskSimpleCodeThreshold()))<0){
                 throw new JyBizException("装载率不足50%，无法拍照获取任务简码!");
             }
         }

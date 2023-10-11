@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
@@ -26,7 +26,7 @@ public class WJBoxSortingNumberLimitFilter implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(WJBoxSortingNumberLimitFilter.class);
 
     @Autowired
-    private UccPropertyConfiguration uccConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private SortingService sortingService;
@@ -46,7 +46,7 @@ public class WJBoxSortingNumberLimitFilter implements Filter {
 
     private void limitNumCheck(FilterContext request) throws SortingCheckException {
 
-        int boxLimitNum = uccConfiguration.getWJPackageNumberLimit();
+        int boxLimitNum = dmsConfigManager.getPropertyConfig().getWJPackageNumberLimit();
         if (boxLimitNum <= 0) {
             return;
         }

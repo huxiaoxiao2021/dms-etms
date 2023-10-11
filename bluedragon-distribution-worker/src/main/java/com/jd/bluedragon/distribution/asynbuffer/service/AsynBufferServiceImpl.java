@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.asynbuffer.service;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
@@ -188,7 +188,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     private IDeliveryOperationService deliveryOperationService;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     /**
      * 发货异步任务
@@ -202,7 +202,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         }
         try {
             // 延时消费
-            int sleepMills = uccConfig.getDeliverySendTaskSleepMills() <= 0 ? 1000 : uccConfig.getDeliverySendTaskSleepMills();
+            int sleepMills = dmsConfigManager.getPropertyConfig().getDeliverySendTaskSleepMills() <= 0 ? 1000 : dmsConfigManager.getPropertyConfig().getDeliverySendTaskSleepMills();
             Thread.sleep(new Random().nextInt(sleepMills));
 
             String umpKey = "DmsWorker.Task.deliverySendProcess.execute";
