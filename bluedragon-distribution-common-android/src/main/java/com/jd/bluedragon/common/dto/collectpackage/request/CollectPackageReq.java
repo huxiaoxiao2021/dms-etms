@@ -16,6 +16,9 @@ public class CollectPackageReq  extends BaseReq implements Serializable {
      */
     private boolean forceCollectPackage;
 
+    /**
+     * 弱拦截提示时，用户二次确认跳过拦截
+     */
     private boolean skipInterceptChain;
 
     public boolean getSkipInterceptChain() {
@@ -34,7 +37,23 @@ public class CollectPackageReq  extends BaseReq implements Serializable {
         this.forceCollectPackage = forceCollectPackage;
     }
 
+    /**
+     * 集包目的地
+     */
     private Long endSiteId;
+
+    /**
+     * 建包流向（箱号目的地）
+     */
+    private Long boxReceiveId;
+
+    public Long getBoxReceiveId(){
+        return boxReceiveId;
+    }
+
+    public void setBoxReceiveId(Long boxReceiveId) {
+        this.boxReceiveId = boxReceiveId;
+    }
 
     public Long getEndSiteId() {
         return endSiteId;

@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
-import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackage;
+import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 
 public interface JyBizTaskCollectPackageService {
     /**
@@ -8,6 +8,5 @@ public interface JyBizTaskCollectPackageService {
      * @param bizId
      * @return
      */
-    JyBizTaskCollectPackage findByBizId(String bizId);
-
+    JyBizTaskCollectPackageEntity findByBizId(String bizId);
 }

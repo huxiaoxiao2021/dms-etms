@@ -1,5 +1,9 @@
 package com.jd.bluedragon.core.jsf.boxlimit;
 
+import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
+
+import java.util.List;
+
 /**
  * @Author: chenyaguo@jd.com
  * @Date: 2022/8/2 14:28
@@ -14,4 +18,6 @@ public interface BoxLimitConfigManager {
      * @return
      */
     Integer getLimitNums( Integer createSiteCode, String type);
+
+    List<CollectBoxFlowDirectionConf> listCollectBoxFlowDirection(CollectBoxFlowDirectionConf collectBoxFlowDirectionConf);
 }

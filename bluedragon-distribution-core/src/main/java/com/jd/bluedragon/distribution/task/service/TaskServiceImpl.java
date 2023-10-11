@@ -785,7 +785,7 @@ public class TaskServiceImpl implements TaskService {
 		return task;
 	}
 
-	private void initOthers(String jsonVal, Task task) {
+	public void initOthers(String jsonVal, Task task) {
 		String arrayToObject = jsonVal.substring(1, jsonVal.length() - 1);
 		Map<String, Object> map = JsonHelper.json2MapNormal(arrayToObject);
 		Object packageBarcode = map.get("packageBarcode");
