@@ -1093,7 +1093,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return result;
         }
         try {
-            curSendDest.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeBeginDay()));
+            curSendDest.setLastPlanDepartTimeBegin(DateHelper.addHours(new Date(), -dmsConfigManager.getPropertyConfig().getJyBindSendTaskPlanTimeBeginHour()));
             curSendDest.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeEndDay()));
             curSendDest.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
 

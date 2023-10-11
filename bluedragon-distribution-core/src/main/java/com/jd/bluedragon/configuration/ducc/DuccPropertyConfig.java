@@ -1809,6 +1809,13 @@ public class DuccPropertyConfig{
 	@LafUcc
     private boolean bTemplateRouterExecuteNew;
 
+	/**
+	 * 发货任务绑定查询开始时间-计划发货时间
+	 */
+	@Value("${duccPropertyConfig.jyBindSendTaskPlanTimeBeginHour:2}")
+	@LafUcc
+	private Integer jyBindSendTaskPlanTimeBeginHour;
+
 	//get、set方法	
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -4528,5 +4535,13 @@ public class DuccPropertyConfig{
 
 	public void setbTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
 		this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
-	}	
+	}
+
+	public void setJyBindSendTaskPlanTimeBeginHour(Integer jyBindSendTaskPlanTimeBeginHour) {
+		this.jyBindSendTaskPlanTimeBeginHour = jyBindSendTaskPlanTimeBeginHour;
+	}
+
+	public Integer getJyBindSendTaskPlanTimeBeginHour() {
+		return jyBindSendTaskPlanTimeBeginHour;
+	}
 }
