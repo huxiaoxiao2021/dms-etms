@@ -4,7 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -50,7 +50,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
     private VirtualBoardService virtualBoardService;
 
     @Autowired
-    UccPropertyConfiguration ucc;
+    DmsConfigManager dmsConfigManager;
     
     @Autowired
     private DeliveryService deliveryService;
@@ -111,7 +111,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         }
 
         int totalNum = waybill.getGoodNumber();
-        int onePageSize = ucc.getWaybillSplitPageSize() == 0 ? COMBOARD_SPLIT_NUM : ucc.getWaybillSplitPageSize();
+        int onePageSize = dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize() == 0 ? COMBOARD_SPLIT_NUM : dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize();
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
         // 插入分页任务
         CancelComboardTaskDto taskDto = new CancelComboardTaskDto();

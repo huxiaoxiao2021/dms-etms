@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
 import org.springframework.beans.BeanUtils;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -24,29 +26,9 @@ import com.jd.ql.dms.print.utils.JsonHelper;
 
 @Component("duccPropertyConfig")
 	@LafUcc
-public class DuccPropertyConfig {
+public class DuccPropertyConfig{
 	private static final Logger log = LoggerFactory.getLogger(DuccPropertyConfig.class);
 	
-	public static final String CONFIG_FROM_LOCAL = "local";
-	/**
-	 * 使用ducc
-	 */
-	@Value("${duccPropertyConfig.useDucc:false}")
-	@LafUcc
-	private boolean useDucc;
-	/**
-	 * 配置来源-默认是local，正常加载ducc，应该是ducc配置的值
-	 */
-	@Value("${duccPropertyConfig.configFrom:local}")
-	@LafUcc
-	private String configFrom;
-	/**
-	 * 配置检查标识，比较ucc和ducc配置，不一致抛出异常
-	 */
-	@Value("${duccPropertyConfig.checkConfig:false}")
-	@LafUcc
-	private boolean checkConfig;
-
 	/**
 	 *BC箱号绑定WJ箱号个数
 	 */
@@ -725,6 +707,9 @@ public class DuccPropertyConfig {
 
 	private List<Integer> notValidateTransTypeCodes = new ArrayList<>();
 
+    /**
+     * 发货运力线路运输方式限制业务列表
+     */
 	@Value("${duccPropertyConfig.notValidateTransTypeCodesList:[3,4,10,11]}")
 	@LafUcc
 	private String notValidateTransTypeCodesList;
@@ -1051,7 +1036,7 @@ public class DuccPropertyConfig {
 	private boolean stopWriteUnloadFromDms;
 
 	/**
-	 *uccPropertyConfiguration.switchVerToWebSites
+	 *switchVerToWebSites
 	 */
 	@Value("${duccPropertyConfig.switchVerToWebSites:-1}")
 	@LafUcc
@@ -1787,31 +1772,42 @@ public class DuccPropertyConfig {
 	@Value("${duccPropertyConfig.terminalSitePackagePrintLimitSwitch:false}")
 	@LafUcc	
     private boolean terminalSitePackagePrintLimitSwitch;
-    
-	public boolean isUseDucc() {
-		return useDucc;
-	}
-
-	public void setUseDucc(boolean useDucc) {
-		log.info("DuccPropertyConfig.setUseDucc");
-		this.useDucc = useDucc;
-	}
-
-   public String getConfigFrom() {
-		return configFrom;
-	}
-
-	public void setConfigFrom(String configFrom) {
-		this.configFrom = configFrom;
-	}
-
-	public boolean isCheckConfig() {
-		return checkConfig;
-	}
-
-	public void setCheckConfig(boolean checkConfig) {
-		this.checkConfig = checkConfig;
-	}
+	
+	@Value("${duccPropertyConfig.planSendTime:}")
+	@LafUcc	
+    private String planSendTime;
+    /**
+     * dmsToVendor 通知调度系统发送MQ消息 开关
+     */
+	@Value("${duccPropertyConfig.dmsToVendorSendMQSwitch:false}")
+	@LafUcc	
+    private boolean dmsToVendorSendMQSwitch;	
+	
+    /**
+     * 解封车查看运单包裹是否集齐
+     */
+	@Value("${duccPropertyConfig.unSealCarHandlePackageFullCollectedSwitch:-1}")
+	@LafUcc	
+    private String unSealCarHandlePackageFullCollectedSwitch;
+    /**
+     * 是否开启新发货交接逻辑
+     */
+	@Value("${duccPropertyConfig.newPrintHandoverListSwitch:true}")
+	@LafUcc		
+    private boolean newPrintHandoverListSwitch;
+    /**
+     * 启用运输新接口-开关 1-开启 0-关闭
+     */
+	@Value("${duccPropertyConfig.usePdaSorterApi:0}")
+	@LafUcc
+    private Integer usePdaSorterApi;
+	
+    /**
+     * B网面单路由是否开启新模式
+     */
+	@Value("${duccPropertyConfig.bTemplateRouterExecuteNew:true}")
+	@LafUcc
+    private boolean bTemplateRouterExecuteNew;
 
 	//get、set方法	
     public String getScheduleSiteCheckSameCity() {
@@ -3062,7 +3058,11 @@ public class DuccPropertyConfig {
         notValidateTransTypeCodes = JsonHelper.jsonToList(notValidateTransTypeCodesList, Integer.class);
 
     }
-
+    /**
+     * 校验是否可用
+     * @param type
+     * @return
+     */
     public boolean notValidateTransType(Integer type) {
         if(!CollectionUtils.isEmpty(notValidateTransTypeCodes)) {
             return notValidateTransTypeCodes.contains(type);
@@ -3273,7 +3273,7 @@ public class DuccPropertyConfig {
 		this.businessLogQueryPageSwitch = businessLogQueryPageSwitch;
 	}
 
-	public boolean isCheckSignAndReturn() {
+	public boolean getCheckSignAndReturn() {
 		return checkSignAndReturn;
 	}
 
@@ -3321,7 +3321,7 @@ public class DuccPropertyConfig {
 		this.deliverySendTaskSleepMills = deliverySendTaskSleepMills;
 	}
 
-	public boolean isEnableGoodsAreaOfTysScan() {
+	public boolean getEnableGoodsAreaOfTysScan() {
 		return enableGoodsAreaOfTysScan;
 	}
 
@@ -3329,7 +3329,7 @@ public class DuccPropertyConfig {
 		this.enableGoodsAreaOfTysScan = enableGoodsAreaOfTysScan;
 	}
 
-	public boolean isFilterSendCodeSwitch() {
+	public boolean getFilterSendCodeSwitch() {
 		return filterSendCodeSwitch;
 	}
 
@@ -3338,7 +3338,7 @@ public class DuccPropertyConfig {
 	}
 
 	public List<String> getNeedInterceptUrlList() {
-		return needInterceptUrlList;
+		return Lists.newArrayList(needInterceptUrlList);
 	}
 
 	public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -3403,7 +3403,7 @@ public class DuccPropertyConfig {
 		this.sealTaskHystrixProps = sealTaskHystrixProps;
 	}
 
-	public boolean isSyncJySealStatusSwitch() {
+	public boolean getSyncJySealStatusSwitch() {
 		return syncJySealStatusSwitch;
 	}
 
@@ -3480,7 +3480,7 @@ public class DuccPropertyConfig {
 		this.batchQueryEndSiteLimit = batchQueryEndSiteLimit;
 	}
 
-	public boolean isBatchSendForbiddenSwitch() {
+	public boolean getBatchSendForbiddenSwitch() {
 		return batchSendForbiddenSwitch;
 	}
 
@@ -3488,7 +3488,7 @@ public class DuccPropertyConfig {
 		this.batchSendForbiddenSwitch = batchSendForbiddenSwitch;
 	}
 
-	public boolean isBoardCombinationRouterSwitch() {
+	public boolean getBoardCombinationRouterSwitch() {
 		return boardCombinationRouterSwitch;
 	}
 
@@ -3536,7 +3536,7 @@ public class DuccPropertyConfig {
 		this.completeExpDayNumLimit = completeExpDayNumLimit;
 	}
 
-	public boolean isCreateBoardBySendFlowSwitch() {
+	public boolean getCreateBoardBySendFlowSwitch() {
 		return createBoardBySendFlowSwitch;
 	}
 
@@ -3560,7 +3560,7 @@ public class DuccPropertyConfig {
 		this.czOrgForbiddenList = czOrgForbiddenList;
 	}
 
-	public boolean isCzQuerySwitch() {
+	public boolean getCzQuerySwitch() {
 		return czQuerySwitch;
 	}
 
@@ -3602,7 +3602,15 @@ public class DuccPropertyConfig {
             this.dewuCustomerCodeList = Arrays.asList(dewuCustomerCodes.split(Constants.SEPARATOR_COMMA));
         }
 	}
-
+    public boolean matchDewuCustomerCode(String customerCode) {
+        if(StringUtils.isBlank(dewuCustomerCodes)){
+            return false;
+        }
+        if(dewuCustomerCodeList.contains(customerCode)){
+            return true;
+        }
+        return false;
+    }
 	public String getDpSpringSiteCode() {
 		return dpSpringSiteCode;
 	}
@@ -3619,7 +3627,9 @@ public class DuccPropertyConfig {
         }		
 		
 	}
-
+    public boolean isDpSpringSiteCode(Integer siteCode) {
+        return this.getDpSpringSiteCodeList().contains(siteCode);
+    }
 	public List<Integer> getDpSpringSiteCodeList() {
 		return dpSpringSiteCodeList;
 	}
@@ -3909,7 +3919,7 @@ public class DuccPropertyConfig {
 		this.loadCarEvaluateSwitch = loadCarEvaluateSwitch;
 	}
 
-	public boolean isLoadProgressByVehicleVolume() {
+	public boolean getLoadProgressByVehicleVolume() {
 		return loadProgressByVehicleVolume;
 	}
 
@@ -3925,7 +3935,7 @@ public class DuccPropertyConfig {
 		this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
 	}
 
-	public boolean isMachineCalibrateSpotCheckSwitch() {
+	public boolean getMachineCalibrateSpotCheckSwitch() {
 		return machineCalibrateSpotCheckSwitch;
 	}
 
@@ -3965,7 +3975,7 @@ public class DuccPropertyConfig {
 		this.needIsolateBoardByGroupCodeSiteList = needIsolateBoardByGroupCodeSiteList;
 	}
 
-	public boolean isNeedValidateBatchCodeHasSealed() {
+	public boolean getNeedValidateBatchCodeHasSealed() {
 		return needValidateBatchCodeHasSealed;
 	}
 
@@ -3980,7 +3990,9 @@ public class DuccPropertyConfig {
 	public void setOffLineAllowedSites(String offLineAllowedSites) {
 		this.offLineAllowedSites = offLineAllowedSites;
 	}
-
+    public boolean isOffLineAllowedSite(Integer siteCode) {
+        return Constants.STR_ALL.equals(offLineAllowedSites) || Arrays.asList(offLineAllowedSites.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
+    }
 	public int getOnlineGetTaskSimpleCodeThreshold() {
 		return onlineGetTaskSimpleCodeThreshold;
 	}
@@ -4053,7 +4065,7 @@ public class DuccPropertyConfig {
 		this.printCompeteUpdateCancel = printCompeteUpdateCancel;
 	}
 
-	public boolean isProductOperateProgressSwitch() {
+	public boolean getProductOperateProgressSwitch() {
 		return productOperateProgressSwitch;
 	}
 
@@ -4061,7 +4073,7 @@ public class DuccPropertyConfig {
 		this.productOperateProgressSwitch = productOperateProgressSwitch;
 	}
 
-	public boolean isReComboardSwitch() {
+	public boolean getReComboardSwitch() {
 		return reComboardSwitch;
 	}
 
@@ -4093,7 +4105,7 @@ public class DuccPropertyConfig {
 		this.spotCheckIssueRelyOnMachineStatusSiteSwitch = spotCheckIssueRelyOnMachineStatusSiteSwitch;
 	}
 
-	public boolean isSupportMutilScan() {
+	public boolean getSupportMutilScan() {
 		return supportMutilScan;
 	}
 
@@ -4101,7 +4113,7 @@ public class DuccPropertyConfig {
 		this.supportMutilScan = supportMutilScan;
 	}
 
-	public boolean isSyncJyCZSealStatusSwitch() {
+	public boolean getSyncJyCZSealStatusSwitch() {
 		return syncJyCZSealStatusSwitch;
 	}
 
@@ -4109,7 +4121,7 @@ public class DuccPropertyConfig {
 		this.syncJyCZSealStatusSwitch = syncJyCZSealStatusSwitch;
 	}
 
-	public boolean isSyncScheduleTaskSwitch() {
+	public boolean getSyncScheduleTaskSwitch() {
 		return syncScheduleTaskSwitch;
 	}
 
@@ -4129,7 +4141,18 @@ public class DuccPropertyConfig {
         	teAnSiteWhitelistStrList =  Arrays.asList(teAnSiteWhitelist.split(Constants.SEPARATOR_COMMA));
         }
 	}
-
+    public boolean matchTeAnSiteWhitelist(int siteId) {
+        if(StringUtils.isBlank(teAnSiteWhitelist)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, teAnSiteWhitelist)){
+            return true;
+        }
+        if(teAnSiteWhitelistStrList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
 	public List<String> getTeAnSiteWhitelistStrList() {
 		return teAnSiteWhitelistStrList;
 	}
@@ -4222,7 +4245,7 @@ public class DuccPropertyConfig {
 		this.useEquipmentSpotCheckAIDistinguishResult = useEquipmentSpotCheckAIDistinguishResult;
 	}
 
-	public boolean isOldSendForbiddenSwitch() {
+	public boolean getOldSendForbiddenSwitch() {
 		return oldSendForbiddenSwitch;
 	}
 
@@ -4361,7 +4384,7 @@ public class DuccPropertyConfig {
 	}
 
 	public boolean isJyExceptionCreateBizIdSwitch() {
-		return jyExceptionCreateBizIdSwitch;
+		return this.jyExceptionCreateBizIdSwitch;
 	}
 
 	public void setJyExceptionCreateBizIdSwitch(boolean jyExceptionCreateBizIdSwitch) {
@@ -4369,7 +4392,7 @@ public class DuccPropertyConfig {
 	}
 
 	public int getJyExceptionDamageTaskCustomerNotReturnHours() {
-		return jyExceptionDamageTaskCustomerNotReturnHours;
+		return this.jyExceptionDamageTaskCustomerNotReturnHours;
 	}
 
 	public void setJyExceptionDamageTaskCustomerNotReturnHours(int jyExceptionDamageTaskCustomerNotReturnHours) {
@@ -4377,7 +4400,7 @@ public class DuccPropertyConfig {
 	}
 
 	public String getQingChangDataOpenSwitch() {
-		return qingChangDataOpenSwitch;
+		return this.qingChangDataOpenSwitch;
 	}
 
 	public void setQingChangDataOpenSwitch(String qingChangDataOpenSwitch) {
@@ -4385,7 +4408,7 @@ public class DuccPropertyConfig {
 	}
 
 	public Integer getReverseExchangeCount() {
-		return reverseExchangeCount;
+		return this.reverseExchangeCount;
 	}
 
 	public void setReverseExchangeCount(Integer reverseExchangeCount) {
@@ -4393,7 +4416,7 @@ public class DuccPropertyConfig {
 	}
 
 	public boolean isTerminalSitePackagePrintLimitSwitch() {
-		return terminalSitePackagePrintLimitSwitch;
+		return this.terminalSitePackagePrintLimitSwitch;
 	}
 
 	public void setTerminalSitePackagePrintLimitSwitch(boolean terminalSitePackagePrintLimitSwitch) {
@@ -4404,7 +4427,106 @@ public class DuccPropertyConfig {
 		return log;
 	}
 
-	public static String getConfigFromLocal() {
-		return CONFIG_FROM_LOCAL;
+    public boolean matchExceptionSubmitCheckSite(int siteId) {
+        if(StringUtils.isBlank(exceptionSubmitCheckSites)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckSites)){
+            return true;
+        }
+        if(exceptionSubmitCheckSiteList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean matchExceptionSubmitCheckWaybillInterceptType(Integer interceptType) {
+        if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, exceptionSubmitCheckWaybillInterceptTypes)){
+            return true;
+        }
+        if(interceptType == null){
+            return false;
+        }
+        if(exceptionSubmitCheckWaybillInterceptTypeList.contains(String.valueOf(interceptType))){
+            return true;
+        }
+        return false;
+    }	
+    public ClientAutoRefreshConfig getJyWorkAppAutoRefreshConfigByBusinessType(String businessType) {
+        if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
+            final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
+            if(first.isPresent()){
+                ClientAutoRefreshConfig config = new ClientAutoRefreshConfig();
+                BeanUtils.copyProperties(first.get(), config);
+                return config;
+            }
+        }
+        return null;
+    }
+    public Boolean getUnSealCarHandlePackageFullCollectedNeedHandle(Long siteId) {
+        if(StringUtils.isBlank(unSealCarHandlePackageFullCollectedSwitch)){
+            return false;
+        }
+        if(Objects.equals("all", unSealCarHandlePackageFullCollectedSwitch)){
+            return true;
+        }
+        if(Objects.equals("-1", unSealCarHandlePackageFullCollectedSwitch)){
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(unSealCarHandlePackageFullCollectedSwitch.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(siteId + "")){
+            return true;
+        }
+        return false;
+    }
+	public String getPlanSendTime() {
+		return planSendTime;
+	}
+
+	public void setPlanSendTime(String planSendTime) {
+		this.planSendTime = planSendTime;
+	}
+
+	public boolean isDmsToVendorSendMQSwitch() {
+		return dmsToVendorSendMQSwitch;
+	}
+
+	public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
+		this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
+	}
+
+	public String getUnSealCarHandlePackageFullCollectedSwitch() {
+		return unSealCarHandlePackageFullCollectedSwitch;
+	}
+
+	public void setUnSealCarHandlePackageFullCollectedSwitch(String unSealCarHandlePackageFullCollectedSwitch) {
+		this.unSealCarHandlePackageFullCollectedSwitch = unSealCarHandlePackageFullCollectedSwitch;
+	}
+
+	public boolean getNewPrintHandoverListSwitch() {
+		return newPrintHandoverListSwitch;
+	}
+
+	public void setNewPrintHandoverListSwitch(boolean newPrintHandoverListSwitch) {
+		this.newPrintHandoverListSwitch = newPrintHandoverListSwitch;
+	}
+
+	public Integer getUsePdaSorterApi() {
+		return usePdaSorterApi;
+	}
+
+	public void setUsePdaSorterApi(Integer usePdaSorterApi) {
+		this.usePdaSorterApi = usePdaSorterApi;
+	}
+
+	public boolean getbTemplateRouterExecuteNew() {
+		return bTemplateRouterExecuteNew;
+	}
+
+	public void setbTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
+		this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
 	}	
 }

@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.config.impl;
 
 import com.google.common.collect.Lists;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.sdk.modules.client.dto.JyDemotionConfigInfo;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -26,12 +26,12 @@ public class JyDemotionServiceImpl implements JyDemotionService {
     private static final Logger logger = LoggerFactory.getLogger(JyDemotionServiceImpl.class);
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public boolean checkIsDemotion(String key) {
         try {
-            String globalJyDemotionConfig = uccPropertyConfiguration.getJyDemotionConfig();
+            String globalJyDemotionConfig = dmsConfigManager.getPropertyConfig().getJyDemotionConfig();
             List<JyDemotionConfigInfo> list = JsonHelper.jsonToList(globalJyDemotionConfig, JyDemotionConfigInfo.class);
             if(CollectionUtils.isNotEmpty(list)) {
                 for (JyDemotionConfigInfo jyDemotionConfigInfo : list) {
@@ -49,7 +49,7 @@ public class JyDemotionServiceImpl implements JyDemotionService {
     @Override
     public List<JyDemotionConfigInfo> obtainJyDemotionConfig() {
         try {
-            String globalJyDemotionConfig = uccPropertyConfiguration.getJyDemotionConfig();
+            String globalJyDemotionConfig = dmsConfigManager.getPropertyConfig().getJyDemotionConfig();
             return JsonHelper.jsonToList(globalJyDemotionConfig, JyDemotionConfigInfo.class);
         }catch (Exception e){
             logger.error("获取拣运全局降级配置异常!", e);

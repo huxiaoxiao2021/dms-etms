@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jss.impl;
 
 import com.amazonaws.services.s3.model.S3Object;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper;
@@ -46,12 +46,12 @@ public class JssServiceImpl implements JssService {
     private Set<String> httpsSet;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public void uploadFile(String bucket, String keyName, long length, InputStream inputStream) throws JssStorageException {
         try {
-            if(uccPropertyConfiguration.isCloudOssInsertSwitch()){
+            if(dmsConfigManager.getPropertyConfig().isCloudOssInsertSwitch()){
                 dmswebAmazonS3ClientWrapper.putObject(inputStream,bucket,keyName,length);
                 return;
             }
@@ -129,7 +129,7 @@ public class JssServiceImpl implements JssService {
         ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
         try {
             String key = UUID.randomUUID().toString() + "." + extName;
-            if(uccPropertyConfiguration.isCloudOssInsertSwitch()){
+            if(dmsConfigManager.getPropertyConfig().isCloudOssInsertSwitch()){
                 return dmswebAmazonS3ClientWrapper.putObjectThenGetUrl(inStream,bucket,key,bytes.length,365);
             }
             JingdongStorageService jss = jssStorageClient.getStorageService();

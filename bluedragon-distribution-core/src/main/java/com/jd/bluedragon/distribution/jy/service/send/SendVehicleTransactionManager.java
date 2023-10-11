@@ -6,7 +6,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BasicSelectWsManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -91,7 +91,7 @@ public class SendVehicleTransactionManager {
     private BasicSelectWsManager basicSelectWsManager;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Value("${beans.sendVehicleTransactionManager.checkLineTypeDays:7}")
     private int checkLineTypeDays;
@@ -517,7 +517,7 @@ public class SendVehicleTransactionManager {
     public boolean needInterceptOfCz(Integer receiveSiteId,CurrentOperate currentOperate){
         Integer orgId =currentOperate.getOrgId();
         Integer siteId =currentOperate.getSiteCode();
-        if ((uccConfig.getCzOrgForbiddenList().contains(String.valueOf(orgId)) || uccConfig.getCzSiteForbiddenList().contains(String.valueOf(siteId)))
+        if ((dmsConfigManager.getPropertyConfig().getCzOrgForbiddenList().contains(String.valueOf(orgId)) || dmsConfigManager.getPropertyConfig().getCzSiteForbiddenList().contains(String.valueOf(siteId)))
             && checkIsCz(receiveSiteId)){
             return true;
         }
@@ -526,7 +526,7 @@ public class SendVehicleTransactionManager {
 
     private boolean checkIsCz(Integer receiveSiteId) {
         BaseStaffSiteOrgDto baseSiteInfoDto = baseService.getSiteBySiteID(Integer.valueOf(receiveSiteId));
-        if (ObjectHelper.isNotNull(baseSiteInfoDto) && uccConfig.getCzSiteTypeForbiddenList().contains(String.valueOf(baseSiteInfoDto.getSiteType()))){
+        if (ObjectHelper.isNotNull(baseSiteInfoDto) && dmsConfigManager.getPropertyConfig().getCzSiteTypeForbiddenList().contains(String.valueOf(baseSiteInfoDto.getSiteType()))){
             return true;
         }
         return false;
@@ -576,7 +576,7 @@ public class SendVehicleTransactionManager {
                         List<TransportResourceDto> transportResourceDtos = basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
                         if(transportResourceDtos!=null){
                             for(TransportResourceDto trd: transportResourceDtos){
-                                if(uccConfig.notValidateTransType(trd.getTransWay())){
+                                if(dmsConfigManager.getPropertyConfig().notValidateTransType(trd.getTransWay())){
                                     needIntercept = Boolean.FALSE;
                                     break;
                                 }

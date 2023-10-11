@@ -214,6 +214,9 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			signData.setSignInTime(flowData.getSignInTimeNew());
 			signData.setSignOutTime(flowData.getSignOutTimeNew());
 			signData.setYn(Constants.YN_YES);
+			signData.setUpdateUser(flowData.getFlowCreateUser());
+			signData.setUpdateUserName(flowData.getFlowCreateUser());
+			signData.setUpdateTime(new Date());			
 			signData.setBizSource(SignBizSourceEnum.PC.getCode());
 			userSignRecordService.insert(signData);
 			if(log.isDebugEnabled()) {
