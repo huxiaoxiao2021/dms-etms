@@ -854,11 +854,16 @@
         SELECT
             id
         FROM
-            user_sign_record
+            user_sign_record usr
         WHERE
             yn = 1
-        AND sign_in_time <![CDATA[ >= ]]> #{signInTimeStart,jdbcType=TIMESTAMP}
-        AND sign_in_time <![CDATA[ < ]]> #{signInTime,jdbcType=TIMESTAMP}
+		AND
+		    CASE
+				<foreach collection="list" item="item" >
+					WHEN usr.job_code =#{item.jobCode,jdbcType=INTEGER} THEN  sign_in_time <![CDATA[ >= ]]> #{item.startTime,jdbcType=TIMESTAMP}  AND sign_in_time <![CDATA[ < ]]>  #{item.endTime,jdbcType=TIMESTAMP}
+				</foreach>
+		        ELSE  sign_in_time <![CDATA[ >= ]]> #{signInTimeStart,jdbcType=TIMESTAMP} AND sign_in_time <![CDATA[ < ]]> #{signInTime,jdbcType=TIMESTAMP}
+		    END
         AND sign_out_time IS NULL
         LIMIT #{limit,jdbcType=INTEGER}
     </select>

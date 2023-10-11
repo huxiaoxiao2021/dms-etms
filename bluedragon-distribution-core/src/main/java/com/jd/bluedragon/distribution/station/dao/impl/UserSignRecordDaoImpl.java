@@ -6,7 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.JobCodeHoursDto;
 import com.jd.bluedragon.distribution.station.domain.*;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -113,9 +117,12 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	public List<UserSignNoticeJobItemVo> queryUserSignNoticeJobItems(UserSignRecordQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE+".queryUserSignNoticeJobItems",query);
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignRecordDao.querySignInMoreThanSpecifiedTime",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
-    public List<Long> querySignInMoreThanSpecifiedTime(Date signInTimeStart,Date signInTime, Integer limit) {
+    public List<Long> querySignInMoreThanSpecifiedTime(List<JobCodeHoursDto> list, Date signInTimeStart, Date signInTime, Integer limit) {
         Map<String, Object> param = new HashMap<>();
+        param.put("list",list);
         param.put("signInTimeStart", signInTimeStart);
         param.put("signInTime", signInTime);
         param.put("limit", limit);

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.JobCodeHoursDto;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
@@ -18,6 +19,10 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.domain.SysConfigJobCodeHoursContent;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
@@ -120,6 +125,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 	@Autowired
 	private UccPropertyConfiguration uccPropertyConfiguration;
+	@Autowired
+	private SysConfigService sysConfigService;
 	/**
 	 * 签到作废-小时数限制
 	 */
@@ -477,24 +484,40 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     @JProfiler(jKey = "DMS.WEB.UserSignRecordService.autoHandleSignInRecord", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
     public Result<Integer> autoHandleSignInRecord() {
         Result<Integer> result = Result.success();
-        int notSignedOutRecordMoreThanHours = uccConfiguration.getNotSignedOutRecordMoreThanHours();
-        if (notSignedOutRecordMoreThanHours < 0) {
-            return result;
-        }
-        int notSignedOutRecordRangeHours = uccConfiguration.getNotSignedOutRecordRangeHours();
-        //扫描范围不能小于1小时
-        if(notSignedOutRecordRangeHours < 1) {
-        	notSignedOutRecordRangeHours = 1;
-        }
-        Date signInTimeEnd = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -notSignedOutRecordMoreThanHours);
-        Date signInTimeStart = DateHelper.add(signInTimeEnd,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
+		SysConfigJobCodeHoursContent content = sysConfigService.getSysConfigJobCodeHoursContent(Constants.SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS);
+		if(content == null){
+			return result;
+		}
+		Integer defaultHours=content.getDefaultHours();
+		Integer notSignedOutRecordRangeHours = uccConfiguration.getNotSignedOutRecordRangeHours();
+		//扫描范围不能小于1小时
+		if(notSignedOutRecordRangeHours < 1) {
+			notSignedOutRecordRangeHours = 1;
+		}
+		Date signInTimeEnd = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -defaultHours);
+		Date signInTimeStart = DateHelper.add(signInTimeEnd,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
+		List<Map<String,Object>> list=content.getJobCodeHours();
+		List<JobCodeHoursDto> jobCodeHoursRecordList=new ArrayList<>();
+		if(CollectionUtils.isNotEmpty(list)){
+			for (Map<String, Object> map : list) {
+				int jobCode=(int)map.get("jobCode");
+				int hour=(int)map.get("hour");
+				Date endDate = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -hour);
+				Date startDate = DateHelper.add(endDate,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
+				JobCodeHoursDto jobCodeHoursRecord=new JobCodeHoursDto();
+				jobCodeHoursRecord.setJobCode(jobCode);
+				jobCodeHoursRecord.setStartTime(startDate);
+				jobCodeHoursRecord.setEndTime(endDate);
+				jobCodeHoursRecordList.add(jobCodeHoursRecord);
+			}
+		}
         List<Long> toSignOutPks;
         Date now = new Date();
         int updateRows = 0;
         log.info("自动签退数据扫描：{} - {}", DateHelper.formatDateTimeMs(signInTimeStart),DateHelper.formatDateTimeMs(signInTimeEnd));
         try {
             do {
-                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(signInTimeStart,signInTimeEnd, 100);
+                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(jobCodeHoursRecordList,signInTimeStart,signInTimeEnd, 100);
 
                 if (CollectionUtils.isNotEmpty(toSignOutPks)) {
                     UserSignRecord updateData = new UserSignRecord();

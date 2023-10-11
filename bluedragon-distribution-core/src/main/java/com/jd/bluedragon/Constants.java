@@ -2116,5 +2116,8 @@ public class Constants {
      */
     public static final Integer  WAYBILL_TRACE_DISPLAY =1;
 
-
+    /**
+     * 配置信息-自动签退超过多少小时未签退的数据
+     */
+    public static final String SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS="sys.config.autoHandleSignInRecord.notSignedOutRecordMoreThanHours";
 }
