@@ -22,7 +22,7 @@ public interface JyCollectPackageGatewayService {
   JdCResponse<CollectPackageTaskResp> listCollectPackageTask(CollectPackageTaskReq request);
 
   /**
-   * 查询集包任务列表
+   * 检索集包任务
    * @param request
    * @return
    */
@@ -38,7 +38,7 @@ public interface JyCollectPackageGatewayService {
 
 
   /**
-   * 封箱
+   * 封箱（支持单个/批量箱号进行封箱）
    * @param request
    * @return
    */

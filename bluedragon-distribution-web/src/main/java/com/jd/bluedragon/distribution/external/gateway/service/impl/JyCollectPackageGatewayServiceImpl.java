@@ -27,6 +27,11 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
     }
 
     @Override
+    public JdCResponse<CollectPackageTaskResp> searchPackageTask(SearchPackageTaskReq request) {
+        return null;
+    }
+
+    @Override
     public JdCResponse<TaskDetailResp> queryTaskDetail(TaskDetailReq request) {
         return null;
     }
