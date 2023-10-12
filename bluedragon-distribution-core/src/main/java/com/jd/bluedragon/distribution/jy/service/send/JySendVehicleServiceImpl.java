@@ -4669,7 +4669,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         Date now = new Date();
         queryDto.setBeginNodeCode(sourceSite.getDmsSiteCode());
         queryDto.setPlanDepartTimeBegin(new Date());
-        queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, uccConfig.getFetchCarDistributionTimeRange()));
+        queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, dmsConfigManager.getPropertyConfig().getFetchCarDistributionTimeRange()));
         queryDto.setTransType(request.getLineType());
 
         // 目的网点非必填
