@@ -267,8 +267,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 return res;
             }
 
-            if(StringUtils.isBlank(request.getMachineCode())) {
-                res.toFail("设备编码参数为空");
+            if (request.getOperateType().equals(JySendFlowConfigEnum.GANTRY.getCode()) && StringUtils.isBlank(request.getMachineCode())) {
+                res.toFail("选择龙门架配置发货设备编码不能为空");
                 return res;
             }
 
