@@ -327,11 +327,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             scheduleTaskAddProducer.sendOnFailPersistent(bizId, body);
             logger.info("异常岗-写入任务发送mq完成:body={}", body);
 
-            //如果是运单号，将运单号放入缓存 妥投时校验运单是否妥投
+            //如果是运单号，将运单号放入缓存 妥投时校验运单是否妥投 && 增加验货全程跟踪
             if(WaybillUtil.isWaybillCode(req.getBarCode())){
                 String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX+req.getBarCode();
                 Boolean result = redisClientOfJy.set(cacheKey, "1", 7, TimeUnit.DAYS, false);
                 logger.info("异常上报 运单放入缓存结果-{}",result);
+                //记录运单验货全程跟踪
+                pushForwardInspectionTrance(taskEntity);
             }
 
         }catch (Exception e) {
@@ -342,6 +344,25 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         return JdCResponse.ok();
+    }
+
+    /**
+     *  记录运单验货全程跟踪
+     * @param entity
+     */
+    private void pushForwardInspectionTrance(JyBizTaskExceptionEntity entity){
+        BdTraceDto traceDto = new BdTraceDto();
+        traceDto.setPackageBarCode(entity.getBarCode());
+        traceDto.setWaybillCode(entity.getBarCode());
+        traceDto.setOperateType(WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_INSPECTION);
+        traceDto.setOperatorDesp(WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_INSPECTION_MSG);
+        traceDto.setOperatorSiteId(entity.getSiteCode().intValue());
+        traceDto.setOperatorSiteName(entity.getSiteName());
+        traceDto.setOperatorUserName(entity.getCreateUserName());
+        traceDto.setOperatorTime(new Date());
+        traceDto.setWaybillTraceType(Constants.WAYBILL_TRACE_TYPE);
+        logger.info("发送运单全程跟踪信息-{}",JSON.toJSONString(traceDto));
+        waybillQueryManager.sendBdTrace(traceDto);
     }
 
     /**
