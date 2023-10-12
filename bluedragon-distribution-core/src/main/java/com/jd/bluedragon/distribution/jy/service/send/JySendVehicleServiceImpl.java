@@ -218,6 +218,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Value("${tms.map.url:tms-m.test.jd.com/#/m/vehicle?transWorkCode=%s&operateNodeCode=%s}")
     private String vehicleMapUrl;
+    @Value("${jyBindSendTaskPlanTimeBeginHour:2}")
+    private Integer jyBindSendTaskPlanTimeBeginHour;
 
     /**
      * 运单路由字段使用的分隔符
@@ -1093,7 +1095,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return result;
         }
         try {
-            curSendDest.setLastPlanDepartTimeBegin(DateHelper.addHours(new Date(), -dmsConfigManager.getPropertyConfig().getJyBindSendTaskPlanTimeBeginHour()));
+            curSendDest.setLastPlanDepartTimeBegin(DateHelper.addHours(new Date(), -jyBindSendTaskPlanTimeBeginHour));
             curSendDest.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeEndDay()));
             curSendDest.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
 
