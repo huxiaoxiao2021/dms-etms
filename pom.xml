@@ -40,13 +40,14 @@
 		<waybill.cache.version>1.0.3</waybill.cache.version>
 		<business-sdk.version>1.1.6-SNAPSHOT</business-sdk.version>
 		<dms-component-sdk.version>1.0.2-SNAPSHOT</dms-component-sdk.version>
-        <jy-basic-api.version>1.5.0-SNAPSHOT</jy-basic-api.version>
+        <jy-basic-api.version>1.5.3-SNAPSHOT</jy-basic-api.version>
         <dms-java-utils-sdk.version>1.0.0-SNAPSHOT</dms-java-utils-sdk.version>
 		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
         <jy.realtime.sdk.version>1.0.7-SNAPSHOT</jy.realtime.sdk.version>
         <jy_msp_api_version>1.0-jdk7-SNAPSHOT</jy_msp_api_version>
         <shorturl.rpc.version>0.0.6-SNAPSHOT</shorturl.rpc.version>
         <jd.omdm.client.version>0.2.7-SNAPSHOT</jd.omdm.client.version>
+        <cloud.print.version>1.0.13-SNAPSHOT</cloud.print.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
@@ -432,6 +433,18 @@
                 <artifactId>json-simple</artifactId>
                 <version>1.1.1</version>
             </dependency>
+
+			<dependency>
+				<groupId>com.github.houbb</groupId>
+				<artifactId>opencc4j</artifactId>
+				<version>1.1.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.jd.cloud.print</groupId>
+				<artifactId>print-api</artifactId>
+				<version>${cloud.print.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

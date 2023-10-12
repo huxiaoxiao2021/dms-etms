@@ -67,4 +67,14 @@ public class RecycleMaterialManagerImpl implements RecycleMaterialManager {
         }
         return null;
     }
+
+    @Override
+    public ApiResult<Integer> countMaterialByCondition(Integer siteCode, Integer typeCode) {
+        try {
+            return recycleMaterialJsfService.countByCondition(siteCode, typeCode);
+        }catch (Exception e){
+            logger.error("查找周转筐总数：{}", e);
+        }
+        return null;
+    };
 }

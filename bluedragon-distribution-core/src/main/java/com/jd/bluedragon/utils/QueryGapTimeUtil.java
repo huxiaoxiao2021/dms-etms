@@ -1,7 +1,7 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -27,7 +27,7 @@ public class QueryGapTimeUtil {
     private static Logger logger = LoggerFactory.getLogger(QueryGapTimeUtil.class);
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -54,7 +54,7 @@ public class QueryGapTimeUtil {
     @JProfiler(jKey = "DMSWEB.QueryGapTimeUtil.checkPass",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public boolean checkPass(String jsonStr,String methodName){
 
-        int gapTime = uccPropertyConfiguration.getClientPrintQueryGapTime();
+        int gapTime = dmsConfigManager.getPropertyConfig().getClientPrintQueryGapTime();
 
         if(gapTime <= 0){
             return true;

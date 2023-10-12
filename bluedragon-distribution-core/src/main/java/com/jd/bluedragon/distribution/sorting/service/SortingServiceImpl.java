@@ -7,7 +7,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -37,12 +37,16 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -54,13 +58,14 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
-import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -188,21 +193,38 @@ public class SortingServiceImpl implements SortingService {
     private CycleMaterialNoticeService cycleMaterialNoticeService;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 
 	@Autowired
 	@Qualifier("redisClientCache")
 	private Cluster redisClient;
+	
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;	
 
 	public Integer add(Sorting sorting) {
 		return this.sortingDao.add(SortingDao.namespace, sorting);
 	}
 
 	public Integer update(Sorting sorting) {
-		return this.sortingDao.update(SortingDao.namespace, sorting);
+    	Integer count = 0;
+    	Long sortingId = null;
+    	CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.update", false, true);
+		List<Sorting> updateList = sortingDao.querySortingForUpdate(sorting);
+    	if(updateList != null && updateList.size() > 0) {
+    		if(updateList.size() > 1) {
+    			this.log.warn("sortingServiceImpl.update:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sorting));
+    		}
+    		sortingId = BeanHelper.getLastOperateSortingId(updateList);
+    		count = this.sortingDao.update(SortingDao.namespace, sorting);
+    	}
+    	if(sortingId != null && count > 0) {
+    		sorting.setId(sortingId);
+    	}
+    	Profiler.registerInfoEnd(info);
+		return count;
 	}
-
 	public boolean existSortingByPackageCode(Sorting sorting) {
 		return dynamicSortingQueryDao.existSortingByPackageCode(sorting);
 	}
@@ -232,6 +254,9 @@ public class SortingServiceImpl implements SortingService {
 		boolean result = this.sortingDao.canCancel(sorting)
 				&& this.deliveryService.canCancel(this.parseSendDetail(sorting));
 		if (result) {
+            JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
+            sortingCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING_CANCEL.getCode());
+			jyOperateFlowService.sendMq(sortingCancelFlowMq);
 			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelSorting");
 		}
 		return result;
@@ -248,6 +273,9 @@ public class SortingServiceImpl implements SortingService {
 			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelSorting2");
 			//发送取消建箱全程跟踪，MQ
 			this.sendSortingCancelWaybillTrace(sorting);
+            JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
+            sortingCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING_CANCEL.getCode());
+			jyOperateFlowService.sendMq(sortingCancelFlowMq);
 		}
 		return result;
 	}
@@ -268,7 +296,6 @@ public class SortingServiceImpl implements SortingService {
 				.receiveSiteCode(sorting.getReceiveSiteCode()).updateUser(sorting.getUpdateUser())
 				.updateUserCode(sorting.getUpdateUserCode())
 				.updateTime(null == sorting.getUpdateTime() ? new Date() : sorting.getUpdateTime()).build();
-
 		return this.inspectionECDao.updateYnByWaybillCode(inspectionEC) > 0;
 	}
 
@@ -314,10 +341,7 @@ public class SortingServiceImpl implements SortingService {
 		waybillStatus.setOperateType(true == sorting.isForward() ? WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_SORTING
 				: WaybillStatus.WAYBILL_STATUS_CODE_REVERSE_SORTING);
 		waybillStatus.setOperateTime(sorting.getOperateTime());
-		OperatorData operatorData = new OperatorData();
-		operatorData.setOperatorTypeCode(sorting.getOperatorTypeCode());
-		operatorData.setOperatorId(sorting.getOperatorId());
-		waybillStatus.setOperatorData(operatorData);
+		waybillStatus.setOperatorData(BeanConverter.convertToOperatorData(sorting));
 		return waybillStatus;
 	}
 
@@ -428,17 +452,25 @@ public class SortingServiceImpl implements SortingService {
 	public boolean taskToSorting(List<Sorting> sortings) {
 		CallerInfo callerInfo = Profiler.registerInfo("DMSWORKER.SortingService.taskToSorting", Constants.UMP_APP_NAME_DMSWORKER, false, true);
 		List<SendDetail> sendDList = new ArrayList<SendDetail>();
+		List<JyOperateFlowMqData> sortingFlowMqList = new ArrayList<>();
 		for (Sorting sorting : sortings) {
+			if(log.isDebugEnabled()) {
+				log.debug("taskToSorting:{},{}",sorting.getPackageCode(), JsonHelper.toJson(sorting));
+			}
 			if (sorting.getIsCancel().equals(SORTING_CANCEL_NORMAL)) {
 				this.addSorting(sorting, null); // 添加分拣记录
 				this.addSortingAdditionalTask(sorting); // 添加回传分拣的运单状态
 				// this.updatedBoxStatus(sorting); // 将箱号更新为分拣状态
 				// 添加发货记录 FIXME:非主线任务
 				sendDList.add(this.addSendDetail(sorting));
+	            JyOperateFlowMqData sortingFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
+	            sortingFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING.getCode());
+	            sortingFlowMqList.add(sortingFlowMq);
 			} else if (sorting.getIsCancel().equals(SORTING_CANCEL)) {// 离线取消分拣
 				return this.canCancel(sorting);
 			}
 		}
+		jyOperateFlowService.sendMqList(sortingFlowMqList);
 		this.fixSendDAndSendTrack(sortings.get(0), sendDList);
 		Profiler.registerInfoEnd(callerInfo);
 		return true;
@@ -536,7 +568,7 @@ public class SortingServiceImpl implements SortingService {
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSortingAdditionalTask", false, true);
 
 		// 如果业务来源是转运装车扫描，不再发送全程跟踪
-		if (uccPropertyConfiguration.isIgnoreTysTrackSwitch()) {
+		if (dmsConfigManager.getPropertyConfig().isIgnoreTysTrackSwitch()) {
 			if (SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(sorting.getBizSource())) {
 				return;
 			}
@@ -1402,10 +1434,7 @@ public class SortingServiceImpl implements SortingService {
 			waybillStatus.setOperateTime(sorting.getOperateTime() == null ? new Date() : sorting.getOperateTime());
 			waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL);
 			waybillStatus.setRemark("取消建箱，箱号：" + boxCode);
-	        OperatorData operatorData = new OperatorData();
-	        operatorData.setOperatorId(sorting.getOperatorId());
-	        operatorData.setOperatorTypeCode(sorting.getOperatorTypeCode());
-	        waybillStatus.setOperatorData(operatorData);
+	        waybillStatus.setOperatorData(BeanConverter.convertToOperatorData(sorting));
 	        
 			Task task = new Task();
 			task.setTableName(Task.TABLE_NAME_POP);
@@ -1638,7 +1667,7 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	private SortingJsfResponse checkTeAnWaybillSorting(PdaOperateRequest pdaOperateRequest){
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		if(!uccPropertyConfiguration.isCheckTeAnSwitch()){
+		if(!dmsConfigManager.getPropertyConfig().isCheckTeAnSwitch()){
 			log.warn("分拣理货-特安校验开关关闭!");
 			return sortingJsfResponse;
 		}

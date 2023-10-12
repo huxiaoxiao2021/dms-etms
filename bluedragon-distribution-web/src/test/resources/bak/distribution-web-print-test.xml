@@ -18,7 +18,6 @@
 				<value>classpath:authen.properties</value>
 				<value>classpath:configured/app.properties</value>
 				<value>classpath:configured/db.properties</value>
-				<value>classpath:configured/dcam.properties</value>
 				<value>classpath:configured/dms_ip_mapper.properties</value>
 				<value>classpath:configured/jsf.properties</value>
 				<value>classpath:configured/print.properties</value>
@@ -36,7 +35,6 @@
 		<property name="ignoreResourceNotFound" value="true" />
 		<property name="secLocation" value="classpath:configured/important.properties"/>
 	</bean>
-	<context:component-scan base-package="com.jd.bluedragon.distribution.print.service" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.test.print" />
 	<import resource="classpath:ql-dms-print-engine.xml"/> 
 	<!-- pdf本地生成service配置 -->
@@ -54,6 +52,13 @@
 		<property name="bucket" value = "${print.out.config.jss.pdfBucket}"/>
 		<property name="socketTimeout" value = "${print.out.config.jss.socketTimeout}"/>
 	</bean>
+    <bean id="pdfPrintAmazonConfig" class="com.jd.bluedragon.distribution.print.domain.JdCloudPrintOssConfig">
+        <property name="accessKey" value = "${oss.dmsweb.accessKey}"/>
+        <property name="secretKey" value = "${oss.dmsweb.secretKey}"/>
+        <property name="endpoint" value = "${oss.dmsweb.endpointHttps}"/>
+        <property name="bucket" value = "${oss.dmsweb.bucketName}"/>
+        <property name="socketTimeout" value = "${oss.dmsweb.socketTimeout}"/>
+    </bean> 	
 	<bean id="pdfOutJssClientConfig" class="com.jd.jss.client.ClientConfig">
         <property name="connectionTimeout" value="${jss.connectionTimeout}"/>
         <property name="socketTimeout" value="${print.out.config.jss.socketTimeout}"/>
@@ -67,4 +72,29 @@
         <constructor-arg index="0" ref="pdfOutJssCredential" />
         <constructor-arg index="1" ref="pdfOutJssClientConfig" />
     </bean>
+    <!-- 云oss -->
+    <bean id="dmswebAmazonS3ClientWrapper" class="com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper">
+       <property name="accessKey" value="${oss.dmsweb.accessKey}"/>
+       <property name="secretKey" value="${oss.dmsweb.secretKey}"/>
+       <property name="signingRegion" value="${oss.dmsweb.signingRegion}"/>
+       <property name="endpoint" value="${oss.dmsweb.endpoint}"/>
+       <property name="outerNetEndpoint" value="${oss.outerNetEndpoint}"/>
+        <property name="bucketName" value="${oss.dmsweb.bucketName:dmsweb}"/>
+       <property name="socketTimeout" value="${oss.dmsweb.socketTimeout:5000}"/>
+       <property name="connectionTimeout" value="${oss.dmsweb.connectionTimeout:5000}"/>
+
+    </bean>
+
+
+    <bean id="labelprintAmazonS3ClientWrapper" class="com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper">
+        <property name="accessKey" value="${oss.labelprint.accessKey}"/>
+        <property name="secretKey" value="${oss.labelprint.secretKey}"/>
+        <property name="signingRegion" value="${oss.labelprint.signingRegion}"/>
+        <property name="endpoint" value="${oss.outerNetEndpoint}"/>
+        <property name="outerNetEndpoint" value="${oss.outerNetEndpoint}"/>
+        <property name="bucketName" value="${oss.labelprint.bucketName:labelprint}"/>
+        <property name="socketTimeout" value="${oss.labelprint.socketTimeout:5000}"/>
+        <property name="connectionTimeout" value="${oss.labelprint.connectionTimeout:5000}"/>
+
+    </bean>    
 </beans>

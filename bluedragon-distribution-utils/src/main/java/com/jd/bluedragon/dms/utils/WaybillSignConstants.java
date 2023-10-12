@@ -236,6 +236,7 @@ public interface WaybillSignConstants {
 	char CHAR_116_2 = '2';
 	char CHAR_116_3 = '3';
 	char CHAR_116_4 = '4';
+	char CHAR_116_5 = '5';
 	
 	/**
 	 * waybillsign第31位
@@ -446,5 +447,15 @@ public interface WaybillSignConstants {
 	int POSITION_135 = 135;
 	char CHAR_135_2 = '2';
 
+	/**
+	 * 124
+	 */
+	int POSITION_124 = 124;
 
+	char CHAR_124_1 = '1'; //POP售后取件快递业务
+	char CHAR_124_2 = '2'; //外单售后取件
+	char CHAR_124_3 = '3'; //POP售后取件快运业务
+	char CHAR_124_4 = '4'; //自营售后取件快递业务
+	char CHAR_124_5 = '5'; //自营售后取件快运业务
+	char CHAR_124_6 = '6'; //自营售后取件B2B业务
 }

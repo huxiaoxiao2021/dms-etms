@@ -16,7 +16,7 @@ public interface JyAttachmentDetailService {
 
     /**
      * 批量新增
-     * 
+     *
      * @param annexList
      */
     Integer batchInsert(List<JyAttachmentDetailEntity> annexList);
@@ -27,4 +27,14 @@ public interface JyAttachmentDetailService {
      * @return
      */
     List<JyAttachmentDetailEntity> queryDataListByCondition(JyAttachmentDetailQuery query);
+
+
+    /**
+     * 根据bizId和siteCode逻辑删除
+     * @param entity
+     * @return
+     */
+    int delete(JyAttachmentDetailEntity entity);
+
+    int deleteBatch(JyAttachmentDetailQuery entity);
 }

@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.tys.UnloadCarDistributionForTysDao;
@@ -22,7 +22,7 @@ public class UnloadCarDistributeCommonServiceImpl implements UnloadCarDistribute
     private UnloadCarDistributionForTysDao unloadCarDistributionForTysDao;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public int add(UnloadCarDistribution detail) {

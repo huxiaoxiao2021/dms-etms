@@ -11,8 +11,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -49,7 +50,7 @@ public class CenterServiceResource {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private UccPropertyConfiguration uccConfig;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -74,6 +75,9 @@ public class CenterServiceResource {
 
 	@Autowired
 	private WaybillCacheService waybillCacheService;
+
+	@Autowired
+	private SysConfigService sysConfigService;
 
 	@GET
 	@Path("/centerService/getBaseSiteBySiteId/")
@@ -160,7 +164,7 @@ public class CenterServiceResource {
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,
 					isWaybillC, isWaybillE, isWaybillM, isGoodList, isPackList, isPickupTask, isServiceBillPay);
-			if (uccConfig.getSensitiveInfoHideSwitch()&&result.getData()!= null) {
+			if (dmsConfigManager.getPropertyConfig().getSensitiveInfoHideSwitch()&&result.getData()!= null) {
 				hideInfo(result.getData().getWaybill(),result.getData().getWaybillPickup());
 			}
 		} catch (Exception e) {
@@ -201,7 +205,7 @@ public class CenterServiceResource {
 		BaseEntity<BigWaybillDto> result = null;
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,choice);
-			if (uccConfig.getSensitiveInfoHideSwitch()&&result.getData()!= null) {
+			if (dmsConfigManager.getPropertyConfig().getSensitiveInfoHideSwitch()&&result.getData()!= null) {
 				hideInfo(result.getData().getWaybill(),result.getData().getWaybillPickup());
 			}
 		} catch (Exception e) {
@@ -215,10 +219,18 @@ public class CenterServiceResource {
 			if (waybill != null) {
 				waybill.setReceiverName(getHideName(waybill.getReceiverName()));
 				waybill.setConsigner(getHideName(waybill.getConsigner()));
-				waybill.setConsignerMobile(getHidePhone(waybill.getConsignerMobile()));
-				waybill.setConsignerTel(getHidePhone(waybill.getConsignerTel()));
-				waybill.setReceiverMobile(getHidePhone(waybill.getReceiverMobile()));
-				waybill.setReceiverTel(getHidePhone(waybill.getReceiverTel()));
+				final boolean switchHidePhoneNewVersion = sysConfigService.getConfigByName(Constants.SYS_CONFIG_HIDE_PHONE_6Char);
+				if(switchHidePhoneNewVersion){
+					waybill.setConsignerMobile(getHidePhone6Char(waybill.getConsignerMobile()));
+					waybill.setConsignerTel(getHidePhone6Char(waybill.getConsignerTel()));
+					waybill.setReceiverMobile(getHidePhone6Char(waybill.getReceiverMobile()));
+					waybill.setReceiverTel(getHidePhone6Char(waybill.getReceiverTel()));
+				} else {
+					waybill.setConsignerMobile(getHidePhone(waybill.getConsignerMobile()));
+					waybill.setConsignerTel(getHidePhone(waybill.getConsignerTel()));
+					waybill.setReceiverMobile(getHidePhone(waybill.getReceiverMobile()));
+					waybill.setReceiverTel(getHidePhone(waybill.getReceiverTel()));
+				}
 				waybill.setConsignerAddress(getHideAddress(waybill.getConsignerAddress()));
 				waybill.setReceiverAddress(getHideAddress(waybill.getReceiverAddress()));
 			}

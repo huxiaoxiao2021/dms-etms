@@ -1,13 +1,16 @@
 package com.jd.bluedragon.distribution.qualityControl.service;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -22,7 +25,9 @@ import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.dto.SiteCodeAssociationDto;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
@@ -34,6 +39,7 @@ import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -44,9 +50,12 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeE
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BarCodeType;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import com.jd.ldop.business.api.AbnormalOrderApi;
 import com.jd.ldop.business.api.dto.request.AbnormalOrderDTO;
@@ -54,10 +63,12 @@ import com.jd.ldop.business.api.dto.response.Response;
 import com.jd.ldop.business.api.dto.response.ResponseStatus;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.aspectj.weaver.ast.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +77,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by dudong on 2014/12/1.
@@ -106,7 +118,7 @@ public class QualityControlService {
 
     @Autowired
     private SysConfigService sysConfigService;
-    
+
     @Autowired
     private UserSignRecordService userSignRecordService;
 
@@ -115,6 +127,13 @@ public class QualityControlService {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService cacheService;
 
     @Autowired
     private WaybillService waybillService;
@@ -126,11 +145,11 @@ public class QualityControlService {
     private WaybillCancelService waybillCancelService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     /**
      * 协商再投状态校验
-     * 
+     *
      * @param request
      * @return
      */
@@ -243,7 +262,7 @@ public class QualityControlService {
         Result<Void> result = Result.success();
         try {
             // ucc开关
-            if(!uccPropertyConfiguration.matchExceptionSubmitCheckSite(request.getDistCenterID())){
+            if(!dmsConfigManager.getPropertyConfig().matchExceptionSubmitCheckSite(request.getDistCenterID())){
                 return result;
             }
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
@@ -252,7 +271,7 @@ public class QualityControlService {
             if (CollectionUtils.isEmpty(waybillCancelList)) {
                 return result.toFail(tipMsg);
             }
-            final long matchCount = waybillCancelList.parallelStream().filter(item -> uccPropertyConfiguration.matchExceptionSubmitCheckWaybillInterceptType(item.getInterceptType())).count();
+            final long matchCount = waybillCancelList.parallelStream().filter(item -> dmsConfigManager.getPropertyConfig().matchExceptionSubmitCheckWaybillInterceptType(item.getInterceptType())).count();
             if(matchCount <= 0){
                 return result.toFail(tipMsg);
             }
@@ -266,10 +285,10 @@ public class QualityControlService {
     @Autowired
     @Qualifier("abnormalReportRecordProducer")
     private DefaultJMQProducer abnormalReportRecordProducer;
-    
+
     @Autowired
     private PositionManager positionManager;
-    
+
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
         List<SendDetail> sendDetails = null;
@@ -288,6 +307,8 @@ public class QualityControlService {
                     sendDetail = new SendDetail();
                     sendDetail.setWaybillCode(waybillCode);
                     sendDetails.add(sendDetail);
+
+                    this.handleSecurityCheckWaybillTrace(request);
                     break;
                 case WAYBILL_CODE_TYPE:
                     toSortingReturn(request);
@@ -295,6 +316,8 @@ public class QualityControlService {
                     sendDetail = new SendDetail();
                     sendDetail.setWaybillCode(request.getQcValue());
                     sendDetails.add(sendDetail);
+
+                    this.handleSecurityCheckWaybillTrace(request);
                     break;
                 case BOX_CODE_TYPE:
                     boxCode = request.getQcValue();
@@ -563,6 +586,12 @@ public class QualityControlService {
             abnormalWayBill.setQcValue(request.getQcValue());
             abnormalWayBill.setQcCode(request.getQcCode());
             abnormalWayBill.setQcName(request.getQcName());
+            abnormalWayBill.setAbnormalReasonFirstId(request.getAbnormalReasonFirstId() == null ? 0 : request.getAbnormalReasonFirstId());
+            abnormalWayBill.setAbnormalReasonFirstName(request.getAbnormalReasonFirstName() == null ? Constants.EMPTY_FILL : request.getAbnormalReasonFirstName());
+            abnormalWayBill.setAbnormalReasonSecondId(request.getAbnormalReasonSecondId() == null  ? 0 : request.getAbnormalReasonSecondId());
+            abnormalWayBill.setAbnormalReasonSecondName(request.getAbnormalReasonSecondName() == null ? Constants.EMPTY_FILL : request.getAbnormalReasonSecondName());
+            abnormalWayBill.setAbnormalReasonThirdId(request.getQcCode() == null  ? 0 : request.getQcCode().longValue());
+            abnormalWayBill.setAbnormalReasonThirdName(request.getQcValue() == null ? Constants.EMPTY_FILL : request.getQcValue());
             abnormalWayBill.setSortingReturn(request.getIsSortingReturn());
             abnormalWayBill.setOperateTime(request.getOperateTime());
             if (request.getWaveBusinessId() == null) {
@@ -710,6 +739,12 @@ public class QualityControlService {
                 qualityControlRequest.setOperateTime(new Date(qcReportJmqDto.getCreateTime()));
                 qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalThirdId().intValue());
                 qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalThirdName());
+                qualityControlRequest.setAbnormalReasonFirstId(qcReportJmqDto.getAbnormalFirstId());
+                qualityControlRequest.setAbnormalReasonFirstName(qcReportJmqDto.getAbnormalFirstName());
+                qualityControlRequest.setAbnormalReasonSecondId(qcReportJmqDto.getAbnormalSecondId());
+                qualityControlRequest.setAbnormalReasonSecondName(qcReportJmqDto.getAbnormalSecondName());
+                qualityControlRequest.setAbnormalReasonThirdId(qcReportJmqDto.getAbnormalThirdId());
+                qualityControlRequest.setAbnormalReasonThirdName(qcReportJmqDto.getAbnormalThirdName());
                 qualityControlRequest.setIsSortingReturn(false);
                 qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalThirdName() + "】");
                 Task task = new Task();
@@ -717,7 +752,7 @@ public class QualityControlService {
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
                 final TaskResult taskResult = this.dealQualityControlTask(task);
                 log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
-                
+
                 // 找到操作人登录网格并发送MQ消息
                 QcfindGridAndSendMQ(qcReportJmqDto);
                 
@@ -813,6 +848,12 @@ public class QualityControlService {
                 qualityControlRequest.setOperateTime(new Date(qcReportJmqDto.getCreateTime()));
                 qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalThirdId().intValue());
                 qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalThirdName());
+                qualityControlRequest.setAbnormalReasonFirstId(qcReportJmqDto.getAbnormalFirstId());
+                qualityControlRequest.setAbnormalReasonFirstName(qcReportJmqDto.getAbnormalFirstName());
+                qualityControlRequest.setAbnormalReasonSecondId(qcReportJmqDto.getAbnormalSecondId());
+                qualityControlRequest.setAbnormalReasonSecondName(qcReportJmqDto.getAbnormalSecondName());
+                qualityControlRequest.setAbnormalReasonThirdId(qcReportJmqDto.getAbnormalThirdId());
+                qualityControlRequest.setAbnormalReasonThirdName(qcReportJmqDto.getAbnormalThirdName());
                 qualityControlRequest.setIsSortingReturn(false);
                 qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalThirdName() + "】");
                 Task task = new Task();
@@ -897,6 +938,138 @@ public class QualityControlService {
             return result.toFail("参数错误，abnormalThirdName为空");
         }
         return result;
+    }
+
+    /**
+     * 处理案件全程跟踪
+     * @param qualityControlRequest
+     * @author fanggang7
+     * @time 2023-08-08 18:10:21 周一
+     */
+    private void handleSecurityCheckWaybillTrace(QualityControlRequest qualityControlRequest) {
+        try {
+            // 读取系统配置
+            final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION + qualityControlRequest.getDistCenterID());
+            if (sysConfig == null) {
+                return;
+            }
+            final SiteCodeAssociationDto siteCodeAssociationDto = JSON.parseObject(sysConfig.getConfigContent(), SiteCodeAssociationDto.class);
+            if (siteCodeAssociationDto == null) {
+                return;
+            }
+            // 判断是否是在配置范围中
+            final List<Integer> siteCodeAssociationList = siteCodeAssociationDto.getSa();
+            if(CollectionUtils.isEmpty(siteCodeAssociationList)){
+                return;
+            }
+            log.info("handleSecurityCheckWaybillTrace match {}", JsonHelper.toJson(qualityControlRequest));
+            qualityControlRequest.setAbnormalReasonThirdId(qualityControlRequest.getQcCode() == null  ? 0 : qualityControlRequest.getQcCode().longValue());
+            boolean waybillIsProhibitedAbnormal = checkWaybillIsProhibitedAbnormal(qualityControlRequest);
+            if(!waybillIsProhibitedAbnormal){
+                return;
+            }
+            // 如果已经发过全程跟踪，则不再发送
+            if(this.checkSendSecurityCheckWaybillTraceAlready(qualityControlRequest)){
+                return;
+            }
+            // 发送全程跟踪消息
+            this.sendWaybillTrace(qualityControlRequest, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK);
+        } catch (Exception e) {
+            log.error("handleSecurityCheckWaybillTrace exception {}", JsonHelper.toJson(qualityControlRequest), e);
+        }
+    }
+
+    private boolean checkWaybillIsProhibitedAbnormal(QualityControlRequest qualityControlRequest) {
+        // 区分是否有异常举报，1. 老版本异常上报 三级原因：违禁品无法发货 - 27000 2. 新版H5 外呼-违禁品（20009-20010）二级
+        try {
+            if(Objects.equals(Constants.SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID, (long) qualityControlRequest.getQcCode()) || Objects.equals(Constants.SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID, qualityControlRequest.getAbnormalReasonThirdId())){
+                return true;
+            }
+            final List<Long> secondIds = Constants.SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP.get(qualityControlRequest.getAbnormalReasonFirstId());
+            if(CollectionUtils.isNotEmpty(secondIds)
+                    && secondIds.contains(qualityControlRequest.getAbnormalReasonSecondId())){
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("checkWaybillIsProhibitedAbnormal exception {}", JsonHelper.toJson(qualityControlRequest), e);
+        }
+        return false;
+    }
+
+    private boolean checkSendSecurityCheckWaybillTraceAlready(QualityControlRequest qualityControlRequest){
+        String waybillCode = WaybillUtil.getWaybillCode(qualityControlRequest.getQcValue());
+        final String exist = cacheService.get(String.format(CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL, waybillCode));
+        if (exist != null) {
+            log.info("QualityControlService.checkSendSecurityCheckWaybillTraceAlready exist cache {} ", JsonHelper.toJson(qualityControlRequest));
+            return true;
+        }
+        final List<PackageStateDto> waybillTrackExistList = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_STATE.toString());
+        if(CollectionUtils.isNotEmpty(waybillTrackExistList)){
+            log.info("QualityControlService.checkSendSecurityCheckWaybillTraceAlready exist {} ", JsonHelper.toJson(qualityControlRequest));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 发送全程跟踪
+     * @param operateType
+     */
+    private void sendWaybillTrace(QualityControlRequest qualityControlRequest, Integer operateType) {
+        try {
+            final BarCodeType barCodeType = BusinessUtil.getBarCodeType(qualityControlRequest.getQcValue());
+            if(!Objects.equals(barCodeType, BarCodeType.PACKAGE_CODE) && !Objects.equals(barCodeType, BarCodeType.WAYBILL_CODE)){
+                return;
+            }
+            WaybillStatus waybillStatus = new WaybillStatus();
+            //设置站点相关属性
+            waybillStatus.setPackageCode(qualityControlRequest.getQcValue());
+
+            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(qualityControlRequest.getDistCenterID());
+            waybillStatus.setCreateSiteCode(qualityControlRequest.getDistCenterID());
+            waybillStatus.setCreateSiteName(siteOrgDto != null ? siteOrgDto.getSiteName() : Constants.EMPTY_FILL);
+
+            waybillStatus.setOperatorId(qualityControlRequest.getUserID());
+            waybillStatus.setOperator(qualityControlRequest.getUserName());
+            // 操作时间为发货时间的前10秒
+            long operateTime = (qualityControlRequest.getOperateTime() != null ? qualityControlRequest.getOperateTime().getTime() : System.currentTimeMillis()) - 1000L;
+            waybillStatus.setOperateTime(new Date(operateTime));
+
+            waybillStatus.setOperateType(operateType);
+            Map<String, Object> extendParamMap = new HashMap<>();
+            extendParamMap.put("traceDisplay", 0);
+            extendParamMap.put("auditResult", 2);
+            waybillStatus.setExtendParamMap(extendParamMap);
+
+            waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检，不通过", waybillStatus.getCreateSiteName()));
+
+
+            // 添加到task表
+            taskService.add(toTask(waybillStatus));
+            cacheService.setEx(String.format(CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL, WaybillUtil.getWaybillCode(qualityControlRequest.getQcValue())), Constants.STRING_FLG_TRUE, CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL_TIMEOUT, TimeUnit.MINUTES);
+
+        } catch (Exception e) {
+            log.error("发货发送安检全称跟踪失败 {}", JsonHelper.toJson(qualityControlRequest), e);
+        }
+    }
+
+    /**
+     * 转换成全称跟踪的Task
+     *
+     * @param waybillStatus
+     * @return
+     */
+    private Task toTask(WaybillStatus waybillStatus) {
+        Task task = new Task();
+        task.setTableName(Task.TABLE_NAME_POP);
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setKeyword1(waybillStatus.getPackageCode());
+        task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
+        task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
+        task.setBody(com.jd.bluedragon.utils.JsonHelper.toJson(waybillStatus));
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        return task;
     }
 
 }

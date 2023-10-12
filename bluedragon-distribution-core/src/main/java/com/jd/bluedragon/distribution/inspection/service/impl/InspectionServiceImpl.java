@@ -11,7 +11,7 @@ import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponse
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.AssertQueryManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -21,6 +21,7 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
@@ -28,6 +29,7 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
+import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
@@ -38,6 +40,7 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionCheckResult;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
+import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
@@ -51,6 +54,9 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionJsfService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
@@ -58,6 +64,7 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -65,6 +72,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.asset.material.base.ResultData;
 import com.jd.etms.asset.material.base.ResultStateEnum;
@@ -82,6 +90,9 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -109,7 +120,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	private final String PERFORMANCE_DMSSITECODE_SWITCH = "performance.dmsSiteCode.switch";
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private InspectionDao inspectionDao;
@@ -163,9 +174,6 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	@Autowired
     private WaybillPackageManager waybillPackageManager;
 
-    @Autowired
-    private UccPropertyConfiguration uccConfig;
-
 	@Autowired
 	private DmsOperateHintService dmsOperateHintService;
 
@@ -187,6 +195,10 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
     private DmsPackingConsumableService dmsPackingConsumableService;
     @Autowired
     private BaseService baseService;
+    
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;    
+    
 
     public boolean isExists(Integer Storeid)
     {
@@ -394,22 +406,34 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
     public void saveData(Inspection inspection, String methodName) {//FIXME:private
         this.insertOrUpdate(inspection);
         addOperationLog(inspection,methodName);
-
+        JyOperateFlowMqData inspectionFlowMq = BeanConverter.convertToJyOperateFlowMqData(inspection);
+        inspectionFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.INSPECTION.getCode());
+		jyOperateFlowService.sendMq(inspectionFlowMq);
         cenConfirmService.saveOrUpdateCenConfirm(cenConfirmService
                 .createCenConfirmByInspection(inspection));
         // 如果是三方,则插入异常信息inspection_e_c表
         if (inspection.getInspectionType().equals(Inspection.BUSSINESS_TYPE_THIRD_PARTY))
             this.thirdPartyWorker(inspection);
     }
-
 	public Integer insertOrUpdate(Inspection inspection) {
-        /**
-         * Fix wtw
-         */
-		int result = inspectionDao.update(InspectionDao.namespace, inspection);
+		int result = Constants.NO_MATCH_DATA;
+		Long inspectionId = null;
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.InspectionServiceImpl.update", false, true);
+		List<Inspection> updateList = inspectionDao.queryInspectionForUpdate(inspection);
+    	if(updateList != null && updateList.size() > 0) {
+    		if(updateList.size() > 1) {
+    			this.log.warn("inspectionServiceImpl.insertOrUpdate:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(inspection));
+    		}
+    		inspectionId = BeanHelper.getLastOperateInspectionId(updateList);
+    		result = inspectionDao.update(InspectionDao.namespace, inspection);
+    	}
 		if (Constants.NO_MATCH_DATA == result) {
 			result = inspectionDao.add(InspectionDao.namespace, inspection);
 		}
+		if(inspectionId != null) {
+			inspection.setInspectionId(inspectionId);
+		}
+		Profiler.registerInfoEnd(info);
 		return result;
 	}
 
@@ -992,7 +1016,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
     public boolean checkIsBindMaterial(String waybillCode) {
 
         try {
-        	if(uccPropertyConfiguration.getInspectionAssertDemotion()){
+        	if(dmsConfigManager.getPropertyConfig().getInspectionAssertDemotion()){
         		//降级 不依赖集包袋服务
         		return false;
 			}
@@ -1095,14 +1119,14 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
      */
     @Override
     public int getInspectionTaskPackageSplitNum() {
-        return 0 == uccConfig.getWaybillSplitPageSize() ?
+        return 0 == dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize() ?
                 BIG_WAYBILL_LIMIT_NUM :
-                uccConfig.getWaybillSplitPageSize();
+                dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize();
     }
 
     @Override
     public boolean siteEnableInspectionAgg(Integer siteCode) {
-        String configSite = uccConfig.getInspectionAggEffectiveSites();
+        String configSite = dmsConfigManager.getPropertyConfig().getInspectionAggEffectiveSites();
         if (StringUtils.isBlank(configSite)) {
             return false;
         }
@@ -1219,6 +1243,9 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 			if (StringUtils.isNotEmpty(vo.getMachineCode())){
 				map.put("machineCode",vo.getMachineCode());
 			}
+			if(vo.getOperatorData() != null) {
+				map.put("operatorDataJson", JsonHelper.toJson(vo.getOperatorData()));
+			}
 			if(BusinessUtil.isBoxcode(barCode)){
 				//箱号
 				map.put("packOrBox",barCode);
@@ -1269,8 +1296,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 			}
 
 			//inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
-			inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-			inspection.setOperatorId(inspection.getMachineCode());
+			setOperatorData(inspection);
 		}
 		if (inspections.size() == 0) {
 			invokeResult.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_OK, com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_OK);
@@ -1294,7 +1320,21 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 			return invokeResult;
 		}
 	}
-
+    /**
+     * 设置操作信息
+     * @param inspection
+     */
+    private void setOperatorData(InspectionAS inspection) {
+    	if(inspection == null) {
+    		return;
+    	}
+		inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+		inspection.setOperatorId(inspection.getMachineCode());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(inspection);
+        inspection.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        inspection.setOperatorId(operatorData.getOperatorId());
+        inspection.setOperatorData(operatorData);
+    }
     @Override
     public JdVerifyResponse<InspectionCheckResultDto> checkBeforeInspection(com.jd.bluedragon.common.dto.inspection.request.InspectionRequest request) {
         JdVerifyResponse<InspectionCheckResultDto> response = new JdVerifyResponse<>();

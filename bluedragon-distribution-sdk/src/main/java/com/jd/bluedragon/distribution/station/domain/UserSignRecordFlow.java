@@ -286,6 +286,11 @@ public class UserSignRecordFlow implements Serializable {
 	 * 省区编码
 	 */
 	private String provinceAgencyCode;
+
+	/**
+	 * 身份证号
+	 */
+	private String idCard;
 	
 	/**
 	 *
@@ -997,5 +1002,13 @@ public class UserSignRecordFlow implements Serializable {
 
 	public void setProvinceAgencyCode(String provinceAgencyCode) {
 		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(String idCard) {
+		this.idCard = idCard;
 	}
 }

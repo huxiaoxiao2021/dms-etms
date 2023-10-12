@@ -18,14 +18,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintOssConfig;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintOutputConfig;
+import com.jd.bluedragon.distribution.print.domain.JdCloudPrintOutputMsgItem;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintRequest;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintResponse;
 import com.jd.bluedragon.utils.DateHelper;
@@ -59,6 +60,8 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 	 * 设置默认字符集
 	 */
 	private static final String DEFAULT_CHARSET_STR = "UTF-8";
+	
+	private static final String PDF_CONTENT_TYPE = "application/pdf";
 	/**
 	 * 设置默认字符集
 	 */
@@ -71,13 +74,21 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
      * 云打印pdf输出文件oss配置
      */
     @Autowired
+    @Qualifier("pdfPrintOssConfig")
     private JdCloudPrintOssConfig pdfPrintOssConfig;
+    /**
+     * 云打印pdf输出文件oss配置
+     */
+    @Autowired
+    @Qualifier("pdfPrintAmazonConfig")
+    private JdCloudPrintOssConfig pdfPrintAmazonConfig;
+    
     /**
      * 本地pdf输出文件oss
      */
     @Autowired
     @Qualifier("pdfOutJssStorage")
-    private JingdongStorageService pdfOutJssStorage;
+    private JingdongStorageService pdfOutJssStorage;    
 
 	@Autowired
 	@Qualifier("dmswebAmazonS3ClientWrapper")
@@ -101,8 +112,6 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
      */
     @Autowired
     private IPrintPdfHelper printPdfHelper;
-    @Autowired
-    private SysConfigService sysConfigService;
     /**
      * 云打印url
      */
@@ -121,23 +130,38 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
      * 使用云打印开关
      */
     private boolean useJdCloudPrint = false;
+    
+    private static String PDF_FOLDER = "dms-print-pdfs";
 	/**
 	 * 获取默认的pdf请求
 	 * @return
 	 */
 	public <M> JdCloudPrintRequest<M> getDefaultPdfRequest(){
+        return getDefaultPdfRequest(false);
+	}
+	/**
+	 * 获取默认的pdf请求
+	 * @return
+	 */
+	public <M> JdCloudPrintRequest<M> getDefaultPdfRequest(Boolean useAmazon){
     	JdCloudPrintRequest<M> jdCloudPrintRequest = new JdCloudPrintRequest<M>();
         jdCloudPrintRequest.setSys(Constants.SYS_CODE_DMS);
         Date printDate =  new Date();
         jdCloudPrintRequest.setTime(printDate.getTime());
+        jdCloudPrintRequest.setUseAmazon(useAmazon);
         JdCloudPrintOutputConfig jdCloudPrintOutputConfig = new JdCloudPrintOutputConfig();
-        jdCloudPrintOutputConfig.setOss(pdfPrintOssConfig);
-        jdCloudPrintOutputConfig.setPath(DateHelper.formatDate(printDate, PDF_OUT_PATH_DATE_FOMART));
+        if(Boolean.TRUE.equals(useAmazon)) {
+        	jdCloudPrintOutputConfig.setOss(pdfPrintAmazonConfig);
+        	jdCloudPrintOutputConfig.setPath(PDF_FOLDER+"/"+DateHelper.formatDate(printDate, PDF_OUT_PATH_DATE_FOMART));
+        }else {
+        	jdCloudPrintOutputConfig.setOss(pdfPrintOssConfig);
+        	jdCloudPrintOutputConfig.setPath(DateHelper.formatDate(printDate, PDF_OUT_PATH_DATE_FOMART));
+        }
         List<JdCloudPrintOutputConfig> outputConfig = new ArrayList<JdCloudPrintOutputConfig>();
         outputConfig.add(jdCloudPrintOutputConfig);
         jdCloudPrintRequest.setOutputConfig(outputConfig);
         return jdCloudPrintRequest;
-	}
+	}	
 	/**
 	 * 调用京东云打印
 	 * @param jdCloudPrintRequest
@@ -174,6 +198,8 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 				if (list != null) {
 					printResult.setData(list);
 					printResult.toSuccess();
+					//生成下载外链
+					this.generateDownloadUrl(jdCloudPrintRequest, printResult);					
 				} else {
 					printResult.toFail("调用云打印IDC服务失败！");
 				}
@@ -206,21 +232,51 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			}
 			File pdfFile = null;
 			OutputStream outputStream = null;
+			InputStream inputStream = null;
 		try {
 			pdfFile = new File(localPdfTempPath+"/"+pdfFileName);
 			outputStream = new FileOutputStream(pdfFile);
+			inputStream = new FileInputStream(pdfFile);
 			this.printPdfHelper.generatePdf(outputStream, jdCloudPrintRequest.getTemplate(), 0, 0, 0, (List<Map<String,String>>)jdCloudPrintRequest.getModel());
-			pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath).entity(pdfFile).put();
-			List<JdCloudPrintResponse> printResponses = new ArrayList<JdCloudPrintResponse>();
-			JdCloudPrintResponse printResponse = new JdCloudPrintResponse();
-			List<String> outputMsg = new ArrayList<String>();
-			outputMsg.add(jssPdfPath);
-			printResponse.setStatus(JdCloudPrintResponse.STATUS_SUC);
-			printResponse.setOutputType(jdCloudPrintRequest.getOutputConfig().get(0).getType());
-			printResponse.setOutputMsg(outputMsg);
-			printResponses.add(printResponse);
-			printResult.setData(printResponses);
-			printResult.toSuccess();
+			List<JdCloudPrintOutputMsgItem> outputMsgItems = new ArrayList<JdCloudPrintOutputMsgItem>();
+			JdCloudPrintOutputMsgItem outputMsgItem = new JdCloudPrintOutputMsgItem();
+			
+			if(Boolean.TRUE.equals(jdCloudPrintRequest.getUseAmazon())) {
+				String url = dmswebAmazonS3ClientWrapper.putObjectThenGetOutNetUrl(inputStream, "", jssPdfPath,PDF_CONTENT_TYPE, pdfFile.length(),DateHelper.THREE_MONTH_DAYS);
+				outputMsgItem.setPath(jssPdfPath);
+				outputMsgItem.setUrl(url);
+			}else {
+				pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath).entity(pdfFile).put();
+				outputMsgItem.setPath(jssPdfPath);
+				URI uri;
+				String url = null;
+				if (httpsSet.contains(printOutJssEndpoint)){
+					uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath)
+							.presignedUrlProtocol(Scheme.HTTPS).generatePresignedUrl();
+				}
+				else{
+					uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath)
+							.generatePresignedUrl();
+				}
+				if(uri != null){
+					url = uri.toString();
+				}
+				outputMsgItem.setUrl(url);
+			}
+			if(outputMsgItem.getUrl() != null){
+				List<JdCloudPrintResponse> printResponses = new ArrayList<JdCloudPrintResponse>();
+				JdCloudPrintResponse printResponse = new JdCloudPrintResponse();
+				
+				printResponse.setStatus(JdCloudPrintResponse.STATUS_SUC);
+				printResponse.setOutputType(jdCloudPrintRequest.getOutputConfig().get(0).getType());				
+				printResponses.add(printResponse);
+				printResult.setData(printResponses);
+				printResult.toSuccess();
+				outputMsgItems.add(outputMsgItem);
+				printResponse.setOutputMsgItems(outputMsgItems);
+			}else{
+				printResult.toFail("jss生成外链失败！");
+			}
 		} catch (Throwable e) {
 			Profiler.functionError(callerInfo);
 			log.error("本地生成pdf失败！", e);
@@ -234,6 +290,13 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 					log.error("OutPutStream关闭失败", e);
 				}
 			}
+			if(inputStream != null){
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					log.error("inputStream关闭失败", e);
+				}
+			}			
 			if(pdfFile != null){
 				try {
 					pdfFile.delete();
@@ -254,25 +317,10 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
         	if(pdfList.size()>0){
         		JdCloudPrintResponse jdCloudPrintResponse = pdfList.get(0);
         		if(JdCloudPrintResponse.STATUS_SUC.equals(jdCloudPrintResponse.getStatus())
-        				&& jdCloudPrintResponse.getOutputMsg() != null
-        				&& jdCloudPrintResponse.getOutputMsg().size()>0){
-        			String pdfPath = jdCloudPrintResponse.getOutputMsg().get(0);
-        			//生成外链接
-					URI uri;
-					if (httpsSet.contains(printOutJssEndpoint)){
-						uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(pdfPath)
-								.presignedUrlProtocol(Scheme.HTTPS).generatePresignedUrl();
-					}
-					else{
-						uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(pdfPath)
-								.generatePresignedUrl();
-					}
-        			if(uri != null){
-        				result.setData(uri.toString());
-        				result.toSuccess();
-        			}else{
-        				result.toFail("jss生成外链失败！");
-        			}
+        				&& jdCloudPrintResponse.getOutputMsgItems() != null
+        				&& jdCloudPrintResponse.getOutputMsgItems().size()>0){
+    				result.setData(jdCloudPrintResponse.getOutputMsgItems().get(0).getUrl());
+    				result.toSuccess();
         		}else{
         			result.toFail("生成pdf文件失败！");
         		}
@@ -281,6 +329,51 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
         	result.toFail(printResult.getMessageCode(), printResult.getMessage());
         }
 		return result;
+	}
+	private <M> void generateDownloadUrl(JdCloudPrintRequest<M> jdCloudPrintRequest,JdResult<List<JdCloudPrintResponse>> printResult) {
+		if(jdCloudPrintRequest == null) {
+			return;
+		}
+		if(printResult == null 
+				|| !printResult.isSucceed()
+				|| CollectionUtils.isEmpty(printResult.getData()) ) {
+			return;
+		}
+		JdCloudPrintResponse printData = printResult.getData().get(0);
+		if(CollectionUtils.isEmpty(printData.getOutputMsg())) {
+			return;
+		}
+		String outputMsg = printData.getOutputMsg().get(0);
+		List<JdCloudPrintOutputMsgItem> outputMsgItems = new ArrayList<JdCloudPrintOutputMsgItem>();
+		JdCloudPrintOutputMsgItem outputMsgItem = new JdCloudPrintOutputMsgItem();
+		String url = null;
+		//生成外链接
+		if(Boolean.TRUE.equals(jdCloudPrintRequest.getUseAmazon())) {
+			outputMsgItem = JsonHelper.fromJson(outputMsg, JdCloudPrintOutputMsgItem.class);
+			url = this.dmswebAmazonS3ClientWrapper.generatePresignedOuterNetUrl(DateHelper.THREE_MONTH_DAYS, "", outputMsgItem.getPath());
+			outputMsgItem.setUrl(url);
+		}else {
+			URI uri;
+			if (httpsSet.contains(printOutJssEndpoint)){
+				uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(outputMsg)
+						.presignedUrlProtocol(Scheme.HTTPS).generatePresignedUrl();
+			}
+			else{
+				uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(outputMsg)
+						.generatePresignedUrl();
+			}
+			if(uri != null){
+				url = uri.toString();
+			}
+			outputMsgItem.setPath(outputMsg);
+			outputMsgItem.setUrl(url);
+		}
+		if(outputMsgItem.getUrl() != null){
+			outputMsgItems.add(outputMsgItem);
+			printData.setOutputMsgItems(outputMsgItems);
+		}else{
+			printResult.toFail("jss生成外链失败！");
+		}
 	}
 	/**
 	 * 打印参数验证

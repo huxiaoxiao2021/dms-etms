@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -28,6 +28,9 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.loadAndUnload.*;
 import com.jd.bluedragon.distribution.loadAndUnload.constants.UnloadCarConstant;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanDao;
@@ -56,6 +59,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.ucc.common.utils.JsonUtils;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -223,7 +227,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     private BoardCombinationService boardCombinationService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration ;
+    private DmsConfigManager dmsConfigManager ;
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
@@ -233,7 +237,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     private Cluster redisClientOfJy;
     @Autowired
     private TransferService transferService;
-
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
@@ -1333,7 +1338,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
         try {
             int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
-            if(packageNum < uccPropertyConfiguration.getDazongPackageOperateMax()){
+            if(packageNum < dmsConfigManager.getPropertyConfig().getDazongPackageOperateMax()){
                 invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "此单非大宗超量运单，请进行逐包裹扫描操作！");
                 return invokeResult;
             }

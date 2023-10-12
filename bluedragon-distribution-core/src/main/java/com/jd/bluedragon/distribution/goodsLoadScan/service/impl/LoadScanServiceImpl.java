@@ -12,7 +12,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingSca
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.LoadCarTaskServiceWSManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
@@ -123,7 +123,7 @@ public class LoadScanServiceImpl implements LoadScanService {
     private LoadScanCacheService loadScanCacheService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private WaybillService waybillService;
@@ -166,11 +166,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         //超出最大任务限制包裹数后禁止发货
         int packageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(req.getTaskId());
 
-        if(packageCount >= uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
+        if(packageCount >= dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize()) {
             if(log.isDebugEnabled()) {
-                log.debug("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
+                log.debug("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize());
             }
-            response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
+            response.toFail("该任务装车包裹数超出最大包裹数量限制【" + dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
             return response;
         }
 
@@ -637,9 +637,9 @@ public class LoadScanServiceImpl implements LoadScanService {
         int currentPackageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(req.getTaskId());
         //获取组板的包裹数,上一步已经判断了板下包裹为空的情况,当前可直接获取板上的包裹数量.
         int boardPackageNum = result.getData().size();
-        if(currentPackageCount + boardPackageNum > uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
-            log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
-            response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
+        if(currentPackageCount + boardPackageNum > dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize()) {
+            log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize());
+            response.toFail("该任务装车包裹数超出最大包裹数量限制【" + dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
             return response;
         }
 
@@ -655,7 +655,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 校验该任务下运单数量是否已超过上限
             Integer waybillCount = goodsLoadScanDao.findWaybillCountByTaskId(taskId);
-            if (waybillCount != null && waybillCount > uccPropertyConfiguration.getLoadScanTaskWaybillSize()) {
+            if (waybillCount != null && waybillCount > dmsConfigManager.getPropertyConfig().getLoadScanTaskWaybillSize()) {
                 log.warn("该任务下运单数量已达上限！taskId={},packageCode={}", taskId, packageCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该任务下运单数量已达上限！");
@@ -785,9 +785,9 @@ public class LoadScanServiceImpl implements LoadScanService {
         int currentPackageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(req.getTaskId());
         //获取大宗运单的包裹数,通过解析包裹号来获取。
         int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
-        if(currentPackageCount + packageNum > uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
-            log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
-            response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
+        if(currentPackageCount + packageNum > dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize()) {
+            log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize());
+            response.toFail("该任务装车包裹数超出最大包裹数量限制【" + dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
             return response;
         }
 
@@ -808,7 +808,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 校验该任务下运单数量是否已超过上限
             Integer waybillCount = goodsLoadScanDao.findWaybillCountByTaskId(taskId);
-            if (waybillCount != null && waybillCount > uccPropertyConfiguration.getLoadScanTaskWaybillSize()) {
+            if (waybillCount != null && waybillCount > dmsConfigManager.getPropertyConfig().getLoadScanTaskWaybillSize()) {
                 log.warn("该任务下运单数量已达上限！taskId={},packageCode={}", taskId, packageCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该任务下运单数量已达上限！");
@@ -1104,9 +1104,9 @@ public class LoadScanServiceImpl implements LoadScanService {
         //超出最大任务限制包裹数后禁止发货
         int packageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(req.getTaskId());
 
-        if(packageCount >= uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
-            log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
-            response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
+        if(packageCount >= dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize()) {
+            log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize());
+            response.toFail("该任务装车包裹数超出最大包裹数量限制【" + dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
             return response;
         }
         if (log.isDebugEnabled()) {
@@ -1270,8 +1270,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             if( waybillInfo != null && StringUtils.isNotBlank(waybillInfo.getWaybillSign())){
                 //常量 封装方法
                 boolean isPickUpOrNo = BusinessUtil.isPickUpOrNo(waybillInfo.getWaybillSign());
-                log.info("获取到虚拟id:{}",uccPropertyConfiguration.getVirtualSiteCode());
-                if(uccPropertyConfiguration.getVirtualSiteCode().equals(nextDmsSiteId)){//下一节点是虚拟节点
+                log.info("获取到虚拟id:{}",dmsConfigManager.getPropertyConfig().getVirtualSiteCode());
+                if(dmsConfigManager.getPropertyConfig().getVirtualSiteCode().equals(nextDmsSiteId)){//下一节点是虚拟节点
                     if(!isPickUpOrNo){
                         log.warn("装车失败!非自提包裹不允许发往自提站点,包裹号为:{},运单号为:{}",packageCode,waybillCode);
                         response.setCode(JdCResponse.CODE_FAIL);
@@ -1358,9 +1358,9 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
 
         //校验板上包裹最大数量
-        if (result.getData().size() > uccPropertyConfiguration.getLoadScanTaskPackageSize()) {
+        if (result.getData().size() > dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageSize()) {
             response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("此板号下包裹超" + uccPropertyConfiguration.getLoadScanTaskPackageSize() + "件，请切换至快运发货功能进行发货操作");
+            response.setMessage("此板号下包裹超" + dmsConfigManager.getPropertyConfig().getLoadScanTaskPackageSize() + "件，请切换至快运发货功能进行发货操作");
             return response;
         }
 
@@ -1616,7 +1616,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 校验该任务下运单数量是否已超过上限
             Integer waybillCount = goodsLoadScanDao.findWaybillCountByTaskId(taskId);
-            if (waybillCount != null && waybillCount > uccPropertyConfiguration.getLoadScanTaskWaybillSize()) {
+            if (waybillCount != null && waybillCount > dmsConfigManager.getPropertyConfig().getLoadScanTaskWaybillSize()) {
                 log.warn("该任务下运单数量已达上限！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该任务下运单数量已达上限！");

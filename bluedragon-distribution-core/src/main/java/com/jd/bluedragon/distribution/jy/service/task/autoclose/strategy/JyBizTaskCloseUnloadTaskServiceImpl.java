@@ -8,7 +8,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCom
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadPreviewData;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadCompleteDto;
@@ -73,7 +73,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
     private Cluster redisClientOfJy;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private JyBizTaskAutoCloseHelperService jyBizTaskAutoCloseHelperService;
@@ -153,7 +153,7 @@ public class JyBizTaskCloseUnloadTaskServiceImpl extends JyBizTaskCloseAbstractS
             autoCloseTaskContextDto.setOperateUserName(this.sysOperateUserName);
             autoCloseTaskContextDto.setBizId(taskUnloadVehicleExist.getBizId());
 
-            AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+            AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = dmsConfigManager.getPropertyConfig().getAutoCloseJyBizTaskConfigObj();
             if(autoCloseJyBizTaskConfig == null){
                 return result;
             }
