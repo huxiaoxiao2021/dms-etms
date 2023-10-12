@@ -3,8 +3,8 @@ package com.jd.bluedragon.distribution.jy.service.task;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 
 import java.util.List;
@@ -159,4 +159,14 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
     List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> bizIds);
+
+    /**
+     * 按流向和状态分页查询发货任务
+     * @param entity
+     * @param pageNum
+     * @param pageSize
+     * @param statuses
+     * @return
+     */
+    List<JyBizTaskSendVehicleEntity> findSendTaskByDestAndStatusesWithPage(JyBizTaskSendVehicleDetailQueryEntity entity, List<Integer> statuses, Integer pageNum, Integer pageSize);
 }

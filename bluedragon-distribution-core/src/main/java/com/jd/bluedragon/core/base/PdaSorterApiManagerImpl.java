@@ -30,6 +30,7 @@ public class PdaSorterApiManagerImpl implements PdaSorterApiManager{
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.PdaSorterApiManagerImpl.remindTransJob",mState = {JProEnum.TP, JProEnum.FunctionError})
     public CommonDto<RemindTransJobReponseDTO> remindTransJob(AccountDto accountDto, RemindTransJobRequestDTO remindTransJobRequestDTO) {
         try {
             return pdaSorterApi.remindTransJob(accountDto, remindTransJobRequestDTO);

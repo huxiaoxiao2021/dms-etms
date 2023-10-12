@@ -9,6 +9,8 @@ import com.jd.bluedragon.common.dto.send.response.DeleteVehicleTaskCheckResponse
 import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dto.tms.TmsUrgeVehicleMq;
+import com.jd.dms.java.utils.sdk.base.Result;
 
 import java.util.List;
 
@@ -75,4 +77,13 @@ public interface JyNoTaskSendService {
      * @return
      */
     InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
+
+    /**
+     * 运输催派
+     * @param tmsUrgeVehicleMq 催派报文
+     * @return 催派执行结果
+     * @author fanggang7
+     * @time 2023-09-15 10:46:29 周五
+     */
+    Result<Boolean> remindTransJob(TmsUrgeVehicleMq tmsUrgeVehicleMq);
 }

@@ -821,7 +821,7 @@ public class Constants {
     /**
      * 配置信息-自动签退处理的站点配置
      */
-    public static final String SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES = "sys.config.autoHandleSignOutSiteCodes";    
+    public static final String SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES = "sys.config.autoHandleSignOutSiteCodes";
     /**
      *  配置信息-青龙打印配置  qinglong.print.type.use
      *
@@ -2153,4 +2153,9 @@ public class Constants {
      */
     public static final String MORE_SCAN_QUERY_ES_SWITCH = "more.scan.query.es.switch";
 
+
+    /**
+     * 运输内网账号类型
+     */
+    public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
 }
