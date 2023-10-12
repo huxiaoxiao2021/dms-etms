@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.collectpackage.response;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author liwenji
@@ -46,10 +47,11 @@ public class CollectPackageTaskDto implements Serializable {
 
     private String startSiteName;
 
-    private Long endSiteId;
-
-    private String endSiteName;
-
+    /**
+     * 目的地流向集合
+     */
+    private List<SiteInfo> endSiteList;
+    
     private String createUserErp;
 
     private String createUserName;
@@ -153,22 +155,6 @@ public class CollectPackageTaskDto implements Serializable {
         this.startSiteName = startSiteName;
     }
 
-    public Long getEndSiteId() {
-        return endSiteId;
-    }
-
-    public void setEndSiteId(Long endSiteId) {
-        this.endSiteId = endSiteId;
-    }
-
-    public String getEndSiteName() {
-        return endSiteName;
-    }
-
-    public void setEndSiteName(String endSiteName) {
-        this.endSiteName = endSiteName;
-    }
-
     public String getCreateUserErp() {
         return createUserErp;
     }
@@ -207,5 +193,13 @@ public class CollectPackageTaskDto implements Serializable {
 
     public void setScanCount(Integer scanCount) {
         this.scanCount = scanCount;
+    }
+
+    public List<SiteInfo> getEndSiteList() {
+        return endSiteList;
+    }
+
+    public void setEndSiteList(List<SiteInfo> endSiteList) {
+        this.endSiteList = endSiteList;
     }
 }

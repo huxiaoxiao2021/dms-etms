@@ -6,48 +6,18 @@ import java.util.List;
 public class CollectPackageTaskResp implements Serializable {
 
     /**
-     * 待集包
+     * 集包任务推荐
      */
-    private Integer toCollectPackCount;
-
-    /**
-     * 集包中
-     */
-    private Integer collectPackCount;
-
-    /**
-     * 已完成
-     */
-    private Integer completeCollectPackCount;
+    private List<CollectPackStatusCount> collectPackStatusCountList;
 
     /**
      * 集包任务
      */
     private List<CollectPackageTaskDto> collectPackTaskDtoList;
 
-    public Integer getToCollectPackCount() {
-        return toCollectPackCount;
+    public CollectPackageTaskResp() {
     }
 
-    public void setToCollectPackCount(Integer toCollectPackCount) {
-        this.toCollectPackCount = toCollectPackCount;
-    }
-
-    public Integer getCollectPackCount() {
-        return collectPackCount;
-    }
-
-    public void setCollectPackCount(Integer collectPackCount) {
-        this.collectPackCount = collectPackCount;
-    }
-
-    public Integer getCompleteCollectPackCount() {
-        return completeCollectPackCount;
-    }
-
-    public void setCompleteCollectPackCount(Integer completeCollectPackCount) {
-        this.completeCollectPackCount = completeCollectPackCount;
-    }
 
     public List<CollectPackageTaskDto> getCollectPackTaskDtoList() {
         return collectPackTaskDtoList;
@@ -55,5 +25,13 @@ public class CollectPackageTaskResp implements Serializable {
 
     public void setCollectPackTaskDtoList(List<CollectPackageTaskDto> collectPackTaskDtoList) {
         this.collectPackTaskDtoList = collectPackTaskDtoList;
+    }
+
+    public List<CollectPackStatusCount> getCollectPackStatusCountList() {
+        return collectPackStatusCountList;
+    }
+
+    public void setCollectPackStatusCountList(List<CollectPackStatusCount> collectPackStatusCountList) {
+        this.collectPackStatusCountList = collectPackStatusCountList;
     }
 }

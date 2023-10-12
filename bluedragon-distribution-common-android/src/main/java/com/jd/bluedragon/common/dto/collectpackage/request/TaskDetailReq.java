@@ -7,11 +7,24 @@ public class TaskDetailReq implements Serializable {
     
     private String bizId;
 
+    /**
+     * 箱号
+     */
+    private String boxCode;
+
     public String getBizId() {
         return bizId;
     }
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public String getBoxCode() {
+        return boxCode;
+    }
+
+    public void setBoxCode(String boxCode) {
+        this.boxCode = boxCode;
     }
 }
