@@ -243,7 +243,12 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         return entity;
     }
 
-    //该接口可以决定航空计划始发有效
+    /**
+     * 查找航空计划流向
+     * 服务异常或者报错，服务重试
+     * 服务正常，查询数据为空，或者查询目的地基础资料找不到，视为无效数据，丢弃
+     * @param entity
+     */
     private void fillNextSiteInfo(JyBizTaskSendAviationPlanEntity entity) {
         //测试代码
 //        entity.setNextSiteCode("010F016");
@@ -253,54 +258,60 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         String nextSiteCode = null;
         Integer nextSiteId = null;
         String nextSiteName = null;
-        try{
-            AirlineReq airlineReq = new AirlineReq();
-            if(AirTypeEnum.AIR_TYPE_BULK.getCode().equals(entity.getAirType())) {
-                airlineReq.setAirTransportType(2);//运输侧1位散航类型2全货机，路由侧2散航方式1全货机
-            }else {
-                airlineReq.setAirTransportType(1);
-            }
-            airlineReq.setEndAirportCode(entity.getEndNodeCode());
-            airlineReq.setStartAirportCode(entity.getBeginNodeCode());
-            airlineReq.setValidDate(new Date());
-            InvokeResult<List<AirLineResp>> invokeResult = vrsRouteTransferRelationManager.queryAirLineByAirLineReq(airlineReq);
-            //可能流向多个
-            Set<String> nextSiteSet = new HashSet<>();
-            if(invokeResult.codeSuccess() && CollectionUtils.isNotEmpty(invokeResult.getData())) {
-                invokeResult.getData().forEach(po -> {
-                    if(StringUtils.isNotBlank(po.getEndNodeCode())) {
-                        nextSiteSet.add(po.getEndNodeCode());
-                    }
-                });
-            }
-            if(CollectionUtils.isNotEmpty(nextSiteSet)) {
-                for(String siteCode : nextSiteSet) {
-                    BaseStaffSiteOrgDto nextSite ;
-                    try{
-                        nextSite = baseMajorManager.getBaseSiteByDmsCode(siteCode);
-                    }catch (Exception e) {
-                        log.error("根据场地分拣编码【{}】获取场地异常, errMsg={}", siteCode, e.getMessage(), e);
-                        continue;
-                    }
-                    if(Objects.isNull(nextSite)) {
-                        continue;
-                    }
-                    nextSiteCode = siteCode;
-                    nextSiteId = nextSite.getSiteCode();
-                    nextSiteName = nextSite.getSiteName();
-                    break;
+        AirlineReq airlineReq = new AirlineReq();
+        if(AirTypeEnum.AIR_TYPE_BULK.getCode().equals(entity.getAirType())) {
+            airlineReq.setAirTransportType(2);//运输侧1位散航类型2全货机，路由侧2散航方式1全货机
+        }else {
+            airlineReq.setAirTransportType(1);
+        }
+        airlineReq.setEndAirportCode(entity.getEndNodeCode());
+        airlineReq.setStartAirportCode(entity.getBeginNodeCode());
+        airlineReq.setValidDate(new Date());
+        InvokeResult<List<AirLineResp>> invokeResult = vrsRouteTransferRelationManager.queryAirLineByAirLineReq(airlineReq);
+        if(!invokeResult.codeSuccess()) {
+            log.error("航空计划下发消息(订舱号={}）查路由服务失败:jsf入参={}", entity.getBookingCode(), JsonHelper.toJson(airlineReq));
+            throw new JyBizException("航空计划下发消息查路由服务失败");
+        }
+        //可能流向多个
+        Set<String> nextSiteSet = new HashSet<>();
+        if(invokeResult.codeSuccess() && CollectionUtils.isNotEmpty(invokeResult.getData())) {
+            invokeResult.getData().forEach(po -> {
+                if(StringUtils.isNotBlank(po.getEndNodeCode())) {
+                    nextSiteSet.add(po.getEndNodeCode());
                 }
+            });
+        }
+        //忽略异常，丢弃数据
+        if(CollectionUtils.isEmpty(nextSiteSet)){
+            log.error("航空计划(订舱号：{})生成发货任务查找流向场地编码【{}】为空", entity.getBookingCode(), JsonHelper.toJson(nextSiteSet));
+            throw new JyBizIgnoreException("航空计划生成发货任务没有找到流向，无效计划");
+        }
+
+        if(CollectionUtils.isNotEmpty(nextSiteSet)) {
+            for(String siteCode : nextSiteSet) {
+                BaseStaffSiteOrgDto nextSite ;
+                try{
+                    nextSite = baseMajorManager.getBaseSiteByDmsCode(siteCode);
+                }catch (Exception e) {
+                    log.error("根据场地分拣编码【{}】获取场地异常, errMsg={}", siteCode, e.getMessage(), e);
+                    continue;
+                }
+                if(Objects.isNull(nextSite)) {
+                    continue;
+                }
+                nextSiteCode = siteCode;
+                nextSiteId = nextSite.getSiteCode();
+                nextSiteName = nextSite.getSiteName();
+                break;
             }
-            if(Objects.isNull(nextSiteId)) {
-                log.error("航空计划(订舱号：{})生成发货任务根据流向场地编码【{}】查询场地为空", entity.getBookingCode(), JsonHelper.toJson(nextSiteSet));
-                throw new JyBizIgnoreException("航空计划生成发货任务没有找到流向，无效计划");
-            }
-            if(nextSiteSet.size() > 1) {
-                log.error("航空发货任务【订舱号：{}】查找路由运力找到多个目的地{}，取任一个【{}|{}】", entity.getBookingWeight(), JsonHelper.toJson(nextSiteSet), nextSiteId, nextSiteName);
-            }
-        }catch (Exception ignoreEx) {
-            log.error("订舱号={}，查询航空计划发货目的流向服务时出错，errMsg={}", entity.getBookingCode(), ignoreEx.getMessage(), ignoreEx);
-            throw new JyBizIgnoreException(ignoreEx.getMessage());
+        }
+        //忽略异常，丢弃数据
+        if(Objects.isNull(nextSiteId)) {
+            log.error("航空计划(订舱号：{})生成发货任务查找有效流向场地编码【{}】为空", entity.getBookingCode(), JsonHelper.toJson(nextSiteSet));
+            throw new JyBizIgnoreException("航空计划生成发货任务没有找到有效流向，无效计划");
+        }
+        if(nextSiteSet.size() > 1) {
+            log.warn("航空发货任务【订舱号：{}】查找路由运力找到多个目的地{}，取任一个【{}|{}】", entity.getBookingWeight(), JsonHelper.toJson(nextSiteSet), nextSiteId, nextSiteName);
         }
         entity.setNextSiteCode(nextSiteCode);
         entity.setNextSiteId(nextSiteId);
