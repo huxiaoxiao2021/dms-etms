@@ -8,7 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +20,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.configuration.ducc.DuccHystrixRoutePropertyConfig;
 import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
+import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.uim.annotation.Authorization;
@@ -35,7 +40,19 @@ public class DmsUccController {
 	private static final Logger log = LoggerFactory.getLogger(DmsUccController.class);
 	
 	@Autowired
+	HystrixRouteUccPropertyConfiguration ucc1;
+	
+	@Autowired
 	DmsConfigManager dmsConfigManager;
+    /**
+     * 获取ucc
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
+    @RequestMapping(value = "/ucc")
+    public @ResponseBody UccPropertyConfiguration ucc() {
+        return dmsConfigManager.getUccPropertyConfiguration();
+    }
     /**
      * 获取ducc
      * @return
@@ -45,6 +62,27 @@ public class DmsUccController {
     public @ResponseBody DuccPropertyConfig ducc() {
         return dmsConfigManager.getDuccPropertyConfig();
     } 
+    /**
+     * 获取ducc
+     * @return
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
+     */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
+    @RequestMapping(value = "/check")
+    public @ResponseBody String check() throws Exception {
+        return dmsConfigManager.check();
+    }
+    /**
+     * 获取ucc
+     * @return
+     * @throws Exception 
+     */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
+    @RequestMapping(value = "/ucc1")
+    public @ResponseBody String ucc1() throws Exception {
+        return toUccJson(dmsConfigManager.getUccPropertyConfiguration());
+    }
     /**
      * 获取ducc
      * @return
