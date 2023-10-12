@@ -105,7 +105,7 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             firstPackPreDeal(spotCheckContext);
         }
         // last pack pre deal
-        if(!checkIsGather(spotCheckContext)){
+        if(checkIsGather(spotCheckContext)){
             lastPackPreDeal(spotCheckContext);
         }
         // common deal

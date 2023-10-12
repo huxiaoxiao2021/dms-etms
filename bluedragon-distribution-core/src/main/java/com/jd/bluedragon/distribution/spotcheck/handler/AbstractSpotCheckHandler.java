@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
+import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.MathUtils;
@@ -199,7 +200,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         // cache deal
         String key = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_CHECK, spotCheckDto.getSiteCode(),
                 WaybillUtil.getWaybillCode(spotCheckDto.getBarCode()));
-        lockDeal(key);
+        waitDeal(key);
         try {
             // 初始化抽检上下文
             SpotCheckContext spotCheckContext = initSpotCheckContext(spotCheckDto);
@@ -225,18 +226,23 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             logger.error("删除抽检缓存:{}异常!", key, e);
         }
     }
-    
-    private void lockDeal(String key) {
+
+    /**
+     * hint: 将一个运单下的包裹处理顺序变成串行，为了解决es的1s刷盘问题
+     * 
+     * @param key
+     */
+    private void waitDeal(String key) {
         if(jimdbCacheService.exists(key)){
             try {
                 // 此处sleep为了将运单下包裹执行顺序改成串行
-                Thread.sleep(1000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 logger.error("线程sleep异常", e);
             }
-            throw new RuntimeException("当前运单下有包裹正在处理,进行重试!");
+            throw new SpotCheckSysException("当前运单下有包裹正在处理,进行重试!");
         }
-        jimdbCacheService.setNx(key, 1, 1, TimeUnit.SECONDS);
+        jimdbCacheService.setNx(key, 1, 3, TimeUnit.SECONDS);
     }
 
     protected void uniformityCheck(SpotCheckDto spotCheckDto, SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {}
