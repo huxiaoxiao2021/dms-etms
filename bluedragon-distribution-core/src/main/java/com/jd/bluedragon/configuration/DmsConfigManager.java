@@ -37,14 +37,16 @@ public class DmsConfigManager {
 	@Qualifier("hystrixRouteUccPropertyConfiguration")
 	private HystrixRouteUccPropertyConfiguration hystrixRouteUccPropertyConfiguration;
 
-	public DuccPropertyConfig getDuccPropertyConfig() {
-		return duccPropertyConfig;
+	public UccPropertyConfiguration getPropertyConfig() {
+		return uccPropertyConfiguration;
 	}
 
 	public UccPropertyConfiguration getUccPropertyConfiguration() {
 		return uccPropertyConfiguration;
 	}
-
+	public DuccPropertyConfig getDuccPropertyConfig() {
+		return duccPropertyConfig;
+	}
 	public DuccHystrixRoutePropertyConfig getDuccHystrixRoutePropertyConfig() {
 		return duccHystrixRoutePropertyConfig;
 	}

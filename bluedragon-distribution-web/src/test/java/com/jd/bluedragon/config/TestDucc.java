@@ -48,7 +48,6 @@ public class TestDucc {
 	
 	@Test	
 	public void test() throws Exception {
-		String configFromA = dmsConfigManager.getDuccPropertyConfig().getConfigFrom();
 		
 		String tmpConfigPath = new File("").getCanonicalPath();
 		String rootConfigPath = tmpConfigPath+"\\src\\test\\resources\\files\\";
@@ -63,7 +62,6 @@ public class TestDucc {
 		 }
 		 
 		final Logger log = LoggerFactory.getLogger(TestDucc.class); 
-		System.out.println("configFrom:\n"+dmsConfigManager.getDuccPropertyConfig().getConfigFrom());
 		 ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
 		 "/distribution-core-context-ducc-test.xml");
 		 ConfiguratorManager configuratorManager = (ConfiguratorManager)appContext.getBean("configuratorManager") ;
@@ -73,8 +71,6 @@ public class TestDucc {
 		 com.jd.coo.ucc.client.config.UccPropertyConfig uccConfig = (com.jd.coo.ucc.client.config.UccPropertyConfig)appContext.getBean("propertyConfig") ;
 		 
 		 while(true) {
-			 System.out.println("configFrom-before:\n"+configFromA);
-			 System.out.println("configFrom:\n"+dmsConfigManager.getDuccPropertyConfig().getConfigFrom());
 			 String uccStr = FileHelper.loadFile(rootConfigPath+"ucc-config-test.properties");
 			 UccPropertyConfiguration uccData = JsonHelper.fromJson(uccStr, UccPropertyConfiguration.class);
 			 
