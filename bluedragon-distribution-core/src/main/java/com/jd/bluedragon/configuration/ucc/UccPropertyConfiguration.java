@@ -1021,7 +1021,7 @@ public class UccPropertyConfiguration{
     }
 
     public List<String> getNeedInterceptUrlList() {
-        return needInterceptUrlList;
+    	return Lists.newArrayList(needInterceptUrlList);
     }
 
     public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -3529,7 +3529,9 @@ public class UccPropertyConfiguration{
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
             if(first.isPresent()){
-                return first.get();
+                ClientAutoRefreshConfig config = new ClientAutoRefreshConfig();
+                BeanUtils.copyProperties(first.get(), config);
+                return config;
             }
         }
         return null;
