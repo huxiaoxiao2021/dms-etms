@@ -1,4 +1,6 @@
 package com.jd.bluedragon.common.dto.collectpackage.response;
 
-public class SealingBoxResp {
+import java.io.Serializable;
+
+public class SealingBoxResp implements Serializable {
 }
