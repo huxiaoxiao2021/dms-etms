@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.task.autoclose;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
@@ -15,12 +17,16 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.jim.cli.Cluster;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 任务关闭接口
@@ -33,11 +39,22 @@ import java.util.Date;
 @Service
 public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHelperService {
 
+    //计划发货时间前15 分钟
+    private static final int PLAN_SEND_TIME_BEFORE_SECOND = -900;
+
     @Autowired
     private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private TaskService taskService;
+
+
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
     public String getUnloadBizLastScanTimeKey(String bizId) {
@@ -184,7 +201,29 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
 
             //计划发车前十五分钟执行
             Date planDepartTime = jyBizTaskSendVehicleDetail.getPlanDepartTime();
-            tTask.setExecuteTime(DateHelper.add(planDepartTime, Calendar.MINUTE,-15));
+
+            if(uccPropertyConfiguration.isTeAnSendTaskTipsOptimizationSwitch()){
+                String dateStr = DateHelper.formatDate(planDepartTime, DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2);
+                //初始化最新时间点的任务总数为0
+                String numberStr = "0";
+                //获取当前时间点的任务总数
+                if(StringUtils.isNotBlank(redisClientOfJy.get(dateStr))){
+                    numberStr =redisClientOfJy.get(dateStr);
+                }
+                //一秒内特安任务执行限制数(整数)
+                int numberLimit = uccPropertyConfiguration.getTeAnSendTaskNumberLimit();
+                Integer number = new Integer(numberStr);
+                //延迟的秒数
+                int extendSecond = number / numberLimit;
+                tTask.setExecuteTime(DateHelper.add(planDepartTime, Calendar.SECOND,PLAN_SEND_TIME_BEFORE_SECOND + extendSecond));
+                //对相同时间点的任务数进行+1 累加统计
+                Integer plusOne = new Integer(numberStr) +1;
+                //保存相同时间点数据 缓存时间6小时
+                redisClientOfJy.setEx(dateStr,plusOne.toString(),6,TimeUnit.HOURS);
+            }else {
+                tTask.setExecuteTime(DateHelper.add(planDepartTime, Calendar.SECOND,PLAN_SEND_TIME_BEFORE_SECOND));
+            }
+
             tTask.setStatus(Task.TASK_STATUS_UNHANDLED);
             tTask.setExecuteCount(0);
 
