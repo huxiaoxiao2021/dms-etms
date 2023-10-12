@@ -52,6 +52,7 @@ import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.workStation.*;
 
 import com.jdl.basic.api.domain.workStation.WorkStation;
@@ -128,14 +129,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	@Value("${beans.userSignRecordService.deleteCheckHours:4}")
 	private double deleteCheckHours;
+	@Autowired
+	private AttendanceBlackListManager attendanceBlackListManager;
 	/**
 	 * 人资-自动签退（偏差当前时间：秒）
 	 */
 	@Value("${beans.userSignRecordService.autoSignOutByMqSenconds:30}")
 	private int autoSignOutByMqOffSenconds;
-
-	@Autowired
-	private AttendanceBlackListManager attendanceBlackListManager;
+	
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";

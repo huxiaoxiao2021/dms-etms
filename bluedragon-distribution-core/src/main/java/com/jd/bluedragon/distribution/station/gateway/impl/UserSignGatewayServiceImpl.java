@@ -395,6 +395,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toConfirm(HintService.getHint(defaultMsg,HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN, argsMap));
 			return result;
 		}
+
+		// 校验网格码场地和用户场地是否一致
+		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
+			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
+					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
+			return result;
+		}
 		//判断上次签退是否人脸识别自动签退
 		if(lastUnSignOutData == null) {
 			UserSignQueryRequest lastSignQuery = new UserSignQueryRequest();
@@ -414,39 +421,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				}
 			}
 		}
-		
-		// 校验网格码场地和用户场地是否一致
-		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
-			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
-					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
-			return result;
-		}
 		return result;
 	}
-	private String checkAttendanceBlackList(JdCResponse<UserSignRecordData> result,String userCode){
-		//查询出勤黑名单，并校验
-		com.jdl.basic.common.utils.Result<AttendanceBlackList> rs=attendanceBlackListManager.queryByUserCode(userCode);
-		if(rs == null){
-			return "调用AttendanceBlackListJsfService失败";
-		}
-		if(rs.isSuccess()){
-			AttendanceBlackList attendanceBlackList=rs.getData();
-			if(attendanceBlackList !=null){
-				int cancelFlag=attendanceBlackList.getCancelFlag();
-				Date takeTime=attendanceBlackList.getTakeTime();
-				String dateStr= DateUtil.format(new Date(),DateUtil.FORMAT_DATE_MINUTE);
-				Date currentTime=DateUtil.parse(dateStr,DateUtil.FORMAT_DATE_MINUTE);
-				if(cancelFlag ==Constants.NUMBER_ZERO && (currentTime.compareTo(takeTime) < Constants.NUMBER_ZERO)){
-					//待生效
-					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TOBE_EFFECTIVE_MSG, userCode,DateUtil.format(takeTime,DateUtil.FORMAT_DATE));
-					result.toConfirm(defaultMsg);
-					return defaultMsg;
-				}
-			}
-		}
-		return  "";
-	}
-	
+
 	/**
 	 * 作业APP网格码错误检验
 	 */
@@ -482,5 +459,28 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			return baseStaffByErp.getProvinceAgencyCode().equals(apiResult.getData().getProvinceAgencyCode());
 		}
 		return true;
+	}
+	private String checkAttendanceBlackList(JdCResponse<UserSignRecordData> result,String userCode){
+		//查询出勤黑名单，并校验
+		com.jdl.basic.common.utils.Result<AttendanceBlackList> rs=attendanceBlackListManager.queryByUserCode(userCode);
+		if(rs == null){
+			return "调用AttendanceBlackListJsfService失败";
+		}
+		if(rs.isSuccess()){
+			AttendanceBlackList attendanceBlackList=rs.getData();
+			if(attendanceBlackList !=null){
+				int cancelFlag=attendanceBlackList.getCancelFlag();
+				Date takeTime=attendanceBlackList.getTakeTime();
+				String dateStr= DateUtil.format(new Date(),DateUtil.FORMAT_DATE_MINUTE);
+				Date currentTime=DateUtil.parse(dateStr,DateUtil.FORMAT_DATE_MINUTE);
+				if(cancelFlag ==Constants.NUMBER_ZERO && (currentTime.compareTo(takeTime) < Constants.NUMBER_ZERO)){
+					//待生效
+					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TOBE_EFFECTIVE_MSG, userCode,DateUtil.format(takeTime,DateUtil.FORMAT_DATE));
+					result.toConfirm(defaultMsg);
+					return defaultMsg;
+				}
+			}
+		}
+		return  "";
 	}
 }
