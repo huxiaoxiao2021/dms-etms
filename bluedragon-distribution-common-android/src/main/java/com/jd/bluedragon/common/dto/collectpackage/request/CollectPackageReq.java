@@ -1,13 +1,12 @@
 package com.jd.bluedragon.common.dto.collectpackage.request;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
-import lombok.Getter;
 
 import java.io.Serializable;
 public class CollectPackageReq  extends BaseReq implements Serializable {
     private static final long serialVersionUID = 1524434357342779618L;
 
-    private String packageCode;
+    private String barCode;
     private String boxCode;
     private String bizId;
 
@@ -63,12 +62,12 @@ public class CollectPackageReq  extends BaseReq implements Serializable {
         this.endSiteId = endSiteId;
     }
 
-    public String getPackageCode() {
-        return packageCode;
+    public String getBarCode() {
+        return barCode;
     }
 
-    public void setPackageCode(String packageCode) {
-        this.packageCode = packageCode;
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
     }
 
     public String getBoxCode() {

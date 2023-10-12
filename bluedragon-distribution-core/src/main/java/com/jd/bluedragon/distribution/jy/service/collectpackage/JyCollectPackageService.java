@@ -7,9 +7,9 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 public interface JyCollectPackageService {
 
     /**
-     * 集包扫描
+     * 集包
      */
-    InvokeResult<CollectPackageResp> collectScan(CollectPackageReq request);
+    InvokeResult<CollectPackageResp> collectPackage(CollectPackageReq request);
 
     /**
      * 查询集包任务列表
@@ -39,7 +39,7 @@ public interface JyCollectPackageService {
      * @param request
      * @return
      */
-    InvokeResult<BindCollectBagResp> bindCollectBag(BindCollectBagReq request);
+    InvokeResult bindCollectBag(BindCollectBagReq request);
 
     /**
      *  取消集包

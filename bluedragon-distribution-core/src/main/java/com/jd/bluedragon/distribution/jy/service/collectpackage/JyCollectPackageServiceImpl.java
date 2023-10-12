@@ -68,7 +68,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
 
 
     @Override
-    public InvokeResult<CollectPackageResp> collectScan(CollectPackageReq request) {
+    public InvokeResult<CollectPackageResp> collectPackage(CollectPackageReq request) {
         //基础校验
         collectPackageBaseCheck(request);
         //集包业务校验
@@ -151,7 +151,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         }
 
         //查询包裹路由信息
-        String router =waybillCacheService.getRouterByWaybillCode(WaybillUtil.getWaybillCode(request.getPackageCode()));
+        String router =waybillCacheService.getRouterByWaybillCode(WaybillUtil.getWaybillCode(request.getBarCode()));
         if (!ObjectHelper.isNotNull(router)){
             log.info("未获取到运单的路由信息,startSiteId:{}",request.getCurrentOperate().getSiteCode());
             throw new JyBizException("未获取到运单的路由信息！");
@@ -268,7 +268,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         //TODO 是否需要校验运单集齐
         //pdaOperateRequest.setIsGather(0);
         //pdaOperateRequest.setOperateType(request.getOperateType());
-        pdaOperateRequest.setPackageCode(request.getPackageCode());
+        pdaOperateRequest.setPackageCode(request.getBarCode());
         pdaOperateRequest.setReceiveSiteCode(request.getEndSiteId().intValue());
         pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
         pdaOperateRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
@@ -307,10 +307,10 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         if (!BusinessUtil.isBoxcode(request.getBoxCode())){
             throw new JyBizException("参数错误：不支持该类型箱号！");
         }
-        if (!ObjectHelper.isNotNull(request.getPackageCode())){
+        if (!ObjectHelper.isNotNull(request.getBarCode())){
             throw new JyBizException("参数错误：缺失包裹号！");
         }
-        if (!WaybillUtil.isPackageCode(request.getPackageCode())){
+        if (!(WaybillUtil.isPackageCode(request.getBarCode()) || BusinessUtil.isCollectionBag(request.getBarCode()))){
             throw new JyBizException("参数错误：包裹号类型错误，请扫描正确的包裹号码！");
         }
     }
@@ -331,7 +331,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     }
 
     @Override
-    public InvokeResult<BindCollectBagResp> bindCollectBag(BindCollectBagReq request) {
+    public InvokeResult bindCollectBag(BindCollectBagReq request) {
         return null;
     }
 

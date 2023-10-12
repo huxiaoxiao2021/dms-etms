@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,18 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
     JyCollectPackageService jyCollectPackageService;
     @Override
     public JdCResponse<CollectPackageResp> collectScan(CollectPackageReq request) {
-        return retJdCResponse(jyCollectPackageService.collectScan(request));
+        if (BusinessUtil.isCollectionBag(request.getBarCode())){
+            BindCollectBagReq bindCollectBagReq =assembleBindCollectBagReq(request);
+            return retJdCResponse(jyCollectPackageService.bindCollectBag(bindCollectBagReq));
+        }
+        return retJdCResponse(jyCollectPackageService.collectPackage(request));
+    }
+
+    private BindCollectBagReq assembleBindCollectBagReq(CollectPackageReq request) {
+        BindCollectBagReq bindCollectBagReq =new BindCollectBagReq();
+        bindCollectBagReq.setBoxCode(request.getBoxCode());
+        bindCollectBagReq.setMaterialCode(request.getBarCode());
+        return bindCollectBagReq;
     }
 
     @Override
