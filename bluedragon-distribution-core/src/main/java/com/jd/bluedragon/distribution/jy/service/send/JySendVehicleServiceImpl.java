@@ -4612,6 +4612,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.fetchWaitingVehicleDistributionList", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<com.jd.bluedragon.common.dto.base.request.Pager<WaitingVehicleDistribution>> fetchWaitingVehicleDistributionList(WaitingVehicleDistributionRequest request) {
 
         InvokeResult<com.jd.bluedragon.common.dto.base.request.Pager<WaitingVehicleDistribution>> invokeResult = new InvokeResult<>();
@@ -4745,6 +4746,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.remindTransJob", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> remindTransJob(RemindTransJobRequest request) {
         InvokeResult<String> invokeResult = new InvokeResult<>();
         if (!checkRemindTransJobRequest(request, invokeResult)) {
