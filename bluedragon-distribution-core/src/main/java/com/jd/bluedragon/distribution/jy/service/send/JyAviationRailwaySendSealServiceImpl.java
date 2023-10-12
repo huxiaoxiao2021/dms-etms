@@ -581,7 +581,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             }
             JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(request.getBizId());
             if (ObjectHelper.isNotNull(entity) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getTaskStatus())){
-                throw new JyBizException("该航空任务已封车！");
+                res.error("该航空任务已封车！");
+                return res;
             }
 
             SealVehicleReq sealVehicleReq = new SealVehicleReq();
