@@ -38,9 +38,6 @@ public class DmsUccController {
 	private static final Logger log = LoggerFactory.getLogger(DmsUccController.class);
 	
 	@Autowired
-	HystrixRouteUccPropertyConfiguration ucc1;
-	
-	@Autowired
 	DmsConfigManager dmsConfigManager;
     /**
      * 获取ucc
