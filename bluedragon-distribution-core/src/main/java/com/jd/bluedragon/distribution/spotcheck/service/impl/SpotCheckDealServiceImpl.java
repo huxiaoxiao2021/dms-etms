@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.basic.ExcelUtils;
 import com.jd.bluedragon.distribution.jss.JssService;
+import com.jd.bluedragon.distribution.jss.oss.OssUrlNetTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
@@ -71,12 +72,7 @@ import java.util.concurrent.TimeUnit;
 public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     private static final Logger logger = LoggerFactory.getLogger(SpotCheckDealServiceImpl.class);
-
-    @Value("${oss.innerNet}")
-    private String innerOssUrl;
-    @Value("${oss.outerNet}")
-    private String outOssUrl;
-
+    
     private static final int OUT_EXCESS_STATUS = 3; // 外部门定义的未超标值
 
     @Value("${jss.pda.image.bucket}")
@@ -587,7 +583,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         List<DwsAIDistinguishMQ.Package> list = new ArrayList<>();
         DwsAIDistinguishMQ.Package packageUrl = new DwsAIDistinguishMQ.Package();
         packageUrl.setPackageCode(packageCode);
-        packageUrl.setPicUrl(replaceOutIn(picUrl));
+        packageUrl.setPicUrl(BusinessHelper.switchOssUrlByType(picUrl, OssUrlNetTypeEnum.IN.getType()));
         list.add(packageUrl);
         DwsAIDistinguishMQ dwsAIDistinguishMQ = new DwsAIDistinguishMQ();
         dwsAIDistinguishMQ.setUuid(waybillCode.concat(Constants.SEPARATOR_HYPHEN).concat(String.valueOf(System.currentTimeMillis())));
@@ -749,13 +745,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             }
             if(Objects.equals(spotCheckDto.getExcessType(), SpotCheckConstants.EXCESS_TYPE_WEIGHT)){
                 // 1）、重量超标：2张，面单和重量
-                picList.add(replaceInOut(picUrlList.get(0)));
-                picList.add(replaceInOut(picUrlList.get(1)));
+                picList.add(BusinessHelper.switchOssUrlByType(picUrlList.get(0), OssUrlNetTypeEnum.OUT.getType()));
+                picList.add(BusinessHelper.switchOssUrlByType(picUrlList.get(1), OssUrlNetTypeEnum.OUT.getType()));
                 return picList;
             }else {
                 // 2）、体积超标：5张，面单、全景、长、宽、高
                 for (String picUrl : picUrlList) {
-                    picList.add(replaceInOut(picUrl));
+                    picList.add(BusinessHelper.switchOssUrlByType(picUrl, OssUrlNetTypeEnum.OUT.getType()));
                 }
                 return picList;
             }
@@ -765,36 +761,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             // 1）、一单一件下发一张
             // 2）、一单多件不下发图片
             if(!Objects.equals(spotCheckDto.getIsMultiPack(), Constants.CONSTANT_NUMBER_ONE)){
-                picList.add(replaceInOut(spotCheckDto.getPictureAddress()));
+                picList.add(BusinessHelper.switchOssUrlByType(spotCheckDto.getPictureAddress(), OssUrlNetTypeEnum.OUT.getType()));
             }
         }
         return picList;
-    }
-
-    /**
-     * 内网转外网
-     * 
-     * @param address
-     * @return
-     */
-    private String replaceInOut(String address) {
-        if(StringUtils.isEmpty(address)){
-            return Constants.EMPTY_FILL;
-        }
-        return address.contains(innerOssUrl) ? address.replace(innerOssUrl, outOssUrl) : address;
-    }
-
-    /**
-     * 外网转内网
-     *
-     * @param packagePicUrl
-     * @return
-     */
-    private String replaceOutIn(String packagePicUrl) {
-        if(StringUtils.isEmpty(packagePicUrl)){
-            return Constants.EMPTY_FILL;
-        }
-        return packagePicUrl.contains(outOssUrl) ? packagePicUrl.replace(outOssUrl, innerOssUrl) : packagePicUrl;
     }
 
     @Override

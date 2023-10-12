@@ -6,10 +6,12 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jss.oss.OssUrlNetTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.domain.DwsAIDistinguishMQ;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -23,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -42,11 +43,6 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
 
     private final Logger logger = LoggerFactory.getLogger(DwsIssueDealConsumer.class);
 
-    @Value("${oss.innerNet}")
-    private String innerOssUrl;
-    @Value("${oss.outerNet}")
-    private String outOssUrl;
-    
     @Autowired
     private SpotCheckDealService spotCheckDealService;
 
@@ -104,7 +100,7 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
                 }
                 DwsAIDistinguishMQ.Package packageUrl = new DwsAIDistinguishMQ.Package();
                 packageUrl.setPackageCode(detailSpotCheck.getPackageCode());
-                packageUrl.setPicUrl(replaceOutIn(packagePicUrl));
+                packageUrl.setPicUrl(BusinessHelper.switchOssUrlByType(packagePicUrl, OssUrlNetTypeEnum.IN.getType()));
                 list.add(packageUrl);
             }
             DwsAIDistinguishMQ dwsAIDistinguishMQ = new DwsAIDistinguishMQ();
@@ -128,19 +124,6 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
         } finally {
             Profiler.registerInfoEnd(info);
         }
-    }
-
-    /**
-     * 外网转内网
-     * 
-     * @param packagePicUrl
-     * @return
-     */
-    private String replaceOutIn(String packagePicUrl) {
-        if(StringUtils.isEmpty(packagePicUrl)){
-            return Constants.EMPTY_FILL;
-        }
-        return packagePicUrl.contains(outOssUrl) ? packagePicUrl.replace(outOssUrl, innerOssUrl) : packagePicUrl;
     }
 
     /**

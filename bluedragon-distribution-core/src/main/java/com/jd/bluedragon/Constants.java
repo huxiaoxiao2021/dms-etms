@@ -2116,5 +2116,10 @@ public class Constants {
      */
     public static final Integer  WAYBILL_TRACE_DISPLAY =1;
 
-
+    /**
+     * oss链接内外网key
+     */
+    public static final String OSS_OUTER_NET_KEY = "oss.outerNet";
+    public static final String OSS_INNER_NET_KEY = "oss.innerNet";
+    public static final String OSS_INNER_OFFICE_NET_KEY = "oss.innerNet.office";
 }
