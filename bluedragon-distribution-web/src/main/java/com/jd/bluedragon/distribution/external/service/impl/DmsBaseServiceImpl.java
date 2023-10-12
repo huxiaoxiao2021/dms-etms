@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 import com.jd.bluedragon.distribution.api.request.DmsClientHeartbeatRequest;
@@ -48,12 +48,12 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     private DmsClientManager dmsClientManager;
 
 	@Autowired
-    UccPropertyConfiguration uccPropertyConfiguration;
+    DmsConfigManager dmsConfigManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.login", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseResponse login(LoginRequest request) {
-        if (uccPropertyConfiguration.isDisablePdaOldLogin()) {
+        if (dmsConfigManager.getPropertyConfig().isDisablePdaOldLogin()) {
             //登陆已经切换到新clientlogin,此接口关闭,提示强制升级
             BaseResponse response = new BaseResponse();
             response.setErpAccount(request.getErpAccount());

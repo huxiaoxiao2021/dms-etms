@@ -1,10 +1,11 @@
 package com.jd.bluedragon.distribution.rest.task;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -23,6 +24,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.common.authorization.RestAuthorization;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -77,7 +79,7 @@ public class TaskResource {
     private WaybillTraceManager waybillTraceManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 
 
@@ -137,8 +139,12 @@ public class TaskResource {
             }
 
             //inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
-            inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-            inspection.setOperatorId(inspection.getMachineCode());	
+            
+            OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(inspection);
+            inspection.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+            inspection.setOperatorId(operatorData.getOperatorId());
+            inspection.setOperatorData(operatorData); 
+            
         }
         if(inspections.size() ==0){
             return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
@@ -146,7 +152,7 @@ public class TaskResource {
         }
         request.setBody(JsonHelper.toJson(inspections));
         return add(request);
-    }
+    }  
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.addPack", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     @SuppressWarnings("unchecked")

@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -36,7 +36,7 @@ import java.util.List;
 public class DPSendFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
-    private UccPropertyConfiguration uccConfiguration;
+    private DmsConfigManager dmsConfigManager;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
@@ -50,7 +50,7 @@ public class DPSendFilter implements Filter {
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         String waybillCode = request.getWaybillCode();
         Integer receiveSiteCode = request.getReceiveSiteCode();
-        List<Integer> dpSiteCodeList = uccConfiguration.getDpSiteCodeList();
+        List<Integer> dpSiteCodeList = dmsConfigManager.getPropertyConfig().getDpSiteCodeList();
         CallerInfo info = Profiler.registerInfo("DMSWEB.DPSendFilter.doFilter", false, true);
         try{
             //发货目的非德邦不校验

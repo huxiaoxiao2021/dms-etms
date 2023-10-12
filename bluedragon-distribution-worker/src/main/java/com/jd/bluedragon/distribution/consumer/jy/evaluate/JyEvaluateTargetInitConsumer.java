@@ -129,11 +129,6 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         if (sourceScheduleTask != null) {
             sourceTaskId = sourceScheduleTask.getTaskId();
         }
-        
-        // 根据发货任务操作场地查询区域信息
-        BaseStaffSiteOrgDto targetSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getTargetSiteCode());
-        // 根据卸车任务操作场地查询区域信息
-        BaseStaffSiteOrgDto sourceSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getSourceSiteCode());
 
         if (targetInitDto.getUnsealTime() == null || targetInitDto.getSealTime() == null) {
             SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(targetInitDto.getSourceBizId());
@@ -146,6 +141,11 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
                 }
             }
         }
+
+        // 根据发货任务操作场地查询区域信息
+        BaseStaffSiteOrgDto targetSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getTargetSiteCode());
+        // 根据卸车任务操作场地查询区域信息
+        BaseStaffSiteOrgDto sourceSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getSourceSiteCode());
 
         EvaluateTargetResultDto targetResultDto = createEvaluateTargetInfo(targetInitDto, taskGroupMembers, targetSiteOrgDto, sourceSiteOrgDto);
         targetResultDto.setTargetTaskId(targetTaskId);

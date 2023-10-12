@@ -436,20 +436,12 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
 
             String barCode = paramObj.getBarCode();
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
-            if (Objects.equals(DiscardedPackageSiteDepartTypeEnum.SORTING.getCode(), paramObj.getSiteDepartType())) {
-                if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
-                    if (!waybillTraceManager.isWaybillWaste(waybillCode)) {
-                        log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
-                        return result.toFail("不是弃件，请勿操作弃件暂存");
-                    }
-                }
-            }
-            if (Objects.equals(DiscardedPackageSiteDepartTypeEnum.TRANSFER.getCode(), paramObj.getSiteDepartType())) {
-                if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
-                    if (!waybillTraceManager.isOpCodeWaste(barCode)) {
-                        log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
-                        return result.toFail("不是弃件，请勿操作弃件暂存");
-                    }
+            
+            // 弃件判断
+            if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
+                if (!waybillTraceManager.isOpCodeWaste(barCode)) {
+                    log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
+                    return result.toFail("不是弃件，请勿操作弃件暂存");
                 }
             }
 

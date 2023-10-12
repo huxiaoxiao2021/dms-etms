@@ -7,7 +7,7 @@ package com.jd.bluedragon.configuration.ucc;
  * @author: xumigen
  * @create: 2021-08-10 17:33
  **/
-public class HystrixRouteUccPropertyConfiguration {
+public class HystrixRouteUccPropertyConfiguration{
 
 
     private int executionTimeoutInMilliseconds;

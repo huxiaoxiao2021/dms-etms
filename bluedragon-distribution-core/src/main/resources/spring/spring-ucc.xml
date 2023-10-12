@@ -73,7 +73,7 @@
         <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
 		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites:1}" />
-        <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
+        <property name="clickIntervalSecond" value="${clickIntervalSecond:5}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites:1}" />
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
 		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
@@ -204,6 +204,8 @@
 		<property name="jyComboardSiteCTTPageSize" value="${jyComboardSiteCTTPageSize:5000}"/>
 		<property name="jyComboardTaskSealTimeBeginDay" value="${jyComboardTaskSealTimeBeginDay:2}"/>
 		<property name="jyComboardListBoardSqlSwitch" value="${jyComboardListBoardSqlSwitch:true}"/>
+		<property name="sendJyOperateFlowMqSwitch" value="${sendJyOperateFlowMqSwitch:true}"/>
+
 
 
 
@@ -269,6 +271,8 @@
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 		<property name="assignExpTaskQuantityLimit" value="${assignExpTaskQuantityLimit:50}"/>
+		<property name="jyExceptionDamageTaskCustomerNotReturnHours" value="${jyExceptionDamageTaskCustomerNotReturnHours:48}"/>
+		<property name="jyExceptionCreateBizIdSwitch" value="${jyExceptionCreateBizIdSwitch:true}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
@@ -299,6 +303,11 @@
 		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
 		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
 		<property name="fetchCarDistributionTimeRange" value="${fetchCarDistributionTimeRange:48}"/>
+		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
+		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
+		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
+		<property name="reverseExchangeCount" value="${reverseExchangeCount:-1}"/>
+		<property name="terminalSitePackagePrintLimitSwitch" value="${terminalSitePackagePrintLimitSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -521,6 +530,7 @@
 				<value>uccPropertyConfiguration.pdaLoginSkipSwitch</value>
 				<value>uccPropertyConfiguration.jyComboardTaskSealTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jyComboardListBoardSqlSwitch</value>
+				<value>uccPropertyConfiguration.sendJyOperateFlowMqSwitch</value>
 				<value>uccPropertyConfiguration.czQuerySwitch</value>
 				<value>uccPropertyConfiguration.jyComboardSealQueryBoardListTime</value>
 				<value>uccPropertyConfiguration.jyComboardSealBoardListSelectLimit</value>
@@ -587,6 +597,13 @@
 				<value>uccPropertyConfiguration.qingChangDataOpenSwitch</value>
 				<value>uccPropertyConfiguration.jySendSpecialProductTypeToScanShowRemainMinutes</value>
 				<value>uccPropertyConfiguration.fetchCarDistributionTimeRange</value>
+				<value>uccPropertyConfiguration.checkAkboxConfig</value>
+				<value>uccPropertyConfiguration.printCacheTime</value>
+				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
+				<value>uccPropertyConfiguration.jyExceptionCreateBizIdSwitch</value>
+				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
+				<value>uccPropertyConfiguration.reverseExchangeCount</value>
+				<value>uccPropertyConfiguration.terminalSitePackagePrintLimitSwitch</value>
 			</list>
 		</property>
 	</bean>

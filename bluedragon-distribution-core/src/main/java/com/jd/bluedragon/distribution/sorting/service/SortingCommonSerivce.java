@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -18,7 +18,9 @@ import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplet
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
-
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
@@ -33,6 +35,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -129,10 +132,13 @@ public abstract class SortingCommonSerivce {
     private LogEngine logEngine;
     
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private CycleMaterialNoticeService cycleMaterialNoticeService;
+    
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
 
     public abstract boolean doSorting(SortingVO sorting);
 
@@ -245,11 +251,21 @@ public abstract class SortingCommonSerivce {
 
             // 分拣发送循环集包袋MQ
             pushCycleMaterialMessage(sorting);
+            //发送操作流水mq
+            sendSortingFlowMq(sorting);
         }
 
 
     }
-
+    /**
+     * 发送操作流水mq
+     * @param sorting
+     */
+	private void sendSortingFlowMq(SortingVO sorting) {
+	    JyOperateFlowMqData sortingFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
+	    sortingFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING.getCode());
+		jyOperateFlowService.sendMq(sortingFlowMq);
+	}
     private void pushCycleMaterialMessage(SortingVO sorting) {
         BoxMaterialRelationMQ mqBody = new BoxMaterialRelationMQ();
         mqBody.setBusinessType(BoxMaterialRelationEnum.SORTING.getType());

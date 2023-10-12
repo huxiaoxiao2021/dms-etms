@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.task.autoclose;
 
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
@@ -34,7 +34,7 @@ import java.util.Date;
 public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHelperService {
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private TaskService taskService;
@@ -68,7 +68,7 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
             String ownSign = BusinessHelper.getOwnSign();
             tTask.setOwnSign(ownSign);
             tTask.setFingerprint(Md5Helper.encode(String.format("%s_%s_%s", tTask.getKeyword1(), tTask.getKeyword2(), jyBizTaskUnloadVehicleExist.getEndSiteId())));
-            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = dmsConfigManager.getPropertyConfig().getAutoCloseJyBizTaskConfigObj();
             if (autoCloseJyBizTaskConfig == null) {
                 log.info("JyUnloadVehicleServiceImpl.pushBizTaskAutoCloseTask no config, will not push auto close task");
                 return true;
@@ -111,7 +111,7 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
             String ownSign = BusinessHelper.getOwnSign();
             tTask.setOwnSign(ownSign);
             tTask.setFingerprint(Md5Helper.encode(String.format("%s_%s_%s", tTask.getKeyword1(), tTask.getKeyword2(), jyBizTaskUnloadVehicleExist.getEndSiteId())));
-            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+            final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = dmsConfigManager.getPropertyConfig().getAutoCloseJyBizTaskConfigObj();
             if (autoCloseJyBizTaskConfig == null) {
                 log.info("JyBizTaskAutoCloseServiceImpl.pushBizTaskAutoCloseTask no config, will not push auto close task");
                 return true;

@@ -58,7 +58,7 @@ import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.task.CalculateOperateProgressTask;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -66,6 +66,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jsf.vehicle.VehicleBasicManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -136,6 +137,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.enums.JyBizDriverTagEnum;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.WaybillVasDto;
@@ -226,6 +228,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Value("${tms.map.url:tms-m.test.jd.com/#/m/vehicle?transWorkCode=%s&operateNodeCode=%s}")
     private String vehicleMapUrl;
+    @Value("${jyBindSendTaskPlanTimeBeginHour:2}")
+    private Integer jyBindSendTaskPlanTimeBeginHour;
 
     /**
      * 运单路由字段使用的分隔符
@@ -242,7 +246,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private JimdbSequenceGen redisJyNoTaskSendDetailBizIdSequenceGen;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     JyBizTaskSendVehicleService taskSendVehicleService;
@@ -401,7 +405,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         try {
             SendVehicleTaskResponse response = new SendVehicleTaskResponse();
             // 增加刷新间隔配置
-            response.setClientAutoRefreshConfig(uccConfig.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.SEND_TASK_LIST.name()));
+            response.setClientAutoRefreshConfig(dmsConfigManager.getPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.SEND_TASK_LIST.name()));
             result.setData(response);
 
             QueryTaskSendDto queryTaskSendDto = setQueryTaskSendDto(request);
@@ -492,14 +496,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeBegin())) {
                 queryTaskSendDto.setLastPlanDepartTimeBegin(request.getLastPlanDepartTimeBegin());
             } else {
-                queryTaskSendDto.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskPlanTimeBeginDay()));
+                queryTaskSendDto.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeBeginDay()));
             }
             if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeEnd())) {
                 queryTaskSendDto.setLastPlanDepartTimeEnd(request.getLastPlanDepartTimeEnd());
             } else {
-                queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), uccConfig.getJySendTaskPlanTimeEndDay()));
+                queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeEndDay()));
             }
-            queryTaskSendDto.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
+            queryTaskSendDto.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
 
         } catch (Exception e) {
             log.error("查询发货任务设置默认查询条件异常，入参{}", JsonHelper.toJson(request), e.getMessage(), e);
@@ -809,10 +813,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             JyBizDriverTagEnum tagEnum = JyBizDriverTagEnum.getTagEnumByTag(entity.getDriverTag());
             if (tagEnum == null) {
                 log.warn("司机标签异常！driverTag={}, bizId={}", entity.getDriverTag(), entity.getBizId());
-            } else {
-                SendVehicleLabelOptionEnum optionEnum = SendVehicleLabelOptionEnum.getSendVehicleLabelOptionEnumByCode(tagEnum.getVehicleLabelOption());
-                tagList.add(new LabelOption(optionEnum.getCode(), optionEnum.getName(), optionEnum.getDisplayOrder()));
+                return tagList;
             }
+
+            SendVehicleLabelOptionEnum optionEnum = SendVehicleLabelOptionEnum.getSendVehicleLabelOptionEnumByCode(tagEnum.getVehicleLabelOption());
+            tagList.add(new LabelOption(optionEnum.getCode(), optionEnum.getName(), optionEnum.getDisplayOrder()));
+
             return tagList;
         }
         //车辆到达状态 高于司机领取
@@ -1116,9 +1122,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return result;
         }
         try {
-            curSendDest.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskPlanTimeBeginDay()));
-            curSendDest.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), uccConfig.getJySendTaskPlanTimeEndDay()));
-            curSendDest.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
+            curSendDest.setLastPlanDepartTimeBegin(DateHelper.addHours(new Date(), -jyBindSendTaskPlanTimeBeginHour));
+            curSendDest.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeEndDay()));
+            curSendDest.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
 
             //接货仓发货岗绑定不限制线路类型，分拣发货岗绑定只查干支
             if(!JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
@@ -1287,9 +1293,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             List<VehicleTaskDto> vehicleTaskList = new ArrayList<>();
             taskResp.setVehicleTaskDtoList(vehicleTaskList);
 
-            queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay()));
-            queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
-            queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskCreateTimeBeginDay()));
+            queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeBeginDay()));
+            queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeEndDay()));
+            queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
             //仅关注干支
             List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
             queryDetail.setLineTypeList(lineTypeList);
@@ -1416,9 +1422,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if (Objects.equals(TransFlagEnum.IN.getCode(), vehicleTaskReq.getTransferFlag())){
                 queryDetail.setTransferFlag(TransFlagEnum.IN.getCode());
             }
-            queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay()));
-            queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
-            queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskCreateTimeBeginDay()));
+            queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeBeginDay()));
+            queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeEndDay()));
+            queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
             //仅关注干支
             List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
             queryDetail.setLineTypeList(lineTypeList);
@@ -1718,10 +1724,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
             // 包裹首次扫描逻辑
             boolean firstScanFlag = this.dealTaskFirstScan(request, taskSend, curSendDetail);
-            // 扫描第一枪推送给运输
-            if (firstScanFlag) {
-                productOperateProgressMsg(taskSend, new BigDecimal(0));
-            }
 
             SendScanResponse sendScanResponse = new SendScanResponse();
             result.setData(sendScanResponse);
@@ -1747,7 +1749,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     void asyncProductOperateProgress(JyBizTaskSendVehicleEntity taskSend) {
-        if (uccConfig.getProductOperateProgressSwitch()){
+        if (dmsConfigManager.getPropertyConfig().getProductOperateProgressSwitch()){
             CalculateOperateProgressTask calculateOperateProgressTask =new CalculateOperateProgressTask(taskSend,this.sendAggService,this);
             taskExecutor.execute(calculateOperateProgressTask);
         }
@@ -1957,6 +1959,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             distributeAndStartScheduleTask(request);
 
             recordTaskMembers(request);
+            // 扫描第一枪推送给运输
+            productOperateProgressMsg(taskSend, new BigDecimal(0));
         }
         return firstScanFlag;
     }
@@ -2459,8 +2463,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         Date date = new Date();
         domain.setCreateTime(date);
         domain.setOperateTime(date);
-        domain.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
-        domain.setOperatorId(request.getCurrentOperate().getOperatorId());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        domain.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        domain.setOperatorId(operatorData.getOperatorId());
+        domain.setOperatorData(operatorData);
         return domain;
     }
 
@@ -3082,7 +3088,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             taskSend.setOperateSiteCode(new Long(request.getCurrentOperate().getSiteCode()));
             SendVehicleProgress progress = new SendVehicleProgress();
             // 增加刷新间隔配置
-            progress.setClientAutoRefreshConfig(uccConfig.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.SEND_PROGRESS.name()));
+            progress.setClientAutoRefreshConfig(dmsConfigManager.getPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.SEND_PROGRESS.name()));
             invokeResult.setData(progress);
 
             setSendProgressData(taskSend, progress);
@@ -3122,7 +3128,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
         if (sendAgg != null && basicVehicleType != null) {
-            if (uccConfig.getLoadProgressByVehicleVolume()){
+            if (dmsConfigManager.getPropertyConfig().getLoadProgressByVehicleVolume()){
                 progress.setLoadRate(calculateLoadRate(taskSend, basicVehicleType, sendAgg));
             }
             else {
@@ -3162,7 +3168,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         progress.setDestTotal(this.getDestTotal(taskSend.getBizId()));
         progress.setSealedTotal(this.getSealedDestTotal(taskSend.getBizId()));
-        progress.setLoadRateUpperLimit(uccConfig.getJySendTaskLoadRateUpperLimit());
+        progress.setLoadRateUpperLimit(dmsConfigManager.getPropertyConfig().getJySendTaskLoadRateUpperLimit());
     }
 
     /**
@@ -3249,7 +3255,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                             flowAgg.setWeight(BigDecimal.valueOf(basicVehicleTypeDto.getWeight()));
                         }
                         if (sendAgg != null) {
-                            if (uccConfig.getLoadProgressByVehicleVolume()){
+                            if (dmsConfigManager.getPropertyConfig().getLoadProgressByVehicleVolume()){
                                 flowAgg.setLoadRate(calculateLoadRate(bizTaskSendVehicle, basicVehicleTypeDto, sendAgg));
                             }
                             else {
@@ -3557,7 +3563,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return true;
             } else {
                 BigDecimal loadRate = this.dealLoadRate(taskSend);
-                if (BigDecimal.valueOf(uccConfig.getJySendTaskLoadRateLowerLimit()).compareTo(loadRate) > 0) {
+                if (BigDecimal.valueOf(dmsConfigManager.getPropertyConfig().getJySendTaskLoadRateLowerLimit()).compareTo(loadRate) > 0) {
                     response.setNormalFlag(Boolean.FALSE);
                     response.setAbnormalType(SendAbnormalEnum.LOW_LOADING_RATE);
                     return true;
@@ -3752,7 +3758,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     @Override
     public InvokeResult checkMainLineSendTask(CheckSendCodeRequest request) {
         log.info("jy checkMainLineSendTask request:{}", JsonHelper.toJson(request));
-        if (ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())) {
+        if (ObjectHelper.isNotNull(request.getBizSource()) && dmsConfigManager.getPropertyConfig().needValidateMainLine(request.getBizSource())) {
             try {
                 Integer[] sites = BusinessUtil.getSiteCodeBySendCode(request.getSendCode());
                 Integer createSite = sites[0];
@@ -3784,7 +3790,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                             List<TransportResourceDto> transportResourceDtos = basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
                             if (transportResourceDtos != null) {
                                 for (TransportResourceDto trd : transportResourceDtos) {
-                                    if (uccConfig.notValidateTransType(trd.getTransWay())) {
+                                    if (dmsConfigManager.getPropertyConfig().notValidateTransType(trd.getTransWay())) {
                                         needIntercept = Boolean.FALSE;
                                         break;
                                     }
@@ -3863,7 +3869,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         productTypeAgg.setProductTypeName(UnloadProductTypeEnum.TEAN.getName());
         productTypeAgg.setCount(toScanCountSumOfTeAn);
         //场地白名单
-        if(!uccConfig.matchTeAnSiteWhitelist(request.getCurrentOperate().getSiteCode())){
+        if(!dmsConfigManager.getPropertyConfig().matchTeAnSiteWhitelist(request.getCurrentOperate().getSiteCode())){
             log.warn("此站点-{}-不在特安白名单配置中,直接返回!",request.getCurrentOperate().getSiteCode());
             invokeResult.setData(productTypeAgg);
             return invokeResult;
@@ -3929,7 +3935,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             } else {
                 // 30分钟展示提示
                 final long remainSeconds = (lastPlanDepartTime.getTime() - System.currentTimeMillis()) / 60 / 1000;
-                if(remainSeconds < uccConfig.getJySendSpecialProductTypeToScanShowRemainMinutes() || remainSeconds < 0){
+                if(remainSeconds < dmsConfigManager.getPropertyConfig().getJySendSpecialProductTypeToScanShowRemainMinutes() || remainSeconds < 0){
                     sendVehicleToScanTipsDto.setNeedShowSpecialProductTypeToScanTips(true);
                     sendVehicleToScanTipsDto.setNeedShowRemainTimeMinutes(remainSeconds >= 0 ? (int) remainSeconds : 0);
                 }
@@ -4352,8 +4358,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     public boolean productOperateProgressMsg(JyBizTaskSendVehicleEntity task,BigDecimal operateProgress) {
-        if (CollectionUtils.isNotEmpty(uccConfig.getOperateProgressRegionList())){
-            List<Integer> regionList =uccConfig.getOperateProgressRegionList();
+        if (CollectionUtils.isNotEmpty(dmsConfigManager.getPropertyConfig().getOperateProgressRegionList())){
+            List<Integer> regionList =dmsConfigManager.getPropertyConfig().getOperateProgressRegionList();
             int size =regionList.size();
             int  progress = operateProgress.intValue();
             if (progress< regionList.get(0)){
@@ -4637,7 +4643,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         assembleWaitingVehicleDistributionList(commonDto.getData().getResult(), waitingVehicleDistributions);
         pager.setPageNo(request.getPageNumber());
         pager.setPageSize(request.getPageSize());
-        pager.setTotal((long) waitingVehicleDistributions.size());
+        pager.setTotal((long) commonDto.getData().getTotalRow());
         pager.setData(waitingVehicleDistributions);
 
         invokeResult.setData(pager);
@@ -4663,7 +4669,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         Date now = new Date();
         queryDto.setBeginNodeCode(sourceSite.getDmsSiteCode());
         queryDto.setPlanDepartTimeBegin(new Date());
-        queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, uccConfig.getFetchCarDistributionTimeRange()));
+        queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, dmsConfigManager.getPropertyConfig().getFetchCarDistributionTimeRange()));
         queryDto.setTransType(request.getLineType());
 
         // 目的网点非必填

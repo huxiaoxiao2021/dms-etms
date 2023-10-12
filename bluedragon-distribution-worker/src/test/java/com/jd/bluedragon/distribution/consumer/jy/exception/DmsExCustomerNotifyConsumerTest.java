@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.consumer.jy.exception;
 
 import com.jd.bluedragon.distribution.jy.enums.CustomerNotifyStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
+import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
+import com.jd.bluedragon.distribution.jy.exception.JyExpWaybillDeliveryDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
@@ -51,4 +53,48 @@ public class DmsExCustomerNotifyConsumerTest {
             Assert.fail();
         }
     }
+
+    @Autowired
+    private DmsExpCustomerReturnConsumer dmsExpCustomerReturnConsumer;
+
+    @Test
+    public void dmsExpCustomerReturnConsumerTest() throws Exception{
+
+        //  {"businessId":"413","desc":"未联系上","erpCode":"jiaowenqiang","eventNo":"800025559","exptId":"413_JD0003421266039_910","id":"413_JD0003421266039_9101691562602779",
+        //  "msgId":"413_JD0003421266039_9101691562602779","resultType":"354","ts":1691562602779}
+
+        Message message = new Message();
+        JyExpCustomerReturnMQ jyExCustomerNotifyMQ = new JyExpCustomerReturnMQ();
+        jyExCustomerNotifyMQ.setId("413_JD0003421266039_9101691562602779");
+        jyExCustomerNotifyMQ.setBusinessId("413");
+        jyExCustomerNotifyMQ.setDesc("未联系上");
+        jyExCustomerNotifyMQ.setErpCode("jiaowenqiang");
+        jyExCustomerNotifyMQ.setEventNo("800025559");
+        jyExCustomerNotifyMQ.setExptId("413_JD0003421266039_910");
+        jyExCustomerNotifyMQ.setResultType("354");
+        jyExCustomerNotifyMQ.setSendTime("2023-01-01");
+        message.setText(JsonHelper.toJson(jyExCustomerNotifyMQ));
+
+        dmsExpCustomerReturnConsumer.consume(message);
+    }
+
+    @Autowired
+    private DMSExpWaybillDeliveryConsumer dmsExpWaybillDeliveryConsumer;
+
+
+    @Test
+    public void dmsExpWaybillDeliveryConsumerTest() throws Exception {
+
+        Message message = new Message();
+        JyExpWaybillDeliveryDto dto = new JyExpWaybillDeliveryDto();
+        dto.setWaybillCode("JD0003421266039");
+        dto.setOpeSiteId("-1");
+        dto.setOpeSiteName("福州连江县祥兴路营业部lgx");
+        dto.setOpeUserId("-1");
+        dto.setOpeUserErp("chen");
+        message.setText(JsonHelper.toJson(dto));
+        dmsExpWaybillDeliveryConsumer.consume(message);
+
+    }
+
 }

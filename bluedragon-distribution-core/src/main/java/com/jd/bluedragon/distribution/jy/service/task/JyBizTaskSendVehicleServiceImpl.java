@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
@@ -29,7 +31,7 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     JyBizTaskSendVehicleDao jyBizTaskSendVehicleDao;
 
     @Autowired
-    private UccPropertyConfiguration ucc;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public JyBizTaskSendVehicleEntity findByBizId(String bizId) {
@@ -109,7 +111,7 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         Integer limit = pageSize;
         Integer offset = (pageNum - 1) * pageSize;
         // 超过最大分页数据量 直接返回空数据
-        if (offset + limit > ucc.getJyTaskPageMax()) {
+        if (offset + limit > dmsConfigManager.getPropertyConfig().getJyTaskPageMax()) {
             return new ArrayList<>();
         }
 
@@ -165,7 +167,7 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         Integer limit = pageSize;
         Integer offset = (pageNum - 1) * pageSize;
         // 超过最大分页数据量 直接返回空数据
-        if (offset + limit > ucc.getJyTaskPageMax()) {
+        if (offset + limit > dmsConfigManager.getPropertyConfig().getJyTaskPageMax()) {
             return new ArrayList<>();
         }
         return jyBizTaskSendVehicleDao.findSendTaskByDestOfPage(entity, offset, limit);
@@ -207,7 +209,7 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         Integer limit = pageSize;
         Integer offset = (pageNum - 1) * pageSize;
         // 超过最大分页数据量 直接返回空数据
-        if (offset + limit > ucc.getJyTaskPageMax()) {
+        if (offset + limit > dmsConfigManager.getPropertyConfig().getJyTaskPageMax()) {
             return new ArrayList<>();
         }
         return jyBizTaskSendVehicleDao.findSendTaskByDestAndStatusesWithPage(entity,statuses, offset, limit);

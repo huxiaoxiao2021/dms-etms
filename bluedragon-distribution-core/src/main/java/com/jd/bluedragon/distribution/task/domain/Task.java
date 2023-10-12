@@ -4,6 +4,7 @@ import com.jd.bluedragon.core.redis.QueueKeyInfo;
 import com.jd.bluedragon.core.redis.RedisTaskHelper;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.core.redis.TaskModeAware;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.profiler.CallerInfo;
@@ -399,7 +400,10 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * 操作者id
      */
 	private String operatorId;    
-    
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
     
     public Task() {
     }
@@ -1160,5 +1164,13 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

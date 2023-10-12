@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.send.domain;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+import com.jd.bluedragon.utils.converter.BeanConverter;
+
 /**
  * 发货任务
  * Created by wangtingwei on 2015/3/20.
@@ -49,7 +52,9 @@ public class SendTaskBody extends SendM{
         this.setTransporttype(domain.getTransporttype());
         this.setBoardCode(domain.getBoardCode());
         this.setBizSource(domain.getBizSource());
-        this.setOperatorId(domain.getOperatorId());
-        this.setOperatorTypeCode(domain.getOperatorTypeCode());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(domain);
+        this.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        this.setOperatorId(operatorData.getOperatorId());
+        this.setOperatorData(operatorData);
     }
 }

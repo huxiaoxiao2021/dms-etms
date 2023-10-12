@@ -118,4 +118,27 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".getStatisticsExceptionTaskDetailList", req);
     }
 
+    public List<String> getExceptionTaskListOverTime(JyBizTaskExceptionEntity req){
+        return this.getSqlSession().selectList(NAMESPACE + ".getExceptionTaskListOverTime", req);
+    }
+
+    public List<JyBizTaskExceptionEntity> selectListByBarCode(String barCode){
+        return this.getSqlSession().selectList(NAMESPACE + ".selectListByBarCode", barCode);
+    }
+
+
+    public int updateExceptionTaskStatusByBizIds(Integer status,Integer processingStatus,List<String> bizIds){
+        Map<String,Object> param =new HashMap<>();
+        if(status != null){
+            param.put("status",status);
+        }
+        if(processingStatus != null){
+            param.put("processingStatus",processingStatus);
+        }
+        param.put("updateTime",new Date());
+        param.put("bizIds",bizIds);
+        return this.getSqlSession().update(NAMESPACE + ".updateExceptionTaskStatusByBizIds", param);
+    }
+
+
 }

@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -51,6 +51,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.etms.waybill.dto.WaybillProductDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
@@ -96,7 +97,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     private LogEngine logEngine;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
@@ -140,7 +141,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             filterContext = this.initContext(pdaOperateRequest);
             ProceedFilterChain proceedFilterChain = getProceedFilterChain();
             proceedFilterChain.doFilter(filterContext, proceedFilterChain);
-            if (this.isNeedCheck(uccPropertyConfiguration.getSwitchVerToWebSites(), pdaOperateRequest.getCreateSiteCode())) {
+            if (this.isNeedCheck(dmsConfigManager.getPropertyConfig().getSwitchVerToWebSites(), pdaOperateRequest.getCreateSiteCode())) {
                 Integer businessType = pdaOperateRequest.getBusinessType();
                 if (BusinessUtil.isForward(businessType)) {
                     filterContext.setFuncModule(HintModuleConstants.FORWARD_SORTING);
@@ -341,7 +342,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         BoardCombinationJsfResponse response = new BoardCombinationJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         FilterContext filterContext = null;
         try {
-            if (this.isNeedCheck(uccPropertyConfiguration.getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
+            if (this.isNeedCheck(dmsConfigManager.getPropertyConfig().getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
                 //初始化拦截链上下文
                 filterContext = this.initFilterParam(boardCombinationRequest);
                 filterContext.setFuncModule(HintModuleConstants.BOARD_COMBINATION);
@@ -438,7 +439,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         }
 
         // 站点判断
-        Site receiveSite = this.siteService.get(filterContext.getReceiveSiteCode());
+        Site receiveSite = siteService.getOwnSite(filterContext.getReceiveSiteCode());
         if (receiveSite == null) {
             throw new SortingCheckException(SortingResponse.CODE_29202, filterContext.getReceiveSiteCode() + SortingResponse.MESSAGE_29202);
         } else {
@@ -446,7 +447,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         }
 
         // 操作站点
-        Site createSite = this.siteService.get(filterContext.getCreateSiteCode());
+        Site createSite = siteService.getOwnSite(filterContext.getCreateSiteCode());
         filterContext.setCreateSite(createSite);
 
         String sReceiveSiteSubType = String.valueOf(receiveSite.getSubType());
@@ -458,15 +459,19 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         }
         filterContext.setsReceiveSiteCode(sReceiveSiteCode.toString());
         // 箱子的收货站点和站点类型 (中转站和速递中心判断使用)
-        Site sReceiveBoxSite = this.siteService.get(sReceiveSiteCode);
+        Site sReceiveBoxSite = siteService.getOwnSite(sReceiveSiteCode);
         filterContext.setsReceiveBoxSite(sReceiveBoxSite);
 
         //运单判断
-        WaybillCache waybillCache = this.waybillCacheService.getFromCache(filterContext.getWaybillCode());
+        WaybillCache waybillCache = this.waybillCacheService.getNoCache(filterContext.getWaybillCode());
         filterContext.setWaybillCache(waybillCache);
         if (waybillCache == null) {
             throw new SortingCheckException(SortingResponse.CODE_39002,
                     HintService.getHint(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND));
+        }
+        if (waybillCache.getQuantity() == null || waybillCache.getQuantity().equals(0)) {
+            //此时认为无运单数据
+            throw new SortingCheckException(SortingResponse.CODE_29412, SortingResponse.MESSAGE_29412);
         }
 
         // todo 待后续去除跨区校验后再去除此处逻辑
@@ -477,26 +482,14 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         if (waybillCache.getWaybillCode() == null) {
             throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR, SortingResponse.WAYBILL_ERROR_WAYBILLCODE);
         }
-
-        if (WaybillUtil.isWaybillCode(filterContext.getPackageCode())) {
-            if (waybillCache.getQuantity() != null) {
-                filterContext.setPackageNum(waybillCache.getQuantity());
-            }
-            if (! BusinessUtil.isBoxcode(filterContext.getPackageCode())) {
-                if(waybillCache.getQuantity() == null || waybillCache.getQuantity().equals(0)) {
-                    //防止特殊情况，需再去调用运单接口确认数据
-                    WaybillCache waybillNoCache = waybillCacheService.getNoCache(filterContext.getPackageCode());
-                    if (waybillNoCache == null || waybillNoCache.getQuantity() == null || waybillNoCache.getQuantity().equals(0)) {
-                        //此时认为无运单数据
-                        throw new SortingCheckException(SortingResponse.CODE_29412, SortingResponse.MESSAGE_29412);
-                    } else{
-                        filterContext.setPackageNum(waybillNoCache.getQuantity());
-                    }
-                }
-            }
-        } else if (WaybillUtil.isPackageCode(filterContext.getPackageCode())){
+        
+        filterContext.setPackageNum(waybillCache.getQuantity());
+        filterContext.setPackageNum(waybillCache.getQuantity());
+        
+        // 获取包裹数据
+        if (WaybillUtil.isPackageCode(filterContext.getPackageCode())){
             filterContext.setPackageNum(1);
-            if(uccPropertyConfiguration.isControlCheckPackage()){
+            if(dmsConfigManager.getPropertyConfig().isControlCheckPackage()){
                 String packageCode = filterContext.getPackageCode();
                 BaseEntity<List<DeliveryPackageD>> baseEntity = this.getPageBaseEntityByPackageCode(packageCode);
 
@@ -535,7 +528,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
 
         return filterContext;
     }
-
+    
     /*
      * 初始化板号拦截链上下文
      * */

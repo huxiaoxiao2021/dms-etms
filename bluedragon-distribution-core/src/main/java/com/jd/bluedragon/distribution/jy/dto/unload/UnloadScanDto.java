@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 
 /**
@@ -29,6 +30,10 @@ public class UnloadScanDto extends JyUnloadEntity {
      * 补扫标识
      */
     private boolean supplementary;
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
 
 
     public String getGroupCode() {
@@ -62,5 +67,13 @@ public class UnloadScanDto extends JyUnloadEntity {
     public void setSupplementary(boolean supplementary) {
         this.supplementary = supplementary;
     }
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 
 }

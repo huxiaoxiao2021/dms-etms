@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.rest.audit;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.ChuguanExportManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.distribution.api.response.ReverseReceiveResponse;
@@ -48,7 +48,7 @@ public class AuditResource {
     private ChuguanExportManager chuguanExportManager;
 
     @Resource
-    protected UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 	
 	private final Log logger = LogFactory.getLog(this.getClass());
 	

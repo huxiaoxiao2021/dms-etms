@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.response.base.Result;
@@ -96,7 +96,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private TransportRelatedService transportRelatedService;
@@ -182,7 +182,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         unloadEntity.setCreateTime(unloadScanDto.getCreateTime());
         unloadEntity.setUpdateTime(unloadScanDto.getUpdateTime());
         unloadEntity.setStageBizId(unloadScanDto.getStageBizId());
-
+        unloadEntity.setMoreFlag(unloadScanDto.getMoreFlag());
         return unloadEntity;
     }
 
@@ -227,7 +227,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     private void updateAutoCloseTaskCacheLastScanTime(UnloadScanDto unloadScanDto){
         // 更新最后扫描事件缓存，每次续期4小时
-        final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = uccPropertyConfiguration.getAutoCloseJyBizTaskConfig();
+        final AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfig = dmsConfigManager.getPropertyConfig().getAutoCloseJyBizTaskConfigObj();
         if (autoCloseJyBizTaskConfig == null) {
             logger.info("pushBizTaskAutoCloseTask no config, will not push auto close task");
         } else {
@@ -406,6 +406,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         inspectionVO.setUserName(unloadScanDto.getCreateUserName());
 
         inspectionVO.setOperateTime(DateHelper.formatDateTime(unloadScanDto.getOperateTime()));
+        inspectionVO.setOperatorData(unloadScanDto.getOperatorData());
         return inspectionService.addInspection(inspectionVO, InspectionBizSourceEnum.JY_UNLOAD_INSPECTION);
     }
 
