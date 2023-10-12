@@ -1509,6 +1509,7 @@ public class UccPropertyConfiguration{
      */
     private Integer reverseExchangeCount;
 
+
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
     }
