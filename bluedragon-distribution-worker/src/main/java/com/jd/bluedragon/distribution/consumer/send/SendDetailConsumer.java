@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -160,6 +160,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Qualifier("dmsSendToEmsWaybillInfoProducer")
     private DefaultJMQProducer dmsSendToEmsWaybillInfoProducer;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     /**
      * 缓存redis的key
      */
@@ -204,9 +207,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     @Autowired
     private JyDamageExceptionService jyDamageExceptionService;
-
-    @Autowired
-    private DmsConfigManager dmsConfigManager;
 
     @Override
     public void consume(Message message) {
@@ -310,7 +310,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 }
                 // 杭州亚运会特殊全程跟踪处理
                 this.handleSecurityCheckWaybillTrace(sendDetail);
-                if(dmsConfigManager.getPropertyConfig().isDmsToVendorSendMQSwitch()){
+                if(uccPropertyConfiguration.isDmsToVendorSendMQSwitch()){
                     log.warn("发车队通知调度系统发送MQ消息开启---");
                     // 非城配运单，发车队通知调度系统发送MQ消息
                     this.dmsToVendorMQ(sendDetail, waybill);
