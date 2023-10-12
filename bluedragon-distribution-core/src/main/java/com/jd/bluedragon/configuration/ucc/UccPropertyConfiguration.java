@@ -951,7 +951,7 @@ public class UccPropertyConfiguration{
      * 组板岗板列表sql开关
      */
     private Boolean jyComboardListBoardSqlSwitch;
-    
+
     /**
      * 操作流水-发送开关
      */
@@ -1194,7 +1194,7 @@ public class UccPropertyConfiguration{
      * 身份证识别切量开关，全量上线之后，可以删除
      */
     private String identityRecogniseSiteSwitch;
-    
+
     private List<String> identityRecogniseSiteSwitchList = new ArrayList<>();
     /**
      * 传摆发货-干支限制业务列表
@@ -1435,6 +1435,19 @@ public class UccPropertyConfiguration{
      * 车型优先分数默认值
      */
     private double vehicleIntegralPriorityFraction;
+
+    public Integer getFetchCarDistributionTimeRange() {
+        return fetchCarDistributionTimeRange;
+    }
+
+    public void setFetchCarDistributionTimeRange(Integer fetchCarDistributionTimeRange) {
+        this.fetchCarDistributionTimeRange = fetchCarDistributionTimeRange;
+    }
+
+    /**
+     * 待派车查询时间范围  单位小时
+     */
+    private Integer fetchCarDistributionTimeRange;
 
     /**
      * 外单逆向换单次数
@@ -2900,7 +2913,7 @@ public class UccPropertyConfiguration{
 
     public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
-        
+
         identityRecogniseSiteSwitchList = (StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
                 Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
                 : Collections.singletonList("0"));
@@ -3515,7 +3528,7 @@ public class UccPropertyConfiguration{
             if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
                 jyWorkAppAutoRefreshConfigList = clientAutoRefreshConfigList;
             }
-        }        
+        }
     }
 
     public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
