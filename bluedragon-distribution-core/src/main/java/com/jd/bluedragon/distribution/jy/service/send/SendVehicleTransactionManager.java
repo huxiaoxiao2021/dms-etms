@@ -290,7 +290,9 @@ public class SendVehicleTransactionManager {
         sendVehicleTransactionManager.updateTaskStatus(taskSend, sendDetail, updateStatus);
         //
         jyBizTaskSendAviationPlanService.updateStatus(aviationPlanEntity);
-
+        if(log.isInfoEnabled()){
+            log.info("航空任务封车完成，订舱号={}", aviationPlanEntity.getBookingCode());
+        }
         if (JyBizTaskSendDetailStatusEnum.SEALED.equals(updateStatus)) {
             //封车节点做数据汇总
             statisticsSummaryService.insertSelective(summaryEntity);

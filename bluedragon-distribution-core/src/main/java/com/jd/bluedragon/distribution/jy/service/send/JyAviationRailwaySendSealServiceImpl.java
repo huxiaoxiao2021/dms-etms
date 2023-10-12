@@ -1178,6 +1178,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Override
     public InvokeResult<Void> aviationSendComplete(AviationSendCompleteReq req) {
         InvokeResult<Void> invokeResult = new InvokeResult<>();
+
+        JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(req.getSendVehicleBizId());
+        if (ObjectHelper.isNotNull(entity) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getTaskStatus())){
+            invokeResult.error("该航空任务已封车！");
+            return invokeResult;
+        }
         
         // 查询发货任务数据
         JyBizTaskSendAviationPlanEntity sendAviationPlan = jyBizTaskSendAviationPlanService.findByBizId(req.getSendVehicleBizId());
