@@ -34,6 +34,7 @@ import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
@@ -61,6 +62,8 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   @Autowired
   JyComBoardSendService jyComBoardSendService;
 
+  @Autowired
+  DmsConfigManager dmsConfigManager;
 
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
     return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(),
@@ -103,6 +106,11 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
       SealVehicleInfoReq sealVehicleInfoReq) {
     // 自动选择板号
     jySealVehicleService.selectBoardByTms(sealVehicleInfoReq);
+    
+    InvokeResult<SealVehicleInfoResp> sealVehicleInfo = jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq);
+    if (sealVehicleInfo != null && sealVehicleInfo.getData() != null) {
+      sealVehicleInfo.getData().setBoardLimit(dmsConfigManager.getPropertyConfig().getJyComboardSealBoardListLimit());
+    }
     return retJdCResponse(jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq));
   }
 
