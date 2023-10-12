@@ -3948,6 +3948,10 @@ public class UccPropertyConfiguration{
      * 违禁品运单缓存时长
      */
     private int contrabandWaybillCacheTime;
+    /**
+     * dmsToVendor 通知调度系统发送MQ消息 开关
+     */
+    private boolean dmsToVendorSendMQSwitch;
 
     public int getContrabandWaybillCacheTime() {
         return contrabandWaybillCacheTime;
@@ -3971,5 +3975,21 @@ public class UccPropertyConfiguration{
 
 	public void setSendJyOperateFlowMqSwitch(Boolean sendJyOperateFlowMqSwitch) {
 		this.sendJyOperateFlowMqSwitch = sendJyOperateFlowMqSwitch;
+	}
+
+	public boolean isbTemplateRouterExecuteNew() {
+		return bTemplateRouterExecuteNew;
+	}
+
+	public void setbTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
+		this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
+	}
+
+	public boolean isDmsToVendorSendMQSwitch() {
+		return dmsToVendorSendMQSwitch;
+	}
+
+	public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
+		this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
 	}
 }
