@@ -306,7 +306,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         dto.setMerchantCode(spotCheckContext.getMerchantCode());
         dto.setMerchantName(spotCheckContext.getMerchantName());
         dto.setIsTrustMerchant(spotCheckContext.getIsTrustMerchant() ? Constants.CONSTANT_NUMBER_ONE : Constants.NUMBER_ZERO);
-        dto.setVolumeRate(spotCheckContext.getVolumeRate());
+        dto.setVolumeRateStr(spotCheckContext.getVolumeRate());
         dto.setProductTypeName(spotCheckContext.getProductTypeName());
         BaseStaffSiteOrgDto reviewSite = spotCheckContext.getReviewSite();
         dto.setSiteTypeName(reviewSite == null

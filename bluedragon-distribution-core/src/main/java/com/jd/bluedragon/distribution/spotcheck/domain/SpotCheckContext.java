@@ -104,7 +104,7 @@ public class SpotCheckContext implements Serializable {
     /**
      * 计泡系数
      */
-    private Integer volumeRate;
+    private String volumeRate;
     /**
      * 复核对象
      */
@@ -314,11 +314,11 @@ public class SpotCheckContext implements Serializable {
         this.productTypeName = productTypeName;
     }
 
-    public Integer getVolumeRate() {
+    public String getVolumeRate() {
         return volumeRate;
     }
 
-    public void setVolumeRate(Integer volumeRate) {
+    public void setVolumeRate(String volumeRate) {
         this.volumeRate = volumeRate;
     }
 
