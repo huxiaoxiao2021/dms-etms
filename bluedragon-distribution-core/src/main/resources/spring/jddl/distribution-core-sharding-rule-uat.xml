@@ -27,6 +27,7 @@
                 <entry key="jy_attachment_detail" value-ref="jy_attachment_bean" />
                 <entry key="jy_collect_record" value-ref="jy_collect_record_bean" />
                 <entry key="jy_collect_record_detail" value-ref="jy_collect_record_detail_bean" />
+                <entry key="jy_operate_flow" value-ref="jy_operate_flow_bean" />
             </map>
         </property>
     </bean>
@@ -356,4 +357,20 @@
         </property>
         <property name="allowFullTableScan" value="true"/>
     </bean>
+    <bean id="jy_operate_flow_bean" class="com.jd.jddl.interact.rule.TableRule">
+        <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
+        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbRuleArray">
+            <value>
+                return DmsJddlUtils.getDbInstanceIndex((#operate_biz_key, 1_string,1024#));
+            </value>
+        </property>
+        <property name="tbNamePattern" value="bd_dms_spl{0}.jy_operate_flow"/>
+        <property name="tbRuleArray">
+            <value>
+                return DmsJddlUtils.getDbPartitionIndex((#operate_biz_key, 1_string,1024#));
+            </value>
+        </property>
+        <property name="allowFullTableScan" value="true"/>
+    </bean>    
 </beans>

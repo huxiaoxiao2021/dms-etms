@@ -8,6 +8,7 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
+import com.jd.bluedragon.common.domain.WaybillExtVO;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -533,6 +534,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         waybill.setBusiOrderCode(waybillWS.getBusiOrderCode());
         waybill.setCodMoney(NumberHelper.getDoubleValue(waybillWS.getCodMoney()));
         waybill.setSendPayMap(JsonHelper.json2MapByJSON(waybillWS.getWaybillExt() == null ? null : waybillWS.getWaybillExt().getSendPayMap()));
+        waybill.setWaybillExtVO(convertToOwnWaybillExtVO(waybillWS.getWaybillExt()));
         if (isSetPack) {
         	//存放包裹的复重及打印信息
         	Map<String,PackOpeFlowDto> packOpeFlows = null;
@@ -613,6 +615,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         return waybill;
+    }
+
+    private WaybillExtVO convertToOwnWaybillExtVO(WaybillExt waybillExt) {
+        return waybillExt == null
+                ? null : new WaybillExtVO()
+                .clearanceType(waybillExt.getClearanceType())
+                .startFlowDirection(waybillExt.getStartFlowDirection())
+                .endFlowDirection(waybillExt.getEndFlowDirection());
     }
 
     private void dealWaybillSiteName(Waybill waybill) {
@@ -998,6 +1008,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isB2b(waybill.getWaybillSign())
                 && BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_9)){
             target.setjZDFlag(TextConstants.PECIAL_TIMELY_MARK);
+        }
+
+        // 判断 特快送-次晨 或者 生鲜特快-次晨
+        if(BusinessUtil.isTKSCC(waybill.getWaybillSign()) || BusinessUtil.isSXTKCC(waybill.getWaybillSign())){
+            log.info("满足特快送-次晨 或者 生鲜特快-次晨-{}",waybill.getRequireTime());
+            String requireTimeStr = DateHelper.formatDate(waybill.getRequireTime(), DateHelper.DATE_FORMAT_HHmm);
+            String specialMark = target.getSpecialMark();
+            target.appendSpecialMark(requireTimeStr+specialMark);
         }
 
         /* waybill_sign标识位，第七十九位为2，打提字标

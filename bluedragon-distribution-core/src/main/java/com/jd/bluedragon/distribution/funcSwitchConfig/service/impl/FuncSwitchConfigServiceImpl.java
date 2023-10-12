@@ -4,7 +4,7 @@ import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.DeviceConfigInfoJsfServiceManager;
@@ -92,7 +92,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     PackageWeightingService packageWeightingService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private BaseMinorManager baseMinorManager;
@@ -864,7 +864,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         //4.如果是全国有效,直接返回不拦截
         if(!getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_COMPLETE_DELIVERY.getCode())){
             //ucc 配置为1 全国不拦截  配置站点编码:
-            if(isNeedCheckBlack(uccPropertyConfiguration.getAllPureValidateWeightWebSite(),request.getCreateSiteCode())){
+            if(isNeedCheckBlack(dmsConfigManager.getPropertyConfig().getAllPureValidateWeightWebSite(),request.getCreateSiteCode())){
                 return  true;
             }
             return false;
@@ -930,7 +930,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     public boolean getBcBoxFilterStatus(Integer menuCode,Integer siteCode){
         if(!getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode())){
             //ucc 配置为1 全国不拦截  配置站点编码:
-            if(isNeedCheckBlack(uccPropertyConfiguration.getAllBCBoxFilterWebSite(),siteCode)){
+            if(isNeedCheckBlack(dmsConfigManager.getPropertyConfig().getAllBCBoxFilterWebSite(),siteCode)){
                 return  true;
             }
             return false;

@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.goodsPrint.service;
 
+import com.jd.etms.waybill.common.Page;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Goods;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
 
@@ -43,4 +46,11 @@ public interface GoodsPrintService {
      * @return
      */
     public void deleteWaybillFromEsOperator(String key);
+
+    /**
+     * 获取商品名称
+     * @param waybillCode
+     * @return
+     */
+    public BaseEntity<Page<Goods>> getTwentyGoodsNamePrint(String waybillCode);
 }

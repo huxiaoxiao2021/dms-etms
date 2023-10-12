@@ -5,7 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.external.domain.*;
@@ -51,7 +51,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
     private JyBizTaskComboardService jyBizTaskComboardService;
 
     @Autowired
-    UccPropertyConfiguration ucc;
+    DmsConfigManager dmsConfigManager;
 
     @Autowired
     GroupBoardManager groupBoardManager;
@@ -72,10 +72,10 @@ public class DmsComboardServiceImpl implements DmsComboardService {
         List<BoardDto> boardDtos = new ArrayList<>();
         boardQueryResp.setBoardDtoList(boardDtos);
         invokeResult.setData(boardQueryResp);
-        Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+        Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJyComboardTaskCreateTimeBeginDay());
 
         // 兼容组板新老版本，组板岗推全国后，关闭开关
-        if (ucc.getBoardListQuerySwitch()) {
+        if (dmsConfigManager.getPropertyConfig().getBoardListQuerySwitch()) {
             BoardListRequest boardListRequest = new BoardListRequest();
             boardListRequest.setPageSize(request.getPageSize());
             boardListRequest.setCreateTime(time);
@@ -159,7 +159,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
         }
 
         // 兼容组板新老版本，组板岗推全国后，关闭开关
-        if (ucc.getBoardListQuerySwitch()) {
+        if (dmsConfigManager.getPropertyConfig().getBoardListQuerySwitch()) {
             boardDto.setComboardSiteId(request.getStartSiteId());
             boardDto.setStartSiteId(request.getStartSiteId());
             boardDto.setEndSiteId(boardBoxInfoDto.getDestinationId());
@@ -226,7 +226,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
         if (CollectionUtils.isEmpty(request.getEndSiteIdList())){
             throw new JyBizException("参数错误：目的场地不能为空！");
         }
-        if (request.getEndSiteIdList().size() > ucc.getBatchQueryEndSiteLimit()){
+        if (request.getEndSiteIdList().size() > dmsConfigManager.getPropertyConfig().getBatchQueryEndSiteLimit()){
             throw new JyBizException("参数错误：目的地数量超过查询上限！");
         }
     }

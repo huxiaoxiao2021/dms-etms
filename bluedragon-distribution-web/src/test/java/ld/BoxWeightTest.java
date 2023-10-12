@@ -1,7 +1,7 @@
 package ld;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
@@ -54,7 +54,7 @@ public class BoxWeightTest {
     @Autowired
     private AsynBufferDemotionUtil asynBufferDemotionUtil;
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private WeightVolumeHandlerStrategy weightVolumeHandlerStrategy;
@@ -67,7 +67,7 @@ public class BoxWeightTest {
         try {
             int index = 0;
             while (index++ <= 10){
-                uccPropertyConfiguration.setOfflineCurrentLimitingCount(3);
+                dmsConfigManager.getPropertyConfig().setOfflineCurrentLimitingCount(3);
                 List<Boolean> r = new ArrayList<>();
                 for(int i = 0 ; i< 10 ; i++){
                     r.add(asynBufferDemotionUtil.isDemotionOfSite(task.getSiteCode(),task.getBody()));

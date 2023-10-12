@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unseal.JyUnSealVehicleServiceImpl;
@@ -34,7 +34,7 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
     final static String NAMESPACE = JyBizTaskUnloadVehicleDao.class.getName();
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
     /**
      * 新增
      *
@@ -74,7 +74,7 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
         params.put("endSiteId",entity.getEndSiteId());
         params.put("bizId",entity.getBizId());
         params.put("vehicleStatus",entity.getVehicleStatus());
-        Long lastHour = uccConfig.getJyUnSealTaskLastHourTime();
+        Long lastHour = dmsConfigManager.getPropertyConfig().getJyUnSealTaskLastHourTime();
         if(lastHour != null && lastHour > Constants.LONG_ZERO) {
             params.put("sortTimeBegin",entity.getSortTime());
             params.put("sortTimeEnd", DateHelper.newTimeRangeHoursAgo(entity.getSortTime(), - lastHour.intValue()));

@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ErpLoginServiceManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -52,7 +52,7 @@ public class UserServiceImplTestCase {
     private ErpLoginServiceManager erpLoginServiceManager;
 
 	@Mock
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	@Mock
 	private JyDemotionService jyDemotionService;

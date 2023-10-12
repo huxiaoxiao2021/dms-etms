@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
@@ -56,7 +56,7 @@ public class JySendGoodsAggsMainConsumer extends MessageBaseConsumer {
     @Autowired
     private BaseService baseService;
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -75,7 +75,7 @@ public class JySendGoodsAggsMainConsumer extends MessageBaseConsumer {
             return;
         }
         try {
-            if (!uccConfig.getProductOperateProgressSwitch() && ObjectHelper.isNotNull(entity.getOperateSiteId())) {
+            if (!dmsConfigManager.getPropertyConfig().getProductOperateProgressSwitch() && ObjectHelper.isNotNull(entity.getOperateSiteId())) {
                 BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(entity.getOperateSiteId().intValue());
                 if (ObjectHelper.isNotNull(baseStaffSiteOrgDto)){
                     BigDecimal operateProgress = BusinessHelper.isBSite(baseStaffSiteOrgDto.getSubType())?

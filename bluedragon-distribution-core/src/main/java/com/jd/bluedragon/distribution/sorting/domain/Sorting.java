@@ -1,11 +1,14 @@
 package com.jd.bluedragon.distribution.sorting.domain;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
@@ -121,7 +124,10 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
      * 操作者id
      */
 	private String operatorId;
-    
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;    
     public Sorting() {
         super();
     }
@@ -441,8 +447,11 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
             sorting.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
         }
         sorting.setBizSource(request.getBizSource());
-        sorting.setOperatorTypeCode(request.getOperatorTypeCode());
-        sorting.setOperatorId(request.getOperatorId());
+        
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request);
+        sorting.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        sorting.setOperatorId(operatorData.getOperatorId());
+        sorting.setOperatorData(operatorData);
         return sorting;
     }
     
@@ -467,8 +476,10 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         sorting.setType(request.getBusinessType());
 
         sorting.setBizSource(request.getBizSource());
-        sorting.setOperatorTypeCode(request.getOperatorTypeCode());
-        sorting.setOperatorId(request.getOperatorId());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request);
+        sorting.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        sorting.setOperatorId(operatorData.getOperatorId());
+        sorting.setOperatorData(operatorData);
         return sorting;
     }
     
@@ -727,6 +738,14 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 
 }

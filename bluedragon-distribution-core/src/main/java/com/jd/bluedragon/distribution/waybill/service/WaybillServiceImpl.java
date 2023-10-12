@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.easyFreeze.EasyFreezeSiteDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillRouteLinkQueryManager;
@@ -57,7 +57,6 @@ import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -121,7 +120,7 @@ public class WaybillServiceImpl implements WaybillService {
     private TaskService taskService;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private WaybillCacheService waybillCacheService;
@@ -476,7 +475,7 @@ public class WaybillServiceImpl implements WaybillService {
             return false;
         }
         //-136 代表超区；具体逻辑上游（预分拣）控制
-        if(uccPropertyConfiguration.isPreOutZoneSwitch()
+        if(dmsConfigManager.getPropertyConfig().isPreOutZoneSwitch()
                 && BusinessUtil.isForeignForwardAndWaybillMarkForward(waybill.getWaybillSign())
                 && waybill.getOldSiteId() != null && waybill.getOldSiteId() == Constants.WAYBILL_SITE_ID_OUT_ZONE){
             log.info("疫情超区或者春节禁售运单判断-拦截运单waybillCode{}",waybill.getWaybillCode());
@@ -520,7 +519,12 @@ public class WaybillServiceImpl implements WaybillService {
 		response.setTransferStationName(transferSite != null ? transferSite.getSiteName() : null);
 
 		this.appendPackages(packageCode, isIncludePackage, waybillDto, response);
-        response.setMobile(StringHelper.phoneEncrypt(response.getMobile()));
+        final boolean switchHidePhoneNewVersion = sysConfigService.getConfigByName(Constants.SYS_CONFIG_HIDE_PHONE_6Char);
+        if(switchHidePhoneNewVersion) {
+            response.setMobile(StringHelper.phoneEncryptSmile6Char(response.getMobile()));
+        } else {
+            response.setMobile(StringHelper.phoneEncrypt(response.getMobile()));
+        }
 		return response;
 	}
 
@@ -1140,6 +1144,22 @@ public class WaybillServiceImpl implements WaybillService {
         return null;
     }
 
+    @Override
+    public CancelWaybill queryGAExamineCancelWaybill(String waybillCode) {
+        List<CancelWaybill> list = cancelWaybillDao.findWaybillCancelByCodeAndFeatureTypes(waybillCode,
+                CancelWaybill.BUSINESS_TYPE_LOCK, 
+                Lists.newArrayList(CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE, CancelWaybill.FEATURE_TYPE_INTERCEPT_GA_EXAMINE_FAIL));
+        if(CollectionUtils.isEmpty(list)){
+            return null;
+        }
+        for (CancelWaybill item : list) {
+            if(Objects.equals(item.getBusinessType(), CancelWaybill.BUSINESS_TYPE_LOCK)){
+                return item;
+            }
+        }
+        return null;
+    }
+
 
     /**
      *
@@ -1261,7 +1281,7 @@ public class WaybillServiceImpl implements WaybillService {
             return false;
         }
         int miniDiff = DateHelper.getMiniDiff(scanTime, planSendvehicleTime);
-        int goodsResidenceTime = uccPropertyConfiguration.getGoodsResidenceTime();
+        int goodsResidenceTime = dmsConfigManager.getPropertyConfig().getGoodsResidenceTime();
         //使用分钟更精确些
         if(miniDiff > (goodsResidenceTime * 60)){
             log.info("超过三小时");
@@ -1499,7 +1519,7 @@ public class WaybillServiceImpl implements WaybillService {
     public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();
-        if (!uccPropertyConfiguration.getPreSortOnSiteSwitchOn()){
+        if (!dmsConfigManager.getPropertyConfig().getPreSortOnSiteSwitchOn()){
             return result;
         }
         // 信息安全校验
@@ -1674,8 +1694,8 @@ public class WaybillServiceImpl implements WaybillService {
                 return false;
             }
             log.info("matchTerminalSiteReSortDewuCondition siteInfo siteType: {} subType: {}", siteInfo.getSiteType(), siteInfo.getSubType());
-            log.info("matchTerminalSiteReSortDewuCondition check: {}, {}", uccPropertyConfiguration.matchDewuCustomerCode(customerCode), BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType()));
-            if(uccPropertyConfiguration.matchDewuCustomerCode(customerCode) && BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())){
+            log.info("matchTerminalSiteReSortDewuCondition check: {}, {}", dmsConfigManager.getPropertyConfig().matchDewuCustomerCode(customerCode), BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType()));
+            if(dmsConfigManager.getPropertyConfig().matchDewuCustomerCode(customerCode) && BusinessUtil.isTerminalSite(siteInfo.getSiteType(), siteInfo.getSubType())){
                 return true;
             }
         } catch (Exception e) {
@@ -1799,5 +1819,19 @@ public class WaybillServiceImpl implements WaybillService {
             result.error("系统异常，请联系分拣小秘！");
         }
         return result;
+    }
+
+    @Override
+    public boolean isHKorMOWaybill(String waybillCode) {
+        Waybill waybill = getWaybillByWayCode(waybillCode);
+        if(waybill != null &&  waybill.getWaybillExt() != null){
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            if((org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
+                    || (org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
+                log.info("港澳单-{}",waybillCode);
+                return true;
+            }
+        }
+        return false;
     }
 }

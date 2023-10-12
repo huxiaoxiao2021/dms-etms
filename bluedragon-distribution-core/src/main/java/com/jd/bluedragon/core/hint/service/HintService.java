@@ -128,6 +128,22 @@ public class HintService {
     }
 
     /**
+     * 获取打印系统提示语信息
+     * @param reversedStr 预留缺省字符
+     * @param hintCode 提示语编码
+     * @return 提示语结果
+     * @author fanggang7
+     * @time 2021-07-14 18:23:32 周三
+     */
+    public static String getHint(String reversedStr, String hintCode, boolean isShowHintCode){
+        HintResp hintResp = hintApiUnwrapManager.getHint(hintCode);
+        if(hintResp != null && hintResp.getHintMsg() != null) {
+           return isShowHintCode ? String.format("%s-%s", hintCode, hintResp.getHintMsg()) : hintResp.getHintMsg();
+        }
+        return reversedStr;
+    }
+
+    /**
      * 根据功能模块获取提示语
      * @param hintCode
      * @param module

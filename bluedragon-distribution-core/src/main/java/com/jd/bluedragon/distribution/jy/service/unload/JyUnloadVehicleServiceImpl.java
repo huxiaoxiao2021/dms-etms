@@ -16,7 +16,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleS
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -61,6 +61,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.StopoverInfoDto;
 import com.jd.etms.vos.dto.StopoverQueryDto;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
@@ -169,7 +170,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private EasyFreezeSiteManager easyFreezeSiteManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private JYTransferConfigProxy jyTransferConfigProxy;
@@ -218,7 +219,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             UnloadVehicleTaskResponse response = new UnloadVehicleTaskResponse();
             // 增加刷新间隔配置
-            response.setClientAutoRefreshConfig(uccPropertyConfiguration.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_TASK_LIST.name()));
+            response.setClientAutoRefreshConfig(dmsConfigManager.getPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_TASK_LIST.name()));
 
             // 封车状态数量统计
             assembleUnloadStatusAgg(vehicleStatusAggList, response);
@@ -931,7 +932,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         unloadScanDto.setGroupCode(request.getGroupCode());
         unloadScanDto.setTaskId(request.getTaskId());
-
+        unloadScanDto.setOperatorData(BeanConverter.convertToOperatorData(request.getCurrentOperate()));
         return unloadScanDto;
     }
 
@@ -1024,7 +1025,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             UnloadScanDetail scanProgress = JsonHelper.fromJson(JsonHelper.toJson(redisCache), UnloadScanDetail.class);
             // 增加刷新间隔配置
             if (scanProgress != null) {
-                scanProgress.setClientAutoRefreshConfig(uccPropertyConfiguration.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_PROGRESS.name()));
+                scanProgress.setClientAutoRefreshConfig(dmsConfigManager.getPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.UNLOAD_PROGRESS.name()));
             }
             result.setData(scanProgress);
             if(jyDemotionService.checkIsDemotion(JyConstants.JY_FLINK_UNLOAD_IS_DEMOTION)){

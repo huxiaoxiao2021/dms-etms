@@ -1273,16 +1273,6 @@
                   retries="${jsf.retries}"
                   serialization="hessian"/>
 
-    <!--  运单工具接口，异常运单修复使用  -->
-    <jsf:consumer id="waybillRepaireApi"
-                  interface="com.jd.etms.waybill.api.WaybillRepaireApi"
-                  protocol="jsf"
-                  alias="${jsf.waybill.repaire.group}"
-                  timeout="${jsf.waybill.timeout}"
-                  retries="${jsf.retries}"
-                  serialization="hessian"/>
-
-
 
     <!-- 滑道笼车配置 -->
     <jsf:consumer id="sortCrossJsfService"
@@ -1443,5 +1433,31 @@
 
     <jsf:consumer id="pdaSorterApi" interface="com.jd.tms.workbench.api.PdaSorterApi"
                   protocol="jsf" alias="${tms.jsf.pdaSorterApi.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 云打印接口 -->
+    <jsf:consumer id="cloudPrintRenderService" interface="com.jdl.print.service.RenderService"
+                  protocol="jsf" alias="${cloudPrint.jsf.alias}" timeout="${cloudPrint.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--  集箱包裹数量限制服务  -->
+    <jsf:consumer id="akboxConfigJsf"
+                  interface="com.jdl.basic.api.service.akbox.AkboxConfigJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!--  出勤黑名单  -->
+    <jsf:consumer id="basicAttendanceBlackListJsfService"
+                  interface="com.jdl.basic.api.service.attBlackList.AttendanceBlackListJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 </beans>

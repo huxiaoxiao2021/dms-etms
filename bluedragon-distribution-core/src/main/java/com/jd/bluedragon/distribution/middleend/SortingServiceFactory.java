@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.middleend;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.middleend.sorting.service.*;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class SortingServiceFactory {
 
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     private static final String SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN = "failover.sorting.service.site.open";
     private static final String SYSTEM_CONFIG_MIDDLE_END_SORTING_CLOSE = "failover.sorting.service.site.close";

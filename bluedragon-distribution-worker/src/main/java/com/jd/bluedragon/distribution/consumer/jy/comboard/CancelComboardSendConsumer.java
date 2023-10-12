@@ -4,10 +4,11 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardSendTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardTaskDto;
@@ -19,6 +20,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.message.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +50,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
     private VirtualBoardService virtualBoardService;
 
     @Autowired
-    UccPropertyConfiguration ucc;
+    DmsConfigManager dmsConfigManager;
     
     @Autowired
     private DeliveryService deliveryService;
@@ -94,7 +96,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
             }else {
                 // 发送取消组板全程跟踪
                 OperatorInfo operatorInfo = assembleComboardOperatorInfo(dto);
-                virtualBoardService.sendWaybillTrace(barCode, operatorInfo, dto.getBoardCode(),
+                virtualBoardService.sendWaybillTrace(barCode, operatorInfo,dto.getOperatorData(), dto.getBoardCode(),
                         dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
                         dto.getBizSource().getValue());
             }
@@ -109,7 +111,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         }
 
         int totalNum = waybill.getGoodNumber();
-        int onePageSize = ucc.getWaybillSplitPageSize() == 0 ? COMBOARD_SPLIT_NUM : ucc.getWaybillSplitPageSize();
+        int onePageSize = dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize() == 0 ? COMBOARD_SPLIT_NUM : dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize();
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
         // 插入分页任务
         CancelComboardTaskDto taskDto = new CancelComboardTaskDto();
@@ -121,8 +123,12 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         taskDto.setUserName(request.getUserName());
         taskDto.setSiteName(request.getSiteName());
         taskDto.setUserCode(request.getUserCode());
-        taskDto.setOperatorTypeCode(request.getOperatorTypeCode());
-        taskDto.setOperatorId(request.getOperatorId()); 
+        
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request);
+        taskDto.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        taskDto.setOperatorId(operatorData.getOperatorId());
+        taskDto.setOperatorData(operatorData); 
+        
         for (int i = 0; i < pageTotal; i++) {
             taskDto.setPageNo(i + 1);
             taskDto.setPageSize(onePageSize);
@@ -156,8 +162,11 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         sendM.setOperateTime(now);
         sendM.setUpdateTime(now);
         sendM.setYn(Constants.YN_NO);
-        sendM.setOperatorTypeCode(request.getOperatorTypeCode());
-        sendM.setOperatorId(request.getOperatorId());
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request);
+        sendM.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        sendM.setOperatorId(operatorData.getOperatorId());
+        sendM.setOperatorData(operatorData);
+        
         return sendM;
     }
 }

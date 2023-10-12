@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.rest.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.JyBasicSiteQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -61,7 +61,7 @@ public class SiteResource {
     private BaseMajorManager baseMajorManager;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private JyBasicSiteQueryManager jyBasicSiteQueryManager;
@@ -276,8 +276,8 @@ public class SiteResource {
 			return result;
 		}
 		// 查询数量限制：100
-		Integer siteQueryLimit = uccPropertyConfiguration.getSiteQueryLimit() == null
-				? MAX_QUERY_LIMIT : uccPropertyConfiguration.getSiteQueryLimit();
+		Integer siteQueryLimit = dmsConfigManager.getPropertyConfig().getSiteQueryLimit() == null
+				? MAX_QUERY_LIMIT : dmsConfigManager.getPropertyConfig().getSiteQueryLimit();
 		if(request.getFetchNum() > siteQueryLimit){
 			request.setFetchNum(siteQueryLimit);
 		}

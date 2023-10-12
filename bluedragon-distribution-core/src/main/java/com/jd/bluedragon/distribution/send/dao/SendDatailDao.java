@@ -526,5 +526,7 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public SendDetail queryOneSendDatailBySendM(SendDetail querySendDatail){
         return this.getSqlSession().selectOne(namespace + ".queryOneSendDatailBySendM", querySendDatail);
     }
-
+    public List<SendDetail> querySendDatailForUpdate(SendDetail param) {
+    	return this.getSqlSession().selectList(namespace + ".querySendDatailForUpdate", param);
+    }
 }

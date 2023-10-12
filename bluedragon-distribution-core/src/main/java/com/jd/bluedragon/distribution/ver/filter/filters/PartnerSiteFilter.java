@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -40,7 +40,7 @@ public class PartnerSiteFilter implements Filter {
     private JYTransferConfigProxy jyTransferConfigProxy;
 
     @Autowired
-    private UccPropertyConfiguration uccConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
@@ -50,7 +50,7 @@ public class PartnerSiteFilter implements Filter {
 
 
         // 德邦判断提示
-        if (uccConfiguration.isDpSpringSiteCode(request.getReceiveSiteCode())) {
+        if (dmsConfigManager.getPropertyConfig().isDpSpringSiteCode(request.getReceiveSiteCode())) {
             // 德邦春节项目的错发校验跳过
             final boolean dpSiteCode1Flag = BusinessHelper.isDPSiteCode1(request.getReceiveSite().getSubType());
             if (BusinessHelper.isDPWaybill1_2(request.getWaybillCache().getWaybillSign())) {

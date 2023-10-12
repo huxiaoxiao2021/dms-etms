@@ -1,5 +1,7 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.common.dto.basedata.request.GetFlowDirectionQuery;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jdl.basic.api.dto.site.AreaVO;
 import com.jdl.basic.api.dto.site.BasicSiteVO;
 import com.jdl.basic.api.dto.site.ProvinceAgencyVO;
@@ -45,4 +47,12 @@ public interface JyBasicSiteQueryManager {
      * @return 分页数据
      */
     Pager<BasicSiteVO> querySitePageByConditionFromBasicSite(Pager<SiteQueryCondition> siteQueryPager);
+
+    /**
+     * 获取流向
+     *
+     * @param request 请求参数
+     * @return 返回结果
+     */
+    Result<com.jd.bluedragon.common.dto.base.request.Pager<BasicSiteVO>> getFlowDirection(com.jd.bluedragon.common.dto.base.request.Pager<GetFlowDirectionQuery> request);
 }

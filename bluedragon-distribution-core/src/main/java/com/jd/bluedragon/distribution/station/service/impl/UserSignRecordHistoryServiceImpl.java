@@ -104,7 +104,10 @@ public class UserSignRecordHistoryServiceImpl implements UserSignRecordHistorySe
         }
         if (null != query.getSignDateStr()){
             result.put("signDateStr",query.getSignDateStr());
-        }         
+        }
+		if (StringUtils.isNotBlank(query.getIdCard())) {
+			result.put("idCard",query.getIdCard());
+		}
 		return result;
 	}
 

@@ -170,7 +170,21 @@ public class AmazonS3ClientWrapper implements InitializingBean {
         this.putObjectAndContentType(inputStream,folder,fileName,null,contentLength);
         return this.generatePresignedOuterNetUrl(urlExpirationDay,folder,fileName);
     }
-
+    /**
+     * 上传文件并且获取外网url
+     * @param inputStream
+     * @param folder
+     * @param fileName
+     * @param contentType 文件类型
+     * @param contentLength
+     * @param urlExpirationDay
+     * @return
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.AmazonS3ClientWrapper.putObjectThenGetOutNetUrl1",mState =  {JProEnum.TP, JProEnum.FunctionError})
+    public String putObjectThenGetOutNetUrl(InputStream inputStream,String folder,String fileName,String contentType,long contentLength,int urlExpirationDay){
+        this.putObjectAndContentType(inputStream,folder,fileName,contentType,contentLength);
+        return this.generatePresignedOuterNetUrl(urlExpirationDay,folder,fileName);
+    }
     /**
      * 获取外网url
      * @param folder
@@ -244,7 +258,7 @@ public class AmazonS3ClientWrapper implements InitializingBean {
         if (!isExists(folder,fileName)) {
             return null;
         }
-        URL url = amazonS3.getUrl(bucketName,spliceFolderFileName(folder,fileName));
+        URL url = this.generatePresignedUrl(365,bucketName,spliceFolderFileName(folder,fileName));
         log.info("云oss-getUrl查询图片链接[{}]url[{}]",fileName,url.toString());
         return url;
     }

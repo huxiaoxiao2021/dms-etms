@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.worker.inspection;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -13,6 +14,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -58,6 +60,10 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             context.setPassCheck(false);
             return context;
         }
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request);
+        request.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        request.setOperatorId(operatorData.getOperatorId());
+        request.setOperatorData(operatorData);
         builderSite(request,context);
         String code = request.getPackageBarOrWaybillCode();
         /** 是否按运单验货 */

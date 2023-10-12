@@ -78,6 +78,7 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
             }
 
             UploadData uploadData1 = convert2UploadData(uploadData);
+            uploadData1.setOperatorData(config.getOperatorData());
             GantryDeviceConfig config1 = convert2GantryDeviceConfig(config);
 
             Iterator<Map.Entry<Integer, ScannerFrameConsume>> item = scannerFrameConsumeMap.entrySet().iterator();

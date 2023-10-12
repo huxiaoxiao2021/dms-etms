@@ -90,7 +90,19 @@ public class UserSignRecordFlowQuery extends BasePagerCondition {
 	 * 分页-pageSize
 	 */
 	private Integer pageSize;
-	
+
+	/**
+	 * 身份证号
+	 */
+	private String idCard;
+	public String getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(String idCard) {
+		this.idCard = idCard;
+	}
+
 	public Integer getOrgCode() {
 		return orgCode;
 	}

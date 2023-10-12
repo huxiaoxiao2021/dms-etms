@@ -22,6 +22,11 @@ public interface JdCloudPrintService {
 	 */
 	<M> JdCloudPrintRequest<M> getDefaultPdfRequest();
 	/**
+	 * 获取默认的pdf请求
+	 * @return
+	 */
+	<M> JdCloudPrintRequest<M> getDefaultPdfRequest(Boolean useAmazon);	
+	/**
 	 * 调用云打印执行
 	 * @param jdCloudPrintRequest
 	 * @return
