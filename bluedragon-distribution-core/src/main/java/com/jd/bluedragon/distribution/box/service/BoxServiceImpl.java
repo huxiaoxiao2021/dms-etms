@@ -563,7 +563,7 @@ public class BoxServiceImpl implements BoxService {
 		Boolean result = false;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoxServiceImpl.checkBoxIsSent",Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
-			if (dmsConfigManager.getUccPropertyConfiguration().getCheckBoxSendedSwitchOn()){
+			if (dmsConfigManager.getPropertyConfig().getCheckBoxSendedSwitchOn()){
 				result = oldCheckBoxIsSent(boxCode,operateSiteCode);
 			}else{
 				result = newCheckBoxIsSent(boxCode);

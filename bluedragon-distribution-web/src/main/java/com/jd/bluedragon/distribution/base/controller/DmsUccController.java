@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
-import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
+import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -47,26 +47,6 @@ public class DmsUccController {
         return dmsConfigManager.getUccPropertyConfiguration();
     }
     /**
-     * 获取ducc
-     * @return
-     */
-    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
-    @RequestMapping(value = "/ducc")
-    public @ResponseBody DuccPropertyConfig ducc() {
-        return dmsConfigManager.getDuccPropertyConfig();
-    } 
-    /**
-     * 获取ducc
-     * @return
-     * @throws IllegalAccessException 
-     * @throws IllegalArgumentException 
-     */
-    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
-    @RequestMapping(value = "/check")
-    public @ResponseBody String check() throws Exception {
-        return dmsConfigManager.check();
-    }
-    /**
      * 获取ucc
      * @return
      * @throws Exception 
@@ -75,16 +55,6 @@ public class DmsUccController {
     @RequestMapping(value = "/ucc1")
     public @ResponseBody String ucc1() throws Exception {
         return toUccJson(dmsConfigManager.getUccPropertyConfiguration());
-    }
-    /**
-     * 获取ducc
-     * @return
-     * @throws Exception 
-     */
-    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
-    @RequestMapping(value = "/ducc1")
-    public @ResponseBody String ducc1() throws Exception {
-        return toUccJson(dmsConfigManager.getDuccPropertyConfig());
     }
 	   public static String toUccJson(Object obj) throws Exception {
 			 List<Field> fieldList = ObjectHelper.getDeclaredFieldsList(obj.getClass());
