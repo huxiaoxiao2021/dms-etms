@@ -28,6 +28,21 @@
 		<!--<property name="configClient" ref="configClient"/>-->
 		<!--<property name="configId" value="${redis.cache.config.id}"/>-->
 		<property name="jimUrl" value="${redis.jy.config.url}"/>
+		<property name="clientConfig" ref="redisClientConfig" />
+	</bean>
+
+	<!-- 在iaas虚拟网络未修复arp老化导致连接1s超时问题前，通过以下方法避免1s连接超时问题：
+     1）把SDK连接超时改为2s或以上，同时开启空闲连接检测但是不释放
+     2）服务端关闭空闲连接：在云控制台把参数配置中的timeout改为0，如果看不到可先不改，需要服务端升级代理镜像后才能看到 -->
+	<bean id="redisClientConfig" class="com.jd.jim.cli.config.ClientConfig">
+		<!-- connection timeout, default value is 1000ms -->
+		<property name="newTimeout" value="${redis.jy.config.newTimeout}" />
+		<property name="poolConfig">
+			<bean class="com.jd.jim.cli.config.ClientConfig$PoolConfig">
+				<!-- default value is 120000 -->
+				<property name="minEvictableIdleTimeMillis" value="${redis.jy.config.minEvictableIdleTimeMillis}" />
+			</bean>
+		</property>
 	</bean>
 
 	<!-- 静态配置 -->
