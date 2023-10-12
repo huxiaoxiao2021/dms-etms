@@ -309,6 +309,7 @@
 		<property name="terminalSitePackagePrintLimitSwitch" value="${terminalSitePackagePrintLimitSwitch:false}"/>
 		<property name="reverseExchangeCount" value="${reverseExchangeCount:-1}"/>
 		<property name="sendJyOperateFlowMqSwitch" value="${sendJyOperateFlowMqSwitch:true}"/>
+		<property name="dmsToVendorSendMQSwitch" value="${dmsToVendorSendMQSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -624,6 +625,7 @@
 				<value>uccPropertyConfiguration.terminalSitePackagePrintLimitSwitch</value>
 				<value>uccPropertyConfiguration.reverseExchangeCount</value>
 				<value>uccPropertyConfiguration.sendJyOperateFlowMqSwitch</value>
+				<value>uccPropertyConfiguration.dmsToVendorSendMQSwitch</value>
 			</list>
 		</property>
 	</bean>
