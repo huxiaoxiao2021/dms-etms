@@ -111,7 +111,7 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
     if (sealVehicleInfo != null && sealVehicleInfo.getData() != null) {
       sealVehicleInfo.getData().setBoardLimit(dmsConfigManager.getPropertyConfig().getJyComboardSealBoardListLimit());
     }
-    return retJdCResponse(jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq));
+    return retJdCResponse(sealVehicleInfo);
   }
 
   @Override
