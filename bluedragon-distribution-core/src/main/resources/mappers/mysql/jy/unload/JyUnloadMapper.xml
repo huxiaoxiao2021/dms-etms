@@ -24,6 +24,7 @@
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
         <result property="stageBizId" column="stage_biz_id"/>
+        <result property="moreFlag" column="more_flag" />
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -45,7 +46,8 @@
         update_time,
         yn,
         ts,
-        stage_biz_id
+        stage_biz_id,
+        more_flag
     </sql>
 
     <insert id="insert" parameterType="JyUnloadEntity">
@@ -61,6 +63,7 @@
                             bar_code,
                             operate_time,
                             manual_created_flag,
+                            more_flag,
                             create_user_erp,
                             create_user_name,
                             update_user_erp,
@@ -80,6 +83,7 @@
                             #{barCode},
                             #{operateTime},
                             #{manualCreatedFlag},
+                            #{moreFlag},
                             #{createUserErp},
                             #{createUserName},
                             #{updateUserErp},
