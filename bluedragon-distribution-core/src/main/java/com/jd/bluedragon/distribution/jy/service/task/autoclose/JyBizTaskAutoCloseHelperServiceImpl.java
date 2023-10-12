@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.task.autoclose;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskMq;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
@@ -51,6 +52,9 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
     public String getUnloadBizLastScanTimeKey(String bizId) {
