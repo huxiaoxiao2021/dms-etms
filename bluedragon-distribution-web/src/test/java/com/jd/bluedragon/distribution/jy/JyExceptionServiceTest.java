@@ -343,7 +343,7 @@ public class JyExceptionServiceTest {
         req.setUserErp("wuyoude");
         req.setSiteId(910);
         req.setPositionCode("GW00003001");
-        req.setBarCode("JDVE00088304206-1-1-");
+        req.setBarCode("JDX000257396747-1-1-");
         req.setContrabandType(3);
         req.setDescription("hahahahahahaha");
 

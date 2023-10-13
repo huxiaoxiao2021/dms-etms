@@ -173,9 +173,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
         BlockerApplyDto dto = new BlockerApplyDto();
         dto.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
-        dto.setExceptionId(8);//运营拦截
-        dto.setInterceptType(4); // 分拣中心拦截
-        dto.setReason("违禁品退回");
+        dto.setExceptionId(Constants.WAYBILL_EXCEPTION_ID_8);//运营拦截
+        dto.setInterceptType(Constants.WAYBILL_INTERCEPT_TYPE_4); // 分拣中心拦截
+        dto.setReason(Constants.WAYBILL_INTERCEPT_REASON);
         dto.setApplyTime(new Date());
         dto.setOperatorUserName(entity.getCreateStaffName());
         dto.setOperatorSiteName(entity.getSiteName());
