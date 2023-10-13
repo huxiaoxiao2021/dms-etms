@@ -361,7 +361,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         traceDto.setOperatorUserName(entity.getCreateUserName());
         traceDto.setOperatorTime(new Date());
         traceDto.setWaybillTraceType(Constants.WAYBILL_TRACE_TYPE);
-        logger.info("发送运单全程跟踪信息-{}",JSON.toJSONString(traceDto));
+        logger.info("发送运单验货全程跟踪信息-{}",JSON.toJSONString(traceDto));
         waybillQueryManager.sendBdTrace(traceDto);
     }
 
