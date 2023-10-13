@@ -1722,7 +1722,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         res.setData(resData);
 
         List<String> bizIdList = new ArrayList<>();
-        for (PrepareShuttleSealCarTaskDto dto : request.getPrepareShuttleSealCarTaskDtoList()) {
+        for (SendTaskBindDto dto : request.getSendTaskBindDtoList()) {
             if(Objects.isNull(dto)) {
                 res.error("已选航空任务参数异常，请联系分拣小秘");
                 return res;
@@ -1744,7 +1744,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 v -> v
         ));
         //取消校验
-        for (PrepareShuttleSealCarTaskDto dto : request.getPrepareShuttleSealCarTaskDtoList()) {
+        for (SendTaskBindDto dto : request.getSendTaskBindDtoList()) {
             JyBizTaskSendAviationPlanEntity entity = taskMap.get(dto.getBizId());
             if(Objects.isNull(entity)) {
                 res.error(String.format("航班%s任务查询为空", dto.getFlightNumber()));
