@@ -45,6 +45,7 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     @Qualifier("newSealVehicleResource")
     private NewSealVehicleResource newSealVehicleResource;
     @Autowired
+    @Qualifier("jySealVehicleService")
     JySealVehicleService jySealVehicleService;
     @Autowired
     JyVehicleSendRelationService jyVehicleSendRelationService;

@@ -54,6 +54,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -81,6 +82,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Resource(name = "jySendVehicleServiceTys")
     private JySendVehicleServiceTysImpl jySendVehicleServiceTys;
     @Autowired
+    @Qualifier("jySealVehicleService")
     JySealVehicleService jySealVehicleService;
     @Autowired
     private NewSealVehicleService newsealVehicleService;
