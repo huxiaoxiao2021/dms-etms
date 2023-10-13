@@ -192,7 +192,8 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
          * 明细保存sendCodes
          */
         if(CollectionUtils.isNotEmpty(sendCodes)) {
-        	jyAppDataSealSendCodeDao.batchInsert(sendCodes);
+			jyAppDataSealSendCodeDao.deleteByDetailBizId(detailBizId);
+			jyAppDataSealSendCodeDao.batchInsert(sendCodes);
         }
         return new InvokeResult<Boolean>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
 	}
