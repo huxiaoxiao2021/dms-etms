@@ -79,6 +79,7 @@ import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
@@ -923,6 +924,16 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     return;
                 }
 
+                HashSet<String> sendCodeForQuery = new HashSet<>();
+                for (BoardLoadDto boardLoadDto : boardList) {
+                    sendCodeForQuery.add(boardLoadDto.getBatchCode());
+                }
+                // 查询有效的批次
+                JyBizTaskComboardEntity querySendCode = new JyBizTaskComboardEntity();
+                querySendCode.setSendCodeList(new ArrayList<>(sendCodeForQuery));
+                List<JyBizTaskComboardEntity> taskList = jyBizTaskComboardService.listBoardTaskBySendCode(querySendCode);
+                List<String> sendCodeNotDel = taskList.stream().map(JyBizTaskComboardEntity::getSendCode).collect(Collectors.toList());
+
                 List<JyAppDataSealSendCode> sendCodes = new ArrayList<>();
                 Set<String> sendCodeSet = new HashSet<>();
                 for (BoardLoadDto boardLoadDto : boardList) {
@@ -933,6 +944,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     if (sendCodeSet.contains(boardLoadDto.getBatchCode())) {
                         continue;
                     }
+                    // 操作了删除
+                    if (!sendCodeNotDel.contains(boardLoadDto.getBatchCode())) {
+                        continue;
+                    }
                     sendCodeSet.add(boardLoadDto.getBatchCode());
                     JyAppDataSealSendCode sealSendCode = new JyAppDataSealSendCode();
                     sealSendCode.setSendCode(boardLoadDto.getBatchCode());
@@ -940,6 +955,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     sealSendCode.setCreateTime(new Date());
                     sendCodes.add(sealSendCode);
                 }
+                
                 if (!CollectionUtils.isEmpty(sendCodes)) {
                     jyAppDataSealService.saveSendCodeList(sendCodes);
                 }
