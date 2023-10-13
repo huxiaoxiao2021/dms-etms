@@ -1714,4 +1714,10 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         res.setData(resData);
         return res;
     }
+
+    @Override
+    public InvokeResult<PrepareShuttleSealCarRes> prepareShuttleSealCarData(PrepareShuttleSealCarReq request) {
+//        todo zcf 封车准备数据查看
+        return null;
+    }
 }
