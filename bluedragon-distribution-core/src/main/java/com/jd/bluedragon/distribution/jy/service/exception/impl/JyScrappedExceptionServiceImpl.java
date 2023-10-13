@@ -14,7 +14,7 @@ import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
@@ -92,7 +92,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     private FlowServiceManager flowServiceManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     @Qualifier("dmsScrapNoticeKFProducer")
@@ -606,7 +606,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         entity.setProcessBeginTime(DateHelper.getFirstDateOfMonth());
         Integer count = jyBizTaskExceptionDao.queryScrapCountByCondition(entity);
         // 报废审批级别数量阈值，默认：50,100
-        String exScrapApproveLevelCountLimit = uccPropertyConfiguration.getExScrapApproveLevelCountLimit();
+        String exScrapApproveLevelCountLimit = dmsConfigManager.getPropertyConfig().getExScrapApproveLevelCountLimit();
         String[] split = exScrapApproveLevelCountLimit.split(Constants.SEPARATOR_COMMA);
 
         // 场地当月报废数量小于50走一级审批

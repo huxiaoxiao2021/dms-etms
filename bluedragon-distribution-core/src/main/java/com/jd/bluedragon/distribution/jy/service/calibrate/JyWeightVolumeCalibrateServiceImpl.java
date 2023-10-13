@@ -11,7 +11,7 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.base.DeviceConfigInfoJsfServiceManager;
 import com.jd.bluedragon.core.base.HrUserManager;
@@ -65,7 +65,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
     private JyBizTaskMachineCalibrateDetailService jyBizTaskMachineCalibrateDetailService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -119,7 +119,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         JyBizTaskMachineCalibrateCondition condition = new JyBizTaskMachineCalibrateCondition();
         condition.setCreateUserErp(request.getUser().getUserErp());
         // 查询时间范围，默认：48h
-        Long machineCalibrateTaskQueryRange = uccPropertyConfiguration.getMachineCalibrateTaskQueryRange();
+        Long machineCalibrateTaskQueryRange = dmsConfigManager.getPropertyConfig().getMachineCalibrateTaskQueryRange();
         Date queryEndTime = new Date();
         Date queryStartTime = new Date(queryEndTime.getTime() - machineCalibrateTaskQueryRange);
         condition.setQueryEndTime(queryEndTime);
@@ -163,7 +163,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
                 isCreateTaskFlag = true;
             }else if(machineRecord.getCalibrateTaskCloseTime() != null){
                 // 设备已关闭
-                Long intervalTime = uccPropertyConfiguration.getMachineCalibrateTaskForceCreateIntervalTime();
+                Long intervalTime = dmsConfigManager.getPropertyConfig().getMachineCalibrateTaskForceCreateIntervalTime();
                 if(System.currentTimeMillis() - machineRecord.getCalibrateTaskCloseTime().getTime() < intervalTime){
                     // explain：如果设备抽检任务关闭后，在2h内继续扫描设备编码，则进行友好提示（客户端可强制确定来创建新任务）
                     result.customMessage(InvokeResult.CODE_CONFIRM, HintService.getHint(HintCodeConstants.JY_MACHINE_CALIBRATE_TASK_CLOSED_AND_NOT_OVER_2_HINT));
@@ -345,7 +345,7 @@ public class JyWeightVolumeCalibrateServiceImpl implements JyWeightVolumeCalibra
         JyBizTaskMachineCalibrateDetailEntity entity = new JyBizTaskMachineCalibrateDetailEntity();
         // 任务时间设置
         Date current = new Date();
-        Long machineCalibrateTaskDuration = uccPropertyConfiguration.getMachineCalibrateTaskDuration(); // 任务时长
+        Long machineCalibrateTaskDuration = dmsConfigManager.getPropertyConfig().getMachineCalibrateTaskDuration(); // 任务时长
         entity.setTaskCreateTime(current);
         entity.setTaskEndTime(new Date(current.getTime() + machineCalibrateTaskDuration));
         // 状态

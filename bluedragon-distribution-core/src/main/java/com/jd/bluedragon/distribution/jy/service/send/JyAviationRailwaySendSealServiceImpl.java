@@ -14,7 +14,7 @@ import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
 import com.jd.bluedragon.common.dto.seal.request.ValidSendCodeReq;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
@@ -137,7 +137,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Autowired
     private SortingService sortingService;
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
     @Autowired
     private JySealVehicleService jySealVehicleService;
     @Autowired
@@ -204,6 +204,10 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             //重复绑定去除
             if(CollectionUtils.isNotEmpty(curVehicleExistBindDetailBizId)) {
                 needDetailBizIdList.removeAll(curVehicleExistBindDetailBizId);
+                if(CollectionUtils.isEmpty(needDetailBizIdList)) {
+                    res.error("航空任务已全部绑定，无需重复绑定");
+                    return res;
+                }
                 Map<String,Object> map = curVehicleExistBindDetailBizId.stream().collect(Collectors.toMap(Function.identity(),Function.identity()));
                 List<SendTaskBindDto> distinctList = new ArrayList<>();
                 request.getSendTaskBindDtoList().forEach(o -> {
@@ -223,7 +227,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             this.taskBinding(request, elseVehicleBindDetailBizId);
             return res;
         }catch (Exception e) {
-            log.error("{}空铁绑定服务异常，request={],errMsg={}", methodDesc, JsonHelper.toJson(request), e.getMessage(), e);
+            log.error("{}空铁绑定服务异常，request={},errMsg={}", methodDesc, JsonHelper.toJson(request), e.getMessage(), e);
             res.error("空铁绑定服务异常");
             return res;
         }finally {
@@ -577,7 +581,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             }
             JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(request.getBizId());
             if (ObjectHelper.isNotNull(entity) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getTaskStatus())){
-                throw new JyBizException("该航空任务已封车！");
+                res.error("该航空任务已封车！");
+                return res;
             }
 
             SealVehicleReq sealVehicleReq = new SealVehicleReq();
@@ -754,11 +759,11 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             return;
         }
         //航空类型
-        if(Objects.isNull(filterConditionDto.getBookingType())) {
+        if(!Objects.isNull(filterConditionDto.getBookingType())) {
             entity.setAirType(filterConditionDto.getBookingType());
         }
         //始发机场
-        if(Objects.isNull(filterConditionDto.getAirportCode())) {
+        if(!Objects.isNull(filterConditionDto.getAirportCode())) {
             entity.setBeginNodeCode(filterConditionDto.getAirportCode());
         }
     }
@@ -1011,7 +1016,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         Date curTime = new Date();
         detailEntity.setLastPlanDepartTimeBegin(DateHelper.addHours(curTime, -shuttlePlanTimeBeginHour));
         detailEntity.setLastPlanDepartTimeEnd(DateHelper.addHours(curTime, shuttlePlanTimeEndHour));
-        detailEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
+        detailEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
 
         return detailEntity;
     }
@@ -1173,6 +1178,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Override
     public InvokeResult<Void> aviationSendComplete(AviationSendCompleteReq req) {
         InvokeResult<Void> invokeResult = new InvokeResult<>();
+
+        JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(req.getSendVehicleBizId());
+        if (ObjectHelper.isNotNull(entity) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getTaskStatus())){
+            invokeResult.error("该航空任务已封车！");
+            return invokeResult;
+        }
         
         // 查询发货任务数据
         JyBizTaskSendAviationPlanEntity sendAviationPlan = jyBizTaskSendAviationPlanService.findByBizId(req.getSendVehicleBizId());

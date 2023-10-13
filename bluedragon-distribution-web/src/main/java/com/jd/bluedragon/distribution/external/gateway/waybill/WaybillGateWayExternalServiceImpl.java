@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.waybill;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
@@ -49,7 +49,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
     private ThirdBoxDetailService thirdBoxDetailService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private BoxService boxService;
@@ -79,7 +79,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
         logger.info("同步运单与箱号信息waybillCode[{}]boxCode[{}]",request.getWaybillCode(),request.getBoxCode());
         GateWayBaseResponse<Void> response = null;
         //增加开关控制此接口是否直接返回
-        if(!uccPropertyConfiguration.getENetSyncWaybillCodeAndBoxCode()) {
+        if(!dmsConfigManager.getPropertyConfig().getENetSyncWaybillCodeAndBoxCode()) {
             // 关闭逻辑直接返回成功
             return new GateWayBaseResponse<Void>();
         }

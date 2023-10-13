@@ -24,7 +24,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.jd.bluedragon.configuration.DmsConfigManager;
-import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.test.utils.FileHelper;
@@ -48,7 +47,6 @@ public class TestDucc {
 	
 	@Test	
 	public void test() throws Exception {
-		String configFromA = dmsConfigManager.getDuccPropertyConfig().getConfigFrom();
 		
 		String tmpConfigPath = new File("").getCanonicalPath();
 		String rootConfigPath = tmpConfigPath+"\\src\\test\\resources\\files\\";
@@ -63,18 +61,15 @@ public class TestDucc {
 		 }
 		 
 		final Logger log = LoggerFactory.getLogger(TestDucc.class); 
-		System.out.println("configFrom:\n"+dmsConfigManager.getDuccPropertyConfig().getConfigFrom());
 		 ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
 		 "/distribution-core-context-ducc-test.xml");
 		 ConfiguratorManager configuratorManager = (ConfiguratorManager)appContext.getBean("configuratorManager") ;
 		 UccPropertyConfiguration ucc = dmsConfigManager.getUccPropertyConfiguration();
 		 UccPropertyConfiguration duccDefault = ucc;
-		 DuccPropertyConfig ducc = dmsConfigManager.getDuccPropertyConfig() ;
+		 UccPropertyConfiguration ducc = dmsConfigManager.getUccPropertyConfiguration() ;
 		 com.jd.coo.ucc.client.config.UccPropertyConfig uccConfig = (com.jd.coo.ucc.client.config.UccPropertyConfig)appContext.getBean("propertyConfig") ;
 		 
 		 while(true) {
-			 System.out.println("configFrom-before:\n"+configFromA);
-			 System.out.println("configFrom:\n"+dmsConfigManager.getDuccPropertyConfig().getConfigFrom());
 			 String uccStr = FileHelper.loadFile(rootConfigPath+"ucc-config-test.properties");
 			 UccPropertyConfiguration uccData = JsonHelper.fromJson(uccStr, UccPropertyConfiguration.class);
 			 
@@ -86,13 +81,12 @@ public class TestDucc {
 			 
 			 System.err.println("ducc:"+JsonHelper.toJson(ducc));
 			 
-			 System.err.println("check:\n"+dmsConfigManager.check());
 			 
 			 StringBuffer sfNeedCheck = new StringBuffer();
 			 StringBuffer sfCodes = new StringBuffer();
 			 StringBuffer sfCodes1 = new StringBuffer();
 			 List<Field> fieldList = ObjectHelper.getDeclaredFieldsList(UccPropertyConfiguration.class);
-			 Map<String, Field> duccKeyMap = ObjectHelper.getDeclaredFields(DuccPropertyConfig.class);
+			 Map<String, Field> duccKeyMap = ObjectHelper.getDeclaredFields(UccPropertyConfiguration.class);
 			 Collections.sort(fieldList,new Comparator<Field>() {
 				@Override
 				public int compare(Field o1, Field o2) {

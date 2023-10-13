@@ -243,34 +243,40 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
     @Test
     public void testSendTaskBinding() {
-        SendTaskBindReq request = new SendTaskBindReq();
-
-        request.setCurrentOperate(SITE_910);
-        request.setUser(USER_wuyoude);
-        request.setGroupCode(GROUP_CODE);
-        request.setPost(POST);
-
-        request.setDetailBizId("TW23082500975485-001");
-        request.setBizId("SST23082500000051");
-
-        List<SendTaskBindDto> sendTaskBindDtoList = new ArrayList<>();
-        request.setSendTaskBindDtoList(sendTaskBindDtoList);
-
-        SendTaskBindDto bindDto = new SendTaskBindDto();
-        bindDto.setBizId("SST23082400000132");
-        bindDto.setDetailBizId("DCH15520230824152643");
-        bindDto.setFlightNumber("CA-1001");
-        sendTaskBindDtoList.add(bindDto);
-
-        SendTaskBindDto bindDto2 = new SendTaskBindDto();
-        bindDto2.setBizId("SST23082400000123");
-        bindDto2.setDetailBizId("DCH14620230824152633");
-        bindDto2.setFlightNumber("CA-1002");
-        sendTaskBindDtoList.add(bindDto2);
-
+        String json = "{\n" +
+                "    \"bizId\": \"SST23092700000013\",\n" +
+                "    \"currentOperate\": {\n" +
+                "        \"dmsCode\": \"010L001\",\n" +
+                "        \"operateTime\": 1695783556941,\n" +
+                "        \"operatorId\": \"60061\",\n" +
+                "        \"operatorTypeCode\": 1,\n" +
+                "        \"orgId\": 6,\n" +
+                "        \"orgName\": \"华北\",\n" +
+                "        \"siteCode\": 65396,\n" +
+                "        \"siteName\": \"JD北京顺义分拣中心\"\n" +
+                "    },\n" +
+                "    \"detailBizId\": \"TW23092700979954-001\",\n" +
+                "    \"groupCode\": \"G00000130001\",\n" +
+                "    \"post\": \"AVIATION_RAILWAY_SEND_SEAL_POSITION\",\n" +
+                "    \"requestId\": \"abd148ae84d34bbfa6a13b6767a8e781\",\n" +
+                "    \"sendTaskBindDtoList\": [\n" +
+                "        {\n" +
+                "            \"bizId\": \"SST23092500000014\",\n" +
+                "            \"detailBizId\": \"DC23092100200513\",\n" +
+                "            \"flightNumber\": \"CA0925\"\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"user\": {\n" +
+                "        \"userCode\": 10053,\n" +
+                "        \"userErp\": \"bjxings\",\n" +
+                "        \"userName\": \"刑松\"\n" +
+                "    }\n" +
+                "}";
         int i = 0;
         while(i++<100) {
-            Object obj = aviationRailwaySendSealGatewayService.sendTaskBinding(request);
+            SendTaskBindReq jsonParam = JSONObject.parseObject(json, SendTaskBindReq.class);
+
+            Object obj = aviationRailwaySendSealGatewayService.sendTaskBinding(jsonParam);
             System.out.println("succ");
         }
 

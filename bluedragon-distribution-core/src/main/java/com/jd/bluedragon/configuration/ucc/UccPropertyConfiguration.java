@@ -677,7 +677,6 @@ public class UccPropertyConfiguration{
      * 打印客户端无权限菜单配置
      */
     private String noAuthMenuConfig;
-    private String noAuthMenuConfigUat;
     /**
      * 打印客户端无权限菜单配置
      */
@@ -687,7 +686,6 @@ public class UccPropertyConfiguration{
      * 打印客户端菜单功能配置
      */
     private String menuCodeFuncConfig;
-    private String menuCodeFuncConfigUat;
     /**
      * 打印客户端菜单功能配置
      */
@@ -988,6 +986,32 @@ public class UccPropertyConfiguration{
      */
     private Boolean sendJyOperateFlowMqSwitch;
 
+    /**
+     * 特安发货任务提示优化开关
+     */
+    private boolean teAnSendTaskTipsOptimizationSwitch;
+
+    public boolean isTeAnSendTaskTipsOptimizationSwitch() {
+        return teAnSendTaskTipsOptimizationSwitch;
+    }
+
+    public void setTeAnSendTaskTipsOptimizationSwitch(boolean teAnSendTaskTipsOptimizationSwitch) {
+        this.teAnSendTaskTipsOptimizationSwitch = teAnSendTaskTipsOptimizationSwitch;
+    }
+
+    /**
+     * 一秒内特安任务执行限制数
+     */
+    private int teAnSendTaskNumberLimit;
+
+    public int getTeAnSendTaskNumberLimit() {
+        return teAnSendTaskNumberLimit;
+    }
+
+    public void setTeAnSendTaskNumberLimit(int teAnSendTaskNumberLimit) {
+        this.teAnSendTaskNumberLimit = teAnSendTaskNumberLimit;
+    }
+
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
     }
@@ -1052,7 +1076,7 @@ public class UccPropertyConfiguration{
     }
 
     public List<String> getNeedInterceptUrlList() {
-        return needInterceptUrlList;
+    	return Lists.newArrayList(needInterceptUrlList);
     }
 
     public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -1510,6 +1534,7 @@ public class UccPropertyConfiguration{
      * 外单逆向换单次数
      */
     private Integer reverseExchangeCount;
+
 
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
@@ -2775,22 +2800,6 @@ public class UccPropertyConfiguration{
         this.sitePlateIsCheckFunc = sitePlateIsCheckFunc;
     }
 
-    public String getNoAuthMenuConfigUat() {
-        return noAuthMenuConfigUat;
-    }
-
-    public void setNoAuthMenuConfigUat(String noAuthMenuConfigUat) {
-        this.noAuthMenuConfigUat = noAuthMenuConfigUat;
-    }
-
-    public String getMenuCodeFuncConfigUat() {
-        return menuCodeFuncConfigUat;
-    }
-
-    public void setMenuCodeFuncConfigUat(String menuCodeFuncConfigUat) {
-        this.menuCodeFuncConfigUat = menuCodeFuncConfigUat;
-    }
-
     public boolean getBTemplateRouterExecuteNew() {
         return bTemplateRouterExecuteNew;
     }
@@ -3652,7 +3661,9 @@ public class UccPropertyConfiguration{
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
             if(first.isPresent()){
-                return first.get();
+                ClientAutoRefreshConfig config = new ClientAutoRefreshConfig();
+                BeanUtils.copyProperties(first.get(), config);
+                return config;
             }
         }
         return null;
@@ -3964,6 +3975,10 @@ public class UccPropertyConfiguration{
      * 违禁品运单缓存时长
      */
     private int contrabandWaybillCacheTime;
+    /**
+     * dmsToVendor 通知调度系统发送MQ消息 开关
+     */
+    private boolean dmsToVendorSendMQSwitch;
 
     public int getContrabandWaybillCacheTime() {
         return contrabandWaybillCacheTime;
@@ -3987,5 +4002,21 @@ public class UccPropertyConfiguration{
 
 	public void setSendJyOperateFlowMqSwitch(Boolean sendJyOperateFlowMqSwitch) {
 		this.sendJyOperateFlowMqSwitch = sendJyOperateFlowMqSwitch;
+	}
+
+	public boolean isbTemplateRouterExecuteNew() {
+		return bTemplateRouterExecuteNew;
+	}
+
+	public void setbTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
+		this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
+	}
+
+	public boolean isDmsToVendorSendMQSwitch() {
+		return dmsToVendorSendMQSwitch;
+	}
+
+	public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
+		this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
 	}
 }

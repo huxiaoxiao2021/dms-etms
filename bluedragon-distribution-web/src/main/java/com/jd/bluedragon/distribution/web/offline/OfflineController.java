@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.web.offline;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -70,7 +70,7 @@ public class OfflineController {
 	private OfflineService offlinePopPickupService;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
@@ -89,7 +89,7 @@ public class OfflineController {
 		businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
 		BusinessLogWriter.writeLog(businessLogProfiler);
 
-        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
+        model.addAttribute("oldLogPageTips",dmsConfigManager.getPropertyConfig().getOldLogPageTips());
 		return "offline/offline";
 	}
 
@@ -120,7 +120,7 @@ public class OfflineController {
 				offlineLogService.queryByParams(params));
 		model.addAttribute("offlineLogqueryDto", offlineLog);
 		model.addAttribute("pager", pager);
-        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
+        model.addAttribute("oldLogPageTips",dmsConfigManager.getPropertyConfig().getOldLogPageTips());
 		return "offline/offline";
 	}
 

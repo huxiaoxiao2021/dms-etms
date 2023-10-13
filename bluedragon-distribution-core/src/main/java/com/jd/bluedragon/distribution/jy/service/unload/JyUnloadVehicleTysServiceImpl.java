@@ -9,7 +9,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -150,7 +150,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Qualifier("jyUnloadCarPostTaskCompleteProducer")
     private DefaultJMQProducer jyUnloadCarPostTaskCompleteProducer;
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration ;
+    private DmsConfigManager dmsConfigManager ;
 
     @Autowired
     private WaybillService waybillService;
@@ -235,14 +235,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
      * 待卸车装车过滤时间范围
      * */
     private Date waitUnloadQueryTimeRange() {
-        return DateHelper.getZeroFromDay(new Date(), uccPropertyConfiguration.getJyUnloadCarListQueryDayFilter());
+        return DateHelper.getZeroFromDay(new Date(), dmsConfigManager.getPropertyConfig().getJyUnloadCarListQueryDayFilter());
     }
 
     /**
      * 已完成状态卸车任务过滤时间范围
      * */
     private Date doneUnloadQueryTimeRange() {
-        return DateHelper.getZeroFromDay(new Date(), uccPropertyConfiguration.getJyUnloadCarListDoneQueryDayFilter());
+        return DateHelper.getZeroFromDay(new Date(), dmsConfigManager.getPropertyConfig().getJyUnloadCarListDoneQueryDayFilter());
     }
 
 //    /**
@@ -318,7 +318,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private void setAutoRefreshConfig(UnloadVehicleTaskRespDto respDto){
         // 增加刷新间隔配置
         try {
-            final ClientAutoRefreshConfig jyWorkAppAutoRefreshConfig = uccPropertyConfiguration.getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.TYS_UNLOAD_TASK_LIST.name());
+            final ClientAutoRefreshConfig jyWorkAppAutoRefreshConfig = dmsConfigManager.getPropertyConfig().getJyWorkAppAutoRefreshConfigByBusinessType(ClientAutoRefreshBusinessTypeEnum.TYS_UNLOAD_TASK_LIST.name());
             if (jyWorkAppAutoRefreshConfig != null) {
                 final com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig clientAutoRefreshConfig = new com.jd.bluedragon.distribution.jy.dto.ClientAutoRefreshConfig();
                 BeanCopyUtil.copy(jyWorkAppAutoRefreshConfig, clientAutoRefreshConfig);
@@ -670,7 +670,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
             // 非空任务才需要互斥
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
-                if (uccPropertyConfiguration.isPdaVersionSwitch()) {
+                if (dmsConfigManager.getPropertyConfig().isPdaVersionSwitch()) {
                     // 新老版本互斥
                     InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
                     if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
@@ -733,7 +733,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         DeliveryPackageD packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
         if (packageD == null) {
             log.info("JyUnloadVehicleTysServiceImpl.packageScan--包裹号{}在运单系统不存在，scanPackageDto={}", barCode, JsonHelper.toJson(scanPackageDto));
-            if(uccPropertyConfiguration.getWaybillSysNonExistPackageInterceptSwitch()) {
+            if(dmsConfigManager.getPropertyConfig().getWaybillSysNonExistPackageInterceptSwitch()) {
                 invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
                 return invokeResult;
             }else {
@@ -752,7 +752,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 barCode, waybill.getWaybillSign(),scanPackageRespDto);
 
         //德邦单号场地转发提醒
-        if (uccPropertyConfiguration.isDpTransferSwitch()) {
+        if (dmsConfigManager.getPropertyConfig().isDpTransferSwitch()) {
             if (jyTransferConfigProxy.isNeedTransfer(waybill.getWaybillSign(), operateSiteCode, waybill.getOldSiteId())) {
                 Map<String, String> warnMsg = scanPackageRespDto.getWarnMsg();
                 warnMsg.put(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getDesc(), waybillCode));
@@ -771,7 +771,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         jyUnloadVehicleCheckTysService.scanCodeIsScan(scanPackageDto);
 
         //易冻品校验
-        if (uccPropertyConfiguration.isEasyFreezeSwitch()) {
+        if (dmsConfigManager.getPropertyConfig().isEasyFreezeSwitch()) {
             checkEasyFreezeResult(waybillCode, scanPackageDto.getCurrentOperate().getSiteCode(), scanPackageRespDto);
         }
         // 是否强制组板
@@ -872,7 +872,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
             if (packageD == null) {
                 log.info("JyUnloadVehicleTysServiceImpl.waybillScan--包裹号{}在运单系统不存在，scanPackageDto={}", barCode, JsonHelper.toJson(scanPackageDto));
-                if(uccPropertyConfiguration.getWaybillSysNonExistPackageInterceptSwitch()) {
+                if(dmsConfigManager.getPropertyConfig().getWaybillSysNonExistPackageInterceptSwitch()) {
                     invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
                     return invokeResult;
                 }else {
@@ -890,7 +890,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
 
         //德邦单号场地转发提醒
-        if (uccPropertyConfiguration.isDpTransferSwitch()) {
+        if (dmsConfigManager.getPropertyConfig().isDpTransferSwitch()) {
             if (jyTransferConfigProxy.isNeedTransfer(waybill.getWaybillSign(), scanPackageDto.getCurrentOperate().getSiteCode(), waybill.getOldSiteId())) {
                 Map<String, String> warnMsg = scanPackageRespDto.getWarnMsg();
                 warnMsg.put(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.DP_TRANSFER_SITE_MESSAGE.getDesc(), waybillCode));
@@ -898,7 +898,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
 
         //易冻损校验
-        if (uccPropertyConfiguration.isEasyFreezeSwitch()) {
+        if (dmsConfigManager.getPropertyConfig().isEasyFreezeSwitch()) {
             checkEasyFreezeResult(waybillCode, scanPackageDto.getCurrentOperate().getSiteCode(), scanPackageRespDto);
         }
         //特保单校验
@@ -1183,13 +1183,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
             //完成时间过久禁止补扫
             Long completeTime = unloadVehicleEntity.getUnloadFinishTime().getTime();
-            Long limitTime = uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours() * 3600l * 1000l;
+            Long limitTime = dmsConfigManager.getPropertyConfig().getTysUnloadTaskSupplementScanLimitHours() * 3600l * 1000l;
             if(log.isInfoEnabled()) {
                 log.info("JyUnloadVehicleTysServiceImpl.scanSupplementCheck--扫描补扫校验--任务信息={}，{}小时后不可补扫",
-                        JsonUtils.toJSONString(unloadVehicleEntity), JsonUtils.toJSONString(unloadVehicleEntity), uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours());
+                        JsonUtils.toJSONString(unloadVehicleEntity), JsonUtils.toJSONString(unloadVehicleEntity), dmsConfigManager.getPropertyConfig().getTysUnloadTaskSupplementScanLimitHours());
             }
             if(System.currentTimeMillis() - completeTime - limitTime > 0) {
-                String msg = String.format("该任务已结束%s小时，禁止补扫，可自建任务扫描", uccPropertyConfiguration.getTysUnloadTaskSupplementScanLimitHours());
+                String msg = String.format("该任务已结束%s小时，禁止补扫，可自建任务扫描", dmsConfigManager.getPropertyConfig().getTysUnloadTaskSupplementScanLimitHours());
                 res.customMessage(RESULT_INTERCEPT_CODE, msg);
                 return res;
             }
@@ -1215,7 +1215,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
             // 非空任务才需要互斥
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
-                if (uccPropertyConfiguration.isPdaVersionSwitch()) {
+                if (dmsConfigManager.getPropertyConfig().isPdaVersionSwitch()) {
                     // 新老版本互斥
                     InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
                     if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
@@ -1347,10 +1347,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             entityQuery.setUnloadVehicleBizId(unloadVehicleTask.getBizId());
             entityQuery.setType(JyBizTaskStageTypeEnum.HANDOVER.getCode());
             int normalTaskNum = jyBizTaskUnloadVehicleStageService.getTaskCount(entityQuery);
-            if(normalTaskNum >= uccPropertyConfiguration.getTysUnloadTaskHandoverMaxSize() + 1) {
+            if(normalTaskNum >= dmsConfigManager.getPropertyConfig().getTysUnloadTaskHandoverMaxSize() + 1) {
                 if(log.isInfoEnabled()) {
                     log.info("JyUnloadVehicleTysServiceImpl.handoverTask--限制交接班此时，当前查到子任务数为{}，限制最大交接次数为{}，请求={}",
-                            normalTaskNum, uccPropertyConfiguration.getTysUnloadTaskHandoverMaxSize(), JsonHelper.toJson(unloadVehicleTask));
+                            normalTaskNum, dmsConfigManager.getPropertyConfig().getTysUnloadTaskHandoverMaxSize(), JsonHelper.toJson(unloadVehicleTask));
                 }
                 result.error("当前任务已经达到最大交班次数，扫描结束请直接完成任务");
                 return result;
@@ -2302,14 +2302,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
      */
     private boolean collectDemoteSwitch(CollectStatisticsQueryDto req) {
         try{
-            if(uccPropertyConfiguration.getTysUnloadCarCollectDemoteSwitch()) {
+            if(dmsConfigManager.getPropertyConfig().getTysUnloadCarCollectDemoteSwitch()) {
                 //默认关闭开关，手动开启降级 true
                 if(log.isInfoEnabled()) {
                     log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运集齐功能降级处理中");
                 }
                 return false;
             }
-            String siteWhitelist = uccPropertyConfiguration.getJyCollectSiteWhitelist();
+            String siteWhitelist = dmsConfigManager.getPropertyConfig().getJyCollectSiteWhitelist();
             if(org.apache.commons.lang.StringUtils.isBlank(siteWhitelist)) {
                 if(log.isInfoEnabled()) {
                     log.info("JyUnloadVehicleTysServiceImpl.collectDemoteSwitch：转运卸车集齐服务场地白名单未配置，默认走全场， param={}", JsonUtils.toJSONString(req));

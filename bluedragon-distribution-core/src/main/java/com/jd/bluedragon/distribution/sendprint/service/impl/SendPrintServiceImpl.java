@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.sendprint.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.context.InvokerClientInfoContext;
 import com.jd.bluedragon.core.security.log.SecurityLogWriter;
@@ -121,7 +121,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private PrintHandoverListManager printHandoverListManager;
@@ -172,7 +172,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             // 判断是否走新汇总查询
-            if(uccPropertyConfiguration.getNewPrintHandoverListSwitch()){
+            if(dmsConfigManager.getPropertyConfig().getNewPrintHandoverListSwitch()){
                 return newBatchSummaryPrintQuery(criteria);
             }
             SendM nSendM = tosendM(criteria);
@@ -224,8 +224,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             Map<String,Map<String,Set<String>>> batchBoxWaybillMap = new HashMap<>();
 
             // 单次scroll查询数量、scroll查询最大限制次数
-            int batchSize = uccPropertyConfiguration.getScrollQuerySize();
-            int printScrollQueryCountLimit = uccPropertyConfiguration.getPrintScrollQueryCountLimit();
+            int batchSize = dmsConfigManager.getPropertyConfig().getScrollQuerySize();
+            int printScrollQueryCountLimit = dmsConfigManager.getPropertyConfig().getPrintScrollQueryCountLimit();
 
             Pager<PrintHandoverLitQueryCondition> query = new Pager<PrintHandoverLitQueryCondition>();
             query.setPageNo(Constants.CONSTANT_NUMBER_ONE);
@@ -1345,7 +1345,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.setMessage("发货交接清单excel稍后将发送至您咚咚，请注意查收!");
         boolean isGoESQuery = checkGoESQuery(printExportCriteria.getCreateSiteCode());
-        if(!uccPropertyConfiguration.getNewPrintHandoverListSwitch() ){
+        if(!dmsConfigManager.getPropertyConfig().getNewPrintHandoverListSwitch() ){
             // 自定义编码10000表示：走老查询（非ES查询）
             result.setCode(BATCH_SUMMARY_QUERY_ES_CODE);
             result.setMessage("当前场地未开启新查询!（ES）");
@@ -1421,7 +1421,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         // 记录businessLog
         addBusinessLog(startTime, printExportCriteria, false, null);
         com.jd.dms.wb.report.api.dto.base.BaseEntity<Boolean>
-                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, uccPropertyConfiguration.isQuerySensitiveFlag() && isShowAddress(printExportCriteria.getList())));
+                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, dmsConfigManager.getPropertyConfig().isQuerySensitiveFlag() && isShowAddress(printExportCriteria.getList())));
         if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
             log.info("操作人【{}】始发地【{}】的交接清单导出成功!", printExportCriteria.getUserCode(), printExportCriteria.getCreateSiteCode());
         }else {
@@ -1438,7 +1438,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      */
     private boolean checkIsApproval(PrintExportCriteria printExportCriteria) {
         // 未开启审批
-        if(!uccPropertyConfiguration.getApprovalSwitch()){
+        if(!dmsConfigManager.getPropertyConfig().getApprovalSwitch()){
             return false;
         }
         return isShowAddress(printExportCriteria.getList());
@@ -1467,7 +1467,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private boolean switchSiteSubTypeCheck(Integer receiveSiteCode) {
-        return uccPropertyConfiguration.getCheckSiteSubType()
+        return dmsConfigManager.getPropertyConfig().getCheckSiteSubType()
                 || Objects.equals(toSiteSubType(receiveSiteCode), Constants.RETURN_PARTNER_SITE_TYPE);
     }
 
@@ -1898,7 +1898,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     @Override
     public BasicQueryEntityResponse basicPrintQueryForPage(PrintQueryCriteria criteria) {
         // 检查是否走es查询
-        if(uccPropertyConfiguration.getNewPrintHandoverListSwitch()){
+        if(dmsConfigManager.getPropertyConfig().getNewPrintHandoverListSwitch()){
             return basicPrintQueryForPageByES(criteria);
         }
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.basicPrintQueryForPage", Constants.UMP_APP_NAME_DMSWEB, false, true);
@@ -1936,7 +1936,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     private boolean checkGoESQuery(Integer siteCode) {
         String printHandoverListSites;
         try {
-            printHandoverListSites = uccPropertyConfiguration.getPrintHandoverListSites();
+            printHandoverListSites = dmsConfigManager.getPropertyConfig().getPrintHandoverListSites();
             if(Boolean.TRUE.toString().equals(printHandoverListSites)){
                 return true;
             }else if(Boolean.FALSE.toString().equals(printHandoverListSites)){
@@ -2008,7 +2008,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     private Pager<PrintHandoverLitQueryCondition> createESQueryCondition(PrintExportCriteria printExportCriteria, boolean isApproval) {
         Pager<PrintHandoverLitQueryCondition> pager = new Pager<PrintHandoverLitQueryCondition>();
         pager.setPageNo(Constants.CONSTANT_NUMBER_ONE);
-        pager.setPageSize(uccPropertyConfiguration.getScrollQuerySize());
+        pager.setPageSize(dmsConfigManager.getPropertyConfig().getScrollQuerySize());
         Set<Integer> receiveSiteSet = new HashSet<>();
         for (PrintQueryCriteria item : printExportCriteria.getList()) {
             receiveSiteSet.add(item.getReceiveSiteCode());
@@ -2027,7 +2027,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     private Pager<PrintHandoverLitQueryCondition> createESQueryCondition(TripartiteEntity tripartiteEntity) {
         Pager<PrintHandoverLitQueryCondition> pager = new Pager<PrintHandoverLitQueryCondition>();
         pager.setPageNo(Constants.CONSTANT_NUMBER_ONE);
-        pager.setPageSize(uccPropertyConfiguration.getScrollQuerySize());
+        pager.setPageSize(dmsConfigManager.getPropertyConfig().getScrollQuerySize());
         Set<Integer> receiveSiteSet = new HashSet<>();
         for (PrintQueryCriteria item : tripartiteEntity.getList()) {
             receiveSiteSet.add(item.getReceiveSiteCode());

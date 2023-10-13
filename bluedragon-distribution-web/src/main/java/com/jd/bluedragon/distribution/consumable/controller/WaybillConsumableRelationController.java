@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -50,7 +50,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	private BaseMajorManager baseMajorManager;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
@@ -62,8 +62,8 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/toIndex", method = RequestMethod.GET)
 	public String toIndex(Model model) {
-		boolean flag = Objects.equals(uccPropertyConfiguration.getPackConsumableSwitch(),2)
-				|| Objects.equals(uccPropertyConfiguration.getPackConsumableSwitch(), 3);
+		boolean flag = Objects.equals(dmsConfigManager.getPropertyConfig().getPackConsumableSwitch(),2)
+				|| Objects.equals(dmsConfigManager.getPropertyConfig().getPackConsumableSwitch(), 3);
 
 		model.addAttribute("banAddAndDeleteFlag", flag);
 		return "/consumable/waybillConsumableRelation";

@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.esotericsoftware.minlog.Log;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -153,7 +153,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     private ExpressOrderServiceWsManager expressOrderServiceWsManager;
     
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
     /**
      * 运单称重信息录入入口 最终发送mq消息给运单部门
      *
@@ -323,7 +323,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @param entity
      */
     protected boolean uploadOverWeightInfo(WaybillWeightDTO entity) {
-    	if(!uccPropertyConfiguration.isUploadOverWeightSwitch()
+    	if(!dmsConfigManager.getPropertyConfig().isUploadOverWeightSwitch()
     			|| !Boolean.TRUE.equals(entity.getOverLengthAndWeightEnable())
     			|| CollectionUtils.isEmpty(entity.getOverLengthAndWeightTypes())) {
     		restLongPackage(entity);

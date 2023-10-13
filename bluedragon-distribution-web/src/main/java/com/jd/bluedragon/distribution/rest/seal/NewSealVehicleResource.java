@@ -11,7 +11,7 @@ import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiSelectWSManager;
 import com.jd.bluedragon.core.base.ReportExternalManager;
@@ -134,7 +134,7 @@ public class NewSealVehicleResource {
     private BasicPrimaryWS basicPrimaryWS;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private TmsServiceManager tmsServiceManager;
@@ -331,7 +331,7 @@ public class NewSealVehicleResource {
                 return sealVehicleResponse;
             }
         	//开关控制调用新接口
-        	if(BusinessHelper.isTrue(uccPropertyConfiguration.getUsePdaSorterApi())) {
+        	if(BusinessHelper.isTrue(dmsConfigManager.getPropertyConfig().getUsePdaSorterApi())) {
                 TransWorkItemSimpleDto transWorkItemSimpleDto = new TransWorkItemSimpleDto();
                 transWorkItemSimpleDto.setSimpleCode(request.getTransWorkItemCode());
                 transWorkItemSimpleDto.setVehicleNumber(request.getVehicleNumber());
@@ -738,7 +738,7 @@ public class NewSealVehicleResource {
      * @return
      */
     private boolean isNeedCheck(Integer siteCode) {
-        String sealVolumeCheckSites = uccPropertyConfiguration.getSealVolumeCheckSites();
+        String sealVolumeCheckSites = dmsConfigManager.getPropertyConfig().getSealVolumeCheckSites();
         if(StringUtils.isEmpty(sealVolumeCheckSites)){
             return true;
         }

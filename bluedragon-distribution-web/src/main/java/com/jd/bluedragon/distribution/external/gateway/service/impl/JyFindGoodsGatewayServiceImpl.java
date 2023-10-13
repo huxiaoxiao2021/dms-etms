@@ -11,7 +11,7 @@ import com.jd.bluedragon.common.dto.inventory.*;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryListTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.PhotoPositionEnum;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.findgoods.constants.FindGoodsConstants;
@@ -40,7 +40,7 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
   @Autowired
   private JyFindGoodsService jyFindGoodsService;
   @Autowired
-  UccPropertyConfiguration ucc;
+  DmsConfigManager dmsConfigManager;
   @Value("${app.config.runningMode}")
   protected String env;
 
@@ -98,7 +98,7 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
     String methodDesc = "JyFindGoodsGatewayServiceImpl.findCurrentInventoryTask:获取当前时刻找货任务服务:";
     JdCResponse<InventoryTaskDto> res = new JdCResponse<>();
     res.toSucceed();
-    if (!(ucc.getQingChangDataOpenSwitch().equals("*") || ucc.getQingChangDataOpenSwitch().contains(env))){
+    if (!(dmsConfigManager.getPropertyConfig().getQingChangDataOpenSwitch().equals("*") || dmsConfigManager.getPropertyConfig().getQingChangDataOpenSwitch().contains(env))){
         return res;
     }
 

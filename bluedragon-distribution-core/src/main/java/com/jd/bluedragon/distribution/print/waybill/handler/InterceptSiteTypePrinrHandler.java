@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -45,7 +45,7 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Value("#{'${siteTypeOfTwoLevelList}'.split(',')}")
     private List<Integer> siteTypeOfTwoLevelList;
@@ -76,7 +76,7 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
     private boolean interceptPackageReprint(WaybillPrintContext context){
         log.info("interceptPackageReprint 操作类型-{}-单号-{}",context.getRequest().getOperateType(),context.getRequest().getBarCode());
 
-        boolean terminalSitePackagePrintLimitSwitch = uccPropertyConfiguration.isTerminalSitePackagePrintLimitSwitch();
+        boolean terminalSitePackagePrintLimitSwitch = dmsConfigManager.getPropertyConfig().isTerminalSitePackagePrintLimitSwitch();
         if(!terminalSitePackagePrintLimitSwitch){
             log.warn("终端站点包裹补打功能拦截功能关闭!");
             return false;

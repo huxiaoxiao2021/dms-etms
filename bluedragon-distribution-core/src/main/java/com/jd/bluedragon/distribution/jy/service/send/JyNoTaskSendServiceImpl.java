@@ -9,7 +9,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.TmsDistributeVehic
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PdaSorterApiManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -140,7 +140,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
     @Autowired
     @Qualifier("jyTaskGroupMemberService")
     private JyTaskGroupMemberService taskGroupMemberService;
@@ -255,7 +255,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             createVehicleTaskResp.setTaskName(jyBizTaskSendVehicleEntity.getTaskName());
             createVehicleTaskResp.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
             // 创建发货调度任务
-            if (uccConfig.getSyncScheduleTaskSwitch() && !createSendScheduleTask(jyBizTaskSendVehicleEntity)){
+            if (dmsConfigManager.getPropertyConfig().getSyncScheduleTaskSwitch() && !createSendScheduleTask(jyBizTaskSendVehicleEntity)){
                 log.error("创建发货调度任务失败！bizId:{}",jyBizTaskSendVehicleEntity.getBizId());
                 result.error("创建任务失败！");
             }
@@ -285,11 +285,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         final CurrentOperate currentOperate = createVehicleTaskReq.getCurrentOperate();
         // 先查分拣自己的待发货任务
         JyBizTaskSendVehicleDetailQueryEntity detailQueryEntity = new JyBizTaskSendVehicleDetailQueryEntity();
-        detailQueryEntity.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskPlanTimeBeginDay()));
+        detailQueryEntity.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeBeginDay()));
         detailQueryEntity.setStartSiteId((long)currentOperate.getSiteCode());
         detailQueryEntity.setEndSiteId(createVehicleTaskReq.getDestinationSiteId());
-        detailQueryEntity.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), uccConfig.getJySendTaskPlanTimeEndDay()));
-        detailQueryEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
+        detailQueryEntity.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeEndDay()));
+        detailQueryEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
         List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
         detailQueryEntity.setLineTypeList(lineTypeList);
         List<Integer> statusList = new ArrayList<>(Arrays.asList(JyBizTaskSendStatusEnum.TO_SEND.getCode()));
@@ -361,7 +361,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         Date now = new Date();
         queryDto.setBeginNodeCode(sourceSite.getDmsSiteCode());
         queryDto.setPlanDepartTimeBegin(new Date());
-        queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, uccConfig.getFetchCarDistributionTimeRange() != null ? uccConfig.getFetchCarDistributionTimeRange(): 48));
+        queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, dmsConfigManager.getPropertyConfig().getFetchCarDistributionTimeRange() != null ? dmsConfigManager.getPropertyConfig().getFetchCarDistributionTimeRange(): 48));
         queryDto.setTransTypeList(new ArrayList<>(Arrays.asList(TmsLineTypeEnum.TRUNK_LINE.getCode(), TmsLineTypeEnum.BRANCH_LINE.getCode())));
 
         // 目的网点非必填
@@ -621,7 +621,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         detailEntity.setUpdateUserName(deleteVehicleTaskReq.getUser().getUserName());
         jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
         //关闭调度任务
-        if (uccConfig.getSyncScheduleTaskSwitch()){
+        if (dmsConfigManager.getPropertyConfig().getSyncScheduleTaskSwitch()){
             if (!closeScheduleTask(entity)){
                 log.error("删除自建任务-同步关闭发货调度任务失败！bizId:{}",entity.getBizId());
                 throw new JyBizException("删除任务失败！");
@@ -799,7 +799,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             }
 
             //关闭调度任务
-            if (uccConfig.getSyncScheduleTaskSwitch()){
+            if (dmsConfigManager.getPropertyConfig().getSyncScheduleTaskSwitch()){
                 if (!closeScheduleTask(fromSvTask)){
                     log.error("绑定-同步关闭发货调度任务失败！bizId:{}",fromSvTask.getBizId());
                     throw new JyBizException("绑定运输任务失败！");

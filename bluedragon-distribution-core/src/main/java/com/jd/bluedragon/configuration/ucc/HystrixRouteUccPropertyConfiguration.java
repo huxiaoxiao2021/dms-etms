@@ -1,7 +1,5 @@
 package com.jd.bluedragon.configuration.ucc;
 
-import com.jd.bluedragon.configuration.ducc.DuccHystrixRoutePropertyConfig;
-
 /**
  * 配置解释 https://cf.jd.com/pages/viewpage.action?pageId=575172590
  * @program: bluedragon-distribution

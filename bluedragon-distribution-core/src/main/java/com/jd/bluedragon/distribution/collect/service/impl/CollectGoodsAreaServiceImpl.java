@@ -79,7 +79,7 @@ public class CollectGoodsAreaServiceImpl extends BaseService<CollectGoodsArea> i
      */
     @Override
     public boolean checkAuthority(Integer createSiteCode) {
-        String collectGoodsDeleteSites = dmsConfigManager.getUccPropertyConfiguration().getCollectGoodsDeleteSites();
+        String collectGoodsDeleteSites = dmsConfigManager.getPropertyConfig().getCollectGoodsDeleteSites();
         if(StringUtils.isEmpty(collectGoodsDeleteSites)){
             return true;
         }

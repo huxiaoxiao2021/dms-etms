@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.jsf;
 
 import java.util.*;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.logTrack.TrackService;
 import com.jd.bluedragon.distribution.print.domain.TrackDto;
@@ -29,7 +29,7 @@ public class PackagePrintServiceTestCase {
 	PackagePrintService packagePrintService;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 	
 	@Autowired
 	private TrackService logTrackService;
@@ -105,7 +105,7 @@ public class PackagePrintServiceTestCase {
 
 		printRequest.setData(JsonHelper.toJson(packagePrintRequest));
 
-		uccPropertyConfiguration.setHideSpecialStartSitPrintDestinationSiteList(null);
+		dmsConfigManager.getPropertyConfig().setHideSpecialStartSitPrintDestinationSiteList(null);
 		JdResult<Map<String, Object>> printResult = packagePrintService.getPrintInfo(printRequest);
 		Map<String, Object> printDataMap = printResult.getData();
 		String originalDmsName = (String) printDataMap.get("originalDmsName");

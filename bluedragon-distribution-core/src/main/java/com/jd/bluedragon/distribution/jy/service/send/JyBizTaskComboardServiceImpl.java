@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
@@ -41,7 +41,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   JyBizTaskComboardDao jyBizTaskComboardDao;
 
   @Autowired
-  UccPropertyConfiguration ucc;
+  DmsConfigManager dmsConfigManager;
 
   @Override
   public BoardDto queryInProcessBoard(SendFlowDto sendFlowDto) {
@@ -50,7 +50,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
     condition.setBoardStatus(ComboardStatusEnum.PROCESSING.getCode());
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
-    if (!ucc.getCreateBoardBySendFlowSwitch()) {
+    if (!dmsConfigManager.getPropertyConfig().getCreateBoardBySendFlowSwitch()) {
       condition.setGroupCode(sendFlowDto.getGroupCode());
     }
     List<JyBizTaskComboardEntity> bizTaskList = jyBizTaskComboardDao.queryBoardTask(condition);
@@ -76,7 +76,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     List<Integer> comboardSourceList = new ArrayList<>();
     comboardSourceList.add(JyBizTaskComboardSourceEnum.ARTIFICIAL.getCode());
     req.setComboardSourceList(comboardSourceList);
-    if (!ucc.getCreateBoardBySendFlowSwitch()) {
+    if (!dmsConfigManager.getPropertyConfig().getCreateBoardBySendFlowSwitch()) {
       req.setGroupCode(groupCode);
     }
     return jyBizTaskComboardDao.queryInProcessBoardListBySendFlowList(req);
@@ -121,7 +121,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     }
     condition.setStatusList(sendFlowDto.getStatusList());
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
-    if (!ucc.getCreateBoardBySendFlowSwitch() && ObjectHelper.isNotNull(sendFlowDto.getGroupCode())){
+    if (!dmsConfigManager.getPropertyConfig().getCreateBoardBySendFlowSwitch() && ObjectHelper.isNotNull(sendFlowDto.getGroupCode())){
       condition.setGroupCode(sendFlowDto.getGroupCode());
     }
     return jyBizTaskComboardDao.listBoardTaskBySendFlow(condition);
@@ -144,7 +144,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     condition.setComboardSourceList(sendFlowDto.getComboardSourceList());
     condition.setSealTime(sendFlowDto.getQuerySealTimeBegin());
     // 执行sql开关，默认执行or
-    if (ucc.getJyComboardListBoardSqlSwitch()) {
+    if (dmsConfigManager.getPropertyConfig().getJyComboardListBoardSqlSwitch()) {
       return jyBizTaskComboardDao.listSealOrUnSealedBoardTaskBySendFlow(condition);
     }else {
       return jyBizTaskComboardDao.listSealOrUnSealedBoardTaskBySendFlowUnionAll(condition);

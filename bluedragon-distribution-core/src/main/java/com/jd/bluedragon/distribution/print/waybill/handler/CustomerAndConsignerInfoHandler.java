@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -45,7 +45,7 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 	 * 注入ucc配置
 	 */
 	@Resource
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	/**
 	 * 收件人联系方式需要突出显示的位数
@@ -90,7 +90,7 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 	private void removeAddiConsigner(WaybillPrintContext context) {
 		try {
 			//获取阿迪 ucc配置
-			String addiOwnNumberConf = uccPropertyConfiguration.getAddiOwnNumberConf();
+			String addiOwnNumberConf = dmsConfigManager.getPropertyConfig().getAddiOwnNumberConf();
 			Waybill waybill = context.getBigWaybillDto().getWaybill();
 			if(StringHelper.isNotEmpty(addiOwnNumberConf)){
 				List<String> asList = Arrays.asList(addiOwnNumberConf.split(Constants.SEPARATOR_COMMA));

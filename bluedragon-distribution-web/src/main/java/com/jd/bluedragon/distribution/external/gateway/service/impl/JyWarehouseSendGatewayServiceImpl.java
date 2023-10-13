@@ -267,8 +267,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 return res;
             }
 
-            if(StringUtils.isBlank(request.getMachineCode())) {
-                res.toFail("设备编码参数为空");
+            if (request.getOperateType().equals(JySendFlowConfigEnum.GANTRY.getCode()) && StringUtils.isBlank(request.getMachineCode())) {
+                res.toFail("选择龙门架配置发货设备编码不能为空");
                 return res;
             }
 
@@ -293,7 +293,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                     return res;
                 }
             } else {
-                res.toFail("请扫扫描单据类型不支持，请联系分拣小秘！");
+                res.toFail("当前扫描单据类型不支持，请联系分拣小秘！");
                 return res;
             }
             request.setPost(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());

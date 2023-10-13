@@ -10,7 +10,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEn
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrabandEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpNoticCustomerExpReasonEnum;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -114,7 +114,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private WaybillPackageManager waybillPackageManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
@@ -205,7 +205,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                     logger.warn("未知的违禁品类型--");
                     return ;
            }
-            int contrabandWaybillCacheTime = uccPropertyConfiguration.getContrabandWaybillCacheTime();
+            int contrabandWaybillCacheTime = dmsConfigManager.getPropertyConfig().getContrabandWaybillCacheTime();
             logger.info("缓存时长-{}",contrabandWaybillCacheTime);
             //缓存当前单号
             Boolean setResult = redisClientOfJy.set(cacheKey, "1", contrabandWaybillCacheTime, TimeUnit.MINUTES, false);
