@@ -285,11 +285,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         final CurrentOperate currentOperate = createVehicleTaskReq.getCurrentOperate();
         // 先查分拣自己的待发货任务
         JyBizTaskSendVehicleDetailQueryEntity detailQueryEntity = new JyBizTaskSendVehicleDetailQueryEntity();
-        detailQueryEntity.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskPlanTimeBeginDay()));
+        detailQueryEntity.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeBeginDay()));
         detailQueryEntity.setStartSiteId((long)currentOperate.getSiteCode());
         detailQueryEntity.setEndSiteId(createVehicleTaskReq.getDestinationSiteId());
-        detailQueryEntity.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), uccConfig.getJySendTaskPlanTimeEndDay()));
-        detailQueryEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -uccConfig.getJySendTaskCreateTimeBeginDay()));
+        detailQueryEntity.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeEndDay()));
+        detailQueryEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
         List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
         detailQueryEntity.setLineTypeList(lineTypeList);
         List<Integer> statusList = new ArrayList<>(Arrays.asList(JyBizTaskSendStatusEnum.TO_SEND.getCode()));
@@ -361,7 +361,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         Date now = new Date();
         queryDto.setBeginNodeCode(sourceSite.getDmsSiteCode());
         queryDto.setPlanDepartTimeBegin(new Date());
-        queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, uccConfig.getFetchCarDistributionTimeRange() != null ? uccConfig.getFetchCarDistributionTimeRange(): 48));
+        queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, dmsConfigManager.getPropertyConfig().getFetchCarDistributionTimeRange() != null ? dmsConfigManager.getPropertyConfig().getFetchCarDistributionTimeRange(): 48));
         queryDto.setTransTypeList(new ArrayList<>(Arrays.asList(TmsLineTypeEnum.TRUNK_LINE.getCode(), TmsLineTypeEnum.BRANCH_LINE.getCode())));
 
         // 目的网点非必填
