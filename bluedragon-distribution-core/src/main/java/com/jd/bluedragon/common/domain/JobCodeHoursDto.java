@@ -2,6 +2,7 @@ package com.jd.bluedragon.common.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class JobCodeHoursDto implements Serializable {
 
@@ -9,9 +10,21 @@ public class JobCodeHoursDto implements Serializable {
 
     private Integer jobCode;
 
+    private Integer hour;
+
+    private List<Integer> jobCodes;
     private Date startTime;
 
     private Date endTime;
+
+
+    public Integer getHour() {
+        return hour;
+    }
+
+    public void setHour(Integer hour) {
+        this.hour = hour;
+    }
 
     public Integer getJobCode() {
         return jobCode;
@@ -35,5 +48,13 @@ public class JobCodeHoursDto implements Serializable {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public List<Integer> getJobCodes() {
+        return jobCodes;
+    }
+
+    public void setJobCodes(List<Integer> jobCodes) {
+        this.jobCodes = jobCodes;
     }
 }

@@ -72,6 +72,7 @@ import org.springframework.stereotype.Service;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 人员签到表--Service接口实现
@@ -498,26 +499,41 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Date signInTimeStart = DateHelper.add(signInTimeEnd,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
 		List<Map<String,Object>> list=content.getJobCodeHours();
 		List<JobCodeHoursDto> jobCodeHoursRecordList=new ArrayList<>();
+		List<Integer> allSpecialJobCodeList=new ArrayList();
 		if(CollectionUtils.isNotEmpty(list)){
 			for (Map<String, Object> map : list) {
 				int jobCode=(int)map.get("jobCode");
 				int hour=(int)map.get("hour");
-				Date endDate = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -hour);
-				Date startDate = DateHelper.add(endDate,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
 				JobCodeHoursDto jobCodeHoursRecord=new JobCodeHoursDto();
 				jobCodeHoursRecord.setJobCode(jobCode);
-				jobCodeHoursRecord.setStartTime(startDate);
-				jobCodeHoursRecord.setEndTime(endDate);
+				jobCodeHoursRecord.setHour(hour);
 				jobCodeHoursRecordList.add(jobCodeHoursRecord);
+				allSpecialJobCodeList.add(jobCode);
 			}
 		}
+		Map<Integer,List<JobCodeHoursDto>> jobCodeHoursRecordMap=jobCodeHoursRecordList.stream().collect(Collectors.groupingBy(JobCodeHoursDto::getHour));
+		List<JobCodeHoursDto> jobCodeHoursList=new ArrayList<>();
+		for (Map.Entry<Integer, List<JobCodeHoursDto>> entry : jobCodeHoursRecordMap.entrySet()) {
+			Integer hour=entry.getKey();
+			List<JobCodeHoursDto> jhList=entry.getValue();
+			List<Integer> jobCodes = jhList.stream().map(JobCodeHoursDto::getJobCode).collect(
+					Collectors.toList());
+			Date endDate = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -hour);
+			Date startDate = DateHelper.add(endDate,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
+			JobCodeHoursDto jobCodeHoursRecord=new JobCodeHoursDto();
+			jobCodeHoursRecord.setJobCodes(jobCodes);
+			jobCodeHoursRecord.setStartTime(startDate);
+			jobCodeHoursRecord.setEndTime(endDate);
+			jobCodeHoursList.add(jobCodeHoursRecord);
+		}
+
         List<Long> toSignOutPks;
         Date now = new Date();
         int updateRows = 0;
         log.info("自动签退数据扫描：{} - {}", DateHelper.formatDateTimeMs(signInTimeStart),DateHelper.formatDateTimeMs(signInTimeEnd));
         try {
             do {
-                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(jobCodeHoursRecordList,signInTimeStart,signInTimeEnd, 100);
+                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(allSpecialJobCodeList,jobCodeHoursList,signInTimeStart,signInTimeEnd, 100);
 
                 if (CollectionUtils.isNotEmpty(toSignOutPks)) {
                     UserSignRecord updateData = new UserSignRecord();
