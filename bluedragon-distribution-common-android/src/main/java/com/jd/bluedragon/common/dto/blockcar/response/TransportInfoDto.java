@@ -49,10 +49,6 @@ public class TransportInfoDto implements Serializable {
      * */
     private Integer ferrySealCarSceneCode;
     private String ferrySealCarSceneName;
-    /**
-     * 发车时间
-     */
-    private String departTime;
 
     public Integer getFerrySealCarSceneCode() {
         return ferrySealCarSceneCode;
@@ -100,13 +96,5 @@ public class TransportInfoDto implements Serializable {
 
     public void setCarrierType(Integer carrierType) {
         this.carrierType = carrierType;
-    }
-
-    public String getDepartTime() {
-        return departTime;
-    }
-
-    public void setDepartTime(String departTime) {
-        this.departTime = departTime;
     }
 }
