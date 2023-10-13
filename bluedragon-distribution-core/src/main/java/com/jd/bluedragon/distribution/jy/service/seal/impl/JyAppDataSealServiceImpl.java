@@ -4,10 +4,7 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUC
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -65,17 +62,19 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
 	@Override
 	public JyAppDataSealVo loadSavedPageData(String sendVehicleDetailBizId) {
 		JyAppDataSeal sealData = jyAppDataSealDao.queryByDetailBizId(sendVehicleDetailBizId);
-		if(sealData == null) {
-			return null;
-		}
+		// 加载批次信息
 		JyAppDataSealVo pageData = new JyAppDataSealVo();
+		pageData.setSendCodeList(loadSendCodeList(sendVehicleDetailBizId));
+
+		if(sealData == null) {
+			return pageData;
+		}
 		pageData.setItemSimpleCode(sealData.getItemSimpleCode());
 		pageData.setTransportCode(sealData.getTransportCode());
 		pageData.setPalletCount(sealData.getPalletCount());
 		pageData.setWeight(sealData.getWeight());
 		pageData.setVolume(sealData.getVolume());
 		pageData.setSealCodeList(jyAppDataSealCodeDao.querySealCodeList(sendVehicleDetailBizId));
-		pageData.setSendCodeList(loadSendCodeList(sendVehicleDetailBizId));
 		return pageData;
 	}
 	/**
@@ -193,7 +192,8 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
          * 明细保存sendCodes
          */
         if(CollectionUtils.isNotEmpty(sendCodes)) {
-        	jyAppDataSealSendCodeDao.batchInsert(sendCodes);
+			jyAppDataSealSendCodeDao.deleteByDetailBizId(detailBizId);
+			jyAppDataSealSendCodeDao.batchInsert(sendCodes);
         }
         return new InvokeResult<Boolean>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
 	}
@@ -207,5 +207,10 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
 	public Boolean checkExistSaveData(String sendVehicleDetailBizId) {
 		List<String> sendCodeList = jyAppDataSealSendCodeDao.querySendCodeList(sendVehicleDetailBizId);
 		return !CollectionUtils.isEmpty(sendCodeList);
+	}
+
+	@Override
+	public Boolean deleteDataSealBySendCode(String sendCode) {
+		return jyAppDataSealSendCodeDao.deleteBySendCode(sendCode) > 0;
 	}
 }

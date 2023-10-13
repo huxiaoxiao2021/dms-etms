@@ -42,4 +42,10 @@ public interface JyAppDataSealService {
 	 */
 	Boolean checkExistSaveData(String sendVehicleDetailBizId);
 
+	/**
+	 * 根据批次删除暂存数据
+	 * @param sendCode
+	 * @return
+	 */
+	Boolean deleteDataSealBySendCode(String sendCode);
 }
