@@ -774,10 +774,10 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
                     request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
             //业务参数校验
-            if(CollectionUtils.isEmpty(request.getBizIdList())) {
-                return new JdCResponse<>(JdCResponse.CODE_FAIL, "待封任务bizId为空", null);
+            if(CollectionUtils.isEmpty(request.getPrepareShuttleSealCarTaskDtoList())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "待封任务为空", null);
             }
-            if(request.getBizIdList().size() > JyAviationRailwaySendSealGatewayServiceImpl.oneSealBatchCodesMaxSize) {
+            if(request.getPrepareShuttleSealCarTaskDtoList().size() > JyAviationRailwaySendSealGatewayServiceImpl.oneSealBatchCodesMaxSize) {
                 String msg = String.format("封车任务最大支持%s个", JyAviationRailwaySendSealGatewayServiceImpl.oneSealBatchCodesMaxSize);
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, msg, null);
             }

@@ -16,13 +16,13 @@ public class PrepareShuttleSealCarReq extends BaseReq implements Serializable {
     /**
      * 航空任务BizId
      */
-    private List<String> bizIdList;
+    private List<PrepareShuttleSealCarTaskDto> prepareShuttleSealCarTaskDtoList;
 
-    public List<String> getBizIdList() {
-        return bizIdList;
+    public List<PrepareShuttleSealCarTaskDto> getPrepareShuttleSealCarTaskDtoList() {
+        return prepareShuttleSealCarTaskDtoList;
     }
 
-    public void setBizIdList(List<String> bizIdList) {
-        this.bizIdList = bizIdList;
+    public void setPrepareShuttleSealCarTaskDtoList(List<PrepareShuttleSealCarTaskDto> prepareShuttleSealCarTaskDtoList) {
+        this.prepareShuttleSealCarTaskDtoList = prepareShuttleSealCarTaskDtoList;
     }
 }
