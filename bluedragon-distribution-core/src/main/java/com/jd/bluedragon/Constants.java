@@ -821,7 +821,7 @@ public class Constants {
     /**
      * 配置信息-自动签退处理的站点配置
      */
-    public static final String SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES = "sys.config.autoHandleSignOutSiteCodes";    
+    public static final String SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES = "sys.config.autoHandleSignOutSiteCodes";
     /**
      *  配置信息-青龙打印配置  qinglong.print.type.use
      *
@@ -2138,4 +2138,37 @@ public class Constants {
     public static final String WAYBILL_INTERCEPT_REASON = "违禁品退回";
 
 
+
+    /**
+     * 本场地多扫标识
+     */
+    public static final Integer MORE_LOCAL_SCAN = 1;
+
+    /**
+     * 非本场地多扫标识
+     */
+    public static final Integer MORE_OUT_SCAN = 2;
+
+    /**
+     * 本场地部分多扫标识
+     */
+    public static final Integer MORE_LOCAL_PART_SCAN = 3;
+
+    /**
+     *  配置信息-非本场地多扫弱提醒开关
+     *
+     */
+    public static final String MORE_OUT_SCAN_NOTIFY_SWITCH = "more.out.scan.notify.switch";
+
+    /**
+     *  配置信息-查询es卸车扫描是否多扫开关
+     *
+     */
+    public static final String MORE_SCAN_QUERY_ES_SWITCH = "more.scan.query.es.switch";
+
+
+    /**
+     * 运输内网账号类型
+     */
+    public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
 }

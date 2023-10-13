@@ -24,7 +24,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.jd.bluedragon.configuration.DmsConfigManager;
-import com.jd.bluedragon.configuration.ducc.DuccPropertyConfig;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.test.utils.FileHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -47,7 +47,7 @@ public class TestDucc {
 	
 	@Test	
 	public void test() throws Exception {
-		List<Field> fieldList = ObjectHelper.getDeclaredFieldsList(DuccPropertyConfig.class);
+		
 		String tmpConfigPath = new File("").getCanonicalPath();
 		String rootConfigPath = tmpConfigPath+"\\src\\test\\resources\\files\\";
 //		String rootConfigPath = "/src/test/resources/files";
@@ -64,21 +64,29 @@ public class TestDucc {
 		 ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
 		 "/distribution-core-context-ducc-test.xml");
 		 ConfiguratorManager configuratorManager = (ConfiguratorManager)appContext.getBean("configuratorManager") ;
-		 DuccPropertyConfig ducc = dmsConfigManager.getDuccPropertyConfig() ;
+		 UccPropertyConfiguration ucc = dmsConfigManager.getUccPropertyConfiguration();
+		 UccPropertyConfiguration duccDefault = ucc;
+		 UccPropertyConfiguration ducc = dmsConfigManager.getUccPropertyConfiguration() ;
+		 com.jd.coo.ucc.client.config.UccPropertyConfig uccConfig = (com.jd.coo.ucc.client.config.UccPropertyConfig)appContext.getBean("propertyConfig") ;
 		 
 		 while(true) {
 			 String uccStr = FileHelper.loadFile(rootConfigPath+"ucc-config-test.properties");
+			 UccPropertyConfiguration uccData = JsonHelper.fromJson(uccStr, UccPropertyConfiguration.class);
 			 
 			 System.err.println("ducc-getProperties:"+JsonHelper.toJson(configuratorManager.getProperties()));
 			 
+			 System.err.println("ducc:"+JsonHelper.toJson(duccDefault));
 			 
+			 System.err.println("ucc:"+JsonHelper.toJson(ucc));
 			 
 			 System.err.println("ducc:"+JsonHelper.toJson(ducc));
+			 
 			 
 			 StringBuffer sfNeedCheck = new StringBuffer();
 			 StringBuffer sfCodes = new StringBuffer();
 			 StringBuffer sfCodes1 = new StringBuffer();
-			 Map<String, Field> duccKeyMap = ObjectHelper.getDeclaredFields(DuccPropertyConfig.class);
+			 List<Field> fieldList = ObjectHelper.getDeclaredFieldsList(UccPropertyConfiguration.class);
+			 Map<String, Field> duccKeyMap = ObjectHelper.getDeclaredFields(UccPropertyConfiguration.class);
 			 Collections.sort(fieldList,new Comparator<Field>() {
 				@Override
 				public int compare(Field o1, Field o2) {
@@ -92,11 +100,11 @@ public class TestDucc {
 				 String typeName = t.getSimpleName();
 				 String fieldName = field.getName();
 				 StringBuffer sfCodes0 = new StringBuffer();
-				 Object uccValue = ObjectHelper.getValue(ducc, field.getName());
+				 Object uccValue = ObjectHelper.getValue(ucc, field.getName());
 				 Object duccValue = ObjectHelper.getValue(ducc, field.getName());
-				 Object defaultValue = ObjectHelper.getValue(ducc, field.getName());
+				 Object defaultValue = ObjectHelper.getValue(duccDefault, field.getName());
 				 
-				 Object duccConfigValue = ObjectHelper.getValue(ducc, field.getName());
+				 Object duccConfigValue = ObjectHelper.getValue(uccData, field.getName());
 				 
 				 if(!typeName.toLowerCase().contains("lis")) {
 //					 String key = "duccPropertyConfig."+field.getName();
@@ -153,6 +161,20 @@ public class TestDucc {
 			 }
 			 StringBuffer sf = new StringBuffer();
 			 
+			 for(String item:uccConfig.getWeakList()) {
+				 sf.append("<laf-config:listener-field key=\"");
+				 sf.append(item+"\" field=\"");
+				 String beanName = item;
+				 String field = item;
+				 List<String> strs = StringHelper.splitToList(item, ".");
+				 if(strs != null && strs.size() >1) {
+					 field=strs.get(strs.size()-1);
+					 beanName = "d"+strs.get(0);
+				 }
+				 sf.append(field+"\" beanName=\"");
+				 sf.append(beanName+"\"");
+				 sf.append("/>\n");
+			 }
 			 System.err.println("duuc-config-s\n");
 			 System.err.println(duccConfig.toString());
 			 System.err.println("\nduuc-config-e");
@@ -183,6 +205,7 @@ public class TestDucc {
 			 log.info("log-test:info-msg");
 			 log.warn("log-test:warn-msg");
 			 log.error("log-test:error-msg");
+			 System.err.println(toUccJson(uccData));
 			 Thread.sleep(5000);
 		 }
 
