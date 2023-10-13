@@ -3996,9 +3996,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (StringUtils.isBlank(request.getSendVehicleBizId())) {
             return result.toFail("参数错误，sendVehicleBizId不能为空");
         }
-        if (StringUtils.isBlank(request.getSendDetailBizId())) {
-            return result.toFail("参数错误，sendDetailBizId不能为空");
-        }
         if (request.getCurrentOperate() == null) {
             return result.toFail("参数错误，currentOperate不能为空");
         }
