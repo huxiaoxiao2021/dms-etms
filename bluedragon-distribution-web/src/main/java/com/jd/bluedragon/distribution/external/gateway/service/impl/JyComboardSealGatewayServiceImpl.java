@@ -59,7 +59,8 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   @Qualifier("jyComboardSendVehicleService")
   private IJySendVehicleService jyComboardSendVehicleService;
   @Autowired
-  JyComboardSealVehicleServiceImpl jySealVehicleService;
+  @Qualifier("JyComboardSealVehicleService")
+  JySealVehicleService jySealVehicleService;
   @Autowired
   JyComBoardSendService jyComBoardSendService;
 

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * @description 组板封车
  * @date 2023-10-13 16:00
  */
-@Service
+@Service("JyComboardSealVehicleService")
 public class JyComboardSealVehicleServiceImpl extends JySealVehicleServiceImpl {
 
     @Autowired
