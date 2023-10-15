@@ -139,7 +139,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Autowired
     private UccPropertyConfiguration uccConfig;
     @Autowired
-    @Qualifier("jySealVehicleService")
+    @Qualifier("jyBaseSealVehicleService")
     private JySealVehicleService jySealVehicleService;
     @Autowired
     private JdiQueryWSManager jdiQueryWSManager;

@@ -59,7 +59,7 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
     private SendVehicleTransactionManager sendVehicleTransactionManager;
 
     @Autowired
-    @Qualifier("jySealVehicleService")
+    @Qualifier("jyBaseSealVehicleService")
     private JySealVehicleService jySealVehicleService;
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;

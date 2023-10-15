@@ -51,7 +51,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
     @Autowired
     private JyAviationRailwaySendSealServiceImpl jyAviationRailwaySendSealService;
     @Autowired
-    @Qualifier("jySealVehicleService")
+    @Qualifier("jyBaseSealVehicleService")
     private JySealVehicleService jySealVehicleService;
     @Autowired
     private BaseParamValidateService baseParamValidateService;

@@ -77,7 +77,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     private JyGroupSortCrossDetailCacheService jyGroupSortCrossDetailCacheService;
     
     @Autowired
-    @Qualifier("jySealVehicleService")
+    @Qualifier("jyBaseSealVehicleService")
     private JySealVehicleService jySealVehicleService;
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {

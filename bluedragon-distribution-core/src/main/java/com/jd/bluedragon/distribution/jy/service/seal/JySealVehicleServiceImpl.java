@@ -88,7 +88,7 @@ import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.utils.TimeUtils.yyyy_MM_dd_HH_mm_ss;
 
-@Service("jySealVehicleService")
+@Service("jyBaseSealVehicleService")
 @Slf4j
 public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Autowired

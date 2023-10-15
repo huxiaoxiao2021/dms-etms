@@ -82,7 +82,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Resource(name = "jySendVehicleServiceTys")
     private JySendVehicleServiceTysImpl jySendVehicleServiceTys;
     @Autowired
-    @Qualifier("jySealVehicleService")
+    @Qualifier("jyBaseSealVehicleService")
     JySealVehicleService jySealVehicleService;
     @Autowired
     private NewSealVehicleService newsealVehicleService;
