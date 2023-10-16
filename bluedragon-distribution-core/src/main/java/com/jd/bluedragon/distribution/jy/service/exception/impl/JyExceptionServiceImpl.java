@@ -359,7 +359,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         try {
             WaybillStatus waybillStatus = new WaybillStatus();
             //设置站点相关属性
-            waybillStatus.setPackageCode(entity.getBarCode());
+            waybillStatus.setWaybillCode(entity.getBarCode());
             waybillStatus.setCreateSiteCode(entity.getSiteCode().intValue());
             waybillStatus.setCreateSiteName(entity.getSiteName());
             if(StringUtils.isNotBlank(userCode)){
@@ -391,7 +391,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         Task task = new Task();
         task.setTableName(Task.TABLE_NAME_POP);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
-        task.setKeyword1(waybillStatus.getPackageCode());
+        task.setKeyword1(waybillStatus.getWaybillCode());
         task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
         task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
         task.setBody(com.jd.bluedragon.utils.JsonHelper.toJson(waybillStatus));
