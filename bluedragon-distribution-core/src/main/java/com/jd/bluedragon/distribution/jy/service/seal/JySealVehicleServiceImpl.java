@@ -923,8 +923,6 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         try {
             if (jyAppDataSealVo == null) {
                 jyAppDataSealVo = new JyAppDataSealVo();
-                jyAppDataSealVo.setWeight(new BigDecimal(0));
-                jyAppDataSealVo.setVolume(new BigDecimal(0));
             }
             // 获取暂存批次信息
             List<String> selectSendCode = new ArrayList<>();
@@ -933,8 +931,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 selectSendCode = jyAppDataSealVo.getSendCodeList().stream().map(JyAppDataSealSendCodeVo::getSendCode).collect(Collectors.toList());
                 appDataSealSendCodeVos = jyAppDataSealVo.getSendCodeList();
             }
-            BigDecimal weight = jyAppDataSealVo.getWeight();
-            BigDecimal volume = jyAppDataSealVo.getVolume();
+            BigDecimal weight = jyAppDataSealVo.getWeight() == null ? new BigDecimal(0) : jyAppDataSealVo.getWeight();
+            BigDecimal volume = jyAppDataSealVo.getVolume() == null ? new BigDecimal(0) : jyAppDataSealVo.getVolume();
             
             // 校验当前任务是否存在暂存数据，如果不存在暂存数据，则自动选择板号
             List<BoardLoadDto> boardList = jdiBoardLoadWSManager.queryBoardLoad(assembleBoardLoadDto(sealVehicleInfoReq));
