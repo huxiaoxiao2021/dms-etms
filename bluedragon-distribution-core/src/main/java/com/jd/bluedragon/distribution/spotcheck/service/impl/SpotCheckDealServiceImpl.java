@@ -272,7 +272,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
             boolean isMultiPack = isMultiPack(waybill, packageCode);
             // 图片缓存处理
-            if(!spotCheckPicUrlCacheDealIsSuc(isMultiPack ? packageCode : WaybillUtil.getWaybillCode(packageCode), siteCode, pictureUrl)){
+            if(!spotCheckPicUrlCacheDealIsSuc(isMultiPack, packageCode, siteCode, pictureUrl)){
                 logger.warn("站点：{}包裹号：{}的图片已存在!", siteCode, packageCode);
                 return;
             }
@@ -292,13 +292,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         }
     }
 
-    private boolean spotCheckPicUrlCacheDealIsSuc(String packOrWaybill, Integer siteCode, String pictureUrl) {
-        String key = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PICTURE, packOrWaybill, siteCode);
+    private boolean spotCheckPicUrlCacheDealIsSuc(boolean isMultiPack, String packageCode, Integer siteCode, String pictureUrl) {
+        String key = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PICTURE, packageCode, siteCode);
         if(jimdbCacheService.exists(key)){
             return false;
         }
         SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
-        condition.setPackageCode(packOrWaybill); // 一单一件：包裹号字段存的是运单号
+        condition.setPackageCode(isMultiPack ? packageCode : WaybillUtil.getWaybillCode(packageCode)); // 一单一件：包裹号字段存的是运单号
         condition.setReviewSiteCode(siteCode);
         condition.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
         List<WeightVolumeSpotCheckDto> spotCheckDtos = spotCheckQueryManager.queryAllSpotCheckByCondition(condition);
