@@ -38,7 +38,7 @@
     delete from jy_biz_task_collect_package
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.jdl.basic.api.domain.schedule.JyBizTaskCollectPackageEntity">
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity">
     insert into jy_biz_task_collect_package (id, biz_id, box_code, 
       task_status, box_type, mix_box_type, 
       transport_type, start_site_id, start_site_name, 
@@ -54,7 +54,7 @@
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, 
       #{ts,jdbcType=TIMESTAMP}, #{materialCode,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.jdl.basic.api.domain.schedule.JyBizTaskCollectPackageEntity">
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity">
     insert into jy_biz_task_collect_package
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -181,7 +181,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.jdl.basic.api.domain.schedule.JyBizTaskCollectPackageEntity">
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity">
     update jy_biz_task_collect_package
     <set>
       <if test="bizId != null">
@@ -244,7 +244,7 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.jdl.basic.api.domain.schedule.JyBizTaskCollectPackageEntity">
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity">
     update jy_biz_task_collect_package
     set biz_id = #{bizId,jdbcType=VARCHAR},
       box_code = #{boxCode,jdbcType=VARCHAR},

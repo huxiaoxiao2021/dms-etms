@@ -33,7 +33,7 @@
     delete from jy_biz_task_collect_package_flow
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.jdl.basic.api.domain.schedule.JyBizTaskCollectPackageFlowEntity">
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity">
     insert into jy_biz_task_collect_package_flow (id, collect_package_biz_id, box_code, 
       start_site_id, start_site_name, end_site_id, 
       end_site_name, create_user_erp, create_user_name, 
@@ -45,7 +45,7 @@
       #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.jdl.basic.api.domain.schedule.JyBizTaskCollectPackageFlowEntity">
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity">
     insert into jy_biz_task_collect_package_flow
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -142,7 +142,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.jdl.basic.api.domain.schedule.JyBizTaskCollectPackageFlowEntity">
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity">
     update jy_biz_task_collect_package_flow
     <set>
       <if test="collectPackageBizId != null">
@@ -190,7 +190,7 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.jdl.basic.api.domain.schedule.JyBizTaskCollectPackageFlowEntity">
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity">
     update jy_biz_task_collect_package_flow
     set collect_package_biz_id = #{collectPackageBizId,jdbcType=VARCHAR},
       box_code = #{boxCode,jdbcType=VARCHAR},
