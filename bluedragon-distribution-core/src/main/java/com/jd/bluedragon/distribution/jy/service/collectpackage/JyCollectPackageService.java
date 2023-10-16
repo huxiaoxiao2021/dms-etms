@@ -9,7 +9,7 @@ public interface JyCollectPackageService {
     /**
      * 集包
      */
-    InvokeResult<CollectPackageResp> collectPackage(CollectPackageReq request);
+    InvokeResult<CollectPackageResp>  collectPackage(CollectPackageReq request);
 
     /**
      * 查询集包任务列表

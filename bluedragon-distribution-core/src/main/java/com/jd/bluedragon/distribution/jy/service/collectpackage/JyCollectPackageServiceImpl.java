@@ -142,7 +142,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         //流向校验
         flowCheck(request);
         //sorting拦截器链
-        execIntecepterChain(request);
+        execInterceptorChain(request);
     }
 
     private void flowCheck(CollectPackageReq request) {
@@ -166,8 +166,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
             List<Integer> flowList =new ArrayList<>();
             flowList.add(collectPackageTask.getEndSiteId().intValue());
             checkRouterIfExitInCollectFlowList(router,flowList,request,collectPackageTask);
-        }
-        else {
+        } else {
             //查询可集的流向集合信息
             List<Integer> flowList =queryMixBoxFlowList(request);
             if (CollectionUtils.isEmpty(flowList)){
@@ -237,25 +236,29 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         }
     }
 
-    private List<Integer> getNextNodeList(Integer startSiteId, String router) {
-        int index =router.indexOf(String.valueOf(startSiteId));
-        if (index!=-1){
-            router =router.substring(index);
-            return Arrays.asList(router.split("\\|")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
-        }
-        throw new JyBizException("运单路由信息不包含当前场地！");
+  private List<Integer> getNextNodeList(Integer startSiteId, String router) {
+    int index = router.indexOf(String.valueOf(startSiteId));
+    if (index != -1) {
+        router = router.substring(index);
+        return Arrays.stream(router.split("\\|"))
+                .map(Integer::valueOf)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
+    throw new JyBizException("运单路由信息不包含当前场地！");
+}
 
 
-    private void execIntecepterChain(CollectPackageReq request) {
+    private void execInterceptorChain(CollectPackageReq request) {
         if (request.getForceCollectPackage()){
             return;
         }
         if (request.getSkipInterceptChain()){
             return;
         }
+
         PdaOperateRequest pdaOperateRequest =assemblePdaOperateRequest(request);
         SortingJsfResponse response =sortingService.check(pdaOperateRequest);
+
         if(!Objects.equals(response.getCode(), SortingResponse.CODE_OK)){
             if(response.getCode() >= 30000 && response.getCode() <= 40000){
                throw new JyBizException(CONFIRM_COLLECT_PACKAGE_WARNING,response.getMessage());
