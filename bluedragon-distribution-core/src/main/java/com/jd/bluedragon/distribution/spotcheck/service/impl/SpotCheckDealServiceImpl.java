@@ -716,7 +716,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setReConfirmHigh(spotCheckDto.getReviewHeight() == null ? null : String.valueOf(spotCheckDto.getReviewHeight()));
         spotCheckIssueMQ.setReConfirmWeight(spotCheckDto.getReviewWeight() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(spotCheckDto.getReviewWeight()));
         spotCheckIssueMQ.setReConfirmVolume(spotCheckDto.getReviewVolume() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(spotCheckDto.getReviewVolume()));
-        spotCheckIssueMQ.setConvertCoefficient(spotCheckDto.getVolumeRateStr());
+        spotCheckIssueMQ.setConvertCoefficient(spotCheckDto.getVolumeRate() == null ? spotCheckDto.getVolumeRateStr() : spotCheckDto.getVolumeRate().toString());
         spotCheckIssueMQ.setConfirmWeightSource(spotCheckDto.getContrastSource());
         spotCheckIssueMQ.setDiffWeight(spotCheckDto.getDiffWeight() == null ? null : decimalFormat.format(spotCheckDto.getDiffWeight()));
         spotCheckIssueMQ.setStanderDiff(spotCheckDto.getDiffStandard());
