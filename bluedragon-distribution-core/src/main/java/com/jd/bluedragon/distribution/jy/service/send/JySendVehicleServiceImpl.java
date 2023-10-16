@@ -4158,9 +4158,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (StringUtils.isBlank(request.getSendVehicleBizId())) {
             return result.toFail("参数错误，sendVehicleBizId不能为空");
         }
-        if (StringUtils.isBlank(request.getSendDetailBizId())) {
-            return result.toFail("参数错误，sendDetailBizId不能为空");
-        }
         if (request.getCurrentOperate() == null) {
             return result.toFail("参数错误，currentOperate不能为空");
         }
@@ -4800,6 +4797,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.fetchWaitingVehicleDistributionList", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<com.jd.bluedragon.common.dto.base.request.Pager<WaitingVehicleDistribution>> fetchWaitingVehicleDistributionList(WaitingVehicleDistributionRequest request) {
 
         InvokeResult<com.jd.bluedragon.common.dto.base.request.Pager<WaitingVehicleDistribution>> invokeResult = new InvokeResult<>();
@@ -4933,6 +4931,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.remindTransJob", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> remindTransJob(RemindTransJobRequest request) {
         InvokeResult<String> invokeResult = new InvokeResult<>();
         if (!checkRemindTransJobRequest(request, invokeResult)) {
