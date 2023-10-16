@@ -26,8 +26,7 @@ public class JyComboardSealVehicleServiceImpl extends JySealVehicleServiceImpl {
 
     public void setSavedPageData(SealVehicleInfoReq sealVehicleInfoReq, SealVehicleInfoResp sealVehicleInfoResp) {
         JyAppDataSealVo jyAppDataSealVo = jyAppDataSealService.loadSavedPageData(sealVehicleInfoReq.getSendVehicleDetailBizId());
-        selectBoardByTmsAndInitWeightVolume(sealVehicleInfoReq, jyAppDataSealVo);
-        sealVehicleInfoResp.setSavedPageData(jyAppDataSealVo);
+        sealVehicleInfoResp.setSavedPageData(selectBoardByTmsAndInitWeightVolume(sealVehicleInfoReq, jyAppDataSealVo));
         sealVehicleInfoResp.setBoardLimit(dmsConfigManager.getPropertyConfig().getJyComboardSealBoardListLimit());
     }
 }

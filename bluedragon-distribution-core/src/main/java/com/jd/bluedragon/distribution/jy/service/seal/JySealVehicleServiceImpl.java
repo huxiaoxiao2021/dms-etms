@@ -918,8 +918,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
     }
 
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.selectBoardByTms", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void selectBoardByTmsAndInitWeightVolume(SealVehicleInfoReq sealVehicleInfoReq, JyAppDataSealVo jyAppDataSealVo) {
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.selectBoardByTmsAndInitWeightVolume", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JyAppDataSealVo selectBoardByTmsAndInitWeightVolume(SealVehicleInfoReq sealVehicleInfoReq, JyAppDataSealVo jyAppDataSealVo) {
         try {
             if (jyAppDataSealVo == null) {
                 jyAppDataSealVo = new JyAppDataSealVo();
@@ -1003,6 +1003,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             jyAppDataSealVo.setSendCodeList(appDataSealSendCodeVos);
             jyAppDataSealVo.setWeight(weight);
             jyAppDataSealVo.setVolume(volume);
+            return jyAppDataSealVo;
         }catch (Exception e) {
             log.error("自动选择板号失败，request: {}", JsonHelper.toJson(sealVehicleInfoReq),e);
             return;
