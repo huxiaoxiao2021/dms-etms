@@ -112,12 +112,8 @@ public interface JySealVehicleService {
      * @return
      */
     InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request);
+    
 
     InvokeResult<Boolean> checkLoadRateBeforeSealVehicle(SealVehicleReq sealVehicleReq);
 
-    /**
-     * 自动选择板号
-     * @param sealVehicleInfoReq
-     */
-    void selectBoardByTms(SealVehicleInfoReq sealVehicleInfoReq);
-}
+    }

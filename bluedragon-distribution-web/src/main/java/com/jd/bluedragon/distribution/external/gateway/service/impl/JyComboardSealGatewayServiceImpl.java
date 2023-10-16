@@ -38,6 +38,7 @@ import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
+import com.jd.bluedragon.distribution.jy.service.seal.impl.JyComboardSealVehicleServiceImpl;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.external.gateway.service.JyComboardSealGatewayService;
@@ -58,6 +59,7 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   @Qualifier("jyComboardSendVehicleService")
   private IJySendVehicleService jyComboardSendVehicleService;
   @Autowired
+  @Qualifier("JyComboardSealVehicleService")
   JySealVehicleService jySealVehicleService;
   @Autowired
   JyComBoardSendService jyComBoardSendService;
@@ -104,14 +106,7 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   @Override
   public JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(
       SealVehicleInfoReq sealVehicleInfoReq) {
-    // 自动选择板号
-    jySealVehicleService.selectBoardByTms(sealVehicleInfoReq);
-    
-    InvokeResult<SealVehicleInfoResp> sealVehicleInfo = jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq);
-    if (sealVehicleInfo != null && sealVehicleInfo.getData() != null) {
-      sealVehicleInfo.getData().setBoardLimit(dmsConfigManager.getPropertyConfig().getJyComboardSealBoardListLimit());
-    }
-    return retJdCResponse(sealVehicleInfo);
+    return retJdCResponse(jySealVehicleService.getSealVehicleInfo(sealVehicleInfoReq));
   }
 
   @Override
