@@ -957,6 +957,32 @@ public class UccPropertyConfiguration{
      */
     private Boolean sendJyOperateFlowMqSwitch;
 
+    /**
+     * 特安发货任务提示优化开关
+     */
+    private boolean teAnSendTaskTipsOptimizationSwitch;
+
+    public boolean isTeAnSendTaskTipsOptimizationSwitch() {
+        return teAnSendTaskTipsOptimizationSwitch;
+    }
+
+    public void setTeAnSendTaskTipsOptimizationSwitch(boolean teAnSendTaskTipsOptimizationSwitch) {
+        this.teAnSendTaskTipsOptimizationSwitch = teAnSendTaskTipsOptimizationSwitch;
+    }
+
+    /**
+     * 一秒内特安任务执行限制数
+     */
+    private int teAnSendTaskNumberLimit;
+
+    public int getTeAnSendTaskNumberLimit() {
+        return teAnSendTaskNumberLimit;
+    }
+
+    public void setTeAnSendTaskNumberLimit(int teAnSendTaskNumberLimit) {
+        this.teAnSendTaskNumberLimit = teAnSendTaskNumberLimit;
+    }
+
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
     }
