@@ -1222,7 +1222,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         record.setUnsealTime(request.getCurrentOperate().getOperateTime());
         jyBizTaskComboardService.save(record);
         // 板创建成功后，发送延时消息，处理两小时没有操作过组板的板号
-        pushDelayMQ(record);
+        pushDelayDeleteBoardMQ(record);
         request.setBizId(record.getBizId());
       }else{
         request.setBizId(entity.getBizId());
@@ -1246,7 +1246,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
-  private void pushDelayMQ(JyBizTaskComboardEntity record) {
+  private void pushDelayDeleteBoardMQ(JyBizTaskComboardEntity record) {
     try {
       jyComboardTaskFirstSaveProducer.send(record.getBoardCode(), JsonHelper.toJson(record));
     } catch (Exception e) {
@@ -1530,7 +1530,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         //空板是不确定-是大宗还是非大宗，组板扫描成功后再确定
         jyBizTaskComboardService.save(record);
         // 板创建成功后，发送延时消息，删除两小时没有操作过组板的板号
-        pushDelayMQ(record);
+        pushDelayDeleteBoardMQ(record);
         // 删除缓存
         jyBizTaskComboardService.removeBoardCountCache(request.getTemplateCode());
       }
@@ -2600,6 +2600,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
                 barCodeList.add(dto.getBarCode());
               }
             }
+            // 全部取消，发送延时删除板消息
+            pushDelayDeleteBoardMQ(comboardEntity);
           } else {
             // 包裹号或箱号
             for (ComboardDetailDto comboardDetailDto : cancelList) {

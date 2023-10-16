@@ -139,6 +139,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     @Autowired
     private DmsConfigManager dmsConfigManager;
     @Autowired
+    @Qualifier("jyBaseSealVehicleService")
     private JySealVehicleService jySealVehicleService;
     @Autowired
     private JdiQueryWSManager jdiQueryWSManager;

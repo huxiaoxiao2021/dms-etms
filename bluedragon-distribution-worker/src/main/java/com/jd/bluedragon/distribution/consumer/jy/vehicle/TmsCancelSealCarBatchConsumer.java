@@ -21,6 +21,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -55,8 +56,9 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
   @Autowired
   private SendVehicleTransactionManager sendVehicleTransactionManager;
 
-  @Autowired
-  private JySealVehicleService jySealVehicleService;
+    @Autowired
+    @Qualifier("jyBaseSealVehicleService")
+    private JySealVehicleService jySealVehicleService;
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
 
