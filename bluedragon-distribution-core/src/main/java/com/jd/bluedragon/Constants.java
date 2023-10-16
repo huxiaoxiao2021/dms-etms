@@ -2158,4 +2158,11 @@ public class Constants {
      * 运输内网账号类型
      */
     public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
+    
+    /**
+     * oss链接内外网key
+     */
+    public static final String OSS_OUTER_NET_KEY = "oss.outerNet";
+    public static final String OSS_INNER_NET_KEY = "oss.innerNet";
+    public static final String OSS_INNER_OFFICE_NET_KEY = "oss.innerNet.office";
 }
