@@ -83,7 +83,7 @@ import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.utils.TimeUtils.yyyy_MM_dd_HH_mm_ss;
 
-@Service
+@Service("jyBaseSealVehicleService")
 @Slf4j
 public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Autowired
@@ -1005,6 +1005,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             jyAppDataSealVo.setVolume(volume);
         }catch (Exception e) {
             log.error("自动选择板号失败，request: {}", JsonHelper.toJson(sealVehicleInfoReq),e);
+            return;
         }
     }
     
