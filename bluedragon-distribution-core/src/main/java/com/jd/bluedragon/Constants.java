@@ -2188,4 +2188,10 @@ public class Constants {
      */
     public static final Integer REASON_CODE_FIND_GOODS = 115;
     public static final String REASON_MESSAGE_FIND_GOODS = "清场找到";
+    /**
+     * oss链接内外网key
+     */
+    public static final String OSS_OUTER_NET_KEY = "oss.outerNet";
+    public static final String OSS_INNER_NET_KEY = "oss.innerNet";
+    public static final String OSS_INNER_OFFICE_NET_KEY = "oss.innerNet.office";
 }
