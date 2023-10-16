@@ -951,7 +951,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             List<String> sendCodeNotDel = taskList.stream().map(JyBizTaskComboardEntity::getSendCode).collect(Collectors.toList());
             
             //需要追加的批次
-            HashSet<String> sendCodeAdd = new HashSet<>();
+            HashSet<String> boardCodeAdd = new HashSet<>();
+            HashMap<String, String> boardSendCodeMap = new HashMap<>();
             for (BoardLoadDto boardLoadDto : boardList) {
                 // 只操作完成装车的板
                 if (!LOADING_COMPLETEDC.equals(boardLoadDto.getBoardStatus())) {
@@ -963,37 +964,23 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 }
                 
                 if (!selectSendCode.contains(boardLoadDto.getBatchCode())) {
-                    sendCodeAdd.add(boardLoadDto.getBatchCode());
+                    boardCodeAdd.add(boardLoadDto.getBatchCode());
+                    boardSendCodeMap.put(boardLoadDto.getBoardCode(),boardLoadDto.getBatchCode());
                 }
             }
 
-            if(CollectionUtils.isNotEmpty(sendCodeAdd)) {
-                com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Map<String, HugeSendCodeEntity>> weightAndVolumeInfo = dmsSendCodeJSFService.queryWeightAndVolumeInfoBySendCodes(new ArrayList<>(sendCodeAdd));
-                boolean needSetWeightAndVolume = false;
-                if(weightAndVolumeInfo != null
-                        && weightAndVolumeInfo.getData()!= null
-                        && !weightAndVolumeInfo.getData().isEmpty()) {
-                    needSetWeightAndVolume = true;
-                }
-                for(String sendCode:sendCodeAdd) {
+            if(CollectionUtils.isNotEmpty(boardCodeAdd)) {
+                List<JyComboardAggsEntity> aggs = jyComboardAggsService.queryComboardAggs(new ArrayList<>(boardCodeAdd));
+                for (JyComboardAggsEntity aggsEntity : aggs) {
                     JyAppDataSealSendCodeVo vo = new JyAppDataSealSendCodeVo();
-                    vo.setSendCode(sendCode);
-                    if(needSetWeightAndVolume) {
-                        HugeSendCodeEntity weightVo = weightAndVolumeInfo.getData().get(sendCode);
-                        if(weightVo != null) {
-                            if(weightVo.getVolume() != null) {
-                                vo.setVolume(BigDecimal.valueOf(weightVo.getVolume()));
-                                volume.add(BigDecimal.valueOf(weightVo.getVolume()));
-                            }else {
-                                vo.setVolume(new BigDecimal(0));
-                            }
-                            if(weightVo.getWeight() != null) {
-                                vo.setWeight(BigDecimal.valueOf(weightVo.getWeight()));
-                                weight.add(BigDecimal.valueOf(weightVo.getWeight()));
-                            }else {
-                                vo.setWeight(new BigDecimal(0));
-                            }
-                        }
+                    vo.setSendCode(boardSendCodeMap.get(aggsEntity.getBoardCode()));
+                    if (aggsEntity.getWeight() != null) {
+                        vo.setWeight(aggsEntity.getWeight());
+                        weight.add(aggsEntity.getWeight());
+                    }
+                    if (aggsEntity.getVolume() != null) {
+                        vo.setWeight(aggsEntity.getWeight());
+                        weight.add(aggsEntity.getWeight());
                     }
                     appDataSealSendCodeVos.add(vo);
                 }
