@@ -1,9 +1,18 @@
 package com.jd.bluedragon.distribution.jy.service.work.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.distribution.jy.dto.work.*;
+import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
+import com.jdl.basic.api.domain.workStation.WorkGrid;
+import com.jdl.basic.api.service.work.WorkGridManagerTaskJsfService;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +27,12 @@ import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
 import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskJsfManager;
 import com.jd.bluedragon.distribution.jy.dao.work.JyBizTaskWorkGridManagerDao;
-import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
-import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate;
-import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount;
-import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery;
 import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jdl.basic.api.domain.work.WorkGridManagerTask;
 import com.jdl.basic.common.utils.Result;
+import org.terracotta.statistics.jsr166e.ThreadLocalRandom;
 
 /**
  * @ClassName: JyBizTaskWorkGridManagerServiceImpl
@@ -39,6 +45,8 @@ import com.jdl.basic.common.utils.Result;
 public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridManagerService {
 
 	private static final Logger logger = LoggerFactory.getLogger(JyBizTaskWorkGridManagerServiceImpl.class);
+	//todo sysconfig 配置
+	private List<String> OFFICE_AREA_CODE_LIST = Arrays.asList("FJBGQ");
 
 	@Autowired
 	@Qualifier("jyBizTaskWorkGridManagerDao")
@@ -47,6 +55,10 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	@Autowired
 	@Qualifier("workGridManagerTaskJsfManager")
 	private WorkGridManagerTaskJsfManager workGridManagerTaskJsfManager;
+	@Autowired
+	private PositionManager positionManager;
+	
+	
 
 	@Override
 	public JyWorkGridManagerData queryTaskDataByBizId(String bizId) {
@@ -172,5 +184,84 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			return 0;
 		}
 		return jyBizTaskWorkGridManagerDao.autoCancelTaskForGridDelete(cancelData);
+	}
+
+	/**
+	 * 生成管理巡视任务
+	 * @param erp
+	 * @param positionCode
+	 */
+	@Override
+	public void generateManageInspectionTask(String erp, String positionCode){
+		Result<PositionDetailRecord> recordResult = positionManager.queryOneByPositionCode(positionCode);
+		if(recordResult == null || recordResult.getData() == null){
+			logger.info("生成管理巡视任务，未查到岗位信息，erp:{},positionCode:{}", erp, positionCode);
+			return;
+		}
+		PositionDetailRecord detailRecord = recordResult.getData();
+		String areaCode = detailRecord.getAreaCode();
+		if(org.apache.commons.lang3.StringUtils.isBlank(areaCode)){
+			logger.info("生成管理巡视任务，未查到岗位对应的作业区信息，erp:{},positionCode:{}", erp, positionCode);
+			return;
+		}
+		//todo 过滤 【一线机构管理岗】、【精益改善岗】、【中控岗】
+		
+		if(!OFFICE_AREA_CODE_LIST.contains(areaCode)){
+			logger.info("生成管理巡视任务，登录扫描的非办公区岗位码，erp:{},positionCode:{},areaCode:{}", erp, positionCode,
+					areaCode);
+			return;
+		}
+		//管理任务
+		Result<List<WorkGridManagerTask>> taskResult = workGridManagerTaskJsfManager.queryByBizType(WorkGridManagerTaskBizType.MANAGER_PATROL.getCode());
+		if(taskResult == null || CollectionUtils.isEmpty(taskResult.getData())){
+			logger.info("生成管理巡视任务，根据类型未查询管理任务定义，erp:{},positionCode:{},areaCode:{}");
+			return;
+		}
+		List<String> taskCodeList = taskResult.getData().stream().map(WorkGridManagerTask::getTaskCode).collect(Collectors.toList());
+		//检查是否已生成本erp的今天的管理任务
+		Integer taskCount = jyBizTaskWorkGridManagerDao.selectHandlerTodayTaskCountByTaskBizType(detailRecord.getSiteCode(),
+				DateHelper.getZeroFromDay(new Date(), 0), erp, taskCodeList);
+		if(taskCount > 0){
+			logger.info("生成管理巡视任务，今天已生成管理任务，不再重复生成");
+			return;
+		}
+		
+		
+		
+	}
+
+	private JyBizTaskWorkGridManager initJyBizTaskWorkGridManager(BaseSiteInfoDto siteInfo, String taskConfigCode, String taskBatchCode,
+																  WorkGridManagerTask taskInfo, String handlerPositionCode,String handlerPositionName
+																  ,WorkGrid grid, Date curDate) {
+		JyBizTaskWorkGridManager jyTask = new JyBizTaskWorkGridManager();
+		jyTask.setBizId(UUID.randomUUID().toString());
+		//设置任务配置信息
+		jyTask.setTaskConfigCode(taskConfigCode);
+		jyTask.setTaskBatchCode(taskBatchCode);
+		jyTask.setHandlerUserPositionCode(handlerPositionCode);
+		jyTask.setHandlerUserPositionName(handlerPositionName);
+		jyTask.setCreateTime(curDate);
+		jyTask.setStatus(WorkTaskStatusEnum.TO_DISTRIBUTION.getCode());
+
+		//设置网格信息
+		jyTask.setTaskRefGridKey(grid.getBusinessKey());
+		jyTask.setAreaCode(grid.getAreaCode());
+		jyTask.setAreaName(grid.getAreaName());
+		jyTask.setGridName(grid.getGridName());
+		jyTask.setSiteCode(grid.getSiteCode());
+		//设置省区相关字段
+		jyTask.setSiteName(siteInfo.getSiteName());
+		jyTask.setAreaHubCode(StringHelper.getStringValue(siteInfo.getAreaCode()));
+		jyTask.setAreaHubName(StringHelper.getStringValue(siteInfo.getAreaName()));
+		jyTask.setProvinceAgencyCode(StringHelper.getStringValue(siteInfo.getProvinceAgencyCode()));
+		jyTask.setProvinceAgencyName(StringHelper.getStringValue(siteInfo.getProvinceAgencyName()));
+		//设置任务信息
+		jyTask.setTaskType(taskInfo.getTaskType());
+		jyTask.setNeedScanGrid(taskInfo.getNeedScanGrid());
+		jyTask.setTaskCode(taskInfo.getTaskCode());
+		jyTask.setTaskName(taskInfo.getTaskName());
+		jyTask.setTaskDescription(taskInfo.getTaskDescription());
+		jyTask.setOrderNum(ThreadLocalRandom.current().nextInt(1000));
+		return jyTask;
 	}
 }
