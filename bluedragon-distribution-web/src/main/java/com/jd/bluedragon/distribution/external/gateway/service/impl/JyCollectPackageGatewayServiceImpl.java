@@ -62,6 +62,17 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
     public JdCResponse<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) {
         return null;
     }
+
+    @Override
+    public JdCResponse<StatisticsUnderTaskQueryResp> queryStatisticsUnderTask(StatisticsUnderTaskQueryReq request) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request) {
+        return null;
+    }
+
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(),
                 invokeResult.getData());

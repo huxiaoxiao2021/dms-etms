@@ -5,11 +5,24 @@ package com.jd.bluedragon.common.dto.collectpackage.response;
  * @description 流向信息
  * @date 2023-10-12 17:56
  */
-public class SiteInfo {
+public class CollectPackageFlowDto {
 
     private Long endSiteId;
 
     private String endSiteName;
+
+    /**
+     * 该流向下集包数量
+     */
+    private Integer count;
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
+    }
 
     public Long getEndSiteId() {
         return endSiteId;

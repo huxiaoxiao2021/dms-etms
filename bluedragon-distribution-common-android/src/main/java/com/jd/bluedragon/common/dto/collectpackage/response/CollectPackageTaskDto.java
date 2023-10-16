@@ -50,7 +50,7 @@ public class CollectPackageTaskDto implements Serializable {
     /**
      * 目的地流向集合
      */
-    private List<SiteInfo> endSiteList;
+    private List<CollectPackageFlowDto> endSiteList;
     
     private String createUserErp;
 
@@ -195,11 +195,11 @@ public class CollectPackageTaskDto implements Serializable {
         this.scanCount = scanCount;
     }
 
-    public List<SiteInfo> getEndSiteList() {
+    public List<CollectPackageFlowDto> getEndSiteList() {
         return endSiteList;
     }
 
-    public void setEndSiteList(List<SiteInfo> endSiteList) {
+    public void setEndSiteList(List<CollectPackageFlowDto> endSiteList) {
         this.endSiteList = endSiteList;
     }
 }

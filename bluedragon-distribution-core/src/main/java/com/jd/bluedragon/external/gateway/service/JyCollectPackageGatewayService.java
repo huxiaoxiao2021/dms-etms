@@ -58,4 +58,19 @@ public interface JyCollectPackageGatewayService {
    */
   JdCResponse<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request);
 
+  /**
+   * 查询任务下的统计数据
+   * @param request
+   * @return
+   */
+  JdCResponse<StatisticsUnderTaskQueryResp> queryStatisticsUnderTask(StatisticsUnderTaskQueryReq request);
+
+
+  /**
+   * 查询任务某个流向下的统计数据
+   * @param request
+   * @return
+   */
+  JdCResponse<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request);
+
 }

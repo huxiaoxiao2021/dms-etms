@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
+import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -11,6 +12,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
@@ -34,6 +36,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +68,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     private ISortingService dmsSortingService;
     @Autowired
     BoxLimitConfigManager boxLimitConfigManager;
+    @Autowired
+    private CycleBoxService cycleBoxService;
 
 
     @Override
@@ -310,7 +315,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         if (!ObjectHelper.isNotNull(request.getBarCode())){
             throw new JyBizException("参数错误：缺失包裹号！");
         }
-        if (!(WaybillUtil.isPackageCode(request.getBarCode()) || BusinessUtil.isCollectionBag(request.getBarCode()))){
+        if (!WaybillUtil.isPackageCode(request.getBarCode())){
             throw new JyBizException("参数错误：包裹号类型错误，请扫描正确的包裹号码！");
         }
     }
@@ -332,7 +337,41 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
 
     @Override
     public InvokeResult bindCollectBag(BindCollectBagReq request) {
-        return null;
+        checkBindCollectBagReq(request);
+        BoxMaterialRelationRequest req = assembleBoxMaterialRelationRequest(request);
+        InvokeResult bindMaterialResp = cycleBoxService.boxMaterialRelationAlter(req);
+        if (!bindMaterialResp.codeSuccess()) {
+            return new InvokeResult(SERVER_ERROR_CODE, bindMaterialResp.getMessage());
+        }
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+    }
+
+    private BoxMaterialRelationRequest assembleBoxMaterialRelationRequest(BindCollectBagReq request) {
+        BoxMaterialRelationRequest req = new BoxMaterialRelationRequest();
+        req.setUserCode(request.getUser().getUserCode());
+        req.setUserName(request.getUser().getUserName());
+        req.setOperatorERP(request.getUser().getUserErp());
+        req.setSiteCode(request.getCurrentOperate().getSiteCode());
+        req.setSiteName(request.getCurrentOperate().getSiteName());
+        req.setBoxCode(request.getBoxCode());
+        req.setMaterialCode(request.getMaterialCode());
+        req.setBindFlag(Constants.CONSTANT_NUMBER_ONE);
+        return req;
+    }
+
+    private void checkBindCollectBagReq(BindCollectBagReq request) {
+        if (!ObjectHelper.isNotNull(request.getBoxCode())){
+            throw new JyBizException("参数错误：缺失箱号！");
+        }
+        if (!BusinessUtil.isBoxcode(request.getBoxCode())){
+            throw new JyBizException("参数错误：非法的箱号！");
+        }
+        if (!ObjectHelper.isNotNull(request.getMaterialCode())){
+            throw new JyBizException("参数错误：缺失集包袋号！");
+        }
+        if (!BusinessUtil.isCollectionBag(request.getMaterialCode())){
+            throw new JyBizException("参数错误：非法的集包袋号！");
+        }
     }
 
     @Override
