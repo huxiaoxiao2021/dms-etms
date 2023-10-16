@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
+import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -379,6 +380,22 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
 
     @Override
     public InvokeResult<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) {
+        checkCancelCollectPackageReq(request);
+
+        /*SortingRequest params = new SortingRequest();
+        params.setPackageCode(request.getPackageCode());
+        params.setUserCode(request.getUser().getUserCode());
+        params.setUserName(request.getUser().getUserName());
+        params.setBusinessType(request.getBusinessType());
+        params.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(),DateUtil.FORMAT_DATE_TIME));
+        params.setSiteCode(request.getCurrentOperate().getSiteCode());
+        params.setSiteName(request.getCurrentOperate().getSiteName());
+        if(BusinessUtil.isBoxcode(request.getPackageCode())){
+            params.setBoxCode(request.getPackageCode());
+        }*/
         return null;
+    }
+
+    private void checkCancelCollectPackageReq(CancelCollectPackageReq request) {
     }
 }
