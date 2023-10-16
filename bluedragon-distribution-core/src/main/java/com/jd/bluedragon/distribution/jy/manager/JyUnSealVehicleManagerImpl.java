@@ -38,7 +38,6 @@ public class JyUnSealVehicleManagerImpl implements IJyUnSealVehicleManager {
     private static final Logger log = LoggerFactory.getLogger(JyUnSealVehicleManagerImpl.class);
 
     @Autowired
-    @Qualifier("jyBaseSealVehicleService")
     private ISealVehicleService sealVehicleService;
 
     @Autowired
