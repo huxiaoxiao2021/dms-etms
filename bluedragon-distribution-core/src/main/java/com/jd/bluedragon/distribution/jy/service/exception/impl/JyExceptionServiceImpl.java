@@ -360,6 +360,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             WaybillStatus waybillStatus = new WaybillStatus();
             //设置站点相关属性
             waybillStatus.setWaybillCode(entity.getBarCode());
+            waybillStatus.setPackageCode(entity.getBarCode());
             waybillStatus.setCreateSiteCode(entity.getSiteCode().intValue());
             waybillStatus.setCreateSiteName(entity.getSiteName());
             if(StringUtils.isNotBlank(userCode)){
