@@ -939,7 +939,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             // 校验当前任务是否存在暂存数据，如果不存在暂存数据，则自动选择板号
             List<BoardLoadDto> boardList = jdiBoardLoadWSManager.queryBoardLoad(assembleBoardLoadDto(sealVehicleInfoReq));
             if (CollectionUtils.isEmpty(boardList)) {
-                return;
+                return jyAppDataSealVo;
             }
 
             HashSet<String> sendCodeForQuery = new HashSet<>();
@@ -1006,7 +1006,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             return jyAppDataSealVo;
         }catch (Exception e) {
             log.error("自动选择板号失败，request: {}", JsonHelper.toJson(sealVehicleInfoReq),e);
-            return;
+            return jyAppDataSealVo;
         }
     }
     
