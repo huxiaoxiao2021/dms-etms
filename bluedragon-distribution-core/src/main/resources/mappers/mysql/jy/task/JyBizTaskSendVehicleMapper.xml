@@ -21,6 +21,7 @@
         <result property="vehicleTypeName" column="vehicle_type_name"/>
         <result property="lineType" column="line_type"/>
         <result property="lineTypeName" column="line_type_name"/>
+        <result property="driverTag" column="driver_tag"/>
         <result property="lastPlanDepartTime" column="last_plan_depart_time"/>
         <result property="lastSealCarTime" column="last_seal_car_time"/>
         <result property="comeTime" column="come_time"/>
@@ -49,7 +50,7 @@
     <sql id="Base_Column_List">
         id
         , biz_id,biz_no, trans_work_code, start_site_id, vehicle_number, vehicle_status, manual_created_flag, abnormal_flag,
-        bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, last_plan_depart_time, last_seal_car_time,come_time,near_come_time,
+        bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, driver_tag, last_plan_depart_time, last_seal_car_time,come_time,near_come_time,
         create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,task_name
     </sql>
 
@@ -103,6 +104,9 @@
             </if>
             <if test="lineTypeName != null">
                 line_type_name,
+            </if>
+            <if test="driverTag != null">
+                driver_tag,
             </if>
             <if test="lastPlanDepartTime != null">
                 last_plan_depart_time,
@@ -192,6 +196,9 @@
             </if>
             <if test="lineTypeName != null">
                 #{lineTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="driverTag != null">
+                #{driverTag,jdbcType=TINYINT},
             </if>
             <if test="lastPlanDepartTime != null">
                 #{lastPlanDepartTime,jdbcType=TIMESTAMP},
@@ -283,6 +290,9 @@
             <if test="lineTypeName != null">
                 line_type_name = #{lineTypeName,jdbcType=VARCHAR},
             </if>
+            <if test="driverTag != null">
+                driver_tag = #{driver_tag,jdbcType=INTEGER},
+            </if>
             <if test="lastPlanDepartTime != null">
                 last_plan_depart_time = #{lastPlanDepartTime,jdbcType=TIMESTAMP},
             </if>
@@ -370,6 +380,9 @@
             </if>
             <if test="lineTypeName != null">
                 line_type_name = #{lineTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="driverTag != null">
+                driver_tag = #{driverTag,jdbcType=INTEGER},
             </if>
             <if test="lastPlanDepartTime != null">
                 last_plan_depart_time = #{lastPlanDepartTime,jdbcType=TIMESTAMP},
@@ -804,5 +817,56 @@
         <foreach collection="bizIds" separator="," open="(" close=")" item="item">
             #{item}
         </foreach>
+    </select>
+
+    <select id="findSendTaskByDestAndStatusesWithPage" resultMap="jyBizTaskSendVehicleMap">
+        SELECT
+        m.id,
+        m.biz_id,m.trans_work_code,m.start_site_id,m.vehicle_number,m.vehicle_status,m.manual_created_flag,m.abnormal_flag,
+        m.bind_flag,m.trans_way,m.trans_way_name,m.vehicle_type,m.vehicle_type_name,m.line_type,m.line_type_name,m.last_plan_depart_time,m.last_seal_car_time
+        FROM
+        jy_biz_task_send_vehicle m
+        INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
+        WHERE
+        m.yn = 1
+        <if test="entity.lineTypeList != null and entity.lineTypeList.size() > 0">
+            AND m.line_type in
+            <foreach collection="entity.lineTypeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.manualCreatedFlag != null">
+            AND m.manual_created_flag = #{entity.manualCreateFlag}
+        </if>
+        AND d.yn = 1
+        AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
+        <if test="entity.transferFlag!=null and entity.transferFlag ==2">
+            AND d.excep_label =0
+        </if>
+        AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
+        <if test="entity.transWorkItemCode != null and entity.transWorkItemCode !='' ">
+            AND d.trans_work_item_code = #{entity.transWorkItemCode}
+        </if>
+        <if test="entity.transWorkCodeList != null">
+            AND m.trans_work_code IN
+            <foreach collection="entity.transWorkCodeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.sendVehicleBizId != null">
+            AND d.send_vehicle_biz_id = #{entity.sendVehicleBizId}
+        </if>
+        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+            AND ((m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{entity.createTimeBegin}))
+        </if>
+        <if test="statuses != null and statuses.length > 0">
+            AND m.vehicle_status IN
+            <foreach collection="statuses" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY m.biz_id
+        ORDER BY m.last_plan_depart_time DESC
+        LIMIT #{offset}, #{limit}
     </select>
 </mapper>

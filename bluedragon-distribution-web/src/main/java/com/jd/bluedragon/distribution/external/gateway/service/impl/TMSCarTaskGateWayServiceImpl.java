@@ -1,10 +1,9 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.carTask.request.CarTaskQueryRequest;
 import com.jd.bluedragon.common.dto.carTask.request.CarTaskUpdateDto;
 import com.jd.bluedragon.common.dto.carTask.request.FindEndNodeRequest;
@@ -18,14 +17,8 @@ import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 public class TMSCarTaskGateWayServiceImpl implements TMSCarTaskGateWayService {
@@ -34,6 +27,8 @@ public class TMSCarTaskGateWayServiceImpl implements TMSCarTaskGateWayService {
     private TmsCarTaskService tmsCarTaskService;
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "TMSCarTaskGateWayService.getEndNodeList",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<List<CarTaskEndNodeResponse>> getEndNodeList(String startNodeCode) {
         log.info("获取当前站点的目的站点列表 入参-{}", startNodeCode);
         JdCResponse<List<CarTaskEndNodeResponse>> jdCResponse = new JdCResponse<>();
@@ -51,6 +46,8 @@ public class TMSCarTaskGateWayServiceImpl implements TMSCarTaskGateWayService {
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "TMSCarTaskGateWayService.queryCarTaskList",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<List<CarTaskResponse>> queryCarTaskList(CarTaskQueryRequest request) {
         log.info("TMSCarTaskGateWayServiceImpl.queryCarTaskList获取当前站点的目的站点列表 入参-{}", JSON.toJSONString(request));
         JdCResponse<List<CarTaskResponse>> jdCResponse = new JdCResponse<>();
@@ -68,6 +65,8 @@ public class TMSCarTaskGateWayServiceImpl implements TMSCarTaskGateWayService {
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "TMSCarTaskGateWayService.updateCarTaskInfo",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse updateCarTaskInfo(CarTaskUpdateDto carTaskUpdateDto) {
         log.info("TMSCarTaskGateWayServiceImpl.updateCarTaskInfo 更新车辆任务信息-{}", JSON.toJSONString(carTaskUpdateDto));
         JdCResponse jdCResponse = new JdCResponse();

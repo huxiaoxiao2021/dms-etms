@@ -302,6 +302,7 @@
 		<property name="cttGroupDataLimit" value="${cttGroupDataLimit:200}"/>
 		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
 		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
+		<property name="fetchCarDistributionTimeRange" value="${fetchCarDistributionTimeRange:48}"/>
 		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
 		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
 		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
@@ -597,6 +598,7 @@
 				<value>uccPropertyConfiguration.cttGroupDataLimit</value>
 				<value>uccPropertyConfiguration.qingChangDataOpenSwitch</value>
 				<value>uccPropertyConfiguration.jySendSpecialProductTypeToScanShowRemainMinutes</value>
+				<value>uccPropertyConfiguration.fetchCarDistributionTimeRange</value>
 				<value>uccPropertyConfiguration.checkAkboxConfig</value>
 				<value>uccPropertyConfiguration.printCacheTime</value>
 				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>

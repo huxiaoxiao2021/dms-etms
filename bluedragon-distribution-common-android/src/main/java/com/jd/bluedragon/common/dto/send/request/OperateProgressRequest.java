@@ -28,6 +28,11 @@ public class OperateProgressRequest implements Serializable {
    */
   private Date operationTime;
 
+  /**
+   * 扫描第一枪操作时间
+   */
+  private Date firstScanTime;
+
   public String getOperationCode() {
     return operationCode;
   }
@@ -66,5 +71,13 @@ public class OperateProgressRequest implements Serializable {
 
   public void setOperationTime(Date operationTime) {
     this.operationTime = operationTime;
+  }
+
+  public Date getFirstScanTime() {
+    return firstScanTime;
+  }
+
+  public void setFirstScanTime(Date firstScanTime) {
+    this.firstScanTime = firstScanTime;
   }
 }
