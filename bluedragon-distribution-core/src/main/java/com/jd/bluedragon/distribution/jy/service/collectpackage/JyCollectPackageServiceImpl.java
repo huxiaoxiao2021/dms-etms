@@ -86,8 +86,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     }
 
     private void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
-        boolean sync = false;
-        if (sync){
+        boolean syncExec = false;
+        if (syncExec){
             Task task =assembleSortingTask(request);
             dmsSortingService.doSorting(task);
         }else {
@@ -110,8 +110,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         task.setBoxCode(request.getBoxCode());
 
         //TODO
-       /* taskService.initOthers(jsonVal, task);
-        task.setBody(jsonVal);*/
+        //taskService.initOthers(jsonVal, task);
+        //task.setBody(jsonVal);
 
 
         task.setReceiveSiteCode(request.getEndSiteId().intValue());
