@@ -104,7 +104,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 		Map<Long, Result> results;
 		try{
-			log.info("---batchUpdateWaybillByOperateCode-{}",JSON.toJSONString(parameterList));
 			results = this.waybillSyncApi.batchUpdateWaybillByOperateCode(parameterList);
 		}catch (Exception e){
 			Profiler.functionError(info);

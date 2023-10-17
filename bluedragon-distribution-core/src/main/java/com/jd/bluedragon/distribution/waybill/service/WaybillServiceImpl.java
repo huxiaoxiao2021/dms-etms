@@ -245,7 +245,6 @@ public class WaybillServiceImpl implements WaybillService {
                 waybillStatusService.sendModifyWaybillStatusFinished(task);
                 // 除妥投外需要改变运单状态的任务
             } else {
-                log.info("----doWaybillStatusTask");
                 List<Task> taskList = new ArrayList<Task>();
                 taskList.add(task);
                 waybillStatusService.sendModifyWaybillStatusNotify(taskList);
