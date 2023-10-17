@@ -6,14 +6,18 @@ import com.jd.bluedragon.distribution.api.request.LoginInfoDto;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
 import com.jd.jmq.common.message.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("loginInfoConsumer")
 @Slf4j
 public class LoginInfoConsumer extends MessageBaseConsumer {
+    @Autowired
+    JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
     @Override
     public void consume(Message message) throws Exception {
         LoginInfoDto dto = JsonHelper.fromJson(message.getText(), LoginInfoDto.class);
@@ -42,7 +46,11 @@ public class LoginInfoConsumer extends MessageBaseConsumer {
             log.info("app登录消息处理，登录成功，无岗位码，直接返回，erp:{}", erp);
             return;
         }
-        //
+        try {
+            jyBizTaskWorkGridManagerService.generateManageInspectionTask(erp, request.getPositionCode(), response.getStaffName());
+        }catch (Exception e){
+            log.error("app登录消息处理，生成管理巡视任务异常，erp:{}", erp, e);
+        }
         
     }
 }

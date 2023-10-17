@@ -42,6 +42,7 @@
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="is_match" property="isMatch" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="task_biz_type" property="taskBizType" javaType="java.lang.Integer" jdbcType="TINYINT" />
     </resultMap>
     <resultMap id="JyBizTaskWorkGridManagerCount" type="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount" >
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
@@ -55,7 +56,7 @@
         pre_finish_time,handler_erp,handler_user_name,handler_user_position_code,handler_user_position_name,
         handler_position_code,status,process_begin_time,process_end_time,create_user,
         create_user_name,update_user,update_user_name,create_time,update_time,
-        yn,is_match,ts
+        yn,is_match,ts,task_biz_type
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" useGeneratedKeys="true" keyProperty="id">
@@ -557,7 +558,10 @@
                 and province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
             </if>
 		        and t.task_date >= #{taskDateStart,jdbcType=TIMESTAMP}
-		        and t.task_date &lt;= #{taskDateEnd,jdbcType=TIMESTAMP}            
+		        and t.task_date &lt;= #{taskDateEnd,jdbcType=TIMESTAMP}     
+		    <if test="taskBizType != null">
+                and t.task_biz_type = #{taskBizType,jdbcType=TINYINT}
+            </if>       
         </where>
     </sql>  
    <select id="queryDataCountForDistribution" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery" resultType="java.lang.Integer">
@@ -657,4 +661,74 @@
             #{item,jdbcType=VARCHAR}
         </foreach>
     </select>
+    <insert id="batchInsertDistributionTask" parameterType="java.util.List">
+        insert into jy_biz_task_work_grid_manager (
+        biz_id,
+        task_type,
+        need_scan_grid,
+        task_config_code,
+        task_code,
+        task_name,
+        task_description,
+        task_batch_code,
+        task_ref_grid_key,
+        task_date,
+        order_num,
+        province_agency_code,
+        province_agency_name,
+        area_hub_code,
+        area_hub_name,
+        site_code,
+        site_name,
+        area_code,
+        area_name,
+        grid_name,
+        create_user,
+        create_user_name,
+        create_time,
+        status,
+        pre_finish_time,
+        handler_erp,
+        handler_user_name,
+        handler_user_position_code,
+        handler_user_position_name,
+        handler_position_code,
+        process_begin_time
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.bizId},
+            #{item.taskType},
+            #{item.needScanGrid},
+            #{item.taskConfigCode},
+            #{item.taskCode},
+            #{item.taskName},
+            #{item.taskDescription},
+            #{item.taskBatchCode},
+            #{item.taskRefGridKey},
+            #{item.taskDate},
+            #{item.orderNum},
+            #{item.provinceAgencyCode},
+            #{item.provinceAgencyName},
+            #{item.areaHubCode},
+            #{item.areaHubName},
+            #{item.siteCode},
+            #{item.siteName},
+            #{item.areaCode},
+            #{item.areaName},
+            #{item.gridName},
+            #{item.createUser},
+            #{item.createUserName},
+            #{item.createTime},
+            #{item.status},
+            #{item.preFinishTime},
+            #{item.handlerErp},
+            #{item.handlerUserName},
+            #{item.handlerUserPositionCode},
+            #{item.handlerUserPositionName},
+            #{item.handlerPositionCode},
+            #{item.processBeginTime}
+            )
+        </foreach>
+    </insert>
 </mapper>
