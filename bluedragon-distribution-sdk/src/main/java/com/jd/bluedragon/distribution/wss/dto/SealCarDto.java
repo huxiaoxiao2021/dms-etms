@@ -87,6 +87,11 @@ public class SealCarDto implements Serializable {
      */
     private Integer unsealOrderIndex;
 
+    /**
+     * 件数
+     */
+    private Integer itemNum;
+
     public SealCarDto() {
     }
 
@@ -579,5 +584,13 @@ public class SealCarDto implements Serializable {
 
     public void setUnsealOrderIndex(Integer unsealOrderIndex) {
         this.unsealOrderIndex = unsealOrderIndex;
+    }
+
+    public Integer getItemNum() {
+        return itemNum;
+    }
+
+    public void setItemNum(Integer itemNum) {
+        this.itemNum = itemNum;
     }
 }

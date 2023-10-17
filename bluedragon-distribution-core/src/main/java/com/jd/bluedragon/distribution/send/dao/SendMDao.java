@@ -312,4 +312,12 @@ public  class SendMDao extends BaseDao<SendM>  {
 		querySendM.setOffset((pageNumber-1)*pageSize);
 		return getSqlSession().selectList(SendMDao.namespace + ".selectBoxCodeBySiteAndSendCode", querySendM);
 	}
+
+	//查询批次内件数
+	public Integer countBoxCodeNumBySendCode(String batchCode, Integer siteId){
+		SendM querySendM = new SendM();
+		querySendM.setCreateSiteCode(siteId);
+		querySendM.setSendCode(batchCode);
+		return	this.getSqlSession().selectOne(SendDatailDao.namespace + ".countBoxCodeNumBySendCode", querySendM);
+	}
 }
