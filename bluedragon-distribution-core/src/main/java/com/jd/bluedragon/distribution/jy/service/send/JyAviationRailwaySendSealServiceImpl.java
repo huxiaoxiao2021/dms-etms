@@ -1756,7 +1756,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             }
         }
         //
-        List<String> batchCodes = jyVehicleSendRelationService.findSendCodesByDetailBizIds(bizIdList);
+        List<String> batchCodes = jyVehicleSendRelationService.findSendCodesByBizIds(bizIdList);
         resData.setBatchCodeList(batchCodes);
         if(CollectionUtils.isEmpty(batchCodes)) {
             res.error("已选任务中查询批次全部为空");
