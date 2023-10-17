@@ -16,7 +16,7 @@ import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
 import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
@@ -71,6 +71,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -136,7 +137,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     private JyComboardAggsService jyComboardAggsService;
 
     @Autowired
-    UccPropertyConfiguration ucc;
+    DmsConfigManager dmsConfigManager;
 
     @Autowired
     GroupBoardManager groupBoardManager;
@@ -303,6 +304,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.czSealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Void> czSealVehicle(SealVehicleReq sealVehicleReq) {
         log.info("jy传站封车,sealVehicleReq:{}",JsonHelper.toJson(sealVehicleReq));
         String sealLockKey = String.format(Constants.JY_SEAL_LOCK_PREFIX, sealVehicleReq.getSendVehicleDetailBizId());
@@ -319,7 +321,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             //校验批次是否已经封车
             if (sealVehicleReq.getFuncType() == null || sealVehicleReq.getFuncType().equals(JyFuncCodeEnum.COMBOARD_SEND_POSITION.getCode())) {
-                if (ucc.getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= ucc.getJyComboardSealBoardListSelectLimit()){
+                if (dmsConfigManager.getPropertyConfig().getNeedValidateBatchCodeHasSealed()  && sealVehicleReq.getBatchCodes().size() <= dmsConfigManager.getPropertyConfig().getJyComboardSealBoardListSelectLimit()){
                     for (String sendCode:sealVehicleReq.getBatchCodes()){
                         if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
                             throw new JyBizException("该批次:"+sendCode+"已经封车,请勿重复勾选");
@@ -504,6 +506,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }else {
             //转换体积单位 立方厘米转换为立方米
             sealCarDto.setVolume(NumberHelper.cm3ToM3(sealVehicleReq.getVolume()));
+        }
+        if (!StringUtils.isEmpty(sealVehicleReq.getPalletCount())) {
+            String palletCount = sealVehicleReq.getPalletCount().trim();
+            if (NumberUtils.isDigits(palletCount)) {
+                sealCarDto.setPalletCount(Integer.valueOf(palletCount));
+            }
         }
         return sealCarDto;
     }
@@ -697,6 +705,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.deleteBySendVehicleBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> deleteBySendVehicleBizId(String transWorkItemCode, String operateUserCode, String operateUserName) {
 
         InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
@@ -845,6 +854,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.cancelSeal", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult cancelSeal(JyCancelSealRequest request) {
         barCodeCheck(request);
         cancelSealRequest cancelParams = assembleCancelParams(request);
@@ -889,6 +899,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.getCancelSealInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request) {
         if (!ObjectHelper.isNotNull(request.getBarCode())){
             throw new JyBizException("条形码不能为空！");
@@ -946,6 +957,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.onlineGetTaskSimpleCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request) {
         checkGetTaskSimpleCodeParams(request);
         JyBizTaskSendVehicleDetailEntity detailEntity =taskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
@@ -1015,7 +1027,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             :jySendVehicleServiceTys.calculateOperateProgress(sendAgg,false);
         if (ObjectHelper.isNotNull(operateProgress)){
             log.info("拍照上传获取任务简码-计算装车进度：{}",operateProgress.doubleValue());
-            if (operateProgress.compareTo(new BigDecimal(ucc.getOnlineGetTaskSimpleCodeThreshold()))<0){
+            if (operateProgress.compareTo(new BigDecimal(dmsConfigManager.getPropertyConfig().getOnlineGetTaskSimpleCodeThreshold()))<0){
                 throw new JyBizException("装载率不足50%，无法拍照获取任务简码!");
             }
         }

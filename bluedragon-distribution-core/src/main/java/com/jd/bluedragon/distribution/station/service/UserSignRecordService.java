@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.station.service;
 
+import java.util.Date;
 import java.util.List;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -7,12 +8,15 @@ import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
+import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -90,6 +94,11 @@ public interface UserSignRecordService {
      * @return
      */
     Result<Integer> autoHandleSignInRecord();
+    /**
+     * 人资考勤数据-topic自动签退处理
+     * @return
+     */
+    JdResult<Integer> autoHandleSignOutByAttendJmq(AttendDetailChangeTopicData mqData);
 	/**
 	 * 按条件查询数量
 	 * @param query
@@ -217,4 +226,11 @@ public interface UserSignRecordService {
 	UserSignRecord queryByIdForFlow(Long recordId);
 
   List<UserSignRecord> listSignRecordByTime(UserSignRecordQuery query);
+
+	/**
+	 * 查询
+	 * @param query
+	 * @return
+	 */
+	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
 }

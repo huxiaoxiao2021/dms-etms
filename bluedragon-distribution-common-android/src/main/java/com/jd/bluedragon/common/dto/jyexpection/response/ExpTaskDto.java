@@ -81,6 +81,12 @@ public class ExpTaskDto implements Serializable {
      */
     private String specialFlag;
 
+    /**
+     * 客服反馈类型（1：修复下传 2：直接下传 3：更换包装下传 4：报废 5：逆向退回）
+     */
+    private Integer feedBackType;
+    private String feedBackTypeName;
+
     public String getBizId() {
         return bizId;
     }
@@ -244,5 +250,21 @@ public class ExpTaskDto implements Serializable {
 
     public void setSpecialFlag(String specialFlag) {
         this.specialFlag = specialFlag;
+    }
+
+    public String getFeedBackTypeName() {
+        return feedBackTypeName;
+    }
+
+    public void setFeedBackTypeName(String feedBackTypeName) {
+        this.feedBackTypeName = feedBackTypeName;
+    }
+
+    public Integer getFeedBackType() {
+        return feedBackType;
+    }
+
+    public void setFeedBackType(Integer feedBackType) {
+        this.feedBackType = feedBackType;
     }
 }

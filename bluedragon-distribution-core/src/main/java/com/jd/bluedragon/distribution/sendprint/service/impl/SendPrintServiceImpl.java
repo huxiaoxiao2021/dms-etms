@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.sendprint.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.context.InvokerClientInfoContext;
 import com.jd.bluedragon.core.security.log.SecurityLogWriter;
@@ -121,7 +121,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private PrintHandoverListManager printHandoverListManager;
@@ -223,8 +223,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             Map<String,Map<String,Set<String>>> batchBoxWaybillMap = new HashMap<>();
 
             // 单次scroll查询数量、scroll查询最大限制次数
-            int batchSize = uccPropertyConfiguration.getScrollQuerySize();
-            int printScrollQueryCountLimit = uccPropertyConfiguration.getPrintScrollQueryCountLimit();
+            int batchSize = dmsConfigManager.getPropertyConfig().getScrollQuerySize();
+            int printScrollQueryCountLimit = dmsConfigManager.getPropertyConfig().getPrintScrollQueryCountLimit();
 
             Pager<PrintHandoverLitQueryCondition> query = new Pager<PrintHandoverLitQueryCondition>();
             query.setPageNo(Constants.CONSTANT_NUMBER_ONE);
@@ -356,6 +356,8 @@ public class SendPrintServiceImpl implements SendPrintService {
                         + (summaryPrintResult.getTotalOutVolumeStatic() == null ? Constants.DOUBLE_ZERO : summaryPrintResult.getTotalOutVolumeStatic()));
                 computeSummaryPrintResult.setTotalInVolume((computeSummaryPrintResult.getTotalInVolume() == null ? Constants.DOUBLE_ZERO : computeSummaryPrintResult.getTotalInVolume())
                         + (summaryPrintResult.getTotalInVolume() == null ? Constants.DOUBLE_ZERO : summaryPrintResult.getTotalInVolume()));
+                computeSummaryPrintResult.setTotalPackWeight((computeSummaryPrintResult.getTotalPackWeight() == null ? Constants.DOUBLE_ZERO : computeSummaryPrintResult.getTotalPackWeight())
+                        + (summaryPrintResult.getTotalPackWeight() == null ? Constants.DOUBLE_ZERO : summaryPrintResult.getTotalPackWeight()));
             }else {
                 batchBasicMap.put(summaryPrintResult.getSendCode(), summaryPrintResult);
             }
@@ -455,6 +457,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         Double totalOutVolumeDy = Constants.DOUBLE_ZERO;  //总的应付自动测量体积
         Double totalOutVolumeSt = Constants.DOUBLE_ZERO;  //总的应付人工测量体积
         Double totalInVolume = Constants.DOUBLE_ZERO;     //总的应收体积
+        Double totalPackWeight = Constants.DOUBLE_ZERO;     //总的包裹重量（先取AgainWeight，如果AgainWeight不存在再取GoodWeight）
 
         String roadCode  = null; //路区号
         String sendTime = Constants.EMPTY_FILL;//发货时间
@@ -536,9 +539,6 @@ public class SendPrintServiceImpl implements SendPrintService {
                 }
             }else if(StringUtils.isNotBlank(printHandoverListDto.getBoxCode()) && BusinessHelper.isBoxcode(printHandoverListDto.getBoxCode())){
                 //没有板号，或者板的体积为空，但是有箱号（box_code字段为箱号）
-                if(boxVolumeSet.contains(printHandoverListDto.getBoxCode())){
-                    continue;
-                }
                 boxVolumeSet.add(printHandoverListDto.getBoxCode());
 
                 totalOutVolumeDy += printHandoverListDto.getDmsOutVolumeStatic() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getDmsOutVolumeStatic();
@@ -552,6 +552,11 @@ public class SendPrintServiceImpl implements SendPrintService {
 
             //应收体积
             totalInVolume += printHandoverListDto.getGoodVolume() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getGoodVolume();
+
+            // 包裹总重量
+            totalPackWeight += (printHandoverListDto.getPackageAgainWeight() == null 
+                    ? (printHandoverListDto.getPackageWeight() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getPackageWeight()) 
+                    : printHandoverListDto.getPackageAgainWeight());
         }
 
         //map转换成list
@@ -568,6 +573,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         summaryPrintResult.setTotalOutVolumeDynamic(totalOutVolumeDy);
         summaryPrintResult.setTotalOutVolumeStatic(totalOutVolumeSt);
         summaryPrintResult.setTotalInVolume(totalInVolume);
+        summaryPrintResult.setTotalPackWeight(totalPackWeight);
 
         summaryPrintResult.setDetails(details);
 
@@ -1409,7 +1415,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         // 记录businessLog
         addBusinessLog(startTime, printExportCriteria, false, null);
         com.jd.dms.wb.report.api.dto.base.BaseEntity<Boolean>
-                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, uccPropertyConfiguration.isQuerySensitiveFlag() && isShowAddress(printExportCriteria.getList())));
+                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, dmsConfigManager.getPropertyConfig().isQuerySensitiveFlag() && isShowAddress(printExportCriteria.getList())));
         if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
             log.info("操作人【{}】始发地【{}】的交接清单导出成功!", printExportCriteria.getUserCode(), printExportCriteria.getCreateSiteCode());
         }else {
@@ -1426,7 +1432,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      */
     private boolean checkIsApproval(PrintExportCriteria printExportCriteria) {
         // 未开启审批
-        if(!uccPropertyConfiguration.getApprovalSwitch()){
+        if(!dmsConfigManager.getPropertyConfig().getApprovalSwitch()){
             return false;
         }
         return isShowAddress(printExportCriteria.getList());
@@ -1455,7 +1461,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private boolean switchSiteSubTypeCheck(Integer receiveSiteCode) {
-        return uccPropertyConfiguration.getCheckSiteSubType()
+        return dmsConfigManager.getPropertyConfig().getCheckSiteSubType()
                 || Objects.equals(toSiteSubType(receiveSiteCode), Constants.RETURN_PARTNER_SITE_TYPE);
     }
 
@@ -1888,7 +1894,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     private boolean checkGoESQuery(Integer siteCode) {
         String printHandoverListSites;
         try {
-            printHandoverListSites = uccPropertyConfiguration.getPrintHandoverListSites();
+            printHandoverListSites = dmsConfigManager.getPropertyConfig().getPrintHandoverListSites();
             if(Boolean.TRUE.toString().equals(printHandoverListSites)){
                 return true;
             }else if(Boolean.FALSE.toString().equals(printHandoverListSites)){
@@ -1956,7 +1962,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     private Pager<PrintHandoverLitQueryCondition> createESQueryCondition(PrintExportCriteria printExportCriteria, boolean isApproval) {
         Pager<PrintHandoverLitQueryCondition> pager = new Pager<PrintHandoverLitQueryCondition>();
         pager.setPageNo(Constants.CONSTANT_NUMBER_ONE);
-        pager.setPageSize(uccPropertyConfiguration.getScrollQuerySize());
+        pager.setPageSize(dmsConfigManager.getPropertyConfig().getScrollQuerySize());
         Set<Integer> receiveSiteSet = new HashSet<>();
         for (PrintQueryCriteria item : printExportCriteria.getList()) {
             receiveSiteSet.add(item.getReceiveSiteCode());
@@ -1975,7 +1981,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     private Pager<PrintHandoverLitQueryCondition> createESQueryCondition(TripartiteEntity tripartiteEntity) {
         Pager<PrintHandoverLitQueryCondition> pager = new Pager<PrintHandoverLitQueryCondition>();
         pager.setPageNo(Constants.CONSTANT_NUMBER_ONE);
-        pager.setPageSize(uccPropertyConfiguration.getScrollQuerySize());
+        pager.setPageSize(dmsConfigManager.getPropertyConfig().getScrollQuerySize());
         Set<Integer> receiveSiteSet = new HashSet<>();
         for (PrintQueryCriteria item : tripartiteEntity.getList()) {
             receiveSiteSet.add(item.getReceiveSiteCode());

@@ -47,6 +47,7 @@
             width: 80%;
 		}
     </style>
+    #parse("system/common/baseImport.vm")
 </head>
 <script type="text/javascript">
 </script>
@@ -64,6 +65,7 @@
 				机器编号：
 				<input type="text" id="gantry_device_id" class="gantry_query_text"/>
 			</span>
+            <switchSiteDom id = "switchSiteDom">
 			<span class="gantry_query_span">
 				所在机构：
 				<select id="gantry_device_org" class="gantry_query_select">
@@ -81,6 +83,7 @@
                     <option value="">所有分拣中心</option>
                 </select>
 			</span>
+            </switchSiteDom>
 			<span class="gantry_query_span">
 				供应商：
 				<input type="text" id="gantry_device_supplier" class="gantry_query_text"/>

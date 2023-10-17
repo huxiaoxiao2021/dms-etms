@@ -2,12 +2,14 @@ package com.jd.bluedragon.distribution.jy.service.work.impl;
 
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
+import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
+import com.jd.bluedragon.utils.*;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,11 +62,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.NoticeUtils;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ump.annotation.JProEnum;
@@ -76,6 +73,7 @@ import com.jdl.basic.api.domain.work.WorkGridManagerTask;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
+import com.jdl.basic.api.domain.workStation.WorkGridModifyMqData;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
@@ -204,6 +202,11 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			result.toFail("任务已超时，不能提交！");
 			return result;
 		}
+		//非待处理状态，不能提交
+		if(!WorkTaskStatusEnum.TODO.getCode().equals(oldData.getStatus())) {
+			result.toFail("任务状态已变更，不能提交！");
+			return result;
+		}		
 		JyBizTaskWorkGridManager updateTaskData = new JyBizTaskWorkGridManager();
 		updateTaskData.setStatus(WorkTaskStatusEnum.COMPLETE.getCode());
 		updateTaskData.setHandlerPositionCode("");
@@ -245,13 +248,46 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				}
 			}
 		}
-		
+		//巡检任务表增加是否匹配字段  0-未选择,1-符合 2-不符合
+		reportAddMatchField(taskData, updateTaskData);
+
 		jyWorkGridManagerCaseService.batchInsert(addCase);
 		jyWorkGridManagerCaseService.batchUpdate(updateCase);
 		jyWorkGridManagerCaseItemService.batchInsert(addCaseItem);
 		jyAttachmentDetailService.batchInsert(addAttachmentList);
 		jyBizTaskWorkGridManagerService.finishTask(updateTaskData);
 		return result;
+	}
+
+	/**
+	 * 巡检任务表增加是否匹配字段
+	 * TaskType=3时 0-未选择,1-符合 2-不符合    TaskType=1或者2时  1-符合
+	 *
+	 * @param taskData
+	 * @param updateTaskData
+	 */
+	private void reportAddMatchField(JyWorkGridManagerData taskData, JyBizTaskWorkGridManager updateTaskData) {
+		if (WorkTaskTypeEnum.WORKING.getCode().equals(taskData.getTaskType())) {
+			if (!CollectionUtils.isEmpty(taskData.getCaseList())) {
+				List<Integer> resultList = taskData.getCaseList().stream().map(JyWorkGridManagerCaseData::getCheckResult).collect(Collectors.toList());
+				//任务中有一个不符合      不符合
+				//任务中有符合和未选择    不符合
+				//任务中全是符合         符合
+				//任务中全是未选择       未选择
+				if (resultList.contains(WorkCheckResultEnum.UNPASS.getCode())) {
+					updateTaskData.setIsMatch(WorkCheckResultEnum.UNPASS.getCode());
+				} else if (resultList.contains(WorkCheckResultEnum.UNDO.getCode()) && resultList.contains(WorkCheckResultEnum.PASS.getCode())) {
+					updateTaskData.setIsMatch(WorkCheckResultEnum.UNPASS.getCode());
+				} else if (!resultList.contains(WorkCheckResultEnum.UNDO.getCode()) && !resultList.contains(WorkCheckResultEnum.UNPASS.getCode())) {
+					updateTaskData.setIsMatch(WorkCheckResultEnum.PASS.getCode());
+				} else if (!resultList.contains(WorkCheckResultEnum.PASS.getCode()) && !resultList.contains(WorkCheckResultEnum.UNPASS.getCode())) {
+					updateTaskData.setIsMatch(WorkCheckResultEnum.UNDO.getCode());
+				}
+			}
+		}
+		if (WorkTaskTypeEnum.MEETING.getCode().equals(taskData.getTaskType()) || WorkTaskTypeEnum.MEETING_RECORD.getCode().equals(taskData.getTaskType())) {
+			updateTaskData.setIsMatch(WorkCheckResultEnum.PASS.getCode());
+		}
 	}
 
 	private JyWorkGridManagerCase toJyWorkGridManagerCaseForUpdate(String userErp, Date currentTime,
@@ -867,5 +903,34 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public boolean dealWorkGridModifyTask(WorkGridModifyMqData workGridModifyMqData) {
+		if(workGridModifyMqData == null
+				|| workGridModifyMqData.getGridData() == null) {
+			return false;
+		}
+		//目前只处理网格删除的数据
+		if(!EditTypeEnum.DELETE.getCode().equals(workGridModifyMqData.getEditType())) {
+			return true;
+		}
+		JyBizTaskWorkGridManagerBatchUpdate cancelData = new JyBizTaskWorkGridManagerBatchUpdate();
+		JyBizTaskWorkGridManager data = new JyBizTaskWorkGridManager();
+		cancelData.setData(data);
+		data.setTaskRefGridKey(workGridModifyMqData.getGridData().getBusinessKey());
+		data.setStatus(WorkTaskStatusEnum.CANCEL_GRID_DELETE.getCode());
+		data.setUpdateTime(new Date());
+		data.setUpdateUser(DmsConstants.SYS_AUTO_USER_CODE);
+		data.setUpdateUserName(DmsConstants.SYS_AUTO_USER_CODE);
+		List<Integer> statusList = new ArrayList<>();
+		cancelData.setStatusList(statusList);
+		statusList.add(WorkTaskStatusEnum.TO_DISTRIBUTION.getCode());
+		statusList.add(WorkTaskStatusEnum.TODO.getCode());
+		statusList.add(WorkTaskStatusEnum.HANDLING.getCode());
+		int num = jyBizTaskWorkGridManagerService.autoCancelTaskForGridDelete(cancelData);
+		
+		logger.info("dealWorkGridModifyTask-网格[{}]删除，线上化任务-取消{}条",workGridModifyMqData.getGridData().getBusinessKey(),num);
+		return true;
 	}
 }

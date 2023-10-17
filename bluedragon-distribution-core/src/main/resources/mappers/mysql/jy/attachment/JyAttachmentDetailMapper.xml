@@ -141,6 +141,30 @@
             yn = 1
             and biz_id = #{bizId}
             and site_code = #{siteCode}
+            <if test="bizType != null">
+                and biz_type = #{bizType}
+            </if>
+            <if test="bizSubType != null">
+                and biz_sub_type = #{bizSubType}
+            </if>
+        </where>
+    </update>
+    
+    <update id="deleteBatch" parameterType="com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery">
+        update jy_attachment_detail
+        <set>
+            yn = 0,
+            update_time = now(),
+            update_user_erp = #{userErp}
+        </set>
+        <where>
+            yn = 1
+            and biz_id in 
+            <foreach collection="bizIdList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            and site_code = #{siteCode}
+            and biz_type = #{bizType}
         </where>
     </update>
 
@@ -161,7 +185,15 @@
         from
             jy_attachment_detail
         where yn = 1
-        and biz_id = #{bizId}
+        <if test="bizId != null">
+            and biz_id = #{bizId}
+        </if>
+        <if test="bizIdList != null and bizIdList.size() > 0">
+            and biz_id in
+            <foreach collection="bizIdList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
         and site_code = #{siteCode}
         and biz_type = #{bizType}
         <if test="bizSubType != null">
@@ -169,5 +201,18 @@
         </if>         
         order by create_time desc
         limit #{offset}, #{limit}
+    </select>
+
+
+    <select id="countByCondition" parameterType="com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery" resultType="java.lang.Integer">
+        select count(*)
+        from jy_attachment_detail
+        where yn = 1
+            and biz_id = #{bizId}
+            and site_code = #{siteCode}
+            and biz_type = #{bizType}
+            <if test="bizSubType != null">
+                and biz_sub_type = #{bizSubType}
+            </if>
     </select>
 </mapper>

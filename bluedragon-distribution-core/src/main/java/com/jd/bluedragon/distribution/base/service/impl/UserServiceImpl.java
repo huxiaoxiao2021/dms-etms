@@ -10,7 +10,7 @@ import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ErpLoginServiceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -34,6 +34,8 @@ import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthRequest;
 import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.device.service.DeviceLocationService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -63,6 +65,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
 
 /**
  * 
@@ -96,13 +99,16 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
     private ErpLoginServiceManager erpLoginServiceManager;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private JyDemotionService jyDemotionService;
 
     @Resource
     private DeviceLocationService deviceLocationService;
+
+	@Autowired
+	private FuncSwitchConfigService funcSwitchConfigService;
 
 	/**
 	 * 分拣客户端登录服务
@@ -159,7 +165,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             request.setBaseVersionCode(JSF_LOGIN_DEFAULT_BASE_VERSION_CODE);
         }
         LoginUserResponse loginUserResponse = clientLoginIn(request);
-		if(!uccPropertyConfiguration.getPdaLoginSkipSwitch()){
+		if(!dmsConfigManager.getPropertyConfig().getPdaLoginSkipSwitch()){
 			this.getAndSaveToken(request, loginUserResponse);
 			this.handleDeviceLocation(request, loginUserResponse);
 		}
@@ -408,10 +414,48 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 					businessConfigInfo.setJyDemotionConfigList(jyDemotionService.obtainJyDemotionConfig());
 					result.getData().setBusinessConfigInfo(businessConfigInfo);
 				}
-            }
+				// 是否可以使用模拟器检测
+				String userErp = result.getData().getUserCode();
+				Integer siteId = null;
+				String siteCode = result.getData().getSiteCode();
+				if (StringUtils.isNotBlank(siteCode) && NumberHelper.isPositiveNumber(siteCode)) {
+					siteId = Integer.valueOf(siteCode);
+				}
+				boolean canUseSimulatorFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_USE_SIMULATOR.getCode(), siteId, userErp);
+				if (result.getData().getBusinessConfigInfo() == null) {
+					BusinessConfigInfo businessConfigInfo = new BusinessConfigInfo();
+					result.getData().setBusinessConfigInfo(businessConfigInfo);
+				}
+				result.getData().getBusinessConfigInfo().setUseSimulatorFlag(canUseSimulatorFlag);
+
+				// pda运输任务是否显示叫号按钮
+				// 心跳会传网格码所在场地编码  叫号取网格码所在场地
+				// 心跳没传场地网格码做一个兜底  取登录时人所在场地编码
+				boolean showCallButtonFlag;
+				if (dmsClientHeartbeatRequest.getSiteCode() != null) {
+					showCallButtonFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_CALL_BUTTON.getCode(), dmsClientHeartbeatRequest.getSiteCode(), userErp);
+				} else {
+					log.warn("sendHeartbeat 客户端缺少网格码所在场地编码 {}", JsonHelper.toJson(dmsClientHeartbeatRequest));
+					showCallButtonFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_CALL_BUTTON.getCode(), siteId, userErp);
+				}
+				result.getData().getBusinessConfigInfo().setShowCallButtonFlag(showCallButtonFlag);
+				// pda运输任务是否显示催派按钮
+				boolean showRemindTransJobFlag;
+				if (dmsClientHeartbeatRequest.getSiteCode() != null) {
+					showRemindTransJobFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_REMIND_BUTTON.getCode(), dmsClientHeartbeatRequest.getSiteCode(), userErp);
+				} else {
+					log.warn("sendHeartbeat 客户端缺少网格码所在场地编码 {}", JsonHelper.toJson(dmsClientHeartbeatRequest));
+					showRemindTransJobFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_REMIND_BUTTON.getCode(), siteId, userErp);
+				}
+				result.getData().getBusinessConfigInfo().setShowRemindTransJobFlag(showRemindTransJobFlag);
+			}
 		}
 		return result;
 	}
+
+
+
+
     /**
      * 校验账号是否有效
      * @param userCode
@@ -551,6 +595,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 		funcUsageConfigRequestDto.setFuncCode(checkMenuAuthRequest.getMenuCode());
 		com.jd.bluedragon.common.dto.base.request.OperateUser operateUser = new com.jd.bluedragon.common.dto.base.request.OperateUser();
         operateUser.setSiteCode(checkMenuAuthRequest.getSiteCode());
+		operateUser.setUserCode(checkMenuAuthRequest.getUserCode());
         funcUsageConfigRequestDto.setOperateUser(operateUser);
         FuncUsageProcessDto menuUsageConfig = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
         if(menuUsageConfig != null) {
@@ -564,7 +609,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	}
 
 	private boolean checkMenuIsOffline(String menuCode, JdResult<CheckMenuAuthResponse> result) {
-		Map<String, Map<String, Object>> stringMapMap = com.jd.bluedragon.utils.JsonHelper.json2Map(uccPropertyConfiguration.getClientOfflineMenuConfig());
+		Map<String, Map<String, Object>> stringMapMap = com.jd.bluedragon.utils.JsonHelper.json2Map(dmsConfigManager.getPropertyConfig().getClientOfflineMenuConfig());
 		if(stringMapMap == null){
 			return false;
 		}

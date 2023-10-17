@@ -243,4 +243,8 @@ public class InspectionDao extends BaseDao<Inspection>{
 		paramMap.put("waybillCode", waybillCode);
 		return this.getSqlSession().selectList(namespace + ".listInspectionByWaybillCode", paramMap);
 	}
+
+	public List<Inspection> queryInspectionForUpdate(Inspection inspection) {
+		return this.getSqlSession().selectList(namespace + ".queryInspectionForUpdate", inspection);
+	}
 }

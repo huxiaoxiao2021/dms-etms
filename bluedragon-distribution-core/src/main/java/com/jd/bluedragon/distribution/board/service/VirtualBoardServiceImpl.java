@@ -10,7 +10,7 @@ import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -35,7 +35,7 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
-import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -43,6 +43,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
 import com.jd.eclp.common.util.DateUtil;
@@ -113,7 +114,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     private CacheService jimdbCacheService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private SendMService sendMService;
@@ -204,7 +205,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                     result.setMessage("操作太快，正在处理中");
                     return result;
                 }
-                addOrGetVirtualBoardPo.setMaxDestinationCount(uccPropertyConfiguration.getVirtualBoardMaxDestinationCount());
+                addOrGetVirtualBoardPo.setMaxDestinationCount(dmsConfigManager.getPropertyConfig().getVirtualBoardMaxDestinationCount());
                 final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.createOrGetBoard(this.getConvertToTcParam(addOrGetVirtualBoardPo));
                 if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
                     log.error("VirtualBoardServiceImpl.createOrGetBoard--fail-- param {} result {}", JsonHelper.toJson(addOrGetVirtualBoardPo), JsonHelper.toJson(handleResult));
@@ -441,7 +442,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 }
 
                 // 调板号服务绑定到板号
-                bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
+                bindToVirtualBoardPo.setMaxItemCount(dmsConfigManager.getPropertyConfig().getVirtualBoardMaxItemCount());
                 final com.jd.transboard.api.dto.BindToVirtualBoardPo convertToTcParam = this.getConvertToTcParam(bindToVirtualBoardPo);
                 convertToTcParam.setDestinationId(destinationId);
                 convertToTcParam.setBarcodeType(isPackageCode ? BoardBarcodeTypeEnum.PACKAGE.getCode() : BoardBarcodeTypeEnum.BOX.getCode());
@@ -463,7 +464,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 result.setData(virtualBoardResultDto);
         		
                 // 发送全称跟踪，整板则按板中所有包裹号进行处理
-                sendWaybillTrace(bindToVirtualBoardPo.getBarCode(), bindToVirtualBoardPo.getOperatorInfo(),
+                OperatorData operatorData = BeanConverter.convertToOperatorData(bindToVirtualBoardPo.getOperatorInfo());
+                sendWaybillTrace(bindToVirtualBoardPo.getBarCode(), bindToVirtualBoardPo.getOperatorInfo(),operatorData,
                         virtualBoardResultDto.getBoardCode(), virtualBoardResultDto.getDestinationName(),
                         WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION, bindToVirtualBoardPo.getBizSource());
 
@@ -539,7 +541,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             tTask.setOwnSign(ownSign);
             tTask.setKeyword2(operatorInfo.getSiteCode().toString());
             tTask.setFingerprint(Md5Helper.encode(operatorInfo.getSiteCode() + "_" + tTask.getKeyword1() + virtualBoardResultDto.getBoardCode() + tTask.getKeyword2()));
-            final Integer virtualBoardAutoCloseDays = uccPropertyConfiguration.getVirtualBoardAutoCloseDays();
+            final Integer virtualBoardAutoCloseDays = dmsConfigManager.getPropertyConfig().getVirtualBoardAutoCloseDays();
             tTask.setExecuteTime(DateUtil.addDate(new Date(), (virtualBoardAutoCloseDays != null && virtualBoardAutoCloseDays > 0) ? virtualBoardAutoCloseDays : 1));
 
             CloseVirtualBoardPo closeVirtualBoardPo = new CloseVirtualBoardPo();
@@ -683,17 +685,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
      * @param operateType
      */
     @Override
-    public void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName,
+    public void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, OperatorData operatorData, String boardCode, String destinationName,
                                  Integer operateType, Integer bizSource) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             WaybillStatus waybillStatus = new WaybillStatus();
-            OperatorData operatorData = null;
-    		if(operatorInfo != null) {
-    			operatorData = new OperatorData();
-        		operatorData.setOperatorTypeCode(operatorInfo.getOperatorTypeCode());
-        		operatorData.setOperatorId(operatorInfo.getOperatorId()); 
-    		}
+            
             //设置站点相关属性
             waybillStatus.setPackageCode(barcode);
 
@@ -712,6 +709,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
             waybillStatus.setOperateType(operateType);
             waybillStatus.setOperatorData(operatorData);
+    		if(operatorData == null && operatorInfo != null) {
+        		waybillStatus.setOperatorData(BeanConverter.convertToOperatorData(operatorInfo));
+    		}
             if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
                 waybillStatus.setRemark("包裹号：" + waybillStatus.getPackageCode() + "已进行组板，板号" + boardCode + "，等待送往" + destinationName);
             } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
@@ -966,13 +966,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
                 waybillStatus.setRemark("已取消组板，板号" + boardCode);
             }
-    		OperatorData operatorData = null;
     		if(operatorInfo != null) {
-    			operatorData = new OperatorData();
-        		operatorData.setOperatorTypeCode(operatorInfo.getOperatorTypeCode());
-        		operatorData.setOperatorId(operatorInfo.getOperatorId()); 
+    	    	waybillStatus.setOperatorData(BeanConverter.convertToOperatorData(operatorInfo));   			
     		} 
-    		waybillStatus.setOperatorData(operatorData);
             // 添加到task表
             taskService.add(toTask(waybillStatus));
 
@@ -998,7 +994,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         result.setData(false);
         result.toSucceed();
         try {
-            final boolean matchVirtualSiteCanUseSite = uccPropertyConfiguration.matchVirtualSiteCanUseSite(operatorInfo.getSiteCode());
+            final boolean matchVirtualSiteCanUseSite = dmsConfigManager.getPropertyConfig().matchVirtualSiteCanUseSite(operatorInfo.getSiteCode());
             result.setData(matchVirtualSiteCanUseSite);
             if(!matchVirtualSiteCanUseSite){
                 result.setMessage(HintService.getHint(HintCodeConstants.YOUR_SITE_CAN_NOT_USE_FUNC));

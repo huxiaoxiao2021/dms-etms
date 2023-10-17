@@ -69,4 +69,10 @@ public interface IJyUnloadVehicleManager {
     Pager<JyUnloadTaskWaybillAgg> queryUnloadTaskWaybill(Pager<JyVehicleTaskUnloadDetail> query);
 
     //Pager<JyUnloadTaskWaybillAgg> queryUnloadTaskWaybill(Pager<JyVehicleTaskUnloadDetail> query);
+
+    /**
+     * 根据barCode查询包裹应扫包裹数量
+     */
+    Long queryShouldScanCountByBarCode(Pager<JyVehicleTaskUnloadDetail> query);
+
 }

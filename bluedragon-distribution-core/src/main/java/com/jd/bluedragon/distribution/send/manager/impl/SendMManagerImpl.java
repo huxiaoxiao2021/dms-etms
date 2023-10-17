@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.send.manager.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.external.constants.BoxStatusEnum;
@@ -16,6 +16,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -37,7 +38,7 @@ public class SendMManagerImpl implements SendMManager {
     private BoxService boxService;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendMManagerImpl.add", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -116,7 +117,7 @@ public class SendMManagerImpl implements SendMManager {
             sendM.setSendMId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         }
 
-        int insertDbRows = uccConfig.getInsertDbRowsOneTime();
+        int insertDbRows = dmsConfigManager.getPropertyConfig().getInsertDbRowsOneTime();
         List<List<SendM>> splitList = CollectionHelper.splitList(sendMList, insertDbRows);
         int affectedRows = 0;
         for (List<SendM> subList : splitList) {
@@ -129,5 +130,20 @@ public class SendMManagerImpl implements SendMManager {
         }
 
         return affectedRows;
+    }
+
+    /**
+     * 批量获取发货数据
+     * 超过最大时不返回数据
+     * @param sendM
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendMManagerImpl.batchQuerySendMList", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public List<SendM> batchQuerySendMListBySiteAndBoxes(SendM sendM) {
+        if(sendM.getBoxCodeList() != null && Constants.DB_IN_MAX_SIZE > sendM.getBoxCodeList().size()) {
+            return sendMDao.batchQuerySendMListBySiteAndBoxes(sendM);
+        }
+        return new ArrayList<>();
     }
 }

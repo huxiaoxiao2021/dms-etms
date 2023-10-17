@@ -3,10 +3,6 @@ package com.jd.bluedragon.core.jsf.degrade.route;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.HystrixConstants;
 import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
-import com.jd.bluedragon.core.base.VrsRouteTransferRelationManagerImpl;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.etms.api.common.dto.CommonDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.api.recommendroute.resp.RecommendRouteResp;
@@ -16,7 +12,6 @@ import com.jd.ump.profiler.proxy.Profiler;
 import com.netflix.hystrix.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 

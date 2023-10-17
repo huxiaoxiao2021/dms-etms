@@ -78,7 +78,7 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
     /**
      * 获取运单信息
      */
-    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R)
     @RequestMapping(value = "/getWaybillInfo")
     @ResponseBody
     public InvokeResult<Boolean> getWaybillInfo(@QueryParam("waybillCode") String waybillCode) {

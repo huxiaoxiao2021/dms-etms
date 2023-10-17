@@ -448,6 +448,27 @@
         </set>
         WHERE box_code = #{boxCode,jdbcType=VARCHAR} AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
     </update>
+    <select id="queryInspectionForUpdate" resultMap="BaseResultMap"
+            parameterType="Inspection">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM Inspection FORCE INDEX(IND_INSPECTION_PCODE_D)
+        WHERE yn = 1
+        <if test="null!=boxCode and ''!=boxCode">
+            AND box_code = #{boxCode}
+        </if>
+        <if test="null!=operateType">
+            AND operate_type = #{operateType,jdbcType=INTEGER}
+        </if>
+        AND inspection_type = #{inspectionType,jdbcType=INTEGER}
+        <if test="null!=waybillCode">
+            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        </if>
+        AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+        AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+        limit 10
+    </select>    
     <update id="update" parameterType="Inspection">
         UPDATE inspection FORCE INDEX(IND_INSPECTION_PCODE_D)
         <set>
@@ -459,6 +480,12 @@
             <if test="bizSource != null and bizSource != '' ">
                 biz_source = #{bizSource, jdbcType=INTEGER},
             </if>
+            <if test="operatorTypeCode != null">
+                operator_type_code = #{operatorTypeCode,jdbcType=INTEGER},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId,jdbcType=VARCHAR},
+            </if>            
             <if test="operateTime != null">
                 operate_time = #{operateTime,jdbcType=TIMESTAMP},
             </if>

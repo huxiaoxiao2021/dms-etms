@@ -38,6 +38,36 @@ public class AbnormalWayBill {
     /** qcType的具体值 */
     private String qcValue;
 
+    /**
+     * 异常一级原因ID
+     */
+    private Long abnormalReasonFirstId;
+
+    /**
+     * 异常一级原因名称
+     */
+    private String abnormalReasonFirstName;
+
+    /**
+     * 异常二级原因ID
+     */
+    private Long abnormalReasonSecondId;
+
+    /**
+     * 异常二级原因名称
+     */
+    private String abnormalReasonSecondName;
+
+    /**
+     * 异常三级原因ID
+     */
+    private Long abnormalReasonThirdId;
+
+    /**
+     * 异常三级原因名称
+     */
+    private String abnormalReasonThirdName;
+
     /** 质控异常类型ID */
     private Integer qcCode;
 
@@ -173,6 +203,54 @@ public class AbnormalWayBill {
 
     public void setQcValue(String qcValue) {
         this.qcValue = qcValue;
+    }
+
+    public Long getAbnormalReasonFirstId() {
+        return abnormalReasonFirstId;
+    }
+
+    public String getAbnormalReasonFirstName() {
+        return abnormalReasonFirstName;
+    }
+
+    public Long getAbnormalReasonSecondId() {
+        return abnormalReasonSecondId;
+    }
+
+    public String getAbnormalReasonSecondName() {
+        return abnormalReasonSecondName;
+    }
+
+    public Long getAbnormalReasonThirdId() {
+        return abnormalReasonThirdId;
+    }
+
+    public String getAbnormalReasonThirdName() {
+        return abnormalReasonThirdName;
+    }
+
+    public void setAbnormalReasonFirstId(Long abnormalReasonFirstId) {
+        this.abnormalReasonFirstId = abnormalReasonFirstId;
+    }
+
+    public void setAbnormalReasonFirstName(String abnormalReasonFirstName) {
+        this.abnormalReasonFirstName = abnormalReasonFirstName;
+    }
+
+    public void setAbnormalReasonSecondId(Long abnormalReasonSecondId) {
+        this.abnormalReasonSecondId = abnormalReasonSecondId;
+    }
+
+    public void setAbnormalReasonSecondName(String abnormalReasonSecondName) {
+        this.abnormalReasonSecondName = abnormalReasonSecondName;
+    }
+
+    public void setAbnormalReasonThirdId(Long abnormalReasonThirdId) {
+        this.abnormalReasonThirdId = abnormalReasonThirdId;
+    }
+
+    public void setAbnormalReasonThirdName(String abnormalReasonThirdName) {
+        this.abnormalReasonThirdName = abnormalReasonThirdName;
     }
 
     public Date getTs() {

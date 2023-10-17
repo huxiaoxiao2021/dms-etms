@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.web.kuaiyun.weight;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -81,7 +81,7 @@ public class WeighByPackageController extends DmsBaseController {
     private SysConfigService sysConfigService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private DMSWeightVolumeService dmsWeightVolumeService;
@@ -132,7 +132,7 @@ public class WeighByPackageController extends DmsBaseController {
             packageWeightImportResponse.setErrorList(errorList);
             packageWeightImportResponse.setSuccessList(successList);
             packageWeightImportResponse.setWarnList(warnList);
-            dataList = dataResolver.resolver(file.getInputStream(), PackageWeightVO.class, new PropertiesMetaDataFactory("/excel/packageWeight.properties"),true,resultMessages);
+            dataList = dataResolver.resolver(file.getInputStream(), PackageWeightVO.class, new PropertiesMetaDataFactory("/excel/packageWeight.properties"),true,resultMessages, null);
             log.info("WeighByWaybillController-uploadExcelByPackage转成WaybillWeightVO-List参数:{}", JsonUtils.toJSONString(dataList));
             if (dataList != null && dataList.size() > 0) {
                 //取出 成功的数据 继续校验重泡比 成功直接保存 失败的数据返回给前台
@@ -326,7 +326,7 @@ public class WeighByPackageController extends DmsBaseController {
             }
 
             //校验重量体积是否超标
-            if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 0) {
+            if (dmsConfigManager.getPropertyConfig().getWeightVolumeSwitchVersion() == 0) {
                 InvokeResult invokeResult = service.checkIsExcess(codeStr, weight.toString(), volume.toString());
                 if(invokeResult != null && invokeResult.getCode() == EXCESS_CODE){
                     //没通过
@@ -346,7 +346,7 @@ public class WeighByPackageController extends DmsBaseController {
                     vo.setCanSubmit(1);
                     return false;
                 }
-            } else if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 1) {
+            } else if (dmsConfigManager.getPropertyConfig().getWeightVolumeSwitchVersion() == 1) {
                 WeightVolumeRuleCheckDto condition = new WeightVolumeRuleCheckDto();
                 condition.setBarCode(codeStr);
                 condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name());

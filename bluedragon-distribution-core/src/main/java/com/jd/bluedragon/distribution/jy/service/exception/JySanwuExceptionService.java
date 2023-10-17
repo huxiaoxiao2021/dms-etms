@@ -5,6 +5,9 @@ import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpSignUserResp;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskStatisticsOfWaitReceiveDto;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSourceEnum;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
 
 import java.util.List;
 
@@ -14,6 +17,11 @@ import java.util.List;
  * @Description: 三无
  */
 public interface JySanwuExceptionService {
+
+
+
+    JdCResponse<Object> uploadScan(JyBizTaskExceptionEntity taskEntity, ExpUploadScanReq req, PositionDetailRecord position,
+                                   JyExpSourceEnum source,  String bizId);
 
     /**
      * 获取三无超时未领取统计列表
@@ -50,4 +58,6 @@ public interface JySanwuExceptionService {
      * @return
      */
     JdCResponse<Integer> getAssignExpTaskCount(ExpBaseReq req);
+
+
 }

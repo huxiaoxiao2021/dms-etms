@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 import com.jd.bluedragon.distribution.api.request.DmsClientHeartbeatRequest;
 import com.jd.bluedragon.distribution.api.request.DmsClientLogoutRequest;
+import com.jd.bluedragon.distribution.api.request.DmsLoginRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.DmsClientHeartbeatResponse;
@@ -13,6 +15,10 @@ import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.service.DmsBaseService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientVersionRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientVersionResponse;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -42,12 +48,12 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     private DmsClientManager dmsClientManager;
 
 	@Autowired
-    UccPropertyConfiguration uccPropertyConfiguration;
+    DmsConfigManager dmsConfigManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.login", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseResponse login(LoginRequest request) {
-        if (uccPropertyConfiguration.isDisablePdaOldLogin()) {
+        if (dmsConfigManager.getPropertyConfig().isDisablePdaOldLogin()) {
             //登陆已经切换到新clientlogin,此接口关闭,提示强制升级
             BaseResponse response = new BaseResponse();
             response.setErpAccount(request.getErpAccount());
@@ -80,6 +86,29 @@ public class DmsBaseServiceImpl implements DmsBaseService {
         return userService.jsfLoginWithToken(request);
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.getLoginId", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public LoginUserResponse getLoginId(DmsLoginRequest request) {
+        DmsClientLoginRequest dmsClientLoginRequest = new DmsClientLoginRequest();
+        org.springframework.beans.BeanUtils.copyProperties(request, dmsClientLoginRequest);
+        JdResult<DmsClientLoginResponse> loginResponse = dmsClientManager.login(dmsClientLoginRequest);
+        Long loginId = 0L;
+        DmsClientConfigInfo dmsClientConfigInfo = null;
+        if (loginResponse != null && loginResponse.isSucceed() && loginResponse.getData() != null) {
+            loginId = loginResponse.getData().getLoginId();
+            if (loginResponse.getData().getDmsClientConfigInfo() != null) {
+                dmsClientConfigInfo = new DmsClientConfigInfo();
+                org.springframework.beans.BeanUtils.copyProperties(loginResponse.getData().getDmsClientConfigInfo(), dmsClientConfigInfo);
+            }
+        }
+        // 结果设置
+        LoginUserResponse response = new LoginUserResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        // 设置登录Id
+        response.setLoginId(loginId);
+        response.setDmsClientConfigInfo(dmsClientConfigInfo);
+        return response;
+    }
+
     /**
      * 客户端登陆，发送心跳（android PDA）
      * @param request
@@ -96,6 +125,32 @@ public class DmsBaseServiceImpl implements DmsBaseService {
         jdResult.setMessage(result.getMessage());
         jdResult.setData(JsonHelper.fromJson(JsonHelper.toJson(result.getData()), DmsClientHeartbeatResponse.class));
         return jdResult;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.getClientConfigInfo", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdResult<DmsClientConfigInfo> getClientConfigInfo(DmsLoginRequest request) {
+        JdResult<DmsClientConfigInfo> result = new JdResult<>();
+        result.toSuccess();
+        DmsClientVersionRequest dmsClientVersionRequest = new DmsClientVersionRequest();
+        dmsClientVersionRequest.setProgramType(request.getProgramType());
+        dmsClientVersionRequest.setUserCode(request.getUserCode());
+        dmsClientVersionRequest.setSiteCode(request.getSiteCode());
+        dmsClientVersionRequest.setOrgCode(request.getOrgCode());
+        dmsClientVersionRequest.setSystemCode(request.getSystemCode());
+        JdResult<DmsClientVersionResponse> clientResponse = dmsClientManager.getClientVersion(dmsClientVersionRequest);
+        if (clientResponse.isSucceed() && null != clientResponse.getData()) {
+            DmsClientVersionResponse clientVersion = clientResponse.getData();
+            if (clientVersion.getDmsClientConfigInfo() != null) {
+                DmsClientConfigInfo dmsClientConfigInfo = new DmsClientConfigInfo();
+                org.springframework.beans.BeanUtils.copyProperties(clientVersion.getDmsClientConfigInfo(), dmsClientConfigInfo);
+                result.setData(dmsClientConfigInfo);
+                return result;
+            }
+        }
+        result.setCode(clientResponse.getCode());
+        result.setMessage(clientResponse.getMessage());
+        return result;
     }
 
     /**

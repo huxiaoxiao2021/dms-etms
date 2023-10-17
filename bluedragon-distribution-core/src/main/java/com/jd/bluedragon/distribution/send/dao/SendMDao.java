@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.send.dao;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -12,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 public  class SendMDao extends BaseDao<SendM>  {
-	
+
 	public static final String namespace = SendMDao.class.getName();
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -46,7 +49,7 @@ public  class SendMDao extends BaseDao<SendM>  {
         querySendM.setCreateSiteCode(createSiteCode);
 		return getSqlSession().selectList(SendMDao.namespace + ".selectOneBySendCode", querySendM);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<SendM> selectBySiteAndSendCode(Integer createSiteCode, String sendCode) {
 		SendM querySendM = new SendM();
@@ -54,7 +57,7 @@ public  class SendMDao extends BaseDao<SendM>  {
 		querySendM.setSendCode(sendCode);
 		return getSqlSession().selectList(SendMDao.namespace + ".selectBySiteAndSendCode", querySendM);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<SendM> selectBySiteAndSendCodeBYtime(Integer createSiteCode, String sendCode) {
 		SendM querySendM = new SendM();
@@ -71,9 +74,10 @@ public  class SendMDao extends BaseDao<SendM>  {
         querySendM.setSendCode(sendCode);
 		return (SendM) getSqlSession().selectOne(SendMDao.namespace + ".selectBySendCode", querySendM);
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public List<SendM> selectBySendSiteCode(SendM sendM) {
+    @JProfiler(jKey = "DMSWEB.SendMDao.selectBySendSiteCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<SendM> selectBySendSiteCode(SendM sendM) {
 		if(log.isInfoEnabled()){
 			log.info("selectBySendSiteCode-->参数sendM：{}" , JsonHelper.toJson(sendM));
 		}
@@ -98,8 +102,8 @@ public  class SendMDao extends BaseDao<SendM>  {
     	return this.getSqlSession().insert(SendMDao.namespace + ".insertSendM",
     	        dSendM)>0;
     }
-    
-    
+
+
     @SuppressWarnings("unchecked")
     public List<SendM> findSendMByBoxCode(SendM sendM) {
         //TODO
@@ -114,18 +118,18 @@ public  class SendMDao extends BaseDao<SendM>  {
 	public String querySendCodeBySelective(SendM sendM) {
 		return getSqlSession().selectOne(SendMDao.namespace + ".querySendCodeBySelective", sendM);
 	}
-    
+
     public boolean cancelSendM(SendM tSendM) {
         return this
                 .getSqlSession()
                 .update(SendMDao.namespace + ".cancelSendM",tSendM) > 0;
     }
-    
+
 	public boolean checkSendByBox(SendM sendM) {
 		Integer count = (Integer)this.getSqlSession().selectOne(namespace+".checkSendByBox", sendM);
 		return count>0;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<SendM> querySendCodesByDepartue(Long shieldsCarId) {
 		SendM sendM = new SendM();
@@ -133,11 +137,11 @@ public  class SendMDao extends BaseDao<SendM>  {
 		return this.getSqlSession().selectList(
 				SendMDao.namespace + ".querySendCodesByDepartue", sendM);
 	}
-	
+
     public Integer addBatch(List<SendM> param) {
         return this.getSqlSession().insert(namespace + ".addBatch", param);
     }
-    
+
     @SuppressWarnings("unchecked")
 	public List<String> batchQuerySendMList(SendM sendM) {
 		return getSqlSession().selectList(SendMDao.namespace + ".batchQuerySendMList", sendM);
@@ -151,6 +155,15 @@ public  class SendMDao extends BaseDao<SendM>  {
     @SuppressWarnings("unchecked")
 	public List<String> batchQueryCancelSendMList(SendM sendM) {
 		return getSqlSession().selectList(SendMDao.namespace + ".batchQueryCancelSendMList", sendM);
+	}
+
+	/**
+	 * 根据场地和箱号列表获取已发货数据
+	 * @param sendM
+	 * @return
+	 */
+	public List<SendM> batchQuerySendMListBySiteAndBoxes(SendM sendM) {
+		return getSqlSession().selectList(SendMDao.namespace + ".batchQuerySendMListBySiteAndBoxes", sendM);
 	}
 
     /**

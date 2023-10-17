@@ -90,6 +90,15 @@ public class CollectionBagExceptionReportQuery extends BasePagerCondition implem
      */
     private LinkedHashMap<String, List<Object>> columnValueMap;
 
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
+
     public Integer getOrgCode() {
         return orgCode;
     }
@@ -241,5 +250,21 @@ public class CollectionBagExceptionReportQuery extends BasePagerCondition implem
 
     public void setColumnValueMap(LinkedHashMap<String, List<Object>> columnValueMap) {
         this.columnValueMap = columnValueMap;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
     }
 }

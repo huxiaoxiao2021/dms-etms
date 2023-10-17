@@ -9,13 +9,14 @@ public enum JySendVehicleProductTypeEnum {
 
     NONE("NONE", "其他", 99),
     FAST("FAST", "特快送", 1),
-    FRESH("FRESH", "生鲜", 2),
-    TIKTOK("TIKTOK", "抖音", 3),
-    DEWU("DEWU", "得物", 4),
-    MEDICINE("MEDICINE", "医药", 5),
-    KA("KA", "KA", 6),
-    EASYFROZEN("EASYFROZEN", "易冻品", 7),
-    LUXURY("LUXURY", "奢侈品", 8),
+    HANGKONGJIAN("HANGKONGJIAN", "航空件", 2),
+    FRESH("FRESH", "生鲜", 3),
+    SHENGXIANTEBAO("SHENGXIANTEBAO", "生鲜特保", 4),
+    TIKTOK("TIKTOK", "抖音", 5),
+    DEWU("DEWU", "得物", 6),
+    TEAN("TEAN","特安",7),
+    KA("KA", "KA", 8),
+    MEDICINE("MEDICINE", "医药", 9),
             ;
 
     private String code;
@@ -37,6 +38,15 @@ public enum JySendVehicleProductTypeEnum {
             }
         }
         return "";
+    }
+
+    public static JySendVehicleProductTypeEnum getEnumByCode(String code) {
+        for (JySendVehicleProductTypeEnum value : JySendVehicleProductTypeEnum.values()) {
+            if(value.getCode().equals(code)){
+                return value;
+            }
+        }
+        return null;
     }
 
     public String getCode() {

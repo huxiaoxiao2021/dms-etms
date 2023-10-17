@@ -10,7 +10,7 @@ import com.jd.bluedragon.distribution.api.request.material.batch.MaterialBatchSe
 import com.jd.bluedragon.distribution.api.response.material.batch.MaterialTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.material.util.MaterialServiceFactory;
+import com.jd.bluedragon.distribution.external.intensive.enums.MaterialSendModeEnum;
 import com.jd.bluedragon.distribution.rest.material.MaterialBatchSendResource;
 import com.jd.bluedragon.external.gateway.service.MaterialBatchSendGatewayService;
 import com.jd.ump.annotation.JProEnum;
@@ -31,7 +31,7 @@ import java.util.List;
  **/
 public class MaterialBatchSendGatewayServiceImpl implements MaterialBatchSendGatewayService {
 
-    private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.TYPE_BATCH_SEND.getCode();
+    private static final byte SEND_MODE = MaterialSendModeEnum.TYPE_BATCH_SEND.getCode();
 
     @Resource
     private MaterialBatchSendResource materialBatchSendResource;

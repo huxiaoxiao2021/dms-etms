@@ -4,13 +4,20 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.ISortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.utils.BeanHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
     public static final String namespace = SortingDao.class.getName();
 
     @SuppressWarnings("unchecked")
@@ -38,10 +45,23 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
     }
 
     public Boolean canCancel2(Sorting sorting) {
-        Integer count = this.getSqlSession().update(namespace + ".canCancel2", sorting);
+    	CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingDao.canCancel2", false, true);
+    	Integer count = 0;
+    	Long sortingId = null;
+    	List<Sorting> updateList = this.getSqlSession().selectList(namespace + ".querySortingForCanCancel2", sorting);
+    	if(updateList != null && updateList.size() > 0) {
+    		if(updateList.size() > 1) {
+    			this.log.warn("sortingServiceImpl.canCancel2:查询到{}条数据,[{}]",updateList.size(),JsonHelper.toJson(sorting));
+    		}
+    		sortingId = BeanHelper.getLastOperateSortingId(updateList);
+            count = this.getSqlSession().update(namespace + ".canCancel2", sorting);
+    	}
+    	if(sortingId != null && count > 0) {
+    		sorting.setId(sortingId);
+    	}
+    	Profiler.registerInfoEnd(info);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
-
     public boolean canCancelFuzzy(Sorting sorting) {
     	Integer count = this.getSqlSession().update(namespace + ".canCancelFuzzy", sorting);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
@@ -157,4 +177,12 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
     public List<Sorting> getPagePackageNoByBoxCode(SortingPageRequest request) {
         return this.getSqlSession().selectList(namespace + ".getPagePackageNoByBoxCode", request);
     }
+    /**
+     * 更新前查询
+     * @param sorting
+     * @return
+     */
+	public List<Sorting> querySortingForUpdate(Sorting sorting) {
+		return this.getSqlSession().selectList(namespace + ".querySortingForUpdate", sorting);
+	}
 }

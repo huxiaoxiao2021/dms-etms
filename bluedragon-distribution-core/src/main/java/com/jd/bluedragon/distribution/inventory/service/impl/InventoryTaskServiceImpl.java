@@ -126,6 +126,8 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         for(InventoryTask inventoryTask : list){
             InventoryTaskExportDto inventoryTaskExportDto = new InventoryTaskExportDto();
             inventoryTaskExportDto.setOrgName(inventoryTask.getOrgName());
+            inventoryTaskExportDto.setProvinceAgencyName(inventoryTask.getProvinceAgencyName());
+            inventoryTaskExportDto.setAreaHubName(inventoryTask.getAreaHubName());
             inventoryTaskExportDto.setCreateSiteName(inventoryTask.getCreateSiteName());
             inventoryTaskExportDto.setDirectionName(inventoryTask.getDirectionName() == null ? "" : inventoryTask.getDirectionName());
             inventoryTaskExportDto.setInventoryScopeStr(InventoryScopeEnum.getDescByCode(inventoryTask.getInventoryScope()));
@@ -145,6 +147,8 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
     private Map<String, String> getHeaderMap() {
         Map<String, String> headerMap = new LinkedHashMap<>();
         headerMap.put("orgName","区域");
+        headerMap.put("provinceAgencyName","省区名称");
+        headerMap.put("areaHubName","枢纽名称");
         headerMap.put("createSiteName","操作场地");
         headerMap.put("directionName","盘点范围");
         headerMap.put("inventoryScopeStr","下游场地");
@@ -339,6 +343,10 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
             if (baseStaffSiteOrgDto != null) {
                 inventoryTaskBasic.setOrgId(baseStaffSiteOrgDto.getOrgId());
                 inventoryTaskBasic.setOrgName(baseStaffSiteOrgDto.getOrgName());
+                inventoryTaskBasic.setProvinceAgencyCode(baseStaffSiteOrgDto.getProvinceAgencyCode());
+                inventoryTaskBasic.setProvinceAgencyName(baseStaffSiteOrgDto.getProvinceAgencyName());
+                inventoryTaskBasic.setAreaHubCode(baseStaffSiteOrgDto.getAreaCode());
+                inventoryTaskBasic.setAreaHubName(baseStaffSiteOrgDto.getAreaName());
             }
 
         } catch (Exception e) {

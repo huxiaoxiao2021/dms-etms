@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.web.admin;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
@@ -34,7 +34,7 @@ public class GoddessController {
     private GoddessService goddessService;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Authorization(Constants.DMS_WEB_SORTING_GODDESS_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
@@ -63,7 +63,7 @@ public class GoddessController {
         request.put("operatorCode",erpUser.getUserCode());
         businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
         BusinessLogWriter.writeLog(businessLogProfiler);
-        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
+        model.addAttribute("oldLogPageTips",dmsConfigManager.getPropertyConfig().getOldLogPageTips());
         return "admin/goddess/index";
     }
 }

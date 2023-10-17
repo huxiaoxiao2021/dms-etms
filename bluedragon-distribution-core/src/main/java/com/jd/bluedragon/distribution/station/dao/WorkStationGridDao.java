@@ -147,4 +147,18 @@ public interface WorkStationGridDao {
 	 * @return
 	 */
 	WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery);
+
+	/**
+	 * 根据ref_station_key查询
+	 * @param refStationKeyList
+	 * @return
+	 */
+	List<WorkStationGrid>queryByRefStationKey(List<String> refStationKeyList);
+
+	/**
+	 * 根据ref_grid_key查询
+	 * @param refGridKeyList
+	 * @return
+	 */
+	List<WorkStationGrid>queryByRefGridKey(List<String> refGridKeyList);
 }

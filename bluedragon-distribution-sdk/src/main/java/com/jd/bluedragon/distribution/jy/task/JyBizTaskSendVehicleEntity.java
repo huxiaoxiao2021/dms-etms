@@ -115,6 +115,12 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	private String lineTypeName;
 
 	/**
+	 * 司机动作标签
+	 * @see com.jd.bluedragon.distribution.jy.enums.JyBizDriverTagEnum
+	 */
+	private Integer driverTag;
+
+	/**
 	 * 创建人ERP
 	 */
 	private String createUserErp;
@@ -311,7 +317,15 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 		this.lineTypeName = lineTypeName;
 	}
 
-    public Date getLastPlanDepartTime() {
+	public Integer getDriverTag() {
+		return driverTag;
+	}
+
+	public void setDriverTag(Integer driverTag) {
+		this.driverTag = driverTag;
+	}
+
+	public Date getLastPlanDepartTime() {
         return lastPlanDepartTime;
     }
 

@@ -67,6 +67,15 @@ public class JyGroupEntity implements Serializable {
      */
     private Date ts;
 
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
+
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -171,4 +180,25 @@ public class JyGroupEntity implements Serializable {
         return this.ts;
     }
 
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        if(provinceAgencyCode == null){
+            provinceAgencyCode = "";
+        }
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        if(areaHubCode == null){
+            areaHubCode = "";
+        }
+        this.areaHubCode = areaHubCode;
+    }
 }

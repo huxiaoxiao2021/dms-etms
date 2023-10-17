@@ -15,7 +15,6 @@ import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
@@ -34,14 +33,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -71,23 +67,16 @@ public class CrossBoxController {
 	public String index(CrossBoxRequest crossBoxRequest, Model model) {
 			if(!ObjectMapHelper.makeObject2Map(crossBoxRequest).isEmpty()){
 				HashMap queryInfo = new HashMap();/** 用于传入查询参数，只用在数据返回 **/
-				try{
-					queryInfo.put("originateOrg",crossBoxRequest.getOriginateOrg());
-					queryInfo.put("originateOrgName",URLDecoder.decode(crossBoxRequest.getOriginateOrgName(),"UTF-8"));
-					queryInfo.put("originalDmsName", URLDecoder.decode(crossBoxRequest.getOriginalDmsName(),"UTF-8"));
-					queryInfo.put("updateOperatorName",URLDecoder.decode(crossBoxRequest.getUpdateOperatorName(),"UTF-8"));
-					queryInfo.put("destinationOrg",crossBoxRequest.getDestinationOrg());
-					queryInfo.put("destinationOrgName",URLDecoder.decode(crossBoxRequest.getDestinationOrgName(),"UTF-8"));
-					queryInfo.put("destinationDmsName",URLDecoder.decode(crossBoxRequest.getDestinationDmsName(),"UTF-8"));
-					queryInfo.put("startDate",crossBoxRequest.getStartDate());
-					queryInfo.put("endDate",crossBoxRequest.getEndDate());
-					queryInfo.put("transferOrg",crossBoxRequest.getTransferOrg());
-					queryInfo.put("transferOrgName",URLDecoder.decode(crossBoxRequest.getTransferOrgName(),"UTF-8"));
-					queryInfo.put("transferName",URLDecoder.decode(crossBoxRequest.getTransferName(),"UTF-8"));
-					queryInfo.put("yn",crossBoxRequest.getYn());
-				}catch(UnsupportedEncodingException e){
-					log.error("查询条件参数解码异常：",e);
-				}
+				queryInfo.put("originalProvinceAgencyCode",crossBoxRequest.getOriginalProvinceAgencyCode());
+				queryInfo.put("originalDmsId",crossBoxRequest.getOriginalDmsId());
+				queryInfo.put("destinationProvinceAgencyCode",crossBoxRequest.getDestinationProvinceAgencyCode());
+				queryInfo.put("destinationDmsId",crossBoxRequest.getDestinationDmsId());
+				queryInfo.put("transferProvinceAgencyCode",crossBoxRequest.getTransferProvinceAgencyCode());
+				queryInfo.put("transferId",crossBoxRequest.getTransferId());
+				queryInfo.put("startDate",crossBoxRequest.getStartDate());
+				queryInfo.put("endDate",crossBoxRequest.getEndDate());
+				queryInfo.put("transferOrg",crossBoxRequest.getTransferOrg());
+				queryInfo.put("yn",crossBoxRequest.getYn());
 				model.addAttribute("queryInfo",queryInfo);
 			}
 
@@ -141,62 +130,23 @@ public class CrossBoxController {
 	@RequestMapping("/toEdit")
 	public String toEdit(Integer id, CrossBoxRequest crossBoxRequest, Model model) {
 		HashMap queryInfo = new HashMap();/** 组装查询条件 **/
-		try{
-			queryInfo.put("originateOrg",crossBoxRequest.getOriginateOrg());
-			queryInfo.put("originateOrgName",URLDecoder.decode(crossBoxRequest.getOriginateOrgName(),"UTF-8"));
-			queryInfo.put("originalDmsName", URLDecoder.decode(crossBoxRequest.getOriginalDmsName(),"UTF-8"));
-			queryInfo.put("updateOperatorName",URLDecoder.decode(crossBoxRequest.getUpdateOperatorName(),"UTF-8"));
-			queryInfo.put("destinationOrg",crossBoxRequest.getDestinationOrg());
-			queryInfo.put("destinationOrgName",URLDecoder.decode(crossBoxRequest.getDestinationOrgName(),"UTF-8"));
-			queryInfo.put("destinationDmsName",URLDecoder.decode(crossBoxRequest.getDestinationDmsName(),"UTF-8"));
+		try {
+			queryInfo.put("originalProvinceAgencyCode",crossBoxRequest.getOriginalProvinceAgencyCode());
+			queryInfo.put("originalDmsId",crossBoxRequest.getOriginalDmsId());
+			queryInfo.put("destinationProvinceAgencyCode",crossBoxRequest.getDestinationProvinceAgencyCode());
+			queryInfo.put("destinationDmsId",crossBoxRequest.getDestinationDmsId());
+			queryInfo.put("transferProvinceAgencyCode",crossBoxRequest.getTransferProvinceAgencyCode());
+			queryInfo.put("transferId",crossBoxRequest.getTransferId());
 			queryInfo.put("startDate",crossBoxRequest.getStartDate());
 			queryInfo.put("endDate",crossBoxRequest.getEndDate());
-			queryInfo.put("transferOrg",crossBoxRequest.getTransferOrg());
-			queryInfo.put("transferOrgName",URLDecoder.decode(crossBoxRequest.getTransferOrgName(),"UTF-8"));
-			queryInfo.put("transferName",URLDecoder.decode(crossBoxRequest.getTransferName(),"UTF-8"));
 			queryInfo.put("yn",crossBoxRequest.getYn());
-		}catch(UnsupportedEncodingException e){
-			log.error("对查询条件中的汉字解码失败：",e);
-		}
-		try {
-			CrossBox crossBox = crossBoxService.getCrossBoxById(id);
-			model.addAttribute("originateOrgId", getSiteOrgId(crossBox.getOriginalDmsId()));
-			model.addAttribute("originateOrgName", getSiteOrgName(crossBox.getOriginalDmsId()));
-
-			model.addAttribute("destinationOrgId", getSiteOrgId(crossBox.getDestinationDmsId()));
-			model.addAttribute("destinationOrgName", getSiteOrgName(crossBox.getDestinationDmsId()));
-
-			model.addAttribute("transferOneOrgId", getSiteOrgId(crossBox.getTransferOneId()));
-			model.addAttribute("transferOneOrgName", getSiteOrgName(crossBox.getTransferOneId()));
-
-			model.addAttribute("transferTwoOrgId", getSiteOrgId(crossBox.getTransferTwoId()));
-			model.addAttribute("transferTwoOrgName", getSiteOrgName(crossBox.getTransferTwoId()));
-
-			model.addAttribute("transferThreeOrgId", getSiteOrgId(crossBox.getTransferThreeId()));
-			model.addAttribute("transferThreeOrgName", getSiteOrgName(crossBox.getTransferThreeId()));
-
-			model.addAttribute("crossDmsBox", crossBox);
+			
+			model.addAttribute("crossDmsBox", crossBoxService.getCrossBoxById(id));
 			model.addAttribute("queryInfo",queryInfo);/** 渲染出查询参数 **/
 		} catch (Exception e) {
 			log.error("进入跨分拣箱号中转修改页面异常：", e);
 		}
 		return "crossbox/add";
-	}
-
-	private Integer getSiteOrgId(Integer siteCode) {
-		BaseStaffSiteOrgDto dto = baseSiteManager.getBaseSiteBySiteId(siteCode);
-		if (dto != null) {
-			return dto.getOrgId();
-		}
-		return null;
-	}
-
-	private String getSiteOrgName(Integer siteCode) {
-		BaseStaffSiteOrgDto dto = baseSiteManager.getBaseSiteBySiteId(siteCode);
-		if (dto != null) {
-			return dto.getOrgName();
-		}
-		return null;
 	}
 
 	@Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)

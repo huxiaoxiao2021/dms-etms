@@ -207,7 +207,38 @@ public class UserSignRecord implements Serializable {
 	 */
 	private Integer bizSource;
 
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+	/**
+	 * 省区名称
+	 */
+	private String provinceAgencyName;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
+	/**
+	 * 枢纽名称
+	 */
+	private String areaHubName;
+	
+
 	private String refWorkGridKey;
+
+	/**
+	 * 身份证号
+	 */
+	private String idCard;
+
+	public String getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(String idCard) {
+		this.idCard = idCard;
+	}
 
 	public String getRefWorkGridKey() {
 		return refWorkGridKey;
@@ -783,5 +814,49 @@ public class UserSignRecord implements Serializable {
 
 	public void setBizSource(Integer bizSource) {
 		this.bizSource = bizSource;
+	}
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		if(provinceAgencyCode == null){
+			provinceAgencyCode = "";
+		}
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getProvinceAgencyName() {
+		return provinceAgencyName;
+	}
+
+	public void setProvinceAgencyName(String provinceAgencyName) {
+		if(provinceAgencyName == null){
+			provinceAgencyName = "";
+		}
+		this.provinceAgencyName = provinceAgencyName;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		if(areaHubCode == null){
+			areaHubCode = "";
+		}
+		this.areaHubCode = areaHubCode;
+	}
+
+	public String getAreaHubName() {
+		return areaHubName;
+	}
+
+	public void setAreaHubName(String areaHubName) {
+		if(areaHubName == null){
+			areaHubName = "";
+		}
+		this.areaHubName = areaHubName;
 	}
 }

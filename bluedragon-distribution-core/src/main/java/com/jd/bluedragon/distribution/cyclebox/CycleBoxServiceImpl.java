@@ -3,10 +3,13 @@ package com.jd.bluedragon.distribution.cyclebox;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
 import com.jd.bluedragon.core.base.TMSBossQueryManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
@@ -25,6 +28,8 @@ import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
 import com.jd.bluedragon.distribution.cyclebox.service.BoxMaterialRelationService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
+import com.jd.bluedragon.distribution.receive.domain.Receive;
+import com.jd.bluedragon.distribution.receive.service.ReceiveService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -43,6 +48,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +57,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR;
 
 @Service("cycleBoxService")
 public class CycleBoxServiceImpl implements CycleBoxService {
@@ -98,6 +107,9 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
     @Value("${materialCode.bind.boxCode.send.time:4}")
     private Integer materialCodeBoxCodeSendTime;
+
+    @Autowired
+    private ReceiveService receiveService;
 
 
     private static final String FIELD_NAME_CLEAR_BOX_NUM = "clearBoxNum";
@@ -347,6 +359,185 @@ public class CycleBoxServiceImpl implements CycleBoxService {
       return res;
     }
 
+
+
+
+
+    /**
+     * 绑定集包袋校验逻辑
+     *  1.集包袋规则校验
+     *  2.该箱号已发货，不能再绑定集包袋
+     *  3. 如果本地场地已经绑定了箱号 而且已在4小时内发货 ，不能再绑定
+     *  4. 若循环集包袋绑定的最近2个箱号在本场地发货过，，且发货的目的地相同时，弹窗提示「疑似虚假操作，当前AD码已锁定，请使用其它循环袋」，并禁止操作集包袋绑定
+     *  5.此集包袋号曾经存在绑定箱号时做此校验 此场景使用的箱号是集包袋曾经绑定的箱号 集包袋绑定的箱号，在当前场地操作收箱 集包袋绑定的箱号的目的地不是本场地
+     * @param request
+     * @return
+     */
+    public InvokeResult boxMaterialRelationAlterOfCheck(BoxMaterialRelationRequest request) {
+        InvokeResult result = new InvokeResult();
+        result.success();
+        // 忽略校验
+        if (shouldSkipValidation(request)) {
+            return result;
+        }
+        //集包袋规则校验
+        // 如果是LL类型箱号，只能绑定围板箱或者笼车号
+        if (BusinessHelper.isLLBoxType(request.getBoxCode().substring(0, 2))) {
+            if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
+                result.setCode(Integer.valueOf(LL_BOX_BINDING_MATERIAL_TYPE_ERROR));
+                result.setMessage(HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR, Boolean.TRUE));
+            }
+        }else {
+            if (!BusinessUtil.isCollectionBag(request.getMaterialCode()) 
+                    || BusinessUtil.isTrolleyCollectionBag(request.getMaterialCode())) {
+                result.setCode(Integer.valueOf(HintCodeConstants.CYCLE_BOX_RULE_ERROR));
+                result.setMessage(HintService.getHint(HintCodeConstants.CYCLE_BOX_RULE_ERROR, Boolean.TRUE));
+                return result;
+            }
+            
+        }
+        //该箱号已发货，不能再绑定集包袋
+        if (isBoxAlreadySent(request)) {
+            result.setCode(InvokeResult.RESULT_BOX_SENT_CODE);
+            result.setMessage(InvokeResult.RESULT_BOX_SENT_MESSAGE);
+            return result;
+        }
+        //如果本地场地已经绑定了箱号 而且已在4小时内发货 ，不能再绑定
+        if (isBoundWithin4Hours(request)) {
+            result.customMessage(InvokeResult.RESULT_RFID_BIND_BOX_SENT_CODE,
+                    InvokeResult.RESULT_RFID_BIND_BOX_SENT_MESSAGE);
+            return result;
+        }
+        // 若循环集包袋绑定的最近2个箱号在本场地发货过，，且发货的目的地相同时，弹窗提示「疑似虚假操作，当前AD码已锁定，请使用其它循环袋」，并禁止操作集包袋绑定
+        if (isSuspiciousOperation(request)) {
+            result.setCode(Integer.valueOf(HintCodeConstants.CYCLE_BOX_IS_LOCK_ERROR));
+            result.setMessage(HintService.getHint(HintCodeConstants.CYCLE_BOX_IS_LOCK_ERROR, Boolean.TRUE));
+            return result;
+        }
+        //此集包袋号曾经存在绑定箱号时做此校验 此场景使用的箱号是集包袋曾经绑定的箱号 在当前场地操作收箱 集包袋绑定的箱号的目的地不是本场地
+        if (!request.getForceFlag() && isBoxPreviouslyBound(request)) {
+            result.setCode(Integer.valueOf(HintCodeConstants.CYCLE_BOX_NOT_BELONG_ERROR));
+            result.setMessage(HintService.getHint(HintCodeConstants.CYCLE_BOX_NOT_BELONG_ERROR, Boolean.TRUE));
+            return result;
+        }
+
+        return result;
+    }
+    
+    /**
+     * 跳过校验
+     * @param request
+     * @return
+     */
+    private boolean shouldSkipValidation(BoxMaterialRelationRequest request) {
+        return BoxMaterialRelationRequest.BIZ_SORTING_MACHINE.equals(request.getBizSource()) ||
+                Constants.CONSTANT_NUMBER_TWO == request.getBindFlag();
+    }
+
+    /**
+     * 该箱号已发货，不能再绑定集包袋
+     * @param request
+     * @return
+     */
+    private boolean isBoxAlreadySent(BoxMaterialRelationRequest request) {
+        SendM queryPara = new SendM();
+        queryPara.setBoxCode(request.getBoxCode());
+        queryPara.setCreateSiteCode(request.getSiteCode());
+        List<SendM> sendMList = sendMManager.findSendMByBoxCode(queryPara);
+        return sendMList != null && !sendMList.isEmpty();
+    }
+
+    /**
+     *  如果本地场地已经绑定了箱号 而且已在4小时内发货 ，不能再绑定
+     * @param request
+     * @return
+     */
+    private boolean isBoundWithin4Hours(BoxMaterialRelationRequest request) {
+        BoxMaterialRelation boxMaterial = boxMaterialRelationService.getDataByMaterialCode(request.getMaterialCode());
+        if (boxMaterial != null && request.getSiteCode().equals(boxMaterial.getSiteCode())) {
+            SendM queryPara = new SendM();
+            queryPara.setBoxCode(boxMaterial.getBoxCode());
+            queryPara.setCreateSiteCode(request.getSiteCode());
+            List<SendM> sendMList = sendMManager.findSendMByBoxCode(queryPara);
+            if (CollectionUtils.isNotEmpty(sendMList)) {
+                Date nowSubtract4Hour = DateHelper.add(new Date(), Calendar.HOUR, -4);
+                for (SendM sendM : sendMList) {
+                    if (sendM.getOperateTime().getTime() > nowSubtract4Hour.getTime()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 若循环集包袋绑定的最近2个箱号在本场地发货过，，且发货的目的地相同时，弹窗提示「疑似虚假操作，当前AD码已锁定，请使用其它循环袋」，并禁止操作集包袋绑定
+     * @param request
+     * @return
+     */
+    private boolean isSuspiciousOperation(BoxMaterialRelationRequest request) {
+
+        List<BoxMaterialRelation> boxMaterialRelations = boxMaterialRelationService.getLimitDataByMaterialCode(request.getMaterialCode(), Constants.CONSTANT_NUMBER_TWO);
+        if(boxMaterialRelations==null
+            || boxMaterialRelations.isEmpty()
+            || boxMaterialRelations.size() < Constants.CONSTANT_NUMBER_TWO){
+            if(log.isInfoEnabled()){
+                log.info("isSuspiciousOperation boxMaterialRelations size < 2 ,{},{}",JsonHelper.toJson(request),JsonHelper.toJson(boxMaterialRelations));
+            }
+            return false;
+        }
+        SendM querySendParam = new SendM();
+        querySendParam.setCreateSiteCode(request.getSiteCode());
+        querySendParam.setBoxCodeList(boxMaterialRelations.stream()
+                .map(BoxMaterialRelation::getBoxCode)
+                .collect(Collectors.toList()));
+        List<SendM> sends = sendMManager.batchQuerySendMListBySiteAndBoxes(querySendParam);
+        if(log.isInfoEnabled()){
+            log.info("isSuspiciousOperation param:{} , sends:{}",JsonHelper.toJson(querySendParam),JsonHelper.toJson(sends));
+        }
+        if(sends==null
+                || sends.isEmpty()
+                || sends.size() < Constants.CONSTANT_NUMBER_TWO){
+            if(log.isInfoEnabled()){
+                log.info("isSuspiciousOperation sends size < 2 ,{},{}",JsonHelper.toJson(request),JsonHelper.toJson(boxMaterialRelations));
+            }
+            return false;
+        }
+        Collections.sort(sends, (o1, o2) -> -DateHelper.compare(o1.getOperateTime(), o2.getOperateTime()));
+        Integer lastReceiveSiteCode = null;
+        for (SendM sendM : sends) {
+            if (lastReceiveSiteCode != null && lastReceiveSiteCode.equals(sendM.getReceiveSiteCode())) {
+                    return true;
+            }
+            lastReceiveSiteCode = sendM.getReceiveSiteCode();
+        }
+
+        return false;
+    }
+
+    /**
+     * 此集包袋号曾经存在绑定箱号时做此校验 此场景使用的箱号是集包袋曾经绑定的箱号 在当前场地操作收箱 集包袋绑定的箱号的目的地不是本场地
+     * @param request
+     * @return
+     */
+    private boolean isBoxPreviouslyBound(BoxMaterialRelationRequest request) {
+        BoxMaterialRelation boxMaterial = boxMaterialRelationService.getDataByMaterialCode(request.getMaterialCode());
+        if(log.isInfoEnabled()){
+            log.info("isBoxPreviouslyBound boxMaterial param:{} ,result:{}",JsonHelper.toJson(request),JsonHelper.toJson(boxMaterial));
+        }
+        if (boxMaterial != null) {
+            Receive receive = receiveService.findLastByBoxCodeAndSiteCode(boxMaterial.getBoxCode(), request.getSiteCode());
+            if (receive == null || receive.getBoxCode() == null) {
+                return true;
+            }
+            Box box = boxService.findBoxByCode(boxMaterial.getBoxCode());
+            return box != null && !box.getReceiveSiteCode().equals(request.getSiteCode());
+        }
+        return false;
+    }
+
+
     /**
      * 绑定、删除集包袋
      * @param request
@@ -357,38 +548,18 @@ public class CycleBoxServiceImpl implements CycleBoxService {
     public InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequest request){
         InvokeResult result = new InvokeResult();
         result.success();
-        SendM queryPara = new SendM();
-        queryPara.setBoxCode(request.getBoxCode());
-        queryPara.setCreateSiteCode(request.getSiteCode());
-        List<SendM> sendMList = sendMManager.findSendMByBoxCode(queryPara);
-        if ((!BoxMaterialRelationRequest.BIZ_SORTING_MACHINE.equals(request.getBizSource())) &&//分拣机绑定的,不校验4小时
-                null != sendMList && sendMList.size() > 0) {
-            result.setCode(InvokeResult.RESULT_BOX_SENT_CODE);
-            result.setMessage(InvokeResult.RESULT_BOX_SENT_MESSAGE);
-            return result;
+        if(request.getForceFlag()==null){
+            request.setForceFlag(Boolean.TRUE);
         }
+        //自动化设备不校验  解绑不校验
+        if(!shouldSkipValidation(request)){
 
-        // 如果本地场地已经绑定了箱号 而且已在4小时内发货 ，不能再绑定
-        BoxMaterialRelation boxMaterial = boxMaterialRelationService.getDataByMaterialCode(request.getMaterialCode());
-        if ((!BoxMaterialRelationRequest.BIZ_SORTING_MACHINE.equals(request.getBizSource())) &&//分拣机绑定的,不校验4小时
-                boxMaterial != null && request.getSiteCode().equals(boxMaterial.getSiteCode())) {
-            queryPara.setBoxCode(boxMaterial.getBoxCode());
-            queryPara.setCreateSiteCode(request.getSiteCode());
-           sendMList = sendMManager.findSendMByBoxCode(queryPara);
-           //改箱号是否在四小时内已经发货
-            if (CollectionUtils.isNotEmpty(sendMList)) {
-                Date nowSubtract4Hour = DateHelper.add(new Date(), Calendar.HOUR, -4);
-                for(SendM sendM : sendMList){
-                    if(sendM.getOperateTime().getTime() > nowSubtract4Hour.getTime()){
-                        result.customMessage(InvokeResult.RESULT_RFID_BIND_BOX_SENT_CODE,
-                                InvokeResult.RESULT_RFID_BIND_BOX_SENT_MESSAGE);
-                        return result;
-                    }
-                }
-
+            InvokeResult businessCheck = boxMaterialRelationAlterOfCheck(request);
+            if(!businessCheck.codeSuccess()){
+                return businessCheck;
             }
-        }
 
+        }
 
         BoxMaterialRelation par = new BoxMaterialRelation();
         par.setBoxCode(request.getBoxCode());

@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -918,6 +919,19 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 task.setYn(0);
             }
 
+            // 特殊安检
+            if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK).equals(task.getKeyword2())) {
+                toWaybillStatus(tWaybillStatus, bdTraceDto);
+                bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+                if(Objects.equals(BusinessUtil.getBarCodeType(tWaybillStatus.getPackageCode()), BarCodeType.WAYBILL_CODE)){
+                    bdTraceDto.setWaybillTraceType(WaybillStatus.waybillTraceType2);
+                    bdTraceDto.setWaybillCode(tWaybillStatus.getPackageCode());
+                    bdTraceDto.setPackageBarCode(null);
+                }
+                waybillQueryManager.sendBdTrace(bdTraceDto);
+                task.setYn(0);
+            }
+
 		}
 
 
@@ -1111,6 +1125,29 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			Profiler.registerInfoEnd(info);
 		}
 
+	}
+
+	@Override
+	public void sendWaybillTrackByOperatorCode(List<WaybillSyncParameter> waybillSyncParameters, Integer operatorType) {
+		CallerInfo info = null;
+
+		try{
+			if(log.isInfoEnabled()){
+				log.info("根据操作号批量同步运单数据 入参-{}，operatorType-{}",JSON.toJSONString(waybillSyncParameters),operatorType);
+			}
+			info = Profiler.registerInfo( "DMSWEB.waybillStatusService.sendWaybillTrackByOperatorCode",false, true);
+			BaseEntity<List<String>> response = waybillSyncApi.batchUpdateWaybillByOperatorCode(waybillSyncParameters, operatorType);
+			if(log.isInfoEnabled()){
+				log.info("根据操作号批量同步运单数据 出参-{}",JSON.toJSONString(response));
+
+			}
+		}catch (Exception e){
+			log.error("根据操作号批量同步运单数据（异步更新）异常!",e);
+			Profiler.functionError(info);
+
+		}finally {
+			Profiler.registerInfoEnd(info);
+		}
 	}
 
 	/**

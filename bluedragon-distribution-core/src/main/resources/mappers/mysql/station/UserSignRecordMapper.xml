@@ -5,6 +5,10 @@
 	<resultMap id="UserSignRecord" type="com.jd.bluedragon.distribution.station.domain.UserSignRecord" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="province_agency_name" property="provinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_hub_code" property="areaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_hub_name" property="areaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="war_zone_code" property="warZoneCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="war_zone_name" property="warZoneName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -41,12 +45,17 @@
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="biz_source" property="bizSource" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="ref_work_grid_key" property="refWorkGridKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="id_card" property="idCard" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
 
 	<resultMap id="UserSignRecordReportVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo" >
 		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="province_agency_name" property="provinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_hub_code" property="areaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_hub_name" property="areaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="war_zone_code" property="warZoneCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="war_zone_name" property="warZoneName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -67,6 +76,7 @@
 		<result column="plan_attend_num" property="planAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="attend_num" property="attendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="now_attend_num" property="nowAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="id_card" property="idCard" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
 
 	<resultMap id="UserSignRecordReportSumVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo" >
@@ -97,6 +107,10 @@
 	<resultMap id="UserSignRecordData" type="com.jd.bluedragon.common.dto.station.UserSignRecordData" >
 		<result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="province_agency_name" property="provinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_hub_code" property="areaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_hub_name" property="areaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="war_zone_code" property="warZoneCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="war_zone_name" property="warZoneName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -131,6 +145,7 @@
 		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="id_card" property="idCard" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
 
 
@@ -143,19 +158,19 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		r.id,r.org_code,r.site_code,r.war_zone_code,r.war_zone_name,r.user_code,r.user_code_encrypt,r.user_name,r.user_name_encrypt,r.wave_code,r.job_code,
+		r.id,r.org_code,r.province_agency_code,r.province_agency_name,r.area_hub_code,r.area_hub_name,r.site_code,r.war_zone_code,r.war_zone_name,r.user_code,r.user_code_encrypt,r.user_name,r.user_name_encrypt,r.wave_code,r.job_code,
 		r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
 		r.ref_station_key,r.create_user,r.create_user_name,r.update_user,r.update_user_name,
 		r.create_time,r.update_time,r.yn,r.ts,
 		g.org_name,g.site_name,g.floor,g.grid_no,g.grid_code,g.grid_name,
 		s.area_code,s.area_name,s.work_code,s.work_name,
-		p.plan_name
+		p.plan_name,r.id_card
 	</sql>
     <sql id="Main_Column_List" >
         r.id,r.org_code,r.site_code,r.user_code,r.user_code_encrypt,r.user_name,r.user_name_encrypt,r.wave_code,r.job_code,
         r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
         r.ref_station_key,r.create_user,r.create_user_name,r.update_user,r.update_user_name,
-        r.create_time,r.update_time,r.yn,r.ts,r.biz_source
+        r.create_time,r.update_time,r.yn,r.ts,r.biz_source,r.id_card
     </sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord" useGeneratedKeys="true" keyProperty="id">
@@ -167,6 +182,18 @@
 				</if>
 				<if test="orgCode != null" >
 					org_code,
+				</if>
+				<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+					province_agency_code,
+				</if>
+				<if test="provinceAgencyName != null and provinceAgencyName != ''" >
+					province_agency_name,
+				</if>
+				<if test="areaHubCode != null and areaHubCode != ''" >
+					area_hub_code,
+				</if>
+				<if test="areaHubName != null and areaHubName != ''" >
+					area_hub_name,
 				</if>
 				<if test="warZoneCode != null" >
 					war_zone_code,
@@ -238,6 +265,9 @@
                 <if test="bizSource != null">
                     biz_source,
                 </if>
+				<if test="idCard != null">
+					id_card,
+				</if>
 			</trim>
 			)
 			values
@@ -248,6 +278,18 @@
 				</if>
 				<if test="orgCode != null" >
 					#{orgCode,jdbcType=INTEGER},
+				</if>
+				<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+					#{provinceAgencyCode,jdbcType=VARCHAR},
+				</if>
+				<if test="provinceAgencyName != null and provinceAgencyName != ''" >
+					#{provinceAgencyName,jdbcType=VARCHAR},
+				</if>
+				<if test="areaHubCode != null and areaHubCode != ''" >
+					#{areaHubCode,jdbcType=VARCHAR},
+				</if>
+				<if test="areaHubName != null and areaHubName != ''" >
+					#{areaHubName,jdbcType=VARCHAR},
 				</if>
 				<if test="warZoneCode != null" >
 					#{warZoneCode,jdbcType=VARCHAR},
@@ -319,6 +361,9 @@
                 <if test="bizSource != null" >
                     #{bizSource,jdbcType=INTEGER},
                 </if>
+				<if test="idCard != null" >
+					#{idCard,jdbcType=VARCHAR},
+				</if>
 			</trim>
 			)
 	</insert>
@@ -328,6 +373,18 @@
 			<set>
 				<if test="orgCode != null" >
 					org_code = #{orgCode,jdbcType=INTEGER},
+				</if>
+				<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+					province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+				</if>
+				<if test="provinceAgencyName != null and provinceAgencyName != ''" >
+					province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+				</if>
+				<if test="areaHubCode != null and areaHubCode != ''" >
+					area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+				</if>
+				<if test="areaHubName != null and areaHubName != ''" >
+					area_hub_name = #{areaHubName,jdbcType=VARCHAR},
 				</if>
 				<if test="siteCode != null" >
 					site_code = #{siteCode,jdbcType=INTEGER},
@@ -402,6 +459,9 @@
                 <if test="bizSource != null">
                     biz_source = #{bizSource,jdbcType=INTEGER},
                 </if>
+				<if test="idCard != null">
+					id_card = #{idCard,jdbcType=VARCHAR},
+				</if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -483,6 +543,12 @@
         <if test="orgCode != null" >
             and t.org_code = #{orgCode,jdbcType=INTEGER}
         </if>
+		<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+			and t.province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+		</if>
+		<if test="areaHubCode != null and areaHubCode != ''" >
+			and t.area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
+		</if>
         <if test="siteCode != null" >
             and t.site_code = #{siteCode,jdbcType=INTEGER}
         </if>
@@ -525,8 +591,10 @@
 	</sql>
 
 	<select id="queryReportList" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordReportVo">
-		select
-			r.sign_date,r.wave_code,g.org_code,g.org_name,g.site_code,g.site_name,
+		select 
+			r.sign_date,r.wave_code,g.org_code,g.org_name,
+		    g.province_agency_code,g.province_agency_name,g.area_hub_code,g.area_hub_name,
+		    g.site_code,g.site_name,
 			g.floor,g.grid_no,g.grid_code,g.grid_name,
 			s.area_code,s.area_name,s.work_code,s.work_name,
 			p.plan_name,
@@ -642,6 +710,9 @@
 		<if test="orgCode != null" >
 			and t.org_code = #{orgCode,jdbcType=INTEGER}
 		</if>
+		<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+			and t.province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+		</if>
 		<if test="siteCode != null" >
 			and t.site_code = #{siteCode,jdbcType=INTEGER}
 		</if>
@@ -658,6 +729,12 @@
 		</if>
 		<if test="orgCode != null" >
 			and t.org_code = #{orgCode,jdbcType=INTEGER}
+		</if>
+		<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+			and t.province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+		</if>
+		<if test="areaHubCode != null and areaHubCode != ''" >
+			and t.area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
 		</if>
 		<if test="siteCode != null" >
 			and t.site_code = #{siteCode,jdbcType=INTEGER}
@@ -740,6 +817,12 @@
 			and t.sign_date = #{signDate,jdbcType=DATE}
 		<if test="orgCode != null" >
 			and t.org_code = #{orgCode,jdbcType=INTEGER}
+		</if>
+		<if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+			and t.province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+		</if>
+		<if test="areaHubCode != null and areaHubCode != ''" >
+			and t.area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
 		</if>
 		<if test="siteCode != null" >
 			and t.site_code = #{siteCode,jdbcType=INTEGER}
@@ -1026,6 +1109,9 @@
         <if test="userCode != null and userCode != '' " >
             and r.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
         </if>
+		<if test="idCard != null and idCard != '' " >
+			and r.id_card = #{idCard,jdbcType=VARCHAR}
+		</if>
         </where>
     </sql>
     <select id="queryCountForCheckSignTime" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery" resultType="java.lang.Integer">
@@ -1076,5 +1162,19 @@
 		</if>
 
 	</select>
-
+	<select id="queryByBusinessKeyAndJobCode" resultMap="UserSignRecord">
+		select user_code,user_code_encrypt
+		from  user_sign_record
+		where yn =1
+		AND ref_grid_key in
+		<foreach collection="businessKeyList" item="item" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+		AND job_code in
+		<foreach collection="jobCodeList" item="item" open="(" separator="," close=")">
+			#{item,jdbcType=INTEGER}
+		</foreach>
+		AND sign_out_time is null
+		limit #{offset}, #{limit}
+	</select>
 </mapper>

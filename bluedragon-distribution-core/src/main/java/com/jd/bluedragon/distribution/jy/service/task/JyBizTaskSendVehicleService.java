@@ -174,6 +174,16 @@ public interface JyBizTaskSendVehicleService {
     List<JyBizTaskSendVehicleEntity> findSendTaskByBizIds(List<String> bizIds);
 
     /**
+     * 按流向和状态分页查询发货任务
+     * @param entity
+     * @param pageNum
+     * @param pageSize
+     * @param statuses
+     * @return
+     */
+    List<JyBizTaskSendVehicleEntity> findSendTaskByDestAndStatusesWithPage(JyBizTaskSendVehicleDetailQueryEntity entity, List<Integer> statuses, Integer pageNum, Integer pageSize);
+
+    /**
      * 根据订舱号查询发货任务
      * @param bookingCode
      * @return

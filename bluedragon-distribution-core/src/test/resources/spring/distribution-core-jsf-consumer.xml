@@ -943,13 +943,16 @@
                   retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>
 
-    <!--  运单工具接口，异常运单修复使用  -->
-    <jsf:consumer id="waybillRepaireApi"
-                  interface="com.jd.etms.waybill.api.WaybillRepaireApi"
-                  protocol="jsf"
-                  alias="${jsf.waybill.repaire.group}"
-                  timeout="${jsf.waybill.timeout}"
+    <!--  出勤黑名单  -->
+    <jsf:consumer id="basicAttendanceBlackListJsfService"
+                  interface="com.jdl.basic.api.service.attBlackList.AttendanceBlackListJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
                   retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
                   serialization="hessian"/>
     <!-- erp 路由查询线路 杨金宇 -->
     <jsf:consumer id="vrsQueryAPI" interface="com.jd.etms.api.resource.VrsQueryAPI"

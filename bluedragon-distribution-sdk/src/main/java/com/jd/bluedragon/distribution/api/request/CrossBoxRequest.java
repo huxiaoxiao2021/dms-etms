@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.Date;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CrossBoxRequest implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer originateOrg; // 始发区域ID
@@ -26,6 +29,14 @@ public class CrossBoxRequest implements Serializable {
 	private String originateOrgName;//始发区域名称
 	private String destinationOrgName;//目的区域名称
 	private String transferOrgName;//中转区域名称
+
+	private String originalProvinceAgencyCode;// 始发省区编码
+	private String destinationProvinceAgencyCode;// 目的省区编码
+	private String transferProvinceAgencyCode;// 中转省区编码
+	private Integer originalDmsId;// 始发分拣ID
+	private Integer destinationDmsId;// 目的分拣ID
+	private Integer transferId;// 中转分拣ID
+
 
 	public String getOriginalDmsName() {
 		return originalDmsName;
@@ -193,5 +204,53 @@ public class CrossBoxRequest implements Serializable {
 
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+
+	public String getOriginalProvinceAgencyCode() {
+		return originalProvinceAgencyCode;
+	}
+
+	public void setOriginalProvinceAgencyCode(String originalProvinceAgencyCode) {
+		this.originalProvinceAgencyCode = originalProvinceAgencyCode;
+	}
+
+	public String getDestinationProvinceAgencyCode() {
+		return destinationProvinceAgencyCode;
+	}
+
+	public void setDestinationProvinceAgencyCode(String destinationProvinceAgencyCode) {
+		this.destinationProvinceAgencyCode = destinationProvinceAgencyCode;
+	}
+
+	public String getTransferProvinceAgencyCode() {
+		return transferProvinceAgencyCode;
+	}
+
+	public void setTransferProvinceAgencyCode(String transferProvinceAgencyCode) {
+		this.transferProvinceAgencyCode = transferProvinceAgencyCode;
+	}
+
+	public Integer getOriginalDmsId() {
+		return originalDmsId;
+	}
+
+	public void setOriginalDmsId(Integer originalDmsId) {
+		this.originalDmsId = originalDmsId;
+	}
+
+	public Integer getDestinationDmsId() {
+		return destinationDmsId;
+	}
+
+	public void setDestinationDmsId(Integer destinationDmsId) {
+		this.destinationDmsId = destinationDmsId;
+	}
+
+	public Integer getTransferId() {
+		return transferId;
+	}
+
+	public void setTransferId(Integer transferId) {
+		this.transferId = transferId;
 	}
 }

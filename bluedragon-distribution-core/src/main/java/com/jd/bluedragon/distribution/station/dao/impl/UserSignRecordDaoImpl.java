@@ -205,4 +205,9 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 
 	}
 
+	@Override
+	public List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryByBusinessKeyAndJobCode", query);
+	}
+
 }

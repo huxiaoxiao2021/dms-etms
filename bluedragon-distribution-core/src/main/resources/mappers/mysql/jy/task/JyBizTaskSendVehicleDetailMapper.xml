@@ -30,6 +30,7 @@
         <result property="excepLabel" column="excep_label"/>
         <result property="lineType" column="line_type"/>
         <result property="taskSimpleCode" column="task_simple_code"/>
+        <result property="onlyLoadNoUnload" column="only_load_no_unload"/>
         <result property="taskType" column="task_type"/>
     </resultMap>
 
@@ -42,8 +43,9 @@
         id, send_vehicle_biz_id, biz_id, trans_work_item_code, vehicle_status, start_site_id, start_site_name,
         end_site_id, end_site_name, plan_depart_time,come_time,near_come_time, seal_car_time,
         create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn,
-        ts,excep_label,line_type,task_simple_code, task_type
+        ts,excep_label,line_type,task_simple_code, only_load_no_unload, task_type
     </sql>
+
 
     <!-- todo 空铁需求：2023.08.07 发货表增加类型字段task_type（默认1：表示发车任务）， 根据业务场景使用不同类型隔离数据-->
     <!-- todo 所有非指定bizId、非指定ID操作 都添加任务类型过滤，不同类型发货任务数据隔离  JySendTaskTypeEnum-->
@@ -51,7 +53,6 @@
     <sql id="default_task_type_vehicle">
         and task_type = 1
     </sql>
-
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleDetailEntity">
         insert into jy_biz_task_send_vehicle_detail
@@ -94,6 +95,9 @@
             </if>
             <if test="sealCarTime != null">
                 seal_car_time,
+            </if>
+            <if test="onlyLoadNoUnload != null">
+                only_load_no_unload,
             </if>
             <if test="createUserErp != null">
                 create_user_erp,
@@ -159,6 +163,9 @@
             </if>
             <if test="sealCarTime != null">
                 #{sealCarTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="onlyLoadNoUnload != null">
+                #{onlyLoadNoUnload,jdbcType=TIMESTAMP},
             </if>
             <if test="createUserErp != null">
                 #{createUserErp,jdbcType=VARCHAR},
@@ -226,6 +233,9 @@
             <if test="sealCarTime != null">
                 seal_car_time = #{sealCarTime,jdbcType=TIMESTAMP},
             </if>
+            <if test="onlyLoadNoUnload != null">
+                only_load_no_unload = #{onlyLoadNoUnload,jdbcType=TIMESTAMP},
+            </if>
             <if test="createUserErp != null">
                 create_user_erp = #{createUserErp,jdbcType=VARCHAR},
             </if>
@@ -289,6 +299,9 @@
             </if>
             <if test="sealCarTime != null">
                 seal_car_time = #{sealCarTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="onlyLoadNoUnload != null">
+                only_load_no_unload = #{onlyLoadNoUnload,jdbcType=TIMESTAMP},
             </if>
             <if test="createUserErp != null">
                 create_user_erp = #{createUserErp,jdbcType=VARCHAR},
@@ -477,6 +490,9 @@
             </if>
             <if test="taskSimpleCode != null">
                 task_simple_code = #{taskSimpleCode},
+            </if>
+            <if test="onlyLoadNoUnload != null">
+                only_load_no_unload = #{onlyLoadNoUnload},
             </if>
             <if test="yn != null">
                 yn = #{yn}
@@ -713,5 +729,4 @@
             #{item}
         </foreach>
     </update>
-
 </mapper>

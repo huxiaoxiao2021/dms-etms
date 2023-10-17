@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.feedback.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.FeedBackApiManager;
 import com.jd.bluedragon.core.base.MrdFeedbackManager;
 import com.jd.bluedragon.distribution.basic.FileUtils;
@@ -9,21 +10,25 @@ import com.jd.bluedragon.distribution.feedback.domain.FeedbackNew;
 import com.jd.bluedragon.distribution.feedback.domain.ReplyResponse;
 import com.jd.bluedragon.distribution.feedback.service.FeedbackService;
 import com.jd.bluedragon.distribution.jss.JssService;
+import com.jd.bluedragon.distribution.jss.oss.AmazonS3ClientWrapper;
 import com.jd.jdwl.feedback.dto.FeedbackDto;
 import com.jd.jdwl.feedback.dto.FeedbackQueryDto;
 import com.jd.jdwl.feedback.dto.UserInfoDto;
 import com.jd.jdwl.feedback.vo.FeedbackVo;
 import com.jd.jdwl.feedback.vo.PageVo;
 import com.jd.jdwl.feedback.vo.ReplyVo;
+import com.jd.jdwl.feedback.vo.TypeVo;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -42,6 +47,10 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Autowired
     private JssService jssService;
+
+    @Autowired
+    @Qualifier("dmswebAmazonS3ClientWrapper")
+    private AmazonS3ClientWrapper dmswebAmazonS3ClientWrapper;
 
     @Value("${jss.feedback.bucket}")
     private String bucket;
@@ -131,11 +140,11 @@ public class FeedbackServiceImpl implements FeedbackService {
      * @param urlList
      * @return
      */
-    private FeedbackDto toUserFeedbackContent(FeedbackNew feedback, List<String> urlList) {
+    private FeedbackDto  toUserFeedbackContent(FeedbackNew feedback, List<String> urlList) {
         FeedbackDto userFeedbackContent = new FeedbackDto();
         userFeedbackContent.setAppId(feedback.getAppId());
         userFeedbackContent.setTypeId(feedback.getType());
-        userFeedbackContent.setContent(feedback.getContent());
+        userFeedbackContent.setContent(feedback.getUserAccount() + Constants.SEPARATOR_COLON + feedback.getContent());
         userFeedbackContent.setUserAccount(feedback.getUserAccount());
         userFeedbackContent.setUserName(feedback.getUserName());
         userFeedbackContent.setImg(urlList);
@@ -156,8 +165,7 @@ public class FeedbackServiceImpl implements FeedbackService {
             for (MultipartFile file : files) {
                 String fileName = file.getOriginalFilename();
                 String keyName = this.getKeyName(index, FileUtils.getFileExtName(fileName));
-                jssService.uploadFile(bucket, keyName, file.getSize(), file.getInputStream());
-                urlList.add(jssService.getPublicBucketUrl(bucket, keyName));
+                urlList.add(dmswebAmazonS3ClientWrapper.putObjectThenGetUrl(file.getInputStream(),bucket,keyName,file.getSize(),365));
                 index++;
             }
             return urlList;
@@ -175,4 +183,22 @@ public class FeedbackServiceImpl implements FeedbackService {
         return String.valueOf(System.currentTimeMillis()) + String.valueOf(random.nextInt(1000) + String.valueOf(index)) + "." + extFileName;
     }
 
+    public boolean createFeedbackWithUrls(FeedbackDto dto) {
+        return feedBackApiManager.createFeedBack(dto);
+    }
+
+    @Override
+    public List<TypeVo> queryFeedBackType(UserInfoDto userInfoDto) {
+        return feedBackApiManager.queryFeedbackTypeList(userInfoDto);
+    }
+
+    @Override
+    public PagerResult<FeedBackResponse> queryFeedback(FeedbackQueryDto queryDto) {
+        PageVo<FeedbackVo> feedbackVoPageVo = feedBackApiManager.queryFeedback(queryDto);
+        PagerResult<FeedBackResponse> result= new PagerResult<>();
+        if (feedbackVoPageVo == null){
+            return result;
+        }
+        return fillResponse(feedbackVoPageVo);
+    }
 }

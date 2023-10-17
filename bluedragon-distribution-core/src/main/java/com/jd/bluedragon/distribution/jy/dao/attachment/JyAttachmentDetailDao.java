@@ -40,6 +40,10 @@ public class JyAttachmentDetailDao extends BaseDao<JyAttachmentDetailEntity> {
         return this.getSqlSession().delete(NAMESPACE + ".delete", entity);
     }
 
+    public int deleteBatch(JyAttachmentDetailQuery entity){
+        return this.getSqlSession().delete(NAMESPACE + ".deleteBatch", entity);
+    }
+
     public JyAttachmentDetailEntity queryOneByBiz(String bizId) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryOneByBiz", bizId);
     }
@@ -47,5 +51,8 @@ public class JyAttachmentDetailDao extends BaseDao<JyAttachmentDetailEntity> {
 	public List<JyAttachmentDetailEntity> queryDataListByCondition(JyAttachmentDetailQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE + ".queryDataListByCondition", query);
 	}
-    
+    public Integer countByCondition(JyAttachmentDetailQuery condition) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countByCondition", condition);
+    }
+
 }

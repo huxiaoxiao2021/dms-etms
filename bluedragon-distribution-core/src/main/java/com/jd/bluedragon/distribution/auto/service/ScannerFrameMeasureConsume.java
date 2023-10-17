@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.auto.service;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -50,7 +50,7 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
     private BaseMajorManager baseMajorManager;
 
     @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private BoxService boxService;
@@ -76,9 +76,9 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
             obj.setpWeight(uploadData.getWeight());//增加称重  2016年12月12日10:54:53  by guoyongzhi
             opeEntity.getOpeDetails().add(obj);
 
-            if(uccPropertyConfiguration.getAutomaticWeightVolumeExchangeSwitch()
-                    && (StringUtils.isEmpty(uccPropertyConfiguration.getAutomaticWeightVolumeExchangeSiteCode()) ||
-                    uccPropertyConfiguration.getAutomaticWeightVolumeExchangeSiteCode().indexOf(config.getCreateSiteCode()+"")>-1)){
+            if(dmsConfigManager.getPropertyConfig().getAutomaticWeightVolumeExchangeSwitch()
+                    && (StringUtils.isEmpty(dmsConfigManager.getPropertyConfig().getAutomaticWeightVolumeExchangeSiteCode()) ||
+                    dmsConfigManager.getPropertyConfig().getAutomaticWeightVolumeExchangeSiteCode().indexOf(config.getCreateSiteCode()+"")>-1)){
                 WeightVolumeEntity weightVolumeEntity = new WeightVolumeEntity()
                         .barCode(uploadData.getBarCode())
                         .businessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE).sourceCode(FromSourceEnum.DMS_AUTOMATIC_MEASURE)

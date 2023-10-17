@@ -7,6 +7,11 @@
 
     <!-- 发布jsf 到物流网关 安卓调用start -->
     <!-- 分拣 -->
+
+    <!--指定网关jsf的filter-->
+    <bean id="simpleComplexSwitchGatewayFilter" class="com.jd.bluedragon.external.gateway.filter.SimpleComplexSwitchGatewayFilter" scope="prototype"/>
+    <jsf:filter id="gatewayFilter" ref="simpleComplexSwitchGatewayFilter" providers="*" consumers=""/>
+
     <bean id="sortingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SortingGatewayServiceImpl"/>
     <jsf:provider id="jsfSortingService"
                   interface="com.jd.bluedragon.external.gateway.service.SortingGatewayService"
@@ -643,13 +648,27 @@
                   server="dmsjsf">
     </jsf:provider>
 
-
+    <bean id="jyFindGoodsGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyFindGoodsGatewayServiceImpl" />
+    <jsf:provider id="jsfJyFindGoodsGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyFindGoodsGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyFindGoodsGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 
     <bean id="jyWarehouseSendGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyWarehouseSendGatewayServiceImpl" />
     <jsf:provider id="jsfJyWarehouseSendGatewayService"
                   interface="com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="jyWarehouseSendGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <bean id="feedbackGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.FeedbackGatewayServiceImpl" />
+    <jsf:provider id="jsfFeedbackGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.FeedbackGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="feedbackGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
 

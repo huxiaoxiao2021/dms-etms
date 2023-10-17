@@ -216,6 +216,18 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByBizIds", params);
     }
 
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByDestAndStatusesWithPage(JyBizTaskSendVehicleDetailQueryEntity entity, List<Integer> statuses,
+                                                                                  Integer offset, Integer limit) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        params.put("offset", offset);
+        params.put("limit", limit);
+        if (statuses != null && !statuses.isEmpty()) {
+            params.put("statuses", statuses.toArray());
+        }
+        return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByDestAndStatusesWithPage", params);
+    }
+
     public JyBizTaskSendVehicleEntity findByBookingCode(String bookingCode, Long startSiteId, Boolean ignoreYn) {
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBookingCode(bookingCode);

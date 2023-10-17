@@ -88,6 +88,15 @@ public class AbnormalUnknownWaybillExportDto implements Serializable {
      */
     private Integer isReport;
 
+    /**
+     * 省区名称
+     */
+    private String provinceAgencyName;
+    /**
+     * 枢纽名称
+     */
+    private String areaHubName;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -214,6 +223,22 @@ public class AbnormalUnknownWaybillExportDto implements Serializable {
 
     public void setIsReport(Integer isReport) {
         this.isReport = isReport;
+    }
+
+    public String getProvinceAgencyName() {
+        return provinceAgencyName;
+    }
+
+    public void setProvinceAgencyName(String provinceAgencyName) {
+        this.provinceAgencyName = provinceAgencyName;
+    }
+
+    public String getAreaHubName() {
+        return areaHubName;
+    }
+
+    public void setAreaHubName(String areaHubName) {
+        this.areaHubName = areaHubName;
     }
 }
     

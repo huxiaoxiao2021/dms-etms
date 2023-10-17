@@ -25,7 +25,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service("jyEvaluateTargetInitConsumer")
 public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
@@ -127,11 +129,6 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         if (sourceScheduleTask != null) {
             sourceTaskId = sourceScheduleTask.getTaskId();
         }
-        
-        // 根据发货任务操作场地查询区域信息
-        BaseStaffSiteOrgDto targetSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getTargetSiteCode());
-        // 根据卸车任务操作场地查询区域信息
-        BaseStaffSiteOrgDto sourceSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getSourceSiteCode());
 
         if (targetInitDto.getUnsealTime() == null || targetInitDto.getSealTime() == null) {
             SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(targetInitDto.getSourceBizId());
@@ -144,6 +141,11 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
                 }
             }
         }
+
+        // 根据发货任务操作场地查询区域信息
+        BaseStaffSiteOrgDto targetSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getTargetSiteCode());
+        // 根据卸车任务操作场地查询区域信息
+        BaseStaffSiteOrgDto sourceSiteOrgDto = jyEvaluateCommonService.getSiteInfo(targetInitDto.getSourceSiteCode());
 
         EvaluateTargetResultDto targetResultDto = createEvaluateTargetInfo(targetInitDto, taskGroupMembers, targetSiteOrgDto, sourceSiteOrgDto);
         targetResultDto.setTargetTaskId(targetTaskId);
@@ -186,11 +188,11 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
     }
 
     private String getUserCodesStr(List<JyTaskGroupMemberEntity> taskGroupMembers) {
-        StringBuilder userCodesStr = new StringBuilder();
+        Set<String> set = new HashSet<>();
         for (JyTaskGroupMemberEntity taskGroupMember : taskGroupMembers) {
-            userCodesStr.append(Constants.SEPARATOR_COMMA).append(taskGroupMember.getUserCode());
+            set.add(taskGroupMember.getUserCode());
         }
-        return userCodesStr.substring(1);
+        return String.join(Constants.SEPARATOR_COMMA, set);
     }
 
     private void setSummaryData(EvaluateTargetInitDto targetInitDto, EvaluateTargetResultDto targetResultDto) {

@@ -1,6 +1,5 @@
 package com.jd.bluedragon.utils;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
@@ -20,7 +19,10 @@ public class StringHelper {
 
     public static final String  SMILE = "^_^";           //微笑符号
     public static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
+    public static final int PHONE_FIRST_NUMBER_SHOW1 = 1;//收件人联系方式前几位需要显示
     public static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
+    public static final int LANDLINE_FIRST_NUMBER = 6;//收件人联系方式为8位座机号要保留的位数
+    public static final int LANDLINE_NUMBER = 10;//收件人联系方式为3位区号+7位座机号
 
     public static String getRandomString() {
         Random random = new Random();
@@ -441,6 +443,28 @@ public class StringHelper {
         return newPhone;
     }
 
+    /**
+     * 对电话号码 加微笑符合
+     * @param phone 手机号 电话号码
+     * @return 加密后的字符串
+     */
+    public static String phoneEncryptSmile6Char(String phone){
+        if(org.apache.commons.lang.StringUtils.isBlank(phone)){
+            return phone;
+        }
+        //原 进行隐藏要求tel/mobile至少有7位，<7位则不隐藏
+        //新 8位以上的显示前一+笑脸+后四 8位一下的显示笑脸+后2
+        //去除号码中间的空白字符
+        String newPhone = phone.replaceAll("\\s*", "");
+        if(newPhone.length() > LANDLINE_NUMBER ){
+            return newPhone.substring(0,PHONE_FIRST_NUMBER_SHOW1) + SMILE + newPhone.substring(newPhone.length() - PHONE_HIGHLIGHT_NUMBER);
+        } else if (newPhone.length() <= LANDLINE_FIRST_NUMBER) {
+            return SMILE;
+        }else {
+            return  SMILE + newPhone.substring(LANDLINE_FIRST_NUMBER);
+        }
+    }
+
     public static String substring(String value,int start,int end){
         if(StringUtils.isEmpty(value)){
             return value;
@@ -466,7 +490,29 @@ public class StringHelper {
         }
         return true;
     }
-
+    /**
+     * 获取字符串的值，判断为null值则返回""，否则返回str值
+     * @param str
+     * @return
+     */
+    public static String getValueFormatNull(String str) {
+        if (str == null) {
+            return "";
+        }
+        return str;
+    }
+    /**
+     * 获取字符串的值，判断为null值则返回defaultVal值，否则返回str值
+     * @param str
+     * @param defaultVal
+     * @return
+     */
+    public static String getValueFormatNull(String str,String defaultVal) {
+        if (str == null) {
+            return defaultVal;
+        }
+        return str;
+    }    
     public static final void main(String[] args) {
         System.out.println(phoneEncrypt("18600399842"));
         System.out.println(phoneEncrypt("1860039942  d"));

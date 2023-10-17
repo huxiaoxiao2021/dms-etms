@@ -64,7 +64,7 @@ public class WaybillCancelComboardConsumer extends MessageBaseConsumer {
             operatorInfo.setOperatorTypeCode(dto.getOperatorTypeCode());
             operatorInfo.setOperatorId(dto.getOperatorId());   
             virtualBoardService.sendWaybillTrace(packageD.getPackageBarcode(),
-                    operatorInfo,dto.getBoardCode(),dto.getSiteName(),
+                    operatorInfo,dto.getOperatorData(),dto.getBoardCode(),dto.getSiteName(),
                     WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
                     BizSourceEnum.PDA.getValue());
         }

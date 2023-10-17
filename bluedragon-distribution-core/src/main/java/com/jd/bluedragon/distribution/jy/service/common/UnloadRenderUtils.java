@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import org.apache.commons.lang3.StringUtils;
 
@@ -100,6 +101,7 @@ public class UnloadRenderUtils {
 
         unloadScanDto.setGroupCode(request.getGroupCode());
         unloadScanDto.setTaskId(request.getTaskId());
+        unloadScanDto.setOperatorData(BeanConverter.convertToOperatorData(request.getCurrentOperate()));
 
         return unloadScanDto;
     }

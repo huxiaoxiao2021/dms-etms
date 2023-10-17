@@ -3,14 +3,11 @@ package com.jd.bluedragon.distribution.reverse.part.controller;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
 import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondition;
 import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
-import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -40,15 +37,12 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("reverse/part/reversePartDetail")
-public class ReversePartDetailController {
+public class ReversePartDetailController extends DmsBaseController {
 
 	private static final Logger log = LoggerFactory.getLogger(ReversePartDetailController.class);
 
 	@Autowired
 	private ReversePartDetailService reversePartDetailService;
-
-	@Autowired
-	private BaseMajorManager baseMajorManager;
 
 	@Autowired
 	private ExportConcurrencyLimitService exportConcurrencyLimitService;
@@ -60,23 +54,8 @@ public class ReversePartDetailController {
 	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex(Model model) {
-
-		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-		String userCode = "";
-		Long createSiteCode = new Long(-1);
-		Integer orgId = new Integer(-1);
-
-		if(erpUser!=null){
-			userCode = erpUser.getUserCode();
-			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-			if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
-				createSiteCode = new Long(bssod.getSiteCode());
-				orgId = bssod.getOrgId();
-			}
-		}
-
-		model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
-
+		// 设置基础信息
+		setBaseModelInfo(model);
 		return "/reverse/part/reversePartDetail";
 	}
 	/**
