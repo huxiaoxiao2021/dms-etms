@@ -38,6 +38,7 @@ public class BusinessInterceptDisposeRecordBoxHandler extends BusinessInterceptD
             sortinParam.setBoxCode(msgDto.getBarCode());
             List<Sorting> sortingList = sortingService.findByBoxCode(sortinParam);
             if (sortingList.size() > 0) {
+                log.info("BusinessInterceptDisposeRecordBoxHandler doHandle boxCode:{},siteCode:{},site:{}",msgDto.getBarCode(),msgDto.getSiteCode(),sortingList.size());
                 for (Sorting sorting : sortingList) {
                     SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
                     BeanUtils.copyProperties(msgDto, saveDisposeAfterInterceptMsgDto);
