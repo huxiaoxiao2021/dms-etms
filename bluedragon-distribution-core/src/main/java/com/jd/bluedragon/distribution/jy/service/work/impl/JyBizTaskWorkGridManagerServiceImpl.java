@@ -236,7 +236,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			logger.info("生成管理巡视任务，未查到登录扫描的触发任务的办公区码，sysConfig配置信息，erp:{},positionCode:{}", erp, positionCode);
 			return;
 		}
-		if(ArrayUtils.contains(sysConfig.getConfigContent().split(","), areaCode)){
+		if(!ArrayUtils.contains(sysConfig.getConfigContent().split(","), areaCode)){
 			logger.info("生成管理巡视任务，登录扫描的非办公区岗位码，erp:{},positionCode:{},areaCode:{}", erp, positionCode,
 					areaCode);
 			return;
