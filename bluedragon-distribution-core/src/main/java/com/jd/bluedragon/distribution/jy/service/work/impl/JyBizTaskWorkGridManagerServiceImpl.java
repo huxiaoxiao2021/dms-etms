@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.core.jsf.workStation.JyUserManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.api.domain.user.JyUser;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
 import com.jdl.basic.common.utils.DateUtil;
@@ -52,8 +54,7 @@ import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridManagerService {
 
 	private static final Logger logger = LoggerFactory.getLogger(JyBizTaskWorkGridManagerServiceImpl.class);
-	//todo sysconfig 配置
-	private List<String> OFFICE_AREA_CODE_LIST = Arrays.asList("FJBGQ");
+	private static  final  String OFFICE_AREA_CODE_LIST_SYS_CONF_KEY = "office.area.code.list.conf";
 	//管理巡视任务 sysconfig 配置
 	private static final String MANAGER_PATROL_SYS_CONF_KEY = "manager.patrol.task.grid.config";
 	//一线管理岗，岗位码 【一线机构管理岗】、【精益改善岗】、【中控岗 sysconfig 配置
@@ -76,7 +77,9 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	SysConfigService sysConfigService;
 	@Autowired
 	private WorkGridManager workGridManager;
-
+	
+	@Autowired
+	private JyUserManager jyUserManager;
 
 	@Override
 	public JyWorkGridManagerData queryTaskDataByBizId(String bizId) {
@@ -212,7 +215,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	/**
 	 * 生成管理巡视任务
 	 * @param erp
-	 * @param positionCode
+	 * @param positionCode 登录扫描的岗位码
 	 */
 	@Override
 	public void generateManageInspectionTask(String erp, String positionCode, String userName){
@@ -227,21 +230,36 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			logger.info("生成管理巡视任务，未查到岗位对应的作业区信息，erp:{},positionCode:{}", erp, positionCode);
 			return;
 		}
-		if(!OFFICE_AREA_CODE_LIST.contains(areaCode)){
+		
+		SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(OFFICE_AREA_CODE_LIST_SYS_CONF_KEY);
+		if(sysConfig == null || org.apache.commons.lang3.StringUtils.isBlank(sysConfig.getConfigContent())){
+			logger.info("生成管理巡视任务，未查到登录扫描的触发任务的办公区码，sysConfig配置信息，erp:{},positionCode:{}", erp, positionCode);
+			return;
+		}
+		if(ArrayUtils.contains(sysConfig.getConfigContent().split(","), areaCode)){
 			logger.info("生成管理巡视任务，登录扫描的非办公区岗位码，erp:{},positionCode:{},areaCode:{}", erp, positionCode,
 					areaCode);
 			return;
 		}
-		SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(FRONT_LINE_MANAGEMENT_POSITION_SYS_CONF_KEY);
+		sysConfig = sysConfigService.findConfigContentByConfigName(FRONT_LINE_MANAGEMENT_POSITION_SYS_CONF_KEY);
 		if(sysConfig == null || org.apache.commons.lang3.StringUtils.isBlank(sysConfig.getConfigContent())){
 			logger.info("生成管理巡视任务，未查到一线管理岗sysConfig配置信息，erp:{},positionCode:{}", erp, positionCode);
 			return;
 		}
-		//一线管理岗 
-		if(ArrayUtils.contains(sysConfig.getConfigContent().split(","), positionCode)){
-			logger.info("生成管理巡视任务，一线管理岗不用生成管理巡视任务，erp:{},positionCode:{}", erp, positionCode);
+
+		Result<JyUser> jyUserResult = jyUserManager.queryUserInfo(erp);
+		if(jyUserResult.getData() == null){
+			logger.info("生成管理巡视任务，未查到登录人的岗位信息，erp:{},岗位码positionCode:{}", erp, positionCode);
 			return;
 		}
+		//一线管理:中控岗 精益改善岗 一线机构负责人岗
+		String userPositionName = jyUserResult.getData().getPositionName();
+		String userPositionCode = jyUserResult.getData().getPositionCode();
+		if(ArrayUtils.contains(sysConfig.getConfigContent().split(","), userPositionName)){
+			logger.info("生成管理巡视任务，一线管理岗不用生成管理巡视任务，erp:{},岗位名称positionName:{}", erp, userPositionName);
+			return;
+		}
+		
 		
 		//管理任务
 		Result<List<WorkGridManagerTask>> taskResult = workGridManagerTaskJsfManager.queryByBizType(WorkGridManagerTaskBizType.MANAGER_PATROL.getCode());
@@ -279,8 +297,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		if(taskToWorkGridList == null){
 			return;
 		}
-		List<JyBizTaskWorkGridManager> bizTaskWorkGridManagers = getTaskList(taskToWorkGridList, siteInfo, 
-				positionCode, positionCode, erp, userName);
+		List<JyBizTaskWorkGridManager> bizTaskWorkGridManagers = getTaskList(taskToWorkGridList, siteInfo,
+				userPositionCode, userPositionName, erp, userName);
 
 		batchInsertDistributionTask(bizTaskWorkGridManagers);
 	}
@@ -371,6 +389,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		//管理巡视任务登录触发不需要任务配置
 		jyTask.setTaskConfigCode("");
 		jyTask.setTaskBatchCode("");
+		//存人资同步过来的 岗位编码
 		jyTask.setHandlerPositionCode(handlerPositionCode);
 		jyTask.setHandlerUserPositionCode(handlerPositionCode);
 		jyTask.setHandlerUserPositionName(handlerPositionName);
