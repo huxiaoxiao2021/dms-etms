@@ -50,7 +50,8 @@ public class WorkGridManagerTaskJsfManagerImpl implements WorkGridManagerTaskJsf
         result.toFail("查询任务失败");
         try {
             result.toSuccess("查询任务成功！");
-            return workGridManagerTaskJsfService.queryByBizType(taskBizType);
+            List<WorkGridManagerTask> list = workGridManagerTaskJsfService.queryByBizType(taskBizType);
+            result.setData(list);
         } catch (Exception e) {
             log.error("queryByBizType-error! {}",  e.getMessage(),e);
             result.toFail("根据任务业务类型查询任务异常!");
