@@ -49,7 +49,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
-import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
+
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
