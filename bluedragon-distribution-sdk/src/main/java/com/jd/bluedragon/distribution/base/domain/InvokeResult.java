@@ -290,7 +290,6 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int NO_WAITFIND_DATA_CODE = 3068;
     public static final String NO_WAITFIND_DATA_MESSAGE = "未查询到对应的波次找货数据!";
-    public static final int AVIATION_TASK_OUT_WEIGHT_CODE = 3067;
 
 
     public static final int NO_FINDGOODS_TASK_DATA_CODE = 3069;
