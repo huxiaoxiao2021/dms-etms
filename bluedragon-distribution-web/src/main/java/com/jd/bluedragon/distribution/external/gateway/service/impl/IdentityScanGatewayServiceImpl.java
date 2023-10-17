@@ -6,7 +6,9 @@ import com.jd.bluedragon.common.dto.identity.IdentityContentEntity;
 import com.jd.bluedragon.common.dto.identity.IdentityRecogniseRequest;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.aicv.IDCRServiceProxy;
+import com.jd.bluedragon.distribution.jss.oss.OssUrlNetTypeEnum;
 import com.jd.bluedragon.external.gateway.service.IdentityScanGatewayService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.wl.ai.cv.center.outter.api.dto.IDCRRequestDto;
 import com.jd.wl.ai.cv.center.outter.api.dto.IDCRResponseDto;
 import com.jd.wl.ai.cv.center.outter.api.dto.IDCRStatusEnum;
@@ -41,7 +43,7 @@ public class IdentityScanGatewayServiceImpl implements IdentityScanGatewayServic
     public JdCResponse<IdentityContentEntity> recognise(String picUrl) {
         IDCRRequestDto idcrRequestDto = new IDCRRequestDto();
         idcrRequestDto.setServiceUUID(UUID.randomUUID().toString());
-        idcrRequestDto.setPicUrl(picUrl);
+        idcrRequestDto.setPicUrl(BusinessHelper.switchOssUrlByType(picUrl, OssUrlNetTypeEnum.IN.getType()));
 
         JdCResponse<IdentityContentEntity> jdCResponse = new JdCResponse<>();
         jdCResponse.toSucceed();

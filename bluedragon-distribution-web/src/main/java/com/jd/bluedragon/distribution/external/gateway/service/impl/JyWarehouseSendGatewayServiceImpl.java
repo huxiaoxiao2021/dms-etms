@@ -72,12 +72,12 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     private JyWarehouseSendVehicleServiceImpl jyWarehouseSendVehicleService;
     @Autowired
     private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
-    
+
     @Autowired
     JimDbLock jimDbLock;
     @Autowired
     private JyGroupSortCrossDetailCacheService jyGroupSortCrossDetailCacheService;
-    
+
     @Autowired
     private JySealVehicleService jySealVehicleService;
 
@@ -475,7 +475,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             if (templateCode == null) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL,"创建混扫任务失败");
             }
-            
+
             CreateMixScanTaskRes res = new CreateMixScanTaskRes();
             res.setTemplateCode(templateCode);
             response.setData(res);
@@ -490,12 +490,12 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     private void checkFlowMaxAndEndSite(CreateMixScanTaskReq createMixScanTaskReq) {
-        
+
         Integer max = jyWarehouseSendVehicleService.getFlowMaxBySiteCode(createMixScanTaskReq.getCurrentOperate().getSiteCode());
         if (max < createMixScanTaskReq.getSendFlowList().size()) {
             throw new JyBizException("流向不能超过" + max + "个,请重新选择!");
         }
-        
+
         // 混扫任务不能存在相同流向
         HashSet<Long> endSiteSet = new HashSet<>();
         for (MixScanTaskDetailDto detailDto : createMixScanTaskReq.getSendFlowList()) {
@@ -542,7 +542,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 response.toFail("入参没有混扫任务编号");
                 return response;
             }
-            
+
             if(!jyGroupSortCrossDetailCacheService.getMixScanTaskCompleteLock(appendMixScanTaskFlowReq.getGroupCode(), appendMixScanTaskFlowReq.getTemplateCode())) {
                 response.toFail("系统繁忙，请稍后再试！");
                 return response;
@@ -558,7 +558,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 response.toFail("该混扫任务已经完成，请勿操作");
                 return response;
             }
-            
+
             // 混扫任务流向校验
             appendCheckMaxAndFlow(appendMixScanTaskFlowReq);
 
@@ -578,11 +578,11 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     private void appendCheckMaxAndFlow(AppendMixScanTaskFlowReq appendMixScanTaskFlowReq) {
-        
+
         if (CollectionUtils.isEmpty(appendMixScanTaskFlowReq.getSendFlowList())) {
             throw new JyBizException("未获取到流向信息！");
         }
-        
+
         JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
         condition.setGroupCode(appendMixScanTaskFlowReq.getGroupCode());
         condition.setStartSiteId(Long.valueOf(appendMixScanTaskFlowReq.getCurrentOperate().getSiteCode()));
@@ -592,15 +592,15 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             throw new JyBizException("未查询到该混扫任务信息");
         }
         appendMixScanTaskFlowReq.setTemplateName(detailList.get(0).getTemplateName());
-        
+
         Integer max = jyWarehouseSendVehicleService.getFlowMaxBySiteCode(appendMixScanTaskFlowReq.getCurrentOperate().getSiteCode());
         if (max < (appendMixScanTaskFlowReq.getSendFlowList().size() + detailList.size() )) {
             throw new JyBizException("流向不能超过" + max + "个,请重新选择!");
         }
-        
+
         HashSet<Long> endSiteSet = new HashSet<>();
         detailList.forEach(item -> endSiteSet.add(item.getEndSiteId()));
-        
+
         appendMixScanTaskFlowReq.getSendFlowList().forEach(item -> {
             if (endSiteSet.contains(item.getEndSiteId())) {
                 throw new JyBizException("包含重复流向！请重新选择新增流向");
@@ -641,7 +641,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 response.toFail("该混扫任务已经完成，请勿重新操作");
                 return response;
             }
-            
+
             if (!jyGroupSortCrossDetailService.deleteMixScanTask(deleteMixScanTaskReq)) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL,"删除混扫任务失败");
             }
@@ -655,7 +655,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             jyGroupSortCrossDetailCacheService.delMixScanTaskCompleteLock(deleteMixScanTaskReq.getGroupCode(), deleteMixScanTaskReq.getTemplateCode());
         }
         response.setData(deleteMixScanTaskReq.getTemplateCode());
-        return response;   
+        return response;
     }
 
     /**
@@ -692,7 +692,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 response.toFail("该混扫任务已经完成，请勿重新操作");
                 return response;
             }
-            
+
             jyGroupSortCrossDetailService.removeMixScanTaskFlow(removeMixScanTaskFlowReq);
         } catch (JyBizException e) {
             log.info("移除流向失败：{}", JsonHelper.toJson(removeMixScanTaskFlowReq), e);
@@ -749,13 +749,13 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 response.toFail("该混扫任务已被删除，请前往混扫任务列表！");
                 return response;
             }
-            
+
             // 完成混扫任务 修改派车任务状态
             if (!jyWarehouseSendVehicleService.mixScanTaskComplete(mixScanTaskReq)){
                 response.toFail("完成混扫任务失败！");
                 return response;
             }
-            
+
             jyGroupSortCrossDetailCacheService.saveMixScanTaskCompleteCache(mixScanTaskReq.getGroupCode(), mixScanTaskReq.getTemplateCode());
 
         } catch (JyBizException e) {
@@ -769,7 +769,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
         }
         return response;
     }
-    
+
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.mixScanTaskFocus",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -794,7 +794,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 response.toFail("该混扫任务已经完成，请勿重新操作");
                 return response;
             }
-            
+
             if (!jyGroupSortCrossDetailService.mixScanTaskFocus(mixScanTaskFocusReq)){
                 return new JdCResponse<>(JdCResponse.CODE_FAIL,mixScanTaskFocusReq.getFocus() == FocusEnum.FOCUS.getCode() ? "关注失败！" : "取消关注失败！");
             }
@@ -855,7 +855,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     private JyGroupSortCrossDetailEntity assembleCondition(MixScanTaskListQueryReq mixScanTaskListQueryReq) {
         String barCode = mixScanTaskListQueryReq.getBarCode();
         JyGroupSortCrossDetailEntityQueryDto condition = new JyGroupSortCrossDetailEntityQueryDto();
-        
+
         if (StringUtils.isNotBlank(barCode)) {
             // 获取目的地站点或者滑道笼车号
             if (WaybillUtil.isPackageCode(barCode) || BusinessHelper.isBoxcode(barCode)) {
@@ -863,7 +863,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 sendScanReq.setOperateType(JySendFlowConfigEnum.GANTRY.getCode());
                 sendScanReq.setCurrentOperate(mixScanTaskListQueryReq.getCurrentOperate());
                 InvokeResult<List<Integer>> result = jyWarehouseSendVehicleService.fetchNextSiteId(sendScanReq);
-                
+
                 if (result.codeSuccess() && !CollectionUtils.isEmpty(result.getData())) {
                     condition.setEndSiteId(result.getData().get(0).longValue());
                 }
@@ -878,7 +878,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 throw new JyBizException("条码格式不匹配，请重新扫描！");
             }
         }
-        
+
         condition.setGroupCode(mixScanTaskListQueryReq.getGroupCode());
         condition.setStartSiteId(Long.valueOf(mixScanTaskListQueryReq.getCurrentOperate().getSiteCode()));
         condition.setCompleteStatus(JyMixScanTaskCompleteEnum.DOING.getCode());
@@ -962,7 +962,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             condition.setGroupCode(request.getGroupCode());
             condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
             List<JyGroupSortCrossDetailEntity> list = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(condition);
-            
+
             if (CollectionUtils.isEmpty(list)) {
                 response.toFail("未查询好混扫任务下的流向信息！");
                 return response;
@@ -1002,14 +1002,14 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.saveSealVehicle",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq) {
-        if (StringUtils.isEmpty(sealVehicleReq.getPalletCount()) 
+        if (StringUtils.isEmpty(sealVehicleReq.getPalletCount())
                 || !NumberUtils.isDigits(sealVehicleReq.getPalletCount().trim())
                 || !(Integer.parseInt(sealVehicleReq.getPalletCount().trim()) > 0)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL,"请录入正确托盘数！");
         }
         return retJdCResponse(jySealVehicleService.saveSealVehicle(sealVehicleReq));
     }
-    
+
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.validateTranCodeAndSendCode",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -1038,6 +1038,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.checkBeforeSealCar",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> checkBeforeSealCar(SealCarCheckDtoReq request) {
         JdCResponse<Void> res = new JdCResponse<>();
         res.toSucceed();
@@ -1069,6 +1071,8 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.sendTaskDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request) {
         return retJdCResponse(jyWarehouseSendVehicleService.sendTaskDetail(request));
     }

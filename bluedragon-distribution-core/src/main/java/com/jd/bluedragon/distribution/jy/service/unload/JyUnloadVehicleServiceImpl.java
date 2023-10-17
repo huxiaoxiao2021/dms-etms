@@ -644,7 +644,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (Constants.LONG_ZERO.equals(shouldScanCount)) {
             unloadScanDto.setMoreFlag(Constants.MORE_LOCAL_SCAN);
             // 判断是否本场地
-            if (!hasCurrentNodeInRouteLink(siteCode, waybillCode, taskUnloadVehicle)) {
+            if (!hasCurrentNodeInRouteLink(siteCode, waybillCode)) {
                 unloadScanDto.setMoreFlag(Constants.MORE_OUT_SCAN);
                 result.addPromptBox(InvokeResult.CODE_MORE_OUT_SCAN, InvokeResult.CODE_MORE_OUT_SCAN_MESSAGE);
             }
@@ -667,26 +667,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
     }
 
-    private boolean hasCurrentNodeInRouteLink(int operateSiteCode, String waybillCode, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
+    private boolean hasCurrentNodeInRouteLink(int operateSiteCode, String waybillCode) {
         // 根据已知路由链路倒序查上一网点
         RouteNextDto routeDto = routerService.matchNextNodeAndLastNodeByRouter(operateSiteCode, waybillCode, null);
         if (routeDto == null) {
             return false;
         }
         // 运单路由是否存在当前操作站点
-        if (!routeDto.isRoutExistCurrentSite()) {
-            return false;
-        }
-        // 如果是自建任务，只需要判断操作站点是否在运单路由链路中
-        if (Constants.NUMBER_ONE.equals(taskUnloadVehicle.getManualCreatedFlag())) {
-            return true;
-        }
-        // 运单路由中当前操作站点的上游场地ID
-        Integer firstLastSiteId = routeDto.getFirstLastSiteId();
-        // 卸车任务上游封车场地ID
-        int taskStartSiteId = taskUnloadVehicle.getStartSiteId().intValue();
-        // 如果是运输任务，则还需要判断firstLastSiteId与卸车任务的上游封车场地是否一致
-        return Integer.valueOf(taskStartSiteId).equals(firstLastSiteId);
+        return routeDto.isRoutExistCurrentSite();
     }
 
     /**
