@@ -1,14 +1,17 @@
 package com.jd.bluedragon.core.jsf.dms.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.JsonUtil;
 import com.jd.etms.blocker.constant.BlockerFlag;
+import com.jd.etms.blocker.dto.BlockerApplyDto;
 import com.jd.etms.blocker.dto.CommonDto;
 import com.jd.etms.blocker.dto.ExceptionOrderDto;
 import com.jd.etms.blocker.dto.ExceptionOrderQueryDto;
+import com.jd.etms.blocker.webservice.BlockerApplyWS;
 import com.jd.etms.blocker.webservice.BlockerQueryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -40,6 +43,10 @@ public class BlockerQueryWSJsfMangerImpl implements BlockerQueryWSJsfManager {
     @Autowired
     @Qualifier("blockerQueryWSJsfService")
     private BlockerQueryWS blockerQueryWS;
+
+    @Autowired
+    @Qualifier("blockerApplyWSJsfService")
+    private BlockerApplyWS blockerApplyWS;
 
     /**
      * 运单拦截信息接口
@@ -84,5 +91,30 @@ public class BlockerQueryWSJsfMangerImpl implements BlockerQueryWSJsfManager {
         }
         return jdCResponse;
     }
+
+
+    /**
+     * 拦截申请接口
+     * @param dto
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.blockerQueryWSJsfManager.applyIntercept",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public CommonDto<String> applyIntercept(BlockerApplyDto dto){
+        CommonDto<String> response = new CommonDto<>();
+        try{
+            log.info("运单拦截申请接口入参-{}",JSON.toJSONString(dto));
+            CommonDto<String> result = blockerApplyWS.applyIntercept(dto);
+            log.info("运单拦截申请接口出参-{}",JSON.toJSONString(result));
+            return result;
+        }catch (Exception e){
+            log.error("运单拦截申请接口异常,param-{}", JSON.toJSONString(dto),e);
+            response.setMessage("运单拦截申请接口异常!");
+            response.setCode(CommonDto.CODE_EXCEPTION);
+        }
+        return response;
+    }
+
 }
     
