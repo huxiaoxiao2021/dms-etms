@@ -84,6 +84,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.WaybillVasDto;
@@ -117,7 +118,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.Constants.SUCCESS_CODE;
-import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.COMBOARD_SEND_POSITION;
 import static com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE;
@@ -1888,7 +1888,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     	OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
 		domain.setOperatorTypeCode(operatorData.getOperatorTypeCode());
 		domain.setOperatorId(operatorData.getOperatorId());
-    	domain.setOperatorData(operatorData);        
+    	domain.setOperatorData(operatorData);
     }
     return domain;
   }
@@ -2653,6 +2653,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
+  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.cancelSortMachineComboard", mState = {JProEnum.TP, JProEnum.FunctionError})
   public InvokeResult<Void> cancelSortMachineComboard(CancelBoardReq request) {
     try {
       List<String> barCodeList = new ArrayList<>();
