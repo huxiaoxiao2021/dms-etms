@@ -896,6 +896,7 @@
         INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
         WHERE
         m.yn = 1
+        AND m.task_type = 1 <!-- 仅过滤发车任务 -->
         <if test="entity.lineTypeList != null and entity.lineTypeList.size() > 0">
             AND m.line_type in
             <foreach collection="entity.lineTypeList" separator="," open="(" close=")" item="item">
