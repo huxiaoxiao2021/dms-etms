@@ -393,7 +393,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     private Task toTask(WaybillStatus waybillStatus) {
         Task task = new Task();
-        task.setTableName(Task.TABLE_NAME_POP);
+        task.setTableName(Task.TABLE_NAME_WAYBILL);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(waybillStatus.getWaybillCode());
         task.setKeyword2(waybillStatus.getPackageCode());
