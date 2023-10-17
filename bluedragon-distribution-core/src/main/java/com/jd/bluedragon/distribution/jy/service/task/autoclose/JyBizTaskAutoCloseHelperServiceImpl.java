@@ -216,6 +216,7 @@ public class JyBizTaskAutoCloseHelperServiceImpl implements JyBizTaskAutoCloseHe
                 //延迟的秒数
                 int extendSecond = number / numberLimit;
                 tTask.setExecuteTime(DateHelper.add(planDepartTime, Calendar.SECOND,PLAN_SEND_TIME_BEFORE_SECOND + extendSecond));
+                log.info("numberLimit :" +numberLimit +" date : "+dateStr + " executeTime:"+ tTask.getExecuteTime());
                 //对相同时间点的任务数进行+1 累加统计
                 Integer plusOne = new Integer(numberStr) +1;
                 //保存相同时间点数据 缓存时间6小时
