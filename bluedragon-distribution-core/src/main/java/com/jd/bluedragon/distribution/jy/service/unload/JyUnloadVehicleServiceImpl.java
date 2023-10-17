@@ -49,12 +49,12 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
-import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -191,7 +191,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private WaybillCommonService waybillCommonService;
 
     @Autowired
-    private RouterService routerService;
+    private WaybillCacheService waybillCacheService;
 
     @Autowired
     private SysConfigService sysConfigService;
@@ -668,13 +668,19 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     }
 
     private boolean hasCurrentNodeInRouteLink(int operateSiteCode, String waybillCode) {
-        // 根据已知路由链路倒序查上一网点
-        RouteNextDto routeDto = routerService.matchNextNodeAndLastNodeByRouter(operateSiteCode, waybillCode, null);
-        if (routeDto == null) {
-            return false;
+        // 根据运单号查询waybill表router字段
+        String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
+        // 如果路由链路为空，则默认是本场地
+        if (StringUtils.isBlank(routerStr)) {
+            return true;
         }
-        // 运单路由是否存在当前操作站点
-        return routeDto.isRoutExistCurrentSite();
+        String[] routerArray = routerStr.split(Constants.WAYBILL_ROUTER_SPLIT);
+        for (String node : routerArray) {
+            if (node.equals(String.valueOf(operateSiteCode))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
