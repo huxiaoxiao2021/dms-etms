@@ -177,14 +177,14 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Autowired
     private VehicleBasicManager vehicleBasicManager;
-    
+
     @Autowired
     private JdiBoardLoadWSManager jdiBoardLoadWSManager;
-    
+
     @Autowired
     @Qualifier("dmsSendCodeJSFService")
     DMSSendCodeJSFService dmsSendCodeJSFService;
-    
+
     public static final Integer LOADING_COMPLETEDC = 30;
 
     @Override
@@ -331,6 +331,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.czSealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Void> czSealVehicle(SealVehicleReq sealVehicleReq) {
         log.info("jy传站封车,sealVehicleReq:{}",JsonHelper.toJson(sealVehicleReq));
         String sealLockKey = String.format(Constants.JY_SEAL_LOCK_PREFIX, sealVehicleReq.getSendVehicleDetailBizId());
@@ -730,6 +731,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.deleteBySendVehicleBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> deleteBySendVehicleBizId(String transWorkItemCode, String operateUserCode, String operateUserName) {
 
         InvokeResult<Boolean> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
@@ -878,6 +880,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.cancelSeal", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult cancelSeal(JyCancelSealRequest request) {
         barCodeCheck(request);
         cancelSealRequest cancelParams = assembleCancelParams(request);
@@ -922,6 +925,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.getCancelSealInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request) {
         if (!ObjectHelper.isNotNull(request.getBarCode())){
             throw new JyBizException("条形码不能为空！");
@@ -979,6 +983,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.onlineGetTaskSimpleCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request) {
         checkGetTaskSimpleCodeParams(request);
         JyBizTaskSendVehicleDetailEntity detailEntity =taskSendVehicleDetailService.findByBizId(request.getSendVehicleDetailBizId());
@@ -1160,7 +1165,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             BigDecimal weight = jyAppDataSealVo.getWeight() == null ? new BigDecimal(0) : jyAppDataSealVo.getWeight();
             BigDecimal volume = jyAppDataSealVo.getVolume() == null ? new BigDecimal(0) : jyAppDataSealVo.getVolume();
-            
+
             // 校验当前任务是否存在暂存数据，如果不存在暂存数据，则自动选择板号
             List<BoardLoadDto> boardList = jdiBoardLoadWSManager.queryBoardLoad(assembleBoardLoadDto(sealVehicleInfoReq));
             if (CollectionUtils.isEmpty(boardList)) {
@@ -1176,7 +1181,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             querySendCode.setSendCodeList(new ArrayList<>(sendCodeForQuery));
             List<JyBizTaskComboardEntity> taskList = jyBizTaskComboardService.listBoardTaskBySendCode(querySendCode);
             List<String> sendCodeNotDel = taskList.stream().map(JyBizTaskComboardEntity::getSendCode).collect(Collectors.toList());
-            
+
             //需要追加的批次
             HashSet<String> boardCodeAdd = new HashSet<>();
             HashMap<String, String> boardSendCodeMap = new HashMap<>();
@@ -1189,7 +1194,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 if (!sendCodeNotDel.contains(boardLoadDto.getBatchCode())) {
                     continue;
                 }
-                
+
                 if (!selectSendCode.contains(boardLoadDto.getBatchCode())) {
                     boardCodeAdd.add(boardLoadDto.getBatchCode());
                     boardSendCodeMap.put(boardLoadDto.getBoardCode(),boardLoadDto.getBatchCode());
@@ -1221,8 +1226,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             return jyAppDataSealVo;
         }
     }
-    
-    
+
+
     private BoardLoadDto assembleBoardLoadDto(SealVehicleInfoReq sealVehicleInfoReq) {
         BoardLoadDto boardLoadDto = new BoardLoadDto();
         // 查询发货主任务信息

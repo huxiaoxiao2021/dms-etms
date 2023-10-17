@@ -525,28 +525,19 @@
     <jmq:consumer id="jmq.jyCollectStatusBatchUpdateWaybillSplitConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.collect.status.batch.update.split}" listener="jyCollectStatusBatchUpdateWaybillSplitConsumer"/>
     </jmq:consumer>
-    <!-- 作业工作台自动关闭任务 -->
-    <jmq:consumer id="jmq.jyBizTaskAutoCloseConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.jy.biz.task.autoClose}" listener="jyBizTaskAutoCloseConsumer"/>
+    <!--  验货修改集齐状态补偿方案  -->
+    <jmq:consumer id="jmq.jyInspectUpdateCollectStatusConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.inspect.update.collect.status}" listener="jyInspectUpdateCollectStatusConsumer"/>
     </jmq:consumer>
-
-    <!--  装车评价报表加工消费  -->
-    <jmq:consumer id="jmq.jyEvaluateTargetInitConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.evaluate.target.init}" listener="jyEvaluateTargetInitConsumer"/>
+    <jmq:consumer id="jmq.tmsItemSimpleCodeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.item.simple.code}" listener="tmsItemSimpleCodeConsumer"/>
     </jmq:consumer>
 
     <!--  周转筐批量作废异步处理  -->
     <jmq:consumer id="jmq.recycleBasketAbolishConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.recycleBasket.batchAbolish}" listener="recycleBasketAbolishConsumer"/>
     </jmq:consumer>
-    <jmq:consumer id="jmq.tmsItemSimpleCodeConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.tms.item.simple.code}" listener="tmsItemSimpleCodeConsumer"/>
-    </jmq:consumer>
 
-    <!--  验货修改集齐状态补偿方案  -->
-    <jmq:consumer id="jmq.jyInspectUpdateCollectStatusConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.jy.inspect.update.collect.status}" listener="jyInspectUpdateCollectStatusConsumer"/>
-    </jmq:consumer>
     <!--  拣运-滞留扫描容器处理消费  -->
     <jmq:consumer id="jmq.jyStrandScanContainerDealConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.strandScan.containerDeal}" listener="jyStrandScanContainerDealConsumer"/>
@@ -661,7 +652,7 @@
     <!-- 作业APP促发运输催派车辆 -->
     <jmq:consumer id="jmq.jySendTmsUrgeVehicleConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jySendTmsUrgeVehicle}" listener="jySendTmsUrgeVehicleConsumer"/>
-
+    </jmq:consumer>
 
     <!--  运输派航空计划下发  -->
     <jmq:consumer id="jmq.tmsAviationPlanConsumer" transport="jmq4.dmsWorker.transport">
