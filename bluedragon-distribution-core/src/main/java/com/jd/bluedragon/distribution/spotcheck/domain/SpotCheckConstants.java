@@ -116,8 +116,8 @@ public class SpotCheckConstants {
     public static final String SPOT_CHECK_VOLUME_LIMIT_B = "当前运单平均单个包裹体积超过%sm³，请核实后重新录入!";
     public static final String SPOT_CHECK_VOLUME_LIMIT_B_PACK = "当前包裹体积超过%sm³，请核实后重新录入!";
 
-    public static final String SPOT_CHECK_PACK_SEND_REFORM = "运单下包裹%s已发货,不支持人工抽检!";
-    public static final String SPOT_CHECK_PACK_SPOT_CHECK_REFORM = "运单下包裹%s已抽检,不支持人工抽检!";
+    public static final String SPOT_CHECK_PACK_SEND_REFORM = "运单下包裹%s已发货,不允许抽检!";
+    public static final String SPOT_CHECK_PACK_SPOT_CHECK_REFORM = "运单下存在包裹已抽检,不允许再抽检!";
     public static final String SPOT_CHECK_PACK_SPOT_SEND_NOT_CHECK = "运单下有包裹已发货未抽检,禁止操作!!";
 
     public static final String SPOT_CHECK_EXCESS_LIMITATION = "货物超大超重，请注意重量体积是否有误！";

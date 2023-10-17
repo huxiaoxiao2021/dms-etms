@@ -6,10 +6,12 @@ import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jss.oss.OssUrlNetTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.domain.DwsAIDistinguishMQ;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -98,7 +100,7 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
                 }
                 DwsAIDistinguishMQ.Package packageUrl = new DwsAIDistinguishMQ.Package();
                 packageUrl.setPackageCode(detailSpotCheck.getPackageCode());
-                packageUrl.setPicUrl(packagePicUrl);
+                packageUrl.setPicUrl(BusinessHelper.switchOssUrlByType(packagePicUrl, OssUrlNetTypeEnum.IN.getType()));
                 list.add(packageUrl);
             }
             DwsAIDistinguishMQ dwsAIDistinguishMQ = new DwsAIDistinguishMQ();

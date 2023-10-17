@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.*;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
+import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.MathUtils;
@@ -34,6 +36,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 抽检处理抽象层
@@ -118,6 +121,17 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         reformSpotCheck(spotCheckContext, result);
     }
 
+    protected void fillContextSpotCheckRecords(SpotCheckContext context){
+        SpotCheckQueryCondition queryCondition = new SpotCheckQueryCondition();
+        queryCondition.setWaybillCode(context.getWaybillCode());
+        List<WeightVolumeSpotCheckDto> spotCheckRecords = spotCheckQueryManager.querySpotCheckByCondition(queryCondition);
+        if(CollectionUtils.isNotEmpty(spotCheckRecords)){
+            context.setSpotCheckRecords(spotCheckRecords);
+            return;
+        }
+        context.setSpotCheckRecords(Lists.newArrayList());
+    }
+    
     /**
      * 是否支持抽检，由子类实现，默认是true（支持抽检）
      * @param context
@@ -154,20 +168,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         return false;
     }
 
-    private boolean reformSpotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        if(spotCheckDealService.checkIsHasSpotCheck(spotCheckContext.getWaybillCode())){
+    private void reformSpotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
+        if(spotCheckDealService.checkIsHasSpotCheck(spotCheckContext)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
-            return true;
         }
-        SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
-        condition.setWaybillCode(spotCheckContext.getWaybillCode());
-        condition.setReviewSiteCode(spotCheckContext.getReviewSiteCode());
-        List<WeightVolumeSpotCheckDto> spotCheckList = spotCheckQueryManager.querySpotCheckByCondition(condition);
-        if(CollectionUtils.isNotEmpty(spotCheckList)){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_PACK_SPOT_CHECK_REFORM);
-            return true;
-        }
-        return false;
     }
 
     protected InvokeResult<SpotCheckResult> checkIsExcessReform(SpotCheckContext spotCheckContext) {
@@ -192,17 +196,53 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         if(!result.codeSuccess()){
             return result;
         }
-        // 初始化抽检上下文
-        SpotCheckContext spotCheckContext = initSpotCheckContext(spotCheckDto);
-
-        // 抽检校验
-        reformCheck(spotCheckContext, result);
-        if(!result.codeSuccess()){
-            return result;
+        
+        // cache deal
+        String key = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_CHECK, spotCheckDto.getSiteCode(),
+                WaybillUtil.getWaybillCode(spotCheckDto.getBarCode()));
+        waitDeal(key);
+        try {
+            // 初始化抽检上下文
+            SpotCheckContext spotCheckContext = initSpotCheckContext(spotCheckDto);
+            // 抽检校验
+            reformCheck(spotCheckContext, result);
+            if(!result.codeSuccess()){
+                return result;
+            }
+            // 数据处理
+            afterCheckDealReform(spotCheckDto, spotCheckContext, result);
+        }catch (Exception e){
+            // hints: only here delete cache and do not add unLock method at finally
+            unLock(key);
+            throw e;
         }
-        // 数据处理
-        afterCheckDealReform(spotCheckDto, spotCheckContext, result);
         return result;
+    }
+
+    private void unLock(String key) {
+        try {
+            jimdbCacheService.del(key);
+        }catch (Exception e){
+            logger.error("删除抽检缓存:{}异常!", key, e);
+        }
+    }
+
+    /**
+     * hint: 将一个运单下的包裹处理顺序变成串行，为了解决es的1s刷盘问题
+     * 
+     * @param key
+     */
+    private void waitDeal(String key) {
+        if(jimdbCacheService.exists(key)){
+            try {
+                // 此处sleep为了将运单下包裹执行顺序改成串行
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                logger.error("线程sleep异常", e);
+            }
+            throw new SpotCheckSysException("当前运单下有包裹正在处理,进行重试!");
+        }
+        jimdbCacheService.setNx(key, 1, 3, TimeUnit.SECONDS);
     }
 
     protected void uniformityCheck(SpotCheckDto spotCheckDto, SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {}
@@ -272,7 +312,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         dto.setMerchantCode(spotCheckContext.getMerchantCode());
         dto.setMerchantName(spotCheckContext.getMerchantName());
         dto.setIsTrustMerchant(spotCheckContext.getIsTrustMerchant() ? Constants.CONSTANT_NUMBER_ONE : Constants.NUMBER_ZERO);
-        dto.setVolumeRate(spotCheckContext.getVolumeRate());
+        dto.setVolumeRateStr(spotCheckContext.getVolumeRate());
         dto.setProductTypeName(spotCheckContext.getProductTypeName());
         BaseStaffSiteOrgDto reviewSite = spotCheckContext.getReviewSite();
         dto.setSiteTypeName(reviewSite == null
@@ -496,6 +536,8 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         }
         spotCheckReviewDetail.setMachineCode(spotCheckDto.getMachineCode());
 
+        // fill 已抽检记录
+        fillContextSpotCheckRecords(spotCheckContext);
         return spotCheckContext;
     }
 
@@ -532,13 +574,12 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         double totalVolume = Constants.DOUBLE_ZERO;
         if(spotCheckContext.getIsMultiPack()){
             // 获取运单下已抽检包裹明细
-            SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
-            condition.setWaybillCode(spotCheckContext.getWaybillCode());
-            condition.setReviewSiteCode(spotCheckContext.getReviewSiteCode());
-            condition.setRecordType(SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode());
-            List<WeightVolumeSpotCheckDto> spotCheckDtoList = spotCheckQueryManager.querySpotCheckByCondition(condition);
-            if(CollectionUtils.isNotEmpty(spotCheckDtoList)){
-                for (WeightVolumeSpotCheckDto spotCheckDto : spotCheckDtoList) {
+            List<WeightVolumeSpotCheckDto> packList = spotCheckContext.getSpotCheckRecords().stream()
+                    .filter(item -> Objects.equals(item.getReviewSiteCode(), spotCheckContext.getReviewSiteCode())
+                            && Objects.equals(item.getRecordType(), SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode()))
+                    .collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(packList)){
+                for (WeightVolumeSpotCheckDto spotCheckDto : packList) {
                     totalWeight += spotCheckDto.getReviewWeight() == null ? Constants.DOUBLE_ZERO : spotCheckDto.getReviewWeight();
                     totalVolume += spotCheckDto.getReviewVolume() == null ? Constants.DOUBLE_ZERO : spotCheckDto.getReviewVolume();
                 }
