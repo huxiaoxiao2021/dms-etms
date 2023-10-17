@@ -399,7 +399,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         task.setKeyword2(waybillStatus.getPackageCode());
         task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
         task.setBody(JsonHelper.toJson(waybillStatus));
-        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        task.setType(Task.TASK_TYPE_WAYBILL);
         task.setOwnSign(BusinessHelper.getOwnSign());
         StringBuffer fingerprint = new StringBuffer();
         fingerprint
