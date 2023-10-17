@@ -337,7 +337,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 Boolean result = redisClientOfJy.set(cacheKey, "1", 7, TimeUnit.DAYS, false);
                 logger.info("异常上报 运单放入缓存结果-{}",result);
                 //记录运单验货全程跟踪
-                sendForwardInspectionTrance(taskEntity,baseStaffByErp.getUserCode());
+                sendForwardInspectionTrance(taskEntity,baseStaffByErp);
             }
 
         }catch (Exception e) {
@@ -354,7 +354,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      *  记录运单验货全程跟踪
      * @param entity
      */
-    private void sendForwardInspectionTrance(JyBizTaskExceptionEntity entity,String userCode){
+    private void sendForwardInspectionTrance(JyBizTaskExceptionEntity entity,BaseStaffSiteOrgDto baseStaffByErp){
         CallerInfo info = Profiler.registerInfo("DMSWEB.JyExceptionServiceImpl.sendForwardInspectionTrance", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             WaybillStatus waybillStatus = new WaybillStatus();
@@ -363,13 +363,16 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             waybillStatus.setPackageCode(entity.getBarCode());
             waybillStatus.setCreateSiteCode(entity.getSiteCode().intValue());
             waybillStatus.setCreateSiteName(entity.getSiteName());
-            if(StringUtils.isNotBlank(userCode)){
-                waybillStatus.setOperatorId(new Integer(userCode));
+            waybillStatus.setCreateSiteType(Constants.DMS_SITE_TYPE);
+            if(StringUtils.isNotBlank(baseStaffByErp.getUserCode())){
+                waybillStatus.setOperatorId(new Integer(baseStaffByErp.getUserCode()));
             }
             waybillStatus.setOperator(entity.getCreateUserName());
             waybillStatus.setOperateTime(new Date());
             waybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_INSPECTION);
             waybillStatus.setRemark("验货");
+            waybillStatus.setOrgId(baseStaffByErp.getOrgId());
+            waybillStatus.setOrgName(baseStaffByErp.getOrgName());
             // 添加到task表
             logger.info("异常上报发送验货全称跟踪");
             taskService.add(toTask(waybillStatus));
@@ -393,11 +396,25 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         task.setTableName(Task.TABLE_NAME_POP);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(waybillStatus.getWaybillCode());
-        task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
+        task.setKeyword2(waybillStatus.getPackageCode());
         task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
-        task.setBody(com.jd.bluedragon.utils.JsonHelper.toJson(waybillStatus));
+        task.setBody(JsonHelper.toJson(waybillStatus));
         task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
         task.setOwnSign(BusinessHelper.getOwnSign());
+        StringBuffer fingerprint = new StringBuffer();
+        fingerprint
+                .append(waybillStatus.getCreateSiteCode())
+                .append("_")
+                .append((waybillStatus.getReceiveSiteCode() == null ? "-1"
+                        : waybillStatus.getReceiveSiteCode())).append("_")
+                .append(waybillStatus.getOperateType()).append("_")
+                .append(waybillStatus.getWaybillCode()).append("_")
+                .append(waybillStatus.getOperateTime()).append("_");
+        if (waybillStatus.getPackageCode() != null
+                && !"".equals(waybillStatus.getPackageCode())) {
+            fingerprint.append("_").append(waybillStatus.getPackageCode());
+        }
+        task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
         return task;
     }
 
