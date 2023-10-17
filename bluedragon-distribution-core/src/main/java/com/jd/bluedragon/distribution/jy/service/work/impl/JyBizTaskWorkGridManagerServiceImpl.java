@@ -76,9 +76,6 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	SysConfigService sysConfigService;
 	@Autowired
 	private WorkGridManager workGridManager;
-	@Autowired
-	@Qualifier("jyBizTaskWorkGridManagerService")
-	private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
 
 
 	@Override
@@ -285,7 +282,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		List<JyBizTaskWorkGridManager> bizTaskWorkGridManagers = getTaskList(taskToWorkGridList, siteInfo, 
 				positionCode, positionCode, erp, userName);
 
-		jyBizTaskWorkGridManagerService.batchInsertDistributionTask(bizTaskWorkGridManagers);
+		batchInsertDistributionTask(bizTaskWorkGridManagers);
 	}
 
 	private List<JyBizTaskWorkGridManager> getTaskList(Map<WorkGridManagerTask, List<WorkGrid>> taskToWorkGridList,
