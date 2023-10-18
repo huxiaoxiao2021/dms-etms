@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.station.dao;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.common.domain.JobCodeHoursDto;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
@@ -108,9 +109,9 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	List<UserSignNoticeJobItemVo> queryUserSignNoticeJobItems(UserSignRecordQuery query);
-
-    List<Long> querySignInMoreThanSpecifiedTime(Date signInTimeStart,Date signInTime, Integer limit);
-
+	
+    List<Long> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList, Date signInTimeStart, Date signInTime, Integer limit);
+    
     int signOutById(UserSignRecord signOutRequest, List<Long> list);
     /**
      * 查询-数量

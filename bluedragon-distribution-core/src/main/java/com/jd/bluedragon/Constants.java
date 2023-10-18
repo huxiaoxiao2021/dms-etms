@@ -819,10 +819,6 @@ public class Constants {
      */
     public static final String SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST = "sys.config.client.smsSiteMenuBlacklist";
     /**
-     * 配置信息-自动签退处理的站点配置
-     */
-    public static final String SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES = "sys.config.autoHandleSignOutSiteCodes";
-    /**
      *  配置信息-青龙打印配置  qinglong.print.type.use
      *
      */
@@ -2089,7 +2085,7 @@ public class Constants {
     public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
     // 新版分拣中心规范-接货仓类型
     public static final Integer JHC_SORT_TYPE = 12352;
-    
+
     /**
      * 异常上报原因与二次安检关系-新版异常上报
      */
@@ -2207,4 +2203,8 @@ public class Constants {
     public static final String OSS_OUTER_NET_KEY = "oss.outerNet";
     public static final String OSS_INNER_NET_KEY = "oss.innerNet";
     public static final String OSS_INNER_OFFICE_NET_KEY = "oss.innerNet.office";
+    /**
+     * 配置信息-自动签退超过多少小时未签退的数据
+     */
+    public static final String SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS="sys.config.autoHandleSignInRecord.notSignedOutRecordMoreThanHours";
 }
