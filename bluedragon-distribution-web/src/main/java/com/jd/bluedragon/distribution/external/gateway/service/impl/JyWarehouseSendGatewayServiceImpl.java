@@ -865,6 +865,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
                 SendScanReq sendScanReq = new SendScanReq();
                 sendScanReq.setOperateType(JySendFlowConfigEnum.GANTRY.getCode());
                 sendScanReq.setCurrentOperate(mixScanTaskListQueryReq.getCurrentOperate());
+                sendScanReq.setBarCode(barCode);
                 InvokeResult<List<Integer>> result = jyWarehouseSendVehicleService.fetchNextSiteId(sendScanReq);
 
                 if (result.codeSuccess() && !CollectionUtils.isEmpty(result.getData())) {
