@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.wb.sdk.enums.task.biz.TaskBizTypeEnum;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.user.JyUser;
@@ -394,9 +395,9 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		jyTask.setHandlerUserPositionCode(handlerPositionCode);
 		jyTask.setHandlerUserPositionName(handlerPositionName);
 		jyTask.setCreateTime(curDate);
-		//处理中
+		//待处理
 		jyTask.setStatus(WorkTaskStatusEnum.TODO.getCode());
-
+		jyTask.setTaskBizType(WorkGridManagerTaskBizType.MANAGER_PATROL.getCode());
 		//设置网格信息
 		jyTask.setTaskRefGridKey(grid.getBusinessKey());
 		jyTask.setAreaCode(grid.getAreaCode());

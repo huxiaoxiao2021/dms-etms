@@ -693,7 +693,8 @@
         handler_user_position_code,
         handler_user_position_name,
         handler_position_code,
-        process_begin_time
+        process_begin_time,
+        task_biz_type         
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
@@ -727,7 +728,8 @@
             #{item.handlerUserPositionCode},
             #{item.handlerUserPositionName},
             #{item.handlerPositionCode},
-            #{item.processBeginTime}
+            #{item.processBeginTime},
+            #{item.taskBizType}
             )
         </foreach>
     </insert>
