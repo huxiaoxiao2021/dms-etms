@@ -866,15 +866,34 @@
         SELECT
             id
         FROM
-            user_sign_record
+            user_sign_record usr
         WHERE
             yn = 1
-        AND sign_in_time <![CDATA[ >= ]]> #{signInTimeStart,jdbcType=TIMESTAMP}
-        AND sign_in_time <![CDATA[ < ]]> #{signInTime,jdbcType=TIMESTAMP}
+		AND job_code  NOT IN
+		<foreach item="item" collection="allSpecialJobCodeList" open="(" close=")" index="index" separator=",">
+			#{item,jdbcType=INTEGER}
+		</foreach>
+		AND sign_in_time <![CDATA[ >= ]]> #{signInTimeStart,jdbcType=TIMESTAMP}
+		AND sign_in_time <![CDATA[ < ]]> #{signInTime,jdbcType=TIMESTAMP}
         AND sign_out_time IS NULL
+		<foreach item="item1" collection="jobCodeHoursList">
+		UNION
+			SELECT
+			    id
+			FROM
+			    user_sign_record usr
+			WHERE
+			    yn = 1
+			AND job_code  IN
+			<foreach item="childItem" collection="item1.jobCodes" open="(" close=")" index="index" separator=",">
+				#{childItem,jdbcType=INTEGER}
+			</foreach>
+			AND sign_in_time <![CDATA[ >= ]]> #{item1.startTime,jdbcType=TIMESTAMP}
+			AND sign_in_time <![CDATA[ < ]]> #{item1.endTime,jdbcType=TIMESTAMP}
+			AND sign_out_time IS NULL
+		</foreach>
         LIMIT #{limit,jdbcType=INTEGER}
     </select>
-
     <update id="signOutById">
         UPDATE user_sign_record
         SET

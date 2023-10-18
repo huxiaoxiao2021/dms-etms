@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.domain.SysConfigJobCodeHoursContent;
 
 public interface SysConfigService {
     /**
@@ -75,4 +76,10 @@ public interface SysConfigService {
 	 * @return
 	 */
 	List<String> getStringListConfig(String configName);
+
+	/**
+	 * 从sysconfig表里获取工种自动签退时间配置
+	 * @return
+	 */
+	SysConfigJobCodeHoursContent getSysConfigJobCodeHoursContent(String key);
 }
