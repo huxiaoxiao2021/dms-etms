@@ -157,8 +157,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private WorkStationManager workStationManager;
 	@Autowired
 	private WorkStationGridManager workStationGridManager;
-    @Autowired
-    private SysConfigService sysConfigService;
 
 	/**
 	 * 插入一条数据
