@@ -168,7 +168,10 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         }
         TransportInfoDto transportInfoDto = new TransportInfoDto();
         BeanUtils.copyProperties(routeTypeResponse,transportInfoDto);
+        transportInfoDto.setNextSiteCode(routeTypeResponse.getSiteCode());
+        transportInfoDto.setNextSiteName(routeTypeResponse.getSiteName());
         jdCResponse.setData(transportInfoDto);
+
         return jdCResponse;
     }
 

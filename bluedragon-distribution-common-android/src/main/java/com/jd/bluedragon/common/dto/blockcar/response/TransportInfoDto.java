@@ -50,6 +50,13 @@ public class TransportInfoDto implements Serializable {
     private Integer ferrySealCarSceneCode;
     private String ferrySealCarSceneName;
 
+    /**
+     * 运力下一跳
+     */
+    private Integer nextSiteCode;
+    private String nextSiteName;
+
+
     public Integer getFerrySealCarSceneCode() {
         return ferrySealCarSceneCode;
     }
@@ -96,5 +103,21 @@ public class TransportInfoDto implements Serializable {
 
     public void setCarrierType(Integer carrierType) {
         this.carrierType = carrierType;
+    }
+
+    public Integer getNextSiteCode() {
+        return nextSiteCode;
+    }
+
+    public void setNextSiteCode(Integer nextSiteCode) {
+        this.nextSiteCode = nextSiteCode;
+    }
+
+    public String getNextSiteName() {
+        return nextSiteName;
+    }
+
+    public void setNextSiteName(String nextSiteName) {
+        this.nextSiteName = nextSiteName;
     }
 }

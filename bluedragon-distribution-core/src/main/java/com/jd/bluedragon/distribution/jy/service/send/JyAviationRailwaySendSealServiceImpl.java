@@ -1715,4 +1715,75 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         res.setData(resData);
         return res;
     }
+
+    @Override
+    public InvokeResult<PrepareShuttleSealCarRes> prepareShuttleSealCarData(PrepareShuttleSealCarReq request) {
+        InvokeResult<PrepareShuttleSealCarRes> res = new InvokeResult<>();
+        PrepareShuttleSealCarRes resData = new PrepareShuttleSealCarRes();
+        res.setData(resData);
+
+        List<String> bizIdList = new ArrayList<>();
+        for (SendTaskBindDto dto : request.getSendTaskBindDtoList()) {
+            if(Objects.isNull(dto)) {
+                res.error("已选航空任务参数异常，请联系分拣小秘");
+                return res;
+            }
+            if(StringUtils.isBlank(dto.getBizId()) || StringUtils.isBlank(dto.getDetailBizId()) || StringUtils.isBlank(dto.getFlightNumber())) {
+                res.error("已选航空任务参数缺失");
+                return res;
+            }
+            bizIdList.add(dto.getBizId());
+        }
+        //任务查询
+        List<JyBizTaskSendAviationPlanEntity> aviationPlanEntityList = jyBizTaskSendAviationPlanService.findByBizIdList(bizIdList);
+        if(CollectionUtils.isEmpty(aviationPlanEntityList)) {
+            res.error("已选任务不存在");
+            return res;
+        }
+        Map<String,JyBizTaskSendAviationPlanEntity> taskMap = aviationPlanEntityList.stream().collect(Collectors.toMap(
+                k -> k.getBizId(),
+                v -> v
+        ));
+        //取消校验
+        for (SendTaskBindDto dto : request.getSendTaskBindDtoList()) {
+            JyBizTaskSendAviationPlanEntity entity = taskMap.get(dto.getBizId());
+            if(Objects.isNull(entity)) {
+                res.error(String.format("航班%s任务查询为空", dto.getFlightNumber()));
+                return res;
+            }
+            if(!Objects.isNull(entity.getIntercept()) && Constants.CONSTANT_NUMBER_ONE == entity.getIntercept()) {
+                res.error(String.format("航班%s任务已经取消，无法进行后续操作", dto.getFlightNumber()));
+                return res;
+            }
+        }
+        //
+        List<String> batchCodes = jyVehicleSendRelationService.findSendCodesByBizIds(bizIdList);
+        resData.setBatchCodeList(batchCodes);
+        if(CollectionUtils.isEmpty(batchCodes)) {
+            res.error("已选任务中查询批次全部为空");
+            return res;
+        }
+        //
+        Map<String, JyStatisticsSummaryEntity> staticsMap =  this.aviationSendTaskSummary(bizIdList, request.getCurrentOperate().getSiteCode());
+        Double totalWeight = 0d;
+        Double totalVolume = 0d;
+        Integer totalItemNum = 0;
+        if(CollectionUtils.isNotEmpty(staticsMap.entrySet())) {
+            for(JyStatisticsSummaryEntity statics : staticsMap.values()) {
+                if(!Objects.isNull(statics.getWeight())) {
+                    totalWeight = totalWeight + statics.getWeight();
+                }
+                if(!Objects.isNull(statics.getVolume())) {
+                    totalVolume = totalVolume + statics.getVolume();
+                }
+                if(!Objects.isNull(statics.getItemNum())) {
+                    totalItemNum = totalItemNum + statics.getItemNum();
+                }
+            }
+        }
+        resData.setTotalWeight(totalWeight);
+        resData.setTotalVolume(totalVolume);
+        resData.setTotalItemNum(totalItemNum);
+        return res;
+    }
 }
