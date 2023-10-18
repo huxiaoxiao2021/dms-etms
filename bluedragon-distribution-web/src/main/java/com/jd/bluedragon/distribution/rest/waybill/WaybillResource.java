@@ -1599,7 +1599,7 @@ public class WaybillResource {
 			}
 			log.info("调用发货方案-request[{}]operateSiteCode[{}]receiveSite[{}],operateTime[{}],nextRouters[{}]",JsonHelper.toJson(request),operateSiteCode,receiveSite,operateTime,nextRouters);
 			/* 通过发货配置jsf接口调用 */
-			result = getSiteRoutersFromDMSAutoJsf(request.getMachineCode(),operateSiteCode,receiveSite,operateTime,waybillCode,nextRouters);
+			result = getSiteRoutersFromDMSAutoJsf(request.getPackageCode(), request.getMachineCode(),operateSiteCode,receiveSite,operateTime,waybillCode,nextRouters);
 		}
 		siteRouters.addAll(nextRouters);
 		result.setData(siteRouters);
@@ -1627,7 +1627,7 @@ public class WaybillResource {
 	}
 
 	private InvokeResult<List<Integer>> getSiteRoutersFromDMSAutoJsf
-			(String machineCode, Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
+			(String packageCode, String machineCode, Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
 
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 
@@ -1637,6 +1637,7 @@ public class WaybillResource {
 		jsfRequest.setOperateTime(operateTime);
 		jsfRequest.setMachineId(machineCode);
 		jsfRequest.setDeviceType(DeviceTypeEnum.GANTRY.getTypeCode());
+		jsfRequest.setPackageCode(packageCode);
 		BaseDmsAutoJsfResponse<List<AreaDestJsfVo>> jsfResponse;
 
 		CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.areaDestJsfService.findAreaDest", Constants.UMP_APP_NAME_DMSWEB,false, true);
@@ -1680,9 +1681,12 @@ public class WaybillResource {
 				if (null != areaDestJsfVo.getReceiveSiteCode() && areaDestJsfVo.getReceiveSiteCode() > 0) {
 					nextRouters.add(areaDestJsfVo.getReceiveSiteCode());
 				}
+				log.info("WaybillResource.getBarCodeAllRouters1-->areaDestJsfVo:{}", JsonHelper.toJson(areaDestJsfVo));
 			} else {
 				nextRouters.add(areaDestJsfVo.getTransferSiteCode());
 			}
+			log.info("WaybillResource.getBarCodeAllRouters2-->areaDestJsfVo:{}", JsonHelper.toJson(areaDestJsfVo));
+			log.info("WaybillResource.getBarCodeAllRouters-->nextRouters:{}", JsonHelper.toJson(nextRouters));
 		}
 		return result;
 	}
