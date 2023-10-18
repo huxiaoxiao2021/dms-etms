@@ -78,9 +78,6 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
                 return new JdCResponse(exception.getCode(), exception.getMessage());
             }
             return new JdCResponse(CODE_ERROR, exception.getMessage());
-        } catch (Exception e){
-            log.error("cancelSendTask 出现未知异常",e);
-            return new JdCResponse(CODE_ERROR, "取消发货失败！");
         }
     }
 
