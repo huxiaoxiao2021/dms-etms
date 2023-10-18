@@ -819,6 +819,10 @@ public class Constants {
      */
     public static final String SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST = "sys.config.client.smsSiteMenuBlacklist";
     /**
+     * 配置信息-自动签退处理的站点配置
+     */
+    public static final String SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES = "sys.config.autoHandleSignOutSiteCodes";
+    /**
      *  配置信息-青龙打印配置  qinglong.print.type.use
      *
      */
