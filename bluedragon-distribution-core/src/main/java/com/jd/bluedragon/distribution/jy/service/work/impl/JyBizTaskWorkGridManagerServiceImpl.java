@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.dto.work.*;
+import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerBusinessService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -81,6 +82,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	
 	@Autowired
 	private JyUserManager jyUserManager;
+	@Autowired
+	private JyWorkGridManagerBusinessService jyWorkGridManagerBusinessService;
 
 	@Override
 	public JyWorkGridManagerData queryTaskDataByBizId(String bizId) {
@@ -298,22 +301,28 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		if(taskToWorkGridList == null){
 			return;
 		}
+		Date curDate = new Date();
+		Date preFinishTime = DateUtil.addDay(curDate, 1);
 		List<JyBizTaskWorkGridManager> bizTaskWorkGridManagers = getTaskList(taskToWorkGridList, siteInfo,
-				userPositionCode, userPositionName, erp, userName);
-
+				userPositionCode, userPositionName, erp, userName, curDate, preFinishTime);
+		//保存已分配的任务
 		batchInsertDistributionTask(bizTaskWorkGridManagers);
+		List<String> bizIdList = bizTaskWorkGridManagers.stream().map(JyBizTaskWorkGridManager::getBizId).collect(Collectors.toList());
+		//保持超时任务
+		saveAutoCloseTask(preFinishTime,siteCode, bizIdList);
 	}
+	
 
 	private List<JyBizTaskWorkGridManager> getTaskList(Map<WorkGridManagerTask, List<WorkGrid>> taskToWorkGridList,
 													   BaseSiteInfoDto siteInfo, String handlerPositionCode, 
-													   String handlerPositionName, String erp, String userName){
+													   String handlerPositionName, String erp, String userName, Date curDate,
+													   Date preFinishTime){
 		List<JyBizTaskWorkGridManager> jyTaskInitList = new ArrayList<>();
-		Date curDate = new Date();
 		for(Map.Entry<WorkGridManagerTask, List<WorkGrid>> entry : taskToWorkGridList.entrySet()){
 			WorkGridManagerTask taskInfo = entry.getKey();
 			for(WorkGrid workGrid : entry.getValue()){
 				jyTaskInitList.add(initJyBizTaskWorkGridManager(siteInfo, taskInfo, handlerPositionCode,
-						handlerPositionName, workGrid,curDate, erp, userName));
+						handlerPositionName, workGrid,curDate, erp, userName, preFinishTime));
 			}
 		}
 		return jyTaskInitList;
@@ -383,7 +392,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 																  String handlerPositionCode,
 																  String handlerPositionName
 																  ,WorkGrid grid, Date curDate,
-																  String erp, String userName) {
+																  String erp, String userName,
+																  Date preFinishTime) {
 		JyBizTaskWorkGridManager jyTask = new JyBizTaskWorkGridManager();
 		jyTask.setBizId(UUID.randomUUID().toString());
 		//设置任务配置信息
@@ -422,9 +432,22 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		jyTask.setProcessBeginTime(curDate);
 		jyTask.setHandlerErp(erp);
 		jyTask.setHandlerUserName(userName);
-		jyTask.setPreFinishTime(DateUtil.getLastTimeOfDay(curDate));
+		jyTask.setPreFinishTime(preFinishTime);
 		jyTask.setStatus(WorkTaskStatusEnum.TODO.getCode());
 		jyTask.setTaskDate(curDate);
 		return jyTask;
+	}
+	
+	private void saveAutoCloseTask(Date preFinishTime, Integer siteCode, List<String> bizIdList){
+		if(CollectionUtils.isEmpty(bizIdList)){
+			return;
+		}
+		TaskWorkGridManagerAutoCloseData autoCloseTaskData = new TaskWorkGridManagerAutoCloseData();
+		autoCloseTaskData.setTaskConfigCode("");
+		autoCloseTaskData.setSiteCode(siteCode);
+		autoCloseTaskData.setTaskBatchCode("");
+		autoCloseTaskData.setExecuteTime(preFinishTime);
+		autoCloseTaskData.setBizIdList(bizIdList);
+		jyWorkGridManagerBusinessService.addWorkGridManagerAutoCloseTask(autoCloseTaskData);
 	}
 }

@@ -150,6 +150,9 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 		if (BaseContants.LOGISTICS_HEADQUARTERS.equals(taskData.getProvinceAgencyCode())) {
 			taskData.setProvinceAgencyName(taskData.getAreaHubName());
 		}
+		if(jyTaskData.getTaskBizType() != null){
+			taskData.setTaskBizTypeName(WorkGridManagerTaskBizType.getNameByCode(jyTaskData.getTaskBizType()));
+		}
 		return taskData;
 	}	
 	@Override
