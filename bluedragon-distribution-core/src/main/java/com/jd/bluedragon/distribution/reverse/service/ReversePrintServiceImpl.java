@@ -293,19 +293,35 @@ public class ReversePrintServiceImpl implements ReversePrintService {
          * 原外单添加换单全程跟踪
          * 只有在此单第一次打印的时候才记录 update by liuduo 2018-08-02
          */
-        boolean sendOldWaybillTrace = true;
+        boolean sendOldWaybillOnlyOneFlag = true;
         try{
             //三天校验
             Boolean isSucdess = cacheService.setNx(EXCHANGE_PRINT_BEGIN_KEY+domain.getNewCode(), "1", 3, TimeUnit.DAYS);
             if(!isSucdess){
                 //说明非第一次
-                sendOldWaybillTrace = false;
+                sendOldWaybillOnlyOneFlag = false;
             }
         }catch(Exception e){
             this.log.error("判断原单需要换单全程跟踪异常:{}", JsonHelper.toJson(domain), e);
         }
-        if(sendOldWaybillTrace){
+        if(sendOldWaybillOnlyOneFlag){
+            //原运单的全程跟踪
             taskService.add(tTask, true);
+
+            // 发送拦截报表  与方刚沟通只需要发送原运单维度的消息即可，所以调整到这里，减少频繁发送的问题
+            this.sendDisposeAfterInterceptMsg(domain);
+
+            //发送换单打印消息 三无使用 ，与亚国沟通也放在这里  减少频繁发送的问题
+            ChangeOrderPrintMq changeOrderPrintMq = convert2PushPrintRecordDto(domain);
+            try {
+                log.info("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据{}",JsonHelper.toJson(changeOrderPrintMq));
+                changeWaybillPrintProducer.send(domain.getOldCode(),JsonHelper.toJson(changeOrderPrintMq));
+            } catch (JMQException e) {
+                log.error("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据失败{}",JsonHelper.toJson(domain),e);
+            }
+
+            //全量接单也是此逻辑 减少频繁发送的问题
+            waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(domain));
         }
 
         tTask.setKeyword1(domain.getNewCode());
@@ -351,18 +367,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         //换单打印判断是否发起分拣中心退货任务
         qualityControlService.generateSortingReturnTask(domain.getSiteCode(), domain.getOldCode(), domain.getNewPackageCode(), new Date(domain.getOperateUnixTime()));
 
-        // 发送拦截报表
-        this.sendDisposeAfterInterceptMsg(domain);
-        waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(domain));
 
-        //发送换单打印消息
-        ChangeOrderPrintMq changeOrderPrintMq = convert2PushPrintRecordDto(domain);
-        try {
-            log.info("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据{}",JsonHelper.toJson(changeOrderPrintMq));
-            changeWaybillPrintProducer.send(domain.getOldCode(),JsonHelper.toJson(changeOrderPrintMq));
-        } catch (JMQException e) {
-            log.error("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据失败{}",JsonHelper.toJson(domain),e);
-        }
+
+
 
         return true;
     }
