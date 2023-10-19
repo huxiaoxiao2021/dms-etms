@@ -576,7 +576,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             // 保存扫描记录，发运单全程跟踪。首次扫描分配卸车任务
             UnloadScanDto unloadScanDto = createUnloadDto(request, taskUnloadVehicle);
             // 判断是否本场地单子
-            this.handleMoreLocalOrOutScan(request, unloadScanDto, taskUnloadVehicle, result);
+            this.handleMoreLocalOrOutScan(request, unloadScanDto, result);
             unloadScanProducer.sendOnFailPersistent(unloadScanDto.getBarCode(), JsonHelper.toJson(unloadScanDto));
 
             // 统计本次扫描的包裹数
@@ -606,7 +606,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return result;
     }
 
-    private void handleMoreLocalOrOutScan(UnloadScanRequest request, UnloadScanDto unloadScanDto, JyBizTaskUnloadVehicleEntity taskUnloadVehicle, JdVerifyResponse<Integer> result) {
+    private void handleMoreLocalOrOutScan(UnloadScanRequest request, UnloadScanDto unloadScanDto, JdVerifyResponse<Integer> result) {
         // 降级开关
         if (!sysConfigService.getConfigByName(Constants.MORE_OUT_SCAN_NOTIFY_SWITCH)) {
             log.info("handleMoreLocalOrOutScan|卸车扫描非本场地多扫弱提醒开关已关闭");
