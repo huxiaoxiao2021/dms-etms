@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -43,7 +45,7 @@ import com.jdl.basic.common.utils.Result;
  */
 @Service("jyWorkGridManagerGatewayService")
 public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGatewayService {
-
+	private static final String refresh_second_config_key = "refresh.second.config.key";
 	@Autowired
 	@Qualifier("jyBizTaskWorkGridManagerService")
 	private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
@@ -58,6 +60,9 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	
 	@Autowired
 	private PositionManager positionManager;
+
+	@Autowired
+	SysConfigService sysConfigService;
 	
 
 	@JProfiler(jKey = "dmsWeb.server.jyWorkGridManagerGatewayService.queryDataList",
@@ -66,7 +71,13 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	public JdCResponse<JyWorkGridManagerPageData> queryDataList(JyWorkGridManagerQueryRequest query) {
 		JdCResponse<JyWorkGridManagerPageData> result = new JdCResponse<JyWorkGridManagerPageData>();
 		result.toSucceed("查询成功！");
+		
 		JyWorkGridManagerPageData pageData = new JyWorkGridManagerPageData();
+		//列表定时刷新时间
+		Integer refreshSecond = getRefreshSecond();
+		if(refreshSecond != null){
+			pageData.setRefreshSecond(refreshSecond);
+		}
 		result.setData(pageData);
 		if(StringUtils.isNotBlank(query.getPositionCode())) {
 			Result<PositionDetailRecord> positionRecord = positionManager.queryOneByPositionCode(query.getPositionCode());
@@ -109,6 +120,14 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 			}
 		}
 		return result;
+	}
+	
+	private Integer getRefreshSecond(){
+		SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(refresh_second_config_key);
+		if(sysConfig == null || !org.apache.commons.lang3.StringUtils.isNumeric(sysConfig.getConfigContent())){
+			return null;
+		}
+		return Integer.parseInt(sysConfig.getConfigContent());
 	}
 	@JProfiler(jKey = "dmsWeb.server.jyWorkGridManagerGatewayService.queryDataByBizId",
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
