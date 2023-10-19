@@ -981,4 +981,9 @@
         <property name="timeout" value="3000" />
     </bean>
 
+    <!-- app 登录信息 -->
+    <bean id="loginInfoProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.login.info}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>

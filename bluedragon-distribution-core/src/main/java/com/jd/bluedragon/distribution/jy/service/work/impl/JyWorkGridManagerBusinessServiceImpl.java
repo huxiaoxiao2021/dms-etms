@@ -66,7 +66,6 @@ import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.domain.position.PositionData;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.user.JyUserDto;
 import com.jdl.basic.api.domain.work.WorkGridManagerTask;
@@ -74,7 +73,6 @@ import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkGridModifyMqData;
-import com.jdl.basic.api.domain.workStation.WorkGridQuery;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
@@ -752,6 +750,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setProvinceAgencyName(StringHelper.getStringValue(siteInfo.getProvinceAgencyName()));
 		//设置任务信息
 		jyTask.setTaskType(taskInfo.getTaskType());
+		jyTask.setTaskBizType(taskInfo.getTaskBizType());
 		jyTask.setNeedScanGrid(taskInfo.getNeedScanGrid());
 		jyTask.setTaskCode(taskInfo.getTaskCode());
 		jyTask.setTaskName(taskInfo.getTaskName());
@@ -822,7 +821,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
         logger.info("executeWorkGridManagerScanTask-taskSiteData={}", JsonHelper.toJson(taskData));
         taskService.doAddTask(tTask, false);
 	}
-	void addWorkGridManagerAutoCloseTask(TaskWorkGridManagerAutoCloseData taskData) {
+	@Override
+	public void addWorkGridManagerAutoCloseTask(TaskWorkGridManagerAutoCloseData taskData) {
 		Task tTask = new Task();
 		tTask.setBody(JsonHelper.toJson(taskData));
 
