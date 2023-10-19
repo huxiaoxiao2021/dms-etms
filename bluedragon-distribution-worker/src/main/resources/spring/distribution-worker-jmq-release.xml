@@ -713,5 +713,9 @@
     <jmq:consumer id="jmq.jyOperateFlowMqConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jyOperateFlowMq}" listener="jyOperateFlowMqConsumer"/>
     </jmq:consumer>
+    <!--  运输派航空计划下发  -->
+    <jmq:consumer id="jmq.tmsAviationPlanConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.send.aviation.plan}" listener="tmsAviationPlanConsumer"/>
+    </jmq:consumer>
 </beans>
 

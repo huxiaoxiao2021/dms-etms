@@ -1,13 +1,12 @@
 package com.jd.bluedragon.distribution.seal.service;
 
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
-import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
+import com.jd.bluedragon.common.dto.seal.request.ValidSendCodeReq;
 import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.SealCodesResponse;
-import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.etms.vos.dto.CommonDto;
@@ -86,7 +85,7 @@ public interface NewSealVehicleService {
     public CommonDto<Boolean> isBatchCodeHasSealedExcludeAirFerry(String batchCode);
 
 
-    InvokeResult<Void> checkBatchCode(String batchCode);
+    InvokeResult<Void> checkBatchCode(ValidSendCodeReq validSendCodeReq, TransportResourceDto transportResourceDto);
 
     /**
      * 根据运力编码查询运力编码相关信息

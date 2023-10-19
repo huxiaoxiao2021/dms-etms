@@ -1599,7 +1599,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (!sendRequestBaseCheck(result, request)) {
             return result;
         }
-        JyBizTaskSendVehicleEntity taskSend = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
+
+        JyBizTaskSendVehicleEntity taskSend = this.getSendVehicleByBizId(request.getSendVehicleBizId());
         if (taskSend == null) {
             result.toFail("发货任务不存在！");
             return result;
@@ -1616,7 +1617,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         String barCode = request.getBarCode();
         SendKeyTypeEnum sendType = getSendType(barCode);
         // 获取本次扫描匹配的发货目的地
-        List<JyBizTaskSendVehicleDetailEntity> taskSendDetails = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
+        List<JyBizTaskSendVehicleDetailEntity> taskSendDetails = this.getSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
         Set<Long> allDestId = new HashSet<>();
         for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
             allDestId.add(sendDetail.getEndSiteId());
@@ -1748,6 +1749,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return result;
     }
 
+     public List<JyBizTaskSendVehicleDetailEntity> getSendVehicleDetail(JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailEntity) {
+        return taskSendVehicleDetailService.findEffectiveSendVehicleDetail(jyBizTaskSendVehicleDetailEntity);
+    }
+
+    public JyBizTaskSendVehicleEntity getSendVehicleByBizId(String sendVehicleBizId) {
+        return taskSendVehicleService.findByBizId(sendVehicleBizId);
+    }
+
     void asyncProductOperateProgress(JyBizTaskSendVehicleEntity taskSend) {
         if (dmsConfigManager.getPropertyConfig().getProductOperateProgressSwitch()){
             CalculateOperateProgressTask calculateOperateProgressTask =new CalculateOperateProgressTask(taskSend,this.sendAggService,this);
@@ -1756,6 +1765,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.pickUpOneUnSealedDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JyBizTaskSendVehicleDetailEntity pickUpOneUnSealedDetail(List<JyBizTaskSendVehicleDetailEntity> taskSendDetails, Long sendDestId) {
         List<JyBizTaskSendVehicleDetailEntity> sameDirections = new ArrayList<>();
         for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
@@ -1781,6 +1791,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.checkIfSealed", mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean checkIfSealed(JyBizTaskSendVehicleDetailEntity detail) {
         if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(detail.getVehicleStatus())) {
             return true;
@@ -1793,6 +1804,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.checkIfSealedByAllSendCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean checkIfSealedByAllSendCode(JyBizTaskSendVehicleDetailEntity detail) {
         if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(detail.getVehicleStatus())) {
             return true;
@@ -2027,7 +2039,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return req;
     }
 
-    private void updateSendVehicleStatus(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail) {
+    public void updateSendVehicleStatus(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail) {
         taskSend.setUpdateTime(new Date());
         taskSend.setUpdateUserErp(request.getUser().getUserErp());
         taskSend.setUpdateUserName(request.getUser().getUserName());
@@ -2584,7 +2596,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return false;
         }
 
-        Integer existSendDetail = taskSendVehicleDetailService.countByCondition(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
+        Integer existSendDetail = getTaskSendDetailCount(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
         if (!NumberHelper.gt0(existSendDetail)) {
             // 无任务发货未确认目的地信息
             if (taskSend.manualCreatedTask()) {
@@ -2665,7 +2677,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     }
                 }
             }
-            
+
             // 如果是LL类型箱号，绑定集包袋号校验
             if (BusinessHelper.isLLBoxType(box.getType())) {
                 // 箱号未绑定集包袋
@@ -2679,6 +2691,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
         return true;
+    }
+
+    public Integer getTaskSendDetailCount(JyBizTaskSendVehicleDetailEntity detail) {
+        return taskSendVehicleDetailService.countByCondition(detail);
     }
 
     private void businessTips(SendScanRequest request, JdVerifyResponse<SendScanResponse> response){
@@ -3811,46 +3827,55 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.listVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<VehicleSpecResp>> listVehicleType() {
         return jyNoTaskSendService.listVehicleType();
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.createVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
         return jyNoTaskSendService.createVehicleTask(createVehicleTaskReq);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.deleteVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
         return jyNoTaskSendService.deleteVehicleTask(deleteVehicleTaskReq);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.checkBeforeDeleteVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<DeleteVehicleTaskCheckResponse> checkBeforeDeleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
         return jyNoTaskSendService.checkBeforeDeleteVehicleTask(deleteVehicleTaskReq);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.listVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<VehicleTaskResp> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
         return jyNoTaskSendService.listVehicleTask(vehicleTaskReq);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.listVehicleTaskSupportTransfer", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq transferVehicleTaskReq) {
         return jyNoTaskSendService.listVehicleTaskSupportTransfer(transferVehicleTaskReq);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.bindVehicleDetailTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
         return jyNoTaskSendService.bindVehicleDetailTask(bindVehicleDetailTaskReq);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.transferSendTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq) {
         return jyNoTaskSendService.transferSendTask(transferSendTaskReq);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.cancelSendTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq) {
         return jyNoTaskSendService.cancelSendTask(cancelSendTaskReq);
     }
@@ -3908,6 +3933,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @author fanggang7
      * @time 2023-07-26 10:00:32 周三
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.getSpecialProductTypeToScanList", mState = {JProEnum.TP, JProEnum.FunctionError})
     public com.jd.dms.java.utils.sdk.base.Result<SendVehicleToScanTipsDto> getSpecialProductTypeToScanList(SendVehicleToScanTipsRequest request){
         com.jd.dms.java.utils.sdk.base.Result<SendVehicleToScanTipsDto> result = com.jd.dms.java.utils.sdk.base.Result.success();
         log.info("JyBizTaskCloseUnloadTaskServiceImpl.getProductToScanInfoList param {}", JSON.toJSONString(request));
@@ -4165,6 +4191,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.listSendBatchByTaskDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SendBatchResp> listSendBatchByTaskDetail(SendBatchReq request) {
         List<JySendCodeEntity> sendCodeEntityList = jySendCodeService.queryByVehicleDetailBizId(request.getSendVehicleDetailBizId());
         SendBatchResp sendBatchResp = new SendBatchResp();
@@ -4177,6 +4204,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.sendVehicleToScanAggByProduct", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<SendVehicleProductTypeAgg>> sendVehicleToScanAggByProduct(SendVehicleCommonRequest request) {
         InvokeResult<List<SendVehicleProductTypeAgg>> result = new InvokeResult<>();
         if (StringUtils.isBlank(request.getSendVehicleBizId())) {
@@ -4218,6 +4246,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.sendVehicleToScanPackageDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SendVehicleToScanPackageDetailResponse> sendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest  request) {
         log.info("JySendVehicleServiceImpl.SendVehicleToScanPackageDetail-发车岗按产品类型查询待扫包裹信息入参-{}", JSON.toJSONString(request));
         InvokeResult<SendVehicleToScanPackageDetailResponse> invokeResult = new InvokeResult<>();
@@ -4568,6 +4597,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @time 2023-08-21 17:57:28 周一
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.handleOnlyLoadAttr", mState = {JProEnum.TP, JProEnum.FunctionError})
     public com.jd.dms.java.utils.sdk.base.Result<Boolean> handleOnlyLoadAttr(JyTaskSendDetailFirstSendDto jyTaskSendDetailFirstSendDto) {
         log.info("JySendVehicleServiceImpl.handleOnlyLoadAttr param {}", JsonHelper.toJson(jyTaskSendDetailFirstSendDto));
         com.jd.dms.java.utils.sdk.base.Result<Boolean> result = com.jd.dms.java.utils.sdk.base.Result.success();

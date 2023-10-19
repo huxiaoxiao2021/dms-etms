@@ -77,5 +77,11 @@
 		<mapper resource="mappers/mysql/jy/findgoods/JyBizTaskFindGoodsDetailDao.xml" />
 		<mapper resource="mappers/mysql/jy/exception/JyExceptionDamageMapper.xml"/>
 
+		<!-- 航空任务发货表 -->
+		<mapper resource="mappers/mysql/jy/task/JyBizTaskSendAviationPlanMapper.xml" />
+		<!-- 拣运任务绑定表 -->
+		<mapper resource="mappers/mysql/jy/send/JyBizTaskBindMapper.xml" />
+		<!-- 拣运任务绑定表 -->
+		<mapper resource="mappers/mysql/jy/summary/JyStatisticsSummaryMapper.xml" />
 	</mappers>
 </configuration>

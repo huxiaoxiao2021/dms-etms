@@ -80,4 +80,8 @@ public class UserSignGatewayServiceImplWithSpringTest {
             }
         }
     }
+    @Test
+    public void testAutoHandleSignInRecord(){
+    com.jd.bluedragon.distribution.api.response.base.Result<Integer> result= userSignRecordService.autoHandleSignInRecord();
+    }
 }

@@ -78,7 +78,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.41-SNAPSHOT</version>
+			<version>1.1.42-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1372,7 +1372,7 @@
         <dependency>
             <groupId>com.jd.etms.vrs</groupId>
             <artifactId>etms-vrs-api</artifactId>
-            <version>1.4.13-SNAPSHOT</version>
+            <version>1.4.81-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>fastjson</artifactId>

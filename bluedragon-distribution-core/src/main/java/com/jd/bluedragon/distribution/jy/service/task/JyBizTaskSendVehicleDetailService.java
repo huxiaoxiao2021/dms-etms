@@ -22,6 +22,12 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
     int saveTaskSendDetail(JyBizTaskSendVehicleDetailEntity detailEntity);
+    /**
+     * 保存发货流向——航空发货任务
+     * @param detailEntity
+     * @return
+     */
+    int saveAviationTaskSendDetail(JyBizTaskSendVehicleDetailEntity detailEntity);
 
     /**
      * 根据条件查询发车任务明细

@@ -304,6 +304,8 @@ public class InvokeResult<T> implements Serializable {
     // 非本场地运单
     public static final int CODE_MORE_OUT_SCAN = 349;
     public static final String CODE_MORE_OUT_SCAN_MESSAGE = "根据路由此单为非本场地运单，请核查";
+    public static final int AVIATION_TASK_OUT_WEIGHT_CODE = 3067;
+    public static final String AVIATION_TASK_OUT_WEIGHT_MESSAGE = "该任务已超载！!";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

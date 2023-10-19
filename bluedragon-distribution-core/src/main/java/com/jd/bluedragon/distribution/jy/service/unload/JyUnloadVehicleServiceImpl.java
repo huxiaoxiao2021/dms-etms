@@ -49,12 +49,12 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
-import com.jd.bluedragon.distribution.router.RouterService;
-import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
+
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -191,7 +191,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private WaybillCommonService waybillCommonService;
 
     @Autowired
-    private RouterService routerService;
+    private WaybillCacheService waybillCacheService;
 
     @Autowired
     private SysConfigService sysConfigService;
@@ -644,7 +644,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (Constants.LONG_ZERO.equals(shouldScanCount)) {
             unloadScanDto.setMoreFlag(Constants.MORE_LOCAL_SCAN);
             // 判断是否本场地
-            if (!hasCurrentNodeInRouteLink(siteCode, waybillCode, taskUnloadVehicle)) {
+            if (!hasCurrentNodeInRouteLink(siteCode, waybillCode)) {
                 unloadScanDto.setMoreFlag(Constants.MORE_OUT_SCAN);
                 result.addPromptBox(InvokeResult.CODE_MORE_OUT_SCAN, InvokeResult.CODE_MORE_OUT_SCAN_MESSAGE);
             }
@@ -667,26 +667,20 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
     }
 
-    private boolean hasCurrentNodeInRouteLink(int operateSiteCode, String waybillCode, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
-        // 根据已知路由链路倒序查上一网点
-        RouteNextDto routeDto = routerService.matchNextNodeAndLastNodeByRouter(operateSiteCode, waybillCode, null);
-        if (routeDto == null) {
-            return false;
-        }
-        // 运单路由是否存在当前操作站点
-        if (!routeDto.isRoutExistCurrentSite()) {
-            return false;
-        }
-        // 如果是自建任务，只需要判断操作站点是否在运单路由链路中
-        if (Constants.NUMBER_ONE.equals(taskUnloadVehicle.getManualCreatedFlag())) {
+    private boolean hasCurrentNodeInRouteLink(int operateSiteCode, String waybillCode) {
+        // 根据运单号查询waybill表router字段
+        String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
+        // 如果路由链路为空，则默认是本场地
+        if (StringUtils.isBlank(routerStr)) {
             return true;
         }
-        // 运单路由中当前操作站点的上游场地ID
-        Integer firstLastSiteId = routeDto.getFirstLastSiteId();
-        // 卸车任务上游封车场地ID
-        int taskStartSiteId = taskUnloadVehicle.getStartSiteId().intValue();
-        // 如果是运输任务，则还需要判断firstLastSiteId与卸车任务的上游封车场地是否一致
-        return Integer.valueOf(taskStartSiteId).equals(firstLastSiteId);
+        String[] routerArray = routerStr.split(Constants.WAYBILL_ROUTER_SPLIT);
+        for (String node : routerArray) {
+            if (node.equals(String.valueOf(operateSiteCode))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -2089,6 +2089,8 @@ public class Constants {
     public static final Integer SORTING_SORT_SUBTYPE = 123511;
     // 新版分拣中心规范-分拣中心下中转站
     public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
+    // 新版分拣中心规范-接货仓类型
+    public static final Integer JHC_SORT_TYPE = 12352;
 
     /**
      *  逆向原因编码
@@ -2171,4 +2173,15 @@ public class Constants {
      * 运输内网账号类型
      */
     public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
+    
+    /**
+     * oss链接内外网key
+     */
+    public static final String OSS_OUTER_NET_KEY = "oss.outerNet";
+    public static final String OSS_INNER_NET_KEY = "oss.innerNet";
+    public static final String OSS_INNER_OFFICE_NET_KEY = "oss.innerNet.office";
+    /**
+     * 配置信息-自动签退超过多少小时未签退的数据
+     */
+    public static final String SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS="sys.config.autoHandleSignInRecord.notSignedOutRecordMoreThanHours";
 }

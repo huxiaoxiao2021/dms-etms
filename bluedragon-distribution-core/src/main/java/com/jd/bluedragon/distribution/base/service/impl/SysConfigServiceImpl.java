@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.base.service.impl;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.domain.SysConfigJobCodeHoursContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -159,5 +160,14 @@ public class SysConfigServiceImpl implements SysConfigService {
 			result = new ArrayList<String>();
 		}
 		return result;
+	}
+	@Cache(key = "SiteServiceImpl.SysConfigJobCodeHoursContent@args0",memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
+	@Override
+	public SysConfigJobCodeHoursContent getSysConfigJobCodeHoursContent(String key) {
+		List<SysConfig> sysConfigs = getListByConfigName(key);
+		if(sysConfigs != null && !sysConfigs.isEmpty()){
+			return JsonHelper.fromJson(sysConfigs.get(0).getConfigContent(), SysConfigJobCodeHoursContent.class);
+		}
+		return null;
 	}
 }
