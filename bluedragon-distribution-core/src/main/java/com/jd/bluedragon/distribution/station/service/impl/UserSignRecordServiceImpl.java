@@ -1668,7 +1668,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		public String getOperateUserCode() {
 			return operateUserCode;
-	}
+		}
 		public void setOperateUserCode(String operateUserCode) {
 			this.operateUserCode = operateUserCode;
 		}
