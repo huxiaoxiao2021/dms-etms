@@ -634,5 +634,9 @@
     <jmq:consumer id="jmq.tmsAviationPlanConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tms.send.aviation.plan}" listener="tmsAviationPlanConsumer"/>
     </jmq:consumer>
+    <!-- 延时处理板任务 -->
+    <jmq:consumer id="jmq.jyComboardTaskFirstSaveDelayConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jyComboardTaskFirstSave}" listener="jyComboardTaskFirstSaveDelayConsumer"/>
+    </jmq:consumer>
 </beans>
 

@@ -150,7 +150,7 @@
                   alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${basic.jsf.token}" hide="true"/>
     </jsf:consumer>
-
+    
     <jsf:consumer id="basicTraderAPI" interface="com.jd.ldop.basic.api.BasicTraderAPI" protocol="jsf"
                   alias="${ldop.basic.jsf.alias}" timeout="${ldop.basic.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
@@ -1463,5 +1463,16 @@
     <!-- erp 路由查询线路 杨金宇 -->
     <jsf:consumer id="vrsQueryAPI" interface="com.jd.etms.api.resource.VrsQueryAPI"
                   protocol="jsf" alias="${jsf.router.waybillRouteLinkCustAPI.alias}" timeout="${jsf.router.waybillRouteLinkCustAPI.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 查询整板装车数据 -->
+    <jsf:consumer id="jdiBoardLoadWS"
+                  interface="com.jd.tms.jdi.ws.JdiBoardLoadWS"
+                  protocol="jsf"
+                  alias="${jsf.alias.jdiBoardLoadWS}"
+                  timeout="${jsf.jdiBoardLoadWS.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 </beans>

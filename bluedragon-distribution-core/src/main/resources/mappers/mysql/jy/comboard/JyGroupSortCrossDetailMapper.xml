@@ -464,4 +464,31 @@
     and func_type = #{funcType}
     and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
   </update>
+  
+  <select id="queryGroupCodeByFuncCode"           
+          resultMap="BaseResultMap">
+    select id, group_code
+    from jy_group_sort_cross_detail
+    group by group_code limit 5000
+  </select>
+
+  <update id="deleteCTTGroupDataByGroupCode"
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto">
+    update jy_group_sort_cross_detail
+    set yn = 0
+    where yn = 1
+      and group_code = #{groupCode}
+      and id &lt; #{id}
+  </update>
+  
+  <select id="queryMinIdByGroupCode"
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto" 
+          resultType="long">
+    select min(id) as id
+    from jy_group_sort_cross_detail
+    where group_code = #{groupCode}
+    group by template_code
+    order by id desc
+      limit #{limit}, 1
+  </select>
 </mapper>

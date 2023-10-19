@@ -112,4 +112,5 @@ public interface JySealVehicleService {
      * @return
      */
     InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request);
+    
 }

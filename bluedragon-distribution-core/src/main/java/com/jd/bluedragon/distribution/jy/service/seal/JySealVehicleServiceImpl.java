@@ -9,10 +9,7 @@ import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
-import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
-import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
-import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
-import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.common.dto.seal.response.*;
 import com.jd.bluedragon.common.dto.send.request.GetTaskSimpleCodeReq;
 import com.jd.bluedragon.common.dto.send.response.GetTaskSimpleCodeResp;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
@@ -34,6 +31,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.manager.JdiBoardLoadWSManager;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
@@ -50,6 +48,8 @@ import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.distribution.sendCode.DMSSendCodeJSFService;
+import com.jd.bluedragon.distribution.sendCode.domain.HugeSendCodeEntity;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -158,6 +158,15 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Autowired
     @Qualifier("jySendVehicleServiceTys")
     private IJySendVehicleService jySendVehicleServiceTys;
+    
+    @Autowired
+    private JdiBoardLoadWSManager jdiBoardLoadWSManager;
+    
+    @Autowired
+    @Qualifier("dmsSendCodeJSFService")
+    DMSSendCodeJSFService dmsSendCodeJSFService;
+    
+    public static final Integer LOADING_COMPLETEDC = 30;
     @Autowired
     private JySeaCarlCacheService jySeaCarlCacheService;
     @Autowired
@@ -222,8 +231,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 sealVehicleInfoResp.setRouteLineName(transWorkItemDto.getRouteLineName());
             }
         }
-        sealVehicleInfoResp.setSavedPageData(jyAppDataSealService.loadSavedPageData(sealVehicleInfoReq.getSendVehicleDetailBizId()));
+        setSavedPageData(sealVehicleInfoReq, sealVehicleInfoResp);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
+    }
+
+    public void setSavedPageData(SealVehicleInfoReq sealVehicleInfoReq, SealVehicleInfoResp sealVehicleInfoResp) {
+        sealVehicleInfoResp.setSavedPageData(jyAppDataSealService.loadSavedPageData(sealVehicleInfoReq.getSendVehicleDetailBizId()));
     }
 
 
@@ -1004,6 +1017,98 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             return new InvokeResult(ONLINE_GET_TASK_SIMPLE_FAIL_CODE,commonDto.getMessage());
         }
+    }
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.selectBoardByTmsAndInitWeightVolume", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JyAppDataSealVo selectBoardByTmsAndInitWeightVolume(SealVehicleInfoReq sealVehicleInfoReq, JyAppDataSealVo jyAppDataSealVo) {
+        try {
+            if (jyAppDataSealVo == null) {
+                jyAppDataSealVo = new JyAppDataSealVo();
+            }
+            // 获取暂存批次信息
+            List<String> selectSendCode = new ArrayList<>();
+            List<JyAppDataSealSendCodeVo> appDataSealSendCodeVos = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(jyAppDataSealVo.getSendCodeList())) {
+                selectSendCode = jyAppDataSealVo.getSendCodeList().stream().map(JyAppDataSealSendCodeVo::getSendCode).collect(Collectors.toList());
+                appDataSealSendCodeVos = jyAppDataSealVo.getSendCodeList();
+            }
+            BigDecimal weight = jyAppDataSealVo.getWeight() == null ? new BigDecimal(0) : jyAppDataSealVo.getWeight();
+            BigDecimal volume = jyAppDataSealVo.getVolume() == null ? new BigDecimal(0) : jyAppDataSealVo.getVolume();
+            
+            // 校验当前任务是否存在暂存数据，如果不存在暂存数据，则自动选择板号
+            List<BoardLoadDto> boardList = jdiBoardLoadWSManager.queryBoardLoad(assembleBoardLoadDto(sealVehicleInfoReq));
+            if (CollectionUtils.isEmpty(boardList)) {
+                return jyAppDataSealVo;
+            }
+
+            HashSet<String> sendCodeForQuery = new HashSet<>();
+            for (BoardLoadDto boardLoadDto : boardList) {
+                sendCodeForQuery.add(boardLoadDto.getBatchCode());
+            }
+            // 查询有效的批次
+            JyBizTaskComboardEntity querySendCode = new JyBizTaskComboardEntity();
+            querySendCode.setSendCodeList(new ArrayList<>(sendCodeForQuery));
+            List<JyBizTaskComboardEntity> taskList = jyBizTaskComboardService.listBoardTaskBySendCode(querySendCode);
+            List<String> sendCodeNotDel = taskList.stream().map(JyBizTaskComboardEntity::getSendCode).collect(Collectors.toList());
+            
+            //需要追加的批次
+            HashSet<String> boardCodeAdd = new HashSet<>();
+            HashMap<String, String> boardSendCodeMap = new HashMap<>();
+            for (BoardLoadDto boardLoadDto : boardList) {
+                // 只操作完成装车的板
+                if (!LOADING_COMPLETEDC.equals(boardLoadDto.getBoardStatus())) {
+                    continue;
+                }
+                // 操作了删除
+                if (!sendCodeNotDel.contains(boardLoadDto.getBatchCode())) {
+                    continue;
+                }
+                
+                if (!selectSendCode.contains(boardLoadDto.getBatchCode())) {
+                    boardCodeAdd.add(boardLoadDto.getBatchCode());
+                    boardSendCodeMap.put(boardLoadDto.getBoardCode(),boardLoadDto.getBatchCode());
+                }
+            }
+
+            if(CollectionUtils.isNotEmpty(boardCodeAdd)) {
+                List<JyComboardAggsEntity> aggs = jyComboardAggsService.queryComboardAggs(new ArrayList<>(boardCodeAdd));
+                for (JyComboardAggsEntity aggsEntity : aggs) {
+                    JyAppDataSealSendCodeVo vo = new JyAppDataSealSendCodeVo();
+                    vo.setSendCode(boardSendCodeMap.get(aggsEntity.getBoardCode()));
+                    if (aggsEntity.getWeight() != null) {
+                        vo.setWeight(aggsEntity.getWeight());
+                        weight.add(aggsEntity.getWeight());
+                    }
+                    if (aggsEntity.getVolume() != null) {
+                        vo.setWeight(aggsEntity.getWeight());
+                        weight.add(aggsEntity.getWeight());
+                    }
+                    appDataSealSendCodeVos.add(vo);
+                }
+            }
+            jyAppDataSealVo.setSendCodeList(appDataSealSendCodeVos);
+            jyAppDataSealVo.setWeight(weight);
+            jyAppDataSealVo.setVolume(volume);
+            return jyAppDataSealVo;
+        }catch (Exception e) {
+            log.error("自动选择板号失败，request: {}", JsonHelper.toJson(sealVehicleInfoReq),e);
+            return jyAppDataSealVo;
+        }
+    }
+    
+    
+    private BoardLoadDto assembleBoardLoadDto(SealVehicleInfoReq sealVehicleInfoReq) {
+        BoardLoadDto boardLoadDto = new BoardLoadDto();
+        // 查询发货主任务信息
+        JyBizTaskSendVehicleEntity sendVehicle = jyBizTaskSendVehicleService.findByBizId(sealVehicleInfoReq.getSendVehicleBizId());
+        // 查询发货子任务信息
+        JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyBizTaskSendVehicleDetailService.findByBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
+        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(sendVehicleDetail.getEndSiteId().intValue());
+        if (siteInfo != null) {
+            boardLoadDto.setEndNodeCode(siteInfo.getDmsSiteCode());
+        }
+        boardLoadDto.setTransWorkCode(sendVehicle.getTransWorkCode());
+        return boardLoadDto;
     }
 
     private void checkGetTaskSimpleCodeParams(GetTaskSimpleCodeReq request) {
