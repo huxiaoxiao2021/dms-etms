@@ -252,7 +252,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		}
 		//非巡视领导绑定场地
 		if(!managePatrolTaskUserSiteConfig.getConfigContent().equals(String.valueOf(userSiteCode))){
-			logger.warn("生成管理巡视任务,未配置领导青龙基础资料绑的场地id，erp:{},configSiteCode:{},userSiteCode:{}", erp,
+			logger.warn("生成管理巡视任务,非巡视领导绑定场地id，erp:{},configSiteCode:{},userSiteCode:{}", erp,
 					managePatrolTaskUserSiteConfig.getConfigContent(), userSiteCode);
 			return;
 		}
