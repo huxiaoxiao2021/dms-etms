@@ -979,8 +979,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                         weight.add(aggsEntity.getWeight());
                     }
                     if (aggsEntity.getVolume() != null) {
-                        vo.setWeight(aggsEntity.getWeight());
-                        weight.add(aggsEntity.getWeight());
+                        vo.setVolume(aggsEntity.getVolume());
+                        volume.add(aggsEntity.getVolume());
                     }
                     appDataSealSendCodeVos.add(vo);
                 }
