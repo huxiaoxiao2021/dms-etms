@@ -750,6 +750,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setProvinceAgencyName(StringHelper.getStringValue(siteInfo.getProvinceAgencyName()));
 		//设置任务信息
 		jyTask.setTaskType(taskInfo.getTaskType());
+		jyTask.setTaskBizType(taskInfo.getTaskBizType());
 		jyTask.setNeedScanGrid(taskInfo.getNeedScanGrid());
 		jyTask.setTaskCode(taskInfo.getTaskCode());
 		jyTask.setTaskName(taskInfo.getTaskName());
