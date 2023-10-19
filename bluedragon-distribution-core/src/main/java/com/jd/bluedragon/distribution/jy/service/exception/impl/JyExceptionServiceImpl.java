@@ -336,8 +336,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX+req.getBarCode();
                 Boolean result = redisClientOfJy.set(cacheKey, "1", 7, TimeUnit.DAYS, false);
                 logger.info("异常上报 运单放入缓存结果-{}",result);
-                //记录运单验货全程跟踪
-                sendForwardInspectionTrance(taskEntity,baseStaffByErp);
+                //记录运单验货全程跟踪 暂时不写
+                //sendForwardInspectionTrance(taskEntity,baseStaffByErp);
             }
 
         }catch (Exception e) {
