@@ -371,6 +371,8 @@ public class DmsConstants {
      * 消息类型
      */
     public static final String MESSAGE_TYPE_BAOFEI = "TYPE_BAOFEI";
+    public static final String MESSAGE_TYPE_DMS = "BLOCKER_QUEUE_DMS";
+    public static final String MESSAGE_TYPE_REVERSE_PRINT = "TYPE_HUANDANDAYIN";
     public static final String ORDER_TYPE_REVERSE = "20";
 
     /**

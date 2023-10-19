@@ -2089,6 +2089,8 @@ public class Constants {
     public static final Integer SORTING_SORT_SUBTYPE = 123511;
     // 新版分拣中心规范-分拣中心下中转站
     public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
+    // 新版分拣中心规范-接货仓类型
+    public static final Integer JHC_SORT_TYPE = 12352;
 
     /**
      *  逆向原因编码
