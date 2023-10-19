@@ -2081,15 +2081,6 @@ public class Constants {
         sendPredictaggstopic2DataSource.put("jy_send_predict_aggs_slave","aggsSlave");
     }
 
-    // 新版分拣中心规范-分拣中心类型
-    public static final Integer SORTING_SORT_TYPE = 12351;
-    // 新版分拣中心规范-分拣中心子类型
-    public static final Integer SORTING_SORT_SUBTYPE = 123511;
-    // 新版分拣中心规范-分拣中心下中转站
-    public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
-    // 新版分拣中心规范-接货仓类型
-    public static final Integer JHC_SORT_TYPE = 12352;
-
     /**
      * 异常上报原因与二次安检关系-新版异常上报
      */
@@ -2108,6 +2099,23 @@ public class Constants {
      */
     public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
 
+    // 新版分拣中心规范-分拣中心类型
+    public static final Integer SORTING_SORT_TYPE = 12351;
+    // 新版分拣中心规范-分拣中心子类型
+    public static final Integer SORTING_SORT_SUBTYPE = 123511;
+    // 新版分拣中心规范-分拣中心下中转站
+    public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
+    // 新版分拣中心规范-接货仓类型
+    public static final Integer JHC_SORT_TYPE = 12352;
+
+    /**
+     *  逆向原因编码
+     * 1-拦截逆向
+     * 3-清关逆向
+     */
+    public static final Integer INTERCEPT_REVERSE_CODE_1 = 1;
+    public static final Integer INTERCEPT_REVERSE_CODE_3 = 3;
+
     /**
      * 运单全程跟踪记录类型（强校验）
      * 枚举类型：1:运单维度不记录各包裹全程跟踪,2:运单维度记录各包裹全程跟踪,3:包裹维度记录包裹全程跟踪
@@ -2123,19 +2131,6 @@ public class Constants {
      * 换单来源 2: 分拣/SORT_CENTER
      */
     public static final Integer CHANGE_WAYBILL_OPERATE_SOURCE_SORT_CENTER =2;
-
-    /**
-     *  逆向原因编码
-     *
-     * 1-拦截逆向
-     *
-     * 2-拒收逆向
-     *
-     * 3-清关逆向
-     */
-    public static final Integer INTERCEPT_REVERSE_CODE_1 = 1;
-    public static final Integer INTERCEPT_REVERSE_CODE_3 = 3;
-
 
     /**
      * 运单全程跟踪记录类型-包裹维度记录包裹全程跟踪 （packageBarCode为包裹号)

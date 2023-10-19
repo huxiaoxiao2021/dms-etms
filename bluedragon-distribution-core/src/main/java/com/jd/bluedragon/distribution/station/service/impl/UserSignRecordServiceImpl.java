@@ -130,6 +130,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 	@Autowired
 	private DmsConfigManager dmsConfigManager;
+
+	@Autowired
+	private SysConfigService sysConfigService;
 	/**
 	 * 签到作废-小时数限制
 	 */
@@ -154,8 +157,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private WorkStationManager workStationManager;
 	@Autowired
 	private WorkStationGridManager workStationGridManager;
-    @Autowired
-    private SysConfigService sysConfigService;
 
 	/**
 	 * 插入一条数据
