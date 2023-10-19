@@ -634,5 +634,9 @@
     <jmq:consumer id="jmq.tmsAviationPlanConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tms.send.aviation.plan}" listener="tmsAviationPlanConsumer"/>
     </jmq:consumer>
+    <!-- app登录信息消费  -->
+    <jmq:consumer id="jmq.loginInfoConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.login.info}" listener="loginInfoConsumer"/>
+    </jmq:consumer>
 </beans>
 

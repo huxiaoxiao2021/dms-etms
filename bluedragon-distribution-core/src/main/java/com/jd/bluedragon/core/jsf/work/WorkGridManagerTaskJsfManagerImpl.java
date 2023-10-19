@@ -1,6 +1,7 @@
 
 package com.jd.bluedragon.core.jsf.work;
 
+import com.jd.common.annotation.CacheMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,8 @@ import com.jdl.basic.api.service.work.WorkGridManagerTaskJsfService;
 import com.jdl.basic.common.utils.Result;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 /**
  * 
@@ -39,4 +42,20 @@ public class WorkGridManagerTaskJsfManagerImpl implements WorkGridManagerTaskJsf
         }
         return result;
 	}
+    
+    @Override
+    @CacheMethod(key="WorkGridManagerTaskJsfManagerImpl.queryByBizType-{0}", cacheBean="redisCache", timeout = 1000 * 60 * 5)
+    public Result<List<WorkGridManagerTask>> queryByBizType(Integer taskBizType){
+        Result<List<WorkGridManagerTask>> result = new Result<>();
+        result.toFail("查询任务失败");
+        try {
+            result.toSuccess("查询任务成功！");
+            List<WorkGridManagerTask> list = workGridManagerTaskJsfService.queryByBizType(taskBizType);
+            result.setData(list);
+        } catch (Exception e) {
+            log.error("queryByBizType-error! {}",  e.getMessage(),e);
+            result.toFail("根据任务业务类型查询任务异常!");
+        }
+        return result;
+    }
 }
