@@ -47,7 +47,8 @@ public class LoginInfoConsumer extends MessageBaseConsumer {
             return;
         }
         try {
-            jyBizTaskWorkGridManagerService.generateManageInspectionTask(erp, request.getPositionCode(), response.getStaffName());
+            jyBizTaskWorkGridManagerService.generateManageInspectionTask(erp, request.getPositionCode(), response.getStaffName()
+            , response.getSiteCode());
         }catch (Exception e){
             log.error("app登录消息处理，生成管理巡视任务异常，erp:{}", erp, e);
         }

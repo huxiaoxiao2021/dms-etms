@@ -95,5 +95,5 @@ public interface JyBizTaskWorkGridManagerService {
 	 */
 	int autoCancelTaskForGridDelete(JyBizTaskWorkGridManagerBatchUpdate data);
 
-	void generateManageInspectionTask(String erp, String positionCode, String userName);
+	void generateManageInspectionTask(String erp, String positionCode, String userName, Integer userSiteCode);
 }
