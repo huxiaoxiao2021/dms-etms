@@ -723,7 +723,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		data.setTaskBatchCode(batchCode);
 		jyBizTaskWorkGridManagerService.closeTaskForEndBatch(closeData);		
 	}
-	private JyBizTaskWorkGridManager initJyBizTaskWorkGridManager(BaseSiteInfoDto siteInfo,TaskWorkGridManagerSiteScanData taskWorkGridManagerScan,
+	@Override
+	public JyBizTaskWorkGridManager initJyBizTaskWorkGridManager(BaseSiteInfoDto siteInfo,TaskWorkGridManagerSiteScanData taskWorkGridManagerScan,
 			WorkGridManagerTask taskInfo,WorkGridManagerTaskConfigVo configData,
 			WorkGrid grid,Date curDate) {
 		JyBizTaskWorkGridManager jyTask = new JyBizTaskWorkGridManager();
@@ -758,6 +759,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setOrderNum(ThreadLocalRandom.current().nextInt(1000));
 		return jyTask;
 	}
+	
+	
 	private List<JyUserDto> getUserList(Integer siteCode,String organizationCode,String userPositionCode,String userPositionName){
 		Result<List<JyUserDto>> userResult = jyUserManager.queryUserListBySiteAndPosition(siteCode, organizationCode, userPositionCode, userPositionName);
 		if(userResult != null && userResult.getData() != null) {
