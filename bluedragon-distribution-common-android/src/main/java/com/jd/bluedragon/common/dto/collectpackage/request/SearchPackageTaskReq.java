@@ -1,8 +1,10 @@
 package com.jd.bluedragon.common.dto.collectpackage.request;
 
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
+
 import java.io.Serializable;
 
-public class SearchPackageTaskReq implements Serializable {
+public class SearchPackageTaskReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -2582599082183192975L;
 
     /**

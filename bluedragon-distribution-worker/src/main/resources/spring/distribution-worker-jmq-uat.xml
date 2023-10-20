@@ -587,5 +587,9 @@
     <jmq:consumer id="jmq.jyTaskSendDetailFirstSendConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jyTaskSendDetailFirstSend}" listener="jyTaskSendDetailFirstSendConsumer"/>
     </jmq:consumer>
+    <!-- 箱号首次打印 -->
+    <jmq:consumer id="jmq.boxFirstPrintConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.boxFirstPrint}" listener="boxFirstPrintConsumer"/>
+    </jmq:consumer>
 </beans>
 

@@ -35,22 +35,22 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
 
     @Override
     public JdCResponse<CollectPackageTaskResp> listCollectPackageTask(CollectPackageTaskReq request) {
-        return null;
+        return retJdCResponse(jyCollectPackageService.listCollectPackageTask(request));
     }
 
     @Override
     public JdCResponse<CollectPackageTaskResp> searchPackageTask(SearchPackageTaskReq request) {
-        return null;
+        return retJdCResponse(jyCollectPackageService.searchPackageTask(request));
     }
 
     @Override
     public JdCResponse<TaskDetailResp> queryTaskDetail(TaskDetailReq request) {
-        return null;
+        return retJdCResponse(jyCollectPackageService.queryTaskDetail(request));
     }
 
     @Override
     public JdCResponse<SealingBoxResp> sealingBox(SealingBoxReq request) {
-        return null;
+        return retJdCResponse(jyCollectPackageService.sealingBox(request));
     }
 
     @Override

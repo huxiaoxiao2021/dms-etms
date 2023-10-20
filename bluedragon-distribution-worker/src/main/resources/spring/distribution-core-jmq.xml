@@ -925,5 +925,9 @@
         <property name="topic" value="${jmq.topic.jyTaskSendDetailFirstSend}" />
         <property name="timeout" value="3000" />
     </bean>
-
+    <!-- 箱号首次打印消息 -->
+    <bean id="boxFirstPrintProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.boxFirstPrint}" />
+        <property name="timeout" value="3000" />
+    </bean>
 </beans>

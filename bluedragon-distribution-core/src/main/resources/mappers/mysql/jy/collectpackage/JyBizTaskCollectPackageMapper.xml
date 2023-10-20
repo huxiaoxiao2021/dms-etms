@@ -267,4 +267,40 @@
       material_code = #{materialCode,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  
+  <select id="pageQueryTask" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from jy_biz_task_collect_package
+    <include refid="queryCondition"/>
+    order by ts desc
+    limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER} 
+  </select>
+
+  <select id="queryTaskCount" resultType ="java.lang.Long">
+    select
+    count(1)
+    from jy_biz_task_collect_package
+    <include refid="queryCondition"/>
+  </select>
+
+  <sql id="queryCondition">
+    <where>
+      start_site_id = #{startSiteId,jdbcType=BIGINT}
+      and task_status = #{taskStatus,jdbcType=TINYINT}
+      and yn = 1
+      <if test="endSiteId != null">
+        and end_site_id = #{endSiteId,jdbcType=BIGINT}
+      </if>
+      <if test="boxCode != null">
+        and box_code = #{boxCode,jdbcType=VARCHAR}
+      </if>
+    </where>
+  </sql>
+  
+  <select id="findByBoxCode" resultType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity">
+    select *
+    from jy_biz_task_collect_package
+    where box_code = #{boxCode,jdbcType=VARCHAR}
+  </select>
 </mapper>

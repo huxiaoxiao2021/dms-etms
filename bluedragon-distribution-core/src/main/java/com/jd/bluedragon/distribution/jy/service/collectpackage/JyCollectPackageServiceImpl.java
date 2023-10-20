@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.collectpackage.enums.CollectionPackageTaskStatusEnum;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
@@ -16,9 +17,13 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
+import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity;
+import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery;
 import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.middleend.sorting.service.ISortingService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -34,8 +39,10 @@ import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
 import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -72,7 +79,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     @Autowired
     private CycleBoxService cycleBoxService;
 
-
+    @Autowired
+    private JyBizTaskCollectPackageFlowService jyBizTaskCollectPackageFlowService;
+    
     @Override
     public InvokeResult<CollectPackageResp> collectPackage(CollectPackageReq request) {
         //基础校验
@@ -326,12 +335,143 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
 
     @Override
     public InvokeResult<CollectPackageTaskResp> listCollectPackageTask(CollectPackageTaskReq request) {
-        return null;
+        InvokeResult<CollectPackageTaskResp> result = new InvokeResult<>();
+        CollectPackageTaskResp resp = new CollectPackageTaskResp();
+        result.setData(resp);
+        // 参数校验
+        if (!checkCollectPackageTaskReq(request, result)) {
+            return result;
+        }
+        //查询任务统计数据
+        resp.setCollectPackStatusCountList(queryTaskCount(request));
+        resp.setCollectPackTaskDtoList(getCollectPackageFlowDtoList(getPageQuery(request)));
+        return result;
+    }
+    private List<CollectPackageTaskDto> getCollectPackageFlowDtoList(JyBizTaskCollectPackageQuery query) {
+        // 查询集包任务列表
+        List<JyBizTaskCollectPackageEntity> taskList = jyBizTaskCollectPackageService.pageQueryTask(query);
+        if (CollectionUtils.isEmpty(taskList)) {
+            return new ArrayList<>();
+        }
+
+        // 组装任务
+        List<CollectPackageTaskDto> collectPackTaskDtoList = taskList.stream().map(task -> {
+            CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
+            BeanUtils.copyProperties(task, taskDto);
+            // 查询集包袋号
+            taskDto.setMaterialCode(cycleBoxService.getBoxMaterialRelation(task.getBoxCode()));
+            // todo 统计数据
+            if (CollectionPackageTaskStatusEnum.COLLECTION.getCode().equals(task.getTaskStatus())
+                    || CollectionPackageTaskStatusEnum.COMPLETE_COLLECT.getCode().equals(task.getTaskStatus())) {
+                taskDto.setInterceptCount(1);
+                taskDto.setInterceptCount(1);
+            }
+            // 流向信息
+            taskDto.setCollectPackageFlowDtoList(getFlowListByTask(task));
+            return taskDto;
+        }).collect(Collectors.toList());
+        return collectPackTaskDtoList;
+    }
+    /**
+     * 根据任务获取流向信息
+     * @param task
+     * @return
+     */
+    private List<CollectPackageFlowDto> getFlowListByTask(JyBizTaskCollectPackageEntity task) {
+        List<CollectPackageFlowDto> collectPackageFlowDtoList = new ArrayList<>();
+        // 如果支持混装，查询流向集合
+        if (MixBoxTypeEnum.MIX_ENABLE.getCode().equals(task.getMixBoxType())) {
+            List<JyBizTaskCollectPackageFlowEntity> flowList = jyBizTaskCollectPackageFlowService.queryListByBizId(task.getBizId());
+            if (!CollectionUtils.isEmpty(flowList)){
+                for (JyBizTaskCollectPackageFlowEntity entity : flowList) {
+                    CollectPackageFlowDto collectPackageFlowDto = new CollectPackageFlowDto();
+                    collectPackageFlowDto.setEndSiteId(entity.getEndSiteId());
+                    collectPackageFlowDto.setEndSiteName(entity.getEndSiteName());
+                    collectPackageFlowDtoList.add(collectPackageFlowDto);
+                }
+            }
+        }else {
+            CollectPackageFlowDto collectPackageFlowDto = new CollectPackageFlowDto();
+            collectPackageFlowDto.setEndSiteId(task.getEndSiteId());
+            collectPackageFlowDto.setEndSiteName(task.getEndSiteName());
+            collectPackageFlowDtoList.add(collectPackageFlowDto);
+        }
+        return collectPackageFlowDtoList;
+    }
+
+    private List<CollectPackStatusCount> queryTaskCount(CollectPackageTaskReq req) {
+        List<CollectPackStatusCount> collectPackStatusCountList = new ArrayList<>();
+        for (CollectionPackageTaskStatusEnum value : CollectionPackageTaskStatusEnum.values()) {
+            CollectPackStatusCount collectPackStatusCount = new CollectPackStatusCount();
+            collectPackStatusCount.setTaskStatus(value.getCode());
+            collectPackStatusCount.setTaskStatusName(value.getName());
+            
+            // 根据状态查询任务总数
+            JyBizTaskCollectPackageQuery query = new JyBizTaskCollectPackageQuery();
+            query.setTaskStatus(value.getCode());
+            query.setStartSiteId(Long.valueOf(req.getCurrentOperate().getSiteCode()));
+            collectPackStatusCount.setTotal(jyBizTaskCollectPackageService.queryTaskCount(query));
+            
+            collectPackStatusCountList.add(collectPackStatusCount);
+        }
+        return collectPackStatusCountList;
+    }
+
+    private boolean checkCollectPackageTaskReq(CollectPackageTaskReq request, InvokeResult<CollectPackageTaskResp> resp) {
+        if (request.getCurrentOperate() == null || request.getCurrentOperate().getSiteCode() <= 0) {
+            resp.setCode(RESULT_THIRD_ERROR_CODE);
+            resp.setMessage("未获取到当前站点信息！");
+            return false;
+        }
+
+        if (request.getTaskStatus() < 0) {
+            resp.setCode(RESULT_THIRD_ERROR_CODE);
+            resp.setMessage("未获取到任务状态！");
+            return false;
+        }
+        
+        if (request.getPageNo() <= 0 || request.getPageSize() <= 0) {
+            resp.setCode(RESULT_THIRD_ERROR_CODE);
+            resp.setMessage("未获取到分页参数！");
+            return false;
+        }
+        return true;
+    }
+    
+    private JyBizTaskCollectPackageQuery getPageQuery(CollectPackageTaskReq request) {
+        JyBizTaskCollectPackageQuery query = new JyBizTaskCollectPackageQuery();
+        query.setTaskStatus(request.getTaskStatus());
+        query.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        query.setOffset((request.getPageNo() - 1) * request.getPageSize());
+        query.setLimit(request.getPageSize());
+        return query;
     }
 
     @Override
     public InvokeResult<TaskDetailResp> queryTaskDetail(TaskDetailReq request) {
-        return null;
+        InvokeResult<TaskDetailResp> result = new InvokeResult<>();
+        TaskDetailResp resp = new TaskDetailResp();
+        result.setData(resp);
+        JyBizTaskCollectPackageEntity task = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
+        if (task == null) {
+            result.setCode(RESULT_NULL_CODE);
+            result.setMessage(request.getBoxCode() + ":未获取到集包任务！");
+            return result;
+        }
+        CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
+        BeanUtils.copyProperties(task, taskDto);
+        // 查询集包袋号
+        taskDto.setMaterialCode(cycleBoxService.getBoxMaterialRelation(task.getBoxCode()));
+        // todo 统计数据
+        if (CollectionPackageTaskStatusEnum.COLLECTION.getCode().equals(task.getTaskStatus())
+                || CollectionPackageTaskStatusEnum.COMPLETE_COLLECT.getCode().equals(task.getTaskStatus())) {
+            taskDto.setInterceptCount(1);
+            taskDto.setInterceptCount(1);
+        }
+        // 流向信息
+        taskDto.setCollectPackageFlowDtoList(getFlowListByTask(task));
+        resp.setCollectPackageTaskDto(taskDto);
+        return result;
     }
 
     @Override
@@ -396,6 +536,39 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         return null;
     }
 
+    @Override
+    public InvokeResult<CollectPackageTaskResp> searchPackageTask(SearchPackageTaskReq request) {
+        InvokeResult<CollectPackageTaskResp> result = new InvokeResult<>();
+        CollectPackageTaskResp resp = new CollectPackageTaskResp();
+        result.setData(resp);
+        if (StringUtils.isEmpty(request.getBarCode())
+                || (!WaybillUtil.isPackageCode(request.getBarCode())
+                && !BusinessHelper.isBoxcode(request.getBarCode()))) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("只支持扫描包裹号或者箱号！");
+            return result;
+        }
+        resp.setCollectPackTaskDtoList(getCollectPackageFlowDtoList(getSearchPageQuery(request)));
+        return result;
+    }
+    
+    private JyBizTaskCollectPackageQuery getSearchPageQuery(SearchPackageTaskReq request) {
+        JyBizTaskCollectPackageQuery query = new JyBizTaskCollectPackageQuery();
+        query.setTaskStatus(request.getTaskStatus());
+        query.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        query.setOffset((request.getPageNo() - 1) * request.getPageSize());
+        query.setLimit(request.getPageSize());
+        
+        // 如果是箱号
+        if (BusinessHelper.isBoxcode(request.getBarCode())) {
+            query.setBoxCode(request.getBarCode());
+        }else if (WaybillUtil.isPackageCode(request.getBarCode())){
+            // 如果是包裹号，按流向查询 todo 获取目的地站点
+            query.setEndSiteId(0L);
+        }
+        return query;
+    }
+    
     private void checkCancelCollectPackageReq(CancelCollectPackageReq request) {
     }
 }

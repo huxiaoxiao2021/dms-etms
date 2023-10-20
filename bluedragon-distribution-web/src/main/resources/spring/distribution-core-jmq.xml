@@ -893,4 +893,9 @@
         <property name="timeout" value="3000" />
     </bean>
 
+    <!-- 箱号首次打印 -->
+    <bean id="boxFirstPrintProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.boxFirstPrint}" />
+        <property name="timeout" value="3000" />
+    </bean>
 </beans>

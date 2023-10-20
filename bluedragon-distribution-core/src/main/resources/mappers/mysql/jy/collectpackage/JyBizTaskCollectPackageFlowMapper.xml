@@ -45,6 +45,29 @@
       #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
   </insert>
+  
+  <insert id="batchInsert" parameterType="List"> 
+    insert into jy_biz_task_collect_package_flow
+    (
+    id, collect_package_biz_id, box_code,
+    start_site_id, start_site_name, end_site_id,
+    end_site_name, create_user_erp, create_user_name,
+    update_user_erp, update_user_name, create_time,
+    update_time, yn, ts
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      #{item.id,jdbcType=BIGINT}, #{item.collectPackageBizId,jdbcType=VARCHAR}, #{item.boxCode,jdbcType=VARCHAR},
+      #{item.startSiteId,jdbcType=BIGINT}, #{item.startSiteName,jdbcType=VARCHAR}, #{item.endSiteId,jdbcType=BIGINT},
+      #{item.endSiteName,jdbcType=VARCHAR}, #{item.createUserErp,jdbcType=VARCHAR},
+      #{item.createUserName,jdbcType=VARCHAR},
+      #{item.updateUserErp,jdbcType=VARCHAR}, #{item.updateUserName,jdbcType=VARCHAR},
+      #{item.createTime,jdbcType=TIMESTAMP},
+      #{item.updateTime,jdbcType=TIMESTAMP}, #{item.yn,jdbcType=BIT}, #{item.ts,jdbcType=TIMESTAMP}
+      )
+    </foreach>
+  </insert>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity">
     insert into jy_biz_task_collect_package_flow
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -208,4 +231,10 @@
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  
+  <select id="queryListByBizId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from jy_biz_task_collect_package_flow where collect_package_biz_id = #{bizId,jdbcType=VARCHAR} and yn = 1
+  </select>
 </mapper>

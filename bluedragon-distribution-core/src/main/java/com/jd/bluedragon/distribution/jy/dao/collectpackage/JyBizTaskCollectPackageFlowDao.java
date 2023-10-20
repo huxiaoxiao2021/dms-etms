@@ -4,8 +4,10 @@ package com.jd.bluedragon.distribution.jy.dao.collectpackage;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity;
 
+import java.util.List;
+
 public class JyBizTaskCollectPackageFlowDao extends BaseDao<JyBizTaskCollectPackageFlowEntity> {
-    private final static String NAMESPACE = JyBizTaskCollectPackageDao.class.getName();
+    private final static String NAMESPACE = JyBizTaskCollectPackageFlowDao.class.getName();
     int deleteByPrimaryKey(Long id){
         return this.getSqlSession().delete(NAMESPACE + ".deleteByPrimaryKey", id);
     }
@@ -28,5 +30,13 @@ public class JyBizTaskCollectPackageFlowDao extends BaseDao<JyBizTaskCollectPack
 
     int updateByPrimaryKey(JyBizTaskCollectPackageFlowEntity record){
         return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKey", record);
+    }
+
+    public int batchInsert(List<JyBizTaskCollectPackageFlowEntity> recordList){
+        return this.getSqlSession().insert(NAMESPACE + ".batchInsert", recordList);
+    }
+
+    public List<JyBizTaskCollectPackageFlowEntity> queryListByBizId(String bizId) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryListByBizId", bizId);
     }
 }

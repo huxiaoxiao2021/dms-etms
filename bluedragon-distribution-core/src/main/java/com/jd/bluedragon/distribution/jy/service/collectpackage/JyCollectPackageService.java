@@ -48,4 +48,11 @@ public interface JyCollectPackageService {
      */
     InvokeResult<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request);
 
+
+    /**
+     * 检索集包任务
+     * @param request
+     * @return
+     */
+    InvokeResult<CollectPackageTaskResp> searchPackageTask(SearchPackageTaskReq request);
 }

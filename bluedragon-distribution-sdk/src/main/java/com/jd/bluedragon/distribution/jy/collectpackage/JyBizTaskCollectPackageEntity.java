@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.jy.collectpackage;
 import java.util.Date;
 
 public class JyBizTaskCollectPackageEntity {
+
+    public static final String BIZ_PREFIX = "JB%s";
+    
     private Long id;
 
     private String bizId;

@@ -6,13 +6,13 @@ import java.util.List;
 public class SealingBoxReq implements Serializable {
     private static final long serialVersionUID = -3640118777427248453L;
     
-    private List<String> bizIdList;
+    private List<SealingBoxDto> sealingBoxDtoList;
 
-    public List<String> getBizIdList() {
-        return bizIdList;
+    public List<SealingBoxDto> getSealingBoxDtoList() {
+        return sealingBoxDtoList;
     }
 
-    public void setBizIdList(List<String> bizIdList) {
-        this.bizIdList = bizIdList;
+    public void setSealingBoxDtoList(List<SealingBoxDto> sealingBoxDtoList) {
+        this.sealingBoxDtoList = sealingBoxDtoList;
     }
 }
