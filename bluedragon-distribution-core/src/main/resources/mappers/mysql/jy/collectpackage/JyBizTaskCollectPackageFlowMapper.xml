@@ -49,22 +49,22 @@
   <insert id="batchInsert" parameterType="List"> 
     insert into jy_biz_task_collect_package_flow
     (
-    id, collect_package_biz_id, box_code,
+    collect_package_biz_id, box_code,
     start_site_id, start_site_name, end_site_id,
     end_site_name, create_user_erp, create_user_name,
     update_user_erp, update_user_name, create_time,
-    update_time, yn, ts
+    update_time, yn
     )
     values
     <foreach collection="list" item="item" separator=",">
       (
-      #{item.id,jdbcType=BIGINT}, #{item.collectPackageBizId,jdbcType=VARCHAR}, #{item.boxCode,jdbcType=VARCHAR},
+      #{item.collectPackageBizId,jdbcType=VARCHAR}, #{item.boxCode,jdbcType=VARCHAR},
       #{item.startSiteId,jdbcType=BIGINT}, #{item.startSiteName,jdbcType=VARCHAR}, #{item.endSiteId,jdbcType=BIGINT},
       #{item.endSiteName,jdbcType=VARCHAR}, #{item.createUserErp,jdbcType=VARCHAR},
       #{item.createUserName,jdbcType=VARCHAR},
       #{item.updateUserErp,jdbcType=VARCHAR}, #{item.updateUserName,jdbcType=VARCHAR},
       #{item.createTime,jdbcType=TIMESTAMP},
-      #{item.updateTime,jdbcType=TIMESTAMP}, #{item.yn,jdbcType=BIT}, #{item.ts,jdbcType=TIMESTAMP}
+      #{item.updateTime,jdbcType=TIMESTAMP}, #{item.yn,jdbcType=BIT}
       )
     </foreach>
   </insert>

@@ -85,15 +85,10 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
     public void saveTaskAndFlowInfo(Box box) {
         // 查询当前箱号是否存在任务
         JyBizTaskCollectPackageEntity oldBox = jyBizTaskCollectPackageService.findByBoxCode(box.getCode());
-        Boolean insert = oldBox == null;
+        boolean insert = oldBox == null;
         
         // 保存箱号任务
-        JyBizTaskCollectPackageEntity task = convertToTask(box, insert);
-
-        // 如果支持混装，保存当前流向集合
-        if (MixBoxTypeEnum.MIX_ENABLE.getCode().equals(task.getMixBoxType()) && !insert) {
-            jyBizTaskCollectPackageFlowService.batchInsert(getMixBoxFlowList(task));
-        }
+        JyBizTaskCollectPackageEntity task = convertToTask(box);
 
         log.info("新增或更新集包任务信息：{}", JsonHelper.toJson(task));
         if (insert) {
@@ -105,6 +100,10 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
             jyBizTaskCollectPackageService.updateById(task);
         }
 
+        // 如果支持混装，保存当前流向集合
+        if (MixBoxTypeEnum.MIX_ENABLE.getCode().equals(task.getMixBoxType()) && insert) {
+            jyBizTaskCollectPackageFlowService.batchInsert(getMixBoxFlowList(task));
+        }
     }
 
     /**
@@ -133,6 +132,7 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
             entity.setUpdateTime(task.getUpdateTime());
             entity.setUpdateUserErp(task.getUpdateUserErp());
             entity.setUpdateUserName(task.getUpdateUserName());
+            entity.setYn(Boolean.TRUE);
             return entity;
         }).collect(Collectors.toList());
     }
@@ -145,7 +145,7 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
         return conf;
     }
     
-    private JyBizTaskCollectPackageEntity convertToTask(Box box, Boolean insert) {
+    private JyBizTaskCollectPackageEntity convertToTask(Box box) {
         JyBizTaskCollectPackageEntity entity = new JyBizTaskCollectPackageEntity();
         entity.setBoxCode(box.getCode());
         entity.setEndSiteId(box.getReceiveSiteCode().longValue());
