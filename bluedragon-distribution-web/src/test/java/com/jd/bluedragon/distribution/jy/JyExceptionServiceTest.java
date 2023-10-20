@@ -391,7 +391,21 @@ public class JyExceptionServiceTest {
     private JyBizTaskAutoCloseHelperService jyBizTaskAutoCloseHelperService;
 
     @Test
-    public void testSendTask(){
+    public void processTaskOfContrabandTest(){
+
+        ExpContrabandReq req = new ExpContrabandReq();
+        req.setUserErp("wuyoude");
+        req.setSiteId(910);
+        req.setPositionCode("GW00003001");
+        req.setBarCode("JDVE00088304206-1-1-");
+        req.setContrabandType(3);
+        req.setDescription("hahahahahahaha");
+
+
+        List<String> imageUrlList = new ArrayList<>();
+        imageUrlList.add("1.jpg");
+        imageUrlList.add("2.jpg");
+        req.setImageUrlList(imageUrlList);
 
         String dateStr ="2023-10-09 06:00:00";
         for (int i = 0; i < 12; i++) {
