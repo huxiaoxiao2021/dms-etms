@@ -2040,4 +2040,9 @@ public class Constants {
      * 功能可用配置白名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
+
+    /**
+     * 集包岗-任务锁前缀
+     */
+    public static final String JY_COLLECT_BOX_LOCK_PREFIX  = "jy_collect_package_box_lock_%s";
 }
