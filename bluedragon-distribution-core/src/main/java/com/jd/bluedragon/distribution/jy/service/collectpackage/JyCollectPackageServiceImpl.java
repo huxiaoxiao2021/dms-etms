@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.collectpackage;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.middleend.sorting.service.ISortingService;
@@ -42,8 +44,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
@@ -71,6 +75,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     BoxLimitConfigManager boxLimitConfigManager;
     @Autowired
     private CycleBoxService cycleBoxService;
+    @Autowired
+    JimDbLock jimDbLock;
 
 
     @Override
@@ -87,17 +93,32 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     }
 
     private void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
-        boolean syncExec = false;
-        if (syncExec){
-            Task task =assembleSortingTask(request);
-            dmsSortingService.doSorting(task);
-        }else {
-            TaskRequest taskRequest =assembleTaskRequest(request);
-            taskService.add(taskRequest);
+        String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, request.getBoxCode());
+        if (!jimDbLock.lock(boxLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+            throw new JyBizException("当前系统繁忙,请稍后再试！");
         }
-        //保存集包扫描记录
-        saveJyCollectPackageScanRecord(request);
-        response.setEndSiteId(request.getEndSiteId());
+        JyBizTaskCollectPackageEntity collectPackageTask =jyBizTaskCollectPackageService.findByBizId(request.getBizId());
+        if (ObjectHelper.isEmpty(collectPackageTask)){
+            throw new JyBizException("集包任务不存在或者已经过期，请刷新界面！");
+        }
+        if (JyBizTaskCollectPackageStatusEnum.CANCEL.equals(collectPackageTask.getTaskStatus())){
+            throw new JyBizException("集包任务作废-操作批量取消！");
+        }
+        try {
+            boolean syncExec = false;
+            if (syncExec){
+                Task task =assembleSortingTask(request);
+                dmsSortingService.doSorting(task);
+            }else {
+                TaskRequest taskRequest =assembleTaskRequest(request);
+                taskService.add(taskRequest);
+            }
+            //保存集包扫描记录
+            saveJyCollectPackageScanRecord(request);
+            response.setEndSiteId(request.getEndSiteId());
+        }finally {
+            jimDbLock.releaseLock(boxLockKey, request.getRequestId());
+        }
     }
 
     private Task assembleSortingTask(CollectPackageReq request) {
@@ -150,6 +171,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         JyBizTaskCollectPackageEntity collectPackageTask =jyBizTaskCollectPackageService.findByBizId(request.getBizId());
         if (ObjectHelper.isEmpty(collectPackageTask)){
             throw new JyBizException("集包任务不存在或者已经过期，请刷新界面！");
+        }
+        if (JyBizTaskCollectPackageStatusEnum.CANCEL.equals(collectPackageTask.getTaskStatus())){
+            throw new JyBizException("集包任务作废-操作批量取消！");
         }
         if (request.getForceCollectPackage()){
             request.setEndSiteId(collectPackageTask.getEndSiteId());
@@ -381,6 +405,22 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     @Override
     public InvokeResult<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) {
         checkCancelCollectPackageReq(request);
+        if(request.getCancelAllFlag()){
+            String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, request.getBoxCode());
+            if (!jimDbLock.lock(boxLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+                throw new JyBizException("当前系统繁忙,请稍后再试！");
+            }
+            try {
+                //发消息-按照包裹发消息
+                //然后把箱号关闭，不让用了
+            }finally {
+                jimDbLock.releaseLock(boxLockKey,request.getRequestId());
+            }
+
+        }else {
+
+        }
+
 
         /*SortingRequest params = new SortingRequest();
         params.setPackageCode(request.getPackageCode());
@@ -397,5 +437,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     }
 
     private void checkCancelCollectPackageReq(CancelCollectPackageReq request) {
+
     }
 }
