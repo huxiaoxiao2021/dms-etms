@@ -209,6 +209,8 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 * 是否符合,0-未选择,1-符合 2-不符合
 	 */
 	private Integer isMatch;
+	//任务业务类型：1-日常巡查 2-管理巡视 3-异常及时检查 4-指标周期改善 5-事件治理整改任务
+	private Integer taskBizType;
 	/**
 	 *
 	 * @param id
@@ -823,5 +825,13 @@ public class JyBizTaskWorkGridManager implements Serializable {
 
 	public void setIsMatch(Integer isMatch) {
 		this.isMatch = isMatch;
+	}
+
+	public Integer getTaskBizType() {
+		return taskBizType;
+	}
+
+	public void setTaskBizType(Integer taskBizType) {
+		this.taskBizType = taskBizType;
 	}
 }

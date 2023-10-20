@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.jy.dao.work;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
@@ -65,8 +68,18 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 	public int batchAddTask(List<JyBizTaskWorkGridManager> taskList) {
 		return this.getSqlSession().update(NAMESPACE + ".batchInsert", taskList);
 	}
+	public int batchInsertDistributionTask(List<JyBizTaskWorkGridManager> taskList) {
+		return this.getSqlSession().update(NAMESPACE + ".batchInsertDistributionTask", taskList);
+	}
 	public int autoCancelTaskForGridDelete(JyBizTaskWorkGridManagerBatchUpdate cancelData) {
 		return this.getSqlSession().update(NAMESPACE + ".autoCancelTaskForGridDelete", cancelData);
 	}
-	
+	public Integer selectHandlerTodayTaskCountByTaskBizType(Integer siteCode, Date startTime, String handlerErp, List<String> taskCodeList){
+		Map<String, Object> param = new HashMap<>();
+		param.put("siteCode", siteCode);
+		param.put("startTime", startTime);
+		param.put("handlerErp", handlerErp);
+		param.put("taskCodeList", taskCodeList);
+		return this.getSqlSession().selectOne(NAMESPACE + ".selectHandlerTodayTaskCountByTaskBizType", param);
+	}
 }

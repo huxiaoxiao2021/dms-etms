@@ -67,6 +67,8 @@ public class WorkGridManagerReportQuery extends BasePagerCondition {
 	 * 分页-pageSize
 	 */
 	private Integer pageSize;
+	//任务业务类型：1-日常巡查 2-管理巡视 3-异常及时检查 4-指标周期改善 5-事件治理整改任务
+	private Integer taskBizType;
 
 	public String getAreaHubCode() {
 		return areaHubCode;
@@ -162,5 +164,13 @@ public class WorkGridManagerReportQuery extends BasePagerCondition {
 
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+
+	public Integer getTaskBizType() {
+		return taskBizType;
+	}
+
+	public void setTaskBizType(Integer taskBizType) {
+		this.taskBizType = taskBizType;
 	}
 }

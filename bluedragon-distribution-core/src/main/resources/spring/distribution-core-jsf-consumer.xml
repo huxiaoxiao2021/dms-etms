@@ -1465,6 +1465,17 @@
                   protocol="jsf" alias="${jsf.router.waybillRouteLinkCustAPI.alias}" timeout="${jsf.router.waybillRouteLinkCustAPI.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!-- 查询整板装车数据 -->
+    <jsf:consumer id="jdiBoardLoadWS"
+                  interface="com.jd.tms.jdi.ws.JdiBoardLoadWS"
+                  protocol="jsf"
+                  alias="${jsf.alias.jdiBoardLoadWS}"
+                  timeout="${jsf.jdiBoardLoadWS.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <!--运单拦截信息接口-->
     <jsf:consumer id="blockerApplyWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerApplyWS"
                   protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">

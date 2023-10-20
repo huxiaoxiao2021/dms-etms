@@ -36,6 +36,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 
 /**
  * @ClassName: JyBizTaskWorkGridManagerServiceImpl
@@ -149,6 +150,9 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 		//省区位物流总部的时候显示相应的枢纽
 		if (BaseContants.LOGISTICS_HEADQUARTERS.equals(taskData.getProvinceAgencyCode())) {
 			taskData.setProvinceAgencyName(taskData.getAreaHubName());
+		}
+		if(jyTaskData.getTaskBizType() != null){
+			taskData.setTaskBizTypeName(WorkGridManagerTaskBizType.getNameByCode(jyTaskData.getTaskBizType()));
 		}
 		return taskData;
 	}	

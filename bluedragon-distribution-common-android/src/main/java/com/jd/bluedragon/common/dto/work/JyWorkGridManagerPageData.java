@@ -17,6 +17,8 @@ public class JyWorkGridManagerPageData implements Serializable {
 	private Map<Integer,JyWorkGridManagerCountData> statusCount;
 	
 	private List<JyWorkGridManagerData> dataList;
+	//客户端 列表刷新时间(秒)
+	private Integer refreshSecond = 1000;
 
 	public List<JyWorkGridManagerData> getDataList() {
 		return dataList;
@@ -33,5 +35,12 @@ public class JyWorkGridManagerPageData implements Serializable {
 	public void setStatusCount(Map<Integer, JyWorkGridManagerCountData> statusCount) {
 		this.statusCount = statusCount;
 	}
-	
+
+	public Integer getRefreshSecond() {
+		return refreshSecond;
+	}
+
+	public void setRefreshSecond(Integer refreshSecond) {
+		this.refreshSecond = refreshSecond;
+	}
 }

@@ -3,9 +3,18 @@ package com.jd.bluedragon.distribution.jy.service.work;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTaskEditRequest;
 import com.jd.bluedragon.common.dto.work.ScanTaskPositionRequest;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
+import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerAutoCloseData;
+import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScanData;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jdl.basic.api.domain.work.WorkGridManagerTask;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
+import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
+import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkGridModifyMqData;
+
+import java.util.Date;
 
 /**
  * @ClassName: JyWorkGridManagerBusinessService
@@ -36,13 +45,21 @@ public interface JyWorkGridManagerBusinessService {
 	 * @return
 	 */
 	boolean executeWorkGridManagerSiteScanTask(Task task);
+
+	JyBizTaskWorkGridManager initJyBizTaskWorkGridManager(BaseSiteInfoDto siteInfo, TaskWorkGridManagerSiteScanData taskWorkGridManagerScan,
+														  WorkGridManagerTask taskInfo, WorkGridManagerTaskConfigVo configData,
+														  WorkGrid grid, Date curDate);
+
 	/**
 	 * 执行自动关闭任务
 	 * @param task
 	 * @return
 	 */
 	boolean executeWorkGridManagerAutoCloseTask(Task task);
-	/**
+
+    void addWorkGridManagerAutoCloseTask(TaskWorkGridManagerAutoCloseData taskData);
+
+    /**
 	 * 扫描岗位码操作
 	 * @param request
 	 * @return
