@@ -140,8 +140,8 @@ public class JyComboardSealGatewayServiceImplTest {
     @Test
     public void getSealVehicleInfoTest() {
         SealVehicleInfoReq sealVehicleReq = new SealVehicleInfoReq();
-        sealVehicleReq.setSendVehicleBizId("SST22102700000890");
-        sealVehicleReq.setSendVehicleDetailBizId("TW22102400827098-004");
+        sealVehicleReq.setSendVehicleBizId("SST23063000000063");
+        sealVehicleReq.setSendVehicleDetailBizId("TW23063000963858-002");
         JdCResponse<SealVehicleInfoResp> sealVehicleInfo = jyComboardSealGatewayService.getSealVehicleInfo(sealVehicleReq);
         System.out.println(JsonHelper.toJson(sealVehicleInfo));
     }

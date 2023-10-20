@@ -16,6 +16,8 @@ public class WaybillStatus {
     public static final int RESULT_CODE_REPEAT_TASK = 10003;
 
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_INSPECTION = 0; //正向验货
+    public static final String WAYBILL_STATUS_CODE_FORWARD_INSPECTION_MSG = "验货";
+
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_SORTING = 1;  //正向分拣
     public static final Integer WAYBILL_STATUS_CODE_SITE_SORTING = 11;  //经济网、站点装箱
     public static final Integer WAYBILL_STATUS_CODE_SITE_CANCEL_SORTING = 70;  //经济网、站点取消装箱

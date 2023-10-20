@@ -21,6 +21,7 @@
         <result property="vehicleTypeName" column="vehicle_type_name"/>
         <result property="lineType" column="line_type"/>
         <result property="lineTypeName" column="line_type_name"/>
+        <result property="driverTag" column="driver_tag"/>
         <result property="lastPlanDepartTime" column="last_plan_depart_time"/>
         <result property="lastSealCarTime" column="last_seal_car_time"/>
         <result property="comeTime" column="come_time"/>
@@ -34,6 +35,8 @@
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
         <result property="taskName" column="task_name"/>
+        <result property="bookingCode" column="booking_code"/>
+        <result property="taskType" column="task_type"/>
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
@@ -46,11 +49,34 @@
         <result property="total" column="total"/>
     </resultMap>
 
+
+    <resultMap type="com.jd.bluedragon.distribution.jy.dto.send.JyBizSendTaskAssociationDto" id="jyBizSendTaskAssociationDto">
+        <result property="transWorkCode" column="trans_work_code"/>
+        <result property="vehicleNumber" column="vehicle_number"/>
+        <result property="lastPlanDepartTime" column="last_plan_depart_time"/>
+        <result property="sendVehicleBizId" column="send_vehicle_biz_id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="transWorkItemCode" column="trans_work_item_code"/>
+        <result property="vehicleStatus" column="vehicle_status"/>
+        <result property="startSiteId" column="start_site_id"/>
+        <result property="startSiteName" column="start_site_name"/>
+        <result property="endSiteId" column="end_site_id"/>
+        <result property="endSiteName" column="end_site_name"/>
+    </resultMap>
+
+    <!-- todo 空铁需求：2023.08.07 发货表增加类型字段task_type（默认1：表示发车任务）， 根据业务场景使用不同类型隔离数据-->
+    <!-- todo 所有非指定bizId、非指定ID操作 都添加任务类型过滤，不同类型发货任务数据隔离  JySendTaskTypeEnum-->
+    <!-- todo 空铁需求上线前历史任务都是发车任务，发车任务查询条件过滤必须添加类型过滤  -->
+    <sql id="default_task_type_vehicle">
+       and task_type = 1
+    </sql>
+
     <sql id="Base_Column_List">
         id
         , biz_id,biz_no, trans_work_code, start_site_id, vehicle_number, vehicle_status, manual_created_flag, abnormal_flag,
-        bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, last_plan_depart_time, last_seal_car_time,come_time,near_come_time,
-        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,task_name
+        bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, driver_tag, last_plan_depart_time, last_seal_car_time,come_time,near_come_time,
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,task_name,
+        task_type, booking_code
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleEntity">
@@ -104,6 +130,9 @@
             <if test="lineTypeName != null">
                 line_type_name,
             </if>
+            <if test="driverTag != null">
+                driver_tag,
+            </if>
             <if test="lastPlanDepartTime != null">
                 last_plan_depart_time,
             </if>
@@ -143,7 +172,13 @@
             <if test="taskName != null">
                 task_name,
             </if>
-            </trim>
+            <if test="taskType != null">
+                task_type,
+            </if>
+            <if test="bookingCode != null">
+                booking_code,
+            </if>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 #{id,jdbcType=BIGINT},
@@ -193,6 +228,9 @@
             <if test="lineTypeName != null">
                 #{lineTypeName,jdbcType=VARCHAR},
             </if>
+            <if test="driverTag != null">
+                #{driverTag,jdbcType=TINYINT},
+            </if>
             <if test="lastPlanDepartTime != null">
                 #{lastPlanDepartTime,jdbcType=TIMESTAMP},
             </if>
@@ -231,6 +269,12 @@
             </if>
             <if test="taskName != null">
                 #{taskName,jdbcType=VARCHAR},
+            </if>
+            <if test="taskType != null">
+                #{taskType,jdbcType=VARCHAR},
+            </if>
+            <if test="bookingCode != null">
+                #{bookingCode,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>
@@ -283,6 +327,9 @@
             <if test="lineTypeName != null">
                 line_type_name = #{lineTypeName,jdbcType=VARCHAR},
             </if>
+            <if test="driverTag != null">
+                driver_tag = #{driver_tag,jdbcType=INTEGER},
+            </if>
             <if test="lastPlanDepartTime != null">
                 last_plan_depart_time = #{lastPlanDepartTime,jdbcType=TIMESTAMP},
             </if>
@@ -318,6 +365,12 @@
             </if>
             <if test="ts != null">
                 ts = #{ts,jdbcType=TIMESTAMP},
+            </if>
+            <if test="taskType != null">
+                task_type = #{taskType,jdbcType=VARCHAR},
+            </if>
+            <if test="bookingCode != null">
+                booking_code = #{bookingCode,jdbcType=VARCHAR},
             </if>
         </set>
         where id = #{id,jdbcType=BIGINT}
@@ -371,6 +424,9 @@
             <if test="lineTypeName != null">
                 line_type_name = #{lineTypeName,jdbcType=VARCHAR},
             </if>
+            <if test="driverTag != null">
+                driver_tag = #{driverTag,jdbcType=INTEGER},
+            </if>
             <if test="lastPlanDepartTime != null">
                 last_plan_depart_time = #{lastPlanDepartTime,jdbcType=TIMESTAMP},
             </if>
@@ -406,6 +462,12 @@
             </if>
             <if test="ts != null">
                 ts = #{ts,jdbcType=TIMESTAMP},
+            </if>
+            <if test="taskType != null">
+                task_type = #{taskType,jdbcType=VARCHAR},
+            </if>
+            <if test="bookingCode != null">
+                booking_code = #{bookingCode,jdbcType=VARCHAR},
             </if>
         </set>
         where biz_id = #{bizId}
@@ -479,6 +541,12 @@
         <if test="vehicleTypeName != null">
             vehicle_type_name,
         </if>
+        <if test="taskType != null">
+            task_type,
+        </if>
+        <if test="bookingCode != null">
+            booking_code,
+        </if>
         line_type,
         line_type_name,
         create_user_erp,
@@ -502,6 +570,12 @@
         <if test="vehicleTypeName != null">
             #{vehicleTypeName},
         </if>
+        <if test="taskType != null">
+            #{taskType},
+        </if>
+        <if test="bookingCode != null">
+            #{bookingCode},
+        </if>
         #{lineType},
         #{lineTypeName},
         #{createUserErp},
@@ -517,6 +591,7 @@
         jy_biz_task_send_vehicle
         WHERE
         yn = 1
+        <include refid="default_task_type_vehicle"/>
         AND start_site_id = #{entity.startSiteId}
         <if test="lineTypeList != null and lineTypeList.size() > 0">
             AND line_type IN
@@ -543,6 +618,7 @@
         jy_biz_task_send_vehicle
         WHERE
         yn = 1
+        <include refid="default_task_type_vehicle"/>
         AND start_site_id = #{entity.startSiteId}
         <if test="entity.vehicleStatus != null">
             AND vehicle_status = #{entity.vehicleStatus}
@@ -567,7 +643,7 @@
         WHERE
 
         <include refid="taskQueryCondition"/>
-
+        <include refid="default_task_type_vehicle"/>
         <if test="sortType != null">
             ORDER BY
             <choose>
@@ -592,6 +668,7 @@
         FROM jy_biz_task_send_vehicle
         WHERE
         <include refid="taskQueryCondition"/>
+        <include refid="default_task_type_vehicle"/>
     </select>
 
     <sql id="taskQueryCondition">
@@ -699,6 +776,7 @@
         INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
         WHERE
         m.yn = 1
+        AND m.task_type = 1 <!-- 仅过滤发车任务 -->
         AND m.manual_created_flag = 0
         <!--AND m.line_type in (1,2)-->
         <if test="entity.lineTypeList != null and entity.lineTypeList.size() > 0">
@@ -744,6 +822,7 @@
                  FROM jy_biz_task_send_vehicle m
                           INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
                  WHERE m.yn = 1
+                    AND m.task_type = 1 <!-- 仅过滤发车任务 -->
                    AND m.manual_created_flag = 0
                    <!--AND m.line_type in (1,2)-->
                     <if test="lineTypeList != null and lineTypeList.size() > 0">
@@ -767,6 +846,7 @@
         <include refid="Base_Column_List"/>
         from jy_biz_task_send_vehicle
         where yn = 1
+        <include refid="default_task_type_vehicle"/>
         AND start_site_id = #{startSiteId}
         <if test="transWorkCodeList != null and transWorkCodeList.size() > 0">
             AND trans_work_code IN
@@ -805,4 +885,148 @@
             #{item}
         </foreach>
     </select>
+
+    <select id="findSendTaskByDestAndStatusesWithPage" resultMap="jyBizTaskSendVehicleMap">
+        SELECT
+        m.id,
+        m.biz_id,m.trans_work_code,m.start_site_id,m.vehicle_number,m.vehicle_status,m.manual_created_flag,m.abnormal_flag,
+        m.bind_flag,m.trans_way,m.trans_way_name,m.vehicle_type,m.vehicle_type_name,m.line_type,m.line_type_name,m.last_plan_depart_time,m.last_seal_car_time
+        FROM
+        jy_biz_task_send_vehicle m
+        INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
+        WHERE
+        m.yn = 1
+        AND m.task_type = 1 <!-- 仅过滤发车任务 -->
+        <if test="entity.lineTypeList != null and entity.lineTypeList.size() > 0">
+            AND m.line_type in
+            <foreach collection="entity.lineTypeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.manualCreatedFlag != null">
+            AND m.manual_created_flag = #{entity.manualCreateFlag}
+        </if>
+        AND d.yn = 1
+        AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
+        <if test="entity.transferFlag!=null and entity.transferFlag ==2">
+            AND d.excep_label =0
+        </if>
+        AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
+        <if test="entity.transWorkItemCode != null and entity.transWorkItemCode !='' ">
+            AND d.trans_work_item_code = #{entity.transWorkItemCode}
+        </if>
+        <if test="entity.transWorkCodeList != null">
+            AND m.trans_work_code IN
+            <foreach collection="entity.transWorkCodeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.sendVehicleBizId != null">
+            AND d.send_vehicle_biz_id = #{entity.sendVehicleBizId}
+        </if>
+        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+            AND ((m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{entity.createTimeBegin}))
+        </if>
+        <if test="statuses != null and statuses.length > 0">
+            AND m.vehicle_status IN
+            <foreach collection="statuses" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY m.biz_id
+        ORDER BY m.last_plan_depart_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+
+    <select id="findByBookingCode" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity" resultMap="jyBizTaskSendVehicleMap">
+        select <include refid="Base_Column_List"/>
+        from jy_biz_task_send_vehicle
+        where
+            start_site_id = #{startSiteId}
+            and booking_code = #{bookingCode}
+            and task_type = #{taskType}
+            and yn = #{yn}
+            <if test="yn != null">
+                and yn = #{yn}
+            </if>
+        limit 1
+    </select>
+
+
+    <select id="pageFindDetailSendTaskByCondition" resultMap="jyBizSendTaskAssociationDto">
+        SELECT
+            m.trans_work_code,m.vehicle_number,m.last_plan_depart_time,
+            d.send_vehicle_biz_id,d.biz_id,d.trans_work_item_code,d.vehicle_status,
+            d.start_site_id,d.start_site_name,d.end_site_id,d.end_site_name
+        FROM
+            jy_biz_task_send_vehicle m
+            INNER JOIN jy_biz_task_send_vehicle_detail d
+            ON m.biz_id = d.send_vehicle_biz_id
+        WHERE
+            m.yn = 1
+            AND m.start_site_id = #{entity.startSiteId}
+            AND m.task_type = 1 <!-- 仅过滤发车任务 -->
+            AND m.manual_created_flag = 0
+            AND m.line_type in
+            <foreach collection="entity.lineTypeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+            <if test="entity.bizIdList != null and entity.bizIdList.size() > 0">
+                AND m.biz_id IN
+                <foreach collection="entity.bizIdList" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+            </if>
+            and ((m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{entity.createTimeBegin}))
+            <!-- detail -->
+            AND d.yn = 1
+            AND d.vehicle_status IN
+            <foreach collection="entity.statusList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+            and d.excep_label =0
+        ORDER BY
+            m.last_plan_depart_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+
+
+    <select id="countDetailSendTaskByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM (
+            SELECT
+                d.send_vehicle_biz_id, d.biz_id
+            FROM
+                jy_biz_task_send_vehicle m
+                INNER JOIN jy_biz_task_send_vehicle_detail d
+                ON m.biz_id = d.send_vehicle_biz_id
+            WHERE
+                m.yn = 1
+                AND m.start_site_id = #{startSiteId}
+                AND m.task_type = 1 <!-- 仅过滤发车任务 -->
+                AND m.manual_created_flag = 0
+                AND m.line_type in
+                <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+                <if test="bizIdList != null and bizIdList.size() > 0">
+                    AND m.biz_id IN
+                    <foreach collection="bizIdList" separator="," open="(" close=")" item="item">
+                        #{item}
+                    </foreach>
+                </if>
+                AND ((m.last_plan_depart_time &gt;= #{lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{createTimeBegin}))
+                <!-- detail -->
+                AND d.yn = 1
+                AND d.vehicle_status IN
+                <foreach collection="statusList" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+                and d.excep_label =0
+        ) t
+    </select>
+
+
 </mapper>

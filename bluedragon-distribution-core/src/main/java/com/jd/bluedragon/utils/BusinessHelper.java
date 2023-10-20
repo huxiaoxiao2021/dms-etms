@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
+import com.jd.bluedragon.distribution.jss.oss.OssUrlNetTypeEnum;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.dms.utils.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -100,6 +101,41 @@ public class BusinessHelper {
 
         return ownSignValue;
     }
+
+    /**
+     * oss链接内外网转换
+     * 
+     * @param ossUrl
+     * @param inOutType
+     * @return
+     */
+    public static String switchOssUrlByType(String ossUrl, Integer inOutType) {
+        if(StringUtils.isEmpty(ossUrl)){
+            return StringUtils.EMPTY;
+        }
+        try {
+            String ossOutUrl = PropertiesHelper.newInstance().getValue(Constants.OSS_OUTER_NET_KEY);
+            String ossInnerUrl = PropertiesHelper.newInstance().getValue(Constants.OSS_INNER_NET_KEY);
+            String ossInnerOfficeUrl = PropertiesHelper.newInstance().getValue(Constants.OSS_INNER_OFFICE_NET_KEY);
+            // 转换为外网
+            if(Objects.equals(inOutType, OssUrlNetTypeEnum.OUT.getType())){
+                if(StringUtils.isNotEmpty(ossInnerUrl) && ossUrl.contains(ossInnerUrl)){
+                    return ossUrl.replace(ossInnerUrl, ossOutUrl);
+                }
+                if(StringUtils.isNotEmpty(ossInnerOfficeUrl) && ossUrl.contains(ossInnerOfficeUrl)){
+                    return ossUrl.replace(ossInnerOfficeUrl, ossOutUrl);
+                }
+            }
+            // 转换为内网
+            if(Objects.equals(inOutType, OssUrlNetTypeEnum.IN.getType()) && StringUtils.isNotEmpty(ossOutUrl) && ossUrl.contains(ossOutUrl)){
+                return ossUrl.replace(ossOutUrl, ossInnerUrl);
+            }
+        } catch (Exception nfe) {
+            BusinessHelper.log.error("格式化发生异常！", nfe);
+        }
+        return ossUrl;
+    }
+    
 
     /**
      * @return 获取最大正整数，默认2000

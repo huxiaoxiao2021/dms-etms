@@ -1050,7 +1050,7 @@ public class HintCodeConstants {
 
     public static String JY_SIGN_IN_JOB_TYPE_TIP_MSG = "作业区【%s】不允许工种【%s】进行签到，请联系网格负责人%s";
 
-    public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED = "40024";
+    public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED = "40027";
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED_MSG = "二维码已过期";
 
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_SITE_NOT_MATCHED = "40025";
@@ -1062,6 +1062,10 @@ public class HintCodeConstants {
     public static String ATTENDANCE_BLACK_LIST_TOBE_EFFECTIVE_MSG = "【%s】将于【%s】限制入场操作，请勿安排该员工在此时间后在场内作业！";
 
     public static String ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG ="【%s】 已被限制入场，请勿安排该员工在场内作业！";
+
+    public static String EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT = "40030";
+
+    public static String EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG = "“该单未发起拦截，请正常下传！";
 
     // 请扫描正确的循环集包袋编码 20098
     public static String CYCLE_BOX_RULE_ERROR = "20098";

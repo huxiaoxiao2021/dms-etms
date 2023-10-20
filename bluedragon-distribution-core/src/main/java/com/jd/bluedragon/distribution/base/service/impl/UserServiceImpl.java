@@ -15,8 +15,10 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ErpLoginServiceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AppUpgradeRequest;
+import com.jd.bluedragon.distribution.api.request.LoginInfoDto;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
@@ -46,6 +48,7 @@ import com.jd.bluedragon.sdk.modules.client.ProgramTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.dto.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.sdk.util.DateUtil;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.mrd.srv.dto.RpcResultDto;
 import com.jd.mrd.srv.service.erp.dto.LoginContextDto;
 import com.jd.mrd.srv.service.erp.dto.LoginDto;
@@ -110,6 +113,10 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	@Autowired
 	private FuncSwitchConfigService funcSwitchConfigService;
 
+	@Autowired
+	@Qualifier("loginInfoProducer")
+	private DefaultJMQProducer loginInfoProducer;
+
 	/**
 	 * 分拣客户端登录服务
 	 * @param request
@@ -169,8 +176,25 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 			this.getAndSaveToken(request, loginUserResponse);
 			this.handleDeviceLocation(request, loginUserResponse);
 		}
+		sendLoginInfoMq(request, loginUserResponse);
         return loginUserResponse;
     }
+
+	/**
+	 * 登录成功发送jmq4: login_info
+	 * @param request
+	 * @param response
+	 */
+	private void sendLoginInfoMq(LoginRequest request, LoginUserResponse response){
+		LoginInfoDto loginInfoDto = new LoginInfoDto();
+		loginInfoDto.setLoginRequest(request);
+		loginInfoDto.setLoginUserResponse(response);
+		try {
+			loginInfoProducer.send(request.getErpAccount(), JsonHelper.toJson(loginInfoDto));
+		} catch (JMQException e) {
+			log.error("登录成功后发送登录信息jmq失败", e);
+		}
+	}
 
     private boolean getAndSaveToken(LoginRequest request, LoginUserResponse loginUserResponse) {
         try {
@@ -439,6 +463,15 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 					showCallButtonFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_CALL_BUTTON.getCode(), siteId, userErp);
 				}
 				result.getData().getBusinessConfigInfo().setShowCallButtonFlag(showCallButtonFlag);
+				// pda运输任务是否显示催派按钮
+				boolean showRemindTransJobFlag;
+				if (dmsClientHeartbeatRequest.getSiteCode() != null) {
+					showRemindTransJobFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_REMIND_BUTTON.getCode(), dmsClientHeartbeatRequest.getSiteCode(), userErp);
+				} else {
+					log.warn("sendHeartbeat 客户端缺少网格码所在场地编码 {}", JsonHelper.toJson(dmsClientHeartbeatRequest));
+					showRemindTransJobFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_REMIND_BUTTON.getCode(), siteId, userErp);
+				}
+				result.getData().getBusinessConfigInfo().setShowRemindTransJobFlag(showRemindTransJobFlag);
 			}
 		}
 		return result;

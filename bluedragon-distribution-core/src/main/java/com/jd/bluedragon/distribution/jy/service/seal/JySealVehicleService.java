@@ -1,10 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.seal;
 
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
-import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
+import com.jd.bluedragon.common.dto.seal.request.ShuttleTaskSealCarReq;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
@@ -47,6 +45,12 @@ public interface JySealVehicleService {
      */
     InvokeResult<Void> czSealVehicle(SealVehicleReq sealVehicleReq);
 
+    /**
+     * 摆渡任务封车
+     * @param request
+     * @return
+     */
+    InvokeResult<Void> shuttleTaskSealCar(ShuttleTaskSealCarReq request);
 
     /**
      * 根据任务简码 获取任务详情
@@ -108,4 +112,5 @@ public interface JySealVehicleService {
      * @return
      */
     InvokeResult<GetTaskSimpleCodeResp> onlineGetTaskSimpleCode(GetTaskSimpleCodeReq request);
+    
 }

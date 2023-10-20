@@ -22,6 +22,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.api.send.ISendVehicleJsfService;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.base.ServiceResult;
+import com.jdl.jy.realtime.model.es.job.SendBoxAgg;
 import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.realtime.model.es.job.SendPackageEsDto;
 import com.jdl.jy.realtime.model.es.send.JySendTaskWaybillAgg;
@@ -176,6 +177,34 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
             log.error("查询发货包裹数据异常. {}", JsonHelper.toJson(queryPager), e);
         }
         return null;
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleJsfManagerImpl.querySendPackageDetailNoBox",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public Pager<SendPackageEsDto> querySendPackageDetailNoBox(Pager<SendVehicleTaskQuery> queryPager) {
+        try {
+            ServiceResult<Pager<SendPackageEsDto>> serviceResult = sendVehicleJsfService.querySendPackageDetailNoBox(queryPager);
+            if (serviceResult.retSuccess()) {
+                return serviceResult.getData();
+            }
+        } catch (Exception e) {
+            log.error("查询发货包裹数据异常. {}", JsonHelper.toJson(queryPager), e);
+        }
+        return null;
+    }
+
+    @Override
+    public Pager<SendBoxAgg> querySendBoxAgg(Pager<SendVehicleTaskQuery> queryPager) {
+        try {
+            ServiceResult<Pager<SendBoxAgg>> serviceResult = sendVehicleJsfService.querySendBoxAgg(queryPager);
+            if (serviceResult.retSuccess()) {
+                return serviceResult.getData();
+            }
+        } catch (Exception e) {
+            log.error("查询发货包裹数据异常. {}", JsonHelper.toJson(queryPager), e);
+        }
+        return null;   
     }
 
     private ExcepScanLabelEnum resolveExcepScanLabelEnum(SendPackageEsDto sendPackageEsDto, Integer queryBarCodeFlag) {

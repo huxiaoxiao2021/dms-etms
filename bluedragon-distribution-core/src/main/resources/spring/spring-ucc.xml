@@ -302,11 +302,14 @@
 		<property name="cttGroupDataLimit" value="${cttGroupDataLimit:200}"/>
 		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
 		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
+		<property name="fetchCarDistributionTimeRange" value="${fetchCarDistributionTimeRange:48}"/>
 		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
 		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
 		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
 		<property name="reverseExchangeCount" value="${reverseExchangeCount:-1}"/>
 		<property name="terminalSitePackagePrintLimitSwitch" value="${terminalSitePackagePrintLimitSwitch:false}"/>
+		<property name="teAnSendTaskTipsOptimizationSwitch" value="${teAnSendTaskTipsOptimizationSwitch:false}"/>
+		<property name="teAnSendTaskNumberLimit" value="${teAnSendTaskNumberLimit:100}"/>
 		<property name="dmsToVendorSendMQSwitch" value="${dmsToVendorSendMQSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -596,6 +599,7 @@
 				<value>uccPropertyConfiguration.cttGroupDataLimit</value>
 				<value>uccPropertyConfiguration.qingChangDataOpenSwitch</value>
 				<value>uccPropertyConfiguration.jySendSpecialProductTypeToScanShowRemainMinutes</value>
+				<value>uccPropertyConfiguration.fetchCarDistributionTimeRange</value>
 				<value>uccPropertyConfiguration.checkAkboxConfig</value>
 				<value>uccPropertyConfiguration.printCacheTime</value>
 				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
@@ -603,6 +607,8 @@
 				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
 				<value>uccPropertyConfiguration.reverseExchangeCount</value>
 				<value>uccPropertyConfiguration.terminalSitePackagePrintLimitSwitch</value>
+				<value>uccPropertyConfiguration.teAnSendTaskTipsOptimizationSwitch</value>
+				<value>uccPropertyConfiguration.teAnSendTaskNumberLimit</value>
 				<value>uccPropertyConfiguration.dmsToVendorSendMQSwitch</value>
 			</list>
 		</property>

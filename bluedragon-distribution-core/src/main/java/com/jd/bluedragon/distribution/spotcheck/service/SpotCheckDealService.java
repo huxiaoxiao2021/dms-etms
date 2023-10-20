@@ -44,10 +44,10 @@ public interface SpotCheckDealService {
     /**
      * 运单是否操作过抽检
      *
-     * @param waybillCode
+     * @param spotCheckContext
      * @return
      */
-    boolean checkIsHasSpotCheck(String waybillCode);
+    boolean checkIsHasSpotCheck(SpotCheckContext spotCheckContext);
 
     /**
      * 运单是否超标：只从redis查询

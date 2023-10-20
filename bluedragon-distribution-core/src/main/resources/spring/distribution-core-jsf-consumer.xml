@@ -1431,6 +1431,10 @@
                   protocol="jsf" alias="${jsf.alias.jy_basic}" timeout="${jsf.jy_basic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <jsf:consumer id="pdaSorterApi" interface="com.jd.tms.workbench.api.PdaSorterApi"
+                  protocol="jsf" alias="${tms.jsf.pdaSorterApi.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <!-- 云打印接口 -->
     <jsf:consumer id="cloudPrintRenderService" interface="com.jdl.print.service.RenderService"
                   protocol="jsf" alias="${cloudPrint.jsf.alias}" timeout="${cloudPrint.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -1455,5 +1459,25 @@
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!-- erp 路由查询线路 杨金宇 -->
+    <jsf:consumer id="vrsQueryAPI" interface="com.jd.etms.api.resource.VrsQueryAPI"
+                  protocol="jsf" alias="${jsf.router.waybillRouteLinkCustAPI.alias}" timeout="${jsf.router.waybillRouteLinkCustAPI.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 查询整板装车数据 -->
+    <jsf:consumer id="jdiBoardLoadWS"
+                  interface="com.jd.tms.jdi.ws.JdiBoardLoadWS"
+                  protocol="jsf"
+                  alias="${jsf.alias.jdiBoardLoadWS}"
+                  timeout="${jsf.jdiBoardLoadWS.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--运单拦截信息接口-->
+    <jsf:consumer id="blockerApplyWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerApplyWS"
+                  protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 </beans>

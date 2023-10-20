@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.JobCodeHoursDto;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
@@ -18,6 +19,10 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.domain.SysConfigJobCodeHoursContent;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -71,6 +76,7 @@ import org.springframework.stereotype.Service;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 人员签到表--Service接口实现
@@ -124,6 +130,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 	@Autowired
 	private DmsConfigManager dmsConfigManager;
+
+	@Autowired
+	private SysConfigService sysConfigService;
 	/**
 	 * 签到作废-小时数限制
 	 */
@@ -136,7 +145,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	@Value("${beans.userSignRecordService.autoSignOutByMqSenconds:30}")
 	private int autoSignOutByMqOffSenconds;
-	
+
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";
@@ -148,8 +157,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private WorkStationManager workStationManager;
 	@Autowired
 	private WorkStationGridManager workStationGridManager;
-    @Autowired
-    private SysConfigService sysConfigService;	
 
 	/**
 	 * 插入一条数据
@@ -488,24 +495,55 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     @JProfiler(jKey = "DMS.WEB.UserSignRecordService.autoHandleSignInRecord", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
     public Result<Integer> autoHandleSignInRecord() {
         Result<Integer> result = Result.success();
-        int notSignedOutRecordMoreThanHours = dmsConfigManager.getPropertyConfig().getNotSignedOutRecordMoreThanHours();
-        if (notSignedOutRecordMoreThanHours < 0) {
-            return result;
-        }
-        int notSignedOutRecordRangeHours = dmsConfigManager.getPropertyConfig().getNotSignedOutRecordRangeHours();
-        //扫描范围不能小于1小时
-        if(notSignedOutRecordRangeHours < 1) {
-        	notSignedOutRecordRangeHours = 1;
-        }
-        Date signInTimeEnd = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -notSignedOutRecordMoreThanHours);
-        Date signInTimeStart = DateHelper.add(signInTimeEnd,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
+		SysConfigJobCodeHoursContent content = sysConfigService.getSysConfigJobCodeHoursContent(Constants.SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS);
+		if(content == null){
+			return result;
+		}
+		Integer defaultHours=content.getDefaultHours();
+		Integer notSignedOutRecordRangeHours = dmsConfigManager.getPropertyConfig().getNotSignedOutRecordRangeHours();
+		//扫描范围不能小于1小时
+		if(notSignedOutRecordRangeHours < 1) {
+			notSignedOutRecordRangeHours = 1;
+		}
+		Date signInTimeEnd = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -defaultHours);
+		Date signInTimeStart = DateHelper.add(signInTimeEnd,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
+		List<Map<String,Object>> list=content.getJobCodeHours();
+		List<JobCodeHoursDto> jobCodeHoursRecordList=new ArrayList<>();
+		List<Integer> allSpecialJobCodeList=new ArrayList();
+		if(CollectionUtils.isNotEmpty(list)){
+			for (Map<String, Object> map : list) {
+				int jobCode=(int)map.get("jobCode");
+				int hour=(int)map.get("hour");
+				JobCodeHoursDto jobCodeHoursRecord=new JobCodeHoursDto();
+				jobCodeHoursRecord.setJobCode(jobCode);
+				jobCodeHoursRecord.setHour(hour);
+				jobCodeHoursRecordList.add(jobCodeHoursRecord);
+				allSpecialJobCodeList.add(jobCode);
+			}
+		}
+		Map<Integer,List<JobCodeHoursDto>> jobCodeHoursRecordMap=jobCodeHoursRecordList.stream().collect(Collectors.groupingBy(JobCodeHoursDto::getHour));
+		List<JobCodeHoursDto> jobCodeHoursList=new ArrayList<>();
+		for (Map.Entry<Integer, List<JobCodeHoursDto>> entry : jobCodeHoursRecordMap.entrySet()) {
+			Integer hour=entry.getKey();
+			List<JobCodeHoursDto> jhList=entry.getValue();
+			List<Integer> jobCodes = jhList.stream().map(JobCodeHoursDto::getJobCode).collect(
+					Collectors.toList());
+			Date endDate = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -hour);
+			Date startDate = DateHelper.add(endDate,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
+			JobCodeHoursDto jobCodeHoursRecord=new JobCodeHoursDto();
+			jobCodeHoursRecord.setJobCodes(jobCodes);
+			jobCodeHoursRecord.setStartTime(startDate);
+			jobCodeHoursRecord.setEndTime(endDate);
+			jobCodeHoursList.add(jobCodeHoursRecord);
+		}
+
         List<Long> toSignOutPks;
         Date now = new Date();
         int updateRows = 0;
         log.info("自动签退数据扫描：{} - {}", DateHelper.formatDateTimeMs(signInTimeStart),DateHelper.formatDateTimeMs(signInTimeEnd));
         try {
             do {
-                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(signInTimeStart,signInTimeEnd, 100);
+                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(allSpecialJobCodeList,jobCodeHoursList,signInTimeStart,signInTimeEnd, 100);
 
                 if (CollectionUtils.isNotEmpty(toSignOutPks)) {
                     UserSignRecord updateData = new UserSignRecord();
@@ -583,14 +621,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         if (lastUnSignOutRecord.getSiteCode() == null) {
         	log.info("autoHandleSignOutByAttendJmq：站点为空，无需处理！");
         	return result;
-        }		
+        }
         SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES);
-        if (content != null 
-        		&& !Boolean.TRUE.equals(content.getMasterSwitch()) 
+        if (content != null
+        		&& !Boolean.TRUE.equals(content.getMasterSwitch())
         		&& !content.getSiteCodes().contains(lastUnSignOutRecord.getSiteCode())) {
         	log.info("autoHandleSignOutByAttendJmq：站点【{}】未开启自动签退，无需处理！",lastUnSignOutRecord.getSiteCode());
         	return result;
-        }		
+        }
 		//执行-签退逻辑
 		List<Long> toSignOutPks = new ArrayList<>();
         UserSignRecord updateData = new UserSignRecord();
@@ -605,10 +643,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		removeMemberRequest.setOperateUserCode(updateData.getUpdateUser());
 		removeMemberRequest.setOperateUserName(updateData.getUpdateUserName());
         this.jyGroupMemberService.removeMembers(removeMemberRequest);
-        
+
         List<String> erpList = new ArrayList<>();
         erpList.add(mqData.getUserErp());
-        
+
 		com.jdl.basic.api.domain.workStation.WorkStationGridQuery  workStationGridCheckQuery = new com.jdl.basic.api.domain.workStation.WorkStationGridQuery ();
 		workStationGridCheckQuery.setBusinessKey(lastUnSignOutRecord.getRefGridKey());
         this.workStationGridManager.queryByGridKey(workStationGridCheckQuery);
@@ -624,7 +662,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		//自动签退完发送咚咚通知
         NoticeUtils.noticeToTimelineWithNoUrl(MSG_FORMAT_AUTO_SIGN_OUT_TITLE, String.format(MSG_FORMAT_AUTO_SIGN_OUT_CONTENT, gridName,ownerUserErp), erpList);
 		return result;
-	}     
+	}
     /**
      * 根据条件查询-转成通知对象
      * @param query
