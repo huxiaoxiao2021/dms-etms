@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -489,5 +490,36 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             condition.setUpdateTime(new Date());
         }
         jyGroupSortCrossDetailDao.deleteBySiteAndBizId(condition);
+    }
+
+    @Override
+    public void deleteMixScanTaskOutLimit() {
+        Integer limit = ucc.getCttGroupDataLimit();
+        // 查询组板岗混扫任务下的所有网格信息
+        List<JyGroupSortCrossDetailEntity> groupCodeList = jyGroupSortCrossDetailDao.queryGroupCodeByFuncCode();
+        
+        // 根据网格删除查询limit外的数据
+        for (JyGroupSortCrossDetailEntity entity : groupCodeList) {
+            JyGroupSortCrossDetailEntity sortCrossDetail = jyGroupSortCrossDetailDao.selectByPrimaryKey(entity.getId());
+            if (!COMBOARD_SEND_POSITION.getCode().equals(sortCrossDetail.getFuncType())) {
+                continue;
+            }
+            
+            // 查询limit条最新创建的混扫任务的最小ID
+            JyGroupSortCrossDetailEntityQueryDto queryMinIdDto = new JyGroupSortCrossDetailEntityQueryDto();
+            queryMinIdDto.setLimit(limit);
+            queryMinIdDto.setGroupCode(entity.getGroupCode());
+            Long id = jyGroupSortCrossDetailDao.queryMinIdByGroupCode(queryMinIdDto);
+            if (id == null) {
+                continue;
+            }
+            
+            log.info("开始执行删除网格混扫任务逻辑，网格：{}， id: {}", entity.getGroupCode(), id);
+            // 根据ID删除混扫任务数据
+            JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+            queryDto.setGroupCode(entity.getGroupCode());
+            queryDto.setId(id);
+            jyGroupSortCrossDetailDao.deleteCTTGroupDataByGroupCode(queryDto);
+        }
     }
 }

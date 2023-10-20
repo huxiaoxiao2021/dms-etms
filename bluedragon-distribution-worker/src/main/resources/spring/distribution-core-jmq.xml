@@ -965,6 +965,12 @@
         <property name="topic" value="${jmq.topic.exception.contrabandNoticKF}"/>
         <property name="timeout" value="3000"/>
     </bean>
+
+    <!-- 首次保存组板任务消息 -->
+    <bean id="jyComboardTaskFirstSaveProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jyComboardTaskFirstSave}" />
+        <property name="timeout" value="3000" />
+    </bean>
     <!-- app 登录信息 -->
     <bean id="loginInfoProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.login.info}"/>
