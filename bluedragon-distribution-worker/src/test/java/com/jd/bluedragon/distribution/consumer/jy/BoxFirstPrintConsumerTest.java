@@ -33,7 +33,7 @@ public class BoxFirstPrintConsumerTest {
         box.setCode("BC1001231019260000403101");
         box.setType("BC");
         box.setYn(1);
-        box.setMixBoxType(1);
+        box.setMixBoxType(0);
         box.setCreateSiteCode(910);
         box.setCreateSiteName("马驹桥");
         box.setReceiveSiteCode(40240);
