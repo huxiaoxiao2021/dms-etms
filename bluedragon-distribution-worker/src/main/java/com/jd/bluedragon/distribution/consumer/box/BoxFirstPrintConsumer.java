@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.consumer.box;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.collectpackage.enums.CollectionPackageTaskStatusEnum;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -16,6 +18,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
@@ -29,9 +32,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 
 
 /**
@@ -52,6 +60,9 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
     @Autowired
     @Qualifier("redisJySendBizIdSequenceGen")
     private JimdbSequenceGen redisJyBizIdSequenceGen;
+
+    @Autowired
+    private JimDbLock jimDbLock;
     
     @Autowired
     private BoxLimitConfigManager boxLimitConfigManager;
@@ -83,27 +94,51 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
 
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void saveTaskAndFlowInfo(Box box) {
-        // 查询当前箱号是否存在任务
-        JyBizTaskCollectPackageEntity oldBox = jyBizTaskCollectPackageService.findByBoxCode(box.getCode());
-        boolean insert = oldBox == null;
-        
-        // 保存箱号任务
-        JyBizTaskCollectPackageEntity task = convertToTask(box);
+        String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, box.getCode());
+        if (!jimDbLock.lock(boxLockKey, box.getCode(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+            throw new JyBizException("当前系统繁忙,请稍后再试！");
+        }
+        try {
+            // 查询当前箱号是否存在任务
+            JyBizTaskCollectPackageEntity oldBox = jyBizTaskCollectPackageService.findByBoxCode(box.getCode());
+            if (oldBox != null) {
+                log.info("已存在该箱号的集包任务：{}", box.getCode());
+                return;
+            }
 
-        log.info("新增或更新集包任务信息：{}", JsonHelper.toJson(task));
-        if (insert) {
-            task.setBizId(genTaskBizId());
+            // 保存箱号任务
+            JyBizTaskCollectPackageEntity task = convertToTask(box);
+            log.info("新增或更新集包任务信息：{}", JsonHelper.toJson(task));
             jyBizTaskCollectPackageService.save(task);
-        }else {
-            task.setBizId(oldBox.getBizId());
-            task.setId(oldBox.getId());
-            jyBizTaskCollectPackageService.updateById(task);
+
+            // 如果支持混装，保存当前流向集合
+            if (MixBoxTypeEnum.MIX_ENABLE.getCode().equals(task.getMixBoxType())) {
+                jyBizTaskCollectPackageFlowService.batchInsert(getMixBoxFlowList(task));
+            }else {
+                jyBizTaskCollectPackageFlowService.batchInsert(getBoxFlow(task));
+            }
+        } finally {
+            jimDbLock.releaseLock(boxLockKey, box.getCode());
         }
 
-        // 如果支持混装，保存当前流向集合
-        if (MixBoxTypeEnum.MIX_ENABLE.getCode().equals(task.getMixBoxType()) && insert) {
-            jyBizTaskCollectPackageFlowService.batchInsert(getMixBoxFlowList(task));
-        }
+    }
+
+    private List<JyBizTaskCollectPackageFlowEntity> getBoxFlow(JyBizTaskCollectPackageEntity task) {
+        JyBizTaskCollectPackageFlowEntity entity = new JyBizTaskCollectPackageFlowEntity();
+        entity.setBoxCode(task.getBoxCode());
+        entity.setCreateTime(task.getCreateTime());
+        entity.setCreateUserErp(task.getCreateUserErp());
+        entity.setStartSiteId(task.getStartSiteId());
+        entity.setStartSiteName(task.getStartSiteName());
+        entity.setCreateUserName(task.getCreateUserName());
+        entity.setCollectPackageBizId(task.getBizId());
+        entity.setEndSiteId(task.getEndSiteId());
+        entity.setEndSiteName(task.getEndSiteName());
+        entity.setUpdateTime(task.getUpdateTime());
+        entity.setUpdateUserErp(task.getUpdateUserErp());
+        entity.setUpdateUserName(task.getUpdateUserName());
+        entity.setYn(Boolean.TRUE);
+        return Collections.singletonList(entity);
     }
 
     /**
@@ -157,6 +192,7 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
         entity.setMixBoxType(box.getMixBoxType());
         entity.setTaskStatus(CollectionPackageTaskStatusEnum.TO_COLLECTION.getCode());
         entity.setYn(box.getYn() == 1);
+        entity.setBizId(genTaskBizId());
         if (box.getUpdateUserCode() != null) {
             BaseStaffSiteOrgDto updateUser = baseMajorManager.getBaseStaffInAllRoleByStaffNo(box.getUpdateUserCode());
             if (updateUser != null) {
