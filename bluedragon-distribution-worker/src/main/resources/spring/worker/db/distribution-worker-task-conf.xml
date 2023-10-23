@@ -58,6 +58,7 @@
                 <bean class="com.jd.bluedragon.distribution.worker.inspection.TraceHook"/>
                 <bean class="com.jd.bluedragon.distribution.worker.inspection.CycleMaterialHook" />
                 <bean class="com.jd.bluedragon.distribution.worker.inspection.PackageInspectionHook" />
+                <bean class="com.jd.bluedragon.distribution.worker.inspection.SendInspectionFlowMqHook" />
             </list>
         </constructor-arg>
     </bean>

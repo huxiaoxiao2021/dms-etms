@@ -162,6 +162,19 @@ public class UserSignRecordQuery extends BasePagerCondition {
 
 	private List<Integer> jobCodeList;
 
+	/**
+	 * 身份证号
+	 */
+	private String idCard;
+	
+	public String getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(String idCard) {
+		this.idCard = idCard;
+	}
+
 	public Integer getOrgCode() {
 		return orgCode;
 	}

@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.send.domain;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
@@ -222,7 +225,10 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
      * 目的场地-分拣中心三级类型
      */
     private Integer receiveSortThirdType;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
 
 	
     public String getSource() {
@@ -529,8 +535,12 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
 
     public static SendDetail toSendDatail(Sorting sorting) {
         SendDetail sendDetail = new SendDetail();
-        sendDetail.setOperatorTypeCode(sorting.getOperatorTypeCode());
-        sendDetail.setOperatorId(sorting.getOperatorId());
+        
+        OperatorData operatorData = BeanConverter.convertToOperatorData(sorting);
+        sendDetail.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        sendDetail.setOperatorId(operatorData.getOperatorId());
+        sendDetail.setOperatorData(operatorData);  
+        
         String aBoxCode = sorting.getBoxCode();
         String aPackageCode = sorting.getPackageCode();
 
@@ -809,4 +819,12 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
     public void setReceiveSortThirdType(Integer receiveSortThirdType) {
         this.receiveSortThirdType = receiveSortThirdType;
     }
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 }

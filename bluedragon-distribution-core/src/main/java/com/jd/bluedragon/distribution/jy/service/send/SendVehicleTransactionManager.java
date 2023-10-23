@@ -6,7 +6,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BasicSelectWsManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -21,8 +21,12 @@ import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
+import com.jd.bluedragon.distribution.jy.service.summary.JySealStatisticsSummaryService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.CollectionHelper;
@@ -31,7 +35,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
@@ -50,6 +53,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
@@ -91,10 +95,21 @@ public class SendVehicleTransactionManager {
     private BasicSelectWsManager basicSelectWsManager;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Value("${beans.sendVehicleTransactionManager.checkLineTypeDays:7}")
     private int checkLineTypeDays;
+
+    @Autowired
+    private JyBizTaskSendAviationPlanService jyBizTaskSendAviationPlanService;
+
+    @Resource
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
+
+    @Autowired
+    private JySealStatisticsSummaryService statisticsSummaryService;
+
+
 
     /**
      * 保存发货任务和发货流向
@@ -244,6 +259,47 @@ public class SendVehicleTransactionManager {
         return true;
     }
 
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.sealCarStatusUpdateAndSummary",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean sealCarStatusUpdateAndSummary(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity sendDetail, JyStatisticsSummaryEntity summaryEntity) {
+        if(sendVehicleTransactionManager.updateTaskStatus(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.SEALED)) {
+            if(!Objects.isNull(summaryEntity)) {
+                statisticsSummaryService.insertSelective(summaryEntity);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 更新发货任务状态--航空类型发货任务
+     * @param taskSend
+     * @param sendDetail
+     * @param updateStatus
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.updateAviationTaskStatus",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean updateAviationTaskStatus(JyBizTaskSendAviationPlanEntity aviationPlanEntity,
+                                            JyBizTaskSendVehicleEntity taskSend,
+                                            JyBizTaskSendVehicleDetailEntity sendDetail,
+                                            JyStatisticsSummaryEntity summaryEntity,
+                                            JyBizTaskSendDetailStatusEnum updateStatus) {
+        //
+        sendVehicleTransactionManager.updateTaskStatus(taskSend, sendDetail, updateStatus);
+        //
+        jyBizTaskSendAviationPlanService.updateStatus(aviationPlanEntity);
+        if(log.isInfoEnabled()){
+            log.info("航空任务封车完成，订舱号={}", aviationPlanEntity.getBookingCode());
+        }
+        if (JyBizTaskSendDetailStatusEnum.SEALED.equals(updateStatus)) {
+            //封车节点做数据汇总
+            statisticsSummaryService.insertSelective(summaryEntity);
+        }
+        return true;
+    }
+
 
     /**
      * 更新发货任务状态 （不比较原状态顺序方式）
@@ -376,6 +432,7 @@ public class SendVehicleTransactionManager {
         sendStatusQ.setUpdateTime(sendDetail.getUpdateTime());
         sendStatusQ.setUpdateUserName(sendDetail.getUpdateUserName());
         sendStatusQ.setUpdateUserErp(sendDetail.getUpdateUserErp());
+        sendStatusQ.setTaskType(sendDetail.getTaskType());
         // 封车时更新发货任务最晚封车时间
         if (JyBizTaskSendDetailStatusEnum.SEALED.equals(updateStatus)) {
             sendStatusQ.setLastSealCarTime(this.getLastSealCarTime(sendStatusQ));
@@ -385,6 +442,7 @@ public class SendVehicleTransactionManager {
 
     private Date getLastSealCarTime(JyBizTaskSendVehicleEntity taskSend) {
         JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(taskSend.getStartSiteId(), taskSend.getBizId());
+        detailQ.setTaskType(taskSend.getTaskType());
         List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);
         Date lastSealCarTime = vehicleDetailList.get(0).getSealCarTime();
         for (JyBizTaskSendVehicleDetailEntity detailEntity : vehicleDetailList) {
@@ -517,7 +575,7 @@ public class SendVehicleTransactionManager {
     public boolean needInterceptOfCz(Integer receiveSiteId,CurrentOperate currentOperate){
         Integer orgId =currentOperate.getOrgId();
         Integer siteId =currentOperate.getSiteCode();
-        if ((uccConfig.getCzOrgForbiddenList().contains(String.valueOf(orgId)) || uccConfig.getCzSiteForbiddenList().contains(String.valueOf(siteId)))
+        if ((dmsConfigManager.getPropertyConfig().getCzOrgForbiddenList().contains(String.valueOf(orgId)) || dmsConfigManager.getPropertyConfig().getCzSiteForbiddenList().contains(String.valueOf(siteId)))
             && checkIsCz(receiveSiteId)){
             return true;
         }
@@ -526,7 +584,7 @@ public class SendVehicleTransactionManager {
 
     private boolean checkIsCz(Integer receiveSiteId) {
         BaseStaffSiteOrgDto baseSiteInfoDto = baseService.getSiteBySiteID(Integer.valueOf(receiveSiteId));
-        if (ObjectHelper.isNotNull(baseSiteInfoDto) && uccConfig.getCzSiteTypeForbiddenList().contains(String.valueOf(baseSiteInfoDto.getSiteType()))){
+        if (ObjectHelper.isNotNull(baseSiteInfoDto) && dmsConfigManager.getPropertyConfig().getCzSiteTypeForbiddenList().contains(String.valueOf(baseSiteInfoDto.getSiteType()))){
             return true;
         }
         return false;
@@ -576,7 +634,7 @@ public class SendVehicleTransactionManager {
                         List<TransportResourceDto> transportResourceDtos = basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
                         if(transportResourceDtos!=null){
                             for(TransportResourceDto trd: transportResourceDtos){
-                                if(uccConfig.notValidateTransType(trd.getTransWay())){
+                                if(dmsConfigManager.getPropertyConfig().notValidateTransType(trd.getTransWay())){
                                     needIntercept = Boolean.FALSE;
                                     break;
                                 }
@@ -601,5 +659,42 @@ public class SendVehicleTransactionManager {
             log.error("needInterceptOfGZ:干支校验异常！{},{}",sendCode,menuCode, e);
         }
         return result;
+    }
+
+    /**
+     * 航空计划生成发货任务：保存发货任务、发货流向、航空发货计划
+     * @param aviationPlanEntity
+     * @param sendVehicleEntity
+     * @param sendVehicleDetailEntity
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.saveAviationPlanAndTaskSendAndDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean saveAviationPlanAndTaskSendAndDetail(JyBizTaskSendAviationPlanEntity aviationPlanEntity,
+                                                     JyBizTaskSendVehicleEntity sendVehicleEntity,
+                                                     JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity) {
+        if (!Objects.isNull(sendVehicleEntity)) {
+
+            logInfo("初始化派车单.{}", JsonHelper.toJson(sendVehicleEntity));
+
+            taskSendVehicleService.initAviationTaskSendVehicle(sendVehicleEntity);
+
+            // 创建发货调度任务
+            createSendScheduleTask(sendVehicleEntity);
+        }
+        if (!Objects.isNull(sendVehicleDetailEntity)) {
+
+            logInfo("初始化派车单明细.{}", JsonHelper.toJson(sendVehicleDetailEntity));
+
+            if (taskSendVehicleDetailService.saveAviationTaskSendDetail(sendVehicleDetailEntity) > 0) {
+                // 首次创建发货流向时，同时生成批次
+                saveSendCode(sendVehicleDetailEntity);
+            }
+        }
+        //航空计划
+        if(!Objects.isNull(aviationPlanEntity)) {
+            jyBizTaskSendAviationPlanService.initTaskSendVehicle(aviationPlanEntity);
+        }
+        return true;
     }
 }

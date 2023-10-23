@@ -54,10 +54,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT;
@@ -180,19 +177,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 return interceptResult;
             }
             BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getWaybillDataForPrint(waybillCode);
-            if (null == baseEntity){
-                interceptResult.toError(InterceptResult.CODE_ERROR, "运单数据为空！");
-                return interceptResult;
-            }
-            if (baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
-                interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
-                return interceptResult;
-            }
-            //运单数据为空，直接返回运单数据为空异常
-            if(null == baseEntity.getData() || null == baseEntity.getData().getWaybill()){
-                interceptResult.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(),
-                        WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
-                log.warn("调用运单接口获取运单数据为空，waybillCode：{}", waybillCode);
+            // 运单信息校验
+            if(!baseWaybillInfoCheck(baseEntity, context)){
                 return interceptResult;
             }
             //获取运单数据正常，设置打印基础信息
@@ -268,6 +254,33 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 log.error("loadGoodsInfo加载商品信息失败! 入参：{}", JsonHelper.toJson(context), e);
             }
         }
+    }
+
+    private boolean baseWaybillInfoCheck(BaseEntity<BigWaybillDto> baseEntity, WaybillPrintContext context) {
+        InterceptResult<String> result = context.getResult();
+        if (null == baseEntity || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
+            result.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
+            return false;
+        }
+        if(CollectionUtils.isEmpty(baseEntity.getData().getPackageList())){
+            result.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
+            return false;
+        }
+        String packageBarCode = context.getRequest().getPackageBarCode();
+        if(WaybillUtil.isPackageCode(packageBarCode)){
+            boolean packageCodeIsExist = false;
+            for (DeliveryPackageD packageD : baseEntity.getData().getPackageList()) {
+                if(Objects.equals(packageD.getPackageBarcode(), packageBarCode)){
+                    packageCodeIsExist = true;
+                    break;
+                }
+            }
+            if(!packageCodeIsExist){
+                result.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

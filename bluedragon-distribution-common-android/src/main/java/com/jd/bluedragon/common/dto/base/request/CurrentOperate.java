@@ -63,7 +63,11 @@ public class CurrentOperate implements Serializable {
      * 枢纽名称
      */
     private String areaHubName;
-
+    /**
+     * 操作信息对象
+     */
+	private OperatorData operatorData;
+	
     public CurrentOperate() {
     }
 
@@ -168,4 +172,12 @@ public class CurrentOperate implements Serializable {
     public void setAreaHubName(String areaHubName) {
         this.areaHubName = areaHubName;
     }
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
 }

@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
-import IceInternal.Ex;
 import cn.jdl.oms.express.model.ModifyExpressOrderRequest;
 import com.google.common.collect.Lists;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
@@ -14,7 +13,7 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
 import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -226,7 +225,7 @@ public class WaybillResource {
     private OmsManager omsManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private ColdChainReverseManager coldChainReverseManager;
@@ -1834,6 +1833,9 @@ public class WaybillResource {
 				waybillReverseResult = coldChainReverseManager.createReverseWbOrder(coldChainReverseRequest,errorMessage);
 			}else {
 				log.info("换单方法createReturnsWaybillNew走原有流程,运单号{}",waybillCode);
+				// fill request
+				request.setReverseReasonCode(queryReverseReasonCode(request.getWaybillCode()));
+				// build waybillReverseDTO
 				DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
 				waybillReverseResult = waybillReverseManager.waybillReverse(waybillReverseDTO,errorMessage);
 			}
@@ -1854,6 +1856,26 @@ public class WaybillResource {
 			invokeResult.setMessage("系统异常");
 		}
         return invokeResult;
+	}
+
+	private Integer queryReverseReasonCode(String waybillCode) {
+		// 外单逆向换单
+		// 1、港澳单-默认设置1（拦截逆向）；全程跟踪节点是-3040|700节点则设置3（清关逆向）
+		// 2、快运单子-默认设置1
+		// 3、其它-默认不设置
+		com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+		if(waybill != null && waybill.getWaybillExt() != null
+				&& BusinessUtil.isGAWaybill(waybill.getWaybillExt().getStartFlowDirection(), waybill.getWaybillExt().getEndFlowDirection())){
+			if(waybillTraceManager.isExReturn(waybillCode)){
+				// fill reverseReasonCode
+				return Constants.INTERCEPT_REVERSE_CODE_3;
+			}
+			return Constants.INTERCEPT_REVERSE_CODE_1;
+		}
+		if(waybill != null && BusinessUtil.isKyWaybillOfReverseExchange(waybill.getWaybillSign())){
+			return Constants.INTERCEPT_REVERSE_CODE_1;
+		}
+		return null;
 	}
 
 
@@ -1883,6 +1905,9 @@ public class WaybillResource {
 		}
 		
 		try {
+			// fill request
+			request.setReverseReasonCode(queryReverseReasonCode(request.getWaybillCode()));
+			// build waybillReverseDTO
 			DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
 			DmsWaybillReverseResponseDTO waybillReverseResponseDTO = waybillReverseManager.queryReverseWaybill(waybillReverseDTO,errorMessage);
@@ -2557,7 +2582,7 @@ public class WaybillResource {
 
         InvokeResult<String> invokeResult;
         String omcOrderCode = waybillService.baiChuanEnableSwitch(waybill);
-        if (uccPropertyConfiguration.isCancelJimaoxinSwitchToOMS() && StringUtils.isNotBlank(omcOrderCode)) {
+        if (dmsConfigManager.getPropertyConfig().isCancelJimaoxinSwitchToOMS() && StringUtils.isNotBlank(omcOrderCode)) {
 
             ModifyExpressOrderRequest cancelRequest = omsManager.makeCancelLetterRequest(request, omcOrderCode);
             invokeResult = omsManager.cancelFeatherLetterByWaybillCode(request.getWaybillCode(), cancelRequest);

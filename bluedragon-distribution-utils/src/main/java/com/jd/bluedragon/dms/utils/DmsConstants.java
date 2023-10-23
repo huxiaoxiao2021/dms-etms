@@ -371,6 +371,8 @@ public class DmsConstants {
      * 消息类型
      */
     public static final String MESSAGE_TYPE_BAOFEI = "TYPE_BAOFEI";
+    public static final String MESSAGE_TYPE_DMS = "BLOCKER_QUEUE_DMS";
+    public static final String MESSAGE_TYPE_REVERSE_PRINT = "TYPE_HUANDANDAYIN";
     public static final String ORDER_TYPE_REVERSE = "20";
 
     /**
@@ -441,6 +443,18 @@ public class DmsConstants {
      */
     public static final String SYS_AUTO_USER_CODE = "system";    
     /**
+     * 用户编码-超时自动签退
+     */
+    public static final String USER_CODE_AUTO_SIGN_OUT_TIME_OUT = "sys.dms";
+    /**
+     * 用户编码-接收attend_detail_change_topic消息，自动签退标识
+     */
+    public static final String USER_CODE_AUTO_SIGN_OUT_FORM_RZ = "sys_attend_topic";
+    /**
+     * 用户名称-人脸识别
+     */
+    public static final String USER_NAME_AUTO_SIGN_OUT_FORM_RZ = "人脸识别";
+    /**
      * 暂存类型枚举值
      */
     public enum PreSellTypeEnum {
@@ -495,4 +509,11 @@ public class DmsConstants {
 
     public static final Integer NUMBER_ZERO = 0; //数字0
     public static final Integer NUMBER_HUNDRED = 100; //数字100
+    /**
+     * 香港澳门区域国标
+     */
+    public static final List<String> HK_MO_REGION = new ArrayList<String>(){{
+        add("HK");
+        add("MO");
+    }};
 }

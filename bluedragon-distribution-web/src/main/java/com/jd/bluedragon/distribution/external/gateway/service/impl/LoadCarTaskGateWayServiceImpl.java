@@ -11,7 +11,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.BasicDictDataD
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadCarInfoDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
@@ -67,7 +67,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     private LoadScanService loadScanService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
@@ -417,7 +417,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jdCResponse.toFail("操作站点编号不能为空");
             return jdCResponse;
         }
-        String sites = uccPropertyConfiguration.getDeliverHideSites();
+        String sites = dmsConfigManager.getPropertyConfig().getDeliverHideSites();
         log.info("发货菜单隐藏配置信息={}", sites);
         if (StringUtils.isBlank(sites)) {
             jdCResponse.toSucceed();

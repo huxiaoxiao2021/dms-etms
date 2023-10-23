@@ -406,7 +406,7 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private Integer labelFileType;
 	/**
-	 * 标签文件Url（下载地址）
+	 * 标签文件Url（下载路径）
 	 */
 	private String labelFileUrl;
     /**订单号*/
@@ -511,6 +511,11 @@ public class BasePrintWaybill implements Serializable {
 	 * 真实验证码（取件码）
 	 */
 	private String verificationCodeWithTitle;
+	
+	/**
+	 * 标签文件url（下载地址）
+	 */
+	private String labelFileDownloadUrl;	
 	
 	public String getServiceCode() {
 		return serviceCode;
@@ -1798,5 +1803,11 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setVerificationCodeWithTitle(String verificationCodeWithTitle) {
 		this.verificationCodeWithTitle = verificationCodeWithTitle;
+	}
+	public String getLabelFileDownloadUrl() {
+		return labelFileDownloadUrl;
+	}
+	public void setLabelFileDownloadUrl(String labelFileDownloadUrl) {
+		this.labelFileDownloadUrl = labelFileDownloadUrl;
 	}
 }

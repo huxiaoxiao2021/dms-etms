@@ -3,7 +3,8 @@ package com.jd.bluedragon.distribution.asynbuffer.service;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
@@ -41,6 +42,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.RandomUtils;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
 import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
@@ -115,9 +117,12 @@ public class AsynBufferServiceImpl implements AsynBufferService {
                     }
                 }
                 //添加自动化设备信息
-                if(request.getOperatorTypeCode() == null && StringUtils.isNotBlank(request.getMachineCode())){
-                    request.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-                    request.setOperatorId(request.getMachineCode());
+                if(request.getOperatorTypeCode() == null 
+                		&& StringUtils.isNotBlank(request.getMachineCode())){
+                    OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(request);
+                    request.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+                    request.setOperatorId(operatorData.getOperatorId());
+                    request.setOperatorData(operatorData); 
                 }
                 inspectionTaskExeStrategy.decideExecutor(request).process(request);
             }
@@ -183,7 +188,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     private IDeliveryOperationService deliveryOperationService;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     /**
      * 发货异步任务
@@ -197,7 +202,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         }
         try {
             // 延时消费
-            int sleepMills = uccConfig.getDeliverySendTaskSleepMills() <= 0 ? 1000 : uccConfig.getDeliverySendTaskSleepMills();
+            int sleepMills = dmsConfigManager.getPropertyConfig().getDeliverySendTaskSleepMills() <= 0 ? 1000 : dmsConfigManager.getPropertyConfig().getDeliverySendTaskSleepMills();
             Thread.sleep(new Random().nextInt(sleepMills));
 
             String umpKey = "DmsWorker.Task.deliverySendProcess.execute";

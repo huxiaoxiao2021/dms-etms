@@ -56,12 +56,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
 import com.jd.eclp.bbp.notice.enums.ChannelEnum;
@@ -254,6 +249,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     private SysConfigService sysConfigService;
 
+    @Qualifier("bdBlockerCompleteMQ")
+    @Autowired
+    private DefaultJMQProducer bdBlockerCompleteMQ;
+
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -293,19 +292,35 @@ public class ReversePrintServiceImpl implements ReversePrintService {
          * 原外单添加换单全程跟踪
          * 只有在此单第一次打印的时候才记录 update by liuduo 2018-08-02
          */
-        boolean sendOldWaybillTrace = true;
+        boolean sendOldWaybillOnlyOneFlag = true;
         try{
             //三天校验
             Boolean isSucdess = cacheService.setNx(EXCHANGE_PRINT_BEGIN_KEY+domain.getNewCode(), "1", 3, TimeUnit.DAYS);
             if(!isSucdess){
                 //说明非第一次
-                sendOldWaybillTrace = false;
+                sendOldWaybillOnlyOneFlag = false;
             }
         }catch(Exception e){
             this.log.error("判断原单需要换单全程跟踪异常:{}", JsonHelper.toJson(domain), e);
         }
-        if(sendOldWaybillTrace){
+        if(sendOldWaybillOnlyOneFlag){
+            //原运单的全程跟踪
             taskService.add(tTask, true);
+
+            // 发送拦截报表  与方刚沟通只需要发送原运单维度的消息即可，所以调整到这里，减少频繁发送的问题
+            this.sendDisposeAfterInterceptMsg(domain);
+
+            //发送换单打印消息 三无使用 ，与亚国沟通也放在这里  减少频繁发送的问题
+            ChangeOrderPrintMq changeOrderPrintMq = convert2PushPrintRecordDto(domain);
+            try {
+                log.info("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据{}",JsonHelper.toJson(changeOrderPrintMq));
+                changeWaybillPrintProducer.send(domain.getOldCode(),JsonHelper.toJson(changeOrderPrintMq));
+            } catch (JMQException e) {
+                log.error("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据失败{}",JsonHelper.toJson(domain),e);
+            }
+
+            //全量接单也是此逻辑 减少频繁发送的问题
+            waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(domain));
         }
 
         tTask.setKeyword1(domain.getNewCode());
@@ -326,6 +341,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         //pushMqService.pubshMq(REVERSE_PRINT_MQ_TOPIC, createMqBody(domain.getOldCode()), domain.getOldCode());
         //  这里将要下掉  modified by zhanglei 20161025
 //        bdBlockerCompleteMQ.sendOnFailPersistent(domain.getOldCode(),createMqBody(domain.getOldCode()));
+        
+        // 推送拦截系统
+        pushMq2Block(domain);
+        
         /**
          * 逆向换单打印发送换单mq added by zhanglei 20161123
          */
@@ -351,20 +370,46 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         //换单打印判断是否发起分拣中心退货任务
         qualityControlService.generateSortingReturnTask(domain.getSiteCode(), domain.getOldCode(), domain.getNewPackageCode(), new Date(domain.getOperateUnixTime()));
 
-        // 发送拦截报表
-        this.sendDisposeAfterInterceptMsg(domain);
-        waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(domain));
 
-        //发送换单打印消息
-        ChangeOrderPrintMq changeOrderPrintMq = convert2PushPrintRecordDto(domain);
-        try {
-            log.info("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据{}",JsonHelper.toJson(changeOrderPrintMq));
-            changeWaybillPrintProducer.send(domain.getOldCode(),JsonHelper.toJson(changeOrderPrintMq));
-        } catch (JMQException e) {
-            log.error("ReversePrintServiceImpl.handlePrint-->发送换单打印消息数据失败{}",JsonHelper.toJson(domain),e);
-        }
+
+
 
         return true;
+    }
+
+    private void pushMq2Block(ReversePrintRequest request) {
+        // 换单打印-满足以下情况则推送快速退款拦截消息
+        // 1、分拣、接货仓场地操作
+        // 2、自营生鲜
+        // 3、正向单预分拣站点是自营营业部
+        // 4、生成的JDT新单号的预分拣站点类型为仓或备件库
+        int operateSiteCode = request.getSiteCode();
+        Site operateSite = siteService.getOwnSite(operateSiteCode);
+        if(!SiteHelper.isSortingCenter(operateSite) && !SiteHelper.isReceiveWms(operateSite)){
+            return;
+        }
+        String oldWaybillCode = request.getOldCode();
+        com.jd.etms.waybill.domain.Waybill oldWaybill = waybillService.getWaybillByWayCode(oldWaybillCode);
+        if(oldWaybill == null || !BusinessUtil.isSelfFresh(oldWaybill.getSendPay())){
+            return;
+        }
+        Site oldSite = siteService.getOwnSite(oldWaybill.getOldSiteId());
+        if(!SiteHelper.isSelfSalesDeptSite(oldSite)){
+            return;
+        }
+        com.jd.etms.waybill.domain.Waybill newWaybill = waybillService.getWaybillByWayCode(request.getNewCode());
+        if(newWaybill == null){
+            return;
+        }
+        Site newOldSite = siteService.getOwnSite(newWaybill.getOldSiteId());
+        if(!SiteHelper.isSpsHouse(newOldSite) && !SiteHelper.isStoreHouse(newOldSite)){
+            return;
+        }
+        if(log.isInfoEnabled()){
+            log.info("老单号:{}操作换单打印推送快速退款拦截消息!", oldWaybillCode);
+        }
+        bdBlockerCompleteMQ.sendOnFailPersistent(oldWaybillCode,
+                BusinessUtil.bdBlockerCompleteMQ(oldWaybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_REVERSE_PRINT, DateHelper.formatDateTimeMs(new Date())));
     }
 
     /**
@@ -853,7 +898,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
         //2.判断运单是否为弃件，如果是弃件禁止换单
-        if (waybillTraceManager.isWaybillWaste(wayBillCode)){
+        if (waybillTraceManager.isOpCodeWaste(wayBillCode)){
             result.setData(false);
             result.setMessage("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
             return result;
@@ -949,7 +994,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
         //2.判断运单是否为弃件，如果是弃件禁止换单
-        if (waybillTraceManager.isWaybillWaste(wayBillCode)){
+        if (waybillTraceManager.isOpCodeWaste(wayBillCode)){
             result.setData(false);
             result.setMessage("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
             return result;

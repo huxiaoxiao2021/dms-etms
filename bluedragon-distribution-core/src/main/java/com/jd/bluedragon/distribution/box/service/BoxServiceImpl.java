@@ -4,7 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
@@ -115,7 +116,7 @@ public class BoxServiceImpl implements BoxService {
 	private DefaultJMQProducer changeBoxStatusLogProducer;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	DmsConfigManager dmsConfigManager;
     @Autowired
     private CrossBoxService crossBoxService;
 
@@ -566,7 +567,7 @@ public class BoxServiceImpl implements BoxService {
 		Boolean result = false;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoxServiceImpl.checkBoxIsSent",Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
-			if (uccPropertyConfiguration.getCheckBoxSendedSwitchOn()){
+			if (dmsConfigManager.getPropertyConfig().getCheckBoxSendedSwitchOn()){
 				result = oldCheckBoxIsSent(boxCode,operateSiteCode);
 			}else{
 				result = newCheckBoxIsSent(boxCode);

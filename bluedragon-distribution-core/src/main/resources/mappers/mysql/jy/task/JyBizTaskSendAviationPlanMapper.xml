@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendAviationPlanDao" >
+    <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
+        <result column="booking_code" property="bookingCode" jdbcType="VARCHAR" />
+        <result column="start_site_id" property="startSiteId" jdbcType="BIGINT" />
+        <result column="start_site_code" property="startSiteCode" jdbcType="VARCHAR" />
+        <result column="start_site_name" property="startSiteName" jdbcType="VARCHAR" />
+        <result column="flight_number" property="flightNumber" jdbcType="VARCHAR" />
+        <result column="take_off_time" property="takeOffTime" jdbcType="TIMESTAMP" />
+        <result column="touch_down_time" property="touchDownTime" jdbcType="TIMESTAMP" />
+        <result column="air_company_code" property="airCompanyCode" jdbcType="VARCHAR" />
+        <result column="air_company_name" property="airCompanyName" jdbcType="VARCHAR" />
+        <result column="begin_node_code" property="beginNodeCode" jdbcType="VARCHAR" />
+        <result column="begin_node_name" property="beginNodeName" jdbcType="VARCHAR" />
+        <result column="end_node_code" property="endNodeCode" jdbcType="VARCHAR" />
+        <result column="end_node_name" property="endNodeName" jdbcType="VARCHAR" />
+        <result column="carrier_code" property="carrierCode" jdbcType="VARCHAR" />
+        <result column="carrier_name" property="carrierName" jdbcType="VARCHAR" />
+        <result column="booking_weight" property="bookingWeight" jdbcType="DOUBLE" />
+        <result column="cargo_type" property="cargoType" jdbcType="INTEGER" />
+        <result column="air_type" property="airType" jdbcType="INTEGER" />
+        <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+        <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+        <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+        <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="yn" property="yn" jdbcType="INTEGER" />
+        <result column="next_site_id" property="nextSiteId" jdbcType="BIGINT" />
+        <result column="next_site_code" property="nextSiteCode" jdbcType="VARCHAR" />
+        <result column="next_site_name" property="nextSiteName" jdbcType="VARCHAR" />
+        <result column="task_status" property="taskStatus" jdbcType="INTEGER" />
+        <result column="intercept" property="intercept" jdbcType="INTEGER" />
+        <result column="intercept_time" property="interceptTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+
+    <resultMap id="statusStatisticsRes" type="com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationStatusStatistics" >
+        <result column="task_status" property="taskStatus" jdbcType="VARCHAR" />
+        <result column="total" property="total" jdbcType="INTEGER" />
+    </resultMap>
+
+    <resultMap id="airTypeStatisticsRes" type="com.jd.bluedragon.distribution.jy.task.JyBizTaskAviationAirTypeStatistics" >
+        <result column="air_type" property="airType" jdbcType="VARCHAR" />
+        <result column="total" property="total" jdbcType="INTEGER" />
+    </resultMap>
+
+    <resultMap id="nextSiteStatistics" type="com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto" >
+        <result column="next_site_id" property="nextSiteId" jdbcType="BIGINT" />
+        <result column="next_site_name" property="nextSiteName" jdbcType="VARCHAR" />
+        <result column="total" property="totalNum" jdbcType="INTEGER" />
+    </resultMap>
+
+
+
+    <sql id="Base_Column_List" >
+        id, biz_id, booking_code, start_site_id, start_site_code, start_site_name, flight_number,
+        take_off_time, touch_down_time, air_company_code, air_company_name, begin_node_code,
+        begin_node_name, end_node_code, end_node_name, carrier_code, carrier_name, booking_weight,
+        cargo_type, air_type, create_user_erp, create_user_name, update_user_erp,
+        update_user_name, create_time, update_time, yn, next_site_id, next_site_code,
+        next_site_name,task_status,intercept,intercept_time
+    </sql>
+
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity" >
+        insert into jy_biz_task_send_aviation_plan
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="bizId != null" >
+                biz_id,
+            </if>
+            <if test="bookingCode != null" >
+                booking_code,
+            </if>
+            <if test="startSiteId != null" >
+                start_site_id,
+            </if>
+            <if test="startSiteCode != null" >
+                start_site_code,
+            </if>
+            <if test="startSiteName != null" >
+                start_site_name,
+            </if>
+            <if test="flightNumber != null" >
+                flight_number,
+            </if>
+            <if test="takeOffTime != null" >
+                take_off_time,
+            </if>
+            <if test="touchDownTime != null" >
+                touch_down_time,
+            </if>
+            <if test="airCompanyCode != null" >
+                air_company_code,
+            </if>
+            <if test="airCompanyName != null" >
+                air_company_name,
+            </if>
+            <if test="beginNodeCode != null" >
+                begin_node_code,
+            </if>
+            <if test="beginNodeName != null" >
+                begin_node_name,
+            </if>
+            <if test="endNodeCode != null" >
+                end_node_code,
+            </if>
+            <if test="endNodeName != null" >
+                end_node_name,
+            </if>
+            <if test="carrierCode != null" >
+                carrier_code,
+            </if>
+            <if test="carrierName != null" >
+                carrier_name,
+            </if>
+            <if test="bookingWeight != null" >
+                booking_weight,
+            </if>
+            <if test="cargoType != null" >
+                cargo_type,
+            </if>
+            <if test="airType != null" >
+                air_type,
+            </if>
+            <if test="createUserErp != null" >
+                create_user_erp,
+            </if>
+            <if test="createUserName != null" >
+                create_user_name,
+            </if>
+            <if test="updateUserErp != null" >
+                update_user_erp,
+            </if>
+            <if test="updateUserName != null" >
+                update_user_name,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+            <if test="updateTime != null" >
+                update_time,
+            </if>
+            <if test="nextSiteId != null" >
+                next_site_id,
+            </if>
+            <if test="nextSiteCode != null" >
+                next_site_code,
+            </if>
+            <if test="nextSiteName != null" >
+                next_site_name,
+            </if>
+            <if test="taskStatus != null" >
+                task_status,
+            </if>
+            yn
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="bizId != null" >
+                #{bizId,jdbcType=VARCHAR},
+            </if>
+            <if test="bookingCode != null" >
+                #{bookingCode,jdbcType=VARCHAR},
+            </if>
+            <if test="startSiteId != null" >
+                #{startSiteId,jdbcType=BIGINT},
+            </if>
+            <if test="startSiteCode != null" >
+                #{startSiteCode,jdbcType=VARCHAR},
+            </if>
+            <if test="startSiteName != null" >
+                #{startSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="flightNumber != null" >
+                #{flightNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="takeOffTime != null" >
+                #{takeOffTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="touchDownTime != null" >
+                #{touchDownTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="airCompanyCode != null" >
+                #{airCompanyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="airCompanyName != null" >
+                #{airCompanyName,jdbcType=VARCHAR},
+            </if>
+            <if test="beginNodeCode != null" >
+                #{beginNodeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="beginNodeName != null" >
+                #{beginNodeName,jdbcType=VARCHAR},
+            </if>
+            <if test="endNodeCode != null" >
+                #{endNodeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="endNodeName != null" >
+                #{endNodeName,jdbcType=VARCHAR},
+            </if>
+            <if test="carrierCode != null" >
+                #{carrierCode,jdbcType=VARCHAR},
+            </if>
+            <if test="carrierName != null" >
+                #{carrierName,jdbcType=VARCHAR},
+            </if>
+            <if test="bookingWeight != null" >
+                #{bookingWeight,jdbcType=DOUBLE},
+            </if>
+            <if test="cargoType != null" >
+                #{cargoType,jdbcType=INTEGER},
+            </if>
+            <if test="airType != null" >
+                #{airType,jdbcType=INTEGER},
+            </if>
+            <if test="createUserErp != null" >
+                #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName != null" >
+                #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null" >
+                #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null" >
+                #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="nextSiteId != null" >
+                #{nextSiteId,jdbcType=BIGINT},
+            </if>
+            <if test="nextSiteCode != null" >
+                #{nextSiteCode,jdbcType=VARCHAR},
+            </if>
+            <if test="nextSiteName != null" >
+                #{nextSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="taskStatus != null" >
+                #{taskStatus},
+            </if>
+            1
+        </trim>
+    </insert>
+    <update id="updateByBizId" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity" >
+        update jy_biz_task_send_aviation_plan
+        set
+            update_user_erp = #{updateUserErp},
+            <if test="updateUserName != null" >
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="bookingWeight != null" >
+                booking_weight = #{bookingWeight},
+            </if>
+            <if test="intercept != null" >
+                intercept = #{intercept},
+            </if>
+            <if test="interceptTime != null" >
+                intercept_time = #{interceptTime},
+            </if>
+            update_time = #{updateTime}
+        where yn = 1 and biz_id = #{bizId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE
+            jy_biz_task_send_aviation_plan
+        set
+            task_status = #{taskStatus},
+            update_time = #{updateTime},
+            update_user_erp = #{updateUserErp},
+            update_user_name = #{updateUserName}
+        WHERE
+            yn = 1
+            AND biz_id = #{bizId}
+    </update>
+
+    <select id="findByBizId" parameterType="java.lang.String"  resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM jy_biz_task_send_aviation_plan
+        WHERE yn = 1 and biz_id = #{bizId,jdbcType=VARCHAR}
+        limit 1
+    </select>
+
+    <select id="findByBizIdList" parameterType="java.util.List"  resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM jy_biz_task_send_aviation_plan
+        WHERE yn = 1 and biz_id in
+            <foreach item="item" index="index" collection="list" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        limit 1000
+    </select>
+
+    <sql id="list_query_condition" >
+        and create_time &gt;= #{createTimeStart}
+        <if test="airType != null" >
+            and air_type = #{airType}
+        </if>
+        <if test="beginNodeCode != null" >
+            and begin_node_code = #{beginNodeCode}
+        </if>
+        <if test="flightNumber != null" >
+            and flight_number = #{flightNumber}
+        </if>
+        <if test="nextSiteId != null" >
+            and next_site_id = #{nextSiteId}
+        </if>
+        <if test="takeOffTimeStart != null" >
+            and take_off_time &gt;= #{takeOffTimeStart}
+        </if>
+        <if test="bizId != null" >
+            and biz_id = #{bizId}
+        </if>
+    </sql>
+
+    <select id="statusStatistics" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="statusStatisticsRes">
+        SELECT
+          task_status, count(*) total
+        FROM
+          jy_biz_task_send_aviation_plan
+        WHERE yn = 1
+          and start_site_id = #{startSiteId}
+          and task_status in
+            <foreach item="item" index="index" collection="taskStatusList" open="("
+                 separator="," close=")">
+                #{item}
+            </foreach>
+          <include refid="list_query_condition" />
+        group by
+          task_status
+    </select>
+
+    <select id="queryNextSitesByStartSite" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="nextSiteStatistics">
+        SELECT
+            next_site_id,next_site_name, count(*) total
+        FROM
+          jy_biz_task_send_aviation_plan
+        WHERE
+          yn = 1
+          and start_site_id = #{startSiteId}
+          and task_status = #{taskStatus}
+          <include refid="list_query_condition" />
+        group by
+            next_site_id
+        limit #{pageSize}
+    </select>
+
+    <select id="pageFetchAviationTaskByNextSite" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM
+            jy_biz_task_send_aviation_plan
+        WHERE
+            yn = 1
+            and start_site_id = #{startSiteId}
+            and next_site_id = #{nextSiteId}
+            and task_status = #{taskStatus}
+            <include refid="list_query_condition" />
+        order by take_off_time
+        limit #{offset},#{pageSize}
+    </select>
+
+    <select id="airTypeStatistics" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="airTypeStatisticsRes">
+        SELECT
+            air_type, count(*) total
+        FROM
+            jy_biz_task_send_aviation_plan
+        WHERE
+            yn = 1
+            and start_site_id = #{startSiteId}
+            and task_status = #{taskStatus}
+            and create_time &gt;= #{createTimeStart}
+            <if test="takeOffTimeStart != null" >
+                and take_off_time &gt;= #{takeOffTimeStart}
+            </if>
+        group by
+            air_type
+    </select>
+
+    <select id="pageFindAirportInfoByCurrentSite" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="BaseResultMap">
+        SELECT
+            begin_node_code, begin_node_name
+        FROM
+            jy_biz_task_send_aviation_plan
+        WHERE
+            yn = 1
+            and start_site_id = #{startSiteId}
+            and task_status = #{taskStatus}
+            and create_time &gt;= #{createTimeStart}
+        group by begin_node_code
+        limit #{pageSize}
+    </select>
+
+    <select id="pageQueryAviationPlanByCondition" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM
+            jy_biz_task_send_aviation_plan
+        WHERE
+            yn = 1
+            and start_site_id = #{startSiteId}
+            and task_status = #{taskStatus}
+            <include refid="list_query_condition" />
+        order by
+            take_off_time
+        limit #{offset},#{pageSize}
+    </select>
+
+    <select id="findNoSealTaskByBizIds" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_biz_task_send_aviation_plan
+        where
+            yn = 1
+            and task_status != #{taskStatus}
+            and biz_id in
+                <foreach collection="bizIdList" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+    </select>
+
+    <select id="pageQueryRecommendTaskByNextSiteId" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        jy_biz_task_send_aviation_plan
+        where
+        yn = 1
+        and start_site_id = #{startSiteId}
+        and next_site_id = #{startSiteId}
+        and (task_status = 0 and take_off_time &gt;= #{takeOffTimeStart}) or (task_status = 1)
+        and create_time &gt;= #{createTimeStart}
+        order by
+        take_off_time
+        limit #{offset},#{pageSize}
+    </select>
+</mapper>
+

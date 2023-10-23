@@ -2,30 +2,39 @@ package com.jd.bluedragon.distribution.station.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.JobCodeHoursDto;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.domain.SysConfigJobCodeHoursContent;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
-import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
+import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
@@ -37,6 +46,7 @@ import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -46,12 +56,14 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.workStation.*;
 
 import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
+import com.jdl.basic.common.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -64,6 +76,7 @@ import org.springframework.stereotype.Service;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 人员签到表--Service接口实现
@@ -116,22 +129,30 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private BaseMajorManager baseMajorManager;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
+
+	@Autowired
+	private SysConfigService sysConfigService;
 	/**
 	 * 签到作废-小时数限制
 	 */
 	@Value("${beans.userSignRecordService.deleteCheckHours:4}")
 	private double deleteCheckHours;
+	@Autowired
+	private AttendanceBlackListManager attendanceBlackListManager;
+	/**
+	 * 人资-自动签退（偏差当前时间：秒）
+	 */
+	@Value("${beans.userSignRecordService.autoSignOutByMqSenconds:30}")
+	private int autoSignOutByMqOffSenconds;
 
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";
 	private static final String MSG_FORMAT_HAS_NO_PERMISSION_1 = "您不可以操作，请联系签到操作人%s操作!";
 	private static final String MSG_FORMAT_HAS_NO_PERMISSION_2 = "您不可以操作，请联系签到操作人%s、网格负责人%s操作！";
-
-    @Autowired
-    private UccPropertyConfiguration uccConfiguration;
-
+	private static final String MSG_FORMAT_AUTO_SIGN_OUT_TITLE = "自动签退通知";
+	private static final String MSG_FORMAT_AUTO_SIGN_OUT_CONTENT = "您好，系统识别当前您已通过人资人脸识别下班打卡，将自动签退您在%s的工作，有疑问可联系网格组长%s";
 	@Autowired
 	private WorkStationManager workStationManager;
 	@Autowired
@@ -154,6 +175,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			insertData.setAreaHubCode(baseSite == null ? null : baseSite.getAreaCode());
 			insertData.setAreaHubName(baseSite == null ? null : baseSite.getAreaName());	
 		}
+		insertData.setIdCard(BusinessUtil.encryptIdCardDoubleStar(insertData.getUserCode()));
 		result.setData(userSignRecordDao.insert(insertData) == 1);
 		return result;
 	 }
@@ -473,30 +495,61 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     @JProfiler(jKey = "DMS.WEB.UserSignRecordService.autoHandleSignInRecord", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
     public Result<Integer> autoHandleSignInRecord() {
         Result<Integer> result = Result.success();
-        int notSignedOutRecordMoreThanHours = uccConfiguration.getNotSignedOutRecordMoreThanHours();
-        if (notSignedOutRecordMoreThanHours < 0) {
-            return result;
-        }
-        int notSignedOutRecordRangeHours = uccConfiguration.getNotSignedOutRecordRangeHours();
-        //扫描范围不能小于1小时
-        if(notSignedOutRecordRangeHours < 1) {
-        	notSignedOutRecordRangeHours = 1;
-        }
-        Date signInTimeEnd = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -notSignedOutRecordMoreThanHours);
-        Date signInTimeStart = DateHelper.add(signInTimeEnd,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
+		SysConfigJobCodeHoursContent content = sysConfigService.getSysConfigJobCodeHoursContent(Constants.SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS);
+		if(content == null){
+			return result;
+		}
+		Integer defaultHours=content.getDefaultHours();
+		Integer notSignedOutRecordRangeHours = dmsConfigManager.getPropertyConfig().getNotSignedOutRecordRangeHours();
+		//扫描范围不能小于1小时
+		if(notSignedOutRecordRangeHours < 1) {
+			notSignedOutRecordRangeHours = 1;
+		}
+		Date signInTimeEnd = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -defaultHours);
+		Date signInTimeStart = DateHelper.add(signInTimeEnd,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
+		List<Map<String,Object>> list=content.getJobCodeHours();
+		List<JobCodeHoursDto> jobCodeHoursRecordList=new ArrayList<>();
+		List<Integer> allSpecialJobCodeList=new ArrayList();
+		if(CollectionUtils.isNotEmpty(list)){
+			for (Map<String, Object> map : list) {
+				int jobCode=(int)map.get("jobCode");
+				int hour=(int)map.get("hour");
+				JobCodeHoursDto jobCodeHoursRecord=new JobCodeHoursDto();
+				jobCodeHoursRecord.setJobCode(jobCode);
+				jobCodeHoursRecord.setHour(hour);
+				jobCodeHoursRecordList.add(jobCodeHoursRecord);
+				allSpecialJobCodeList.add(jobCode);
+			}
+		}
+		Map<Integer,List<JobCodeHoursDto>> jobCodeHoursRecordMap=jobCodeHoursRecordList.stream().collect(Collectors.groupingBy(JobCodeHoursDto::getHour));
+		List<JobCodeHoursDto> jobCodeHoursList=new ArrayList<>();
+		for (Map.Entry<Integer, List<JobCodeHoursDto>> entry : jobCodeHoursRecordMap.entrySet()) {
+			Integer hour=entry.getKey();
+			List<JobCodeHoursDto> jhList=entry.getValue();
+			List<Integer> jobCodes = jhList.stream().map(JobCodeHoursDto::getJobCode).collect(
+					Collectors.toList());
+			Date endDate = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -hour);
+			Date startDate = DateHelper.add(endDate,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
+			JobCodeHoursDto jobCodeHoursRecord=new JobCodeHoursDto();
+			jobCodeHoursRecord.setJobCodes(jobCodes);
+			jobCodeHoursRecord.setStartTime(startDate);
+			jobCodeHoursRecord.setEndTime(endDate);
+			jobCodeHoursList.add(jobCodeHoursRecord);
+		}
+
         List<Long> toSignOutPks;
         Date now = new Date();
         int updateRows = 0;
         log.info("自动签退数据扫描：{} - {}", DateHelper.formatDateTimeMs(signInTimeStart),DateHelper.formatDateTimeMs(signInTimeEnd));
         try {
             do {
-                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(signInTimeStart,signInTimeEnd, 100);
+                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(allSpecialJobCodeList,jobCodeHoursList,signInTimeStart,signInTimeEnd, 100);
 
                 if (CollectionUtils.isNotEmpty(toSignOutPks)) {
                     UserSignRecord updateData = new UserSignRecord();
                     updateData.setSignOutTime(now);
                     updateData.setUpdateTime(now);
-                    updateData.setUpdateUser("sys.dms");
+                    updateData.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
                     updateData.setUpdateUserName(updateData.getUpdateUser());
 
                     updateRows += userSignRecordDao.signOutById(updateData, toSignOutPks);
@@ -521,6 +574,95 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         return result;
     }
 
+	@Override
+	public JdResult<Integer> autoHandleSignOutByAttendJmq(AttendDetailChangeTopicData mqData) {
+		JdResult<Integer> result = new JdResult<Integer>();
+		result.toSuccess();
+		//只处理更新和新增操作的消息
+		if(!AttendDetailChangeTopicData.OP_TYPE_ADD.equals(mqData.getOpType())
+				&& !AttendDetailChangeTopicData.OP_TYPE_UPDATE.equals(mqData.getOpType())) {
+			return result;
+		}
+		if(StringUtils.isBlank(mqData.getUserErp())) {
+			log.info("autoHandleSignOutByAttendJmq：userErp为空，无需处理！");
+			return result;
+		}
+		if(StringUtils.isBlank(mqData.getActualOffTime())) {
+			log.info("autoHandleSignOutByAttendJmq：签退时间为空，无需处理！");
+			return result;
+		}
+		Date actualOffTime = DateHelper.parseDateTime(mqData.getActualOffTime());
+		if(actualOffTime == null) {
+			log.warn("autoHandleSignOutByAttendJmq：签退时间【{}】格式不正确，无需处理！",mqData.getActualOffTime());
+			return result;
+		}
+		Date curTime = new Date();
+		if(new Date().before(actualOffTime)) {
+			log.warn("autoHandleSignOutByAttendJmq：签退时间【{}】大于当前时间，无需处理！",mqData.getActualOffTime());
+			return result;
+		}
+		Date checkTime = DateHelper.add(curTime, Calendar.SECOND, -autoSignOutByMqOffSenconds);
+		if(actualOffTime.before(checkTime)) {
+			log.warn("autoHandleSignOutByAttendJmq：用户【{}】签退时间【{}】偏差当前时间超过{}秒，无需处理！",mqData.getUserErp(),mqData.getActualOffTime(),autoSignOutByMqOffSenconds);
+			return result;
+		}
+		//根据erp+场地查询，已签未退的数据
+		UserSignRecordQuery query = new UserSignRecordQuery();
+		query.setUserCode(mqData.getUserErp());
+		UserSignRecord lastUnSignOutRecord = userSignRecordDao.queryLastUnSignOutRecord(query);
+		if(lastUnSignOutRecord == null) {
+			log.info("autoHandleSignOutByAttendJmq：用户【{}】已签未退数据为空，无需处理！",mqData.getUserErp());
+			return result;
+		}
+		if(!actualOffTime.after(lastUnSignOutRecord.getSignInTime())) {
+			log.info("autoHandleSignOutByAttendJmq：用户【{}】打卡签退时间签退时间【{}】小于签到时间，无需处理！",mqData.getUserErp(),mqData.getActualOffTime());
+			return result;
+		}
+        if (lastUnSignOutRecord.getSiteCode() == null) {
+        	log.info("autoHandleSignOutByAttendJmq：站点为空，无需处理！");
+        	return result;
+        }
+        SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES);
+        if (content != null
+        		&& !Boolean.TRUE.equals(content.getMasterSwitch())
+        		&& !content.getSiteCodes().contains(lastUnSignOutRecord.getSiteCode())) {
+        	log.info("autoHandleSignOutByAttendJmq：站点【{}】未开启自动签退，无需处理！",lastUnSignOutRecord.getSiteCode());
+        	return result;
+        }
+		//执行-签退逻辑
+		List<Long> toSignOutPks = new ArrayList<>();
+        UserSignRecord updateData = new UserSignRecord();
+        updateData.setSignOutTime(actualOffTime);
+        updateData.setUpdateTime(new Date());
+        updateData.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_FORM_RZ);
+        updateData.setUpdateUserName(DmsConstants.USER_NAME_AUTO_SIGN_OUT_FORM_RZ);
+        toSignOutPks.add(lastUnSignOutRecord.getId());
+        userSignRecordDao.signOutById(updateData, toSignOutPks);
+		GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
+		removeMemberRequest.setSignRecordIdList(toSignOutPks);
+		removeMemberRequest.setOperateUserCode(updateData.getUpdateUser());
+		removeMemberRequest.setOperateUserName(updateData.getUpdateUserName());
+        this.jyGroupMemberService.removeMembers(removeMemberRequest);
+
+        List<String> erpList = new ArrayList<>();
+        erpList.add(mqData.getUserErp());
+
+		com.jdl.basic.api.domain.workStation.WorkStationGridQuery  workStationGridCheckQuery = new com.jdl.basic.api.domain.workStation.WorkStationGridQuery ();
+		workStationGridCheckQuery.setBusinessKey(lastUnSignOutRecord.getRefGridKey());
+        this.workStationGridManager.queryByGridKey(workStationGridCheckQuery);
+		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.workStation.WorkStationGrid> workStationGridData = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
+		// 查询网格-负责人信息
+		String ownerUserErp = "";
+		String gridName = "";
+		if(workStationGridData != null
+				&& workStationGridData.getData() != null) {
+			ownerUserErp = StringHelper.getValueFormatNull(workStationGridData.getData().getOwnerUserErp());
+			gridName = workStationGridData.getData().getGridName();
+		}
+		//自动签退完发送咚咚通知
+        NoticeUtils.noticeToTimelineWithNoUrl(MSG_FORMAT_AUTO_SIGN_OUT_TITLE, String.format(MSG_FORMAT_AUTO_SIGN_OUT_CONTENT, gridName,ownerUserErp), erpList);
+		return result;
+	}
     /**
      * 根据条件查询-转成通知对象
      * @param query
@@ -907,6 +1049,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		String userCode = signInData.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 
+		if(isCarId){
+			String  msg=checkAttendanceBlackList(result,userCode);
+			if(StringUtils.isNotBlank(msg)){
+				return result;
+			}
+		}
 		String checkMsg = checkJobCodeSignIn(gridInfo, jobCode);
 		log.info("校验签到工种checkBeforeSignIn checkMsg-{}",checkMsg);
 		if(StringUtils.isNotBlank(checkMsg)){
@@ -952,7 +1100,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	private String  checkJobCodeSignIn(WorkStationGrid workStationGrid,Integer jobCode){
 		//添加开关 以便于上线后没维护工种类型 都进行卡控
-		if(!uccPropertyConfiguration.isJobTypeLimitSwitch()){
+		if(!dmsConfigManager.getPropertyConfig().isJobTypeLimitSwitch()){
 			log.warn("网格工种限制功能开关关闭!");
 			return "";
 		}
@@ -1690,5 +1838,30 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if (ObjectHelper.isEmpty(query.getSiteCode())){
 			throw new JyBizException("参数错误：场地编码为空！");
 		}
+	}
+
+	private String checkAttendanceBlackList(JdCResponse<UserSignRecordData> result,String userCode){
+		//查询出勤黑名单，并校验
+		com.jdl.basic.common.utils.Result<AttendanceBlackList> rs=attendanceBlackListManager.queryByUserCode(userCode);
+		if(rs == null){
+			return "调用AttendanceBlackListJsfService失败";
+		}
+		if(rs.isSuccess()){
+			AttendanceBlackList attendanceBlackList=rs.getData();
+			if(attendanceBlackList !=null){
+				int cancelFlag=attendanceBlackList.getCancelFlag();
+				Date takeTime=attendanceBlackList.getTakeTime();
+				Date loseTime=attendanceBlackList.getLoseTime();
+				String dateStr= DateUtil.format(new Date(),DateUtil.FORMAT_DATE_MINUTE);
+				Date currentTime=DateUtil.parse(dateStr,DateUtil.FORMAT_DATE_MINUTE);
+				if(cancelFlag ==Constants.NUMBER_ZERO && ((loseTime ==null && currentTime.compareTo(takeTime) >=0) ||  (loseTime !=null && currentTime.compareTo(takeTime) >=0 && currentTime.compareTo(loseTime) <0))){//已生效
+					//已生效
+					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG, userCode);
+					result.toFail(defaultMsg);
+					return defaultMsg;
+				}
+			}
+		}
+		return  "";
 	}
 }

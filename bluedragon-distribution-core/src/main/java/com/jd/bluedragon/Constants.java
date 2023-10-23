@@ -819,17 +819,37 @@ public class Constants {
      */
     public static final String SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST = "sys.config.client.smsSiteMenuBlacklist";
     /**
+     * 配置信息-自动签退处理的站点配置
+     */
+    public static final String SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES = "sys.config.autoHandleSignOutSiteCodes";
+    /**
      *  配置信息-青龙打印配置  qinglong.print.type.use
      *
      */
     public static final String SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF = "waybill.print.addiOwnNumberConf";
-    
+
 
     /**
      *  配置信息-切换百川流量场地列表
      *
      */
     public static final String BAICHUAN_REVERSE_SITE_CONF = "baichuan.reverse.site.conf";
+
+
+    /**
+     *发货统一服务切换
+     */
+    public static final String SEND_CAPABILITY_SITE_CONF = "send.capability.site.conf";
+
+    /**
+     *  配置信息-切换百川流量,强制走老逻辑运单列表
+     */
+    public static final String BAICHUAN_REVERSE_WAYBILL_OLD_L_CONF = "baichuan.reverse.waybill.old.logic.conf";
+
+    /**
+     *  配置信息-切换百川流量,强制走老逻辑退货类型列表
+     */
+    public static final String BAICHUAN_REVERSE_TYPE_CONF = "baichuan.reverse.type.old.logic.conf";
 
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
@@ -1143,6 +1163,19 @@ public class Constants {
      * 运单状态  弃件
      */
     public static final String WAYBILLTRACE_WASTE = "620";
+    /**
+     * 运单状态  弃件（港澳单节点）
+     */
+    public static final String WAYBILLTRACE_WASTE_GA = "750";
+
+    /**
+     * 运单状态  异常退回
+     */
+    public static final String WAYBILLTRACE_EX_RETURN = "-3040";
+    /**
+     * 运单状态  清关失败
+     */
+    public static final String WAYBILLTRACE_FAIL_QG = "700";
 
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
@@ -1525,6 +1558,10 @@ public class Constants {
      */
     public static final int  ALL_MAIL_CACHE_SECONDS = 5;
 
+    /**
+     * 常量值：0
+     * */
+    public static final int  CONSTANT_NUMBER_ZERO = 0;
     /**
      * 常量值：1
      * */
@@ -2017,6 +2054,11 @@ public class Constants {
 
 
     /**
+     * 异常运单任务缓存key
+     */
+    public static final String EXP_WAYBILL_CACHE_KEY_PREFIX ="exp.waybill.cache:";
+
+    /**
      * 安检场地关系配置
      */
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
@@ -2040,6 +2082,108 @@ public class Constants {
      * 功能可用配置白名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
+
+    // 新版分拣中心规范-分拣中心类型
+    public static final Integer SORTING_SORT_TYPE = 12351;
+    // 新版分拣中心规范-分拣中心子类型
+    public static final Integer SORTING_SORT_SUBTYPE = 123511;
+    // 新版分拣中心规范-分拣中心下中转站
+    public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
+    // 新版分拣中心规范-接货仓类型
+    public static final Integer JHC_SORT_TYPE = 12352;
+
+    /**
+     *  逆向原因编码
+     * 1-拦截逆向
+     * 3-清关逆向
+     */
+    public static final Integer INTERCEPT_REVERSE_CODE_1 = 1;
+    public static final Integer INTERCEPT_REVERSE_CODE_3 = 3;
+
+    /**
+     * 运单全程跟踪记录类型（强校验）
+     * 枚举类型：1:运单维度不记录各包裹全程跟踪,2:运单维度记录各包裹全程跟踪,3:包裹维度记录包裹全程跟踪
+     */
+    public static final Integer WAYBILL_TRACE_TYPE =1;
+
+    /**
+     * 逆向退货类型:拒收退回
+     */
+    public static final Integer REVERSE_TYPE_REJECT_BACK =7;
+
+    /**
+     * 换单来源 2: 分拣/SORT_CENTER
+     */
+    public static final Integer CHANGE_WAYBILL_OPERATE_SOURCE_SORT_CENTER =2;
+
+    /**
+     * 运单全程跟踪记录类型-包裹维度记录包裹全程跟踪 （packageBarCode为包裹号)
+     */
+    public static final Integer  WAYBILL_TRACE_TYPE_PACKAGE =3;
+
+    /**
+     * 对外展示话术标识  1 - 对外不展示话术
+     */
+    public static final Integer  WAYBILL_TRACE_DISPLAY =1;
+
+    /**
+     * 异常类型 1-快速退款，2-外单拦截，3-仓储病单拦截 , 4-理赔拦截,5-生产单,6-客服 7-eclp，8,运营拦截，9-仓预售单拦截
+     */
+    public static final int WAYBILL_EXCEPTION_ID_8 = 8;
+
+    /**
+     * 拦截类型 1:取消订单拦截,2:拒收订单拦截,3:恶意订单拦截,4:分拣中心拦截,5-仓储异常拦截,6-白条强制拦截，7-仓储病单拦截，
+     * 8.伽利略拒收订单拦截，9.京沃取消订单拦截 ，10-理赔拦截，11-取消订单拦截仓已拦截成功，12-理赔破损拦截，13-运营退货拦截，14-派送地址不详下单失败拦截15审单失败拦截
+     */
+    public static final int WAYBILL_INTERCEPT_TYPE_4 = 4;
+
+    public static final String WAYBILL_INTERCEPT_REASON = "违禁品退回";
+
+
+
+    /**
+     * 本场地多扫标识
+     */
+    public static final Integer MORE_LOCAL_SCAN = 1;
+
+    /**
+     * 非本场地多扫标识
+     */
+    public static final Integer MORE_OUT_SCAN = 2;
+
+    /**
+     * 本场地部分多扫标识
+     */
+    public static final Integer MORE_LOCAL_PART_SCAN = 3;
+
+    /**
+     *  配置信息-非本场地多扫弱提醒开关
+     *
+     */
+    public static final String MORE_OUT_SCAN_NOTIFY_SWITCH = "more.out.scan.notify.switch";
+
+    /**
+     *  配置信息-查询es卸车扫描是否多扫开关
+     *
+     */
+    public static final String MORE_SCAN_QUERY_ES_SWITCH = "more.scan.query.es.switch";
+
+
+    /**
+     * 运输内网账号类型
+     */
+    public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
+
+    /**
+     * oss链接内外网key
+     */
+    public static final String OSS_OUTER_NET_KEY = "oss.outerNet";
+    public static final String OSS_INNER_NET_KEY = "oss.innerNet";
+    public static final String OSS_INNER_OFFICE_NET_KEY = "oss.innerNet.office";
+    /**
+     * 配置信息-自动签退超过多少小时未签退的数据
+     */
+    public static final String SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS="sys.config.autoHandleSignInRecord.notSignedOutRecordMoreThanHours";
 
     /**
      * 集包岗-任务锁前缀

@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.jy.manager;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.exception.SealVehicleTaskBusinessException;
 import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
@@ -38,11 +38,10 @@ public class JyUnSealVehicleManagerImpl implements IJyUnSealVehicleManager {
     private static final Logger log = LoggerFactory.getLogger(JyUnSealVehicleManagerImpl.class);
 
     @Autowired
-    @Qualifier("jySealVehicleService")
     private ISealVehicleService sealVehicleService;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private JyDemotionService jyDemotionService;
@@ -52,7 +51,7 @@ public class JyUnSealVehicleManagerImpl implements IJyUnSealVehicleManager {
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.jySealVehicleManager.querySealCarByStatus");
 
         try {
-            if (uccConfig.getSealTaskForceFallback() == Constants.YN_YES) {
+            if (dmsConfigManager.getPropertyConfig().getSealTaskForceFallback() == Constants.YN_YES) {
                 log.info("解封车任务列表服务强制降级. query:{}", JsonHelper.toJson(pager));
                 throw new SealVehicleTaskBusinessException("解封车任务列表服务强制降级");
             }

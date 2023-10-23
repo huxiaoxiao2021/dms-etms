@@ -580,6 +580,11 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_40008_1 = "此单为特安包裹，请勿与普通件进行混包！";
     public static final String MESSAGE_40008_2 = "此单为非特安包裹，请勿与特安件进行混包！";
 
+
+    public static final Integer PACKAGE_PRINT_BAN_CODE =40009;
+    public static final String PACKAGE_PRINT_BAN_MESSAGE ="请使用站长工作台http://z-ql.jd.com/#/workbench，分拣打印-包裹打印功能!";
+
+
     public static final Integer MESSAGE_SHOW_TYPE_TIP = 1;
     public static final Integer MESSAGE_SHOW_TYPE_CONFIRM = 2;
     public static final Integer MESSAGE_SHOW_TYPE_INTERCEPT = 3;

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.waybill.domain;
 
 import com.google.common.collect.Maps;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 
 import java.util.Date;
 import java.util.Map;
@@ -15,6 +16,8 @@ public class WaybillStatus {
     public static final int RESULT_CODE_REPEAT_TASK = 10003;
 
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_INSPECTION = 0; //正向验货
+    public static final String WAYBILL_STATUS_CODE_FORWARD_INSPECTION_MSG = "验货";
+
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_SORTING = 1;  //正向分拣
     public static final Integer WAYBILL_STATUS_CODE_SITE_SORTING = 11;  //经济网、站点装箱
     public static final Integer WAYBILL_STATUS_CODE_SITE_CANCEL_SORTING = 70;  //经济网、站点取消装箱
@@ -280,12 +283,31 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_TRACK_SECURITY_CHECK = 22000;
     public static final Integer WAYBILL_TRACK_SECURITY_CHECK_STATE = -3080;
+    public static final String WAYBILL_TRACK_SECURITY_CHECK_DESC="空铁安检查验不通过";
 
     /**
      * https://cf.jd.com/pages/viewpage.action?pageId=1050064709
      * 全程跟踪扩展字段-equipmentCode：设备编码
      */
     public static final String EXTEND_PARAMETER_EQUIPMENT_CODE = "equipmentCode";
+
+    /**
+     * 安检扣件
+     * 节点状态码：800
+     * 操作码：21300
+     *
+     */
+    public static final Integer WAYBILL_TRACK_SECURITY_CHECK_DETAIN_PACKAGE = 21300;
+    public static final String WAYBILL_TRACK_SECURITY_CHECK_DETAIN_PACKAGE_DESC = "安检查验扣件";
+
+    /**
+     * 安检查验退运
+     * 节点状态码：-3090
+     * 操作码：21400
+     *
+     */
+    public static final Integer WAYBILL_TRACK_RETURNED_PACKAGE = 21400;
+    public static final String WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC = "安检查验退运";
 
 
     private Long id;

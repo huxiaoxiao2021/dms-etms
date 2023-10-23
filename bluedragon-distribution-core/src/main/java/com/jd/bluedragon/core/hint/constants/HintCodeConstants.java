@@ -573,6 +573,14 @@ public class HintCodeConstants {
      */
     public static String TEAN_BOX_INTERCEPT = "20094";
 
+    // 港澳单-审核中拦截提示语：此单报关审核中，请稍后尝试，通过后可正常操作!
+    public static String EXCEPTION_GA_EXAMINE_INTERCEPT_TYPE = "20101";
+    // 港澳单-审核失败拦截提示语：此单报关审单失败，请操作逆向换单后退回!
+    public static String EXCEPTION_GA_EXAMINE_FAIL_INTERCEPT_TYPE = "20102";
+    //  港澳单-D类运单拦截提示语：此单为D类报关运单，禁止集包，请操作原包发货
+    public static String EXCEPTION_GA_D_SORT_INTERCEPT_TYPE = "20103";
+    
+
     /*##############################################拦截相关END#########################################################*/
 
 
@@ -1029,10 +1037,20 @@ public class HintCodeConstants {
      */
     public static String CONFIRM_CHANGE_GW_FOR_SIGN = "40023";
     public static String CONFIRM_CHANGE_GW_FOR_SIGN_MSG = "此人在【%s】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";
+    public static String CONFIRM_AUTO_SIGN_OUT_FOR_SIGN_MSG = "该人员已经完成人脸打卡离场，请确认是否再次签到！";
+    
+    
+
+    /**
+     * 扫完网格码和人员码校验不通过时二次确认
+     */
+    public static final String CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE = "40024";
+
+    public static final String CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG = "当前网格码所属场地与人员所属场地不符，登录后会影响计提取量，是否确认登录？";
 
     public static String JY_SIGN_IN_JOB_TYPE_TIP_MSG = "作业区【%s】不允许工种【%s】进行签到，请联系网格负责人%s";
 
-    public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED = "40024";
+    public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED = "40027";
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED_MSG = "二维码已过期";
 
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_SITE_NOT_MATCHED = "40025";
@@ -1040,6 +1058,14 @@ public class HintCodeConstants {
 
     public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE = "40026";
     public static String EXCEPTION_SUBMIT_CHECK_INTERCEPT_TYPE_MSG = "仅支持【取消订单拦截】【理赔拦截】【理赔破损拦截】的运单提交异常！";
+
+    public static String ATTENDANCE_BLACK_LIST_TOBE_EFFECTIVE_MSG = "【%s】将于【%s】限制入场操作，请勿安排该员工在此时间后在场内作业！";
+
+    public static String ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG ="【%s】 已被限制入场，请勿安排该员工在场内作业！";
+
+    public static String EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT = "40030";
+
+    public static String EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG = "“该单未发起拦截，请正常下传！";
 
     // 请扫描正确的循环集包袋编码 20098
     public static String CYCLE_BOX_RULE_ERROR = "20098";

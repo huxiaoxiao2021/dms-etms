@@ -97,6 +97,16 @@
         <servlet-name>Resteasy</servlet-name>
         <url-pattern>/services/*</url-pattern>
     </servlet-mapping>
+
+	<filter>
+		<filter-name>simpleComplexFilter</filter-name>
+		<filter-class>com.jd.bd.dms.automatic.marshal.filter.SimpleComplexSwitchRestFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>simpleComplexFilter</filter-name>
+		<url-pattern>/services/*</url-pattern>
+	</filter-mapping>
 	
     <servlet>
         <servlet-name>distribution-web</servlet-name>

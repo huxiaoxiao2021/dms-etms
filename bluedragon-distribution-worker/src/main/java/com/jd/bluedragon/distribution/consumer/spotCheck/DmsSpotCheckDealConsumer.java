@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.spotCheck;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;

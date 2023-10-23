@@ -147,4 +147,12 @@ public interface SiteService {
 	 * @return
 	 */
 	String getDmsShortNameByCode(Integer dmsCode);
+
+	/**
+	 * 获取站点
+	 * 
+	 * @param siteCode
+	 * @return
+	 */
+	Site getOwnSite(Integer siteCode);
 }

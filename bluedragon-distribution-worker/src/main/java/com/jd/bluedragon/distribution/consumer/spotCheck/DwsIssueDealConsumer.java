@@ -2,14 +2,16 @@ package com.jd.bluedragon.distribution.consumer.spotCheck;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jss.oss.OssUrlNetTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.domain.DwsAIDistinguishMQ;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -56,7 +58,7 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
     private DefaultJMQProducer dwsAIDistinguishSmallProducer;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -98,7 +100,7 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
                 }
                 DwsAIDistinguishMQ.Package packageUrl = new DwsAIDistinguishMQ.Package();
                 packageUrl.setPackageCode(detailSpotCheck.getPackageCode());
-                packageUrl.setPicUrl(packagePicUrl);
+                packageUrl.setPicUrl(BusinessHelper.switchOssUrlByType(packagePicUrl, OssUrlNetTypeEnum.IN.getType()));
                 list.add(packageUrl);
             }
             DwsAIDistinguishMQ dwsAIDistinguishMQ = new DwsAIDistinguishMQ();
@@ -106,7 +108,7 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
             dwsAIDistinguishMQ.setWaybillCode(spotCheckDto.getWaybillCode());
             dwsAIDistinguishMQ.setSiteCode(spotCheckDto.getReviewSiteCode());
             dwsAIDistinguishMQ.setPackages(list);
-            if(list.size() > uccPropertyConfiguration.getDeviceAIDistinguishPackNum()){
+            if(list.size() > dmsConfigManager.getPropertyConfig().getDeviceAIDistinguishPackNum()){
                 dwsAIDistinguishBigProducer.sendOnFailPersistent(dwsAIDistinguishMQ.getWaybillCode(), JsonHelper.toJson(dwsAIDistinguishMQ));
             }else {
                 dwsAIDistinguishSmallProducer.sendOnFailPersistent(dwsAIDistinguishMQ.getWaybillCode(), JsonHelper.toJson(dwsAIDistinguishMQ));

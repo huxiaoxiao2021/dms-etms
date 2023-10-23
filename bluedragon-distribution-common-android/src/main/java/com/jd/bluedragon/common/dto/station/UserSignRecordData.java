@@ -220,6 +220,16 @@ public class UserSignRecordData implements Serializable {
 	 */
 	private String areaHubName;
 	
+	private String idCard;
+
+	public String getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(String idCard) {
+		this.idCard = idCard;
+	}
+
 	public Long getId() {
 		return id;
 	}

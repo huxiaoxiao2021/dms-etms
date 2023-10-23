@@ -148,4 +148,6 @@ public interface JyGroupSortCrossDetailService {
     boolean mixScanTaskStatusComplete(JyGroupSortCrossDetailEntityQueryDto queryDto);
 
     void deleteBySiteAndBizId(JyGroupSortCrossDetailEntity condition);
+
+    void deleteMixScanTaskOutLimit();
 }
