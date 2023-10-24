@@ -28,7 +28,7 @@ public class JyBizTaskCollectPackageFlowServiceImpl implements JyBizTaskCollectP
     }
 
     @Override
-    public List<JyBizTaskCollectPackageFlowEntity> queryListByBizId(String bizId) {
-        return jyBizTaskCollectPackageFlowDao.queryListByBizId(bizId);
+    public List<JyBizTaskCollectPackageFlowEntity> queryListByBizIds(List<String> bizIds) {
+        return jyBizTaskCollectPackageFlowDao.queryListByBizIds(bizIds);
     }
 }

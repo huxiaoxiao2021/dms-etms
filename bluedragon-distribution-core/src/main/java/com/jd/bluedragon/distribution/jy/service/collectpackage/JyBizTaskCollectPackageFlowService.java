@@ -22,5 +22,5 @@ public interface JyBizTaskCollectPackageFlowService {
      * 根据集包任务ID查询流向信息
      * @return
      */
-    List<JyBizTaskCollectPackageFlowEntity> queryListByBizId(String bizId);
+    List<JyBizTaskCollectPackageFlowEntity> queryListByBizIds(List<String> bizIds);
 }

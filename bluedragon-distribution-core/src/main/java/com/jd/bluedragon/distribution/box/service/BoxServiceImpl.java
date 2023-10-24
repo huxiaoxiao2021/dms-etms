@@ -818,7 +818,7 @@ public class BoxServiceImpl implements BoxService {
         response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
 		
 		// 打印客户端创建 并且是首次打印 推送箱号打印消息
-		if (BoxSystemTypeEnum.PRINT_CLIENT.getCode().equals(systemType) && isNew) {
+		if (BoxSystemTypeEnum.PRINT_CLIENT.getCode().equals(systemType)) {
 			pushBoxPrintMq(availableBoxes);
 		}
 		

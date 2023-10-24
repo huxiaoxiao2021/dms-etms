@@ -36,7 +36,7 @@ public class JyBizTaskCollectPackageFlowDao extends BaseDao<JyBizTaskCollectPack
         return this.getSqlSession().insert(NAMESPACE + ".batchInsert", recordList);
     }
 
-    public List<JyBizTaskCollectPackageFlowEntity> queryListByBizId(String bizId) {
-        return this.getSqlSession().selectList(NAMESPACE + ".queryListByBizId", bizId);
+    public List<JyBizTaskCollectPackageFlowEntity> queryListByBizIds(List<String> bizIds) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryListByBizIds", bizIds);
     }
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.collectpackage;
 
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackStatusCount;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery;
 
@@ -41,11 +42,16 @@ public class JyBizTaskCollectPackageDao extends BaseDao<JyBizTaskCollectPackageE
         return this.getSqlSession().selectList(NAMESPACE + ".pageQueryTask", query);
     }
 
-    public Long queryTaskCount(JyBizTaskCollectPackageQuery query) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryTaskCount", query);
+    public List<CollectPackStatusCount> queryTaskStatusCount(JyBizTaskCollectPackageQuery query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryTaskStatusCount", query);
     }
 
     public JyBizTaskCollectPackageEntity findByBoxCode(String boxCode) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBoxCode", boxCode);
+    }
+
+
+    public int updateStatusByBizIds(JyBizTaskCollectPackageQuery query) {
+        return this.getSqlSession().update(NAMESPACE + ".updateStatusByBizIds", query);
     }
 }

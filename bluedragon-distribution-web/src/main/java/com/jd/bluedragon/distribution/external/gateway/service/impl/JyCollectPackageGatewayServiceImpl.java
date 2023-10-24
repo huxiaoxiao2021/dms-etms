@@ -8,11 +8,16 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_FAIL;
 
 @Slf4j
 @UnifiedExceptionProcess
+@Service
 public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatewayService {
 
     @Autowired
@@ -35,22 +40,42 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
 
     @Override
     public JdCResponse<CollectPackageTaskResp> listCollectPackageTask(CollectPackageTaskReq request) {
-        return retJdCResponse(jyCollectPackageService.listCollectPackageTask(request));
+        try {
+            return retJdCResponse(jyCollectPackageService.listCollectPackageTask(request));
+        }catch (Exception e) {
+            log.error("集包任务列表查询异常{}", JsonHelper.toJson(request),e);
+            return new JdCResponse<>(CODE_FAIL,"集包任务列表查询异常！");
+        }
     }
 
     @Override
     public JdCResponse<CollectPackageTaskResp> searchPackageTask(SearchPackageTaskReq request) {
-        return retJdCResponse(jyCollectPackageService.searchPackageTask(request));
+        try {
+            return retJdCResponse(jyCollectPackageService.searchPackageTask(request));
+        }catch (Exception e) {
+            log.error("集包任务检索异常{}", JsonHelper.toJson(request),e);
+            return new JdCResponse<>(CODE_FAIL,"集包任务检索异常！");
+        }
     }
 
     @Override
     public JdCResponse<TaskDetailResp> queryTaskDetail(TaskDetailReq request) {
-        return retJdCResponse(jyCollectPackageService.queryTaskDetail(request));
+        try{
+            return retJdCResponse(jyCollectPackageService.queryTaskDetail(request));
+        }catch (Exception e) {
+            log.error("查询集包任务信息异常{}", JsonHelper.toJson(request),e);
+            return new JdCResponse<>(CODE_FAIL,"查询集包任务信息异常！");
+        }
     }
 
     @Override
     public JdCResponse<SealingBoxResp> sealingBox(SealingBoxReq request) {
-        return retJdCResponse(jyCollectPackageService.sealingBox(request));
+        try{
+            return retJdCResponse(jyCollectPackageService.sealingBox(request));
+        }catch (Exception e) {
+            log.error("封箱完成异常：{}", JsonHelper.toJson(request),e);
+            return new JdCResponse<>(CODE_FAIL,"封箱完成异常！");
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
+import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackStatusCount;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery;
 import com.jd.bluedragon.distribution.jy.dao.collectpackage.JyBizTaskCollectPackageDao;
@@ -36,12 +37,17 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
     }
 
     @Override
-    public Long queryTaskCount(JyBizTaskCollectPackageQuery query) {
-        return jyBizTaskCollectPackageDao.queryTaskCount(query);
+    public List<CollectPackStatusCount> queryTaskStatusCount(JyBizTaskCollectPackageQuery query) {
+        return jyBizTaskCollectPackageDao.queryTaskStatusCount(query);
     }
 
     @Override
     public Boolean updateById(JyBizTaskCollectPackageEntity entity) {
         return jyBizTaskCollectPackageDao.updateByPrimaryKeySelective(entity) > 0;
+    }
+
+    @Override
+    public Boolean updateStatusByBizIds(JyBizTaskCollectPackageQuery query) {
+        return jyBizTaskCollectPackageDao.updateStatusByBizIds(query) > 0;
     }
 }

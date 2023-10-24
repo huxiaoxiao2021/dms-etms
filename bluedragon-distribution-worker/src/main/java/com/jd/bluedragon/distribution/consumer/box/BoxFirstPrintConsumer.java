@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.box;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.collectpackage.enums.CollectionPackageTaskStatusEnum;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
@@ -9,6 +8,7 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyBizTaskCollectPackageFlowService;
@@ -44,7 +44,7 @@ import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 
 /**
  * @author liwenji
- * @description 包裹首次对打印消息
+ * @description 包裹首次打印消息：生成集包任务
  * @date 2023-10-13 10:48
  */
 @Service("boxFirstPrintConsumer")
@@ -82,8 +82,8 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
             if (box == null) {
                 log.info("首次打印箱号json转换失败：{}", JsonHelper.toJson(message));
             }
-            // 保存任务和流向信息
-            saveTaskAndFlowInfo(box);
+            // 创建任务并保存任务流向信息
+            createTaskAndFlowInfo(box);
         }catch (JyBizException e) {
             // 自定义异常不重试
             log.error("首次打印箱号生成箱任务失败：{}",JsonHelper.toJson(message),e);
@@ -93,7 +93,7 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
     }
 
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void saveTaskAndFlowInfo(Box box) {
+    public void createTaskAndFlowInfo(Box box) {
         String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, box.getCode());
         if (!jimDbLock.lock(boxLockKey, box.getCode(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
             throw new JyBizException("当前系统繁忙,请稍后再试！");
@@ -115,6 +115,7 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
             if (MixBoxTypeEnum.MIX_ENABLE.getCode().equals(task.getMixBoxType())) {
                 jyBizTaskCollectPackageFlowService.batchInsert(getMixBoxFlowList(task));
             }else {
+                // 不支持混装的直接保存包裹目的地
                 jyBizTaskCollectPackageFlowService.batchInsert(getBoxFlow(task));
             }
         } finally {
@@ -190,7 +191,7 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
         entity.setTransportType(box.getTransportType());
         entity.setBoxType(box.getType());
         entity.setMixBoxType(box.getMixBoxType());
-        entity.setTaskStatus(CollectionPackageTaskStatusEnum.TO_COLLECTION.getCode());
+        entity.setTaskStatus(JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode());
         entity.setYn(box.getYn() == 1);
         entity.setBizId(genTaskBizId());
         if (box.getUpdateUserCode() != null) {

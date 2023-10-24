@@ -37,6 +37,7 @@ public class BoxFirstPrintConsumerTest {
         box.setCreateSiteCode(910);
         box.setCreateSiteName("马驹桥");
         box.setReceiveSiteCode(40240);
+        box.setReceiveSiteName("北京通州");
         box.setCreateTime(new Date());
         box.setCreateUserCode(17331);
         box.setCreateUser("wuyoude");

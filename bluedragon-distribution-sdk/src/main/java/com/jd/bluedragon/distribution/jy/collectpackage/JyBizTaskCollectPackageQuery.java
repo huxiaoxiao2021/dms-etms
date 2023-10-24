@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.collectpackage;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author liwenji
@@ -39,6 +40,8 @@ public class JyBizTaskCollectPackageQuery implements Serializable {
      * 箱号
      */
     private String boxCode;
+
+    private List<String> bizIds;
 
     public int getOffset() {
         return offset;
@@ -94,5 +97,13 @@ public class JyBizTaskCollectPackageQuery implements Serializable {
 
     public void setBoxCode(String boxCode) {
         this.boxCode = boxCode;
+    }
+
+    public List<String> getBizIds() {
+        return bizIds;
+    }
+
+    public void setBizIds(List<String> bizIds) {
+        this.bizIds = bizIds;
     }
 }

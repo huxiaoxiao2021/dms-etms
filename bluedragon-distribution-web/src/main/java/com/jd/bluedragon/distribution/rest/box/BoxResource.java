@@ -239,7 +239,6 @@ public class BoxResource {
     @Path("/printClient/boxes")
     @JProfiler(jKey = "DMS.WEB.BoxResource.printClientBoxes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse printClientBoxes(BoxRequest request) {
-        // todo 允许混装拦截
         return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),true);
     }
 

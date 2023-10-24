@@ -311,6 +311,8 @@
 		<property name="teAnSendTaskTipsOptimizationSwitch" value="${teAnSendTaskTipsOptimizationSwitch:false}"/>
 		<property name="teAnSendTaskNumberLimit" value="${teAnSendTaskNumberLimit:100}"/>
 		<property name="dmsToVendorSendMQSwitch" value="${dmsToVendorSendMQSwitch:true}"/>
+		<property name="jyCollectPackageTaskQueryTimeLimit" value="${jyCollectPackageTaskQueryTimeLimit:3.0}"/>
+		<property name="mixedConfigUseBasicNew" value="${mixedConfigUseBasicNew:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -610,6 +612,8 @@
 				<value>uccPropertyConfiguration.teAnSendTaskTipsOptimizationSwitch</value>
 				<value>uccPropertyConfiguration.teAnSendTaskNumberLimit</value>
 				<value>uccPropertyConfiguration.dmsToVendorSendMQSwitch</value>
+				<value>uccPropertyConfiguration.jyCollectPackageTaskQueryTimeLimit</value>
+				<value>uccPropertyConfiguration.mixedConfigUseBasicNew</value>
 			</list>
 		</property>
 	</bean>

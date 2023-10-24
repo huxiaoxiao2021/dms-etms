@@ -23,6 +23,10 @@
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
     <result column="material_code" jdbcType="VARCHAR" property="materialCode" />
   </resultMap>
+  <resultMap id="CountResultMap" type="com.jd.bluedragon.common.dto.collectpackage.response.CollectPackStatusCount">
+    <result column="task_status" jdbcType="TINYINT" property="taskStatus" />
+    <result column="total" jdbcType="TINYINT" property="total"/>
+  </resultMap>
   <sql id="Base_Column_List">
     id, biz_id, box_code, task_status, box_type, mix_box_type, transport_type, start_site_id, 
     start_site_name, end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp, 
@@ -272,35 +276,58 @@
     select
     <include refid="Base_Column_List"/>
     from jy_biz_task_collect_package
-    <include refid="queryCondition"/>
+    where
+    start_site_id = #{startSiteId,jdbcType=BIGINT}
+    and task_status = #{taskStatus,jdbcType=TINYINT}
+    and yn = 1
+    <if test="endSiteId != null">
+      and end_site_id = #{endSiteId,jdbcType=BIGINT}
+    </if>
+    <if test="boxCode != null">
+      and box_code = #{boxCode,jdbcType=VARCHAR}
+    </if>
+    and create_time > #{createTime}
     order by ts desc
-    limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER} 
+    limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
   </select>
 
-  <select id="queryTaskCount" resultType ="java.lang.Long">
-    select
-    count(1)
+  <select id="queryTaskStatusCount" resultMap="CountResultMap">
+    select task_status,
+    count(1) as total
     from jy_biz_task_collect_package
-    <include refid="queryCondition"/>
+    where start_site_id = #{startSiteId,jdbcType=BIGINT}
+    <if test="endSiteId != null">
+      and end_site_id = #{endSiteId,jdbcType=BIGINT}
+    </if>
+    <if test="boxCode != null">
+      and box_code = #{boxCode,jdbcType=VARCHAR}
+    </if>
+    and create_time > #{createTime}
+    group by task_status
   </select>
-
-  <sql id="queryCondition">
-    <where>
-      start_site_id = #{startSiteId,jdbcType=BIGINT}
-      and task_status = #{taskStatus,jdbcType=TINYINT}
-      and yn = 1
-      <if test="endSiteId != null">
-        and end_site_id = #{endSiteId,jdbcType=BIGINT}
-      </if>
-      <if test="boxCode != null">
-        and box_code = #{boxCode,jdbcType=VARCHAR}
-      </if>
-    </where>
-  </sql>
   
   <select id="findByBoxCode" resultType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity">
-    select *
+    select
+    <include refid="Base_Column_List"/>
     from jy_biz_task_collect_package
     where box_code = #{boxCode,jdbcType=VARCHAR}
+  </select>
+
+  <update id="updateStatusByBizIds" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery">
+    update jy_biz_task_collect_package
+    set task_status = #{taskStatus,jdbcType=TINYINT}
+    where biz_id in
+    <foreach collection="bizIds" item="item" index="index" open="(" separator="," close=")">
+      #{item,jdbcType=VARCHAR}
+    </foreach>
+    and yn = 1
+  </update>
+
+  <select id="findByBizId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from jy_biz_task_collect_package
+    where biz_id = #{bizId,jdbcType=VARCHAR}
+      and yn = 1
   </select>
 </mapper>

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
+import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackStatusCount;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery;
 
@@ -40,7 +41,7 @@ public interface JyBizTaskCollectPackageService {
      * 根据站点和状态查询任务总数
      * @return
      */
-    Long queryTaskCount(JyBizTaskCollectPackageQuery query);
+    List<CollectPackStatusCount> queryTaskStatusCount(JyBizTaskCollectPackageQuery query);
 
     /**
      * 根据ID更新数据
@@ -48,5 +49,12 @@ public interface JyBizTaskCollectPackageService {
      * @return
      */
     Boolean updateById(JyBizTaskCollectPackageEntity entity);
-    
+
+
+    /**
+     * 根据bizId批量更新状态
+     * @param query
+     * @return
+     */
+    Boolean updateStatusByBizIds(JyBizTaskCollectPackageQuery query);
 }

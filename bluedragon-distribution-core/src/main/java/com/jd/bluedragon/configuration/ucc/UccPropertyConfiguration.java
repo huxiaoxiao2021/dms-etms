@@ -1733,6 +1733,16 @@ public class UccPropertyConfiguration{
      */
     private Integer jySendSpecialProductTypeToScanShowRemainMinutes;
 
+    /**
+     * 集包岗查询时间限制
+     */
+    private String jyCollectPackageTaskQueryTimeLimit;
+
+    /**
+     * 混包校验使用分拣工作台新版配置
+     */
+    private boolean mixedConfigUseBasicNew;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -3921,4 +3931,20 @@ public class UccPropertyConfiguration{
 	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
 		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
 	}
+
+    public String getJyCollectPackageTaskQueryTimeLimit() {
+        return jyCollectPackageTaskQueryTimeLimit;
+    }
+
+    public void setJyCollectPackageTaskQueryTimeLimit(String jyCollectPackageTaskQueryTimeLimit) {
+        this.jyCollectPackageTaskQueryTimeLimit = jyCollectPackageTaskQueryTimeLimit;
+    }
+
+    public boolean getMixedConfigUseBasicNew() {
+        return mixedConfigUseBasicNew;
+    }
+
+    public void setMixedConfigUseBasicNew(boolean mixedConfigUseBasicNew) {
+        this.mixedConfigUseBasicNew = mixedConfigUseBasicNew;
+    }
 }

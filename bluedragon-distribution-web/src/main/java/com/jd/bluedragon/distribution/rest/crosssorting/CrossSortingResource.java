@@ -1,16 +1,22 @@
 package com.jd.bluedragon.distribution.rest.crosssorting;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CrossSortingRequest;
 import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingResponse;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigResponse;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.RuleTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.YNEnum;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
+import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +53,12 @@ public class CrossSortingResource {
     @Value("${useNewMixedConfig}")
     private String useNewMixedConfig;
 
+    @Autowired
+    private DmsConfigManager dmsConfigManager;
+
+    @Autowired
+    private BoxLimitConfigManager boxLimitConfigManager;
+
     @POST
     @Path("/crosssorting/queryMixBoxSite")
     public CrossSortingResponse queryMixBoxSite(CrossSortingRequest request) {
@@ -69,7 +81,11 @@ public class CrossSortingResource {
             }
             //如果使用新混装规则，则走新的混装规则
             log.info("是否使用新混装规则：{}", useNewMixedConfig);
-            if (YNEnum.Y.getCode().equals(useNewMixedConfig)) {
+            if (dmsConfigManager.getPropertyConfig().getMixedConfigUseBasicNew()) {
+                // 使用分拣工作台配置的新规则
+                log.info("混包校验使用分拣工作台配置规则");
+                mixDmsList = getMixedConfigUseBasicNew(request);
+            } else if (YNEnum.Y.getCode().equals(useNewMixedConfig)) {
                 mixDmsList = getMixedConfigsBySitesAndTypes(request.getCreateDmsCode(), request.getDestinationDmsCode(), request.getTransportType(), RuleTypeEnum.BUILD_PACKAGE.getCode());
             } else {
                 Map<String, Object> params = new HashMap<String, Object>();
@@ -89,6 +105,29 @@ public class CrossSortingResource {
         return response;
     }
 
+    private List<CrossSorting> getMixedConfigUseBasicNew(CrossSortingRequest request) {
+        List<CollectBoxFlowDirectionConf> flowConfList = boxLimitConfigManager.listCollectBoxFlowDirection(assembleCollectBoxFlowDirectionConf(request));
+        List<CrossSorting> mixDmsList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(flowConfList)) {
+            for (CollectBoxFlowDirectionConf collectBoxFlowDirectionConf : flowConfList) {
+                CrossSorting crossSorting = new CrossSorting();
+                crossSorting.setCreateDmsCode(collectBoxFlowDirectionConf.getStartSiteId());
+                crossSorting.setDestinationDmsCode(request.getDestinationDmsCode());
+                crossSorting.setMixDmsCode(collectBoxFlowDirectionConf.getEndSiteId());
+                crossSorting.setMixDmsName(collectBoxFlowDirectionConf.getEndSiteName());
+                mixDmsList.add(crossSorting);
+            }
+        }
+        return mixDmsList;
+    }
+
+    private CollectBoxFlowDirectionConf assembleCollectBoxFlowDirectionConf(CrossSortingRequest request) {
+        CollectBoxFlowDirectionConf conf =new CollectBoxFlowDirectionConf();
+        conf.setStartSiteId(request.getCreateDmsCode());
+        conf.setBoxReceiveId(request.getDestinationDmsCode());
+        conf.setFlowType(FlowDirectionTypeEnum.OUT_SITE.getCode());
+        return conf;
+    }
 
     /**
      * 查询新混装规则列表
