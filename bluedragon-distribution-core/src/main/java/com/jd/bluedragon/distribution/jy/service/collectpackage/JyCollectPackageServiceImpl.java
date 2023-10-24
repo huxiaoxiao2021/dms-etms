@@ -92,10 +92,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-    @Autowired
-    @Qualifier("redisJySendBizIdSequenceGen")
-    private JimdbSequenceGen redisJyBizIdSequenceGen;
-
     @Override
     public InvokeResult<CollectPackageResp> collectPackage(CollectPackageReq request) {
         //基础校验
@@ -440,8 +436,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
                 collectPackageFlowDto.setEndSiteName(entity.getEndSiteName());
                 List<CollectPackageFlowDto> flowDtoList = flowMap.get(entity.getCollectPackageBizId());
                 if (CollectionUtils.isEmpty(flowDtoList)) {
-                    flowMap.put(entity.getCollectPackageBizId(), new ArrayList<>());
-                    flowDtoList = flowMap.get(entity.getCollectPackageBizId());
+                    flowDtoList = new ArrayList<>();
+                    flowMap.put(entity.getCollectPackageBizId(), flowDtoList);
                 }
                 flowDtoList.add(collectPackageFlowDto);
             }
@@ -483,6 +479,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     @Override
     public InvokeResult<TaskDetailResp> queryTaskDetail(TaskDetailReq request) {
         InvokeResult<TaskDetailResp> result = new InvokeResult<>();
+
+        if (!checkTaskDetailReq(request, result)) {
+            return result;
+        }
+
         TaskDetailResp resp = new TaskDetailResp();
         result.setData(resp);
         JyBizTaskCollectPackageEntity task = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
@@ -504,6 +505,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         taskDto.setCollectPackageFlowDtoList(flowInfo.get(task.getBizId()));
         resp.setCollectPackageTaskDto(taskDto);
         return result;
+    }
+
+    private boolean checkTaskDetailReq(TaskDetailReq request, InvokeResult<TaskDetailResp> result) {
+        if (request == null || StringUtils.isEmpty(request.getBizId())) {
+            result.setCode(RESULT_NULL_CODE);
+            result.setMessage("未获取到集包任务id！");
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -626,16 +636,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
 
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
-    public boolean createTaskAndFlowInfo(Box box, JyBizTaskCollectPackageEntity oldBox) {
-        if (dmsConfigManager.getPropertyConfig().getCollectPackageTaskRefreshSwitch() && oldBox != null) {
-            // 逻辑删除原任务，复用原任务BizId
-            oldBox.setYn(false);
-            jyBizTaskCollectPackageService.updateById(oldBox);
-            jyBizTaskCollectPackageFlowService.deleteByBizId(oldBox.getBizId());
-        }
+    public boolean createTaskAndFlowInfo(JyBizTaskCollectPackageEntity task) {
 
         // 保存箱号任务
-        JyBizTaskCollectPackageEntity task = convertToTask(box, oldBox);
         log.info("新增或更新集包任务信息：{}", JsonHelper.toJson(task));
         jyBizTaskCollectPackageService.save(task);
 
@@ -704,48 +707,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         conf.setBoxReceiveId(task.getEndSiteId().intValue());
         conf.setFlowType(FlowDirectionTypeEnum.OUT_SITE.getCode());
         return conf;
-    }
-
-    private JyBizTaskCollectPackageEntity convertToTask(Box box, JyBizTaskCollectPackageEntity oldBox) {
-        JyBizTaskCollectPackageEntity entity = new JyBizTaskCollectPackageEntity();
-        entity.setBoxCode(box.getCode());
-        entity.setEndSiteId(box.getReceiveSiteCode().longValue());
-        entity.setEndSiteName(box.getReceiveSiteName());
-        entity.setStartSiteId(box.getCreateSiteCode().longValue());
-        entity.setStartSiteName(box.getCreateSiteName());
-        entity.setTransportType(box.getTransportType());
-        entity.setBoxType(box.getType());
-        entity.setMixBoxType(box.getMixBoxType());
-        entity.setTaskStatus(JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode());
-        entity.setYn(box.getYn() == 1);
-        if (oldBox != null) {
-            entity.setBizId(oldBox.getBizId());
-        }else {
-            entity.setBizId(genTaskBizId());
-        }
-        if (box.getUpdateUserCode() != null) {
-            BaseStaffSiteOrgDto updateUser = baseMajorManager.getBaseStaffInAllRoleByStaffNo(box.getUpdateUserCode());
-            if (updateUser != null) {
-                entity.setUpdateUserErp(updateUser.getErp());
-                entity.setUpdateUserName(box.getUpdateUser());
-                entity.setUpdateTime(box.getUpdateTime());
-            }
-        }
-        if (box.getCreateUserCode() != null) {
-            BaseStaffSiteOrgDto createUser = baseMajorManager.getBaseStaffInAllRoleByStaffNo(box.getCreateUserCode());
-            if (createUser != null) {
-                entity.setCreateUserErp(createUser.getErp());
-                entity.setCreateUserName(box.getCreateUser());
-                entity.setCreateTime(box.getCreateTime());
-            }
-        }
-
-        return entity;
-    }
-
-    private String genTaskBizId() {
-        String ownerKey = String.format(JyBizTaskCollectPackageEntity.BIZ_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
-        return ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
     }
 
     private boolean checkSearchPackageTaskReq(SearchPackageTaskReq request, InvokeResult<CollectPackageTaskResp> result) {

@@ -61,9 +61,8 @@ public interface JyCollectPackageService {
     /**
      * 创建集包任务并保存集包流向快照
      *
-     * @param box
-     * @param oldBox
+     * @param task
      * @return
      */
-    boolean createTaskAndFlowInfo(Box box, JyBizTaskCollectPackageEntity oldBox);
+    boolean createTaskAndFlowInfo(JyBizTaskCollectPackageEntity task);
 }

@@ -26,8 +26,8 @@ public interface JyBizTaskCollectPackageFlowService {
 
     /**
      * 根据bizId删除
-     * @param bizId
+     * @param ids
      * @return
      */
-    boolean deleteByBizId(String bizId);
+    boolean deleteByIds(List<Long> ids);
 }
