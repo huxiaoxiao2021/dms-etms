@@ -578,19 +578,29 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     @Override
     public InvokeResult<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) {
         checkCancelCollectPackageReq(request);
+        JyBizTaskCollectPackageEntity task =jyBizTaskCollectPackageService.findByBizId(request.getBizId());
+        if (ObjectHelper.isEmpty(task) || JyBizTaskCollectPackageStatusEnum.CANCEL.getCode().equals(task.getTaskStatus())){
+            throw new JyBizException("该任务已作废或者过期，请勿重复操作！");
+        }
         if(request.getCancelAllFlag()){
             String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, request.getBoxCode());
             if (!jimDbLock.lock(boxLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
                 throw new JyBizException("当前系统繁忙,请稍后再试！");
             }
             try {
-                //发消息-按照包裹发消息
+                //按照包裹batch生成取消集包的消息
+                produceBatchCancelCollectPackageMsg(request);
                 //然后把箱号关闭，不让用了
+                JyBizTaskCollectPackageEntity updateDto =new JyBizTaskCollectPackageEntity();
+                updateDto.setId(task.getId());
+                updateDto.setTaskStatus(JyBizTaskCollectPackageStatusEnum.CANCEL.getCode());
+                jyBizTaskCollectPackageService.updateById(updateDto);
             }finally {
                 jimDbLock.releaseLock(boxLockKey,request.getRequestId());
             }
 
-        }else {
+        } else {
+
 
         }
 
@@ -607,6 +617,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
             params.setBoxCode(request.getPackageCode());
         }*/
         return null;
+    }
+
+    private void produceBatchCancelCollectPackageMsg(CancelCollectPackageReq request) {
     }
 
     @Override
