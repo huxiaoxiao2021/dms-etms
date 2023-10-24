@@ -242,4 +242,10 @@
     </foreach>
     and yn = 1
   </select>
+
+  <update id="deleteByBizId" parameterType="java.lang.String">
+    update jy_biz_task_collect_package_flow
+    set yn = 0
+    where collect_package_biz_id = #{bizId,jdbcType=VARCHAR}
+  </update>
 </mapper>

@@ -313,6 +313,7 @@
 		<property name="dmsToVendorSendMQSwitch" value="${dmsToVendorSendMQSwitch:true}"/>
 		<property name="jyCollectPackageTaskQueryTimeLimit" value="${jyCollectPackageTaskQueryTimeLimit:3.0}"/>
 		<property name="mixedConfigUseBasicNew" value="${mixedConfigUseBasicNew:true}"/>
+		<property name="collectPackageTaskRefreshSwitch" value="${collectPackageTaskRefreshSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -614,6 +615,7 @@
 				<value>uccPropertyConfiguration.dmsToVendorSendMQSwitch</value>
 				<value>uccPropertyConfiguration.jyCollectPackageTaskQueryTimeLimit</value>
 				<value>uccPropertyConfiguration.mixedConfigUseBasicNew</value>
+				<value>uccPropertyConfiguration.collectPackageTaskRefreshSwitch</value>
 			</list>
 		</property>
 	</bean>

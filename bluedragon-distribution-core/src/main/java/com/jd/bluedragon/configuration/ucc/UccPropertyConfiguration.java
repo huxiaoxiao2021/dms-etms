@@ -1743,6 +1743,8 @@ public class UccPropertyConfiguration{
      */
     private boolean mixedConfigUseBasicNew;
 
+    private boolean collectPackageTaskRefreshSwitch;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -3946,5 +3948,13 @@ public class UccPropertyConfiguration{
 
     public void setMixedConfigUseBasicNew(boolean mixedConfigUseBasicNew) {
         this.mixedConfigUseBasicNew = mixedConfigUseBasicNew;
+    }
+
+    public boolean getCollectPackageTaskRefreshSwitch() {
+        return collectPackageTaskRefreshSwitch;
+    }
+
+    public void setCollectPackageTaskRefreshSwitch(boolean collectPackageTaskRefreshSwitch) {
+        this.collectPackageTaskRefreshSwitch = collectPackageTaskRefreshSwitch;
     }
 }

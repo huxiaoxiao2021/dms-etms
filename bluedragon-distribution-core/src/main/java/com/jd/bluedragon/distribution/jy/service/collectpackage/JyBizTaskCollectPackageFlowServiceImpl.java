@@ -31,4 +31,9 @@ public class JyBizTaskCollectPackageFlowServiceImpl implements JyBizTaskCollectP
     public List<JyBizTaskCollectPackageFlowEntity> queryListByBizIds(List<String> bizIds) {
         return jyBizTaskCollectPackageFlowDao.queryListByBizIds(bizIds);
     }
+
+    @Override
+    public boolean deleteByBizId(String bizId) {
+        return jyBizTaskCollectPackageFlowDao.deleteByBizId(bizId) > 0;
+    }
 }

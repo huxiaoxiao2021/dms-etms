@@ -39,4 +39,8 @@ public class JyBizTaskCollectPackageFlowDao extends BaseDao<JyBizTaskCollectPack
     public List<JyBizTaskCollectPackageFlowEntity> queryListByBizIds(List<String> bizIds) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryListByBizIds", bizIds);
     }
+
+    public int deleteByBizId(String  bizId){
+        return this.getSqlSession().update(NAMESPACE + ".deleteByBizId", bizId);
+    }
 }

@@ -23,4 +23,11 @@ public interface JyBizTaskCollectPackageFlowService {
      * @return
      */
     List<JyBizTaskCollectPackageFlowEntity> queryListByBizIds(List<String> bizIds);
+
+    /**
+     * 根据bizId删除
+     * @param bizId
+     * @return
+     */
+    boolean deleteByBizId(String bizId);
 }
