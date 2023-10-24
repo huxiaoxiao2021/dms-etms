@@ -51,7 +51,11 @@ public class JyBizTaskCollectPackageDao extends BaseDao<JyBizTaskCollectPackageE
     }
 
 
-    public int updateStatusByBizIds(JyBizTaskCollectPackageQuery query) {
-        return this.getSqlSession().update(NAMESPACE + ".updateStatusByBizIds", query);
+    public int updateStatusByIds(JyBizTaskCollectPackageQuery query) {
+        return this.getSqlSession().update(NAMESPACE + ".updateStatusByIds", query);
+    }
+
+    public List<JyBizTaskCollectPackageEntity> findByBizIds(List<String> bizIds) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findByBizIds", bizIds);
     }
 }

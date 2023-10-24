@@ -5,7 +5,6 @@ import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.DmsConfigManager;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -33,7 +32,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
-import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
@@ -42,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,9 +86,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
     @Autowired
     private DmsConfigManager dmsConfigManager;
 
-    @Autowired
-    private BaseMajorManager baseMajorManager;
-
+    private static final Integer SEALING_BOX_LIMIT = 100;
     @Override
     public InvokeResult<CollectPackageResp> collectPackage(CollectPackageReq request) {
         //基础校验
@@ -524,11 +519,19 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         }
 
         List<String> bizIds = request.getSealingBoxDtoList().stream().map(SealingBoxDto::getBizId).collect(Collectors.toList());
+        List<JyBizTaskCollectPackageEntity> taskList = jyBizTaskCollectPackageService.findByBizIds(bizIds);
+        if (CollectionUtils.isEmpty(taskList)) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("未获取到有效的任务信息!");
+            return result;
+        }
+        List<Long> ids = taskList.stream().map(JyBizTaskCollectPackageEntity::getId).collect(Collectors.toList());
+
         JyBizTaskCollectPackageQuery query = new JyBizTaskCollectPackageQuery();
-        query.setBizIds(bizIds);
+        query.setIds(ids);
         query.setTaskStatus(JyBizTaskCollectPackageStatusEnum.SEALED.getCode());
         log.info("开始更新集包任务状态：{}", JsonHelper.toJson(query));
-        if (!jyBizTaskCollectPackageService.updateStatusByBizIds(query)) {
+        if (!jyBizTaskCollectPackageService.updateStatusByIds(query)) {
             log.info("批量封箱失败：{}", JsonHelper.toJson(query));
             result.setCode(RESULT_PARAMETER_ERROR_CODE);
             result.setMessage("批量封箱失败!");
@@ -541,6 +544,12 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService{
         if (request == null || CollectionUtils.isEmpty(request.getSealingBoxDtoList())) {
             result.setCode(RESULT_THIRD_ERROR_CODE);
             result.setMessage("未获取到任务信息！");
+            return false;
+        }
+
+        if (request.getSealingBoxDtoList().size() > SEALING_BOX_LIMIT) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("批量封箱的数量不能超过" + SEALING_BOX_LIMIT + "， 请取消勾选后再提交!");
             return false;
         }
         return true;
