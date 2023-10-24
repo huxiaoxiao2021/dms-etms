@@ -228,15 +228,8 @@ public class NewSealVehicleResource {
 
         //设置运力基本信息
         response.setSiteCode(data.getEndNodeId());
-        if(Objects.isNull(data.getEndNodeId())) {
-            response.setCode(JdResponse.CODE_SERVICE_ERROR);
-            response.setMessage("当前运力编码下一跳为空");
-            return response;
-        }
-        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(data.getEndNodeId());
-        if(!Objects.isNull(siteInfo)) {
-            response.setSiteName(siteInfo.getSiteName());
-        }
+        response.setSiteName(data.getEndNodeName());
+
         response.setSendUserType(data.getTransType());
         response.setRouteType(data.getTransType());
         response.setDriver(data.getCarrierName());
