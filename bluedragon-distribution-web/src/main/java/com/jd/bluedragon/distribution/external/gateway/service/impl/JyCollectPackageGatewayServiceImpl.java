@@ -85,7 +85,7 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
 
     @Override
     public JdCResponse<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) {
-        return null;
+        return retJdCResponse(jyCollectPackageService.cancelCollectPackage(request));
     }
 
     @Override

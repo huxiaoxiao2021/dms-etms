@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.collectpackage;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackStatusCount;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery;
+import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
 
 import java.util.List;
 
@@ -57,4 +58,12 @@ public interface JyBizTaskCollectPackageService {
      * @return
      */
     Boolean updateStatusByBizIds(JyBizTaskCollectPackageQuery query);
+
+    /**
+     * 拣运取消单个集包能力
+     * @param cancelCollectPackageDto
+     * @return
+     */
+
+    boolean cancelJyCollectPackage(CancelCollectPackageDto cancelCollectPackageDto);
 }

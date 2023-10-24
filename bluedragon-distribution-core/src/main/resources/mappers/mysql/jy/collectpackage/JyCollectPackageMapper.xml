@@ -268,4 +268,11 @@
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="queryJyCollectPackageRecord"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_collect_package>
+    where biz_id =#{bizId} and package_code  =#{packageCode} and start_site_id  =#{startSiteId} yn =1 limit 1;
+  </select>
 </mapper>
