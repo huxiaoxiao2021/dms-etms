@@ -9,7 +9,6 @@ import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingResponse;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigResponse;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.RuleTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.YNEnum;
@@ -106,7 +105,7 @@ public class CrossSortingResource {
     }
 
     private List<CrossSorting> getMixedConfigUseBasicNew(CrossSortingRequest request) {
-        List<CollectBoxFlowDirectionConf> flowConfList = boxLimitConfigManager.listCollectBoxFlowDirection(assembleCollectBoxFlowDirectionConf(request));
+        List<CollectBoxFlowDirectionConf> flowConfList = boxLimitConfigManager.listCollectBoxFlowDirectionMix(assembleCollectBoxFlowDirectionConf(request));
         List<CrossSorting> mixDmsList = new ArrayList<>();
         if (CollectionUtils.isEmpty(flowConfList)) {
             for (CollectBoxFlowDirectionConf collectBoxFlowDirectionConf : flowConfList) {

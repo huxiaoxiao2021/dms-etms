@@ -56,8 +56,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -356,7 +354,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      */
     private List<Integer> queryMixBoxFlowList(CollectPackageReq req) {
         CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(req);
-        List<CollectBoxFlowDirectionConf> collectBoxFlowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con);//TODO 替换成查询任务的流向集合
+        List<CollectBoxFlowDirectionConf> collectBoxFlowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirectionMix(con);//TODO 替换成查询任务的流向集合
         if (CollectionUtils.isEmpty(collectBoxFlowDirectionConfList)) {
             throw new JyBizException("未查询到对应目的地的可混装的流向集合！");
         }
@@ -845,137 +843,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         resp.setCollectPackStatusCountList(jyBizTaskCollectPackageService.queryTaskStatusCount(searchPageQuery));
         resp.setCollectPackTaskDtoList(getCollectPackageFlowDtoList(searchPageQuery));
         return result;
-    }
-
-    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    @Override
-    public boolean createTaskAndFlowInfo(JyBizTaskCollectPackageEntity newTask, JyBizTaskCollectPackageEntity oldTask) {
-
-        if (oldTask != null) {
-            // 逻辑删除原任务
-            deleteOldTask(oldTask);
-        }
-        // 保存箱号任务
-        log.info("新增或更新集包任务信息：{}", JsonHelper.toJson(newTask));
-        jyBizTaskCollectPackageService.save(newTask);
-
-        // 如果支持混装，保存当前流向集合
-        if (MixBoxTypeEnum.MIX_ENABLE.getCode().equals(newTask.getMixBoxType())) {
-            jyBizTaskCollectPackageFlowService.batchInsert(getMixBoxFlowList(newTask));
-        } else {
-            // 不支持混装的直接保存包裹目的地
-            jyBizTaskCollectPackageFlowService.batchInsert(getBoxFlow(newTask));
-        }
-        return true;
-    }
-
-    private void deleteOldTask(JyBizTaskCollectPackageEntity oldTask) {
-        oldTask.setYn(false);
-        jyBizTaskCollectPackageService.updateById(oldTask);
-        List<JyBizTaskCollectPackageFlowEntity> flowList = jyBizTaskCollectPackageFlowService.queryListByBizIds(Collections.singletonList(oldTask.getBizId()));
-        if (!CollectionUtils.isEmpty(flowList)) {
-            List<Long> ids = flowList.stream().map(JyBizTaskCollectPackageFlowEntity::getId).collect(Collectors.toList());
-            jyBizTaskCollectPackageFlowService.deleteByIds(ids);
-        }
-    }
-
-    private List<JyBizTaskCollectPackageFlowEntity> getBoxFlow(JyBizTaskCollectPackageEntity task) {
-        JyBizTaskCollectPackageFlowEntity entity = new JyBizTaskCollectPackageFlowEntity();
-        entity.setBoxCode(task.getBoxCode());
-        entity.setCreateTime(task.getCreateTime());
-        entity.setCreateUserErp(task.getCreateUserErp());
-        entity.setStartSiteId(task.getStartSiteId());
-        entity.setStartSiteName(task.getStartSiteName());
-        entity.setCreateUserName(task.getCreateUserName());
-        entity.setCollectPackageBizId(task.getBizId());
-        entity.setEndSiteId(task.getEndSiteId());
-        entity.setEndSiteName(task.getEndSiteName());
-        entity.setUpdateTime(task.getUpdateTime());
-        entity.setUpdateUserErp(task.getUpdateUserErp());
-        entity.setUpdateUserName(task.getUpdateUserName());
-        entity.setYn(Boolean.TRUE);
-        return Collections.singletonList(entity);
-    }
-
-    /**
-     * 查询混装的流向集合（查询混装的集包的流向集合）
-     *
-     * @return
-     */
-    private List<JyBizTaskCollectPackageFlowEntity> getMixBoxFlowList(JyBizTaskCollectPackageEntity task) {
-        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(task);
-        List<CollectBoxFlowDirectionConf> collectBoxFlowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con);
-        if (CollectionUtils.isEmpty(collectBoxFlowDirectionConfList)) {
-            log.info("包裹号: {}未查询到对应目的地的可混装的流向集合！ request：{}", task.getBoxCode(), JsonHelper.toJson(con));
-            throw new JyBizException("未查询到对应目的地的可混装的流向集合!");
-        }
-        return collectBoxFlowDirectionConfList.stream().map(item -> {
-            JyBizTaskCollectPackageFlowEntity entity = new JyBizTaskCollectPackageFlowEntity();
-            entity.setBoxCode(task.getBoxCode());
-            entity.setCreateTime(task.getCreateTime());
-            entity.setCreateUserErp(task.getCreateUserErp());
-            entity.setStartSiteId(task.getStartSiteId());
-            entity.setStartSiteName(task.getStartSiteName());
-            entity.setCreateUserName(task.getCreateUserName());
-            entity.setCollectPackageBizId(task.getBizId());
-            entity.setEndSiteId(item.getEndSiteId().longValue());
-            entity.setEndSiteName(item.getEndSiteName());
-            entity.setUpdateTime(task.getUpdateTime());
-            entity.setUpdateUserErp(task.getUpdateUserErp());
-            entity.setUpdateUserName(task.getUpdateUserName());
-            entity.setYn(Boolean.TRUE);
-            return entity;
-        }).collect(Collectors.toList());
-    }
-
-    private CollectBoxFlowDirectionConf assembleCollectBoxFlowDirectionConf(JyBizTaskCollectPackageEntity task) {
-        CollectBoxFlowDirectionConf conf = new CollectBoxFlowDirectionConf();
-        conf.setStartSiteId(task.getStartSiteId().intValue());
-        conf.setBoxReceiveId(task.getEndSiteId().intValue());
-        conf.setFlowType(FlowDirectionTypeEnum.OUT_SITE.getCode());
-        return conf;
-    }
-
-    private JyBizTaskCollectPackageEntity convertToTask(Box box, JyBizTaskCollectPackageEntity oldBox) {
-        JyBizTaskCollectPackageEntity entity = new JyBizTaskCollectPackageEntity();
-        entity.setBoxCode(box.getCode());
-        entity.setEndSiteId(box.getReceiveSiteCode().longValue());
-        entity.setEndSiteName(box.getReceiveSiteName());
-        entity.setStartSiteId(box.getCreateSiteCode().longValue());
-        entity.setStartSiteName(box.getCreateSiteName());
-        entity.setTransportType(box.getTransportType());
-        entity.setBoxType(box.getType());
-        entity.setMixBoxType(box.getMixBoxType());
-        entity.setTaskStatus(JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode());
-        entity.setYn(box.getYn() == 1);
-        if (oldBox != null) {
-            entity.setBizId(oldBox.getBizId());
-        } else {
-            entity.setBizId(genTaskBizId());
-        }
-        if (box.getUpdateUserCode() != null) {
-            BaseStaffSiteOrgDto updateUser = baseMajorManager.getBaseStaffInAllRoleByStaffNo(box.getUpdateUserCode());
-            if (updateUser != null) {
-                entity.setUpdateUserErp(updateUser.getErp());
-                entity.setUpdateUserName(box.getUpdateUser());
-                entity.setUpdateTime(box.getUpdateTime());
-            }
-        }
-        if (box.getCreateUserCode() != null) {
-            BaseStaffSiteOrgDto createUser = baseMajorManager.getBaseStaffInAllRoleByStaffNo(box.getCreateUserCode());
-            if (createUser != null) {
-                entity.setCreateUserErp(createUser.getErp());
-                entity.setCreateUserName(box.getCreateUser());
-                entity.setCreateTime(box.getCreateTime());
-            }
-        }
-
-        return entity;
-    }
-
-    private String genTaskBizId() {
-        String ownerKey = String.format(JyBizTaskCollectPackageEntity.BIZ_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
-        return ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
     }
 
     private boolean checkSearchPackageTaskReq(SearchPackageTaskReq request, InvokeResult<CollectPackageTaskResp> result) {

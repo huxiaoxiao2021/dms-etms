@@ -4,37 +4,40 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackStatusCount;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
+import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.dao.collectpackage.JyBizTaskCollectPackageDao;
 import com.jd.bluedragon.distribution.jy.dao.collectpackage.JyCollectPackageDao;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
+import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
-import com.jd.bluedragon.distribution.middleend.sorting.service.ISortingService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
+import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.io.Console;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -52,6 +55,12 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
     private CacheService cacheService;
     @Autowired
     private SortingServiceFactory sortingServiceFactory;
+
+    @Autowired
+    private JyBizTaskCollectPackageFlowService jyBizTaskCollectPackageFlowService;
+
+    @Autowired
+    private BoxLimitConfigManager boxLimitConfigManager;
 
     @Override
     public JyBizTaskCollectPackageEntity findByBizId(String bizId) {
@@ -109,6 +118,95 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
             deleteJyCollectPackageRecord(dto);
         }
         return true;
+    }
+
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Override
+    public boolean createTaskAndFlowInfo(JyBizTaskCollectPackageEntity newTask, JyBizTaskCollectPackageEntity oldTask) {
+
+        if (oldTask != null) {
+            // 逻辑删除原任务
+            deleteOldTask(oldTask);
+        }
+        // 保存箱号任务
+        log.info("新增或更新集包任务信息：{}", JsonHelper.toJson(newTask));
+        this.save(newTask);
+
+        // 如果支持混装，保存当前流向集合
+        if (MixBoxTypeEnum.MIX_ENABLE.getCode().equals(newTask.getMixBoxType())) {
+            jyBizTaskCollectPackageFlowService.batchInsert(getMixBoxFlowList(newTask));
+        } else {
+            // 不支持混装的直接保存包裹目的地
+            jyBizTaskCollectPackageFlowService.batchInsert(getBoxFlow(newTask));
+        }
+        return true;
+    }
+
+    private void deleteOldTask(JyBizTaskCollectPackageEntity oldTask) {
+        oldTask.setYn(false);
+        this.updateById(oldTask);
+        List<JyBizTaskCollectPackageFlowEntity> flowList = jyBizTaskCollectPackageFlowService.queryListByBizIds(Collections.singletonList(oldTask.getBizId()));
+        if (!org.apache.commons.collections4.CollectionUtils.isEmpty(flowList)) {
+            List<Long> ids = flowList.stream().map(JyBizTaskCollectPackageFlowEntity::getId).collect(Collectors.toList());
+            jyBizTaskCollectPackageFlowService.deleteByIds(ids);
+        }
+    }
+
+    private List<JyBizTaskCollectPackageFlowEntity> getBoxFlow(JyBizTaskCollectPackageEntity task) {
+        JyBizTaskCollectPackageFlowEntity entity = new JyBizTaskCollectPackageFlowEntity();
+        entity.setBoxCode(task.getBoxCode());
+        entity.setCreateTime(task.getCreateTime());
+        entity.setCreateUserErp(task.getCreateUserErp());
+        entity.setStartSiteId(task.getStartSiteId());
+        entity.setStartSiteName(task.getStartSiteName());
+        entity.setCreateUserName(task.getCreateUserName());
+        entity.setCollectPackageBizId(task.getBizId());
+        entity.setEndSiteId(task.getEndSiteId());
+        entity.setEndSiteName(task.getEndSiteName());
+        entity.setUpdateTime(task.getUpdateTime());
+        entity.setUpdateUserErp(task.getUpdateUserErp());
+        entity.setUpdateUserName(task.getUpdateUserName());
+        entity.setYn(Boolean.TRUE);
+        return Collections.singletonList(entity);
+    }
+
+    /**
+     * 查询混装的流向集合（查询混装的集包的流向集合）
+     *
+     * @return
+     */
+    private List<JyBizTaskCollectPackageFlowEntity> getMixBoxFlowList(JyBizTaskCollectPackageEntity task) {
+        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(task);
+        List<CollectBoxFlowDirectionConf> collectBoxFlowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirectionMix(con);
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(collectBoxFlowDirectionConfList)) {
+            log.info("包裹号: {}未查询到对应目的地的可混装的流向集合！ request：{}", task.getBoxCode(), JsonHelper.toJson(con));
+            throw new JyBizException("未查询到对应目的地的可混装的流向集合!");
+        }
+        return collectBoxFlowDirectionConfList.stream().map(item -> {
+            JyBizTaskCollectPackageFlowEntity entity = new JyBizTaskCollectPackageFlowEntity();
+            entity.setBoxCode(task.getBoxCode());
+            entity.setCreateTime(task.getCreateTime());
+            entity.setCreateUserErp(task.getCreateUserErp());
+            entity.setStartSiteId(task.getStartSiteId());
+            entity.setStartSiteName(task.getStartSiteName());
+            entity.setCreateUserName(task.getCreateUserName());
+            entity.setCollectPackageBizId(task.getBizId());
+            entity.setEndSiteId(item.getEndSiteId().longValue());
+            entity.setEndSiteName(item.getEndSiteName());
+            entity.setUpdateTime(task.getUpdateTime());
+            entity.setUpdateUserErp(task.getUpdateUserErp());
+            entity.setUpdateUserName(task.getUpdateUserName());
+            entity.setYn(Boolean.TRUE);
+            return entity;
+        }).collect(Collectors.toList());
+    }
+
+    private CollectBoxFlowDirectionConf assembleCollectBoxFlowDirectionConf(JyBizTaskCollectPackageEntity task) {
+        CollectBoxFlowDirectionConf conf = new CollectBoxFlowDirectionConf();
+        conf.setStartSiteId(task.getStartSiteId().intValue());
+        conf.setBoxReceiveId(task.getEndSiteId().intValue());
+        conf.setFlowType(FlowDirectionTypeEnum.OUT_SITE.getCode());
+        return conf;
     }
 
     private void deleteJyCollectPackageRecord(CancelCollectPackageDto dto) {

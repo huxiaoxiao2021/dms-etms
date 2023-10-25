@@ -19,5 +19,5 @@ public interface BoxLimitConfigManager {
      */
     Integer getLimitNums( Integer createSiteCode, String type);
 
-    List<CollectBoxFlowDirectionConf> listCollectBoxFlowDirection(CollectBoxFlowDirectionConf collectBoxFlowDirectionConf);
+    List<CollectBoxFlowDirectionConf> listCollectBoxFlowDirectionMix(CollectBoxFlowDirectionConf collectBoxFlowDirectionConf);
 }

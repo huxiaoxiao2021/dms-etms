@@ -17,8 +17,12 @@ import org.springframework.stereotype.Service;
 import com.jdl.basic.common.utils.Pager;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -50,7 +54,7 @@ public class BoxLimitConfigManagerImpl implements BoxLimitConfigManager {
     }
 
     @Override
-    public List<CollectBoxFlowDirectionConf> listCollectBoxFlowDirection(CollectBoxFlowDirectionConf collectBoxFlowDirectionConf) {
+    public List<CollectBoxFlowDirectionConf> listCollectBoxFlowDirectionMix(CollectBoxFlowDirectionConf collectBoxFlowDirectionConf) {
         if (log.isInfoEnabled()){
             log.info("小件集包查询集包规则参数：{}", JsonHelper.toJSONString(collectBoxFlowDirectionConf));
         }
@@ -69,7 +73,13 @@ public class BoxLimitConfigManagerImpl implements BoxLimitConfigManager {
                 log.info("小件集包查询集包规则结果：{}",JsonHelper.toJSONString(rs));
             }
             if (ObjectHelper.isNotNull(rs) && rs.isSuccess() && ObjectHelper.isNotNull(rs.getData()) && CollectionUtils.isNotEmpty(rs.getData().getData())){
-                return rs.getData().getData();
+                List<CollectBoxFlowDirectionConf> list = new ArrayList<>();
+                for (CollectBoxFlowDirectionConf datum : rs.getData().getData()) {
+                    if (COLLECT_CLAIM_MIX.equals(datum.getCollectClaim())) {
+                        list.add(datum);
+                    }
+                }
+                return list;
             }
         }
         return null;
