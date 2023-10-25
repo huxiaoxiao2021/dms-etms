@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.jy.service.collectpackage;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 
 public interface JyCollectPackageService {
@@ -61,8 +60,9 @@ public interface JyCollectPackageService {
     /**
      * 创建集包任务并保存集包流向快照
      *
-     * @param task
+     * @param newTask
+     * @param oldTask
      * @return
      */
-    boolean createTaskAndFlowInfo(JyBizTaskCollectPackageEntity task);
+    boolean createTaskAndFlowInfo(JyBizTaskCollectPackageEntity newTask, JyBizTaskCollectPackageEntity oldTask);
 }

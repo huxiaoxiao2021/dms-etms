@@ -849,20 +849,34 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
-    public boolean createTaskAndFlowInfo(JyBizTaskCollectPackageEntity task) {
+    public boolean createTaskAndFlowInfo(JyBizTaskCollectPackageEntity newTask, JyBizTaskCollectPackageEntity oldTask) {
 
+        if (oldTask != null) {
+            // 逻辑删除原任务
+            deleteOldTask(oldTask);
+        }
         // 保存箱号任务
-        log.info("新增或更新集包任务信息：{}", JsonHelper.toJson(task));
-        jyBizTaskCollectPackageService.save(task);
+        log.info("新增或更新集包任务信息：{}", JsonHelper.toJson(newTask));
+        jyBizTaskCollectPackageService.save(newTask);
 
         // 如果支持混装，保存当前流向集合
-        if (MixBoxTypeEnum.MIX_ENABLE.getCode().equals(task.getMixBoxType())) {
-            jyBizTaskCollectPackageFlowService.batchInsert(getMixBoxFlowList(task));
+        if (MixBoxTypeEnum.MIX_ENABLE.getCode().equals(newTask.getMixBoxType())) {
+            jyBizTaskCollectPackageFlowService.batchInsert(getMixBoxFlowList(newTask));
         } else {
             // 不支持混装的直接保存包裹目的地
-            jyBizTaskCollectPackageFlowService.batchInsert(getBoxFlow(task));
+            jyBizTaskCollectPackageFlowService.batchInsert(getBoxFlow(newTask));
         }
         return true;
+    }
+
+    private void deleteOldTask(JyBizTaskCollectPackageEntity oldTask) {
+        oldTask.setYn(false);
+        jyBizTaskCollectPackageService.updateById(oldTask);
+        List<JyBizTaskCollectPackageFlowEntity> flowList = jyBizTaskCollectPackageFlowService.queryListByBizIds(Collections.singletonList(oldTask.getBizId()));
+        if (!CollectionUtils.isEmpty(flowList)) {
+            List<Long> ids = flowList.stream().map(JyBizTaskCollectPackageFlowEntity::getId).collect(Collectors.toList());
+            jyBizTaskCollectPackageFlowService.deleteByIds(ids);
+        }
     }
 
     private List<JyBizTaskCollectPackageFlowEntity> getBoxFlow(JyBizTaskCollectPackageEntity task) {
