@@ -87,28 +87,16 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
             throw new JyBizException("当前系统繁忙,请稍后再试！");
         }
         // 查询当前箱号是否存在任务
-        JyBizTaskCollectPackageEntity oldBox = jyBizTaskCollectPackageService.findByBoxCode(box.getCode());
-        if (oldBox != null && !dmsConfigManager.getPropertyConfig().getCollectPackageTaskRefreshSwitch()) {
+        JyBizTaskCollectPackageEntity oldTask = jyBizTaskCollectPackageService.findByBoxCode(box.getCode());
+        if (oldTask != null && !dmsConfigManager.getPropertyConfig().getCollectPackageTaskRefreshSwitch()) {
             log.info("已存在该箱号的集包任务：{}", box.getCode());
             return;
         }
 
         try {
-            if (oldBox != null) {
-                // 逻辑删除原任务，复用原任务BizId
-                oldBox.setYn(false);
-                jyBizTaskCollectPackageService.updateById(oldBox);
-                List<JyBizTaskCollectPackageFlowEntity> flowList = jyBizTaskCollectPackageFlowService
-                        .queryListByBizIds(Collections.singletonList(oldBox.getBizId()));
-                if (!CollectionUtils.isEmpty(flowList)) {
-                    List<Long> ids = flowList.stream().map(JyBizTaskCollectPackageFlowEntity::getId).collect(Collectors.toList());
-                    jyBizTaskCollectPackageFlowService.deleteByIds(ids);
-                }
-            }
-
-            JyBizTaskCollectPackageEntity task = convertToTask(box, oldBox);
+            JyBizTaskCollectPackageEntity newTask = convertToTask(box, oldTask);
             // 创建任务并保存任务流向信息
-            jyCollectPackageService.createTaskAndFlowInfo(task);
+            jyCollectPackageService.createTaskAndFlowInfo(newTask, oldTask);
         } catch (JyBizException e) {
             // 自定义异常不重试
             log.error("首次打印箱号生成箱任务失败：{}", JsonHelper.toJson(message), e);
