@@ -214,18 +214,12 @@ public class SiteHelper {
 
     /**
      * 判断是否是自营营业部
-     * 4-1
+     * 4-4-1
      */
     public static Boolean isSelfSalesDeptSite(Site site) {
-
-        if (site == null || site.getType() == null || site.getSubType() == null) {
-            return Boolean.FALSE;
-        }
-
-        if (site.getType() == 4 && site.getSubType() == 1) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+        return Objects.equals(site.getType(), 4) 
+                && Objects.equals(site.getSubType(), 4)
+                && Objects.equals(site.getThirdType(), 1);
     }
 
     /**
