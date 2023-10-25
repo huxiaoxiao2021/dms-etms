@@ -73,4 +73,7 @@ public interface JyCollectPackageGatewayService {
    */
   JdCResponse<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request);
 
+
+
+
 }
