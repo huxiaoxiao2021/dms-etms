@@ -40,7 +40,7 @@ public class JyBizTaskCollectPackageFlowDao extends BaseDao<JyBizTaskCollectPack
         return this.getSqlSession().selectList(NAMESPACE + ".queryListByBizIds", bizIds);
     }
 
-    public int deleteByBizId(String  bizId){
-        return this.getSqlSession().update(NAMESPACE + ".deleteByBizId", bizId);
+    public int deleteByIds(List<Long>  ids){
+        return this.getSqlSession().update(NAMESPACE + ".deleteByIds", ids);
     }
 }

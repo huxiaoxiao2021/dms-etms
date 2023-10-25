@@ -4,13 +4,11 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyBizTaskCollectPackageFlowService;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyBizTaskCollectPackageService;
@@ -20,21 +18,15 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
-import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
-import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +56,17 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
 
     @Autowired
     private DmsConfigManager dmsConfigManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+
+    @Autowired
+    @Qualifier("redisJySendBizIdSequenceGen")
+    private JimdbSequenceGen redisJyBizIdSequenceGen;
+
+    @Autowired
+    private JyBizTaskCollectPackageFlowService jyBizTaskCollectPackageFlowService;
     
     @Override
     public void consume(Message message) throws Exception {
@@ -91,15 +94,71 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
         }
 
         try {
+            if (oldBox != null) {
+                // 逻辑删除原任务，复用原任务BizId
+                oldBox.setYn(false);
+                jyBizTaskCollectPackageService.updateById(oldBox);
+                List<JyBizTaskCollectPackageFlowEntity> flowList = jyBizTaskCollectPackageFlowService
+                        .queryListByBizIds(Collections.singletonList(oldBox.getBizId()));
+                if (!CollectionUtils.isEmpty(flowList)) {
+                    List<Long> ids = flowList.stream().map(JyBizTaskCollectPackageFlowEntity::getId).collect(Collectors.toList());
+                    jyBizTaskCollectPackageFlowService.deleteByIds(ids);
+                }
+            }
+
+            JyBizTaskCollectPackageEntity task = convertToTask(box, oldBox);
             // 创建任务并保存任务流向信息
-            jyCollectPackageService.createTaskAndFlowInfo(box, oldBox);
+            jyCollectPackageService.createTaskAndFlowInfo(task);
         } catch (JyBizException e) {
             // 自定义异常不重试
             log.error("首次打印箱号生成箱任务失败：{}", JsonHelper.toJson(message), e);
         } catch (Exception e) {
             log.error("保存集包任务信息异常：{}", JsonHelper.toJson(message), e);
         } finally {
-        jimDbLock.releaseLock(boxLockKey, box.getCode());
+            jimDbLock.releaseLock(boxLockKey, box.getCode());
+        }
     }
+
+    private JyBizTaskCollectPackageEntity convertToTask(Box box, JyBizTaskCollectPackageEntity oldBox) {
+        JyBizTaskCollectPackageEntity entity = new JyBizTaskCollectPackageEntity();
+        entity.setBoxCode(box.getCode());
+        entity.setEndSiteId(box.getReceiveSiteCode().longValue());
+        entity.setEndSiteName(box.getReceiveSiteName());
+        entity.setStartSiteId(box.getCreateSiteCode().longValue());
+        entity.setStartSiteName(box.getCreateSiteName());
+        entity.setTransportType(box.getTransportType());
+        entity.setBoxType(box.getType());
+        entity.setMixBoxType(box.getMixBoxType());
+        entity.setTaskStatus(JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode());
+        entity.setYn(box.getYn() == 1);
+        entity.setCreateTime(box.getCreateTime());
+        if (oldBox != null) {
+            entity.setBizId(oldBox.getBizId());
+        }else {
+            entity.setBizId(genTaskBizId());
+        }
+        if (box.getUpdateUserCode() != null) {
+            BaseStaffSiteOrgDto updateUser = baseMajorManager.getBaseStaffInAllRoleByStaffNo(box.getUpdateUserCode());
+            if (updateUser != null) {
+                entity.setUpdateUserErp(updateUser.getErp());
+                entity.setUpdateUserName(box.getUpdateUser());
+                entity.setUpdateTime(box.getUpdateTime());
+            }
+        }
+        if (box.getCreateUserCode() != null) {
+            BaseStaffSiteOrgDto createUser = baseMajorManager.getBaseStaffInAllRoleByStaffNo(box.getCreateUserCode());
+            if (createUser != null) {
+                entity.setCreateUserErp(createUser.getErp());
+                entity.setCreateUserName(box.getCreateUser());
+            }
+        }
+
+        return entity;
+    }
+
+
+    private String genTaskBizId() {
+        String ownerKey = String.format(JyBizTaskCollectPackageEntity.BIZ_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
+        return ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
     }
 }

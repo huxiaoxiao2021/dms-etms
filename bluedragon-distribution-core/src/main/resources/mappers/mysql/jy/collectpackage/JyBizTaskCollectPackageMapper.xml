@@ -313,11 +313,11 @@
     where box_code = #{boxCode,jdbcType=VARCHAR}
   </select>
 
-  <update id="updateStatusByBizIds" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery">
+  <update id="updateStatusByIds" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery">
     update jy_biz_task_collect_package
     set task_status = #{taskStatus,jdbcType=TINYINT}
-    where biz_id in
-    <foreach collection="bizIds" item="item" index="index" open="(" separator="," close=")">
+    where id in
+    <foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
       #{item,jdbcType=VARCHAR}
     </foreach>
     and yn = 1
@@ -329,5 +329,16 @@
     from jy_biz_task_collect_package
     where biz_id = #{bizId,jdbcType=VARCHAR}
       and yn = 1
+  </select>
+
+  <select id="findByBizIds" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from jy_biz_task_collect_package
+    where biz_id in
+    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+      #{item,jdbcType=VARCHAR}
+    </foreach>
+    and yn = 1
   </select>
 </mapper>

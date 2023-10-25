@@ -33,7 +33,7 @@ public class JyBizTaskCollectPackageFlowServiceImpl implements JyBizTaskCollectP
     }
 
     @Override
-    public boolean deleteByBizId(String bizId) {
-        return jyBizTaskCollectPackageFlowDao.deleteByBizId(bizId) > 0;
+    public boolean deleteByIds(List<Long> ids) {
+        return jyBizTaskCollectPackageFlowDao.deleteByIds(ids) > 0;
     }
 }

@@ -30,7 +30,7 @@ public class BoxFirstPrintConsumerTest {
     public void consumerTest() {
         Message message = new Message();
         Box box = new Box();
-        box.setCode("BC1001231019260000403101");
+        box.setCode("BC1001231019090000403101");
         box.setType("BC");
         box.setYn(1);
         box.setMixBoxType(0);

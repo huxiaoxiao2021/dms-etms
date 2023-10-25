@@ -57,6 +57,14 @@ public interface JyBizTaskCollectPackageService {
      * @param query
      * @return
      */
+    Boolean updateStatusByIds(JyBizTaskCollectPackageQuery query);
+
+    /**
+     * 根据BizId批量查询
+     * @param bizIds
+     * @return
+     */
+    List<JyBizTaskCollectPackageEntity> findByBizIds(List<String> bizIds);
     Boolean updateStatusByBizIds(JyBizTaskCollectPackageQuery query);
 
     /**

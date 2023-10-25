@@ -114,6 +114,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Qualifier("batchCancelCollectPackageProduce")
     private DefaultJMQProducer batchCancelCollectPackageProduce;
 
+    private static final Integer SEALING_BOX_LIMIT = 100;
+
+
     /**
      * 集包
      *
@@ -563,8 +566,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
                 collectPackageFlowDto.setEndSiteName(entity.getEndSiteName());
                 List<CollectPackageFlowDto> flowDtoList = flowMap.get(entity.getCollectPackageBizId());
                 if (CollectionUtils.isEmpty(flowDtoList)) {
-                    flowMap.put(entity.getCollectPackageBizId(), new ArrayList<>());
-                    flowDtoList = flowMap.get(entity.getCollectPackageBizId());
+                    flowDtoList = new ArrayList<>();
+                    flowMap.put(entity.getCollectPackageBizId(), flowDtoList);
                 }
                 flowDtoList.add(collectPackageFlowDto);
             }
@@ -606,6 +609,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Override
     public InvokeResult<TaskDetailResp> queryTaskDetail(TaskDetailReq request) {
         InvokeResult<TaskDetailResp> result = new InvokeResult<>();
+
+        if (!checkTaskDetailReq(request, result)) {
+            return result;
+        }
+
         TaskDetailResp resp = new TaskDetailResp();
         result.setData(resp);
         JyBizTaskCollectPackageEntity task = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
@@ -629,6 +637,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return result;
     }
 
+    private boolean checkTaskDetailReq(TaskDetailReq request, InvokeResult<TaskDetailResp> result) {
+        if (request == null || StringUtils.isEmpty(request.getBizId())) {
+            result.setCode(RESULT_NULL_CODE);
+            result.setMessage("未获取到集包任务id！");
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public InvokeResult<SealingBoxResp> sealingBox(SealingBoxReq request) {
         InvokeResult<SealingBoxResp> result = new InvokeResult<>();
@@ -637,11 +654,19 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
 
         List<String> bizIds = request.getSealingBoxDtoList().stream().map(SealingBoxDto::getBizId).collect(Collectors.toList());
+        List<JyBizTaskCollectPackageEntity> taskList = jyBizTaskCollectPackageService.findByBizIds(bizIds);
+        if (CollectionUtils.isEmpty(taskList)) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("未获取到有效的任务信息!");
+            return result;
+        }
+        List<Long> ids = taskList.stream().map(JyBizTaskCollectPackageEntity::getId).collect(Collectors.toList());
+
         JyBizTaskCollectPackageQuery query = new JyBizTaskCollectPackageQuery();
-        query.setBizIds(bizIds);
+        query.setIds(ids);
         query.setTaskStatus(JyBizTaskCollectPackageStatusEnum.SEALED.getCode());
         log.info("开始更新集包任务状态：{}", JsonHelper.toJson(query));
-        if (!jyBizTaskCollectPackageService.updateStatusByBizIds(query)) {
+        if (!jyBizTaskCollectPackageService.updateStatusByIds(query)) {
             log.info("批量封箱失败：{}", JsonHelper.toJson(query));
             result.setCode(RESULT_PARAMETER_ERROR_CODE);
             result.setMessage("批量封箱失败!");
@@ -654,6 +679,12 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (request == null || CollectionUtils.isEmpty(request.getSealingBoxDtoList())) {
             result.setCode(RESULT_THIRD_ERROR_CODE);
             result.setMessage("未获取到任务信息！");
+            return false;
+        }
+
+        if (request.getSealingBoxDtoList().size() > SEALING_BOX_LIMIT) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("批量封箱的数量不能超过" + SEALING_BOX_LIMIT + "， 请取消勾选后再提交!");
             return false;
         }
         return true;
@@ -818,16 +849,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
-    public boolean createTaskAndFlowInfo(Box box, JyBizTaskCollectPackageEntity oldBox) {
-        if (dmsConfigManager.getPropertyConfig().getCollectPackageTaskRefreshSwitch() && oldBox != null) {
-            // 逻辑删除原任务，复用原任务BizId
-            oldBox.setYn(false);
-            jyBizTaskCollectPackageService.updateById(oldBox);
-            jyBizTaskCollectPackageFlowService.deleteByBizId(oldBox.getBizId());
-        }
+    public boolean createTaskAndFlowInfo(JyBizTaskCollectPackageEntity task) {
 
         // 保存箱号任务
-        JyBizTaskCollectPackageEntity task = convertToTask(box, oldBox);
         log.info("新增或更新集包任务信息：{}", JsonHelper.toJson(task));
         jyBizTaskCollectPackageService.save(task);
 

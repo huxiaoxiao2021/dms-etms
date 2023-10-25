@@ -84,8 +84,13 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
     }
 
     @Override
-    public Boolean updateStatusByBizIds(JyBizTaskCollectPackageQuery query) {
-        return jyBizTaskCollectPackageDao.updateStatusByBizIds(query) > 0;
+    public Boolean updateStatusByIds(JyBizTaskCollectPackageQuery query) {
+        return jyBizTaskCollectPackageDao.updateStatusByIds(query) > 0;
+    }
+
+    @Override
+    public List<JyBizTaskCollectPackageEntity> findByBizIds(List<String> bizIds) {
+        return jyBizTaskCollectPackageDao.findByBizIds(bizIds);
     }
 
     /**
