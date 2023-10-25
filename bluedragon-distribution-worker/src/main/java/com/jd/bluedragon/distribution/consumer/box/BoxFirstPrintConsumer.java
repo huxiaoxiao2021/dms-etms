@@ -46,9 +46,6 @@ import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 public class BoxFirstPrintConsumer extends MessageBaseConsumer {
 
     @Autowired
-    private JyCollectPackageService jyCollectPackageService;
-
-    @Autowired
     private JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
 
     @Autowired
@@ -96,7 +93,7 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
         try {
             JyBizTaskCollectPackageEntity newTask = convertToTask(box, oldTask);
             // 创建任务并保存任务流向信息
-            jyCollectPackageService.createTaskAndFlowInfo(newTask, oldTask);
+            jyBizTaskCollectPackageService.createTaskAndFlowInfo(newTask, oldTask);
         } catch (JyBizException e) {
             // 自定义异常不重试
             log.error("首次打印箱号生成箱任务失败：{}", JsonHelper.toJson(message), e);
