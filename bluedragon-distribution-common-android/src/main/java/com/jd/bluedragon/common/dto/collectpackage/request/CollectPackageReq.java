@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.collectpackage.request;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
+import lombok.Getter;
 
 import java.io.Serializable;
 public class CollectPackageReq  extends BaseReq implements Serializable {
@@ -40,11 +41,23 @@ public class CollectPackageReq  extends BaseReq implements Serializable {
      * 集包目的地
      */
     private Long endSiteId;
+    @Getter
+    private String endSiteName;
 
     /**
      * 建包流向（箱号目的地）
      */
     private Long boxReceiveId;
+    @Getter
+    private String boxReceiveName;
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
+    }
+
+    public void setBoxReceiveName(String boxReceiveName) {
+        this.boxReceiveName = boxReceiveName;
+    }
 
     public Long getBoxReceiveId(){
         return boxReceiveId;
