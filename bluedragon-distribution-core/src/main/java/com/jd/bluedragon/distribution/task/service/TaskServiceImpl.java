@@ -766,9 +766,9 @@ public class TaskServiceImpl implements TaskService {
 		task.setCreateSiteCode(request.getSiteCode());
 		task.setKeyword1(request.getKeyword1());
 		task.setKeyword2(request.getKeyword2());
-		// insert keyword1 keyword2 businessTytask.setBody(jsonVal);
-		//		this.initOthers(jsonVal, task)pe operateTime
-		;
+		// insert keyword1 keyword2 businessType operateTime
+		task.setBody(jsonVal);
+		this.initOthers(jsonVal, task);
 		if (StringUtils.isNotBlank(request.getBoxCode())) {
 			task.setBoxCode(request.getBoxCode());
 		}
