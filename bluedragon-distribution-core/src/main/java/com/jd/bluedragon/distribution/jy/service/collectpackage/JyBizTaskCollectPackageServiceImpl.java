@@ -88,6 +88,12 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         return jyBizTaskCollectPackageDao.updateStatusByBizIds(query) > 0;
     }
 
+    /**
+     * 取消集包方法，用于取消集包操作。
+     *
+     * @param dto 取消集包的数据传输对象
+     * @return 返回取消集包操作的结果，true表示成功取消集包，false表示集包已经被取消或不存在
+     */
     @Override
     public boolean cancelJyCollectPackage(CancelCollectPackageDto dto) {
         //先判断一下是否已经被取消-幂等
@@ -118,33 +124,38 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         }
     }
 
+    /**
+     * 执行取消分拣任务
+     *
+     * @param dto 取消分拣任务的传输对象
+     */
     private void execCancel(CancelCollectPackageDto dto) {
-        SortingRequest req = new SortingRequest();
-        req.setPackageCode(dto.getPackageCode());
-        req.setUserCode(dto.getUpdateUserCode());
-        req.setUserName(dto.getUpdateUserName());
-        //req.setBusinessType(request.getBusinessType());
-        req.setOperateTime(DateUtil.format(dto.getUpdateTime(), DateUtil.FORMAT_DATE_TIME));
-        req.setSiteCode(dto.getSiteCode());
-        req.setSiteName(dto.getSiteName());
-        req.setBoxCode(dto.getBoxCode());
+        SortingRequest sortingRequest = new SortingRequest();
+        sortingRequest.setPackageCode(dto.getPackageCode());
+        sortingRequest.setUserCode(dto.getUpdateUserCode());
+        sortingRequest.setUserName(dto.getUpdateUserName());
+        //req.setBusinessType(request.getBusinessType());//TODO
+        sortingRequest.setOperateTime(DateUtil.format(dto.getUpdateTime(), DateUtil.FORMAT_DATE_TIME));
+        sortingRequest.setSiteCode(dto.getSiteCode());
+        sortingRequest.setSiteName(dto.getSiteName());
+        sortingRequest.setBoxCode(dto.getBoxCode());
 
-        List<Task> tasks = this.findWaitingProcessSortingTasks(req);
+        List<Task> tasks = findWaitingProcessSortingTasks(sortingRequest);
         if (!tasks.isEmpty()) {
             throw new JyBizException(SortingResponse.CODE_SORTING_WAITING_PROCESS, HintService.getHint(HintCodeConstants.CANCEL_SORTING_IS_PROCESSING));
         }
 
         String fingerPrintKey = "SORTING_CANCEL" + dto.getSiteCode() + "|" + dto.getPackageCode();
         //判断是否重复取消分拣, 5分钟内如果同操作场地、同扫描号码只允许取消一次分拣。
-        boolean isSuccess = false;
+        boolean isSetNxSuccess = false;
         try {
-            isSuccess = cacheService.setNx(fingerPrintKey, "1", 5 * 60 * 1000, TimeUnit.SECONDS);
+            isSetNxSuccess = cacheService.setNx(fingerPrintKey, "1", 5 * 60 * 1000, TimeUnit.SECONDS);
             //说明key存在
-            if (!isSuccess) {
+            if (!isSetNxSuccess) {
                 this.log.warn("{}正在执行取消分拣任务，5分钟内不能重复取消！", dto.getPackageCode());
                 throw new JyBizException(SortingResponse.CODE_SORTING_CANCEL_PROCESS, HintService.getHint(HintCodeConstants.CANCEL_SORTING_PROCESSING));
             }
-            Sorting sorting = Sorting.toSorting2(req);
+            Sorting sorting = Sorting.toSorting2(sortingRequest);
             SortingResponse sortingResponse = sortingServiceFactory.getSortingService(sorting.getCreateSiteCode()).cancelSorting(sorting);
             if (!Objects.equals(sortingResponse.getCode(), SortingResponse.CODE_OK)) {
                 throw new JyBizException(sortingResponse.getMessage());
@@ -152,7 +163,7 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         } catch (Exception e) {
             log.error("{}取消分拣服务异常", dto.getPackageCode(), e);
         } finally {
-            if (isSuccess) {
+            if (isSetNxSuccess) {
                 cacheService.del(fingerPrintKey);
             }
         }

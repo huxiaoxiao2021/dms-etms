@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.sorting.request.PackSortTaskBody;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -109,7 +110,16 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     @Autowired
     JyCollectPackageScanRecordService jyCollectPackageScanRecordService;
+    @Autowired
+    @Qualifier("batchCancelCollectPackageProduce")
+    private DefaultJMQProducer batchCancelCollectPackageProduce;
 
+    /**
+     * 集包
+     *
+     * @param request 集包请求对象
+     * @return InvokeResult<CollectPackageResp> 响应结果对象，包含集包响应信息
+     */
     @Override
     public InvokeResult<CollectPackageResp> collectPackage(CollectPackageReq request) {
         //基础校验
@@ -119,10 +129,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         //执行集包
         CollectPackageResp response = new CollectPackageResp();
         execCollectPackage(request, response);
-
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 
+    /**
+     * 执行集包操作
+     * @param request 集包请求对象
+     * @param response 集包响应对象
+     */
     private void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
         String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, request.getBoxCode());
         if (!jimDbLock.lock(boxLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
@@ -130,7 +144,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
         JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
         if (ObjectHelper.isEmpty(collectPackageTask)) {
-            throw new JyBizException("集包任务不存在或者已经过期，请刷新界面！");
+            throw new JyBizException("集包任务不存在或已经过期，请刷新界面！");
         }
         if (JyBizTaskCollectPackageStatusEnum.CANCEL.equals(collectPackageTask.getTaskStatus())) {
             throw new JyBizException("集包任务作废-操作批量取消！");
@@ -192,16 +206,31 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return Constants.PUNCTUATION_OPEN_BRACKET + body + Constants.PUNCTUATION_CLOSE_BRACKET;
     }
 
+    /**
+     * 保存（正常扫描）集包扫描记录
+     *
+     * @param request 集包请求对象
+     */
     private void saveJyCollectPackageScanRecord(CollectPackageReq request) {
         JyCollectPackageEntity jyCollectPackageEntity = converJyCollectPackageEntity(request, false, false);
         jyCollectPackageScanRecordService.saveJyCollectPackageRecord(jyCollectPackageEntity);
     }
 
+    /**
+     * 保存（拦截）类型集包扫描记录
+     *
+     * @param request 入参参数描述：拦截器请求对象
+     */
     private void saveIntercepterJyCollectPackageScanRecord(CollectPackageReq request) {
         JyCollectPackageEntity jyCollectPackageEntity = converJyCollectPackageEntity(request, true, false);
         jyCollectPackageScanRecordService.saveJyCollectPackageRecord(jyCollectPackageEntity);
     }
 
+    /**
+     * 保存（强发）集包扫描记录
+     *
+     * @param request 采集包请求
+     */
     private void saveForceJyCollectPackageScanRecord(CollectPackageReq request) {
         JyCollectPackageEntity jyCollectPackageEntity = converJyCollectPackageEntity(request, false, true);
         jyCollectPackageScanRecordService.saveJyCollectPackageRecord(jyCollectPackageEntity);
@@ -279,7 +308,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             throw new JyBizException("集包任务不存在或者已经过期，请刷新界面！");
         }
         if (JyBizTaskCollectPackageStatusEnum.CANCEL.equals(collectPackageTask.getTaskStatus())) {
-            throw new JyBizException("集包任务作废-操作批量取消！");
+            throw new JyBizException("集包任务已作废-操作了批量取消集包！");
         }
         if (request.getForceCollectPackage()) {
             request.setEndSiteId(collectPackageTask.getEndSiteId());
@@ -294,11 +323,10 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
         if (MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())) {
             //校验路由是否存在于允许集包的流向集合中
-            List<Integer> flowList = new ArrayList<>();
-            flowList.add(collectPackageTask.getEndSiteId().intValue());
+            List<Integer> flowList = Collections.singletonList(collectPackageTask.getEndSiteId().intValue());
             checkRouterIfExitInCollectFlowList(router, flowList, request, collectPackageTask);
         } else {
-            //查询可集的流向集合信息
+            //查询可混集的流向集合信息
             List<Integer> flowList = queryMixBoxFlowList(request);
             if (CollectionUtils.isEmpty(flowList)) {
                 BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(collectPackageTask.getEndSiteId().intValue());
@@ -388,13 +416,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
 
     private void execInterceptorChain(CollectPackageReq request) {
-        if (request.getForceCollectPackage()) {
+        if (request.getForceCollectPackage() || request.getSkipInterceptChain()) {
             return;
         }
-        if (request.getSkipInterceptChain()) {
-            return;
-        }
-
         PdaOperateRequest pdaOperateRequest = assemblePdaOperateRequest(request);
         SortingJsfResponse response = sortingService.check(pdaOperateRequest);
 
@@ -405,7 +429,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             saveIntercepterJyCollectPackageScanRecord(request);
             throw new JyBizException(response.getMessage());
         }
-
     }
 
     private PdaOperateRequest assemblePdaOperateRequest(CollectPackageReq request) {
@@ -636,6 +659,12 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return true;
     }
 
+    /**
+     * 绑定集装袋方法，用于将请求绑定到集装袋
+     *
+     * @param request 绑定集装袋请求对象
+     * @return 绑定集装袋响应结果
+     */
     @Override
     public InvokeResult bindCollectBag(BindCollectBagReq request) {
         checkBindCollectBagReq(request);
@@ -675,32 +704,45 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
     }
 
+    /**
+     * 取消集包功能
+     * @param request 取消集包请求对象
+     * @return 响应结果对象，包含取消集包响应信息
+     * @throws JyBizException 当任务已作废或者过期时抛出异常
+     */
     @Override
-    public InvokeResult<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) {
+    public InvokeResult<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) throws JyBizException {
+        // 校验取消集包请求对象
         checkCancelCollectPackageReq(request);
+        // 根据业务ID查询集包任务实体
         JyBizTaskCollectPackageEntity task = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
+        // 判断任务是否为空或者已取消
         if (ObjectHelper.isEmpty(task) || JyBizTaskCollectPackageStatusEnum.CANCEL.getCode().equals(task.getTaskStatus())) {
             throw new JyBizException("该任务已作废或者过期，请勿重复操作！");
         }
         if (request.getCancelAllFlag()) {
+            // 构建箱子锁的key
             String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, request.getBoxCode());
+            // 尝试获取箱子锁
             if (!jimDbLock.lock(boxLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
                 throw new JyBizException("当前系统繁忙,请稍后再试！");
             }
             try {
-                //按照包裹batch生成取消集包的消息--异步执行取消集包
+                // 异步执行取消集包
                 produceBatchCancelCollectPackageMsg(request);
-                //然后把箱号关闭，不让使用了
+                // 关闭箱号，不允许使用
                 closeCollectPackageTask(request, task);
             } finally {
+                // 释放箱子锁
                 jimDbLock.releaseLock(boxLockKey, request.getRequestId());
             }
-
         } else {
-            //封装集包刚取消单个包裹集包能力
+            // 封装取消单个包裹集包能力的DTO对象
             CancelCollectPackageDto cancelCollectPackageDto = assembleCancelCollectPackageDto(request);
+            // 取消集包
             jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
         }
+        // 返回成功响应结果对象
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
     }
 
@@ -739,13 +781,12 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             query.setPageNo(pageNo++);
             List<Sorting> sortingList = sortingService.pageQueryByBoxCode(query);
             if (CollectionUtils.isEmpty(sortingList)) {
-                log.info("produceBatchCancelCollectPackageMsg未查询到{}下有效的包裹信息！", request.getBoxCode());
                 break;
             }
             BatchCancelCollectPackageMqDto msg = assembleBatchCancelCollectPackageMqDto(sortingList, request);
-
+            batchCancelCollectPackageProduce.sendOnFailPersistent(request.getBoxCode(),JsonHelper.toJson(msg));
+            log.info("===================={} 成功完成批量取消集包消息发送第{}页============================", request.getBoxCode(),pageNo);
         }
-        log.info("===================={}成功完成批量取消集包消息发送============================", request.getBoxCode());
     }
 
     private BatchCancelCollectPackageMqDto assembleBatchCancelCollectPackageMqDto(List<Sorting> sortingList, CancelCollectPackageReq request) {
