@@ -303,10 +303,18 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		String userCode = BusinessUtil.getUserCodeFromScanUserCode(scanUserCode);
 		if(!JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
 				&& !JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
+				&& !JobTypeEnum.JOBTYPE4.getCode().equals(jobCode)
+				&& !JobTypeEnum.JOBTYPE5.getCode().equals(jobCode)
 				&& !JobTypeEnum.JOBTYPE6.getCode().equals(jobCode)
-				&& !JobTypeEnum.JOBTYPE7.getCode().equals(jobCode)) {
-			result.toFail("请扫描[正式工、派遣工、支援]人员码！");
+				&& !JobTypeEnum.JOBTYPE7.getCode().equals(jobCode)){
+			result.toFail("请扫描[正式工、派遣工、临时工、小时工、支援、长期联盟工]人员码！");
 			return result;
+		}
+		if(JobTypeEnum.JOBTYPE5.getCode().equals(jobCode) || JobTypeEnum.JOBTYPE6.getCode().equals(jobCode)){
+			if(BusinessUtil.isIdCardNo(userCode)){
+				result.toFail("临时工、小时工 人员码必须包含身份证号");
+				return result;
+			}
 		}
 
 		//设置返回值对象

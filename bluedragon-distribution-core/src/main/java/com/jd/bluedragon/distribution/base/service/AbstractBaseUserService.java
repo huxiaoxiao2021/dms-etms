@@ -16,10 +16,12 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.domain.BaseStaff;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
@@ -179,6 +181,20 @@ public abstract class AbstractBaseUserService implements LoginService {
         }else{
             clientInfo = new  ClientInfo();
         }
+
+        if(BusinessUtil.isIdCardNo(erpAccount)){
+            LoginUserResponse response = new LoginUserResponse();
+            response.setCode(JdResponse.CODE_OK);
+            String loginUserPin = getLoginUserPin(response, erpAccount);
+            if(!response.getCode().equals(JdResponse.CODE_OK)){
+                // ERP账号
+                response.setErpAccount(erpAccount);
+                // ERP密码
+                response.setPassword(erpAccountPwd);
+                return response;
+            }
+            erpAccount = loginUserPin;
+        }
         clientInfo.setLoginUserErp(erpAccount);
         /** 进行登录验证 */
         LoginClientService loginClient = selectLoginClient();
@@ -275,6 +291,41 @@ public abstract class AbstractBaseUserService implements LoginService {
             // 返回结果
             return response;
         }
+    }
+
+
+    /**
+     * 获取登录用户的PIN码
+     *
+     * @param erpAccount ERP账户
+     * @return 登录用户的PIN码
+     */
+    private String getLoginUserPin(LoginUserResponse response,String erpAccount){
+
+        try{
+            BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(erpAccount);
+            if(baseStaff == null){
+                response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
+                response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+                return "";
+            }
+
+            BaseStaffSiteOrgDto thirdStaff = baseMajorManager.getThirdStaffByUserCode(baseStaff.getUserCode());
+            if(thirdStaff == null || StringUtils.isBlank(thirdStaff.getJdAccount())){
+                response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
+                response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+                return "";
+            }
+            return Constants.PDA_THIRDPL_TYPE+thirdStaff.getJdAccount();
+        }catch (Exception e){
+            log.error("获取达达人员数据信息异常！{}",erpAccount,e);
+            response.setMessage("获取达达人员数据信息异常！{"+erpAccount+"}");
+            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+            return "";
+        }
+
+
+
     }
 
     /**
