@@ -115,8 +115,8 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
         entity.setBoxType(box.getType());
         entity.setMixBoxType(box.getMixBoxType());
         entity.setTaskStatus(JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode());
-        entity.setYn(box.getYn() == 1);
-        entity.setCreateTime(box.getCreateTime());
+        entity.setYn(Boolean.TRUE);
+        entity.setCreateTime(new Date());
         if (oldBox != null) {
             entity.setBizId(oldBox.getBizId());
         }else {
@@ -127,7 +127,7 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
             if (updateUser != null) {
                 entity.setUpdateUserErp(updateUser.getErp());
                 entity.setUpdateUserName(box.getUpdateUser());
-                entity.setUpdateTime(box.getUpdateTime());
+                entity.setUpdateTime(new Date());
             }
         }
         if (box.getCreateUserCode() != null) {
