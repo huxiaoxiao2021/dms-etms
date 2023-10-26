@@ -1100,7 +1100,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 sealVehicleReq.getSendVehicleBizId(), BusinessKeyTypeEnum.JY_SEND_TASK.getCode(),
                 sealVehicleReq.getCurrentOperate().getSiteCode(), SummarySourceEnum.SEAL.getCode());
         summaryEntity.setWeight(sealVehicleReq.getWeight());
-        summaryEntity.setVolume(sealVehicleReq.getVolume());
+        summaryEntity.setVolume(sealVehicleReq.getVolume() * 1000 * 1000);
         summaryEntity.setItemNum(sealVehicleReq.getItemNum());
         summaryEntity.setSealBatchCodeNum(batchCodes.size());
         summaryEntity.setSubBusinessNum(Constants.NUMBER_ONE);
