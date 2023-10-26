@@ -107,7 +107,7 @@ public class CrossSortingResource {
     private List<CrossSorting> getMixedConfigUseBasicNew(CrossSortingRequest request) {
         List<CollectBoxFlowDirectionConf> flowConfList = boxLimitConfigManager.listCollectBoxFlowDirectionMix(assembleCollectBoxFlowDirectionConf(request));
         List<CrossSorting> mixDmsList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(flowConfList)) {
+        if (!CollectionUtils.isEmpty(flowConfList)) {
             for (CollectBoxFlowDirectionConf collectBoxFlowDirectionConf : flowConfList) {
                 CrossSorting crossSorting = new CrossSorting();
                 crossSorting.setCreateDmsCode(collectBoxFlowDirectionConf.getStartSiteId());
