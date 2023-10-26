@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
 import java.util.List;
 
 public class StatisticsUnderTaskDto {
+    private String bizId;
 
     /**
      * 箱号
@@ -24,6 +25,15 @@ public class StatisticsUnderTaskDto {
      * 流向信息
      */
     List<CollectPackageFlowDto> collectPackageFlowDtoList;
+
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
 
     public String getBoxCode() {
         return boxCode;

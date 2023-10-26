@@ -124,6 +124,35 @@ public class BeanUtils {
     }
 
 
+    public static <T> T mapConvertToDto(Map<String, Object> map, Class<T> dtoClass) throws Exception {
+        T dto = dtoClass.getDeclaredConstructor().newInstance();
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String fieldName = entry.getKey();
+            Object fieldValue = entry.getValue();
+
+            if (ObjectHelper.isNotNull(fieldName) && ObjectHelper.isNotNull(fieldValue)){
+                Field field = dtoClass.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                field.set(dto, fieldValue);
+            }
+        }
+
+        return dto;
+    }
+
+    public static <T> List<T> listMapConvertToDtoList(List<Map<String, Object>> mapList, Class<T> dtoClass) throws Exception {
+        List<T> dtoList = new ArrayList<>();
+
+        for (Map<String, Object> map : mapList) {
+            T dto = mapConvertToDto(map, dtoClass);
+            dtoList.add(dto);
+        }
+
+        return dtoList;
+    }
+
+
 
 
 }
