@@ -79,6 +79,13 @@ public class JyWorkGridManagerCaseData implements Serializable {
 	 * 文件列表
 	 */
 	private List<AttachmentDetailData> attachmentList;
+
+	/**
+	 * 改进方案附件列表
+	 * 只有指标任务才会有
+	 * @return
+	 */
+	private List<AttachmentDetailData> improveAttachmentList;
 	
 	public Long getId() {
 		return id;

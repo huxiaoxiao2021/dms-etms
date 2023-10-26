@@ -104,6 +104,26 @@ public class JyWorkGridManagerData implements Serializable {
 	 * 处理完成时间
 	 */
 	private Date processEndTime;
+	/**
+	 * 网格楼层
+	 */
+	private Integer floor;
+
+	/**
+	 * 任务业务类型标识：自检，指标，飞检 ...
+	 */
+	private String bizTypeLabel;
+
+	/**
+	 * 是否可转派
+	 */
+	private Boolean canTransfer;
+
+	/**
+	 *  指标改善任务的指标信息
+	 *  只有指标改善任务才会有
+	 */
+	private BusinessQuotaInfoData businessQuotaInfoData;
 	
 	private List<JyWorkGridManagerCaseData> caseList;
 
@@ -266,5 +286,36 @@ public class JyWorkGridManagerData implements Serializable {
 	public void setProcessEndTime(Date processEndTime) {
 		this.processEndTime = processEndTime;
 	}
-	
+
+	public Integer getFloor() {
+		return floor;
+	}
+
+	public void setFloor(Integer floor) {
+		this.floor = floor;
+	}
+
+	public String getBizTypeLabel() {
+		return bizTypeLabel;
+	}
+
+	public void setBizTypeLabel(String bizTypeLabel) {
+		this.bizTypeLabel = bizTypeLabel;
+	}
+
+	public Boolean getCanTransfer() {
+		return canTransfer;
+	}
+
+	public void setCanTransfer(Boolean canTransfer) {
+		this.canTransfer = canTransfer;
+	}
+
+	public BusinessQuotaInfoData getBusinessQuotaInfoData() {
+		return businessQuotaInfoData;
+	}
+
+	public void setBusinessQuotaInfoData(BusinessQuotaInfoData businessQuotaInfoData) {
+		this.businessQuotaInfoData = businessQuotaInfoData;
+	}
 }
