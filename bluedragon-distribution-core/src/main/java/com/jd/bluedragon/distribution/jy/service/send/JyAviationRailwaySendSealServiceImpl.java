@@ -885,11 +885,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             }
         }
 
+        List<AviationSealListDto> sealListDtoArrayList = new ArrayList<>();
+        resData.setAviationSealListDtoList(sealListDtoArrayList);
         if(existTaskFlag) {
             //当前状态统计>0 查具体流向
             List<JyBizTaskSendAviationPlanEntity> aviationPlanEntityList = jyBizTaskSendAviationPlanService.pageQueryAviationPlanByCondition(condition);
             if(CollectionUtils.isNotEmpty(aviationPlanEntityList)) {
-                List<AviationSealListDto> sealListDtoArrayList = new ArrayList<>();
                 List<String> bizIdList = new ArrayList<>();
                 aviationPlanEntityList.forEach(entity -> {
                     bizIdList.add(entity.getBizId());
@@ -901,8 +902,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
                 //获取运力信息
                 this.fillFocusTransportInfo(sealListDtoArrayList.get(0));
-
-                resData.setAviationSealListDtoList(sealListDtoArrayList);
+                
             }else {
                 if(log.isInfoEnabled()) {
                     log.info("航空发货计划查询封车相关数据为空，request={},queryCondition={}", JsonHelper.toJson(request), JsonHelper.toJson(condition));
