@@ -6,7 +6,9 @@ import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticQueryDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskQueryDto;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CollectPackageMangerImpl implements CollectPackageManger{
     @Override
     public StatisticsUnderTaskDto queryTaskStatistic(StatisticsUnderTaskQueryDto dto) {
