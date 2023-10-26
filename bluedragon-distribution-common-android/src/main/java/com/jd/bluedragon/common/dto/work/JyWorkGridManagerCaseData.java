@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.work;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import com.jd.bluedragon.common.dto.basedata.response.AttachmentDetailData;
@@ -86,7 +87,13 @@ public class JyWorkGridManagerCaseData implements Serializable {
 	 * @return
 	 */
 	private List<AttachmentDetailData> improveAttachmentList;
-	
+
+	/**
+	 * 指标改善截止时间
+	 * 只有指标改善任务有
+	 * @return
+	 */
+	private Date improveEndTime;
 	public Long getId() {
 		return id;
 	}
@@ -170,5 +177,21 @@ public class JyWorkGridManagerCaseData implements Serializable {
 	}
 	public void setEditStatus(Integer editStatus) {
 		this.editStatus = editStatus;
+	}
+
+	public List<AttachmentDetailData> getImproveAttachmentList() {
+		return improveAttachmentList;
+	}
+
+	public void setImproveAttachmentList(List<AttachmentDetailData> improveAttachmentList) {
+		this.improveAttachmentList = improveAttachmentList;
+	}
+
+	public Date getImproveEndTime() {
+		return improveEndTime;
+	}
+
+	public void setImproveEndTime(Date improveEndTime) {
+		this.improveEndTime = improveEndTime;
 	}
 }
