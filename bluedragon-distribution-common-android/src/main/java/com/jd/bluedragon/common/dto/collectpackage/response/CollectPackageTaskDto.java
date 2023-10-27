@@ -61,12 +61,12 @@ public class CollectPackageTaskDto implements Serializable {
     /**
      * 拦截件数
      */
-    private Integer interceptCount;
+    private Integer interceptCount = 0;
 
     /**
      * 扫描件数
      */
-    private Integer scanCount;
+    private Integer scanCount = 0;
     public String getBizId() {
         return bizId;
     }

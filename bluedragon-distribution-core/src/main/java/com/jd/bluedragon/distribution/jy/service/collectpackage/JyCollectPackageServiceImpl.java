@@ -10,6 +10,11 @@ import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
+import com.jd.bluedragon.core.jsf.collectpackage.CollectPackageManger;
+import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticDto;
+import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticQueryDto;
+import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskDto;
+import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskQueryDto;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -27,6 +32,9 @@ import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQ
 import com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.BatchCancelCollectPackageMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
+import com.jd.bluedragon.distribution.jy.dto.collectpackage.CollectScanDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
+import com.jd.bluedragon.distribution.jy.enums.CollectPackageExcepScanEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -113,6 +121,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private DefaultJMQProducer batchCancelCollectPackageProduce;
 
     private static final Integer SEALING_BOX_LIMIT = 100;
+
+    @Autowired
+    private CollectPackageManger collectPackageManger;
 
 
     /**
@@ -522,20 +533,51 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         List<String> bizIds = taskList.stream().map(JyBizTaskCollectPackageEntity::getBizId).collect(Collectors.toList());
         HashMap<String, List<CollectPackageFlowDto>> flowMap = getFlowMapByTask(bizIds);
 
+        // 批量获取统计信息
+        HashMap<String, List<CollectScanDto>> aggMap = getScanAgg(boxCodeList);
+
         // 组装任务
         List<CollectPackageTaskDto> collectPackTaskDtoList = taskList.stream().map(task -> {
             CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
             BeanUtils.copyProperties(task, taskDto);
             // 查询集包袋号
             taskDto.setMaterialCode(boxMaterialRelationMap.get(task.getBoxCode()));
-            // todo 统计数据
-            taskDto.setInterceptCount(1);
-            taskDto.setScanCount(1);
+            List<CollectScanDto> aggDtoList = aggMap.get(task.getBizId());
+            if (!CollectionUtils.isEmpty(aggDtoList)) {
+                for (CollectScanDto collectScanDto : aggDtoList) {
+                    if (CollectPackageExcepScanEnum.HAVE_SCAN.getCode().equals(collectScanDto.getType())) {
+                        taskDto.setScanCount(collectScanDto.getCount());
+                    } else if (CollectPackageExcepScanEnum.INTERCEPTED.getCode().equals(collectScanDto.getType())) {
+                        taskDto.setInterceptCount(collectScanDto.getCount());
+                    }
+                }
+            }
+
             // 流向信息
             taskDto.setCollectPackageFlowDtoList(flowMap.get(task.getBizId()));
             return taskDto;
         }).collect(Collectors.toList());
         return collectPackTaskDtoList;
+    }
+
+    private HashMap<String, List<CollectScanDto>> getScanAgg(List<String> boxCodeList) {
+        HashMap<String, List<CollectScanDto>> aggMap = new HashMap<>();
+        ListTaskStatisticQueryDto queryDto = new ListTaskStatisticQueryDto();
+        List<StatisticsUnderTaskQueryDto> queryDtoList = new ArrayList<>();
+        for (String bizId : boxCodeList) {
+            StatisticsUnderTaskQueryDto dto = new StatisticsUnderTaskQueryDto();
+            dto.setBizId(bizId);
+            queryDtoList.add(dto);
+        }
+        queryDto.setStatisticsUnderTaskQueryDtoList(queryDtoList);
+        ListTaskStatisticDto listTaskStatisticDto = collectPackageManger.listTaskStatistic(queryDto);
+        if (listTaskStatisticDto == null || CollectionUtils.isEmpty(listTaskStatisticDto.getStatisticsUnderTaskDtoList())) {
+            log.info("未获取到统计数据：{}", JsonHelper.toJson(queryDto));
+            return aggMap;
+        }
+
+        listTaskStatisticDto.getStatisticsUnderTaskDtoList().stream().map(item -> aggMap.put(item.getBizId(), item.getExcepScanDtoList()));
+        return aggMap;
     }
 
     private HashMap<String, String> getBoxMaterialRelationMap(List<BoxMaterialRelation> boxMaterialRelationList) {
@@ -625,9 +667,19 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         // 查询集包袋号
         taskDto.setMaterialCode(cycleBoxService.getBoxMaterialRelation(task.getBoxCode()));
 
-        // todo 查询统计数据
-        taskDto.setInterceptCount(1);
-        taskDto.setInterceptCount(1);
+        // 统计数据
+        HashMap<String, List<CollectScanDto>> scanAgg = getScanAgg(Collections.singletonList(request.getBizId()));
+        List<CollectScanDto> collectScanDtos = scanAgg.get(request.getBizId());
+        if (!CollectionUtils.isEmpty(collectScanDtos)) {
+            for (CollectScanDto collectScanDto : collectScanDtos) {
+                if (CollectPackageExcepScanEnum.HAVE_SCAN.getCode().equals(collectScanDto.getType())) {
+                    taskDto.setScanCount(collectScanDto.getCount());
+                } else if (CollectPackageExcepScanEnum.INTERCEPTED.getCode().equals(collectScanDto.getType())) {
+                    taskDto.setInterceptCount(collectScanDto.getCount());
+                }
+            }
+        }
+
         // 流向信息
         HashMap<String, List<CollectPackageFlowDto>> flowInfo = getFlowMapByTask(Collections.singletonList(taskDto.getBizId()));
         taskDto.setCollectPackageFlowDtoList(flowInfo.get(task.getBizId()));
