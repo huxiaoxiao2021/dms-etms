@@ -271,8 +271,12 @@
 
   <select id="queryJyCollectPackageRecord"  resultMap="BaseResultMap">
     select
-    <include refid="Base_Column_List" />
-    from jy_collect_package>
-    where biz_id =#{bizId} and package_code  =#{packageCode} and start_site_id  =#{startSiteId} yn =1 limit 1;
+    <include refid="Base_Column_List"/>
+    from jy_collect_package
+    where yn = 1 and package_code =#{packageCode} and start_site_id =#{startSiteId}
+    <if test="bizId != null">
+      and biz_id = #{bizId,jdbcType=VARCHAR}
+    </if>
+    limit 1;
   </select>
 </mapper>

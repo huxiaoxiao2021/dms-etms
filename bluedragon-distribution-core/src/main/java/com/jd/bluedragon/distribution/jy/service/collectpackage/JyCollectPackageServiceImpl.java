@@ -13,7 +13,6 @@ import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.core.jsf.collectpackage.CollectPackageManger;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticQueryDto;
-import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskQueryDto;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -33,7 +32,6 @@ import com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.BatchCancelCollectPackageMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CollectScanDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
 import com.jd.bluedragon.distribution.jy.enums.CollectPackageExcepScanEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
@@ -654,12 +652,12 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             return result;
         }
 
+        JyBizTaskCollectPackageEntity task = getTaskDetailByReq(request);
         TaskDetailResp resp = new TaskDetailResp();
         result.setData(resp);
-        JyBizTaskCollectPackageEntity task = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
         if (task == null) {
             result.setCode(RESULT_NULL_CODE);
-            result.setMessage(request.getBoxCode() + ":未获取到集包任务！");
+            result.setMessage(request.getBarCode() + ":未获取到集包任务！");
             return result;
         }
         CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
@@ -687,10 +685,28 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return result;
     }
 
+    private JyBizTaskCollectPackageEntity getTaskDetailByReq(TaskDetailReq request) {
+        if (BusinessUtil.isBoxcode(request.getBarCode())) {
+            // 如果是箱号
+            return jyBizTaskCollectPackageService.findByBoxCode(request.getBarCode());
+        }else if (WaybillUtil.isPackageCode(request.getBarCode())) {
+            JyCollectPackageEntity query = new JyCollectPackageEntity();
+            query.setPackageCode(request.getBarCode());
+            query.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+            JyCollectPackageEntity collectPackage = jyCollectPackageScanRecordService.queryJyCollectPackageRecord(query);
+            if (collectPackage == null || StringUtils.isEmpty(collectPackage.getBizId())) {
+                return null;
+            }
+            return jyBizTaskCollectPackageService.findByBizId(collectPackage.getBizId());
+        }else {
+            return jyBizTaskCollectPackageService.findByBizId(request.getBizId());
+        }
+    }
+
     private boolean checkTaskDetailReq(TaskDetailReq request, InvokeResult<TaskDetailResp> result) {
-        if (request == null || StringUtils.isEmpty(request.getBizId())) {
+        if (request == null || (StringUtils.isEmpty(request.getBizId()) && StringUtils.isEmpty(request.getBarCode()))) {
             result.setCode(RESULT_NULL_CODE);
-            result.setMessage("未获取到集包任务id！");
+            result.setMessage("参数异常！");
             return false;
         }
         return true;
