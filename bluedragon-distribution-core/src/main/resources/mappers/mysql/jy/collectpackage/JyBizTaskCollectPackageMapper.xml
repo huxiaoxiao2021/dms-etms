@@ -311,6 +311,7 @@
     <include refid="Base_Column_List"/>
     from jy_biz_task_collect_package
     where box_code = #{boxCode,jdbcType=VARCHAR}
+    limit 1
   </select>
 
   <update id="updateStatusByIds" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery">

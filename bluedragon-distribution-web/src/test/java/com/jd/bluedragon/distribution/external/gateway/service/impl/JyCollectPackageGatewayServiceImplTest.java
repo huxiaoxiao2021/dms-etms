@@ -5,11 +5,8 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
-import com.jd.bluedragon.common.dto.comboard.request.CrossDataReq;
-import com.jd.bluedragon.common.dto.comboard.response.CrossDataResp;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
-import com.jd.bluedragon.external.gateway.service.JyComboardGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -116,7 +113,7 @@ public class JyCollectPackageGatewayServiceImplTest {
     public void queryTaskDetailTest() {
         TaskDetailReq taskDetailReq = new TaskDetailReq();
         taskDetailReq.setBizId("JB23102300000004");
-        taskDetailReq.setBoxCode("BC1001231019260000403101");
+        taskDetailReq.setBarCode("BC1001231019260000403101");
         JdCResponse<TaskDetailResp> response = jyCollectPackageGatewayService.queryTaskDetail(taskDetailReq);
         System.out.println(JsonHelper.toJson(response));
     }

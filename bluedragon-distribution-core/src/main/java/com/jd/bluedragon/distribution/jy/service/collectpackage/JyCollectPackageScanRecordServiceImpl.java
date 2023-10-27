@@ -19,4 +19,9 @@ public class JyCollectPackageScanRecordServiceImpl implements JyCollectPackageSc
     public int editJyCollectPackageRecord(JyCollectPackageEntity jyCollectPackageEntity) {
         return jyCollectPackageDao.updateByPrimaryKeySelective(jyCollectPackageEntity);
     }
+
+    @Override
+    public JyCollectPackageEntity queryJyCollectPackageRecord(JyCollectPackageEntity query) {
+        return jyCollectPackageDao.queryJyCollectPackageRecord(query);
+    }
 }

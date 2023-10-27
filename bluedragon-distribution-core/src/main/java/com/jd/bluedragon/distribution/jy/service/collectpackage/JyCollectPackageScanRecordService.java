@@ -6,4 +6,6 @@ public interface JyCollectPackageScanRecordService {
     int saveJyCollectPackageRecord(JyCollectPackageEntity jyCollectPackageEntity);
 
     int editJyCollectPackageRecord(JyCollectPackageEntity jyCollectPackageEntity);
+
+    JyCollectPackageEntity queryJyCollectPackageRecord(JyCollectPackageEntity query);
 }
