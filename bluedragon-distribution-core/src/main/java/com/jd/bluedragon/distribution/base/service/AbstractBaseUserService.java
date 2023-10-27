@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.base.service;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -301,16 +302,18 @@ public abstract class AbstractBaseUserService implements LoginService {
      * @return 登录用户的PIN码
      */
     private String getLoginUserPin(LoginUserResponse response,String erpAccount){
-
         try{
+            log.info("获取登录用户的PIN码 checkIDCardNoExists 入参-{}",erpAccount);
             BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(erpAccount);
+            log.info("获取登录用户的PIN码 checkIDCardNoExists 出参-{}", JSON.toJSONString(baseStaff));
             if(baseStaff == null){
                 response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
                 response.setCode(JdResponse.CODE_INTERNAL_ERROR);
                 return "";
             }
-
+            log.info("获取登录用户的PIN码 getThirdStaffByUserCode 入参-{}",baseStaff.getUserCode());
             BaseStaffSiteOrgDto thirdStaff = baseMajorManager.getThirdStaffByUserCode(baseStaff.getUserCode());
+            log.info("获取登录用户的PIN码 getThirdStaffByUserCode 出参-{}",JSON.toJSONString(thirdStaff));
             if(thirdStaff == null || StringUtils.isBlank(thirdStaff.getJdAccount())){
                 response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
                 response.setCode(JdResponse.CODE_INTERNAL_ERROR);
@@ -323,9 +326,6 @@ public abstract class AbstractBaseUserService implements LoginService {
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             return "";
         }
-
-
-
     }
 
     /**
