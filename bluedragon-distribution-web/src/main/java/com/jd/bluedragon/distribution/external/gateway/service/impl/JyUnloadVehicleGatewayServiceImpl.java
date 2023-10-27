@@ -253,6 +253,11 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             response.toFail("请扫描包裹号或箱号！");
             return false;
         }
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType()) && Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())){
+            if(!WaybillUtil.isPackageCodeExcludeDJ(request.getBarCode()))
+                response.toFail("请扫描正确包裹号！");
+            return false;
+        }
         if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType()) &&
                 (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode()))){
             response.toFail("请扫描包裹号或运单号！");

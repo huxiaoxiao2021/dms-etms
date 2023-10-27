@@ -476,6 +476,11 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             result.toFail("请扫描包裹号或箱号！");
             return false;
         }
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType()) && Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())){
+            if(!WaybillUtil.isPackageCodeExcludeDJ(request.getBarCode()))
+            result.toFail("请扫描正确包裹号！");
+            return false;
+        }
         if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType()) &&
                 (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode()))){
             result.toFail("请扫描包裹号或运单号！");

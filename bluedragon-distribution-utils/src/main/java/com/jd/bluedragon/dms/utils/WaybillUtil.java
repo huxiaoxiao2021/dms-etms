@@ -25,6 +25,24 @@ public class WaybillUtil {
         return WaybillCodeRuleValidateUtil.isPackageCode(packageCode);
     }
 
+    /**
+     * 判断是否包裹号 剔除大件包裹号（JD0115129629473-1-1）
+     * @param packageCode
+     * @return
+     */
+    public static boolean isPackageCodeExcludeDJ(String packageCode) {
+        if(StringUtils.isBlank(packageCode)) {
+            return false;
+        }
+        if(WaybillUtil.isPackageCode(packageCode)) {
+            String temp = packageCode.replace("-", StringUtils.EMPTY);
+            if(packageCode.length() - temp.length() == 0 || packageCode.length() - temp.length() == 3){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean isEffectiveOperateCode(String operateCode) {
         return WaybillCodeRuleValidateUtil.isEffectiveOperateCode(operateCode);
     }
