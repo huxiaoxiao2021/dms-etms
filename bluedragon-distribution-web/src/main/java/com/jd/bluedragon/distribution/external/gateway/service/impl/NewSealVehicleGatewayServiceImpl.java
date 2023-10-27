@@ -250,15 +250,14 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             jdCResponse.setMessage(newSealVehicleResponse.getMessage());
             return jdCResponse;
         }
-        if(jdCResponse.isSucceed() && Boolean.TRUE.equals(sealCarPreRequest.getQueryWeightVolumeFlag())) {
-            fillWeightVolume(data, sealCarPreRequest.getSendCode());
-        }
         data.setCode(newSealVehicleResponse.getExtraBusinessCode());
         data.setMessage(newSealVehicleResponse.getExtraBusinessMessage());
         jdCResponse.setData(data);
         jdCResponse.setCode(newSealVehicleResponse.getCode());
         jdCResponse.setMessage(newSealVehicleResponse.getMessage());
-
+        if(jdCResponse.isSucceed() && Boolean.TRUE.equals(sealCarPreRequest.getQueryWeightVolumeFlag())) {
+            fillWeightVolume(data, sealCarPreRequest.getSendCode());
+        }
         return jdCResponse;
     }
     // 查询批次对应的包裹重量体积数据
