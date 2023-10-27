@@ -5,13 +5,16 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
+import com.jd.bluedragon.distribution.api.request.box.CreateBoxReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.box.CreateBoxInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.BoxDto;
 import com.jd.bluedragon.distribution.box.domain.BoxGenReq;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -125,5 +128,18 @@ public class DmsBoxUpsertServiceImpl implements DmsBoxUpsertService{
         param.setUserCode(request.getOperatorId());
         param.setUserName(request.getOperatorName());
         return param;
+    }
+
+    /**
+     * 创建箱号
+     *
+     * @param createBoxReq 创建箱号入参
+     * @return 箱号数据
+     * @author fanggang7
+     * @time 2023-10-24 14:14:24 周二
+     */
+    @Override
+    public Result<CreateBoxInfo> createBox(CreateBoxReq createBoxReq) {
+        return boxService.createBox(createBoxReq);
     }
 }

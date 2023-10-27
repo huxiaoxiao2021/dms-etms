@@ -4,10 +4,16 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
+import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
+import com.jd.bluedragon.distribution.api.request.box.CreateBoxReq;
 import com.jd.bluedragon.distribution.api.response.box.BoxDto;
+import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
+import com.jd.bluedragon.distribution.api.response.box.CreateBoxInfo;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.jy.dto.JySelectOption;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.common.annotation.CacheMethod;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -16,6 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -91,5 +99,18 @@ public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
     @Override
     public Boolean updateBoxStatus(BoxReq boxReq) {
         return boxService.updateBoxStatus(boxReq);
+    }
+
+    /**
+     * 查询箱类型
+     *
+     * @param boxTypeReq 查询箱类型入参
+     * @return 箱号类型列表
+     * @author fanggang7
+     * @time 2023-10-24 14:14:24 周二
+     */
+    @Override
+    public Result<List<BoxTypeDto>> getBoxTypeList(BoxTypeReq boxTypeReq) {
+        return boxService.getBoxTypeList(boxTypeReq);
     }
 }
