@@ -272,10 +272,10 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             if (weightVolSendCodeSumVoBaseEntity != null && weightVolSendCodeSumVoBaseEntity.isSuccess()
                     && weightVolSendCodeSumVoBaseEntity.getData() != null) {
                 if(!Objects.isNull(weightVolSendCodeSumVoBaseEntity.getData().getPackageVolumeSum())) {
-                    weight = BigDecimal.valueOf(weightVolSendCodeSumVoBaseEntity.getData().getPackageVolumeSum()).setScale(2, RoundingMode.CEILING).doubleValue();
+                    volume = BigDecimal.valueOf(weightVolSendCodeSumVoBaseEntity.getData().getPackageVolumeSum()).setScale(2, RoundingMode.CEILING).doubleValue();
                 }
                 if(!Objects.isNull(weightVolSendCodeSumVoBaseEntity.getData().getPackageWeightSum())){
-                    volume = BigDecimal.valueOf(weightVolSendCodeSumVoBaseEntity.getData().getPackageWeightSum()).setScale(2, RoundingMode.CEILING).doubleValue();
+                    weight = BigDecimal.valueOf(weightVolSendCodeSumVoBaseEntity.getData().getPackageWeightSum()).setScale(2, RoundingMode.CEILING).doubleValue();
                 }
             } else {
                 logger.error("根据批次号查询批次下重量体积失败：{}", sendCode);
