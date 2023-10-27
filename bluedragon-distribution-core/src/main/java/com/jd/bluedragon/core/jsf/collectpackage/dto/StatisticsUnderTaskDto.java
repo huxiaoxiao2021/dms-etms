@@ -2,12 +2,10 @@ package com.jd.bluedragon.core.jsf.collectpackage.dto;
 
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageFlowDto;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CollectScanDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
 
 import java.util.List;
 
 public class StatisticsUnderTaskDto {
-    private String bizId;
 
     /**
      * 任务
@@ -64,13 +62,6 @@ public class StatisticsUnderTaskDto {
         this.collectPackageFlowDtoList = collectPackageFlowDtoList;
     }
 
-    public String getBizId() {
-        return bizId;
-    }
-
-    public void setBizId(String bizId) {
-        this.bizId = bizId;
-    }
 
     public List<CollectScanDto> getExcepScanDtoList() {
         return excepScanDtoList;

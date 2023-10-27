@@ -3,12 +3,8 @@ package com.jd.bluedragon.utils;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaProperty;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.*;
+import java.util.*;
 
 public class BeanUtils {
 
@@ -153,6 +149,98 @@ public class BeanUtils {
     }
 
 
+    public static <T> T mockClassObj(Class<T> clazz) {
+        try {
+            T object = clazz.getDeclaredConstructor().newInstance();
+            setFieldsRecursively(object);
+            return object;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    // 使用递归和判断逻辑设置字段值
+    private static void setFieldsRecursively(Object object) throws Exception {
+        Class<?> type = object.getClass();
+        if (isPrimitiveType(type)) {
+            return;  // 如果是基础类型，则终止递归
+        }
+        Field[] fields = type.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (Collection.class.isAssignableFrom(field.getType())) {
+                Type genericType =field.getGenericType();
+                if (genericType instanceof ParameterizedType) {
+                    ParameterizedType parameterizedType = (ParameterizedType) genericType;
+                    Type[] typeArguments = parameterizedType.getActualTypeArguments();
+                    if (typeArguments.length > 0) {
+                        Class<?> typeArgument = (Class<?>) typeArguments[0];
+                        field.set(object, Collections.singletonList(mockClassObj(typeArgument)));
+                    }
+                }
+            }
+            else if (field.getClass().isArray()) {
+                Class<?> componentType = field.getType().getComponentType();
+                Object array = java.lang.reflect.Array.newInstance(componentType, 1);
+                Object element = mockClassObj(componentType);
+                java.lang.reflect.Array.set(array, 0, element);
+                field.set(object, array);
+            } else if ( !isPrimitiveType(field.getType())) {
+                setFieldsRecursively(field);
+            } else {
+                Class<?> fieldType = field.getType();
+                Object value = generateValueForType(fieldType);
+                field.set(object, value);
+            }
+        }
+    }
+
+    // 判断是否为基本类型
+    private static boolean isPrimitiveType(Class<?> type) {
+        return type.isPrimitive() || type == Integer.class || type == Long.class
+                || type == Double.class || type == Float.class || type == Boolean.class
+                || type == Byte.class || type == Short.class || type == Character.class
+                || type == String.class;
+    }
+
+    // 根据字段类型生成合适的值
+    private static Object generateValueForType(Class<?> fieldType) {
+        if (fieldType == Integer.class || fieldType == int.class) {
+            return 123;
+        } else if (fieldType == Long.class || fieldType == long.class) {
+            return 456L;
+        } else if (fieldType == String.class) {
+            return "ABC";
+        } else if (fieldType == Boolean.class || fieldType == boolean.class) {
+            return true;
+        } else if (fieldType == Double.class || fieldType == double.class) {
+            return 3.14;
+        } else if (fieldType == Float.class || fieldType == float.class) {
+            return 2.718f;
+        } else if (fieldType == Byte.class || fieldType == byte.class) {
+            return (byte) 1;
+        } else if (fieldType == Short.class || fieldType == short.class) {
+            return (short) 2;
+        } else if (fieldType == Character.class || fieldType == char.class) {
+            return 'X';
+        } else if (fieldType.isArray()) {
+            Class<?> componentType = fieldType.getComponentType();
+            return Array.newInstance(componentType, 0);
+        } else if (fieldType.isEnum()) {
+            Object[] enumConstants = fieldType.getEnumConstants();
+            return enumConstants != null && enumConstants.length > 0 ? enumConstants[0] : null;
+        } else {
+            try {
+                Object instance = fieldType.getDeclaredConstructor().newInstance();
+                return instance;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
 
 
 }

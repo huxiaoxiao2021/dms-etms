@@ -1,8 +1,11 @@
 package com.jd.bluedragon.core.jsf.collectpackage;
 
 import com.jd.bluedragon.common.dto.collectpackage.request.StatisticsUnderFlowQueryReq;
+import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageFlowDto;
 import com.jd.bluedragon.common.dto.collectpackage.response.StatisticsUnderFlowQueryResp;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.*;
+import com.jd.bluedragon.distribution.jy.dto.collectpackage.CollectScanDto;
+import com.jd.bluedragon.distribution.jy.enums.CollectPackageExcepScanEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -58,12 +61,77 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         ApiTopologyQueryResult response = callUdataQueryAPi(queryParams);
 
         // 处理响应数据
-        ListTaskStatisticDto listTaskStatisticDto = processResponseData(response);
+        ListTaskStatisticDto listTaskStatisticDto = processRespDataToListTaskStatisticDto(response);
 
         if (ObjectHelper.isNotEmpty(listTaskStatisticDto) && CollectionUtils.isNotEmpty(listTaskStatisticDto.getStatisticsUnderTaskDtoList())) {
             return listTaskStatisticDto.getStatisticsUnderTaskDtoList().get(0);
         }
         return null;
+    }
+
+    @Override
+    public StatisticsUnderTaskDto queryTaskFlowStatistic(StatisticsUnderTaskQueryDto dto) {
+        //校验统计查询入参
+        checkStatisticsUnderTaskQueryDto(dto);
+
+        // 封装调用udata查询多任务统计数据的入参
+        ApiDataQueryRequest queryParams = buildQueryTaskFlowStatisticQueryParams(dto);
+
+        // 调用udata接口
+        ApiTopologyQueryResult response = callUdataQueryAPi(queryParams);
+
+        // 处理响应数据
+        StatisticsUnderTaskDto statisticsUnderTaskDto = processResDataToStatisticsUnderTaskDto(response,dto);
+
+        return statisticsUnderTaskDto;
+    }
+
+    private StatisticsUnderTaskDto processResDataToStatisticsUnderTaskDto(ApiTopologyQueryResult response,StatisticsUnderTaskQueryDto req) {
+        if (ObjectHelper.isNotNull(response) && RESULT_SUCCESS_CODE ==response.getCode() && CollectionUtils.isNotEmpty(response.getDataList())){
+            try {
+                List<UdataTaskFlowStatisticDto> udataTaskFlowStatisticDtoList = BeanUtils.listMapConvertToDtoList(response.getDataList(),UdataTaskFlowStatisticDto.class);
+                if (CollectionUtils.isNotEmpty(udataTaskFlowStatisticDtoList)){
+                    List<CollectPackageFlowDto> collectPackageFlowDtoList =udataTaskFlowStatisticDtoList.stream().map(udataTaskFlowStatisticDto -> {
+                        CollectPackageFlowDto collectPackageFlowDto =assembleCollectPackageFlowDto(udataTaskFlowStatisticDto,req);
+                        return collectPackageFlowDto;
+                    }).collect(Collectors.toList());
+                    StatisticsUnderTaskDto statisticsUnderTaskDto =new StatisticsUnderTaskDto();
+                    statisticsUnderTaskDto.setCollectPackageFlowDtoList(collectPackageFlowDtoList);
+                    statisticsUnderTaskDto.setBizId(req.getBizId());
+                    statisticsUnderTaskDto.setBoxCode(req.getBoxCode());
+                    return statisticsUnderTaskDto;
+                }
+            } catch (Exception e) {
+                log.error("processResponseData udataTaskFlowDetailDtoList exception",e);
+            }
+        }
+        return null;
+    }
+
+    private CollectPackageFlowDto assembleCollectPackageFlowDto(UdataTaskFlowStatisticDto udataTaskFlowStatisticDto,StatisticsUnderTaskQueryDto req) {
+        CollectPackageFlowDto collectPackageFlowDto =new CollectPackageFlowDto();
+        collectPackageFlowDto.setEndSiteId(Long.valueOf(udataTaskFlowStatisticDto.getEndSiteId()));
+        collectPackageFlowDto.setEndSiteName(udataTaskFlowStatisticDto.getEndSiteName());
+        if (CollectPackageExcepScanEnum.INTERCEPTED.equals(req.getType())){
+            collectPackageFlowDto.setCount(udataTaskFlowStatisticDto.getInterceptNum());
+        }else if (CollectPackageExcepScanEnum.FORCE_SEND.getCode().equals(req.getType())){
+            collectPackageFlowDto.setCount(udataTaskFlowStatisticDto.getForceNum());
+        }else {
+            collectPackageFlowDto.setCount(udataTaskFlowStatisticDto.getScannedNum());
+        }
+        collectPackageFlowDto.setCount(udataTaskFlowStatisticDto.getScannedNum());
+        return collectPackageFlowDto;
+    }
+
+    private ApiDataQueryRequest buildQueryTaskFlowStatisticQueryParams(StatisticsUnderTaskQueryDto dto) {
+        ApiDataQueryRequest apiDataQueryRequest = new ApiDataQueryRequest();
+        apiDataQueryRequest.setApiName("CollectPackageAggFlow");
+        apiDataQueryRequest.setApiGroupName(jyCollectPackageUdataApiGroupName);
+        apiDataQueryRequest.setAppToken(jyCollectPackageUdataAppToken);
+        Map<String, Object> params = new HashMap<>();
+        params.put("bizId", dto.getBizId());
+        apiDataQueryRequest.setParams(params);
+        return apiDataQueryRequest;
     }
 
 
@@ -88,7 +156,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         ApiTopologyQueryResult response = callUdataQueryAPi(queryParams);
 
         // 处理响应数据
-        ListTaskStatisticDto listTaskStatisticDto = processResponseData(response);
+        ListTaskStatisticDto listTaskStatisticDto = processRespDataToListTaskStatisticDto(response);
 
         return listTaskStatisticDto;
     }
@@ -105,7 +173,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         return apiTopologyQueryResult;
     }
 
-    private ListTaskStatisticDto processResponseData(ApiTopologyQueryResult response) {
+    private ListTaskStatisticDto processRespDataToListTaskStatisticDto(ApiTopologyQueryResult response) {
         if (ObjectHelper.isNotNull(response) && RESULT_SUCCESS_CODE ==response.getCode() && CollectionUtils.isNotEmpty(response.getDataList())){
             try {
                 List<UdataTaskStatisticDto> udataTaskStatisticDtoList = BeanUtils.listMapConvertToDtoList(response.getDataList(),UdataTaskStatisticDto.class);
@@ -129,7 +197,30 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         StatisticsUnderTaskDto statisticsUnderTaskDto =new StatisticsUnderTaskDto();
         statisticsUnderTaskDto.setBizId(udataTaskStatisticDto.getBizId());
         statisticsUnderTaskDto.setBoxCode(udataTaskStatisticDto.getBoxCode());
-        //TODO
+
+        List<CollectScanDto> collectScanDtoList =new ArrayList<>();
+        CollectScanDto intercepter =new CollectScanDto();
+        intercepter.setType(CollectPackageExcepScanEnum.INTERCEPTED.getCode());
+        intercepter.setName(CollectPackageExcepScanEnum.INTERCEPTED.getName());
+        intercepter.setCount(udataTaskStatisticDto.getInterceptNum());
+        collectScanDtoList.add(intercepter);
+
+
+        CollectScanDto haveScan =new CollectScanDto();
+        haveScan.setType(CollectPackageExcepScanEnum.HAVE_SCAN.getCode());
+        haveScan.setName(CollectPackageExcepScanEnum.HAVE_SCAN.getName());
+        haveScan.setCount(udataTaskStatisticDto.getScannedNum());
+        collectScanDtoList.add(haveScan);
+
+
+        CollectScanDto force =new CollectScanDto();
+        force.setType(CollectPackageExcepScanEnum.FORCE_SEND.getCode());
+        force.setName(CollectPackageExcepScanEnum.FORCE_SEND.getName());
+        force.setCount(udataTaskStatisticDto.getForceNum());
+        collectScanDtoList.add(force);
+
+
+        statisticsUnderTaskDto.setExcepScanDtoList(collectScanDtoList);
         return statisticsUnderTaskDto;
     }
 
@@ -165,4 +256,52 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
     public StatisticsUnderFlowQueryResp listPackageUnderFlow(StatisticsUnderFlowQueryReq request) {
         return null;
     }
-}
+
+
+    public static void main(String[] args) {
+        ListTaskStatisticDto result = createMockListTaskStatisticDto();
+        System.out.println(JsonHelper.toJson(result));
+
+        ListTaskStatisticDto result2 = BeanUtils.mockClassObj(ListTaskStatisticDto.class);
+        System.out.println(JsonHelper.toJson(result2));
+
+    }
+
+
+    // 根据具体需求创建一个Mock的ListTaskStatisticDto对象
+    private static ListTaskStatisticDto createMockListTaskStatisticDto() {
+        ListTaskStatisticDto mockDto = new ListTaskStatisticDto();
+        // 创建一个StatisticsUnderTaskDto对象，并设置其字段值
+        StatisticsUnderTaskDto statisticsUnderTaskDto = new StatisticsUnderTaskDto();
+        statisticsUnderTaskDto.setBizId("123");
+        statisticsUnderTaskDto.setBoxCode("ABC");
+        statisticsUnderTaskDto.setMaterialCode("XYZ");
+
+        // 创建一个CollectScanDto对象，并设置其字段值
+        CollectScanDto collectScanDto = new CollectScanDto();
+        collectScanDto.setType(1);
+        collectScanDto.setName("Scan 1");
+        collectScanDto.setCount(10);
+
+        // 将CollectScanDto对象添加到excepScanDtoList中
+        statisticsUnderTaskDto.setExcepScanDtoList(Collections.singletonList(collectScanDto));
+
+        // 创建一个CollectPackageFlowDto对象，并设置其字段值
+        CollectPackageFlowDto collectPackageFlowDto = new CollectPackageFlowDto();
+        collectPackageFlowDto.setEndSiteId(1L);
+        collectPackageFlowDto.setEndSiteName("Site 1");
+        collectPackageFlowDto.setCount(5);
+
+        // 将CollectPackageFlowDto对象添加到collectPackageFlowDtoList中
+        statisticsUnderTaskDto.setCollectPackageFlowDtoList(Collections.singletonList(collectPackageFlowDto));
+
+        // 将StatisticsUnderTaskDto对象添加到List中
+        mockDto.setStatisticsUnderTaskDtoList(Collections.singletonList(statisticsUnderTaskDto));
+
+        // 返回mockDto对象
+        return mockDto;
+    }
+
+
+
+    }

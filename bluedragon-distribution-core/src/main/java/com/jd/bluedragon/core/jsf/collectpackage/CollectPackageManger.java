@@ -18,6 +18,14 @@ public interface CollectPackageManger {
     StatisticsUnderTaskDto queryTaskStatistic(StatisticsUnderTaskQueryDto dto);
 
     /**
+     * 查询任务下的流向聚合数据（按照流向group分组统计）
+     * @param dto
+     * @return
+     */
+
+    StatisticsUnderTaskDto queryTaskFlowStatistic(StatisticsUnderTaskQueryDto dto);
+
+    /**
      * 查询多个集包任务统计信息
      *
      * @param dto 查询任务统计请求
