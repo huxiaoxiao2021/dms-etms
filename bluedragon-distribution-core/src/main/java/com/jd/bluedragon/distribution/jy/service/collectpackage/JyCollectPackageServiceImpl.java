@@ -957,10 +957,10 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     private void checkStatisticsUnderTaskQueryReq(StatisticsUnderTaskQueryReq request) {
         if (ObjectHelper.isEmpty(request)){
-            throw new JyBizException("参数错误：确实请求参数！");
+            throw new JyBizException("参数错误：缺失请求参数！");
         }
         if (ObjectHelper.isEmpty(request.getBizId())){
-            throw new JyBizException("参数错误：确实任务bizId参数！");
+            throw new JyBizException("参数错误：缺失任务bizId参数！");
         }
         if (ObjectHelper.isEmpty(request.getType())){
             request.setType(CollectPackageExcepScanEnum.INTERCEPTED.getCode());
@@ -975,11 +975,43 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return statisticsUnderTaskQueryDto;
     }
 
-    
 
     @Override
     public InvokeResult<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request) {
-        return null;
+        checkStatisticsUnderFlowQueryReq(request);
+        StatisticsUnderFlowQueryReq statisticsUnderFlowQueryReq =assembleStatisticsUnderFlowQueryReq(request);
+        StatisticsUnderFlowQueryResp statisticsUnderFlowQueryResp =collectPackageManger.listPackageUnderFlow(statisticsUnderFlowQueryReq);
+        if (ObjectHelper.isNotNull(statisticsUnderFlowQueryResp)){
+            return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,statisticsUnderFlowQueryResp);
+        }
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+    }
+
+    private void checkStatisticsUnderFlowQueryReq(StatisticsUnderFlowQueryReq request) {
+        if (ObjectHelper.isEmpty(request)){
+            throw new JyBizException("参数错误：缺失请求参数！");
+        }
+        if (ObjectHelper.isEmpty(request.getBizId())){
+            throw new JyBizException("参数错误：缺失任务bizId参数！");
+        }
+        if (ObjectHelper.isEmpty(request.getEndSiteId())){
+            throw new JyBizException("参数错误：缺失任务流向id参数！");
+        }
+        if (ObjectHelper.isEmpty(request.getPageNo())){
+            throw new JyBizException("参数错误：缺失pageNo参数！");
+        }
+        if (ObjectHelper.isEmpty(request.getPageSize())){
+            throw new JyBizException("参数错误：缺失pageSize参数！");
+        }
+    }
+
+    private StatisticsUnderFlowQueryReq assembleStatisticsUnderFlowQueryReq(StatisticsUnderFlowQueryReq request) {
+        StatisticsUnderFlowQueryReq statisticsUnderFlowQueryReq =new StatisticsUnderFlowQueryReq();
+        statisticsUnderFlowQueryReq.setBizId(request.getBizId());
+        statisticsUnderFlowQueryReq.setEndSiteId(request.getEndSiteId());
+        statisticsUnderFlowQueryReq.setPageNo(request.getPageNo());
+        statisticsUnderFlowQueryReq.setPageSize(request.getPageSize());
+        return statisticsUnderFlowQueryReq;
     }
 
     private boolean checkSearchPackageTaskReq(SearchPackageTaskReq request, InvokeResult<CollectPackageTaskResp> result) {

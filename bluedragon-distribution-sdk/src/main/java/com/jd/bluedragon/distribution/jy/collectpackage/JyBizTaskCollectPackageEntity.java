@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class JyBizTaskCollectPackageEntity {
 
-    public static final String BIZ_PREFIX = "JB%s";
+    public static final String BIZ_PREFIX = "JCP%s";
     
     private Long id;
 

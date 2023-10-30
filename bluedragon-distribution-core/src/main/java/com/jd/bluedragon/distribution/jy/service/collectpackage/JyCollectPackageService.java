@@ -58,7 +58,20 @@ public interface JyCollectPackageService {
      */
     InvokeResult<CollectPackageTaskResp> searchPackageTask(SearchPackageTaskReq request);
 
+    /**
+     * 查询任务下的统计信息
+     *
+     * @param request 统计信息查询请求对象
+     * @return 统计信息查询响应对象
+     */
+
     InvokeResult<StatisticsUnderTaskQueryResp> queryStatisticsUnderTask(StatisticsUnderTaskQueryReq request);
 
+    /**
+     * 查询任务流向下统计数据
+     *
+     * @param request 统计信息查询请求对象
+     * @return 响应结果对象，包含任务流向下统计数据
+     */
     InvokeResult<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request);
 }
