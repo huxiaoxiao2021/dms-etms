@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
+import com.jd.bluedragon.common.dto.comboard.request.ExcepScanDto;
 import com.jd.bluedragon.common.dto.sorting.request.PackSortTaskBody;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.DmsConfigManager;
@@ -13,6 +14,7 @@ import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.core.jsf.collectpackage.CollectPackageManger;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticQueryDto;
+import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskQueryDto;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -919,6 +921,65 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         resp.setCollectPackStatusCountList(jyBizTaskCollectPackageService.queryTaskStatusCount(searchPageQuery));
         resp.setCollectPackTaskDtoList(getCollectPackageFlowDtoList(searchPageQuery));
         return result;
+    }
+
+    @Override
+    public InvokeResult<StatisticsUnderTaskQueryResp> queryStatisticsUnderTask(StatisticsUnderTaskQueryReq request) {
+        checkStatisticsUnderTaskQueryReq(request);
+
+        //查询任务的扫描类型统计数据
+        StatisticsUnderTaskQueryDto taskQueryDto =assembleStatisticsUnderTaskQueryDto(request);
+        StatisticsUnderTaskDto taskStatistics =collectPackageManger.queryTaskStatistic(taskQueryDto);
+
+        if (ObjectHelper.isNotNull(taskStatistics)){
+            //查询任务流向的聚合统计数据
+            StatisticsUnderTaskQueryDto taskFlowQueryDto = assembleStatisticsUnderTaskQueryDto(request);
+            StatisticsUnderTaskDto taskFlowStatistic =collectPackageManger.queryTaskFlowStatistic(taskFlowQueryDto);
+            //封装返回数据
+            StatisticsUnderTaskQueryResp statisticsUnderTaskQueryResp =converToStatisticsUnderTaskQueryResp(taskStatistics,taskFlowStatistic);
+            return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,statisticsUnderTaskQueryResp);
+        }
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+    }
+
+    private StatisticsUnderTaskQueryResp converToStatisticsUnderTaskQueryResp(StatisticsUnderTaskDto taskStatistics,StatisticsUnderTaskDto taskFlowStatistic) {
+        StatisticsUnderTaskQueryResp statisticsUnderTaskQueryResp =new StatisticsUnderTaskQueryResp();
+        statisticsUnderTaskQueryResp.setBoxCode(taskStatistics.getBoxCode());
+        if (CollectionUtils.isNotEmpty(taskStatistics.getExcepScanDtoList())){
+            List<ExcepScanDto> excepScanDtoList = com.jd.bluedragon.utils.BeanUtils.copy(taskStatistics.getExcepScanDtoList(),ExcepScanDto.class);
+            statisticsUnderTaskQueryResp.setExcepScanDtoList(excepScanDtoList);
+        }
+        if (ObjectHelper.isNotNull(taskFlowStatistic) && CollectionUtils.isNotEmpty(taskFlowStatistic.getCollectPackageFlowDtoList())){
+            statisticsUnderTaskQueryResp.setCollectPackageFlowDtoList(taskFlowStatistic.getCollectPackageFlowDtoList());
+        }
+        return statisticsUnderTaskQueryResp;
+    }
+
+    private void checkStatisticsUnderTaskQueryReq(StatisticsUnderTaskQueryReq request) {
+        if (ObjectHelper.isEmpty(request)){
+            throw new JyBizException("参数错误：确实请求参数！");
+        }
+        if (ObjectHelper.isEmpty(request.getBizId())){
+            throw new JyBizException("参数错误：确实任务bizId参数！");
+        }
+        if (ObjectHelper.isEmpty(request.getType())){
+            request.setType(CollectPackageExcepScanEnum.INTERCEPTED.getCode());
+        }
+    }
+
+    private StatisticsUnderTaskQueryDto assembleStatisticsUnderTaskQueryDto(StatisticsUnderTaskQueryReq request) {
+        StatisticsUnderTaskQueryDto statisticsUnderTaskQueryDto =new StatisticsUnderTaskQueryDto();
+        statisticsUnderTaskQueryDto.setBizId(request.getBizId());
+        statisticsUnderTaskQueryDto.setBoxCode(request.getBoxCode());
+        statisticsUnderTaskQueryDto.setType(request.getType());
+        return statisticsUnderTaskQueryDto;
+    }
+
+    
+
+    @Override
+    public InvokeResult<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request) {
+        return null;
     }
 
     private boolean checkSearchPackageTaskReq(SearchPackageTaskReq request, InvokeResult<CollectPackageTaskResp> result) {

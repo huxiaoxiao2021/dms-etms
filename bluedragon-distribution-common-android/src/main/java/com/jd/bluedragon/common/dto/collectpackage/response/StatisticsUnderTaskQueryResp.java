@@ -2,7 +2,6 @@ package com.jd.bluedragon.common.dto.collectpackage.response;
 
 
 import com.jd.bluedragon.common.dto.comboard.request.ExcepScanDto;
-import com.jd.bluedragon.common.dto.comboard.request.SendFlowDataReq;
 
 import java.io.Serializable;
 import java.util.List;

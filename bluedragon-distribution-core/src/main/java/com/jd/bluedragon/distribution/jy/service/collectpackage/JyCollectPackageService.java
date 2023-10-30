@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -57,4 +58,7 @@ public interface JyCollectPackageService {
      */
     InvokeResult<CollectPackageTaskResp> searchPackageTask(SearchPackageTaskReq request);
 
+    InvokeResult<StatisticsUnderTaskQueryResp> queryStatisticsUnderTask(StatisticsUnderTaskQueryReq request);
+
+    InvokeResult<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request);
 }

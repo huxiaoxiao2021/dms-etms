@@ -90,12 +90,12 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
 
     @Override
     public JdCResponse<StatisticsUnderTaskQueryResp> queryStatisticsUnderTask(StatisticsUnderTaskQueryReq request) {
-        return null;
+        return retJdCResponse(jyCollectPackageService.queryStatisticsUnderTask(request));
     }
 
     @Override
     public JdCResponse<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request) {
-        return null;
+        return retJdCResponse(jyCollectPackageService.queryStatisticsUnderFlow(request));
     }
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
