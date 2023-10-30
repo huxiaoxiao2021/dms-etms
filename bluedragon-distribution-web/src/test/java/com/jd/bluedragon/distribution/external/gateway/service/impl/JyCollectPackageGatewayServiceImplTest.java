@@ -45,9 +45,9 @@ public class JyCollectPackageGatewayServiceImplTest {
         collectPackageReq.setUser(user);
 
 
-        collectPackageReq.setBizId("");
-        collectPackageReq.setBoxCode("");
-        collectPackageReq.setBarCode("");
+        collectPackageReq.setBizId("JB23103000000001");
+        collectPackageReq.setBoxCode("BC1001231030220000100109");
+        collectPackageReq.setBarCode("JD0003422417678");
 
 
 
