@@ -21,6 +21,7 @@ import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
@@ -34,6 +35,7 @@ import com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.BatchCancelCollectPackageMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CollectScanDto;
+import com.jd.bluedragon.distribution.jy.enums.BoxTransportTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.CollectPackageExcepScanEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
@@ -72,6 +74,7 @@ import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
+import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.getFromCode;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
@@ -556,6 +559,16 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
             // 流向信息
             taskDto.setCollectPackageFlowDtoList(flowMap.get(task.getBizId()));
+            BoxTypeEnum boxType = getFromCode(task.getBoxType());
+            if (boxType != null) {
+                taskDto.setBoxTypeDesc(boxType.getName());
+            }
+            if (MixBoxTypeEnum.MIX_ENABLE.getCode().equals(task.getMixBoxType())) {
+                taskDto.setMixBoxTypeDesc(MixBoxTypeEnum.MIX_ENABLE.getName());
+            }else {
+                taskDto.setMixBoxTypeDesc("");
+            }
+            taskDto.setTransportTypeDesc(BoxTransportTypeEnum.getNameByCode(task.getMixBoxType()));
             return taskDto;
         }).collect(Collectors.toList());
         return collectPackTaskDtoList;

@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jy.enums;
 
 public enum MixBoxTypeEnum {
-    MIX_ENABLE(1,"可以混装"),
+    MIX_ENABLE(1,"允许混装"),
     MIX_DISABLE(0,"不能混装");
     private Integer code;
     private String name;

@@ -31,7 +31,7 @@ public class CollectPackageTaskDto implements Serializable {
     /**
      * 混包类型描述
      */
-    private Integer mixBoxTypeDesc;
+    private String mixBoxTypeDesc;
 
     /**
      * 运输类型
@@ -41,7 +41,7 @@ public class CollectPackageTaskDto implements Serializable {
     /**
      * 运输类型描述
      */
-    private Integer transportTypeDesc;
+    private String transportTypeDesc;
     
     private Long startSiteId;
 
@@ -115,11 +115,11 @@ public class CollectPackageTaskDto implements Serializable {
         this.mixBoxType = mixBoxType;
     }
 
-    public Integer getMixBoxTypeDesc() {
+    public String getMixBoxTypeDesc() {
         return mixBoxTypeDesc;
     }
 
-    public void setMixBoxTypeDesc(Integer mixBoxTypeDesc) {
+    public void setMixBoxTypeDesc(String mixBoxTypeDesc) {
         this.mixBoxTypeDesc = mixBoxTypeDesc;
     }
 
@@ -131,11 +131,11 @@ public class CollectPackageTaskDto implements Serializable {
         this.transportType = transportType;
     }
 
-    public Integer getTransportTypeDesc() {
+    public String getTransportTypeDesc() {
         return transportTypeDesc;
     }
 
-    public void setTransportTypeDesc(Integer transportTypeDesc) {
+    public void setTransportTypeDesc(String transportTypeDesc) {
         this.transportTypeDesc = transportTypeDesc;
     }
 
