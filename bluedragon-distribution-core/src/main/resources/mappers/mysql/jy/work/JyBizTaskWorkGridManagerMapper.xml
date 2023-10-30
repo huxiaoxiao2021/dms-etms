@@ -32,8 +32,8 @@
         <result column="handler_position_code" property="handlerPositionCode" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="transfered" property="transfered" javaType="java.lang.Integer" jdbcType="TINYINT" />
-        <result column="orign_handler_erp" property="handlerErp" javaType="java.lang.String" jdbcType="VARCHAR" />
-        <result column="orign_handler_user_name" property="handlerUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="orign_handler_erp" property="orignHandlerErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="orign_handler_user_name" property="orignHandlerUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="process_begin_time" property="processBeginTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="process_end_time" property="processEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -701,16 +701,16 @@
     <update id="transfer" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager">
         update jy_biz_task_work_grid_manager
         set
-        handler_erp = #{data.handlerErp,jdbcType=VARCHAR},
-        handler_user_name = #{data.handlerUserName,jdbcType=VARCHAR},
-        handler_user_position_code = #{data.handlerUserPositionCode,jdbcType=VARCHAR},
-        handler_user_position_name = #{data.handlerUserPositionName,jdbcType=VARCHAR},
-        transfered = #{data.transfered,jdbcType=VARCHAR},
-        orign_handler_erp = #{data.orignHandlerErp,jdbcType=VARCHAR},
-        orign_handler_user_name = #{data.orignHandlerUserName,jdbcType=VARCHAR},
-        update_user = #{data.updateUser,jdbcType=VARCHAR},
-        update_user_name = #{data.updateUserName,jdbcType=VARCHAR},
-        update_time = #{data.updateTime,jdbcType=TIMESTAMP}
+        handler_erp = #{handlerErp,jdbcType=VARCHAR},
+        handler_user_name = #{handlerUserName,jdbcType=VARCHAR},
+        handler_user_position_code = #{handlerUserPositionCode,jdbcType=VARCHAR},
+        handler_user_position_name = #{handlerUserPositionName,jdbcType=VARCHAR},
+        transfered = #{transfered,jdbcType=VARCHAR},
+        orign_handler_erp = #{orignHandlerErp,jdbcType=VARCHAR},
+        orign_handler_user_name = #{orignHandlerUserName,jdbcType=VARCHAR},
+        update_user = #{updateUser,jdbcType=VARCHAR},
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+        update_time = #{updateTime,jdbcType=TIMESTAMP}
         where id = #{id}
     </update>
 

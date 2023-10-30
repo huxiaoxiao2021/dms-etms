@@ -354,6 +354,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		}
 
 		result.toSucceed();
+		result.setData(true);
 		return result;
 	}
 
