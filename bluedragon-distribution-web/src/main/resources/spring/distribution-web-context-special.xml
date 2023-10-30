@@ -95,4 +95,29 @@
 		<entry key="LL" value="笼车/围板箱"/>
 	</util:map>
 
+    <!-- 分拣中心使用【新版 2023-10-25 14:01:16】 -->
+    <util:map id="sortingBoxTypeV2Map" key-type="java.lang.String" value-type="java.lang.String">
+        <entry key="BCTC" value="同城"/>
+        <entry key="BCLY" value="陆运"/>
+        <entry key="BCHK" value="航空"/>
+        <entry key="BCTL" value="铁路"/>
+        <entry key="TCTH" value="退货组"/>
+        <entry key="TCBJ" value="备件库"/>
+        <entry key="WJ" value="文件"/>
+        <entry key="TA" value="特安"/>
+        <entry key="LL" value="笼车/围板箱"/>
+    </util:map>
+
+    <!-- 营业部，自营京东派 使用的箱型 【新版 2023-10-25 14:01:16】 -->
+    <util:map id="siteBoxTypeV2Map" key-type="java.lang.String" value-type="java.lang.String">
+        <entry key="BCTC" value="同城"/>
+        <entry key="BCLY" value="陆运"/>
+        <entry key="BCHK" value="航空"/>
+        <entry key="TCTH" value="退货组"/>
+        <entry key="TCBJ" value="备件库"/>
+        <entry key="WJ" value="文件"/>
+        <entry key="TA" value="特安"/>
+    </util:map>
+
+
 </beans>
