@@ -41,6 +41,8 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum
 import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.middleend.sorting.service.ISortingService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.domain.SortingQuery;
@@ -128,6 +130,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Autowired
     private CollectPackageManger collectPackageManger;
 
+    @Autowired
+    private RouterService routerService;
 
     /**
      * 集包
@@ -931,7 +935,10 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
         CollectPackageTaskResp resp = new CollectPackageTaskResp();
         result.setData(resp);
-        JyBizTaskCollectPackageQuery searchPageQuery = getSearchPageQuery(request);
+        JyBizTaskCollectPackageQuery searchPageQuery = getSearchPageQuery(request, result);
+        if (searchPageQuery == null) {
+            return result;
+        }
         log.info("集包任务检索请求：{}", JsonHelper.toJson(searchPageQuery));
         resp.setCollectPackStatusCountList(jyBizTaskCollectPackageService.queryTaskStatusCount(searchPageQuery));
         resp.setCollectPackTaskDtoList(getCollectPackageFlowDtoList(searchPageQuery));
@@ -1040,7 +1047,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return true;
     }
 
-    private JyBizTaskCollectPackageQuery getSearchPageQuery(SearchPackageTaskReq request) {
+    private JyBizTaskCollectPackageQuery getSearchPageQuery(SearchPackageTaskReq request, InvokeResult<CollectPackageTaskResp> result) {
         JyBizTaskCollectPackageQuery query = new JyBizTaskCollectPackageQuery();
         query.setTaskStatus(request.getTaskStatus());
         query.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
@@ -1052,13 +1059,25 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (BusinessHelper.isBoxcode(request.getBarCode())) {
             query.setBoxCode(request.getBarCode());
         } else if (WaybillUtil.isPackageCode(request.getBarCode())) {
-            // 如果是包裹号，按流向查询 todo 获取目的地站点
-            query.setEndSiteId(0L);
+            // 如果是包裹号，按流向查询
+            Long endSiteCode = getWaybillNextRouter(request.getBarCode(), Long.valueOf(request.getCurrentOperate().getSiteCode()));
+            if (endSiteCode == null) {
+                result.setCode(RESULT_THIRD_ERROR_CODE);
+                result.setMessage("未获取到当前包裹的路由信息！");
+                return null;
+            }
+            query.setEndSiteId(endSiteCode);
         }
         Date time = DateHelper.addHoursByDay(new Date(), -Double.valueOf(dmsConfigManager.getPropertyConfig().getJyCollectPackageTaskQueryTimeLimit()));
         query.setCreateTime(time);
         return query;
     }
+
+    public Long getWaybillNextRouter(String waybillCode, Long startSiteId) {
+        RouteNextDto routeNextDto = routerService.matchRouterNextNode(startSiteId.intValue(), waybillCode);
+        return routeNextDto == null || routeNextDto.getFirstNextSiteId() == null? null : routeNextDto.getFirstNextSiteId().longValue();
+    }
+
 
     private void checkCancelCollectPackageReq(CancelCollectPackageReq request) {
         if (!ObjectHelper.isNotNull(request.getBoxCode())) {
