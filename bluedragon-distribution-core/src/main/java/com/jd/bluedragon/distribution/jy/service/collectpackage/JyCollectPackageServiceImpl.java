@@ -568,7 +568,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             }else {
                 taskDto.setMixBoxTypeDesc("");
             }
-            taskDto.setTransportTypeDesc(BoxTransportTypeEnum.getNameByCode(task.getMixBoxType()));
+            taskDto.setTransportTypeDesc(BoxTransportTypeEnum.getNameByCode(task.getTransportType()));
             return taskDto;
         }).collect(Collectors.toList());
         return collectPackTaskDtoList;
