@@ -21,9 +21,9 @@ import com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportQuery;
  *
  */
 public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManager> {
-	
+
     final static String NAMESPACE = JyBizTaskWorkGridManagerDao.class.getName();
-    
+
 	public int addTask(JyBizTaskWorkGridManager jyTask) {
 		return this.getSqlSession().insert(NAMESPACE + ".insert", jyTask);
 	}
@@ -37,6 +37,10 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 
 	public List<JyBizTaskWorkGridManager> queryDataListForPda(JyWorkGridManagerQueryRequest query) {
 		return this.getSqlSession().selectList(NAMESPACE + ".queryDataListForPda", query);
+	}
+
+	public Integer queryTransferCountListForPda(JyWorkGridManagerQueryRequest query) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryTransferCountListForPda", query);
 	}
 
 	public int finishTask(JyBizTaskWorkGridManager updateTaskData) {
@@ -81,5 +85,9 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 		param.put("handlerErp", handlerErp);
 		param.put("taskCodeList", taskCodeList);
 		return this.getSqlSession().selectOne(NAMESPACE + ".selectHandlerTodayTaskCountByTaskBizType", param);
+	}
+
+	public int transfer(JyBizTaskWorkGridManager manager) {
+		return this.getSqlSession().update(NAMESPACE + ".transfer", manager);
 	}
 }

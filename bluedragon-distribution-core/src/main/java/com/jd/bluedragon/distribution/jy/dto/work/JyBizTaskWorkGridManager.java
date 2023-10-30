@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class JyBizTaskWorkGridManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * 主键ID
 	 */
@@ -153,6 +153,19 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 * 异常状态:0：待分配 1：待处理 2：处理中 3：已完成  4:超时删除
 	 */
 	private Integer status;
+
+	/**
+	 * 是否转派
+	 */
+	private Integer transfered;
+	/**
+	 * 源处理人erp
+	 */
+	private String orignHandlerErp;
+	/**
+	 * 原处理人姓名
+	 */
+	private String orignHandlerUserName;
 
 	/**
 	 * 开始处理时间
@@ -833,5 +846,29 @@ public class JyBizTaskWorkGridManager implements Serializable {
 
 	public void setTaskBizType(Integer taskBizType) {
 		this.taskBizType = taskBizType;
+	}
+
+	public Integer getTransfered() {
+		return transfered;
+	}
+
+	public void setTransfered(Integer transfered) {
+		this.transfered = transfered;
+	}
+
+	public String getOrignHandlerErp() {
+		return orignHandlerErp;
+	}
+
+	public void setOrignHandlerErp(String orignHandlerErp) {
+		this.orignHandlerErp = orignHandlerErp;
+	}
+
+	public String getOrignHandlerUserName() {
+		return orignHandlerUserName;
+	}
+
+	public void setOrignHandlerUserName(String orignHandlerUserName) {
+		this.orignHandlerUserName = orignHandlerUserName;
 	}
 }

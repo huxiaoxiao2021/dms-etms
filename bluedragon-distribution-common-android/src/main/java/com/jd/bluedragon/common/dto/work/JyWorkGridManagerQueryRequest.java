@@ -27,13 +27,13 @@ public class JyWorkGridManagerQueryRequest implements Serializable {
      */
     private String taskRefGridKey;
 	/**
-	 * 异常状态:0：待分配 1：未完成 2：处理中 3：已完成  4:超时未完成
+	 * 异常状态:0：待分配 1：未完成 2：处理中 3：已完成  4:超时未完成 7:转派
 	 */
-	private Integer status;	
+	private Integer status;
 	/**
 	 * 开始处理时间
 	 */
-	private Date processBeginTime;	
+	private Date processBeginTime;
 	/**
 	 * 分页参数-开始值
 	 */
@@ -42,12 +42,12 @@ public class JyWorkGridManagerQueryRequest implements Serializable {
 	 * 分页参数-数据条数
 	 */
 	private int limit = 10;
-	
+
 	private Integer pageNumber = 1;
-	
+
 	private Integer pageSize = 10;
 
-	
+
 	public int getOffset() {
 		return offset;
 	}
