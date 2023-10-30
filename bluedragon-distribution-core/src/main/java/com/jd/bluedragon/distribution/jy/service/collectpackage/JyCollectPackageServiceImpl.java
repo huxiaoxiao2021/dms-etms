@@ -510,6 +510,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         query.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
         Date time = DateHelper.addHoursByDay(new Date(), -Double.valueOf(dmsConfigManager.getPropertyConfig().getJyCollectPackageTaskQueryTimeLimit()));
         query.setCreateTime(time);
+        query.setTaskStatusList(Arrays.asList(JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode(), JyBizTaskCollectPackageStatusEnum.COLLECTING.getCode(), JyBizTaskCollectPackageStatusEnum.SEALED.getCode()));
         resp.setCollectPackStatusCountList(jyBizTaskCollectPackageService.queryTaskStatusCount(query));
         resp.setCollectPackTaskDtoList(getCollectPackageFlowDtoList(getPageQuery(request, time)));
         return result;
@@ -653,6 +654,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
 
         JyBizTaskCollectPackageEntity task = getTaskDetailByReq(request);
+        log.info("根据条件获取集包任务为：task：{}", JsonHelper.toJson(task));
         TaskDetailResp resp = new TaskDetailResp();
         result.setData(resp);
         if (task == null) {
@@ -938,6 +940,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         query.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
         query.setOffset((request.getPageNo() - 1) * request.getPageSize());
         query.setLimit(request.getPageSize());
+        query.setTaskStatusList(Arrays.asList(JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode(), JyBizTaskCollectPackageStatusEnum.COLLECTING.getCode(), JyBizTaskCollectPackageStatusEnum.SEALED.getCode()));
 
         // 如果是箱号
         if (BusinessHelper.isBoxcode(request.getBarCode())) {

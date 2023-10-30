@@ -44,6 +44,8 @@ public class JyBizTaskCollectPackageQuery implements Serializable {
     private List<String> bizIds;
 
     private List<Long> ids;
+
+    private List<Integer> taskStatusList;
     public int getOffset() {
         return offset;
     }
@@ -114,5 +116,13 @@ public class JyBizTaskCollectPackageQuery implements Serializable {
 
     public void setIds(List<Long> ids) {
         this.ids = ids;
+    }
+
+    public List<Integer> getTaskStatusList() {
+        return taskStatusList;
+    }
+
+    public void setTaskStatusList(List<Integer> taskStatusList) {
+        this.taskStatusList = taskStatusList;
     }
 }

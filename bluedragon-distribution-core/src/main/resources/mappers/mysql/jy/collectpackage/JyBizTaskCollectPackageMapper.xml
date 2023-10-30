@@ -296,12 +296,17 @@
     count(1) as total
     from jy_biz_task_collect_package
     where start_site_id = #{startSiteId,jdbcType=BIGINT}
+    and yn = 1
     <if test="endSiteId != null">
       and end_site_id = #{endSiteId,jdbcType=BIGINT}
     </if>
     <if test="boxCode != null">
       and box_code = #{boxCode,jdbcType=VARCHAR}
     </if>
+    and task_status in
+    <foreach collection="taskStatusList" item="item" index="index" open="(" separator="," close=")">
+      #{item}
+    </foreach>
     and create_time > #{createTime}
     group by task_status
   </select>
@@ -311,6 +316,7 @@
     <include refid="Base_Column_List"/>
     from jy_biz_task_collect_package
     where box_code = #{boxCode,jdbcType=VARCHAR}
+    and yn = 1
     limit 1
   </select>
 
