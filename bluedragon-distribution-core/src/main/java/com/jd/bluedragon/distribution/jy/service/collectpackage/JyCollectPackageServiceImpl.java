@@ -755,7 +755,17 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             result.setMessage("未获取到有效的任务信息!");
             return result;
         }
-        List<Long> ids = taskList.stream().map(JyBizTaskCollectPackageEntity::getId).collect(Collectors.toList());
+
+        // 过滤掉已经封箱的箱号数据
+        List<Long> ids = new ArrayList<>();
+        for (JyBizTaskCollectPackageEntity task : taskList) {
+            if (!JyBizTaskCollectPackageStatusEnum.SEALED.getCode().equals(task.getTaskStatus())) {
+                ids.add(task.getId());
+            }
+        }
+        if (CollectionUtils.isEmpty(ids)) {
+            return result;
+        }
 
         JyBizTaskCollectPackageQuery query = new JyBizTaskCollectPackageQuery();
         query.setIds(ids);
@@ -782,6 +792,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             result.setMessage("批量封箱的数量不能超过" + SEALING_BOX_LIMIT + "， 请取消勾选后再提交!");
             return false;
         }
+
+        // 当前不存在封箱场景,只校验第一个是否空箱
+        Integer sum = sortingService.getSumByBoxCode(request.getSealingBoxDtoList().get(0).getBizId());
+        if (sum <= 0) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("该箱号为空箱，请扫描包裹号！");
+            return false;
+        }
+
         return true;
     }
 
