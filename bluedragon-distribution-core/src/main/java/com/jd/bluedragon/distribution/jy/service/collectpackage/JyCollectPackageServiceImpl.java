@@ -709,6 +709,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             result.setMessage("参数异常！");
             return false;
         }
+
+        if (!StringUtils.isEmpty(request.getBarCode())
+                && !WaybillUtil.isPackageCode(request.getBarCode())
+                && !BusinessUtil.isBoxcode(request.getBarCode())) {
+            result.setCode(RESULT_NULL_CODE);
+            result.setMessage("请扫描正确的箱号或包裹号！");
+            return false;
+        }
         return true;
     }
 
