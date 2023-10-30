@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.jsf.collectpackage;
 
 import com.jd.bluedragon.common.dto.collectpackage.request.StatisticsUnderFlowQueryReq;
+import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageDto;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageFlowDto;
 import com.jd.bluedragon.common.dto.collectpackage.response.StatisticsUnderFlowQueryResp;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.*;
@@ -102,7 +103,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
                     return statisticsUnderTaskDto;
                 }
             } catch (Exception e) {
-                log.error("processResponseData udataTaskFlowDetailDtoList exception",e);
+                log.error("processResDataToStatisticsUnderTaskDto exception",e);
             }
         }
         return null;
@@ -187,7 +188,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
                     return listTaskStatisticDto;
                 }
             } catch (Exception e) {
-                log.error("processResponseData udataTaskFlowDetailDtoList exception",e);
+                log.error("processRespDataToListTaskStatisticDto exception",e);
             }
         }
         return null;
@@ -254,7 +255,70 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
 
     @Override
     public StatisticsUnderFlowQueryResp listPackageUnderFlow(StatisticsUnderFlowQueryReq request) {
+        checkStatisticsUnderFlowQueryReq(request);
+
+        // 封装调用udata查询多任务统计数据的入参
+        ApiDataQueryRequest queryParams = buildListPackageUnderFlowUDataQueryParams(request);
+
+        // 调用udata接口
+        ApiTopologyQueryResult response = callUdataQueryAPi(queryParams);
+
+        // 处理响应数据
+        StatisticsUnderFlowQueryResp statisticsUnderFlowQueryResp = processRespDataToStatisticsUnderFlowQueryResp(response);
+
+        return statisticsUnderFlowQueryResp;
+    }
+
+    private ApiDataQueryRequest buildListPackageUnderFlowUDataQueryParams(StatisticsUnderFlowQueryReq request) {
+        ApiDataQueryRequest apiDataQueryRequest = new ApiDataQueryRequest();
+        apiDataQueryRequest.setApiName("CollectPackageDetail");
+        apiDataQueryRequest.setApiGroupName(jyCollectPackageUdataApiGroupName);
+        apiDataQueryRequest.setAppToken(jyCollectPackageUdataAppToken);
+        Map<String, Object> params = new HashMap<>();
+        params.put("bizId", request.getBizId());
+        params.put("endSiteId",request.getEndSiteId());
+        params.put("pageSize",request.getPageSize());
+        params.put("pageNum",request.getPageNo());
+        apiDataQueryRequest.setParams(params);
+        return apiDataQueryRequest;
+    }
+
+    private StatisticsUnderFlowQueryResp processRespDataToStatisticsUnderFlowQueryResp(ApiTopologyQueryResult response) {
+        if (ObjectHelper.isNotNull(response) && RESULT_SUCCESS_CODE ==response.getCode() && CollectionUtils.isNotEmpty(response.getDataList())){
+            try {
+                List<UdataTaskFlowDetailDto> udataTaskFlowDetailDtoList = BeanUtils.listMapConvertToDtoList(response.getDataList(),UdataTaskFlowDetailDto.class);
+                if (CollectionUtils.isNotEmpty(udataTaskFlowDetailDtoList)){
+                    List<CollectPackageDto> collectPackageDtoList =udataTaskFlowDetailDtoList.stream().map(udataTaskFlowDetailDto -> {
+                        CollectPackageDto collectPackageDto =assembleCollectPackageDto(udataTaskFlowDetailDto);
+                        return collectPackageDto;
+                    }).collect(Collectors.toList());
+                    StatisticsUnderFlowQueryResp statisticsUnderFlowQueryResp =new StatisticsUnderFlowQueryResp();
+                    statisticsUnderFlowQueryResp.setCollectPackageDtoList(collectPackageDtoList);
+                    return statisticsUnderFlowQueryResp;
+                }
+            } catch (Exception e) {
+                log.error("processRespDataToStatisticsUnderFlowQueryResp exception",e);
+            }
+        }
         return null;
+    }
+
+    private CollectPackageDto assembleCollectPackageDto(UdataTaskFlowDetailDto udataTaskFlowDetailDto) {
+        CollectPackageDto collectPackageDto =new CollectPackageDto();
+        collectPackageDto.setPackageCode(udataTaskFlowDetailDto.getPackageCode());
+        return collectPackageDto;
+    }
+
+    private void checkStatisticsUnderFlowQueryReq(StatisticsUnderFlowQueryReq request) {
+        if (ObjectHelper.isEmpty(request)) {
+            throw new JyBizException("参数错误：缺失请求对象！");
+        }
+        if (!ObjectHelper.isNotNull(request.getBizId())) {
+            throw new JyBizException("参数错误：缺失任务bizId参数！");
+        }
+        if (!ObjectHelper.isNotNull(request.getEndSiteId())) {
+            throw new JyBizException("参数错误：缺失流向ID参数！");
+        }
     }
 
 
