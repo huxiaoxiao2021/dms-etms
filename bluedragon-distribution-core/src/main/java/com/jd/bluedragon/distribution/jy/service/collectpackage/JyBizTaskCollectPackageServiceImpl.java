@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.dao.collectpackage.JyBizTaskCollectPackageDao;
 import com.jd.bluedragon.distribution.jy.dao.collectpackage.JyCollectPackageDao;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
@@ -84,7 +85,27 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
 
     @Override
     public List<CollectPackStatusCount> queryTaskStatusCount(JyBizTaskCollectPackageQuery query) {
-        return jyBizTaskCollectPackageDao.queryTaskStatusCount(query);
+        List<CollectPackStatusCount> statusCounts = jyBizTaskCollectPackageDao.queryTaskStatusCount(query);
+        if (statusCounts == null) {
+            statusCounts = new ArrayList<>();
+        }
+        // 将所有的任务状态都补充全
+        if (query.getTaskStatusList().size() > statusCounts.size()) {
+            List<Integer> taskStatus = new ArrayList<>();
+
+            for (CollectPackStatusCount statusCount : statusCounts) {
+                taskStatus.add(statusCount.getTaskStatus());
+            }
+            for (Integer status : query.getTaskStatusList()) {
+                if (!taskStatus.contains(status)) {
+                    CollectPackStatusCount collectPackStatusCount = new CollectPackStatusCount();
+                    collectPackStatusCount.setTaskStatus(status);
+                    collectPackStatusCount.setTotal(0L);
+                    statusCounts.add(collectPackStatusCount);
+                }
+            }
+        }
+        return statusCounts;
     }
 
     @Override
