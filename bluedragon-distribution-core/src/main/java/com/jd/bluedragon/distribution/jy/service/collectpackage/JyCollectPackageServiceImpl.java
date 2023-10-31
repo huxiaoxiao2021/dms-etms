@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
+import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
@@ -591,17 +592,24 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return collectPackTaskDtoList;
     }
 
-    private HashMap<String, List<CollectScanDto>> getScanAgg(List<String> boxCodeList) {
+    private HashMap<String, List<CollectScanDto>> getScanAgg(List<String> bizIdList) {
         HashMap<String, List<CollectScanDto>> aggMap = new HashMap<>();
         ListTaskStatisticQueryDto queryDto = new ListTaskStatisticQueryDto();
         List<StatisticsUnderTaskQueryDto> queryDtoList = new ArrayList<>();
-        for (String bizId : boxCodeList) {
+        for (String bizId : bizIdList) {
             StatisticsUnderTaskQueryDto dto = new StatisticsUnderTaskQueryDto();
             dto.setBizId(bizId);
             queryDtoList.add(dto);
         }
         queryDto.setStatisticsUnderTaskQueryDtoList(queryDtoList);
-        ListTaskStatisticDto listTaskStatisticDto = collectPackageManger.listTaskStatistic(queryDto);
+
+        ListTaskStatisticDto listTaskStatisticDto = null;
+        try{
+            listTaskStatisticDto = collectPackageManger.listTaskStatistic(queryDto);
+        }catch (Exception e) {
+            log.info("查询统计数据异常：{}", JsonHelper.toJson(queryDto));
+            return aggMap;
+        }
         if (listTaskStatisticDto == null || CollectionUtils.isEmpty(listTaskStatisticDto.getStatisticsUnderTaskDtoList())) {
             log.info("未获取到统计数据：{}", JsonHelper.toJson(queryDto));
             return aggMap;
@@ -691,7 +699,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         result.setData(resp);
         if (task == null) {
             result.setCode(RESULT_NULL_CODE);
-            result.setMessage(request.getBarCode() + ":未获取到集包任务！");
+            result.setMessage(request.getBarCode() + "未获取到集包任务！");
             return result;
         }
         CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
@@ -700,8 +708,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         taskDto.setMaterialCode(cycleBoxService.getBoxMaterialRelation(task.getBoxCode()));
 
         // 统计数据
-        HashMap<String, List<CollectScanDto>> scanAgg = getScanAgg(Collections.singletonList(request.getBizId()));
-        List<CollectScanDto> collectScanDtos = scanAgg.get(request.getBizId());
+        HashMap<String, List<CollectScanDto>> scanAgg = getScanAgg(Collections.singletonList(taskDto.getBizId()));
+        List<CollectScanDto> collectScanDtos = scanAgg.get(taskDto.getBizId());
         if (!CollectionUtils.isEmpty(collectScanDtos)) {
             for (CollectScanDto collectScanDto : collectScanDtos) {
                 if (CollectPackageExcepScanEnum.HAVE_SCAN.getCode().equals(collectScanDto.getType())) {
@@ -807,10 +815,10 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
 
         // 当前不存在封箱场景,只校验第一个是否空箱
-        Integer sum = sortingService.getSumByBoxCode(request.getSealingBoxDtoList().get(0).getBizId());
+        Integer sum = sortingService.getSumByBoxCode(request.getSealingBoxDtoList().get(0).getBoxCode());
         if (sum <= 0) {
             result.setCode(RESULT_THIRD_ERROR_CODE);
-            result.setMessage("该箱号为空箱，请扫描包裹号！");
+            result.setMessage("该箱号为空箱，不允许封箱！");
             return false;
         }
 
