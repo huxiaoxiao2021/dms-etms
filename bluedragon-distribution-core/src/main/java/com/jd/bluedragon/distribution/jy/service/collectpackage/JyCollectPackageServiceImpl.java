@@ -181,8 +181,21 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             //保存集包扫描记录
             saveJyCollectPackageScanRecord(request);
             response.setEndSiteId(request.getEndSiteId());
+            checkIfNeedUpdateStatus(request, collectPackageTask);
         } finally {
             jimDbLock.releaseLock(boxLockKey, request.getRequestId());
+        }
+    }
+
+    private void checkIfNeedUpdateStatus(CollectPackageReq request, JyBizTaskCollectPackageEntity collectPackageTask) {
+        if (JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode().equals(collectPackageTask)){
+            JyBizTaskCollectPackageEntity entity =new JyBizTaskCollectPackageEntity();
+            entity.setId(collectPackageTask.getId());
+            entity.setTaskStatus(JyBizTaskCollectPackageStatusEnum.COLLECTING.getCode());
+            entity.setUpdateTime(new Date());
+            entity.setUpdateUserErp(request.getUser().getUserErp());
+            entity.setUpdateUserName(request.getUser().getUserName());
+            jyBizTaskCollectPackageService.updateById(entity);
         }
     }
 
