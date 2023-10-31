@@ -188,7 +188,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     private void checkIfNeedUpdateStatus(CollectPackageReq request, JyBizTaskCollectPackageEntity collectPackageTask) {
-        if (JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode().equals(collectPackageTask)){
+        if (JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode().equals(collectPackageTask.getTaskStatus())){
             JyBizTaskCollectPackageEntity entity =new JyBizTaskCollectPackageEntity();
             entity.setId(collectPackageTask.getId());
             entity.setTaskStatus(JyBizTaskCollectPackageStatusEnum.COLLECTING.getCode());
