@@ -83,6 +83,24 @@ public class BoxCodeUtil {
             return "逆配";
         } else if (type.equals("LP")) {
             return "理赔";
+        } else if (type.equals("10")) {
+            return "同城";
+        } else if (type.equals("11")) {
+            return "陆运";
+        } else if (type.equals("12")) {
+            return "航空";
+        } else if (type.equals("13")) {
+            return "铁路";
+        } else if (type.equals("20")) {
+            return "退货组";
+        } else if (type.equals("21")) {
+            return "备件库";
+        } else if (type.equals("30")) {
+            return "文件";
+        } else if (type.equals("40")) {
+            return "特安";
+        } else if (type.equals("50")) {
+            return "笼车/围板箱";
         }
         return "未知类型";
     }

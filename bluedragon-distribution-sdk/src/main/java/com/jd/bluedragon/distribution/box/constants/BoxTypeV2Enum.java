@@ -12,15 +12,15 @@ import java.util.Map;
  */
 public enum BoxTypeV2Enum {
 
-    TYPE_BCTC("BCTC", "BC", "同城"),
-    TYPE_BCLY("BCLY", "BC", "陆运"),
-    TYPE_BCHK("BCHK", "BC", "航空"),
-    TYPE_BCTL("BCTL", "BC", "铁路"),
-    TYPE_TCTH("TCTH", "TC", "退货组"),
-    TYPE_TCBJ("TCBJ", "TC", "备件库"),
-    TYPE_WJ("WJ", "WJ", "文件"),
-    TYPE_TA("TA", "TA", "特安"),
-    TYPE_LL("LL", "LL", "笼车/围板箱"),
+    TYPE_BCTC("10", "BC", "同城"),
+    TYPE_BCLY("11", "BC", "陆运"),
+    TYPE_BCHK("12", "BC", "航空"),
+    TYPE_BCTL("13", "BC", "铁路"),
+    TYPE_TCTH("20", "TC", "退货组"),
+    TYPE_TCBJ("21", "TC", "备件库"),
+    TYPE_WJ("30", "WJ", "文件"),
+    TYPE_TA("40", "TA", "特安"),
+    TYPE_LL("50", "LL", "笼车/围板箱"),
     ;
 
     private String code;

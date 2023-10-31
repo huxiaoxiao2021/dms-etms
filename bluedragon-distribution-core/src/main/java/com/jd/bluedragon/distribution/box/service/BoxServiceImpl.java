@@ -143,10 +143,10 @@ public class BoxServiceImpl implements BoxService {
 	@Value("${box.addBatch.size:20}")
 	private Integer boxAddBatchSize;
 
-    @Resource(name="sortingBoxTypeV2Map")
+    @Resource(name="siteBoxTypeV2Map")
     private Map<String,String> siteBoxTypeMap;
 
-    @Resource(name="siteBoxTypeV2Map")
+    @Resource(name="sortingBoxTypeV2Map")
     private Map<String,String> sortingBoxTypeMap;
 
     public Integer add(Box box) {
@@ -317,7 +317,12 @@ public class BoxServiceImpl implements BoxService {
 	private String generateBoxCodePrefixNew(Box box, String systemType,boolean isDB) {
 		StringBuilder preFix = new StringBuilder();
 		if (!this.genStableBoxPrefix(box, systemType)) {
-            preFix.append(box.getType());
+            final BoxTypeV2Enum boxTypeV2Enum = BoxTypeV2Enum.getFromCode(box.getType());
+            if(boxTypeV2Enum != null){
+                preFix.append(boxTypeV2Enum.getCodeShow());
+            } else {
+                preFix.append(box.getType());
+            }
         }
 		else {
 		    // 箱号固定BC开头，不再根据类型区域不同的前缀
@@ -1087,6 +1092,14 @@ public class BoxServiceImpl implements BoxService {
                     this.log.error("获得站点路由信息失败： ", e);
                 }
             }
+            int routerCount = createBoxInfo.getRouter() == null ? 0 : createBoxInfo.getRouter().size();
+            createBoxInfo.setTemplateName(BoxCodeUtil.getTemplateName(routerCount));
+            createBoxInfo.setTemplateVersion(BoxCodeUtil.getTemplateVersion(createBoxInfo.getTemplateName()));
+            createBoxInfo.setBoxType(BoxCodeUtil.getBoxTypeName(createBoxReq.getType()));
+            createBoxInfo.setCategoryText(BoxCodeUtil.getCategoryText(createBoxReq.getTransportType()));
+            createBoxInfo.setMixBoxTypeText(BoxCodeUtil.getMixBoxTypeText(createBoxReq.getMixBoxType()));
+            createBoxInfo.setCreateSiteName(createBoxReq.getCreateSiteName());
+            createBoxInfo.setReceiveSiteName(createBoxReq.getReceiveSiteName());
         } catch (Exception e) {
             log.error("BoxServiceImpl.createBox exception {}", JsonHelper.toJson(createBoxReq), e);
             result.toFail("系统异常");
@@ -1145,7 +1158,7 @@ public class BoxServiceImpl implements BoxService {
         }
 
         // 排除非法箱号类型
-        if (this.boxTypeCheckSwitchOn() && BoxTypeV2Enum.ENUM_LIST.contains(createBoxReq.getType())) {
+        if (this.boxTypeCheckSwitchOn() && !BoxTypeV2Enum.ENUM_LIST.contains(createBoxReq.getType())) {
             return checkResult.toFail("箱号类型不合法!", CreateBoxInfo.Code_boxTypeIllegal);
         }
         return checkResult;
