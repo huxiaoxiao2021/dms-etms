@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.collectpackage.response;
 
+import java.util.List;
+
 /**
  * @author liwenji
  * @description 流向信息
@@ -38,5 +40,16 @@ public class CollectPackageFlowDto {
 
     public void setEndSiteName(String endSiteName) {
         this.endSiteName = endSiteName;
+    }
+
+
+    List<CollectPackageDto> collectPackageDtoList;
+
+    public List<CollectPackageDto> getCollectPackageDtoList() {
+        return collectPackageDtoList;
+    }
+
+    public void setCollectPackageDtoList(List<CollectPackageDto> collectPackageDtoList) {
+        this.collectPackageDtoList = collectPackageDtoList;
     }
 }
