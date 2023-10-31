@@ -795,6 +795,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
            taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
        }else {
            // 查询推荐任务列表
+           condition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), toSendQueryTakeOffTimeStartHour));
            taskDtoList = jyBizTaskSendAviationPlanService.pageQueryRecommendTaskByNextSiteId(condition);
         }
 
