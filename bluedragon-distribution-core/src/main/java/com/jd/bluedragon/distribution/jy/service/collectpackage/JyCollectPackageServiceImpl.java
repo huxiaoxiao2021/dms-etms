@@ -802,7 +802,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
 
         // 当前不存在封箱场景,只校验第一个是否空箱
-        Integer sum = sortingService.getSumByBoxCode(request.getSealingBoxDtoList().get(0).getBizId());
+        Integer sum = sortingService.getSumByBoxCode(request.getSealingBoxDtoList().get(0).getBoxCode());
         if (sum <= 0) {
             result.setCode(RESULT_THIRD_ERROR_CODE);
             result.setMessage("该箱号为空箱，请扫描包裹号！");
