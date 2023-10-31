@@ -805,7 +805,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         Integer sum = sortingService.getSumByBoxCode(request.getSealingBoxDtoList().get(0).getBoxCode());
         if (sum <= 0) {
             result.setCode(RESULT_THIRD_ERROR_CODE);
-            result.setMessage("该箱号为空箱，请扫描包裹号！");
+            result.setMessage("该箱号为空箱，不允许封箱！");
             return false;
         }
 
