@@ -258,7 +258,7 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         sortingRequest.setPackageCode(dto.getPackageCode());
         sortingRequest.setUserCode(dto.getUpdateUserCode());
         sortingRequest.setUserName(dto.getUpdateUserName());
-        //req.setBusinessType(request.getBusinessType());//TODO
+        sortingRequest.setBusinessType(10);
         sortingRequest.setOperateTime(DateUtil.format(dto.getUpdateTime(), DateUtil.FORMAT_DATE_TIME));
         sortingRequest.setSiteCode(dto.getSiteCode());
         sortingRequest.setSiteName(dto.getSiteName());
