@@ -734,5 +734,9 @@
     <jmq:consumer id="jmq.boxFirstPrintConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.boxFirstPrint}" listener="boxFirstPrintConsumer"/>
     </jmq:consumer>
+    <!-- 批量取消集包-异步执行 -->
+    <jmq:consumer id="jmq.batchCancelCollectPackageConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.batchCancelCollectPackageProduce}" listener="batchCancelCollectPackageConsumer"/>
+    </jmq:consumer>
 </beans>
 

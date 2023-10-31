@@ -279,6 +279,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         taskRequest.setType(TASK_TYPE_SORTING);
         taskRequest.setKeyword1(String.valueOf(request.getCurrentOperate().getSiteCode()));
         taskRequest.setKeyword2(request.getBoxCode());
+        taskRequest.setBusinessType(10);
         String body = assembleCollectDataBody(request);
         taskRequest.setBody(body);
         return taskRequest;
@@ -287,8 +288,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private String assembleCollectDataBody(CollectPackageReq request) {
         PackSortTaskBody taskBody = new PackSortTaskBody();
         taskBody.setBoxCode(request.getBoxCode());
-        //TODO
-        //taskBody.setBusinessType(getBusinessTypeBySiteType(boxReceiveSiteType).getType());
+        taskBody.setBusinessType(10);
         taskBody.setFeatureType(0);
         taskBody.setIsCancel(0);
         taskBody.setIsLoss(0);
@@ -900,11 +900,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     private BatchCancelCollectPackageMqDto assembleBatchCancelCollectPackageMqDto(List<Sorting> sortingList, CancelCollectPackageReq request) {
         BatchCancelCollectPackageMqDto batchCancelCollectPackageMqDto = new BatchCancelCollectPackageMqDto();
+        batchCancelCollectPackageMqDto.setBizId(request.getBizId());
         batchCancelCollectPackageMqDto.setBoxCode(request.getBoxCode());
         batchCancelCollectPackageMqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
         batchCancelCollectPackageMqDto.setSiteName(request.getCurrentOperate().getSiteName());
         batchCancelCollectPackageMqDto.setUpdateUserErp(request.getUser().getUserErp());
         batchCancelCollectPackageMqDto.setUpdateUserName(request.getUser().getUserName());
+        batchCancelCollectPackageMqDto.setUpdateUserCode(request.getUser().getUserCode());
         List<String> packageList = sortingList.stream().map(sorting -> sorting.getPackageCode()).collect(Collectors.toList());
         batchCancelCollectPackageMqDto.setPackageCodeList(packageList);
         return batchCancelCollectPackageMqDto;
