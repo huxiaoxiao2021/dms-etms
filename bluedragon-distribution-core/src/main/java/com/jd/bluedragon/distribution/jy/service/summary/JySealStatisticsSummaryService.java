@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.summary;
 
-import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryCondition;
-import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
+import com.jd.bluedragon.distribution.jy.summary.JySealStatisticsSummaryCondition;
+import com.jd.bluedragon.distribution.jy.summary.JySealStatisticsSummaryEntity;
 
 import java.util.List;
 
@@ -12,9 +12,9 @@ import java.util.List;
  */
 public interface JySealStatisticsSummaryService {
 
-    int insertSelective(JyStatisticsSummaryEntity entity) ;
+    int insertSelective(JySealStatisticsSummaryEntity entity) ;
 
-    List<JyStatisticsSummaryEntity> queryByBusinessKeysAndType(JyStatisticsSummaryCondition summaryCondition);
+    List<JySealStatisticsSummaryEntity> queryByBusinessKeysAndType(JySealStatisticsSummaryCondition summaryCondition);
 
-    JyStatisticsSummaryEntity queryByBusinessKeyAndType(JyStatisticsSummaryEntity entity);
+    JySealStatisticsSummaryEntity queryByBusinessKeyAndType(JySealStatisticsSummaryEntity entity);
 }

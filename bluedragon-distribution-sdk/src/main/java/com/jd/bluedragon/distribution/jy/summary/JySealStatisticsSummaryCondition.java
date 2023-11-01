@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.jy.summary;
 import java.io.Serializable;
 import java.util.List;
 
-public class JyStatisticsSummaryCondition extends JyStatisticsSummaryEntity implements Serializable {
+public class JySealStatisticsSummaryCondition extends JySealStatisticsSummaryEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

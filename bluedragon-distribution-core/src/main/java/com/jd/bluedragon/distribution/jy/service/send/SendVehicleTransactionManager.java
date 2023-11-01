@@ -25,7 +25,7 @@ import com.jd.bluedragon.distribution.jy.service.summary.JySealStatisticsSummary
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
-import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
+import com.jd.bluedragon.distribution.jy.summary.JySealStatisticsSummaryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
@@ -262,7 +262,7 @@ public class SendVehicleTransactionManager {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.sealCarStatusUpdateAndSummary",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean sealCarStatusUpdateAndSummary(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity sendDetail, JyStatisticsSummaryEntity summaryEntity) {
+    public boolean sealCarStatusUpdateAndSummary(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity sendDetail, JySealStatisticsSummaryEntity summaryEntity) {
         if(sendVehicleTransactionManager.updateTaskStatus(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.SEALED)) {
             if(!Objects.isNull(summaryEntity)) {
                 statisticsSummaryService.insertSelective(summaryEntity);
@@ -284,7 +284,7 @@ public class SendVehicleTransactionManager {
     public boolean updateAviationTaskStatus(JyBizTaskSendAviationPlanEntity aviationPlanEntity,
                                             JyBizTaskSendVehicleEntity taskSend,
                                             JyBizTaskSendVehicleDetailEntity sendDetail,
-                                            JyStatisticsSummaryEntity summaryEntity,
+                                            JySealStatisticsSummaryEntity summaryEntity,
                                             JyBizTaskSendDetailStatusEnum updateStatus) {
         //
         sendVehicleTransactionManager.updateTaskStatus(taskSend, sendDetail, updateStatus);
@@ -694,6 +694,32 @@ public class SendVehicleTransactionManager {
         //航空计划
         if(!Objects.isNull(aviationPlanEntity)) {
             jyBizTaskSendAviationPlanService.initTaskSendVehicle(aviationPlanEntity);
+        }
+        return true;
+    }
+
+    /**
+     * 调用场景： 消费封车消息时，根据封车批次反查jy发货任务，将未封车任务状态置为封车
+     * 解决问题：非新版app发货岗封车后，新版发货任务状态依然未封车
+     * @param taskSend 发货主表
+     * @param sendDetail 发货明细表
+     * @param aviationPlanEntity 航空发货表
+     * @param summaryEntity 封车统计数据
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.updateAviationTaskStatus",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean syncSendTaskSealHandler(JyBizTaskSendVehicleEntity taskSend,
+                                            JyBizTaskSendVehicleDetailEntity sendDetail,
+                                            JyBizTaskSendAviationPlanEntity aviationPlanEntity,
+                                            JySealStatisticsSummaryEntity summaryEntity) {
+        sendVehicleTransactionManager.updateTaskStatus(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
+        if(!Objects.isNull(aviationPlanEntity)) {
+            jyBizTaskSendAviationPlanService.updateStatus(aviationPlanEntity);
+        }
+        if(!Objects.isNull(summaryEntity)) {
+            statisticsSummaryService.insertSelective(summaryEntity);
         }
         return true;
     }

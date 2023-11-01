@@ -3,17 +3,16 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
-import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
-import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
-import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
+import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.jy.service.collect.emuns.CollectInitNodeEnum;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
@@ -28,21 +27,19 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.transboard.api.enums.BoardStatus;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -99,6 +96,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
     @Autowired
     @Qualifier(value = "jyCollectDataInitSplitProducer")
     private DefaultJMQProducer jyCollectDataInitSplitProducer;
+
+    @Autowired
+    @Qualifier(value = "sealSyncJySendTaskStatusProducer")
+    private DefaultJMQProducer sealSyncJySendTaskStatusProducer;
 
 
     @Override
@@ -175,6 +176,8 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             if (BusinessUtil.isTransferSite(siteInfo.getSubType())) {
                 sendInitCollectMq(tmsSealCarStatus);
             }
+            //
+            this.sendSealSyncJySendTaskStatusMq(tmsSealCarStatus);
             return jyUnSealVehicleService.createUnSealTask(convert4Seal(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
         }if(TMS_STATUS_UN_SEAL.equals(tmsSealCarStatus.getStatus())){
             //下游操作解封车后  关闭待解任务 同时创建 待卸任务
@@ -249,8 +252,16 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             }
         }
     }
-
-
+    //封车信息同步新版app发货任务状态
+    private void sendSealSyncJySendTaskStatusMq(TmsSealCarStatusMQBody mqBody) {
+        for(String batchCode : mqBody.getBatchCodes()) {
+            TmsSealCarStatusMQBody msg = new TmsSealCarStatusMQBody();
+            BeanUtils.copyProperties(mqBody, msg);
+            //单批次发送，consumer按批次处理
+            msg.setSingleBatchCode(batchCode);
+        }
+        sealSyncJySendTaskStatusProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(mqBody));
+    }
 
     private void sendInitCollectMq(TmsSealCarStatusMQBody tmsSealCarStatus) {
         InitCollectDto initCollectDto = new InitCollectDto();
@@ -395,6 +406,11 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
          * 批次 JSON格式
          */
         private List<String> batchCodes;
+        /**
+         * 运输封车批次集合拆分，下游按单批次处理
+         * batchCodes 中的某一个
+         */
+        private String singleBatchCode;
 
         public String getSealCarCode() {
             return sealCarCode;
@@ -442,6 +458,14 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
 
         public void setBatchCodes(List<String> batchCodes) {
             this.batchCodes = batchCodes;
+        }
+
+        public String getSingleBatchCode() {
+            return singleBatchCode;
+        }
+
+        public void setSingleBatchCode(String singleBatchCode) {
+            this.singleBatchCode = singleBatchCode;
         }
     }
 }

@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.jy.summary;
 import java.io.Serializable;
 import java.util.Date;
 
-public class JyStatisticsSummaryEntity implements Serializable {
+public class JySealStatisticsSummaryEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -62,10 +62,10 @@ public class JyStatisticsSummaryEntity implements Serializable {
 
 
 
-    public JyStatisticsSummaryEntity() {
+    public JySealStatisticsSummaryEntity() {
     }
 
-    public JyStatisticsSummaryEntity(String businessKey, String businessKeyType, Integer operateSiteCode, String source) {
+    public JySealStatisticsSummaryEntity(String businessKey, String businessKeyType, Integer operateSiteCode, String source) {
         this.businessKey = businessKey;
         this.businessKeyType = businessKeyType;
         this.operateSiteCode = operateSiteCode;

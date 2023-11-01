@@ -42,14 +42,13 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskBindService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.summary.BusinessKeyTypeEnum;
-import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
+import com.jd.bluedragon.distribution.jy.summary.JySealStatisticsSummaryEntity;
 import com.jd.bluedragon.distribution.jy.summary.SummarySourceEnum;
 import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.sendCode.DMSSendCodeJSFService;
-import com.jd.bluedragon.distribution.sendCode.domain.HugeSendCodeEntity;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -444,7 +443,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     private void sealCarStatusUpdateAndSummary(String bizId, String detailBizId, String userErp, String userName, String sealCarTime,
-                                  JyStatisticsSummaryEntity summaryEntity) {
+                                  JySealStatisticsSummaryEntity summaryEntity) {
         JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(detailBizId);
         JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(bizId);
         taskSend.setUpdateTime(new Date());
@@ -1201,7 +1200,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
         taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
         //航空任务封车汇总
-        JyStatisticsSummaryEntity summaryEntity = new JyStatisticsSummaryEntity(
+        JySealStatisticsSummaryEntity summaryEntity = new JySealStatisticsSummaryEntity(
                 sealVehicleReq.getSendVehicleBizId(), BusinessKeyTypeEnum.JY_SEND_TASK.getCode(),
                 sealVehicleReq.getCurrentOperate().getSiteCode(), SummarySourceEnum.SEAL.getCode());
         summaryEntity.setWeight(sealVehicleReq.getWeight());
@@ -1261,7 +1260,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     jySendSealCodeService.addBatch(entityList);
                 }
                 //发车任务状态修改
-                JyStatisticsSummaryEntity summaryEntity = this.generateSealSummaryEntity(request, sealAllBatchCodes);
+                JySealStatisticsSummaryEntity summaryEntity = this.generateSealSummaryEntity(request, sealAllBatchCodes);
                 this.sealCarStatusUpdateAndSummary(request.getBizId(), request.getDetailBizId(), request.getUser().getUserErp(), request.getUser().getUserName(), sealCarDto.getSealCarTime(), summaryEntity);
                 //任务明细绑定批次号重置
                 if (ObjectHelper.isNotNull(sealResp.getData())){
@@ -1284,7 +1283,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
     }
 
-    private JyStatisticsSummaryEntity generateSealSummaryEntity(ShuttleTaskSealCarReq request, List<String> batchCodes){
+    private JySealStatisticsSummaryEntity generateSealSummaryEntity(ShuttleTaskSealCarReq request, List<String> batchCodes){
 
         String businessKey ;
         String businessKeyType ;
@@ -1296,7 +1295,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             businessKeyType = BusinessKeyTypeEnum.JY_SEND_TASK.getCode();
         }
         Date time = new Date();
-        JyStatisticsSummaryEntity summaryEntity = new JyStatisticsSummaryEntity(
+        JySealStatisticsSummaryEntity summaryEntity = new JySealStatisticsSummaryEntity(
                 businessKey, businessKeyType,
                 request.getCurrentOperate().getSiteCode(), SummarySourceEnum.SEAL.getCode());
         summaryEntity.setWeight(request.getWeight());
