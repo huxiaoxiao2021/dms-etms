@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.capability.send.domain;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
+import com.jd.bluedragon.distribution.api.request.SendRequest;
 import com.jd.bluedragon.distribution.board.domain.Board;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.capability.send.handler.SendDimensionStrategyHandler;
@@ -48,7 +49,7 @@ public class SendOfCAContext implements Serializable {
     /**
      * 入参
      */
-    private PackageSendRequest request;
+    private SendRequest request;
 
     /**
      * 出参

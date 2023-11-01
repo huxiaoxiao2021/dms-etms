@@ -55,12 +55,16 @@ public class SendOfCapabilityAreaFactory {
         chain.addHandler(sendLockVerifyHandler);
         chain.addHandler(sendOldChainVerifyHandler);
         chain.addHandler(sendMultiVerifyHandler);
+        chain.addHandler(sendCycleBoxBindVerifyHandler);
 
         //校验后执行的补充逻辑
         chain.addHandler(sendReplenishAfterVerifyHandler);
+
         //锁
         chain.addHandler(sendLockHandler);
+
         //执行
+        chain.addHandler(sendCycleBoxBindHandler);
         chain.addHandler(sendCancelLastHandler);
         chain.addHandler(sendCancelBoardHandler);
         chain.addHandler(sendMInitHandler);
@@ -72,6 +76,7 @@ public class SendOfCapabilityAreaFactory {
         chain.addHandler(sendGoodsNoticeHandler);
         chain.addHandler(sendUrgentHintHandler);
         chain.addHandler(sendFileBoxHandler);
+
         //解锁，目前沿用老锁 仍保留在异步任务逻辑中
         chain.addHandler(sendUnLockHandler);
 
@@ -89,6 +94,8 @@ public class SendOfCapabilityAreaFactory {
     private SendOldChainVerifyHandler sendOldChainVerifyHandler;
     @Autowired
     private SendMultiVerifyHandler sendMultiVerifyHandler;
+    @Autowired
+    private SendCycleBoxBindVerifyHandler sendCycleBoxBindVerifyHandler;
     @Autowired
     private SendLockHandler sendLockHandler;
     @Autowired
@@ -117,5 +124,7 @@ public class SendOfCapabilityAreaFactory {
     private SendReplenishAfterVerifyHandler sendReplenishAfterVerifyHandler;
     @Autowired
     private SendFileBoxHandler sendFileBoxHandler;
+    @Autowired
+    private SendCycleBoxBindHandler sendCycleBoxBindHandler;
 
 }

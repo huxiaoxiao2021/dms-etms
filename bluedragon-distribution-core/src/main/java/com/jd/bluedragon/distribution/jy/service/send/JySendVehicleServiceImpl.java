@@ -68,16 +68,19 @@ import com.jd.bluedragon.core.jsf.vehicle.VehicleBasicManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
+import com.jd.bluedragon.distribution.api.request.SendRequest;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.capability.send.service.ISendOfCapabilityAreaService;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
@@ -244,6 +247,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     @Autowired
     @Qualifier("redisJyNoTaskSendDetailBizIdSequenceGen")
     private JimdbSequenceGen redisJyNoTaskSendDetailBizIdSequenceGen;
+
+    @Autowired
+    private ISendOfCapabilityAreaService sendOfCapabilityAreaService;
+
+
+    @Autowired
+    SysConfigService sysConfigService;
 
     @Autowired
     private DmsConfigManager dmsConfigManager;
@@ -1713,11 +1723,41 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 }
             }
 
-            // 执行一车一单发货逻辑
-            sendResult = this.execPackageSend(sendType, sendResult, sendM);
-            if (!sendResultToJdResp(result, sendResult)) {
-                return result;
+
+            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(sendM.getCreateSiteCode()))){
+                log.info("execPackageSend 启用新模式 {}",sendM.getBoxCode());
+                //新接口
+                SendRequest sendRequest = new SendRequest();
+                sendRequest.setReceiveSiteCode(sendM.getReceiveSiteCode());
+                sendRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
+                sendRequest.setUserCode(request.getUser().getUserCode());
+                sendRequest.setUserName(request.getUser().getUserName());
+                sendRequest.setOpeUserErp(request.getUser().getUserErp());
+                sendRequest.setSendCode(sendM.getSendCode());
+                sendRequest.setBoxCode(sendM.getBoxCode());
+                sendRequest.setBusinessType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
+                sendRequest.setBizSource(SendBizSourceEnum.JY_APP_SEND.getCode());//默认初始化
+                sendRequest.setIsCancelLastSend(Boolean.TRUE); //此版发货没有让客户端感知到取消上次发货的逻辑，而是直接取消了
+                sendRequest.setOperatorId(sendM.getOperatorId());
+                sendRequest.setOperatorTypeCode(sendM.getOperatorTypeCode());
+                sendRequest.setOperatorData(sendM.getOperatorData());
+                sendRequest.setIsForceSend(request.getForceSubmit());
+                if (SendKeyTypeEnum.BY_WAYBILL.equals(sendType)) {
+                    // 按运单发货 客户端存在按包裹号传入的场景需要转换成运单
+                    sendRequest.setBarCode(WaybillUtil.getWaybillCode(sendM.getBoxCode()));
+                }else{
+                    sendRequest.setBarCode(sendM.getBoxCode());
+                }
+                JdVerifyResponse<SendResult>  response = sendOfCapabilityAreaService.doSend(sendRequest);
+
+            }else{
+                // 执行一车一单发货逻辑
+                sendResult = this.execPackageSend(sendType, sendResult, sendM);
+                if (!sendResultToJdResp(result, sendResult)) {
+                    return result;
+                }
             }
+
 
             businessTips(request, result);
 
@@ -1936,6 +1976,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 sendResult = deliveryService.boardSend(sendM, oldForceSend);
                 break;
         }
+
 
         return sendResult;
     }
