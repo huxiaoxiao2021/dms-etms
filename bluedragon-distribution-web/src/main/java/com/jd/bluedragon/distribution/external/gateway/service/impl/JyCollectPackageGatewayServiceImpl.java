@@ -35,6 +35,8 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
         BindCollectBagReq bindCollectBagReq =new BindCollectBagReq();
         bindCollectBagReq.setBoxCode(request.getBoxCode());
         bindCollectBagReq.setMaterialCode(request.getBarCode());
+        bindCollectBagReq.setCurrentOperate(request.getCurrentOperate());
+        bindCollectBagReq.setUser(request.getUser());
         return bindCollectBagReq;
     }
 

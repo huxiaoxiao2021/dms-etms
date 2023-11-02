@@ -850,12 +850,28 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Override
     public InvokeResult bindCollectBag(BindCollectBagReq request) {
         checkBindCollectBagReq(request);
+        JyBizTaskCollectPackageEntity entity =jyBizTaskCollectPackageService.findByBoxCode(request.getBoxCode());
+        if (ObjectHelper.isEmpty(entity)){
+            return new InvokeResult(COLLECT_PACKAGE_TASK_NO_EXIT_CODE,COLLECT_PACKAGE_TASK_NO_EXIT_MESSAGE);
+        }
+
         BoxMaterialRelationRequest req = assembleBoxMaterialRelationRequest(request);
         InvokeResult bindMaterialResp = cycleBoxService.boxMaterialRelationAlter(req);
         if (!bindMaterialResp.codeSuccess()) {
             return new InvokeResult(SERVER_ERROR_CODE, bindMaterialResp.getMessage());
         }
+        updateCollectBag(request, entity);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+    }
+
+    private void updateCollectBag(BindCollectBagReq request, JyBizTaskCollectPackageEntity entity) {
+        JyBizTaskCollectPackageEntity task =new JyBizTaskCollectPackageEntity();
+        task.setId(entity.getId());
+        task.setMaterialCode(request.getMaterialCode());
+        task.setUpdateTime(new Date());
+        task.setUpdateUserErp(request.getUser().getUserErp());
+        task.setUpdateUserName(request.getUser().getUserName());
+        jyBizTaskCollectPackageService.updateById(task);
     }
 
     private BoxMaterialRelationRequest assembleBoxMaterialRelationRequest(BindCollectBagReq request) {

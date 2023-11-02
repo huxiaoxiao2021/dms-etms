@@ -57,6 +57,32 @@ public class JyCollectPackageGatewayServiceImplTest {
     }
 
     @Test
+    public void bindTags() {
+        CollectPackageReq collectPackageReq =new CollectPackageReq();
+
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(40240);
+
+        User user =new User();
+        user.setUserErp("wuyoude");
+        user.setUserName("吴有德");
+        user.setUserCode(123);
+
+        collectPackageReq.setCurrentOperate(currentOperate);
+        collectPackageReq.setUser(user);
+
+
+        collectPackageReq.setBizId("JCP23103100000192");
+        collectPackageReq.setBoxCode("BC1001231031220000210023");
+        collectPackageReq.setBarCode("AD12345678901234");
+
+
+
+        JdCResponse<CollectPackageResp> collectPackageRespJdCResponse = jyCollectPackageGatewayService.collectScan(collectPackageReq);
+        System.out.println(JsonHelper.toJson(collectPackageRespJdCResponse));
+    }
+
+    @Test
     public void cancelCollectPackage() {
         CancelCollectPackageReq cancelCollectPackageReq =new CancelCollectPackageReq();
         CurrentOperate currentOperate = new CurrentOperate();
