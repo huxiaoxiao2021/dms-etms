@@ -10,6 +10,7 @@ import com.jd.bluedragon.common.dto.sorting.request.PackSortTaskBody;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.core.jsf.collectpackage.CollectPackageManger;
@@ -870,6 +871,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         BoxMaterialRelationRequest req = assembleBoxMaterialRelationRequest(request);
         InvokeResult bindMaterialResp = cycleBoxService.boxMaterialRelationAlter(req);
         if (!bindMaterialResp.codeSuccess()) {
+            if(HintCodeConstants.CYCLE_BOX_NOT_BELONG_ERROR.equals(String.valueOf(bindMaterialResp.getCode()))){
+                return new InvokeResult(CONFIRM_COLLECT_PACKAGE_WARNING, bindMaterialResp.getMessage());
+            }
             return new InvokeResult(SERVER_ERROR_CODE, bindMaterialResp.getMessage());
         }
         updateCollectBag(request, entity);
@@ -896,6 +900,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         req.setBoxCode(request.getBoxCode());
         req.setMaterialCode(request.getMaterialCode());
         req.setBindFlag(Constants.CONSTANT_NUMBER_ONE);
+        req.setForceFlag(request.getForceBindFlag());
         return req;
     }
 

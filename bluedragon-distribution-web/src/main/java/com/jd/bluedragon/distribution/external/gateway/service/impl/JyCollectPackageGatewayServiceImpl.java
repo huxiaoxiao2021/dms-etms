@@ -4,7 +4,9 @@ import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
+import com.jd.bluedragon.common.dto.comboard.request.ExcepScanDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.enums.CollectPackageExcepScanEnum;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
@@ -12,6 +14,9 @@ import com.jd.bluedragon.utils.JsonHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_FAIL;
 
@@ -37,6 +42,7 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
         bindCollectBagReq.setMaterialCode(request.getBarCode());
         bindCollectBagReq.setCurrentOperate(request.getCurrentOperate());
         bindCollectBagReq.setUser(request.getUser());
+        bindCollectBagReq.setForceBindFlag(request.getSkipInterceptChain());
         return bindCollectBagReq;
     }
 
@@ -103,5 +109,24 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(),
                 invokeResult.getData());
+    }
+
+    public static void main(String[] args) {
+        StatisticsUnderFlowQueryResp data =new StatisticsUnderFlowQueryResp();
+        List<CollectPackageDto> collectPackageDtoList =new ArrayList<>();
+        data.setCollectPackageDtoList(collectPackageDtoList);
+
+        CollectPackageDto collectPackageDto =new CollectPackageDto();
+        collectPackageDto.setPackageCode("包裹号1");
+        collectPackageDtoList.add(collectPackageDto);
+
+        CollectPackageDto collectPackageDto2 =new CollectPackageDto();
+        collectPackageDto2.setPackageCode("包裹号2");
+        collectPackageDtoList.add(collectPackageDto2);
+
+
+        JdCResponse jdCResponse =new JdCResponse(JdCResponse.CODE_SUCCESS,JdCResponse.MESSAGE_SUCCESS);
+        jdCResponse.setData(data);
+        System.out.println(JsonHelper.toJson(jdCResponse));
     }
 }

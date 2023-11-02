@@ -5,6 +5,9 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
+import com.jd.bluedragon.common.dto.comboard.request.ExcepScanDto;
+import com.jd.bluedragon.distribution.jy.dto.collectpackage.CollectScanDto;
+import com.jd.bluedragon.distribution.jy.enums.CollectPackageExcepScanEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -169,7 +172,53 @@ public class JyCollectPackageGatewayServiceImplTest {
     @Test
     public void queryStatisticsUnderTask() {
 
-        StatisticsUnderTaskQueryResp data =BeanUtils.mockClassObj(StatisticsUnderTaskQueryResp.class);
+        StatisticsUnderTaskQueryResp data =new StatisticsUnderTaskQueryResp();
+
+        data.setBoxCode("箱号");
+        data.setMaterialCode("集包袋号码");
+
+        List<ExcepScanDto> excepScanDtoList =new ArrayList<>();
+        ExcepScanDto intercepter =new ExcepScanDto();
+        intercepter.setType(CollectPackageExcepScanEnum.INTERCEPTED.getCode());
+        intercepter.setName(CollectPackageExcepScanEnum.INTERCEPTED.getName());
+        intercepter.setCount(1);
+        excepScanDtoList.add(intercepter);
+
+
+        ExcepScanDto haveScan =new ExcepScanDto();
+        haveScan.setType(CollectPackageExcepScanEnum.HAVE_SCAN.getCode());
+        haveScan.setName(CollectPackageExcepScanEnum.HAVE_SCAN.getName());
+        haveScan.setCount(2);
+        excepScanDtoList.add(haveScan);
+
+
+        ExcepScanDto force =new ExcepScanDto();
+        force.setType(CollectPackageExcepScanEnum.FORCE_SEND.getCode());
+        force.setName(CollectPackageExcepScanEnum.FORCE_SEND.getName());
+        force.setCount(3);
+        excepScanDtoList.add(force);
+
+        data.setExcepScanDtoList(excepScanDtoList);
+
+
+        List<CollectPackageFlowDto> collectPackageFlowDtoList =new ArrayList<>();
+
+        CollectPackageFlowDto collectPackageFlowDto1 =new CollectPackageFlowDto();
+        collectPackageFlowDto1.setEndSiteId(1L);
+        collectPackageFlowDto1.setEndSiteName("场地1");
+        collectPackageFlowDto1.setCount(1);
+        collectPackageFlowDtoList.add(collectPackageFlowDto1);
+
+
+        CollectPackageFlowDto collectPackageFlowDto2 =new CollectPackageFlowDto();
+        collectPackageFlowDto2.setEndSiteId(2L);
+        collectPackageFlowDto2.setEndSiteName("场地2");
+        collectPackageFlowDto2.setCount(2);
+        collectPackageFlowDtoList.add(collectPackageFlowDto2);
+
+
+        data.setCollectPackageFlowDtoList(collectPackageFlowDtoList);
+
         JdCResponse jdCResponse =new JdCResponse(JdCResponse.CODE_SUCCESS,JdCResponse.MESSAGE_SUCCESS);
         jdCResponse.setData(data);
         System.out.println(JsonHelper.toJson(jdCResponse));
@@ -177,7 +226,19 @@ public class JyCollectPackageGatewayServiceImplTest {
 
     @Test
     public void queryStatisticsUnderFlow() {
-        StatisticsUnderFlowQueryResp data =BeanUtils.mockClassObj(StatisticsUnderFlowQueryResp.class);
+        StatisticsUnderFlowQueryResp data =new StatisticsUnderFlowQueryResp();
+        List<CollectPackageDto> collectPackageDtoList =new ArrayList<>();
+        data.setCollectPackageDtoList(collectPackageDtoList);
+
+        CollectPackageDto collectPackageDto =new CollectPackageDto();
+        collectPackageDto.setPackageCode("包裹号1");
+        collectPackageDtoList.add(collectPackageDto);
+
+        CollectPackageDto collectPackageDto2 =new CollectPackageDto();
+        collectPackageDto2.setPackageCode("包裹号2");
+        collectPackageDtoList.add(collectPackageDto2);
+
+
         JdCResponse jdCResponse =new JdCResponse(JdCResponse.CODE_SUCCESS,JdCResponse.MESSAGE_SUCCESS);
         jdCResponse.setData(data);
         System.out.println(JsonHelper.toJson(jdCResponse));
