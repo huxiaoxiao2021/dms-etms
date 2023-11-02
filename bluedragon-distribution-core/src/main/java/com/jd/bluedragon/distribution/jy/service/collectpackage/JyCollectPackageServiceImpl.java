@@ -789,9 +789,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     private boolean checkSealingReq(SealingBoxReq request, InvokeResult<SealingBoxResp> result) {
-        if (request == null || CollectionUtils.isEmpty(request.getSealingBoxDtoList())) {
+        if (request == null || CollectionUtils.isEmpty(request.getSealingBoxDtoList()) || StringUtils.isEmpty(request.getSealingBoxDtoList().get(0).getBoxCode())) {
             result.setCode(RESULT_THIRD_ERROR_CODE);
-            result.setMessage("未获取到任务信息！");
+            result.setMessage("未获取到箱信息！");
             return false;
         }
 
@@ -808,7 +808,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             result.setMessage("该箱号为空箱，不允许封箱！");
             return false;
         }
-
+        // 绑定集包袋校验
+        String materialRelation = cycleBoxService.getBoxMaterialRelation(request.getSealingBoxDtoList().get(0).getBoxCode());
+        if (StringUtils.isEmpty(materialRelation)) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("该箱号未绑定集包袋，不允许封箱！");
+            return false;
+        }
         return true;
     }
 
@@ -1089,7 +1095,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             query.setBoxCode(request.getBarCode());
         } else if (WaybillUtil.isPackageCode(request.getBarCode())) {
             // 如果是包裹号，按流向查询
-            Long endSiteCode = getWaybillNextRouter(request.getBarCode(), Long.valueOf(request.getCurrentOperate().getSiteCode()));
+            Long endSiteCode = getWaybillNextRouter(WaybillUtil.getWaybillCode(request.getBarCode()), Long.valueOf(request.getCurrentOperate().getSiteCode()));
             if (endSiteCode == null) {
                 result.setCode(RESULT_THIRD_ERROR_CODE);
                 result.setMessage("未获取到当前包裹的路由信息！");
