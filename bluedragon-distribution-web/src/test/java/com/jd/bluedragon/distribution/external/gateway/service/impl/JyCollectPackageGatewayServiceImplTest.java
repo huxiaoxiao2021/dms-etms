@@ -36,18 +36,19 @@ public class JyCollectPackageGatewayServiceImplTest {
     public void collectPackage() {
         CollectPackageReq collectPackageReq =new CollectPackageReq();
         CurrentOperate currentOperate = new CurrentOperate();
-        currentOperate.setSiteCode(910);
+        currentOperate.setSiteCode(40240);
         User user =new User();
         user.setUserErp("wuyoude");
         user.setUserName("吴有德");
+        user.setUserCode(123);
 
         collectPackageReq.setCurrentOperate(currentOperate);
         collectPackageReq.setUser(user);
 
 
-        collectPackageReq.setBizId("JB23103000000001");
-        collectPackageReq.setBoxCode("BC1001231030220000100109");
-        collectPackageReq.setBarCode("JD0003422417678-1-1-");
+        collectPackageReq.setBizId("JCP23103100000192");
+        collectPackageReq.setBoxCode("BC1001231031220000210023");
+        collectPackageReq.setBarCode("JD0003422420020-5-100-");
 
 
 
@@ -59,13 +60,19 @@ public class JyCollectPackageGatewayServiceImplTest {
     public void cancelCollectPackage() {
         CancelCollectPackageReq cancelCollectPackageReq =new CancelCollectPackageReq();
         CurrentOperate currentOperate = new CurrentOperate();
-        currentOperate.setSiteCode(910);
+        currentOperate.setSiteCode(40240);
         User user =new User();
         user.setUserErp("wuyoude");
         user.setUserName("吴有德");
+        user.setUserCode(123);
+
 
         cancelCollectPackageReq.setCurrentOperate(currentOperate);
         cancelCollectPackageReq.setUser(user);
+
+        cancelCollectPackageReq.setBarCode("JD0003422420020-1-100-");
+        cancelCollectPackageReq.setBoxCode("BC1001231031250000208306");
+        cancelCollectPackageReq.setBizId("JCP23103100000165");
 
 
 

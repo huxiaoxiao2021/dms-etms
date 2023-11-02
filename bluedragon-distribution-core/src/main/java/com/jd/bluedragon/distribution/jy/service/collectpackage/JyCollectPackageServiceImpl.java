@@ -181,8 +181,21 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             //保存集包扫描记录
             saveJyCollectPackageScanRecord(request);
             response.setEndSiteId(request.getEndSiteId());
+            checkIfNeedUpdateStatus(request, collectPackageTask);
         } finally {
             jimDbLock.releaseLock(boxLockKey, request.getRequestId());
+        }
+    }
+
+    private void checkIfNeedUpdateStatus(CollectPackageReq request, JyBizTaskCollectPackageEntity collectPackageTask) {
+        if (JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode().equals(collectPackageTask.getTaskStatus())){
+            JyBizTaskCollectPackageEntity entity =new JyBizTaskCollectPackageEntity();
+            entity.setId(collectPackageTask.getId());
+            entity.setTaskStatus(JyBizTaskCollectPackageStatusEnum.COLLECTING.getCode());
+            entity.setUpdateTime(new Date());
+            entity.setUpdateUserErp(request.getUser().getUserErp());
+            entity.setUpdateUserName(request.getUser().getUserName());
+            jyBizTaskCollectPackageService.updateById(entity);
         }
     }
 
@@ -314,12 +327,25 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     private void collectPackageBizCheck(CollectPackageReq request) {
+        //重复集包校验
+        reCollectCheck(request);
         //校验箱号：是否存在 +是否已打印+状态合法性+是否已经发货
         boxCheck(request);
         //流向校验
         flowCheck(request);
         //sorting拦截器链
         execInterceptorChain(request);
+    }
+
+    private void reCollectCheck(CollectPackageReq request) {
+        JyCollectPackageEntity query =new JyCollectPackageEntity();
+        query.setPackageCode(request.getBarCode());
+        query.setBizId(request.getBizId());
+        query.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        JyCollectPackageEntity entity =jyCollectPackageScanRecordService.queryJyCollectPackageRecord(query);
+        if (ObjectHelper.isNotNull(entity)){
+            throw new JyBizException("该包裹已经在此箱号中！");
+        }
     }
 
     private void flowCheck(CollectPackageReq request) {

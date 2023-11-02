@@ -273,7 +273,7 @@
     select
     <include refid="Base_Column_List"/>
     from jy_collect_package
-    where yn = 1 and package_code =#{packageCode} and start_site_id =#{startSiteId}
+    where yn = 1 and package_code =#{packageCode} and start_site_id =#{startSiteId} and intercept_flag =0 and force_flag =0
     <if test="bizId != null">
       and biz_id = #{bizId,jdbcType=VARCHAR}
     </if>
