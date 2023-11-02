@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -162,5 +163,23 @@ public class JyCollectPackageGatewayServiceImplTest {
         list.add(sealingBoxDto);
         JdCResponse<SealingBoxResp> response = jyCollectPackageGatewayService.sealingBox(boxReq);
         System.out.println(JsonHelper.toJson(response));
+    }
+
+
+    @Test
+    public void queryStatisticsUnderTask() {
+
+        StatisticsUnderTaskQueryResp data =BeanUtils.mockClassObj(StatisticsUnderTaskQueryResp.class);
+        JdCResponse jdCResponse =new JdCResponse(JdCResponse.CODE_SUCCESS,JdCResponse.MESSAGE_SUCCESS);
+        jdCResponse.setData(data);
+        System.out.println(JsonHelper.toJson(jdCResponse));
+    }
+
+    @Test
+    public void queryStatisticsUnderFlow() {
+        StatisticsUnderFlowQueryResp data =BeanUtils.mockClassObj(StatisticsUnderFlowQueryResp.class);
+        JdCResponse jdCResponse =new JdCResponse(JdCResponse.CODE_SUCCESS,JdCResponse.MESSAGE_SUCCESS);
+        jdCResponse.setData(data);
+        System.out.println(JsonHelper.toJson(jdCResponse));
     }
 }

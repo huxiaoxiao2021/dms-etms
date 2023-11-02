@@ -164,10 +164,16 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
         JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
         if (ObjectHelper.isEmpty(collectPackageTask)) {
-            throw new JyBizException("集包任务不存在或已经过期，请刷新界面！");
+            throw new JyBizException("集包任务不存在，请刷新界面！");
+        }
+        if (ObjectHelper.isNotNull(collectPackageTask.getCreateTime())){
+            Date time = DateHelper.addHoursByDay(new Date(), -Double.valueOf(dmsConfigManager.getPropertyConfig().getJyCollectPackageTaskQueryTimeLimit()));
+            if (collectPackageTask.getCreateTime().compareTo(time) <0){
+                throw new JyBizException("集包任务已过期，请打印新箱号集包！");
+            }
         }
         if (JyBizTaskCollectPackageStatusEnum.CANCEL.equals(collectPackageTask.getTaskStatus())) {
-            throw new JyBizException("集包任务作废-操作批量取消！");
+            throw new JyBizException("集包任务已作废-操作了批量取消！");
         }
         try {
             boolean syncExec = false;

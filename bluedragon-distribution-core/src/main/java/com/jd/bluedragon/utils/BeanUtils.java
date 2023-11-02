@@ -190,6 +190,10 @@ public class BeanUtils {
             } else if ( !isPrimitiveType(field.getType())) {
                 setFieldsRecursively(field);
             } else {
+                Object rawValue = field.get(object);
+                if (ObjectHelper.isNotNull(rawValue)){
+                    return;
+                }
                 Class<?> fieldType = field.getType();
                 Object value = generateValueForType(fieldType);
                 field.set(object, value);
