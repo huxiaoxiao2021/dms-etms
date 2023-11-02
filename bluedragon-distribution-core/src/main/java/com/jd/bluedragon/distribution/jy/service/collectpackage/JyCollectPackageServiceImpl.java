@@ -340,11 +340,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private void reCollectCheck(CollectPackageReq request) {
         JyCollectPackageEntity query =new JyCollectPackageEntity();
         query.setPackageCode(request.getBarCode());
-        query.setBizId(request.getBizId());
         query.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
         JyCollectPackageEntity entity =jyCollectPackageScanRecordService.queryJyCollectPackageRecord(query);
         if (ObjectHelper.isNotNull(entity)){
-            throw new JyBizException("该包裹已经在此箱号中！");
+            if (ObjectHelper.isNotNull(entity.getBoxCode()) && entity.getBoxCode().equals(request.getBoxCode())){
+                throw new JyBizException("该包裹已经在此箱号中,请勿重复集包！");
+            }else {
+                throw new JyBizException("该包裹已经在"+entity.getBoxCode()+"中集包，如需重新集包，请前去取消后再重新集包！");
+            }
         }
     }
 
