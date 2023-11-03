@@ -89,9 +89,11 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 			query.setTaskRefGridKey(positionRecord.getData().getRefWorkGridKey());
 		}
 		Map<Integer,JyWorkGridManagerCountData> statusCount = new HashMap<>();
+		Map<String,JyWorkGridManagerCountData> statusNum = new HashMap<>();
 		List<JyWorkGridManagerData> dataList = new ArrayList<>();
 		pageData.setDataList(dataList);
 		pageData.setStatusCount(statusCount);
+		pageData.setStatusNum(statusNum);
 		for(WorkTaskStatusEnum statusEnum : WorkTaskStatusEnum.values()) {
 			JyWorkGridManagerCountData countData = new JyWorkGridManagerCountData();
 			countData.setDataNum(0);
