@@ -25,7 +25,7 @@ import com.jd.bluedragon.distribution.jy.service.summary.JySealStatisticsSummary
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
-import com.jd.bluedragon.distribution.jy.summary.JySealStatisticsSummaryEntity;
+import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
@@ -262,7 +262,7 @@ public class SendVehicleTransactionManager {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.sealCarStatusUpdateAndSummary",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean sealCarStatusUpdateAndSummary(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity sendDetail, JySealStatisticsSummaryEntity summaryEntity) {
+    public boolean sealCarStatusUpdateAndSummary(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity sendDetail, JyStatisticsSummaryEntity summaryEntity) {
         if(sendVehicleTransactionManager.updateTaskStatus(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.SEALED)) {
             if(!Objects.isNull(summaryEntity)) {
                 statisticsSummaryService.insertSelective(summaryEntity);
@@ -284,7 +284,7 @@ public class SendVehicleTransactionManager {
     public boolean updateAviationTaskStatus(JyBizTaskSendAviationPlanEntity aviationPlanEntity,
                                             JyBizTaskSendVehicleEntity taskSend,
                                             JyBizTaskSendVehicleDetailEntity sendDetail,
-                                            JySealStatisticsSummaryEntity summaryEntity,
+                                            JyStatisticsSummaryEntity summaryEntity,
                                             JyBizTaskSendDetailStatusEnum updateStatus) {
         //
         sendVehicleTransactionManager.updateTaskStatus(taskSend, sendDetail, updateStatus);
@@ -713,7 +713,7 @@ public class SendVehicleTransactionManager {
     public boolean syncSendTaskSealHandler(JyBizTaskSendVehicleEntity taskSend,
                                             JyBizTaskSendVehicleDetailEntity sendDetail,
                                             JyBizTaskSendAviationPlanEntity aviationPlanEntity,
-                                            JySealStatisticsSummaryEntity summaryEntity) {
+                                            JyStatisticsSummaryEntity summaryEntity) {
         sendVehicleTransactionManager.updateTaskStatus(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
         if(!Objects.isNull(aviationPlanEntity)) {
             jyBizTaskSendAviationPlanService.updateStatus(aviationPlanEntity);

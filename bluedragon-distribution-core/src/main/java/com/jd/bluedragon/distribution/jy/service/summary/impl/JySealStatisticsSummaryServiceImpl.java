@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.jy.service.summary.impl;
 
 import com.jd.bluedragon.distribution.jy.dao.summary.JySealStatisticsSummaryDao;
 import com.jd.bluedragon.distribution.jy.service.summary.JySealStatisticsSummaryService;
-import com.jd.bluedragon.distribution.jy.summary.JySealStatisticsSummaryCondition;
-import com.jd.bluedragon.distribution.jy.summary.JySealStatisticsSummaryEntity;
+import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryCondition;
+import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class JySealStatisticsSummaryServiceImpl implements JySealStatisticsSumma
     private JySealStatisticsSummaryDao statisticsSummaryDao;
 
     @Override
-    public int insertSelective(JySealStatisticsSummaryEntity entity) {
+    public int insertSelective(JyStatisticsSummaryEntity entity) {
         if(log.isInfoEnabled()) {
             log.info("汇总表保存entity={}", JsonHelper.toJson(entity));
         }
@@ -34,12 +34,12 @@ public class JySealStatisticsSummaryServiceImpl implements JySealStatisticsSumma
     }
 
     @Override
-    public List<JySealStatisticsSummaryEntity> queryByBusinessKeysAndType(JySealStatisticsSummaryCondition summaryCondition) {
+    public List<JyStatisticsSummaryEntity> queryByBusinessKeysAndType(JyStatisticsSummaryCondition summaryCondition) {
         return statisticsSummaryDao.queryByBusinessKeysAndType(summaryCondition);
     }
 
     @Override
-    public JySealStatisticsSummaryEntity queryByBusinessKeyAndType(JySealStatisticsSummaryEntity entity) {
+    public JyStatisticsSummaryEntity queryByBusinessKeyAndType(JyStatisticsSummaryEntity entity) {
         return statisticsSummaryDao.queryByBusinessKeyAndType(entity);
     }
 }

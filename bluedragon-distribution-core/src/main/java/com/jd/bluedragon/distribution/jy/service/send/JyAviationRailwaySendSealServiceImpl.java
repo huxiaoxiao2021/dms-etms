@@ -43,8 +43,8 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanS
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.summary.BusinessKeyTypeEnum;
-import com.jd.bluedragon.distribution.jy.summary.JySealStatisticsSummaryCondition;
-import com.jd.bluedragon.distribution.jy.summary.JySealStatisticsSummaryEntity;
+import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryCondition;
+import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 import com.jd.bluedragon.distribution.jy.summary.SummarySourceEnum;
 import com.jd.bluedragon.distribution.jy.task.*;
 import com.jd.bluedragon.distribution.router.RouterService;
@@ -543,12 +543,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         ShuttleTaskSealCarQueryRes resData = new ShuttleTaskSealCarQueryRes();
         res.setData(resData);
 
-        JySealStatisticsSummaryCondition summaryCondition = new JySealStatisticsSummaryCondition();
+        JyStatisticsSummaryCondition summaryCondition = new JyStatisticsSummaryCondition();
         summaryCondition.setBusinessKeyType(BusinessKeyTypeEnum.JY_SEND_TASK_DETAIL.getCode());
         summaryCondition.setSource(SummarySourceEnum.SEAL.getCode());
         summaryCondition.setBusinessKey(request.getDetailBizId());
         summaryCondition.setOperateSiteCode(request.getCurrentOperate().getSiteCode());
-        JySealStatisticsSummaryEntity entity = statisticsSummaryService.queryByBusinessKeyAndType(summaryCondition);
+        JyStatisticsSummaryEntity entity = statisticsSummaryService.queryByBusinessKeyAndType(summaryCondition);
 
         if(Objects.isNull(entity)) {
             res.setMessage("查询为空");
@@ -954,11 +954,11 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 //封车汇总数据
                 if(ShuttleQuerySourceEnum.SEAL_Y.getCode().equals(request.getShuttleQuerySource())) {
                     //任务绑定信息查询， 流向维度传detailBizId
-                    Map<String, JySealStatisticsSummaryEntity> map = this.shuttleSendTaskSummary(detailBizId, request.getCurrentOperate().getSiteCode());
+                    Map<String, JyStatisticsSummaryEntity> map = this.shuttleSendTaskSummary(detailBizId, request.getCurrentOperate().getSiteCode());
                     if(CollectionUtils.isNotEmpty(map.entrySet())) {
                         shuttleSendTaskDtoList.forEach(dto -> {
                         if(!Objects.isNull(map.get(dto.getDetailBizId()))) {
-                            JySealStatisticsSummaryEntity summaryEntity = map.get(dto.getDetailBizId());
+                            JyStatisticsSummaryEntity summaryEntity = map.get(dto.getDetailBizId());
                             dto.setTaskNum(summaryEntity.getSealBindAviationTaskNum());
                             dto.setTotalItemNum(summaryEntity.getItemNum());
                         }
@@ -1022,29 +1022,29 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         return detailEntity;
     }
 
-    private Map<String, JySealStatisticsSummaryEntity> shuttleSendTaskSummary(List<String> detailBizIdList, Integer siteId) {
+    private Map<String, JyStatisticsSummaryEntity> shuttleSendTaskSummary(List<String> detailBizIdList, Integer siteId) {
         //封车汇总记录
-        JySealStatisticsSummaryCondition summaryCondition = new JySealStatisticsSummaryCondition();
+        JyStatisticsSummaryCondition summaryCondition = new JyStatisticsSummaryCondition();
         summaryCondition.setBusinessKeyType(BusinessKeyTypeEnum.JY_SEND_TASK_DETAIL.getCode());
         summaryCondition.setSource(SummarySourceEnum.SEAL.getCode());
         summaryCondition.setBusinessKeyList(detailBizIdList);
         summaryCondition.setOperateSiteCode(siteId);
-        List<JySealStatisticsSummaryEntity> summaryEntityList = statisticsSummaryService.queryByBusinessKeysAndType(summaryCondition);
+        List<JyStatisticsSummaryEntity> summaryEntityList = statisticsSummaryService.queryByBusinessKeysAndType(summaryCondition);
         //K-bizId V-汇总结果
-        Map<String, JySealStatisticsSummaryEntity> map = summaryEntityList.stream().collect(Collectors.toMap(k -> k.getBusinessKey(), v -> v));
+        Map<String, JyStatisticsSummaryEntity> map = summaryEntityList.stream().collect(Collectors.toMap(k -> k.getBusinessKey(), v -> v));
         return map;
     }
 
-    private Map<String, JySealStatisticsSummaryEntity> aviationSendTaskSummary(List<String> bizIdList, Integer siteId) {
+    private Map<String, JyStatisticsSummaryEntity> aviationSendTaskSummary(List<String> bizIdList, Integer siteId) {
         //封车汇总记录
-        JySealStatisticsSummaryCondition summaryCondition = new JySealStatisticsSummaryCondition();
+        JyStatisticsSummaryCondition summaryCondition = new JyStatisticsSummaryCondition();
         summaryCondition.setBusinessKeyType(BusinessKeyTypeEnum.JY_SEND_TASK.getCode());
         summaryCondition.setSource(SummarySourceEnum.SEAL.getCode());
         summaryCondition.setBusinessKeyList(bizIdList);
         summaryCondition.setOperateSiteCode(siteId);
-        List<JySealStatisticsSummaryEntity> summaryEntityList = statisticsSummaryService.queryByBusinessKeysAndType(summaryCondition);
+        List<JyStatisticsSummaryEntity> summaryEntityList = statisticsSummaryService.queryByBusinessKeysAndType(summaryCondition);
         //K-bizId V-汇总结果
-        Map<String, JySealStatisticsSummaryEntity> map = summaryEntityList.stream().collect(Collectors.toMap(k -> k.getBusinessKey(), v -> v));
+        Map<String, JyStatisticsSummaryEntity> map = summaryEntityList.stream().collect(Collectors.toMap(k -> k.getBusinessKey(), v -> v));
         return map;
     }
 
@@ -1091,11 +1091,11 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         });
         //封车汇总数据
         if(ShuttleQuerySourceEnum.SEAL_Y.getCode().equals(request.getShuttleQuerySource())) {
-            Map<String, JySealStatisticsSummaryEntity> map =  this.aviationSendTaskSummary(bizIdList, request.getCurrentOperate().getSiteCode());
+            Map<String, JyStatisticsSummaryEntity> map =  this.aviationSendTaskSummary(bizIdList, request.getCurrentOperate().getSiteCode());
             if(CollectionUtils.isNotEmpty(map.entrySet())) {
                 sendTaskBindQueryDtoList.forEach(queryDto -> {
                 if (!Objects.isNull(map.get(queryDto.getBindBizId()))) {
-                    JySealStatisticsSummaryEntity summaryEntity = map.get(queryDto.getBindBizId());
+                    JyStatisticsSummaryEntity summaryEntity = map.get(queryDto.getBindBizId());
                     queryDto.setWeight(summaryEntity.getWeight());
                     queryDto.setVolume(summaryEntity.getVolume());
                     queryDto.setItemNum(summaryEntity.getItemNum());
@@ -1375,11 +1375,11 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         //已封查实际封车数据
         else if(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getCode().equals(statusCode)) {
             //封车汇总记录  K-bizId V-汇总结果
-            Map<String, JySealStatisticsSummaryEntity> map =  this.aviationSendTaskSummary(bizIdList, siteCode);
+            Map<String, JyStatisticsSummaryEntity> map =  this.aviationSendTaskSummary(bizIdList, siteCode);
             if(CollectionUtils.isNotEmpty(map.entrySet())) {
                 sealListDtoList.forEach(sealListDto -> {
                     if (!Objects.isNull(map.get(sealListDto.getBizId()))) {
-                        JySealStatisticsSummaryEntity summaryEntity = map.get(sealListDto.getBizId());
+                        JyStatisticsSummaryEntity summaryEntity = map.get(sealListDto.getBizId());
                         sealListDto.setWeight(summaryEntity.getWeight());
                         sealListDto.setVolume(summaryEntity.getVolume());
                         sealListDto.setItemNum(summaryEntity.getItemNum());

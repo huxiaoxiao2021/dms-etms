@@ -1,12 +1,12 @@
 package com.jd.bluedragon.distribution.jy.dao.summary;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.jy.summary.JySealStatisticsSummaryCondition;
-import com.jd.bluedragon.distribution.jy.summary.JySealStatisticsSummaryEntity;
+import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryCondition;
+import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 
 import java.util.List;
 
-public class JySealStatisticsSummaryDao extends BaseDao<JySealStatisticsSummaryEntity> {
+public class JySealStatisticsSummaryDao extends BaseDao<JyStatisticsSummaryEntity> {
 
     private final static String NAMESPACE = JySealStatisticsSummaryDao.class.getName();
 
@@ -14,19 +14,19 @@ public class JySealStatisticsSummaryDao extends BaseDao<JySealStatisticsSummaryE
 //        return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", id);
 //    }
 //
-    public int insert(JySealStatisticsSummaryEntity entity){
+    public int insert(JyStatisticsSummaryEntity entity){
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
 
-    public int insertSelective(JySealStatisticsSummaryEntity entity){
+    public int insertSelective(JyStatisticsSummaryEntity entity){
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
     }
 
-    public List<JySealStatisticsSummaryEntity> queryByBusinessKeysAndType(JySealStatisticsSummaryCondition condition) {
+    public List<JyStatisticsSummaryEntity> queryByBusinessKeysAndType(JyStatisticsSummaryCondition condition) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryByBusinessKeysAndType", condition);
     }
 
-    public JySealStatisticsSummaryEntity queryByBusinessKeyAndType(JySealStatisticsSummaryEntity entity) {
+    public JyStatisticsSummaryEntity queryByBusinessKeyAndType(JyStatisticsSummaryEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryByBusinessKeyAndType", entity);
     }
 //
