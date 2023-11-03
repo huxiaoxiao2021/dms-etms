@@ -148,7 +148,7 @@
         limit #{offset}, #{pageSize}
     </select>
 
-    <select id="countByMaterialCodeAndBoxCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation">
+    <select id="countByMaterialCodeAndBoxCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" resultType="int">
         select count(*) as count
         from box_material_relation
         WHERE 1 = 1

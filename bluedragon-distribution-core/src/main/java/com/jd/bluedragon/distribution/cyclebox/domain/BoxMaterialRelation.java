@@ -33,6 +33,7 @@ public class BoxMaterialRelation {
      */
     private Integer siteCode;
 
+    private String siteName;
     /**
      * 绑定标识 1 绑定 2 解绑
      */
@@ -63,6 +64,14 @@ public class BoxMaterialRelation {
     private Integer pageSize;
 
     private Integer offset;
+
+    public String getSiteName() {
+        return siteName;
+    }
+
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
 
     public Integer getPageNumber() {
         return pageNumber;

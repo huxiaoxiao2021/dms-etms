@@ -165,6 +165,7 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
         boxes.forEach(box -> {
             BoxMaterialRelationDto dto = new BoxMaterialRelationDto();
             BeanUtils.copyProperties(box, dto);
+            dto.setOperatorERP(box.getOperatorErp());
             dtoList.add(dto);
         });
     }
