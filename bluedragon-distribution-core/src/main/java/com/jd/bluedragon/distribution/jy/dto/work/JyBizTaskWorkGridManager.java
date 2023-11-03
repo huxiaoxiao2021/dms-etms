@@ -159,6 +159,18 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 */
 	private Integer transfered;
 	/**
+	 * 原处理人岗位编号
+	 */
+	private String orignHandlerUserPositionCode;
+	/**
+	 * 原处理人岗位名称
+	 */
+	private String orignHandlerUserPositionName;
+	/**
+	 * 转派时间
+	 */
+	private Date transferTime;
+	/**
 	 * 源处理人erp
 	 */
 	private String orignHandlerErp;
@@ -870,5 +882,29 @@ public class JyBizTaskWorkGridManager implements Serializable {
 
 	public void setOrignHandlerUserName(String orignHandlerUserName) {
 		this.orignHandlerUserName = orignHandlerUserName;
+	}
+
+	public String getOrignHandlerUserPositionCode() {
+		return orignHandlerUserPositionCode;
+	}
+
+	public void setOrignHandlerUserPositionCode(String orignHandlerUserPositionCode) {
+		this.orignHandlerUserPositionCode = orignHandlerUserPositionCode;
+	}
+
+	public String getOrignHandlerUserPositionName() {
+		return orignHandlerUserPositionName;
+	}
+
+	public void setOrignHandlerUserPositionName(String orignHandlerUserPositionName) {
+		this.orignHandlerUserPositionName = orignHandlerUserPositionName;
+	}
+
+	public Date getTransferTime() {
+		return transferTime;
+	}
+
+	public void setTransferTime(Date transferTime) {
+		this.transferTime = transferTime;
 	}
 }

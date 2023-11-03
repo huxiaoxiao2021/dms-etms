@@ -34,6 +34,9 @@
         <result column="transfered" property="transfered" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="orign_handler_erp" property="orignHandlerErp" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="orign_handler_user_name" property="orignHandlerUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="orign_handler_user_position_code" property="orignHandlerUserPositionCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="orign_handler_user_position_name" property="orignHandlerUserPositionName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="transfer_time" property="transferTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="process_begin_time" property="processBeginTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="process_end_time" property="processEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -59,7 +62,8 @@
         pre_finish_time,handler_erp,handler_user_name,handler_user_position_code,handler_user_position_name,
         handler_position_code,status,process_begin_time,process_end_time,create_user,
         create_user_name,update_user,update_user_name,create_time,update_time,
-        yn,is_match,ts,task_biz_type,transfered,orign_handler_erp,orign_handler_user_name
+        yn,is_match,ts,task_biz_type,transfered,orign_handler_erp,orign_handler_user_name,orign_handler_user_position_code,
+        orign_handler_user_position_name,transfer_time
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" useGeneratedKeys="true" keyProperty="id">
@@ -189,6 +193,15 @@
                 <if test="orignHandlerUserName != null" >
                     orign_handler_user_name,
                 </if>
+                <if test="orignHandlerUserPositionCode != null" >
+                    orign_handler_user_position_code,
+                </if>
+                <if test="orignHandlerUserPositionName != null" >
+                    orign_handler_user_position_name,
+                </if>
+                <if test="transferTime != null" >
+                    transfer_time,
+                </if>
             </trim>
             )
             values
@@ -316,6 +329,15 @@
                 </if>
                 <if test="orignHandlerUserName != null" >
                     #{orignHandlerUserName,jdbcType=VARCHAR},
+                </if>
+                <if test="orignHandlerUserPositionCode != null" >
+                    #{orignHandlerUserPositionCode,jdbcType=VARCHAR},
+                </if>
+                <if test="orignHandlerUserPositionName != null" >
+                    #{orignHandlerUserPositionName,jdbcType=VARCHAR},
+                </if>
+                <if test="transferTime != null" >
+                    #{transferTime,jdbcType=VARCHAR},
                 </if>
              </trim>
             )
@@ -497,6 +519,15 @@
                 </if>
                 <if test="orignHandlerUserName != null" >
                     orign_handler_user_name = #{orignHandlerUserName,jdbcType=VARCHAR},
+                </if>
+                <if test="orignHandlerUserPositionCode != null" >
+                    orign_handler_user_position_code = #{orignHandlerUserPositionCode,jdbcType=VARCHAR},
+                </if>
+                <if test="orignHandlerUserPositionName != null" >
+                    orign_handler_user_position_name = #{orignHandlerUserPositionName,jdbcType=VARCHAR},
+                </if>
+                <if test="transferTime != null" >
+                    transfer_time = #{transferTime,jdbcType=VARCHAR},
                 </if>
             </set>
         where id = #{id,jdbcType=BIGINT}

@@ -338,18 +338,21 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			JyBizTaskWorkGridManager manager = new JyBizTaskWorkGridManager();
 			manager.setId(jyBizTaskWorkGridManager.getId());
 			manager.setTransfered(1);
+			manager.setTransferTime(new Date());
 			manager.setOrignHandlerErp(jyBizTaskWorkGridManager.getHandlerErp());
 			manager.setOrignHandlerUserName(jyBizTaskWorkGridManager.getHandlerUserName());
+			manager.setOrignHandlerUserPositionCode(jyBizTaskWorkGridManager.getOrignHandlerUserPositionCode());
+			manager.setOrignHandlerUserPositionName(jyBizTaskWorkGridManager.getOrignHandlerUserPositionName());
 			manager.setHandlerErp(request.getErp());
 			manager.setHandlerUserName(baseStaff.getStaffName());
+			manager.setUpdateTime(new Date());
+			manager.setUpdateUser(jyBizTaskWorkGridManager.getHandlerErp());
+			manager.setUpdateUserName(jyBizTaskWorkGridManager.getHandlerUserName());
 			Result<JyUser> jyUserResult = jyUserManager.queryUserInfo(request.getErp());
 			if(jyUserResult.getData() != null){
 				manager.setHandlerUserPositionCode(jyUserResult.getData().getPositionCode());
 				manager.setHandlerUserPositionName(jyUserResult.getData().getPositionName());
 			}
-			manager.setUpdateTime(new Date());
-			manager.setUpdateUser(jyBizTaskWorkGridManager.getHandlerErp());
-			manager.setUpdateUserName(jyBizTaskWorkGridManager.getHandlerUserName());
 			jyBizTaskWorkGridManagerDao.transfer(manager);
 		}
 
