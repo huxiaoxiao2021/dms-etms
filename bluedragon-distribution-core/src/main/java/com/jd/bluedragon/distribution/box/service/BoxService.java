@@ -1,14 +1,11 @@
 package com.jd.bluedragon.distribution.box.service;
 
-import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
+import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
-import com.jd.bluedragon.distribution.api.request.box.CreateBoxReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
-import com.jd.bluedragon.distribution.api.response.box.CreateBoxInfo;
 import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.jy.dto.JySelectOption;
 import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.dms.java.utils.sdk.base.Result;
 
@@ -99,13 +96,4 @@ public interface BoxService {
      * @time 2023-10-24 14:14:24 周二
      */
     Result<List<BoxTypeDto>> getBoxTypeList(BoxTypeReq boxTypeReq);
-
-    /**
-     * 创建箱号
-     * @param createBoxReq 创建箱号入参
-     * @return 箱号数据
-     * @author fanggang7
-     * @time 2023-10-24 14:14:24 周二
-     */
-    Result<CreateBoxInfo> createBox(CreateBoxReq createBoxReq);
 }

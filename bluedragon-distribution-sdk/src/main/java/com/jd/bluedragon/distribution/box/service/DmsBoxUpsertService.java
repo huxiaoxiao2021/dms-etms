@@ -22,13 +22,4 @@ public interface DmsBoxUpsertService {
      */
     InvokeResult<BoxDto> generateBox(BoxGenReq req);
 
-    /**
-     * 创建箱号
-     *
-     * @param createBoxReq 创建箱号入参
-     * @return 箱号数据
-     * @author fanggang7
-     * @time 2023-10-24 14:14:24 周二
-     */
-    Result<CreateBoxInfo> createBox(CreateBoxReq createBoxReq);
 }
