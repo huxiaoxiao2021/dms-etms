@@ -131,4 +131,33 @@
           AND  material_code =  #{materialCode,jdbcType=VARCHAR}
           AND  box_code = #{boxCode,jdbcType=VARCHAR}
     </update>
+
+    <select id="findByMaterialCodeAndBoxCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from box_material_relation
+        WHERE 1 = 1
+        <if test="null != materialCode and '' != materialCode">
+            and material_code =  #{materialCode}
+        </if>
+        <if test="null != boxCode and '' != boxCode">
+            and box_code =  #{boxCode}
+        </if>
+        and is_delete = 0
+        order by create_time  desc
+        limit #{offset}, #{pageSize}
+    </select>
+
+    <select id="countByMaterialCodeAndBoxCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation">
+        select count(*) as count
+        from box_material_relation
+        WHERE 1 = 1
+        <if test="null != materialCode and '' != materialCode">
+            and material_code =  #{materialCode}
+        </if>
+        <if test="null != boxCode and '' != boxCode">
+            and box_code =  #{boxCode}
+        </if>
+        and is_delete = 0
+    </select>
 </mapper>

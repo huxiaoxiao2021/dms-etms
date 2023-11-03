@@ -19,6 +19,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service("cycleBoxJsfService")
 public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -133,5 +136,36 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
         }
         result.setData(Boolean.TRUE);
         return result;
+    }
+
+    @Override
+    public InvokeResult<List<BoxMaterialRelationDto>> findByMaterialCodeAndBoxCode(BoxMaterialRelationRequest request) {
+        BoxMaterialRelation query = new BoxMaterialRelation();
+        BeanUtils.copyProperties(request, query);
+        InvokeResult<List<BoxMaterialRelationDto>> result = new InvokeResult<>();
+        List<BoxMaterialRelation> boxes = boxMaterialRelationService.findByMaterialCodeAndBoxCode(query);
+        List<BoxMaterialRelationDto> dtoList = new ArrayList<>();
+        makeBoxMaterialDto(boxes, dtoList);
+        result.setData(dtoList);
+        return result;
+    }
+
+    @Override
+    public InvokeResult<Integer> countByMaterialCodeAndBoxCode(BoxMaterialRelationRequest request) {
+        BoxMaterialRelation query = new BoxMaterialRelation();
+        BeanUtils.copyProperties(request, query);
+        InvokeResult<Integer> result = new InvokeResult<>();
+        int count = boxMaterialRelationService.countByMaterialCodeAndBoxCode(query);
+        result.setData(count);
+        return result;
+    }
+
+    private void makeBoxMaterialDto(List<BoxMaterialRelation> boxes, List<BoxMaterialRelationDto> dtoList) {
+
+        boxes.forEach(box -> {
+            BoxMaterialRelationDto dto = new BoxMaterialRelationDto();
+            BeanUtils.copyProperties(box, dto);
+            dtoList.add(dto);
+        });
     }
 }

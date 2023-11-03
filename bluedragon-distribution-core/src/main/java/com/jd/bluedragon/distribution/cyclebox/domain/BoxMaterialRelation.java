@@ -58,6 +58,36 @@ public class BoxMaterialRelation {
      */
     private Date ts;
 
+    private Integer pageNumber;
+
+    private Integer pageSize;
+
+    private Integer offset;
+
+    public Integer getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
     public Long getId() {
         return id;
     }

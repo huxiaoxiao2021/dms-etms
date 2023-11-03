@@ -58,6 +58,26 @@ public class BoxMaterialRelationRequest extends JdRequest {
      */
     private Integer receiveSiteCode;
 
+    private Integer pageNumber;
+
+    private Integer pageSize;
+
+    public Integer getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
     public List<GroupBoxDto> getGroupList() {
         return groupList;
     }
