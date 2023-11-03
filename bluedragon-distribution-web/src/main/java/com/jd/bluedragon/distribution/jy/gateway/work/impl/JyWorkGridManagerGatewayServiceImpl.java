@@ -94,6 +94,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		pageData.setDataList(dataList);
 		pageData.setStatusCount(statusCount);
 		pageData.setStatusNum(statusNum);
+		//todo 待下线，Integer为key的map 序列化json的时候有问题
 		for(WorkTaskStatusEnum statusEnum : WorkTaskStatusEnum.values()) {
 			JyWorkGridManagerCountData countData = new JyWorkGridManagerCountData();
 			countData.setDataNum(0);
@@ -101,6 +102,14 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 			countData.setStatusName(statusEnum.getName());
 			statusCount.put(statusEnum.getCode(), countData);
 		}
+		for(WorkTaskQueryStatusEnum statusEnum : WorkTaskQueryStatusEnum.values()) {
+			JyWorkGridManagerCountData countData = new JyWorkGridManagerCountData();
+			countData.setDataNum(0);
+			countData.setStatus(statusEnum.getCode());
+			countData.setStatusName(statusEnum.getName());
+			statusNum.put(String.valueOf(statusEnum.getCode()), countData);
+		}
+		
 		List<JyWorkGridManagerCountData> countList = jyBizTaskWorkGridManagerService.queryDataCountListForPda(query);
 		if(CollectionUtils.isEmpty(countList)) {
 			return result;
@@ -112,6 +121,18 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 				statusCount.get(countData.getStatus()).setDataNum(countData.getDataNum());
 			}
 		}
+		//设置数量
+		for(JyWorkGridManagerCountData countData: countList){
+			if(countData.getDataNum() != null
+					&& statusCount.containsKey(countData.getStatus())) {
+				statusCount.get(countData.getStatus()).setDataNum(countData.getDataNum());
+			}
+			if(countData.getDataNum() != null
+					&& statusNum.containsKey(String.valueOf(countData.getStatus()))) {
+				statusNum.get(String.valueOf(countData.getStatus())).setDataNum(countData.getDataNum());
+			}
+		}
+		
 		//判断相应状态的数量是否大于0
 		if(query.getStatus() != null
 				&& statusCount.containsKey(query.getStatus())
