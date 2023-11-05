@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillApprovalRecordDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybillApprovalRecord" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="province_agency_code" property="provinceAgencyCode" jdbcType="VARCHAR" />
+    <result column="province_agency_name" property="provinceAgencyName" jdbcType="VARCHAR" />
+    <result column="area_hub_code" property="areaHubCode" jdbcType="VARCHAR" />
+    <result column="area_hub_name" property="areaHubName" jdbcType="VARCHAR" />
+    <result column="site_code" property="siteCode" jdbcType="INTEGER" />
+    <result column="site_name" property="siteName" jdbcType="VARCHAR" />
+    <result column="application_user_erp" property="applicationUserErp" jdbcType="VARCHAR" />
+    <result column="bar_code" property="barCode" jdbcType="VARCHAR" />
+    <result column="submit_time" property="submitTime" jdbcType="TIMESTAMP" />
+    <result column="receive_site_code" property="receiveSiteCode" jdbcType="INTEGER" />
+    <result column="receive_site_name" property="receiveSiteName" jdbcType="VARCHAR" />
+    <result column="change_site_code" property="changeSiteCode" jdbcType="INTEGER" />
+    <result column="change_site_name" property="changeSiteName" jdbcType="VARCHAR" />
+    <result column="change_site_reason_type" property="changeSiteReasonType" jdbcType="BIT" />
+    <result column="first_checker" property="firstChecker" jdbcType="VARCHAR" />
+    <result column="first_check_status" property="firstCheckStatus" jdbcType="BIT" />
+    <result column="first_check_time" property="firstCheckTime" jdbcType="TIMESTAMP" />
+    <result column="second_checker" property="secondChecker" jdbcType="VARCHAR" />
+    <result column="second_check_status" property="secondCheckStatus" jdbcType="BIT" />
+    <result column="second_check_time" property="secondCheckTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, province_agency_code, province_agency_name, area_hub_code, area_hub_name, site_code, 
+    site_name, application_user_erp, bar_code, submit_time, receive_site_code, receive_site_name, 
+    change_site_code, change_site_name, change_site_reason_type, check_flag, first_checker, 
+    first_check_status, first_check_time, second_checker, second_check_status, second_check_time, 
+    create_user_erp, update_user_erp, create_time, update_time, ts, yn
+  </sql>
+  <select id="selectByBarCode" resultMap="BaseResultMap" parameterType="String" >
+    select 
+    <include refid="Base_Column_List" />
+    from reassign_waybill_approval_record
+    where bar_code = #{barCode,jdbcType=BIGINT}
+  </select>
+
+
+  <insert id="add" parameterType="com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybillApprovalRecord" >
+    insert into reassign_waybill_approval_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="provinceAgencyCode != null" >
+        province_agency_code,
+      </if>
+      <if test="provinceAgencyName != null" >
+        province_agency_name,
+      </if>
+      <if test="areaHubCode != null" >
+        area_hub_code,
+      </if>
+      <if test="areaHubName != null" >
+        area_hub_name,
+      </if>
+      <if test="siteCode != null" >
+        site_code,
+      </if>
+      <if test="siteName != null" >
+        site_name,
+      </if>
+      <if test="applicationUserErp != null" >
+        application_user_erp,
+      </if>
+      <if test="barCode != null" >
+        bar_code,
+      </if>
+      <if test="submitTime != null" >
+        submit_time,
+      </if>
+      <if test="receiveSiteCode != null" >
+        receive_site_code,
+      </if>
+      <if test="receiveSiteName != null" >
+        receive_site_name,
+      </if>
+      <if test="changeSiteCode != null" >
+        change_site_code,
+      </if>
+      <if test="changeSiteName != null" >
+        change_site_name,
+      </if>
+      <if test="changeSiteReasonType != null" >
+        change_site_reason_type,
+      </if>
+      <if test="checkFlag != null" >
+        check_flag,
+      </if>
+      <if test="firstChecker != null" >
+        first_checker,
+      </if>
+      <if test="firstCheckStatus != null" >
+        first_check_status,
+      </if>
+      <if test="firstCheckTime != null" >
+        first_check_time,
+      </if>
+      <if test="secondChecker != null" >
+        second_checker,
+      </if>
+      <if test="secondCheckStatus != null" >
+        second_check_status,
+      </if>
+      <if test="secondCheckTime != null" >
+        second_check_time,
+      </if>
+      <if test="createUserErp != null" >
+        create_user_erp,
+      </if>
+      <if test="updateUserErp != null" >
+        update_user_erp,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="ts != null" >
+        ts,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="provinceAgencyCode != null" >
+        #{provinceAgencyCode,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceAgencyName != null" >
+        #{provinceAgencyName,jdbcType=VARCHAR},
+      </if>
+      <if test="areaHubCode != null" >
+        #{areaHubCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaHubName != null" >
+        #{areaHubName,jdbcType=VARCHAR},
+      </if>
+      <if test="siteCode != null" >
+        #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null" >
+        #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="applicationUserErp != null" >
+        #{applicationUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="barCode != null" >
+        #{barCode,jdbcType=VARCHAR},
+      </if>
+      <if test="submitTime != null" >
+        #{submitTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="receiveSiteCode != null" >
+        #{receiveSiteCode,jdbcType=INTEGER},
+      </if>
+      <if test="receiveSiteName != null" >
+        #{receiveSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="changeSiteCode != null" >
+        #{changeSiteCode,jdbcType=INTEGER},
+      </if>
+      <if test="changeSiteName != null" >
+        #{changeSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="changeSiteReasonType != null" >
+        #{changeSiteReasonType,jdbcType=BIT},
+      </if>
+      <if test="checkFlag != null" >
+        #{checkFlag,jdbcType=BIT},
+      </if>
+      <if test="firstChecker != null" >
+        #{firstChecker,jdbcType=VARCHAR},
+      </if>
+      <if test="firstCheckStatus != null" >
+        #{firstCheckStatus,jdbcType=BIT},
+      </if>
+      <if test="firstCheckTime != null" >
+        #{firstCheckTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="secondChecker != null" >
+        #{secondChecker,jdbcType=VARCHAR},
+      </if>
+      <if test="secondCheckStatus != null" >
+        #{secondCheckStatus,jdbcType=BIT},
+      </if>
+      <if test="secondCheckTime != null" >
+        #{secondCheckTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserErp != null" >
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null" >
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ts != null" >
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="update" parameterType="com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybillApprovalRecord" >
+    update reassign_waybill_approval_record
+    <set >
+      <if test="provinceAgencyCode != null" >
+        province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceAgencyName != null" >
+        province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+      </if>
+      <if test="areaHubCode != null" >
+        area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaHubName != null" >
+        area_hub_name = #{areaHubName,jdbcType=VARCHAR},
+      </if>
+      <if test="siteCode != null" >
+        site_code = #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null" >
+        site_name = #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="applicationUserErp != null" >
+        application_user_erp = #{applicationUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="barCode != null" >
+        bar_code = #{barCode,jdbcType=VARCHAR},
+      </if>
+      <if test="submitTime != null" >
+        submit_time = #{submitTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="receiveSiteCode != null" >
+        receive_site_code = #{receiveSiteCode,jdbcType=INTEGER},
+      </if>
+      <if test="receiveSiteName != null" >
+        receive_site_name = #{receiveSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="changeSiteCode != null" >
+        change_site_code = #{changeSiteCode,jdbcType=INTEGER},
+      </if>
+      <if test="changeSiteName != null" >
+        change_site_name = #{changeSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="changeSiteReasonType != null" >
+        change_site_reason_type = #{changeSiteReasonType,jdbcType=BIT},
+      </if>
+      <if test="checkFlag != null" >
+        check_flag = #{checkFlag,jdbcType=BIT},
+      </if>
+      <if test="firstChecker != null" >
+        first_checker = #{firstChecker,jdbcType=VARCHAR},
+      </if>
+      <if test="firstCheckStatus != null" >
+        first_check_status = #{firstCheckStatus,jdbcType=BIT},
+      </if>
+      <if test="firstCheckTime != null" >
+        first_check_time = #{firstCheckTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="secondChecker != null" >
+        second_checker = #{secondChecker,jdbcType=VARCHAR},
+      </if>
+      <if test="secondCheckStatus != null" >
+        second_check_status = #{secondCheckStatus,jdbcType=BIT},
+      </if>
+      <if test="secondCheckTime != null" >
+        second_check_time = #{secondCheckTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserErp != null" >
+        create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null" >
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ts != null" >
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="getApprovalRecordList" parameterType="com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybillApprovalRecordReq" >
+        select  *  from reassign_waybill_approval_record
+  </select>
+
+  <select id="getApprovalNotPassByBarCode" parameterType="string" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from reassign_waybill_approval_record
+    where yn =1
+    and bar_code = #{barCode,jdbcType=VARCHAR}
+    and id in  (
+        select id from reassign_waybill_approval_record
+        where  yn =1
+        and first_check_status in (1,2) or second_check_status in (1,2)
+    )
+    limit 1
+
+  </select>
+
+</mapper>

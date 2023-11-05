@@ -1549,6 +1549,15 @@ public class WaybillServiceImpl implements WaybillService {
                 log.warn("预分拣站点信息不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
                 return result;
             }
+            //获取当前操作站点信息
+            BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(waybillForPreSortOnSiteRequest.getSortingSite());
+            if (operateSite == null){
+                result.error("当前操作站点信息不存在");
+                log.warn("当前操作站点信息不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
+                return result;
+            }
+
+
             Site site = new Site();
             site.setType(siteOfSchedulingOnSite.getSiteType());
             site.setSubType(siteOfSchedulingOnSite.getSubType());
@@ -1630,6 +1639,26 @@ public class WaybillServiceImpl implements WaybillService {
                 result.customMessage(crossResult.getCode(),crossResult.getMessage());
                 return result;
             }
+
+            //检验调度站点信息是否是退货组
+            if(Objects.equals(Constants.SITE_RETURN_GROUP,siteOfSchedulingOnSite.getSortType())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_RETURN_GROUP);
+                return result;
+            }
+
+            //校验 提报人所在场地类型为营业部、城配车队、集配站
+            if(Objects.equals(Constants.BASE_SITE_SITE,operateSite.getSiteType()) || Objects.equals(Constants.BASE_SITE_MOTORCADE,operateSite.getSiteType())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_TERMINAL);
+                return result;
+            }
+
+            //校验反调度站点与原预分拣站点是否一致
+            if(Objects.equals(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite(),waybill.getOldSiteId())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_SAME_SITE);
+                return result;
+            }
+
+            //校验原预分拣站点线上关停
 
 
         }catch (Exception ex){

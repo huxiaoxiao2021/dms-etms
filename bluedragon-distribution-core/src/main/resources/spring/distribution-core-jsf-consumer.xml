@@ -1480,4 +1480,14 @@
     <jsf:consumer id="blockerApplyWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerApplyWS"
                   protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+
+    <!--四级地址匹配预分拣站点接口-->
+    <jsf:consumer id="stationMatchServiceApi"
+                  interface="com.jd.bluedragon.preseparate.jsf.StationMatchServiceApi"
+                  protocol="jsf"
+                  alias="${jsf.presort.expressTransfer.alias}"
+                  timeout="${jsf.presort.expressTransfer.timeout}"
+    >
+        <jsf:parameter key="token" value="${jsf.presort.expressTransfer.token}" hide="true"/>
+    </jsf:consumer>
 </beans>

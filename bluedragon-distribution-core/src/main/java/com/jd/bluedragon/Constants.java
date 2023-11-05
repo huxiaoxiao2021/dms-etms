@@ -138,6 +138,26 @@ public class Constants {
       */
     public static final Integer SITE_SUBTYPE_THIRD = 6410;
 
+    /**
+     * 退货组
+     */
+    public static final Integer SITE_RETURN_GROUP = 12354;
+
+    /**
+     * 请求应用程序类型
+     */
+    public static final Integer PROGRAM_TYPE = 60;
+
+    /**
+     * 业务类型
+     */
+    public static final Integer BUSINESS_TYPE = 1005;
+
+    /**
+     * 业务操作类型
+     */
+    public static final Integer OPERATE_TYPE = 100503;
+
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
     public static final int WAREHOUSE_HANDOVER_OPERATE_TYPE = 2;

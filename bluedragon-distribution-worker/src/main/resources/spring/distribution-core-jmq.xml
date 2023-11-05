@@ -976,4 +976,10 @@
         <property name="topic" value="${jmq.topic.login.info}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!--  运单返调度审批异步处理  -->
+    <bean id="reassignWaybillApprovalProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.reassign.waybill.approval}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>

@@ -642,5 +642,10 @@
     <jmq:consumer id="jmq.loginInfoConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.login.info}" listener="loginInfoConsumer"/>
     </jmq:consumer>
+
+    <!-- 返调度审批处理自消费  -->
+    <jmq:consumer id="jmq.reassignWaybillApprovalConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.reassign.waybill.approval}" listener="reassignWaybillApprovalConsumer"/>
+    </jmq:consumer>
 </beans>
 
