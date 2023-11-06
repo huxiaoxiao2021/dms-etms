@@ -247,12 +247,12 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     /**
-     * 保存（正常扫描）集包扫描记录
+     * 保存集包扫描记录
      *
      * @param request 集包请求对象
      */
     private void saveJyCollectPackageScanRecord(CollectPackageReq request) {
-        JyCollectPackageEntity jyCollectPackageEntity = converJyCollectPackageEntity(request, false, false);
+        JyCollectPackageEntity jyCollectPackageEntity = converJyCollectPackageEntity(request, false, request.getForceCollectPackage()?true:false);
         jyCollectPackageScanRecordService.saveJyCollectPackageRecord(jyCollectPackageEntity);
     }
 
