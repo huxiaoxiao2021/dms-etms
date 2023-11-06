@@ -49,6 +49,7 @@
         <result column="is_match" property="isMatch" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="task_biz_type" property="taskBizType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="floor" property="floor" javaType="java.lang.Integer" jdbcType="TINYINT" />
     </resultMap>
     <resultMap id="JyBizTaskWorkGridManagerCount" type="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount" >
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
@@ -63,7 +64,7 @@
         handler_position_code,status,process_begin_time,process_end_time,create_user,
         create_user_name,update_user,update_user_name,create_time,update_time,
         yn,is_match,ts,task_biz_type,transfered,orign_handler_erp,orign_handler_user_name,orign_handler_user_position_code,
-        orign_handler_user_position_name,transfer_time
+        orign_handler_user_position_name,transfer_time,floor
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" useGeneratedKeys="true" keyProperty="id">

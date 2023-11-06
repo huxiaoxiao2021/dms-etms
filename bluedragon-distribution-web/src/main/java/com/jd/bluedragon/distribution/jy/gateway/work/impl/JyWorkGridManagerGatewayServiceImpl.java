@@ -9,9 +9,11 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.dto.work.*;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jdl.basic.api.domain.work.WorkGridCandidate;
 import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
+import com.jdl.basic.common.utils.JsonHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -43,6 +45,8 @@ import com.jdl.basic.common.utils.Result;
 @Service("jyWorkGridManagerGatewayService")
 public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGatewayService {
 	private static final String refresh_second_config_key = "refresh.second.config.key";
+	private static final String query_data_list_mock_key ="query_data_list_mock_key";
+	private static final String query_data_bybizId_mock_key ="query_data_bybizId_mock_key";
 	@Autowired
 	@Qualifier("jyBizTaskWorkGridManagerService")
 	private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
@@ -71,7 +75,15 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	public JdCResponse<JyWorkGridManagerPageData> queryDataList(JyWorkGridManagerQueryRequest query) {
 		JdCResponse<JyWorkGridManagerPageData> result = new JdCResponse<JyWorkGridManagerPageData>();
 		result.toSucceed("查询成功！");
-
+		/**
+		 * todo 用于联调测试，待删除
+		 */
+		SysConfig data = sysConfigService.findConfigContentByConfigName(query_data_list_mock_key);
+		if(data != null && StringUtils.isNotBlank(data.getConfigContent())){
+			JyWorkGridManagerPageData data1 = JsonHelper.toObject(data.getConfigContent(), JyWorkGridManagerPageData.class);
+			result.setData(data1);
+			return result;
+		}
 		JyWorkGridManagerPageData pageData = new JyWorkGridManagerPageData();
 		//列表定时刷新时间
 		Integer refreshSecond = getRefreshSecond();
@@ -158,6 +170,15 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	public JdCResponse<JyWorkGridManagerData> queryDataByBizId(String bizId) {
 		JdCResponse<JyWorkGridManagerData> result = new JdCResponse<JyWorkGridManagerData>();
 		result.toSucceed("查询成功！");
+		/**
+		 * todo 用于联调测试，待删除
+		 */
+		SysConfig data = sysConfigService.findConfigContentByConfigName(query_data_bybizId_mock_key);
+		if(data != null && StringUtils.isNotBlank(data.getConfigContent())){
+			JyWorkGridManagerData data1 = JsonHelper.toObject(data.getConfigContent(), JyWorkGridManagerData.class);
+			result.setData(data1);
+			return result;
+		}
 		JyWorkGridManagerData taskData  = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(bizId);
 		if(taskData == null) {
 			result.toFail("任务数据不存在！");
@@ -183,7 +204,10 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<Boolean> submitData(JyWorkGridManagerTaskEditRequest request) {
-		return jyWorkGridManagerBusinessService.submitData(request);
+		JdCResponse<Boolean> response = new JdCResponse<Boolean>();
+		response.toSucceed();
+		return response;
+//		return jyWorkGridManagerBusinessService.submitData(request);
 	}
 	@JProfiler(jKey = "dmsWeb.server.jyWorkGridManagerGatewayService.scanTaskPosition",
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})

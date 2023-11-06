@@ -11,7 +11,7 @@ public enum WorkTaskQueryStatusEnum {
 	TODO(1, "待处理"),
 	COMPLETE(3, "已完成"),
 	OVER_TIME(4, "超时未完成"),
-    TRANSFERED(7, "已转派")
+    TRANSFERED(99, "已转派")
     ;
 
 	private WorkTaskQueryStatusEnum(Integer code, String name) {

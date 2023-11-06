@@ -68,7 +68,17 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 		List<WorkGridManagerCaseWithItem> taskCaseList = workGridManagerCaseJsfManager.queryCaseWithItemListByTaskCode(taskCaseQuery.getTaskCode());
 		return toCaseDataList(taskCaseQuery,taskCaseList,jyTaskCaseList);
 	}
-	private List<JyWorkGridManagerCaseData> toCaseDataList(JyWorkGridManagerCaseQuery taskCaseQuery,List<WorkGridManagerCaseWithItem> taskCaseList, List<JyWorkGridManagerCase> jyTaskCaseList){
+
+	/**
+	 * 
+	 * @param taskCaseQuery 查询条件
+	 * @param taskCaseList 任务定义-case-item
+	 * @param jyTaskCaseList 任务实例case列表
+	 * @return
+	 */
+	private List<JyWorkGridManagerCaseData> toCaseDataList(JyWorkGridManagerCaseQuery taskCaseQuery,
+														   List<WorkGridManagerCaseWithItem> taskCaseList, 
+														   List<JyWorkGridManagerCase> jyTaskCaseList){
 		String bizId = taskCaseQuery.getBizId();
 		Integer taskType = taskCaseQuery.getTaskType();
 		List<JyWorkGridManagerCaseData> caseList = new ArrayList<>();

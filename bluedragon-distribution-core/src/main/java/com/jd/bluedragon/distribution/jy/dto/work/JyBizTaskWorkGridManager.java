@@ -237,6 +237,10 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	//任务业务类型：1-日常巡查 2-管理巡视 3-异常及时检查 4-指标周期改善 5-事件治理整改任务
 	private Integer taskBizType;
 	/**
+	 * 网格楼层
+	 */
+	private Integer floor;
+	/**
 	 *
 	 * @param id
 	 */
@@ -906,5 +910,13 @@ public class JyBizTaskWorkGridManager implements Serializable {
 
 	public void setTransferTime(Date transferTime) {
 		this.transferTime = transferTime;
+	}
+
+	public Integer getFloor() {
+		return floor;
+	}
+
+	public void setFloor(Integer floor) {
+		this.floor = floor;
 	}
 }
