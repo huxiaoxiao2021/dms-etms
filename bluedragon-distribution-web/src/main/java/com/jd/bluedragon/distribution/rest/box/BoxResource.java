@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.rest.box;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -35,7 +35,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,14 +89,23 @@ public class BoxResource {
     @Resource(name="siteBoxTypeMap")
     private Map<String,String> siteBoxTypeMap;
 
+    @Resource(name="siteBoxTypeV2Map")
+    private Map<String,String> siteBoxTypeV2Map;
+
     @Resource(name="sortingBoxTypeMap")
     private Map<String,String> sortingBoxTypeMap;
+
+    @Resource(name="sortingBoxTypeV2Map")
+    private Map<String,String> sortingBoxTypeV2Map;
 
     @Autowired
     private CycleBoxService cycleBoxService;
 
     @Autowired
     private FuncSwitchConfigServiceImpl funcSwitchConfigService;
+
+    @Autowired
+    private DmsConfigManager dmsConfigManager;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -667,10 +675,16 @@ public class BoxResource {
         //营业部,自营京东派 人员使用部分箱型
         if (siteTypes.contains(baseStaffSiteOrgDto.getSubType())){
             response.setBoxTypes(siteBoxTypeMap);
+            if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
+                response.setBoxTypes(siteBoxTypeV2Map);
+            }
             return response;
         }
         //分拣中心
         response.setBoxTypes(sortingBoxTypeMap);
+        if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
+            response.setBoxTypes(sortingBoxTypeV2Map);
+        }
         return response;
     }
 

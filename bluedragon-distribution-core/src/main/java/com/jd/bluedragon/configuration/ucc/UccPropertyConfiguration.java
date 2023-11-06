@@ -1739,6 +1739,11 @@ public class UccPropertyConfiguration{
     private String terminalSiteTypeForBoxType;
     private List<Integer> terminalSiteTypeListForBoxType = new ArrayList<>();
 
+    /**
+     * 箱号类型新版切换开关
+     */
+    private Boolean boxTypeNewVersionSwitch;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -3950,5 +3955,14 @@ public class UccPropertyConfiguration{
         for (String siteCodeStr : dpSpringSiteCodeList) {
             this.terminalSiteTypeListForBoxType.add(Integer.valueOf(siteCodeStr));
         }
+    }
+
+    public Boolean getBoxTypeNewVersionSwitch() {
+        return boxTypeNewVersionSwitch;
+    }
+
+    public UccPropertyConfiguration setBoxTypeNewVersionSwitch(Boolean boxTypeNewVersionSwitch) {
+        this.boxTypeNewVersionSwitch = boxTypeNewVersionSwitch;
+        return this;
     }
 }
