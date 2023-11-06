@@ -98,5 +98,15 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
         return boxMaterialRelationDao.getDataByBean(po);
     }
 
+    @Override
+    public List<BoxMaterialRelation> findByMaterialCodeAndBoxCode(BoxMaterialRelation query) {
+        return boxMaterialRelationDao.findByMaterialCodeAndBoxCode(query);
+    }
+
+    @Override
+    public int countByMaterialCodeAndBoxCode(BoxMaterialRelation query) {
+        return boxMaterialRelationDao.countByMaterialCodeAndBoxCode(query);
+    }
+
 
 }

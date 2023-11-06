@@ -36,6 +36,8 @@ public class BoxMaterialRelationDto {
     /**
      * 绑定标识 1 绑定 2 解绑
      */
+    private String siteName;
+
     private Integer bindFlag;
 
     /**
