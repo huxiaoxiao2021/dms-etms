@@ -306,7 +306,12 @@ public class InvokeResult<T> implements Serializable {
     public static final String CODE_MORE_OUT_SCAN_MESSAGE = "根据路由此单为非本场地运单，请核查";
     public static final int AVIATION_TASK_OUT_WEIGHT_CODE = 3067;
     public static final String AVIATION_TASK_OUT_WEIGHT_MESSAGE = "该任务已超载！!";
-
+    public static final int CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_CODE = 3070;
+    public static final String CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_MESSAGE = "车辆封车的板数量小于%s！ 请拍照确认！";
+    public static final int CZ_SEAL_CAR_PACKAGE_COUNT_MIN_LIMIT_CODE = 3071;
+    public static final String CZ_SEAL_CAR_PACKAGE_COUNT_MIN_LIMIT_MESSAGE = "车辆封车的包裹数量小于%s！ 请拍照确认！";
+    public static final int CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_CODE = 3072;
+    public static final String CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_MESSAGE = "发货目的地【%s】不在本网格的传站流向中，请使用正确的网格码登陆封车";
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
