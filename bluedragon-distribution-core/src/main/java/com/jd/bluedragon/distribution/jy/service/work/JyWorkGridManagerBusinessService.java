@@ -8,11 +8,13 @@ import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerAutoCloseDa
 import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScanData;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jdl.basic.api.domain.user.JyUserDto;
 import com.jdl.basic.api.domain.work.WorkGridManagerTask;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkGridModifyMqData;
+import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 
 import java.util.Date;
 
@@ -45,6 +47,8 @@ public interface JyWorkGridManagerBusinessService {
 	 * @return
 	 */
 	boolean executeWorkGridManagerSiteScanTask(Task task);
+
+	void sendTimeLineNotice(WorkGridManagerTaskBizType type, JyUserDto user);
 
 	JyBizTaskWorkGridManager initJyBizTaskWorkGridManager(BaseSiteInfoDto siteInfo, TaskWorkGridManagerSiteScanData taskWorkGridManagerScan,
 														  WorkGridManagerTask taskInfo, WorkGridManagerTaskConfigVo configData,

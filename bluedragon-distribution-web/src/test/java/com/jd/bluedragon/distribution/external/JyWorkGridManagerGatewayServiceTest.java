@@ -37,7 +37,7 @@ public class JyWorkGridManagerGatewayServiceTest {
     @Test
     public void transferCandidateTest() {
         JyWorkGridManagerTransferData req = new JyWorkGridManagerTransferData();
-        req.setBizId("a83a3fe9-8c3f-43cc-ae1d-91ad02a39311");
+        req.setBizId("41d86be0-4784-4cad-b506-e0cdb1bc08d7");
         req.setErp("wuyoude");
 
         System.out.println("测试请求:"+JSON.toJSONString(req));
