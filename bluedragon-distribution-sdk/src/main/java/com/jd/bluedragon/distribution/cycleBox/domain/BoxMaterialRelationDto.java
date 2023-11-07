@@ -36,8 +36,6 @@ public class BoxMaterialRelationDto {
     /**
      * 绑定标识 1 绑定 2 解绑
      */
-    private String siteName;
-
     private Integer bindFlag;
 
     /**
@@ -59,6 +57,8 @@ public class BoxMaterialRelationDto {
      * 时间戳
      */
     private Date ts;
+
+    private String siteName;
 
     public Long getId() {
         return id;
@@ -84,7 +84,13 @@ public class BoxMaterialRelationDto {
         this.materialCode = materialCode;
     }
 
+    public String getSiteName() {
+        return siteName;
+    }
 
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
 
     public Integer getSiteCode() {
         return siteCode;
