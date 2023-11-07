@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.send.JySendEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity;
 import java.util.List;
 
@@ -26,5 +27,14 @@ public class JySendTransferLogDao extends BaseDao<JySendTransferLogEntity> {
     }
     public int batchInsert(List<JySendTransferLogEntity> list) {
         return this.getSqlSession().insert(NAMESPACE + ".batchInsert", list);
+    }
+
+    /**
+     * 查最后一次绑定或者转移的操作记录
+     * @param fromSendVehicleDetailBizId
+     * @return
+     */
+    public JySendEntity findLatestByFromDetailBizId(String fromSendVehicleDetailBizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findLatestByFromDetailBizId", fromSendVehicleDetailBizId);
     }
 }

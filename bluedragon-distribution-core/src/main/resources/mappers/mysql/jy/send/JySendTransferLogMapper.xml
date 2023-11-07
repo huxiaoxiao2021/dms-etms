@@ -198,4 +198,13 @@
       )
     </foreach>
   </insert>
+
+  <select id="findLatestByFromDetailBizId" parameterType="java.lang.String" resultMap="jySendTransferLogMap">
+    select jy_send_transfer_log
+    from jy_send_seal_code
+    WHERE yn = 1 and from_send_vehicle_detail_biz_id = #{fromSendVehicleDetailBizId}
+    order by create_time desc
+    limit 1
+  </select>
+
 </mapper>

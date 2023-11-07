@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
+import com.jd.bluedragon.distribution.jy.dto.task.SealUnsealStatusSyncAppSendTaskMQDto;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -40,6 +41,7 @@ import org.springframework.util.CollectionUtils;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -98,8 +100,8 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
     private DefaultJMQProducer jyCollectDataInitSplitProducer;
 
     @Autowired
-    @Qualifier(value = "sealSyncJySendTaskStatusProducer")
-    private DefaultJMQProducer sealSyncJySendTaskStatusProducer;
+    @Qualifier(value = "sealUnsealStatusSyncAppSendTaskProducer")
+    private DefaultJMQProducer sealUnsealStatusSyncAppSendTaskProducer;
 
 
     @Override
@@ -255,12 +257,18 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
     //封车信息同步新版app发货任务状态
     private void sendSealSyncJySendTaskStatusMq(TmsSealCarStatusMQBody mqBody) {
         for(String batchCode : mqBody.getBatchCodes()) {
-            TmsSealCarStatusMQBody msg = new TmsSealCarStatusMQBody();
-            BeanUtils.copyProperties(mqBody, msg);
-            //单批次发送，consumer按批次处理
+            SealUnsealStatusSyncAppSendTaskMQDto msg = new SealUnsealStatusSyncAppSendTaskMQDto();
+            msg.setStatus(SealUnsealStatusSyncAppSendTaskMQDto.STATUS_SEAL);
+            msg.setOperateUserCode(mqBody.getOperateUserCode());
+            msg.setSealCarCode(mqBody.getSealCarCode());
+            Date operateTime = DateHelper.parseAllFormatDateTime(mqBody.getOperateTime());
+            msg.setOperateTime(operateTime.getTime());
+            msg.setOperateUserName(mqBody.getOperateUserName());
+            msg.setBatchCodes(mqBody.getBatchCodes());
             msg.setSingleBatchCode(batchCode);
+            msg.setSysTime(System.currentTimeMillis());
         }
-        sealSyncJySendTaskStatusProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(mqBody));
+        sealUnsealStatusSyncAppSendTaskProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(mqBody));
     }
 
     private void sendInitCollectMq(TmsSealCarStatusMQBody tmsSealCarStatus) {

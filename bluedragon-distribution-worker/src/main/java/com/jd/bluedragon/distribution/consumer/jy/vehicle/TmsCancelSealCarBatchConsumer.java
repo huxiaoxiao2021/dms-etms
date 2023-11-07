@@ -2,8 +2,10 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dto.task.SealUnsealStatusSyncAppSendTaskMQDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
@@ -63,6 +65,11 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
     private JySealVehicleService jySealVehicleService;
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
+    @Autowired
+    @Qualifier(value = "sealUnsealStatusSyncAppSendTaskProducer")
+    private DefaultJMQProducer sealUnsealStatusSyncAppSendTaskProducer;
+
+
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsCancelSealCarBatchConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -86,6 +93,10 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
         }
         //接收取消批次信息 查询运输获取取消状态
         SealCarDto sealCarCodeOfTms = findSealCarInfoBySealCarCodeOfTms(mqBody.getSealCarCode());
+
+        //resetSendStatusToseal方法是按取消TW号，下面MQ消费按照批次号反查任务处理
+        this.sendResetSendStatusToSealMq(mqBody, sealCarCodeOfTms);
+
         if(TMS_CANCEL_SEAL_CAR.equals(sealCarCodeOfTms.getStatus())){
             //证明整个封车编码被取消了 , 取消对应任务
             try {
@@ -115,6 +126,25 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
             jyBizTaskComboardService.updateBoardStatusBySendCode(mqBody.getBatchCode(), mqBody.getOperateUserCode(), mqBody.getOperateUserName());
         } catch (Exception e) {
             logger.error("传站取消封车释放批次信息异常",e);
+        }
+
+
+    }
+
+    private void sendResetSendStatusToSealMq(TmsCancelSealCarBatchMQBody mqBody, SealCarDto sealCarCodeOfTms){
+        try{
+            SealUnsealStatusSyncAppSendTaskMQDto msg = new SealUnsealStatusSyncAppSendTaskMQDto();
+            msg.setStatus(SealUnsealStatusSyncAppSendTaskMQDto.STATUS_UNSEAL);
+            msg.setOperateUserCode(mqBody.getOperateUserCode());
+            msg.setSealCarCode(mqBody.getSealCarCode());
+            msg.setOperateTime(mqBody.getOperateTime());
+            msg.setOperateUserName(mqBody.getOperateUserName());
+            msg.setSingleBatchCode(mqBody.getBatchCode());
+            msg.setTransWorkItemCode(sealCarCodeOfTms.getTransWorkItemCode());
+            msg.setSysTime(System.currentTimeMillis());
+            sealUnsealStatusSyncAppSendTaskProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(mqBody));
+        }catch (Exception e) {
+            logger.error("发送取消批次封车mq异常[errMsg={}]，mqBody={}", e.getMessage(), JsonHelper.toJson(mqBody), e);
         }
     }
 

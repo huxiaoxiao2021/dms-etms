@@ -311,6 +311,8 @@
 		<property name="teAnSendTaskTipsOptimizationSwitch" value="${teAnSendTaskTipsOptimizationSwitch:false}"/>
 		<property name="teAnSendTaskNumberLimit" value="${teAnSendTaskNumberLimit:100}"/>
 		<property name="dmsToVendorSendMQSwitch" value="${dmsToVendorSendMQSwitch:true}"/>
+		<property name="sealUnsealStatusSyncAppSendTaskSwitch" value="${sealUnsealStatusSyncAppSendTaskSwitch: 1,1,1}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -610,6 +612,7 @@
 				<value>uccPropertyConfiguration.teAnSendTaskTipsOptimizationSwitch</value>
 				<value>uccPropertyConfiguration.teAnSendTaskNumberLimit</value>
 				<value>uccPropertyConfiguration.dmsToVendorSendMQSwitch</value>
+				<value>uccPropertyConfiguration.sealUnsealStatusSyncAppSendTaskSwitch</value>
 			</list>
 		</property>
 	</bean>
