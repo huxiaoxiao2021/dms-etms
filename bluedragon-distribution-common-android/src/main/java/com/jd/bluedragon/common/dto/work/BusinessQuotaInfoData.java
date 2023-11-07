@@ -8,7 +8,7 @@ public class BusinessQuotaInfoData implements Serializable {
     /**
      * 指标的业务日期
      */
-    private String businessDate;
+    private String quotaAchieveInfo;
     /**
      * 指标目标值
      */
@@ -18,12 +18,12 @@ public class BusinessQuotaInfoData implements Serializable {
      */
     private String actual;
 
-    public String getBusinessDate() {
-        return businessDate;
+    public String getQuotaAchieveInfo() {
+        return quotaAchieveInfo;
     }
 
-    public void setBusinessDate(String businessDate) {
-        this.businessDate = businessDate;
+    public void setQuotaAchieveInfo(String quotaAchieveInfo) {
+        this.quotaAchieveInfo = quotaAchieveInfo;
     }
 
     public String getTarget() {

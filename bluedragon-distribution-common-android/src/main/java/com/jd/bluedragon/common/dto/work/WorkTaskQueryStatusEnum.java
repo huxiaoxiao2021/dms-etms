@@ -10,7 +10,7 @@ public enum WorkTaskQueryStatusEnum {
 
 	TODO(1, "待处理"),
 	COMPLETE(3, "已完成"),
-	OVER_TIME(4, "超时未完成"),
+	OVER_TIME(4, "已超时"),
     TRANSFERED(99, "已转派")
     ;
 

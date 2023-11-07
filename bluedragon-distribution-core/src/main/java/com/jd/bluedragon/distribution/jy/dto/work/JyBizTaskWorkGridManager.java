@@ -241,6 +241,10 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 */
 	private Integer floor;
 	/**
+	 *  任务的个性化扩信息(用于展示,不参与查询 json格式)
+	 */
+	private String extendInfo;
+	/**
 	 *
 	 * @param id
 	 */
@@ -918,5 +922,13 @@ public class JyBizTaskWorkGridManager implements Serializable {
 
 	public void setFloor(Integer floor) {
 		this.floor = floor;
+	}
+
+	public String getExtendInfo() {
+		return extendInfo;
+	}
+
+	public void setExtendInfo(String extendInfo) {
+		this.extendInfo = extendInfo;
 	}
 }
