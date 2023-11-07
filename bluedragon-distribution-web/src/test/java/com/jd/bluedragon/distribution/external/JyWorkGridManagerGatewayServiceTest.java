@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.work.JyWorkGridManagerPageData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTransferData;
 import com.jd.bluedragon.distribution.jy.gateway.work.JyWorkGridManagerGatewayService;
@@ -31,6 +32,22 @@ public class JyWorkGridManagerGatewayServiceTest {
         System.out.println("测试请求:"+JSON.toJSONString(req));
         JdCResponse<List<String>> listJdCResponse = jyWorkGridManagerGatewayService.queryCandidateList(req);
         System.out.println("测试响应:"+JSON.toJSONString(listJdCResponse));
+
+    }
+
+    @Test
+    public void queryDataListTest() {
+        JyWorkGridManagerQueryRequest req = new JyWorkGridManagerQueryRequest();
+        req.setOperateUserCode("bjxings");
+        req.setStatus(99);
+        req.setLimit(10);
+        req.setPageNumber(1);
+        req.setPageSize(10);
+        req.setOffset(0);
+
+        System.out.println("测试请求:"+JSON.toJSONString(req));
+        JdCResponse<JyWorkGridManagerPageData> jyWorkGridManagerPageDataJdCResponse = jyWorkGridManagerGatewayService.queryDataList(req);
+        System.out.println("测试响应:"+JSON.toJSONString(jyWorkGridManagerPageDataJdCResponse));
 
     }
 

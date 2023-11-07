@@ -132,13 +132,6 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 					&& statusCount.containsKey(countData.getStatus())) {
 				statusCount.get(countData.getStatus()).setDataNum(countData.getDataNum());
 			}
-		}
-		//设置数量
-		for(JyWorkGridManagerCountData countData: countList){
-			if(countData.getDataNum() != null
-					&& statusCount.containsKey(countData.getStatus())) {
-				statusCount.get(countData.getStatus()).setDataNum(countData.getDataNum());
-			}
 			if(countData.getDataNum() != null
 					&& statusNum.containsKey(String.valueOf(countData.getStatus()))) {
 				statusNum.get(String.valueOf(countData.getStatus())).setDataNum(countData.getDataNum());
@@ -147,8 +140,8 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 
 		//判断相应状态的数量是否大于0
 		if(query.getStatus() != null
-				&& statusCount.containsKey(query.getStatus())
-				&& statusCount.get(query.getStatus()).getDataNum() > 0) {
+				&& statusNum.containsKey(query.getStatus())
+				&& statusNum.get(query.getStatus()).getDataNum() > 0) {
 			List<JyWorkGridManagerData> queryList = jyBizTaskWorkGridManagerService.queryDataListForPda(query);
 			if(!CollectionUtils.isEmpty(queryList)) {
 				pageData.setDataList(queryList);
