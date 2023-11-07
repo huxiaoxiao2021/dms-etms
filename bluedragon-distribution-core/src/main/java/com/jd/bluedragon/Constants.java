@@ -2204,4 +2204,15 @@ public class Constants {
      * 配置信息-自动签退超过多少小时未签退的数据
      */
     public static final String SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS="sys.config.autoHandleSignInRecord.notSignedOutRecordMoreThanHours";
+
+    /**
+     * 运单返调度审批配置
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG = "reassignWaybill.province.area.approval.config";
+
+
+    /**
+     * 异常运单任务缓存key
+     */
+    public static final String REASSIGN_WAYBILLCACHE_KEY_PREFIX ="reassign.waybill.cache:";
 }

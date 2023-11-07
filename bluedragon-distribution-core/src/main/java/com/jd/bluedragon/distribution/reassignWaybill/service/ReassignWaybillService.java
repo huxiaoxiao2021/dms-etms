@@ -1,10 +1,8 @@
 package com.jd.bluedragon.distribution.reassignWaybill.service;
 
+import com.jd.bluedragon.distribution.api.request.ReassignWaybillApprovalRecordQuery;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
-import com.jd.bluedragon.distribution.api.response.OrderResponse;
-import com.jd.bluedragon.distribution.api.response.ReassignOrder;
-import com.jd.bluedragon.distribution.api.response.ReassignWaybillApprovalRecordResponse;
-import com.jd.bluedragon.distribution.api.response.StationMatchResponse;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -51,22 +49,40 @@ public interface ReassignWaybillService {
 	JdResult<StationMatchResponse> stationMatchByAddress(StationMatchRequest request);
 
 
-	InvokeResult<List<BaseStaffSiteOrgDto>> getSiteByCodeOrName(String siteCodeOrName);
+    /**
+     * 根据站点编码或名称获取站点信息列表
+     *
+     * @param siteCodeOrName 站点编码或名称
+     * @return 响应的站点信息列表
+     */
+
+	JdResult<List<BaseStaffResponse>> getSiteByCodeOrName(String siteCodeOrName);
 
 	/**
 	 * 执行返调度
 	 */
 	JdResult<Boolean> executeReassignWaybill(ReassignWaybillReq req);
 
-	void dealReassignWaybillApprove(ReassignWaybillApprovalRecordMQ mq);
 
 	/**
 	 * 获取返调度审批记录
 	 * @return
 	 */
-	JdResult<PageDto<ReassignWaybillApprovalRecordResponse>> getReassignWaybillRecordListByPage();
+	JdResult<PageDto<ReassignWaybillApprovalRecordResponse>> getReassignWaybillRecordListByPage(ReassignWaybillApprovalRecordQuery query);
+
+    /**
+     * 获取重新分配运单审批记录的数量
+     *
+     * @param query 重新分配运单审批记录的查询条件
+     * @return 返回重新分配运单审批记录的数量
+     */
+
+	JdResult<Integer> getReassignWaybillRecordCount(ReassignWaybillApprovalRecordQuery query);
+
+	void dealReassignWaybillApprove(ReassignWaybillApprovalRecordMQ mq);
 
 	void dealApproveResult(HistoryApprove historyApprove);
+
 
 
 }

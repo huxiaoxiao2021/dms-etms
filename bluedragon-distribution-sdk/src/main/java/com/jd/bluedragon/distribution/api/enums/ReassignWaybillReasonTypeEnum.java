@@ -5,7 +5,7 @@ package com.jd.bluedragon.distribution.api.enums;
  * @Date: 2023/11/1 9:50
  * @Description: 操作返调度原因类型枚举
  */
-public enum ScheduleReasonTypeEnum {
+public enum ReassignWaybillReasonTypeEnum {
 
     UNABLE_TO_DELIVER(1,"预分拣站点无法派送"),
     CONTROL_CONTRABAND(2,"特殊时期管制违禁品"),
@@ -19,7 +19,7 @@ public enum ScheduleReasonTypeEnum {
     private String name;
 
 
-    private ScheduleReasonTypeEnum(Integer code, String name) {
+    private ReassignWaybillReasonTypeEnum(Integer code, String name) {
         this.code = code;
         this.name = name;
     }
@@ -34,7 +34,7 @@ public enum ScheduleReasonTypeEnum {
 
 
     public static String getNameByCode(Integer code) {
-        ScheduleReasonTypeEnum data = getEnum(code);
+        ReassignWaybillReasonTypeEnum data = getEnum(code);
         if(data != null) {
             return data.getName();
         }
@@ -45,8 +45,8 @@ public enum ScheduleReasonTypeEnum {
      * @param code
      * @return
      */
-    public static ScheduleReasonTypeEnum getEnum(Integer code) {
-        for (ScheduleReasonTypeEnum value : ScheduleReasonTypeEnum.values()) {
+    public static ReassignWaybillReasonTypeEnum getEnum(Integer code) {
+        for (ReassignWaybillReasonTypeEnum value : ReassignWaybillReasonTypeEnum.values()) {
             if (value.code.equals(code)) {
                 return value;
             }

@@ -42,6 +42,7 @@
     <include refid="Base_Column_List" />
     from reassign_waybill_approval_record
     where bar_code = #{barCode,jdbcType=BIGINT}
+    order by create_time limit 1
   </select>
 
 
@@ -244,9 +245,6 @@
       <if test="applicationUserErp != null" >
         application_user_erp = #{applicationUserErp,jdbcType=VARCHAR},
       </if>
-      <if test="barCode != null" >
-        bar_code = #{barCode,jdbcType=VARCHAR},
-      </if>
       <if test="submitTime != null" >
         submit_time = #{submitTime,jdbcType=TIMESTAMP},
       </if>
@@ -305,26 +303,109 @@
         yn = #{yn,jdbcType=BIT},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where bar_code = #{barCode,jdbcType=VARCHAR}
   </update>
 
-  <select id="getApprovalRecordList" parameterType="com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybillApprovalRecordReq" >
-        select  *  from reassign_waybill_approval_record
-  </select>
 
-  <select id="getApprovalNotPassByBarCode" parameterType="string" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List"/>
+  <update id="updateReassignWaybilApprovalNotPassByBarCode" parameterType="map" >
+    update reassign_waybill_approval_record
+    <set >
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = 0
+    </set>
     from reassign_waybill_approval_record
     where yn =1
     and bar_code = #{barCode,jdbcType=VARCHAR}
     and id in  (
-        select id from reassign_waybill_approval_record
-        where  yn =1
-        and first_check_status in (1,2) or second_check_status in (1,2)
+      select id from reassign_waybill_approval_record
+      where  yn =1
+      and first_check_status in (1,2) or second_check_status in (1,2)
     )
-    limit 1
+  </update>
+
+  <select id="queryTotalByCondition" parameterType="com.jd.bluedragon.distribution.api.request.ReassignWaybillApprovalRecordQuery" resultType="int">
+    select  count(*)
+    from reassign_waybill_approval_record
+    where yn =1  and
+
+    <if test="provinceAgencyCode != null" >
+      province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+    </if>
+    <if test="areaHubCode != null" >
+      AND area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+    </if>
+    <if test="siteCode != null" >
+      AND site_code = #{siteCode,jdbcType=INTEGER},
+    </if>
+    <if test="changeSiteReasonType != null" >
+      AND change_site_reason_type = #{changeSiteReasonType,jdbcType=BIT},
+    </if>
+    <if test="barCode != null" >
+      AND bar_code = #{barCode,jdbcType=VARCHAR},
+    </if>
+    <if test="applicationUserErp != null" >
+      AND application_user_erp = #{applicationUserErp,jdbcType=VARCHAR},
+    </if>
+    <if test="firstCheckStatus != null">
+      AND first_check_status = #{firstCheckStatus,jdbcType=BIT}
+    </if>
+    <if test="secondCheckStatus != null">
+      AND second_check_status= #{secondCheckStatus}
+    </if>
+    <if test="startTime != null">
+      AND submit_time <![CDATA[ >= ]]> #{startSubmitTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="endTime != null">
+      AND submit_time <![CDATA[ <= ]]> #{endSubmitTime,jdbcType=TIMESTAMP}
+    </if>
+
 
   </select>
+
+  <select id="getApprovalRecordPageListByCondition" parameterType="com.jd.bluedragon.distribution.api.request.ReassignWaybillApprovalRecordQuery" >
+    select  <include refid="Base_Column_List"/>
+    from reassign_waybill_approval_record
+    where yn =1
+
+    <if test="provinceAgencyCode != null" >
+      AND province_agency_code = #{provinceAgencyCode}
+    </if>
+    <if test="areaHubCode != null" >
+      AND area_hub_code = #{areaHubCode}
+    </if>
+    <if test="siteCode != null" >
+      AND site_code = #{siteCode,jdbcType=INTEGER}
+    </if>
+    <if test="changeSiteReasonType != null" >
+      AND change_site_reason_type = #{changeSiteReasonType}
+    </if>
+    <if test="barCode != null" >
+      AND bar_code = #{barCode}
+    </if>
+    <if test="applicationUserErp != null" >
+      AND application_user_erp = #{applicationUserErp}
+    </if>
+    <if test="firstCheckStatus != null">
+      AND first_check_status = #{firstCheckStatus}
+    </if>
+    <if test="secondCheckStatus != null">
+      AND second_check_status= #{secondCheckStatus}
+    </if>
+    <if test="startTime != null">
+      AND submit_time <![CDATA[ >= ]]> #{startSubmitTime}
+    </if>
+    <if test="endTime != null">
+      AND submit_time <![CDATA[ <= ]]> #{endSubmitTime}
+    </if>
+
+    order by id desc
+    <if test="pageSize !=null">
+      LIMIT #{offSet}, #{pageSize};
+    </if>
+
+  </select>
+
+
 
 </mapper>

@@ -2,9 +2,11 @@ package com.jd.bluedragon.distribution.reassignWaybill.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillApprovalRecordQuery;
+import com.jd.bluedragon.distribution.jy.dto.strand.JyStrandTaskPageCondition;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybillApprovalRecord;
 
 import java.util.List;
+import java.util.Map;
 
 public class ReassignWaybillApprovalRecordDao extends BaseDao<ReassignWaybillApprovalRecord> {
 
@@ -16,19 +18,27 @@ public class ReassignWaybillApprovalRecordDao extends BaseDao<ReassignWaybillApp
     }
 
     public int update(ReassignWaybillApprovalRecord record) {
-        return this.getSqlSession().update(namespace + ".updateByBarCode", record);
+        return this.getSqlSession().update(namespace + ".update", record);
+    }
+
+    public int updateReassignWaybilApprovalNotPassByBarCode(Map<String,Object> params){
+        return this.getSqlSession().update(namespace + ".updateReassignWaybilApprovalNotPassByBarCode", params);
     }
 
     public ReassignWaybillApprovalRecord selectByBarCode(String barCode){
         return this.getSqlSession().selectOne(namespace + ".selectByBarCode", barCode);
     }
 
-    public List<ReassignWaybillApprovalRecord> getApprovalRecordList(ReassignWaybillApprovalRecordQuery req) {
-        return this.getSqlSession().selectList(namespace + ".getApprovalRecordList", req);
+    public Integer queryTotalByCondition(ReassignWaybillApprovalRecordQuery req) {
+        return this.getSqlSession().selectOne(namespace + ".queryTotalByCondition", req);
     }
 
-    public ReassignWaybillApprovalRecord getApprovalNotPassByBarCode(String barCode){
-        return this.getSqlSession().selectOne(namespace + ".getApprovalNotPassByBarCode", barCode);
+    public List<ReassignWaybillApprovalRecord> getApprovalRecordPageListByCondition(ReassignWaybillApprovalRecordQuery req) {
+        return this.getSqlSession().selectList(namespace + ".getApprovalRecordPageListByCondition", req);
+    }
+
+    public List<ReassignWaybillApprovalRecord> getReassignWaybilApprovalNotPassByBarCode(String barCode){
+        return this.getSqlSession().selectOne(namespace + ".getReassignWaybilApprovalNotPassByBarCode", barCode);
     }
 
 }

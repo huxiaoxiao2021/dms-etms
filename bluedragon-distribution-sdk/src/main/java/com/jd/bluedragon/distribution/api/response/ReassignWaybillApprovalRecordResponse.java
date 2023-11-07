@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * @Author: chenyaguo@jd.com
  * @Date: 2023/10/31 15:24
- * @Description:
+ * @Description: 返调度查询结果
  */
 public class ReassignWaybillApprovalRecordResponse implements Serializable {
 
@@ -37,21 +37,14 @@ public class ReassignWaybillApprovalRecordResponse implements Serializable {
 
     private String changeSiteName;
 
-    private Boolean changeSiteReasonType;
+    /**
+     * 返调度原因类型 1：预分拣站点无法派送 2：特殊时期管制违禁品 3：邮政拒收 4：无预分拣站点
+     */
+    private Integer changeSiteReasonTypeCode;
 
-    private Byte checkFlag;
+    private String changeSiteReasonTypeName;
 
-    private String firstChecker;
 
-    private Byte firstCheckStatus;
-
-    private Date firstCheckTime;
-
-    private String secondChecker;
-
-    private Byte secondCheckStatus;
-
-    private Date secondCheckTime;
 
     public String getProvinceAgencyCode() {
         return provinceAgencyCode;
@@ -157,67 +150,19 @@ public class ReassignWaybillApprovalRecordResponse implements Serializable {
         this.changeSiteName = changeSiteName;
     }
 
-    public Boolean getChangeSiteReasonType() {
-        return changeSiteReasonType;
+    public Integer getChangeSiteReasonTypeCode() {
+        return changeSiteReasonTypeCode;
     }
 
-    public void setChangeSiteReasonType(Boolean changeSiteReasonType) {
-        this.changeSiteReasonType = changeSiteReasonType;
+    public void setChangeSiteReasonTypeCode(Integer changeSiteReasonTypeCode) {
+        this.changeSiteReasonTypeCode = changeSiteReasonTypeCode;
     }
 
-    public Byte getCheckFlag() {
-        return checkFlag;
+    public String getChangeSiteReasonTypeName() {
+        return changeSiteReasonTypeName;
     }
 
-    public void setCheckFlag(Byte checkFlag) {
-        this.checkFlag = checkFlag;
-    }
-
-    public String getFirstChecker() {
-        return firstChecker;
-    }
-
-    public void setFirstChecker(String firstChecker) {
-        this.firstChecker = firstChecker;
-    }
-
-    public Byte getFirstCheckStatus() {
-        return firstCheckStatus;
-    }
-
-    public void setFirstCheckStatus(Byte firstCheckStatus) {
-        this.firstCheckStatus = firstCheckStatus;
-    }
-
-    public Date getFirstCheckTime() {
-        return firstCheckTime;
-    }
-
-    public void setFirstCheckTime(Date firstCheckTime) {
-        this.firstCheckTime = firstCheckTime;
-    }
-
-    public String getSecondChecker() {
-        return secondChecker;
-    }
-
-    public void setSecondChecker(String secondChecker) {
-        this.secondChecker = secondChecker;
-    }
-
-    public Byte getSecondCheckStatus() {
-        return secondCheckStatus;
-    }
-
-    public void setSecondCheckStatus(Byte secondCheckStatus) {
-        this.secondCheckStatus = secondCheckStatus;
-    }
-
-    public Date getSecondCheckTime() {
-        return secondCheckTime;
-    }
-
-    public void setSecondCheckTime(Date secondCheckTime) {
-        this.secondCheckTime = secondCheckTime;
+    public void setChangeSiteReasonTypeName(String changeSiteReasonTypeName) {
+        this.changeSiteReasonTypeName = changeSiteReasonTypeName;
     }
 }

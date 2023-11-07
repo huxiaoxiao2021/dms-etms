@@ -3,8 +3,11 @@ package com.jd.bluedragon.distribution.api.request;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * 运单返调度审核记录查询
+ */
 public class ReassignWaybillApprovalRecordQuery implements Serializable {
-    private Long id;
+    private static final long serialVersionUID = 7914857479024808690L;
 
     /**
      * 省区编码
@@ -41,50 +44,38 @@ public class ReassignWaybillApprovalRecordQuery implements Serializable {
      */
     private String applicationUserErp;
 
-    /**
-     * 返调度单号
-     */
     private String barCode;
 
     /**
-     * 操作时间
+     * 操作开始时间
      */
-    private Date submitTime;
+    private Date startSubmitTime;
 
     /**
-     * 预分拣目的站点编码
+     * 操作结束时间
      */
-    private Integer receiveSiteCode;
-
-    /**
-     * 预分拣目的站点名称
-     */
-    private String receiveSiteName;
-
-    /**
-     * 返调度站点编码
-     */
-    private Integer changeSiteCode;
-
-    /**
-     * 返调度站点名称
-     */
-    private String changeSiteName;
+    private Date endSubmitTime;
 
     /**
      * 返调度原因类型 1：预分拣站点无法派送 2：特殊时期管制违禁品 3：邮政拒收 4：无预分拣站点
      */
-    private Boolean changeSiteReasonType;
+    private Integer changeSiteReasonTypeCode;
 
+    /**
+     * 第一审核人审核状态
+     */
+    private Integer firstCheckStatus;
 
+    /**
+     * 第二审核人审核状态
+     */
+    private Integer secondCheckStatus;
 
-    public Long getId() {
-        return id;
-    }
+    private Integer pageNumber = 1;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private Integer pageSize = 20;
+
+    private Integer offSet;
 
     public String getProvinceAgencyCode() {
         return provinceAgencyCode;
@@ -142,6 +133,62 @@ public class ReassignWaybillApprovalRecordQuery implements Serializable {
         this.applicationUserErp = applicationUserErp;
     }
 
+    public Date getStartSubmitTime() {
+        return startSubmitTime;
+    }
+
+    public void setStartSubmitTime(Date startSubmitTime) {
+        this.startSubmitTime = startSubmitTime;
+    }
+
+    public Date getEndSubmitTime() {
+        return endSubmitTime;
+    }
+
+    public void setEndSubmitTime(Date endSubmitTime) {
+        this.endSubmitTime = endSubmitTime;
+    }
+
+    public Integer getChangeSiteReasonTypeCode() {
+        return changeSiteReasonTypeCode;
+    }
+
+    public void setChangeSiteReasonTypeCode(Integer changeSiteReasonTypeCode) {
+        this.changeSiteReasonTypeCode = changeSiteReasonTypeCode;
+    }
+
+    public Integer getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+
+    public Integer getOffSet() {
+        if (pageNumber == null || pageSize == null) {
+            return 0;
+        }
+        return (pageNumber - 1) * pageSize;
+    }
+
+    public void setOffSet(Integer offSet) {
+        if (pageNumber == null || pageSize == null) {
+            this.offSet = 0;
+        }else {
+            this.offSet = (pageNumber - 1) * pageSize;
+        }
+    }
+
     public String getBarCode() {
         return barCode;
     }
@@ -150,52 +197,19 @@ public class ReassignWaybillApprovalRecordQuery implements Serializable {
         this.barCode = barCode;
     }
 
-    public Date getSubmitTime() {
-        return submitTime;
+    public Integer getFirstCheckStatus() {
+        return firstCheckStatus;
     }
 
-    public void setSubmitTime(Date submitTime) {
-        this.submitTime = submitTime;
+    public void setFirstCheckStatus(Integer firstCheckStatus) {
+        this.firstCheckStatus = firstCheckStatus;
     }
 
-    public Integer getReceiveSiteCode() {
-        return receiveSiteCode;
+    public Integer getSecondCheckStatus() {
+        return secondCheckStatus;
     }
 
-    public void setReceiveSiteCode(Integer receiveSiteCode) {
-        this.receiveSiteCode = receiveSiteCode;
+    public void setSecondCheckStatus(Integer secondCheckStatus) {
+        this.secondCheckStatus = secondCheckStatus;
     }
-
-    public String getReceiveSiteName() {
-        return receiveSiteName;
-    }
-
-    public void setReceiveSiteName(String receiveSiteName) {
-        this.receiveSiteName = receiveSiteName;
-    }
-
-    public Integer getChangeSiteCode() {
-        return changeSiteCode;
-    }
-
-    public void setChangeSiteCode(Integer changeSiteCode) {
-        this.changeSiteCode = changeSiteCode;
-    }
-
-    public String getChangeSiteName() {
-        return changeSiteName;
-    }
-
-    public void setChangeSiteName(String changeSiteName) {
-        this.changeSiteName = changeSiteName;
-    }
-
-    public Boolean getChangeSiteReasonType() {
-        return changeSiteReasonType;
-    }
-
-    public void setChangeSiteReasonType(Boolean changeSiteReasonType) {
-        this.changeSiteReasonType = changeSiteReasonType;
-    }
-
 }
