@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.dto.work.*;
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerBusinessService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
+import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
@@ -93,17 +94,19 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		if(jyTaskData == null) {
 			return null;
 		}
-		JyWorkGridManagerData taskData  = toJyWorkGridManagerData(jyTaskData);
-		Result<WorkGridManagerTask> taskInfoResult = workGridManagerTaskJsfManager.queryByTaskCode(jyTaskData.getTaskCode());
-		if(taskInfoResult != null
-				&& taskInfoResult.getData() != null) {
-			//字段生成任务时，冗余到任务数据中
-		}
-		return taskData;
+		return toJyWorkGridManagerData(jyTaskData);
 	}
 	private JyWorkGridManagerData toJyWorkGridManagerData(JyBizTaskWorkGridManager jyTaskData) {
 		JyWorkGridManagerData taskData  = new JyWorkGridManagerData();
 		BeanUtils.copyProperties(jyTaskData, taskData);
+		//扩展信息不为空
+		if(StringUtils.isNotBlank(jyTaskData.getExtendInfo())){
+			//指标改善任务的扩展信息
+			if(WorkTaskTypeEnum.IMPROVE.getCode().equals(jyTaskData.getTaskType())){
+				BusinessQuotaInfoData data  = JsonHelper.fromJsonMs(jyTaskData.getExtendInfo(), BusinessQuotaInfoData.class);
+				taskData.setBusinessQuotaInfoData(data);
+			}
+		}
 		return taskData;
 	}
 	@Override

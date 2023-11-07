@@ -80,6 +80,9 @@ import com.jdl.basic.api.enums.FrequencyTypeEnum;
 import com.jdl.basic.api.enums.WorkFinishTypeEnum;
 import com.jdl.basic.common.utils.Result;
 
+import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentSubBizTypeEnum.TASK_WORK_GRID_MANAGER_IMPROVE;
+import static com.jd.bluedragon.distribution.jy.service.work.impl.JyWorkGridManagerCaseServiceImpl.CASE_ZHIBIAO_QITA_ITEM_CODE;
+
 /**
  * @ClassName: JyBizTaskWorkGridManagerServiceImpl
  * @Description: 巡检任务表--Service接口实现
@@ -215,6 +218,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		updateTaskData.setProcessEndTime(currentTime);
 		updateTaskData.setId(oldData.getId());
 		List<JyAttachmentDetailEntity> addAttachmentList = new ArrayList<>();
+		//指标改进附件
+		List<JyAttachmentDetailEntity> improveAttachmentList = new ArrayList<>();
 		List<JyWorkGridManagerCase> updateCase = new ArrayList<>();
 		List<JyWorkGridManagerCase> addCase = new ArrayList<>();
 		List<JyWorkGridManagerCaseItem> addCaseItem = new ArrayList<>(); 
@@ -235,7 +240,18 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					if(attachmentData == null) {
 						continue;
 					}
-					addAttachmentList.add(toJyAttachmentDetailEntity(userErp,currentTime,taskData,caseData,attachmentData));
+					addAttachmentList.add(toJyAttachmentDetailEntity(userErp,currentTime,taskData,caseData,
+							attachmentData,caseData.getCaseCode()));
+				}
+			}
+			//改善反馈附件
+			if(!CollectionUtils.isEmpty(caseData.getImproveAttachmentList())) {
+				for(AttachmentDetailData attachmentData : caseData.getImproveAttachmentList()) {
+					if(attachmentData == null) {
+						continue;
+					}
+					improveAttachmentList.add(toJyAttachmentDetailEntity(userErp,currentTime,taskData,caseData,attachmentData,
+							TASK_WORK_GRID_MANAGER_IMPROVE.getCode()));
 				}
 			}
 			if(!CollectionUtils.isEmpty(caseData.getItemList())) {
@@ -253,6 +269,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyWorkGridManagerCaseService.batchUpdate(updateCase);
 		jyWorkGridManagerCaseItemService.batchInsert(addCaseItem);
 		jyAttachmentDetailService.batchInsert(addAttachmentList);
+		jyAttachmentDetailService.batchInsert(improveAttachmentList);
 		jyBizTaskWorkGridManagerService.finishTask(updateTaskData);
 		return result;
 	}
@@ -299,6 +316,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		caseEntity.setCaseContent(caseData.getCaseContent());
 		caseEntity.setUpdateUser(userErp);
 		caseEntity.setUpdateTime(currentTime);
+		caseEntity.setImproveEndTime(caseData.getImproveEndTime());
 		return caseEntity;
 	}
 
@@ -312,6 +330,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		caseEntity.setCaseContent(caseData.getCaseContent());
 		caseEntity.setCreateUser(userErp);
 		caseEntity.setCreateTime(currentTime);
+		caseEntity.setImproveEndTime(caseData.getImproveEndTime());
 		return caseEntity;
 	}
 
@@ -324,15 +343,23 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
         caseItemEntity.setSelectFlag(caseItem.getSelectFlag());
         caseItemEntity.setCreateUser(userErp);
         caseItemEntity.setCreateTime(currentTime);
+		caseItemEntity.setFeedBackContent(caseItem.getFeedbackContent());
+		if(CASE_ZHIBIAO_QITA_ITEM_CODE.equals(caseItem.getCaseItemCode())){
+			caseItemEntity.setUserDefinedTitle(caseItem.getUserDefinedTitle());
+		}
 		return caseItemEntity;
 	}
 
-	private JyAttachmentDetailEntity toJyAttachmentDetailEntity(String userErp, Date currentTime, JyWorkGridManagerData taskData,JyWorkGridManagerCaseData caseData,AttachmentDetailData attachmentData) {
+	private JyAttachmentDetailEntity toJyAttachmentDetailEntity(String userErp, Date currentTime, 
+																JyWorkGridManagerData taskData,
+																JyWorkGridManagerCaseData caseData,
+																AttachmentDetailData attachmentData, 
+																String bizSubType) {
 		JyAttachmentDetailEntity attachmentEntity = new JyAttachmentDetailEntity();
         attachmentEntity.setBizId(caseData.getBizId());
         attachmentEntity.setSiteCode(taskData.getSiteCode());
         attachmentEntity.setBizType(JyAttachmentBizTypeEnum.TASK_WORK_GRID_MANAGER.getCode());
-        attachmentEntity.setBizSubType(caseData.getCaseCode());
+        attachmentEntity.setBizSubType(bizSubType);
         attachmentEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
         attachmentEntity.setCreateUserErp(userErp);
         attachmentEntity.setCreateTime(currentTime);

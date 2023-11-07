@@ -207,6 +207,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		JdCResponse<Boolean> response = new JdCResponse<Boolean>();
 		response.toSucceed();
 		return response;
+		//todo 用于联调测试，待删除
 //		return jyWorkGridManagerBusinessService.submitData(request);
 	}
 	@JProfiler(jKey = "dmsWeb.server.jyWorkGridManagerGatewayService.scanTaskPosition",
