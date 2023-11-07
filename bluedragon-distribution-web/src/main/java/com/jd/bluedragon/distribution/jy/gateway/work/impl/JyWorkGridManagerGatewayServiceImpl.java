@@ -140,8 +140,8 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 
 		//判断相应状态的数量是否大于0
 		if(query.getStatus() != null
-				&& statusNum.containsKey(query.getStatus())
-				&& statusNum.get(query.getStatus()).getDataNum() > 0) {
+				&& statusNum.containsKey(String.valueOf(query.getStatus()))
+				&& statusNum.get(String.valueOf(query.getStatus())).getDataNum() > 0) {
 			List<JyWorkGridManagerData> queryList = jyBizTaskWorkGridManagerService.queryDataListForPda(query);
 			if(!CollectionUtils.isEmpty(queryList)) {
 				pageData.setDataList(queryList);
