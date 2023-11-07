@@ -105,6 +105,11 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	private JyWorkGridManagerData toJyWorkGridManagerData(JyBizTaskWorkGridManager jyTaskData) {
 		JyWorkGridManagerData taskData  = new JyWorkGridManagerData();
 		BeanUtils.copyProperties(jyTaskData, taskData);
+		if (WorkGridManagerTaskBizType.MANAGER_PATROL.equals(WorkGridManagerTaskBizType.getEnum(jyTaskData.getTaskBizType()))){
+			taskData.setCanTransfer(false);
+		}else {
+			taskData.setCanTransfer(true);
+		}
 		return taskData;
 	}
 	@Override
