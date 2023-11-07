@@ -727,7 +727,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
         if (!Objects.equals(task.getStartSiteId().intValue(), request.getCurrentOperate().getSiteCode())) {
             result.setCode(RESULT_NULL_CODE);
-            result.setMessage(request.getBarCode() + "非本场地包裹！");
+            result.setMessage(request.getBarCode() + "非本场地箱号|包裹！");
             return result;
         }
 
