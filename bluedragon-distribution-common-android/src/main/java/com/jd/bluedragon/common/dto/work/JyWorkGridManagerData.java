@@ -16,7 +16,7 @@ public class JyWorkGridManagerData implements Serializable {
 	/**
 	 * 主键ID
 	 */
-	private Long id;	
+	private Long id;
 	/**
 	 * 业务主键
 	 */
@@ -30,7 +30,7 @@ public class JyWorkGridManagerData implements Serializable {
 	 * 站点名称
 	 */
 	private String siteName;
-	
+
 	/**
 	 * 任务编码
 	 */
@@ -48,7 +48,7 @@ public class JyWorkGridManagerData implements Serializable {
 
 	/**
 	 * @See com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum
-	 * 任务类型：1-例会（标题+内容） 2-例会记录（仅拍照） 3-工作区任务（多页签） 
+	 * 任务类型：1-例会（标题+内容） 2-例会记录（仅拍照） 3-工作区任务（多页签）
 	 */
 	private Integer taskType;
 
@@ -90,7 +90,7 @@ public class JyWorkGridManagerData implements Serializable {
 	 * @See com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum
 	 * 异常状态:0：待分配 1：未完成 2：处理中 3：已完成  4:超时未完成
 	 */
-	private Integer status;	
+	private Integer status;
 	/**
 	 * 创建时间
 	 */
@@ -124,8 +124,22 @@ public class JyWorkGridManagerData implements Serializable {
 	 *  只有指标改善任务才会有
 	 */
 	private BusinessQuotaInfoData businessQuotaInfoData;
-	
+
 	private List<JyWorkGridManagerCaseData> caseList;
+
+	/**
+	 * 源处理人erp
+	 */
+	private String orignHandlerErp;
+
+
+	public String getOrignHandlerErp() {
+		return orignHandlerErp;
+	}
+
+	public void setOrignHandlerErp(String orignHandlerErp) {
+		this.orignHandlerErp = orignHandlerErp;
+	}
 
 	public Long getId() {
 		return id;

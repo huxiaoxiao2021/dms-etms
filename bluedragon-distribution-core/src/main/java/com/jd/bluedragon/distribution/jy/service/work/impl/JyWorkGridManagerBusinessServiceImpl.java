@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.utils.*;
+import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,48 +99,48 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	@Autowired
 	@Qualifier("jyBizTaskWorkGridManagerService")
 	private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
-	
+
 	@Autowired
 	@Qualifier("jyWorkGridManagerCaseService")
 	private JyWorkGridManagerCaseService jyWorkGridManagerCaseService;
-	
+
 	@Autowired
 	@Qualifier("jyWorkGridManagerCaseItemService")
-	private JyWorkGridManagerCaseItemService jyWorkGridManagerCaseItemService;	
-	
+	private JyWorkGridManagerCaseItemService jyWorkGridManagerCaseItemService;
+
 	@Autowired
 	@Qualifier("workGridManagerTaskJsfManager")
 	private WorkGridManagerTaskJsfManager workGridManagerTaskJsfManager;
-	
+
 	@Autowired
 	@Qualifier("workGridManagerTaskConfigJsfManager")
 	private WorkGridManagerTaskConfigJsfManager workGridManagerTaskConfigJsfManager;
-	
+
 	@Autowired
 	private WorkStationGridManager workStationGridManager;
-	
+
 	@Autowired
 	private WorkGridManager workGridManager;
-	
+
 	@Autowired
 	@Qualifier("jyUserManager")
 	private JyUserManager jyUserManager;
-	
-	
+
+
 	@Autowired
 	@Qualifier("jyAttachmentDetailService")
 	private JyAttachmentDetailService jyAttachmentDetailService;
-	
+
     @Autowired
     protected TaskService taskService;
-    
+
 	@Autowired
 	private PositionManager positionManager;
-	
+
     @Autowired
-    SysConfigService sysConfigService;	
+    SysConfigService sysConfigService;
     @Autowired
-    private BaseMajorManager baseMajorManager;  
+    private BaseMajorManager baseMajorManager;
     /**
      * 任务提前执行时间 （单位：秒）
      */
@@ -159,17 +160,17 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
      * 自动关闭任务延迟执行时间 （单位：秒）
      */
     @Value("${beans.jyWorkGridManagerBusinessService.closeTaskAfterExcuteTimes:30}")
-	private int closeTaskAfterExcuteTimes;	
+	private int closeTaskAfterExcuteTimes;
     /**
      * 任务提前执行时间-随机范围 （单位：秒）
      */
     @Value("${beans.jyWorkGridManagerBusinessService.closeTaskRangeMaxSeconds:30}")
 	private int closeTaskRangeMaxSeconds;
-    
+
     private static final String UMP_KEY_PREFIX = "dmsWeb.beans.jyWorkGridManagerBusinessService.";
-    
+
 	@Override
-	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "submitData",mState={JProEnum.TP,JProEnum.FunctionError})	
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "submitData",mState={JProEnum.TP,JProEnum.FunctionError})
 	public JdCResponse<Boolean> submitData(JyWorkGridManagerTaskEditRequest request) {
 		JdCResponse<Boolean> result = new JdCResponse<Boolean>();
 		result.toSucceed("保存成功！");
@@ -178,7 +179,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			result.toFail("请求参数不能为空！");
 			return result;
 		}
-		if(request.getUser() == null 
+		if(request.getUser() == null
 				|| StringUtils.isBlank(request.getUser().getUserErp())) {
 			result.toFail("操作人erp不能为空！");
 			return result;
@@ -207,7 +208,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		if(!WorkTaskStatusEnum.TODO.getCode().equals(oldData.getStatus())) {
 			result.toFail("任务状态已变更，不能提交！");
 			return result;
-		}		
+		}
 		JyBizTaskWorkGridManager updateTaskData = new JyBizTaskWorkGridManager();
 		updateTaskData.setStatus(WorkTaskStatusEnum.COMPLETE.getCode());
 		updateTaskData.setHandlerPositionCode("");
@@ -222,7 +223,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		List<JyAttachmentDetailEntity> improveAttachmentList = new ArrayList<>();
 		List<JyWorkGridManagerCase> updateCase = new ArrayList<>();
 		List<JyWorkGridManagerCase> addCase = new ArrayList<>();
-		List<JyWorkGridManagerCaseItem> addCaseItem = new ArrayList<>(); 
+		List<JyWorkGridManagerCaseItem> addCaseItem = new ArrayList<>();
 		int caseIndex = 0;
 		//保存case信息
 		for(JyWorkGridManagerCaseData caseData : taskData.getCaseList()) {
@@ -364,7 +365,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
         attachmentEntity.setCreateUserErp(userErp);
         attachmentEntity.setCreateTime(currentTime);
         attachmentEntity.setUpdateUserErp(userErp);
-        
+
         attachmentEntity.setAttachmentUrl(attachmentData.getAttachmentUrl());
 		return attachmentEntity;
 	}
@@ -388,11 +389,11 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		}
 		//根据taskConfigCode查询是否存在未执行的任务
 		WorkGridManagerTaskConfigVo configData = configResult.getData();
-		
+
 		TaskWorkGridManagerScanData taskData = new TaskWorkGridManagerScanData();
 		taskData.setTaskConfigCode(configData.getTaskConfigCode());
 		taskData.setExecuteTime(getExecuteTime(configData));
-		
+
 		Task tTask = taskService.findLastWorkGridManagerScanTask(taskData);
 		//判断是否存在任务
 		if(tTask != null) {
@@ -405,7 +406,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			      //提前10分钟执行
 				updateTask.setExecuteTime(DateHelper.getBeforeTime(taskData.getExecuteTime(), taskBeforeExcuteTimes, rangeMaxSeconds));
 				updateTask.setId(tTask.getId());
-		        taskService.updateBySelectiveWithBody(updateTask);		        
+		        taskService.updateBySelectiveWithBody(updateTask);
 			}
 		}else {
 			//新增任务
@@ -429,7 +430,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		}
 		Date executeTime = frequencyType.getNextTime(lastExecuteTime, configData.getFrequencyHour(), configData.getFrequencyMinute(), configData.getFrequencyDayList());
         return executeTime;
-	}	
+	}
 	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "executeWorkGridManagerScanTask",mState={JProEnum.TP,JProEnum.FunctionError})
 	public boolean executeWorkGridManagerScanTask(Task task) {
@@ -486,7 +487,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			}
 			pageNum ++;
 		}while(!CollectionUtils.isEmpty(siteCodeList));
-		
+
 		//插入一条新的待执行任务
 		TaskWorkGridManagerScanData taskData = new TaskWorkGridManagerScanData();
 		taskData.setTaskConfigCode(configData.getTaskConfigCode());
@@ -587,7 +588,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			needDistribution = false;
 			logger.warn("任务分配失败，场地【{}】岗位【{}】人员为空！",siteCode,configData.getHandlerUserPositionName());
 			return true;
-		}		
+		}
 		//初始化网格数据
 		if(needInitTaskData) {
 			logger.info("初始化任务数据：batchCode={},executeTime={}",taskWorkGridManagerScan.getTaskBatchCode(),DateHelper.formatDateTime(taskWorkGridManagerScan.getExecuteTime()));
@@ -627,7 +628,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		TaskWorkGridManagerSiteScanData taskData = new TaskWorkGridManagerSiteScanData();
 		taskData.setTaskConfigCode(configData.getTaskConfigCode());
 		taskData.setSiteCode(siteCode);
-		
+
 		taskData.setExecuteTime(getNextExecuteTime(taskWorkGridManagerScan.getExecuteTime(),configData));
 		if(changeBatchCode) {
 			taskData.setTaskBatchCode(String.format("%s_%s_%s",configData.getTaskConfigCode(),siteCode,DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS)));
@@ -650,26 +651,31 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
         //判断是否进行过组板，如果已经组板则从板中取消，并发送取消组板的全称跟踪
         SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_WORK_GRID_MANAGER_SITES);
         if (content != null) {
-            if (Boolean.TRUE.equals(content.getMasterSwitch()) 
+            if (Boolean.TRUE.equals(content.getMasterSwitch())
             		|| (content.getSiteCodes() != null && content.getSiteCodes().contains(siteCode))) {
                 return true;
             }
             return false;
         }
         return true;
-    }	
+    }
 	/**
 	 * 分配成功的，发送咚咚通知
 	 * @param user
 	 */
-	private void sendTimeLineNotice(JyUserDto user) {
+	@Override
+	public void sendTimeLineNotice(WorkGridManagerTaskBizType type, JyUserDto user) {
 		//发送咚咚通知
-        String title = "场地自检巡检任务通知";
-        String content = "您已收到场地自检巡检任务，请进入拣运APP，扫描管理者网格码，查看任务，并按时完成，逾期将记录在册";
+        String title = type.getName() + "通知";
+		String area = "管理者";
+		if (type.getCode().intValue() == WorkGridManagerTaskBizType.MONITOR_TASK.getCode()){
+			area = "监控区";
+		}
+        String content = "您已收到场地【"+type.getName()+"】，请进入拣运APP，扫描"+area+"网格码，查看任务，并按时完成，逾期将记录在册";
         List<String> erpList = Lists.newArrayList();
         erpList.add(user.getUserErp());
 		logger.info("分配任务完成，发送咚咚通知：{} 标题：{} 内容：{}",user.getUserErp(),title,content);
-        NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);		
+        NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);
 	}
 	/**
 	 * 任务分配操作
@@ -721,7 +727,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			jyBizTaskWorkGridManagerService.distributionTask(distributionData);
 			//发送咚咚通知
 			if(bizIdUserList.size() > 0) {
-				sendTimeLineNotice(user);
+				sendTimeLineNotice(WorkGridManagerTaskBizType.getEnum(taskInfo.getTaskBizType()),user);
 			}
 		}
 		//已分配的任务，新增一个自动关闭任务
@@ -733,7 +739,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			autoCloseTaskData.setExecuteTime(taskEndTime);
 			autoCloseTaskData.setBizIdList(bizIdListAutoClose);
 			addWorkGridManagerAutoCloseTask(autoCloseTaskData);
-		}		
+		}
 	}
 	/**
 	 * 完结一个任务
@@ -748,7 +754,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		data.setUpdateUser(DmsConstants.SYS_AUTO_USER_CODE);
 		data.setUpdateUserName(DmsConstants.SYS_AUTO_USER_CODE);
 		data.setTaskBatchCode(batchCode);
-		jyBizTaskWorkGridManagerService.closeTaskForEndBatch(closeData);		
+		jyBizTaskWorkGridManagerService.closeTaskForEndBatch(closeData);
 	}
 	@Override
 	public JyBizTaskWorkGridManager initJyBizTaskWorkGridManager(BaseSiteInfoDto siteInfo,TaskWorkGridManagerSiteScanData taskWorkGridManagerScan,
@@ -763,12 +769,12 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setHandlerUserPositionName(configData.getHandlerUserPositionName());
 		jyTask.setCreateTime(curDate);
 		jyTask.setStatus(WorkTaskStatusEnum.TO_DISTRIBUTION.getCode());
-		
+
 		//设置网格信息
 		jyTask.setTaskRefGridKey(grid.getBusinessKey());
 		jyTask.setAreaCode(grid.getAreaCode());
 		jyTask.setAreaName(grid.getAreaName());
-		jyTask.setGridName(grid.getGridName());			
+		jyTask.setGridName(grid.getGridName());
 		jyTask.setSiteCode(grid.getSiteCode());
 		//设置省区相关字段
 		jyTask.setSiteName(siteInfo.getSiteName());
@@ -786,8 +792,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setOrderNum(ThreadLocalRandom.current().nextInt(1000));
 		return jyTask;
 	}
-	
-	
+
+
 	private List<JyUserDto> getUserList(Integer siteCode,String organizationCode,String userPositionCode,String userPositionName){
 		Result<List<JyUserDto>> userResult = jyUserManager.queryUserListBySiteAndPosition(siteCode, organizationCode, userPositionCode, userPositionName);
 		if(userResult != null && userResult.getData() != null) {
@@ -800,7 +806,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		TaskWorkGridManagerAutoCloseData taskData = JsonHelper.fromJson(task.getBody(), TaskWorkGridManagerAutoCloseData.class);
 		JyBizTaskWorkGridManagerBatchUpdate closeData = new JyBizTaskWorkGridManagerBatchUpdate();
 		closeData.setBizIdList(taskData.getBizIdList());
-		
+
 		JyBizTaskWorkGridManager data = new JyBizTaskWorkGridManager();
 		data.setStatus(WorkTaskStatusEnum.OVER_TIME.getCode());
 		data.setUpdateTime(new Date());
@@ -921,7 +927,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			if(workGridResult != null
 					&& workGridResult.getData() != null) {
 				return workGridResult.getData().getGridName();
-			}	
+			}
 		}
 		if(BusinessUtil.isWorkStationGridKey(taskRefGridKey)) {
 			WorkStationGridQuery checkQuery = new WorkStationGridQuery();
@@ -959,7 +965,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		statusList.add(WorkTaskStatusEnum.TODO.getCode());
 		statusList.add(WorkTaskStatusEnum.HANDLING.getCode());
 		int num = jyBizTaskWorkGridManagerService.autoCancelTaskForGridDelete(cancelData);
-		
+
 		logger.info("dealWorkGridModifyTask-网格[{}]删除，线上化任务-取消{}条",workGridModifyMqData.getGridData().getBusinessKey(),num);
 		return true;
 	}

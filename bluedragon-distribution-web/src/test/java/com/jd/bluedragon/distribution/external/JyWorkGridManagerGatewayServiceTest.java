@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.work.JyWorkGridManagerPageData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTransferData;
 import com.jd.bluedragon.distribution.jy.gateway.work.JyWorkGridManagerGatewayService;
@@ -26,7 +27,7 @@ public class JyWorkGridManagerGatewayServiceTest {
     @Test
     public void queryCandidateListTest() {
         JyWorkGridManagerQueryRequest req = new JyWorkGridManagerQueryRequest();
-        req.setPositionCode("GW00010002");
+        req.setPositionCode("GW00019001");
 
         System.out.println("测试请求:"+JSON.toJSONString(req));
         JdCResponse<List<String>> listJdCResponse = jyWorkGridManagerGatewayService.queryCandidateList(req);
@@ -35,9 +36,25 @@ public class JyWorkGridManagerGatewayServiceTest {
     }
 
     @Test
+    public void queryDataListTest() {
+        JyWorkGridManagerQueryRequest req = new JyWorkGridManagerQueryRequest();
+        req.setOperateUserCode("bjxings");
+        req.setStatus(99);
+        req.setLimit(10);
+        req.setPageNumber(1);
+        req.setPageSize(10);
+        req.setOffset(0);
+
+        System.out.println("测试请求:"+JSON.toJSONString(req));
+        JdCResponse<JyWorkGridManagerPageData> jyWorkGridManagerPageDataJdCResponse = jyWorkGridManagerGatewayService.queryDataList(req);
+        System.out.println("测试响应:"+JSON.toJSONString(jyWorkGridManagerPageDataJdCResponse));
+
+    }
+
+    @Test
     public void transferCandidateTest() {
         JyWorkGridManagerTransferData req = new JyWorkGridManagerTransferData();
-        req.setBizId("a83a3fe9-8c3f-43cc-ae1d-91ad02a39311");
+        req.setBizId("41d86be0-4784-4cad-b506-e0cdb1bc08d7");
         req.setErp("wuyoude");
 
         System.out.println("测试请求:"+JSON.toJSONString(req));

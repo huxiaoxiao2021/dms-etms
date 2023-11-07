@@ -601,7 +601,7 @@
         where yn = 1
           and process_begin_time &lt;= #{processBeginTime,jdbcType=TIMESTAMP}
           <choose>
-            <when test="status != null and status == 7">
+            <when test="status != null and status == 99">
                 and orign_handler_erp = #{operateUserCode,jdbcType=VARCHAR}
                 and transfered = 1
             </when>
@@ -639,8 +639,20 @@
             <if test="siteCode != null" >
                 and t.site_code = #{siteCode,jdbcType=INTEGER}
             </if>
+            <if test="status != null" >
+                and t.status = #{status,jdbcType=INTEGER}
+            </if>
+            <if test="isMatch != null" >
+                and t.is_match = #{isMatch,jdbcType=INTEGER}
+            </if>
+            <if test="transfer != null" >
+                and t.transfered = #{transfer,jdbcType=INTEGER}
+            </if>
             <if test="provinceAgencyCode != null and provinceAgencyCode != ''">
-                and province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+                and t.province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''">
+                and t.area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
             </if>
 		        and t.task_date >= #{taskDateStart,jdbcType=TIMESTAMP}
 		        and t.task_date &lt;= #{taskDateEnd,jdbcType=TIMESTAMP}
@@ -738,11 +750,14 @@
         handler_user_name = #{handlerUserName,jdbcType=VARCHAR},
         handler_user_position_code = #{handlerUserPositionCode,jdbcType=VARCHAR},
         handler_user_position_name = #{handlerUserPositionName,jdbcType=VARCHAR},
+        orign_handler_user_position_code = #{orignHandlerUserPositionCode,jdbcType=VARCHAR},
+        orign_handler_user_position_name = #{orignHandlerUserPositionName,jdbcType=VARCHAR},
         transfered = #{transfered,jdbcType=VARCHAR},
         orign_handler_erp = #{orignHandlerErp,jdbcType=VARCHAR},
         orign_handler_user_name = #{orignHandlerUserName,jdbcType=VARCHAR},
         update_user = #{updateUser,jdbcType=VARCHAR},
         update_user_name = #{updateUserName,jdbcType=VARCHAR},
+        transfer_time = #{transferTime,jdbcType=TIMESTAMP},
         update_time = #{updateTime,jdbcType=TIMESTAMP}
         where id = #{id}
     </update>

@@ -24,6 +24,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.user.JyUser;
+import com.jdl.basic.api.domain.user.JyUserDto;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
@@ -106,6 +107,11 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 				BusinessQuotaInfoData data  = JsonHelper.fromJsonMs(jyTaskData.getExtendInfo(), BusinessQuotaInfoData.class);
 				taskData.setBusinessQuotaInfoData(data);
 			}
+		}
+		if (WorkGridManagerTaskBizType.MANAGER_PATROL.equals(WorkGridManagerTaskBizType.getEnum(jyTaskData.getTaskBizType()))){
+			taskData.setCanTransfer(false);
+		}else {
+			taskData.setCanTransfer(true);
 		}
 		return taskData;
 	}
@@ -344,8 +350,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			manager.setTransferTime(new Date());
 			manager.setOrignHandlerErp(jyBizTaskWorkGridManager.getHandlerErp());
 			manager.setOrignHandlerUserName(jyBizTaskWorkGridManager.getHandlerUserName());
-			manager.setOrignHandlerUserPositionCode(jyBizTaskWorkGridManager.getOrignHandlerUserPositionCode());
-			manager.setOrignHandlerUserPositionName(jyBizTaskWorkGridManager.getOrignHandlerUserPositionName());
+			manager.setOrignHandlerUserPositionCode(jyBizTaskWorkGridManager.getHandlerUserPositionCode());
+			manager.setOrignHandlerUserPositionName(jyBizTaskWorkGridManager.getHandlerUserPositionName());
 			manager.setHandlerErp(request.getErp());
 			manager.setHandlerUserName(baseStaff.getStaffName());
 			manager.setUpdateTime(new Date());
@@ -357,6 +363,9 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 				manager.setHandlerUserPositionName(jyUserResult.getData().getPositionName());
 			}
 			jyBizTaskWorkGridManagerDao.transfer(manager);
+			JyUserDto user = new JyUserDto();
+			user.setUserErp(manager.getHandlerErp());
+			jyWorkGridManagerBusinessService.sendTimeLineNotice(WorkGridManagerTaskBizType.getEnum(jyBizTaskWorkGridManager.getTaskBizType()),user);
 		}
 
 		result.toSucceed();
