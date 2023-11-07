@@ -26,7 +26,7 @@ public class JyWorkGridManagerGatewayServiceTest {
     @Test
     public void queryCandidateListTest() {
         JyWorkGridManagerQueryRequest req = new JyWorkGridManagerQueryRequest();
-        req.setPositionCode("GW00010002");
+        req.setPositionCode("GW00019001");
 
         System.out.println("测试请求:"+JSON.toJSONString(req));
         JdCResponse<List<String>> listJdCResponse = jyWorkGridManagerGatewayService.queryCandidateList(req);

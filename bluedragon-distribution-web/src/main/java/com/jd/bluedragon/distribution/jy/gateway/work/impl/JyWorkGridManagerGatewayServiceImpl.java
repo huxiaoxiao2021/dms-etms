@@ -121,7 +121,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 			countData.setStatusName(statusEnum.getName());
 			statusNum.put(String.valueOf(statusEnum.getCode()), countData);
 		}
-		
+
 		List<JyWorkGridManagerCountData> countList = jyBizTaskWorkGridManagerService.queryDataCountListForPda(query);
 		if(CollectionUtils.isEmpty(countList)) {
 			return result;
@@ -144,7 +144,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 				statusNum.get(String.valueOf(countData.getStatus())).setDataNum(countData.getDataNum());
 			}
 		}
-		
+
 		//判断相应状态的数量是否大于0
 		if(query.getStatus() != null
 				&& statusCount.containsKey(query.getStatus())
@@ -242,6 +242,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 				erpList.add(item.getErp());
 			});
 		}
+		result.toSucceed();
 		result.setData(erpList);
 		return result;
 	}
