@@ -725,6 +725,12 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             result.setMessage(request.getBarCode() + "未获取到集包任务！");
             return result;
         }
+        if (!Objects.equals(task.getStartSiteId().intValue(), request.getCurrentOperate().getSiteCode())) {
+            result.setCode(RESULT_NULL_CODE);
+            result.setMessage(request.getBarCode() + "非本场地包裹！");
+            return result;
+        }
+
         CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
         BeanUtils.copyProperties(task, taskDto);
         // 查询集包袋号
