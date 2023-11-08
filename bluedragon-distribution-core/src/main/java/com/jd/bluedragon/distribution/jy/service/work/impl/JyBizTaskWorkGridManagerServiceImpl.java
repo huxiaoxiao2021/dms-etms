@@ -108,9 +108,10 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 				taskData.setBusinessQuotaInfoData(data);
 			}
 		}
-		//飞检 和 非待处理状态的 不能转派
+		//飞检 和 非待处理状态的  不能转派
 		if (WorkGridManagerTaskBizType.MANAGER_PATROL.equals(WorkGridManagerTaskBizType.getEnum(jyTaskData.getTaskBizType()))
-			|| !WorkTaskStatusEnum.TODO.getCode().equals(jyTaskData.getStatus())){
+			|| !WorkTaskStatusEnum.TODO.getCode().equals(jyTaskData.getStatus())
+			|| jyTaskData.getTransfered().intValue() == 1){
 			taskData.setCanTransfer(false);
 		}else {
 			taskData.setCanTransfer(true);
