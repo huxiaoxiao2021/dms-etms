@@ -42,7 +42,7 @@ public class DmsWorkSendDetailConsumerTest {
                     "    \"createUser\":\"邢松\",\n" +
                     "    \"createUserCode\":10053,\n" +
                     "    \"operateTime\":1619345055133,\n" +
-                    "    \"packageBarcode\":\"JDV000516800799-1-1-\",\n" +
+                    "    \"packageBarcode\":\"JDVA00293802308-1-1-\",\n" +
                     "    \"receiveSiteCode\":39,\n" +
                     "    \"sendCode\":\"910-39-20210426182120496\",\n" +
                     "    \"source\":\"DMS\"\n" +
