@@ -268,6 +268,12 @@
 				<if test="idCard != null">
 					id_card,
 				</if>
+				<if test="waveCodeNew != null">
+					wave_code_new,
+				</if>
+				<if test="waveTime != null">
+					wave_time,
+				</if>
 			</trim>
 			)
 			values
@@ -363,6 +369,12 @@
                 </if>
 				<if test="idCard != null" >
 					#{idCard,jdbcType=VARCHAR},
+				</if>
+				<if test="waveCodeNew != null" >
+					#{waveCodeNew,jdbcType=VARCHAR},
+				</if>
+				<if test="waveTime != null" >
+					#{waveTime,jdbcType=VARCHAR},
 				</if>
 			</trim>
 			)
