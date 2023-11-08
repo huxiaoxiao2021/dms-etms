@@ -40,11 +40,12 @@
 		<waybill.cache.version>1.0.3</waybill.cache.version>
 		<business-sdk.version>1.1.6-SNAPSHOT</business-sdk.version>
 		<dms-component-sdk.version>1.0.2-SNAPSHOT</dms-component-sdk.version>
-        <jy-basic-api.version>1.5.4-SNAPSHOT</jy-basic-api.version>
+        <jy-basic-api.version>1.0.0-TEST-SNAPSHOT</jy-basic-api.version>
         <jy-basic-common.version>1.5.3-SNAPSHOT</jy-basic-common.version>
         <dms-java-utils-sdk.version>1.0.0-SNAPSHOT</dms-java-utils-sdk.version>
 		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
         <jy.realtime.sdk.version>1.0.11-SNAPSHOT</jy.realtime.sdk.version>
+		<jy.flat.sdk.version>1.0.0-TEST-SNAPSHOT</jy.flat.sdk.version>
         <jy_msp_api_version>1.0-jdk7-SNAPSHOT</jy_msp_api_version>
         <shorturl.rpc.version>0.0.6-SNAPSHOT</shorturl.rpc.version>
         <jd.omdm.client.version>0.2.7-SNAPSHOT</jd.omdm.client.version>
@@ -268,7 +269,7 @@
 			<dependency>
 				<groupId>com.jdl.jy.flat</groupId>
 				<artifactId>flat-service-sdk</artifactId>
-				<version>1.0.1-SNAPSHOT</version>
+				<version>${jy.flat.sdk.version}</version>
 			</dependency>
 
 			<!--京东数据库加密安全包-->

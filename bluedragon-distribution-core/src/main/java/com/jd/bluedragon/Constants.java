@@ -41,6 +41,7 @@ public class Constants {
     public static final String SEPARATOR_HYPHEN = "-";
     public static final String SEPARATOR_COLON = ":";
     public static final String SEPARATOR_BLANK_SPACE = " ";
+    public static final String SEPARATOR_TILDE = "~";
 
     public static final String PUNCTUATION_OPEN_BRACKET = "[";
     public static final String PUNCTUATION_CLOSE_BRACKET = "]";
@@ -807,6 +808,11 @@ public class Constants {
     public static final Long LONG_ZERO = 0L;
 
     /**
+     * Long值-1
+     */
+    public static final Long LONG_ONE = 1L;
+
+    /**
      * 配置信息-北京的分拣中心
      */
     public static final String SYS_CONFIG_NAME_BJ_DMS_SITE_CODES = "bjDmsSiteCodes";
@@ -1566,6 +1572,10 @@ public class Constants {
      * 常量值：1
      * */
     public static final int  CONSTANT_NUMBER_ONE = 1;
+    /**
+     * 常量值：-1
+     * */
+    public static final Integer  NEGATIVE_NUMBER_ONE = -1;
     /**
      * 常量值：2
      * */
