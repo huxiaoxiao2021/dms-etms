@@ -1708,6 +1708,16 @@ public class UccPropertyConfiguration{
 
     private String aggsDataSource;
 
+    private Boolean userSignIgnoreCaseSwitch;
+
+    public Boolean getUserSignIgnoreCaseSwitch() {
+        return userSignIgnoreCaseSwitch;
+    }
+
+    public void setUserSignIgnoreCaseSwitch(Boolean userSignIgnoreCaseSwitch) {
+        this.userSignIgnoreCaseSwitch = userSignIgnoreCaseSwitch;
+    }
+
     public String getAggsDataSource() {
         return aggsDataSource;
     }
