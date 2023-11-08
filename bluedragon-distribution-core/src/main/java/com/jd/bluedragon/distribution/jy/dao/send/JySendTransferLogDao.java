@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.jy.send.JySendEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity;
 import java.util.List;
 
