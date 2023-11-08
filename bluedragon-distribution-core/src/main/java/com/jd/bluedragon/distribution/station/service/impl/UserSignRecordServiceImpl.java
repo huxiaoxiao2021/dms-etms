@@ -1585,9 +1585,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if (scheduleDetailDtoList.size() == Constants.CONSTANT_NUMBER_ONE) {
 			ScheduleDetailDto scheduleDetailDto = scheduleDetailDtoList.get(Constants.CONSTANT_NUMBER_ZERO);
 			log.info("assembleRegularEmployeesWaveCode|当前人员在当天仅存在一条排班计划:request={},scheduleDetailDto={}", JsonHelper.toJson(request), JsonHelper.toJson(scheduleDetailDto));
+			WorkGridSchedule workGridSchedule = workGridScheduleMap.get(scheduleDetailDto.getScheduleKey());
 			// 且当前erp签到时间处于该排班计划对应班次时间的前后1小时内，则班次类型展示对应的班次，班次时间展示对应班次的时间
-			if (isBetweenBeforeAndAfterOneHour(scheduleDetailDto, currentDate)) {
-				WorkGridSchedule workGridSchedule = workGridScheduleMap.get(scheduleDetailDto.getScheduleKey());
+			if (isBetweenBeforeAndAfterOneHour(workGridSchedule, currentDate)) {
 				Integer waveType = getWaveType(workGridSchedule);
 				signInData.setWaveCodeNew(String.valueOf(waveType));
 				signInData.setWaveTime(workGridSchedule.getStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getEndTime());
@@ -1601,8 +1601,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		StringBuilder waveTimeStr = new StringBuilder(Constants.EMPTY_FILL);
 		// 若当前人员存在多个排班计划,依次判断签到时间是否处于每个排班计划对应班次时间的前后1小时内，多个中间用顿号隔开
 		for (ScheduleDetailDto scheduleDetailDto : scheduleDetailDtoList) {
-			if (isBetweenBeforeAndAfterOneHour(scheduleDetailDto, currentDate)) {
-				WorkGridSchedule workGridSchedule = workGridScheduleMap.get(scheduleDetailDto.getScheduleKey());
+			WorkGridSchedule workGridSchedule = workGridScheduleMap.get(scheduleDetailDto.getScheduleKey());
+			if (isBetweenBeforeAndAfterOneHour(workGridSchedule, currentDate)) {
 				Integer waveType = getWaveType(workGridSchedule);
 				String waveTime = workGridSchedule.getStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getEndTime();
 				waveCodeStr.append(Constants.SEPARATOR_COMMA).append(waveType);
@@ -1644,12 +1644,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return null;
 	}
 
-	private boolean isBetweenBeforeAndAfterOneHour(ScheduleDetailDto scheduleDetailDto, Date currentDate) {
+	private boolean isBetweenBeforeAndAfterOneHour(WorkGridSchedule workGridSchedule, Date currentDate) {
 		// 班次时分形式 HH:mm
-		String startTime = scheduleDetailDto.getStartTime();
-		String endTime = scheduleDetailDto.getEndTime();
+		String startTime = workGridSchedule.getStartTime();
+		String endTime = workGridSchedule.getEndTime();
 		// 班次日期形式 yyyy-MM-dd HH:mm:ss
-		Date startDate = getSpecialDateByStr(startTime, null);;
+		Date startDate = getSpecialDateByStr(startTime, null);
 		Date endDate;
 		// 如果结束日期代表后一天的时间点，则转换时需要加一天
 		if (LocalTime.parse(startTime).isAfter(LocalTime.parse(endTime))) {
