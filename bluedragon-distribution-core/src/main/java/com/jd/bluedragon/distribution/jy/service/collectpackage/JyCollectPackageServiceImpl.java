@@ -402,6 +402,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
     }
 
+    private List<Integer> queryMixBoxFlowListUnderTask(CollectPackageReq request) {
+        //jyBizTaskCollectPackageFlowService.queryListByBizIds()
+        return null;
+    }
+
     /**
      * 查询混装的流向集合（查询混装的集包的流向集合）
      *
