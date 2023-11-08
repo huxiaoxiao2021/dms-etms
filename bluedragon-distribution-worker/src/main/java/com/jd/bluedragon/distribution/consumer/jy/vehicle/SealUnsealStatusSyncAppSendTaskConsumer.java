@@ -66,7 +66,7 @@ public class SealUnsealStatusSyncAppSendTaskConsumer extends MessageBaseConsumer
     //开关
     private static final String DEFAULT_SWITCH = "1,1,1";
     //开关默认开启值
-    private static final String DEFAULT_SWITCH_OPEN = "1,1,1";
+    private static final String DEFAULT_SWITCH_OPEN = "1";
 
 
 
@@ -131,20 +131,20 @@ public class SealUnsealStatusSyncAppSendTaskConsumer extends MessageBaseConsumer
             switchStr = DEFAULT_SWITCH;
         }
         String[] arr = switchStr.split(Constants.SEPARATOR_COMMA);
-        if(!DEFAULT_SWITCH_OPEN.equals(arr[0])) {
+        if(!DEFAULT_SWITCH_OPEN.equals(arr[0].trim())) {
             logger.warn("封车解封车同步jy发货任务状态开关关闭，不做处理，批次号={}，ucc同步开关关闭（ucc:sealUnsealStatusSyncAppSendTaskSwitch）", mqBody.getSingleBatchCode());
             return true;
         }
 
         if(SealUnsealStatusSyncAppSendTaskMQDto.STATUS_SEAL.equals(mqBody.getStatus())) {
-            if(!DEFAULT_SWITCH_OPEN.equals(arr[1])) {
+            if(!DEFAULT_SWITCH_OPEN.equals(arr[1].trim())) {
                 logger.warn("封车同步jy发货任务状态开关关闭，不做处理，批次号={}，ucc同步开关关闭（ucc:sealUnsealStatusSyncAppSendTaskSwitch）", mqBody.getSingleBatchCode());
                 return true;
             }
             return dealSeal(mqBody);
 
         }else if(SealUnsealStatusSyncAppSendTaskMQDto.STATUS_UNSEAL.equals(mqBody.getStatus())) {
-            if(!DEFAULT_SWITCH_OPEN.equals(arr[2])) {
+            if(!DEFAULT_SWITCH_OPEN.equals(arr[2].trim())) {
                 logger.warn("取消封车同步jy发货任务状态开关关闭，不做处理，批次号={}，ucc同步开关关闭（ucc:sealUnsealStatusSyncAppSendTaskSwitch）", mqBody.getSingleBatchCode());
                 return true;
             }
@@ -164,34 +164,25 @@ public class SealUnsealStatusSyncAppSendTaskConsumer extends MessageBaseConsumer
         List<String> batchCodes = Arrays.asList(mqBody.getSingleBatchCode());
         List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(batchCodes);
         if (CollectionUtils.isEmpty(sendCodeEntityList)){
+            if(logger.isInfoEnabled()) {
+                logger.info("封车同步新版发货任务数据，根据批次号{}未查到任务信息，不做处理", mqBody.getSingleBatchCode());
+            }
             return true;
         }
         for(JySendCodeEntity jySendCodeEntity : sendCodeEntityList) {
             JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(jySendCodeEntity.getSendVehicleBizId());
-            if(Constants.NUMBER_ZERO.equals(taskSend.getYn())) {
+            if(Objects.isNull(taskSend) || Constants.NUMBER_ZERO.equals(taskSend.getYn())) {
+                if(logger.isInfoEnabled()) {
+                    logger.info("封车同步新版发货任务数据，根据批次号{}查到任务为空或yn=0，不做处理", mqBody.getSingleBatchCode(), jySendCodeEntity.getSendVehicleBizId());
+                }
                 return true;
             }
             if(Constants.NUMBER_ONE.equals(taskSend.getManualCreatedFlag())) {
                 //封车批次关联的bizId是自建任务：yn=0
-                JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(jySendCodeEntity.getSendDetailBizId());
-                Date now = new Date();
-                JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
-                entity.setBizId(taskSend.getBizId());
-                entity.setYn(Constants.YN_NO);
-                entity.setUpdateTime(now);
-                entity.setUpdateUserErp(DEFAULT_USER);
-                entity.setUpdateUserName(DEFAULT_USER);
-                jyBizTaskSendVehicleService.updateSendVehicleTask(entity);
-                JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
-                detailEntity.setSendVehicleBizId(taskSendDetail.getBizId());
-                detailEntity.setYn(Constants.YN_NO);
-                detailEntity.setUpdateTime(now);
-                detailEntity.setUpdateUserErp(DEFAULT_USER);
-                detailEntity.setUpdateUserName(DEFAULT_USER);
-                jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+                sendVehicleTransactionManager.deleteSendTask(jySendCodeEntity.getSendDetailBizId());
             }else {
                 //非自建任务，
-                if(!sendVehicleTransactionManager.syncSendTaskSealStatusHandler(jySendCodeEntity.getSendVehicleBizId(), taskSend, mqBody)) {
+                if(!sendVehicleTransactionManager.syncSendTaskSealStatusHandler(jySendCodeEntity.getSendDetailBizId(), taskSend, mqBody)) {
                     logger.error("封车状态同步发货任务状态变更逻辑处理异常，msg={}", JsonHelper.toJson(mqBody));
                     return false;
                 }
@@ -210,38 +201,27 @@ public class SealUnsealStatusSyncAppSendTaskConsumer extends MessageBaseConsumer
         List<String> batchCodes = Arrays.asList(mqBody.getSingleBatchCode());
         List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(batchCodes);
         if (CollectionUtils.isEmpty(sendCodeEntityList)){
+            if(logger.isInfoEnabled()) {
+                logger.info("取消封车同步新版发货任务数据，根据批次号{}未查到任务信息，不做处理", mqBody.getSingleBatchCode());
+            }
             return true;
         }
         for(JySendCodeEntity jySendCodeEntity : sendCodeEntityList) {
             JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(jySendCodeEntity.getSendVehicleBizId());
             if(Objects.isNull(taskSend)) {
+                if(logger.isInfoEnabled()) {
+                    logger.info("取消封车同步新版发货任务数据，根据批次号{}查到任务{}为空，不做处理", mqBody.getSingleBatchCode(), jySendCodeEntity.getSendVehicleBizId());
+                }
                 return true;
             }
             if(Constants.NUMBER_ONE.equals(taskSend.getManualCreatedFlag()) && Constants.YN_NO.equals(taskSend.getYn())) {
                 //特殊场景：自建任务yn=0入口：（1）绑定迁移（2）当前消息按批次封车自建任务同步删除， 第二种方式取消封车时yn=0回退到yn=1
-                JySendEntity jySendEntity = jySendTransferLogDao.findLatestByFromDetailBizId(jySendCodeEntity.getSendDetailBizId());
-                if(!Objects.isNull(jySendEntity)) {
-                    return true;
-                }
-                //todo 是否有必要过滤个时间，超出某时间之前的不在修改
-                Date now = new Date();
-                JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
-                entity.setBizId(taskSend.getBizId());
-                entity.setYn(Constants.YN_YES);
-                entity.setUpdateTime(now);
-                entity.setUpdateUserErp(DEFAULT_USER);
-                entity.setUpdateUserName(DEFAULT_USER);
-                jyBizTaskSendVehicleService.updateSendVehicleTask(entity);
-                //删除子任务
-                JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
-                detailEntity.setSendVehicleBizId(taskSend.getBizId());
-                detailEntity.setYn(Constants.YN_YES);
-                detailEntity.setUpdateTime(now);
-                detailEntity.setUpdateUserErp(DEFAULT_USER);
-                detailEntity.setUpdateUserName(DEFAULT_USER);
-                jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+                sendVehicleTransactionManager.resetSendTaskYnYes(jySendCodeEntity.getSendDetailBizId(), taskSend.getBizId());
             }else {
                 if(Constants.YN_NO.equals(taskSend.getYn())) {
+                    if(logger.isInfoEnabled()) {
+                        logger.info("取消封车同步新版发货任务数据，根据批次号{}查到运输任务{}无效yn=0，不做处理", mqBody.getSingleBatchCode(), jySendCodeEntity.getSendVehicleBizId());
+                    }
                     return true;
                 }
                 //运输任务已封车回退待封车

@@ -200,8 +200,8 @@
   </insert>
 
   <select id="findLatestByFromDetailBizId" parameterType="java.lang.String" resultMap="jySendTransferLogMap">
-    select jy_send_transfer_log
-    from jy_send_seal_code
+    select <include refid="Base_Column_List" />
+    from jy_send_transfer_log
     WHERE yn = 1 and from_send_vehicle_detail_biz_id = #{fromSendVehicleDetailBizId}
     order by create_time desc
     limit 1

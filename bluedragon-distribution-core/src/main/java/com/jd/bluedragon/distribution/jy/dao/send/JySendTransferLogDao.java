@@ -34,7 +34,7 @@ public class JySendTransferLogDao extends BaseDao<JySendTransferLogEntity> {
      * @param fromSendVehicleDetailBizId
      * @return
      */
-    public JySendEntity findLatestByFromDetailBizId(String fromSendVehicleDetailBizId) {
+    public JySendTransferLogEntity findLatestByFromDetailBizId(String fromSendVehicleDetailBizId) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findLatestByFromDetailBizId", fromSendVehicleDetailBizId);
     }
 }

@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.jy.dao.send.JySendTransferLogDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.task.SealUnsealStatusSyncAppSendTaskMQDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
@@ -21,6 +22,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.summary.JySealStatisticsSummaryService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
@@ -31,9 +33,9 @@ import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -112,7 +114,8 @@ public class SendVehicleTransactionManager {
     @Autowired
     private JySealStatisticsSummaryService statisticsSummaryService;
 
-
+    @Autowired
+    private JySendTransferLogDao jySendTransferLogDao;
 
     /**
      * 保存发货任务和发货流向
@@ -715,6 +718,9 @@ public class SendVehicleTransactionManager {
         JyBizTaskSendVehicleDetailEntity taskSendDetail = taskSendVehicleDetailService.findByBizId(detailBizId);
         //从未封车（待发货、发货中、待封车）改为封车状态
         if(!JyBizTaskSendDetailStatusEnum.TO_SEND.getCode().equals(taskSendDetail.getVehicleStatus()) && !JyBizTaskSendDetailStatusEnum.SENDING.getCode().equals(taskSendDetail.getVehicleStatus()) && !JyBizTaskSendDetailStatusEnum.TO_SEAL.getCode().equals(taskSendDetail.getVehicleStatus())) {
+            if(log.isInfoEnabled()) {
+                log.info("封车同步新版发货任务数据，任务{}|{}状态为{}，不做处理(仅处理未封车状态)", taskSendDetail.getSendVehicleBizId(), taskSendDetail.getBizId(), taskSendDetail.getVehicleStatus());
+            }
             return true;
         }
         //发货主表
@@ -777,7 +783,9 @@ public class SendVehicleTransactionManager {
     public boolean syncSendTaskToSealHandler(String detailBizId, JyBizTaskSendVehicleEntity taskSendData, SealUnsealStatusSyncAppSendTaskMQDto myBody) {
         JyBizTaskSendVehicleDetailEntity taskSendDetail = this.taskSendVehicleDetailService.findByBizId(detailBizId);
         if(Objects.isNull(taskSendDetail) || !JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(taskSendDetail.getVehicleStatus())) {
-            //取消封车状态回退只是从已封车回到待封车状态，其他状态不处理
+            if(log.isInfoEnabled()) {
+                log.info("取消封车回退运输任务{}到待封车状态，任务为空或者不是封车状态，不做处理，任务信息={}", detailBizId, JsonHelper.toJson(taskSendDetail));
+            }
             return true;
         }
         Date currentDate = new Date();
@@ -817,4 +825,81 @@ public class SendVehicleTransactionManager {
         }
         return true;
     }
+
+
+
+    /**
+     * jy主子发货任务删除：yn=0
+     * @param detailBizId
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.deleteSendTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean deleteSendTask(String detailBizId) {
+        //封车批次关联的bizId是自建任务：yn=0
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = taskSendVehicleDetailService.findByBizId(detailBizId);
+        if(Objects.isNull(taskSendDetail)) {
+            return true;
+        }
+        Date now = new Date();
+        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
+        entity.setBizId(taskSendDetail.getBizId());
+        entity.setYn(Constants.YN_NO);
+        entity.setUpdateTime(now);
+        entity.setUpdateUserErp(DEFAULT_USER);
+        entity.setUpdateUserName(DEFAULT_USER);
+        taskSendVehicleService.updateSendVehicleTask(entity);
+        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
+        detailEntity.setSendVehicleBizId(taskSendDetail.getSendVehicleBizId());
+        detailEntity.setYn(Constants.YN_NO);
+        detailEntity.setUpdateTime(now);
+        detailEntity.setUpdateUserErp(DEFAULT_USER);
+        detailEntity.setUpdateUserName(DEFAULT_USER);
+        taskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+        return true;
+    }
+
+
+
+    /**
+     * jy主子发货任务yn重置：yn=1
+     * 使用场景，自建任务批次被封车后yn=0, 该批次取消封车时自建任务状态回退
+     * @param detailBizId
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.resetSendTaskYnYes",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean resetSendTaskYnYes(String detailBizId, String bizId) {
+        //封车批次关联的bizId是自建任务：yn=0
+        JySendTransferLogEntity jySendTransferLogEntity = jySendTransferLogDao.findLatestByFromDetailBizId(detailBizId);
+        if(!Objects.isNull(jySendTransferLogEntity)) {
+            if(log.isInfoEnabled()) {
+                log.info("取消封车回退自建任务信息，查到自建任务{}操作过绑定迁移，不做处理", detailBizId);
+            }
+            return true;
+        }
+        //todo 是否有必要过滤个时间，超出某时间之前的不在修改
+        Date now = new Date();
+        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
+        entity.setBizId(bizId);
+        entity.setYn(Constants.YN_YES);
+        entity.setUpdateTime(now);
+        entity.setUpdateUserErp(DEFAULT_USER);
+        entity.setUpdateUserName(DEFAULT_USER);
+        taskSendVehicleService.updateSendVehicleTask(entity);
+        //删除子任务
+        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
+        detailEntity.setSendVehicleBizId(bizId);
+        detailEntity.setYn(Constants.YN_YES);
+        detailEntity.setUpdateTime(now);
+        detailEntity.setUpdateUserErp(DEFAULT_USER);
+        detailEntity.setUpdateUserName(DEFAULT_USER);
+        taskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+        return true;
+    }
+
+
+
 }
