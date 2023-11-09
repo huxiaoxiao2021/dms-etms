@@ -78,6 +78,12 @@ public class BoxPrintServiceImpl implements BoxPrintService{
                 return result.toFail(checkResult.getMessage(), checkResult.getCode());
             }
 
+            final BaseStaffSiteOrgDto operateUserStaffInfo = baseMajorManager.getBaseStaffIgnoreIsResignByErp(createBoxReq.getOperateUser().getUserCode());
+            if(operateUserStaffInfo == null){
+                return result.toFail(String.format("未找到员工为%s的数据", createBoxReq.getOperateUser().getUserCode()));
+            }
+            createBoxReq.getOperateUser().setUserId(operateUserStaffInfo.getStaffNo());
+
             final BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(createBoxReq.getCreateSiteCode());
 
             List<Box> availableBoxes;
@@ -219,7 +225,9 @@ public class BoxPrintServiceImpl implements BoxPrintService{
         box.setReceiveSiteName(request.getReceiveSiteName());
         final OperateUser operateUser = request.getOperateUser();
         box.setCreateUser(operateUser.getUserName());
-        box.setCreateUserCode(operateUser.getUserId().intValue());
+        if (operateUser.getUserId() != null) {
+            box.setCreateUserCode(operateUser.getUserId().intValue());
+        }
         box.setTransportType(request.getTransportType());
         box.setMixBoxType(request.getMixBoxType());
         //临时占用字段处理站点商家重复
