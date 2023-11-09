@@ -1668,12 +1668,26 @@ public class SendPrintServiceImpl implements SendPrintService {
 
             Map<String,Object> receiveMobileMap = JsonHelper.json2MapByJSON(receiveMobileMapStr);
             Map<String,Object> receiveNameMap = JsonHelper.json2MapByJSON(receiveNameMapStr);
+            //非空初始化
+            if(receiveMobileMap == null){
+                receiveMobileMap = new HashMap<>();
+            }
+            if(receiveNameMap == null){
+                receiveNameMap = new HashMap<>();
+            }
+            //电话加密模式
             String receiveMobileEncMode = String.valueOf(receiveMobileMap.get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getCode()));
-            Date receiveMobileVirtualNumberExpire = DateHelper.parseAllFormatDateTime(String.valueOf(receiveMobileMap.get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_ESC_VIRTUAL_NUMBER_EXPIRE.getCode())));
+            //名字加密模式
+            String receiveNameEncMode = String.valueOf(receiveNameMap.get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getCode()));
+            //虚拟号过期时间
+            Object receiveMobileVirtualNumberExpireObj = receiveMobileMap.get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_ESC_VIRTUAL_NUMBER_EXPIRE.getCode());
+            Date receiveMobileVirtualNumberExpire = receiveMobileVirtualNumberExpireObj == null ? new Date() : DateHelper.parseAllFormatDateTime(String.valueOf(receiveMobileVirtualNumberExpireObj));
 
             // 检查加密或虚拟号
             // 如果encMode字段=1，表示加密信息，此类需要分拣触发解密 如果encMode字段=2，表示是虚拟号，需要再判断virtualNumberExpire字段，虚拟号失效时间减去当前时间小于等于10天的（可配置)
             if(!(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getValue().equals(receiveMobileEncMode)
+                    ||
+                    WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getValue().equals(receiveNameEncMode)
                     ||
                     (WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_2.getValue().equals(receiveMobileEncMode)
                             && receiveMobileVirtualNumberExpire.before(DateHelper.addDate(new Date(),afterDays)))
@@ -1697,9 +1711,11 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
 
             //覆盖解密数据
-            // 本次仅做收件人电话的解密数据
             if(StringUtils.isNotBlank(resp.getData().getReceiver().getPhone())){
                 waybillDto.getWaybill().setReceiverMobile(resp.getData().getReceiver().getPhone());
+            }
+            if(StringUtils.isNotBlank(resp.getData().getReceiver().getName())){
+                waybillDto.getWaybill().setReceiverName(resp.getData().getReceiver().getName());
             }
 
         }catch (Exception e){
