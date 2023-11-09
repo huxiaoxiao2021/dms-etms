@@ -1007,14 +1007,16 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         query.setPageSize(Constants.PDA_DEFAULT_PAGE_MAXSIZE);
         int pageNo = 1;
         while (true) {
-            query.setPageNo(pageNo++);
+            query.setPageNo(pageNo);
             List<Sorting> sortingList = sortingService.pageQueryByBoxCode(query);
             if (CollectionUtils.isEmpty(sortingList)) {
                 break;
             }
+            log.info("第{}页查询集包数据{}",pageNo,JsonHelper.toJson(sortingList));
             BatchCancelCollectPackageMqDto msg = assembleBatchCancelCollectPackageMqDto(sortingList, request);
             batchCancelCollectPackageProduce.sendOnFailPersistent(request.getBoxCode(),JsonHelper.toJson(msg));
-            log.info("===================={} 成功完成批量取消集包消息发送第{}页============================", request.getBoxCode(),pageNo);
+            log.info("===================={} 成功完成批量取消集包消息发送第{}页 待取消包裹{}============================", request.getBoxCode(),pageNo,JsonHelper.toJson(msg));
+            pageNo++;
         }
     }
 
