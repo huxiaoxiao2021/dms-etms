@@ -1293,10 +1293,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 
 	private void assembleInformalEmployeesWaveCode(UserSignRequest request, UserSignRecord signInData) {
+		Date currentDate = new Date();
 		// 查询网格下该工种的排班计划
 		DataScheduleNatureDto natureDto = new DataScheduleNatureDto();
 		natureDto.setNature(String.valueOf(request.getJobCode()));
-		natureDto.setScheduleDate(DateHelper.getDateOfyyMMdd2());
+		natureDto.setScheduleDate(DateHelper.getSpecialDateOfyyMMdd2(currentDate.getTime()));
 		natureDto.setWorkGridKey(signInData.getRefWorkGridKey());
 		List<ScheduleAggsDto> scheduleAggsDtoList = workGridScheduleManager.findListByGridKeyAndNature(natureDto);
 		// 查看该网格当天是否排班了对应的工种（工种数量>0则视为排班），若未排班，则展示未排班
@@ -1306,7 +1307,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		log.info("assembleInformalEmployeesWaveCode|网格下该工种人数统计:request={},signInData={},scheduleAggsDtoList={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData), JsonHelper.toJson(scheduleAggsDtoList));
 
-		Date currentDate = new Date();
 		// 当天0点
 		long currentZero = DateHelper.getZero(currentDate);
 		// 当天24点
@@ -1320,10 +1320,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		UserSignRecordData userSignRecordData = userSignRecordDao.queryFirstUserSignRecordData(userSignQueryRequest);
 		if (userSignRecordData == null) {
 			log.info("assembleInformalEmployeesWaveCode|当前签到是当天首次签到:request={}", JsonHelper.toJson(request));
-			// 若是首次打卡，签到时间就是当前时间
+			// 若是首次打卡，取当前时间
 			firstSignTime = currentDate;
 		} else {
-			// 若非首次打卡，签到时间就是首次打卡时间
+			// 若非首次打卡，取首次打卡时间
 			firstSignTime = userSignRecordData.getSignInTime();
 			log.info("assembleInformalEmployeesWaveCode|当前签到不是当天首次签到:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
 		}
@@ -1359,13 +1359,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			String startTime = workGridSchedule.getStartTime();
 			String endTime = workGridSchedule.getEndTime();
 			// 班次日期形式 yyyy-MM-dd HH:mm:ss
-			Date startDate;
-			// 如果开始日期代表前一天的时间点，则转换时需要减一天
-			if (LocalTime.parse(startTime).isAfter(LocalTime.parse(endTime))) {
-				startDate = getSpecialDateByStr(startTime, Constants.NEGATIVE_NUMBER_ONE);
-			} else {
-				startDate = getSpecialDateByStr(startTime, null);
-			}
+			Date startDate = getSpecialDateByStr(startTime, null);
 			// 班次类型
 			Integer scheduleType = workGridSchedule.getScheduleType();
 			// 如果是白班
@@ -1389,7 +1383,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		boolean isBetweenDayFlag = false;
 		// 判断首次签到时间是否在白班的最早开始时间(减1小时)至白班最晚开始时间内
 		Date minDayStartDateBeforeOneHour = DateHelper.addHours(minDayStartDate, Constants.NEGATIVE_NUMBER_ONE);
-		if (firstSignTime.before(maxDayStartDate) && firstSignTime.after(minDayStartDateBeforeOneHour)) {
+		if (firstSignTime.getTime() <= maxDayStartDate.getTime() && firstSignTime.getTime() >= minDayStartDateBeforeOneHour.getTime()) {
 			log.info("assembleInformalEmployeesWaveCode|首次签到时间在白班的最早开始时间(减1小时)至白班最晚开始时间内:request={},firstSignTime={},minDayStartDate={},maxDayStartDate={}",
 					JsonHelper.toJson(request), firstSignTime, minDayStartDate, maxDayStartDate);
 			isBetweenDayFlag = true;
@@ -1397,7 +1391,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		boolean isBetweenMiddleFlag = false;
 		// 判断首次签到时间是否在中班的最早开始时间(减1小时)至中班最晚开始时间内
 		Date minMiddleStartDateBeforeOneHour = DateHelper.addHours(minMiddleStartDate, Constants.NEGATIVE_NUMBER_ONE);
-		if (firstSignTime.before(maxMiddleStartDate) && firstSignTime.after(minMiddleStartDateBeforeOneHour)) {
+		if (firstSignTime.getTime() <= maxMiddleStartDate.getTime() && firstSignTime.getTime() >= minMiddleStartDateBeforeOneHour.getTime()) {
 			log.info("assembleInformalEmployeesWaveCode|首次签到时间在中班的最早开始时间(减1小时)至中班最晚开始时间内:request={},firstSignTime={},minDayStartDate={},maxDayStartDate={}",
 					JsonHelper.toJson(request), firstSignTime, minMiddleStartDate, maxMiddleStartDate);
 			isBetweenMiddleFlag = true;
@@ -1405,7 +1399,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		boolean isBetweenNightFlag = false;
 		// 判断首次签到时间是否在晚班的最早开始时间(减1小时)至晚班最晚开始时间内
 		Date minNightStartDateBeforeOneHour = DateHelper.addHours(minNightStartDate, Constants.NEGATIVE_NUMBER_ONE);
-		if (firstSignTime.before(maxNightStartDate) && firstSignTime.after(minNightStartDateBeforeOneHour)) {
+		if (firstSignTime.getTime() <= maxNightStartDate.getTime() && firstSignTime.getTime() >= minNightStartDateBeforeOneHour.getTime()) {
 			log.info("assembleInformalEmployeesWaveCode|首次签到时间在晚班的最早开始时间(减1小时)至晚班最晚开始时间内:request={},firstSignTime={},minDayStartDate={},maxDayStartDate={}",
 					JsonHelper.toJson(request), firstSignTime, minNightStartDate, maxNightStartDate);
 			isBetweenNightFlag = true;
@@ -1562,14 +1556,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 获取当前时间的时分
 		Date currentDate = new Date();
 		String currentTime = String.format("%tH:%tM", currentDate, currentDate);
+		LocalTime localCurrentTime = LocalTime.parse(currentTime);
 		// 当前打卡时间是否在当天首个班次的起始时间前1个小时
 		LocalTime localEarlierDayTimeBeforeOneHour = LocalTime.parse(earlierDayTime).minusHours(Constants.LONG_ONE);
-		if (localEarlierDayTimeBeforeOneHour.isBefore(LocalTime.parse(currentTime))) {
-			log.info("assembleRegularEmployeesWaveCode|获取当天的排班数据:request={},earlierDayTime={},localEarlierDayTimeBeforeOneHour={}", JsonHelper.toJson(request), earlierDayTime, localEarlierDayTimeBeforeOneHour);
+		if (localEarlierDayTimeBeforeOneHour.isBefore(localCurrentTime) || localEarlierDayTimeBeforeOneHour.equals(localCurrentTime)) {
+			log.info("assembleRegularEmployeesWaveCode|签到时间在当天首个班次的起始时间前1个小时之内,因此获取当天的排班数据:request={},earlierDayTime={},localEarlierDayTimeBeforeOneHour={}", JsonHelper.toJson(request), earlierDayTime, localEarlierDayTimeBeforeOneHour);
 			// 获取当天的排班数据
 			queryDto.setScheduleDate(DateHelper.getSpecialDateOfyyMMdd2(currentDate.getTime()));
 		} else {
-			log.info("assembleRegularEmployeesWaveCode|获取前一天的排班数据:request={},earlierDayTime={},localEarlierDayTimeBeforeOneHour={}", JsonHelper.toJson(request), earlierDayTime, localEarlierDayTimeBeforeOneHour);
+			log.info("assembleRegularEmployeesWaveCode|签到时间不在当天首个班次的起始时间前1个小时之内,因此获取前一天的排班数据:request={},earlierDayTime={},localEarlierDayTimeBeforeOneHour={}", JsonHelper.toJson(request), earlierDayTime, localEarlierDayTimeBeforeOneHour);
 			// 获取前一天的排班数据
 			queryDto.setScheduleDate(DateHelper.getSpecialDateOfyyMMdd2(currentDate.getTime() - DateHelper.ONE_DAY));
 		}
@@ -1662,7 +1657,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Date startDateBeforeOneHour = DateHelper.addHours(startDate, Constants.NEGATIVE_NUMBER_ONE);
 		Date endDateAfterOneHour = DateHelper.addHours(endDate, Constants.NUMBER_ONE);
 		// 且当前erp签到时间处于该排班计划对应班次时间的前后1小时内，则班次类型展示对应的班次，班次时间展示对应班次的时间
-		if (currentDate.before(endDateAfterOneHour) && currentDate.after(startDateBeforeOneHour)) {
+		if (currentDate.getTime() <= endDateAfterOneHour.getTime() && currentDate.getTime() >= startDateBeforeOneHour.getTime()) {
 			return true;
 		}
 		return false;
