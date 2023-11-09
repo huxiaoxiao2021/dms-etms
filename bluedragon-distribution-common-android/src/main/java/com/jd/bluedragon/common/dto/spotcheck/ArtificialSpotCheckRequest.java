@@ -109,6 +109,11 @@ public class ArtificialSpotCheckRequest implements Serializable {
      */
     private Integer version;
 
+    /**
+     * 视频url
+     */
+    private String videoUrl;
+
     public String getBarCode() {
         return barCode;
     }
@@ -259,5 +264,13 @@ public class ArtificialSpotCheckRequest implements Serializable {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 }
