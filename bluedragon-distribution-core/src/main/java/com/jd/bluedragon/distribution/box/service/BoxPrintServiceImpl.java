@@ -82,7 +82,7 @@ public class BoxPrintServiceImpl implements BoxPrintService{
             if(operateUserStaffInfo == null){
                 return result.toFail(String.format("未找到员工为%s的数据", createBoxReq.getOperateUser().getUserCode()));
             }
-            createBoxReq.getOperateUser().setUserId(operateUserStaffInfo.getStaffNo());
+            createBoxReq.getOperateUser().setUserId(operateUserStaffInfo.getStaffNo().longValue());
 
             final BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(createBoxReq.getCreateSiteCode());
 
