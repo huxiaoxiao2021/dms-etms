@@ -6,7 +6,7 @@ import lombok.Data;
  * 字节 解密服务 入参
  */
 @Data
-public class AdapterRequestStandardJsonObj {
+public class AdapterRequestOfPlatformDecryRouter {
     /**
      * 运单号
      */

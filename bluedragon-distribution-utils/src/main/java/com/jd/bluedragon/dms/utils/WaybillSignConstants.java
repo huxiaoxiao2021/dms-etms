@@ -438,7 +438,7 @@ public interface WaybillSignConstants {
 	/**
 	 * 142 脱敏
 	 */
-	int POSITION_142 = 140;
+	int POSITION_142 = 142;
 	char CHAR_142_1 = '1';
 
 	/**

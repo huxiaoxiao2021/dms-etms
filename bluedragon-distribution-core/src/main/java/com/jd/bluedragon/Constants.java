@@ -1007,11 +1007,11 @@ public class Constants {
     /**
      * UMP监控应用名-dms.etms
      */
-    public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
+    public static final String UMP_APP_NAME_DMSWEB= "dms-etms";
     /**
      * UMP监控应用名-bluedragon-distribution-worker
      */
-    public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
+    public static final String UMP_APP_NAME_DMSWORKER= "dms-etms-worker";
 
     /**
      *  重泡比超过正常范围168:1到330:1

@@ -1,8 +1,8 @@
 package com.jd.bluedragon.core.base;
 
 
-import com.jd.bluedragon.core.jsf.adapter.AdapterOutJsonObj;
-import com.jd.bluedragon.core.jsf.adapter.AdapterRequestStandardJsonObj;
+import com.jd.bluedragon.core.jsf.adapter.AdapterOutOfPlatformDecryRouter;
+import com.jd.bluedragon.core.jsf.adapter.AdapterRequestOfPlatformDecryRouter;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -26,5 +26,5 @@ public interface AdapterApiManager {
      * @param request
      * @return
      */
-    AdapterOutJsonObj commonAdapterExcute(AdapterRequestStandardJsonObj request);
+    AdapterOutOfPlatformDecryRouter commonAdapterExecuteOfPlatformDecryRouter(AdapterRequestOfPlatformDecryRouter request);
 }

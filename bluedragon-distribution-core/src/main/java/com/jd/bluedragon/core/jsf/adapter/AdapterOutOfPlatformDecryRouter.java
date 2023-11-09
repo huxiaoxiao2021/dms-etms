@@ -6,7 +6,7 @@ import lombok.Data;
  * 字节解密服务返回值
  */
 @Data
-public class AdapterOutJsonObj {
+public class AdapterOutOfPlatformDecryRouter {
     /**
      * 返回returnCode，0为成功，其他为失败
      */

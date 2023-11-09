@@ -6,8 +6,8 @@ import com.jd.bluedragon.FlowConstants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.context.InvokerClientInfoContext;
-import com.jd.bluedragon.core.jsf.adapter.AdapterOutJsonObj;
-import com.jd.bluedragon.core.jsf.adapter.AdapterRequestStandardJsonObj;
+import com.jd.bluedragon.core.jsf.adapter.AdapterOutOfPlatformDecryRouter;
+import com.jd.bluedragon.core.jsf.adapter.AdapterRequestOfPlatformDecryRouter;
 import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -42,7 +42,6 @@ import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
@@ -1685,10 +1684,12 @@ public class SendPrintServiceImpl implements SendPrintService {
                 return waybillDto;
             }
 
-            AdapterRequestStandardJsonObj req =new AdapterRequestStandardJsonObj();
+            AdapterRequestOfPlatformDecryRouter req = new AdapterRequestOfPlatformDecryRouter();
             //满足触发解密
             req.setWaybillCode(waybillCode);
-            AdapterOutJsonObj resp = adapterApiManager.commonAdapterExcute(req);
+            //原因
+            req.setQueryReason(AdapterApiManagerImpl.QUERY_REASON_EMS);
+            AdapterOutOfPlatformDecryRouter resp = adapterApiManager.commonAdapterExecuteOfPlatformDecryRouter(req);
             if(resp == null || resp.getData() == null
                     || resp.getData().getReceiver() == null){
                 log.info("运单{},未获取到解密信息！",waybillCode);
