@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillSer
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ import java.util.List;
  * @Date: 2023/10/30 20:25
  * @Description:
  */
+@Service("reassignWaybillJsfService")
 public class ReassignWaybillJsfServiceImpl implements ReassignWaybillJsfService {
 
     @Autowired

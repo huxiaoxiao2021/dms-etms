@@ -33,7 +33,7 @@
   <sql id="Base_Column_List" >
     id, province_agency_code, province_agency_name, area_hub_code, area_hub_name, site_code, 
     site_name, application_user_erp, bar_code, submit_time, receive_site_code, receive_site_name, 
-    change_site_code, change_site_name, change_site_reason_type, check_flag, first_checker, 
+    change_site_code, change_site_name, change_site_reason_type,  first_checker,
     first_check_status, first_check_time, second_checker, second_check_status, second_check_time, 
     create_user_erp, update_user_erp, create_time, update_time, ts, yn
   </sql>
@@ -93,9 +93,6 @@
       </if>
       <if test="changeSiteReasonType != null" >
         change_site_reason_type,
-      </if>
-      <if test="checkFlag != null" >
-        check_flag,
       </if>
       <if test="firstChecker != null" >
         first_checker,
@@ -180,9 +177,6 @@
       <if test="changeSiteReasonType != null" >
         #{changeSiteReasonType,jdbcType=BIT},
       </if>
-      <if test="checkFlag != null" >
-        #{checkFlag,jdbcType=BIT},
-      </if>
       <if test="firstChecker != null" >
         #{firstChecker,jdbcType=VARCHAR},
       </if>
@@ -263,9 +257,6 @@
       <if test="changeSiteReasonType != null" >
         change_site_reason_type = #{changeSiteReasonType,jdbcType=BIT},
       </if>
-      <if test="checkFlag != null" >
-        check_flag = #{checkFlag,jdbcType=BIT},
-      </if>
       <if test="firstChecker != null" >
         first_checker = #{firstChecker,jdbcType=VARCHAR},
       </if>
@@ -327,10 +318,10 @@
   <select id="queryTotalByCondition" parameterType="com.jd.bluedragon.distribution.api.request.ReassignWaybillApprovalRecordQuery" resultType="int">
     select  count(*)
     from reassign_waybill_approval_record
-    where yn =1  and
+    where yn =1
 
     <if test="provinceAgencyCode != null" >
-      province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+      ANd province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
     </if>
     <if test="areaHubCode != null" >
       AND area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
@@ -338,13 +329,13 @@
     <if test="siteCode != null" >
       AND site_code = #{siteCode,jdbcType=INTEGER},
     </if>
-    <if test="changeSiteReasonType != null" >
-      AND change_site_reason_type = #{changeSiteReasonType,jdbcType=BIT},
+    <if test="changeSiteReasonTypeCode != null" >
+      AND change_site_reason_type = #{changeSiteReasonTypeCode,jdbcType=BIT},
     </if>
     <if test="barCode != null" >
       AND bar_code = #{barCode,jdbcType=VARCHAR},
     </if>
-    <if test="applicationUserErp != null" >
+    <if test="applicationUserErp != null " >
       AND application_user_erp = #{applicationUserErp,jdbcType=VARCHAR},
     </if>
     <if test="firstCheckStatus != null">
@@ -353,17 +344,17 @@
     <if test="secondCheckStatus != null">
       AND second_check_status= #{secondCheckStatus}
     </if>
-    <if test="startTime != null">
+    <if test="startSubmitTime != null">
       AND submit_time <![CDATA[ >= ]]> #{startSubmitTime,jdbcType=TIMESTAMP}
     </if>
-    <if test="endTime != null">
+    <if test="endSubmitTime != null">
       AND submit_time <![CDATA[ <= ]]> #{endSubmitTime,jdbcType=TIMESTAMP}
     </if>
 
 
   </select>
 
-  <select id="getApprovalRecordPageListByCondition" parameterType="com.jd.bluedragon.distribution.api.request.ReassignWaybillApprovalRecordQuery" >
+  <select id="getApprovalRecordPageListByCondition" parameterType="com.jd.bluedragon.distribution.api.request.ReassignWaybillApprovalRecordQuery" resultMap="BaseResultMap">
     select  <include refid="Base_Column_List"/>
     from reassign_waybill_approval_record
     where yn =1
@@ -377,8 +368,8 @@
     <if test="siteCode != null" >
       AND site_code = #{siteCode,jdbcType=INTEGER}
     </if>
-    <if test="changeSiteReasonType != null" >
-      AND change_site_reason_type = #{changeSiteReasonType}
+    <if test="changeSiteReasonTypeCode != null" >
+      AND change_site_reason_type = #{changeSiteReasonTypeCode}
     </if>
     <if test="barCode != null" >
       AND bar_code = #{barCode}
@@ -392,13 +383,8 @@
     <if test="secondCheckStatus != null">
       AND second_check_status= #{secondCheckStatus}
     </if>
-    <if test="startTime != null">
-      AND submit_time <![CDATA[ >= ]]> #{startSubmitTime}
-    </if>
-    <if test="endTime != null">
-      AND submit_time <![CDATA[ <= ]]> #{endSubmitTime}
-    </if>
-
+    AND submit_time <![CDATA[ >= ]]> #{startSubmitTime}
+    AND submit_time <![CDATA[ <= ]]> #{endSubmitTime}
     order by id desc
     <if test="pageSize !=null">
       LIMIT #{offSet}, #{pageSize};

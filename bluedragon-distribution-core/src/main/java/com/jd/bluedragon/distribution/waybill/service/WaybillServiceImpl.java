@@ -1659,6 +1659,9 @@ public class WaybillServiceImpl implements WaybillService {
             }
 
             //校验原预分拣站点线上关停
+            BaseSite siteBySiteCode = baseMajorManager.getSiteBySiteCode(waybill.getOldSiteId());
+            siteBySiteCode.getOperateState();
+            siteBySiteCode.getIsSupportCod();
 
 
         }catch (Exception ex){

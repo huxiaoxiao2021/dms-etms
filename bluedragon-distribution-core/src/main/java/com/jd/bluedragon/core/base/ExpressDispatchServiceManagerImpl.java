@@ -15,6 +15,7 @@ import com.jd.preseparate.vo.stationmatch.StationMatchParameter;
 import com.jd.preseparate.vo.stationmatch.StationMatchResult;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,10 +92,13 @@ public class ExpressDispatchServiceManagerImpl implements ExpressDispatchService
     public JdResult<StationMatchResponse> stationMatchByAddress(StationMatchRequest request) {
         JdResult<StationMatchResponse> result = new JdResult<StationMatchResponse>();
         result.toSuccess("匹配成功！");
+        if(request == null || StringUtils.isBlank(request.getAddress())){
+            result.toFail("入参不能为空！");
+        }
         StationMatchParameter paramData = new StationMatchParameter();
         paramData.setRequestId(UUID.randomUUID().toString());
         paramData.setSystemCode(systemCode);
-        paramData.setAddress(request.getAddress());
+        paramData.setAddress(request.getAddress().trim());
 
         ServiceResponse<StationMatchResult> apiResult = null;
         try {

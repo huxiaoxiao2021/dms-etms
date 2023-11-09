@@ -2,11 +2,9 @@ package com.jd.bluedragon.distribution.reassignWaybill.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpScrappedDetailReq;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyApproveStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExScrapApproveStageEnum;
 import com.jd.bluedragon.common.dto.sysConfig.response.ProvinceAreaApprovalConfigDto;
@@ -36,7 +34,6 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.domain.ReassignWaybillReq;
 import com.jd.bluedragon.distribution.jsf.domain.StationMatchRequest;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
@@ -59,8 +56,6 @@ import com.jd.jim.cli.Cluster;
 import com.jd.lsb.flow.domain.ApprovalResult;
 import com.jd.lsb.flow.domain.ApproveRequestOrder;
 import com.jd.lsb.flow.domain.HistoryApprove;
-import com.jd.lsb.flow.domain.jme.JmeFile;
-import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
@@ -307,19 +302,31 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	@Override
 	@JProfiler(jKey = "DMS.BASE.ReassignWaybillServiceImpl.getReassignOrderInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult<ReassignOrder> getReassignOrderInfo(String packageCode, List<String> decryptFields) {
-		log.info("getReassignOrderInfo 入参-{}",JSON.toJSONString(packageCode));
+		if(log.isInfoEnabled()){
+			log.info("getReassignOrderInfo 入参-{}",JSON.toJSONString(packageCode));
+		}
 		JdResult<ReassignOrder> result = new JdResult<>();
 		result.toSuccess();
 		ReassignOrder  reassignOrder = new ReassignOrder();
-		OrderResponse orderResponse = this.waybillService.getDmsWaybillInfoAndCheck(packageCode);
-		result.setCode(orderResponse.getCode());
-		result.setMessage(orderResponse.getMessage());
-		if(!OrderResponse.CODE_OK.equals(orderResponse.getCode())){
+		if(StringUtils.isBlank(packageCode)){
+			result.toFail("入参不能为空！");
 			return result;
 		}
-		BeanCopyUtil.copy(orderResponse,reassignOrder);
-		getHideInfo(orderResponse,decryptFields);
-		SecurityLogWriter.orderResourceGetOrderResponseWrite(packageCode, orderResponse);
+		try{
+			OrderResponse orderResponse = this.waybillService.getDmsWaybillInfoAndCheck(packageCode);
+			result.setCode(orderResponse.getCode());
+			result.setMessage(orderResponse.getMessage());
+			if(!OrderResponse.CODE_OK.equals(orderResponse.getCode())){
+				return result;
+			}
+			getHideInfo(orderResponse,decryptFields);
+			SecurityLogWriter.orderResourceGetOrderResponseWrite(packageCode, orderResponse);
+			BeanCopyUtil.copy(orderResponse,reassignOrder);
+			result.setData(reassignOrder);
+		}catch (Exception e){
+			log.error("获取运单信息异常!-单号-{}",packageCode,e);
+			result.toError("获取运单信息异常!");
+		}
 		return result;
 	}
 
@@ -333,27 +340,38 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	@Override
 	public JdResult<List<BaseStaffResponse>> getSiteByCodeOrName(String siteCodeOrName) {
 		JdResult<List<BaseStaffResponse>> result = new JdResult<>();
+		result.toSuccess();
 		if (StringHelper.isEmpty(siteCodeOrName)) {
+			result.toFail("查询内容不能为空!");
 			return result;
 		}
+		siteCodeOrName =siteCodeOrName.trim();
 		List<BaseStaffResponse> responseList = new ArrayList<>();
 		List<BaseStaffSiteOrgDto> resList = new ArrayList<>();
-		if (NumberHelper.isNumber(siteCodeOrName)) {
-			/* 站点code精确匹配 */
-			resList.add(baseMajorManager.queryDmsBaseSiteByCodeDmsver(siteCodeOrName));
-		} else {
-			/* 站点名称模糊匹配 */
-			resList.addAll(siteService.fuzzyGetSiteBySiteName(siteCodeOrName));
-		}
-		if(!CollectionUtils.isEmpty(resList)){
-			for (BaseStaffSiteOrgDto dto : resList){
-				BaseStaffResponse baseStaff = new BaseStaffResponse();
-				baseStaff.setSiteCode(dto.getSiteCode());
-				baseStaff.setSiteName(dto.getSiteName());
-				responseList.add(baseStaff);
+		try{
+			if (NumberHelper.isNumber(siteCodeOrName)) {
+				/* 站点code精确匹配 */
+				resList.add(baseMajorManager.queryDmsBaseSiteByCodeDmsver(siteCodeOrName));
+			} else {
+				/* 站点名称模糊匹配 */
+				resList.addAll(siteService.fuzzyGetSiteBySiteName(siteCodeOrName));
 			}
+			if(!CollectionUtils.isEmpty(resList)){
+				for (BaseStaffSiteOrgDto dto : resList){
+					if(dto != null){
+						BaseStaffResponse baseStaff = new BaseStaffResponse();
+						baseStaff.setSiteCode(dto.getSiteCode());
+						baseStaff.setSiteName(dto.getSiteName());
+						responseList.add(baseStaff);
+					}
+				}
+			}
+			result.setData(responseList);
+		}catch (Exception e){
+			log.error("站点匹配接口异常-param-{}",siteCodeOrName,e);
+			result.toError("站点匹配接口异常!");
 		}
-		result.setData(responseList);
+
 		return result;
 	}
 
@@ -753,8 +771,11 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		JdResult<PageDto<ReassignWaybillApprovalRecordResponse>> pageDtoJdResult = new JdResult<>();
 		if(query == null
 				|| query.getPageSize() == null
-				|| query.getPageNumber() == null){
+				|| query.getPageNumber() == null
+				|| query.getStartSubmitTime() == null
+				|| query.getEndSubmitTime() == null){
 			pageDtoJdResult.toFail("入参不能为空!");
+			return pageDtoJdResult;
 		}
 		if(StringUtils.isNotBlank(query.getBarCode())){
 			query.setBarCode(query.getBarCode().trim());
