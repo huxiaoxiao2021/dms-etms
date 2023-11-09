@@ -1765,7 +1765,7 @@ public class SortingServiceImpl implements SortingService {
 		SortingPageRequest boxQuery = new SortingPageRequest();
 		boxQuery.setBoxCode(query.getBoxCode());
 		boxQuery.setCreateSiteCode(query.getCreateSiteCode());
-		boxQuery.setLimit(query.getPageNo());
+		boxQuery.setLimit(query.getPageSize());
 		boxQuery.setOffset(query.getPageSize() * (query.getPageNo() - 1));
 		return dynamicSortingQueryDao.getPagePackageNoByBoxCode(boxQuery);
 	}

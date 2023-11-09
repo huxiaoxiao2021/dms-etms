@@ -47,7 +47,6 @@ public class BatchCancelCollectPackageConsumer extends MessageBaseConsumer {
                 CancelCollectPackageDto cancelCollectPackageDto =assembleCancelCollectPackageDto(packageCode,mqBody);
                 jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
             }
-
         }
     }
 

@@ -10,6 +10,7 @@ import com.jd.bluedragon.common.dto.sorting.request.PackSortTaskBody;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
@@ -60,6 +61,7 @@ import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
@@ -173,7 +175,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
                 throw new JyBizException("集包任务已过期，请打印新箱号集包！");
             }
         }
-        if (JyBizTaskCollectPackageStatusEnum.CANCEL.equals(collectPackageTask.getTaskStatus())) {
+        if (JyBizTaskCollectPackageStatusEnum.CANCEL.getCode().equals(collectPackageTask.getTaskStatus())) {
             throw new JyBizException("集包任务已作废-操作了批量取消！");
         }
         try {
@@ -363,7 +365,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (ObjectHelper.isEmpty(collectPackageTask)) {
             throw new JyBizException("集包任务不存在或者已经过期，请刷新界面！");
         }
-        if (JyBizTaskCollectPackageStatusEnum.CANCEL.equals(collectPackageTask.getTaskStatus())) {
+        if (JyBizTaskCollectPackageStatusEnum.CANCEL.getCode().equals(collectPackageTask.getTaskStatus())) {
             throw new JyBizException("集包任务已作废-操作了批量取消集包！");
         }
         if (request.getForceCollectPackage()) {
@@ -373,6 +375,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         //查询包裹路由信息
         String router = waybillCacheService.getRouterByWaybillCode(WaybillUtil.getWaybillCode(request.getBarCode()));
+        //Waybill waybill =WaybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(request.getBarCode()));
         if (!ObjectHelper.isNotNull(router)) {
             log.info("未获取到运单的路由信息,startSiteId:{}", request.getCurrentOperate().getSiteCode());
             throw new JyBizException("未获取到运单的路由信息！");
@@ -400,6 +403,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
                 request.setEndSiteName(baseStaffSiteOrgDto.getSiteName());
             }
         }
+    }
+
+    private List<Integer> queryMixBoxFlowListUnderTask(CollectPackageReq request) {
+        //jyBizTaskCollectPackageFlowService.queryListByBizIds()
+        return null;
     }
 
     /**
@@ -1002,14 +1010,16 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         query.setPageSize(Constants.PDA_DEFAULT_PAGE_MAXSIZE);
         int pageNo = 1;
         while (true) {
-            query.setPageNo(pageNo++);
+            query.setPageNo(pageNo);
             List<Sorting> sortingList = sortingService.pageQueryByBoxCode(query);
             if (CollectionUtils.isEmpty(sortingList)) {
                 break;
             }
+            log.info("第{}页查询集包数据{}",pageNo,JsonHelper.toJson(sortingList));
             BatchCancelCollectPackageMqDto msg = assembleBatchCancelCollectPackageMqDto(sortingList, request);
             batchCancelCollectPackageProduce.sendOnFailPersistent(request.getBoxCode(),JsonHelper.toJson(msg));
-            log.info("===================={} 成功完成批量取消集包消息发送第{}页============================", request.getBoxCode(),pageNo);
+            log.info("===================={} 成功完成批量取消集包消息发送第{}页 待取消包裹{}============================", request.getBoxCode(),pageNo,JsonHelper.toJson(msg));
+            pageNo++;
         }
     }
 

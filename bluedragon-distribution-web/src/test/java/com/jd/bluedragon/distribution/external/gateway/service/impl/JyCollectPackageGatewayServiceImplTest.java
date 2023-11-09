@@ -94,15 +94,15 @@ public class JyCollectPackageGatewayServiceImplTest {
         User user =new User();
         user.setUserErp("wuyoude");
         user.setUserName("吴有德");
-        user.setUserCode(123);
+        user.setUserCode(17331);
 
 
         cancelCollectPackageReq.setCurrentOperate(currentOperate);
         cancelCollectPackageReq.setUser(user);
 
-        cancelCollectPackageReq.setBarCode("JD0003422420020-1-100-");
-        cancelCollectPackageReq.setBoxCode("BC1001231031250000208306");
-        cancelCollectPackageReq.setBizId("JCP23103100000165");
+        cancelCollectPackageReq.setBarCode("JD0003422555037-1-10-");
+        cancelCollectPackageReq.setBoxCode("BC1001231108290000800103");
+        cancelCollectPackageReq.setBizId("JCP23110800000040");
 
 
 
