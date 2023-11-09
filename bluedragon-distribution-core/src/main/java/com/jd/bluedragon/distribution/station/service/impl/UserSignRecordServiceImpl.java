@@ -1056,6 +1056,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Integer waveCode = calculateWave(signInRequest);
 		signInData.setWaveCode(waveCode);
 		signInData.setWaveName(WaveTypeEnum.getNameByCode(waveCode));
+		signInData.setRefWorkGridKey(gridInfo.getRefWorkGridKey());
 		// 计算班次 新逻辑
 		calculateWaveNew(signInRequest, signInData);
 		signInData.setRefPlanKey(queryPlanKey(signInData));
@@ -1296,7 +1297,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		DataScheduleNatureDto natureDto = new DataScheduleNatureDto();
 		natureDto.setNature(String.valueOf(request.getJobCode()));
 		natureDto.setScheduleDate(DateHelper.getDateOfyyMMdd2());
-		natureDto.setWorkGridKey(signInData.getRefGridKey());
+		natureDto.setWorkGridKey(signInData.getRefWorkGridKey());
 		List<ScheduleAggsDto> scheduleAggsDtoList = workGridScheduleManager.findListByGridKeyAndNature(natureDto);
 		// 查看该网格当天是否排班了对应的工种（工种数量>0则视为排班），若未排班，则展示未排班
 		if (CollectionUtils.isEmpty(scheduleAggsDtoList)) {
@@ -1328,7 +1329,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		// 查询网格下所有班次
 		WorkGridScheduleRequest workGridScheduleRequest = new WorkGridScheduleRequest();
-		workGridScheduleRequest.setWorkGridKey(signInData.getRefGridKey());
+		workGridScheduleRequest.setWorkGridKey(signInData.getRefWorkGridKey());
 		List<WorkGridSchedule> scheduleList = workGridScheduleManager.queryByWorkGridKey(workGridScheduleRequest);
 		if (CollectionUtils.isEmpty(scheduleList)) {
 			log.warn("assembleInformalEmployeesWaveCode|根据网格key从basic查询网格下所有班次返回空:request={},signInData={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData));
@@ -1524,7 +1525,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private void assembleRegularEmployeesWaveCode(UserSignRequest request, UserSignRecord signInData) {
 		// 查询网格下所有班次
 		WorkGridScheduleRequest workGridScheduleRequest = new WorkGridScheduleRequest();
-		workGridScheduleRequest.setWorkGridKey(signInData.getRefGridKey());
+		workGridScheduleRequest.setWorkGridKey(signInData.getRefWorkGridKey());
 		List<WorkGridSchedule> scheduleList = workGridScheduleManager.queryByWorkGridKey(workGridScheduleRequest);
 		if (CollectionUtils.isEmpty(scheduleList)) {
 			log.warn("assembleRegularEmployeesWaveCode|根据网格key从basic查询网格下所有班次返回空:request={},signInData={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData));
@@ -1557,17 +1558,16 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		List<ScheduleDetailDto> scheduleDetailDtoList;
 		UserGridScheduleQueryDto queryDto = new UserGridScheduleQueryDto();
 		queryDto.setUserErp(request.getUserCode());
-		queryDto.setWorkGridKey(signInData.getRefGridKey());
+		queryDto.setWorkGridKey(signInData.getRefWorkGridKey());
 		// 获取当前时间的时分
 		Date currentDate = new Date();
-		Calendar calendar = Calendar.getInstance();
-		String currentTime = calendar.get(Calendar.HOUR_OF_DAY) + Constants.SEPARATOR_COLON + calendar.get(Calendar.MINUTE);
+		String currentTime = String.format("%tH:%tM", currentDate, currentDate);
 		// 当前打卡时间是否在当天首个班次的起始时间前1个小时
 		LocalTime localEarlierDayTimeBeforeOneHour = LocalTime.parse(earlierDayTime).minusHours(Constants.LONG_ONE);
 		if (localEarlierDayTimeBeforeOneHour.isBefore(LocalTime.parse(currentTime))) {
 			log.info("assembleRegularEmployeesWaveCode|获取当天的排班数据:request={},earlierDayTime={},localEarlierDayTimeBeforeOneHour={}", JsonHelper.toJson(request), earlierDayTime, localEarlierDayTimeBeforeOneHour);
 			// 获取当天的排班数据
-			queryDto.setScheduleDate(DateHelper.getDateOfyyMMdd2());
+			queryDto.setScheduleDate(DateHelper.getSpecialDateOfyyMMdd2(currentDate.getTime()));
 		} else {
 			log.info("assembleRegularEmployeesWaveCode|获取前一天的排班数据:request={},earlierDayTime={},localEarlierDayTimeBeforeOneHour={}", JsonHelper.toJson(request), earlierDayTime, localEarlierDayTimeBeforeOneHour);
 			// 获取前一天的排班数据
@@ -1611,6 +1611,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		if (StringUtils.isNotBlank(waveCodeStr)) {
 			signInData.setWaveCodeNew(waveCodeStr.substring(Constants.CONSTANT_NUMBER_ONE));
+		} else {
+			log.warn("assembleRegularEmployeesWaveCode|当前人员在当天存在多条排班计划,但是都不满足排班计划对应班次时间的前后1小时内:request={}", JsonHelper.toJson(request));
 		}
 		if (StringUtils.isNotBlank(waveTimeStr)) {
 			signInData.setWaveTime(waveTimeStr.substring(Constants.CONSTANT_NUMBER_ONE));
