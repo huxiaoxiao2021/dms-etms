@@ -850,12 +850,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             result.setMessage("该箱号为空箱，不允许封箱！");
             return false;
         }
-        // 绑定集包袋校验
-        String materialRelation = cycleBoxService.getBoxMaterialRelation(request.getSealingBoxDtoList().get(0).getBoxCode());
-        if (StringUtils.isEmpty(materialRelation)) {
-            result.setCode(RESULT_THIRD_ERROR_CODE);
-            result.setMessage("该箱号未绑定集包袋，不允许封箱！");
-            return false;
+        // LL类型和BC类型 绑定集包袋校验
+        if (BusinessHelper.isLLBoxType(request.getSealingBoxDtoList().get(0).getBoxCode().substring(0, 2))
+                || BusinessHelper.isBCBoxType(request.getSealingBoxDtoList().get(0).getBoxCode().substring(0, 2))) {
+            String materialRelation = cycleBoxService.getBoxMaterialRelation(request.getSealingBoxDtoList().get(0).getBoxCode());
+            if (StringUtils.isEmpty(materialRelation)) {
+                result.setCode(RESULT_THIRD_ERROR_CODE);
+                result.setMessage("该箱号未绑定集包袋，不允许封箱！");
+                return false;
+            }
         }
         return true;
     }
