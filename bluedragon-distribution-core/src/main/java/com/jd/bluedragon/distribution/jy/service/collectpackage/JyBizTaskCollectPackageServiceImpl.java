@@ -262,7 +262,7 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         sortingRequest.setOperateTime(DateUtil.format(dto.getUpdateTime(), DateUtil.FORMAT_DATE_TIME));
         sortingRequest.setSiteCode(dto.getSiteCode());
         sortingRequest.setSiteName(dto.getSiteName());
-        sortingRequest.setBoxCode(dto.getBoxCode());
+        //sortingRequest.setBoxCode(dto.getBoxCode());
 
         List<Task> tasks = findWaitingProcessSortingTasks(sortingRequest);
         if (!tasks.isEmpty()) {
