@@ -44,10 +44,14 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
         JdCResponse<ArtificialSpotCheckResult> response = new JdCResponse<ArtificialSpotCheckResult>();
         response.toSucceed();
         try {
+            if (Constants.NUMBER_ONE.equals(request.getVersion())) {
+
+            }
             InvokeResult<Waybill> invokeResult = spotCheckCurrencyService.obtainBaseInfo(request.getBarCode());
             ArtificialSpotCheckResult result = new ArtificialSpotCheckResult();
             int packNum = (invokeResult.getData() == null || invokeResult.getData().getGoodNumber() == null) ? Constants.NUMBER_ZERO : invokeResult.getData().getGoodNumber();
             result.setIsMultiPack(packNum > Constants.CONSTANT_NUMBER_ONE);
+            result.setWaybillCode(result.getWaybillCode());
             response.init(invokeResult.getCode(), invokeResult.getMessage());
             response.setData(result);
         }catch (Exception e){

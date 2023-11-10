@@ -27,6 +27,22 @@ public class ArtificialSpotCheckResult implements Serializable {
      */
     private Integer excessType;
 
+    /**
+     * 运单号
+     */
+    private String waybillCode;
+
+    /**
+     * 原重量
+     */
+    private Double originalWeight;
+
+    /**
+     * 原体积
+     */
+    private String originalVolume;
+
+
     public Boolean getIsMultiPack() {
         return isMultiPack;
     }
@@ -49,5 +65,29 @@ public class ArtificialSpotCheckResult implements Serializable {
 
     public void setExcessType(Integer excessType) {
         this.excessType = excessType;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
+
+    public Double getOriginalWeight() {
+        return originalWeight;
+    }
+
+    public void setOriginalWeight(Double originalWeight) {
+        this.originalWeight = originalWeight;
+    }
+
+    public String getOriginalVolume() {
+        return originalVolume;
+    }
+
+    public void setOriginalVolume(String originalVolume) {
+        this.originalVolume = originalVolume;
     }
 }
