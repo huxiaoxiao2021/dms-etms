@@ -40,7 +40,7 @@ public class ArtificialSpotCheckResult implements Serializable {
     /**
      * 原体积
      */
-    private String originalVolume;
+    private Double originalVolume;
 
 
     public Boolean getIsMultiPack() {
@@ -83,11 +83,11 @@ public class ArtificialSpotCheckResult implements Serializable {
         this.originalWeight = originalWeight;
     }
 
-    public String getOriginalVolume() {
+    public Double getOriginalVolume() {
         return originalVolume;
     }
 
-    public void setOriginalVolume(String originalVolume) {
+    public void setOriginalVolume(Double originalVolume) {
         this.originalVolume = originalVolume;
     }
 }

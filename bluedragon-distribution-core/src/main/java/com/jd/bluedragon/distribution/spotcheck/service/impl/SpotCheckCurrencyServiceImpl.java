@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException
 import com.jd.bluedragon.distribution.spotcheck.handler.SpotCheckHandlerStrategy;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
@@ -159,4 +161,34 @@ public class SpotCheckCurrencyServiceImpl implements SpotCheckCurrencyService {
         }
         return result;
     }
+
+    public boolean isWaybillSignValid(Waybill waybill) {
+        String waybillSign = waybill.getWaybillSign();
+        // 快递：waybillSign40=0
+        if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_0)) {
+            return true;
+        }
+        // 快运：waybillSign40=1/2/3，且80位不等于6/7/8（剔除冷链），且89位不等于1/2（剔除tc），且99位不等于1（剔除京小仓）
+        if (BusinessUtil.isBInternet(waybillSign)) {
+            return true;
+        }
+        // 医药冷链（此次新增）：waybillSign31位=D
+        if (BusinessUtil.isMedicalFreshProductType(waybillSign)) {
+            return true;
+        }
+        // 医药零担（此次新增）：waybillSign40=2/3，且waybillSign80 =7，且waybillSign54=4
+        if (BusinessUtil.isMedicine(waybillSign)) {
+            return true;
+        }
+        // 冷链专送：waybillSign31位=G
+        if (BusinessUtil.isColdDelivery(waybillSign)) {
+            return true;
+        }
+        // 冷链城配/卡班/小票：waybillSign40=2，且waybillSign54=2，且waybillSign80=6/7
+        if (BusinessUtil.isColdChainCPKBReceipt(waybillSign)) {
+            return true;
+        }
+        return false;
+    }
+
 }

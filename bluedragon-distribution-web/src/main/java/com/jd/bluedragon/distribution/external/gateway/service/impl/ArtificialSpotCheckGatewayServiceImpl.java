@@ -12,7 +12,9 @@ import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.ArtificialSpotCheckGatewayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -35,6 +37,12 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
 
     private static final Logger logger = LoggerFactory.getLogger(ArtificialSpotCheckGatewayServiceImpl.class);
 
+    /**
+     * 无效单号code与message
+     */
+    private static final Integer INVALID_WAYBILL_CODE = 40001;
+    private static final String INVALID_WAYBILL_MESSAGE = "无效单号";
+
     @Autowired
     private SpotCheckCurrencyService spotCheckCurrencyService;
 
@@ -44,14 +52,40 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
         JdCResponse<ArtificialSpotCheckResult> response = new JdCResponse<ArtificialSpotCheckResult>();
         response.toSucceed();
         try {
+            // 新版抽检入口
             if (Constants.NUMBER_ONE.equals(request.getVersion())) {
-
+                if (!WaybillUtil.isWaybillCode(request.getBarCode())) {
+                    logger.warn("obtainBaseInfo|人工抽检运单号不符合正则:barCode={}", request.getBarCode());
+                    response.init(INVALID_WAYBILL_CODE, INVALID_WAYBILL_MESSAGE);
+                    return response;
+                }
+                InvokeResult<Waybill> invokeResult = spotCheckCurrencyService.obtainBaseInfo(request.getBarCode());
+                if (!invokeResult.codeSuccess()) {
+                    logger.warn("obtainBaseInfo|根据运单号查询运单接口返回空:barCode={}", request.getBarCode());
+                    response.init(INVALID_WAYBILL_CODE, INVALID_WAYBILL_MESSAGE);
+                    return response;
+                }
+                Waybill waybill = invokeResult.getData();
+                boolean signValidFlag = spotCheckCurrencyService.isWaybillSignValid(waybill);
+                if (!signValidFlag) {
+                    logger.warn("obtainBaseInfo|运单标位不满足抽检条件:barCode={},waybillSign={}", request.getBarCode(), waybill.getWaybillSign());
+                    response.init(INVALID_WAYBILL_CODE, INVALID_WAYBILL_MESSAGE);
+                    return response;
+                }
+                if (waybill.getGoodNumber() == null) {
+                    logger.warn("obtainBaseInfo|根据运单号查询运单接口返回的goodNumber字段为空:barCode={}", request.getBarCode());
+                    response.init(INVALID_WAYBILL_CODE, INVALID_WAYBILL_MESSAGE);
+                    return response;
+                }
+                logger.info("obtainBaseInfo|运单详情:barCode={},waybill={}", request.getBarCode(), JsonHelper.toJson(waybill));
+                ArtificialSpotCheckResult result = getArtificialSpotCheckResult(waybill);
+                response.setData(result);
+                return response;
             }
             InvokeResult<Waybill> invokeResult = spotCheckCurrencyService.obtainBaseInfo(request.getBarCode());
             ArtificialSpotCheckResult result = new ArtificialSpotCheckResult();
             int packNum = (invokeResult.getData() == null || invokeResult.getData().getGoodNumber() == null) ? Constants.NUMBER_ZERO : invokeResult.getData().getGoodNumber();
             result.setIsMultiPack(packNum > Constants.CONSTANT_NUMBER_ONE);
-            result.setWaybillCode(result.getWaybillCode());
             response.init(invokeResult.getCode(), invokeResult.getMessage());
             response.setData(result);
         }catch (Exception e){
@@ -59,6 +93,16 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
             response.toError();
         }
         return response;
+    }
+
+    private ArtificialSpotCheckResult getArtificialSpotCheckResult(Waybill waybill) {
+        ArtificialSpotCheckResult result = new ArtificialSpotCheckResult();
+        int packNum = (waybill.getGoodNumber() == null) ? Constants.NUMBER_ZERO : waybill.getGoodNumber();
+        result.setIsMultiPack(packNum > Constants.CONSTANT_NUMBER_ONE);
+        result.setWaybillCode(waybill.getWaybillCode());
+        result.setOriginalWeight(waybill.getGoodWeight());
+        result.setOriginalVolume(waybill.getGoodVolume());
+        return result;
     }
 
     @JProfiler(jKey = "dms.ArtificialSpotCheckGatewayService.artificialCheckIsExcess", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
