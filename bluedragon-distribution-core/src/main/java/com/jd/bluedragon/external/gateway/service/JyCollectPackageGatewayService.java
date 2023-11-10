@@ -74,6 +74,17 @@ public interface JyCollectPackageGatewayService {
   JdCResponse<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request);
 
 
+  /**
+   * 查询场地集包规则-混装箱流向列表
+   * @param request
+   * @return
+   */
+  JdCResponse<MixFlowListResp> querySiteMixFlowList(MixFlowListReq request);
 
-
+  /**
+   * 保存场地集包规则-混装箱流向列表
+   * @param request
+   * @return
+   */
+  JdCResponse<UpdateMixFlowListResp> updateTaskFlowList(UpdateMixFlowListReq request);
 }

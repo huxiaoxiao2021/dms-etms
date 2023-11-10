@@ -267,4 +267,49 @@ public class JyCollectPackageGatewayServiceImplTest {
         jdCResponse.setData(data);
         System.out.println(JsonHelper.toJson(jdCResponse));
     }
+
+    @Test
+    public void querySiteMixFlowListTest() {
+        MixFlowListReq req = new MixFlowListReq();
+        req.setBizId("JCP23110700000022");
+        req.setBoxCode("BC1001231107260000600320");
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(910);
+        User user =new User();
+        user.setUserErp("wuyoude");
+        user.setUserName("吴有德");
+        user.setUserCode(17331);
+        req.setUser(user);
+        req.setCurrentOperate(currentOperate);
+        req.setBoxReceiveId(40240);
+        JdCResponse<MixFlowListResp> response = jyCollectPackageGatewayService.querySiteMixFlowList(req);
+        System.out.println(JsonHelper.toJson(response));
+    }
+
+    @Test
+    public void updateTaskFlowListTest() {
+        UpdateMixFlowListReq req = new UpdateMixFlowListReq();
+        req.setBizId("JCP23110700000022");
+        req.setBoxCode("BC1001231107260000600320");
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(910);
+        User user =new User();
+        user.setUserErp("wuyoude");
+        user.setUserName("吴有德");
+        user.setUserCode(17331);
+        req.setUser(user);
+        req.setCurrentOperate(currentOperate);
+        List<CollectPackageFlowDto> collectPackageFlowDtoList = new ArrayList<>();
+        CollectPackageFlowDto dto = new CollectPackageFlowDto();
+        dto.setEndSiteId(2007L);
+        dto.setEndSiteName("太原大货仓");
+        collectPackageFlowDtoList.add(dto);
+        CollectPackageFlowDto dto2 = new CollectPackageFlowDto();
+        dto2.setEndSiteId(40240L);
+        dto2.setEndSiteName("北京通州分拣中心");
+        collectPackageFlowDtoList.add(dto2);
+        req.setCollectPackageFlowDtoList(collectPackageFlowDtoList);
+        JdCResponse<UpdateMixFlowListResp> response = jyCollectPackageGatewayService.updateTaskFlowList(req);
+        System.out.println(JsonHelper.toJson(response));
+    }
 }

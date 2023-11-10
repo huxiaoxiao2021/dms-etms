@@ -19,5 +19,12 @@ public interface BoxLimitConfigManager {
      */
     Integer getLimitNums( Integer createSiteCode, String type);
 
-    List<CollectBoxFlowDirectionConf> listCollectBoxFlowDirectionMix(CollectBoxFlowDirectionConf collectBoxFlowDirectionConf);
+    /**
+     * 查询集包箱流向配置列表
+     *
+     * @param collectBoxFlowDirectionConf
+     * @param collectClaimList
+     * @return
+     */
+    List<CollectBoxFlowDirectionConf> listCollectBoxFlowDirection(CollectBoxFlowDirectionConf collectBoxFlowDirectionConf, List<Integer> collectClaimList);
 }
