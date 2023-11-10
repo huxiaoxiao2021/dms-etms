@@ -408,6 +408,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(waybill.getOldSiteId());
         if(ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsId())){
             //todo 这个地方要不要留强制集包的口子呢？
+            log.info("jy getLastDmsByPackage：{}",JsonHelper.toJson(baseStaffSiteOrgDto));
             throw new JyBizException("未获取到末级分拣中心信息!");
         }
         return baseStaffSiteOrgDto.getDmsId();
