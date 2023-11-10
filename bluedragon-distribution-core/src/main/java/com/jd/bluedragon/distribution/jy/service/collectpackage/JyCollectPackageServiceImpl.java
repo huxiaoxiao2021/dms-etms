@@ -1228,19 +1228,18 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             throw new JyBizException("当前系统繁忙,请稍后再试！");
         }
 
-        JyBizTaskCollectPackageEntity task = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
-        if (task == null) {
-            result.setCode(RESULT_THIRD_ERROR_CODE);
-            result.setMessage("未获取到包裹任务信息！");
-            return result;
-        }
-        if (!JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode().equals(task.getTaskStatus())) {
-            result.setCode(RESULT_THIRD_ERROR_CODE);
-            result.setMessage("该任务已集包，不能集包修改流向信息！");
-            return result;
-        }
-
         try{
+            JyBizTaskCollectPackageEntity task = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
+            if (task == null) {
+                result.setCode(RESULT_THIRD_ERROR_CODE);
+                result.setMessage("未获取到包裹任务信息！");
+                return result;
+            }
+            if (!JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode().equals(task.getTaskStatus())) {
+                result.setCode(RESULT_THIRD_ERROR_CODE);
+                result.setMessage("该任务已集包，不能集包修改流向信息！");
+                return result;
+            }
             // 删除原集包任务流向信息
             List<JyBizTaskCollectPackageFlowEntity> oldFlowList = jyBizTaskCollectPackageFlowService.queryListByBizIds(Collections.singletonList(task.getBizId()));
             List<Long> ids = oldFlowList.stream().map(JyBizTaskCollectPackageFlowEntity::getId).collect(Collectors.toList());
@@ -1255,6 +1254,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             result.setCode(RESULT_THIRD_ERROR_CODE);
             result.setMessage("更新集包任务异常，请联系分拣小秘！");
             return result;
+        }finally {
+            jimDbLock.releaseLock(boxLockKey, request.getRequestId());
         }
         return result;
     }
