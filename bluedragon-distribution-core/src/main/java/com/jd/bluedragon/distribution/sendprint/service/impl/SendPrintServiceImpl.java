@@ -1712,8 +1712,11 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
 
             //覆盖解密数据
+            if(StringUtils.isNotBlank(resp.getData().getReceiver().getMobile())){
+                waybillDto.getWaybill().setReceiverMobile(resp.getData().getReceiver().getMobile());
+            }
             if(StringUtils.isNotBlank(resp.getData().getReceiver().getPhone())){
-                waybillDto.getWaybill().setReceiverMobile(resp.getData().getReceiver().getPhone());
+                waybillDto.getWaybill().setReceiverTel(resp.getData().getReceiver().getPhone());
             }
             if(StringUtils.isNotBlank(resp.getData().getReceiver().getName())){
                 waybillDto.getWaybill().setReceiverName(resp.getData().getReceiver().getName());

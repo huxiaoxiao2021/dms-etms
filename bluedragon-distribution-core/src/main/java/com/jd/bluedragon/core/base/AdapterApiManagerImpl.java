@@ -71,6 +71,7 @@ public class AdapterApiManagerImpl implements AdapterApiManager {
             jsfRequest.setJsfArrangeName(PLATFORM_DECRY_ROUTER);
             jsfRequest.setStandardJson(JsonHelper.toJson(request));
             AdapterResponse jsfResp = adapterApiJsfService.commonAdapterExcute(jsfRequest);
+            jsfResp.setOutJson("{\"returnCode\":\"0\",\"result\":true,\"data\":{\"waybillCode\":\"JDAZ00001587575\",\"receiver\":{\"name\":\"周借钱\",\"mobile\":\"18187627811\",\"virtualMobile\":\"18187627811-0878\"}}}");
             if(jsfResp == null || StringUtils.isBlank(jsfResp.getOutJson())){
                 logger.error("commonAdapterExcute fail! resp is null, req:{}",JsonHelper.toJson(jsfRequest));
                 return null;
@@ -79,7 +80,7 @@ public class AdapterApiManagerImpl implements AdapterApiManager {
             if(response == null || !response.getResult()){
                 logger.error("commonAdapterExcute fail! resp {}, req:{}",jsfResp.getOutJson(),JsonHelper.toJson(jsfRequest));
             }else {
-                logger.error("commonAdapterExcute success! resp {}, req:{}",jsfResp.getOutJson(),JsonHelper.toJson(jsfRequest));
+                logger.info("commonAdapterExcute success! resp {}, req:{}",jsfResp.getOutJson(),JsonHelper.toJson(jsfRequest));
             }
             return response;
         }catch (Exception e){
