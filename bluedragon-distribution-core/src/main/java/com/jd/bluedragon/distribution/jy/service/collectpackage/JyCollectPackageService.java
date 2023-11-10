@@ -1,10 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 
 public interface JyCollectPackageService {
 
@@ -74,4 +72,21 @@ public interface JyCollectPackageService {
      * @return 响应结果对象，包含任务流向下统计数据
      */
     InvokeResult<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request);
+
+
+    /**
+     * 查询站点集包流向列表
+     *
+     * @param request
+     * @return
+     */
+    InvokeResult<MixFlowListResp> querySiteMixFlowList(MixFlowListReq request);
+
+    /**
+     * 更新箱号集包流向列表
+     *
+     * @param request
+     * @return
+     */
+    InvokeResult<UpdateMixFlowListResp> updateTaskFlowList(UpdateMixFlowListReq request);
 }

@@ -27,10 +27,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
 
 /**
  * Created by yanghongqiang on 2015/7/8.
@@ -105,7 +104,7 @@ public class CrossSortingResource {
     }
 
     private List<CrossSorting> getMixedConfigUseBasicNew(CrossSortingRequest request) {
-        List<CollectBoxFlowDirectionConf> flowConfList = boxLimitConfigManager.listCollectBoxFlowDirectionMix(assembleCollectBoxFlowDirectionConf(request));
+        List<CollectBoxFlowDirectionConf> flowConfList = boxLimitConfigManager.listCollectBoxFlowDirection(assembleCollectBoxFlowDirectionConf(request), Collections.singletonList(COLLECT_CLAIM_MIX));
         List<CrossSorting> mixDmsList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(flowConfList)) {
             for (CollectBoxFlowDirectionConf collectBoxFlowDirectionConf : flowConfList) {

@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
-import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
@@ -10,7 +9,6 @@ import com.jd.bluedragon.common.dto.sorting.request.PackSortTaskBody;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
@@ -61,7 +59,6 @@ import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
@@ -72,6 +69,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -84,6 +83,7 @@ import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.getFromCo
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
 
 @Service
 @Slf4j
@@ -416,8 +416,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      * @return
      */
     private List<Integer> queryMixBoxFlowList(CollectPackageReq req) {
-        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(req);
-        List<CollectBoxFlowDirectionConf> collectBoxFlowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirectionMix(con);//TODO 替换成查询任务的流向集合
+        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(req.getCurrentOperate().getSiteCode(),req.getBoxReceiveId().intValue(),null);
+        List<CollectBoxFlowDirectionConf> collectBoxFlowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con, Collections.singletonList(COLLECT_CLAIM_MIX));//TODO 替换成查询任务的流向集合
         if (CollectionUtils.isEmpty(collectBoxFlowDirectionConfList)) {
             throw new JyBizException("未查询到对应目的地的可混装的流向集合！");
         }
@@ -428,11 +428,20 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return endSiteIdList;
     }
 
-    private CollectBoxFlowDirectionConf assembleCollectBoxFlowDirectionConf(CollectPackageReq req) {
+    private CollectBoxFlowDirectionConf assembleCollectBoxFlowDirectionConf(Integer siteCode, Integer boxReceiveId, String searchCondition) {
         CollectBoxFlowDirectionConf conf = new CollectBoxFlowDirectionConf();
-        conf.setStartSiteId(req.getCurrentOperate().getSiteCode());
-        conf.setBoxReceiveId(req.getBoxReceiveId().intValue());
+        conf.setStartSiteId(siteCode);
+        conf.setBoxReceiveId(boxReceiveId);
         conf.setFlowType(FlowDirectionTypeEnum.OUT_SITE.getCode());
+        if (!StringUtils.isEmpty(searchCondition)) {
+            // 目前只支持按目的地id和目的地名称查询
+            if (NumberHelper.isNumber(searchCondition)) {
+                conf.setEndSiteId(Integer.valueOf(searchCondition));
+            }else {
+                conf.setEndSiteName(searchCondition);
+            }
+
+        }
         return conf;
     }
 
@@ -1117,6 +1126,125 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,statisticsUnderFlowQueryResp);
         }
         return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+    }
+
+    @Override
+    public InvokeResult<MixFlowListResp> querySiteMixFlowList(MixFlowListReq request) {
+        InvokeResult<MixFlowListResp> result = new InvokeResult<>();
+        if (!checkMixFlowListReq(request, result)) {
+            return result;
+        }
+        MixFlowListResp resp = new MixFlowListResp();
+        List<CollectPackageFlowDto> flowDtoList = new ArrayList<>();
+        resp.setCollectPackageFlowDtoList(flowDtoList);
+        result.setData(resp);
+        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(request.getCurrentOperate().getSiteCode(), request.getBoxReceiveId(),request.getSearchCondition());
+        List<CollectBoxFlowDirectionConf> flowList=
+                boxLimitConfigManager.listCollectBoxFlowDirection(con, Collections.singletonList(COLLECT_CLAIM_MIX));
+        if (!CollectionUtils.isEmpty(flowList)) {
+            flowList.forEach(item-> {
+                CollectPackageFlowDto flowDto = new CollectPackageFlowDto();
+                flowDto.setEndSiteId(item.getEndSiteId().longValue());
+                flowDto.setEndSiteName(item.getEndSiteName());
+                flowDtoList.add(flowDto);
+            });
+        }
+        return result;
+    }
+
+    private boolean checkMixFlowListReq(MixFlowListReq request, InvokeResult<MixFlowListResp> result) {
+        if (request == null || request.getCurrentOperate() == null || request.getCurrentOperate().getSiteCode() <= 0) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("未获取到场地信息！");
+            return false;
+        }
+
+        if (request.getBoxReceiveId() == null || request.getBoxReceiveId() <= 0) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("未获取到包裹流向信息！");
+            return false;
+        }
+        return true;
+    }
+
+
+    @Override
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public InvokeResult<UpdateMixFlowListResp> updateTaskFlowList(UpdateMixFlowListReq request) {
+        InvokeResult<UpdateMixFlowListResp> result = new InvokeResult<>();
+        if (!checkUpdateMixFlowListReq(request, result)) {
+            return result;
+        }
+
+        String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, request.getBoxCode());
+        if (!jimDbLock.lock(boxLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+            throw new JyBizException("当前系统繁忙,请稍后再试！");
+        }
+
+        JyBizTaskCollectPackageEntity task = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
+        if (task == null) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("未获取到包裹任务信息！");
+            return result;
+        }
+        if (!JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode().equals(task.getTaskStatus())) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("该任务已集包，不能集包修改流向信息！");
+            return result;
+        }
+
+        try{
+            // 删除原集包任务流向信息
+            List<JyBizTaskCollectPackageFlowEntity> oldFlowList = jyBizTaskCollectPackageFlowService.queryListByBizIds(Collections.singletonList(task.getBizId()));
+            List<Long> ids = oldFlowList.stream().map(JyBizTaskCollectPackageFlowEntity::getId).collect(Collectors.toList());
+            jyBizTaskCollectPackageFlowService.deleteByIds(ids);
+
+            // 保存当前流向信息
+            List<JyBizTaskCollectPackageFlowEntity> newFlowList = request.getCollectPackageFlowDtoList()
+                    .stream().map(item -> converJyBizTaskCollectPackageFlowEntity(item,task, request)).collect(Collectors.toList());
+            jyBizTaskCollectPackageFlowService.batchInsert(newFlowList);
+        }catch (Exception e) {
+            log.error("更新集包任务流向信息失败！{}", JsonHelper.toJson(request), e);
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("更新集包任务异常，请联系分拣小秘！");
+            return result;
+        }
+        return result;
+    }
+
+    private JyBizTaskCollectPackageFlowEntity converJyBizTaskCollectPackageFlowEntity(CollectPackageFlowDto item, JyBizTaskCollectPackageEntity task, UpdateMixFlowListReq request) {
+        JyBizTaskCollectPackageFlowEntity entity = new JyBizTaskCollectPackageFlowEntity();
+        entity.setBoxCode(task.getBoxCode());
+        entity.setCreateTime(new Date());
+        entity.setCreateUserErp(request.getUser().getUserErp());
+        entity.setStartSiteId(task.getStartSiteId());
+        entity.setStartSiteName(task.getStartSiteName());
+        entity.setCreateUserName(request.getUser().getUserName());
+        entity.setCollectPackageBizId(task.getBizId());
+        entity.setEndSiteId(item.getEndSiteId().longValue());
+        entity.setEndSiteName(item.getEndSiteName());
+        entity.setUpdateTime(new Date());
+        entity.setUpdateUserErp(request.getUser().getUserErp());
+        entity.setUpdateUserName(request.getUser().getUserName());
+        entity.setYn(Boolean.TRUE);
+        return entity;
+    }
+
+    private boolean checkUpdateMixFlowListReq(UpdateMixFlowListReq request, InvokeResult<UpdateMixFlowListResp> result) {
+        if (CollectionUtils.isEmpty(request.getCollectPackageFlowDtoList())
+                || StringUtils.isEmpty(request.getBizId())
+                || StringUtils.isEmpty(request.getBoxCode())) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("未获取到包裹任务信息！");
+            return false;
+        }
+
+        if (request.getUser() == null) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("未获取到操作人信息！");
+            return false;
+        }
+        return true;
     }
 
     private void checkStatisticsUnderFlowQueryReq(StatisticsUnderFlowQueryReq request) {

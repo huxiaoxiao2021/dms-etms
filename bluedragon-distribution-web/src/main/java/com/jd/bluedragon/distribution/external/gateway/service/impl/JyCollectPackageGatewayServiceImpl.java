@@ -4,9 +4,7 @@ import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
-import com.jd.bluedragon.common.dto.comboard.request.ExcepScanDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.enums.CollectPackageExcepScanEnum;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
@@ -104,6 +102,16 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
     @Override
     public JdCResponse<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request) {
         return retJdCResponse(jyCollectPackageService.queryStatisticsUnderFlow(request));
+    }
+
+    @Override
+    public JdCResponse<MixFlowListResp> querySiteMixFlowList(MixFlowListReq request) {
+        return retJdCResponse(jyCollectPackageService.querySiteMixFlowList(request));
+    }
+
+    @Override
+    public JdCResponse<UpdateMixFlowListResp> updateTaskFlowList(UpdateMixFlowListReq request) {
+        return retJdCResponse(jyCollectPackageService.updateTaskFlowList(request));
     }
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
