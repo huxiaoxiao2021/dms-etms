@@ -82,6 +82,10 @@ public class SpotCheckCurrencyServiceImpl implements SpotCheckCurrencyService {
             InvokeResult<SpotCheckResult> spotCheckResult = spotCheckHandlerStrategy.checkExcess(spotCheckDto);
             result.customMessage(spotCheckResult.getCode(), spotCheckResult.getMessage());
             result.setData(spotCheckResult.getData().getExcessStatus());
+            // 新版抽检入口返回具体的超标类型
+            if (Constants.NUMBER_ONE.equals(spotCheckDto.getVersion())) {
+                result.setData(spotCheckResult.getData().getExcessType());
+            }
         }catch (SpotCheckBusinessException e){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, e.getMessage());
         }catch (Exception e){

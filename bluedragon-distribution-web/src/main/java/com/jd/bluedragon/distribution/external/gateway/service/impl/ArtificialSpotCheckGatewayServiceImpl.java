@@ -178,6 +178,7 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
 
     private SpotCheckDto transferSpotCheckDto(ArtificialSpotCheckRequest artificialSpotCheckRequest) {
         SpotCheckDto spotCheckDto = new SpotCheckDto();
+        spotCheckDto.setVersion(artificialSpotCheckRequest.getVersion());
         spotCheckDto.setBarCode(artificialSpotCheckRequest.getBarCode());
         spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_ARTIFICIAL.getName());
         spotCheckDto.setWeight(artificialSpotCheckRequest.getWeight());
@@ -197,6 +198,7 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
         spotCheckDto.setExcessStatus(artificialSpotCheckRequest.getExcessStatus());
         spotCheckDto.setExcessType(artificialSpotCheckRequest.getExcessType());
         spotCheckDto.setPictureUrls(artificialSpotCheckRequest.getPictureUrlsMap());
+        spotCheckDto.setVideoUrl(artificialSpotCheckRequest.getVideoUrl());
         spotCheckDto.setIsReformedSpotCheck(artificialSpotCheckRequest.getIsReformedSpotCheck() != null && artificialSpotCheckRequest.getIsReformedSpotCheck());
         return spotCheckDto;
     }
