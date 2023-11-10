@@ -1742,7 +1742,7 @@ public class UccPropertyConfiguration{
     /**
      * 箱号类型新版切换开关
      */
-    private Boolean boxTypeNewVersionSwitch;
+    private boolean boxTypeNewVersionSwitch;
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -3957,11 +3957,11 @@ public class UccPropertyConfiguration{
         }
     }
 
-    public Boolean getBoxTypeNewVersionSwitch() {
+    public boolean getBoxTypeNewVersionSwitch() {
         return boxTypeNewVersionSwitch;
     }
 
-    public UccPropertyConfiguration setBoxTypeNewVersionSwitch(Boolean boxTypeNewVersionSwitch) {
+    public UccPropertyConfiguration setBoxTypeNewVersionSwitch(boolean boxTypeNewVersionSwitch) {
         this.boxTypeNewVersionSwitch = boxTypeNewVersionSwitch;
         return this;
     }
