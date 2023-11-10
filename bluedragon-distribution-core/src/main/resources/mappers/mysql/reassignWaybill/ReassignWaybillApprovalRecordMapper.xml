@@ -320,10 +320,10 @@
     from reassign_waybill_approval_record
     where yn =1
 
-    <if test="provinceAgencyCode != null" >
+    <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
       ANd province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
     </if>
-    <if test="areaHubCode != null" >
+    <if test="areaHubCode != null and areaHubCode != ''" >
       AND area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
     </if>
     <if test="siteCode != null" >
@@ -332,10 +332,10 @@
     <if test="changeSiteReasonTypeCode != null" >
       AND change_site_reason_type = #{changeSiteReasonTypeCode,jdbcType=BIT},
     </if>
-    <if test="barCode != null" >
+    <if test="barCode != null and barCode != ''" >
       AND bar_code = #{barCode,jdbcType=VARCHAR},
     </if>
-    <if test="applicationUserErp != null " >
+    <if test="applicationUserErp != null and applicationUserErp != '' " >
       AND application_user_erp = #{applicationUserErp,jdbcType=VARCHAR},
     </if>
     <if test="firstCheckStatus != null">
@@ -359,10 +359,10 @@
     from reassign_waybill_approval_record
     where yn =1
 
-    <if test="provinceAgencyCode != null" >
+    <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
       AND province_agency_code = #{provinceAgencyCode}
     </if>
-    <if test="areaHubCode != null" >
+    <if test="areaHubCode != null and areaHubCode != ''" >
       AND area_hub_code = #{areaHubCode}
     </if>
     <if test="siteCode != null" >
@@ -371,10 +371,10 @@
     <if test="changeSiteReasonTypeCode != null" >
       AND change_site_reason_type = #{changeSiteReasonTypeCode}
     </if>
-    <if test="barCode != null" >
+    <if test="barCode != null and barCode != ''" >
       AND bar_code = #{barCode}
     </if>
-    <if test="applicationUserErp != null" >
+    <if test="applicationUserErp != null and applicationUserErp != ''" >
       AND application_user_erp = #{applicationUserErp}
     </if>
     <if test="firstCheckStatus != null">
