@@ -321,22 +321,22 @@
     where yn =1
 
     <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
-      ANd province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+      AND province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
     </if>
     <if test="areaHubCode != null and areaHubCode != ''" >
-      AND area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+      AND area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
     </if>
     <if test="siteCode != null" >
-      AND site_code = #{siteCode,jdbcType=INTEGER},
+      AND site_code = #{siteCode,jdbcType=INTEGER}
     </if>
     <if test="changeSiteReasonTypeCode != null" >
-      AND change_site_reason_type = #{changeSiteReasonTypeCode,jdbcType=BIT},
+      AND change_site_reason_type = #{changeSiteReasonTypeCode,jdbcType=BIT}
     </if>
     <if test="barCode != null and barCode != ''" >
-      AND bar_code = #{barCode,jdbcType=VARCHAR},
+      AND bar_code = #{barCode,jdbcType=VARCHAR}
     </if>
     <if test="applicationUserErp != null and applicationUserErp != '' " >
-      AND application_user_erp = #{applicationUserErp,jdbcType=VARCHAR},
+      AND application_user_erp = #{applicationUserErp,jdbcType=VARCHAR}
     </if>
     <if test="firstCheckStatus != null">
       AND first_check_status = #{firstCheckStatus,jdbcType=BIT}
