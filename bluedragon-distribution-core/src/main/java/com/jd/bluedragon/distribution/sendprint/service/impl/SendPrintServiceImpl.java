@@ -1679,9 +1679,10 @@ public class SendPrintServiceImpl implements SendPrintService {
             String receiveMobileEncMode = String.valueOf(receiveMobileMap.get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getCode()));
             //名字加密模式
             String receiveNameEncMode = String.valueOf(receiveNameMap.get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getCode()));
-            //虚拟号过期时间
+            //虚拟号过期时间 不存在就已当前时间为准
             Object receiveMobileVirtualNumberExpireObj = receiveMobileMap.get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_ESC_VIRTUAL_NUMBER_EXPIRE.getCode());
-            Date receiveMobileVirtualNumberExpire = receiveMobileVirtualNumberExpireObj == null ? new Date() : DateHelper.parseAllFormatDateTime(String.valueOf(receiveMobileVirtualNumberExpireObj));
+            Date receiveMobileVirtualNumberExpire = receiveMobileVirtualNumberExpireObj == null || StringUtils.isBlank(String.valueOf(receiveMobileVirtualNumberExpireObj)) ?
+                    new Date() : DateHelper.parseAllFormatDateTime(String.valueOf(receiveMobileVirtualNumberExpireObj));
 
             // 检查加密或虚拟号
             // 如果encMode字段=1，表示加密信息，此类需要分拣触发解密 如果encMode字段=2，表示是虚拟号，需要再判断virtualNumberExpire字段，虚拟号失效时间减去当前时间小于等于10天的（可配置)
