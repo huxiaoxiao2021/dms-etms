@@ -356,16 +356,19 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 				/* 站点名称模糊匹配 */
 				resList.addAll(siteService.fuzzyGetSiteBySiteName(siteCodeOrName));
 			}
-			if(!CollectionUtils.isEmpty(resList)){
-				for (BaseStaffSiteOrgDto dto : resList){
-					if(dto != null){
-						BaseStaffResponse baseStaff = new BaseStaffResponse();
-						baseStaff.setSiteCode(dto.getSiteCode());
-						baseStaff.setSiteName(dto.getSiteName());
-						responseList.add(baseStaff);
-					}
+			if(CollectionUtils.isEmpty(resList)){
+				result.toFail("未查询到相关站点信息!");
+				return result;
+			}
+			for (BaseStaffSiteOrgDto dto : resList){
+				if(dto != null){
+					BaseStaffResponse baseStaff = new BaseStaffResponse();
+					baseStaff.setSiteCode(dto.getSiteCode());
+					baseStaff.setSiteName(dto.getSiteName());
+					responseList.add(baseStaff);
 				}
 			}
+
 			result.setData(responseList);
 		}catch (Exception e){
 			log.error("站点匹配接口异常-param-{}",siteCodeOrName,e);
