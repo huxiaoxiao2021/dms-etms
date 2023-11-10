@@ -22,6 +22,7 @@ import com.jd.coldchain.distribution.api.WaybillPackageContainerApi;
 import com.jd.coldchain.distribution.dto.BaseResponse;
 import com.jd.etms.basic.jsf.BasicSiteUpdateService;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.fastjson.JSON;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
@@ -459,6 +460,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             BaseStaffSiteOrgDto dto = new BaseStaffSiteOrgDto();
 
             ClientResponse<JdResponse> response = request.get(JdResponse.class);
+            log.info("queryDmsBaseSiteByCodeDmsver -{}", JSON.toJSONString(response));
             if (200 == response.getStatus()) {
                 JdResponse base = response.getEntity();
                 if (log.isInfoEnabled()) {
