@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -1606,6 +1607,33 @@ public class UccPropertyConfiguration{
     private boolean needValidateBatchCodeHasSealed;
 
     private String forceSendSiteList;
+
+
+    private String forceCollectPackageSiteListStr;
+
+    private List<String> forceCollectPackageSiteList;
+
+    public List<String> getForceCollectPackageSiteList(){
+        return forceCollectPackageSiteList;
+    }
+
+    public void setForceCollectPackageSiteList() {
+        if (ObjectHelper.isNotNull(forceCollectPackageSiteListStr)){
+            forceCollectPackageSiteList =new ArrayList<>();
+            if (forceCollectPackageSiteListStr.contains(",")){
+                forceCollectPackageSiteList =Arrays.asList(forceCollectPackageSiteListStr.split(","));
+            }else {
+                forceCollectPackageSiteList.add(forceCollectPackageSiteListStr);
+            }
+        }
+    }
+
+    public String getForceCollectPackageSiteListStr(){
+        return forceCollectPackageSiteListStr;
+    }
+    public void setForceCollectPackageSiteListStr(String forceCollectPackageSiteListStr) {
+        this.forceCollectPackageSiteListStr = forceCollectPackageSiteListStr;
+    }
 
     public String getForceSendSiteList() {
         return forceSendSiteList;

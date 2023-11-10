@@ -136,6 +136,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     @Autowired
     private RouterService routerService;
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
 
     /**
      * 集包
@@ -372,41 +375,83 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             request.setEndSiteId(collectPackageTask.getEndSiteId());
             return;
         }
-
-        //查询包裹路由信息
-        String router = waybillCacheService.getRouterByWaybillCode(WaybillUtil.getWaybillCode(request.getBarCode()));
-        //Waybill waybill =WaybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(request.getBarCode()));
-        if (!ObjectHelper.isNotNull(router)) {
-            log.info("未获取到运单的路由信息,startSiteId:{}", request.getCurrentOperate().getSiteCode());
-            throw new JyBizException("未获取到运单的路由信息！");
-        }
+        //查询包裹的末级分拣中心
+        Integer lastDmsId = getLastDmsByPackage(request.getBarCode());
         if (MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())) {
-            //校验路由是否存在于允许集包的流向集合中
+            //校验末级分拣中心是否为箱号目的地
             List<Integer> flowList = Collections.singletonList(collectPackageTask.getEndSiteId().intValue());
-            checkRouterIfExitInCollectFlowList(router, flowList, request, collectPackageTask);
+            checkLastDmsIfExitInCollectFlowList(lastDmsId, flowList, request, collectPackageTask);
         } else {
-            //查询可混集的流向集合信息
-            List<Integer> flowList = queryMixBoxFlowList(request);
+            //查询可混集的流向集合信息，校验末级分拣中心是否 在可集包的流向集合内
+            List<Integer> flowList = queryMixBoxFlowListUnderTask(request);
             if (CollectionUtils.isEmpty(flowList)) {
-                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(collectPackageTask.getEndSiteId().intValue());
-                if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper.isNotNull(baseStaffSiteOrgDto.getSiteName())) {
-                    throw new JyBizException(FORCE_COLLECT_PACKAGE_WARNING, "路由节点不在允许集包的流向内，是否强制集往【" + baseStaffSiteOrgDto.getSiteName() + "】？");
-                }
-                throw new JyBizException("路由节点不在允许集包的流向内，禁止集包！");
+                throw new JyBizException("未查询到当前任务的集包流向信息！");
             }
-            //校验路由信息是否 在可集包的流向集合内
-            checkRouterIfExitInCollectFlowList(router, flowList, request, collectPackageTask);
+            checkLastDmsIfExitInCollectFlowList(lastDmsId, flowList, request, collectPackageTask);
         }
         if (ObjectHelper.isNotNull(request.getEndSiteId())) {
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(request.getEndSiteId().intValue());
+            BaseStaffSiteOrgDto staffSiteOrgDto = baseService.getSiteBySiteID(request.getEndSiteId().intValue());
+            if (ObjectHelper.isNotNull(staffSiteOrgDto) && ObjectHelper.isNotNull(staffSiteOrgDto.getSiteName())) {
+                request.setEndSiteName(staffSiteOrgDto.getSiteName());
+            }
+        }
+    }
+
+    private Integer getLastDmsByPackage(String packageCode) {
+        Waybill waybill =waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(packageCode));
+        if (ObjectHelper.isEmpty(waybill)) {
+            throw new JyBizException("未查询到运单数据!");
+        }
+        if (ObjectHelper.isEmpty(waybill.getOldSiteId())) {
+            throw new JyBizException("运单对应的预分拣站点为空!");
+        }
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(waybill.getOldSiteId());
+        if(ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsId())){
+            //todo 这个地方要不要留强制集包的口子呢？
+            log.info("jy getLastDmsByPackage：{}",JsonHelper.toJson(baseStaffSiteOrgDto));
+            throw new JyBizException("未获取到末级分拣中心信息!");
+        }
+        return baseStaffSiteOrgDto.getDmsId();
+    }
+
+    /**
+     * 检查包裹末级分拣中心是否存在于可集包流向集合中
+     * @param dmsId Dms的唯一标识符
+     * @param flowSiteList 可以集包的流向列表
+     * @param request 集包Request
+     * @param collectPackageTask 集包任务实体
+     */
+    private void checkLastDmsIfExitInCollectFlowList(Integer dmsId, List<Integer> flowSiteList, CollectPackageReq request, JyBizTaskCollectPackageEntity collectPackageTask) {
+        boolean collectEnable = false;
+        for (Integer flowSite : flowSiteList) {
+            if (dmsId.equals(flowSite)) {
+                request.setEndSiteId(Long.valueOf(dmsId));
+                collectEnable = true;
+                break;
+            }
+        }
+        if (!collectEnable) {
+            checkIfPermitForceCollectPackage(request,collectPackageTask);
+            throw new JyBizException("末级分拣中心不在允许集包的流向内，禁止集包！");
+        }
+    }
+
+    //判断当前场地是否可以强制集包
+    private void checkIfPermitForceCollectPackage(CollectPackageReq request, JyBizTaskCollectPackageEntity collectPackageTask) {
+        List<String> siteList = dmsConfigManager.getPropertyConfig().getForceCollectPackageSiteList();
+        if (CollectionUtils.isNotEmpty(siteList) && siteList.contains(request.getCurrentOperate().getSiteCode())) {
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(collectPackageTask.getEndSiteId().intValue());
             if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper.isNotNull(baseStaffSiteOrgDto.getSiteName())) {
-                request.setEndSiteName(baseStaffSiteOrgDto.getSiteName());
+                throw new JyBizException(FORCE_COLLECT_PACKAGE_WARNING, "末级分拣中心不在允许集包的流向内，是否强制集往【" + baseStaffSiteOrgDto.getSiteName() + "】？");
             }
         }
     }
 
     private List<Integer> queryMixBoxFlowListUnderTask(CollectPackageReq request) {
-        //jyBizTaskCollectPackageFlowService.queryListByBizIds()
+        List<JyBizTaskCollectPackageFlowEntity> flowEntityList =jyBizTaskCollectPackageFlowService.queryListByBizIds((Collections.singletonList(request.getBizId())));
+        if (CollectionUtils.isNotEmpty(flowEntityList)){
+            return flowEntityList.stream().map(jyBizTaskCollectPackageFlowEntity -> jyBizTaskCollectPackageFlowEntity.getEndSiteId().intValue()).collect(Collectors.toList());
+        }
         return null;
     }
 
