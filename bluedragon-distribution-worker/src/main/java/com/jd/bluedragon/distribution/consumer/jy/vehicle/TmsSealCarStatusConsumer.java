@@ -8,7 +8,7 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.collect.InitCollectDto;
-import com.jd.bluedragon.distribution.jy.dto.task.SealUnsealStatusSyncAppSendTaskMQDto;
+import com.jd.bluedragon.distribution.jy.dto.task.SealSyncOpenCloseSendTaskDto;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -32,7 +32,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -257,8 +256,8 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
     //封车信息同步新版app发货任务状态
     private void sendSealSyncJySendTaskStatusMq(TmsSealCarStatusMQBody mqBody) {
         for(String batchCode : mqBody.getBatchCodes()) {
-            SealUnsealStatusSyncAppSendTaskMQDto msg = new SealUnsealStatusSyncAppSendTaskMQDto();
-            msg.setStatus(SealUnsealStatusSyncAppSendTaskMQDto.STATUS_SEAL);
+            SealSyncOpenCloseSendTaskDto msg = new SealSyncOpenCloseSendTaskDto();
+            msg.setStatus(SealSyncOpenCloseSendTaskDto.STATUS_SEAL);
             msg.setOperateUserCode(mqBody.getOperateUserCode());
             msg.setSealCarCode(mqBody.getSealCarCode());
             Date operateTime = DateHelper.parseAllFormatDateTime(mqBody.getOperateTime());

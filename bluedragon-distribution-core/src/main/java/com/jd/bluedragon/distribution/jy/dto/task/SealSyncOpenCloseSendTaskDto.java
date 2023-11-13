@@ -8,7 +8,7 @@ import java.util.List;
  * @Date 2023/11/6 16:01
  * @Description
  */
-public class SealUnsealStatusSyncAppSendTaskMQDto  implements Serializable {
+public class SealSyncOpenCloseSendTaskDto implements Serializable {
 
     private static final long serialVersionUID = -2720516986077944201L;
     public static final Integer STATUS_SEAL = 1;

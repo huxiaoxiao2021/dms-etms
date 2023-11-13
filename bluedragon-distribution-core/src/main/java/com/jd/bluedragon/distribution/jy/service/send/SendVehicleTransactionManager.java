@@ -15,7 +15,7 @@ import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeServic
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendTransferLogDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
-import com.jd.bluedragon.distribution.jy.dto.task.SealUnsealStatusSyncAppSendTaskMQDto;
+import com.jd.bluedragon.distribution.jy.dto.task.SealSyncOpenCloseSendTaskDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
@@ -714,7 +714,7 @@ public class SendVehicleTransactionManager {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.syncSendTaskSealStatusHandler",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean syncSendTaskSealStatusHandler(String detailBizId, JyBizTaskSendVehicleEntity taskSend, SealUnsealStatusSyncAppSendTaskMQDto myBody) {
+    public boolean syncSendTaskSealStatusHandler(String detailBizId, JyBizTaskSendVehicleEntity taskSend, SealSyncOpenCloseSendTaskDto myBody) {
         JyBizTaskSendVehicleDetailEntity taskSendDetail = taskSendVehicleDetailService.findByBizId(detailBizId);
         //从未封车（待发货、发货中、待封车）改为封车状态
         if(!JyBizTaskSendDetailStatusEnum.TO_SEND.getCode().equals(taskSendDetail.getVehicleStatus()) && !JyBizTaskSendDetailStatusEnum.SENDING.getCode().equals(taskSendDetail.getVehicleStatus()) && !JyBizTaskSendDetailStatusEnum.TO_SEAL.getCode().equals(taskSendDetail.getVehicleStatus())) {
@@ -780,7 +780,7 @@ public class SendVehicleTransactionManager {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.syncSendTaskToSealHandler",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean syncSendTaskToSealHandler(String detailBizId, JyBizTaskSendVehicleEntity taskSendData, SealUnsealStatusSyncAppSendTaskMQDto myBody) {
+    public boolean syncSendTaskToSealHandler(String detailBizId, JyBizTaskSendVehicleEntity taskSendData, SealSyncOpenCloseSendTaskDto myBody) {
         JyBizTaskSendVehicleDetailEntity taskSendDetail = this.taskSendVehicleDetailService.findByBizId(detailBizId);
         if(Objects.isNull(taskSendDetail) || !JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(taskSendDetail.getVehicleStatus())) {
             if(log.isInfoEnabled()) {

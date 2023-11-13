@@ -5,7 +5,7 @@ import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.dto.task.SealUnsealStatusSyncAppSendTaskMQDto;
+import com.jd.bluedragon.distribution.jy.dto.task.SealSyncOpenCloseSendTaskDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
@@ -130,8 +130,8 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
 
     private void sendResetSendStatusToSealMq(TmsCancelSealCarBatchMQBody mqBody, SealCarDto sealCarCodeOfTms){
         try{
-            SealUnsealStatusSyncAppSendTaskMQDto msg = new SealUnsealStatusSyncAppSendTaskMQDto();
-            msg.setStatus(SealUnsealStatusSyncAppSendTaskMQDto.STATUS_UNSEAL);
+            SealSyncOpenCloseSendTaskDto msg = new SealSyncOpenCloseSendTaskDto();
+            msg.setStatus(SealSyncOpenCloseSendTaskDto.STATUS_UNSEAL);
             msg.setOperateUserCode(mqBody.getOperateUserCode());
             msg.setSealCarCode(mqBody.getSealCarCode());
             msg.setOperateTime(mqBody.getOperateTime());

@@ -1,13 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.AirTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.CargoTypeEnum;
-import com.jd.bluedragon.distribution.consumer.jy.task.aviation.TmsAviationPlanConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.SealUnsealStatusSyncAppSendTaskConsumer;
-import com.jd.bluedragon.distribution.jy.dto.send.TmsAviationPlanDto;
-import com.jd.bluedragon.distribution.jy.dto.task.SealUnsealStatusSyncAppSendTaskMQDto;
-import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
-import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.distribution.consumer.jy.vehicle.SealSyncOpenCloseSendTaskConsumer;
+import com.jd.bluedragon.distribution.jy.dto.task.SealSyncOpenCloseSendTaskDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.junit.Test;
@@ -28,13 +22,13 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:spring/distribution-worker-context-test.xml")
-public class SealUnsealStatusSyncAppSendTaskConsumerTest {
+public class SealSyncOpenCloseSendTaskConsumerTest {
 
     public static final Date OFF_TIME = new Date(System.currentTimeMillis() + 3600l * 10l);
     public static final Date DOWN_TIME = new Date(System.currentTimeMillis() + 3600l * 24l);
 
     @Autowired
-    private SealUnsealStatusSyncAppSendTaskConsumer consume;
+    private SealSyncOpenCloseSendTaskConsumer consume;
 
     @Test
     public void testConsume() {
@@ -47,10 +41,10 @@ public class SealUnsealStatusSyncAppSendTaskConsumerTest {
 
 
 
-        SealUnsealStatusSyncAppSendTaskMQDto param = new SealUnsealStatusSyncAppSendTaskMQDto();
+        SealSyncOpenCloseSendTaskDto param = new SealSyncOpenCloseSendTaskDto();
 
 //        param.setStatus(SealUnsealStatusSyncAppSendTaskMQDto.STATUS_SEAL);
-        param.setStatus(SealUnsealStatusSyncAppSendTaskMQDto.STATUS_UNSEAL);
+        param.setStatus(SealSyncOpenCloseSendTaskDto.STATUS_UNSEAL);
 //        String batchCode = "40240-910-20231108001282640"; //运输任务·
         String batchCode = "40240-910-20231104071243343";  //自建任务
         List<String> batchCodeList = Arrays.asList(batchCode,"40240-910-20220615216354663");
