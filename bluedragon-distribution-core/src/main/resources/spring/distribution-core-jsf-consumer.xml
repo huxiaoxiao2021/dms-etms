@@ -1517,4 +1517,13 @@
                   alias="${jsf.alias.workbench.service}" retries="${jsf.retries}"
                   serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+
+    <jsf:consumer id="scheduleJSFService"
+                  interface="com.jdl.jy.flat.api.schedule.ScheduleJSFService"
+                  alias="${jsf.alias.flat}"
+                  timeout="${jsf.timeout.flat}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>
