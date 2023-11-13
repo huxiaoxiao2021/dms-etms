@@ -120,6 +120,11 @@ public class JyWorkGridManagerData implements Serializable {
 	private Boolean canTransfer;
 
 	/**
+	 * 是否转派
+	 */
+	private Integer transfered;
+
+	/**
 	 *  指标改善任务的指标信息
 	 *  只有指标改善任务才会有
 	 */
@@ -331,5 +336,13 @@ public class JyWorkGridManagerData implements Serializable {
 
 	public void setBusinessQuotaInfoData(BusinessQuotaInfoData businessQuotaInfoData) {
 		this.businessQuotaInfoData = businessQuotaInfoData;
+	}
+
+	public Integer getTransfered() {
+		return transfered;
+	}
+
+	public void setTransfered(Integer transfered) {
+		this.transfered = transfered;
 	}
 }

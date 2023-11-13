@@ -197,11 +197,11 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<Boolean> submitData(JyWorkGridManagerTaskEditRequest request) {
-		JdCResponse<Boolean> response = new JdCResponse<Boolean>();
-		response.toSucceed();
-		return response;
-		//todo 用于联调测试，待删除
-//		return jyWorkGridManagerBusinessService.submitData(request);
+//		JdCResponse<Boolean> response = new JdCResponse<Boolean>();
+//		response.toSucceed();
+//		return response;
+//		//todo 用于联调测试，待删除
+		return jyWorkGridManagerBusinessService.submitData(request);
 	}
 	@JProfiler(jKey = "dmsWeb.server.jyWorkGridManagerGatewayService.scanTaskPosition",
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
