@@ -57,6 +57,7 @@
 <input type="hidden" id="excessPicLength"/>
 <input type="hidden" id="excessPicWidth"/>
 <input type="hidden" id="excessPicHeight"/>
+<input type="hidden" id="excessVideo"/>
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">分拣中心</a></li>

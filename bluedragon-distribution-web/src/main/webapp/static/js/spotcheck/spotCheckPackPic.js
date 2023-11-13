@@ -34,6 +34,9 @@ $(function() {
                         order ++;
                         allPictureUrl += '<a href="' + single + '" target="_blank">图片' + order + '</a>&nbsp;'
                     }
+                    if (row.videoUrl) {
+                        allPictureUrl += '<a href="' + row.videoUrl + '" target="_blank">视频1' + '</a>&nbsp;'
+                    }
                     return allPictureUrl;
                 }
             }

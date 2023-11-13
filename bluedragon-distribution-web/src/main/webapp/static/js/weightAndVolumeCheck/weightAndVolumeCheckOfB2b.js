@@ -129,7 +129,7 @@ $(function () {
                     layer.open({
                         id: 'upExcessPicture',
                         type: 2,
-                        title: '超标图片上传',
+                        title: '超标图片/视频上传',
                         shade: 0.7,
                         maxmin: true,
                         shadeClose: false,
@@ -147,7 +147,7 @@ $(function () {
                     var rowIndex = this.parentNode.parentNode.rowIndex;
                     var count = $('#waybillDataTable')[0].rows[rowIndex].cells[5].innerHTML;
                     if(count === '0'){
-                        Jd.alert("请先上传超标图片!");
+                        Jd.alert("请先上传超标图片或视频!");
                         return;
                     };
                     window.open($('#excessPicWeightOrPanorama').val());
@@ -155,6 +155,7 @@ $(function () {
                     window.open($('#excessPicLength').val());
                     window.open($('#excessPicWidth').val());
                     window.open($('#excessPicHeight').val());
+                    window.open($('#excessVideo').val());
                 }
             }
         }];

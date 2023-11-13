@@ -336,7 +336,7 @@ $(function () {
             }
         }, {
             field: 'isHasPicture',
-            title: '有无图片',
+            title: '有无图片/视频',
             align: 'center',
             formatter: function (value, row, index) {
                 return value === 1 ? '有' : '无';
@@ -680,7 +680,7 @@ $(function () {
                 align: 'center'
             },{
                 field: 'isHasPicture',
-                title: '有无图片',
+                title: '有无图片/视频',
                 align: 'center',
                 formatter: function (value, row, index) {
                     return value === 1 ? '有' : '无';

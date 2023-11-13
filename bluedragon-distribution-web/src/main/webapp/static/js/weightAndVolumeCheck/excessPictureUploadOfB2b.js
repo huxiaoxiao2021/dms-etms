@@ -10,6 +10,30 @@ $(function () {
         document.getElementById('picDimension').innerHTML = "全景";
     }
 
+    // 单选框上传图片或视频选择
+    $('input[type="radio"]').change(function(){
+        // 如果选择超标图片上传单选框，则隐藏视频相关区域
+        if ($('#picRadio').attr("checked")) {
+            $('#videoDiv').css("display", "none");
+            $('#weightDiv').css("display", "block");
+            $('#faceDiv').css("display", "block");
+            $('#lengthDiv').css("display", "block");
+            $('#widthDiv').css("display", "block");
+            $('#heightDiv').css("display", "block");
+            $('#formatDiv').css("display", "block");
+        }
+        // 如果选择超标视频上传单选框，则隐藏图片相关区域
+        if ($('#videoRadio').attr("checked")) {
+            $('#videoDiv').css("display", "block");
+            $('#weightDiv').css("display", "none");
+            $('#faceDiv').css("display", "none");
+            $('#lengthDiv').css("display", "none");
+            $('#widthDiv').css("display", "none");
+            $('#heightDiv').css("display", "none");
+            $('#formatDiv').css("display", "none");
+        }
+    });
+
     //浏览
     $('#btn_browse1').click(function () {
         $('#fileField1').click();
@@ -63,6 +87,12 @@ $(function () {
         var upIsSuccessFlage5 = '#upIsSuccessFlage5';
         upload ($('#pictureField5').val().trim(),$('#fileField5')[0].files[0],upSuccess5,upFail5,upIsSuccessFlage5,5);
     });
+    $('#btn_upload6').click(function () {
+        var upSuccess6 = '#upSuccess6';
+        var upFail6 = '#upFail6';
+        var upIsSuccessFlage6 = '#upIsSuccessFlage6';
+        upload ($('#pictureField6').val().trim(),$('#fileField6')[0].files[0],upSuccess6,upFail6,upIsSuccessFlage6,6);
+    });
 
     // 图片上传失败两次后，第三次可强制上传
     let weightOrPanoramaUploadCount = 0;
@@ -91,7 +121,7 @@ $(function () {
         formData.append('waybillOrPackageCode',$('#waybillOrPackageCode').val());
         formData.append('createSiteCode',$('#createSiteCode').val());
         formData.append('weight',$('#weight').val());
-        formData.append('uploadPicType',picType); // 上传的图片类型：重量/全景（1）、面单（2）、长（3）、宽（4）、高（5）
+        formData.append('uploadPicType',picType); // 上传的图片类型：重量/全景（1）、面单（2）、长（3）、宽（4）、高（5）、视频(6)
         formData.append('excessType',$('#excessType').val());
         formData.append('isMultiPack',$('#isMultiPack').val());
 
@@ -190,6 +220,9 @@ $(function () {
         if(picType === 5){
             parent.$('#excessPicHeight').val(picUrl);
         }
+        if(picType === 6){
+            parent.$('#excessVideo').val(picUrl);
+        }
     }
 
     function resetUploadCount(picType) {
@@ -212,16 +245,33 @@ $(function () {
 
     //保存
     $('#btn_saved').click(function () {
+        let lessOneFlag = false;
+        if($('#upIsSuccessFlage1').val()==1 || $('#upIsSuccessFlage2').val()==1
+            || $('#upIsSuccessFlage3').val()==1 || $('#upIsSuccessFlage4').val()==1
+            || $('#upIsSuccessFlage5').val()==1){
+            lessOneFlag = true;
+        }
         if($('#upIsSuccessFlage1').val()==1 && $('#upIsSuccessFlage2').val()==1
             && $('#upIsSuccessFlage3').val()==1 && $('#upIsSuccessFlage4').val()==1
             && $('#upIsSuccessFlage5').val()==1){
-            // 设置父页面图片数量为：5
-            parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 5;
+            // 如果视频也上传了，设置父页面图片数量为：6
+            if ($('#upIsSuccessFlage6').val()==1) {
+                parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 6;
+            } else {
+                // 设置父页面图片数量为：5
+                parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 5;
+            }
             //全部上传成功，显示记录
             var index = parent.layer.getFrameIndex('upExcessPicture');
             parent.layer.close(index);
-        }else {
+        } else if (lessOneFlag) {
             Jd.alert('保存失败,至少上传5张图片!');
+        } else if ($('#upIsSuccessFlage6').val()==1) {
+            // 如果只上传视频，设置父页面图片数量为：1
+            parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 1;
+            //全部上传成功，显示记录
+            var index = parent.layer.getFrameIndex('upExcessPicture');
+            parent.layer.close(index);
         }
 
     });
