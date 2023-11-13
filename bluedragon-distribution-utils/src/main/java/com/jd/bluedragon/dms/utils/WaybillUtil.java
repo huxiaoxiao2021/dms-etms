@@ -8,7 +8,6 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author tangchunqing
@@ -36,11 +35,12 @@ public class WaybillUtil {
         }
         if(WaybillUtil.isPackageCode(packageCode)) {
             String temp = packageCode.replace("-", StringUtils.EMPTY);
-            if(packageCode.length() - temp.length() == 0 || packageCode.length() - temp.length() == 3){
-                return true;
+//            if(packageCode.length() - temp.length() == 0 || packageCode.length() - temp.length() == 3){
+            if(packageCode.length() - temp.length() == 2){
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     public static boolean isEffectiveOperateCode(String operateCode) {
