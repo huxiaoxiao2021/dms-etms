@@ -63,8 +63,8 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
     @Autowired
-    @Qualifier(value = "sealUnsealStatusSyncAppSendTaskProducer")
-    private DefaultJMQProducer sealUnsealStatusSyncAppSendTaskProducer;
+    @Qualifier(value = "sealSyncOpenCloseSendTaskProducer")
+    private DefaultJMQProducer sealSyncOpenCloseSendTaskProducer;
 
 
 
@@ -131,7 +131,7 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
     private void sendResetSendStatusToSealMq(TmsCancelSealCarBatchMQBody mqBody, SealCarDto sealCarCodeOfTms){
         try{
             SealSyncOpenCloseSendTaskDto msg = new SealSyncOpenCloseSendTaskDto();
-            msg.setStatus(SealSyncOpenCloseSendTaskDto.STATUS_UNSEAL);
+            msg.setStatus(SealSyncOpenCloseSendTaskDto.STATUS_CANCELSEAL);
             msg.setOperateUserCode(mqBody.getOperateUserCode());
             msg.setSealCarCode(mqBody.getSealCarCode());
             msg.setOperateTime(mqBody.getOperateTime());
@@ -139,7 +139,7 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
             msg.setSingleBatchCode(mqBody.getBatchCode());
             msg.setTransWorkItemCode(sealCarCodeOfTms.getTransWorkItemCode());
             msg.setSysTime(System.currentTimeMillis());
-            sealUnsealStatusSyncAppSendTaskProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(mqBody));
+            sealSyncOpenCloseSendTaskProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(mqBody));
         }catch (Exception e) {
             logger.error("发送取消批次封车mq异常[errMsg={}]，mqBody={}", e.getMessage(), JsonHelper.toJson(mqBody), e);
         }

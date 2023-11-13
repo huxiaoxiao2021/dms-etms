@@ -43,8 +43,8 @@ public class SealSyncOpenCloseSendTaskConsumerTest {
 
         SealSyncOpenCloseSendTaskDto param = new SealSyncOpenCloseSendTaskDto();
 
-//        param.setStatus(SealUnsealStatusSyncAppSendTaskMQDto.STATUS_SEAL);
-        param.setStatus(SealSyncOpenCloseSendTaskDto.STATUS_UNSEAL);
+//        param.setStatus(SealSyncOpenCloseSendTaskDto.STATUS_SEAL);
+        param.setStatus(SealSyncOpenCloseSendTaskDto.STATUS_CANCELSEAL);
 //        String batchCode = "40240-910-20231108001282640"; //运输任务·
         String batchCode = "40240-910-20231104071243343";  //自建任务
         List<String> batchCodeList = Arrays.asList(batchCode,"40240-910-20220615216354663");

@@ -99,8 +99,8 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
     private DefaultJMQProducer jyCollectDataInitSplitProducer;
 
     @Autowired
-    @Qualifier(value = "sealUnsealStatusSyncAppSendTaskProducer")
-    private DefaultJMQProducer sealUnsealStatusSyncAppSendTaskProducer;
+    @Qualifier(value = "sealSyncOpenCloseSendTaskProducer")
+    private DefaultJMQProducer sealSyncOpenCloseSendTaskProducer;
 
 
     @Override
@@ -267,7 +267,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             msg.setSingleBatchCode(batchCode);
             msg.setSysTime(System.currentTimeMillis());
         }
-        sealUnsealStatusSyncAppSendTaskProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(mqBody));
+        sealSyncOpenCloseSendTaskProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(mqBody));
     }
 
     private void sendInitCollectMq(TmsSealCarStatusMQBody tmsSealCarStatus) {

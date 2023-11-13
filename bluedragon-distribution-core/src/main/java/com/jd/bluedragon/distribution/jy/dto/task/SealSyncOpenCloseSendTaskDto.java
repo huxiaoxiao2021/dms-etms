@@ -12,7 +12,7 @@ public class SealSyncOpenCloseSendTaskDto implements Serializable {
 
     private static final long serialVersionUID = -2720516986077944201L;
     public static final Integer STATUS_SEAL = 1;
-    public static final Integer STATUS_UNSEAL = 2;
+    public static final Integer STATUS_CANCELSEAL = 2;
 
 
     /**
@@ -20,8 +20,8 @@ public class SealSyncOpenCloseSendTaskDto implements Serializable {
      */
     private String sealCarCode;
     /**
-     * com.jd.bluedragon.distribution.jy.dto.task.SealUnsealStatusSyncAppSendTaskMQDto#STATUS_SEAL 封车同步
-     * com.jd.bluedragon.distribution.jy.dto.task.SealUnsealStatusSyncAppSendTaskMQDto#STATUS_UNSEAL 取消封车同步
+     * com.jd.bluedragon.distribution.jy.dto.task.SealSyncOpenCloseSendTaskDto#STATUS_SEAL 封车同步
+     * com.jd.bluedragon.distribution.jy.dto.task.SealSyncOpenCloseSendTaskDto#STATUS_UNSEAL 取消封车同步
      */
     private Integer status;
     /**

@@ -1493,7 +1493,7 @@ public class UccPropertyConfiguration{
      * index1: “1” 或其他      “1” 标识开启        次优先级            index0开启 & index1开启  执行封车同步
      * index2: “1” 或其他      “1” 标识开启        同index1 次优先级    index0开启 & index2开启  执行封车同步
      */
-    private String sealUnsealStatusSyncAppSendTaskSwitch;
+    private String sealSyncOpenCloseSendTaskSwitch;
 
 
 
@@ -3934,11 +3934,11 @@ public class UccPropertyConfiguration{
 		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
 	}
 
-    public String getSealUnsealStatusSyncAppSendTaskSwitch() {
-        return sealUnsealStatusSyncAppSendTaskSwitch;
+    public String getSealSyncOpenCloseSendTaskSwitch() {
+        return sealSyncOpenCloseSendTaskSwitch;
     }
 
-    public void setSealUnsealStatusSyncAppSendTaskSwitch(String sealUnsealStatusSyncAppSendTaskSwitch) {
-        this.sealUnsealStatusSyncAppSendTaskSwitch = sealUnsealStatusSyncAppSendTaskSwitch;
+    public void setSealSyncOpenCloseSendTaskSwitch(String sealSyncOpenCloseSendTaskSwitch) {
+        this.sealSyncOpenCloseSendTaskSwitch = sealSyncOpenCloseSendTaskSwitch;
     }
 }
