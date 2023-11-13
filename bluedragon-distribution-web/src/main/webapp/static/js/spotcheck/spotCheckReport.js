@@ -339,7 +339,7 @@ $(function () {
             title: '有无图片/视频',
             align: 'center',
             formatter: function (value, row, index) {
-                return value === 1 ? '有' : '无';
+                return (value === 1 || row.isHasVideo === 1) ? '有' : '无';
             }
         }, {
                 field: 'pictureAIDistinguishReason',
@@ -683,7 +683,7 @@ $(function () {
                 title: '有无图片/视频',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    return value === 1 ? '有' : '无';
+                    return (value === 1 || row.isHasVideo === 1) ? '有' : '无';
                 }
             }],
         refresh: function () {
