@@ -34,7 +34,7 @@ public class DmsWorkSendDetailConsumerTest {
     @Test
     public void consume() {
         try {
-            String body = "{\"bizSource\":24,\"boxCode\":\"JDAZ00001587575-1-1-\",\"createSiteCode\":910,\"createSiteType\":64,\"createSortSubType\":123511,\"createSortThirdType\":1235111,\"createSortType\":12351,\"createSubType\":64,\"createTime\":1699606206778,\"createUser\":\"胡志浩\",\"createUserCode\":18234,\"operateTime\":1699606207000,\"packageBarcode\":\"JDAZ00001587575-1-1-\",\"receiveSiteCode\":25162,\"receiveSiteType\":16,\"receiveSubType\":16,\"receiveThirdType\":16001,\"sendCode\":\"910-25162-20231110161304240\",\"source\":\"DMS\"}";
+            String body = "{\"bizSource\":24,\"boxCode\":\"JDAZ00001591060-1-2-\",\"createSiteCode\":40240,\"createSiteType\":64,\"createSortSubType\":123511,\"createSortThirdType\":1235111,\"createSortType\":12351,\"createSubType\":64,\"createTime\":1699843972180,\"createUser\":\"王飞\",\"createUserCode\":18157,\"operateTime\":1699843972000,\"packageBarcode\":\"JDAZ00001591060-1-2-\",\"receiveSiteCode\":25162,\"receiveSiteType\":16,\"receiveSubType\":16,\"receiveThirdType\":16001,\"sendCode\":\"40240-25162-20231113101333654\",\"source\":\"DMS\"}";
             Message message = new Message();
             message.setText(body);
             dmsWorkSendDetailConsumer.consume(message);
