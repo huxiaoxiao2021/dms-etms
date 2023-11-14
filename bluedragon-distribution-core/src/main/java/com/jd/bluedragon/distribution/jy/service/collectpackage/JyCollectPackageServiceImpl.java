@@ -452,7 +452,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private List<Integer> queryMixBoxFlowListUnderTask(CollectPackageReq request) {
         List<JyBizTaskCollectPackageFlowEntity> flowEntityList =jyBizTaskCollectPackageFlowService.queryListByBizIds((Collections.singletonList(request.getBizId())));
         if (CollectionUtils.isNotEmpty(flowEntityList)){
-            return flowEntityList.stream().map(jyBizTaskCollectPackageFlowEntity -> jyBizTaskCollectPackageFlowEntity.getEndSiteId().intValue()).collect(Collectors.toList());
+            List<Integer> flowList = flowEntityList.stream().map(jyBizTaskCollectPackageFlowEntity -> jyBizTaskCollectPackageFlowEntity.getEndSiteId().intValue()).collect(Collectors.toList());
+            if (ObjectHelper.isNotNull(request.getBoxReceiveId())){
+                flowList.add(request.getBoxReceiveId().intValue());
+            }
+            return flowList;
         }
         return null;
     }
@@ -565,7 +569,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         pdaOperateRequest.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
-        pdaOperateRequest.setSkipFilter(true);//TODO
+        pdaOperateRequest.setInterceptChainBitCode(dmsConfigManager.getPropertyConfig().getJyCollectPackageInterceptBitCode());
         return pdaOperateRequest;
     }
 
@@ -1374,4 +1378,26 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             throw new JyBizException("参数错误：缺失箱号！");
         }
     }
+
+    public static void main(String[] args) {
+
+        String bitCode ="11111111111111111111111111111110111111001";
+        System.out.println(NumberHelper.binaryToDecimal(bitCode));
+        String reBitCode =NumberHelper.decimalToBinary(2147483647,41);
+        System.out.println(reBitCode);
+
+        System.out.println(bitCode.equals(reBitCode));
+
+
+
+
+        String lbitCode ="11111111111111111111111111111110111111001";
+        System.out.println(NumberHelper.binaryToLongDecimal(lbitCode));
+        String lreBitCode =NumberHelper.longDecimalToBinary(2199023255033L,41);
+        System.out.println(lreBitCode);
+
+        System.out.println(lbitCode.equals(lreBitCode));
+    }
+
+
 }

@@ -50,9 +50,9 @@ public class JyCollectPackageGatewayServiceImplTest {
         collectPackageReq.setUser(user);
 
 
-        collectPackageReq.setBizId("JCP23110200000039");
-        collectPackageReq.setBoxCode("BC1001231102290000600118");
-        collectPackageReq.setBarCode("JD0003422420020-50-100-");
+        collectPackageReq.setBizId("JCP23111300000004");
+        collectPackageReq.setBoxCode("BC1001231113290000300226");
+        collectPackageReq.setBarCode("JD0003422585760-3-30-");
 
 
 

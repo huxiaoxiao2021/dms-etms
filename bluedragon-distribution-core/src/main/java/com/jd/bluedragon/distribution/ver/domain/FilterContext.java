@@ -109,15 +109,14 @@ public class FilterContext {
      */
     private List<WaybillVasDto> waybillVasDtos;
 
-    @Getter
-    private boolean skipFilter;
+    private long bitCode;
 
-    public boolean getSkipFilter() {
-        return skipFilter;
+    public long getBitCode(){
+        return bitCode;
     }
 
-    public void setSkipFilter(boolean skipFilter) {
-        this.skipFilter = skipFilter;
+    public void setBitCode(long bitCode) {
+        this.bitCode = bitCode;
     }
     /**
      * 判断是否有预分拣站点
