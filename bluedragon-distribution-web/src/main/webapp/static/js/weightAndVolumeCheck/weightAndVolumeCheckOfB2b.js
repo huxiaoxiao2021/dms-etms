@@ -149,13 +149,31 @@ $(function () {
                     if(count === '0'){
                         Jd.alert("请先上传超标图片或视频!");
                         return;
-                    };
-                    window.open($('#excessPicWeightOrPanorama').val());
-                    window.open($('#excessPicFace').val());
-                    window.open($('#excessPicLength').val());
-                    window.open($('#excessPicWidth').val());
-                    window.open($('#excessPicHeight').val());
-                    window.open($('#excessVideo').val());
+                    }
+                    let excessPicWeightOrPanoramaUrl = $('#excessPicWeightOrPanorama').val();
+                    let excessPicFaceUrl = $('#excessPicFace').val();
+                    let excessPicLengthUrl = $('#excessPicLength').val();
+                    let excessPicWidthUrl = $('#excessPicWidth').val();
+                    let excessPicHeightUrl = $('#excessPicHeight').val();
+                    let excessVideoUrl = $('#excessVideo').val();
+                    if (excessPicWeightOrPanoramaUrl) {
+                        window.open(excessPicWeightOrPanoramaUrl);
+                    }
+                    if (excessPicFaceUrl) {
+                        window.open(excessPicFaceUrl);
+                    }
+                    if (excessPicLengthUrl) {
+                        window.open(excessPicLengthUrl);
+                    }
+                    if (excessPicWidthUrl) {
+                        window.open(excessPicWidthUrl);
+                    }
+                    if (excessPicHeightUrl) {
+                        window.open(excessPicHeightUrl);
+                    }
+                    if (excessVideoUrl) {
+                        window.open(excessVideoUrl);
+                    }
                 }
             }
         }];
@@ -285,13 +303,15 @@ $(function () {
         param.createSiteCode = $('#createSiteCode').val();
         param.loginErp = $('#loginErp').val();
         if(waybillData[0].isExcess === 1){
-            let excessPicUrls = [];
-            excessPicUrls.push($('#excessPicWeightOrPanorama').val());
-            excessPicUrls.push($('#excessPicFace').val());
-            excessPicUrls.push($('#excessPicLength').val());
-            excessPicUrls.push($('#excessPicWidth').val());
-            excessPicUrls.push($('#excessPicHeight').val());
-            param.urls = excessPicUrls;
+            if (uploadNum === '5' || uploadNum === '6') {
+                let excessPicUrls = [];
+                excessPicUrls.push($('#excessPicWeightOrPanorama').val());
+                excessPicUrls.push($('#excessPicFace').val());
+                excessPicUrls.push($('#excessPicLength').val());
+                excessPicUrls.push($('#excessPicWidth').val());
+                excessPicUrls.push($('#excessPicHeight').val());
+                param.urls = excessPicUrls;
+            }
             param.videoUrl = videoUrl;
         }
 

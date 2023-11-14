@@ -21,7 +21,8 @@ $(function () {
             $('#lengthDiv').css("display", "block");
             $('#widthDiv').css("display", "block");
             $('#heightDiv').css("display", "block");
-            $('#formatDiv').css("display", "block");
+            $('#picFormat').css("display", "block");
+            $('#videoFormat').css("display", "none");
         }
         // 如果选择超标视频上传单选框，则隐藏图片相关区域
         if ($('#videoRadio').attr("checked")) {
@@ -32,6 +33,8 @@ $(function () {
             $('#widthDiv').css("display", "none");
             $('#heightDiv').css("display", "none");
             $('#formatDiv').css("display", "none");
+            $('#picFormat').css("display", "none");
+            $('#videoFormat').css("display", "block");
         }
     });
 

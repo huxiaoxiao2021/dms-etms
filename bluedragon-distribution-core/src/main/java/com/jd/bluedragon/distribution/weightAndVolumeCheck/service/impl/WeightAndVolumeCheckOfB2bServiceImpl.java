@@ -140,9 +140,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
         String videoUrl = null;
         try {
-            String[] defaultSuffixName = new String[] {"mp4"};
-            if (!Arrays.asList(defaultSuffixName).contains(suffixName)) {
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"文件格式不正确!只能上传mp4格式，当前格式为" + suffixName);
+            String[] defaultSuffixName = new String[] {"mp4", "avi", "wmv", "flv", "mpg", ".mpeg", "mkv", "mov", "3gp", "rmvb"};
+            if (!Arrays.asList(defaultSuffixName).contains(suffixName.toLowerCase())) {
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"文件格式不正确!" + suffixName);
                 log.warn("uploadExcessVideo|参数:{},异常信息:文件格式不正确!", suffixName);
                 return result;
             }
