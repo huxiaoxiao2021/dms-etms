@@ -2274,7 +2274,7 @@
         <dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>automatic-platform-sdk</artifactId>
-            <version>1.3-SNAPSHOT</version>
+            <version>1.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
