@@ -29,7 +29,6 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionServ
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
-import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
@@ -43,7 +42,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -299,50 +297,38 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      */
     private void  sendMQToCustomer(JyBizTaskExceptionEntity exceptionEntity,JyExceptionDamageEntity damageEntity,Waybill waybill){
         try{
+            // 是否为港澳单
             boolean isHKorMOWaybill = isHKorMOWaybill(exceptionEntity.getBarCode(), waybill);
+            // 是否为国际单
+            boolean isInternationWaybill = isInternationWaybill(exceptionEntity.getBarCode(), waybill);
             // 内破外破
             if(Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode(),damageEntity.getDamageType())){
                 //内物严重破损
                 if(Objects.equals(JyExceptionDamageEnum.InsideOutsideDamagedRepairTypeEnum.INSIDE_SEVERE_DAMAGE.getCode(),damageEntity.getRepairType())){
                     //外单
                     if(!BusinessUtil.isSelf(waybill.getWaybillSign())) {
-                        if (isHKorMOWaybill) {
-                            JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_DAMAGE_NO_DOWNLOAD.getCode(), true);
-                            if (mq != null) {
-                                logger.info("内破外破-内物严重破损-外单-港澳单");
-                                dmsDamageHKOrMONoticeKFProducer.sendOnFailPersistent(exceptionEntity.getBizId(), JsonHelper.toJson(mq));
-                            }
-                        } else {
-                            JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_PART_DAMAGE.getCode(), false);
-                            if (mq != null) {
-                                logger.info("内破外破-内物严重破损-外单-大陆单");
-                                dmsDamageMainLandNoticeKFProducer.sendOnFailPersistent(exceptionEntity.getBizId(), JsonHelper.toJson(mq));
-                            }
-                        }
-
-                    }
-                }else if(Objects.equals(JyExceptionDamageEnum.InsideOutsideDamagedRepairTypeEnum.WORTHLESS.getCode(),damageEntity.getRepairType())){
-                    //无残余价值
-                    if (isHKorMOWaybill) {
-                        JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_DAMAGE_NO_DOWNLOAD.getCode(), true);
+                        String expReasonTwoLevelCode = getInsideSevereDamageCode(isHKorMOWaybill, isInternationWaybill);
+                        JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, expReasonTwoLevelCode, isHKorMOWaybill, isInternationWaybill);
                         if (mq != null) {
-                            logger.info("内破外破-无残余价值-港澳单");
-                            dmsDamageHKOrMONoticeKFProducer.sendOnFailPersistent(exceptionEntity.getBizId(), JsonHelper.toJson(mq));
-                        }
-                    } else {
-                        JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_SERIOUS_DAMAGE.getCode(), false);
-                        if (mq != null) {
-                            logger.info("内破外破-无残余价值-大陆单");
+                            logger.info("内破外破-内物严重破损-外单");
                             dmsDamageMainLandNoticeKFProducer.sendOnFailPersistent(exceptionEntity.getBizId(), JsonHelper.toJson(mq));
                         }
+                    }
+                }else if(Objects.equals(JyExceptionDamageEnum.InsideOutsideDamagedRepairTypeEnum.WORTHLESS.getCode(),damageEntity.getRepairType())) {
+                    String expReasonTwoLevelCode = getWorthlessCode(isHKorMOWaybill, isInternationWaybill);
+                    //无残余价值
+                    JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, expReasonTwoLevelCode, isHKorMOWaybill, isInternationWaybill);
+                    if (mq != null) {
+                        logger.info("内破外破-无残余价值");
+                        dmsDamageMainLandNoticeKFProducer.sendOnFailPersistent(exceptionEntity.getBizId(), JsonHelper.toJson(mq));
                     }
 
                 }
             }else if(Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode(),damageEntity.getDamageType())){ //外包装破损
                 if(Objects.equals(JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode(),damageEntity.getRepairType())){
                     //更换包装
-                    if(!isHKorMOWaybill){
-                        JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_CHANGE_PACKAGE.getCode(), false);
+                    if(!isHKorMOWaybill && !isInternationWaybill){
+                        JyExpDamageNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(exceptionEntity, waybill, JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_CHANGE_PACKAGE.getCode(), false, false);
                         if (mq != null) {
                             logger.info("外包装破损-更换包装-大陆单");
                             dmsDamageMainLandNoticeKFProducer.sendOnFailPersistent(exceptionEntity.getBizId(), JsonHelper.toJson(mq));
@@ -355,13 +341,37 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         }
     }
 
+    private String getWorthlessCode(boolean isHKorMOWaybill, boolean isInternationWaybill) {
+        String expReasonTwoLevelCode;
+        if (isHKorMOWaybill) {
+            expReasonTwoLevelCode = JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_DAMAGE_NO_DOWNLOAD.getCode();
+        } else if (isInternationWaybill){
+            expReasonTwoLevelCode = JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.INTERNATION_SORTING_WORN.getCode();
+        }else {
+            expReasonTwoLevelCode = JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_SERIOUS_DAMAGE.getCode();
+        }
+        return expReasonTwoLevelCode;
+    }
+
+    private String getInsideSevereDamageCode(boolean isHKorMOWaybill, boolean isInternationWaybill) {
+        String expReasonTwoLevelCode;
+        if (isHKorMOWaybill) {
+            expReasonTwoLevelCode = JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_DAMAGE_NO_DOWNLOAD.getCode();
+        } else if (isInternationWaybill){
+            expReasonTwoLevelCode = JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.INTERNATION_SORTING_WORN.getCode();
+        }else {
+            expReasonTwoLevelCode = JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_PART_DAMAGE.getCode();
+        }
+        return expReasonTwoLevelCode;
+    }
+
 
     /**
      * 组装发送给客服破损数据
      *
      * @return
      */
-    private JyExpDamageNoticCustomerMQ coverToDamageNoticCustomerMQ(JyBizTaskExceptionEntity entity,Waybill waybill,String twoLevelExceptionCode,boolean isHKorMO) {
+    private JyExpDamageNoticCustomerMQ coverToDamageNoticCustomerMQ(JyBizTaskExceptionEntity entity, Waybill waybill, String twoLevelExceptionCode, boolean isHKorMO, boolean isInternation) {
         JyExpDamageNoticCustomerMQ mq = new JyExpDamageNoticCustomerMQ();
 
         mq.setDealType(ASCPContants.DEAL_TYPE);
@@ -391,7 +401,22 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                     logger.warn("未知的二级原因-{}",twoLevelEnum);
                     return null;
             }
-        }else{
+        }else if (isInternation) {
+            logger.info("国际单违禁品MQ组装---{}", entity.getBarCode());
+            mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_INTERNATION.getCode());
+            mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_INTERNATION.getCode() + "_" + entity.getBizId());
+            switch (twoLevelEnum) {
+                case INTERNATION_SORTING_WORN:
+                    mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.INTERNATION_SORTING_WORN.getCode());
+                    mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.INTERNATION_SORTING_WORN.getName());
+                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.INTERNATION_SORTING_WORN.getCode());
+                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.INTERNATION_SORTING_WORN.getName());
+                    break;
+                default:
+                    logger.warn("未知的二级原因-{}", twoLevelEnum);
+                    return null;
+            }
+        }else {
             logger.info("大陆单---{}",entity.getBarCode());
             mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode());
             mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode() + "_" + entity.getBizId());
