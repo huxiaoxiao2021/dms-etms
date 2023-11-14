@@ -365,6 +365,9 @@
             and task_status = #{taskStatus}
             <include refid="list_query_condition" />
         order by take_off_time
+        <if test="takeOffTimeOrderDesc == 1" >
+            desc
+        </if>
         limit #{offset},#{pageSize}
     </select>
 

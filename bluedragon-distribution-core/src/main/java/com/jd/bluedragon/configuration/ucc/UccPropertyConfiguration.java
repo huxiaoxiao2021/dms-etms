@@ -1733,6 +1733,9 @@ public class UccPropertyConfiguration{
      */
     private Integer jySendSpecialProductTypeToScanShowRemainMinutes;
 
+
+    private Double jyAviationManualCreateSendTaskMaxBookingWeight;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -3921,4 +3924,12 @@ public class UccPropertyConfiguration{
 	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
 		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
 	}
+
+    public Double getJyAviationManualCreateSendTaskMaxBookingWeight() {
+        return jyAviationManualCreateSendTaskMaxBookingWeight;
+    }
+
+    public void setJyAviationManualCreateSendTaskMaxBookingWeight(Double jyAviationManualCreateSendTaskMaxBookingWeight) {
+        this.jyAviationManualCreateSendTaskMaxBookingWeight = jyAviationManualCreateSendTaskMaxBookingWeight;
+    }
 }

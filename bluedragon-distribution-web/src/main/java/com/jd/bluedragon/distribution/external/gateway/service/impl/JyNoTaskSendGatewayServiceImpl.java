@@ -6,12 +6,14 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.send.JyNoTaskSendService;
 import com.jd.bluedragon.external.gateway.service.JyNoTaskSendGatewayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -27,6 +29,9 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
 
     @Autowired
     JyNoTaskSendService jyNoTaskSendService;
+    @Autowired
+    private BaseParamValidateService baseParamValidateService;
+
 
     @Override
     public JdCResponse<List<VehicleSpecResp>> listVehicleType() {
@@ -36,6 +41,26 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
     @Override
     public JdCResponse<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
         return retJdCResponse(jyNoTaskSendService.createVehicleTask(createVehicleTaskReq));
+    }
+
+    @Override
+    public JdCResponse<CreateAviationTaskResp> createAviationTask(CreateAviationTaskReq request) {
+        final String methodDesc = "JyNoTaskSendGatewayServiceImpl.createAviationTask:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            }
+            return retJdCResponse(jyNoTaskSendService.createAviationTask(request));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空自建任务创建服务异常", null);//500+非自定义异常
+        }
     }
 
     @Override

@@ -53,4 +53,6 @@ public interface JyAviationRailwaySendSealService {
     InvokeResult<ScanSendCodeValidRes> validateTranCodeAndSendCode(ScanSendCodeValidReq request);
 
     InvokeResult<ShuttleTaskSealCarQueryRes> fetchToSealShuttleTaskDetail(ShuttleTaskSealCarQueryReq request);
+
+    InvokeResult<AviationSendTaskDto> fetchLatestAviationTaskByNextSite(AviationSendTaskQueryReq request);
 }

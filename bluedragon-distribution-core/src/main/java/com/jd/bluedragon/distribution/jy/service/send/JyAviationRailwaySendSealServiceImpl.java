@@ -1715,4 +1715,47 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         res.setData(resData);
         return res;
     }
+
+    @Override
+    public InvokeResult<AviationSendTaskDto> fetchLatestAviationTaskByNextSite(AviationSendTaskQueryReq request) {
+        InvokeResult<AviationSendTaskDto> res = new InvokeResult<>();
+
+        JyBizTaskSendAviationPlanQueryCondition condition = this.convertListQueryCondition(
+                request.getCurrentOperate().getSiteCode(),
+                request.getStatusCode(),
+                request.getFilterConditionDto(),
+                null
+        );
+        condition.setNextSiteId(request.getNextSiteId());
+        condition.setOffset(Constants.CONSTANT_NUMBER_ZERO);
+        condition.setPageSize(Constants.CONSTANT_NUMBER_ONE);
+        condition.setTakeOffTimeOrderDesc(Constants.CONSTANT_NUMBER_ONE);
+        List<JyBizTaskSendAviationPlanEntity> taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
+        if(CollectionUtils.isEmpty(taskDtoList)) {
+            res.setMessage("该流向未查到待发货任务");
+            return res;
+        }
+
+        JyBizTaskSendAviationPlanEntity dbQueryDto = taskDtoList.get(0);
+        AviationSendTaskDto taskDto = new AviationSendTaskDto();
+        taskDto.setBizId(dbQueryDto.getBizId());
+        taskDto.setDetailBizId(dbQueryDto.getBookingCode());
+        taskDto.setBookingCode(dbQueryDto.getBookingCode());
+        taskDto.setFlightNumber(dbQueryDto.getFlightNumber());
+        taskDto.setTakeOffTime(Objects.isNull(dbQueryDto.getTakeOffTime()) ? null : dbQueryDto.getTakeOffTime().getTime());
+        taskDto.setAirCompanyCode(dbQueryDto.getAirCompanyCode());
+        taskDto.setAirCompanyName(dbQueryDto.getAirCompanyName());
+        taskDto.setBeginNodeCode(dbQueryDto.getBeginNodeCode());
+        taskDto.setBeginNodeName(dbQueryDto.getBeginNodeName());
+        taskDto.setCarrierCode(dbQueryDto.getCarrierCode());
+        taskDto.setCarrierName(dbQueryDto.getCarrierName());
+        taskDto.setBookingWeight(dbQueryDto.getBookingWeight());
+        taskDto.setCargoType(dbQueryDto.getCargoType());
+        taskDto.setAirType(dbQueryDto.getAirType());
+        taskDto.setNextSiteId(dbQueryDto.getNextSiteId());
+        taskDto.setNextSiteName(dbQueryDto.getNextSiteName());
+
+        res.setData(taskDto);
+        return res;
+    }
 }
