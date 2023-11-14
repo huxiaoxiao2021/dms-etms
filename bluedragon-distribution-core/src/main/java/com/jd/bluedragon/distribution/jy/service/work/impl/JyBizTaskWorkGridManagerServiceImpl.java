@@ -254,7 +254,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.Worker.JyBizTaskWorkGridManagerService.generateManageInspectionTask",
 			mState = {JProEnum.TP, JProEnum.FunctionError})
 	public void generateManageInspectionTask(String erp, String positionCode, String userName, Integer userSiteCode){
-		SysConfig loginAreaCodeConfig = sysConfigService.findConfigContentByConfigName(MANAGER_PATROL_SYS_CONF_KEY);
+		SysConfig loginAreaCodeConfig = sysConfigService.findConfigContentByConfigName(MANAGER_PATROL_AREA_CODE_SYS_CONF_KEY);
 		if(loginAreaCodeConfig == null || org.apache.commons.lang3.StringUtils.isBlank(loginAreaCodeConfig.getConfigContent())){
 			logger.warn("生成飞检巡场任务,未配置登录扫描岗位码所属的作业区，erp:{}", erp);
 			return;
