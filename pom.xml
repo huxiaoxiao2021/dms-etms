@@ -45,7 +45,7 @@
         <jy-basic-api.version>1.0.0-UAT-SNAPSHOT</jy-basic-api.version>
         <dms-java-utils-sdk.version>1.0.0-SNAPSHOT</dms-java-utils-sdk.version>
 		<jy_msp_api_version>1.0-SNAPSHOT</jy_msp_api_version>
-		<shortjy.realtime.sdk.versionurl.rpc.version>0.0.6-SNAPSHOT</shortjy.realtime.sdk.versionurl.rpc.version>
+		<shorturl.rpc.version>0.0.6-SNAPSHOT</shorturl.rpc.version>
 		<jd.omdm.client.version>0.2.7-SNAPSHOT</jd.omdm.client.version>
 		<cloud.print.version>1.0.10-SNAPSHOT</cloud.print.version>
 		<jdl-eca-api.version>1.1.4.4-SNAPSHOT</jdl-eca-api.version>
