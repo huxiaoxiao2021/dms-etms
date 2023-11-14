@@ -75,15 +75,6 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	public JdCResponse<JyWorkGridManagerPageData> queryDataList(JyWorkGridManagerQueryRequest query) {
 		JdCResponse<JyWorkGridManagerPageData> result = new JdCResponse<JyWorkGridManagerPageData>();
 		result.toSucceed("查询成功！");
-		/**
-		 * todo 用于联调测试，待删除
-		 */
-		SysConfig data = sysConfigService.findConfigContentByConfigName(query_data_list_mock_key);
-		if(data != null && StringUtils.isNotBlank(data.getConfigContent())){
-			JyWorkGridManagerPageData data1 = JsonHelper.toObject(data.getConfigContent(), JyWorkGridManagerPageData.class);
-			result.setData(data1);
-			return result;
-		}
 		JyWorkGridManagerPageData pageData = new JyWorkGridManagerPageData();
 		//列表定时刷新时间
 		Integer refreshSecond = getRefreshSecond();
@@ -163,15 +154,6 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	public JdCResponse<JyWorkGridManagerData> queryDataByBizId(String bizId) {
 		JdCResponse<JyWorkGridManagerData> result = new JdCResponse<JyWorkGridManagerData>();
 		result.toSucceed("查询成功！");
-		/**
-		 * todo 用于联调测试，待删除
-		 */
-		SysConfig data = sysConfigService.findConfigContentByConfigName(query_data_bybizId_mock_key);
-		if(data != null && StringUtils.isNotBlank(data.getConfigContent())){
-			JyWorkGridManagerData data1 = JsonHelper.toObject(data.getConfigContent(), JyWorkGridManagerData.class);
-			result.setData(data1);
-			return result;
-		}
 		JyWorkGridManagerData taskData  = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(bizId);
 		if(taskData == null) {
 			result.toFail("任务数据不存在！");
@@ -197,10 +179,6 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<Boolean> submitData(JyWorkGridManagerTaskEditRequest request) {
-//		JdCResponse<Boolean> response = new JdCResponse<Boolean>();
-//		response.toSucceed();
-//		return response;
-//		//todo 用于联调测试，待删除
 		return jyWorkGridManagerBusinessService.submitData(request);
 	}
 	@JProfiler(jKey = "dmsWeb.server.jyWorkGridManagerGatewayService.scanTaskPosition",
