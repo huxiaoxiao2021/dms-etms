@@ -226,9 +226,15 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		//转派的任务检查处理人在不在备选池中
 		if (oldData.getTransfered().intValue() == 1){
 			List<WorkGridCandidate> workGridCandidates = workGridCandidateJsfService.queryCandidateList(oldData.getSiteCode());
-			if (!com.jd.ldop.utils.CollectionUtils.isEmpty(workGridCandidates)&&!workGridCandidates.contains(userErp)){
-				result.toFail("该ERP权限不足");
-				return result;
+			List<String> erpList = Lists.newArrayList();
+			if (!com.jd.ldop.utils.CollectionUtils.isEmpty(workGridCandidates)){
+				workGridCandidates.stream().forEach(item->{
+					erpList.add(item.getErp());
+				});
+				if (!erpList.contains(userErp)){
+					result.toFail("该ERP权限不足");
+					return result;
+				}
 			}
 		}
 		JyBizTaskWorkGridManager updateTaskData = new JyBizTaskWorkGridManager();
@@ -512,7 +518,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
         addWorkGridManagerScanTask(taskData);
 		return true;
 	}
-	
+
 	private List<Integer> getSiteCodeList(WorkGridManagerTaskConfigVo configData, int pageNum){
 		String taskCode = configData.getTaskCode();
 		Result<WorkGridManagerTask> taskResult = workGridManagerTaskJsfManager.queryByTaskCode(taskCode);
@@ -538,7 +544,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				return getSiteCodesFromLoseOneTable(pageNum, lostOneTableSendQuotaNum);
 		}
 		return siteCodeList;
-		
+
 	}
 	private List<Integer> getSiteCodesFromLoseOneTable(int pageNum, int pageSize){
 		//指标业务只查一页
@@ -562,8 +568,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					siteCodes.add(Integer.valueOf(data.get("siteCode").toString()));
 				}
 			}
-			
-		} 
+
+		}
 		return null;
 	}
 
@@ -614,7 +620,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			taskEndTime = DateHelper.addDate(taskTime, 7);
 		}
 		//场地下存在需要推送的网格
-		List<WorkGrid> gridList = queryListForManagerSiteScan(siteCode, configData.getWorkAreaCodeList(), pageNum, 
+		List<WorkGrid> gridList = queryListForManagerSiteScan(siteCode, configData.getWorkAreaCodeList(), pageNum,
 				taskInfo.getTaskBizType(), configData.getPerGridNum());
 		if(!CollectionUtils.isEmpty(gridList)) {
 			hasGridData = true;
@@ -724,7 +730,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		}
 		logger.error("获取任务处理人失败，无匹配方法");
 		return null;
-		
+
 	}
 
 	private List<WorkGrid> queryListForManagerSiteScan(Integer siteCode, List<String> areaCodeList, Integer pageNum,
@@ -749,7 +755,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		logger.error("查询任务实例推送网格-根据任务bizType:{}未查到处理方法", taskBizType);
 		return null;
 	}
-	
+
     /**
      * 判断是否开启站点推送
      * @param siteCode
@@ -1078,7 +1084,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		return true;
 	}
 
-	
+
 	/**
 	 * 从装车质量报表ck查询该场地网格
 	 * @param areaCodes
@@ -1100,7 +1106,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		FdsServerResult edresult = easyDataClientUtil.queryNoPage(dmsWEasyDataConfig.getQueryLoadCarQualityGrid(), queryParam,
 				dmsWEasyDataConfig.getApiGroupName(),dmsWEasyDataConfig.getAppToken(),
 				dmsWEasyDataConfig.getTenant());
-		
+
 		if(edresult == null || CollectionUtils.isEmpty(edresult.getResult())) {
 			logger.info("从装车质量报表ck未查到网格信息");
 			return null;
