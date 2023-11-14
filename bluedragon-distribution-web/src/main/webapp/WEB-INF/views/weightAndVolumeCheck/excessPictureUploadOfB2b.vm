@@ -41,10 +41,11 @@
                         </div>
                     </div>
 
-                    <div class="row" style="margin-left:90px;">
+                    <div class="row" style="margin-left:120px;">
                         <label>
                             <input id="picRadio" name='value' type="radio" checked='checked'>超标图片上传
                         </label>
+                        &emsp;&emsp;&emsp;&emsp;
                         <label>
                             <input id="videoRadio" name='value' type="radio">超标视频上传
                         </label>
@@ -233,13 +234,17 @@
                         <div class="col-xs-12">
                             <div class="col-xs-6">
                                 <div class="form-group">
-                                    <div class=" col-xs-2" style="margin-left:125px;">
+                                    <label class="control-label col-xs-3" for="box-code-input">视频</label>
+                                    <div class=" col-xs-5">
+                                        <input type="text" id="pictureField6" class="form-control search-param" >
+                                    </div>
+                                    <div class=" col-xs-2">
                                         <button id="btn_browse6" type="button" class="btn btn-default">
                                             <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;浏览
                                         </button>
                                         <input  type="file" id="fileField6" name="fileField" class="file" size="28" onchange="document.getElementById('pictureField6').value=this.value" />
                                     </div>
-                                    <div class="col-xs-2" style="margin-left:40px;">
+                                    <div class="col-xs-2">
                                         <button id="btn_upload6" type="button" class="btn btn-default">
                                             <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>&nbsp;上传
                                         </button>
