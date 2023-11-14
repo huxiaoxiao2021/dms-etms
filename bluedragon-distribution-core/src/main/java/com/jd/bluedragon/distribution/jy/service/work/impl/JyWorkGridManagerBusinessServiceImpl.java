@@ -673,7 +673,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					initTaskNum ++;
 				}
 				pageNum ++;
-				queryListForManagerSiteScan(siteCode, configData.getWorkAreaCodeList(), pageNum,
+				gridList = queryListForManagerSiteScan(siteCode, configData.getWorkAreaCodeList(), pageNum,
 						taskInfo.getTaskBizType(), configData.getPerGridNum());
 				jyBizTaskWorkGridManagerService.batchAddTask(jyTaskInitList);
 			}
