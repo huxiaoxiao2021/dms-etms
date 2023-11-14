@@ -7,10 +7,10 @@
        xmlns="http://www.springframework.org/schema/beans">
 
     <!--BlueDragonDistribution生产者配置 该生产者禁用，请使用dmsWebProducer-->
-    <jmq:producer id="jmqProducer" transport="jmq.BlueDragonDistribution.transport" retryTimes="3" />
+    <jmq:producer id="jmqProducer" transport="jmq.BlueDragonDistribution.transport" retryTimes="3"/>
 
     <!--dmsweb生产者配置-->
-    <jmq:producer id="dmsWebProducer" transport="jmq.dmsWeb.transport" retryTimes="3" />
+    <jmq:producer id="dmsWebProducer" transport="jmq.dmsWeb.transport" retryTimes="3"/>
     <bean id="dmsWebDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="1000"/>
         <property name="jmqProducer" ref="dmsWebProducerSplit"/>
@@ -18,7 +18,8 @@
 
     <!--dmsWorker生产者配置-->
     <jmq:producer id="workerProducer" retryTimes="3" transport="jmq.dmsWorker.transport"/>
-    <bean id="dmsWorkerDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+    <bean id="dmsWorkerDefaultJMQProducer" abstract="true"
+          class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="1000"/>
         <property name="jmqProducer" ref="workerProducerSplit"/>
     </bean>
@@ -40,21 +41,25 @@
 
     <!--########################  JMQ4配置  #############################################-->
 
-    <jmq:producer id="jmq4DmsWebProducer" transport="jmq4.dmsWeb.transport" retryTimes="3" />
-    <jmq:producer id="jmq4WorkerProducer" transport="jmq4.dmsWorker.transport" retryTimes="3" />
+    <jmq:producer id="jmq4DmsWebProducer" transport="jmq4.dmsWeb.transport" retryTimes="3"/>
+    <jmq:producer id="jmq4WorkerProducer" transport="jmq4.dmsWorker.transport" retryTimes="3"/>
 
-    <bean id="jmq4DmsWebProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="jmq4DmsWebProducer">
+    <bean id="jmq4DmsWebProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer"
+          parent="jmq4DmsWebProducer">
         <property name="uat" value="${jmq.split.uat.switch:false}"/>
     </bean>
-    <bean id="jmq4WorkerProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="jmq4WorkerProducer">
+    <bean id="jmq4WorkerProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer"
+          parent="jmq4WorkerProducer">
         <property name="uat" value="${jmq.split.uat.switch:false}"/>
     </bean>
 
-    <bean id="jmq4DmsWebDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+    <bean id="jmq4DmsWebDefaultJMQProducer" abstract="true"
+          class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="1000"/>
         <property name="jmqProducer" ref="jmq4DmsWebProducerSplit"/>
     </bean>
-    <bean id="jmq4DmsWorkerDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+    <bean id="jmq4DmsWorkerDefaultJMQProducer" abstract="true"
+          class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="1000"/>
         <property name="jmqProducer" ref="jmq4WorkerProducerSplit"/>
     </bean>
@@ -440,12 +445,12 @@
 
     <!-- 物资按批次发货消息 -->
     <bean id="materialSendMQProducer" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.material.send}" />
+        <property name="topic" value="${jmq.topic.material.send}"/>
     </bean>
 
     <!-- 物资取消按批次发货消息 -->
     <bean id="cancelMaterialSendMQProducer" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.cancel.material.send}" />
+        <property name="topic" value="${jmq.topic.cancel.material.send}"/>
     </bean>
 
     <!-- 冷链 - 货物出入库消息 -->
@@ -487,12 +492,12 @@
 
     <!--  分拣建箱环节发送包裹信息  -->
     <bean id="dmsSortingPackageProducer" parent="dmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.sorting.package}" />
+        <property name="topic" value="${jmq.topic.sorting.package}"/>
     </bean>
 
     <!--  分拣验货环节发送包裹信息  -->
     <bean id="dmsInspectionPackageProducer" parent="dmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.inspection.package}" />
+        <property name="topic" value="${jmq.topic.inspection.package}"/>
     </bean>
 
     <!--  众邮箱号回传重量处理消息  -->
@@ -511,7 +516,7 @@
     </bean>
 
     <!--  包裹验货消息  -->
-    <bean id="dmsInspectionMQProducer" parent="dmsWorkerDefaultJMQProducer" >
+    <bean id="dmsInspectionMQProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dms.package.inspection}"/>
     </bean>
 
@@ -638,25 +643,25 @@
 
     <!--  拣运卸车扫描  -->
     <bean id="jyUnloadScanProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.unload.scan}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.unload.scan}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--  拣运卸车完成  -->
     <bean id="jyUnloadTaskCompleteProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.unload.complete}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.unload.complete}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--  拣运转运卸车岗任务完成  -->
     <bean id="jyUnloadCarPostTaskCompleteProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.unload.car.task.complete}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.unload.car.task.complete}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!--  分拣发邮政消息mq  -->
     <bean id="dmsSendToEmsWaybillInfoProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.dmsSendToEmsWaybillInfo}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.dmsSendToEmsWaybillInfo}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <bean id="miniStoreSealBoxProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.ministore.bind.relation}"/>
@@ -669,57 +674,57 @@
     </bean>
     <!--  首次打印  -->
     <bean id="popPrintFirstProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.pop.print.first}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.pop.print.first}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!--  拣运发货任务车辆拍照  -->
     <bean id="sendCarArriveStatusProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.send.car.arrive.status}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.send.car.arrive.status}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--  拣运任务调度修改状态消息发布  -->
     <bean id="scheduleTaskChangeStatusWorkerProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jyapp.exception.task.change}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jyapp.exception.task.change}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!--  拣运任务调度修改状态消息发布  -->
     <bean id="scheduleTaskAddWorkerProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jyapp.exception.task.add}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jyapp.exception.task.add}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--  拣运异常岗-上报任务  -->
     <bean id="scheduleTaskAddProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jyapp.exception.task.add}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jyapp.exception.task.add}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!--  拣运异常岗-更新任务状态  -->
     <bean id="scheduleTaskChangeStatusProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jyapp.exception.task.change}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jyapp.exception.task.change}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!--  提报解封车异常  -->
     <bean id="createTransAbnormalAndUnsealProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.createTransAbnormal}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.createTransAbnormal}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--  拣运转运卸车任务板关系同步  -->
     <bean id="jyTysTaskBoardRelationGenerate" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.unload.task.board.relation}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.unload.task.board.relation}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!-- 设备位置信息上传消息 -->
     <bean id="dmsUploadDeviceLocationProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.dmsUploadDeviceLocation}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.dmsUploadDeviceLocation}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!-- 设备操作位置异常上传消息 -->
     <bean id="dmsUploadDeviceLocationExceptionOpProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.dmsUploadDeviceLocationExceptionOp}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.dmsUploadDeviceLocationExceptionOp}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!-- 设备校准推送咚咚消息 -->
@@ -736,71 +741,71 @@
 
     <!--  打印触发取消快运改址拦截  -->
     <bean id="printCancelKyAddressModifyInterceptProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.print.cancel.kyAddressModify.intercept}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.print.cancel.kyAddressModify.intercept}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--  分拣转运派车任务明细  -->
     <bean id="sendVehicleDetailTaskProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.send.vehicle.detail.task}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.send.vehicle.detail.task}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--  拣运组板岗-运单异步取消组板  -->
     <bean id="waybillCancelComboardProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.waybill.cancel.comboard}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.waybill.cancel.comboard}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!--  拣运组板岗-运单组板发货  -->
     <bean id="waybillComboardProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.waybill.comboard}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.waybill.comboard}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--  拣运组板岗-运单异步取消组板发货  -->
     <bean id="cancelComboardSendProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.cancel.comboard.send}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.cancel.comboard.send}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!-- 撤销封签异常提报消息 -->
     <bean id="cancelTransAbnormalProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.cancelTransAbnormal}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.cancelTransAbnormal}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!--  拣运集齐初始化  -->
     <bean id="jyCollectDataInitSplitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.collect.data.init.split}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.collect.data.init.split}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!--  拣运集齐状态批量修改按运单拆分  -->
     <bean id="jyCollectBatchUpdateProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.collect.status.batch.update}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.collect.status.batch.update}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
 
     <!--换单打印时的包裹信息 -->
     <bean id="changeWaybillPrintProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.change.order.print}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.change.order.print}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--发送作业任务自动关闭消息 -->
     <bean id="jyBizTaskAutoCloseProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.biz.task.autoClose}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.biz.task.autoClose}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--装车评价报表初始化信息 -->
     <bean id="evaluateTargetInitProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.evaluate.target.init}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.evaluate.target.init}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--装车评价报表最终结果信息 -->
     <bean id="evaluateTargetResultProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.evaluate.target.result}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.evaluate.target.result}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!-- 周转筐批量作废异步处理 -->
@@ -810,29 +815,29 @@
     </bean>
     <!--  拣运集齐初始化分批拆分  -->
     <bean id="jyCollectDataPageInitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.collect.data.page.init}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.collect.data.page.init}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!-- 拣运集齐按运单拆分后批量修改集齐状态  -->
     <bean id="jyCollectStatusBatchUpdateWaybillSplitProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.collect.status.batch.update.split}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.collect.status.batch.update.split}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!--  验货修改集齐状态补偿方案  -->
     <bean id="inspectUpdateCollectStatusProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.inspect.update.collect.status}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.jy.inspect.update.collect.status}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <bean id="jyOperationProgressProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.operation.progress}" />
-        <property name="timeout" value="3000" />
+        <property name="topic" value="${jmq.topic.jy.operation.progress}"/>
+        <property name="timeout" value="3000"/>
     </bean>
 
     <!--  异常提报消息  -->
     <bean id="abnormalReportRecordProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.abnormal.report.record}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.abnormal.report.record}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <bean id="jyAggsConsumerMain" class="com.jd.bluedragon.distribution.consumer.jy.JyAggsConsumer">
@@ -877,58 +882,58 @@
 
     <!--  异常-报废审批异步处理  -->
     <bean id="scrapApproveProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.exception.syncScrapApprove}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.exception.syncScrapApprove}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--  异常-报废详情通知  -->
     <bean id="dmsScrapNoticeProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.exception.scrapNotice}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.exception.scrapNotice}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--  异常-未领取超时任务通知  -->
     <bean id="dmsUnCollectOverTimeNoticeProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.exception.unCollectOverTimeNotice}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.exception.unCollectOverTimeNotice}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--  异常-报废审批通过异步通知客服系统  -->
     <bean id="dmsScrapNoticeKFProducer" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.exception.scrapNoticeKF}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.topic.exception.scrapNoticeKF}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--逆向vmi推送消息 仅在worker中使用配置即可 -->
     <bean id="outStoreVmiProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.out.big.store.down.stream.vmi.dtc}" />
-        <property name="timeout" value="1000" />
+        <property name="topic" value="${jmq.out.big.store.down.stream.vmi.dtc}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!-- 拣运扫描集齐-新 -->
     <bean id="jyScanCollectProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.scan.collect}" />
-        <property name="timeout" value="3000" />
+        <property name="topic" value="${jmq.topic.jy.scan.collect}"/>
+        <property name="timeout" value="3000"/>
     </bean>
     <!-- 拣运取消扫描集齐-新 -->
     <bean id="jyCancelScanCollectProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.cancel.scan.collect}" />
-        <property name="timeout" value="3000" />
+        <property name="topic" value="${jmq.topic.jy.cancel.scan.collect}"/>
+        <property name="timeout" value="3000"/>
     </bean>
     <!-- 拣运取消扫描 -->
     <bean id="jyCancelScanProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jy.cancel.scan}" />
-        <property name="timeout" value="3000" />
+        <property name="topic" value="${jmq.topic.jy.cancel.scan}"/>
+        <property name="timeout" value="3000"/>
     </bean>
     <!-- 拣运发货流向纬度首次扫描 -->
     <bean id="jyTaskSendDetailFirstSendProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jyTaskSendDetailFirstSend}" />
-        <property name="timeout" value="3000" />
+        <property name="topic" value="${jmq.topic.jyTaskSendDetailFirstSend}"/>
+        <property name="timeout" value="3000"/>
     </bean>
     <!-- 作业APP促发运输催派车辆接口 -->
     <bean id="jySendTmsUrgeVehicleProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jySendTmsUrgeVehicle}" />
-        <property name="timeout" value="3000" />
+        <property name="topic" value="${jmq.topic.jySendTmsUrgeVehicle}"/>
+        <property name="timeout" value="3000"/>
     </bean>
 
     <!-- 异常-破损数据通知客服 -->
@@ -944,8 +949,8 @@
 
     <!-- 操作流水mq -->
     <bean id="jyOperateFlowMqProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jyOperateFlowMq}" />
-        <property name="timeout" value="3000" />
+        <property name="topic" value="${jmq.topic.jyOperateFlowMq}"/>
+        <property name="timeout" value="3000"/>
     </bean>
 
     <!-- 违禁品上报处理 -->
@@ -968,12 +973,18 @@
 
     <!-- 首次保存组板任务消息 -->
     <bean id="jyComboardTaskFirstSaveProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.jyComboardTaskFirstSave}" />
-        <property name="timeout" value="3000" />
+        <property name="topic" value="${jmq.topic.jyComboardTaskFirstSave}"/>
+        <property name="timeout" value="3000"/>
     </bean>
     <!-- app 登录信息 -->
     <bean id="loginInfoProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.login.info}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!-- 安灯亮灭灯信息-->
+    <bean id="andonEventProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.andon.event}"/>
+    </bean>
+
 </beans>
