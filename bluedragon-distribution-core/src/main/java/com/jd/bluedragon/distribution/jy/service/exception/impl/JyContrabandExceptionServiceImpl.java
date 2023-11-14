@@ -281,6 +281,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         mq.setCodeInfo(waybillCode);
         mq.setCodeType(ASCPContants.CODE_TYPE);
         mq.setExptCreateTime(DateHelper.formatDateTime(new Date()));
+        mq.setExptCreator(dto.getCreateErp());
         JyExceptionContrabandEnum.ContrabandTypeEnum contrabandType = JyExceptionContrabandEnum.ContrabandTypeEnum.getEnumByCode(dto.getContrabandType());
         if(isisHKorMO){
             logger.info("港澳单---{}",waybillCode);
@@ -547,7 +548,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             throw new RuntimeException("违禁品类型错误");
         }
         if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
-            if(!isHKorMOExitWaybill(WaybillUtil.getWaybillCode(req.getBarCode())) && !isInternationWaybill(req.getBarCode())){
+            if(!isHKorMOExitWaybill(WaybillUtil.getWaybillCode(req.getBarCode())) && !isInternationWaybill(WaybillUtil.getWaybillCode(req.getBarCode()))){
                 throw new RuntimeException("仅港澳件和国际件出口支持违禁品退回!");
             }
         }
