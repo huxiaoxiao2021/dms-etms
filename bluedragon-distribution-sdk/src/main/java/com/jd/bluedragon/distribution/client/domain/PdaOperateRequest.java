@@ -74,14 +74,17 @@ public class PdaOperateRequest {
 
     Integer onlineStatus;
 
-	private boolean skipFilter;
+	/**
+	 * 拦截链的二进制编码（有效位编码为1）
+	 */
+	long interceptChainBitCode;
 
-	public boolean getSkipFilter() {
-		return skipFilter;
+	public long getInterceptChainBitCode() {
+		return interceptChainBitCode;
 	}
 
-	public void setSkipFilter(boolean skipFilter) {
-		this.skipFilter = skipFilter;
+	public void setInterceptChainBitCode(long interceptChainBitCode) {
+		this.interceptChainBitCode = interceptChainBitCode;
 	}
 
 	public Integer getOperateType() {

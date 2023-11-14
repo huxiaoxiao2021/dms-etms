@@ -570,7 +570,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setPackageCode(pdaOperateRequest.getPackageCode());
         filterContext.setPdaOperateRequest(pdaOperateRequest);
         filterContext.setOnlineStatus(pdaOperateRequest.getOnlineStatus());
-        filterContext.setSkipFilter(pdaOperateRequest.getSkipFilter());
+        filterContext.setBitCode(pdaOperateRequest.getInterceptChainBitCode());
         return filterContext;
     }
 

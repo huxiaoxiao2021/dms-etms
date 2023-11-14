@@ -1773,6 +1773,16 @@ public class UccPropertyConfiguration{
 
     private boolean collectPackageTaskRefreshSwitch;
 
+    private long jyCollectPackageInterceptBitCode;
+
+    public long getJyCollectPackageInterceptBitCode(){
+        return jyCollectPackageInterceptBitCode;
+    }
+
+    public void setJyCollectPackageInterceptBitCode(long jyCollectPackageInterceptBitCode) {
+        this.jyCollectPackageInterceptBitCode = jyCollectPackageInterceptBitCode;
+    }
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
