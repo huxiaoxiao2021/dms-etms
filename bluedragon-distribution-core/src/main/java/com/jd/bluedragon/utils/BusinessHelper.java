@@ -1100,6 +1100,15 @@ public class BusinessHelper {
     }
 
     /**
+     * 是否已脱敏,需要进行解密
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNeedDecode(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_142, WaybillSignConstants.CHAR_142_1);
+    }
+
+    /**
      * 是否特殊品类运单（黄金或珠宝等贵重物品）
      *
      * @param sendPayMap

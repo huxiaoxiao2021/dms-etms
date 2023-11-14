@@ -1030,6 +1030,12 @@
                   protocol="jsf" alias="${jsf.dataAmOrder.alias}" timeout="${jsf.dataAmOrder.timeout}" retries="0" check="false" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!--  转运工作台外包计提配置  -->
+    <jsf:consumer id="adapterApiJsfService" interface="cn.jdl.jecap.adapter.AdapterApi"  serialization="hessian"
+                  protocol="jsf" alias="${jsf.adapterApi.alias}" timeout="${jsf.adapterApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.adapterApi.token}" hide="true"/>
+    </jsf:consumer>
+
     <!-- dms校验接口 -->
     <jsf:consumer id="dmsCheckJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService"
                   protocol="jsf" alias="${jsf.dmsCheck.alias}" timeout="${jsf.dmsCheck.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
