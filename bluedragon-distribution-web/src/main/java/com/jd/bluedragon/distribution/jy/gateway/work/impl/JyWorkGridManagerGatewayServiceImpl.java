@@ -140,8 +140,8 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 
 		//判断相应状态的数量是否大于0
 		if(query.getStatus() != null
-				&& statusNum.containsKey(query.getStatus())
-				&& statusNum.get(query.getStatus()).getDataNum() > 0) {
+				&& statusNum.containsKey(String.valueOf(query.getStatus()))
+				&& statusNum.get(String.valueOf(query.getStatus())).getDataNum() > 0) {
 			List<JyWorkGridManagerData> queryList = jyBizTaskWorkGridManagerService.queryDataListForPda(query);
 			if(!CollectionUtils.isEmpty(queryList)) {
 				pageData.setDataList(queryList);
@@ -197,11 +197,11 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<Boolean> submitData(JyWorkGridManagerTaskEditRequest request) {
-		JdCResponse<Boolean> response = new JdCResponse<Boolean>();
-		response.toSucceed();
-		return response;
-		//todo 用于联调测试，待删除
-//		return jyWorkGridManagerBusinessService.submitData(request);
+//		JdCResponse<Boolean> response = new JdCResponse<Boolean>();
+//		response.toSucceed();
+//		return response;
+//		//todo 用于联调测试，待删除
+		return jyWorkGridManagerBusinessService.submitData(request);
 	}
 	@JProfiler(jKey = "dmsWeb.server.jyWorkGridManagerGatewayService.scanTaskPosition",
 	jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})

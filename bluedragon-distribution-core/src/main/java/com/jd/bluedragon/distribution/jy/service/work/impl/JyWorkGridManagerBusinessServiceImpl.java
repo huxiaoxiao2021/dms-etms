@@ -4,6 +4,7 @@ package com.jd.bluedragon.distribution.jy.service.work.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.jd.bluedragon.distribution.jy.enums.TransferTypeEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.utils.*;
@@ -11,7 +12,9 @@ import com.jd.bluedragon.utils.easydata.DmsWEasyDataConfig;
 import com.jd.bluedragon.utils.easydata.EasyDataClientUtil;
 import com.jd.fds.lib.dto.server.FdsPage;
 import com.jd.fds.lib.dto.server.FdsServerResult;
+import com.jdl.basic.api.domain.work.WorkGridCandidate;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
+import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +140,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 
 	@Autowired
 	private PositionManager positionManager;
-
+	@Autowired
+	private WorkGridCandidateJsfService workGridCandidateJsfService;
     @Autowired
     SysConfigService sysConfigService;
     @Autowired
@@ -218,6 +222,14 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		if(!WorkTaskStatusEnum.TODO.getCode().equals(oldData.getStatus())) {
 			result.toFail("任务状态已变更，不能提交！");
 			return result;
+		}
+		//转派的任务检查处理人在不在备选池中
+		if (oldData.getTransfered().intValue() == 1){
+			List<WorkGridCandidate> workGridCandidates = workGridCandidateJsfService.queryCandidateList(oldData.getSiteCode());
+			if (!com.jd.ldop.utils.CollectionUtils.isEmpty(workGridCandidates)&&!workGridCandidates.contains(userErp)){
+				result.toFail("该ERP权限不足");
+				return result;
+			}
 		}
 		JyBizTaskWorkGridManager updateTaskData = new JyBizTaskWorkGridManager();
 		updateTaskData.setStatus(WorkTaskStatusEnum.COMPLETE.getCode());
@@ -361,10 +373,10 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		return caseItemEntity;
 	}
 
-	private JyAttachmentDetailEntity toJyAttachmentDetailEntity(String userErp, Date currentTime, 
+	private JyAttachmentDetailEntity toJyAttachmentDetailEntity(String userErp, Date currentTime,
 																JyWorkGridManagerData taskData,
 																JyWorkGridManagerCaseData caseData,
-																AttachmentDetailData attachmentData, 
+																AttachmentDetailData attachmentData,
 																String bizSubType) {
 		JyAttachmentDetailEntity attachmentEntity = new JyAttachmentDetailEntity();
         attachmentEntity.setBizId(caseData.getBizId());
