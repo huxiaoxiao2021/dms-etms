@@ -1,6 +1,7 @@
 $(function () {
 
     var uploadUrl = "/weightAndVolumeCheckOfB2b/uploadExcessPicture";
+    var uploadVideoUrl = "/weightAndVolumeCheckOfB2b/uploadExcessVideo";
 
     if($('#excessType').val() === '1'){
         // 1表示重量超标
@@ -50,6 +51,9 @@ $(function () {
     $('#btn_browse5').click(function () {
         $('#fileField5').click();
     });
+    $('#btn_browse6').click(function () {
+        $('#fileField6').click();
+    });
     //上传
     $('#btn_upload1').click(function () {
         var upSuccess1 = '#upSuccess1';
@@ -91,7 +95,7 @@ $(function () {
         var upSuccess6 = '#upSuccess6';
         var upFail6 = '#upFail6';
         var upIsSuccessFlage6 = '#upIsSuccessFlage6';
-        upload ($('#pictureField6').val().trim(),$('#fileField6')[0].files[0],upSuccess6,upFail6,upIsSuccessFlage6,6);
+        uploadVideo($('#pictureField6').val().trim(),$('#fileField6')[0].files[0],upSuccess6,upFail6,upIsSuccessFlage6,6);
     });
 
     // 图片上传失败两次后，第三次可强制上传
@@ -140,6 +144,109 @@ $(function () {
                     setPicUrl(picType, data.data);
                     resetUploadCount(picType);
                 }else if(data.code === 40001){
+                    // 后台自定义的AI图片识别的错误编码：40001
+                    let count;
+                    if(picType === 1 || picType === 0){
+                        count = weightOrPanoramaUploadCount ++;
+                    }
+                    if(picType === 2) {
+                        count = faceUploadCount ++;
+                    }
+                    if(picType === 3){
+                        count = lengthUploadCount ++;
+                    }
+                    if(picType === 4){
+                        count = widthUploadCount ++;
+                    }
+                    if(picType === 5){
+                        count = heightUploadCount ++;
+                    }
+                    if(count >= 1){
+                        $.msg.confirm('您上传的照片已多次未通过系统校验，是否强制提交?',function () {
+                            // 设置强制提交
+                            formData.append('isForce',true);
+                            $.ajax({
+                                url: uploadUrl,
+                                type: 'POST',
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                async: false,
+                                success: function (forceData) {
+                                    if(forceData && forceData.code === 200){
+                                        setPicUrl(picType, forceData.data);
+                                        resetUploadCount(picType);
+                                        $(param3).css("display","block");
+                                        $(param4).css("display","none");
+                                        $(param5).val(1);
+                                    }else {
+                                        $(param4).css("display","block");
+                                        $(param3).css("display","none");
+                                        $(param5).val(0);
+                                        Jd.alert(data.message);
+                                    }
+                                }
+                            })
+                        }, function (){
+                            $(param4).css("display","block");
+                            $(param3).css("display","none");
+                            $(param5).val(0);
+                        });
+                    }else {
+                        $(param4).css("display","block");
+                        $(param3).css("display","none");
+                        $(param5).val(0);
+                        Jd.alert(data.message);
+                    }
+                }else {
+                    $(param4).css("display","block");
+                    $(param3).css("display","none");
+                    $(param5).val(0);
+                    Jd.alert(data.message);
+                }
+            }
+        });
+    }
+
+    // 上传视频事件
+    function uploadVideo (param1,param2,param3,param4,param5,picType) {
+        let fileName = param1;
+        let index1 = fileName.lastIndexOf(".");
+        let index2 = fileName.length;
+        let suffixName = fileName.substring(index1 + 1, index2);
+        let arr = ['mp4'];
+        if (fileName === '') {
+            Jd.alert('请选择视频文件再上传!');
+            return;
+        }
+        if (!arr.includes(suffixName)) {
+            Jd.alert('上传视频的格式不正确,请检查后再上传!');
+            return;
+        }
+        let formData = new FormData();
+        formData.append('video', param2);
+        formData.append('waybillOrPackageCode', $('#waybillOrPackageCode').val());
+        formData.append('createSiteCode', $('#createSiteCode').val());
+        formData.append('weight', $('#weight').val());
+        formData.append('uploadType', picType); // 上传类型：重量/全景（1）、面单（2）、长（3）、宽（4）、高（5）、视频(6)
+        formData.append('excessType', $('#excessType').val());
+        formData.append('isMultiPack', $('#isMultiPack').val());
+
+        $.ajax({
+            url : uploadVideoUrl,
+            type : 'POST',
+            data : formData,
+            processData : false,
+            contentType : false,
+            async : false,
+            success : function(data) {
+                if (data && data.code === 200){
+                    $(param3).css("display","block");
+                    $(param4).css("display","none");
+                    $(param5).val(1);
+                    setPicUrl(picType, data.data);
+                    resetUploadCount(picType);
+                } else if (data.code === 40001) {
                     // 后台自定义的AI图片识别的错误编码：40001
                     let count;
                     if(picType === 1 || picType === 0){

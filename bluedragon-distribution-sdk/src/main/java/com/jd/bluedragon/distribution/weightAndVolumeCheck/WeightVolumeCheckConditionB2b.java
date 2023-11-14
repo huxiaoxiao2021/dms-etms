@@ -77,6 +77,11 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
      */
     private boolean androidSpotCheck = false;
 
+    /**
+     * 视频url
+     */
+    private String videoUrl;
+
     public String getLoginErp() {
         return loginErp;
     }
@@ -195,5 +200,13 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
 
     public void setAndroidSpotCheck(boolean androidSpotCheck) {
         this.androidSpotCheck = androidSpotCheck;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 }

@@ -252,9 +252,24 @@ $(function () {
     $('#btn_submit').click(function () {
         let waybillData = $('#waybillDataTable').bootstrapTable('getData');
         let uploadNum = $('#waybillDataTable')[0].rows[1].cells[5].innerHTML;
-        if(waybillData[0].isExcess === 1 && uploadNum !== '5'){
-            Jd.alert('请先上传' + waybillData[0].waybillCode + '的超标图片!');
-            return;
+        let videoUrl = $('#excessVideo').val();
+        let lessOnePicFlag = false;
+        if($('#excessPicWeightOrPanorama').val() || $('#excessPicFace').val()
+            || $('#excessPicLength').val() || $('#excessPicWidth').val()
+            || $('#excessPicHeight').val()){
+            lessOnePicFlag = true;
+        }
+        if(waybillData[0].isExcess === 1) {
+            // 如果没有上传视频，并且图片也没上传
+            if (!videoUrl && uploadNum !== '5') {
+                Jd.alert('请先上传' + waybillData[0].waybillCode + '的超标图片或视频!');
+                return;
+            }
+            // 如果上传了视频，图片也上传了但是不满足5张
+            if (videoUrl && lessOnePicFlag && uploadNum !== '6') {
+                Jd.alert('如果选择上传超标图片，则必须上传5张!');
+                return;
+            }
         }
         let param = {};
         param.waybillOrPackageCode = waybillData[0].waybillCode;
@@ -277,6 +292,7 @@ $(function () {
             excessPicUrls.push($('#excessPicWidth').val());
             excessPicUrls.push($('#excessPicHeight').val());
             param.urls = excessPicUrls;
+            param.videoUrl = videoUrl;
         }
 
         jQuery.ajax({
