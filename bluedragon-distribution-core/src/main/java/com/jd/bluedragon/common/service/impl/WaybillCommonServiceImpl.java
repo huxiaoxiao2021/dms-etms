@@ -1091,6 +1091,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
          * 当wbs40=2 && 80=0时，赋值“快运零担”
          *
          * 当wbs40=2 && 80=9时，赋值“特快重货”
+         *
+         * 当wbs40=2 && 80=D时，赋值“特惠泡货”
          */
         if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'2')) {
             if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'1')) {
@@ -1105,6 +1107,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'9')) {
                 //特快重货
                 target.setjZDFlag(TextConstants.B2B_TKZH);
+            }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'D')) {
+                //特惠泡货
+                target.setjZDFlag(TextConstants.B2B_THPH);
             }
         }
 
