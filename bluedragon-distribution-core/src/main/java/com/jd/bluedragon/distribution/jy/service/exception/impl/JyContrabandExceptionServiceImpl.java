@@ -547,8 +547,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             throw new RuntimeException("违禁品类型错误");
         }
         if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
-            if(!isHKorMOExitWaybill(WaybillUtil.getWaybillCode(req.getBarCode()))){
-                throw new RuntimeException("仅港澳件出口支持违禁品退回!");
+            if(!isHKorMOExitWaybill(WaybillUtil.getWaybillCode(req.getBarCode())) && !isInternationWaybill(req.getBarCode())){
+                throw new RuntimeException("仅港澳件和国际件出口支持违禁品退回!");
             }
         }
         if (WaybillUtil.isPackageCode(req.getBarCode())) {
@@ -583,7 +583,13 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         }
     }
 
-
+    private boolean isInternationWaybill(String waybillCode) {
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        if (waybill == null) {
+            throw new RuntimeException("获取运单信息失败!");
+        }
+        return isInternationWaybill(waybillCode, waybill);
+    }
 
 
     /**
