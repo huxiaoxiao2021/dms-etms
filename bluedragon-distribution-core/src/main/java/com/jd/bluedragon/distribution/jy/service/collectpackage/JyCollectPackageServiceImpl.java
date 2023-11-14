@@ -1280,9 +1280,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             jyBizTaskCollectPackageFlowService.batchInsert(newFlowList);
         }catch (Exception e) {
             log.error("更新集包任务流向信息失败！{}", JsonHelper.toJson(request), e);
-            result.setCode(RESULT_THIRD_ERROR_CODE);
-            result.setMessage("更新集包任务异常，请联系分拣小秘！");
-            return result;
         }finally {
             jimDbLock.releaseLock(boxLockKey, request.getRequestId());
         }

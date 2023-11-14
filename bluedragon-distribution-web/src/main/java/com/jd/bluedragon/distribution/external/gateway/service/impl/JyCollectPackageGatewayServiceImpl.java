@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_FAIL;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_THIRD_ERROR_CODE;
 
 @Slf4j
 @UnifiedExceptionProcess
@@ -111,7 +112,11 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
 
     @Override
     public JdCResponse<UpdateMixFlowListResp> updateTaskFlowList(UpdateMixFlowListReq request) {
-        return retJdCResponse(jyCollectPackageService.updateTaskFlowList(request));
+        try{
+            return retJdCResponse(jyCollectPackageService.updateTaskFlowList(request));
+        }catch (Exception e) {
+            return new JdCResponse<>(RESULT_THIRD_ERROR_CODE,"更新集包任务异常，请联系分拣小秘！");
+        }
     }
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
