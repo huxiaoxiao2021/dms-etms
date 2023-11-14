@@ -1729,8 +1729,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             // 检查加密或虚拟号
             // 如果encMode字段=1，表示加密信息，此类需要分拣触发解密 如果encMode字段=2，表示是虚拟号，需要再判断virtualNumberExpire字段，虚拟号失效时间减去当前时间小于等于10天的（可配置)
             if(!(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getValue().equals(receiveMobileEncMode)
-                    ||
-                    WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getValue().equals(receiveNameEncMode)
+                    //||  不考虑 客户名字是否加密
+                    //WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getValue().equals(receiveNameEncMode)
                     ||
                     (WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_2.getValue().equals(receiveMobileEncMode)
                             && receiveMobileVirtualNumberExpire.before(DateHelper.addDate(new Date(),afterDays)))
