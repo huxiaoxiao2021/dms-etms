@@ -281,7 +281,6 @@ public class JyCollectPackageGatewayServiceImplTest {
         user.setUserCode(17331);
         req.setUser(user);
         req.setCurrentOperate(currentOperate);
-        req.setBoxReceiveId(40240);
         JdCResponse<MixFlowListResp> response = jyCollectPackageGatewayService.querySiteMixFlowList(req);
         System.out.println(JsonHelper.toJson(response));
     }
