@@ -490,4 +490,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		autoCloseTaskData.setBizIdList(bizIdList);
 		jyWorkGridManagerBusinessService.addWorkGridManagerAutoCloseTask(autoCloseTaskData);
 	}
+	@Override
+	public String selectLastHandlerErp(String taskCode){
+		return jyBizTaskWorkGridManagerDao.selectLastHandlerErp(taskCode);
+	}
 }

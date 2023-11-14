@@ -101,4 +101,5 @@ public interface JyBizTaskWorkGridManagerService {
 
 	JdCResponse<Boolean> transferCandidate(JyWorkGridManagerTransferData request);
 
+    String selectLastHandlerErp(String taskCode);
 }
