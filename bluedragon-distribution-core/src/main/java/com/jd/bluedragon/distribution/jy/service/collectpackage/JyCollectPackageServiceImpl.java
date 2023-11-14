@@ -644,7 +644,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         // 批量获取流向信息
         List<String> bizIds = taskList.stream().map(JyBizTaskCollectPackageEntity::getBizId).collect(Collectors.toList());
-        HashMap<String, List<CollectPackageFlowDto>> flowMap = getFlowMapByTask(bizIds);
+        HashMap<String,CollectPackageFlowDto> taskMap = getTaskMap(taskList);
+        HashMap<String, List<CollectPackageFlowDto>> flowMap = getFlowMapByTask(bizIds, taskMap);
 
         // 批量获取统计信息
         HashMap<String, List<CollectScanDto>> aggMap = getScanAgg(boxCodeList);
@@ -681,6 +682,17 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             return taskDto;
         }).collect(Collectors.toList());
         return collectPackTaskDtoList;
+    }
+
+    private HashMap<String, CollectPackageFlowDto> getTaskMap(List<JyBizTaskCollectPackageEntity> taskList) {
+        HashMap<String, CollectPackageFlowDto> taskMap = new HashMap<>();
+        taskList.forEach(item -> {
+            CollectPackageFlowDto dto = new CollectPackageFlowDto();
+            dto.setEndSiteId(item.getEndSiteId());
+            dto.setEndSiteName(item.getEndSiteName());
+            taskMap.put(item.getBizId(),dto);
+        });
+        return taskMap;
     }
 
     private HashMap<String, List<CollectScanDto>> getScanAgg(List<String> bizIdList) {
@@ -723,10 +735,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      * 根据任务获取流向信息
      *
      * @param bizIds
+     * @param taskMap
      * @return
      */
-    private HashMap<String, List<CollectPackageFlowDto>> getFlowMapByTask(List<String> bizIds) {
+    private HashMap<String, List<CollectPackageFlowDto>> getFlowMapByTask(List<String> bizIds, HashMap<String, CollectPackageFlowDto> taskMap) {
         HashMap<String, List<CollectPackageFlowDto>> flowMap = new HashMap<>();
+        HashMap<String,Long> endSiteMap = new HashMap<>();
+        taskMap.forEach((key, value) -> endSiteMap.put(key, value.getEndSiteId()));
         // 如果支持混装，查询流向集合
         List<JyBizTaskCollectPackageFlowEntity> flowList = jyBizTaskCollectPackageFlowService.queryListByBizIds(bizIds);
         if (!CollectionUtils.isEmpty(flowList)) {
@@ -737,7 +752,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
                 List<CollectPackageFlowDto> flowDtoList = flowMap.get(entity.getCollectPackageBizId());
                 if (CollectionUtils.isEmpty(flowDtoList)) {
                     flowDtoList = new ArrayList<>();
+                    // 添加建箱目的地流向
+                    CollectPackageFlowDto flowDto = taskMap.get(entity.getCollectPackageBizId());;
+                    flowDtoList.add(flowDto);
                     flowMap.put(entity.getCollectPackageBizId(), flowDtoList);
+                }
+                Long endSiteId = endSiteMap.get(entity.getCollectPackageBizId());
+                if (Objects.equals(endSiteId, entity.getEndSiteId())) {
+                    continue;
                 }
                 flowDtoList.add(collectPackageFlowDto);
             }
@@ -818,7 +840,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
 
         // 流向信息
-        HashMap<String, List<CollectPackageFlowDto>> flowInfo = getFlowMapByTask(Collections.singletonList(taskDto.getBizId()));
+        HashMap<String, CollectPackageFlowDto> taskMap = getTaskMap(Collections.singletonList(task));
+        HashMap<String, List<CollectPackageFlowDto>> flowInfo = getFlowMapByTask(Collections.singletonList(taskDto.getBizId()), taskMap);
         taskDto.setCollectPackageFlowDtoList(flowInfo.get(task.getBizId()));
         resp.setCollectPackageTaskDto(taskDto);
         return result;
@@ -1193,7 +1216,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         List<CollectPackageFlowDto> flowDtoList = new ArrayList<>();
         resp.setCollectPackageFlowDtoList(flowDtoList);
         result.setData(resp);
-        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(request.getCurrentOperate().getSiteCode(), request.getBoxReceiveId(),request.getSearchCondition());
+        JyBizTaskCollectPackageEntity task = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
+        if (task == null) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("未获取到包裹任务信息！");
+            return result;
+        }
+
+        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(request.getCurrentOperate().getSiteCode(), task.getEndSiteId().intValue(),request.getSearchCondition());
         List<CollectBoxFlowDirectionConf> flowList=
                 boxLimitConfigManager.listCollectBoxFlowDirection(con, Collections.singletonList(COLLECT_CLAIM_MIX));
         if (!CollectionUtils.isEmpty(flowList)) {
@@ -1214,11 +1244,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             return false;
         }
 
-        if (request.getBoxReceiveId() == null || request.getBoxReceiveId() <= 0) {
-            result.setCode(RESULT_THIRD_ERROR_CODE);
-            result.setMessage("未获取到包裹流向信息！");
-            return false;
-        }
         return true;
     }
 

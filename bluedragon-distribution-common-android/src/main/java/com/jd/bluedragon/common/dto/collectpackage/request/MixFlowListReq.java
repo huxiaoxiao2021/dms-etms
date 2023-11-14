@@ -11,7 +11,6 @@ public class MixFlowListReq extends BaseReq implements Serializable {
 
     private String boxCode;
 
-    private Integer boxReceiveId;
     /**
      * 检索条件 目的地Id或目的地名称检索（精确查询）
      */
@@ -41,11 +40,4 @@ public class MixFlowListReq extends BaseReq implements Serializable {
         this.boxCode = boxCode;
     }
 
-    public Integer getBoxReceiveId() {
-        return boxReceiveId;
-    }
-
-    public void setBoxReceiveId(Integer boxReceiveId) {
-        this.boxReceiveId = boxReceiveId;
-    }
 }
