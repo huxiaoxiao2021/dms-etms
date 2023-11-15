@@ -29,6 +29,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -40,10 +41,10 @@ import java.util.concurrent.TimeUnit;
 import static com.jd.ql.basic.util.DateUtil.FORMAT_DATE;
 
 /**
- *
+ * 此消息uat和线上使用不同的topic，uat仅测试使用，不做打标隔离
  **/
 @Service("violentSortingConsumer")
-public class ViolentSortingConsumer extends MessageBaseConsumer {
+public class ViolentSortingConsumer extends MessageBaseConsumer implements InitializingBean {
     String TYPE_ANDON = "ANDON";
 
     Long UpgradeNotifyCount = 3l;//同一天同一网格，多少次后升级提醒网格长leader
@@ -189,5 +190,10 @@ public class ViolentSortingConsumer extends MessageBaseConsumer {
         }
         mspClientProxy.sendTimeline("违规操作预警", content, d.getUrl(), pins, false);
         return incr;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        setUat("false");
     }
 }
