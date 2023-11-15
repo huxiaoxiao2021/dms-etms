@@ -1282,8 +1282,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             List<JyBizTaskCollectPackageFlowEntity> newFlowList = request.getCollectPackageFlowDtoList()
                     .stream().map(item -> converJyBizTaskCollectPackageFlowEntity(item,task, request)).collect(Collectors.toList());
             jyBizTaskCollectPackageFlowService.batchInsert(newFlowList);
-        }catch (Exception e) {
-            log.error("更新集包任务流向信息失败！{}", JsonHelper.toJson(request), e);
         }finally {
             jimDbLock.releaseLock(boxLockKey, request.getRequestId());
         }
@@ -1309,11 +1307,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     private boolean checkUpdateMixFlowListReq(UpdateMixFlowListReq request, InvokeResult<UpdateMixFlowListResp> result) {
-        if (CollectionUtils.isEmpty(request.getCollectPackageFlowDtoList())
-                || StringUtils.isEmpty(request.getBizId())
-                || StringUtils.isEmpty(request.getBoxCode())) {
+        if (StringUtils.isEmpty(request.getBizId())) {
             result.setCode(RESULT_THIRD_ERROR_CODE);
-            result.setMessage("未获取到包裹任务信息！");
+            result.setMessage("未获取到集包任务BizId！");
+            return false;
+        }
+
+        if (CollectionUtils.isEmpty(request.getCollectPackageFlowDtoList())) {
+            result.setCode(RESULT_THIRD_ERROR_CODE);
+            result.setMessage("未获取到集包任务流向信息！");
             return false;
         }
 
