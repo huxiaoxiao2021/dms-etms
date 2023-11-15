@@ -1748,20 +1748,21 @@ public class SendPrintServiceImpl implements SendPrintService {
             req.setQueryReason(AdapterApiManagerImpl.QUERY_REASON_EMS);
             AdapterOutOfPlatformDecryRouter resp = adapterApiManager.commonAdapterExecuteOfPlatformDecryRouter(req);
             if(resp == null || resp.getData() == null
-                    || resp.getData().getReceiver() == null){
+                    || resp.getData().getReceiver() == null
+                    || resp.getData().getReceiver().getContact() == null){
                 log.info("运单{},未获取到解密信息！",waybillCode);
                 return waybillDto;
             }
 
             //覆盖解密数据
-            if(StringUtils.isNotBlank(resp.getData().getReceiver().getMobile())){
-                waybillDto.getWaybill().setReceiverMobile(resp.getData().getReceiver().getMobile());
+            if(StringUtils.isNotBlank(resp.getData().getReceiver().getContact().getMobile())){
+                waybillDto.getWaybill().setReceiverMobile(resp.getData().getReceiver().getContact().getMobile());
             }
-            if(StringUtils.isNotBlank(resp.getData().getReceiver().getPhone())){
-                waybillDto.getWaybill().setReceiverTel(resp.getData().getReceiver().getPhone());
+            if(StringUtils.isNotBlank(resp.getData().getReceiver().getContact().getPhone())){
+                waybillDto.getWaybill().setReceiverTel(resp.getData().getReceiver().getContact().getPhone());
             }
-            if(StringUtils.isNotBlank(resp.getData().getReceiver().getName())){
-                waybillDto.getWaybill().setReceiverName(resp.getData().getReceiver().getName());
+            if(StringUtils.isNotBlank(resp.getData().getReceiver().getContact().getName())){
+                waybillDto.getWaybill().setReceiverName(resp.getData().getReceiver().getContact().getName());
             }
 
         }catch (Exception e){
