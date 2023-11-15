@@ -661,6 +661,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * @param crossType 1 -- 普通 2 -- 航空 3 -- 填仓
      */
     private void crossInfoForLog(PrintWaybill waybill, Integer startSiteId, Integer endSiteId, Integer crossType) {
+        if (!TrackUtil.check()) {
+            return;
+        }
         if (StringUtils.isEmpty(waybill.getOriginalTabletrolley()) && StringUtils.isEmpty(waybill.getPurposefulTableTrolley())) {
             // 未获取获取到滑道笼车信息
             List<TrackDto> logList = TrackUtil.getLogList();
@@ -674,11 +677,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
             BaseStaffSiteOrgDto startSite = baseMajorManager.getBaseSiteBySiteId(startSiteId);
             BaseStaffSiteOrgDto endSite = baseMajorManager.getBaseSiteBySiteId(endSiteId);
+            String startSiteName = startSite == null ? "" : startSite.getSiteName();
+            String endSiteName = endSite == null ? "" : endSite.getSiteName();
             String crossTypeName = getCrossTypeName(crossType);
-            if (startSite != null && endSite != null) {
-                // 如果调用青龙基础资料未获取到
-                TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT,String.format(CROSS_CONF_NEED_CREAT, startSite.getSiteName(), endSite.getSiteName(), crossTypeName)));
-            }
+            // 如果调用青龙基础资料未获取到
+            TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT, String.format(CROSS_CONF_NEED_CREAT
+                    , startSite + "-" + startSiteName, endSiteName + "-" + endSiteName, crossTypeName)));
         }else {
             String result = "{ 始发笼车号: " + waybill.getOriginalTabletrolley()
                     + "; 始发道口号: " + waybill.getOriginalCrossCode()
