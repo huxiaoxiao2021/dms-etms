@@ -30,6 +30,7 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.jy.service.exception.JyScrappedExceptionService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.enums.WaybillFlowTypeEnum;
 import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -59,6 +60,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
+import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.HK_OR_MO;
+import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.INTERNATION;
+import static com.jd.bluedragon.utils.BusinessHelper.getWaybillFlowType;
 
 @Service("jyScrappedExceptionService")
 public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implements JyScrappedExceptionService {
@@ -144,9 +149,9 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         //
         //校验生鲜单号 自营OR外单
         //根据运单获取waybillSign
-        boolean hKorMOWaybill = isHKorMOWaybill(req.getBarCode(), waybill);
-        if(hKorMOWaybill){
-            response.toFail("港澳单不允许上报!");
+        WaybillFlowTypeEnum waybillFlowType = getWaybillFlowType(waybill);
+        if(HK_OR_MO.equals(waybillFlowType) || INTERNATION.equals(waybillFlowType)){
+            response.toFail(waybillFlowType.getName() + "不允许上报!");
             response.setData(Boolean.FALSE);
             return response;
         }

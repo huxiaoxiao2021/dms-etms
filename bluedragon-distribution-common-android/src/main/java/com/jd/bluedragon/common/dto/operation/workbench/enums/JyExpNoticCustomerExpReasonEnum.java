@@ -12,6 +12,7 @@ public class JyExpNoticCustomerExpReasonEnum {
 
         BUSINESS_ID_HK_HO(413,"港澳业务id"),
         BUSINESS_ID_MAIN_LAND(422,"大陆务id"),
+        BUSINESS_ID_INTERNATION(428,"国际业务id")
         ;
 
         private Integer code;
@@ -48,7 +49,11 @@ public class JyExpNoticCustomerExpReasonEnum {
         MAIN_LAND_CONTRABAND("4220300","违禁品"),
 
         //港澳单 上报客服一级异常原因
-        HA_MO_DELIVERY_EXCEPTION_REPORT("4130100","配送异常报备")
+        HA_MO_DELIVERY_EXCEPTION_REPORT("4130100","配送异常报备"),
+
+        // 国际单 上报客服一级异常
+        INTERNATION_SORTING_CONTRABAND("4280100", "国际违禁品"),
+        INTERNATION_SORTING_WORN("4280200", "国际破损")
         ;
 
         private String code;
@@ -92,7 +97,13 @@ public class JyExpNoticCustomerExpReasonEnum {
         //港澳单 上报客服二级异常原因
         HA_MO_DAMAGE_NO_DOWNLOAD("4130101","破损无法下传"),
         HA_MO_CONTRABAND_RETURN("4130102","违禁品退回"),
-        HA_MO_CONTRABAND_CHANGE_LAND("4130103","违禁品转陆运")
+        HA_MO_CONTRABAND_CHANGE_LAND("4130103","违禁品转陆运"),
+
+        //国际单 上报客服二级异常
+        INTERNATION_SORTING_WORN("4280201","外破内破"),
+        INTERNATION_SORTING_RETURN("4280101","退回"),
+        INTERNATION_SORTING_AIR_CHANGE_LAND("4280102","航空转陆运"),
+
         ;
 
         private String code;

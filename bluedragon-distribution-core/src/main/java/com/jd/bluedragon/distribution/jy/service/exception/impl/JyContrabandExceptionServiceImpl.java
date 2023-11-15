@@ -21,20 +21,18 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpContrabandNoticCustomerMQ;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
-import com.jd.bluedragon.distribution.reverse.domain.DmsDetailReverseReasonDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillAddress;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillStatusService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.enums.WaybillFlowTypeEnum;
 import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -42,8 +40,6 @@ import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
 import com.jd.cp.wbms.client.enums.RejectionEnum;
 import com.jd.etms.blocker.dto.BlockerApplyDto;
 import com.jd.etms.blocker.dto.CommonDto;
-import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
@@ -66,6 +62,8 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.jd.bluedragon.utils.BusinessHelper.getWaybillFlowType;
 
 /**
  * @Author: ext.xuwenrui
@@ -253,20 +251,17 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
            Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
            if(waybill == null){
                logger.warn("获取运单信息失败！-{}",waybillCode);
+               return;
            }
 
-           boolean hKorMOWaybill = this.isHKorMOWaybill(waybillCode, waybill);
-           JyExpContrabandNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(dto,waybill,hKorMOWaybill);
-           if(mq == null){
-               return ;
-           }
-           if(hKorMOWaybill){
-               logger.info("发送违禁品港澳单-{}",waybillCode);
-               dmsContrabandHKOrMONoticeKFProducer.sendOnFailPersistent(dto.getBizId(),JsonHelper.toJson(mq));
-           }else {
-               logger.info("发送违禁品大陆单-{}",waybillCode);
-               dmsContrabandMainLandNoticeKFProducer.sendOnFailPersistent(dto.getBizId(),JsonHelper.toJson(mq));
-           }
+            // 是否为港澳单
+            WaybillFlowTypeEnum waybillFlowType = getWaybillFlowType(waybill);
+            JyExpContrabandNoticCustomerMQ mq = coverToDamageNoticCustomerMQ(dto, waybill, waybillFlowType);
+            if (mq == null) {
+                return ;
+            }
+            logger.info("发送违禁品运单-{}", waybillCode);
+            dmsContrabandMainLandNoticeKFProducer.sendOnFailPersistent(dto.getBizId(), JsonHelper.toJson(mq));
 
         } catch (Exception e) {
             logger.error("违禁品上报发送客服异常！",e);
@@ -278,7 +273,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
      * 发送客服违禁品数据组装
      * @return
      */
-    private JyExpContrabandNoticCustomerMQ coverToDamageNoticCustomerMQ(JyExceptionContrabandDto dto,Waybill waybill,Boolean isisHKorMO) {
+    private JyExpContrabandNoticCustomerMQ coverToDamageNoticCustomerMQ(JyExceptionContrabandDto dto, Waybill waybill, WaybillFlowTypeEnum waybillFlowType) {
 
         String waybillCode = WaybillUtil.getWaybillCode(dto.getBarCode());
 
@@ -287,44 +282,69 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         mq.setCodeInfo(waybillCode);
         mq.setCodeType(ASCPContants.CODE_TYPE);
         mq.setExptCreateTime(DateHelper.formatDateTime(new Date()));
+        mq.setExptCreator(dto.getCreateErp());
         JyExceptionContrabandEnum.ContrabandTypeEnum contrabandType = JyExceptionContrabandEnum.ContrabandTypeEnum.getEnumByCode(dto.getContrabandType());
-        if(isisHKorMO){
-            logger.info("港澳单---{}",waybillCode);
-            mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_HK_HO.getCode());
-            mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_HK_HO.getCode() + "_" + dto.getBizId());
-            mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.HA_MO_DELIVERY_EXCEPTION_REPORT.getCode());
-            mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.HA_MO_DELIVERY_EXCEPTION_REPORT.getName());
-            switch (contrabandType){
-                case RETURN:
-                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_RETURN.getCode());
-                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_RETURN.getName());
-                    break;
-                case AIR_TO_LAND:
-                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_CHANGE_LAND.getCode());
-                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_CHANGE_LAND.getName());
-                    break;
-                default:
-                    logger.warn("此违禁品上报类型不做处理-{}",contrabandType);
-                    return null;
+        switch (waybillFlowType) {
+            case HK_OR_MO : {
+                logger.info("港澳单---{}", waybillCode);
+                mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_HK_HO.getCode());
+                mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_HK_HO.getCode() + "_" + dto.getBizId());
+                mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.HA_MO_DELIVERY_EXCEPTION_REPORT.getCode());
+                mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.HA_MO_DELIVERY_EXCEPTION_REPORT.getName());
+                switch (contrabandType) {
+                    case RETURN:
+                        mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_RETURN.getCode());
+                        mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_RETURN.getName());
+                        break;
+                    case AIR_TO_LAND:
+                        mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_CHANGE_LAND.getCode());
+                        mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.HA_MO_CONTRABAND_CHANGE_LAND.getName());
+                        break;
+                    default:
+                        logger.warn("此违禁品上报类型不做处理-{}", contrabandType);
+                        return null;
+                }
             }
-        }else{
-            logger.info("大陆单---{}",waybillCode);
-            mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode());
-            mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode() + "_" + dto.getBizId());
-            mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_CONTRABAND.getCode());
-            mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_CONTRABAND.getName());
-            switch (contrabandType){
-                case RETURN:
-                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_RETURN.getCode());
-                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_RETURN.getName());
-                    break;
-                case AIR_TO_LAND:
-                    mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_AIR_CHANGE_LAND.getCode());
-                    mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_AIR_CHANGE_LAND.getName());
-                    break;
-                default:
-                    logger.warn("此违禁品上报类型不做处理-{}",contrabandType);
-                    return null;
+            break;
+            case INTERNATION: {
+                mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_INTERNATION.getCode());
+                mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_INTERNATION.getCode() + "_" + dto.getBizId());
+                mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.INTERNATION_SORTING_CONTRABAND.getCode());
+                mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.INTERNATION_SORTING_CONTRABAND.getName());
+                switch (contrabandType) {
+                    case RETURN:
+                        mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.INTERNATION_SORTING_RETURN.getCode());
+                        mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.INTERNATION_SORTING_RETURN.getName());
+                        break;
+                    case AIR_TO_LAND:
+                        mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.INTERNATION_SORTING_AIR_CHANGE_LAND.getCode());
+                        mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.INTERNATION_SORTING_AIR_CHANGE_LAND.getName());
+                        break;
+                    default:
+                        logger.warn("此违禁品上报类型不做处理-{}", contrabandType);
+                        return null;
+                }
+            }
+            break;
+            default:{
+                logger.info("大陆单---{}", waybillCode);
+                mq.setBusinessId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode());
+                mq.setExptId(JyExpNoticCustomerExpReasonEnum.ExpBusinessIDEnum.BUSINESS_ID_MAIN_LAND.getCode() + "_" + dto.getBizId());
+                mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_CONTRABAND.getCode());
+                mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_CONTRABAND.getName());
+                switch (contrabandType) {
+                    case RETURN:
+                        mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_RETURN.getCode());
+                        mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_RETURN.getName());
+                        break;
+                    case AIR_TO_LAND:
+                        mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_AIR_CHANGE_LAND.getCode());
+                        mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_AIR_CHANGE_LAND.getName());
+                        break;
+                    default:
+                        logger.warn("此违禁品上报类型不做处理-{}", contrabandType);
+                        return null;
+                }
             }
         }
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(dto.getSiteCode().intValue());
@@ -534,9 +554,14 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if (noneMatchContrabandType) {
             throw new RuntimeException("违禁品类型错误");
         }
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(req.getBarCode()));
+        if (waybill == null) {
+            throw new RuntimeException("获取运单信息失败!");
+        }
+        WaybillFlowTypeEnum waybillFlowType = getWaybillFlowType(waybill);
         if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
-            if(!isHKorMOExitWaybill(WaybillUtil.getWaybillCode(req.getBarCode()))){
-                throw new RuntimeException("仅港澳件出口支持违禁品退回!");
+            if(!waybillFlowType.equals(WaybillFlowTypeEnum.HK_OR_MO) && !waybillFlowType.equals(WaybillFlowTypeEnum.INTERNATION)){
+                throw new RuntimeException("仅港澳件和国际件出口支持违禁品退回!");
             }
         }
         if (WaybillUtil.isPackageCode(req.getBarCode())) {
@@ -571,7 +596,13 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         }
     }
 
-
+    private boolean isInternationWaybill(String waybillCode) {
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        if (waybill == null) {
+            throw new RuntimeException("获取运单信息失败!");
+        }
+        return isInternationWaybill(waybillCode, waybill);
+    }
 
 
     /**
@@ -606,6 +637,29 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             if((StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
                     || (StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
                 logger.info("港澳单-{}",waybillCode);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否为国际运单
+     *
+     * @param waybillCode 运单编号
+     * @param waybill 运单对象
+     * @return 是否为国际运单：true-是，false-否
+     */
+    private boolean isInternationWaybill(String waybillCode, Waybill waybill) {
+        if(waybill != null &&  waybill.getWaybillExt() != null){
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            if(StringUtils.isNotBlank(waybillExt.getStartFlowDirection())
+                    && (Objects.equals("CN",waybillExt.getStartFlowDirection()))
+                    && StringUtils.isNotBlank(waybillExt.getEndFlowDirection())
+                    && !Objects.equals("CN",waybillExt.getEndFlowDirection())
+                    && !Objects.equals("MO",waybillExt.getEndFlowDirection())
+                    && !Objects.equals("HK",waybillExt.getEndFlowDirection())){
+                logger.info("国际单-{}",waybillCode);
                 return true;
             }
         }
