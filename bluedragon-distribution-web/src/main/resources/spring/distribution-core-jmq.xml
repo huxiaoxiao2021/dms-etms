@@ -942,5 +942,9 @@
         <property name="topic" value="${jmq.topic.jyComboardTaskFirstSave}" />
         <property name="timeout" value="3000" />
     </bean>
+    <!-- 安灯亮灭灯信息-->
+    <bean id="andonEventProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.andon.event}"/>
+    </bean>
 
 </beans>
