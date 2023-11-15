@@ -633,7 +633,10 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		}
 		if(StringUtils.isNotBlank(approveOrderCode) ){
 			flowServiceManager.cancelRequestOrder(approveOrderCode,req.getOperateUserErp());
+			//删除缓存中单号对应的审批工单号
+			redisClientOfJy.del(req.getBarCode());
 		}
+
 
 	}
 
