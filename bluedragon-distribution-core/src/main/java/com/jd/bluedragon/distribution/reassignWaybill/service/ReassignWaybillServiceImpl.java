@@ -968,8 +968,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			}
 		}
 		updateReassignWaybillApproveResult(barCode, approveStatus, approveErp, approveStage,flowEndFlag);
-		//删除缓存中单号对应的审批工单号
-		redisClientOfJy.del(barCode);
+
 	}
 
 	private ReassignWaybillReq coverToReassignWaybillReq(ReassignWaybillApprovalRecord approvalRecord){
@@ -1000,6 +999,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
         //审批结束
         if(approveEndFlag){
             approvalRecord.setCheckEndFlag(ReassignWaybillCheckEndFlagEnum.END.getCode());
+			//删除缓存中单号对应的审批工单号
+			redisClientOfJy.del(barCode);
         }
 		if (Objects.equals(JyExScrapApproveStageEnum.FIRST.getCode(), approveStage)) {
 			approvalRecord.setFirstChecker(approveErp);
