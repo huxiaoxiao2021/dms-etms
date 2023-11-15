@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.video.request.VideoUploadRequest;
+import com.jd.bluedragon.common.dto.video.response.VideoUploadInfo;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -8,11 +10,18 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.service.VideoServiceManager;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.jim.cli.Cluster;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.QueryParam;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 类描述信息
@@ -36,11 +46,29 @@ import java.util.*;
 @RequestMapping("weightAndVolumeCheckOfB2b")
 public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
 
+    private static final Logger logger = LoggerFactory.getLogger(WeightAndVolumeCheckOfB2bController.class)
+
+    private static final String SPOT_CHECK_VIDEO_PREFIX = "spot:check:video:";
+    private static final long SPOT_CHECK_VIDEO_TIMEOUT = 24L;
+
     @Autowired
     private WeightAndVolumeCheckOfB2bService weightAndVolumeCheckOfB2bService;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private VideoServiceManager videoServiceManager;
+
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+
+    /**
+     * 对接视频中台的应用ID
+     */
+    @Value("${jsf.vodService.appId}")
+    private Integer appId;
 
     /**
      * 返回主页面
@@ -133,7 +161,29 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
     @RequestMapping(value = "/waybillSubmitUrl", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<String> waybillSubmit(@RequestBody WeightVolumeCheckConditionB2b param){
-        return weightAndVolumeCheckOfB2bService.dealExcessDataOfWaybill(param);
+        InvokeResult<String> invokeResult = weightAndVolumeCheckOfB2bService.dealExcessDataOfWaybill(param);
+        // 提交成功以后，如果本次提交了视频并且跟redis缓存中的videoId不一致，则需要删除之前的垃圾视频
+        if (InvokeResult.RESULT_SUCCESS_CODE == invokeResult.getCode()) {
+            deleteTrashVideo(param);
+        }
+        return invokeResult;
+    }
+
+    private void deleteTrashVideo(WeightVolumeCheckConditionB2b request) {
+        if (StringUtils.isNotBlank(request.getVideoUrl())) {
+            String waybillCode = request.getWaybillOrPackageCode();
+            Long videoId = request.getVideoId();
+            String cacheVideoId = redisClientOfJy.get(SPOT_CHECK_VIDEO_PREFIX + waybillCode);
+            if (cacheVideoId != null && cacheVideoId.contains(Constants.SEPARATOR_COMMA)) {
+                String[] videoIdArray = cacheVideoId.split(Constants.SEPARATOR_COMMA);
+                logger.info("deleteTrashVideo|controller删除垃圾视频:request={},size={}", JsonHelper.toJson(request), videoIdArray.length);
+                for (String videoIdStr : videoIdArray) {
+                    if (!videoIdStr.equals(String.valueOf(videoId))) {
+                        videoServiceManager.deleteVideo(Long.valueOf(videoIdStr));
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -178,6 +228,52 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
     public InvokeResult<String> uploadExcessVideo(@RequestParam("video") MultipartFile image,
                                                     HttpServletRequest request) {
         return weightAndVolumeCheckOfB2bService.uploadExcessVideo(image,request);
+    }
+
+    /**
+     * 获取视频上传信息
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R)
+    @RequestMapping(value = "/getVideoUploadUrl", method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult<VideoUploadInfo> getVideoUploadUrl(VideoUploadRequest request) {
+        logger.info("getVideoUploadUrl|controller:request={}", JsonHelper.toJson(request));
+        InvokeResult<VideoUploadInfo> invokeResult = new InvokeResult<>();
+        // 组装参数
+        Map<String, Object> params = new HashMap<>();
+        params.put("appid", appId);
+        params.put("videoName", request.getVideoName());
+        if (StringUtils.isNotBlank(request.getVideoTag())) {
+            params.put("videoTag", request.getVideoTag());
+        }
+        if (StringUtils.isNotBlank(request.getVideoDesc())) {
+            params.put("videoDesc", request.getVideoDesc());
+        }
+        params.put("clientIp", request.getClientIp());
+        params.put("fileSize", request.getFileSize());
+        params.put("uploadPin", request.getOperateErp());
+        params.put("ipPort", org.apache.commons.lang3.StringUtils.isBlank(request.getIpPort()) ? String.valueOf(Constants.NUMBER_ZERO) : request.getIpPort());
+        params.put("uuid", request.getDeviceId());
+        if (StringUtils.isNotBlank(request.getAudioId())) {
+            params.put("audioId", request.getAudioId());
+        }
+        if (StringUtils.isNotBlank(request.getBreakPoint())) {
+            params.put("breakpoint", request.getBreakPoint());
+        }
+        // 调用视频中台接口
+        VideoUploadInfo videoUploadInfo = videoServiceManager.getVideoUploadUrl(params);
+        if (videoUploadInfo != null) {
+            // 为了防止垃圾数据，临时记录本次抽检运单号对应的视频ID一天，待抽检数据提交时便于比较删除
+            String cacheVideoId = redisClientOfJy.get(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode());
+            if (cacheVideoId == null) {
+                redisClientOfJy.setEx(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode(), String.valueOf(videoUploadInfo.getVideoId()), SPOT_CHECK_VIDEO_TIMEOUT, TimeUnit.HOURS);
+            } else {
+                cacheVideoId = cacheVideoId + Constants.SEPARATOR_COMMA + videoUploadInfo.getVideoId();
+                redisClientOfJy.setEx(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode(), cacheVideoId, SPOT_CHECK_VIDEO_TIMEOUT, TimeUnit.HOURS);
+            }
+            invokeResult.setData(videoUploadInfo);
+        }
+        return invokeResult;
     }
 
 }

@@ -2,6 +2,7 @@ $(function () {
 
     var uploadUrl = "/weightAndVolumeCheckOfB2b/uploadExcessPicture";
     var uploadVideoUrl = "/weightAndVolumeCheckOfB2b/uploadExcessVideo";
+    var getVideoUploadUrl = "/weightAndVolumeCheckOfB2b/getVideoUploadUrl";
 
     if($('#excessType').val() === '1'){
         // 1表示重量超标
@@ -98,7 +99,7 @@ $(function () {
         var upSuccess6 = '#upSuccess6';
         var upFail6 = '#upFail6';
         var upIsSuccessFlage6 = '#upIsSuccessFlage6';
-        uploadVideo($('#pictureField6').val().trim(),$('#fileField6')[0].files[0],upSuccess6,upFail6,upIsSuccessFlage6,6);
+        uploadVideoNew($('#pictureField6').val().trim(),$('#fileField6')[0].files[0],upSuccess6,upFail6,upIsSuccessFlage6,6);
     });
 
     // 图片上传失败两次后，第三次可强制上传
@@ -314,6 +315,76 @@ $(function () {
         });
     }
 
+    $("#fileField6").change(function () {
+        let filePath = $(this).val();
+        if (!filePath) {
+            Jd.alert('请选择视频文件再上传!');
+            return;
+        }
+        let startIndex = filePath.lastIndexOf(".");
+        let suffixName = filePath.substring(startIndex + 1, filePath.length);
+        let arr = ["mp4", "avi", "wmv", "flv", "mpg", ".mpeg", "mkv", "mov", "3gp", "rmvb"];
+        if (!arr.includes(suffixName)) {
+            Jd.alert('上传视频的格式不正确,请检查后再上传!');
+            return;
+        }
+        document.getElementById('pictureField6').value = filePath;
+        let formData = new FormData();
+        formData.append('video', param2);
+        formData.append('waybillOrPackageCode', $('#waybillOrPackageCode').val());
+        formData.append('createSiteCode', $('#createSiteCode').val());
+        formData.append('weight', $('#weight').val());
+        formData.append('uploadType', picType); // 上传类型：重量/全景（1）、面单（2）、长（3）、宽（4）、高（5）、视频(6)
+        formData.append('excessType', $('#excessType').val());
+        formData.append('isMultiPack', $('#isMultiPack').val());
+        $.ajax({
+            url : getVideoUploadUrl,
+            type : 'POST',
+            data : formData,
+            processData : false,
+            contentType : false,
+            async : false,
+            success : function(data) {
+                if (data && data.code === 200) {
+                    $('#uploadVideoUrl').val(data.data.uploadUrl);
+                    $('#playUrl').val(data.data.playUrl);
+                    $('#videoId').val(data.data.videoId);
+                } else {
+                    Jd.alert(data.message);
+                }
+            }
+        })
+    });
+
+    // 上传视频事件
+    function uploadVideoNew (param1,param2,param3,param4,param5,picType) {
+        let uploadAddress = $('#uploadVideoUrl').val();
+        if (!uploadAddress) {
+            Jd.alert('获取视频上传地址失败');
+            return;
+        }
+        $.ajax({
+            url : uploadAddress,
+            type : 'POST',
+            processData : false,
+            contentType : false,
+            async : false,
+            success : function(data) {
+                if (data && data.code === 200) {
+                    $(param3).css("display","block");
+                    $(param4).css("display","none");
+                    $(param5).val(1);
+                    setPicUrl(picType, $('#playUrl').val());
+                } else {
+                    $(param4).css("display","block");
+                    $(param3).css("display","none");
+                    $(param5).val(0);
+                    Jd.alert(data.message);
+                }
+            }
+        })
+    }
+
     function setPicUrl(picType, picUrl) {
         if(picType === 1 || picType === 0){
             parent.$('#excessPicWeightOrPanorama').val(picUrl);
@@ -332,6 +403,7 @@ $(function () {
         }
         if(picType === 6){
             parent.$('#excessVideo').val(picUrl);
+            parent.$('#excessVideoId').val($('#videoId').val());
         }
     }
 

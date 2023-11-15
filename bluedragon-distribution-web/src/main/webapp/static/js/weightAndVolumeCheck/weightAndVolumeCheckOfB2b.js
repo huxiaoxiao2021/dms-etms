@@ -271,6 +271,7 @@ $(function () {
         let waybillData = $('#waybillDataTable').bootstrapTable('getData');
         let uploadNum = $('#waybillDataTable')[0].rows[1].cells[5].innerHTML;
         let videoUrl = $('#excessVideo').val();
+        let videoId = $('#excessVideoId').val();
         let lessOnePicFlag = false;
         if($('#excessPicWeightOrPanorama').val() || $('#excessPicFace').val()
             || $('#excessPicLength').val() || $('#excessPicWidth').val()
@@ -313,6 +314,7 @@ $(function () {
                 param.urls = excessPicUrls;
             }
             param.videoUrl = videoUrl;
+            param.videoId = videoId;
         }
 
         jQuery.ajax({
@@ -332,6 +334,8 @@ $(function () {
                     $('#excessPicLength').val('');
                     $('#excessPicWidth').val('');
                     $('#excessPicHeight').val('');
+                    $('#excessVideo').val('');
+                    $('#excessVideoId').val('');
                 }else {
                     Jd.alert(result.message);
                 }

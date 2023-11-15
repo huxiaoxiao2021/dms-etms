@@ -213,6 +213,7 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
             String cacheVideoId = redisClientOfJy.get(SPOT_CHECK_VIDEO_PREFIX + waybillCode);
             if (cacheVideoId != null && cacheVideoId.contains(Constants.SEPARATOR_COMMA)) {
                 String[] videoIdArray = cacheVideoId.split(Constants.SEPARATOR_COMMA);
+                logger.info("deleteTrashVideo|删除垃圾视频:request={},size={}", JsonHelper.toJson(request), videoIdArray.length);
                 for (String videoIdStr : videoIdArray) {
                     if (!videoIdStr.equals(String.valueOf(videoId))) {
                         videoServiceManager.deleteVideo(Long.valueOf(videoIdStr));
@@ -247,7 +248,7 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
             params.put("clientIp", request.getClientIp());
             params.put("fileSize", request.getFileSize());
             params.put("uploadPin", request.getOperateErp());
-            params.put("ipPort", StringUtils.isBlank(request.getIpPort()) ? Constants.NUMBER_ZERO : request.getIpPort());
+            params.put("ipPort", StringUtils.isBlank(request.getIpPort()) ? String.valueOf(Constants.NUMBER_ZERO) : request.getIpPort());
             params.put("uuid", request.getDeviceId());
             if (StringUtils.isNotBlank(request.getAudioId())) {
                 params.put("audioId", request.getAudioId());
@@ -264,6 +265,7 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
                     redisClientOfJy.setEx(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode(), String.valueOf(videoUploadInfo.getVideoId()), SPOT_CHECK_VIDEO_TIMEOUT, TimeUnit.HOURS);
                 } else {
                     cacheVideoId = cacheVideoId + Constants.SEPARATOR_COMMA + videoUploadInfo.getVideoId();
+                    logger.info("getVideoUploadUrl|非首次获取视频上传信息:request={},size={}", JsonHelper.toJson(request), cacheVideoId.split(Constants.SEPARATOR_COMMA).length);
                     redisClientOfJy.setEx(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode(), cacheVideoId, SPOT_CHECK_VIDEO_TIMEOUT, TimeUnit.HOURS);
                 }
                 response.setData(videoUploadInfo);

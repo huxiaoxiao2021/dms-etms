@@ -82,6 +82,11 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
      */
     private String videoUrl;
 
+    /**
+     * 视频ID
+     */
+    private Long videoId;
+
     public String getLoginErp() {
         return loginErp;
     }
@@ -208,5 +213,13 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
 
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
+    }
+
+    public Long getVideoId() {
+        return videoId;
+    }
+
+    public void setVideoId(Long videoId) {
+        this.videoId = videoId;
     }
 }
