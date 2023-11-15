@@ -596,6 +596,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      */
     private void setCrossInfoByCrossPackageTag(PrintWaybill waybill) {
     	CrossPackageTagNew tag = null;
+        Integer startSiteId = waybill.getOriginalDmsCode();
+        Integer endSiteId = waybill.getPrepareSiteCode();
             BaseDmsStore baseDmsStore = new BaseDmsStore();
             baseDmsStore.setStoreId(waybill.getStoreId());//库房编号
             baseDmsStore.setCky2(waybill.getCky2());//cky2
@@ -651,7 +653,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 hiddenCrossInfo(waybill);
             }
             // 记录滑道笼车获取的最终结果
-        crossInfoForLog(waybill, waybill.getOriginalDmsCode(), waybill.getPrepareSiteCode(), waybill.getTempOriginalCrossType());
+        crossInfoForLog(waybill, startSiteId, endSiteId, waybill.getTempOriginalCrossType());
 	}
 
     /**
@@ -682,7 +684,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             String crossTypeName = getCrossTypeName(crossType);
             // 如果调用青龙基础资料未获取到
             TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT, String.format(CROSS_CONF_NEED_CREAT
-                    , startSite + "-" + startSiteName, endSiteName + "-" + endSiteName, crossTypeName)));
+                    , startSiteId + "-" + startSiteName, endSiteId + "-" + endSiteName, crossTypeName)));
         }else {
             String result = "{ 始发笼车号: " + waybill.getOriginalTabletrolley()
                     + "; 始发道口号: " + waybill.getOriginalCrossCode()
