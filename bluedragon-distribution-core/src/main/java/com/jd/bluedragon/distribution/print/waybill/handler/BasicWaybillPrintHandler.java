@@ -52,10 +52,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.distribution.print.domain.TrackDto.*;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT;
@@ -516,7 +514,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setPurposefulDmsName(DmsConstants.TEXT_SCRAP_DMS_NAME_MARK);
                 waybill.setDestinationDmsName(DmsConstants.TEXT_SCRAP_DMS_NAME_MARK);
                 TrackUtil.add(new TrackDto(SCRAP_SORTING_SITE_ID));
-        		return;
+                TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT,String.format(PRINT_CROSS_RESULT_ERROR_9, "反分拣报废！")));
+                return;
         	}
 
             //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
@@ -588,7 +587,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             hiddenCrossInfo(waybill);
     	}
         // 记录滑道笼车获取的最终结果
-        crossInfoForLog(waybill);
+        crossInfoForLog(waybill, waybill.getOriginalDmsCode(), endDmsId, waybill.getOriginalCrossType());
 	}
 	/**
      * 根据大全表设置打印滑道信息
@@ -652,15 +651,53 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 hiddenCrossInfo(waybill);
             }
             // 记录滑道笼车获取的最终结果
-            crossInfoForLog(waybill);
+        crossInfoForLog(waybill, waybill.getOriginalDmsCode(), waybill.getPrepareSiteCode(), waybill.getTempOriginalCrossType());
 	}
 
-    private void crossInfoForLog(PrintWaybill waybill) {
-        String result = "{ 始发笼车号: " + waybill.getOriginalTabletrolley() 
-                + "; 始发道口号: " + waybill.getOriginalCrossCode()
-                + "; 目的笼车号: " + waybill.getPurposefulTableTrolley() 
-                + "; 目的道口号: " + waybill.getPurposefulCrossCode() + "; }";
-        TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT,String.format(PRINT_CROSS_RESULT_9, result)));
+    /**
+     * @param waybill 运单
+     * @param startSiteId 始发地
+     * @param endSiteId 目的地
+     * @param crossType 1 -- 普通 2 -- 航空 3 -- 填仓
+     */
+    private void crossInfoForLog(PrintWaybill waybill, Integer startSiteId, Integer endSiteId, Integer crossType) {
+        if (StringUtils.isEmpty(waybill.getOriginalTabletrolley()) && StringUtils.isEmpty(waybill.getPurposefulTableTrolley())) {
+            // 未获取获取到滑道笼车信息
+            List<TrackDto> logList = TrackUtil.getLogList();
+            List<Integer> logIds = logList.stream().map(TrackDto::getId).collect(Collectors.toList());
+
+            // 如果面单隐藏
+            if (logIds.contains(PRINT_CROSS_RESULT)) {
+                TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT,String.format(PRINT_CROSS_RESULT_ERROR_9, HIDDEN_CROSS_INFO_9)));
+                return;
+            }
+
+            BaseStaffSiteOrgDto startSite = baseMajorManager.getBaseSiteBySiteId(startSiteId);
+            BaseStaffSiteOrgDto endSite = baseMajorManager.getBaseSiteBySiteId(endSiteId);
+            String crossTypeName = getCrossTypeName(crossType);
+            if (startSite != null && endSite != null) {
+                // 如果调用青龙基础资料未获取到
+                TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT,String.format(CROSS_CONF_NEED_CREAT, startSite.getSiteName(), endSite.getSiteName(), crossTypeName)));
+            }
+        }else {
+            String result = "{ 始发笼车号: " + waybill.getOriginalTabletrolley()
+                    + "; 始发道口号: " + waybill.getOriginalCrossCode()
+                    + "; 目的笼车号: " + waybill.getPurposefulTableTrolley()
+                    + "; 目的道口号: " + waybill.getPurposefulCrossCode() + "; }";
+            TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT,String.format(PRINT_CROSS_RESULT_SUCCESS_9, result)));
+        }
+
+    }
+
+    private String getCrossTypeName(Integer crossType) {
+        if (Objects.equals(crossType, 1)) {
+            return "普通";
+        }else if (Objects.equals(crossType, 2)) {
+            return "航空";
+        } else if (Objects.equals(crossType, 3)){
+            return "填仓";
+        }
+        return "";
     }
 
     /**
