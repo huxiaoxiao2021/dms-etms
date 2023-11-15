@@ -194,8 +194,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             }
             //保存集包扫描记录
             saveJyCollectPackageScanRecord(request);
-            response.setEndSiteId(request.getEndSiteId());
             checkIfNeedUpdateStatus(request, collectPackageTask);
+            response.setEndSiteId(request.getEndSiteId());
         } finally {
             jimDbLock.releaseLock(boxLockKey, request.getRequestId());
         }
@@ -310,7 +310,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setBoxCode(request.getBoxCode());
         taskRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
-        taskRequest.setReceiveSiteCode(request.getBoxReceiveId().intValue());//TODO  这个是箱号目的地
+        taskRequest.setReceiveSiteCode(request.getBoxReceiveId().intValue());
         taskRequest.setType(TASK_TYPE_SORTING);
         taskRequest.setKeyword1(String.valueOf(request.getCurrentOperate().getSiteCode()));
         taskRequest.setKeyword2(request.getBoxCode());
