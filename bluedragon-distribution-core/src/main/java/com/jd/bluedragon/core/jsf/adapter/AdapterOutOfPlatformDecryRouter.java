@@ -46,8 +46,17 @@ public class AdapterOutOfPlatformDecryRouter {
         AdapterContact receiver;
 
     }
+
     @Data
     public class AdapterContact {
+        /**
+         * 具体内容
+         */
+        AdapterContactObj contact;
+    }
+
+    @Data
+    public class AdapterContactObj {
         /**
          * 姓名
          */
