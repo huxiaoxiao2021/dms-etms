@@ -761,7 +761,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		jsonCommand.setOperateType(Constants.OPERATE_TYPE);
 
 		Map<String,Object> paramMap = new HashMap<>();
-		paramMap.put("barCode",req.getBarCode());
+		paramMap.put("barCode",WaybillUtil.getWaybillCode(req.getBarCode()));
 		paramMap.put("businessType",Constants.BUSINESS_TYPE);
 		paramMap.put("operateType",Constants.OPERATE_TYPE);
 		paramMap.put("paperSizeCode", DmsPaperSize.PAPER_SIZE_CODE_1005);
