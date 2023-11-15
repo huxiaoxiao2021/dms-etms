@@ -661,7 +661,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * @param crossType 1 -- 普通 2 -- 航空 3 -- 填仓
      */
     private void crossInfoForLog(PrintWaybill waybill, Integer startSiteId, Integer endSiteId, Integer crossType) {
-        if (!TrackUtil.check()) {
+        if (TrackUtil.check()) {
             return;
         }
         if (StringUtils.isEmpty(waybill.getOriginalTabletrolley()) && StringUtils.isEmpty(waybill.getPurposefulTableTrolley())) {
