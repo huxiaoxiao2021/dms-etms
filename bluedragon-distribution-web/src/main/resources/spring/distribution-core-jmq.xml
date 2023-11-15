@@ -942,5 +942,9 @@
         <property name="topic" value="${jmq.topic.jyComboardTaskFirstSave}" />
         <property name="timeout" value="3000" />
     </bean>
-
+    <!-- 航空封车 -->
+    <bean id="aviationSealProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.aviationSeal}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>

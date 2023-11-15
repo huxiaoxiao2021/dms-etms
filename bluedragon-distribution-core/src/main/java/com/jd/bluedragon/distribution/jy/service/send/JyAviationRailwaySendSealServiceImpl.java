@@ -625,7 +625,10 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 request.getStatusCode(),
                 request.getFilterConditionDto(),
                 request.getKeyword());
-
+        if(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(request.getStatusCode())) {
+            //待发货列表只查有任务
+            condition.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ZERO);
+        }
         List<JyBizTaskAviationStatusStatistics> taskStatusStatisticsList = jyBizTaskSendAviationPlanService.toSendAndSendingStatusStatistics(condition);
         List<TaskStatusStatistics> taskStatusStatistics = this.convertFillStatusDefaultValue(taskStatusStatisticsList, true);
         resData.setTaskStatusStatisticsList(taskStatusStatistics);
@@ -791,6 +794,11 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         List<JyBizTaskSendAviationPlanEntity> taskDtoList;
         
        if (!TASK_RECOMMEND.getCode().equals(request.getSource())) {
+           if(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(statusCode)) {
+               //待发货列表只查有任务
+               condition.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ZERO);
+           }
+           condition.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ZERO);//待发货列表
            //  查询发车任务列表
            taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
        }else {
@@ -840,6 +848,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             taskDto.setAirType(dbQueryDto.getAirType());
             taskDto.setNextSiteId(dbQueryDto.getNextSiteId());
             taskDto.setNextSiteName(dbQueryDto.getNextSiteName());
+            taskDto.setManualCreatedFlag(dbQueryDto.getManualCreatedFlag());
             res.add(taskDto);
         });
         //发货中状态补充已扫重量
@@ -1622,6 +1631,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         taskDto.setNextSiteId(entity.getNextSiteId());
         taskDto.setNextSiteName(entity.getNextSiteName());
         taskDto.setScanWeight(0d);
+        taskDto.setManualCreatedFlag(entity.getManualCreatedFlag());
     }
 
 

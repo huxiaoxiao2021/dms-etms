@@ -35,6 +35,7 @@
         <result column="task_status" property="taskStatus" jdbcType="INTEGER" />
         <result column="intercept" property="intercept" jdbcType="INTEGER" />
         <result column="intercept_time" property="interceptTime" jdbcType="TIMESTAMP" />
+        <result column="manual_created_flag" property="manualCreatedFlag" jdbcType="INTEGER" />
     </resultMap>
 
 
@@ -62,7 +63,7 @@
         begin_node_name, end_node_code, end_node_name, carrier_code, carrier_name, booking_weight,
         cargo_type, air_type, create_user_erp, create_user_name, update_user_erp,
         update_user_name, create_time, update_time, yn, next_site_id, next_site_code,
-        next_site_name,task_status,intercept,intercept_time
+        next_site_name,task_status,intercept,intercept_time,manual_created_flag
     </sql>
 
     <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity" >
@@ -318,6 +319,9 @@
         </if>
         <if test="bizId != null" >
             and biz_id = #{bizId}
+        </if>
+        <if test="manualCreatedFlag != null" >
+            and manual_created_flag = #{manualCreatedFlag}
         </if>
     </sql>
 
