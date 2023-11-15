@@ -69,6 +69,7 @@
 
 		<!--		kafka版本-->
 		<jdq4-sdk-version>1.0.0-SNAPSHOT</jdq4-sdk-version>
+		<vd-service-sdk.version>1.4.5-SNAPSHOT</vd-service-sdk.version>
 
     </properties>
 
@@ -445,6 +446,12 @@
 				<groupId>com.jd.cloud.print</groupId>
 				<artifactId>print-api</artifactId>
 				<version>${cloud.print.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>vd-service-sdk</groupId>
+				<artifactId>vd-service-sdk</artifactId>
+				<version>${vd-service-sdk.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

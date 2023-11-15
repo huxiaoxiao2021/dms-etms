@@ -114,6 +114,11 @@ public class ArtificialSpotCheckRequest implements Serializable {
      */
     private String videoUrl;
 
+    /**
+     * 视频ID
+     */
+    private Long videoId;
+
     public String getBarCode() {
         return barCode;
     }
@@ -272,5 +277,13 @@ public class ArtificialSpotCheckRequest implements Serializable {
 
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
+    }
+
+    public Long getVideoId() {
+        return videoId;
+    }
+
+    public void setVideoId(Long videoId) {
+        this.videoId = videoId;
     }
 }
