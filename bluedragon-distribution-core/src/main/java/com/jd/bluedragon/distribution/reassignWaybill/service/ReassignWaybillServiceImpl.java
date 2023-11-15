@@ -7,7 +7,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyApproveStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExScrapApproveStageEnum;
-import com.jd.bluedragon.common.dto.sysConfig.response.ProvinceAreaApprovalConfigDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.ReassignWaybillProvinceAreaApprovalConfigDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ExpressDispatchServiceManager;
@@ -17,13 +16,13 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.enums.ReassignWaybillApproveStageEnum;
+import com.jd.bluedragon.distribution.api.enums.ReassignWaybillCheckEndFlagEnum;
 import com.jd.bluedragon.distribution.api.enums.ScheduleAfterTypeEnum;
 import com.jd.bluedragon.distribution.api.enums.ReassignWaybillReasonTypeEnum;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillApprovalRecordQuery;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.api.response.*;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -56,6 +55,7 @@ import com.jd.jim.cli.Cluster;
 import com.jd.lsb.flow.domain.ApprovalResult;
 import com.jd.lsb.flow.domain.ApproveRequestOrder;
 import com.jd.lsb.flow.domain.HistoryApprove;
+import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
@@ -406,56 +406,72 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		log.info("executeReassignWaybill 入参-{}",JSON.toJSONString(req));
 		JdResult<Boolean> result = new JdResult<>();
 		result.toSuccess("请求成功");
-		checkParam(result,req);
-		if(!JdResult.CODE_SUC.equals(result.getCode())){
-			return result;
-		}
-		//现场预分拣拦截校验
-		WaybillForPreSortOnSiteRequest preSortOnSiteRequest = buildWaybillForPreSortOnSiteRequest(req);
-		InvokeResult<String> invokeResult = waybillService.checkWaybillForPreSortOnSite(preSortOnSiteRequest);
-		if(InvokeResult.RESULT_SUCCESS_CODE != invokeResult.getCode()){
-			result.setCode(invokeResult.getCode());
-			result.setMessage(invokeResult.getMessage());
-			return result;
-		}
-		//判断返调度原因类型
-		ReassignWaybillReasonTypeEnum reasonTypeEnum = ReassignWaybillReasonTypeEnum.getEnum(req.getReasonType());
-		switch (reasonTypeEnum){
-			case UNABLE_TO_DELIVER :
-			case CONTROL_CONTRABAND :
-				//逻辑删除未审核通过的申请记录 / 取消OA申请单
-				dealOldReassignWaybillApprovalRecord(req);
-				//新增新的审核申请
-				dealNewReassignWaybillApprovalRecord(req);
-				String cacheKey = Constants.REASSIGN_WAYBILLCACHE_KEY_PREFIX + req.getBarCode();
-				Boolean cache = redisClientOfJy.set(cacheKey, JSON.toJSONString(req), 2, TimeUnit.DAYS, true);
-				if(log.isInfoEnabled()){
-					log.info("审批前放入缓存结果-{}",cache);
-				}
-				break;
-			case POSTAL_REJECTION :
-				//邮政拒收
-				BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(req.getOldSiteCode());
-				if(baseSite == null){
-					result.toError("获取原预分拣站点失败！");
-					return result;
-				}
-				if(!(Constants.THIRD_SITE_TYPE.equals(baseSite.getSiteType())
-						&& Constants.THIRD_SITE_SUB_TYPE.equals(baseSite.getSubType())
-						&& Constants.THIRD_SITE_THIRD_TYPE_SMS.equals(baseSite.getThirdType()))){
-					result.toError("此单非邮政单，禁止选择邮政拒收原因，请继续下传！");
-					return result;
-				}
-				return returnPack(req);
-			case NO_PRE_SORTING_STATION :
-				if(req.getOldSiteCode() != null){
-					result.toError("该单有预分拣站点，请继续下传！");
-					return result;
-				}
-				return returnPack(req);
+		String lockKey = Constants.REASSIGN_WAYBILL_LOCK_KEY_PREFIX + req.getBarCode();
+		try{
 
-			default:
-				log.warn("未知的返调度类型！");
+			//加锁防止重复提交
+			Boolean lockFlag = redisClientOfJy.set(lockKey, "1", 10, TimeUnit.SECONDS, false);
+			if (!lockFlag) {
+				result.toFail("单号"+req.getBarCode()+"正在执行返调度，请稍后重新");
+				return result;
+			}
+			checkParam(result,req);
+			if(!JdResult.CODE_SUC.equals(result.getCode())){
+				return result;
+			}
+			//现场预分拣拦截校验
+//		WaybillForPreSortOnSiteRequest preSortOnSiteRequest = buildWaybillForPreSortOnSiteRequest(req);
+//		InvokeResult<String> invokeResult = waybillService.checkWaybillForPreSortOnSite(preSortOnSiteRequest);
+//		if(InvokeResult.RESULT_SUCCESS_CODE != invokeResult.getCode()){
+//			result.setCode(invokeResult.getCode());
+//			result.setMessage(invokeResult.getMessage());
+//			return result;
+//		}
+			//判断返调度原因类型
+			ReassignWaybillReasonTypeEnum reasonTypeEnum = ReassignWaybillReasonTypeEnum.getEnum(req.getReasonType());
+			switch (reasonTypeEnum){
+				case UNABLE_TO_DELIVER :
+				case CONTROL_CONTRABAND :
+					//逻辑删除未审核通过的申请记录 / 取消OA申请单
+					dealOldReassignWaybillApprovalRecord(req);
+					//新增新的审核申请
+					dealNewReassignWaybillApprovalRecord(req);
+					break;
+				case POSTAL_REJECTION :
+					//邮政拒收
+					BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(req.getOldSiteCode());
+					if(baseSite == null){
+						result.toError("获取原预分拣站点失败！");
+						return result;
+					}
+					if(!(Constants.THIRD_SITE_TYPE.equals(baseSite.getSiteType())
+							&& Constants.THIRD_SITE_SUB_TYPE.equals(baseSite.getSubType())
+							&& Constants.THIRD_SITE_THIRD_TYPE_SMS.equals(baseSite.getThirdType()))){
+						result.toError("此单非邮政单，禁止选择邮政拒收原因，请继续下传！");
+						return result;
+					}
+
+					//逻辑删除未审核通过的申请记录 / 取消OA申请单
+					dealOldReassignWaybillApprovalRecord(req);
+					return returnPack(req);
+				case NO_PRE_SORTING_STATION :
+					if(req.getOldSiteCode() != null){
+						result.toError("该单有预分拣站点，请继续下传！");
+						return result;
+					}
+					//逻辑删除未审核通过的申请记录 / 取消OA申请单
+					dealOldReassignWaybillApprovalRecord(req);
+					return returnPack(req);
+				default:
+					log.warn("未知的返调度类型！");
+					result.toError("未知的返调度类型！");
+					return result;
+			}
+		}catch (Exception e){
+			log.error("返调度执行出现异常-param-{}",JSON.toJSONString(req),e);
+			result.toError("返调度执行出现异常!");
+		}finally {
+			redisClientOfJy.del(lockKey);
 		}
 		return result;
 	}
@@ -463,7 +479,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	@Override
 	public void dealReassignWaybillApprove(ReassignWaybillApprovalRecordMQ mq) {
 
-		ReassignWaybillApprovalRecord record = reassignWaybillApprovalRecordDao.selectByBarCode(mq.getBarCode());
+		ReassignWaybillApprovalRecord record = reassignWaybillApprovalRecordDao.selectByBarCodeApprovalNoPass(mq.getBarCode());
 		if(record == null){
 			log.warn("未查到当前运单的申请记录-{}",record.getBarCode());
 			return ;
@@ -480,30 +496,41 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		}
 		if(StringUtils.isNotBlank(approveOrderCode)){
 			ReassignWaybillApprovalRecord updaDateRecord = new ReassignWaybillApprovalRecord();
+			updaDateRecord.setProvinceAgencyCode(mq.getProvinceAgencyCode());
+			updaDateRecord.setProvinceAgencyName(mq.getProvinceAgencyName());
+			updaDateRecord.setAreaHubCode(mq.getAreaHubCode());
+			updaDateRecord.setAreaHubName(mq.getAreaHubName());
 			updaDateRecord.setBarCode(mq.getBarCode());
 			updaDateRecord.setUpdateTime(new Date());
 			updaDateRecord.setFirstChecker(mq.getFirstChecker());
 			updaDateRecord.setFirstCheckStatus(JyApproveStatusEnum.TODO.getCode());
 			updaDateRecord.setSecondChecker(mq.getSecondChecker());
 			updaDateRecord.setSecondCheckStatus(JyApproveStatusEnum.TODO.getCode());
+			updaDateRecord.setUpdateTime(new Date());
 			if (log.isInfoEnabled()) {
 				log.info("提交审批,更新返调度审批数据:{}", JSON.toJSONString(updaDateRecord));
 			}
-			reassignWaybillApprovalRecordDao.update(updaDateRecord);
+			reassignWaybillApprovalRecordDao.updateByBarCodeApprovalNoPass(updaDateRecord);
 		}
-	}
 
+		// 将当前单号的审批工单号放入缓存  等到取消审批时使用
+		redisClientOfJy.setEx(mq.getBarCode(),approveOrderCode,1,TimeUnit.DAYS);
+	
+	}
 
 
 	private Map<String, Object> buildFlow(ReassignWaybillApprovalRecordMQ mq) {
 		Map<String, Object> flowControlMap = Maps.newHashMap();
-
-
-		BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(mq.getSiteCode());
-
+		BaseSite baseSite = baseMajorManager.getSiteBySiteCode(mq.getSiteCode());
+		if(baseSite == null){
+			throw new  JyBizException("获取"+mq.getSiteCode()+"基础站点信息失败");
+		}
 		String provinceAgencyCode = baseSite.getProvinceAgencyCode();
 		String areaCode = baseSite.getAreaCode();
-
+		mq.setProvinceAgencyCode(provinceAgencyCode);
+		mq.setProvinceAgencyName(baseSite.getProvinceAgencyName());
+		mq.setAreaHubCode(areaCode);
+		mq.setAreaHubName(baseSite.getAreaName());
 		StringJoiner joiner = new StringJoiner("_");
 		joiner.add(provinceAgencyCode);
 		if(StringUtils.isNotBlank(areaCode)){
@@ -512,27 +539,31 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		String provinceAreaCode = joiner.toString();
 		SysConfig configContent = sysConfigService.findConfigContentByConfigName(Constants.REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG);
 		if(configContent == null){
-			return flowControlMap;
+			throw new JyBizException("获取返调度省区审核配置为空!");
 		}
 		String firstChecker ="";
 		String secondChecker ="";
 		ReassignWaybillProvinceAreaApprovalConfigDto configDto = JSON.parseObject(configContent.getConfigContent(), ReassignWaybillProvinceAreaApprovalConfigDto.class);
-		List<ProvinceAreaApprovalConfigDto> configList = configDto.getConfigList();
+		Map<String, List<String>> configList = configDto.getConfigList();
 		if(!CollectionUtils.isEmpty(configList)){
-			for (ProvinceAreaApprovalConfigDto config:configList) {
-				if(Objects.equals(provinceAreaCode,config.getProvinceAreaCode())){
-					firstChecker = config.getFirstChecker();
-					secondChecker =config.getSecondChecker();
-					break;
-				}
+			List<String> checker = configList.get(provinceAreaCode);
+			if(!CollectionUtils.isEmpty(checker)){
+				firstChecker = checker.get(0);
+				secondChecker = checker.get(1);
 			}
 		}
-		flowControlMap.put(FlowConstants.FLOW_DATA_MAP_FIRST_REASSIGN_WAYBILL_APPROVE_TRIGGER_ERP,firstChecker);
-		flowControlMap.put(FlowConstants.FLOW_DATA_MAP_REASSIGN_WAYBILL_APPROVE_COUNT, JyExScrapApproveStageEnum.FIRST.getCount());
-		flowControlMap.put(FlowConstants.FLOW_DATA_MAP_SECOND_REASSIGN_WAYBILL_APPROVE_TRIGGER_ERP, secondChecker);
-		flowControlMap.put(FlowConstants.FLOW_DATA_MAP_REASSIGN_WAYBILL_APPROVE_COUNT, JyExScrapApproveStageEnum.SECOND.getCount());
+		if(StringUtils.isBlank(firstChecker) || StringUtils.isBlank(secondChecker)){
+			throw new JyBizException("未查询到当前省区审批人信息!");
+		}
 		mq.setFirstChecker(firstChecker);
 		mq.setSecondChecker(secondChecker);
+		flowControlMap.put(FlowConstants.FLOW_DATA_MAP_FIRST_REASSIGN_WAYBILL_APPROVE_TRIGGER_ERP,firstChecker);
+		flowControlMap.put(FlowConstants.FLOW_DATA_MAP_REASSIGN_WAYBILL_APPROVE_COUNT, ReassignWaybillApproveStageEnum.FIRST.getCount());
+		flowControlMap.put(FlowConstants.FLOW_DATA_MAP_SECOND_REASSIGN_WAYBILL_APPROVE_TRIGGER_ERP, secondChecker);
+		flowControlMap.put(FlowConstants.FLOW_DATA_MAP_REASSIGN_WAYBILL_APPROVE_COUNT, ReassignWaybillApproveStageEnum.SECOND.getCount());
+		if(log.isInfoEnabled()){
+			log.info("返调度审批 buildFlow -{}",JSON.toJSONString(flowControlMap));
+		}
 		return flowControlMap;
 	}
 
@@ -546,6 +577,9 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		Map<String, Object> businessMap = Maps.newHashMap();
 		// 设置业务唯一编码
 		businessMap.put(FlowConstants.FLOW_BUSINESS_NO_KEY, mq.getBarCode());
+		if(log.isInfoEnabled()){
+			log.info("返调度审批 buildBusiness -{}",JSON.toJSONString(businessMap));
+		}
 		return businessMap;
 	}
 
@@ -560,10 +594,18 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		oaMap.put(FlowConstants.FLOW_OA_JMEREQNAME, FlowConstants.FLOW_FLOW_WORK_THEME_REASSIGN_WAYBILL);
 		oaMap.put(FlowConstants.FLOW_OA_JMEREQCOMMENTS, FlowConstants.FLOW_FLOW_WORK_REMARK_REASSIGN_WAYBILL);
 		List<String> mainColList = new ArrayList<>();
-		mainColList.add("返调度申请单号:" + mq.getBarCode());
-		mainColList.add("返调度操作场地:" + mq.getSiteName());
-		mainColList.add("返调度操作申请人:" + mq.getApplicationUserErp());
+		mainColList.add("单号:" + mq.getBarCode());
+		mainColList.add("原预分拣站点:" + mq.getReceiveSiteName());
+		mainColList.add("反调度站点:" + mq.getChangeSiteName());
+		mainColList.add("反调度原因:" + ReassignWaybillReasonTypeEnum.getNameByCode(mq.getChangeSiteReasonType()));
+		mainColList.add("提报人:" + mq.getApplicationUserErp());
+		mainColList.add("提报场地:" + mq.getSiteName());
+		mainColList.add("提报时间:" + mq.getSubmitTime());
+
 		oaMap.put(FlowConstants.FLOW_OA_JMEMAINCOLLIST, mainColList);
+		if(log.isInfoEnabled()){
+			log.info("返调度审批 buildOA -{}",JSON.toJSONString(oaMap));
+		}
 		return oaMap;
 	}
 
@@ -579,9 +621,20 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		if(log.isInfoEnabled()){
 			log.info("dealOldReassignWaybillApprovalRecord 入参-{}",JSON.toJSONString(params));
 		}
-		reassignWaybillApprovalRecordDao.updateReassignWaybilApprovalNotPassByBarCode(params);
-		//取消OA申请
-		flowServiceManager.cancelRequestOrder(req.getBarCode(),req.getOperateUserErp());
+        //逻辑删除之前正在审批中的返调度申请记录
+		int update = reassignWaybillApprovalRecordDao.updateReassignWaybilApprovalNotPassByBarCode(params);
+		if(log.isInfoEnabled()){
+			log.info("单号-{}，更新结果：{}",req.getBarCode(),update);
+		}
+		//根据审批工单号取消OA申请
+		String approveOrderCode = redisClientOfJy.get(req.getBarCode());
+		if(log.isInfoEnabled()){
+			log.info("根据单号-{}-获取审批工单号-{}",req.getBarCode(),approveOrderCode);
+		}
+		if(StringUtils.isNotBlank(approveOrderCode) ){
+			flowServiceManager.cancelRequestOrder(approveOrderCode,req.getOperateUserErp());
+		}
+
 	}
 
 	/**
@@ -597,13 +650,12 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		record.setBarCode(req.getBarCode());
 		record.setSubmitTime(new Date());
 		record.setChangeSiteReasonType(req.getReasonType());
-		record.setFirstChecker("");
-		record.setFirstCheckStatus(JyApproveStatusEnum.TODO.getCode());
 		record.setReceiveSiteCode(req.getOldSiteCode());
 		record.setReceiveSiteName(req.getOldSiteName());
 		record.setChangeSiteCode(req.getSiteOfSchedulingOnSiteCode());
 		record.setChangeSiteName(req.getSiteOfSchedulingOnSiteName());
 		record.setCreateUserErp(req.getOperateUserErp());
+        record.setCheckEndFlag(ReassignWaybillCheckEndFlagEnum.NO_END.getCode());
 		record.setCreateTime(new Date());
 		if(log.isInfoEnabled()){
 			log.info("initReassignWaybillApprovalRecord- {}",JSON.toJSONString(record));
@@ -614,10 +666,11 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		}
 		ReassignWaybillApprovalRecordMQ recordMQ = new ReassignWaybillApprovalRecordMQ();
 		BeanUtils.copyProperties(record,recordMQ);
+		recordMQ.setSubmitTime(DateHelper.formatDateTime(record.getSubmitTime()));
 		if(log.isInfoEnabled()){
 			log.info("返调度审批异步消息发送!-{}",JSON.toJSONString(recordMQ) );
 		}
-		reassignWaybillApprovalProducer.sendOnFailPersistent(req.getBarCode(), JsonHelper.toJson(req));
+		reassignWaybillApprovalProducer.sendOnFailPersistent(req.getBarCode(), JsonHelper.toJson(recordMQ));
 		return ;
 	}
 
@@ -628,7 +681,14 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	private JdResult<Boolean>  returnPack(ReassignWaybillReq req){
 		//获取打印信息
 		String jsonCommand = buildJsonCommand(req);
+		if(log.isInfoEnabled()){
+			log.info("jsonCommand -{}",jsonCommand);
+		}
 		String printInfo = commandService.execute(jsonCommand);
+		if(log.isInfoEnabled()){
+			log.info("printInfo -{}",printInfo);
+		}
+
 		ReassignWaybillRequest request = bulidReassignWaybillRequest(printInfo, req);
 		return backScheduleAfter(request);
 	}
@@ -645,17 +705,29 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		ReassignWaybillRequest request = new ReassignWaybillRequest();
 
 		JSONObject jsonObject = JSON.parseObject(printInfo);
-		String printAddress = jsonObject.get("printAddress").toString();
-		String printTime = jsonObject.get("printTime").toString();
-		JSONArray packList = jsonObject.getJSONArray("packList");
-
+		if(log.isInfoEnabled()){
+			log.info("jsonObject -{}",printInfo);
+		}
+		Object data = jsonObject.get("data");
+		if(data == null){
+			return null;
+		}
+		JSONObject dataObject = JSON.parseObject(data.toString());
+		String printAddress = dataObject.get("printAddress").toString();
+		String printTime = dataObject.get("printTime").toString();
+		JSONArray packList = dataObject.getJSONArray("packList");
+		if(StringUtils.isBlank(printAddress)
+			|| StringUtils.isBlank(printTime)
+			|| CollectionUtils.isEmpty(packList)){
+			return null;
+		}
 		List<String> packageCodeList = new ArrayList<>();
 		for (int i = 0; i < packList.size(); i++) {
 			JSONObject packListJSONObject = packList.getJSONObject(i);
 			String packageCode = packListJSONObject.get("packageCode").toString();
 			packageCodeList.add(packageCode);
 		}
-
+		request.setPackageBarcode(req.getBarCode());
 		request.setAddress(printAddress);
 		request.setOperateTime(printTime);
 		request.setPackageCodeList(packageCodeList);
@@ -667,8 +739,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		request.setChangeSiteName(req.getSiteOfSchedulingOnSiteName());
 		request.setReceiveSiteCode(req.getOldSiteCode());
 		request.setReceiveSiteName(req.getOldSiteName());
-		request.setInterfaceType(ScheduleAfterTypeEnum.PACKAGE_CODE_LIST.getCode());
-		request.setScheduleAfterType(WaybillPrintOperateTypeEnum.RESCHEDULE_PRINT.getType());
+		request.setInterfaceType(WaybillPrintOperateTypeEnum.RESCHEDULE_PRINT.getType());
+		request.setScheduleAfterType(ScheduleAfterTypeEnum.PACKAGE_CODE_LIST.getCode());
 		log.info("ReassignWaybillRequest -{}",JSON.toJSONString(request));
 		return request;
 	}
@@ -826,7 +898,6 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 
 	@Override
 	public void dealApproveResult(HistoryApprove historyApprove) {
-
 		// 审批工单号
 		String processInstanceNo = historyApprove.getProcessInstanceNo();
 		// 审批人ERP
@@ -851,78 +922,99 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		// 业务单号
 		String barCode = pairResult.right;
 
-		// 审批流程是否完结标识
-		// 1、任一节点驳回则审批流程结束
-		// 2、多个节点的审批则最终节点的审批通过为流程结束
-		boolean flowEndFlag = Objects.equals(historyApprove.getState(), ApprovalResult.REJECT.getValue());;
+
+        //判断当前审批节点是否结束
+		//完结场景 1、第一个审批拒绝  2、第一个审批通过 第二个审批任意
+		boolean flowEndFlag = false;
 		// 审批流程最终结果:true-审批通过,false-审批驳回
-		boolean approveFinalResult = Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
+		boolean approveFinalResult = false;
+		int approveStage = ReassignWaybillApproveStageEnum.UNKNOWN.getCode();
 		switch (ReassignWaybillApproveStageEnum.convertApproveEnum(nodeName)) {
 			case FIRST:
 				log.info("返调度审批工单号:{}的一级审批结果:{}", barCode, historyApprove.getState());
-				approveFinalResult = approveFinalResult && Objects.equals(approveCount, ReassignWaybillApproveStageEnum.FIRST.getCount())
-						&& Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
-				flowEndFlag = flowEndFlag || Objects.equals(approveCount, ReassignWaybillApproveStageEnum.FIRST.getCount());
-				updateReassignWaybillApproveResult(barCode, approveStatus, approveErp, ReassignWaybillApproveStageEnum.FIRST.getCode());
+				approveStage = ReassignWaybillApproveStageEnum.FIRST.getCode();
+				if(Objects.equals(historyApprove.getState(), ApprovalResult.REJECT.getValue())){
+					flowEndFlag = true;
+				}
 				break;
 			case SECOND:
 				log.info("返调度审批工单号:{}的二级审批结果:{}", barCode, historyApprove.getState());
-				approveFinalResult = approveFinalResult && Objects.equals(approveCount, ReassignWaybillApproveStageEnum.SECOND.getCount())
+				approveFinalResult =  Objects.equals(approveCount, ReassignWaybillApproveStageEnum.SECOND.getCount())
 						&& Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
-				flowEndFlag = flowEndFlag || Objects.equals(approveCount, ReassignWaybillApproveStageEnum.SECOND.getCount());
-				updateReassignWaybillApproveResult(barCode, approveStatus, approveErp, ReassignWaybillApproveStageEnum.SECOND.getCode());
+				approveStage = ReassignWaybillApproveStageEnum.SECOND.getCode();
+				flowEndFlag = true;
 				break;
 			default:
 				log.warn("未知节点编码:{}", barCode);
 				return;
 		}
-		if(flowEndFlag){
-			return ;
-		}
+		// 最终的审核结果为通过才执行
 		if(approveFinalResult){
 			//执行返调度
-			String cacheKey = Constants.REASSIGN_WAYBILLCACHE_KEY_PREFIX + barCode;
-			String cacheContent = redisClientOfJy.get(cacheKey);
+			ReassignWaybillApprovalRecord approvalRecord = reassignWaybillApprovalRecordDao.selectByBarCodeApprovalNoPass(barCode);
 			if(log.isInfoEnabled()){
-				log.info("返调度审批缓存信息-{}",cacheContent);
+				log.info("返调度审批记录-{}",approvalRecord);
 			}
-			if(StringUtils.isBlank(cacheContent)){
+			if(approvalRecord == null){
+				log.warn("未查询到当前单号-{}提交的返调度审批记录",barCode);
 				return;
 			}
-			ReassignWaybillReq reassignWaybillReq = JSON.parseObject(cacheContent, ReassignWaybillReq.class);
-			if(reassignWaybillReq == null){
-				return ;
+			ReassignWaybillReq req = coverToReassignWaybillReq(approvalRecord);
+			if(req != null){
+				returnPack(req);
 			}
-			returnPack(reassignWaybillReq);
-
 		}
-
-
+		updateReassignWaybillApproveResult(barCode, approveStatus, approveErp, approveStage,flowEndFlag);
 	}
 
-	private void updateReassignWaybillApproveResult(String barCode, int approveStatus, String approveErp, int approveStage){
+	private ReassignWaybillReq coverToReassignWaybillReq(ReassignWaybillApprovalRecord approvalRecord){
+		ReassignWaybillReq req = new ReassignWaybillReq();
+		BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(approvalRecord.getApplicationUserErp());
+		if(baseStaff == null){
+			log.error("未查询到 {} 的基础信息",approvalRecord.getApplicationUserErp());
+			return null;
+		}
+		req.setOperateUserErp(approvalRecord.getApplicationUserErp());
+		req.setOperateUserCode(baseStaff.getStaffNo());
+		req.setOperateUserName(baseStaff.getStaffName());
+		req.setOperateSiteCode(approvalRecord.getSiteCode());
+		req.setOperateSiteName(approvalRecord.getSiteName());
+		req.setBarCode(approvalRecord.getBarCode());
+		req.setOldSiteCode(approvalRecord.getReceiveSiteCode());
+		req.setOldSiteName(approvalRecord.getReceiveSiteName());
+		req.setSiteOfSchedulingOnSiteCode(approvalRecord.getChangeSiteCode());
+		req.setSiteOfSchedulingOnSiteName(approvalRecord.getChangeSiteName());
+		return  req;
+	}
+
+	private void updateReassignWaybillApproveResult(String barCode, int approveStatus, String approveErp, int approveStage,boolean approveEndFlag){
 
 		ReassignWaybillApprovalRecord approvalRecord = new ReassignWaybillApprovalRecord();
 		approvalRecord.setUpdateTime(new Date());
 		approvalRecord.setBarCode(barCode);
+        //审批结束
+        if(approveEndFlag){
+            approvalRecord.setCheckEndFlag(ReassignWaybillCheckEndFlagEnum.END.getCode());
+        }
 		if (Objects.equals(JyExScrapApproveStageEnum.FIRST.getCode(), approveStage)) {
 			approvalRecord.setFirstChecker(approveErp);
 			approvalRecord.setFirstCheckStatus(approveStatus);
 			approvalRecord.setFirstCheckTime(new Date());
-		}
-		if (Objects.equals(JyExScrapApproveStageEnum.SECOND.getCode(), approveStage)) {
+		}else if (Objects.equals(JyExScrapApproveStageEnum.SECOND.getCode(), approveStage)) {
 			approvalRecord.setSecondChecker(approveErp);
 			approvalRecord.setSecondCheckStatus(approveStatus);
 			approvalRecord.setSecondCheckTime(new Date());
+		}else {
+			log.warn("未知的审批节点！");
 		}
-		reassignWaybillApprovalRecordDao.update(approvalRecord);
+		reassignWaybillApprovalRecordDao.updateByBarCodeApprovalNoPass(approvalRecord);
 
 	}
 
 	private ImmutablePair<Integer, String> queryApproveData(String processInstanceNo) {
 		ApproveRequestOrder approveRequestOrder = flowServiceManager.getRequestOrder(processInstanceNo);
 		if(approveRequestOrder == null || approveRequestOrder.getArgs() == null){
-			log.warn("根据审批工单号{}未查询到生鲜报废的审批流程!", processInstanceNo);
+			log.warn("根据审批工单号{}未查询到返调度的审批流程!", processInstanceNo);
 			return null;
 		}
 		Map<String, Object> argsMap = approveRequestOrder.getArgs();

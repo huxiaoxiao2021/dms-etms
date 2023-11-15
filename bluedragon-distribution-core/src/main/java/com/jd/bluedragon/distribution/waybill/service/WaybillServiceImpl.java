@@ -1659,9 +1659,15 @@ public class WaybillServiceImpl implements WaybillService {
             }
 
             //校验原预分拣站点线上关停
-            BaseSite siteBySiteCode = baseMajorManager.getSiteBySiteCode(waybill.getOldSiteId());
-            siteBySiteCode.getOperateState();
-            siteBySiteCode.getIsSupportCod();
+            BaseSite oldSite = baseMajorManager.getSiteBySiteCode(waybill.getOldSiteId());
+            if(oldSite == null){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_NOT_SITE);
+                return result;
+            }
+            if(!(Constants.INTEGER_FLG_TRUE.equals(oldSite.getYn()) && Constants.BASE_SITE_OPERATESTATE_1.equals(oldSite.getOperateState()))){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_SITE_CLOSE);
+                return result;
+            }
 
 
         }catch (Exception ex){

@@ -17,16 +17,16 @@ public class ReassignWaybillApprovalRecordDao extends BaseDao<ReassignWaybillApp
         return this.getSqlSession().insert(namespace + ".add", record) > 0;
     }
 
-    public int update(ReassignWaybillApprovalRecord record) {
-        return this.getSqlSession().update(namespace + ".update", record);
+    public int updateByBarCodeApprovalNoPass(ReassignWaybillApprovalRecord record) {
+        return this.getSqlSession().update(namespace + ".updateByBarCodeApprovalNoPass", record);
     }
 
     public int updateReassignWaybilApprovalNotPassByBarCode(Map<String,Object> params){
         return this.getSqlSession().update(namespace + ".updateReassignWaybilApprovalNotPassByBarCode", params);
     }
 
-    public ReassignWaybillApprovalRecord selectByBarCode(String barCode){
-        return this.getSqlSession().selectOne(namespace + ".selectByBarCode", barCode);
+    public ReassignWaybillApprovalRecord selectByBarCodeApprovalNoPass(String barCode){
+        return this.getSqlSession().selectOne(namespace + ".selectByBarCodeApprovalNoPass", barCode);
     }
 
     public Integer queryTotalByCondition(ReassignWaybillApprovalRecordQuery req) {

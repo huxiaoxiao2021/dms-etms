@@ -46,10 +46,11 @@ public class ReassignWaybillApprovalRecordMQ implements Serializable {
      */
     private String barCode;
 
+
     /**
-     * 操作时间
+     * 提报时间
      */
-    private Date submitTime;
+    private String submitTime;
 
     /**
      * 预分拣目的站点编码
@@ -88,11 +89,6 @@ public class ReassignWaybillApprovalRecordMQ implements Serializable {
     private Integer firstCheckStatus;
 
     /**
-     * 第一审批人审批时间
-     */
-    private Date firstCheckTime;
-
-    /**
      * 审核第二人erp
      */
     private String secondChecker;
@@ -112,20 +108,7 @@ public class ReassignWaybillApprovalRecordMQ implements Serializable {
      */
     private String createUserErp;
 
-    /**
-     * 更新人erp
-     */
-    private String updateUserErp;
 
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
 
 
     public String getProvinceAgencyCode() {
@@ -192,13 +175,6 @@ public class ReassignWaybillApprovalRecordMQ implements Serializable {
         this.barCode = barCode;
     }
 
-    public Date getSubmitTime() {
-        return submitTime;
-    }
-
-    public void setSubmitTime(Date submitTime) {
-        this.submitTime = submitTime;
-    }
 
     public Integer getReceiveSiteCode() {
         return receiveSiteCode;
@@ -289,28 +265,11 @@ public class ReassignWaybillApprovalRecordMQ implements Serializable {
         this.createUserErp = createUserErp;
     }
 
-    public String getUpdateUserErp() {
-        return updateUserErp;
+    public String getSubmitTime() {
+        return submitTime;
     }
 
-    public void setUpdateUserErp(String updateUserErp) {
-        this.updateUserErp = updateUserErp;
+    public void setSubmitTime(String submitTime) {
+        this.submitTime = submitTime;
     }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
 }

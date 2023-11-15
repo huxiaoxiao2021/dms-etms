@@ -302,6 +302,12 @@ public class Constants {
     public static final Integer BASE_SITE_OPERATESTATE = 2;
 
     /**
+     * 运营状态 operate_state 0关闭 1线上运营 2线下运营
+     */
+    public static final Integer BASE_SITE_OPERATESTATE_1 = 1;
+
+
+    /**
      * 承运商类型 1:司机 0:承运商（三方快递，即站点表中类型为16的数据）
      */
     public static final Integer SENDUSERTYEP_DRIVER = 1;
@@ -2212,7 +2218,10 @@ public class Constants {
 
 
     /**
-     * 异常运单任务缓存key
+     * 返调度运单任务锁key
      */
-    public static final String REASSIGN_WAYBILLCACHE_KEY_PREFIX ="reassign.waybill.cache:";
+    public static final String REASSIGN_WAYBILL_LOCK_KEY_PREFIX ="reassign.waybill.lock:";
+
+
+
 }

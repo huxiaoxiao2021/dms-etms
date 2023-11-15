@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.response.ReassignWaybillApprovalRecord
 import com.jd.bluedragon.distribution.api.response.StationMatchResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jsf.domain.ReassignWaybillReq;
 import com.jd.bluedragon.distribution.jsf.domain.StationMatchRequest;
 import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -74,5 +75,29 @@ public class ReassignWaybillServiceTest {
         System.out.println(JSON.toJSONString(pageDtoJdResult));
 
     }
+
+    @Test
+    public void executeReassignWaybillTest(){
+
+        ReassignWaybillReq req = new ReassignWaybillReq();
+        req.setOperateUserErp("wuyoude");
+        req.setOperateUserCode(17331);
+        req.setOperateUserName("wuyoude");
+        req.setOperateSiteCode(40240);
+        req.setOperateSiteName("北京通州分拣中心");
+        req.setBarCode("JDVA00294399213-1-1-");
+        req.setReasonType(1);
+        req.setOldSiteCode(39);
+        req.setOldSiteName("石景山营业部");
+        req.setSiteOfSchedulingOnSiteCode(870194);
+        req.setSiteOfSchedulingOnSiteName("青龙UAT站点3");
+        JdResult<Boolean> jdResult = reassignWaybillService.executeReassignWaybill(req);
+
+        System.out.println(JSON.toJSONString(jdResult));
+
+    }
+
+
+
 
 }

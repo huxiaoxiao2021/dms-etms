@@ -2,6 +2,7 @@ package com.jd.bluedragon.common.dto.sysConfig.response;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -14,13 +15,13 @@ public class ReassignWaybillProvinceAreaApprovalConfigDto implements Serializabl
     /**
      * 配置列表
      */
-    private List<ProvinceAreaApprovalConfigDto> configList;
+    private Map<String,List<String>> configList;
 
-    public List<ProvinceAreaApprovalConfigDto> getConfigList() {
+    public Map<String, List<String>> getConfigList() {
         return configList;
     }
 
-    public void setConfigList(List<ProvinceAreaApprovalConfigDto> configList) {
+    public void setConfigList(Map<String, List<String>> configList) {
         this.configList = configList;
     }
 }

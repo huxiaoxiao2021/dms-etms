@@ -109,6 +109,11 @@ public class ReassignWaybillApprovalRecord implements Serializable {
     private Date secondCheckTime;
 
     /**
+     * 审批完结标识 1：审批未完结 2： 审批完结
+     */
+    private Integer checkEndFlag;
+
+    /**
      * 创建人erp
      */
     private String createUserErp;
@@ -258,7 +263,13 @@ public class ReassignWaybillApprovalRecord implements Serializable {
         this.changeSiteReasonType = changeSiteReasonType;
     }
 
+    public Integer getCheckEndFlag() {
+        return checkEndFlag;
+    }
 
+    public void setCheckEndFlag(Integer checkEndFlag) {
+        this.checkEndFlag = checkEndFlag;
+    }
 
     public String getFirstChecker() {
         return firstChecker;

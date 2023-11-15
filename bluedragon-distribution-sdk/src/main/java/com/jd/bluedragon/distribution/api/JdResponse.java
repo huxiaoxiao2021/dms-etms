@@ -148,6 +148,9 @@ public class JdResponse extends JdObject {
     public static final String MESSAGE_FORBIDDEN_SCHEDULE_TO_RETURN_GROUP = "不允许反调度到退货组！此为违规操作，超过3次将通报给场地负责人！";
     public static final String MESSAGE_FORBIDDEN_SCHEDULE_TO_TERMINAL= "请使用站长工作台操作!";
     public static final String MESSAGE_FORBIDDEN_SCHEDULE_SAME_SITE= "反调度站点与原预分拣站点一致，无法调度，请联系省区滑道接口人维护大全表!";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_NOT_SITE = "未查询到原预分拣站点信息!";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_SITE_CLOSE= "原预分拣站点线上关停，请补打面单!";
+
 
     public static final Integer CODE_RE_PRINT_IN_ONE_HOUR = 30100;
     public static final String MESSAGE_RE_PRINT_IN_ONE_HOUR = "条码在1小时内重复打印，是否继续？";

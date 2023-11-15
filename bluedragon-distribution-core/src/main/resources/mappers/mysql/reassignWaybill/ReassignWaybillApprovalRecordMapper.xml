@@ -23,6 +23,7 @@
     <result column="second_checker" property="secondChecker" jdbcType="VARCHAR" />
     <result column="second_check_status" property="secondCheckStatus" jdbcType="BIT" />
     <result column="second_check_time" property="secondCheckTime" jdbcType="TIMESTAMP" />
+    <result column="check_end_flag" property="checkEndFlag" jdbcType="BIT" />
     <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
     <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
@@ -35,13 +36,14 @@
     site_name, application_user_erp, bar_code, submit_time, receive_site_code, receive_site_name, 
     change_site_code, change_site_name, change_site_reason_type,  first_checker,
     first_check_status, first_check_time, second_checker, second_check_status, second_check_time, 
-    create_user_erp, update_user_erp, create_time, update_time, ts, yn
+    check_end_flag, create_user_erp, update_user_erp, create_time, update_time, ts, yn
   </sql>
-  <select id="selectByBarCode" resultMap="BaseResultMap" parameterType="String" >
+  <select id="selectByBarCodeApprovalNoPass" resultMap="BaseResultMap" parameterType="String" >
     select 
     <include refid="Base_Column_List" />
     from reassign_waybill_approval_record
     where bar_code = #{barCode,jdbcType=BIGINT}
+    and  yn =1 and check_end_flag =1
     order by create_time limit 1
   </select>
 
@@ -111,6 +113,9 @@
       </if>
       <if test="secondCheckTime != null" >
         second_check_time,
+      </if>
+      <if test="checkEndFlag != null" >
+        check_end_flag,
       </if>
       <if test="createUserErp != null" >
         create_user_erp,
@@ -195,6 +200,9 @@
       <if test="secondCheckTime != null" >
         #{secondCheckTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="checkEndFlag != null" >
+        #{checkEndFlag,jdbcType=BIT},
+      </if>
       <if test="createUserErp != null" >
         #{createUserErp,jdbcType=VARCHAR},
       </if>
@@ -215,7 +223,7 @@
       </if>
     </trim>
   </insert>
-  <update id="update" parameterType="com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybillApprovalRecord" >
+  <update id="updateByBarCodeApprovalNoPass" parameterType="com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybillApprovalRecord" >
     update reassign_waybill_approval_record
     <set >
       <if test="provinceAgencyCode != null" >
@@ -275,6 +283,9 @@
       <if test="secondCheckTime != null" >
         second_check_time = #{secondCheckTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="checkEndFlag != null" >
+        check_end_flag = #{checkEndFlag,jdbcType=BIT},
+      </if>
       <if test="createUserErp != null" >
         create_user_erp = #{createUserErp,jdbcType=VARCHAR},
       </if>
@@ -295,6 +306,7 @@
       </if>
     </set>
     where bar_code = #{barCode,jdbcType=VARCHAR}
+    and yn =1 and  check_end_flag =1
   </update>
 
 
@@ -305,14 +317,9 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP},
       yn = 0
     </set>
-    from reassign_waybill_approval_record
     where yn =1
+    and check_end_flag =1
     and bar_code = #{barCode,jdbcType=VARCHAR}
-    and id in  (
-      select id from reassign_waybill_approval_record
-      where  yn =1
-      and first_check_status in (1,2) or second_check_status in (1,2)
-    )
   </update>
 
   <select id="queryTotalByCondition" parameterType="com.jd.bluedragon.distribution.api.request.ReassignWaybillApprovalRecordQuery" resultType="int">
