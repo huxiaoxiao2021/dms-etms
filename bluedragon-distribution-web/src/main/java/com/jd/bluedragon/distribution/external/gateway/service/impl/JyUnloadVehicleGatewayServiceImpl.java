@@ -254,9 +254,11 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             return false;
         }
         if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType()) && Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())){
-            if(!WaybillUtil.isPackageCodeExcludeDJ(request.getBarCode()))
+            if(!WaybillUtil.isPackageCodeExcludeDJ(request.getBarCode())) {
+                logger.info("卸车岗大件包裹剔除校验，barCode={}", request.getBarCode());
                 response.toFail("请扫描正确包裹号！");
-            return false;
+                return false;
+            }
         }
         if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType()) &&
                 (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode()))){
