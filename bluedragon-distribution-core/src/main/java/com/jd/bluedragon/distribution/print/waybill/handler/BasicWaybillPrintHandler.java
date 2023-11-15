@@ -647,7 +647,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setOriginalCrossCode(tag.getOriginalCrossCode());
                 waybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
                 waybill.setDestinationCrossCode(tag.getDestinationCrossCode());
-                
+
                 hiddenCrossInfo(waybill);
             }
             // 记录滑道笼车获取的最终结果
@@ -667,8 +667,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             List<Integer> logIds = logList.stream().map(TrackDto::getId).collect(Collectors.toList());
 
             // 如果面单隐藏
-            if (logIds.contains(PRINT_CROSS_RESULT)) {
-                TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT,String.format(PRINT_CROSS_RESULT_ERROR_9, HIDDEN_CROSS_INFO_9)));
+            if (logIds.contains(HIDDEN_CROSS_INFO)) {
+                TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT, String.format(PRINT_CROSS_RESULT_ERROR_9, HIDDEN_CROSS_INFO_10)));
                 return;
             }
 
@@ -706,7 +706,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      */
     private void hiddenCrossInfo(PrintWaybill waybill) {
                 if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')){
-                    TrackUtil.add(new TrackDto(HIDDEN_CROSS_INFO,HIDDEN_CROSS_INFO_9));
+                    TrackUtil.add(new TrackDto(HIDDEN_CROSS_INFO,HIDDEN_CROSS_INFO_10));
                     waybill.setOriginalDmsName("");
                     waybill.setPurposefulDmsName("");
                     waybill.setDestinationDmsName("");

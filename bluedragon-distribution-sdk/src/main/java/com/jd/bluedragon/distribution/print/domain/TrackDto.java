@@ -26,7 +26,7 @@ public class TrackDto implements Serializable {
     public static final Integer ZI_TI_TYPE = 8;
     public static final String ZI_TI_TYPE_8 = "自提类型更换目的地地址信息：%s";
     public static final Integer HIDDEN_CROSS_INFO = 10;
-    public static final String HIDDEN_CROSS_INFO_9 = "waybillSign第31位标识为3，隐藏面单信息";
+    public static final String HIDDEN_CROSS_INFO_10 = "waybillSign第31位标识为3，隐藏面单信息";
     public static final Integer PRINT_CROSS_RESULT = 9;
     public static final String PRINT_CROSS_RESULT_SUCCESS_9 = "获取滑道笼车成功： %s";
     public static final String PRINT_CROSS_RESULT_ERROR_9 = "获取滑道笼车失败： %s";
