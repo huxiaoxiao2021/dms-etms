@@ -1489,4 +1489,10 @@
     <jsf:consumer id="blockerApplyWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerApplyWS"
                   protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+
+    <!-- 任务分配配置接口 -->
+    <jsf:consumer id="quotaTargetConfigJsfService" interface="com.jd.dms.wb.sdk.api.loss.IQuotaTargetConfigJsfService" protocol="jsf"
+                  alias="${jsf.alias.workbench.service}" retries="${jsf.retries}"
+                  serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>

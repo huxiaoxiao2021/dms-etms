@@ -109,12 +109,16 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			}
 		}
 		//飞检 和 非待处理状态的  不能转派
-		if (WorkGridManagerTaskBizType.MANAGER_PATROL.equals(WorkGridManagerTaskBizType.getEnum(jyTaskData.getTaskBizType()))
+		WorkGridManagerTaskBizType bizTypeEnum = WorkGridManagerTaskBizType.getEnum(jyTaskData.getTaskBizType());
+		if (WorkGridManagerTaskBizType.MANAGER_PATROL.equals(bizTypeEnum)
 			|| !WorkTaskStatusEnum.TODO.getCode().equals(jyTaskData.getStatus())
 			|| jyTaskData.getTransfered().intValue() == 1){
 			taskData.setCanTransfer(false);
 		}else {
 			taskData.setCanTransfer(true);
+		}
+		if(bizTypeEnum != null){
+			taskData.setBizTypeLabel(bizTypeEnum.getShortLable());
 		}
 		return taskData;
 	}

@@ -4,17 +4,30 @@ package com.jd.bluedragon.distribution.jy.service.work.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.jd.bluedragon.common.dto.work.*;
+import com.jd.bluedragon.distribution.jy.dto.work.*;
 import com.jd.bluedragon.distribution.jy.enums.TransferTypeEnum;
+import com.jd.bluedragon.distribution.jy.manager.IQuotaTargetConfigManager;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
+import com.jd.dms.wb.sdk.dto.loss.QuotaTargetConfigDto;
+import com.jd.dms.wb.sdk.enums.oneTable.BusinessTypeEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.easydata.DmsWEasyDataConfig;
 import com.jd.bluedragon.utils.easydata.EasyDataClientUtil;
+import com.jd.dms.wb.sdk.api.loss.IQuotaTargetConfigJsfService;
+import com.jd.dms.wb.sdk.dto.loss.QuotaTargetConfigRequest;
+import com.jd.dms.wb.sdk.enums.oneTable.Class2TypeEnum;
+import com.jd.dms.wb.sdk.enums.oneTable.TimeTypeEnum;
+import com.jd.dms.wb.sdk.model.base.BaseEntity;
 import com.jd.fds.lib.dto.server.FdsPage;
 import com.jd.fds.lib.dto.server.FdsServerResult;
 import com.jdl.basic.api.domain.work.WorkGridCandidate;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
+import com.jdl.basic.common.utils.DateUtil;
+import com.jdl.basic.common.utils.MathUtil;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +45,6 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.response.AttachmentDetailData;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
-import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseData;
-import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseItemData;
-import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
-import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTaskEditRequest;
-import com.jd.bluedragon.common.dto.work.ScanTaskPositionRequest;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskConfigJsfManager;
@@ -48,14 +56,6 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
-import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
-import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate;
-import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery;
-import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCase;
-import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseItem;
-import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerAutoCloseData;
-import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerScanData;
-import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScanData;
 import com.jd.bluedragon.distribution.jy.enums.EditTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
@@ -99,7 +99,9 @@ import static com.jd.bluedragon.distribution.jy.service.work.impl.JyWorkGridMana
 public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBusinessService {
 
 	private static final Logger logger = LoggerFactory.getLogger(JyWorkGridManagerBusinessServiceImpl.class);
-
+	//丢失一表通 发货扫描率指标key
+	private static final String SEND_SCAN_QUOTA_CODE="dis000034";
+	
 	@Autowired
 	@Qualifier("jyBizTaskWorkGridManagerService")
 	private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
@@ -150,6 +152,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	protected EasyDataClientUtil easyDataClientUtil;
 	@Autowired
 	private DmsWEasyDataConfig dmsWEasyDataConfig;
+	
+	@Autowired
+	private IQuotaTargetConfigManager iQuotaTargetConfigManager;
     /**
      * 任务提前执行时间 （单位：秒）
      */
@@ -475,13 +480,19 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		int pageNum = 1;
 		List<Integer> siteCodeList = null;
 		do {
-			siteCodeList = getSiteCodeList(configData, pageNum);
+			TaskScanSiteInfo taskScanSiteInfo = getSiteCodeList(configData, pageNum);
+			if(taskScanSiteInfo == null || CollectionUtils.isEmpty(taskScanSiteInfo.getSiteCodes())){
+				break;
+			}
+			siteCodeList = taskScanSiteInfo.getSiteCodes();
+			Map<Integer, BusinessQuotaInfoData> businessQuotaInfoDataMap = taskScanSiteInfo.getBusinessQuotaInfoDataMap();
 			for(Integer siteCode : siteCodeList) {
 				TaskWorkGridManagerSiteScanData taskData = new TaskWorkGridManagerSiteScanData();
 				taskData.setTaskConfigCode(configData.getTaskConfigCode());
 				taskData.setSiteCode(siteCode);
 				taskData.setTaskBatchCode(String.format("%s_%s_%s",configData.getTaskConfigCode(),siteCode,DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS)));
 				taskData.setExecuteTime(getExecuteTime(configData));
+				taskData.setBusinessQuotaInfoData(businessQuotaInfoDataMap.get(siteCode));
 				Task tTask = taskService.findLastWorkGridManagerSiteScanTask(taskData);
 				if(tTask != null) {
 					TaskWorkGridManagerSiteScanData oldTaskData = JsonHelper.fromJson(tTask.getBody(), TaskWorkGridManagerSiteScanData.class);
@@ -519,42 +530,59 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		return true;
 	}
 
-	private List<Integer> getSiteCodeList(WorkGridManagerTaskConfigVo configData, int pageNum){
+	private TaskScanSiteInfo getSiteCodeList(WorkGridManagerTaskConfigVo configData, int pageNum) {
+		TaskScanSiteInfo scanSiteInfo = new TaskScanSiteInfo();
+		List<Integer> siteCodeList = Collections.EMPTY_LIST;
+		scanSiteInfo.setSiteCodes(siteCodeList);
 		String taskCode = configData.getTaskCode();
 		Result<WorkGridManagerTask> taskResult = workGridManagerTaskJsfManager.queryByTaskCode(taskCode);
 		if(taskResult == null || taskResult.getData() == null){
 			logger.error("根据任务编码未查到任务定义信息，taskcode:{}", taskCode);
-			return null;
+			return scanSiteInfo;
 		}
 		WorkGridManagerTask managerTask = taskResult.getData();
 		WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
 		workStationGridQuery.setAreaCodeList(configData.getWorkAreaCodeList());
 		workStationGridQuery.setPageSize(100);
 		workStationGridQuery.setPageNumber(pageNum);
-		List<Integer> siteCodeList = null;
 		WorkGridManagerTaskBizType bizTypeEnum = WorkGridManagerTaskBizType.getEnum(managerTask.getTaskBizType());
 		if(bizTypeEnum == null){
 			logger.error("根据任务bizType未查到枚举，bizType:{}", managerTask.getTaskBizType());
-			return null;
+			return scanSiteInfo;
 		}
 		switch (bizTypeEnum){
 			case DAILY_PATROL:
-				return workStationGridManager.querySiteListForManagerScan(workStationGridQuery);
+				siteCodeList =  workStationGridManager.querySiteListForManagerScan(workStationGridQuery);
+				scanSiteInfo.setSiteCodes(siteCodeList);
+				return scanSiteInfo;
 			case KPI_IMPROVE:
 				return getSiteCodesFromLoseOneTable(pageNum, lostOneTableSendQuotaNum);
 		}
-		return siteCodeList;
+		scanSiteInfo.setSiteCodes(siteCodeList);
+		return scanSiteInfo;
 
 	}
-	private List<Integer> getSiteCodesFromLoseOneTable(int pageNum, int pageSize){
+	private TaskScanSiteInfo getSiteCodesFromLoseOneTable(int pageNum, int pageSize){
+		TaskScanSiteInfo scanSiteInfo = new TaskScanSiteInfo();
+		List<Integer> siteCodes = new ArrayList<>();
+		scanSiteInfo.setSiteCodes(siteCodes);
 		//指标业务只查一页
 		if(pageNum > 1){
-			return null;
+			return scanSiteInfo;
 		}
 		Map<String, Object> queryParam = new HashMap<>();
 		queryParam.put("dt", DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2)));
 		//发货扫描率编码指标名称
-		queryParam.put("quotaCode", "");
+		queryParam.put("quotaCode", SEND_SCAN_QUOTA_CODE);
+		//发货指标
+		String year = DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2), "yyyyy");
+		Double target = iQuotaTargetConfigManager.getLostOneTableSendScanTarget(SEND_SCAN_QUOTA_CODE,year,
+				String.valueOf(BusinessTypeEnum.SORT.getCode()), Class2TypeEnum.LOST.getCode());
+		String targetStr = "";
+		if(target != null){
+			queryParam.put("target", target);
+			targetStr = String.format("%.2f",target);
+		}
 		//调用easydata
 		FdsPage edresult = easyDataClientUtil.query(dmsWEasyDataConfig.getQueryLostOneTableSite(), queryParam,
 				dmsWEasyDataConfig.getApiGroupName(),dmsWEasyDataConfig.getAppToken(),
@@ -562,19 +590,29 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				dmsWEasyDataConfig.getTenant());
 		if(edresult != null
 				&& !CollectionUtils.isEmpty(edresult.getResult())) {
-			List<Integer> siteCodes = new ArrayList<>();
+			Map<Integer, BusinessQuotaInfoData> businessQuotaInfoDataMap = new HashMap<>();
+			scanSiteInfo.setBusinessQuotaInfoDataMap(businessQuotaInfoDataMap);
+			String quotaAchieveInfo = DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2), "MM/dd") + "未达标";
 			for(Map<String, Object> data : edresult.getResult()){
-				if(data.containsKey("siteCode")) {
-					siteCodes.add(Integer.valueOf(data.get("siteCode").toString()));
+				Integer siteCode = Integer.valueOf(data.get("siteCode").toString());
+				if(data.containsKey("siteCode") && data.get("siteCode") != null) {
+					siteCodes.add(siteCode);
+				}else {
+					continue;
+				}
+				if(data.containsKey("actual") && 
+						org.apache.commons.lang3.StringUtils.isNumeric(String.valueOf(data.get("actual")))){
+					BusinessQuotaInfoData businessQuotaInfoData = new BusinessQuotaInfoData();
+					businessQuotaInfoData.setTarget(targetStr);
+					businessQuotaInfoData.setActual(String.format("%.2f",data.get("actual")));
+					businessQuotaInfoData.setQuotaAchieveInfo(quotaAchieveInfo);
+					businessQuotaInfoDataMap.put(siteCode, businessQuotaInfoData);
 				}
 			}
-
 		}
-		return null;
+		return scanSiteInfo;
 	}
-
-
-
+	
 	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "executeWorkGridManagerSiteScanTask",mState={JProEnum.TP,JProEnum.FunctionError})
 	public boolean executeWorkGridManagerSiteScanTask(Task task) {
@@ -721,8 +759,6 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		WorkGridManagerTaskBizType bizTypeEnum = WorkGridManagerTaskBizType.getEnum(taskBizType);
 		switch (bizTypeEnum){
 			case DAILY_PATROL:
-				return getUserList(siteInfo.getSiteCode(),siteInfo.getOrganizationCode(),
-						configData.getHandlerUserPositionCode(),configData.getHandlerUserPositionName());
 			case KPI_IMPROVE:
 				List<JyUserDto> userDtos = getUserList(siteInfo.getSiteCode(),siteInfo.getOrganizationCode(),
 						configData.getHandlerUserPositionCode(),configData.getHandlerUserPositionName());
@@ -904,6 +940,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setTaskName(taskInfo.getTaskName());
 		jyTask.setTaskDescription(taskInfo.getTaskDescription());
 		jyTask.setOrderNum(ThreadLocalRandom.current().nextInt(1000));
+		if(taskWorkGridManagerScan.getBusinessQuotaInfoData() != null){
+			jyTask.setExtendInfo(JsonHelper.toJson(taskWorkGridManagerScan.getBusinessQuotaInfoData()));
+		}
 		return jyTask;
 	}
 
