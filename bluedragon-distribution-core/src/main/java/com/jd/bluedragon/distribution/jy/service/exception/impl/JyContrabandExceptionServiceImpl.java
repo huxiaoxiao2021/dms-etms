@@ -15,7 +15,9 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
@@ -36,7 +38,10 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
 import com.jd.cp.wbms.client.enums.RejectionEnum;
+import com.jd.etms.blocker.dto.BlockerApplyDto;
+import com.jd.etms.blocker.dto.CommonDto;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -115,6 +120,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     @Autowired
     private DmsConfigManager dmsConfigManager;
+    @Autowired
+    private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
@@ -132,9 +139,19 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             jyExceptionContrabandDao.insertSelective(entity);
             //退回 调用百川逆向换单
             if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
+                BlockerApplyDto applyDto = covertBlockerApplyDto(entity);
+                CommonDto<String> commonDto = blockerQueryWSJsfManager.applyIntercept(applyDto);
+                if(commonDto == null || commonDto.getCode() != CommonDto.CODE_SUCCESS){
+                    return JdCResponse.fail(req.getBarCode()+" 此单拦截失败!");
+                }
                 DmsWaybillReverseDTO reverseDTO = this.covertDmsWaybillReverseDTO(entity);
-                waybillReverseManager.submitWaybill(reverseDTO);
+                JdResult<SubmitWaybillResponse> submitWaybillResult = waybillReverseManager.submitWaybill(reverseDTO);
+                if(submitWaybillResult == null || !submitWaybillResult.getCode().equals(JdResult.CODE_SUC)){
+                    return JdCResponse.fail(req.getBarCode()+" 此单逆向换单失败!");
+                }
+
             }
+
             JyExceptionContrabandDto dto = new JyExceptionContrabandDto();
             BeanUtils.copyProperties(entity,dto);
             jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
@@ -146,6 +163,24 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             redisClientOfJy.del(existKey);
         }
         return JdCResponse.ok();
+    }
+
+    /**
+     * 封装 BlockerApplyDto
+     * @return
+     */
+    private BlockerApplyDto covertBlockerApplyDto(JyExceptionContrabandEntity entity){
+
+        BlockerApplyDto dto = new BlockerApplyDto();
+        dto.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
+        dto.setExceptionId(Constants.WAYBILL_EXCEPTION_ID_8);//运营拦截
+        dto.setInterceptType(Constants.WAYBILL_INTERCEPT_TYPE_4); // 分拣中心拦截
+        dto.setReason(Constants.WAYBILL_INTERCEPT_REASON);
+        dto.setApplyTime(new Date());
+        dto.setOperatorUserName(entity.getCreateStaffName());
+        dto.setOperatorSiteName(entity.getSiteName());
+        dto.setCustomerCancelTime(new Date());
+        return dto;
     }
 
     private DmsWaybillReverseDTO covertDmsWaybillReverseDTO(JyExceptionContrabandEntity entity){

@@ -464,10 +464,14 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         entity.setBizId(genMainTaskBizId());
         String bizNo = genSendVehicleTaskBizNo(createVehicleTaskReq);
         entity.setBizNo(bizNo);
-        final User user = createVehicleTaskReq.getUser();
-        String userName = StringUtils.isNotBlank(user.getUserName()) ?
-                (user.getUserName().length() > 4 ? user.getUserName().substring(0, 4) : user.getUserName()) : "";
-        entity.setTaskName(userName + "自建" + entity.getBizNo());
+        if (StringUtils.isNotBlank(createVehicleTaskReq.getTaskName())) {
+            entity.setTaskName(createVehicleTaskReq.getTaskName());
+        } else {
+            final User user = createVehicleTaskReq.getUser();
+            String userName = StringUtils.isNotBlank(user.getUserName()) ?
+                    (user.getUserName().length() > 4 ? user.getUserName().substring(0, 4) : user.getUserName()) : "";
+            entity.setTaskName(userName + "自建" + entity.getBizNo());
+        }
         entity.setStartSiteId(Long.valueOf(createVehicleTaskReq.getCurrentOperate().getSiteCode()));
         entity.setManualCreatedFlag(1);
         entity.setVehicleType(createVehicleTaskReq.getVehicleType());

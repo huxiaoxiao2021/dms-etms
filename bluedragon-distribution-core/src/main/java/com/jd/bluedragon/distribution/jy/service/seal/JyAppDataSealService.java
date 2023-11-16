@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.jy.service.seal;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
 import com.jd.bluedragon.common.dto.seal.response.JyAppDataSealVo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealSendCode;
+
+import java.util.List;
 
 /**
  * @ClassName: JyAppDataSealService
@@ -23,6 +26,26 @@ public interface JyAppDataSealService {
 	 * @param sealVehicleReq
 	 * @return
 	 */
-	InvokeResult<Boolean> savePageData(SealVehicleReq sealVehicleReq);	
+	InvokeResult<Boolean> savePageData(SealVehicleReq sealVehicleReq);
 
+	/**
+	 * 保存批次信息
+	 * @param sendCodes
+	 * @return
+	 */
+	Boolean saveSendCodeList(List<JyAppDataSealSendCode> sendCodes);
+
+	/**
+	 * 当前任务是否存在暂存批次
+	 * @param sendVehicleDetailBizId
+	 * @return
+	 */
+	Boolean checkExistSaveData(String sendVehicleDetailBizId);
+
+	/**
+	 * 根据批次删除暂存数据
+	 * @param sendCode
+	 * @return
+	 */
+	Boolean deleteDataSealBySendCode(String sendCode);
 }

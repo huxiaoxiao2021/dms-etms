@@ -214,6 +214,16 @@ public class SiteHelper {
     }
 
     /**
+     * 判断是否是自营营业部
+     * 4-4-1
+     */
+    public static Boolean isSelfSalesDeptSite(Site site) {
+        return Objects.equals(site.getType(), 4) 
+                && Objects.equals(site.getSubType(), 4)
+                && Objects.equals(site.getThirdType(), 1);
+    }
+
+    /**
      * 可能存在所属站的情况，调用基础资料basicSiteQueryWS.getSiteExtensionBySiteId接口获取所属站信息
      */
     public static Boolean isMayBelongSiteExist(Site site) {
@@ -477,4 +487,34 @@ public class SiteHelper {
                 && Objects.equals(site.getSortSubType(), Constants.SORTING_SORT_SUBTYPE) 
                 && Objects.equals(site.getSortThirdType(), Constants.SORTING_SORT_THIRD_TYPE);
     }    
+
+    /**
+     * 新版判断是分拣中心
+     *  
+     * @param site
+     * @return
+     */
+    public static Boolean isSortingCenter(Site site){
+        if (null == site || null == site.getSortType()) {
+            return Boolean.FALSE;
+        }
+
+        return Objects.equals(site.getSortType(), Constants.SORTING_SORT_TYPE);
+    }
+
+    /**
+     * 新版判断是接货仓
+     * 
+     * @param site
+     * @return
+     */
+    public static Boolean isReceiveWms(Site site){
+        if (null == site || null == site.getSortType()) {
+            return Boolean.FALSE;
+        }
+
+        return Objects.equals(site.getSortType(), Constants.JHC_SORT_TYPE);
+    }
+    
+    
 }

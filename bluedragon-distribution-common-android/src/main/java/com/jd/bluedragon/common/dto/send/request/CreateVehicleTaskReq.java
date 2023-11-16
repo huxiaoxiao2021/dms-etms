@@ -25,6 +25,11 @@ public class CreateVehicleTaskReq extends BaseReq implements Serializable {
      */
     private Boolean confirmCreate;
 
+    /**
+     * 自定义任务名称
+     */
+    private String taskName;
+
     public Integer getVehicleType() {
         return vehicleType;
     }
@@ -55,5 +60,13 @@ public class CreateVehicleTaskReq extends BaseReq implements Serializable {
 
     public void setConfirmCreate(Boolean confirmCreate) {
         this.confirmCreate = confirmCreate;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 }

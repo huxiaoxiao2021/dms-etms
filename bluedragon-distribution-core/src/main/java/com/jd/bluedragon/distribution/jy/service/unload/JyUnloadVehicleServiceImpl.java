@@ -49,12 +49,12 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
-import com.jd.bluedragon.distribution.router.RouterService;
-import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
+
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -191,7 +191,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private WaybillCommonService waybillCommonService;
 
     @Autowired
-    private RouterService routerService;
+    private WaybillCacheService waybillCacheService;
 
     @Autowired
     private SysConfigService sysConfigService;
@@ -576,7 +576,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             // 保存扫描记录，发运单全程跟踪。首次扫描分配卸车任务
             UnloadScanDto unloadScanDto = createUnloadDto(request, taskUnloadVehicle);
             // 判断是否本场地单子
-            this.handleMoreLocalOrOutScan(request, unloadScanDto, taskUnloadVehicle, result);
+            this.handleMoreLocalOrOutScan(request, unloadScanDto, result);
             unloadScanProducer.sendOnFailPersistent(unloadScanDto.getBarCode(), JsonHelper.toJson(unloadScanDto));
 
             // 统计本次扫描的包裹数
@@ -606,7 +606,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return result;
     }
 
-    private void handleMoreLocalOrOutScan(UnloadScanRequest request, UnloadScanDto unloadScanDto, JyBizTaskUnloadVehicleEntity taskUnloadVehicle, JdVerifyResponse<Integer> result) {
+    private void handleMoreLocalOrOutScan(UnloadScanRequest request, UnloadScanDto unloadScanDto, JdVerifyResponse<Integer> result) {
         // 降级开关
         if (!sysConfigService.getConfigByName(Constants.MORE_OUT_SCAN_NOTIFY_SWITCH)) {
             log.info("handleMoreLocalOrOutScan|卸车扫描非本场地多扫弱提醒开关已关闭");
@@ -625,56 +625,29 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             Profiler.registerInfoEnd(inlineUmp);
             if (CollectionUtils.isNotEmpty(list)) {
                 waybillCode = list.get(0).getWaybillCode();
-                barCode = list.get(0).getPackageBarcode();
             }
         }
-        // 应扫数
-        Long shouldScanCount = 0L;
-        // 只有非自建任务才需要查询es判断多扫
-        if (!Constants.NUMBER_ONE.equals(unloadScanDto.getManualCreatedFlag())) {
-            // 查询es增加降级开关
-            if (!sysConfigService.getConfigByName(Constants.MORE_SCAN_QUERY_ES_SWITCH)) {
-                log.info("handleMoreLocalOrOutScan|卸车扫描查询es是否多扫开关已关闭");
-                return;
-            }
-            Pager<JyVehicleTaskUnloadDetail> query = getIsShouldScanCondition(request, barCode);
-            shouldScanCount = unloadVehicleManager.queryShouldScanCountByBarCode(query);
-        }
-        // 判断是否是多扫(应扫数为0即多扫)
-        if (Constants.LONG_ZERO.equals(shouldScanCount)) {
-            unloadScanDto.setMoreFlag(Constants.MORE_LOCAL_SCAN);
-            // 判断是否本场地
-            if (!hasCurrentNodeInRouteLink(siteCode, waybillCode)) {
-                unloadScanDto.setMoreFlag(Constants.MORE_OUT_SCAN);
-                result.addPromptBox(InvokeResult.CODE_MORE_OUT_SCAN, InvokeResult.CODE_MORE_OUT_SCAN_MESSAGE);
-            }
-            // 如果应扫数量大于0
-        } else {
-            // 并且本次是按单扫描，则继续判断是否部分多扫
-            if (UnloadScanTypeEnum.SCAN_WAYBILL.getCode().equals(request.getScanType())) {
-                Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
-                if (waybill == null || waybill.getGoodNumber() == null) {
-                    return;
-                }
-                // 本场地运单部分多扫数量 = 运单包裹总数 - 任务里运单下包裹应扫数量
-                int moreLocalPartCount = waybill.getGoodNumber() - shouldScanCount.intValue();
-                // 差值大于0证明有部分多扫
-                if (moreLocalPartCount > 0) {
-                    unloadScanDto.setMoreFlag(Constants.MORE_LOCAL_PART_SCAN);
-                    unloadScanDto.setMoreLocalPartCount(moreLocalPartCount);
-                }
-            }
+        // 判断是否本场地
+        if (!hasCurrentNodeInRouteLink(siteCode, waybillCode)) {
+            unloadScanDto.setMoreFlag(Constants.MORE_OUT_SCAN);
+            result.addPromptBox(InvokeResult.CODE_MORE_OUT_SCAN, InvokeResult.CODE_MORE_OUT_SCAN_MESSAGE);
         }
     }
 
     private boolean hasCurrentNodeInRouteLink(int operateSiteCode, String waybillCode) {
-        // 根据已知路由链路倒序查上一网点
-        RouteNextDto routeDto = routerService.matchNextNodeAndLastNodeByRouter(operateSiteCode, waybillCode, null);
-        if (routeDto == null) {
-            return false;
+        // 根据运单号查询waybill表router字段
+        String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
+        // 如果路由链路为空，则默认是本场地
+        if (StringUtils.isBlank(routerStr)) {
+            return true;
         }
-        // 运单路由是否存在当前操作站点
-        return routeDto.isRoutExistCurrentSite();
+        String[] routerArray = routerStr.split(Constants.WAYBILL_ROUTER_SPLIT);
+        for (String node : routerArray) {
+            if (node.equals(String.valueOf(operateSiteCode))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -688,7 +661,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         pager.setSearchVo(searchVo);
         searchVo.setEndSiteId(request.getCurrentOperate().getSiteCode());
         searchVo.setBizId(request.getBizId());
-        searchVo.setPackageCode(barCode);
+        if (UnloadScanTypeEnum.SCAN_WAYBILL.getCode().equals(request.getScanType())) {
+            searchVo.setWaybillCode(WaybillUtil.getWaybillCode(barCode));
+        } else {
+            searchVo.setPackageCode(barCode);
+        }
         return pager;
     }
 

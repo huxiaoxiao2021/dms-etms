@@ -2089,6 +2089,8 @@ public class Constants {
     public static final Integer SORTING_SORT_SUBTYPE = 123511;
     // 新版分拣中心规范-分拣中心下中转站
     public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
+    // 新版分拣中心规范-接货仓类型
+    public static final Integer JHC_SORT_TYPE = 12352;
 
     /**
      *  逆向原因编码
@@ -2123,6 +2125,19 @@ public class Constants {
      * 对外展示话术标识  1 - 对外不展示话术
      */
     public static final Integer  WAYBILL_TRACE_DISPLAY =1;
+
+    /**
+     * 异常类型 1-快速退款，2-外单拦截，3-仓储病单拦截 , 4-理赔拦截,5-生产单,6-客服 7-eclp，8,运营拦截，9-仓预售单拦截
+     */
+    public static final int WAYBILL_EXCEPTION_ID_8 = 8;
+
+    /**
+     * 拦截类型 1:取消订单拦截,2:拒收订单拦截,3:恶意订单拦截,4:分拣中心拦截,5-仓储异常拦截,6-白条强制拦截，7-仓储病单拦截，
+     * 8.伽利略拒收订单拦截，9.京沃取消订单拦截 ，10-理赔拦截，11-取消订单拦截仓已拦截成功，12-理赔破损拦截，13-运营退货拦截，14-派送地址不详下单失败拦截15审单失败拦截
+     */
+    public static final int WAYBILL_INTERCEPT_TYPE_4 = 4;
+
+    public static final String WAYBILL_INTERCEPT_REASON = "违禁品退回";
 
 
 
@@ -2165,4 +2180,8 @@ public class Constants {
     public static final String OSS_OUTER_NET_KEY = "oss.outerNet";
     public static final String OSS_INNER_NET_KEY = "oss.innerNet";
     public static final String OSS_INNER_OFFICE_NET_KEY = "oss.innerNet.office";
+    /**
+     * 配置信息-自动签退超过多少小时未签退的数据
+     */
+    public static final String SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS="sys.config.autoHandleSignInRecord.notSignedOutRecordMoreThanHours";
 }

@@ -260,7 +260,7 @@
 		<dependency>
 			<groupId>com.jd.etms.blocker</groupId>
 			<artifactId>etms-blocker-client</artifactId>
-			<version>2.2.2-SNAPSHOT</version>
+			<version>2.2.7-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
