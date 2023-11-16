@@ -249,11 +249,11 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
         if (StringUtils.isNotBlank(request.getVideoDesc())) {
             params.put("videoDesc", request.getVideoDesc());
         }
-        params.put("clientIp", request.getClientIp());
+        params.put("clientIp", "192.168.1.1");
         params.put("fileSize", request.getFileSize());
         params.put("uploadPin", request.getOperateErp());
-        params.put("ipPort", org.apache.commons.lang3.StringUtils.isBlank(request.getIpPort()) ? String.valueOf(Constants.NUMBER_ZERO) : request.getIpPort());
-        params.put("uuid", request.getDeviceId());
+        params.put("ipPort", StringUtils.isBlank(request.getIpPort()) ? String.valueOf(Constants.NUMBER_ZERO) : request.getIpPort());
+        params.put("uuid", StringUtils.isBlank(request.getDeviceId()) ? UUID.randomUUID().toString() : request.getDeviceId());
         if (StringUtils.isNotBlank(request.getAudioId())) {
             params.put("audioId", request.getAudioId());
         }
@@ -269,8 +269,15 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
                 redisClientOfJy.setEx(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode(), String.valueOf(videoUploadInfo.getVideoId()), SPOT_CHECK_VIDEO_TIMEOUT, TimeUnit.HOURS);
             } else {
                 cacheVideoId = cacheVideoId + Constants.SEPARATOR_COMMA + videoUploadInfo.getVideoId();
+                logger.info("getVideoUploadUrl|controller非首次获取视频上传信息:request={},size={}", JsonHelper.toJson(request), cacheVideoId.split(Constants.SEPARATOR_COMMA).length);
                 redisClientOfJy.setEx(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode(), cacheVideoId, SPOT_CHECK_VIDEO_TIMEOUT, TimeUnit.HOURS);
             }
+            invokeResult.setData(videoUploadInfo);
+        } else {
+            videoUploadInfo = new VideoUploadInfo();
+            videoUploadInfo.setUploadUrl("http://vod-storage-272769.oss.cn-north-1.jcloudcs.com/jdVideo.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20210928T144847Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=2760709056FE0FA54E589B9787384339%2F20210928%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Signature=c98b4056a32fae44c3a624174c2f5351af978d7bd8ab35fb8fcd55157bfddf2b&X-Oss-Callback-ObjectKey=+32lpDoIbe1ZPcIl67apCdCcf35vz8FFMJ2QnJiZK/ZVREgNhJjqNPNQqJlhSMqwG84D2dUzfc94df5RytM5DW2KRMAKC/BJ2PQIvFbWc00%3D");
+            videoUploadInfo.setPlayUrl("https://testmvod.300hu.com/3ed99664vodbjngwcloud1/7c78c0ec/208536645492817921/f0.mp4");
+            videoUploadInfo.setVideoId(105842921L);
             invokeResult.setData(videoUploadInfo);
         }
         return invokeResult;

@@ -240,6 +240,7 @@
                                         <input type="text" id="uploadVideoUrl" style="display: none" >
                                         <input type="text" id="playUrl" style="display: none" >
                                         <input type="text" id="videoId" style="display: none" >
+                                        <input type="text" id="operateErp" value="$!{loginErp}" style="display: none"/>
                                     </div>
                                     <div class=" col-xs-2">
                                         <button id="btn_browse6" type="button" class="btn btn-default">

@@ -330,13 +330,9 @@ $(function () {
         }
         document.getElementById('pictureField6').value = filePath;
         let formData = new FormData();
-        formData.append('video', param2);
-        formData.append('waybillOrPackageCode', $('#waybillOrPackageCode').val());
-        formData.append('createSiteCode', $('#createSiteCode').val());
-        formData.append('weight', $('#weight').val());
-        formData.append('uploadType', picType); // 上传类型：重量/全景（1）、面单（2）、长（3）、宽（4）、高（5）、视频(6)
-        formData.append('excessType', $('#excessType').val());
-        formData.append('isMultiPack', $('#isMultiPack').val());
+        formData.append('videoName', $('#waybillOrPackageCode').val());
+        formData.append('fileSize', $(this)[0].files[0].size());
+        formData.append('operateErp', $('#loginErp').val());
         $.ajax({
             url : getVideoUploadUrl,
             type : 'POST',
@@ -346,6 +342,10 @@ $(function () {
             async : false,
             success : function(data) {
                 if (data && data.code === 200) {
+                    if (!data.data) {
+                        Jd.alert('获取视频上传地址失败');
+                        return;
+                    }
                     $('#uploadVideoUrl').val(data.data.uploadUrl);
                     $('#playUrl').val(data.data.playUrl);
                     $('#videoId').val(data.data.videoId);
