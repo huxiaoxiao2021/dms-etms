@@ -1378,6 +1378,33 @@ public class UccPropertyConfiguration{
      */
     private String czOrgForbiddenList;
 
+
+    /**
+     * 旧版集包功能下线- 场地黑名单
+     */
+    private String collectPackageSiteForbiddenList;
+
+    /**
+     * 旧版集包功能下线-- 大区黑名单
+     */
+    private String collectPackageOrgForbiddenList;
+
+    public String getCollectPackageSiteForbiddenList() {
+        return collectPackageSiteForbiddenList;
+    }
+
+    public void setCollectPackageSiteForbiddenList(String collectPackageSiteForbiddenList) {
+        this.collectPackageSiteForbiddenList = collectPackageSiteForbiddenList;
+    }
+
+    public String getCollectPackageOrgForbiddenList(){
+        return collectPackageOrgForbiddenList;
+    }
+
+    public void setCollectPackageOrgForbiddenList(String collectPackageOrgForbiddenList) {
+        this.collectPackageOrgForbiddenList = collectPackageOrgForbiddenList;
+    }
+
     /**
      * 传站拦截-场地类型黑名单
      */
