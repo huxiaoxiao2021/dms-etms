@@ -190,4 +190,13 @@
       and contraband_type = #{contrabandType,jdbcType=BIT}
     </if>
   </select>
+
+
+  <select id="getContrabandCountByTime" resultType="int" >
+    select count(*) from jy_exception_contraband
+    where yn =1
+      AND create_time <![CDATA[ >= ]]> #{startTime}
+      AND create_time <![CDATA[ <= ]]> #{endTime}
+  </select>
+
 </mapper>

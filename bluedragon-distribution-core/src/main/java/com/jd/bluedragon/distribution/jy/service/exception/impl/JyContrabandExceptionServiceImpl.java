@@ -274,6 +274,14 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     }
 
+    @Override
+    public int getDamageCountByTime(String startTime, String endTime) {
+        Map<String,Object> map = new HashMap();
+        map.put("startTime",DateHelper.parseDate(startTime,Constants.DATE_TIME_FORMAT));
+        map.put("endTime",DateHelper.parseDate(endTime,Constants.DATE_TIME_FORMAT));
+        return jyExceptionContrabandDao.getContrabandCountByTime(map);
+    }
+
     /**
      * 发送客服违禁品数据组装
      * @return

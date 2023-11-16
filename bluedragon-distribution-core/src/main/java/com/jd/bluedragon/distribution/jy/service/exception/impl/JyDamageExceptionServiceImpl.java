@@ -1315,5 +1315,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     }
 
+    @Override
+    public int getContrabandCountByTime(String startTime, String endTime) {
+        Map<String,Object> map = new HashMap();
+        map.put("startTime",DateHelper.parseDate(startTime,Constants.DATE_TIME_FORMAT));
+        map.put("endTime",DateHelper.parseDate(endTime,Constants.DATE_TIME_FORMAT));
+        return jyExceptionDamageDao.getDamageCountByTime(map);
+    }
 
 }

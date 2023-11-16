@@ -15,6 +15,7 @@ import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionCountDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
@@ -202,4 +203,6 @@ public interface JyExceptionGatewayService {
      * 违禁品任务处理
      */
     JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req);
+
+    JdCResponse<List<JyExceptionCountDto>> getExceptionCountValue(String startTime, String endTime);
 }

@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionCountDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
@@ -23,6 +24,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -305,5 +307,31 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.processTaskOfContraband", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {
         return jyContrabandExceptionService.processTaskOfContraband(req);
+    }
+
+    @Override
+    public JdCResponse<List<JyExceptionCountDto>> getExceptionCountValue(String startTime, String endTime) {
+        JdCResponse<List<JyExceptionCountDto>> result = new JdCResponse<>();
+        result.toSucceed();
+        try{
+            int damageCount = jyContrabandExceptionService.getDamageCountByTime(startTime, endTime);
+            int contrabandCount = jyDamageExceptionService.getContrabandCountByTime(startTime, endTime);
+
+            JyExceptionCountDto damageDto = new JyExceptionCountDto();
+            damageDto.setExceptionName("破损");
+            damageDto.setCount(damageCount);
+
+            JyExceptionCountDto contrabandDto = new JyExceptionCountDto();
+            contrabandDto.setExceptionName("破损");
+            contrabandDto.setCount(contrabandCount);
+            List<JyExceptionCountDto> list = new ArrayList<>();
+            list.add(damageDto);
+            list.add(contrabandDto);
+            result.setData(list);
+            return  result;
+        }catch (Exception e){
+            result.toError("取数异常");
+            return result;
+        }
     }
 }
