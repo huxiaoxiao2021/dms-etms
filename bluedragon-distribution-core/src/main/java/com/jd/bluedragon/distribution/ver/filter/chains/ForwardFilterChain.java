@@ -24,12 +24,7 @@ public class ForwardFilterChain extends FilterChain {
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         if (filterIndex == filterList.size())
             return;
-
-        if (checkIfNeedSkipFilter(filterIndex, request)){
-            chain.doFilter(request,chain);
-        } else {
-            filterList.get(filterIndex++).doFilter(request, chain);
-        }
+        filterList.get(filterIndex++).doFilter(request, chain);
     }
 
     private boolean checkIfNeedSkipFilter(int i,FilterContext context) {

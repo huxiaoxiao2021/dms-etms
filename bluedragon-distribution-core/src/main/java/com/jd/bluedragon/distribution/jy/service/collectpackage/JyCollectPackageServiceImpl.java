@@ -184,14 +184,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             throw new JyBizException("集包任务已作废-操作了批量取消！");
         }
         try {
-            boolean syncExec = false;
-            if (syncExec) {
-                Task task = assembleSortingTask(request);
-                dmsSortingService.doSorting(task);
-            } else {
-                TaskRequest taskRequest = assembleTaskRequest(request);
-                taskService.add(taskRequest);
-            }
+            //执行集包
+            TaskRequest taskRequest = assembleTaskRequest(request);
+            taskService.add(taskRequest);
             //保存集包扫描记录
             saveJyCollectPackageScanRecord(request);
             checkIfNeedUpdateStatus(request, collectPackageTask);
@@ -570,6 +565,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
         pdaOperateRequest.setInterceptChainBitCode(dmsConfigManager.getPropertyConfig().getJyCollectPackageInterceptBitCode());
+        pdaOperateRequest.setJyCollectPackageFlag(true);
         return pdaOperateRequest;
     }
 
@@ -1096,7 +1092,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         query.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
         query.setPageSize(Constants.PDA_DEFAULT_PAGE_MAXSIZE);
         int pageNo = 1;
-        while (true) {
+        while (pageNo < 500) {
             query.setPageNo(pageNo);
             List<Sorting> sortingList = sortingService.pageQueryByBoxCode(query);
             if (CollectionUtils.isEmpty(sortingList)) {

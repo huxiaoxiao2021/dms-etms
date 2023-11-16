@@ -79,6 +79,16 @@ public class PdaOperateRequest {
 	 */
 	long interceptChainBitCode;
 
+	boolean jyCollectPackageFlag;
+
+	public boolean getJyCollectPackageFlag() {
+		return jyCollectPackageFlag;
+	}
+
+	public void setJyCollectPackageFlag(boolean jyCollectPackageFlag) {
+		this.jyCollectPackageFlag = jyCollectPackageFlag;
+	}
+
 	public long getInterceptChainBitCode() {
 		return interceptChainBitCode;
 	}
