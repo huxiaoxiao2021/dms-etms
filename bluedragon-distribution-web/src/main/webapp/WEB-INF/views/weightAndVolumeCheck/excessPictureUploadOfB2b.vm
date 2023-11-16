@@ -239,7 +239,7 @@
                                         <input type="text" id="pictureField6" class="form-control search-param" >
                                         <input type="hidden" id="uploadVideoUrl"/>
                                         <input type="hidden" id="playUrl"/>
-                                        <input type="hidden" id="videoId"/> >
+                                        <input type="hidden" id="videoId"/>
                                     </div>
                                     <div class=" col-xs-2">
                                         <button id="btn_browse6" type="button" class="btn btn-default">
