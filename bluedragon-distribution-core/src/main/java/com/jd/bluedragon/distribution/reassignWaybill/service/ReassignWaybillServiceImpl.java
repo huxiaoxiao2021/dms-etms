@@ -405,6 +405,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	public JdResult<Boolean> executeReassignWaybill(ReassignWaybillReq req) {
 		log.info("executeReassignWaybill 入参-{}",JSON.toJSONString(req));
 		JdResult<Boolean> result = new JdResult<>();
+		result.setData(Boolean.TRUE);
 		result.toSuccess("请求成功");
 		String lockKey = Constants.REASSIGN_WAYBILL_LOCK_KEY_PREFIX + req.getBarCode();
 		try{
@@ -412,11 +413,13 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			//加锁防止重复提交
 			Boolean lockFlag = redisClientOfJy.set(lockKey, "1", 10, TimeUnit.SECONDS, false);
 			if (!lockFlag) {
+				result.setData(Boolean.FALSE);
 				result.toFail("单号"+req.getBarCode()+"正在执行返调度，请稍后重新");
 				return result;
 			}
 			checkParam(result,req);
 			if(!JdResult.CODE_SUC.equals(result.getCode())){
+				result.setData(Boolean.FALSE);
 				return result;
 			}
 			//现场预分拣拦截校验
@@ -441,12 +444,14 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					//邮政拒收
 					BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(req.getOldSiteCode());
 					if(baseSite == null){
+						result.setData(Boolean.FALSE);
 						result.toError("获取原预分拣站点失败！");
 						return result;
 					}
 					if(!(Constants.THIRD_SITE_TYPE.equals(baseSite.getSiteType())
 							&& Constants.THIRD_SITE_SUB_TYPE.equals(baseSite.getSubType())
 							&& Constants.THIRD_SITE_THIRD_TYPE_SMS.equals(baseSite.getThirdType()))){
+						result.setData(Boolean.FALSE);
 						result.toError("此单非邮政单，禁止选择邮政拒收原因，请继续下传！");
 						return result;
 					}
@@ -456,6 +461,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					return returnPack(req);
 				case NO_PRE_SORTING_STATION :
 					if(req.getOldSiteCode() != null){
+						result.setData(Boolean.FALSE);
 						result.toError("该单有预分拣站点，请继续下传！");
 						return result;
 					}
@@ -464,11 +470,13 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					return returnPack(req);
 				default:
 					log.warn("未知的返调度类型！");
+					result.setData(Boolean.FALSE);
 					result.toError("未知的返调度类型！");
 					return result;
 			}
 		}catch (Exception e){
 			log.error("返调度执行出现异常-param-{}",JSON.toJSONString(req),e);
+			result.setData(Boolean.FALSE);
 			result.toError("返调度执行出现异常!");
 		}finally {
 			redisClientOfJy.del(lockKey);
