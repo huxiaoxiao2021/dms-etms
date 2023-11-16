@@ -331,8 +331,8 @@ $(function () {
         document.getElementById('pictureField6').value = filePath;
         let formData = new FormData();
         formData.append('videoName', $('#waybillOrPackageCode').val());
-        formData.append('fileSize', $(this)[0].files[0].size());
-        formData.append('operateErp', $('#loginErp').val());
+        formData.append('fileSize', $(this)[0].files[0].size);
+        formData.append('operateErp', parent.$('#loginErp').val());
         $.ajax({
             url : getVideoUploadUrl,
             type : 'POST',

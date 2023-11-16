@@ -237,10 +237,9 @@
                                     <label class="control-label col-xs-3" for="box-code-input">视频</label>
                                     <div class=" col-xs-5">
                                         <input type="text" id="pictureField6" class="form-control search-param" >
-                                        <input type="text" id="uploadVideoUrl" style="display: none" >
-                                        <input type="text" id="playUrl" style="display: none" >
-                                        <input type="text" id="videoId" style="display: none" >
-                                        <input type="text" id="operateErp" value="$!{loginErp}" style="display: none"/>
+                                        <input type="hidden" id="uploadVideoUrl"/>
+                                        <input type="hidden" id="playUrl"/>
+                                        <input type="hidden" id="videoId"/> >
                                     </div>
                                     <div class=" col-xs-2">
                                         <button id="btn_browse6" type="button" class="btn btn-default">
