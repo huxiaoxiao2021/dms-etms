@@ -1516,6 +1516,7 @@ public class WaybillServiceImpl implements WaybillService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillServiceImpl.checkWaybillForPreSortOnSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();

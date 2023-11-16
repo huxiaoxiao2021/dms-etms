@@ -79,8 +79,19 @@ public interface ReassignWaybillService {
 
 	JdResult<Integer> getReassignWaybillRecordCount(ReassignWaybillApprovalRecordQuery query);
 
+
+    /**
+     * 处理运单返调度审批
+     *
+     * @param mq 重新分配运单审批记录MQ对象
+     */
 	void dealReassignWaybillApprove(ReassignWaybillApprovalRecordMQ mq);
 
+    /**
+     * 处理返调度审批结果
+     *
+     * @param historyApprove 历史审批对象
+     */
 	void dealApproveResult(HistoryApprove historyApprove);
 
 
