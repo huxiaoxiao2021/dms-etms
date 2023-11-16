@@ -166,6 +166,10 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         if (targetSiteOrgDto != null) {
             targetInfo.setTargetAreaCode(targetSiteOrgDto.getOrgId());
             targetInfo.setTargetAreaName(targetSiteOrgDto.getOrgName());
+            targetInfo.setTargetProvinceCode(targetSiteOrgDto.getProvinceAgencyCode());
+            targetInfo.setTargetProvinceName(targetSiteOrgDto.getProvinceAgencyName());
+            targetInfo.setTargetHubCode(targetSiteOrgDto.getAreaCode());
+            targetInfo.setTargetHubName(targetSiteOrgDto.getAreaName());
         }
         targetInfo.setTargetSiteCode(targetInitDto.getTargetSiteCode());
         targetInfo.setTargetSiteName(targetInitDto.getTargetSiteName());
@@ -179,6 +183,10 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         if (sourceSiteOrgDto != null) {
             targetInfo.setSourceAreaCode(sourceSiteOrgDto.getOrgId());
             targetInfo.setSourceAreaName(sourceSiteOrgDto.getOrgName());
+            targetInfo.setSourceProvinceCode(sourceSiteOrgDto.getProvinceAgencyCode());
+            targetInfo.setSourceProvinceName(sourceSiteOrgDto.getProvinceAgencyName());
+            targetInfo.setSourceHubCode(sourceSiteOrgDto.getAreaCode());
+            targetInfo.setSourceHubName(sourceSiteOrgDto.getAreaName());
         }
         targetInfo.setSourceSiteCode(targetInitDto.getSourceSiteCode());
         targetInfo.setSourceSiteName(targetInitDto.getSourceSiteName());
