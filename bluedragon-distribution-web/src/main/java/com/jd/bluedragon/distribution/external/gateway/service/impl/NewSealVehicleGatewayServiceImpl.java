@@ -23,14 +23,22 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.ql.dms.report.WeightVolSendCodeJSFService;
+import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.WeightVolSendCodeSumVo;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,6 +48,8 @@ import java.util.Objects;
  * @date : 2019/7/8
  */
 public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewayService {
+    private static final Logger logger = LoggerFactory.getLogger(NewSealVehicleGatewayServiceImpl.class);
+
 
     @Autowired
     @Qualifier("newSealVehicleResource")
@@ -51,6 +61,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
 
     @Autowired
     private NewSealVehicleService newSealVehicleService;
+    @Autowired
+    private WeightVolSendCodeJSFService weightVolSendCodeJSFService;
 
     @Override
     @BusinessLog(sourceSys = 1,bizType = 11011,operateType = 1101102)
@@ -168,7 +180,10 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         }
         TransportInfoDto transportInfoDto = new TransportInfoDto();
         BeanUtils.copyProperties(routeTypeResponse,transportInfoDto);
+        transportInfoDto.setNextSiteCode(routeTypeResponse.getSiteCode());
+        transportInfoDto.setNextSiteName(routeTypeResponse.getSiteName());
         jdCResponse.setData(transportInfoDto);
+
         return jdCResponse;
     }
 
@@ -225,20 +240,51 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         JdCResponse<SealVehicleResponseData> jdCResponse = new JdCResponse<>();
 
         NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.newCheckTranCodeAndBatchCode(sealCarPreRequest);
+        SealVehicleResponseData data = new SealVehicleResponseData();
 
         if (newSealVehicleResponse.getCode() >= 30000 && newSealVehicleResponse.getCode() <= 40000) {
+            if(Boolean.TRUE.equals(sealCarPreRequest.getQueryWeightVolumeFlag())) {
+                fillWeightVolume(data, sealCarPreRequest.getSendCode());
+            }
             jdCResponse.setCode(JdCResponse.CODE_CONFIRM);
             jdCResponse.setMessage(newSealVehicleResponse.getMessage());
             return jdCResponse;
         }
-        SealVehicleResponseData data = new SealVehicleResponseData();
         data.setCode(newSealVehicleResponse.getExtraBusinessCode());
         data.setMessage(newSealVehicleResponse.getExtraBusinessMessage());
         jdCResponse.setData(data);
         jdCResponse.setCode(newSealVehicleResponse.getCode());
         jdCResponse.setMessage(newSealVehicleResponse.getMessage());
-
+        if(jdCResponse.isSucceed() && Boolean.TRUE.equals(sealCarPreRequest.getQueryWeightVolumeFlag())) {
+            fillWeightVolume(data, sealCarPreRequest.getSendCode());
+        }
         return jdCResponse;
+    }
+    // 查询批次对应的包裹重量体积数据
+    private void fillWeightVolume(SealVehicleResponseData response,String sendCode) {
+        if(StringUtils.isBlank(sendCode)) {
+            return;
+        }
+        Double weight = Constants.DOUBLE_ZERO;
+        Double volume = Constants.DOUBLE_ZERO;
+        try {
+            final BaseEntity<WeightVolSendCodeSumVo> weightVolSendCodeSumVoBaseEntity = weightVolSendCodeJSFService.sumWeightAndVolumeBySendCode(sendCode);
+            if (weightVolSendCodeSumVoBaseEntity != null && weightVolSendCodeSumVoBaseEntity.isSuccess()
+                    && weightVolSendCodeSumVoBaseEntity.getData() != null) {
+                if(!Objects.isNull(weightVolSendCodeSumVoBaseEntity.getData().getPackageVolumeSum())) {
+                    volume = BigDecimal.valueOf(weightVolSendCodeSumVoBaseEntity.getData().getPackageVolumeSum()).setScale(2, RoundingMode.CEILING).doubleValue();
+                }
+                if(!Objects.isNull(weightVolSendCodeSumVoBaseEntity.getData().getPackageWeightSum())){
+                    weight = BigDecimal.valueOf(weightVolSendCodeSumVoBaseEntity.getData().getPackageWeightSum()).setScale(2, RoundingMode.CEILING).doubleValue();
+                }
+            } else {
+                logger.error("根据批次号查询批次下重量体积失败：{}", sendCode);
+            }
+        } catch (Exception e) {
+            logger.error("查询批次称重量方jsf服务异常：批次号={},errMsg={} ", sendCode, e.getMessage(), e);
+        }
+        response.setWeight(weight);
+        response.setVolume(volume);
     }
 
     /**
