@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("weightAndVolumeCheckOfB2b")
 public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
 
-    private static final Logger logger = LoggerFactory.getLogger(WeightAndVolumeCheckOfB2bController.class)
+    private static final Logger logger = LoggerFactory.getLogger(WeightAndVolumeCheckOfB2bController.class);
 
     private static final String SPOT_CHECK_VIDEO_PREFIX = "spot:check:video:";
     private static final long SPOT_CHECK_VIDEO_TIMEOUT = 24L;
