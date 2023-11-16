@@ -73,6 +73,7 @@ public class AndonEventServiceImpl implements AndonEventService {
         event.setEventSource(VIOLENT_SORTING.getCode());
         event.setEventSourceId(String.valueOf(violentSorting.getId()));
         event.setDetails((JSONObject) JSONObject.toJSON(violentSorting));
+        event.setAndonGridOwnerErp(violentSorting.getOwnerUserErp());
 
         // 防止key超长
         if (eventId.length() > 50) {

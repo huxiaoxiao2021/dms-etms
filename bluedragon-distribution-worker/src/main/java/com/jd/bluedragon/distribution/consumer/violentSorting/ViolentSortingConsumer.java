@@ -156,11 +156,6 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
         // 消息标题：违规操作预警，内容：XX分拣XXX网格违规操作已触发亮灯，当日累积触发X次安灯系统，请核查原因与责任人，推动改善！视频链接：xxxxxx
         Long l = notifyViolentSortingGridOwnerOrLerder(violentSortingDto);
 
-        if (l >= UpgradeNotifyCount) {
-            violentSortingDto.setIsUpgradeNotify(true);
-        } else {
-            violentSortingDto.setIsUpgradeNotify(false);
-        }
 
         // 亮灯
         andonEventService.lightOn(AndonEventSourceEnum.VIOLENT_SORTING,
@@ -177,7 +172,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
         redisClient.set(redisKey, "0", 1l, TimeUnit.DAYS, false);
         Long incr = redisClient.incr(redisKey);
 
-        String content = MessageFormat.format("{0}[{1}]网格违规操作已触发亮灯，当日累积触发{2}次安灯系统，请核查原因与责任人，推动改善！", d.getSiteName(), d.getGridCode(), incr);
+        String content = MessageFormat.format("{0}[{1}({2})]网格违规操作已触发亮灯，当日累积触发{3}次安灯系统，请核查原因与责任人，推动改善！", d.getSiteName(), d.getGridName(), d.getGridCode(), incr);
         HashSet<String> pins = new HashSet<>();
         // 网格负责人
         pins.add(d.getOwnerUserErp());
