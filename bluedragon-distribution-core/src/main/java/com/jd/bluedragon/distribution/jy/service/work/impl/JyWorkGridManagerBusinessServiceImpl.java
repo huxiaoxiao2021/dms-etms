@@ -818,7 +818,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		//发送咚咚通知
         String title = type.getName() + "通知";
 		String area = "管理者";
-		if (type.getCode().intValue() == WorkGridManagerTaskBizType.MONITOR_TASK.getCode()){
+		if (type.getCode().intValue() == WorkGridManagerTaskBizType.MONITOR_PATROL.getCode()){
 			area = "监控区";
 		}
         String content = "您已收到场地【"+type.getName()+"】，请进入拣运APP，扫描"+area+"网格码，查看任务，并按时完成，逾期将记录在册";
