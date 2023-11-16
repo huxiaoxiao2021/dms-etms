@@ -207,8 +207,8 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
     }
 
     private void deleteTrashVideo(ArtificialSpotCheckRequest request) {
+        String waybillCode = request.getBarCode();
         if (StringUtils.isNotBlank(request.getVideoUrl())) {
-            String waybillCode = request.getBarCode();
             Long videoId = request.getVideoId();
             String cacheVideoId = redisClientOfJy.get(SPOT_CHECK_VIDEO_PREFIX + waybillCode);
             if (cacheVideoId != null && cacheVideoId.contains(Constants.SEPARATOR_COMMA)) {
@@ -221,6 +221,7 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
                 }
             }
         }
+        redisClientOfJy.del(SPOT_CHECK_VIDEO_PREFIX + waybillCode);
     }
 
     @JProfiler(jKey = "dms.ArtificialSpotCheckGatewayService.getVideoUploadUrl", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)

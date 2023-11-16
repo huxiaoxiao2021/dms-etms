@@ -170,8 +170,8 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
     }
 
     private void deleteTrashVideo(WeightVolumeCheckConditionB2b request) {
+        String waybillCode = request.getWaybillOrPackageCode();
         if (StringUtils.isNotBlank(request.getVideoUrl())) {
-            String waybillCode = request.getWaybillOrPackageCode();
             Long videoId = request.getVideoId();
             String cacheVideoId = redisClientOfJy.get(SPOT_CHECK_VIDEO_PREFIX + waybillCode);
             if (cacheVideoId != null && cacheVideoId.contains(Constants.SEPARATOR_COMMA)) {
@@ -184,6 +184,7 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
                 }
             }
         }
+        redisClientOfJy.del(SPOT_CHECK_VIDEO_PREFIX + waybillCode);
     }
 
     /**
