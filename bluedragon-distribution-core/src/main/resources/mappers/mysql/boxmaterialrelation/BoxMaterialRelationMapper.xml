@@ -137,17 +137,15 @@
         <include refid="Base_Column_List"/>
         from box_material_relation
         WHERE is_delete = 0
-        <choose>
-            <when test="null != materialCode and '' != materialCode">
-                and material_code =  #{materialCode}
-            </when>
-            <when test="null != boxCode and '' != boxCode">
-                and box_code =  #{boxCode}
-            </when>
-            <otherwise>
-                and box_code is null
-            </otherwise>
-        </choose>
+        <if test="null != materialCode and '' != materialCode">
+            and material_code =  #{materialCode}
+        </if>
+        <if test="null != boxCode and '' != boxCode">
+            and box_code =  #{boxCode}
+        </if>
+        <if test="(null = boxCode or '' = boxCode) and (null = materialCode or '' = materialCode)">
+            and box_code is null
+        </if>
         order by id  desc
         limit #{offset}, #{pageSize}
     </select>
@@ -156,16 +154,14 @@
         select count(*) as count
         from box_material_relation
         WHERE is_delete = 0
-        <choose>
-            <when test="null != materialCode and '' != materialCode">
-                and material_code =  #{materialCode}
-            </when>
-            <when test="null != boxCode and '' != boxCode">
-                and box_code =  #{boxCode}
-            </when>
-            <otherwise>
-                and box_code is null
-            </otherwise>
-        </choose>
+        <if test="null != materialCode and '' != materialCode">
+            and material_code =  #{materialCode}
+        </if>
+        <if test="null != boxCode and '' != boxCode">
+            and box_code =  #{boxCode}
+        </if>
+        <if test="(null = boxCode or '' = boxCode) and (null = materialCode or '' = materialCode)">
+            and box_code is null
+        </if>
     </select>
 </mapper>
