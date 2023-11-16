@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 
 import java.util.List;
+import java.util.Map;
 
 public class JyExceptionContrabandDao extends BaseDao<JyExceptionContrabandEntity> {
     final static String NAMESPACE = JyExceptionContrabandDao.class.getName();
@@ -27,5 +28,10 @@ public class JyExceptionContrabandDao extends BaseDao<JyExceptionContrabandEntit
 
     public JyExceptionContrabandEntity selectOneByParams(JyExceptionContrabandDto entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".selectOneByParams", entity);
+    }
+
+
+    public int getContrabandCountByTime(Map<String,Object> param){
+        return this.getSqlSession().selectOne(NAMESPACE + ".getContrabandCountByTime", param);
     }
 }
