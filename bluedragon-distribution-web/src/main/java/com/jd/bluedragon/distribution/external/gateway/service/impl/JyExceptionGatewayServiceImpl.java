@@ -322,7 +322,7 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
             damageDto.setCount(damageCount);
 
             JyExceptionCountDto contrabandDto = new JyExceptionCountDto();
-            contrabandDto.setExceptionName("破损");
+            contrabandDto.setExceptionName("违禁品");
             contrabandDto.setCount(contrabandCount);
             List<JyExceptionCountDto> list = new ArrayList<>();
             list.add(damageDto);
