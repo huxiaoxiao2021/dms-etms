@@ -136,28 +136,36 @@
         select
         <include refid="Base_Column_List"/>
         from box_material_relation
-        WHERE 1 = 1
-        <if test="null != materialCode and '' != materialCode">
-            and material_code =  #{materialCode}
-        </if>
-        <if test="null != boxCode and '' != boxCode">
-            and box_code =  #{boxCode}
-        </if>
-        and is_delete = 0
-        order by create_time  desc
+        WHERE is_delete = 0
+        <choose>
+            <when test="null != materialCode and '' != materialCode">
+                and material_code =  #{materialCode}
+            </when>
+            <when test="null != boxCode and '' != boxCode">
+                and box_code =  #{boxCode}
+            </when>
+            <otherwise>
+                and box_code is null
+            </otherwise>
+        </choose>
+        order by id  desc
         limit #{offset}, #{pageSize}
     </select>
 
     <select id="countByMaterialCodeAndBoxCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" resultType="int">
         select count(*) as count
         from box_material_relation
-        WHERE 1 = 1
-        <if test="null != materialCode and '' != materialCode">
-            and material_code =  #{materialCode}
-        </if>
-        <if test="null != boxCode and '' != boxCode">
-            and box_code =  #{boxCode}
-        </if>
-        and is_delete = 0
+        WHERE is_delete = 0
+        <choose>
+            <when test="null != materialCode and '' != materialCode">
+                and material_code =  #{materialCode}
+            </when>
+            <when test="null != boxCode and '' != boxCode">
+                and box_code =  #{boxCode}
+            </when>
+            <otherwise>
+                and box_code is null
+            </otherwise>
+        </choose>
     </select>
 </mapper>
