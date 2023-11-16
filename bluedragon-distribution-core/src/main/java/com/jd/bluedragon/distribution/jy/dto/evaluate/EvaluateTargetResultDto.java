@@ -24,6 +24,26 @@ public class EvaluateTargetResultDto implements Serializable {
     private String targetAreaName;
 
     /**
+     * 评价目标省份ID
+     */
+    private String targetProvinceCode;
+
+    /**
+     * 评价目标省份名称
+     */
+    private String targetProvinceName;
+
+    /**
+     * 评价目标枢纽ID
+     */
+    private String targetHubCode;
+
+    /**
+     * 评价目标枢纽名称
+     */
+    private String targetHubName;
+
+    /**
      * 评价目标站点ID
      */
     private Integer targetSiteCode;
@@ -82,6 +102,26 @@ public class EvaluateTargetResultDto implements Serializable {
      * 评价来源区域名称
      */
     private String sourceAreaName;
+
+    /**
+     * 评价来源省份ID
+     */
+    private String sourceProvinceCode;
+
+    /**
+     * 评价来源省份名称
+     */
+    private String sourceProvinceName;
+
+    /**
+     * 评价来源枢纽ID
+     */
+    private String sourceHubCode;
+
+    /**
+     * 评价来源枢纽名称
+     */
+    private String sourceHubName;
 
     /**
      * 评价来源站点ID
@@ -405,5 +445,69 @@ public class EvaluateTargetResultDto implements Serializable {
 
     public void setDimensionList(List<EvaluateDimensionReq> dimensionList) {
         this.dimensionList = dimensionList;
+    }
+
+    public String getTargetProvinceCode() {
+        return targetProvinceCode;
+    }
+
+    public void setTargetProvinceCode(String targetProvinceCode) {
+        this.targetProvinceCode = targetProvinceCode;
+    }
+
+    public String getTargetProvinceName() {
+        return targetProvinceName;
+    }
+
+    public void setTargetProvinceName(String targetProvinceName) {
+        this.targetProvinceName = targetProvinceName;
+    }
+
+    public String getTargetHubCode() {
+        return targetHubCode;
+    }
+
+    public void setTargetHubCode(String targetHubCode) {
+        this.targetHubCode = targetHubCode;
+    }
+
+    public String getTargetHubName() {
+        return targetHubName;
+    }
+
+    public void setTargetHubName(String targetHubName) {
+        this.targetHubName = targetHubName;
+    }
+
+    public String getSourceProvinceCode() {
+        return sourceProvinceCode;
+    }
+
+    public void setSourceProvinceCode(String sourceProvinceCode) {
+        this.sourceProvinceCode = sourceProvinceCode;
+    }
+
+    public String getSourceProvinceName() {
+        return sourceProvinceName;
+    }
+
+    public void setSourceProvinceName(String sourceProvinceName) {
+        this.sourceProvinceName = sourceProvinceName;
+    }
+
+    public String getSourceHubCode() {
+        return sourceHubCode;
+    }
+
+    public void setSourceHubCode(String sourceHubCode) {
+        this.sourceHubCode = sourceHubCode;
+    }
+
+    public String getSourceHubName() {
+        return sourceHubName;
+    }
+
+    public void setSourceHubName(String sourceHubName) {
+        this.sourceHubName = sourceHubName;
     }
 }

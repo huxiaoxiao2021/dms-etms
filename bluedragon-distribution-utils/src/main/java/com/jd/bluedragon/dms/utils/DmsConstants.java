@@ -240,7 +240,11 @@ public class DmsConstants {
     /**
      * 快运产品-特快重货（fr-m-0004)\fr-m-0002)
      */
-    public static final String PRODUCT_TYPE_KY_0004 = "fr-m-0004";     
+    public static final String PRODUCT_TYPE_KY_0004 = "fr-m-0004";
+    /**
+     * 快运产品-特惠泡货（fr-m-0004)\fr-m-0002)
+     */
+    public static final String PRODUCT_TYPE_KY_0017 = "fr-m-0017";
     /**
      * 工种类型
      */

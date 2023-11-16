@@ -759,5 +759,9 @@
     <jmq:consumer id="jmq.loginInfoConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.login.info}" listener="loginInfoConsumer"/>
     </jmq:consumer>
+    <!-- 安灯消费暴力分拣 -->
+    <jmq:consumer id="jmq.violentSortingConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.ai.violentSorting}" listener="violentSortingConsumer"/>
+    </jmq:consumer>
 </beans>
 

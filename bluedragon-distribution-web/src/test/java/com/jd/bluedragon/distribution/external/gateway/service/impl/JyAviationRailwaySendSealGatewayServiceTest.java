@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.ShuttleQuerySourceEnum;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res
 import com.jd.bluedragon.common.dto.seal.request.ShuttleTaskSealCarReq;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService;
+import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +54,28 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
     @Autowired
     private JyAviationRailwaySendSealGatewayService aviationRailwaySendSealGatewayService;
 
+    @Autowired
+    private NewSealVehicleGatewayService newSealVehicleGatewayService;
+
+
+    @Test
+    public void newCheckTranCodeAndBatchCode(){
+        String json = "{\n" +
+                "    \"createSiteCode\": 65396,\n" +
+                "    \"queryWeightVolumeFlag\": true,\n" +
+                "    \"sealCarSource\": 20,\n" +
+                "    \"sealCarType\": 10,\n" +
+                "    \"sendCode\": \"65396-121674-20231026160464275\",\n" +
+                "    \"transportCode\": \"T230924003955\"\n" +
+                "}";
+        SealCarPreRequest jsonParam = JSONObject.parseObject(json, SealCarPreRequest.class);
+        int i = 0;
+        while(i++<100) {
+
+            Object obj = newSealVehicleGatewayService.newCheckTranCodeAndBatchCode(jsonParam);
+            System.out.println("success");
+        }
+    }
 
     @Test
     public void testScanTypeOptions() {

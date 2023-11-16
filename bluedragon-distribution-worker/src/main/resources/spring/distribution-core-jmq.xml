@@ -986,4 +986,10 @@
         <property name="topic" value="${jmq.topic.login.info}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!-- 安灯亮灭灯信息-->
+    <bean id="andonEventProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.andon.event}"/>
+    </bean>
+
 </beans>
