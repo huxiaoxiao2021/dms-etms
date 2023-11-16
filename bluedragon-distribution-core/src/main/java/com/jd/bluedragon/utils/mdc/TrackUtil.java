@@ -27,7 +27,11 @@ public class TrackUtil {
         MDC.put(MDC_LOG_KEY, key);
         MDC_LOG_MAP.put(key, new ArrayList<>());
     }
-    
+
+    public static boolean check() {
+        String key = MDC.get(MDC_LOG_KEY);
+        return StringUtils.isEmpty(key);
+    }
     public static void add(TrackDto logDto){
         String key = MDC.get(MDC_LOG_KEY);
         if (StringUtils.isEmpty(key)) {

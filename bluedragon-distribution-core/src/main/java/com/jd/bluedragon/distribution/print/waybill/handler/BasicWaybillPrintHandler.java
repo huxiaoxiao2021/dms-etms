@@ -591,7 +591,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setPurposefulDmsName(DmsConstants.TEXT_SCRAP_DMS_NAME_MARK);
                 waybill.setDestinationDmsName(DmsConstants.TEXT_SCRAP_DMS_NAME_MARK);
                 TrackUtil.add(new TrackDto(SCRAP_SORTING_SITE_ID));
-        		return;
+                TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT,String.format(PRINT_CROSS_RESULT_ERROR_9, "反分拣报废！")));
+                return;
         	}
 
             //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
@@ -663,7 +664,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             hiddenCrossInfo(waybill);
     	}
         // 记录滑道笼车获取的最终结果
-        crossInfoForLog(waybill);
+        crossInfoForLog(waybill, waybill.getOriginalDmsCode(), endDmsId, waybill.getOriginalCrossType());
 	}
 	/**
      * 根据大全表设置打印滑道信息
@@ -672,6 +673,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      */
     private void setCrossInfoByCrossPackageTag(PrintWaybill waybill) {
     	CrossPackageTagNew tag = null;
+        Integer startSiteId = waybill.getOriginalDmsCode();
+        Integer endSiteId = waybill.getPrepareSiteCode();
             BaseDmsStore baseDmsStore = new BaseDmsStore();
             baseDmsStore.setStoreId(waybill.getStoreId());//库房编号
             baseDmsStore.setCky2(waybill.getCky2());//cky2
@@ -723,19 +726,61 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setOriginalCrossCode(tag.getOriginalCrossCode());
                 waybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
                 waybill.setDestinationCrossCode(tag.getDestinationCrossCode());
-                
+
                 hiddenCrossInfo(waybill);
             }
             // 记录滑道笼车获取的最终结果
-            crossInfoForLog(waybill);
+        crossInfoForLog(waybill, startSiteId, endSiteId, waybill.getTempOriginalCrossType());
 	}
 
-    private void crossInfoForLog(PrintWaybill waybill) {
-        String result = "{ 始发笼车号: " + waybill.getOriginalTabletrolley() 
-                + "; 始发道口号: " + waybill.getOriginalCrossCode()
-                + "; 目的笼车号: " + waybill.getPurposefulTableTrolley() 
-                + "; 目的道口号: " + waybill.getPurposefulCrossCode() + "; }";
-        TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT,String.format(PRINT_CROSS_RESULT_9, result)));
+    /**
+     * @param waybill 运单
+     * @param startSiteId 始发地
+     * @param endSiteId 目的地
+     * @param crossType 1 -- 普通 2 -- 航空 3 -- 填仓
+     */
+    private void crossInfoForLog(PrintWaybill waybill, Integer startSiteId, Integer endSiteId, Integer crossType) {
+        if (TrackUtil.check()) {
+            return;
+        }
+        if (StringUtils.isEmpty(waybill.getOriginalTabletrolley()) && StringUtils.isEmpty(waybill.getPurposefulTableTrolley())) {
+            // 未获取获取到滑道笼车信息
+            List<TrackDto> logList = TrackUtil.getLogList();
+            List<Integer> logIds = logList.stream().map(TrackDto::getId).collect(Collectors.toList());
+
+            // 如果面单隐藏
+            if (logIds.contains(HIDDEN_CROSS_INFO)) {
+                TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT, String.format(PRINT_CROSS_RESULT_ERROR_9, HIDDEN_CROSS_INFO_10)));
+                return;
+            }
+
+            BaseStaffSiteOrgDto startSite = baseMajorManager.getBaseSiteBySiteId(startSiteId);
+            BaseStaffSiteOrgDto endSite = baseMajorManager.getBaseSiteBySiteId(endSiteId);
+            String startSiteName = startSite == null ? "" : startSite.getSiteName();
+            String endSiteName = endSite == null ? "" : endSite.getSiteName();
+            String crossTypeName = getCrossTypeName(crossType);
+            // 如果调用青龙基础资料未获取到
+            TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT, String.format(CROSS_CONF_NEED_CREAT
+                    , startSiteId + "-" + startSiteName, endSiteId + "-" + endSiteName, crossTypeName)));
+        }else {
+            String result = "{ 始发笼车号: " + waybill.getOriginalTabletrolley()
+                    + "; 始发道口号: " + waybill.getOriginalCrossCode()
+                    + "; 目的笼车号: " + waybill.getPurposefulTableTrolley()
+                    + "; 目的道口号: " + waybill.getPurposefulCrossCode() + "; }";
+            TrackUtil.add(new TrackDto(PRINT_CROSS_RESULT,String.format(PRINT_CROSS_RESULT_SUCCESS_9, result)));
+        }
+
+    }
+
+    private String getCrossTypeName(Integer crossType) {
+        if (Objects.equals(crossType, 1)) {
+            return "普通";
+        }else if (Objects.equals(crossType, 2)) {
+            return "航空";
+        } else if (Objects.equals(crossType, 3)){
+            return "填仓";
+        }
+        return "";
     }
 
     /**
@@ -744,7 +789,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      */
     private void hiddenCrossInfo(PrintWaybill waybill) {
                 if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')){
-                    TrackUtil.add(new TrackDto(HIDDEN_CROSS_INFO,HIDDEN_CROSS_INFO_9));
+                    TrackUtil.add(new TrackDto(HIDDEN_CROSS_INFO,HIDDEN_CROSS_INFO_10));
                     waybill.setOriginalDmsName("");
                     waybill.setPurposefulDmsName("");
                     waybill.setDestinationDmsName("");
