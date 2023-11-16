@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.dao.collectpackage;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity;
+import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery;
 
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class JyBizTaskCollectPackageFlowDao extends BaseDao<JyBizTaskCollectPack
         return this.getSqlSession().selectList(NAMESPACE + ".queryListByBizIds", bizIds);
     }
 
-    public int deleteByIds(List<Long>  ids){
-        return this.getSqlSession().update(NAMESPACE + ".deleteByIds", ids);
+    public int deleteByIds(JyBizTaskCollectPackageQuery query){
+        return this.getSqlSession().update(NAMESPACE + ".deleteByIds", query);
     }
 }

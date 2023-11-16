@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity;
+import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery;
 
 import java.util.List;
 
@@ -26,8 +27,8 @@ public interface JyBizTaskCollectPackageFlowService {
 
     /**
      * 根据bizId删除
-     * @param ids
+     * @param query
      * @return
      */
-    boolean deleteByIds(List<Long> ids);
+    boolean deleteByIds(JyBizTaskCollectPackageQuery query);
 }

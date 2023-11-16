@@ -126,7 +126,7 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
             BaseStaffSiteOrgDto updateUser = baseMajorManager.getBaseStaffInAllRoleByStaffNo(box.getUpdateUserCode());
             if (updateUser != null) {
                 entity.setUpdateUserErp(updateUser.getErp());
-                entity.setUpdateUserName(box.getUpdateUser());
+                entity.setUpdateUserName(updateUser.getStaffName());
                 entity.setUpdateTime(new Date());
             }
         }
@@ -134,7 +134,7 @@ public class BoxFirstPrintConsumer extends MessageBaseConsumer {
             BaseStaffSiteOrgDto createUser = baseMajorManager.getBaseStaffInAllRoleByStaffNo(box.getCreateUserCode());
             if (createUser != null) {
                 entity.setCreateUserErp(createUser.getErp());
-                entity.setCreateUserName(box.getCreateUser());
+                entity.setCreateUserName(createUser.getStaffName());
             }
         }
 

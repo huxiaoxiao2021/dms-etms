@@ -1276,7 +1276,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             // 删除原集包任务流向信息
             List<JyBizTaskCollectPackageFlowEntity> oldFlowList = jyBizTaskCollectPackageFlowService.queryListByBizIds(Collections.singletonList(task.getBizId()));
             List<Long> ids = oldFlowList.stream().map(JyBizTaskCollectPackageFlowEntity::getId).collect(Collectors.toList());
-            jyBizTaskCollectPackageFlowService.deleteByIds(ids);
+            jyBizTaskCollectPackageFlowService.deleteByIds(converUpdateData(ids, request));
 
             // 保存当前流向信息
             List<JyBizTaskCollectPackageFlowEntity> newFlowList = request.getCollectPackageFlowDtoList()
@@ -1286,6 +1286,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             jimDbLock.releaseLock(boxLockKey, request.getRequestId());
         }
         return result;
+    }
+
+    private JyBizTaskCollectPackageQuery converUpdateData(List<Long> ids, UpdateMixFlowListReq request) {
+        JyBizTaskCollectPackageQuery query = new JyBizTaskCollectPackageQuery();
+        query.setIds(ids);
+        query.setUpdateUserErp(request.getUser().getUserErp());
+        query.setUpdateUserName(request.getUser().getUserName());
+        return query;
     }
 
     private JyBizTaskCollectPackageFlowEntity converJyBizTaskCollectPackageFlowEntity(CollectPackageFlowDto item, JyBizTaskCollectPackageEntity task, UpdateMixFlowListReq request) {

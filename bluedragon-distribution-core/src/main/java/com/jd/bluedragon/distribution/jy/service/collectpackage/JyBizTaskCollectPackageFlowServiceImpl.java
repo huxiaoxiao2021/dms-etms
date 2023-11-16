@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity;
+import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageQuery;
 import com.jd.bluedragon.distribution.jy.dao.collectpackage.JyBizTaskCollectPackageFlowDao;
 import com.jd.bluedragon.utils.JsonHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,7 @@ public class JyBizTaskCollectPackageFlowServiceImpl implements JyBizTaskCollectP
     }
 
     @Override
-    public boolean deleteByIds(List<Long> ids) {
-        return jyBizTaskCollectPackageFlowDao.deleteByIds(ids) > 0;
+    public boolean deleteByIds(JyBizTaskCollectPackageQuery query) {
+        return jyBizTaskCollectPackageFlowDao.deleteByIds(query) > 0;
     }
 }

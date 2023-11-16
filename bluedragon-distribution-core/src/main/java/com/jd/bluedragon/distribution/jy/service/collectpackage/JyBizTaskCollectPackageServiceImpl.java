@@ -170,7 +170,10 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         List<JyBizTaskCollectPackageFlowEntity> flowList = jyBizTaskCollectPackageFlowService.queryListByBizIds(Collections.singletonList(oldTask.getBizId()));
         if (!org.apache.commons.collections4.CollectionUtils.isEmpty(flowList)) {
             List<Long> ids = flowList.stream().map(JyBizTaskCollectPackageFlowEntity::getId).collect(Collectors.toList());
-            jyBizTaskCollectPackageFlowService.deleteByIds(ids);
+            JyBizTaskCollectPackageQuery query = new JyBizTaskCollectPackageQuery();
+            query.setIds(ids);
+            query.setUpdateUserErp("system");
+            jyBizTaskCollectPackageFlowService.deleteByIds(query);
         }
     }
 

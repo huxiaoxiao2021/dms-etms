@@ -245,9 +245,16 @@
 
   <update id="deleteByIds" parameterType="java.util.List">
     update jy_biz_task_collect_package_flow
-    set yn = 0
+    set yn = 0,
+    <if test="updateUserErp != null">
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+    </if>
+    <if test="updateUserName != null">
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+    </if>
+    update_time = now()
     where id in
-    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+    <foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
       #{item}
     </foreach>
   </update>
