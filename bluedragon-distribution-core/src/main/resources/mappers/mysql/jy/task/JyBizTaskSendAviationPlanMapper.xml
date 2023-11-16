@@ -436,8 +436,8 @@
         where
         yn = 1
         and start_site_id = #{startSiteId}
-        and next_site_id = #{startSiteId}
-        and (task_status = 0 and take_off_time &gt;= #{takeOffTimeStart}) or (task_status = 1)
+        and next_site_id = #{nextSiteId}
+        and ((task_status = 0 and take_off_time &gt;= #{takeOffTimeStart}) or (task_status = 1))
         and create_time &gt;= #{createTimeStart}
         order by
         take_off_time
