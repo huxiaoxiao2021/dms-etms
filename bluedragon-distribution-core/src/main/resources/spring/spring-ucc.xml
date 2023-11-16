@@ -316,6 +316,7 @@
 		<property name="collectPackageTaskRefreshSwitch" value="${collectPackageTaskRefreshSwitch:false}"/>
 		<property name="forceCollectPackageSiteListStr" value="${forceCollectPackageSiteListStr:''}"/>
 		<property name="jyCollectPackageInterceptBitCode" value="${jyCollectPackageInterceptBitCode:2199023255033}"/>
+		<property name="collectPackageSiteForbiddenList" value="${collectPackageSiteForbiddenList:''}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -621,6 +622,7 @@
 				<value>uccPropertyConfiguration.collectPackageTaskRefreshSwitch</value>
 				<value>uccPropertyConfiguration.forceCollectPackageSiteListStr</value>
 				<value>uccPropertyConfiguration.jyCollectPackageInterceptBitCode</value>
+				<value>uccPropertyConfiguration.collectPackageSiteForbiddenList</value>
 			</list>
 		</property>
 	</bean>
