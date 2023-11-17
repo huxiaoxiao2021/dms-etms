@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jdq4.consume;
+package com.jd.bluedragon.distribution.consumer.boardChute;
 
 import com.jd.bluedragon.common.dto.comboard.request.BoardReq;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -6,11 +6,11 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeDto;
 import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeUtils;
+import com.jd.bluedragon.distribution.jdq4.consume.BoardChute;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 @Service("boardChuteConsumer")
-@Slf4j
 public class BoardChuteConsumer extends MessageBaseConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardChuteConsumer.class);
@@ -76,7 +75,7 @@ public class BoardChuteConsumer extends MessageBaseConsumer {
         try {
             dto = com.jdl.basic.common.utils.JsonHelper.toObject(content, BinLakeDto.class);
         } catch (Exception e) {
-            log.error("滑道笼车配置消息解析异常！{}{}", content, e);
+            logger.error("滑道笼车配置消息解析异常！{}{}", content, e);
             return;
         }
         if (CollectionUtils.isEmpty(dto.getAfterChangeOfColumns())) {
