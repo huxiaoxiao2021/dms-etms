@@ -1505,4 +1505,18 @@
     <jsf:consumer id="blockerApplyWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerApplyWS"
                   protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+
+    <!--视频信息接口-->
+    <jsf:consumer id="vodService"
+                  interface="com.jd.vd.api.service.VODService"
+                  alias="${jsf.vodService.alias}"
+                  protocol="jsf"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}"
+                  timeout="${jsf.vodService.timeout}">
+        <jsf:parameter key="appId" value="${jsf.vodService.appId}" />
+        <jsf:parameter key="secretKey" value="${jsf.vodService.secretKey}" />
+    </jsf:consumer>
+
 </beans>

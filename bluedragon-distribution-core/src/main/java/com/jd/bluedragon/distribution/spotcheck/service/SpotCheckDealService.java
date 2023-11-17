@@ -119,17 +119,17 @@ public interface SpotCheckDealService {
 
     /**
      * 下发超标数据
-     *
+     * @param version 版本号：1-新版抽检入口(支持视频)
      * @param weightVolumeSpotCheckDto
      */
-    void spotCheckIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);
+    void spotCheckIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto, Integer version);
 
     /**
      * 执行下发
-     *
+     * @param version 版本号：1-新版抽检入口(支持视频)
      * @param weightVolumeSpotCheckDto
      */
-    void executeIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);
+    void executeIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto, Integer version);
 
     /**
      * 上传图片
