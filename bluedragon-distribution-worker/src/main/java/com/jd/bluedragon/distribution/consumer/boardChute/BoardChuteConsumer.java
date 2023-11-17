@@ -67,6 +67,7 @@ public class BoardChuteConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         String content = message.getText();
+        logger.error("BoardChuteConsumer:"+content);
         if (StringUtils.isEmpty(content)) {
             return;
         }
@@ -75,7 +76,7 @@ public class BoardChuteConsumer extends MessageBaseConsumer {
         try {
             dto = com.jdl.basic.common.utils.JsonHelper.toObject(content, BinLakeDto.class);
         } catch (Exception e) {
-            logger.error("滑道笼车配置消息解析异常！{}{}", content, e);
+            logger.error("BoardChuteConsumer消息解析异常！{}{}", content, e);
             return;
         }
         if (CollectionUtils.isEmpty(dto.getAfterChangeOfColumns())) {
