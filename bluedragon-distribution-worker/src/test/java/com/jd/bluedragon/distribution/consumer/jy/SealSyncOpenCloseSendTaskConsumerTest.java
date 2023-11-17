@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.SealSyncOpenCloseSendTaskConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsSealCarStatusConsumer;
 import com.jd.bluedragon.distribution.jy.dto.task.SealSyncOpenCloseSendTaskDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -29,6 +30,51 @@ public class SealSyncOpenCloseSendTaskConsumerTest {
 
     @Autowired
     private SealSyncOpenCloseSendTaskConsumer consume;
+
+    @Autowired
+    private TmsSealCarStatusConsumer tmsSealCarStatusConsumer;
+
+    @Test
+    public void  test(){
+        String str = "{\n" +
+                "    \"batchCodes\": [\n" +
+                "        \"40240-10186-20231117151374153\"\n" +
+                "    ],\n" +
+                "    \"billCode\": \"TJ23111709211498\",\n" +
+                "    \"endSiteCode\": \"010K001\",\n" +
+                "    \"endSiteId\": 10186,\n" +
+                "    \"endSiteName\": \"北京凉水河快运中心\",\n" +
+                "    \"operateSiteCode\": \"010F016\",\n" +
+                "    \"operateSiteId\": 40240,\n" +
+                "    \"operateSiteName\": \"北京通州分拣中心\",\n" +
+                "    \"operateTime\": \"2023-11-17 16:47:22\",\n" +
+                "    \"operateUserCode\": \"huzhihao3\",\n" +
+                "    \"operateUserName\": \"胡志浩\",\n" +
+                "    \"sealCarCode\": \"SC23111700038850\",\n" +
+                "    \"sealCarType\": 20,\n" +
+                "    \"source\": 1,\n" +
+                "    \"startSiteCode\": \"010F016\",\n" +
+                "    \"startSiteId\": 40240,\n" +
+                "    \"startSiteName\": \"北京通州分拣中心\",\n" +
+                "    \"status\": 10,\n" +
+                "    \"transJobCode\": \"TJ23111709211498\",\n" +
+                "    \"transJobItemCode\": \"TJ23111709211498-001\",\n" +
+                "    \"transWay\": 2,\n" +
+                "    \"transWorkItemCode\": \"TW23111700983599-001\",\n" +
+                "    \"transportCode\": \"T220311001531\",\n" +
+                "    \"vehicleNumber\": \"京GH3333\",\n" +
+                "    \"volume\": 0.0,\n" +
+                "    \"weight\": 0.0\n" +
+                "}";
+
+        Message message = new Message();
+        message.setText(str);
+        try {
+            tmsSealCarStatusConsumer.consume(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Test
     public void testConsume() {

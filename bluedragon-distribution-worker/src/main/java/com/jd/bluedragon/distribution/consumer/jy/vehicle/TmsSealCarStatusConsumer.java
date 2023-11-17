@@ -266,11 +266,17 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             msg.setBatchCodes(mqBody.getBatchCodes());
             msg.setSingleBatchCode(batchCode);
             msg.setSysTime(System.currentTimeMillis());
+
+            try{
+                sealSyncOpenCloseSendTaskProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(msg));
+            }catch (Exception e) {
+                logger.error("发送封车同步关闭发货任务mq异常[errMsg={}]，mqBody={}", e.getMessage(), JsonHelper.toJson(msg), e);
+            }finally {
+                if(logger.isInfoEnabled()) {
+                    logger.info("封车同步关闭新版发货任务状态，msg={}", JsonHelper.toJson(msg));
+                }
+            }
         }
-        if(logger.isInfoEnabled()) {
-            logger.info("封车同步关闭新版发货任务状态，msg={}", JsonHelper.toJson(mqBody));
-        }
-        sealSyncOpenCloseSendTaskProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(mqBody));
     }
 
     private void sendInitCollectMq(TmsSealCarStatusMQBody tmsSealCarStatus) {
