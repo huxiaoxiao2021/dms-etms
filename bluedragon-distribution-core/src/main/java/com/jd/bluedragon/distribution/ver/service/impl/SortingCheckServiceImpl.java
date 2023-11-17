@@ -147,7 +147,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 if (BusinessUtil.isForward(businessType)) {
                     logger.info("分拣校验2packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
                     filterContext.setFuncModule(HintModuleConstants.FORWARD_SORTING);
-                    ForwardFilterChain forwardFilterChain = getForwardFilterChain();
+                    ForwardFilterChain forwardFilterChain = pdaOperateRequest.getJyCollectPackageFlag() ? getJyCollectPackageForwardFilterChain(): getForwardFilterChain();
                     forwardFilterChain.doFilter(filterContext, forwardFilterChain);
                 } else if (BusinessUtil.isReverse(businessType)) {
                     logger.info("分拣校验3packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
@@ -573,6 +573,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setPackageCode(pdaOperateRequest.getPackageCode());
         filterContext.setPdaOperateRequest(pdaOperateRequest);
         filterContext.setOnlineStatus(pdaOperateRequest.getOnlineStatus());
+        filterContext.setBitCode(pdaOperateRequest.getInterceptChainBitCode());
         return filterContext;
     }
 
@@ -706,6 +707,11 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
      */
     private ForwardFilterChain getForwardFilterChain() {
         return (ForwardFilterChain) beanFactory.getBean("forwardFilterChain");
+    }
+
+
+    private ForwardFilterChain getJyCollectPackageForwardFilterChain() {
+        return (ForwardFilterChain) beanFactory.getBean("jyCollectPackageForwardFilterChain");
     }
 
 

@@ -83,5 +83,8 @@
 		<mapper resource="mappers/mysql/jy/send/JyBizTaskBindMapper.xml" />
 		<!-- 拣运任务绑定表 -->
 		<mapper resource="mappers/mysql/jy/summary/JyStatisticsSummaryMapper.xml" />
+
+		<mapper resource="mappers/mysql/jy/collectpackage/JyBizTaskCollectPackageMapper.xml" />
+		<mapper resource="mappers/mysql/jy/collectpackage/JyBizTaskCollectPackageFlowMapper.xml" />
 	</mappers>
 </configuration>
