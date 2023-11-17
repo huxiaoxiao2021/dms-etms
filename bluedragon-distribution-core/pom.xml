@@ -2730,6 +2730,10 @@
             <artifactId>print-api</artifactId>
         </dependency>
 
+		<dependency>
+			<groupId>vd-service-sdk</groupId>
+			<artifactId>vd-service-sdk</artifactId>
+		</dependency>
     </dependencies>
 
     <profiles>

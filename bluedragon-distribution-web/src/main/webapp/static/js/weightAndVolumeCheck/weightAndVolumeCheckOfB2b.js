@@ -129,7 +129,7 @@ $(function () {
                     layer.open({
                         id: 'upExcessPicture',
                         type: 2,
-                        title: '超标图片上传',
+                        title: '超标图片/视频上传',
                         shade: 0.7,
                         maxmin: true,
                         shadeClose: false,
@@ -147,14 +147,33 @@ $(function () {
                     var rowIndex = this.parentNode.parentNode.rowIndex;
                     var count = $('#waybillDataTable')[0].rows[rowIndex].cells[5].innerHTML;
                     if(count === '0'){
-                        Jd.alert("请先上传超标图片!");
+                        Jd.alert("请先上传超标图片或视频!");
                         return;
-                    };
-                    window.open($('#excessPicWeightOrPanorama').val());
-                    window.open($('#excessPicFace').val());
-                    window.open($('#excessPicLength').val());
-                    window.open($('#excessPicWidth').val());
-                    window.open($('#excessPicHeight').val());
+                    }
+                    let excessPicWeightOrPanoramaUrl = $('#excessPicWeightOrPanorama').val();
+                    let excessPicFaceUrl = $('#excessPicFace').val();
+                    let excessPicLengthUrl = $('#excessPicLength').val();
+                    let excessPicWidthUrl = $('#excessPicWidth').val();
+                    let excessPicHeightUrl = $('#excessPicHeight').val();
+                    let excessVideoUrl = $('#excessVideo').val();
+                    if (excessPicWeightOrPanoramaUrl) {
+                        window.open(excessPicWeightOrPanoramaUrl);
+                    }
+                    if (excessPicFaceUrl) {
+                        window.open(excessPicFaceUrl);
+                    }
+                    if (excessPicLengthUrl) {
+                        window.open(excessPicLengthUrl);
+                    }
+                    if (excessPicWidthUrl) {
+                        window.open(excessPicWidthUrl);
+                    }
+                    if (excessPicHeightUrl) {
+                        window.open(excessPicHeightUrl);
+                    }
+                    if (excessVideoUrl) {
+                        window.open(excessVideoUrl);
+                    }
                 }
             }
         }];
@@ -251,9 +270,25 @@ $(function () {
     $('#btn_submit').click(function () {
         let waybillData = $('#waybillDataTable').bootstrapTable('getData');
         let uploadNum = $('#waybillDataTable')[0].rows[1].cells[5].innerHTML;
-        if(waybillData[0].isExcess === 1 && uploadNum !== '5'){
-            Jd.alert('请先上传' + waybillData[0].waybillCode + '的超标图片!');
-            return;
+        let videoUrl = $('#excessVideo').val();
+        let videoId = $('#excessVideoId').val();
+        let lessOnePicFlag = false;
+        if($('#excessPicWeightOrPanorama').val() || $('#excessPicFace').val()
+            || $('#excessPicLength').val() || $('#excessPicWidth').val()
+            || $('#excessPicHeight').val()){
+            lessOnePicFlag = true;
+        }
+        if(waybillData[0].isExcess === 1) {
+            // 如果没有上传视频，并且图片也没上传
+            if (!videoUrl && uploadNum !== '5') {
+                Jd.alert('请先上传' + waybillData[0].waybillCode + '的超标图片或视频!');
+                return;
+            }
+            // 如果上传了视频，图片也上传了但是不满足5张
+            if (videoUrl && lessOnePicFlag && uploadNum !== '6') {
+                Jd.alert('如果选择上传超标图片，则必须上传5张!');
+                return;
+            }
         }
         let param = {};
         param.waybillOrPackageCode = waybillData[0].waybillCode;
@@ -269,13 +304,17 @@ $(function () {
         param.createSiteCode = $('#createSiteCode').val();
         param.loginErp = $('#loginErp').val();
         if(waybillData[0].isExcess === 1){
-            let excessPicUrls = [];
-            excessPicUrls.push($('#excessPicWeightOrPanorama').val());
-            excessPicUrls.push($('#excessPicFace').val());
-            excessPicUrls.push($('#excessPicLength').val());
-            excessPicUrls.push($('#excessPicWidth').val());
-            excessPicUrls.push($('#excessPicHeight').val());
-            param.urls = excessPicUrls;
+            if (uploadNum === '5' || uploadNum === '6') {
+                let excessPicUrls = [];
+                excessPicUrls.push($('#excessPicWeightOrPanorama').val());
+                excessPicUrls.push($('#excessPicFace').val());
+                excessPicUrls.push($('#excessPicLength').val());
+                excessPicUrls.push($('#excessPicWidth').val());
+                excessPicUrls.push($('#excessPicHeight').val());
+                param.urls = excessPicUrls;
+            }
+            param.videoUrl = videoUrl;
+            param.videoId = videoId;
         }
 
         jQuery.ajax({
@@ -295,6 +334,8 @@ $(function () {
                     $('#excessPicLength').val('');
                     $('#excessPicWidth').val('');
                     $('#excessPicHeight').val('');
+                    $('#excessVideo').val('');
+                    $('#excessVideoId').val('');
                 }else {
                     Jd.alert(result.message);
                 }
