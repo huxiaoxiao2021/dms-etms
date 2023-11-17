@@ -2871,6 +2871,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         attachment.setUpdateTime(request.getCurrentOperate().getOperateTime());
         attachment.setUpdateUserErp(attachment.getCreateUserErp());
         attachment.setUpdateUserName(attachment.getCreateUserName());
+        attachment.setRemark(attachment.getRemark());
         return attachment;
     }
 
