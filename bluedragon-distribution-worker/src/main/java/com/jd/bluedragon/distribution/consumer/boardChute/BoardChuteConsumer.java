@@ -1,90 +1,34 @@
-package com.jd.bluedragon.distribution.jdq4.consume;
+package com.jd.bluedragon.distribution.consumer.boardChute;
 
-import com.alibaba.fastjson.JSONObject;
-import com.jd.bdp.jdw.avro.JdwData;
 import com.jd.bluedragon.common.dto.comboard.request.BoardReq;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
-import com.jd.bluedragon.distribution.jdq4.JDQConfig;
-import com.jd.bluedragon.distribution.jdq4.JDQConsumer;
+import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeDto;
+import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeUtils;
+import com.jd.bluedragon.distribution.jdq4.consume.BoardChute;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-public class BoardChuteConsumer extends JDQConsumer {
+@Service("boardChuteConsumer")
+public class BoardChuteConsumer extends MessageBaseConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardChuteConsumer.class);
-
-
-    @Setter
-    private String username;
-    @Setter
-    private String domain;
-    @Setter
-    private String password;
-    @Setter
-    String topic;
-    @Setter
-    String groupId;
 
     @Autowired
     private JyComBoardSendService jyComBoardSendService;
     @Autowired
     private BaseMajorManager baseMajorManager;
-    @Override
-    public void onMessage(ConsumerRecord<String, JdwData> message) {
-        if (null == message.value()){
-            return;
-        }
-        BoardChute boardChute = (BoardChute)toPojo(message.value(), BoardChute.class);
-        if (boardChute == null) {
-            logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", message.value());
-            return;
-        }
-        if (boardChute.getStatus()!=0){
-//            logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
-            return;
-        }
-        if (StringUtils.isEmpty(boardChute.getSendCode())){
-//            logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
-            return;
-        }
-        com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
-                initOperatorInfo(boardChute);
-        BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
-        logger.info("jdq消费"+JsonHelper.toJson(req));
-        jyComBoardSendService.finishBoard(req);
-    }
-    public static Object toPojo(JdwData jdwData, Class clazz) {
-        Map<CharSequence, CharSequence> srcMap = jdwData.getSrc();
-        Map<CharSequence, CharSequence> curMap = jdwData.getCur();
 
-        srcMap.putAll(curMap);
-        HashMap<String, Object> map = new HashMap<>();
-
-        srcMap.keySet().forEach(charSequence -> {
-            map.put(charSequence.toString(), srcMap.get(charSequence) == null ? "" : srcMap.get(charSequence).toString());
-        });
-        Object o = null;
-        JSONObject jsonObject = new JSONObject(map);
-        try {
-            o = jsonObject.toJavaObject(clazz);
-        } catch (Exception e) {
-            logger.error("反序列化失败.map:{}", jsonObject.toJSONString());
-            throw e;
-        }
-        return o;
-    }
     private com.jd.bluedragon.common.dto.base.request.OperatorInfo initOperatorInfo(BoardChute boardChute){
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = new com.jd.bluedragon.common.dto.base.request.OperatorInfo();
         if (StringUtils.isNotEmpty(boardChute.getEndErp())){
@@ -120,9 +64,40 @@ public class BoardChuteConsumer extends JDQConsumer {
         return req;
     }
 
-
     @Override
-    public JDQConfig createJDQConfig() {
-        return new JDQConfig(username,domain,password,groupId,topic);
+    public void consume(Message message) throws Exception {
+        String content = message.getText();
+        if (StringUtils.isEmpty(content)) {
+            return;
+        }
+
+        BinLakeDto dto = null;
+        try {
+            dto = com.jdl.basic.common.utils.JsonHelper.toObject(content, BinLakeDto.class);
+        } catch (Exception e) {
+            logger.error("滑道笼车配置消息解析异常！{}{}", content, e);
+            return;
+        }
+        if (CollectionUtils.isEmpty(dto.getAfterChangeOfColumns())) {
+            return;
+        }
+        BoardChute boardChute = BinLakeUtils.copyByList(dto.getAfterChangeOfColumns(), BoardChute.class);
+        if (boardChute == null) {
+            logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", content);
+            return;
+        }
+        if (boardChute.getStatus()!=0){
+//            logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
+            return;
+        }
+        if (StringUtils.isEmpty(boardChute.getSendCode())){
+//            logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
+            return;
+        }
+        com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
+                initOperatorInfo(boardChute);
+        BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
+        logger.info("jmq4消费"+JsonHelper.toJson(req));
+//        jyComBoardSendService.finishBoard(req);
     }
 }
