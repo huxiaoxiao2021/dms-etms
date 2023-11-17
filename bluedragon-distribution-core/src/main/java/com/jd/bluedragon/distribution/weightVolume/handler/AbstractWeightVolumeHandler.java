@@ -385,6 +385,26 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
 
         // 1、强制提示信息
         StringBuilder forceMessage;
+
+        // 重量校验：是否小于0.01kg
+        Double waybillWeightMinLimit = dmsConfigManager.getPropertyConfig().getWaybillWeightMinLimit();
+        if (weight < waybillWeightMinLimit) {
+            forceMessage = new StringBuilder().append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_5, waybillWeightMinLimit))
+                    .append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B);
+            result.parameterError(forceMessage.toString());
+            return;
+        }
+
+
+        // 体积校验：是否小于0.01cm3
+        Double waybillVolumeMinLimit = dmsConfigManager.getPropertyConfig().getWaybillVolumeMinLimit();
+        if(volume < waybillVolumeMinLimit){
+            forceMessage = new StringBuilder().append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_6, waybillVolumeMinLimit))
+                    .append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B);
+            result.parameterError(forceMessage.toString());
+            return;
+        }
+
         // 重量校验：是否大于5000kg
         int weightMaxLimitB = weightVolumeRuleConstant.getWeightMaxLimitB();
         if(weight > weightMaxLimitB){
@@ -509,7 +529,21 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
                 return;
             }
         }
-
+        // 重量校验：是否小于0.01kg
+        Double waybillWeightMinLimit = dmsConfigManager.getPropertyConfig().getWaybillWeightMinLimit();
+        if (weight < waybillWeightMinLimit) {
+            confirmMessage = new StringBuilder().append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_MIN_WEIGHT_C, waybillWeightMinLimit));
+            result.parameterError(confirmMessage.toString());
+            return;
+        }
+        
+        // 体积校验：是否小于0.01cm3
+        Double waybillVolumeMinLimit = dmsConfigManager.getPropertyConfig().getWaybillVolumeMinLimit();
+        if(volume < waybillVolumeMinLimit){
+            confirmMessage = new StringBuilder().append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_MIN_VOLUME_C, waybillVolumeMinLimit));
+            result.parameterError(confirmMessage.toString());
+            return;
+        }
         // 设置提示结尾提示语
         setEndConfirmMessage(confirmMessage,result);
     }
@@ -531,6 +565,19 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         }
         double weight = NumberHelper.gt0(weightVolumeContext.getWeight())? weightVolumeContext.getWeight() : 0;
 
+        // 强卡控 重量校验：是否小于0.01kg
+        Double waybillWeightMinLimit = dmsConfigManager.getPropertyConfig().getWaybillWeightMinLimit();
+        if (weight < waybillWeightMinLimit) {
+            result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_5, waybillWeightMinLimit));
+            return;
+        }
+
+        // 强卡控 体积校验：是否小于0.01cm3
+        Double waybillVolumeMinLimit = dmsConfigManager.getPropertyConfig().getWaybillVolumeMinLimit();
+        if(volume < waybillVolumeMinLimit){
+            result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_6, waybillVolumeMinLimit));
+            return;
+        }
 
         // 确认提示信息
         StringBuilder confirmMessage = new StringBuilder();
@@ -571,7 +618,6 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
                 return;
             }
         }
-
         // 设置提示结尾提示语
         setEndConfirmMessage(confirmMessage,result);
     }

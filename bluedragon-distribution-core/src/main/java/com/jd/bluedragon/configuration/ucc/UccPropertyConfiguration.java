@@ -1733,6 +1733,16 @@ public class UccPropertyConfiguration{
      */
     private Integer jySendSpecialProductTypeToScanShowRemainMinutes;
 
+    /**
+     * 称重量方最小重量限制
+     */
+    private String waybillWeightMinLimit;
+
+    /**
+     * 称重量方最小体积限制
+     */
+    private String waybillVolumeMinLimit;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -3921,4 +3931,20 @@ public class UccPropertyConfiguration{
 	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
 		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
 	}
+
+    public Double getWaybillWeightMinLimit() {
+        return Double.valueOf(waybillWeightMinLimit);
+    }
+
+    public void setWaybillWeightMinLimit(String waybillWeightMinLimit) {
+        this.waybillWeightMinLimit = waybillWeightMinLimit;
+    }
+
+    public Double getWaybillVolumeMinLimit() {
+        return Double.valueOf(waybillVolumeMinLimit);
+    }
+
+    public void setWaybillVolumeMinLimit(String waybillVolumeMinLimit) {
+        this.waybillVolumeMinLimit = waybillVolumeMinLimit;
+    }
 }

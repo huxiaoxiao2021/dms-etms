@@ -112,6 +112,8 @@ public class WeightVolumeRuleConstant {
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_PACKAGE_MAX_WEIGHT_C = "单包裹录入大于%sKG，限制进行称重量方，请核对录入信息是否正确";
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_WAYBILL_MAX_VOLUME_C = "运单体积录入超过%s立方米，限制进行称重量方，请核对录入信息是否正确";
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_WAYBILL_MAX_WEIGHT_C = "运单重量录入超过%sKG，限制进行称重量方，请核对录入信息是否正确";
+    public static final String RESULT_SPECIAL_MESSAGE_FORCE_MIN_WEIGHT_C = "运单包裹录入低于%sKG，限制进行称重量方，请核对录入信息是否正确";
+    public static final String RESULT_SPECIAL_MESSAGE_FORCE_MIN_VOLUME_C = "运单包裹录入低于%s立方厘米，限制进行称重量方，请核对录入信息是否正确";
 
     /**
      * C网特殊校验-确认提示
@@ -131,6 +133,8 @@ public class WeightVolumeRuleConstant {
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_B_2 = "泡重比超过%s！";
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_B_3 = "运单下单个包裹重量已超过%skg!";
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_B_4 = "您录入的重量或者体积可能错误，不符合货物理论大小，请仔细核对，重新提交";
+    public static final String RESULT_SPECIAL_MESSAGE_FORCE_B_5 = "运单或包裹重量不能低于%skg!";
+    public static final String RESULT_SPECIAL_MESSAGE_FORCE_B_6 = "运单或包裹体积不能低于%s立方米！";
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_WAYBILL_MAX_WEIGHT_B = "运单重量录入超过%skg,限制进行称重量方，请核对录入信息是否正确";
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_WAYBILL_MAX_VOLUME_B = "运单体积录入超过%s立方米，限制进行称重量方，请核对录入信息是否正确";
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_PACKAGE_MAX_WEIGHT_B = "单包裹体积录入超过%s立方米，限制进行称重量方，请核对录入信息是否正确";
