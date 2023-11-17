@@ -139,6 +139,9 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
             msg.setSingleBatchCode(mqBody.getBatchCode());
             msg.setTransWorkItemCode(sealCarCodeOfTms.getTransWorkItemCode());
             msg.setSysTime(System.currentTimeMillis());
+            if(logger.isInfoEnabled()) {
+                logger.info("取消封车同步打开新版发货任务状态，msg={}", JsonHelper.toJson(mqBody));
+            }
             sealSyncOpenCloseSendTaskProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(mqBody));
         }catch (Exception e) {
             logger.error("发送取消批次封车mq异常[errMsg={}]，mqBody={}", e.getMessage(), JsonHelper.toJson(mqBody), e);

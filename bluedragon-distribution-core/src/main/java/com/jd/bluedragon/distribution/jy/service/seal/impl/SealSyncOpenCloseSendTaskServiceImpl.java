@@ -45,7 +45,9 @@ public class SealSyncOpenCloseSendTaskServiceImpl implements SealSyncOpenCloseSe
     public boolean dealSeal(SealSyncOpenCloseSendTaskDto param) {
 
         CallerInfo info = Profiler.registerInfo("DMS.BASE.SealSyncOpenCloseSendTaskConsumer.dealSeal", Constants.UMP_APP_NAME_DMSWEB,false, true);
-
+        if(logger.isInfoEnabled()){
+            logger.info("封车关闭新版发货任务状态开始，param={}", JsonHelper.toJson(param));
+        }
         List<String> batchCodes = Arrays.asList(param.getSingleBatchCode());
         List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(batchCodes);
         if (CollectionUtils.isEmpty(sendCodeEntityList)){
@@ -84,7 +86,9 @@ public class SealSyncOpenCloseSendTaskServiceImpl implements SealSyncOpenCloseSe
     @Override
     public boolean dealCancelSeal(SealSyncOpenCloseSendTaskDto param) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.SealSyncOpenCloseSendTaskConsumer.dealUnSeal", Constants.UMP_APP_NAME_DMSWEB,false, true);
-
+        if(logger.isInfoEnabled()){
+            logger.info("取消封车打开新版发货任务状态开始，param={}", JsonHelper.toJson(param));
+        }
         //无批次过滤
         List<String> batchCodes = Arrays.asList(param.getSingleBatchCode());
         List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(batchCodes);
