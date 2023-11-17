@@ -728,7 +728,7 @@
     </jmq:consumer>
 
     <!-- 自动完结板消息  -->
-    <jmq:consumer id="jmq.loginInfoConsumer" transport="jmq4.dmsWorker.transport">
+    <jmq:consumer id="jmq.boardChuteConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.boardChute}" listener="boardChuteConsumer"/>
     </jmq:consumer>
 </beans>

@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeUtils;
 import com.jd.bluedragon.distribution.jdq4.consume.BoardChute;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jmq.client.consumer.MessageListener;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
@@ -19,8 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
+
 @Service("boardChuteConsumer")
-public class BoardChuteConsumer extends MessageBaseConsumer {
+public class BoardChuteConsumer  implements MessageListener {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardChuteConsumer.class);
 
@@ -65,39 +68,44 @@ public class BoardChuteConsumer extends MessageBaseConsumer {
     }
 
     @Override
-    public void consume(Message message) throws Exception {
-        String content = message.getText();
-        if (StringUtils.isEmpty(content)) {
-            return;
+    public void onMessage(List<Message> messages) throws Exception {
+
+        for (Message message : messages) {
+            String content = message.getText();
+            logger.info("BoardChuteConsumer:"+content);
+            if (StringUtils.isEmpty(content)) {
+                return;
+            }
+
+            BinLakeDto dto = null;
+            try {
+                dto = com.jdl.basic.common.utils.JsonHelper.toObject(content, BinLakeDto.class);
+            } catch (Exception e) {
+                logger.error("BoardChuteConsumer解析异常！{}{}", content, e);
+                return;
+            }
+            if (CollectionUtils.isEmpty(dto.getAfterChangeOfColumns())) {
+                return;
+            }
+            BoardChute boardChute = BinLakeUtils.copyByList(dto.getAfterChangeOfColumns(), BoardChute.class);
+            if (boardChute == null) {
+                logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", content);
+                return;
+            }
+            if (boardChute.getStatus()!=0){
+//            logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
+                return;
+            }
+            if (StringUtils.isEmpty(boardChute.getSendCode())){
+//            logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
+                return;
+            }
+            com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
+                    initOperatorInfo(boardChute);
+            BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
+            logger.info("jmq4消费"+JsonHelper.toJson(req));
+//        jyComBoardSendService.finishBoard(req);
         }
 
-        BinLakeDto dto = null;
-        try {
-            dto = com.jdl.basic.common.utils.JsonHelper.toObject(content, BinLakeDto.class);
-        } catch (Exception e) {
-            logger.error("滑道笼车配置消息解析异常！{}{}", content, e);
-            return;
-        }
-        if (CollectionUtils.isEmpty(dto.getAfterChangeOfColumns())) {
-            return;
-        }
-        BoardChute boardChute = BinLakeUtils.copyByList(dto.getAfterChangeOfColumns(), BoardChute.class);
-        if (boardChute == null) {
-            logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", content);
-            return;
-        }
-        if (boardChute.getStatus()!=0){
-//            logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
-            return;
-        }
-        if (StringUtils.isEmpty(boardChute.getSendCode())){
-//            logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
-            return;
-        }
-        com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
-                initOperatorInfo(boardChute);
-        BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
-        logger.info("jmq4消费"+JsonHelper.toJson(req));
-//        jyComBoardSendService.finishBoard(req);
     }
 }
