@@ -54,6 +54,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingQuery;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -1761,4 +1762,13 @@ public class SortingServiceImpl implements SortingService {
 		return list;
 	}
 
+	@Override
+	public List<Sorting> pageQueryByBoxCode(SortingQuery query) {
+		SortingPageRequest boxQuery = new SortingPageRequest();
+		boxQuery.setBoxCode(query.getBoxCode());
+		boxQuery.setCreateSiteCode(query.getCreateSiteCode());
+		boxQuery.setLimit(query.getPageSize());
+		boxQuery.setOffset(query.getPageSize() * (query.getPageNo() - 1));
+		return dynamicSortingQueryDao.getPagePackageNoByBoxCode(boxQuery);
+	}
 }

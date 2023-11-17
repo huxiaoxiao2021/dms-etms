@@ -100,4 +100,7 @@ public class BoxMaterialRelationDao  extends BaseDao<BoxMaterialRelation> {
         query.setOffset((query.getPageNumber()-1)*query.getPageSize());
         return this.getSqlSession().selectOne(NAMESPACE + ".countByMaterialCodeAndBoxCode", query);
     }
+    public List<BoxMaterialRelation> getDataByBoxCodeList(List<String> boxCodeList) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getDataByBoxCodeList", boxCodeList);
+    }
 }
