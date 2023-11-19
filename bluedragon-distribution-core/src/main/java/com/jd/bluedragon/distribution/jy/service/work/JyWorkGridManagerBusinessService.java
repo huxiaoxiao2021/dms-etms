@@ -1,18 +1,24 @@
 package com.jd.bluedragon.distribution.jy.service.work;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTaskEditRequest;
 import com.jd.bluedragon.common.dto.work.ScanTaskPositionRequest;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
 import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerAutoCloseData;
 import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerSiteScanData;
+import com.jd.bluedragon.distribution.jy.service.work.impl.JyWorkGridManagerBusinessServiceImpl;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.user.JyUserDto;
 import com.jdl.basic.api.domain.work.WorkGridManagerTask;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfig;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkGridModifyMqData;
+import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 
 import java.util.Date;
 
@@ -46,6 +52,8 @@ public interface JyWorkGridManagerBusinessService {
 	 */
 	boolean executeWorkGridManagerSiteScanTask(Task task);
 
+	void sendTimeLineNotice(WorkGridManagerTaskBizType type, JyUserDto user);
+
 	JyBizTaskWorkGridManager initJyBizTaskWorkGridManager(BaseSiteInfoDto siteInfo, TaskWorkGridManagerSiteScanData taskWorkGridManagerScan,
 														  WorkGridManagerTask taskInfo, WorkGridManagerTaskConfigVo configData,
 														  WorkGrid grid, Date curDate);
@@ -71,4 +79,5 @@ public interface JyWorkGridManagerBusinessService {
 	 * @return
 	 */
 	boolean dealWorkGridModifyTask(WorkGridModifyMqData workGridModifyMqData);
+	
 }

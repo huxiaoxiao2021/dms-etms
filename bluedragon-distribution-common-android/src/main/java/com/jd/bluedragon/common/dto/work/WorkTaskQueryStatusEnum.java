@@ -1,19 +1,20 @@
-package com.jd.bluedragon.distribution.jy.work.enums;
+package com.jd.bluedragon.common.dto.work;
 
 /**
- * @ClassName WorkTaskTypeEnum
- * @Description 巡检任务类型
+ * @ClassName WorkTaskStatusEnum
+ * @Description 巡检状态-0：待分配 1：未完成 2：处理中 3：已完成  4:超时未完成
  * @Author wyd
  * @Date 2023/5/30 16:49
  **/
-public enum WorkTaskTypeEnum {
-	MEETING(1,"巡检例会"),
-	MEETING_RECORD(2,"巡检例会记录"),
-	WORKING (3,"巡检任务"),
-	IMPROVE (4,"改善反馈任务"),
+public enum WorkTaskQueryStatusEnum {
+
+	TODO(1, "待处理"),
+	COMPLETE(3, "已完成"),
+	OVER_TIME(4, "已超时"),
+    TRANSFERED(99, "已转派")
     ;
-	
-	private WorkTaskTypeEnum(Integer code, String name) {
+
+	private WorkTaskQueryStatusEnum(Integer code, String name) {
 		this.code = code;
 		this.name = name;
 	}
@@ -26,7 +27,7 @@ public enum WorkTaskTypeEnum {
 	 * @return
 	 */
     public static String getNameByCode(Integer code) {
-    	WorkTaskTypeEnum data = getEnum(code);
+		WorkTaskQueryStatusEnum data = getEnum(code);
     	if(data != null) {
     		return data.getName();
     	}
@@ -37,8 +38,8 @@ public enum WorkTaskTypeEnum {
 	 * @param code
 	 * @return
 	 */
-    public static WorkTaskTypeEnum getEnum(Integer code) {
-        for (WorkTaskTypeEnum value : WorkTaskTypeEnum.values()) {
+    public static WorkTaskQueryStatusEnum getEnum(Integer code) {
+        for (WorkTaskQueryStatusEnum value : WorkTaskQueryStatusEnum.values()) {
             if (value.code.equals(code)) {
                 return value;
             }
