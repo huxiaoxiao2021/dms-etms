@@ -7,9 +7,7 @@ import com.jd.binlog.client.WaveEntry;
 import com.jd.binlog.client.impl.JMQMessageDeserialize;
 import com.jd.bluedragon.common.dto.comboard.request.BoardReq;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
-import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeDto;
 import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeUtils;
 import com.jd.bluedragon.distribution.jdq4.binlake.ColumnRecord;
 import com.jd.bluedragon.distribution.jdq4.consume.BoardChute;
@@ -18,7 +16,6 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.client.consumer.MessageListener;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,11 +93,7 @@ public class BoardChuteConsumer  implements MessageListener {
                     afterChangeOfColumns.add(col);
                 }
             }
-
-            logger.info("row change: {}", JsonHelper.toJson(afterChangeOfColumns));
             BoardChute boardChute = BinLakeUtils.copyByList(afterChangeOfColumns, BoardChute.class);
-
-            logger.info("boardChute2: {}", JsonHelper.toJson(boardChute));
             if (boardChute == null) {
                 logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", JsonHelper.toJson(afterChangeOfColumns));
                 return;
