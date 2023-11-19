@@ -83,12 +83,21 @@ public class BoardChuteConsumer  implements MessageListener {
             List<ColumnRecord> afterChangeOfColumns = Lists.newArrayList();
             for (WaveEntry.RowData rowData : rowDatas) {
                 List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
-
-                ColumnRecord columnRecord = BinLakeUtils.copyByList(afterColumns, ColumnRecord.class);
-                logger.info("row change: {}", JsonHelper.toJson(columnRecord));
-                afterChangeOfColumns.add(columnRecord);
+                for (WaveEntry.Column column : afterColumns) {
+                    ColumnRecord col = new ColumnRecord();
+                    col.setIndex(column.getIndex());
+                    col.setKey(column.getIsKey());
+                    col.setLength(column.getLength());
+                    col.setName(column.getName());
+                    col.setValue(column.getValue());
+                    col.setMysqlType(column.getMysqlType());
+                    col.setSqlType(column.getSqlType());
+                    col.setUpdate(column.getUpdated());
+                    afterChangeOfColumns.add(col);
+                }
             }
 
+            logger.info("row change: {}", JsonHelper.toJson(afterChangeOfColumns));
             BoardChute boardChute = BinLakeUtils.copyByList(afterChangeOfColumns, BoardChute.class);
 
             logger.info("boardChute2: {}", JsonHelper.toJson(boardChute));
