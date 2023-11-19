@@ -16,7 +16,7 @@ public class JyWorkGridManagerData implements Serializable {
 	/**
 	 * 主键ID
 	 */
-	private Long id;	
+	private Long id;
 	/**
 	 * 业务主键
 	 */
@@ -30,7 +30,7 @@ public class JyWorkGridManagerData implements Serializable {
 	 * 站点名称
 	 */
 	private String siteName;
-	
+
 	/**
 	 * 任务编码
 	 */
@@ -48,7 +48,7 @@ public class JyWorkGridManagerData implements Serializable {
 
 	/**
 	 * @See com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum
-	 * 任务类型：1-例会（标题+内容） 2-例会记录（仅拍照） 3-工作区任务（多页签） 
+	 * 任务类型：1-例会（标题+内容） 2-例会记录（仅拍照） 3-工作区任务（多页签）
 	 */
 	private Integer taskType;
 
@@ -90,7 +90,7 @@ public class JyWorkGridManagerData implements Serializable {
 	 * @See com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum
 	 * 异常状态:0：待分配 1：未完成 2：处理中 3：已完成  4:超时未完成
 	 */
-	private Integer status;	
+	private Integer status;
 	/**
 	 * 创建时间
 	 */
@@ -104,8 +104,47 @@ public class JyWorkGridManagerData implements Serializable {
 	 * 处理完成时间
 	 */
 	private Date processEndTime;
-	
+	/**
+	 * 网格楼层
+	 */
+	private Integer floor;
+
+	/**
+	 * 任务业务类型标识：自检，指标，飞检 ...
+	 */
+	private String bizTypeLabel;
+
+	/**
+	 * 是否可转派
+	 */
+	private Boolean canTransfer;
+
+	/**
+	 * 是否转派
+	 */
+	private Integer transfered;
+
+	/**
+	 *  指标改善任务的指标信息
+	 *  只有指标改善任务才会有
+	 */
+	private BusinessQuotaInfoData businessQuotaInfoData;
+
 	private List<JyWorkGridManagerCaseData> caseList;
+
+	/**
+	 * 源处理人erp
+	 */
+	private String orignHandlerErp;
+
+
+	public String getOrignHandlerErp() {
+		return orignHandlerErp;
+	}
+
+	public void setOrignHandlerErp(String orignHandlerErp) {
+		this.orignHandlerErp = orignHandlerErp;
+	}
 
 	public Long getId() {
 		return id;
@@ -266,5 +305,44 @@ public class JyWorkGridManagerData implements Serializable {
 	public void setProcessEndTime(Date processEndTime) {
 		this.processEndTime = processEndTime;
 	}
-	
+
+	public Integer getFloor() {
+		return floor;
+	}
+
+	public void setFloor(Integer floor) {
+		this.floor = floor;
+	}
+
+	public String getBizTypeLabel() {
+		return bizTypeLabel;
+	}
+
+	public void setBizTypeLabel(String bizTypeLabel) {
+		this.bizTypeLabel = bizTypeLabel;
+	}
+
+	public Boolean getCanTransfer() {
+		return canTransfer;
+	}
+
+	public void setCanTransfer(Boolean canTransfer) {
+		this.canTransfer = canTransfer;
+	}
+
+	public BusinessQuotaInfoData getBusinessQuotaInfoData() {
+		return businessQuotaInfoData;
+	}
+
+	public void setBusinessQuotaInfoData(BusinessQuotaInfoData businessQuotaInfoData) {
+		this.businessQuotaInfoData = businessQuotaInfoData;
+	}
+
+	public Integer getTransfered() {
+		return transfered;
+	}
+
+	public void setTransfered(Integer transfered) {
+		this.transfered = transfered;
+	}
 }
