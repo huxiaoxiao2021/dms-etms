@@ -75,96 +75,33 @@ public class BoardChuteConsumer  implements MessageListener {
     public void onMessage(List<Message> messages) throws Exception {
 
         List<EntryMessage> entryMessages = deserialize.deserialize(messages);
-        logger.info("BoardChuteConsumer-entryMessages:"+JsonHelper.toJson(entryMessages));
-//            WaveEntry.Entry entry = WaveEntry.Entry.parseFrom(message.getByteBody());
         for (EntryMessage entryMessage : entryMessages) {
-
-
-            if (entryMessage.getEntryType().equals(WaveEntry.EntryType.TRANSACTIONBEGIN)) {
-                logger.info("transaction begin: {}", entryMessage.getHeader());
-                continue;
-            }
-
-            if (entryMessage.getEntryType().equals(WaveEntry.EntryType.TRANSACTIONEND)) {
-                logger.info("transaction end: {}", entryMessage.getHeader());
-
-                WaveEntry.TransactionEnd end = entryMessage.getEnd();
-                String transactionId = end.getTransactionId();
-                logger.info("Transaction end: {}, transaction id is {}", end, transactionId);
-                continue;
-            }
-
             logger.info("row header: {}", entryMessage.getHeader());
             logger.info("row change: {}", entryMessage.getRowChange());
             //获取数据行消息，分为INSERT、DELETE、UPDATE和其他
             List<WaveEntry.RowData> rowDatas = entryMessage.getRowChange().getRowDatasList();
             for (WaveEntry.RowData rowData : rowDatas) {
-                if (entryMessage.getHeader().getEventType() == WaveEntry.EventType.INSERT) {
-                    List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
-                    for (WaveEntry.Column column : afterColumns) {
-                        logger.info("After column: name is {}, value is {}", column.getName(), column.getValue());
-                    }
-                } else if (entryMessage.getHeader().getEventType() == WaveEntry.EventType.DELETE) {
-                    List<WaveEntry.Column> beforeColumns = rowData.getBeforeColumnsList();
-                    for (WaveEntry.Column column : beforeColumns) {
-                        logger.info("Before column: name is {}, value is {}", column.getName(), column.getValue());
-                    }
-                } else if (entryMessage.getHeader().getEventType() == WaveEntry.EventType.UPDATE) {
-                    List<WaveEntry.Column> beforeColumns = rowData.getBeforeColumnsList();
-                    for (WaveEntry.Column column : beforeColumns) {
-                        logger.info("Before column: name is {}, value is {}", column.getName(), column.getValue());
-                    }
-                    List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
-                    for (WaveEntry.Column column : afterColumns) {
-                        logger.info("After column: name is {}, value is {}", column.getName(), column.getValue());
-                    }
-                } else {
-                    logger.info("Event type is {}", entryMessage.getHeader().getEventType());
+                List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
+                BoardChute boardChute = BinLakeUtils.copyByList(afterColumns, BoardChute.class);
+                if (boardChute == null) {
+                    logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", JsonHelper.toJson(afterColumns));
+                    return;
                 }
+                if (boardChute.getStatus()!=0){
+                    logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
+                    return;
+                }
+                if (StringUtils.isEmpty(boardChute.getSendCode())){
+                    logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
+                    return;
+                }
+                com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
+                        initOperatorInfo(boardChute);
+                BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
+                logger.info("jmq4消费"+JsonHelper.toJson(req));
+                //        jyComBoardSendService.finishBoard(req);
             }
 
         }
-
-
-
-
-        for (Message message : messages) {
-            String content = message.getText();
-            logger.info("BoardChuteConsumer:"+content);
-
-            if (StringUtils.isEmpty(content)) {
-                return;
-            }
-
-            BinLakeDto dto = null;
-            try {
-                dto = com.jdl.basic.common.utils.JsonHelper.toObject(content, BinLakeDto.class);
-            } catch (Exception e) {
-                logger.error("BoardChuteConsumer解析异常！{}{}", content, e);
-                return;
-            }
-            if (CollectionUtils.isEmpty(dto.getAfterChangeOfColumns())) {
-                return;
-            }
-            BoardChute boardChute = BinLakeUtils.copyByList(dto.getAfterChangeOfColumns(), BoardChute.class);
-            if (boardChute == null) {
-                logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", content);
-                return;
-            }
-            if (boardChute.getStatus()!=0){
-//            logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
-                return;
-            }
-            if (StringUtils.isEmpty(boardChute.getSendCode())){
-//            logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
-                return;
-            }
-            com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
-                    initOperatorInfo(boardChute);
-            BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
-            logger.info("jmq4消费"+JsonHelper.toJson(req));
-//        jyComBoardSendService.finishBoard(req);
-        }
-
     }
 }
