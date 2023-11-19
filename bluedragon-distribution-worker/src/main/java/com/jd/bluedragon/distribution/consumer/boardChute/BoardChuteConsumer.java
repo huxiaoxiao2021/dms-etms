@@ -82,8 +82,9 @@ public class BoardChuteConsumer  implements MessageListener {
             List<WaveEntry.RowData> rowDatas = entryMessage.getRowChange().getRowDatasList();
             for (WaveEntry.RowData rowData : rowDatas) {
                 List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
+                logger.info("boardChute1: {}", JsonHelper.toJson(afterColumns));
                 BoardChute boardChute = BinLakeUtils.copyByList(afterColumns, BoardChute.class);
-                logger.info("boardChute: {}", JsonHelper.toJson(boardChute));
+                logger.info("boardChute2: {}", JsonHelper.toJson(boardChute));
                 if (boardChute == null) {
                     logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", JsonHelper.toJson(afterColumns));
                     return;
