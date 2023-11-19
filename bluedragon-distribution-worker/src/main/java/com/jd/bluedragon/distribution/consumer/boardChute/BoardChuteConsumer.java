@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.boardChute;
 
+import com.google.common.collect.Lists;
 import com.jd.binlog.client.EntryMessage;
 import com.jd.binlog.client.MessageDeserialize;
 import com.jd.binlog.client.WaveEntry;
@@ -10,6 +11,7 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeDto;
 import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeUtils;
+import com.jd.bluedragon.distribution.jdq4.binlake.ColumnRecord;
 import com.jd.bluedragon.distribution.jdq4.consume.BoardChute;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -76,34 +78,37 @@ public class BoardChuteConsumer  implements MessageListener {
 
         List<EntryMessage> entryMessages = deserialize.deserialize(messages);
         for (EntryMessage entryMessage : entryMessages) {
-            logger.info("row header: {}", entryMessage.getHeader());
-            logger.info("row change: {}", entryMessage.getRowChange());
             //获取数据行消息，分为INSERT、DELETE、UPDATE和其他
             List<WaveEntry.RowData> rowDatas = entryMessage.getRowChange().getRowDatasList();
+            List<ColumnRecord> afterChangeOfColumns = Lists.newArrayList();
             for (WaveEntry.RowData rowData : rowDatas) {
                 List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
-                logger.info("boardChute1: {}", JsonHelper.toJson(afterColumns));
-                BoardChute boardChute = BinLakeUtils.copyByList(afterColumns, BoardChute.class);
-                logger.info("boardChute2: {}", JsonHelper.toJson(boardChute));
-                if (boardChute == null) {
-                    logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", JsonHelper.toJson(afterColumns));
-                    return;
-                }
-                if (boardChute.getStatus()!=0){
-                    logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
-                    return;
-                }
-                if (StringUtils.isEmpty(boardChute.getSendCode())){
-                    logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
-                    return;
-                }
-                com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
-                        initOperatorInfo(boardChute);
-                BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
-                logger.info("jmq4消费"+JsonHelper.toJson(req));
-                //        jyComBoardSendService.finishBoard(req);
+
+                ColumnRecord columnRecord = BinLakeUtils.copyByList(afterColumns, ColumnRecord.class);
+                logger.info("row change: {}", JsonHelper.toJson(columnRecord));
+                afterChangeOfColumns.add(columnRecord);
             }
 
+            BoardChute boardChute = BinLakeUtils.copyByList(afterChangeOfColumns, BoardChute.class);
+
+            logger.info("boardChute2: {}", JsonHelper.toJson(boardChute));
+            if (boardChute == null) {
+                logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", JsonHelper.toJson(afterChangeOfColumns));
+                return;
+            }
+            if (boardChute.getStatus()!=0){
+                logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
+                return;
+            }
+            if (StringUtils.isEmpty(boardChute.getSendCode())){
+                logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
+                return;
+            }
+            com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
+                    initOperatorInfo(boardChute);
+            BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
+            logger.info("jmq4消费"+JsonHelper.toJson(req));
+            //        jyComBoardSendService.finishBoard(req);
         }
     }
 }
