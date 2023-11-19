@@ -1,18 +1,21 @@
 package com.jd.bluedragon.distribution.consumer.boardChute;
 
+import com.google.common.collect.Lists;
+import com.jd.binlog.client.EntryMessage;
+import com.jd.binlog.client.MessageDeserialize;
+import com.jd.binlog.client.WaveEntry;
+import com.jd.binlog.client.impl.JMQMessageDeserialize;
 import com.jd.bluedragon.common.dto.comboard.request.BoardReq;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
-import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeDto;
 import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeUtils;
+import com.jd.bluedragon.distribution.jdq4.binlake.ColumnRecord;
 import com.jd.bluedragon.distribution.jdq4.consume.BoardChute;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.client.consumer.MessageListener;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +29,7 @@ import java.util.List;
 public class BoardChuteConsumer  implements MessageListener {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardChuteConsumer.class);
-
+    MessageDeserialize deserialize = new JMQMessageDeserialize();
     @Autowired
     private JyComBoardSendService jyComBoardSendService;
     @Autowired
@@ -70,42 +73,44 @@ public class BoardChuteConsumer  implements MessageListener {
     @Override
     public void onMessage(List<Message> messages) throws Exception {
 
-        for (Message message : messages) {
-            String content = message.getText();
-            logger.info("BoardChuteConsumer:"+content);
-            if (StringUtils.isEmpty(content)) {
-                return;
+        List<EntryMessage> entryMessages = deserialize.deserialize(messages);
+        for (EntryMessage entryMessage : entryMessages) {
+            //获取数据行消息，分为INSERT、DELETE、UPDATE和其他
+            List<WaveEntry.RowData> rowDatas = entryMessage.getRowChange().getRowDatasList();
+            List<ColumnRecord> afterChangeOfColumns = Lists.newArrayList();
+            for (WaveEntry.RowData rowData : rowDatas) {
+                List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
+                for (WaveEntry.Column column : afterColumns) {
+                    ColumnRecord col = new ColumnRecord();
+                    col.setIndex(column.getIndex());
+                    col.setKey(column.getIsKey());
+                    col.setLength(column.getLength());
+                    col.setName(column.getName());
+                    col.setValue(column.getValue());
+                    col.setMysqlType(column.getMysqlType());
+                    col.setSqlType(column.getSqlType());
+                    col.setUpdate(column.getUpdated());
+                    afterChangeOfColumns.add(col);
+                }
             }
-
-            BinLakeDto dto = null;
-            try {
-                dto = com.jdl.basic.common.utils.JsonHelper.toObject(content, BinLakeDto.class);
-            } catch (Exception e) {
-                logger.error("BoardChuteConsumer解析异常！{}{}", content, e);
-                return;
-            }
-            if (CollectionUtils.isEmpty(dto.getAfterChangeOfColumns())) {
-                return;
-            }
-            BoardChute boardChute = BinLakeUtils.copyByList(dto.getAfterChangeOfColumns(), BoardChute.class);
+            BoardChute boardChute = BinLakeUtils.copyByList(afterChangeOfColumns, BoardChute.class);
             if (boardChute == null) {
-                logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", content);
+                logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", JsonHelper.toJson(afterChangeOfColumns));
                 return;
             }
             if (boardChute.getStatus()!=0){
-//            logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
+                logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
                 return;
             }
             if (StringUtils.isEmpty(boardChute.getSendCode())){
-//            logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
+                logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
                 return;
             }
             com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
                     initOperatorInfo(boardChute);
             BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
             logger.info("jmq4消费"+JsonHelper.toJson(req));
-//        jyComBoardSendService.finishBoard(req);
+            //        jyComBoardSendService.finishBoard(req);
         }
-
     }
 }
