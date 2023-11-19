@@ -1,5 +1,9 @@
 package com.jd.bluedragon.distribution.consumer.boardChute;
 
+import com.jd.binlog.client.EntryMessage;
+import com.jd.binlog.client.MessageDeserialize;
+import com.jd.binlog.client.WaveEntry;
+import com.jd.binlog.client.impl.JMQMessageDeserialize;
 import com.jd.bluedragon.common.dto.comboard.request.BoardReq;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -26,7 +30,7 @@ import java.util.List;
 public class BoardChuteConsumer  implements MessageListener {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardChuteConsumer.class);
-
+    MessageDeserialize deserialize = new JMQMessageDeserialize();
     @Autowired
     private JyComBoardSendService jyComBoardSendService;
     @Autowired
@@ -70,9 +74,64 @@ public class BoardChuteConsumer  implements MessageListener {
     @Override
     public void onMessage(List<Message> messages) throws Exception {
 
+        List<EntryMessage> entryMessages = deserialize.deserialize(messages);
+        logger.info("BoardChuteConsumer-entryMessages:"+JsonHelper.toJson(entryMessages));
+//            WaveEntry.Entry entry = WaveEntry.Entry.parseFrom(message.getByteBody());
+        for (EntryMessage entryMessage : entryMessages) {
+
+
+            if (entryMessage.getEntryType().equals(WaveEntry.EntryType.TRANSACTIONBEGIN)) {
+                logger.info("transaction begin: {}", entryMessage.getHeader());
+                continue;
+            }
+
+            if (entryMessage.getEntryType().equals(WaveEntry.EntryType.TRANSACTIONEND)) {
+                logger.info("transaction end: {}", entryMessage.getHeader());
+
+                WaveEntry.TransactionEnd end = entryMessage.getEnd();
+                String transactionId = end.getTransactionId();
+                logger.info("Transaction end: {}, transaction id is {}", end, transactionId);
+                continue;
+            }
+
+            logger.info("row header: {}", entryMessage.getHeader());
+            logger.info("row change: {}", entryMessage.getRowChange());
+            //获取数据行消息，分为INSERT、DELETE、UPDATE和其他
+            List<WaveEntry.RowData> rowDatas = entryMessage.getRowChange().getRowDatasList();
+            for (WaveEntry.RowData rowData : rowDatas) {
+                if (entryMessage.getHeader().getEventType() == WaveEntry.EventType.INSERT) {
+                    List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
+                    for (WaveEntry.Column column : afterColumns) {
+                        logger.info("After column: name is {}, value is {}", column.getName(), column.getValue());
+                    }
+                } else if (entryMessage.getHeader().getEventType() == WaveEntry.EventType.DELETE) {
+                    List<WaveEntry.Column> beforeColumns = rowData.getBeforeColumnsList();
+                    for (WaveEntry.Column column : beforeColumns) {
+                        logger.info("Before column: name is {}, value is {}", column.getName(), column.getValue());
+                    }
+                } else if (entryMessage.getHeader().getEventType() == WaveEntry.EventType.UPDATE) {
+                    List<WaveEntry.Column> beforeColumns = rowData.getBeforeColumnsList();
+                    for (WaveEntry.Column column : beforeColumns) {
+                        logger.info("Before column: name is {}, value is {}", column.getName(), column.getValue());
+                    }
+                    List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
+                    for (WaveEntry.Column column : afterColumns) {
+                        logger.info("After column: name is {}, value is {}", column.getName(), column.getValue());
+                    }
+                } else {
+                    logger.info("Event type is {}", entryMessage.getHeader().getEventType());
+                }
+            }
+
+        }
+
+
+
+
         for (Message message : messages) {
             String content = message.getText();
             logger.info("BoardChuteConsumer:"+content);
+
             if (StringUtils.isEmpty(content)) {
                 return;
             }
