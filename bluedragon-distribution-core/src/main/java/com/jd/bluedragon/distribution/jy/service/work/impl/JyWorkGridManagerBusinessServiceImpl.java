@@ -5,11 +5,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.jd.bluedragon.common.dto.work.*;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.jy.dto.work.*;
 import com.jd.bluedragon.distribution.jy.enums.TransferTypeEnum;
 import com.jd.bluedragon.distribution.jy.manager.IQuotaTargetConfigManager;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
+import com.jd.bluedragon.utils.easydata.OneTableEasyDataConfig;
 import com.jd.dms.wb.sdk.dto.loss.QuotaTargetConfigDto;
 import com.jd.dms.wb.sdk.enums.oneTable.BusinessTypeEnum;
 import com.jd.bluedragon.utils.*;
@@ -27,6 +29,7 @@ import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
 import com.jdl.basic.common.utils.DateUtil;
 import com.jdl.basic.common.utils.MathUtil;
+import org.apache.avro.data.Json;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
@@ -101,6 +104,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	private static final Logger logger = LoggerFactory.getLogger(JyWorkGridManagerBusinessServiceImpl.class);
 	//丢失一表通 发货扫描率指标key
 	private static final String SEND_SCAN_QUOTA_CODE="dis000034";
+	// 指标改善任务场地数量 sysconfig配置
+	private static final String KPI_IMPROVE_TASK_SITE_NUM_KEY = "kpi.improve.task.site.num";
 	
 	@Autowired
 	@Qualifier("jyBizTaskWorkGridManagerService")
@@ -152,6 +157,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	protected EasyDataClientUtil easyDataClientUtil;
 	@Autowired
 	private DmsWEasyDataConfig dmsWEasyDataConfig;
+
+	@Autowired
+	private OneTableEasyDataConfig oneTableEasyDataConfig;
 	
 	@Autowired
 	private IQuotaTargetConfigManager iQuotaTargetConfigManager;
@@ -580,36 +588,49 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				String.valueOf(BusinessTypeEnum.SORT.getCode()), Class2TypeEnum.LOST.getCode());
 		String targetStr = "";
 		if(target != null){
-			queryParam.put("target", target);
+			queryParam.put("target", target/100);
 			targetStr = String.format("%.2f",target);
 		}
+		Integer limit = 20;
+		SysConfig kpiImproveTaskSiteNumConfig = sysConfigService.findConfigContentByConfigName(KPI_IMPROVE_TASK_SITE_NUM_KEY);
+		if(kpiImproveTaskSiteNumConfig == null || !org.apache.commons.lang3.StringUtils.isNumeric(kpiImproveTaskSiteNumConfig.getConfigContent())){
+			limit = Integer.parseInt(kpiImproveTaskSiteNumConfig.getConfigContent());
+		}
+
 		//调用easydata
-		FdsPage edresult = easyDataClientUtil.query(dmsWEasyDataConfig.getQueryLostOneTableSite(), queryParam,
-				dmsWEasyDataConfig.getApiGroupName(),dmsWEasyDataConfig.getAppToken(),
-				pageSize,pageNum - 1,
-				dmsWEasyDataConfig.getTenant());
-		if(edresult != null
-				&& !CollectionUtils.isEmpty(edresult.getResult())) {
-			Map<Integer, BusinessQuotaInfoData> businessQuotaInfoDataMap = new HashMap<>();
-			scanSiteInfo.setBusinessQuotaInfoDataMap(businessQuotaInfoDataMap);
-			String quotaAchieveInfo = DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2), "MM/dd") + "未达标";
-			for(Map<String, Object> data : edresult.getResult()){
-				Integer siteCode = Integer.valueOf(data.get("siteCode").toString());
-				if(data.containsKey("siteCode") && data.get("siteCode") != null) {
-					siteCodes.add(siteCode);
-				}else {
-					continue;
-				}
-				if(data.containsKey("actual") && 
-						org.apache.commons.lang3.StringUtils.isNumeric(String.valueOf(data.get("actual")))){
-					BusinessQuotaInfoData businessQuotaInfoData = new BusinessQuotaInfoData();
-					businessQuotaInfoData.setTarget(targetStr);
-					businessQuotaInfoData.setActual(String.format("%.2f",data.get("actual")));
-					businessQuotaInfoData.setQuotaAchieveInfo(quotaAchieveInfo);
-					businessQuotaInfoDataMap.put(siteCode, businessQuotaInfoData);
-				}
+		FdsPage edresult = easyDataClientUtil.query(oneTableEasyDataConfig.getQueryLostOneTableSite(), queryParam,
+				oneTableEasyDataConfig.getApiGroupName(),oneTableEasyDataConfig.getAppToken(),
+				limit,pageNum - 1,
+				oneTableEasyDataConfig.getTenant());
+		if(edresult == null || CollectionUtils.isEmpty(edresult.getResult())){
+			logger.info("查询一表通指标倒数的场地和指标达成-未查到,queryParam:{},limit:{},pageNum:{}", JsonHelper.toJson(queryParam),
+					limit, pageNum -1);
+			return scanSiteInfo;
+		}
+		
+		Map<Integer, BusinessQuotaInfoData> businessQuotaInfoDataMap = new HashMap<>();
+		scanSiteInfo.setBusinessQuotaInfoDataMap(businessQuotaInfoDataMap);
+		String quotaAchieveInfo = DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2), "MM/dd") + "未达标";
+		for(Map<String, Object> data : edresult.getResult()){
+			Integer siteCode = Integer.valueOf(data.get("siteCode").toString());
+			if(data.containsKey("siteCode") && data.get("siteCode") != null) {
+				siteCodes.add(siteCode);
+			}else {
+				continue;
+			}
+			if(data.containsKey("actual") && 
+					org.apache.commons.lang3.StringUtils.isNumeric(String.valueOf(data.get("actual")))){
+				BusinessQuotaInfoData businessQuotaInfoData = new BusinessQuotaInfoData();
+				businessQuotaInfoData.setTarget(targetStr);
+				Double actual = Double.parseDouble(data.get("actual").toString());
+				actual = actual * 100;
+				businessQuotaInfoData.setActual(String.format("%.2f",actual));
+				businessQuotaInfoData.setQuotaAchieveInfo(quotaAchieveInfo);
+				businessQuotaInfoDataMap.put(siteCode, businessQuotaInfoData);
 			}
 		}
+		logger.info("查询一表通指标倒数的场地和指标达成-,queryParam:{},查到场地：{}", JsonHelper.toJson(queryParam),
+				JsonHelper.toJson(siteCodes));
 		return scanSiteInfo;
 	}
 	
@@ -1136,14 +1157,13 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			return null;
 		}
 		Map<String, Object> queryParam = new HashMap<>();
-		queryParam.put("dt", DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2)));
-		//发货扫描率编码指标名称
-		queryParam.put("areaCodes", areaCodes);
+		String dt = DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2));
+		queryParam.put("dt", dt);
 		queryParam.put("siteCode", siteCode);
-		queryParam.put("limit", limit);
 		//调用easydata 装车质量 发货扫描率倒数第一的网格
-		FdsServerResult edresult = easyDataClientUtil.queryNoPage(dmsWEasyDataConfig.getQueryLoadCarQualityGrid(), queryParam,
+		FdsServerResult edresult = easyDataClientUtil.query(dmsWEasyDataConfig.getQueryLoadCarQualityGrid(), queryParam,
 				dmsWEasyDataConfig.getApiGroupName(),dmsWEasyDataConfig.getAppToken(),
+				limit,pageNum - 1,
 				dmsWEasyDataConfig.getTenant());
 
 		if(edresult == null || CollectionUtils.isEmpty(edresult.getResult())) {
@@ -1151,6 +1171,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			return null;
 		}
 		List<WorkGrid> workGrids = new ArrayList<>();
+		List<String> refGridKeys = new ArrayList<>();
 		for(Map<String, Object> data : edresult.getResult()){
 			String refGridKey = null;
 			if(data.containsKey("refGridKey")) {
@@ -1160,9 +1181,12 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					logger.info("从装车质量报表ck未查到网格信息,网格信息为空,refGridKey:{}", refGridKey);
 					continue;
 				}
+				refGridKeys.add(refGridKey);
 				workGrids.add(workGridResult.getData());
 			}
 		}
+		logger.info("装车质量报表查到指标平均得分倒数的网格,dt:{},siteCode:{},refGridKeys:{}", dt, siteCode, 
+				JsonHelper.toJson(refGridKeys));
 		return workGrids;
 	}
 

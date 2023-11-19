@@ -43,7 +43,7 @@ public class QuotaTargetConfigManagerImpl implements IQuotaTargetConfigManager{
                     log.info("获取成功-丢失一表通-发货扫描-目标值:{},BusinessType:{},QuotaCode:{},year:{},Class2Type:{}",
                             dto.getTarget(),request.getBusinessType(),request.getQuotaCode(), request.getYear(),
                             request.getClass2Type());
-                    return dto.getTarget()/100;
+                    return dto.getTarget();
                 }
             }
         }

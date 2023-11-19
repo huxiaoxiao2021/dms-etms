@@ -3,19 +3,21 @@ package com.jd.bluedragon.utils.easydata;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Component("dmsWEasyDataConfig")
-public class DmsWEasyDataConfig {
-    @Value("${easydata.config.apiGroupName:dmsw}")
+@Component("oneTableEasyDataConfig")
+public class OneTableEasyDataConfig {
+    @Value("${oneTable.easydata.config.apiGroupName:allinonetable2}")
     String apiGroupName;
-    @Value("${easydata.config.appToken:420031492ac5be1fe540eb9a534db68f}")
+    @Value("${oneTable.easydata.config.appToken:1ed5b6c70298be8d2ad69d6644a43443}")
     String appToken;
-    @Value("${easydata.config.tenant:ARIES}")
+    @Value("${easydata.config.tenant:LEO}")
     String tenant;
+
     /**
-     * 查询根据场地查询装车质量网格
+     * 查询丢失一表通，倒数的场地
      */
-    @Value("${easydata.config.dmsWEasyDataConfig.queryLoadCarQualityGrid:queryLoadCarQualityGrid}")
-    String queryLoadCarQualityGrid;
+    @Value("${easydata.config.dmsWEasyDataConfig.queryLostOneTableQuotaSite:queryLostOneTableQuotaSite}")
+    String queryLostOneTableSite;
+
 
     public String getApiGroupName() {
         return apiGroupName;
@@ -40,12 +42,13 @@ public class DmsWEasyDataConfig {
     public void setTenant(String tenant) {
         this.tenant = tenant;
     }
-    
-    public String getQueryLoadCarQualityGrid() {
-        return queryLoadCarQualityGrid;
+
+    public String getQueryLostOneTableSite() {
+        return queryLostOneTableSite;
     }
 
-    public void setQueryLoadCarQualityGrid(String queryLoadCarQualityGrid) {
-        this.queryLoadCarQualityGrid = queryLoadCarQualityGrid;
+    public void setQueryLostOneTableSite(String queryLostOneTableSite) {
+        this.queryLostOneTableSite = queryLostOneTableSite;
     }
+    
 }
