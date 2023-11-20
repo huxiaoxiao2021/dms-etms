@@ -1,6 +1,5 @@
 package com.jd.bluedragon.dms.binlake;
 
-import com.google.common.collect.Lists;
 import com.jd.binlog.client.EntryMessage;
 import com.jd.binlog.client.MessageDeserialize;
 import com.jd.binlog.client.WaveEntry;
@@ -21,7 +20,7 @@ public class BinLakeUtils {
 
     public static List<ColumnRecord> getColumnRecords(EntryMessage entryMessage) {
         List<WaveEntry.RowData> rowDatas = entryMessage.getRowChange().getRowDatasList();
-        List<ColumnRecord> afterChangeOfColumns = Lists.newArrayList();
+        List<ColumnRecord> afterChangeOfColumns = new ArrayList();
         for (WaveEntry.RowData rowData : rowDatas) {
             List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
             for (WaveEntry.Column column : afterColumns) {
