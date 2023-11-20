@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jdq4.binlake;
+package com.jd.bluedragon.dms.binlake;
 
 import lombok.Data;
 
