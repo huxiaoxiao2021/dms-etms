@@ -77,7 +77,7 @@ public class DateHelper {
     /**
      * 一天的毫秒数
      */
-    public static final long ONE_DAY = 24 * 60 * 60 * 1000;
+    public static final long ONE_DAY = 24 * 60 * 60 * 1000L;
     /**
      * 一天的小时数
      */
@@ -651,6 +651,16 @@ public class DateHelper {
         DateFormat format = new SimpleDateFormat(DATE_FORMAT_YYYYMMDD);
         return format.format(new Date());
     }
+
+    /**
+     * 获取指定时间的年月日 yyMMdd
+     * @return
+     */
+    public static String getSpecialDateOfyyMMdd2(long timestamp){
+        DateFormat format = new SimpleDateFormat(DATE_FORMAT_YYYYMMDD);
+        return format.format(new Date(timestamp));
+    }
+
     /**
      *
      * @param hours

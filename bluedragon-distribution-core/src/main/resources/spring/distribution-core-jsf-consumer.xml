@@ -1092,7 +1092,16 @@
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
-
+    <!--  网格班次管理服务  -->
+    <jsf:consumer id="workGridScheduleJsfService"
+                  interface="com.jdl.basic.api.service.schedule.WorkGridScheduleJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
     <!-- 岗位管理接口 -->
     <jsf:consumer id="basicPositionQueryJsfService"
                   interface="com.jdl.basic.api.service.position.PositionQueryJsfService"
@@ -1368,6 +1377,15 @@
     <!--  积分排名服务  -->
     <jsf:consumer id="jyFlatIntegralRankingJSFService"
                   interface="com.jdl.jy.flat.api.integral.IJyFlatIntegralRankingJSFService"
+                  protocol="jsf"
+                  alias="${jsf.jy.flat.service.alias}"
+                  timeout="${jsf.jy.flat.service.timeout}"
+                  retries="${jsf.retries}"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!--  网格排班服务  -->
+    <jsf:consumer id="scheduleJSFService"
+                  interface="com.jdl.jy.flat.api.schedule.ScheduleJSFService"
                   protocol="jsf"
                   alias="${jsf.jy.flat.service.alias}"
                   timeout="${jsf.jy.flat.service.timeout}"

@@ -231,6 +231,16 @@ public class UserSignRecord implements Serializable {
 	 */
 	private String idCard;
 
+	/**
+	 * 新班次:1-白班1， 2-白班2， 3-白班3， 4-中班1， 5-中班2， 6-中班3， 7-晚班1， 8-晚班2， 9-晚班3，10-白班，11-中班，12-晚班
+	 */
+	private String waveCodeNew;
+
+	/**
+	 * 班次时间
+	 */
+	private String waveTime;
+
 	public String getIdCard() {
 		return idCard;
 	}
@@ -857,5 +867,21 @@ public class UserSignRecord implements Serializable {
 			areaHubName = "";
 		}
 		this.areaHubName = areaHubName;
+	}
+
+	public String getWaveCodeNew() {
+		return waveCodeNew;
+	}
+
+	public void setWaveCodeNew(String waveCodeNew) {
+		this.waveCodeNew = waveCodeNew;
+	}
+
+	public String getWaveTime() {
+		return waveTime;
+	}
+
+	public void setWaveTime(String waveTime) {
+		this.waveTime = waveTime;
 	}
 }
