@@ -844,7 +844,7 @@ public class SendVehicleTransactionManager {
         }
         Date now = new Date();
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
-        entity.setBizId(taskSendDetail.getBizId());
+        entity.setBizId(taskSendDetail.getSendVehicleBizId());
         entity.setYn(Constants.YN_NO);
         entity.setUpdateTime(now);
         entity.setUpdateUserErp(DEFAULT_USER);
