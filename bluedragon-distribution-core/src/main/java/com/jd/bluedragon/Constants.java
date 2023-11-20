@@ -1673,6 +1673,21 @@ public class Constants {
     public static final Integer NUMBER_ONE = 1;
 
     /**
+     * 数字：3
+     */
+    public static final Integer NUMBER_THREE = 3;
+
+    /**
+     * 数字：9
+     */
+    public static final Integer NUMBER_NINE = 9;
+
+    /**
+     * 数字：24
+     */
+    public static final Integer NUMBER_TWENTY_FOUR = 24;
+
+    /**
      * SendD取消状态
      */
     public static final int OPERATE_TYPE_CANCEL_L = 0;
