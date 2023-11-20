@@ -198,4 +198,12 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
+
+	/**
+	 * 查询用户第一次签到记录，返回UserSignRecordData
+	 * @param query
+	 * @return
+	 */
+	UserSignRecordData queryFirstUserSignRecordData(UserSignQueryRequest query);
+
 }
