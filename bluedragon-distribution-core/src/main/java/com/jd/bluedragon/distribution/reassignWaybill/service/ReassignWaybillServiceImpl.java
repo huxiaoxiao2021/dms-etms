@@ -519,7 +519,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			reassignWaybillApprovalRecordDao.updateByBarCodeApprovalNoPass(updaDateRecord);
 		}
 		// 将当前单号的审批工单号放入缓存  等到取消审批时使用
-		redisClientOfJy.setEx(mq.getBarCode(),approveOrderCode,1,TimeUnit.DAYS);
+		redisClientOfJy.setEx(mq.getBarCode(),approveOrderCode,7,TimeUnit.DAYS);
 	}
 
 
