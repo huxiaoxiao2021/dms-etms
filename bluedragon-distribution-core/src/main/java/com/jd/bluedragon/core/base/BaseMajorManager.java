@@ -7,10 +7,7 @@ import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
-import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.ql.basic.domain.BaseOrg;
-import com.jd.ql.basic.domain.BaseSite;
-import com.jd.ql.basic.domain.PsStoreInfo;
+import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -260,4 +257,18 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	List<BaseStaffSiteDTO> queryBaseStaffByRole(String provinceAgencyCode, Integer role);
+
+	/**
+	 * 根据身份证号查询是否已经存在员工信息
+	 */
+	BaseStaff checkIDCardNoExists(String idCardNo);
+
+
+    /**
+     * 根据用户编码获取第三方员工信息
+     *
+     * @param userCode 用户编码
+     * @return 第三方员工信息
+     */
+	BaseStaffSiteOrgDto getThirdStaffByUserCode(String userCode);
 }
