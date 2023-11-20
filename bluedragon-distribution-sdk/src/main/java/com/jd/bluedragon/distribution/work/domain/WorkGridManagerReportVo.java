@@ -5,9 +5,9 @@ import java.util.Date;
 import java.util.List;
 
 public class WorkGridManagerReportVo  implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * 主键ID
 	 */
@@ -145,7 +145,31 @@ public class WorkGridManagerReportVo  implements Serializable {
 	/**
 	 * 状态:0：待分配 1：待处理 2：处理中 3：已完成  4:超时删除
 	 */
-	private String statusName;	
+	private String statusName;
+	/**
+	 * 是否转派
+	 */
+	private Integer transfered;
+	/**
+	 * 原处理人岗位编号
+	 */
+	private String orignHandlerUserPositionCode;
+	/**
+	 * 原处理人岗位名称
+	 */
+	private String orignHandlerUserPositionName;
+	/**
+	 * 转派时间
+	 */
+	private Date transferTime;
+	/**
+	 * 源处理人erp
+	 */
+	private String orignHandlerErp;
+	/**
+	 * 原处理人姓名
+	 */
+	private String orignHandlerUserName;
 
 	/**
 	 * 开始处理时间
@@ -201,7 +225,7 @@ public class WorkGridManagerReportVo  implements Serializable {
 	 * 任务名称
 	 */
 	private String isMatchName;
-	
+
 	private String taskBizTypeName;
 
 	private List<JyWorkGridManagerCaseDataVO> caseList;
@@ -458,5 +482,53 @@ public class WorkGridManagerReportVo  implements Serializable {
 
 	public void setTaskBizTypeName(String taskBizTypeName) {
 		this.taskBizTypeName = taskBizTypeName;
+	}
+
+	public Integer getTransfered() {
+		return transfered;
+	}
+
+	public void setTransfered(Integer transfered) {
+		this.transfered = transfered;
+	}
+
+	public String getOrignHandlerUserPositionCode() {
+		return orignHandlerUserPositionCode;
+	}
+
+	public void setOrignHandlerUserPositionCode(String orignHandlerUserPositionCode) {
+		this.orignHandlerUserPositionCode = orignHandlerUserPositionCode;
+	}
+
+	public String getOrignHandlerUserPositionName() {
+		return orignHandlerUserPositionName;
+	}
+
+	public void setOrignHandlerUserPositionName(String orignHandlerUserPositionName) {
+		this.orignHandlerUserPositionName = orignHandlerUserPositionName;
+	}
+
+	public Date getTransferTime() {
+		return transferTime;
+	}
+
+	public void setTransferTime(Date transferTime) {
+		this.transferTime = transferTime;
+	}
+
+	public String getOrignHandlerErp() {
+		return orignHandlerErp;
+	}
+
+	public void setOrignHandlerErp(String orignHandlerErp) {
+		this.orignHandlerErp = orignHandlerErp;
+	}
+
+	public String getOrignHandlerUserName() {
+		return orignHandlerUserName;
+	}
+
+	public void setOrignHandlerUserName(String orignHandlerUserName) {
+		this.orignHandlerUserName = orignHandlerUserName;
 	}
 }

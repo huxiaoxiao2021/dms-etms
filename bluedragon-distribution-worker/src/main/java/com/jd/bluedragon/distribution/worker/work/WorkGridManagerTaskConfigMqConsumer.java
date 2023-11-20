@@ -29,6 +29,11 @@ public class WorkGridManagerTaskConfigMqConsumer extends MessageBaseConsumer {
     @Autowired
 	@Qualifier("jyWorkGridManagerBusinessService")
     private JyWorkGridManagerBusinessService jyWorkGridManagerBusinessService;
+
+    @Override
+    public void setUat(String uat) {
+        super.setUat("false");
+    }
     
     @Override
     public void consume(Message message) throws Exception {
