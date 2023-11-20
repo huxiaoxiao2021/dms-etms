@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.fastjson.JSON;
@@ -39,6 +40,9 @@ public class HrUserManagerImpl implements HrUserManager{
     @Autowired
     private HrUserService hrUserService;
 
+    @Autowired
+    UccPropertyConfiguration configuration;
+
     @Cache(key = "hrUserManager.getSuperiorErp@args0", memoryEnable = true, memoryExpiredTime = 5 * 1000,
             redisEnable = false)
     @Override
@@ -46,8 +50,14 @@ public class HrUserManagerImpl implements HrUserManager{
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.HrUserManager.getSuperiorErp",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         try {
-            if(StringUtils.isEmpty(userErp)){
+            if (StringUtils.isEmpty(userErp)) {
                 return null;
+            }
+            String superiorErpKV = configuration.getSuperiorErpKV();
+            JSONObject j = JSONObject.parseObject(superiorErpKV);
+            String s = j.getString(userErp);
+            if (StringUtils.isNotEmpty(s)) {
+                return s;
             }
             String businessId = String.valueOf(System.currentTimeMillis());
             String requestTimestamp = DateHelper.formatDate(new Date(), Constants.DATE_TIME_MS_FORMAT);
