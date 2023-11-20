@@ -44,6 +44,10 @@ public class BoxPrintBaseInfo implements Serializable {
      */
     private String boxType;
     /**
+     * 箱号子类型
+     */
+    private String boxSubType;
+    /**
      * 运输方式
      */
     private String categoryText;
@@ -98,6 +102,15 @@ public class BoxPrintBaseInfo implements Serializable {
 
     public void setBoxType(String boxType) {
         this.boxType = boxType;
+    }
+
+    public String getBoxSubType() {
+        return boxSubType;
+    }
+
+    public BoxPrintBaseInfo setBoxSubType(String boxSubType) {
+        this.boxSubType = boxSubType;
+        return this;
     }
 
     public String getCategoryText() {

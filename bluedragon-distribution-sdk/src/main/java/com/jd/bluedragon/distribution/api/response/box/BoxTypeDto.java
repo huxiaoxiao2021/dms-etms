@@ -15,7 +15,12 @@ public class BoxTypeDto implements Serializable {
     /**
      * 选项值
      */
-    private String code;
+    private String typeCode;
+
+    /**
+     * 子类型值
+     */
+    private String subTypeCode;
 
     /**
      * 描述
@@ -35,12 +40,22 @@ public class BoxTypeDto implements Serializable {
     public BoxTypeDto() {
     }
 
-    public String getCode() {
-        return code;
+    public String getTypeCode() {
+        return typeCode;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public BoxTypeDto setTypeCode(String typeCode) {
+        this.typeCode = typeCode;
+        return this;
+    }
+
+    public String getSubTypeCode() {
+        return subTypeCode;
+    }
+
+    public BoxTypeDto setSubTypeCode(String subTypeCode) {
+        this.subTypeCode = subTypeCode;
+        return this;
     }
 
     public String getName() {

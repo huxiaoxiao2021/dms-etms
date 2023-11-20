@@ -89,14 +89,13 @@ public class BoxResource {
     @Resource(name="siteBoxTypeMap")
     private Map<String,String> siteBoxTypeMap;
 
-    @Resource(name="siteBoxTypeV2Map")
-    private Map<String,String> siteBoxTypeV2Map;
-
     @Resource(name="sortingBoxTypeMap")
     private Map<String,String> sortingBoxTypeMap;
 
-    @Resource(name="sortingBoxTypeV2Map")
-    private Map<String,String> sortingBoxTypeV2Map;
+    @Resource(name="sortingBoxSubTypeMap")
+    private Map<String,String> sortingBoxSubTypeMap;
+    @Resource(name="siteBoxSubTypeMap")
+    private Map<String,String> siteBoxSubTypeMap;
 
     @Autowired
     private CycleBoxService cycleBoxService;
@@ -347,7 +346,7 @@ public class BoxResource {
     }
 
     /**
-     * 为自动分拣机生成箱号 新版
+     * 为自动分拣机生成箱号 新版 // todo
      *
      * @param request
      * @return
@@ -660,7 +659,7 @@ public class BoxResource {
      * @return
      */
     @POST
-    @Path("/boxes/getBoxType")
+    @Path("/boxes/getBoxType") // todo
     public BoxResponse getBoxType(BoxRequest request) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getOperateUserErp(), "request receiveSiteCode must not be null");
@@ -676,14 +675,14 @@ public class BoxResource {
         if (siteTypes.contains(baseStaffSiteOrgDto.getSubType())){
             response.setBoxTypes(siteBoxTypeMap);
             if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
-                response.setBoxTypes(siteBoxTypeV2Map);
+                response.setBoxTypes(siteBoxSubTypeMap);
             }
             return response;
         }
         //分拣中心
         response.setBoxTypes(sortingBoxTypeMap);
         if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
-            response.setBoxTypes(sortingBoxTypeV2Map);
+            response.setBoxTypes(sortingBoxSubTypeMap);
         }
         return response;
     }

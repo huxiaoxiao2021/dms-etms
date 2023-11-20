@@ -6,29 +6,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 新版箱号枚举
+ * 新版箱号大类枚举
  * @author fanggang7
  * @time 2023-10-25 10:20:44 周三
  */
 public enum BoxTypeV2Enum {
 
-    TYPE_BCTC("10", "BC", "同城"),
-    TYPE_BCLY("11", "BC", "陆运"),
-    TYPE_BCHK("12", "BC", "航空"),
-    TYPE_BCTL("13", "BC", "铁路"),
-    TYPE_TCTH("20", "TC", "退货组"),
-    TYPE_TCBJ("21", "TC", "备件库"),
-    TYPE_WJ("30", "WJ", "文件"),
-    TYPE_TA("40", "TA", "特安"),
-    TYPE_LL("50", "LL", "笼车/围板箱"),
+    TYPE_BC("BC", "同城"),
+    TYPE_TC("TC", "退货组"),
+    TYPE_WJ("WJ", "文件"),
+    TYPE_TA("TA", "特安"),
+    TYPE_LL("LL", "笼车/围板箱"),
     ;
 
     private String code;
-
-    /**
-     * 显示的code
-     */
-    private String codeShow;
 
     private String name;
 
@@ -36,9 +27,8 @@ public enum BoxTypeV2Enum {
 
     public static List<String> ENUM_LIST;
 
-    BoxTypeV2Enum(String code, String codeShow, String name) {
+    BoxTypeV2Enum(String code, String name) {
         this.code = code;
-        this.codeShow = codeShow;
         this.name = name;
     }
 
@@ -46,16 +36,12 @@ public enum BoxTypeV2Enum {
         return code;
     }
 
-    public String getCodeShow() {
-        return codeShow;
-    }
-
     public String getName() {
         return name;
     }
 
     public String toString() {
-        return this.getCode() + "-" + this.getCodeShow() + "-" + this.getName();
+        return this.getCode() + "-" + this.getName();
     }
 
     public static BoxTypeV2Enum getFromCode(String code) {

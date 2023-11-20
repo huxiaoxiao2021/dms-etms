@@ -31,6 +31,11 @@ public class CreateBoxReq implements Serializable {
     private String type;
 
     /**
+     * 箱号子类型
+     */
+    private String subType;
+
+    /**
      * 创建站点编号
      */
     private Integer createSiteCode;
@@ -92,6 +97,15 @@ public class CreateBoxReq implements Serializable {
 
     public CreateBoxReq setType(String type) {
         this.type = type;
+        return this;
+    }
+
+    public String getSubType() {
+        return subType;
+    }
+
+    public CreateBoxReq setSubType(String subType) {
+        this.subType = subType;
         return this;
     }
 

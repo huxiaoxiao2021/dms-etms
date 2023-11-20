@@ -167,26 +167,26 @@
 
 
     <!-- 分拣中心使用【新版 2023-10-25 14:01:16】 -->
-    <util:map id="sortingBoxTypeV2Map" key-type="java.lang.String" value-type="java.lang.String">
-        <entry key="10" value="同城"/>
-        <entry key="11" value="陆运"/>
-        <entry key="12" value="航空"/>
-        <entry key="13" value="铁路"/>
-        <entry key="20" value="退货组"/>
-        <entry key="21" value="备件库"/>
-        <entry key="30" value="文件"/>
-        <entry key="40" value="特安"/>
-        <entry key="50" value="笼车/围板箱"/>
+    <util:map id="sortingBoxSubTypeMap" key-type="java.lang.String" value-type="java.lang.String">
+        <entry key="BCTC" value="同城"/>
+        <entry key="BCLY" value="陆运"/>
+        <entry key="BCHK" value="航空"/>
+        <entry key="BCTL" value="铁路"/>
+        <entry key="TCTH" value="退货组"/>
+        <entry key="TCBJ" value="备件库"/>
+        <entry key="WJPT" value="文件"/>
+        <entry key="TAPT" value="特安"/>
+        <entry key="LLPT" value="笼车/围板箱"/>
     </util:map>
 
     <!-- 营业部，自营京东派 使用的箱型 【新版 2023-10-25 14:01:16】 -->
-    <util:map id="siteBoxTypeV2Map" key-type="java.lang.String" value-type="java.lang.String">
-        <entry key="10" value="同城"/>
-        <entry key="11" value="陆运"/>
-        <entry key="12" value="航空"/>
-        <entry key="20" value="退货组"/>
-        <entry key="21" value="备件库"/>
-        <entry key="30" value="文件"/>
-        <entry key="40" value="特安"/>
+    <util:map id="siteBoxSubTypeMap" key-type="java.lang.String" value-type="java.lang.String">
+        <entry key="BCTC" value="同城"/>
+        <entry key="BCLY" value="陆运"/>
+        <entry key="BCHK" value="航空"/>
+        <entry key="TCTH" value="退货组"/>
+        <entry key="TCBJ" value="备件库"/>
+        <entry key="WJPT" value="文件"/>
+        <entry key="TAPT" value="特安"/>
     </util:map>
 </beans>
