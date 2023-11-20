@@ -690,4 +690,11 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <bean id="jyCollectPackageGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyCollectPackageGatewayServiceImpl" />
+    <jsf:provider id="jsfJyCollectPackageGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyCollectPackageGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

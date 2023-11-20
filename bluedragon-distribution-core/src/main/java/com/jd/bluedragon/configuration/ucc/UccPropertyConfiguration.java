@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import lombok.Getter;
 import lombok.Setter;
@@ -982,7 +983,7 @@ public class UccPropertyConfiguration{
      * 组板岗板列表sql开关
      */
     private Boolean jyComboardListBoardSqlSwitch;
-    
+
     /**
      * 操作流水-发送开关
      */
@@ -1243,7 +1244,7 @@ public class UccPropertyConfiguration{
      * 身份证识别切量开关，全量上线之后，可以删除
      */
     private String identityRecogniseSiteSwitch;
-    
+
     private List<String> identityRecogniseSiteSwitchList = new ArrayList<>();
     /**
      * 传摆发货-干支限制业务列表
@@ -1402,6 +1403,33 @@ public class UccPropertyConfiguration{
      * 传站拦截-- 大区黑名单
      */
     private String czOrgForbiddenList;
+
+
+    /**
+     * 旧版集包功能下线- 场地黑名单
+     */
+    private String collectPackageSiteForbiddenList;
+
+    /**
+     * 旧版集包功能下线-- 大区黑名单
+     */
+    private String collectPackageOrgForbiddenList;
+
+    public String getCollectPackageSiteForbiddenList() {
+        return collectPackageSiteForbiddenList;
+    }
+
+    public void setCollectPackageSiteForbiddenList(String collectPackageSiteForbiddenList) {
+        this.collectPackageSiteForbiddenList = collectPackageSiteForbiddenList;
+    }
+
+    public String getCollectPackageOrgForbiddenList(){
+        return collectPackageOrgForbiddenList;
+    }
+
+    public void setCollectPackageOrgForbiddenList(String collectPackageOrgForbiddenList) {
+        this.collectPackageOrgForbiddenList = collectPackageOrgForbiddenList;
+    }
 
     /**
      * 传站拦截-场地类型黑名单
@@ -1621,6 +1649,33 @@ public class UccPropertyConfiguration{
 
     private String forceSendSiteList;
 
+
+    private String forceCollectPackageSiteListStr;
+
+    private List<String> forceCollectPackageSiteList;
+
+    public List<String> getForceCollectPackageSiteList(){
+        return forceCollectPackageSiteList;
+    }
+
+    public void setForceCollectPackageSiteList() {
+        if (ObjectHelper.isNotNull(forceCollectPackageSiteListStr)){
+            forceCollectPackageSiteList =new ArrayList<>();
+            if (forceCollectPackageSiteListStr.contains(",")){
+                forceCollectPackageSiteList =Arrays.asList(forceCollectPackageSiteListStr.split(","));
+            }else {
+                forceCollectPackageSiteList.add(forceCollectPackageSiteListStr);
+            }
+        }
+    }
+
+    public String getForceCollectPackageSiteListStr(){
+        return forceCollectPackageSiteListStr;
+    }
+    public void setForceCollectPackageSiteListStr(String forceCollectPackageSiteListStr) {
+        this.forceCollectPackageSiteListStr = forceCollectPackageSiteListStr;
+    }
+
     public String getForceSendSiteList() {
         return forceSendSiteList;
     }
@@ -1746,6 +1801,28 @@ public class UccPropertyConfiguration{
      * 作业APP发货特殊产品类型提示，到指定剩余分钟数才提示
      */
     private Integer jySendSpecialProductTypeToScanShowRemainMinutes;
+
+    /**
+     * 集包岗查询时间限制
+     */
+    private String jyCollectPackageTaskQueryTimeLimit;
+
+    /**
+     * 混包校验使用分拣工作台新版配置
+     */
+    private boolean mixedConfigUseBasicNew;
+
+    private boolean collectPackageTaskRefreshSwitch;
+
+    private long jyCollectPackageInterceptBitCode;
+
+    public long getJyCollectPackageInterceptBitCode(){
+        return jyCollectPackageInterceptBitCode;
+    }
+
+    public void setJyCollectPackageInterceptBitCode(long jyCollectPackageInterceptBitCode) {
+        this.jyCollectPackageInterceptBitCode = jyCollectPackageInterceptBitCode;
+    }
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -3649,7 +3726,7 @@ public class UccPropertyConfiguration{
             if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
                 jyWorkAppAutoRefreshConfigList = clientAutoRefreshConfigList;
             }
-        }        
+        }
     }
 
     public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
@@ -4021,6 +4098,30 @@ public class UccPropertyConfiguration{
 	public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
 		this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
 	}
+
+    public String getJyCollectPackageTaskQueryTimeLimit() {
+        return jyCollectPackageTaskQueryTimeLimit;
+    }
+
+    public void setJyCollectPackageTaskQueryTimeLimit(String jyCollectPackageTaskQueryTimeLimit) {
+        this.jyCollectPackageTaskQueryTimeLimit = jyCollectPackageTaskQueryTimeLimit;
+    }
+
+    public boolean getMixedConfigUseBasicNew() {
+        return mixedConfigUseBasicNew;
+    }
+
+    public void setMixedConfigUseBasicNew(boolean mixedConfigUseBasicNew) {
+        this.mixedConfigUseBasicNew = mixedConfigUseBasicNew;
+    }
+
+    public boolean getCollectPackageTaskRefreshSwitch() {
+        return collectPackageTaskRefreshSwitch;
+    }
+
+    public void setCollectPackageTaskRefreshSwitch(boolean collectPackageTaskRefreshSwitch) {
+        this.collectPackageTaskRefreshSwitch = collectPackageTaskRefreshSwitch;
+    }
 
     /**
      * 给HrUserManager 用的自定义上级，仅uat测试使用

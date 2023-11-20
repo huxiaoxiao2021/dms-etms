@@ -40,6 +40,17 @@ public class JyWorkGridManagerCaseItemData implements Serializable {
 	 */
 	private Integer orderNum;
 
+	/**
+	 * 检查改进计划、方案/反馈
+	 * 只有反馈任务类型
+	 * @return
+	 */
+	private String feedbackContent;
+	/**
+	 * 用户自定义检查项名称
+	 */
+	private String userDefinedTitle;
+	
 	public String getCaseItemCode() {
 		return caseItemCode;
 	}
@@ -89,5 +100,20 @@ public class JyWorkGridManagerCaseItemData implements Serializable {
 	public void setCaseCode(String caseCode) {
 		this.caseCode = caseCode;
 	}
-	
+
+	public String getFeedbackContent() {
+		return feedbackContent;
+	}
+
+	public void setFeedbackContent(String feedbackContent) {
+		this.feedbackContent = feedbackContent;
+	}
+
+	public String getUserDefinedTitle() {
+		return userDefinedTitle;
+	}
+
+	public void setUserDefinedTitle(String userDefinedTitle) {
+		this.userDefinedTitle = userDefinedTitle;
+	}
 }
