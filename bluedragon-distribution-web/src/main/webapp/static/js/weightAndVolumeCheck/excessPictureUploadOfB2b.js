@@ -365,34 +365,27 @@ $(function () {
             return;
         }
         $("#videoUploadForm").submit();
-        $.ajax({
-            url : uploadAddress,
-            type : 'POST',
-            processData : false,
-            contentType : false,
-            async : false,
-            success : function(data) {
-                if (data && data.code === 200) {
-                    $(param3).css("display","block");
-                    $(param4).css("display","none");
-                    $(param5).val(1);
-                    setPicUrl(picType, $('#playUrl').val());
-                } else {
-                    $(param4).css("display","block");
-                    $(param3).css("display","none");
-                    $(param5).val(0);
-                    Jd.alert(data.message);
-                }
-            }
-        })
+        console.log('视频上传表单已提交');
     }
 
     $("#videoCallback").load(function(){
+        console.log('触发视频上传回调事件');
         let str = $("#videoCallback").contents().text();
         console.log('videoCallback=' + str);
         let result = JSON.parse(str);
-        console.log('result);
-        return false;
+        console.log('result=' + result);
+        console.log('result.code=' + result.code + 'result.message=' + result.message);
+        if (result.code === 200) {
+            $('#upSuccess6').css("display","block");
+            $('#upFail6').css("display","none");
+            $('#upIsSuccessFlage6').val(1);
+            setPicUrl(picType, $('#playUrl').val());
+        } else {
+            $('#upSuccess6').css("display","none");
+            $('#upFail6').css("display","block");
+            $('#upIsSuccessFlage6').val(0);
+            Jd.alert(data.message);
+        }
     });
 
     function setPicUrl(picType, picUrl) {
