@@ -96,21 +96,21 @@ public class BoardChuteConsumer  implements MessageListener {
             BoardChute boardChute = BinLakeUtils.copyByList(afterChangeOfColumns, BoardChute.class);
             if (boardChute == null) {
                 logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", JsonHelper.toJson(afterChangeOfColumns));
-                return;
+                continue;
             }
             if (boardChute.getStatus()!=0){
                 logger.error("BoardChuteConsumer consume -->状态，内容为【{}】", boardChute.getStatus());
-                return;
+                continue;
             }
             if (StringUtils.isEmpty(boardChute.getSendCode())){
                 logger.error("BoardChuteConsumer consume -->非组板发货数据【{}】", JsonHelper.toJson(boardChute));
-                return;
+                continue;
             }
             com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
                     initOperatorInfo(boardChute);
             BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
             logger.info("jmq4消费"+JsonHelper.toJson(req));
-            //        jyComBoardSendService.finishBoard(req);
+            jyComBoardSendService.finishBoard(req);
         }
     }
 }
