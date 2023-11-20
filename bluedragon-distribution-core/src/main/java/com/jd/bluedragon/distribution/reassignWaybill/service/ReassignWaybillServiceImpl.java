@@ -444,7 +444,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					//逻辑删除未审核通过的申请记录 / 取消OA申请单
 					dealOldReassignWaybillApprovalRecord(req);
 					//新增新的审核申请
-					dealNewReassignWaybillApprovalRecord(req);
+					dealNewReassignWaybillApprovalRecord(req,true);
 					break;
 				case POSTAL_REJECTION :
 					//邮政拒收
@@ -456,6 +456,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					}
 					//逻辑删除未审核通过的申请记录 / 取消OA申请单
 					dealOldReassignWaybillApprovalRecord(req);
+					//新增新的审核申请
+					dealNewReassignWaybillApprovalRecord(req,false);
 					return returnPack(req);
 				case NO_PRE_SORTING_STATION :
 					if(req.getOldSiteCode() != null){
@@ -465,6 +467,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					}
 					//逻辑删除未审核通过的申请记录 / 取消OA申请单
 					dealOldReassignWaybillApprovalRecord(req);
+					//新增新的审核申请
+					dealNewReassignWaybillApprovalRecord(req,false);
 					return returnPack(req);
 				default:
 					log.warn("未知的返调度类型！");
@@ -525,16 +529,18 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 
 	private Map<String, Object> buildFlow(ReassignWaybillApprovalRecordMQ mq) {
 		Map<String, Object> flowControlMap = Maps.newHashMap();
-		BaseSite baseSite = baseMajorManager.getSiteBySiteCode(mq.getSiteCode());
-		if(baseSite == null){
-			throw new  JyBizException("获取"+mq.getSiteCode()+"基础站点信息失败");
-		}
-		String provinceAgencyCode = baseSite.getProvinceAgencyCode();
-		String areaCode = baseSite.getAreaCode();
-		mq.setProvinceAgencyCode(provinceAgencyCode);
-		mq.setProvinceAgencyName(baseSite.getProvinceAgencyName());
-		mq.setAreaHubCode(areaCode);
-		mq.setAreaHubName(baseSite.getAreaName());
+//		BaseSite baseSite = baseMajorManager.getSiteBySiteCode(mq.getSiteCode());
+//		if(baseSite == null){
+//			throw new  JyBizException("获取"+mq.getSiteCode()+"基础站点信息失败");
+//		}
+//		String provinceAgencyCode = baseSite.getProvinceAgencyCode();
+//		String areaCode = baseSite.getAreaCode();
+//		mq.setProvinceAgencyCode(provinceAgencyCode);
+//		mq.setProvinceAgencyName(baseSite.getProvinceAgencyName());
+//		mq.setAreaHubCode(areaCode);
+//		mq.setAreaHubName(baseSite.getAreaName());
+		String provinceAgencyCode = mq.getProvinceAgencyCode();
+		String areaCode = mq.getAreaHubCode();
 		StringJoiner joiner = new StringJoiner("_");
 		joiner.add(provinceAgencyCode);
 		if(StringUtils.isNotBlank(areaCode)){
@@ -647,7 +653,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
      * @param req 重新分配运单请求
      * @return record 重新分配运单审批记录
      */
-	private void dealNewReassignWaybillApprovalRecord(ReassignWaybillReq req){
+	private void dealNewReassignWaybillApprovalRecord(ReassignWaybillReq req, boolean needApproval){
 		ReassignWaybillApprovalRecord record = new ReassignWaybillApprovalRecord();
 		record.setSiteCode(req.getOperateSiteCode());
 		record.setSiteName(req.getOperateSiteName());
@@ -660,14 +666,32 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		record.setChangeSiteCode(req.getSiteOfSchedulingOnSiteCode());
 		record.setChangeSiteName(req.getSiteOfSchedulingOnSiteName());
 		record.setCreateUserErp(req.getOperateUserErp());
-        record.setCheckEndFlag(ReassignWaybillCheckEndFlagEnum.NO_END.getCode());
+		if(needApproval){
+			record.setCheckEndFlag(ReassignWaybillCheckEndFlagEnum.NO_END.getCode());
+		}else {
+			record.setCheckEndFlag(ReassignWaybillCheckEndFlagEnum.END.getCode());
+		}
+
 		record.setCreateTime(new Date());
+		BaseSite baseSite = baseMajorManager.getSiteBySiteCode(req.getOperateSiteCode());
+		if(baseSite == null){
+			throw new  JyBizException("获取"+req.getOperateSiteCode()+"基础站点信息失败");
+		}
+
+		record.setProvinceAgencyCode(baseSite.getProvinceAgencyCode());
+		record.setProvinceAgencyName(baseSite.getProvinceAgencyName());
+		record.setAreaHubCode(baseSite.getAreaCode());
+		record.setAreaHubName(baseSite.getAreaName());
 		if(log.isInfoEnabled()){
 			log.info("initReassignWaybillApprovalRecord- {}",JSON.toJSONString(record));
 		}
 		Boolean add = reassignWaybillApprovalRecordDao.add(record);
 		if(!add){
 			throw new JyBizException("初始化添加运单返调度记录数据失败！");
+		}
+		if(!needApproval){
+			log.warn("当前单号-{}不需要审批",req.getBarCode());
+			return ;
 		}
 		ReassignWaybillApprovalRecordMQ recordMQ = new ReassignWaybillApprovalRecordMQ();
 		BeanUtils.copyProperties(record,recordMQ);
@@ -860,6 +884,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		if(StringUtils.isNotBlank(query.getBarCode())){
 			query.setBarCode(query.getBarCode().trim());
 		}
+		query.setCheckEndFlag(ReassignWaybillCheckEndFlagEnum.END.getCode());
 		PageDto<ReassignWaybillApprovalRecordResponse> pageDto = new PageDto<>(query.getPageNumber(),query.getPageSize());
 		//查询总数
 		Integer total = reassignWaybillApprovalRecordDao.queryTotalByCondition(query);
@@ -881,7 +906,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 				recordResponse.setChangeSiteCode(record.getChangeSiteCode());
 				recordResponse.setChangeSiteName(record.getChangeSiteName());
 				recordResponse.setApplicationUserErp(record.getApplicationUserErp());
-				recordResponse.setSubmitTime(record.getSubmitTime());
+				recordResponse.setSubmitTime(DateHelper.formatDateTime(record.getSubmitTime()));
 				recordResponse.setChangeSiteReasonTypeCode(record.getChangeSiteReasonType());
 				recordResponse.setChangeSiteReasonTypeName(ReassignWaybillReasonTypeEnum.getNameByCode(record.getChangeSiteReasonType()));
 				recordList.add(recordResponse);
@@ -895,6 +920,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 
 	@Override
 	public JdResult<Integer> getReassignWaybillRecordCount(ReassignWaybillApprovalRecordQuery query) {
+		query.setCheckEndFlag(ReassignWaybillCheckEndFlagEnum.END.getCode());
 		JdResult<Integer> result = new JdResult<>();
 		result.toSuccess();
 		result.setData(reassignWaybillApprovalRecordDao.queryTotalByCondition(query));

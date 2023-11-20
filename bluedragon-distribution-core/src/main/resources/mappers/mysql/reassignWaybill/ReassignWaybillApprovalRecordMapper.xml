@@ -325,7 +325,7 @@
   <select id="queryTotalByCondition" parameterType="com.jd.bluedragon.distribution.api.request.ReassignWaybillApprovalRecordQuery" resultType="int">
     select  count(*)
     from reassign_waybill_approval_record
-    where yn =1
+    where yn =1 and  check_end_flag = 2
 
     <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
       AND province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
@@ -351,6 +351,9 @@
     <if test="secondCheckStatus != null">
       AND second_check_status= #{secondCheckStatus}
     </if>
+    <if test="secondCheckStatus != null">
+      AND second_check_status= #{secondCheckStatus}
+    </if>
     <if test="startSubmitTime != null">
       AND submit_time <![CDATA[ >= ]]> #{startSubmitTime,jdbcType=TIMESTAMP}
     </if>
@@ -364,7 +367,7 @@
   <select id="getApprovalRecordPageListByCondition" parameterType="com.jd.bluedragon.distribution.api.request.ReassignWaybillApprovalRecordQuery" resultMap="BaseResultMap">
     select  <include refid="Base_Column_List"/>
     from reassign_waybill_approval_record
-    where yn =1
+    where yn =1 and  check_end_flag = 2
 
     <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
       AND province_agency_code = #{provinceAgencyCode}

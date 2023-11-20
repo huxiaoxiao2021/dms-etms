@@ -27,7 +27,7 @@ public class ReassignWaybillApprovalRecordResponse implements Serializable {
 
     private String barCode;
 
-    private Date submitTime;
+    private String submitTime;
 
     private Integer receiveSiteCode;
 
@@ -110,11 +110,11 @@ public class ReassignWaybillApprovalRecordResponse implements Serializable {
         this.barCode = barCode;
     }
 
-    public Date getSubmitTime() {
+    public String getSubmitTime() {
         return submitTime;
     }
 
-    public void setSubmitTime(Date submitTime) {
+    public void setSubmitTime(String submitTime) {
         this.submitTime = submitTime;
     }
 

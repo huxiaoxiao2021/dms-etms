@@ -71,6 +71,11 @@ public class ReassignWaybillApprovalRecordQuery implements Serializable {
      */
     private Integer secondCheckStatus;
 
+    /**
+     * 审批完结标识或者不需要走审批标识
+     */
+    private Integer checkEndFlag;
+
     private Integer pageNumber = 1;
 
     private Integer pageSize = 20;
@@ -211,5 +216,13 @@ public class ReassignWaybillApprovalRecordQuery implements Serializable {
 
     public void setSecondCheckStatus(Integer secondCheckStatus) {
         this.secondCheckStatus = secondCheckStatus;
+    }
+
+    public Integer getCheckEndFlag() {
+        return checkEndFlag;
+    }
+
+    public void setCheckEndFlag(Integer checkEndFlag) {
+        this.checkEndFlag = checkEndFlag;
     }
 }

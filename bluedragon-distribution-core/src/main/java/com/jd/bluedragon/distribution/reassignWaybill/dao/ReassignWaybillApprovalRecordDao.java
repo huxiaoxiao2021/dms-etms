@@ -37,8 +37,5 @@ public class ReassignWaybillApprovalRecordDao extends BaseDao<ReassignWaybillApp
         return this.getSqlSession().selectList(namespace + ".getApprovalRecordPageListByCondition", req);
     }
 
-    public List<ReassignWaybillApprovalRecord> getReassignWaybilApprovalNotPassByBarCode(String barCode){
-        return this.getSqlSession().selectOne(namespace + ".getReassignWaybilApprovalNotPassByBarCode", barCode);
-    }
 
 }
