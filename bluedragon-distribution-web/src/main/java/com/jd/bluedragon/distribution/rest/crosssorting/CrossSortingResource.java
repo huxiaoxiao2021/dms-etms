@@ -30,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.*;
 
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
 
 /**
  * Created by yanghongqiang on 2015/7/8.
@@ -104,7 +105,7 @@ public class CrossSortingResource {
     }
 
     private List<CrossSorting> getMixedConfigUseBasicNew(CrossSortingRequest request) {
-        List<CollectBoxFlowDirectionConf> flowConfList = boxLimitConfigManager.listCollectBoxFlowDirection(assembleCollectBoxFlowDirectionConf(request), Collections.singletonList(COLLECT_CLAIM_MIX));
+        List<CollectBoxFlowDirectionConf> flowConfList = boxLimitConfigManager.listCollectBoxFlowDirection(assembleCollectBoxFlowDirectionConf(request), Arrays.asList(COLLECT_CLAIM_MIX, COLLECT_CLAIM_SPECIFY_MIX));
         List<CrossSorting> mixDmsList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(flowConfList)) {
             for (CollectBoxFlowDirectionConf collectBoxFlowDirectionConf : flowConfList) {

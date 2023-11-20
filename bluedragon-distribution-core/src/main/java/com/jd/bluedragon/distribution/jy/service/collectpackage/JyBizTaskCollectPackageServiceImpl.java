@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
 
 @Service
 @Slf4j
@@ -202,7 +203,7 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
      */
     private List<JyBizTaskCollectPackageFlowEntity> getMixBoxFlowList(JyBizTaskCollectPackageEntity task) {
         CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(task);
-        List<CollectBoxFlowDirectionConf> collectBoxFlowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con, Collections.singletonList(COLLECT_CLAIM_MIX));
+        List<CollectBoxFlowDirectionConf> collectBoxFlowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con, Arrays.asList(COLLECT_CLAIM_MIX, COLLECT_CLAIM_SPECIFY_MIX));
         if (org.apache.commons.collections4.CollectionUtils.isEmpty(collectBoxFlowDirectionConfList)) {
             log.info("包裹号: {}未查询到对应目的地的可混装的流向集合！ request：{}", task.getBoxCode(), JsonHelper.toJson(con));
             throw new JyBizException("未查询到对应目的地的可混装的流向集合!");
