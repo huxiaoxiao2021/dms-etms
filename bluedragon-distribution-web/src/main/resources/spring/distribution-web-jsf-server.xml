@@ -610,11 +610,4 @@
                   alias="${dms.jsf.alias}"
                   ref="iDmsSortingService" server="dmsjsf">
     </jsf:provider>
-
-    <!-- 签到JSF接口 -->
-    <jsf:provider id="userSignJsfService"
-                  interface="com.jd.bluedragon.distribution.jy.api.userSign.UserSignJsfService"
-                  alias="${dms.jsf.alias}"
-                  ref="userSignJsfServiceImpl" server="dmsjsf">
-    </jsf:provider>
 </beans>
