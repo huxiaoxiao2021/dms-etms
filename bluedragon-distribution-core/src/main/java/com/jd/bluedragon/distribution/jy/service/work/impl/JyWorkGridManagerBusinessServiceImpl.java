@@ -593,7 +593,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		}
 		Integer limit = 20;
 		SysConfig kpiImproveTaskSiteNumConfig = sysConfigService.findConfigContentByConfigName(KPI_IMPROVE_TASK_SITE_NUM_KEY);
-		if(kpiImproveTaskSiteNumConfig == null || !org.apache.commons.lang3.StringUtils.isNumeric(kpiImproveTaskSiteNumConfig.getConfigContent())){
+		if(kpiImproveTaskSiteNumConfig != null && org.apache.commons.lang3.StringUtils.isNumeric(kpiImproveTaskSiteNumConfig.getConfigContent())){
 			limit = Integer.parseInt(kpiImproveTaskSiteNumConfig.getConfigContent());
 		}
 
@@ -602,7 +602,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				oneTableEasyDataConfig.getApiGroupName(),oneTableEasyDataConfig.getAppToken(),
 				limit,pageNum - 1,
 				oneTableEasyDataConfig.getTenant());
-		if(edresult == null || CollectionUtils.isEmpty(edresult.getResult())){
+		if(edresult == null || CollectionUtils.isEmpty(edresult.getContent())){
 			logger.info("查询一表通指标倒数的场地和指标达成-未查到,queryParam:{},limit:{},pageNum:{}", JsonHelper.toJson(queryParam),
 					limit, pageNum -1);
 			return scanSiteInfo;
@@ -611,13 +611,14 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		Map<Integer, BusinessQuotaInfoData> businessQuotaInfoDataMap = new HashMap<>();
 		scanSiteInfo.setBusinessQuotaInfoDataMap(businessQuotaInfoDataMap);
 		String quotaAchieveInfo = DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2), "MM/dd") + "未达标";
-		for(Map<String, Object> data : edresult.getResult()){
-			Integer siteCode = Integer.valueOf(data.get("siteCode").toString());
-			if(data.containsKey("siteCode") && data.get("siteCode") != null) {
-				siteCodes.add(siteCode);
-			}else {
+		for(Object map : edresult.getContent()){
+			Map data = ((Map)map);
+			Object obSiteCode = data.get("siteCode");
+			if(obSiteCode == null){
 				continue;
 			}
+			Integer siteCode = Integer.valueOf(obSiteCode.toString());
+			siteCodes.add(siteCode);
 			if(data.containsKey("actual") && 
 					org.apache.commons.lang3.StringUtils.isNumeric(String.valueOf(data.get("actual")))){
 				BusinessQuotaInfoData businessQuotaInfoData = new BusinessQuotaInfoData();
@@ -1159,23 +1160,22 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		Map<String, Object> queryParam = new HashMap<>();
 		String dt = DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2));
 		queryParam.put("dt", dt);
-		queryParam.put("siteCode", siteCode);
+		queryParam.put("siteCode", siteCode.toString());
 		//调用easydata 装车质量 发货扫描率倒数第一的网格
-		FdsServerResult edresult = easyDataClientUtil.query(dmsWEasyDataConfig.getQueryLoadCarQualityGrid(), queryParam,
+		FdsPage edresult = easyDataClientUtil.query(dmsWEasyDataConfig.getQueryLoadCarQualityGrid(), queryParam,
 				dmsWEasyDataConfig.getApiGroupName(),dmsWEasyDataConfig.getAppToken(),
-				limit,pageNum - 1,
-				dmsWEasyDataConfig.getTenant());
-
-		if(edresult == null || CollectionUtils.isEmpty(edresult.getResult())) {
-			logger.info("从装车质量报表ck未查到网格信息");
+				limit,pageNum - 1, null);
+		if(edresult == null || CollectionUtils.isEmpty(edresult.getContent())) {
+			logger.info("从装车质量报表ck未查到网格信息,dt:{},siteCode:{}", dt, siteCode);
 			return null;
 		}
 		List<WorkGrid> workGrids = new ArrayList<>();
 		List<String> refGridKeys = new ArrayList<>();
-		for(Map<String, Object> data : edresult.getResult()){
+		for(Object data : edresult.getContent()){
+			Map map = (Map)data;
 			String refGridKey = null;
-			if(data.containsKey("refGridKey")) {
-				refGridKey = data.get("refGridKey").toString();
+			if(map.containsKey("refGridKey") && map.get("refGridKey") != null) {
+				refGridKey = map.get("refGridKey").toString();
 				Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(refGridKey);
 				if(workGridResult == null || workGridResult.getData() == null) {
 					logger.info("从装车质量报表ck未查到网格信息,网格信息为空,refGridKey:{}", refGridKey);
