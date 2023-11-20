@@ -1,4 +1,10 @@
-package com.jd.bluedragon.distribution.jdq4.binlake;
+package com.jd.bluedragon.dms.binlake;
+
+import com.jd.binlog.client.EntryMessage;
+import com.jd.binlog.client.MessageDeserialize;
+import com.jd.binlog.client.WaveEntry;
+import com.jd.binlog.client.impl.JMQMessageDeserialize;
+import com.jd.jmq.common.message.Message;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -11,6 +17,36 @@ import java.util.List;
  * @date 2022-12-04 16:02
  */
 public class BinLakeUtils {
+
+    public static List<ColumnRecord> getColumnRecords(EntryMessage entryMessage) {
+        List<WaveEntry.RowData> rowDatas = entryMessage.getRowChange().getRowDatasList();
+        List<ColumnRecord> afterChangeOfColumns = new ArrayList();
+        for (WaveEntry.RowData rowData : rowDatas) {
+            List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
+            for (WaveEntry.Column column : afterColumns) {
+                ColumnRecord col = new ColumnRecord();
+                col.setIndex(column.getIndex());
+                col.setKey(column.getIsKey());
+                col.setLength(column.getLength());
+                col.setName(column.getName());
+                col.setValue(column.getValue());
+                col.setMysqlType(column.getMysqlType());
+                col.setSqlType(column.getSqlType());
+                col.setUpdate(column.getUpdated());
+                afterChangeOfColumns.add(col);
+            }
+        }
+        return afterChangeOfColumns;
+    }
+
+    public static List<EntryMessage> deserialize(List<Message> messages) throws Exception {
+        MessageDeserialize deserialize = new JMQMessageDeserialize();
+        return deserialize.deserialize(messages);
+    }
+
+    public static <T> T copyByList(EntryMessage entryMessage, Class<T> tClass) {
+        return copyByList(getColumnRecords(entryMessage),tClass);
+    }
 
     public static <T> T copyByList(List sourceList, Class<T> tClass) {
         try {
