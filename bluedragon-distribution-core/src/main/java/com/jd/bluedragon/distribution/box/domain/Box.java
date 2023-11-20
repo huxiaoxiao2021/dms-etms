@@ -52,6 +52,11 @@ public class Box {
 	/** 箱号类型 */
 	private String type;
 
+    /**
+     * 箱号子类型
+     */
+    private String boxSubType;
+
 	/** 创建站点编号 */
 	private Integer createSiteCode;
 
@@ -248,7 +253,16 @@ public class Box {
 		this.type = type;
 	}
 
-	public Integer getCreateSiteCode() {
+    public String getBoxSubType() {
+        return boxSubType;
+    }
+
+    public Box setBoxSubType(String boxSubType) {
+        this.boxSubType = boxSubType;
+        return this;
+    }
+
+    public Integer getCreateSiteCode() {
 		return this.createSiteCode;
 	}
 

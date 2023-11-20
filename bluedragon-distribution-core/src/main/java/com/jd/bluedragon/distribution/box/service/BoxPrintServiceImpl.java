@@ -11,7 +11,7 @@ import com.jd.bluedragon.distribution.api.response.box.CreateBoxInfo;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
+import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
@@ -191,8 +191,8 @@ public class BoxPrintServiceImpl implements BoxPrintService{
         }
 
         // 排除非法箱号类型
-        if (this.boxTypeCheckSwitchOn() && !BoxTypeV2Enum.ENUM_LIST.contains(createBoxReq.getType())) {
-            return checkResult.toFail("箱号类型不合法!", CreateBoxInfo.Code_boxTypeIllegal);
+        if (this.boxTypeCheckSwitchOn() && !BoxSubTypeEnum.ENUM_LIST.contains(createBoxReq.getSubType())) {
+            return checkResult.toFail("箱号子类型不合法!", CreateBoxInfo.Code_boxTypeIllegal);
         }
         return checkResult;
     }

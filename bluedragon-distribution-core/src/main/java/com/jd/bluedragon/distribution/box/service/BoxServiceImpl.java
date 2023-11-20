@@ -16,33 +16,27 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.request.base.RequestProfile;
-import com.jd.bluedragon.distribution.api.request.box.BoxPrintReq;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
-import com.jd.bluedragon.distribution.api.request.box.CreateBoxReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.api.response.box.BoxPrintInfo;
 import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
-import com.jd.bluedragon.distribution.api.response.box.CreateBoxInfo;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
-import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
-import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.ver.domain.Site;
-import com.jd.bluedragon.dms.utils.BoxCodeUtil;
 import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
@@ -145,11 +139,10 @@ public class BoxServiceImpl implements BoxService {
 	@Value("${box.addBatch.size:20}")
 	private Integer boxAddBatchSize;
 
-    @Resource(name="siteBoxTypeV2Map")
-    private Map<String,String> siteBoxTypeMap;
-
-    @Resource(name="sortingBoxTypeV2Map")
-    private Map<String,String> sortingBoxTypeMap;
+    @Resource(name="sortingBoxSubTypeMap")
+    private Map<String,String> sortingBoxSubTypeMap;
+    @Resource(name="siteBoxSubTypeMap")
+    private Map<String,String> siteBoxSubTypeMap;
 
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
@@ -320,13 +313,8 @@ public class BoxServiceImpl implements BoxService {
 	private String generateBoxCodePrefixNew(Box box, String systemType,boolean isDB) {
 		StringBuilder preFix = new StringBuilder();
 		if (!this.genStableBoxPrefix(box, systemType)) {
-            final BoxTypeV2Enum boxTypeV2Enum = BoxTypeV2Enum.getFromCode(box.getType());
-            if(boxTypeV2Enum != null){
-                preFix.append(boxTypeV2Enum.getCodeShow());
-            } else {
-                preFix.append(box.getType());
-            }
-        }
+			preFix.append(box.getType());
+		}
 		else {
 		    // 箱号固定BC开头，不再根据类型区域不同的前缀
             preFix.append(BoxTypeEnum.TYPE_BC.getCode());
@@ -977,18 +965,12 @@ public class BoxServiceImpl implements BoxService {
             final BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxTypeReq.getOperateUser().getSiteCode());
             //营业部,自营京东派 人员使用部分箱型
             if (dmsConfigManager.getPropertyConfig().getTerminalSiteTypeListForBoxType().contains(createSiteInfo.getSubType())){
-                typeDtoList.addAll(this.genBoxTypeDtoListByMap(siteBoxTypeMap));
+                typeDtoList.addAll(this.genBoxTypeDtoListByMap(siteBoxSubTypeMap));
                 return result;
             }
 
             // 分拣类型场地看到全量箱号类型
-            /*for (BoxTypeV2Enum boxTypeV2Enum : BoxTypeV2Enum.values()) {
-                final BoxTypeDto boxTypeDto = new BoxTypeDto();
-                boxTypeDto.setCode(boxTypeV2Enum.getCode());
-                boxTypeDto.setName(String.format("%s-%s", boxTypeV2Enum.getName(), boxTypeV2Enum.getCodeShow()));
-                typeDtoList.add(boxTypeDto);
-            }*/
-            typeDtoList.addAll(this.genBoxTypeDtoListByMap(sortingBoxTypeMap));
+            typeDtoList.addAll(this.genBoxTypeDtoListByMap(sortingBoxSubTypeMap));
         } catch (Exception e) {
             log.error("BoxServiceImpl.getBoxTypeList exception {}", JsonHelper.toJson(boxTypeReq), e);
             result.toFail("系统异常");
@@ -1020,13 +1002,14 @@ public class BoxServiceImpl implements BoxService {
     private List<BoxTypeDto> genBoxTypeDtoListByMap(Map<String,String> boxTypeMap){
         List<BoxTypeDto> typeDtoList = new ArrayList<>();
         for (String code : boxTypeMap.keySet()) {
-            final BoxTypeV2Enum boxTypeV2Enum = BoxTypeV2Enum.getFromCode(code);
-            if (boxTypeV2Enum == null) {
+            final BoxSubTypeEnum boxSubTypeEnum = BoxSubTypeEnum.getFromCode(code);
+            if (boxSubTypeEnum == null) {
                 continue;
             }
             final BoxTypeDto boxTypeDto = new BoxTypeDto();
-            boxTypeDto.setCode(code);
-            boxTypeDto.setName(String.format("%s-%s", boxTypeMap.get(code), boxTypeV2Enum.getCodeShow()));
+            boxTypeDto.setTypeCode(boxSubTypeEnum.getParentTypeCode());
+            boxTypeDto.setSubTypeCode(code);
+            boxTypeDto.setName(String.format("%s-%s", boxSubTypeEnum.getParentTypeCode(), boxSubTypeEnum.getName()));
             typeDtoList.add(boxTypeDto);
         }
         return typeDtoList;
