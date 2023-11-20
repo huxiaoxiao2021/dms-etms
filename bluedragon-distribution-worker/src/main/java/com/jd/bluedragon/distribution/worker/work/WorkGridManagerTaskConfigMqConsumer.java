@@ -29,12 +29,6 @@ public class WorkGridManagerTaskConfigMqConsumer extends MessageBaseConsumer {
     @Autowired
 	@Qualifier("jyWorkGridManagerBusinessService")
     private JyWorkGridManagerBusinessService jyWorkGridManagerBusinessService;
-
-    @Override
-    public void setUat(String uat) {
-        super.setUat("false");
-    }
-    
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = Profiler.registerInfo("WorkGridManagerTaskConfigMqConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER, false, true);
