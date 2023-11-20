@@ -311,7 +311,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			return result;
 		}
 		if(JobTypeEnum.JOBTYPE4.getCode().equals(jobCode) || JobTypeEnum.JOBTYPE5.getCode().equals(jobCode)){
-			if(BusinessUtil.isIdCardNo(userCode)){
+			if(!BusinessUtil.isIdCardNo(userCode)){
 				result.toFail("临时工、小时工 人员码必须包含身份证号");
 				return result;
 			}
