@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 
 @Component("dmsWEasyDataConfig")
 public class DmsWEasyDataConfig {
-    @Value("${easydata.config.apiGroupName:dmsw}")
+    @Value("${dmsw.easydata.config.apiGroupName:dmsW}")
     String apiGroupName;
-    @Value("${easydata.config.appToken:420031492ac5be1fe540eb9a534db68f}")
+    @Value("${dmsw.easydata.config.appToken:420031492ac5be1fe540eb9a534db68f}")
     String appToken;
-    @Value("${easydata.config.tenant:ARIES}")
+    @Value("${dmsw.easydata.config.tenant:ARIES}")
     String tenant;
     /**
      * 查询根据场地查询装车质量网格
