@@ -347,6 +347,7 @@ $(function () {
                         return;
                     }
                     $('#uploadVideoUrl').val(data.data.uploadUrl);
+                    $("#videoUploadForm").attr("action", data.data.uploadUrl);
                     $('#playUrl').val(data.data.playUrl);
                     $('#videoId').val(data.data.videoId);
                 } else {
@@ -363,6 +364,7 @@ $(function () {
             Jd.alert('获取视频上传地址失败');
             return;
         }
+        $("#videoUploadForm").submit();
         $.ajax({
             url : uploadAddress,
             type : 'POST',
@@ -384,6 +386,14 @@ $(function () {
             }
         })
     }
+
+    $("#videoCallback").load(function(){
+        let str = $("#videoCallback").contents().text();
+        console.log('videoCallback=' + str);
+        let result = JSON.parse(str);
+        console.log('result);
+        return false;
+    });
 
     function setPicUrl(picType, picUrl) {
         if(picType === 1 || picType === 0){

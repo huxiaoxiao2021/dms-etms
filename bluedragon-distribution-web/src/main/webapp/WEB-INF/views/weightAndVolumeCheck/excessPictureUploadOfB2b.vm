@@ -245,7 +245,10 @@
                                         <button id="btn_browse6" type="button" class="btn btn-default">
                                             <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;浏览
                                         </button>
-                                        <input  type="file" id="fileField6" name="video_file" class="file" size="28"  />
+                                        <form method="post" id="videoUploadForm" action="" enctype="multipart/form-data" target="videoCallback">
+                                            <input  type="file" id="fileField6" name="video_file" class="file" size="28"  />
+                                        </form>
+                                        <iframe id="videoCallback" name="videoCallback" style="display:none"> </iframe>
                                     </div>
                                     <div class="col-xs-2">
                                         <button id="btn_upload6" type="button" class="btn btn-default">
