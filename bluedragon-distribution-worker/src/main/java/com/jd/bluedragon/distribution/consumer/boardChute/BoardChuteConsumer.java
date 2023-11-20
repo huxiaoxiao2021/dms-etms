@@ -1,17 +1,12 @@
 package com.jd.bluedragon.distribution.consumer.boardChute;
 
-import com.google.common.collect.Lists;
 import com.jd.binlog.client.EntryMessage;
-import com.jd.binlog.client.MessageDeserialize;
-import com.jd.binlog.client.WaveEntry;
-import com.jd.binlog.client.impl.JMQMessageDeserialize;
 import com.jd.bluedragon.common.dto.comboard.request.BoardReq;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
-import com.jd.bluedragon.distribution.jdq4.binlake.BinLakeUtils;
-import com.jd.bluedragon.distribution.jdq4.binlake.ColumnRecord;
 import com.jd.bluedragon.distribution.jdq4.consume.BoardChute;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
+import com.jd.bluedragon.dms.binlake.BinLakeUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.client.consumer.MessageListener;
 import com.jd.jmq.common.message.Message;
@@ -29,7 +24,7 @@ import java.util.List;
 public class BoardChuteConsumer  implements MessageListener {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardChuteConsumer.class);
-    MessageDeserialize deserialize = new JMQMessageDeserialize();
+
     @Autowired
     private JyComBoardSendService jyComBoardSendService;
     @Autowired
@@ -73,29 +68,12 @@ public class BoardChuteConsumer  implements MessageListener {
     @Override
     public void onMessage(List<Message> messages) throws Exception {
 
-        List<EntryMessage> entryMessages = deserialize.deserialize(messages);
+        List<EntryMessage> entryMessages = BinLakeUtils.deserialize(messages);
         for (EntryMessage entryMessage : entryMessages) {
             //获取数据行消息，分为INSERT、DELETE、UPDATE和其他
-            List<WaveEntry.RowData> rowDatas = entryMessage.getRowChange().getRowDatasList();
-            List<ColumnRecord> afterChangeOfColumns = Lists.newArrayList();
-            for (WaveEntry.RowData rowData : rowDatas) {
-                List<WaveEntry.Column> afterColumns = rowData.getAfterColumnsList();
-                for (WaveEntry.Column column : afterColumns) {
-                    ColumnRecord col = new ColumnRecord();
-                    col.setIndex(column.getIndex());
-                    col.setKey(column.getIsKey());
-                    col.setLength(column.getLength());
-                    col.setName(column.getName());
-                    col.setValue(column.getValue());
-                    col.setMysqlType(column.getMysqlType());
-                    col.setSqlType(column.getSqlType());
-                    col.setUpdate(column.getUpdated());
-                    afterChangeOfColumns.add(col);
-                }
-            }
-            BoardChute boardChute = BinLakeUtils.copyByList(afterChangeOfColumns, BoardChute.class);
+            BoardChute boardChute = BinLakeUtils.copyByList(entryMessage, BoardChute.class);
             if (boardChute == null) {
-                logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", JsonHelper.toJson(afterChangeOfColumns));
+                logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", JsonHelper.toJson(entryMessage));
                 continue;
             }
             if (boardChute.getStatus()!=0){
@@ -113,4 +91,6 @@ public class BoardChuteConsumer  implements MessageListener {
             jyComBoardSendService.finishBoard(req);
         }
     }
+
+
 }
