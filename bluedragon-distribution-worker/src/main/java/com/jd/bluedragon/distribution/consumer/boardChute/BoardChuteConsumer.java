@@ -110,7 +110,7 @@ public class BoardChuteConsumer  implements MessageListener {
                     initOperatorInfo(boardChute);
             BoardReq req = createFinishBoardReq(operatorInfo, boardChute.getBoardCode());
             logger.info("jmq4消费"+JsonHelper.toJson(req));
-            //        jyComBoardSendService.finishBoard(req);
+            jyComBoardSendService.finishBoard(req);
         }
     }
 }
