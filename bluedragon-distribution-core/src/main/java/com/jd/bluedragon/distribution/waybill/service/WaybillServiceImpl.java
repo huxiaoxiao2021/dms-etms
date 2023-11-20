@@ -1633,13 +1633,13 @@ public class WaybillServiceImpl implements WaybillService {
             }
 
             // 当前校验必须放在最后
-            //规则5- 预分拣站点校验滑道信息  (因为存在确认跳过检验)
-            InvokeResult<String>  crossResult =   scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),
-                    waybill.getWaybillCode(),waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite(),waybillForPreSortOnSiteRequest.getSortingSite());
-            if(!crossResult.codeSuccess()){
-                result.customMessage(crossResult.getCode(),crossResult.getMessage());
-                return result;
-            }
+            //规则5- 预分拣站点校验滑道信息  (因为存在确认跳过检验) 与 产品马童文沟通 去掉这个校验
+//            InvokeResult<String>  crossResult =   scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),
+//                    waybill.getWaybillCode(),waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite(),waybillForPreSortOnSiteRequest.getSortingSite());
+//            if(!crossResult.codeSuccess()){
+//                result.customMessage(crossResult.getCode(),crossResult.getMessage());
+//                return result;
+//            }
 
             //检验调度站点信息是否是退货组
             if(Objects.equals(Constants.SITE_RETURN_GROUP,siteOfSchedulingOnSite.getSortType())){
