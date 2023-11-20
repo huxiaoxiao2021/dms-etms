@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 
 @Component("oneTableEasyDataConfig")
 public class OneTableEasyDataConfig {
-    @Value("${oneTable.easydata.config.apiGroupName:allinonetable2}")
+    @Value("${oneTable.easydata.config.apiGroupName:oneTablePassUat}")
     String apiGroupName;
     @Value("${oneTable.easydata.config.appToken:1ed5b6c70298be8d2ad69d6644a43443}")
     String appToken;
-    @Value("${easydata.config.tenant:LEO}")
+    @Value("${oneTable.easydata.config.tenant:LEO}")
     String tenant;
 
     /**
