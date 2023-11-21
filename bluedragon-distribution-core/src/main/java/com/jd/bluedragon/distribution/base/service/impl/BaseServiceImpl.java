@@ -1082,11 +1082,35 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             return null;
         }
 
-		// 检验白名单
-		if (checkFuncUsageWhiteListByUserErp(funcUsageConfigRequestDto)) {
-			return null;
-		}
-		
+        // 检验人员白名单
+        if (checkFuncUsageWhiteListByUserErp(funcUsageConfigRequestDto)) {
+            return null;
+        }
+
+        // 人员白名单
+        final Result<FuncUsageConfigDto> whiteFuncUsageByCodeConfig4UserErpResult = getWhiteFuncUsageByCodeConfig4UserErp(funcUsageConfigRequestDto);
+        if (whiteFuncUsageByCodeConfig4UserErpResult != null) {
+            if(whiteFuncUsageByCodeConfig4UserErpResult.isSuccess()){
+                return null;
+            } else {
+                if (whiteFuncUsageByCodeConfig4UserErpResult.getData() != null) {
+                    return whiteFuncUsageByCodeConfig4UserErpResult.getData().getProcess();
+                }
+            }
+        }
+
+        // 场地类型白名单
+        final Result<FuncUsageConfigDto> whiteFuncUsageByCodeConfig4SiteTypeResult = getWhiteFuncUsageByCodeConfig4SiteType(funcUsageConfigRequestDto, siteInfo);
+        if (whiteFuncUsageByCodeConfig4SiteTypeResult != null) {
+            if(whiteFuncUsageByCodeConfig4SiteTypeResult.isSuccess()){
+                return null;
+            } else {
+                if (whiteFuncUsageByCodeConfig4SiteTypeResult.getData() != null) {
+                    return whiteFuncUsageByCodeConfig4SiteTypeResult.getData().getProcess();
+                }
+            }
+        }
+
         final FuncUsageProcessDto clientMenuUsageByCodeConfig = getFuncUsageByCodeConfig4SpecificList(funcUsageConfigRequestDto);
         if (clientMenuUsageByCodeConfig != null) {
             return clientMenuUsageByCodeConfig;
@@ -1099,6 +1123,153 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 
 
         return funcUsageProcessDto;
+    }
+
+    /**
+     * 1. 未找到白名单数据 继续执行 false data = null
+     * 2. 有白名单数据
+     *     在白名单内
+     *         仅允许白名单 允许执行 true
+     *         非仅允许白名单 允许执行 true
+     *     不在白名单内
+     *         仅允许白名单 拦截 false data != null
+     *         非仅允许白名单 继续执行 false data = null
+     */
+    private Result<FuncUsageConfigDto> getWhiteFuncUsageByCodeConfig4SiteType(FuncUsageConfigRequestDto funcUsageConfigRequestDto, BaseSiteInfoDto siteInfo) {
+        Result<FuncUsageConfigDto> result = Result.success();
+
+        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_TYPE + funcUsageConfigRequestDto.getFuncCode());
+        if (sysConfig == null) {
+            return result.toFail("无白名单");
+        }
+
+        final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfig.getConfigContent(), FuncUsageConfigDto.class);
+
+        final long currentTimeMillis = System.currentTimeMillis();
+        for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
+            final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
+            if (conditionConfig == null) {
+                // 仅允许白名单
+                if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
+                    return result.setData(funcUsageConfigDto).toFail();
+                } else {
+                    continue;
+                }
+            }
+
+            if(CollectionUtils.isEmpty(conditionConfig.getSiteType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType())
+                    && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())
+                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)){
+                return result.toSuccess();
+            }
+            if((CollectionUtils.isEmpty(conditionConfig.getSiteType()) || (siteInfo.getSiteType() != null && conditionConfig.getSiteType().contains(siteInfo.getSiteType())))
+                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSubType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSubType())))
+                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) || (siteInfo.getSortType() != null && conditionConfig.getSiteSortType().contains(siteInfo.getSortType())))
+                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) || (siteInfo.getSortSubType() != null && conditionConfig.getSiteSortSubType().contains(siteInfo.getSortSubType())))
+                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSortThirdType().contains(siteInfo.getSortThirdType())))
+                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)){
+                return result.toSuccess();
+            }
+            // 仅允许白名单
+            if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
+                return result.setData(funcUsageConfigDto).toFail();
+            }
+        }
+
+        return result.toFail();
+    }
+
+    /**
+     * 1. 未找到白名单数据 继续执行 false data = null
+     * 2. 有白名单数据
+     *     在白名单内
+     *         仅允许白名单 允许执行 true
+     *         非仅允许白名单 允许执行 true
+     *     不在白名单内
+     *         仅允许白名单 拦截 false data != null
+     *         非仅允许白名单 继续执行 false data = null
+     */
+    private Result<FuncUsageConfigDto> getWhiteFuncUsageByCodeConfig4UserErp(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
+        Result<FuncUsageConfigDto> result = Result.success();
+        if (StringUtils.isEmpty(funcUsageConfigRequestDto.getOperateUser().getUserCode())) {
+            return result.toFail();
+        }
+
+        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_TYPE + funcUsageConfigRequestDto.getFuncCode());
+        if (sysConfig == null) {
+            return result.toFail("无白名单");
+        }
+
+        final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfig.getConfigContent(), FuncUsageConfigDto.class);
+
+        final long currentTimeMillis = System.currentTimeMillis();
+        for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
+            final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
+            if (conditionConfig == null) {
+                // 仅允许白名单
+                if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
+                    return result.setData(funcUsageConfigDto).toFail();
+                } else {
+                    continue;
+                }
+            }
+
+            if (CollectionUtils.isNotEmpty(conditionConfig.getUserErps()) && conditionConfig.getUserErps().contains(funcUsageConfigRequestDto.getOperateUser().getUserCode())
+                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)) {
+                return result.toSuccess();
+            }
+            // 仅允许白名单
+            if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
+                return result.setData(funcUsageConfigDto).toFail();
+            }
+        }
+
+        return result.toFail();
+    }
+
+    /**
+     * 1. 未找到白名单数据 继续执行 false data = null
+     * 2. 有白名单数据
+     *     在白名单内
+     *         仅允许白名单 允许执行 true
+     *         非仅允许白名单 允许执行 true
+     *     不在白名单内
+     *         仅允许白名单 拦截 false data != null
+     *         非仅允许白名单 继续执行 false data = null
+     */
+    private Result<FuncUsageConfigDto> getWhiteFuncUsageByCodeConfig4SpecificList(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
+        Result<FuncUsageConfigDto> result = Result.success();
+
+        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_TYPE + funcUsageConfigRequestDto.getFuncCode());
+        if (sysConfig == null) {
+            return result.toFail("无白名单");
+        }
+
+        final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfig.getConfigContent(), FuncUsageConfigDto.class);
+
+        final long currentTimeMillis = System.currentTimeMillis();
+        for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
+            final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
+            if (conditionConfig == null) {
+                // 仅允许白名单
+                if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
+                    return result.setData(funcUsageConfigDto).toFail();
+                } else {
+                    continue;
+                }
+            }
+
+            if((CollectionUtils.isEmpty(conditionConfig.getSiteCodes()) || conditionConfig.getSiteCodes().contains(funcUsageConfigRequestDto.getOperateUser().getSiteCode())
+                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis))){
+                return result.toSuccess();
+            }
+            // 仅允许白名单
+            if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
+                return result.setData(funcUsageConfigDto).toFail();
+            }
+        }
+
+        return result.toFail();
     }
 
 	private boolean checkFuncUsageWhiteListByUserErp(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
@@ -1143,6 +1314,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
         final long currentTimeMillis = System.currentTimeMillis();
         for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
             final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
+            // 没有条件表示全部匹配
             if (conditionConfig == null) {
                 return funcUsageConfigDto.getProcess();
             }
