@@ -257,9 +257,8 @@ public class Box {
         return boxSubType;
     }
 
-    public Box setBoxSubType(String boxSubType) {
+    public void setBoxSubType(String boxSubType) {
         this.boxSubType = boxSubType;
-        return this;
     }
 
     public Integer getCreateSiteCode() {

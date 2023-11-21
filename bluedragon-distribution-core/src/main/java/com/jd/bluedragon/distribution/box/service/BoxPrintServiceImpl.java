@@ -86,8 +86,7 @@ public class BoxPrintServiceImpl implements BoxPrintService{
 
             final BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(createBoxReq.getCreateSiteCode());
 
-            List<Box> availableBoxes;
-            availableBoxes = boxService.batchAddNew(this.toBox(createBoxReq, createSiteInfo), BoxSystemTypeEnum.AUTO_SORTING_MACHINE.getCode());
+            List<Box> availableBoxes = boxService.batchAddNew(this.toBox(createBoxReq, createSiteInfo), BoxSystemTypeEnum.AUTO_SORTING_MACHINE.getCode());
 
             List<String> boxCodeList = new ArrayList<>(availableBoxes.size());
             for (Box item : availableBoxes) {
@@ -339,6 +338,7 @@ public class BoxPrintServiceImpl implements BoxPrintService{
             boxPrintInfo.setTemplateName(BoxCodeUtil.getTemplateName(routerCount));
             boxPrintInfo.setTemplateVersion(BoxCodeUtil.getTemplateVersion(boxPrintInfo.getTemplateName()));
             boxPrintInfo.setBoxType(BoxCodeUtil.getBoxTypeName(boxExist.getType()));
+            boxPrintInfo.setBoxSubType(boxExist.getBoxSubType());
             boxPrintInfo.setCategoryText(BoxCodeUtil.getCategoryText(boxExist.getTransportType()));
             boxPrintInfo.setMixBoxTypeText(BoxCodeUtil.getMixBoxTypeText(boxExist.getMixBoxType()));
             boxPrintInfo.setCreateSiteName(boxExist.getCreateSiteName());
