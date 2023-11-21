@@ -2505,7 +2505,16 @@
             <groupId>com.jdl.basic</groupId>
             <artifactId>jy-basic-common</artifactId>
         </dependency>
-
+		<dependency>
+			<groupId>cn.jdl.express</groupId>
+			<artifactId>jdl-eca-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
         <dependency>
             <artifactId>dms-java-utils-sdk</artifactId>
             <groupId>com.jd.dms.utis</groupId>
