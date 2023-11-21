@@ -807,22 +807,7 @@ public class SendVehicleTransactionManager {
         sendDetail.setUpdateUserErp(myBody.getOperateUserCode());
         sendDetail.setUpdateUserName(myBody.getOperateUserName());
 
-        if(sendVehicleTransactionManager.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL)) {
-            //特殊场景处理
-            if(JySendTaskTypeEnum.AVIATION.getCode().equals(taskSendData.getTaskType())) {
-                JyBizTaskSendAviationPlanEntity sendAviationPlanEntity = jyBizTaskSendAviationPlanService.findByBizId(taskSend.getBizId());
-                //只处理未发货
-                if(!Objects.isNull(sendAviationPlanEntity) && (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(sendAviationPlanEntity.getTaskStatus()))){
-                    JyBizTaskSendAviationPlanEntity aviationPlanEntity = new JyBizTaskSendAviationPlanEntity();
-                    aviationPlanEntity.setTaskStatus(JyBizTaskSendDetailStatusEnum.TO_SEAL.getCode());
-                    aviationPlanEntity.setUpdateTime(currentDate);
-                    aviationPlanEntity.setUpdateUserName(myBody.getOperateUserName());
-                    aviationPlanEntity.setUpdateUserErp(myBody.getOperateUserCode());
-                    aviationPlanEntity.setBizId(taskSend.getBizId());
-                    jyBizTaskSendAviationPlanService.updateStatus(aviationPlanEntity);
-                }
-            }
-        }
+        sendVehicleTransactionManager.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL);
         return true;
     }
 

@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jy.service.seal.SealSyncOpenCloseSendTaskS
 import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.enums.JySendTaskTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
@@ -108,6 +109,12 @@ public class SealSyncOpenCloseSendTaskServiceImpl implements SealSyncOpenCloseSe
         if(Objects.isNull(taskSend)) {
             if(logger.isInfoEnabled()) {
                 logger.info("取消封车同步新版发货任务数据，根据批次号{}查到任务{}为空，不做处理", param.getSingleBatchCode(), jySendCodeEntity.getSendVehicleBizId());
+            }
+            return true;
+        }
+        if(!JySendTaskTypeEnum.DEFAULT_VEHICLE.getCode().equals(taskSend.getTaskType())) {
+            if(logger.isInfoEnabled()) {
+                logger.info("非发车任务，取消封车不做处理（空铁批次封车不允许取消），根据批次号{}查到任务为{}为空", param.getSingleBatchCode(), jySendCodeEntity.getSendVehicleBizId());
             }
             return true;
         }
