@@ -56,7 +56,7 @@
 
 	<insert id="addBatch" parameterType="list">
 		INSERT INTO  Box (
-			box_id, box_code, box_type, boxSubType, create_site_code, create_site_name,
+			box_id, box_code, box_type, box_sub_type, create_site_code, create_site_name,
 			receive_site_code, receive_site_name, create_user_code, create_user,
 			update_user_code, update_user, transport_type,mix_box_type,
 			create_time, update_time, times, box_status, yn,predict_send_time,
