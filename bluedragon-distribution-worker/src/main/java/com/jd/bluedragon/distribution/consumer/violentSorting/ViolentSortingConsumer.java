@@ -42,7 +42,7 @@ import static com.jd.ql.basic.util.DateUtil.FORMAT_DATE;
 /**
  *
  **/
-@Service("violentSortingConsumer")
+//@Service("violentSortingConsumer")
 public class ViolentSortingConsumer extends MessageBaseConsumer {
     String TYPE_ANDON = "ANDON";
 
