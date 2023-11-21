@@ -867,6 +867,11 @@ public class Constants {
     public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
+
+    /**
+     * 解密虚拟手机号最长等待 时间天
+     */
+    public static final String SYS_CONFIG_ZJ_DECODE_MOBILE_VIRTUAL_AFTER_DAYS= "decode.mobile.virtual.after.days";
     /**
      * print titles
      */
@@ -1014,11 +1019,11 @@ public class Constants {
     /**
      * UMP监控应用名-dms.etms
      */
-    public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
+    public static final String UMP_APP_NAME_DMSWEB= "dms-etms";
     /**
      * UMP监控应用名-bluedragon-distribution-worker
      */
-    public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
+    public static final String UMP_APP_NAME_DMSWORKER= "dms-etms-worker";
 
     /**
      *  重泡比超过正常范围168:1到330:1
@@ -1582,6 +1587,11 @@ public class Constants {
      * 常量值：2
      * */
     public static final int  CONSTANT_NUMBER_TWO = 2;
+
+    /**
+     * 常量值：10
+     * */
+    public static final int  CONSTANT_NUMBER_TEN = 10;
 
     /**
      * 组板转移标识
