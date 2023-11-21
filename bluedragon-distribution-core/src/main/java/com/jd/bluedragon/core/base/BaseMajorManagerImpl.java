@@ -1040,12 +1040,24 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return null;
     }
 
+
+
     @Override
     @Cache(key = "BaseMajorManager.getThirdStaffByUserCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     public BaseStaffSiteOrgDto getThirdStaffByUserCode(String userCode) {
         if(StringUtils.isNotBlank(userCode)){
             return basicStaffQueryWS.getThirdStaffByUserCode(userCode);
+        }
+        return null;
+    }
+
+    @Override
+    @Cache(key = "BaseMajorManager.queryBaseStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public ResultData<BaseStaffSiteDTO> queryBaseStaffByStaffId(Integer staffId) {
+        if(staffId != null){
+            return basicStaffQueryWS.queryBaseStaffByStaffId(staffId);
         }
         return null;
     }
