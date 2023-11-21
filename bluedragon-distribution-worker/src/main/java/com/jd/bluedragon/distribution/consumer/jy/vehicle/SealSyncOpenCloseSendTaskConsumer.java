@@ -116,11 +116,14 @@ public class SealSyncOpenCloseSendTaskConsumer extends MessageBaseConsumer {
             return sealSyncOpenCloseSendTaskService.dealSeal(mqBody);
 
         }else if(SealSyncOpenCloseSendTaskDto.STATUS_CANCELSEAL.equals(mqBody.getStatus())) {
-            if(!DEFAULT_SWITCH_OPEN.equals(arr[2].trim())) {
-                logger.warn("取消封车同步jy发货任务状态开关关闭，不做处理，批次号={}，ucc同步开关关闭（ucc:sealSyncOpenCloseSendTaskSwitch）", mqBody.getSingleBatchCode());
-                return true;
+            if(logger.isInfoEnabled()) {
+                logger.info("取消封车根据批次维度回退新版发货任务状态逻辑暂不处理");
             }
-            return sealSyncOpenCloseSendTaskService.dealCancelSeal(mqBody);
+//            if(!DEFAULT_SWITCH_OPEN.equals(arr[2].trim())) {
+//                logger.warn("取消封车同步jy发货任务状态开关关闭，不做处理，批次号={}，ucc同步开关关闭（ucc:sealSyncOpenCloseSendTaskSwitch）", mqBody.getSingleBatchCode());
+//                return true;
+//            }
+//            return sealSyncOpenCloseSendTaskService.dealCancelSeal(mqBody);
         }
         return true;
     }
