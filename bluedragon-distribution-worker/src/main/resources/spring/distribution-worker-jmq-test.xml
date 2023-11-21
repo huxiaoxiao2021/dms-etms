@@ -759,6 +759,18 @@
     <jmq:consumer id="jmq.loginInfoConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.login.info}" listener="loginInfoConsumer"/>
     </jmq:consumer>
+
+    <!--    来自暴力分拣测试的消息-->
+    <bean id="violentSortingConsumer"
+          class="com.jd.bluedragon.distribution.consumer.violentSorting.ViolentSortingConsumer"></bean>
+
+    <!--    来自暴力分拣手动亮灯的消息-->
+    <bean id="violentSortingConsumerManual"
+          class="com.jd.bluedragon.distribution.consumer.violentSorting.ViolentSortingConsumer"></bean>
+    <!--来自暴力分拣真实的消息AI部门-->
+    <bean id="violentSortingConsumerReal"
+          class="com.jd.bluedragon.distribution.consumer.violentSorting.ViolentSortingConsumer"></bean>
+
     <!-- 安灯消费暴力分拣 -->
     <jmq:consumer id="jmq.violentSortingConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.ai.violentSorting}" listener="violentSortingConsumer"/>
@@ -771,5 +783,16 @@
     <jmq:consumer id="jmq.batchCancelCollectPackageConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.batchCancelCollectPackageProduce}" listener="batchCancelCollectPackageConsumer"/>
     </jmq:consumer>
+
+    <!-- 安灯消费暴力分拣手动亮灯 -->
+    <jmq:consumer id="jmq.violentSortingConsumerManual" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.ai.violentSortingManual}" listener="violentSortingConsumerManual"/>
+    </jmq:consumer>
+
+    <!-- 安灯消费暴力分拣AI部门 -->
+    <jmq:consumer id="jmq.violentSortingConsumerReal" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.ai.violentSortingReal}" listener="violentSortingConsumerReal"/>
+    </jmq:consumer>
+
 </beans>
 
