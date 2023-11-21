@@ -1860,20 +1860,24 @@ public class WaybillResource {
 
 	private Integer queryReverseReasonCode(String waybillCode) {
 		// 外单逆向换单
-		// 1、港澳单-默认设置1（拦截逆向）；全程跟踪节点是-3040|700节点则设置3（清关逆向）
+		// 1、港澳单-默认设置1（拦截逆向）；全程跟踪节点是-3040|700节点则设置3（清关逆向）(国际单同港澳单)
 		// 2、快运单子-默认设置1
 		// 3、其它-默认不设置
 		com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
-		if(waybill != null && waybill.getWaybillExt() != null
-				&& BusinessUtil.isGAWaybill(waybill.getWaybillExt().getStartFlowDirection(), waybill.getWaybillExt().getEndFlowDirection())){
-			if(waybillTraceManager.isExReturn(waybillCode)){
-				// fill reverseReasonCode
-				return Constants.INTERCEPT_REVERSE_CODE_3;
+		if(waybill != null){ 
+			String waybillSign = waybill.getWaybillSign();
+			String waybillStart = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getStartFlowDirection();
+			String waybillEnd = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getEndFlowDirection();
+			if(BusinessUtil.isGAWaybill(waybillStart, waybillEnd) || BusinessUtil.isInternational(waybillSign, waybillStart, waybillEnd)){
+				if(waybillTraceManager.isExReturn(waybillCode)){
+					// fill reverseReasonCode
+					return Constants.INTERCEPT_REVERSE_CODE_3;
+				}
+				return Constants.INTERCEPT_REVERSE_CODE_1;
 			}
-			return Constants.INTERCEPT_REVERSE_CODE_1;
-		}
-		if(waybill != null && BusinessUtil.isKyWaybillOfReverseExchange(waybill.getWaybillSign())){
-			return Constants.INTERCEPT_REVERSE_CODE_1;
+			if(BusinessUtil.isKyWaybillOfReverseExchange(waybillSign)){
+				return Constants.INTERCEPT_REVERSE_CODE_1;
+			}
 		}
 		return null;
 	}
