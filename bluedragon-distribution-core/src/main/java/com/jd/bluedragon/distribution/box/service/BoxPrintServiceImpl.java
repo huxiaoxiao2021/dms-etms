@@ -218,6 +218,7 @@ public class BoxPrintServiceImpl implements BoxPrintService{
 
         Box box = new Box();
         box.setType(request.getType());
+        box.setBoxSubType(request.getSubType());
         box.setQuantity(request.getQuantity());
         box.setCreateSiteCode(request.getCreateSiteCode());
         box.setCreateSiteName(request.getCreateSiteName());
