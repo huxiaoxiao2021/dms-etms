@@ -172,6 +172,9 @@ public class BoxServiceImpl implements BoxService {
 		// 生成主键ID
 		for (Box box : boxes) {
 			box.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
+			if(box.getBoxSubType() == null){
+				box.setBoxSubType(Constants.EMPTY_FILL);
+			}
 		}
 
 		List<List<Box>> list = Lists.partition(boxes, boxAddBatchSize);
@@ -202,6 +205,9 @@ public class BoxServiceImpl implements BoxService {
             BeanHelper.copyProperties(box, param);
 			if (param.getPredictSendTime()!=null){
 				box.setPredictSendTime(param.getPredictSendTime());
+			}
+			if(box.getBoxSubType() == null){
+				box.setBoxSubType(Constants.EMPTY_FILL);
 			}
             box.setCode(boxCodePrefix + boxCodeSuffix);
             boxes.add(box);
@@ -257,7 +263,6 @@ public class BoxServiceImpl implements BoxService {
 		boolean dbOpen = isOpenDB();
 		try{
 			if (Objects.equals(BoxTypeEnum.RECYCLE_BASKET.getCode(),param.getType())) {
-                // todo 待办
 				boxCodePrefix= this.generateRecycleMaterialPrefixNew(systemType, typeEnum);
 			}else {
 				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,dbOpen);
@@ -842,7 +847,6 @@ public class BoxServiceImpl implements BoxService {
             response.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
         }
         if (null != response) {
-            // todo
             UUID.randomUUID();
 			response.setBoxTypes(BoxTypeEnum.getMap());
 		}
