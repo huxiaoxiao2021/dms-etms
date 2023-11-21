@@ -2,14 +2,13 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.VosManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.dto.task.SealSyncOpenCloseSendTaskDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnSealDto;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -24,10 +23,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -62,11 +63,6 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
     private JySealVehicleService jySealVehicleService;
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
-    @Autowired
-    @Qualifier(value = "sealSyncOpenCloseSendTaskProducer")
-    private DefaultJMQProducer sealSyncOpenCloseSendTaskProducer;
-
-
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsCancelSealCarBatchConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -90,10 +86,6 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
         }
         //接收取消批次信息 查询运输获取取消状态
         SealCarDto sealCarCodeOfTms = findSealCarInfoBySealCarCodeOfTms(mqBody.getSealCarCode());
-
-        //resetSendStatusToseal方法是按取消TW号，下面MQ消费按照批次号反查任务处理
-        this.sendResetSendStatusToSealMq(mqBody, sealCarCodeOfTms);
-
         if(TMS_CANCEL_SEAL_CAR.equals(sealCarCodeOfTms.getStatus())){
             //证明整个封车编码被取消了 , 取消对应任务
             try {
@@ -123,30 +115,6 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
             jyBizTaskComboardService.updateBoardStatusBySendCode(mqBody.getBatchCode(), mqBody.getOperateUserCode(), mqBody.getOperateUserName());
         } catch (Exception e) {
             logger.error("传站取消封车释放批次信息异常",e);
-        }
-
-
-    }
-
-    private void sendResetSendStatusToSealMq(TmsCancelSealCarBatchMQBody mqBody, SealCarDto sealCarCodeOfTms){
-        SealSyncOpenCloseSendTaskDto msg = new SealSyncOpenCloseSendTaskDto();
-        msg.setStatus(SealSyncOpenCloseSendTaskDto.STATUS_CANCELSEAL);
-        msg.setOperateUserCode(mqBody.getOperateUserCode());
-        msg.setSealCarCode(mqBody.getSealCarCode());
-        msg.setOperateTime(mqBody.getOperateTime());
-        msg.setOperateUserName(mqBody.getOperateUserName());
-        msg.setSingleBatchCode(mqBody.getBatchCode());
-        msg.setTransWorkItemCode(sealCarCodeOfTms.getTransWorkItemCode());
-        msg.setSysTime(System.currentTimeMillis());
-
-        try{
-            sealSyncOpenCloseSendTaskProducer.sendOnFailPersistent(mqBody.getSealCarCode(),JsonHelper.toJson(msg));
-        }catch (Exception e) {
-            logger.error("发送取消批次封车mq异常[errMsg={}]，mqBody={}", e.getMessage(), JsonHelper.toJson(msg), e);
-        }finally {
-            if(logger.isInfoEnabled()) {
-                logger.info("取消封车同步打开新版发货任务状态，msg={}", JsonHelper.toJson(msg));
-            }
         }
     }
 

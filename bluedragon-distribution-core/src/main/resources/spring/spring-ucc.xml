@@ -311,7 +311,7 @@
 		<property name="teAnSendTaskTipsOptimizationSwitch" value="${teAnSendTaskTipsOptimizationSwitch:false}"/>
 		<property name="teAnSendTaskNumberLimit" value="${teAnSendTaskNumberLimit:100}"/>
 		<property name="dmsToVendorSendMQSwitch" value="${dmsToVendorSendMQSwitch:true}"/>
-		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1,1,1}"/>
+		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->

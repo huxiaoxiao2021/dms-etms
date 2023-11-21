@@ -45,13 +45,6 @@ public class SealSyncOpenCloseSendTaskConsumer extends MessageBaseConsumer {
     
     private Logger logger = LoggerFactory.getLogger(SealSyncOpenCloseSendTaskConsumer.class);
 
-    private static final String DEFAULT_USER = "sys";
-    //开关
-    private static final String DEFAULT_SWITCH = "1,1,1";
-    //开关默认开启值
-    private static final String DEFAULT_SWITCH_OPEN = "1";
-
-
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
     @Autowired
@@ -99,33 +92,11 @@ public class SealSyncOpenCloseSendTaskConsumer extends MessageBaseConsumer {
     //
     private boolean deal(SealSyncOpenCloseSendTaskDto mqBody){
         String switchStr = uccPropertyConfiguration.getSealSyncOpenCloseSendTaskSwitch();
-        if(StringUtils.isBlank(switchStr) || switchStr.split(Constants.SEPARATOR_COMMA).length < 3) {
-            switchStr = DEFAULT_SWITCH;
-        }
-        String[] arr = switchStr.split(Constants.SEPARATOR_COMMA);
-        if(!DEFAULT_SWITCH_OPEN.equals(arr[0].trim())) {
-            logger.warn("封车解封车同步jy发货任务状态开关关闭，不做处理，批次号={}，ucc同步开关关闭（ucc:sealSyncOpenCloseSendTaskSwitch）", mqBody.getSingleBatchCode());
-            return true;
+        if(!Constants.NUMBER_ONE.toString().equals(switchStr)) {
+            logger.warn("封车同步jy发货任务状态开关关闭，不做处理，批次号={}，ucc同步开关关闭（ucc:sealSyncOpenCloseSendTaskSwitch）", mqBody.getSingleBatchCode());
         }
 
-        if(SealSyncOpenCloseSendTaskDto.STATUS_SEAL.equals(mqBody.getStatus())) {
-            if(!DEFAULT_SWITCH_OPEN.equals(arr[1].trim())) {
-                logger.warn("封车同步jy发货任务状态开关关闭，不做处理，批次号={}，ucc同步开关关闭（ucc:sealSyncOpenCloseSendTaskSwitch）", mqBody.getSingleBatchCode());
-                return true;
-            }
-            return sealSyncOpenCloseSendTaskService.dealSeal(mqBody);
-
-        }else if(SealSyncOpenCloseSendTaskDto.STATUS_CANCELSEAL.equals(mqBody.getStatus())) {
-            if(logger.isInfoEnabled()) {
-                logger.info("取消封车根据批次维度回退新版发货任务状态逻辑暂不处理");
-            }
-//            if(!DEFAULT_SWITCH_OPEN.equals(arr[2].trim())) {
-//                logger.warn("取消封车同步jy发货任务状态开关关闭，不做处理，批次号={}，ucc同步开关关闭（ucc:sealSyncOpenCloseSendTaskSwitch）", mqBody.getSingleBatchCode());
-//                return true;
-//            }
-//            return sealSyncOpenCloseSendTaskService.dealCancelSeal(mqBody);
-        }
-        return true;
+        return sealSyncOpenCloseSendTaskService.dealSeal(mqBody);
     }
 
 }

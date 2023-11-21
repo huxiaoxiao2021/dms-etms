@@ -1487,11 +1487,7 @@ public class UccPropertyConfiguration{
     private boolean dmsToVendorSendMQSwitch;
 
     /**
-     * 封车或取消封车时同步新版app发货任务状态开关: 默认 ： 1,1,1
-     * 开关说明: 按逗号split取前三个，不足三个时按默认逻辑执行；
-     * index0: “1” 或其他      “1” 标识开启        高优先级            开启后，才会执行封车或者取消封车逻辑，
-     * index1: “1” 或其他      “1” 标识开启        次优先级            index0开启 & index1开启  执行封车同步
-     * index2: “1” 或其他      “1” 标识开启        同index1 次优先级    index0开启 & index2开启  执行封车同步
+     * 封车或取消封车时同步新版app发货任务状态开关: 默认 ： 1, 开启
      */
     private String sealSyncOpenCloseSendTaskSwitch;
 
