@@ -182,20 +182,6 @@ public abstract class AbstractBaseUserService implements LoginService {
         }else{
             clientInfo = new  ClientInfo();
         }
-
-        if(BusinessUtil.isIdCardNo(erpAccount)){
-            LoginUserResponse response = new LoginUserResponse();
-            response.setCode(JdResponse.CODE_OK);
-            String loginUserPin = getLoginUserPin(response, erpAccount);
-            if(!response.getCode().equals(JdResponse.CODE_OK)){
-                // ERP账号
-                response.setErpAccount(erpAccount);
-                // ERP密码
-                response.setPassword(erpAccountPwd);
-                return response;
-            }
-            erpAccount = loginUserPin;
-        }
         clientInfo.setLoginUserErp(erpAccount);
         /** 进行登录验证 */
         LoginClientService loginClient = selectLoginClient();
@@ -291,40 +277,6 @@ public abstract class AbstractBaseUserService implements LoginService {
             response.setProvinceAgencyName(loginResult.getProvinceAgencyName());
             // 返回结果
             return response;
-        }
-    }
-
-
-    /**
-     * 获取登录用户的PIN码
-     *
-     * @param erpAccount ERP账户
-     * @return 登录用户的PIN码
-     */
-    private String getLoginUserPin(LoginUserResponse response,String erpAccount){
-        try{
-            log.info("获取登录用户的PIN码 checkIDCardNoExists 入参-{}",erpAccount);
-            BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(erpAccount);
-            log.info("获取登录用户的PIN码 checkIDCardNoExists 出参-{}", JSON.toJSONString(baseStaff));
-            if(baseStaff == null){
-                response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
-                response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-                return "";
-            }
-            log.info("获取登录用户的PIN码 getThirdStaffByUserCode 入参-{}",baseStaff.getUserCode());
-            BaseStaffSiteOrgDto thirdStaff = baseMajorManager.getThirdStaffByUserCode(baseStaff.getUserCode());
-            log.info("获取登录用户的PIN码 getThirdStaffByUserCode 出参-{}",JSON.toJSONString(thirdStaff));
-            if(thirdStaff == null || StringUtils.isBlank(thirdStaff.getJdAccount())){
-                response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
-                response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-                return "";
-            }
-            return Constants.PDA_THIRDPL_TYPE+thirdStaff.getJdAccount();
-        }catch (Exception e){
-            log.error("获取达达人员数据信息异常！{}",erpAccount,e);
-            response.setMessage("获取达达人员数据信息异常！{"+erpAccount+"}");
-            response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-            return "";
         }
     }
 
