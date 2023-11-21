@@ -8,10 +8,7 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.domain.*;
-import com.jd.ql.basic.dto.BaseSiteInfoDto;
-import com.jd.ql.basic.dto.BaseStaffSiteDTO;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.dto.SimpleBaseSite;
+import com.jd.ql.basic.dto.*;
 import com.jd.ql.dms.report.domain.*;
 
 import java.util.List;
@@ -271,4 +268,11 @@ public interface BaseMajorManager {
      * @return 第三方员工信息
      */
 	BaseStaffSiteOrgDto getThirdStaffByUserCode(String userCode);
+
+	/**
+	 *  根据员工ID查询员工信息（新版 只返回在职）
+	 * @param staffId
+	 * @return
+	 */
+	ResultData<BaseStaffSiteDTO> queryBaseStaffByStaffId(Integer staffId);
 }
