@@ -514,12 +514,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         sealCarDto.setSealSiteName(sealVehicleReq.getCurrentOperate().getSiteName());
         sealCarDto.setSealUserCode(sealVehicleReq.getUser().getUserErp());
         sealCarDto.setSealUserName(sealVehicleReq.getUser().getUserName());
-        if(!Objects.isNull(sealVehicleReq.getFuncType()) && JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(sealVehicleReq.getFuncType())) {
-            sealCarDto.setVolume(sealVehicleReq.getVolume());
-        }else {
-            //转换体积单位 立方厘米转换为立方米
-            sealCarDto.setVolume(NumberHelper.cm3ToM3(sealVehicleReq.getVolume()));
-        }
+        //转换体积单位 立方厘米转换为立方米
+        sealCarDto.setVolume(NumberHelper.cm3ToM3(sealVehicleReq.getVolume()));
         if (!StringUtils.isEmpty(sealVehicleReq.getPalletCount())) {
             String palletCount = sealVehicleReq.getPalletCount().trim();
             if (NumberUtils.isDigits(palletCount)) {

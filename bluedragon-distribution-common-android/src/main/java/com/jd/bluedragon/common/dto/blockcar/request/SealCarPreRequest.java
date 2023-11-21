@@ -86,6 +86,10 @@ public class SealCarPreRequest implements Serializable {
      * 操作时间
      * */
     private Date operateTime;
+    /**
+     * true: 返回批次号重量体积
+     */
+    private Boolean queryWeightVolumeFlag;
 
     public Integer getStatus() {
         return status;
@@ -213,5 +217,13 @@ public class SealCarPreRequest implements Serializable {
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public Boolean getQueryWeightVolumeFlag() {
+        return queryWeightVolumeFlag;
+    }
+
+    public void setQueryWeightVolumeFlag(Boolean queryWeightVolumeFlag) {
+        this.queryWeightVolumeFlag = queryWeightVolumeFlag;
     }
 }

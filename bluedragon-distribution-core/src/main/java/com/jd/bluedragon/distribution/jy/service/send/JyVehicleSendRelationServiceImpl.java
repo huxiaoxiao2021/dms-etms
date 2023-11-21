@@ -119,4 +119,14 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
         }
         return jySendCodeDao.findSendCodesByDetailBizIds(detailBizIdList);
     }
+
+
+    @Override
+    public List<String> findSendCodesByBizIds(List<String> bizIdList) {
+        if(CollectionUtils.isEmpty(bizIdList)) {
+            return null;
+        }
+        return jySendCodeDao.findSendCodesByBizIds(bizIdList);
+    }
+
 }
