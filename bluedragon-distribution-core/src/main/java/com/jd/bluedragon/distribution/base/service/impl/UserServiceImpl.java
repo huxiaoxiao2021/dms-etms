@@ -427,6 +427,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 				}
 				//校验账号是否有效
 				if(!checkUserCode(userCode)){
+					if(log.isInfoEnabled()){
+						log.info("账号无效 userCode-{}",userCode);
+					}
 					result.getData().setForceLogout(Boolean.TRUE);
 					result.getData().setLogoutType(LogoutTypeEnum.WARN_USER_INVALID.getTypeCode());
 	                result.toWarn(JdResponse.CODE_RESIGNATION,JdResponse.MESSAGE_RESIGNATION);
@@ -486,11 +489,20 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
      * @return
      */
     public boolean checkUserCode(String userCode){
+		if(log.isInfoEnabled()){
+			log.info("checkUserCode userCode-{}",userCode);
+		}
 		if(userCode != null && !userCode.toLowerCase().contains(Constants.PDA_THIRDPL_TYPE)){
             BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(userCode);
             if(baseDto == null || baseDto.getIsResign() == null || baseDto.getIsResign() != 1){
-                return false;
+				if(log.isInfoEnabled()){
+					log.info("checkUserCode false");
+				}
+				return false;
             }
+		}
+		if(log.isInfoEnabled()){
+			log.info("checkUserCode true");
 		}
         return true;
     }
