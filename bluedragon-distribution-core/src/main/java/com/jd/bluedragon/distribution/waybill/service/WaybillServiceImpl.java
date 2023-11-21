@@ -1673,7 +1673,7 @@ public class WaybillServiceImpl implements WaybillService {
             //作为透传用 避免多次查询
             waybillForPreSortOnSiteRequest.setSiteName(operateSite.getSiteName());
             waybillForPreSortOnSiteRequest.setProvinceAgencyCode(operateSite.getProvinceAgencyCode());
-            waybillForPreSortOnSiteRequest.setProvinceAgencyName(operateSite.getProvinceCompanyName());
+            waybillForPreSortOnSiteRequest.setProvinceAgencyName(operateSite.getProvinceAgencyName());
             waybillForPreSortOnSiteRequest.setAreaHubCode(operateSite.getAreaCode());
             waybillForPreSortOnSiteRequest.setAreaHubName(operateSite.getAreaName());
 
