@@ -344,7 +344,7 @@ public class BoxPrintServiceImpl implements BoxPrintService{
             boxPrintInfo.setTemplateVersion(BoxCodeUtil.getTemplateVersion(boxPrintInfo.getTemplateName()));
             boxPrintInfo.setBoxType(boxExist.getType());
             final BoxSubTypeEnum boxSubTypeEnum = BoxSubTypeEnum.getFromCode(boxExist.getBoxSubType());
-            boxExist.setBoxSubType(boxSubTypeEnum != null ? boxSubTypeEnum.getName() : "");
+            boxPrintInfo.setBoxTypeText(boxSubTypeEnum != null ? boxSubTypeEnum.getName() : "");
             boxPrintInfo.setBoxSubType(boxExist.getBoxSubType());
             boxPrintInfo.setTransportType(boxExist.getTransportType());
             boxPrintInfo.setTransportTypeText(BoxCodeUtil.getCategoryText(boxExist.getTransportType()));
