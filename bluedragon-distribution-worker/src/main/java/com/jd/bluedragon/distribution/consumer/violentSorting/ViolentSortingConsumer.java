@@ -43,7 +43,7 @@ import static com.jd.ql.basic.util.DateUtil.FORMAT_DATE;
 /**
  * 此消息uat和线上使用不同的topic，uat仅测试使用，不做打标隔离
  **/
-@Service("violentSortingConsumer")
+//@Service("violentSortingConsumer")
 public class ViolentSortingConsumer extends MessageBaseConsumer implements InitializingBean {
     String TYPE_ANDON = "ANDON";
 
