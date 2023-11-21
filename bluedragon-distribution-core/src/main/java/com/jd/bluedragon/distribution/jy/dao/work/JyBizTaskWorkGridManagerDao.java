@@ -22,7 +22,7 @@ import com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportQuery;
  */
 public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManager> {
 
-    final static String NAMESPACE = JyBizTaskWorkGridManagerDao.class.getName();
+    public final static String NAMESPACE = JyBizTaskWorkGridManagerDao.class.getName();
 
 	public int addTask(JyBizTaskWorkGridManager jyTask) {
 		return this.getSqlSession().insert(NAMESPACE + ".insert", jyTask);

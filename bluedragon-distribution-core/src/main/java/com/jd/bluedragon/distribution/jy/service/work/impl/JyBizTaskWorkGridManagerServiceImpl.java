@@ -499,4 +499,13 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	public String selectLastHandlerErp(String taskCode){
 		return jyBizTaskWorkGridManagerDao.selectLastHandlerErp(taskCode);
 	}
+
+	@Override
+	public int updateTask4Uat(JyWorkGridManagerData data) {
+		JyBizTaskWorkGridManager entity = new JyBizTaskWorkGridManager();
+		entity.setId(data.getId());
+		entity.setHandlerErp(data.getHandlerErp());
+		entity.setYn(data.getYn());
+		return jyBizTaskWorkGridManagerDao.update(JyBizTaskWorkGridManagerDao.NAMESPACE, entity);
+	}
 }
