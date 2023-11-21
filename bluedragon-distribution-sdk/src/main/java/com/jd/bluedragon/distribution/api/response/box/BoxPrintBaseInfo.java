@@ -44,13 +44,25 @@ public class BoxPrintBaseInfo implements Serializable {
      */
     private String boxType;
     /**
+     * 箱号类型名称
+     */
+    private String boxTypeText;
+    /**
      * 箱号子类型
      */
     private String boxSubType;
     /**
      * 运输方式
      */
-    private String categoryText;
+    private Integer transportType;
+    /**
+     * 运输方式
+     */
+    private String transportTypeText;
+    /**
+     * 是否混箱
+     */
+    private Integer mixBoxType;
     /**
      * 是否混箱
      */
@@ -63,6 +75,33 @@ public class BoxPrintBaseInfo implements Serializable {
      * router拼接的字符串
      */
     private String routerText;
+
+    public BoxPrintBaseInfo() {
+    }
+
+    public String getTemplateName() {
+        return templateName;
+    }
+
+    public void setTemplateName(String templateName) {
+        this.templateName = templateName;
+    }
+
+    public Integer getTemplateVersion() {
+        return templateVersion;
+    }
+
+    public void setTemplateVersion(Integer templateVersion) {
+        this.templateVersion = templateVersion;
+    }
+
+    public List<String> getRouter() {
+        return router;
+    }
+
+    public void setRouter(List<String> router) {
+        this.router = router;
+    }
 
     public Integer getReceiveSiteCode() {
         return receiveSiteCode;
@@ -104,21 +143,44 @@ public class BoxPrintBaseInfo implements Serializable {
         this.boxType = boxType;
     }
 
+    public String getBoxTypeText() {
+        return boxTypeText;
+    }
+
+    public void setBoxTypeText(String boxTypeText) {
+        this.boxTypeText = boxTypeText;
+    }
+
     public String getBoxSubType() {
         return boxSubType;
     }
 
-    public BoxPrintBaseInfo setBoxSubType(String boxSubType) {
+    public void setBoxSubType(String boxSubType) {
         this.boxSubType = boxSubType;
-        return this;
     }
 
-    public String getCategoryText() {
-        return categoryText;
+    public Integer getTransportType() {
+        return transportType;
     }
 
-    public void setCategoryText(String categoryText) {
-        this.categoryText = categoryText;
+    public void setTransportType(Integer transportType) {
+        this.transportType = transportType;
+    }
+
+    public String getTransportTypeText() {
+        return transportTypeText;
+    }
+
+    public void setTransportTypeText(String transportTypeText) {
+        this.transportTypeText = transportTypeText;
+    }
+
+    public Integer getMixBoxType() {
+        return mixBoxType;
+    }
+
+    public void setMixBoxType(Integer mixBoxType) {
+        this.mixBoxType = mixBoxType;
     }
 
     public String getMixBoxTypeText() {
@@ -135,30 +197,6 @@ public class BoxPrintBaseInfo implements Serializable {
 
     public void setRouterNum(String routerNum) {
         this.routerNum = routerNum;
-    }
-
-    public String getTemplateName() {
-        return templateName;
-    }
-
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
-    public Integer getTemplateVersion() {
-        return templateVersion;
-    }
-
-    public void setTemplateVersion(Integer templateVersion) {
-        this.templateVersion = templateVersion;
-    }
-
-    public List<String> getRouter() {
-        return router;
-    }
-
-    public void setRouter(List<String> router) {
-        this.router = router;
     }
 
     public String getRouterText() {
