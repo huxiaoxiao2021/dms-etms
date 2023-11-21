@@ -90,6 +90,7 @@ import com.jdl.basic.common.utils.Result;
 
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentSubBizTypeEnum.TASK_WORK_GRID_MANAGER_IMPROVE;
 import static com.jd.bluedragon.distribution.jy.service.work.impl.JyWorkGridManagerCaseServiceImpl.CASE_ZHIBIAO_QITA_ITEM_CODE;
+import static com.jdl.basic.api.enums.WorkGridManagerTaskBizType.KPI_IMPROVE;
 
 /**
  * @ClassName: JyBizTaskWorkGridManagerServiceImpl
@@ -524,7 +525,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					}
 				}else {
 					//新增任务
-			        this.addWorkGridManagerSiteScanTask(taskData);
+			        this.addWorkGridManagerSiteScanTask(taskData, null);
 				}
 			}
 			pageNum ++;
@@ -620,7 +621,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			Integer siteCode = Integer.valueOf(obSiteCode.toString());
 			siteCodes.add(siteCode);
 			if(data.containsKey("actual") && 
-					org.apache.commons.lang3.StringUtils.isNumeric(String.valueOf(data.get("actual")))){
+					org.apache.commons.lang3.StringUtils.isNotBlank(String.valueOf(data.get("actual")))){
 				BusinessQuotaInfoData businessQuotaInfoData = new BusinessQuotaInfoData();
 				businessQuotaInfoData.setTarget(targetStr);
 				Double actual = Double.parseDouble(data.get("actual").toString());
@@ -772,7 +773,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			taskData.setExecuteCount(taskWorkGridManagerScan.getExecuteCount() + 1);
 		}
 		taskData.setLastExecuteTime(taskWorkGridManagerScan.getExecuteTime());
-		addWorkGridManagerSiteScanTask(taskData);
+		addWorkGridManagerSiteScanTask(taskData, taskInfo.getTaskBizType());
 		logger.info("新增下次执行时间的任务：batchCode={},executeTime={}",taskData.getTaskBatchCode(),DateHelper.formatDateTime(taskData.getExecuteTime()));
 		return true;
 	}
@@ -1012,7 +1013,15 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
         logger.info("startWorkGridManagerScanTask-taskData={}", JsonHelper.toJson(taskData));
         taskService.doAddTask(tTask, false);
 	}
-	void addWorkGridManagerSiteScanTask(TaskWorkGridManagerSiteScanData taskData) {
+	void addWorkGridManagerSiteScanTask(TaskWorkGridManagerSiteScanData taskData, Integer taskBizType) {
+		if(taskBizType != null){
+			WorkGridManagerTaskBizType bizTypeEnum = WorkGridManagerTaskBizType.getEnum(taskBizType);
+			if(bizTypeEnum != null && bizTypeEnum.getCode().equals(KPI_IMPROVE.getCode())){
+				logger.info("指标周期改善,不用新增任务");
+				return;
+			}
+		}
+
 		Task tTask = new Task();
 		tTask.setBody(JsonHelper.toJson(taskData));
 
