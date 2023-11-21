@@ -89,11 +89,19 @@ public class VosManagerImpl implements VosManager{
 	 */
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.VosManagerImpl.verifyVehicleJobByVehicleNumber",mState = {JProEnum.TP,JProEnum.FunctionError})
 	public CommonDto<String> verifyVehicleJobByVehicleNumber(VerifyVehicleJobDto  verifyVehicleJobDto){
-		CommonDto<String> commonDto = vosVehicleJobBusinessWS.verifyVehicleJobByVehicleNumber(verifyVehicleJobDto);
-		if(log.isDebugEnabled()){
-			log.debug("调用VOS校验车牌号能否封车创建车次任务接口,参数:{},返回值：{}" ,JSON.toJSONString(verifyVehicleJobDto), JSON.toJSONString(commonDto));
+		try{
+			CommonDto<String> commonDto = vosVehicleJobBusinessWS.verifyVehicleJobByVehicleNumber(verifyVehicleJobDto);
+			if(log.isDebugEnabled()){
+				log.debug("调用VOS校验车牌号能否封车创建车次任务接口,参数:{},返回值：{}" ,JSON.toJSONString(verifyVehicleJobDto), JSON.toJSONString(commonDto));
+			}
+			return commonDto;
+		}catch (Exception e) {
+			log.error("调用VOS校验车牌号能否封车创建车次任务接口jsf服务异常，入参={}，errMsg={}", JsonHelper.toJson(verifyVehicleJobDto), e.getMessage(), e);
+			CommonDto<String> errRes = new CommonDto<>();
+			errRes.setCode(CommonDto.CODE_FAIL);
+			errRes.setMessage("调用VOS校验车牌号能否封车创建车次任务服务异常，请联系分拣小秘");
+			return errRes;
 		}
-		return commonDto;
 	}
 
 	/**
