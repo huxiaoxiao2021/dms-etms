@@ -58,4 +58,13 @@ public interface JyWorkGridManagerGatewayService {
 	 * @return
 	 */
 	JdCResponse<List<String>> queryCandidateList(JyWorkGridManagerQueryRequest query);
+
+	/**
+	 * uat 用代码不会合并到正式
+	 * 根据id修改任务处理人获改成无效
+	 * @param jyWorkGridManagerData
+	 * @return
+	 */
+	JdCResponse<Boolean> updateTask4Uat(JyWorkGridManagerData jyWorkGridManagerData);
+	
 }
