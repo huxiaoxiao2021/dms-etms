@@ -7,6 +7,25 @@ import java.io.Serializable;
 /**
  * 调查问卷查询
  */
-public class QuestionnaireReq extends BaseReq implements Serializable {
+public class QuestionnaireReq implements Serializable {
 
+    private String userErp;
+
+    private String userName;
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }

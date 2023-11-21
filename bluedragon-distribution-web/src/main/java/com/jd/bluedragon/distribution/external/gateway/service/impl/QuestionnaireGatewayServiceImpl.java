@@ -67,7 +67,7 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         String questionnaireId = sysConfig.getConfigContent();
 
         // 判断当前用户是否已经作答
-        if (checkUserHasAnswered(questionnaireId,req.getUser().getUserErp())) {
+        if (checkUserHasAnswered(questionnaireId,req.getUserErp())) {
             return response;
         }
         // 获取调查问卷信息
@@ -118,7 +118,7 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
     }
 
     private boolean checkQuestionnaireReq(QuestionnaireReq req) {
-        if (req == null || req.getUser() == null || StringUtils.isEmpty(req.getUser().getUserErp())) {
+        if (req == null || StringUtils.isEmpty(req.getUserErp())) {
             return false;
         }
         return true;
@@ -135,7 +135,7 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
             response.toFail("回答问题后再提交！");
             return response;
         }
-        if (req.getUser() == null || StringUtils.isEmpty(req.getUser().getUserErp())) {
+        if (StringUtils.isEmpty(req.getUserErp())) {
             response.toFail("未获取到用户信息！");
             return response;
         }
@@ -154,7 +154,7 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
             method.addRequestHeader("timestamp", Long.toString(timestamp));
             String sign = Md5Helper.getMd5(HTTP_REQUEST_HEADER_APP + appSecret + timestamp);
             method.addRequestHeader("sign", sign);
-            method.addRequestHeader("Cookie", "pin=" + req.getUser().getUserErp());
+            method.addRequestHeader("Cookie", "pin=" + req.getUserErp());
             method.setRequestEntity(new StringRequestEntity(JsonHelper.toJson(req.getAnswerQuestionnaire()),
                     REST_CONTENT_TYPE,
                     StandardCharsets.UTF_8.name()));

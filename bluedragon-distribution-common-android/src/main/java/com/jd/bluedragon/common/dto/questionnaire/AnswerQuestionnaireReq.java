@@ -5,9 +5,11 @@ import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import java.io.Serializable;
 import java.util.List;
 
-public class AnswerQuestionnaireReq extends BaseReq implements Serializable {
+public class AnswerQuestionnaireReq implements Serializable {
 
     private AnswerQuestionnaire answerQuestionnaire;
+
+    private String userErp;
 
     public AnswerQuestionnaire getAnswerQuestionnaire() {
         return answerQuestionnaire;
@@ -15,5 +17,13 @@ public class AnswerQuestionnaireReq extends BaseReq implements Serializable {
 
     public void setAnswerQuestionnaire(AnswerQuestionnaire answerQuestionnaire) {
         this.answerQuestionnaire = answerQuestionnaire;
+    }
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
     }
 }
