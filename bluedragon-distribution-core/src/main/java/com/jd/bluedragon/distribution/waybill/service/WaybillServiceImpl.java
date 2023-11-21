@@ -1670,6 +1670,13 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
 
+            //作为透传用 避免多次查询
+            waybillForPreSortOnSiteRequest.setSiteName(operateSite.getSiteName());
+            waybillForPreSortOnSiteRequest.setProvinceAgencyCode(operateSite.getProvinceAgencyCode());
+            waybillForPreSortOnSiteRequest.setProvinceAgencyName(operateSite.getProvinceCompanyName());
+            waybillForPreSortOnSiteRequest.setAreaHubCode(operateSite.getAreaCode());
+            waybillForPreSortOnSiteRequest.setAreaHubName(operateSite.getAreaName());
+
 
         }catch (Exception ex){
             log.error("WaybillService.checkWaybillForPreSortOnSite has error. The error is " + ex.getMessage(),ex);

@@ -428,9 +428,25 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 				result.setData(Boolean.FALSE);
 				return result;
 			}
+
 			//现场预分拣拦截校验
 			WaybillForPreSortOnSiteRequest preSortOnSiteRequest = buildWaybillForPreSortOnSiteRequest(req);
 			InvokeResult<String> invokeResult = waybillService.checkWaybillForPreSortOnSite(preSortOnSiteRequest);
+			req.setOperateSiteName(preSortOnSiteRequest.getSiteName());
+			req.setProvinceAgencyCode(preSortOnSiteRequest.getProvinceAgencyCode());
+			req.setProvinceAgencyName(preSortOnSiteRequest.getProvinceAgencyName());
+			req.setAreaHubCode(preSortOnSiteRequest.getAreaHubCode());
+			req.setAreaHubName(preSortOnSiteRequest.getAreaHubName());
+			if(log.isInfoEnabled()){
+				log.info("ReassignWaybillReq 入参-{}",JSON.toJSONString(req));
+			}
+			if(!checkCheckerIsExsit(req.getProvinceAgencyCode(),req.getAreaHubCode())){
+				String msg = "根据当前当前场地所属的省区编码 %s 枢纽编码 %s未查询到审核人信息!";
+				String.format(msg,req.getProvinceAgencyCode(),req.getAreaHubCode());
+				result.toFail(msg);
+				result.setData(Boolean.FALSE);
+				return result;
+			}
 			if(InvokeResult.RESULT_SUCCESS_CODE != invokeResult.getCode()){
 				result.setCode(invokeResult.getCode());
 				result.setMessage(invokeResult.getMessage());
@@ -484,6 +500,35 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			redisClientOfJy.del(lockKey);
 		}
 		return result;
+	}
+
+	private boolean  checkCheckerIsExsit(String provinceAgencyCode,String areaHubCode){
+		StringJoiner joiner = new StringJoiner("_");
+		joiner.add(provinceAgencyCode);
+		if(StringUtils.isNotBlank(areaHubCode)){
+			joiner.add(areaHubCode);
+		}
+		String provinceAreaCode = joiner.toString();
+		SysConfig configContent = sysConfigService.findConfigContentByConfigName(Constants.REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG);
+		if(configContent == null){
+			throw new JyBizException("获取返调度省区审核配置为空!");
+		}
+		String firstChecker ="";
+		String secondChecker ="";
+		ReassignWaybillProvinceAreaApprovalConfigDto configDto = JSON.parseObject(configContent.getConfigContent(), ReassignWaybillProvinceAreaApprovalConfigDto.class);
+		Map<String, List<String>> configList = configDto.getConfigList();
+		if(!CollectionUtils.isEmpty(configList)){
+			List<String> checker = configList.get(provinceAreaCode);
+			if(!CollectionUtils.isEmpty(checker)){
+				firstChecker = checker.get(0);
+				secondChecker = checker.get(1);
+			}
+		}
+		if(StringUtils.isBlank(firstChecker) || StringUtils.isBlank(secondChecker)){
+			return false ;
+		}
+
+		return true;
 	}
 
 	@Override
@@ -549,6 +594,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		String provinceAreaCode = joiner.toString();
 		SysConfig configContent = sysConfigService.findConfigContentByConfigName(Constants.REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG);
 		if(configContent == null){
+			log.error("处理当前单号-{}-获取返调度省区审核配置为空!",mq.getBarCode());
 			throw new JyBizException("获取返调度省区审核配置为空!");
 		}
 		String firstChecker ="";
@@ -654,6 +700,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
      * @return record 重新分配运单审批记录
      */
 	private void dealNewReassignWaybillApprovalRecord(ReassignWaybillReq req, boolean needApproval){
+
+
 		ReassignWaybillApprovalRecord record = new ReassignWaybillApprovalRecord();
 		record.setSiteCode(req.getOperateSiteCode());
 		record.setSiteName(req.getOperateSiteName());
@@ -671,17 +719,11 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		}else {
 			record.setCheckEndFlag(ReassignWaybillCheckEndFlagEnum.END.getCode());
 		}
-
 		record.setCreateTime(new Date());
-		BaseSite baseSite = baseMajorManager.getSiteBySiteCode(req.getOperateSiteCode());
-		if(baseSite == null){
-			throw new  JyBizException("获取"+req.getOperateSiteCode()+"基础站点信息失败");
-		}
-
-		record.setProvinceAgencyCode(baseSite.getProvinceAgencyCode());
-		record.setProvinceAgencyName(baseSite.getProvinceAgencyName());
-		record.setAreaHubCode(baseSite.getAreaCode());
-		record.setAreaHubName(baseSite.getAreaName());
+		record.setProvinceAgencyCode(req.getProvinceAgencyCode());
+		record.setProvinceAgencyName(req.getProvinceAgencyName());
+		record.setAreaHubCode(req.getAreaHubCode());
+		record.setAreaHubName(req.getAreaHubName());
 		if(log.isInfoEnabled()){
 			log.info("initReassignWaybillApprovalRecord- {}",JSON.toJSONString(record));
 		}

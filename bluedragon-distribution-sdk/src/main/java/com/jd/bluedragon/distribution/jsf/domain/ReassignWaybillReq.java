@@ -11,6 +11,28 @@ import java.io.Serializable;
  */
 public class ReassignWaybillReq implements Serializable {
 
+
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+
+    /**
+     * 省区名称
+     */
+    private String provinceAgencyName;
+
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
+
+    /**
+     * 枢纽名称
+     */
+    private String areaHubName;
+
+
     /**
      * 操作人ERP
      */
@@ -66,6 +88,8 @@ public class ReassignWaybillReq implements Serializable {
      * 现场调度站点编码
      */
     private String siteOfSchedulingOnSiteName;
+
+
 
 
     public String getOperateUserErp() {
@@ -158,5 +182,37 @@ public class ReassignWaybillReq implements Serializable {
 
     public void setOperateUserCode(Integer operateUserCode) {
         this.operateUserCode = operateUserCode;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getProvinceAgencyName() {
+        return provinceAgencyName;
+    }
+
+    public void setProvinceAgencyName(String provinceAgencyName) {
+        this.provinceAgencyName = provinceAgencyName;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
+    }
+
+    public String getAreaHubName() {
+        return areaHubName;
+    }
+
+    public void setAreaHubName(String areaHubName) {
+        this.areaHubName = areaHubName;
     }
 }
