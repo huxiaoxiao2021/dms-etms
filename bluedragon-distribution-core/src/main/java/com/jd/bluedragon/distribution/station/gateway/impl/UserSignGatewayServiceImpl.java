@@ -356,13 +356,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			log.info("获取登录用户的PIN码 checkIDCardNoExists 入参-{}",erpAccount);
 			BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(erpAccount);
 			log.info("获取登录用户的PIN码 checkIDCardNoExists 出参-{}", JSON.toJSONString(baseStaff));
-			if(baseStaff == null){
+			if(baseStaff == null || baseStaff.getStaffNo() == null){
 				response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
 				response.setCode(JdResponse.CODE_INTERNAL_ERROR);
 				return "";
 			}
-			log.info("获取登录用户的PIN码 getThirdStaffByUserCode 入参-{}",baseStaff.getUserCode());
-			BaseStaffSiteOrgDto thirdStaff = baseMajorManager.getThirdStaffByUserCode(baseStaff.getUserCode());
+			log.info("获取登录用户的PIN码 getThirdStaffByUserCode 入参-{}",baseStaff.getStaffNo());
+			BaseStaffSiteOrgDto thirdStaff = baseMajorManager.getThirdStaffByUserCode(baseStaff.getStaffNo().toString());
 			log.info("获取登录用户的PIN码 getThirdStaffByUserCode 出参-{}",JSON.toJSONString(thirdStaff));
 			if(thirdStaff == null || org.apache.commons.lang.StringUtils.isBlank(thirdStaff.getJdAccount())){
 				response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
