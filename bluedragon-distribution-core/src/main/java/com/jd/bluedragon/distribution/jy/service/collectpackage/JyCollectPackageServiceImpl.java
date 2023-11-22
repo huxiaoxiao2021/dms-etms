@@ -86,6 +86,7 @@ import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCC
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
 
 @Service
 @Slf4j
@@ -463,7 +464,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      */
     private List<Integer> queryMixBoxFlowList(CollectPackageReq req) {
         CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(req.getCurrentOperate().getSiteCode(),req.getBoxReceiveId().intValue(),null);
-        List<CollectBoxFlowDirectionConf> collectBoxFlowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con, Collections.singletonList(COLLECT_CLAIM_MIX));//TODO 替换成查询任务的流向集合
+        List<CollectBoxFlowDirectionConf> collectBoxFlowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con, Arrays.asList(COLLECT_CLAIM_MIX, COLLECT_CLAIM_SPECIFY_MIX));//TODO 替换成查询任务的流向集合
         if (CollectionUtils.isEmpty(collectBoxFlowDirectionConfList)) {
             throw new JyBizException("未查询到对应目的地的可混装的流向集合！");
         }
@@ -1224,7 +1225,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(request.getCurrentOperate().getSiteCode(), task.getEndSiteId().intValue(),request.getSearchCondition());
         List<CollectBoxFlowDirectionConf> flowList=
-                boxLimitConfigManager.listCollectBoxFlowDirection(con, Collections.singletonList(COLLECT_CLAIM_MIX));
+                boxLimitConfigManager.listCollectBoxFlowDirection(con, Arrays.asList(COLLECT_CLAIM_MIX, COLLECT_CLAIM_SPECIFY_MIX));
         if (!CollectionUtils.isEmpty(flowList)) {
             flowList.forEach(item-> {
                 CollectPackageFlowDto flowDto = new CollectPackageFlowDto();

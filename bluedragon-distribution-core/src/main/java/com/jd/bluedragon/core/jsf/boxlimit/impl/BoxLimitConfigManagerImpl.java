@@ -71,6 +71,11 @@ public class BoxLimitConfigManagerImpl implements BoxLimitConfigManager {
                 log.info("小件集包查询集包规则结果：{}",JsonHelper.toJSONString(rs));
             }
             if (ObjectHelper.isNotNull(rs) && rs.isSuccess() && ObjectHelper.isNotNull(rs.getData()) && CollectionUtils.isNotEmpty(rs.getData().getData())){
+
+                if (CollectionUtils.isEmpty(collectClaimList)){
+                    return rs.getData().getData();
+                }
+
                 List<CollectBoxFlowDirectionConf> list = new ArrayList<>();
                 for (CollectBoxFlowDirectionConf datum : rs.getData().getData()) {
                     if (collectClaimList.contains(datum.getCollectClaim())) {
