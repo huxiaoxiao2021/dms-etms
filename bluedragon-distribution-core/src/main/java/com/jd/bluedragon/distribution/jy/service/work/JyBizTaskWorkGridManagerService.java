@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.work;
 
 import java.util.List;
+import java.util.Map;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCountData;
@@ -103,5 +104,5 @@ public interface JyBizTaskWorkGridManagerService {
 
     String selectLastHandlerErp(String taskCode);
 
-	int updateTask4Uat(JyWorkGridManagerData data);
+	int updateTask4Uat(Map<String,Object> data);
 }

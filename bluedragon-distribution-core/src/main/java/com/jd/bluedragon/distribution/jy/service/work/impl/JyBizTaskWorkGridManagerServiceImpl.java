@@ -501,11 +501,18 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	}
 
 	@Override
-	public int updateTask4Uat(JyWorkGridManagerData data) {
+	public int updateTask4Uat(Map<String,Object> data) {
 		JyBizTaskWorkGridManager entity = new JyBizTaskWorkGridManager();
-		entity.setId(data.getId());
-		entity.setHandlerErp(data.getHandlerErp());
-		entity.setYn(data.getYn());
+		entity.setId(Long.parseLong(data.get("id").toString()));
+		if(data.get("handlerErp") != null){
+			entity.setHandlerErp(data.get("handlerErp").toString());
+		}
+		if(data.get("yn") != null){
+			entity.setYn(Integer.parseInt(data.get("yn").toString()));
+		}
+		if(data.get("taskBizType") != null){
+			entity.setTaskBizType(Integer.parseInt(data.get("taskBizType").toString()));
+		}
 		return jyBizTaskWorkGridManagerDao.update(JyBizTaskWorkGridManagerDao.NAMESPACE, entity);
 	}
 }

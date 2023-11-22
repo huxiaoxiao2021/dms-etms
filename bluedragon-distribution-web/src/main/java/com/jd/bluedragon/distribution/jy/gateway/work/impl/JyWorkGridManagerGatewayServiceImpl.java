@@ -220,18 +220,19 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	}
 
 	@Override
-	public JdCResponse<Boolean> updateTask4Uat(JyWorkGridManagerData data) {
+	public JdCResponse<Boolean> updateTask4Uat(Map<String,Object> data) {
 		JdCResponse<Boolean> response = new JdCResponse<>();
-		if(data.getId() == null){
+		if(data.get("id") == null){
 			response.toFail("id不能为空"); 
 			return response;
 		}
-		if(StringUtils.isBlank(data.getHandlerErp()) && data.getYn() == null){
-			response.toFail("id不能为空");
+		if(data.get("handlerErp") == null && data.get("yn") == null && data.get("taskBizType") == null){
+			response.toFail("handlerErp,yn,taskBizType不能同时为空");
 			return response;
 		}
 		int count = jyBizTaskWorkGridManagerService.updateTask4Uat(data);
-		return null;
+		response.setData(count > 0);
+		return response;
 	}
 
 }
