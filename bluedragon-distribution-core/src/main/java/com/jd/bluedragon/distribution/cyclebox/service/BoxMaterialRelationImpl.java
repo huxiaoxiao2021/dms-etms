@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service("boxMaterialRelationService")
 public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
@@ -99,13 +100,13 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
     }
 
     @Override
-    public List<BoxMaterialRelation> findByMaterialCodeAndBoxCode(BoxMaterialRelation query) {
-        return boxMaterialRelationDao.findByMaterialCodeAndBoxCode(query);
+    public List<BoxMaterialRelation> findByMaterialCodeAndBoxCode(Map<String, Object> map) {
+        return boxMaterialRelationDao.findByMaterialCodeAndBoxCode(map);
     }
 
     @Override
-    public int countByMaterialCodeAndBoxCode(BoxMaterialRelation query) {
-        return boxMaterialRelationDao.countByMaterialCodeAndBoxCode(query);
+    public int countByMaterialCodeAndBoxCode(Map<String, Object> map) {
+        return boxMaterialRelationDao.countByMaterialCodeAndBoxCode(map);
     }
 
     @Override
