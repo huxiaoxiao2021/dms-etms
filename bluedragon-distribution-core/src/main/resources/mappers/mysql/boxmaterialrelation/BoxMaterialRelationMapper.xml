@@ -131,4 +131,39 @@
           AND  material_code =  #{materialCode,jdbcType=VARCHAR}
           AND  box_code = #{boxCode,jdbcType=VARCHAR}
     </update>
+
+    <!-- 集包袋明细报表专用 其余接口请勿使用-->
+    <select id="findByMaterialCodeAndBoxCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from box_material_relation
+        WHERE is_delete = 0
+        <if test="null != materialCode and '' != materialCode">
+            and material_code =  #{materialCode}
+        </if>
+        <if test="null != boxCode and '' != boxCode">
+            and box_code =  #{boxCode}
+        </if>
+        <if test="(boxCode == null or boxCode == '') and (null == materialCode or '' == materialCode)">
+            and box_code is null
+        </if>
+        order by id  desc
+        limit #{offset}, #{pageSize}
+    </select>
+
+    <!-- 集包袋明细报表专用 其余接口请勿使用-->
+    <select id="countByMaterialCodeAndBoxCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" resultType="int">
+        select count(*) as count
+        from box_material_relation
+        WHERE is_delete = 0
+        <if test="null != materialCode and '' != materialCode">
+            and material_code =  #{materialCode}
+        </if>
+        <if test="null != boxCode and '' != boxCode">
+            and box_code =  #{boxCode}
+        </if>
+        <if test="(boxCode == null or boxCode == '') and (null == materialCode or '' == materialCode)">
+            and box_code is null
+        </if>
+    </select>
 </mapper>
