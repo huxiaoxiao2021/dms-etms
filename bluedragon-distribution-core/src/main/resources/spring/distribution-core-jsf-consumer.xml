@@ -1092,7 +1092,16 @@
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
-
+    <!--  网格班次管理服务  -->
+    <jsf:consumer id="workGridScheduleJsfService"
+                  interface="com.jdl.basic.api.service.schedule.WorkGridScheduleJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
     <!-- 岗位管理接口 -->
     <jsf:consumer id="basicPositionQueryJsfService"
                   interface="com.jdl.basic.api.service.position.PositionQueryJsfService"
@@ -1131,6 +1140,15 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!--线上化-备选责任人-jsf服务-->
+    <jsf:consumer id="workGridCandidateJsfService"
+                  interface="com.jdl.basic.api.service.work.WorkGridCandidateJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
     <!--  用户管理-jsf服务  -->
@@ -1365,6 +1383,15 @@
                   retries="${jsf.retries}"
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    <!--  网格排班服务  -->
+    <jsf:consumer id="scheduleJSFService"
+                  interface="com.jdl.jy.flat.api.schedule.ScheduleJSFService"
+                  protocol="jsf"
+                  alias="${jsf.jy.flat.service.alias}"
+                  timeout="${jsf.jy.flat.service.timeout}"
+                  retries="${jsf.retries}"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 
     <!-- 滑道笼车配置 -->
     <jsf:consumer id="vehicleVolumeDicJsfService"
@@ -1504,5 +1531,41 @@
     <!--运单拦截信息接口-->
     <jsf:consumer id="blockerApplyWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerApplyWS"
                   protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--视频信息接口-->
+    <jsf:consumer id="vodService"
+                  interface="com.jd.vd.api.service.VODService"
+                  alias="${jsf.vodService.alias}"
+                  protocol="jsf"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}"
+                  timeout="${jsf.vodService.timeout}">
+        <jsf:parameter key="appId" value="${jsf.vodService.appId}" />
+        <jsf:parameter key="secretKey" value="${jsf.vodService.secretKey}" />
+    </jsf:consumer>
+
+
+    <jsf:consumer id="collectBoxFlowDirectionConfJsfService"
+                  interface="com.jdl.basic.api.service.boxFlow.CollectBoxFlowDirectionConfJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+
+    <!--运单拦截信息接口-->
+    <jsf:consumer id="apiQueryService" interface="com.jd.udata.query.api.service.ApiQueryService"
+                  protocol="jsf" alias="${jsf.udata.query.alias}" timeout="${jsf.udata.query.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 任务分配配置接口 -->
+    <jsf:consumer id="quotaTargetConfigJsfService" interface="com.jd.dms.wb.sdk.api.loss.IQuotaTargetConfigJsfService" protocol="jsf"
+                  alias="${jsf.alias.workbench.service}" retries="${jsf.retries}"
+                  serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 </beans>

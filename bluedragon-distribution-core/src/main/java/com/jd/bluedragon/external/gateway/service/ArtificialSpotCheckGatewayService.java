@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.spotcheck.ArtificialSpotCheckRequest;
 import com.jd.bluedragon.common.dto.spotcheck.ArtificialSpotCheckResult;
 import com.jd.bluedragon.common.dto.spotcheck.PicAutoDistinguishRequest;
+import com.jd.bluedragon.common.dto.video.request.VideoUploadRequest;
+import com.jd.bluedragon.common.dto.video.response.VideoUploadInfo;
 
 /**
  * 人工抽检网关服务
@@ -51,4 +53,11 @@ public interface ArtificialSpotCheckGatewayService {
      * @return
      */
     JdCResponse<Void> artificialSubmitSpotCheckInfo(ArtificialSpotCheckRequest artificialSpotCheckRequest);
+
+
+    /**
+     * 获取视频上传信息
+     */
+    JdCResponse<VideoUploadInfo> getVideoUploadUrl(VideoUploadRequest request);
+
 }

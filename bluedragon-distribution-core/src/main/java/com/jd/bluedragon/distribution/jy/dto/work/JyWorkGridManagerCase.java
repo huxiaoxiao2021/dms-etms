@@ -95,6 +95,11 @@ public class JyWorkGridManagerCase implements Serializable {
 	private Date ts;
 
 	/**
+	 * 计划改善完成时间
+	 */
+	private Date improveEndTime;
+
+	/**
 	 *
 	 * @param id
 	 */
@@ -350,5 +355,11 @@ public class JyWorkGridManagerCase implements Serializable {
 		return this.ts;
 	}
 
+	public Date getImproveEndTime() {
+		return improveEndTime;
+	}
 
+	public void setImproveEndTime(Date improveEndTime) {
+		this.improveEndTime = improveEndTime;
+	}
 }

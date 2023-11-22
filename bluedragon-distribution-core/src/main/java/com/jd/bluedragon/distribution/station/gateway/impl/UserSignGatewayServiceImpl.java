@@ -6,7 +6,12 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
+import com.jd.ql.basic.domain.BaseStaff;
+import com.jd.ql.basic.dto.BaseStaffSiteDTO;
+import com.jd.ql.basic.dto.ResultData;
 import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
 import com.jdl.basic.common.utils.DateUtil;
 import com.jdl.basic.common.utils.Result;
@@ -303,10 +308,24 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		String userCode = BusinessUtil.getUserCodeFromScanUserCode(scanUserCode);
 		if(!JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
 				&& !JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
+				&& !JobTypeEnum.JOBTYPE4.getCode().equals(jobCode)
+				&& !JobTypeEnum.JOBTYPE5.getCode().equals(jobCode)
 				&& !JobTypeEnum.JOBTYPE6.getCode().equals(jobCode)
-				&& !JobTypeEnum.JOBTYPE7.getCode().equals(jobCode)) {
-			result.toFail("请扫描[正式工、派遣工、支援]人员码！");
+				&& !JobTypeEnum.JOBTYPE7.getCode().equals(jobCode)){
+			result.toFail("请扫描[正式工、派遣工、临时工、小时工、支援、长期联盟工]人员码！");
 			return result;
+		}
+		if(JobTypeEnum.JOBTYPE4.getCode().equals(jobCode) || JobTypeEnum.JOBTYPE5.getCode().equals(jobCode)){
+			if(!BusinessUtil.isIdCardNo(userCode)){
+				result.toFail("临时工、小时工 人员码必须包含身份证号");
+				return result;
+			}
+
+			String loginUserPin = getLoginUserPin(result, userCode);
+			if(!result.getCode().equals(JdResponse.CODE_OK)){
+				return result;
+			}
+			userCode = loginUserPin;
 		}
 		
 		//设置返回值对象
@@ -325,6 +344,43 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		
 		return result;
 	}
+
+
+
+	/**
+	 * 获取登录用户的PIN码
+	 *
+	 * @param erpAccount ERP账户
+	 * @return 登录用户的PIN码
+	 */
+	private String getLoginUserPin(JdCResponse<ScanUserData> response, String erpAccount){
+		try{
+			log.info("获取登录用户的PIN码 checkIDCardNoExists 入参-{}",erpAccount);
+			BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(erpAccount);
+			log.info("获取登录用户的PIN码 checkIDCardNoExists 出参-{}", JSON.toJSONString(baseStaff));
+			if(baseStaff == null || baseStaff.getStaffNo() == null){
+				response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
+				response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+				return "";
+			}
+			log.info("获取登录用户的PIN码 queryBaseStaffByStaffId 入参-{}",baseStaff.getStaffNo());
+			ResultData<BaseStaffSiteDTO> staffInfo = baseMajorManager.queryBaseStaffByStaffId(baseStaff.getStaffNo());
+			log.info("获取登录用户的PIN码 queryBaseStaffByStaffId 出参-{}",JSON.toJSONString(staffInfo));
+			if(staffInfo == null || staffInfo.getData() == null ||org.apache.commons.lang.StringUtils.isBlank(staffInfo.getData().getPin())){
+				response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
+				response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+				return "";
+			}
+			return Constants.PDA_THIRDPL_TYPE+staffInfo.getData().getPin();
+		}catch (Exception e){
+			log.error("获取达达人员数据信息异常！{}",erpAccount,e);
+			response.setMessage("获取达达人员数据信息异常！{"+erpAccount+"}");
+			response.setCode(JdResponse.CODE_INTERNAL_ERROR);
+			return "";
+		}
+	}
+
+
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryPositionDataForLogin",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override

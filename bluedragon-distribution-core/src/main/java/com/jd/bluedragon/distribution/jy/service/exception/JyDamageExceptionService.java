@@ -85,4 +85,13 @@ public interface JyDamageExceptionService {
      * 处理超48小时客服未反馈破损任务状态
      */
     JdCResponse<Boolean> dealDamageExpTaskOverTwoDags();
+
+    /**
+     * 违禁品取数
+     * @param
+     * @return
+     */
+    int getContrabandCountByTime(String startTime, String endTime);
+
+
 }

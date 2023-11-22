@@ -43,7 +43,7 @@ import static com.jd.ql.basic.util.DateUtil.FORMAT_DATE;
 /**
  * 此消息uat和线上使用不同的topic，uat仅测试使用，不做打标隔离
  **/
-@Service("violentSortingConsumer")
+//@Service("violentSortingConsumer")
 public class ViolentSortingConsumer extends MessageBaseConsumer implements InitializingBean {
     String TYPE_ANDON = "ANDON";
 
@@ -91,7 +91,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
 
         Integer id = violentSortingDto.getId();
         Long createTime = violentSortingDto.getCreateTime();
-        String gridBusinessKey = violentSortingDto.getGridBusinessKey();
+        String gridStationBusinessKey = violentSortingDto.getGridBusinessKey();
 
         if (id == null) {
             logger.warn("ViolentSortingConsumer consume -->暴力分拣id为空，消息体为【{}】", message.getText());
@@ -101,8 +101,20 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
             logger.warn("ViolentSortingConsumer consume -->创建时间为空，消息体为【{}】", message.getText());
             return;
         }
-        if (StringUtils.isEmpty(gridBusinessKey)) {
+        if (StringUtils.isEmpty(gridStationBusinessKey)) {
             logger.warn("ViolentSortingConsumer consume -->网格业务主键为空，消息体为【{}】", message.getText());
+            return;
+        }
+        String gridBusinessKey = null;
+
+        // 根据网格businesskey查网格,补全dto内容
+        WorkStationGridQuery workStationGridCheckQuery = new WorkStationGridQuery();
+        workStationGridCheckQuery.setBusinessKey(gridStationBusinessKey);
+        Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
+        if (workStationGridResult.isSuccess() && workStationGridResult.getData() != null) {
+            gridBusinessKey = workStationGridResult.getData().getRefWorkGridKey();
+        } else {
+            logger.warn("根据gridStationBusinessKey查网格失败，key：" + gridStationBusinessKey + "消息体：" + message.getText());
             return;
         }
         // 根据网格查出设备编码

@@ -14,6 +14,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.core.jsf.workStation.WorkGridScheduleManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
@@ -36,7 +37,9 @@ import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
+import com.jd.bluedragon.distribution.station.enums.ScheduleEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
+import com.jd.bluedragon.distribution.station.enums.WaveTypeNewEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
@@ -58,12 +61,18 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.api.domain.schedule.WorkGridSchedule;
+import com.jdl.basic.api.domain.schedule.WorkGridScheduleRequest;
 import com.jdl.basic.api.domain.workStation.*;
 
 import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.common.utils.DateUtil;
+import com.jdl.jy.flat.dto.schedule.DataScheduleNatureDto;
+import com.jdl.jy.flat.dto.schedule.ScheduleAggsDto;
+import com.jdl.jy.flat.dto.schedule.ScheduleDetailDto;
+import com.jdl.jy.flat.dto.schedule.UserGridScheduleQueryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -75,6 +84,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -133,6 +143,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 	@Autowired
 	private SysConfigService sysConfigService;
+
+	@Autowired
+	private WorkGridScheduleManager workGridScheduleManager;
+
 	/**
 	 * 签到作废-小时数限制
 	 */
@@ -1042,6 +1056,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Integer waveCode = calculateWave(signInRequest);
 		signInData.setWaveCode(waveCode);
 		signInData.setWaveName(WaveTypeEnum.getNameByCode(waveCode));
+		signInData.setRefWorkGridKey(gridInfo.getRefWorkGridKey());
+		// 计算班次 新逻辑
+		calculateWaveNew(signInRequest, signInData);
 		signInData.setRefPlanKey(queryPlanKey(signInData));
 		setWarZoneInfo(signInData);
 
@@ -1169,6 +1186,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * @return
 	 */
 	private Integer calculateWave(UserSignRequest signInRequest) {
+		long oldStartTime = System.currentTimeMillis();
 		// 当前时间
 		Date currentDate = new Date();
 		long currentTime = currentDate.getTime();
@@ -1214,7 +1232,458 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 			return WaveTypeEnum.MIDDLE.getCode();
 		}
+		log.info("calculateWave|耗时={}ms", System.currentTimeMillis() - oldStartTime);
 		return null;
+	}
+
+	private void calculateWaveNew(UserSignRequest request, UserSignRecord signInData) {
+		long newStartTime = System.currentTimeMillis();
+		// 针对自有员工（正式工或派遣工）
+		if (JobTypeEnum.JOBTYPE1.getCode().equals(request.getJobCode()) || JobTypeEnum.JOBTYPE2.getCode().equals(request.getJobCode())) {
+			assembleRegularEmployeesWaveCode(request, signInData);
+		} else {
+			// 针对非自有员工
+			assembleInformalEmployeesWaveCode(request, signInData);
+		}
+		log.info("calculateWaveNew|耗时={}ms", System.currentTimeMillis() - newStartTime);
+	}
+
+	private Date getMinStartDate(Date minStartDate, Date startDate, Map<Integer, String> minStartTimeMap, String startTime, Integer waveType) {
+		if (minStartDate == null) {
+			minStartTimeMap.put(waveType, startTime);
+			return startDate;
+		} else {
+			if (minStartDate.after(startDate)) {
+				minStartTimeMap.put(waveType, startTime);
+				return startDate;
+			}
+		}
+		return minStartDate;
+	}
+
+	private Date getMaxStartDate(Date maxStartDate, Date startDate, Map<Integer, String> maxEndTimeMap, String endTime, Integer waveType) {
+		if (maxStartDate == null) {
+			maxEndTimeMap.put(waveType, endTime);
+			return startDate;
+		} else {
+			if (maxStartDate.before(startDate)) {
+				maxEndTimeMap.put(waveType, endTime);
+				return startDate;
+			}
+		}
+		return maxStartDate;
+	}
+
+
+
+	private Date getSpecialDateByStr(String timeStr, Integer addDay) {
+		LocalTime localTime = LocalTime.parse(timeStr);
+		int hour = localTime.getHour();
+		int minute = localTime.getMinute();
+		Calendar calendar = Calendar.getInstance();
+		if (addDay != null) {
+			calendar.add(Calendar.DATE, addDay);
+		}
+		calendar.set(Calendar.HOUR_OF_DAY, hour);
+		calendar.set(Calendar.MINUTE, minute);
+		calendar.set(Calendar.SECOND, Constants.CONSTANT_NUMBER_ZERO);
+		return calendar.getTime();
+	}
+
+
+
+	private void assembleInformalEmployeesWaveCode(UserSignRequest request, UserSignRecord signInData) {
+		Date currentDate = new Date();
+		// 查询网格下该工种的排班计划
+		DataScheduleNatureDto natureDto = new DataScheduleNatureDto();
+		natureDto.setNature(String.valueOf(request.getJobCode()));
+		natureDto.setScheduleDate(DateHelper.getSpecialDateOfyyMMdd2(currentDate.getTime()));
+		natureDto.setWorkGridKey(signInData.getRefWorkGridKey());
+		List<ScheduleAggsDto> scheduleAggsDtoList = workGridScheduleManager.findListByGridKeyAndNature(natureDto);
+		// 查看该网格当天是否排班了对应的工种（工种数量>0则视为排班），若未排班，则展示未排班
+		if (CollectionUtils.isEmpty(scheduleAggsDtoList)) {
+			log.warn("assembleInformalEmployeesWaveCode|根据指定条件从flat查询排班计划工种人数统计返回空:request={},signInData={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData));
+			return;
+		}
+		ScheduleAggsDto scheduleAggsDto = scheduleAggsDtoList.get(Constants.NUMBER_ZERO);
+		if (scheduleAggsDto != null) {
+			Integer natureUserCount = scheduleAggsDto.getNatureUserCount();
+			if (natureUserCount == null || natureUserCount <= Constants.NUMBER_ZERO) {
+				log.warn("assembleInformalEmployeesWaveCode|根据指定条件从flat查询排班计划工种人数不满足数量大于0,:request={},signInData={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData));
+				return;
+			}
+		}
+		log.info("assembleInformalEmployeesWaveCode|网格下该工种人数统计:request={},signInData={},scheduleAggsDtoList={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData), JsonHelper.toJson(scheduleAggsDtoList));
+
+		// 当天0点
+		long currentZero = DateHelper.getZero(currentDate);
+		// 当天24点
+		long currentZeroAdd24 = DateHelper.add(new Date(currentZero), Calendar.HOUR_OF_DAY, Constants.NUMBER_TWENTY_FOUR).getTime();
+		// 首次签到时间
+		Date firstSignTime;
+		// 判断当前打卡是否是当天首次打卡
+		UserSignQueryRequest userSignQueryRequest = new UserSignQueryRequest();
+		userSignQueryRequest.setSignInTimeStart(new Date(currentZero));
+		userSignQueryRequest.setSignInTimeEnd(new Date(currentZeroAdd24));
+		UserSignRecordData userSignRecordData = userSignRecordDao.queryFirstUserSignRecordData(userSignQueryRequest);
+		if (userSignRecordData == null) {
+			log.info("assembleInformalEmployeesWaveCode|当前签到是当天首次签到:request={}", JsonHelper.toJson(request));
+			// 若是首次打卡，取当前时间
+			firstSignTime = currentDate;
+		} else {
+			// 若非首次打卡，取首次打卡时间
+			firstSignTime = userSignRecordData.getSignInTime();
+			log.info("assembleInformalEmployeesWaveCode|当前签到不是当天首次签到:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
+		}
+		// 查询网格下所有班次
+		WorkGridScheduleRequest workGridScheduleRequest = new WorkGridScheduleRequest();
+		workGridScheduleRequest.setWorkGridKey(signInData.getRefWorkGridKey());
+		List<WorkGridSchedule> scheduleList = workGridScheduleManager.queryByWorkGridKey(workGridScheduleRequest);
+		if (CollectionUtils.isEmpty(scheduleList)) {
+			log.warn("assembleInformalEmployeesWaveCode|根据网格key从basic查询网格下所有班次返回空:request={},signInData={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData));
+			return;
+		}
+		log.info("assembleInformalEmployeesWaveCode|网格下所有班次:request={},signInData={},scheduleList={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData), JsonHelper.toJson(scheduleList));
+
+		// 白班最小起始时间
+		Date minDayStartDate = null;
+		// 白班最大起始时间
+		Date maxDayStartDate = null;
+		// 中班最小起始时间
+		Date minMiddleStartDate = null;
+		// 中班最大起始时间
+		Date maxMiddleStartDate = null;
+		// 晚班最小起始时间
+		Date minNightStartDate = null;
+		// 晚班最大起始时间
+		Date maxNightStartDate = null;
+		// <班次，最大结束时间>
+		Map<Integer, String> maxEndTimeMap = new HashMap<>(Constants.NUMBER_THREE);
+		// <班次，最小开始时间>
+		Map<Integer, String> minStartTimeMap = new HashMap<>(Constants.NUMBER_THREE);
+
+		for (WorkGridSchedule workGridSchedule : scheduleList) {
+			// 班次时分形式 HH:mm
+			String startTime = workGridSchedule.getStartTime();
+			String endTime = workGridSchedule.getEndTime();
+			// 班次日期形式 yyyy-MM-dd HH:mm:ss
+			Date startDate = getSpecialDateByStr(startTime, null);
+			// 班次类型
+			Integer scheduleType = workGridSchedule.getScheduleType();
+			// 如果是白班
+			if (WaveTypeEnum.DAY.getCode().equals(scheduleType)) {
+				minDayStartDate = getMinStartDate(minDayStartDate, startDate, minStartTimeMap, startTime, WaveTypeEnum.DAY.getCode());
+				maxDayStartDate = getMaxStartDate(maxDayStartDate, startDate, maxEndTimeMap, endTime, WaveTypeEnum.DAY.getCode());
+				// 如果是中班
+			} else if (WaveTypeEnum.MIDDLE.getCode().equals(scheduleType)) {
+				minMiddleStartDate = getMinStartDate(minMiddleStartDate, startDate, minStartTimeMap, startTime, WaveTypeEnum.MIDDLE.getCode());
+				maxMiddleStartDate = getMaxStartDate(maxMiddleStartDate, startDate, maxEndTimeMap, endTime, WaveTypeEnum.MIDDLE.getCode());
+				// 如果是晚班
+			} else if (WaveTypeEnum.NIGHT.getCode().equals(scheduleType)) {
+				minNightStartDate = getMinStartDate(minNightStartDate, startDate, minStartTimeMap, startTime, WaveTypeEnum.NIGHT.getCode());
+				maxNightStartDate = getMaxStartDate(maxNightStartDate, startDate, maxEndTimeMap, endTime, WaveTypeEnum.NIGHT.getCode());
+			}
+		}
+		log.info("assembleInformalEmployeesWaveCode|各个班次最小起始时间与最大起始时间:request={},minDayStartDate={},maxDayStartDate={},minMiddleStartDate={},maxMiddleStartDate={},minNightStartDate={},maxNightStartDate={}",
+				JsonHelper.toJson(request), minDayStartDate, maxDayStartDate, minMiddleStartDate, maxMiddleStartDate, minNightStartDate, maxNightStartDate);
+		log.info("assembleInformalEmployeesWaveCode|各个班次最小起始时间与最大结束时间:request={},minStartTimeMap={},maxEndTimeMap={}", JsonHelper.toJson(request), JsonHelper.toJson(minStartTimeMap), JsonHelper.toJson(maxEndTimeMap));
+
+		boolean isBetweenDayFlag = false;
+		Date minDayStartDateBeforeOneHour = null;
+		// 判断首次签到时间是否在白班的最早开始时间(减1小时)至白班最晚开始时间内
+		if (minDayStartDate != null && maxDayStartDate != null) {
+			minDayStartDateBeforeOneHour = DateHelper.addHours(minDayStartDate, Constants.NEGATIVE_NUMBER_ONE);
+			if (firstSignTime.getTime() <= maxDayStartDate.getTime() && firstSignTime.getTime() >= minDayStartDateBeforeOneHour.getTime()) {
+				log.info("assembleInformalEmployeesWaveCode|首次签到时间在白班的最早开始时间(减1小时)至白班最晚开始时间内:request={},firstSignTime={},minDayStartDate={},maxDayStartDate={}",
+						JsonHelper.toJson(request), firstSignTime, minDayStartDate, maxDayStartDate);
+				isBetweenDayFlag = true;
+			}
+		}
+		boolean isBetweenMiddleFlag = false;
+		Date minMiddleStartDateBeforeOneHour = null;
+		// 判断首次签到时间是否在中班的最早开始时间(减1小时)至中班最晚开始时间内
+		if (minMiddleStartDate != null && maxMiddleStartDate != null) {
+			minMiddleStartDateBeforeOneHour = DateHelper.addHours(minMiddleStartDate, Constants.NEGATIVE_NUMBER_ONE);
+			if (firstSignTime.getTime() <= maxMiddleStartDate.getTime() && firstSignTime.getTime() >= minMiddleStartDateBeforeOneHour.getTime()) {
+				log.info("assembleInformalEmployeesWaveCode|首次签到时间在中班的最早开始时间(减1小时)至中班最晚开始时间内:request={},firstSignTime={},minDayStartDate={},maxDayStartDate={}",
+						JsonHelper.toJson(request), firstSignTime, minMiddleStartDate, maxMiddleStartDate);
+				isBetweenMiddleFlag = true;
+			}
+		}
+		boolean isBetweenNightFlag = false;
+		Date minNightStartDateBeforeOneHour = null;
+		// 判断首次签到时间是否在晚班的最早开始时间(减1小时)至晚班最晚开始时间内
+		if (minNightStartDate != null && maxNightStartDate != null) {
+			minNightStartDateBeforeOneHour = DateHelper.addHours(minNightStartDate, Constants.NEGATIVE_NUMBER_ONE);
+			if (firstSignTime.getTime() <= maxNightStartDate.getTime() && firstSignTime.getTime() >= minNightStartDateBeforeOneHour.getTime()) {
+				log.info("assembleInformalEmployeesWaveCode|首次签到时间在晚班的最早开始时间(减1小时)至晚班最晚开始时间内:request={},firstSignTime={},minDayStartDate={},maxDayStartDate={}",
+						JsonHelper.toJson(request), firstSignTime, minNightStartDate, maxNightStartDate);
+				isBetweenNightFlag = true;
+			}
+		}
+		// 如果只有白班符合
+		if (isBetweenDayFlag && !isBetweenMiddleFlag && !isBetweenNightFlag) {
+			log.info("assembleInformalEmployeesWaveCode|只有白班符合:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
+			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.DAY.getCode()));
+			String waveTime = minStartTimeMap.get(WaveTypeEnum.DAY.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.DAY.getCode());
+			signInData.setWaveTime(waveTime);
+            // 如果只有中班符合
+		} else if (!isBetweenDayFlag && isBetweenMiddleFlag && !isBetweenNightFlag) {
+			log.info("assembleInformalEmployeesWaveCode|只有中班符合:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
+			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.MIDDLE.getCode()));
+			String waveTime = minStartTimeMap.get(WaveTypeEnum.MIDDLE.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.MIDDLE.getCode());
+			signInData.setWaveTime(waveTime);
+            // 如果只有晚班符合
+		} else if (!isBetweenDayFlag && !isBetweenMiddleFlag && isBetweenNightFlag) {
+			log.info("assembleInformalEmployeesWaveCode|只有晚班符合:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
+			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.NIGHT.getCode()));
+			String waveTime = minStartTimeMap.get(WaveTypeEnum.NIGHT.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.NIGHT.getCode());
+			signInData.setWaveTime(waveTime);
+            // 如果白班和中班同时符合
+		} else if (isBetweenDayFlag && isBetweenMiddleFlag && !isBetweenNightFlag) {
+			log.info("assembleInformalEmployeesWaveCode|白班和中班同时符合:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
+			long minDayDifference = firstSignTime.getTime() - minDayStartDateBeforeOneHour.getTime();
+			long minMiddleDifference = firstSignTime.getTime() - minMiddleStartDateBeforeOneHour.getTime();
+			if (minDayDifference < minMiddleDifference) {
+				log.info("assembleInformalEmployeesWaveCode|白班和中班同时符合,首次签到时间距离白班最小起始时间更接近:request={},firstSignTime={},minDayDifference={},minMiddleDifference={}",
+						JsonHelper.toJson(request), firstSignTime, minDayDifference, minMiddleDifference);
+				signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.DAY.getCode()));
+				String waveTime = minStartTimeMap.get(WaveTypeEnum.DAY.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.DAY.getCode());
+				signInData.setWaveTime(waveTime);
+				return;
+			}
+			log.info("assembleInformalEmployeesWaveCode|白班和中班同时符合,首次签到时间距离中班最小起始时间更接近:request={},firstSignTime={},minDayDifference={},minMiddleDifference={}",
+					JsonHelper.toJson(request), firstSignTime, minDayDifference, minMiddleDifference);
+			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.MIDDLE.getCode()));
+			String waveTime = minStartTimeMap.get(WaveTypeEnum.MIDDLE.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.MIDDLE.getCode());
+			signInData.setWaveTime(waveTime);
+            // 如果白班和晚班同时符合
+		} else if (isBetweenDayFlag && !isBetweenMiddleFlag && isBetweenNightFlag) {
+			log.info("assembleInformalEmployeesWaveCode|白班和晚班同时符合:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
+			long minDayDifference = firstSignTime.getTime() - minDayStartDateBeforeOneHour.getTime();
+			long minNightDifference = firstSignTime.getTime() - minNightStartDateBeforeOneHour.getTime();
+			if (minDayDifference < minNightDifference) {
+				log.info("assembleInformalEmployeesWaveCode|白班和晚班同时符合,首次签到时间距离白班最小起始时间更接近:request={},firstSignTime={},minDayDifference={},minMiddleDifference={}",
+						JsonHelper.toJson(request), firstSignTime, minDayDifference, minNightDifference);
+				signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.DAY.getCode()));
+				String waveTime = minStartTimeMap.get(WaveTypeEnum.DAY.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.DAY.getCode());
+				signInData.setWaveTime(waveTime);
+				return;
+			}
+			log.info("assembleInformalEmployeesWaveCode|白班和晚班同时符合,首次签到时间距离晚班最小起始时间更接近:request={},firstSignTime={},minDayDifference={},minMiddleDifference={}",
+					JsonHelper.toJson(request), firstSignTime, minDayDifference, minNightDifference);
+			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.NIGHT.getCode()));
+			String waveTime = minStartTimeMap.get(WaveTypeEnum.NIGHT.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.NIGHT.getCode());
+			signInData.setWaveTime(waveTime);
+            // 如果中班和晚班同时符合
+		} else if (!isBetweenDayFlag && isBetweenMiddleFlag && isBetweenNightFlag) {
+			log.info("assembleInformalEmployeesWaveCode|中班和晚班同时符合:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
+			long minMiddleDifference = firstSignTime.getTime() - minMiddleStartDateBeforeOneHour.getTime();
+			long minNightDifference = firstSignTime.getTime() - minNightStartDateBeforeOneHour.getTime();
+			if (minMiddleDifference < minNightDifference) {
+				log.info("assembleInformalEmployeesWaveCode|中班和晚班同时符合,首次签到时间距离中班最小起始时间更接近:request={},firstSignTime={},minDayDifference={},minMiddleDifference={}",
+						JsonHelper.toJson(request), firstSignTime, minMiddleDifference, minNightDifference);
+				signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.MIDDLE.getCode()));
+				String waveTime = minStartTimeMap.get(WaveTypeEnum.MIDDLE.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.MIDDLE.getCode());
+				signInData.setWaveTime(waveTime);
+				return;
+			}
+			log.info("assembleInformalEmployeesWaveCode|中班和晚班同时符合,首次签到时间距离晚班最小起始时间更接近:request={},firstSignTime={},minDayDifference={},minMiddleDifference={}",
+					JsonHelper.toJson(request), firstSignTime, minMiddleDifference, minNightDifference);
+			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.NIGHT.getCode()));
+			String waveTime = minStartTimeMap.get(WaveTypeEnum.NIGHT.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.NIGHT.getCode());
+			signInData.setWaveTime(waveTime);
+            // 如果白班、中班和晚班同时符合
+		} else if (isBetweenDayFlag && isBetweenMiddleFlag && isBetweenNightFlag) {
+			log.info("assembleInformalEmployeesWaveCode|白班以及中班和晚班同时符合:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
+			compareThreeTimeAndSetData(signInData, firstSignTime, minDayStartDateBeforeOneHour, minMiddleStartDateBeforeOneHour,
+					minNightStartDateBeforeOneHour, maxEndTimeMap, minStartTimeMap);
+			// 如果白班、中班和晚班都不符合
+		} else if (!isBetweenDayFlag && !isBetweenMiddleFlag && !isBetweenNightFlag) {
+			log.info("assembleInformalEmployeesWaveCode|白班以及中班和晚班都不符合:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
+			compareThreeTimeAndSetData(signInData, firstSignTime, minDayStartDateBeforeOneHour, minMiddleStartDateBeforeOneHour,
+					minNightStartDateBeforeOneHour, maxEndTimeMap, minStartTimeMap);
+		}
+	}
+
+	private void compareThreeTimeAndSetData(UserSignRecord signInData, Date firstSignTime, Date minDayStartDateBeforeOneHour,
+								  Date minMiddleStartDateBeforeOneHour, Date minNightStartDateBeforeOneHour,
+								  Map<Integer, String> maxEndTimeMap, Map<Integer, String> minStartTimeMap) {
+		long minDayDifference = firstSignTime.getTime() - minDayStartDateBeforeOneHour.getTime();
+		long minMiddleDifference = firstSignTime.getTime() - minMiddleStartDateBeforeOneHour.getTime();
+		long minNightDifference = firstSignTime.getTime() - minNightStartDateBeforeOneHour.getTime();
+		if (minDayDifference < minMiddleDifference && minDayDifference < minNightDifference) {
+			log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,首次签到时间距离白班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minMiddleDifference={},minNightDifference={}",
+					JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minMiddleDifference, minNightDifference);
+			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.DAY.getCode()));
+			String waveTime = minStartTimeMap.get(WaveTypeEnum.DAY.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.DAY.getCode());
+			signInData.setWaveTime(waveTime);
+		} else if (minMiddleDifference < minDayDifference && minMiddleDifference < minNightDifference) {
+			log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,首次签到时间距离中班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minMiddleDifference={},minNightDifference={}",
+					JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minMiddleDifference, minNightDifference);
+			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.MIDDLE.getCode()));
+			String waveTime = minStartTimeMap.get(WaveTypeEnum.MIDDLE.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.MIDDLE.getCode());
+			signInData.setWaveTime(waveTime);
+		} else if (minNightDifference < minDayDifference && minNightDifference < minMiddleDifference) {
+			log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,首次签到时间距离晚班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minMiddleDifference={},minNightDifference={}",
+					JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minMiddleDifference, minNightDifference);
+			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.NIGHT.getCode()));
+			String waveTime = minStartTimeMap.get(WaveTypeEnum.NIGHT.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.NIGHT.getCode());
+			signInData.setWaveTime(waveTime);
+		}
+	}
+
+	private void assembleRegularEmployeesWaveCode(UserSignRequest request, UserSignRecord signInData) {
+		// 查询网格下所有班次
+		WorkGridScheduleRequest workGridScheduleRequest = new WorkGridScheduleRequest();
+		workGridScheduleRequest.setWorkGridKey(signInData.getRefWorkGridKey());
+		List<WorkGridSchedule> scheduleList = workGridScheduleManager.queryByWorkGridKey(workGridScheduleRequest);
+		if (CollectionUtils.isEmpty(scheduleList)) {
+			log.warn("assembleRegularEmployeesWaveCode|根据网格key从basic查询网格下所有班次返回空:request={},signInData={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData));
+			return;
+		}
+		log.info("assembleRegularEmployeesWaveCode|网格下所有班次:request={},signInData={},scheduleList={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData), JsonHelper.toJson(scheduleList));
+		// <scheduleKey, workGridSchedule>
+		Map<String, WorkGridSchedule> workGridScheduleMap = new HashMap<>(Constants.NUMBER_NINE);
+		// 最早的白班开始时间
+		String earlierDayTime = null;
+		// 对班次列表按照时间排序
+		for (WorkGridSchedule workGridSchedule : scheduleList) {
+			workGridScheduleMap.put(workGridSchedule.getScheduleKey(), workGridSchedule);
+			String startTime = workGridSchedule.getStartTime();
+			if (StringUtils.isBlank(earlierDayTime)) {
+				earlierDayTime = startTime;
+			} else {
+				LocalTime localEarlierDayTime = LocalTime.parse(earlierDayTime);
+				LocalTime localStartTime = LocalTime.parse(startTime);
+				if (localEarlierDayTime.isAfter(localStartTime)) {
+					earlierDayTime = startTime;
+				}
+			}
+		}
+		if (earlierDayTime == null) {
+			log.warn("assembleRegularEmployeesWaveCode|筛选最早的白班开始时间为空:request={}", JsonHelper.toJson(request));
+			return;
+		}
+
+		// 当前网格当前用户的排班计划列表
+		List<ScheduleDetailDto> scheduleDetailDtoList;
+		UserGridScheduleQueryDto queryDto = new UserGridScheduleQueryDto();
+		queryDto.setUserErp(request.getUserCode());
+		queryDto.setWorkGridKey(signInData.getRefWorkGridKey());
+		// 获取当前时间的时分
+		Date currentDate = new Date();
+		LocalTime localCurrentTime = LocalTime.parse(earlierDayTime);
+		// 将最早的白班开始时间转为date格式
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, localCurrentTime.getHour());
+		calendar.set(Calendar.MINUTE, localCurrentTime.getMinute());
+		calendar.set(Calendar.SECOND, Constants.NUMBER_ZERO);
+		Date earlierStartDate = calendar.getTime();
+		// 当前打卡时间是否在当天首个班次的起始时间前1个小时
+		Date earlierStartDateBeforeOneHour = DateHelper.addHours(earlierStartDate, Constants.NEGATIVE_NUMBER_ONE);
+		if (currentDate.getTime() >= earlierStartDateBeforeOneHour.getTime()) {
+			log.info("assembleRegularEmployeesWaveCode|签到时间在当天首个班次的起始时间前1个小时之内,因此获取当天的排班数据:request={},earlierDayTime={},earlierDayTimeBeforeOneHour={}", JsonHelper.toJson(request), earlierDayTime, earlierStartDateBeforeOneHour);
+			// 获取当天的排班数据
+			queryDto.setScheduleDate(DateHelper.getSpecialDateOfyyMMdd2(currentDate.getTime()));
+		} else {
+			log.info("assembleRegularEmployeesWaveCode|签到时间不在当天首个班次的起始时间前1个小时之内,因此获取前一天的排班数据:request={},earlierDayTime={},earlierDayTimeBeforeOneHour={}", JsonHelper.toJson(request), earlierDayTime, earlierStartDateBeforeOneHour);
+			// 获取前一天的排班数据
+			queryDto.setScheduleDate(DateHelper.getSpecialDateOfyyMMdd2(currentDate.getTime() - DateHelper.ONE_DAY));
+		}
+		scheduleDetailDtoList = workGridScheduleManager.findListByGridKeyAndErp(queryDto);
+		// 若当前人员在没有存在排班计划，则该出勤数据展示“未排班”
+		if (CollectionUtils.isEmpty(scheduleDetailDtoList)) {
+			log.warn("assembleRegularEmployeesWaveCode|根据指定条件从flat查询排班计划返回空:request={},signInData={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData));
+			return;
+		}
+		log.info("assembleRegularEmployeesWaveCode|当前人员当前网格下所有排班计划:request={},signInData={},scheduleDetailDtoList={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData), JsonHelper.toJson(scheduleDetailDtoList));
+
+		// 若当前人员在当天仅存在一条排班计划
+		if (scheduleDetailDtoList.size() == Constants.CONSTANT_NUMBER_ONE) {
+			ScheduleDetailDto scheduleDetailDto = scheduleDetailDtoList.get(Constants.CONSTANT_NUMBER_ZERO);
+			log.info("assembleRegularEmployeesWaveCode|当前人员在当天仅存在一条排班计划:request={},scheduleDetailDto={}", JsonHelper.toJson(request), JsonHelper.toJson(scheduleDetailDto));
+			WorkGridSchedule workGridSchedule = workGridScheduleMap.get(scheduleDetailDto.getScheduleKey());
+			// 且当前erp签到时间处于该排班计划对应班次时间的前后1小时内，则班次类型展示对应的班次，班次时间展示对应班次的时间
+			if (isBetweenBeforeAndAfterOneHour(workGridSchedule, currentDate)) {
+				Integer waveType = getWaveType(workGridSchedule);
+				signInData.setWaveCodeNew(String.valueOf(waveType));
+				signInData.setWaveTime(workGridSchedule.getStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getEndTime());
+				return;
+			}
+			log.warn("assembleRegularEmployeesWaveCode|当前人员在当天仅存在一条排班计划,但是不满足排班计划对应班次时间的前后1小时内:request={}", JsonHelper.toJson(request));
+			return;
+		}
+		log.info("assembleRegularEmployeesWaveCode|当前人员在当天存在多条排班计划:request={},scheduleDetailDtoList={}", JsonHelper.toJson(request), JsonHelper.toJson(scheduleDetailDtoList));
+		StringBuilder waveCodeStr = new StringBuilder(Constants.EMPTY_FILL);
+		StringBuilder waveTimeStr = new StringBuilder(Constants.EMPTY_FILL);
+		// 若当前人员存在多个排班计划,依次判断签到时间是否处于每个排班计划对应班次时间的前后1小时内，多个中间用顿号隔开
+		for (ScheduleDetailDto scheduleDetailDto : scheduleDetailDtoList) {
+			WorkGridSchedule workGridSchedule = workGridScheduleMap.get(scheduleDetailDto.getScheduleKey());
+			if (isBetweenBeforeAndAfterOneHour(workGridSchedule, currentDate)) {
+				Integer waveType = getWaveType(workGridSchedule);
+				String waveTime = workGridSchedule.getStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getEndTime();
+				waveCodeStr.append(Constants.SEPARATOR_COMMA).append(waveType);
+				waveTimeStr.append(Constants.SEPARATOR_COMMA).append(waveTime);
+			}
+		}
+		if (StringUtils.isNotBlank(waveCodeStr)) {
+			signInData.setWaveCodeNew(waveCodeStr.substring(Constants.CONSTANT_NUMBER_ONE));
+		} else {
+			log.warn("assembleRegularEmployeesWaveCode|当前人员在当天存在多条排班计划,但是都不满足排班计划对应班次时间的前后1小时内:request={}", JsonHelper.toJson(request));
+		}
+		if (StringUtils.isNotBlank(waveTimeStr)) {
+			signInData.setWaveTime(waveTimeStr.substring(Constants.CONSTANT_NUMBER_ONE));
+		}
+	}
+
+	private Integer getWaveType(WorkGridSchedule workGridSchedule) {
+		// 班次类型
+		Integer scheduleType = workGridSchedule.getScheduleType();
+		// 班次顺序
+		Integer scheduleNo = workGridSchedule.getScheduleNo();
+		if (WaveTypeEnum.DAY.getCode().equals(scheduleType) && ScheduleEnum.TIME_1.getCode().equals(scheduleNo)) {
+			return WaveTypeNewEnum.DAY1.getCode();
+		} else if (WaveTypeEnum.DAY.getCode().equals(scheduleType) && ScheduleEnum.TIME_2.getCode().equals(scheduleNo)) {
+			return WaveTypeNewEnum.DAY2.getCode();
+		} else if (WaveTypeEnum.DAY.getCode().equals(scheduleType) && ScheduleEnum.TIME_3.getCode().equals(scheduleNo)) {
+			return WaveTypeNewEnum.DAY3.getCode();
+		} else if (WaveTypeEnum.MIDDLE.getCode().equals(scheduleType) && ScheduleEnum.TIME_1.getCode().equals(scheduleNo)) {
+			return WaveTypeNewEnum.MIDDLE1.getCode();
+		} else if (WaveTypeEnum.MIDDLE.getCode().equals(scheduleType) && ScheduleEnum.TIME_2.getCode().equals(scheduleNo)) {
+			return WaveTypeNewEnum.MIDDLE2.getCode();
+		} else if (WaveTypeEnum.MIDDLE.getCode().equals(scheduleType) && ScheduleEnum.TIME_3.getCode().equals(scheduleNo)) {
+			return WaveTypeNewEnum.MIDDLE3.getCode();
+		} else if (WaveTypeEnum.NIGHT.getCode().equals(scheduleType) && ScheduleEnum.TIME_1.getCode().equals(scheduleNo)) {
+			return WaveTypeNewEnum.NIGHT1.getCode();
+		} else if (WaveTypeEnum.NIGHT.getCode().equals(scheduleType) && ScheduleEnum.TIME_2.getCode().equals(scheduleNo)) {
+			return WaveTypeNewEnum.NIGHT2.getCode();
+		} else if (WaveTypeEnum.NIGHT.getCode().equals(scheduleType) && ScheduleEnum.TIME_3.getCode().equals(scheduleNo)) {
+			return WaveTypeNewEnum.NIGHT3.getCode();
+		}
+		return null;
+	}
+
+	private boolean isBetweenBeforeAndAfterOneHour(WorkGridSchedule workGridSchedule, Date currentDate) {
+		// 班次时分形式 HH:mm
+		String startTime = workGridSchedule.getStartTime();
+		String endTime = workGridSchedule.getEndTime();
+		// 班次日期形式 yyyy-MM-dd HH:mm:ss
+		Date startDate = getSpecialDateByStr(startTime, null);
+		Date endDate;
+		// 如果结束日期代表后一天的时间点，则转换时需要加一天
+		if (LocalTime.parse(startTime).isAfter(LocalTime.parse(endTime))) {
+			endDate = getSpecialDateByStr(endTime, Constants.NUMBER_ONE);
+		} else {
+			endDate = getSpecialDateByStr(endTime, null);
+		}
+		Date startDateBeforeOneHour = DateHelper.addHours(startDate, Constants.NEGATIVE_NUMBER_ONE);
+		Date endDateAfterOneHour = DateHelper.addHours(endDate, Constants.NUMBER_ONE);
+		// 且当前erp签到时间处于该排班计划对应班次时间的前后1小时内，则班次类型展示对应的班次，班次时间展示对应班次的时间
+		if (currentDate.getTime() <= endDateAfterOneHour.getTime() && currentDate.getTime() >= startDateBeforeOneHour.getTime()) {
+			return true;
+		}
+		return false;
 	}
 
 	private boolean doSignIn(UserSignRecord userSignRecord) {

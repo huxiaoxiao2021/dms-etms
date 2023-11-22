@@ -15,6 +15,8 @@ public class JyWorkGridManagerPageData implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private Map<Integer,JyWorkGridManagerCountData> statusCount;
+
+	private Map<String,JyWorkGridManagerCountData> statusNum;
 	
 	private List<JyWorkGridManagerData> dataList;
 	//客户端 列表刷新时间(秒)
@@ -42,5 +44,13 @@ public class JyWorkGridManagerPageData implements Serializable {
 
 	public void setRefreshSecond(Integer refreshSecond) {
 		this.refreshSecond = refreshSecond;
+	}
+
+	public Map<String, JyWorkGridManagerCountData> getStatusNum() {
+		return statusNum;
+	}
+
+	public void setStatusNum(Map<String, JyWorkGridManagerCountData> statusNum) {
+		this.statusNum = statusNum;
 	}
 }

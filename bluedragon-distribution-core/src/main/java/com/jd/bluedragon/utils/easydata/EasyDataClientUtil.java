@@ -70,6 +70,9 @@ public class EasyDataClientUtil {
         queryRequest.setPageSize(pageSize); //limit 500
         queryRequest.setPageNumber(pageNumber);
 
+        if (!sqlValidate(requestParam)) {
+            throw new RuntimeException("发送请求中的参数中含有非法字符!");
+        }
         // 模板参数
         queryRequest.setStringSubs(requestParam);
 
@@ -109,6 +112,10 @@ public class EasyDataClientUtil {
         queryRequest.setAppToken(appToken);
         queryRequest.setRequestId(UUID.randomUUID().toString());
         queryRequest.setDebug(Boolean.FALSE);
+
+        if (!sqlValidate(requestParam)) {
+            throw new RuntimeException("发送请求中的参数中含有非法字符!");
+        }
         // 模板参数
         queryRequest.setStringSubs(requestParam);
 
@@ -156,6 +163,9 @@ public class EasyDataClientUtil {
         queryRequest.setPageSize(pageSize); // limit 500
         queryRequest.setPageNumber(pageNumber);
 
+        if (!sqlValidate(requestParam)) {
+            throw new RuntimeException("发送请求中的参数中含有非法字符!");
+        }
         // 模板参数
         queryRequest.setStringSubs(requestParam);
 
@@ -206,6 +216,14 @@ public class EasyDataClientUtil {
         queryRequest.setAppToken(appToken);
         queryRequest.setRequestId(UUID.randomUUID().toString());
         queryRequest.setDebug(Boolean.FALSE);
+
+        if (!sqlValidate(requestParam)) {
+            throw new RuntimeException("发送请求中的参数中含有非法字符!");
+        }
+
+        if (!sqlValidate(requestParam)) {
+            throw new RuntimeException("发送请求中的参数中含有非法字符!");
+        }
         // 模板参数
         queryRequest.setStringSubs(requestParam);
 
@@ -284,6 +302,9 @@ public class EasyDataClientUtil {
         queryRequest.setAppToken(appToken);
         queryRequest.setRequestId(UUID.randomUUID().toString());
         queryRequest.setDebug(Boolean.FALSE);
+        if (!sqlValidate(requestParam)) {
+            throw new RuntimeException("发送请求中的参数中含有非法字符!");
+        }
         queryRequest.setStringSubs(requestParam);
 
         //log.info(apiName + "DtsMapEasyDataByHttp 查询 Request:" + JSONObject.toJSONString(queryRequest));
@@ -302,5 +323,32 @@ public class EasyDataClientUtil {
 
         log.info("调用大数据平台成功. req:{}, http-resp:{}", JSON.toJSONString(requestParam), JSON.toJSONString(entity));
         return response;
+    }
+
+    private boolean sqlValidate(Map<String, Object> requestParam) {
+        for(Map.Entry<String, Object> entry: requestParam.entrySet()) {
+            if (entry.getValue() == null) {
+                continue;
+            }
+            if (sqlValidate(entry.getValue().toString())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean sqlValidate(String str) {
+        str = str.toLowerCase();//统一转为小写
+        //危险字符
+        String badStr = " ' | \" | and | exec | execute | insert | create | drop | table | from | grant | use | group_concat | column_name |" +
+                " information_schema.columns | table_schema | union | where | select | delete | update | order | by | count | * |" +
+                " chr | mid | master | case | truncate | char | declare | or | xor | & | ; | - | -- | + | , | like | // | / | % | # ";//过滤掉的sql关键字，可以手动添加
+        String[] badStrs = badStr.split("\\|");
+        for (int i = 0; i < badStrs.length; i++) {
+            if (str.indexOf(badStrs[i]) !=-1) {
+                return true;
+            }
+        }
+        return false;
     }
 }

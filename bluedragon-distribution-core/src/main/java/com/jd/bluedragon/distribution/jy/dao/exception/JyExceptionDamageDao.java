@@ -65,5 +65,8 @@ public class JyExceptionDamageDao extends BaseDao<JyExceptionDamageEntity> {
         return this.getSqlSession().update(NAMESPACE + ".updateDamageStatusByBizIds", param);
     }
 
+    public int getDamageCountByTime(Map<String,Object> param){
+        return this.getSqlSession().selectOne(NAMESPACE + ".getDamageCountByTime", param);
+    }
 
 }

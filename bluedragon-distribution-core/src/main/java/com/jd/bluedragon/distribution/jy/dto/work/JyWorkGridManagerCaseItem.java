@@ -78,6 +78,16 @@ public class JyWorkGridManagerCaseItem implements Serializable {
 	 * 数据库时间
 	 */
 	private Date ts;
+	/**
+	 * 用户自定义检查项名称
+	 *  只有改善任务的"其它"item才有
+	 */
+	private String userDefinedTitle;
+	/**
+	 * 用户填写的检查项改进方案
+	 *  1 改善任务 2item 为其它(case_zhibiao_qita)
+	 */
+	private String feedBackContent;
 
 	/**
 	 *
@@ -287,5 +297,19 @@ public class JyWorkGridManagerCaseItem implements Serializable {
 		return this.ts;
 	}
 
+	public String getUserDefinedTitle() {
+		return userDefinedTitle;
+	}
 
+	public void setUserDefinedTitle(String userDefinedTitle) {
+		this.userDefinedTitle = userDefinedTitle;
+	}
+
+	public String getFeedBackContent() {
+		return feedBackContent;
+	}
+
+	public void setFeedBackContent(String feedBackContent) {
+		this.feedBackContent = feedBackContent;
+	}
 }

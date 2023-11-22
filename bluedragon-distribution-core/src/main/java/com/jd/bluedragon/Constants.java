@@ -41,6 +41,7 @@ public class Constants {
     public static final String SEPARATOR_HYPHEN = "-";
     public static final String SEPARATOR_COLON = ":";
     public static final String SEPARATOR_BLANK_SPACE = " ";
+    public static final String SEPARATOR_TILDE = "~";
 
     public static final String PUNCTUATION_OPEN_BRACKET = "[";
     public static final String PUNCTUATION_CLOSE_BRACKET = "]";
@@ -805,6 +806,11 @@ public class Constants {
      * Long值-0
      */
     public static final Long LONG_ZERO = 0L;
+
+    /**
+     * Long值-1
+     */
+    public static final Long LONG_ONE = 1L;
 
     /**
      * 配置信息-北京的分拣中心
@@ -1577,6 +1583,10 @@ public class Constants {
      * */
     public static final int  CONSTANT_NUMBER_ONE = 1;
     /**
+     * 常量值：-1
+     * */
+    public static final Integer  NEGATIVE_NUMBER_ONE = -1;
+    /**
      * 常量值：2
      * */
     public static final int  CONSTANT_NUMBER_TWO = 2;
@@ -1676,6 +1686,21 @@ public class Constants {
      * 数字：1
      */
     public static final Integer NUMBER_ONE = 1;
+
+    /**
+     * 数字：3
+     */
+    public static final Integer NUMBER_THREE = 3;
+
+    /**
+     * 数字：9
+     */
+    public static final Integer NUMBER_NINE = 9;
+
+    /**
+     * 数字：24
+     */
+    public static final Integer NUMBER_TWENTY_FOUR = 24;
 
     /**
      * SendD取消状态
@@ -2216,4 +2241,14 @@ public class Constants {
      * 配置信息-自动签退超过多少小时未签退的数据
      */
     public static final String SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS="sys.config.autoHandleSignInRecord.notSignedOutRecordMoreThanHours";
+
+    /**
+     * 集包岗-任务锁前缀
+     */
+    public static final String JY_COLLECT_BOX_LOCK_PREFIX  = "jy_collect_package_box_lock_%s";
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_ID = "pda.questionnaire.id";
 }

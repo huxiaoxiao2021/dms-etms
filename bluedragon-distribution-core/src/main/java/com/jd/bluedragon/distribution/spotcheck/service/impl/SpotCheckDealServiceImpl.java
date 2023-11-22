@@ -15,10 +15,7 @@ import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.jss.oss.OssUrlNetTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
-import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckPicTypeEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -563,7 +560,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     }
 
     @Override
-    public void spotCheckIssue(WeightVolumeSpotCheckDto spotCheckDto) {
+    public void spotCheckIssue(WeightVolumeSpotCheckDto spotCheckDto, Integer version) {
         // 下发前置条件：超标&&集齐
         if(!Objects.equals(spotCheckDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             return;
@@ -585,7 +582,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             return;
         }
         // 执行下发
-        executeIssue(spotCheckDto);
+        executeIssue(spotCheckDto, version);
     }
 
     private void pushAIDistinguish(String packageCode, Integer siteCode, String picUrl) {
@@ -613,7 +610,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      * @param spotCheckDto
      */
     @Override
-    public void executeIssue(WeightVolumeSpotCheckDto spotCheckDto) {
+    public void executeIssue(WeightVolumeSpotCheckDto spotCheckDto, Integer version) {
         if(!Objects.equals(spotCheckDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             // 抽检不超标不下发
             logger.warn("单号:{}的抽检数据不执行下发!", spotCheckDto.getPackageCode());
@@ -672,7 +669,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         // 设置已下发缓存
         setIssueWaybillCache(spotCheckDto.getWaybillCode());
         // 构建超标消息并下发
-        buildAndIssue(spotCheckDto);
+        buildAndIssue(spotCheckDto, version);
     }
 
     private boolean checkIsDownByPicAI(WeightVolumeSpotCheckDto spotCheckDto) {
@@ -691,7 +688,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      *
      * @param spotCheckDto
      */
-    private void buildAndIssue(WeightVolumeSpotCheckDto spotCheckDto) {
+    private void buildAndIssue(WeightVolumeSpotCheckDto spotCheckDto, Integer version) {
         SpotCheckIssueMQ spotCheckIssueMQ = new SpotCheckIssueMQ();
         spotCheckIssueMQ.setFlowSystem(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())
                 ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
@@ -734,9 +731,18 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setDiffWeight(spotCheckDto.getDiffWeight() == null ? null : decimalFormat.format(spotCheckDto.getDiffWeight()));
         spotCheckIssueMQ.setStanderDiff(spotCheckDto.getDiffStandard());
         spotCheckIssueMQ.setExceedType(spotCheckDto.getExcessType());
-        spotCheckIssueMQ.setStatus(spotCheckDto.getSpotCheckStatus());
+        spotCheckIssueMQ.setStatus(Constants.CONSTANT_NUMBER_ONE);
         spotCheckIssueMQ.setAppendix(Constants.CONSTANT_NUMBER_ONE);
         spotCheckIssueMQ.setUrl(picUrlDeal(spotCheckDto));
+        // 新版抽检附件传参方式:传了appendixList，appendix和url字段就不用传了
+        if (Constants.NUMBER_ONE.equals(version)) {
+            // 组装附件列表
+            List<SpotCheckAppendixDto> appendixDtoList = transformAppendixData(spotCheckDto);
+            spotCheckIssueMQ.setAppendixList(appendixDtoList);
+        } else {
+            spotCheckIssueMQ.setAppendix(Constants.CONSTANT_NUMBER_ONE);
+            spotCheckIssueMQ.setUrl(picUrlDeal(spotCheckDto));
+        }
         spotCheckIssueMQ.setStartTime(new Date());
         if(logger.isInfoEnabled()){
             logger.info("下发运单号:{}的抽检超标数据至称重再造流程,明细如下:{}", spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
@@ -745,6 +751,26 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         // 更新抽检主记录数据
         spotCheckDto.setIsIssueDownstream(Constants.CONSTANT_NUMBER_ONE);
         spotCheckServiceProxy.insertOrUpdateProxyReform(spotCheckDto);
+    }
+
+    private List<SpotCheckAppendixDto> transformAppendixData(WeightVolumeSpotCheckDto spotCheckDto) {
+        List<String> picList = picUrlDeal(spotCheckDto);
+        List<SpotCheckAppendixDto> appendixDtoList = new ArrayList<>(6);
+        // 图片
+        for (String picUrl : picList) {
+            SpotCheckAppendixDto spotCheckAppendixDto = new SpotCheckAppendixDto();
+            spotCheckAppendixDto.setAppendixType(SpotCheckAppendixTypeEnum.REPORT_PICTURE.getCode());
+            spotCheckAppendixDto.setAppendixUrl(picUrl);
+            appendixDtoList.add(spotCheckAppendixDto);
+        }
+        // 视频
+        if (Constants.NUMBER_ONE.equals(spotCheckDto.getIsHasVideo())) {
+            SpotCheckAppendixDto spotCheckAppendixDto = new SpotCheckAppendixDto();
+            spotCheckAppendixDto.setAppendixType(SpotCheckAppendixTypeEnum.REPORT_VIDEO.getCode());
+            spotCheckAppendixDto.setAppendixUrl(spotCheckDto.getVideoPicture());
+            appendixDtoList.add(spotCheckAppendixDto);
+        }
+        return appendixDtoList;
     }
 
     private List<String> picUrlDeal(WeightVolumeSpotCheckDto spotCheckDto) {

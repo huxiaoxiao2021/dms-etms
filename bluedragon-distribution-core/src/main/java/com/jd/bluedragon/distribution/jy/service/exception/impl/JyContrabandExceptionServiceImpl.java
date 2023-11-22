@@ -63,6 +63,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.HK_OR_MO;
+import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.INTERNATION;
 import static com.jd.bluedragon.utils.BusinessHelper.getWaybillFlowType;
 
 /**
@@ -192,7 +194,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if(waybill != null){
             dto.setPackageCount(waybill.getGoodNumber());
         }
-        if(isHKorMOWaybill(WaybillUtil.getWaybillCode(entity.getBarCode()),waybill)){
+
+        // 运单类型
+        WaybillFlowTypeEnum waybillFlowType = getWaybillFlowType(waybill);
+        if(HK_OR_MO.equals(waybillFlowType) || INTERNATION.equals(waybillFlowType)){
             dto.setReverseReasonCode(Constants.INTERCEPT_REVERSE_CODE_1);
         }
         dto.setReturnType(Constants.REVERSE_TYPE_REJECT_BACK);
@@ -267,6 +272,14 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             logger.error("违禁品上报发送客服异常！",e);
         }
 
+    }
+
+    @Override
+    public int getDamageCountByTime(String startTime, String endTime) {
+        Map<String,Object> map = new HashMap();
+        map.put("startTime",DateHelper.parseDate(startTime,Constants.DATE_TIME_FORMAT));
+        map.put("endTime",DateHelper.parseDate(endTime,Constants.DATE_TIME_FORMAT));
+        return jyExceptionContrabandDao.getContrabandCountByTime(map);
     }
 
     /**
@@ -560,7 +573,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         }
         WaybillFlowTypeEnum waybillFlowType = getWaybillFlowType(waybill);
         if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
-            if(!waybillFlowType.equals(WaybillFlowTypeEnum.HK_OR_MO) && !waybillFlowType.equals(WaybillFlowTypeEnum.INTERNATION)){
+            if(!waybillFlowType.equals(HK_OR_MO) && !waybillFlowType.equals(WaybillFlowTypeEnum.INTERNATION)){
                 throw new RuntimeException("仅港澳件和国际件出口支持违禁品退回!");
             }
         }
