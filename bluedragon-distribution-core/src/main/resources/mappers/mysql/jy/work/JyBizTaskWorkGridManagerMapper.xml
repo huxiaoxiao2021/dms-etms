@@ -535,6 +535,9 @@
                 <if test="transferTime != null" >
                     transfer_time = #{transferTime,jdbcType=VARCHAR},
                 </if>
+                <if test="taskBizType != null">
+                    task_biz_type = #{taskBizType,jdbcType=TINYINT},
+                </if>
             </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
