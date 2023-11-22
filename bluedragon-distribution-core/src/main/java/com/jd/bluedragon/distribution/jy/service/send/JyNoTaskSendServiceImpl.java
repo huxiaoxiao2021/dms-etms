@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.AirTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.BookingTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.CargoTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.AviationSendTaskQueryReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.FilterConditionDto;
@@ -362,12 +363,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             res.parameterError("流向场地编码和流向场地名称不能为空");
             return;
         }
-        if(Objects.isNull(createAviationTaskReq.getTakeOffTimeStamp())) {
-            res.parameterError("起飞时间为空");
+        if(Objects.isNull(createAviationTaskReq.getCargoType())) {
+            res.parameterError("货物类型不能为空");
             return;
-        }
-        if(Objects.isNull(createAviationTaskReq.getTouchDownTimeStamp())) {
-            res.parameterError("降落时间为空");
+        }else if(!CargoTypeEnum.isCommonOrFresh(createAviationTaskReq.getCargoType())){
+            res.parameterError("货物类型非法，仅支持普货或生鲜");
             return;
         }
         if(Objects.isNull(createAviationTaskReq.getAirType())) {
@@ -411,8 +411,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         entity.setNextSiteId(request.getNextSiteId());
         entity.setNextSiteName(request.getNextSiteName());
         entity.setFlightNumber(request.getFlightNumber());
-        entity.setTakeOffTime(new Date(request.getTakeOffTimeStamp()));
-        entity.setTouchDownTime(new Date(request.getTouchDownTimeStamp()));
+//        entity.setTakeOffTime(new Date(request.getTakeOffTimeStamp()));
+//        entity.setTouchDownTime(new Date(request.getTouchDownTimeStamp()));
 //        entity.setAirCompanyCode();
 //        entity.setAirCompanyName();
 //        entity.setBeginNodeCode();
@@ -432,6 +432,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         entity.setIntercept(Constants.CONSTANT_NUMBER_ZERO);
         entity.setTaskStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
         entity.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ONE);
+        entity.setCargoType(request.getCargoType());
         return entity;
     }
 

@@ -37,6 +37,11 @@ public class CreateAviationTaskReq extends BaseReq implements Serializable {
      * 预计降落时间
      */
     private Long touchDownTimeStamp;
+    /**
+     * 货物类型
+     * CargoTypeEnum
+     */
+    private Integer cargoType;
 
 
     public Integer getAirType() {
@@ -101,5 +106,13 @@ public class CreateAviationTaskReq extends BaseReq implements Serializable {
 
     public void setTouchDownTimeStamp(Long touchDownTimeStamp) {
         this.touchDownTimeStamp = touchDownTimeStamp;
+    }
+
+    public Integer getCargoType() {
+        return cargoType;
+    }
+
+    public void setCargoType(Integer cargoType) {
+        this.cargoType = cargoType;
     }
 }

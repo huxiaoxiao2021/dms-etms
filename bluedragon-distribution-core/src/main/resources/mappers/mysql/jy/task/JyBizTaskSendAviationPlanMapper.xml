@@ -374,7 +374,7 @@
             and next_site_id = #{nextSiteId}
             and task_status = #{taskStatus}
             <include refid="list_query_condition" />
-        order by take_off_time
+        order by take_off_time is null desc, take_off_time
         <if test="takeOffTimeOrderDesc == 1" >
             desc
         </if>
@@ -423,7 +423,7 @@
             and task_status = #{taskStatus}
             <include refid="list_query_condition" />
         order by
-            take_off_time
+                take_off_time is null desc, take_off_time
         limit #{offset},#{pageSize}
     </select>
 
@@ -452,8 +452,7 @@
         and next_site_id = #{startSiteId}
         and (task_status = 0 and take_off_time &gt;= #{takeOffTimeStart}) or (task_status = 1)
         and create_time &gt;= #{createTimeStart}
-        order by
-        take_off_time
+        order by take_off_time is null desc, take_off_time
         limit #{offset},#{pageSize}
     </select>
 </mapper>
