@@ -107,6 +107,12 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 				BusinessQuotaInfoData data  = JsonHelper.fromJsonMs(jyTaskData.getExtendInfo(), BusinessQuotaInfoData.class);
 				taskData.setBusinessQuotaInfoData(data);
 			}
+			//指标改善任务的扩展信息
+			if(WorkTaskTypeEnum.VIOLENCE_SORT.getCode().equals(jyTaskData.getTaskType())){
+				ViolenceSortInfoData data  = JsonHelper.fromJsonMs(jyTaskData.getExtendInfo(), ViolenceSortInfoData.class);
+				taskData.setViolenceSortInfoData(data);
+			}
+			
 		}
 		//飞检 和 非待处理状态的  不能转派
 		WorkGridManagerTaskBizType bizTypeEnum = WorkGridManagerTaskBizType.getEnum(jyTaskData.getTaskBizType());
