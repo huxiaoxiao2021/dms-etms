@@ -861,6 +861,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		request.setSiteOfSchedulingOnSite(req.getSiteOfSchedulingOnSiteCode());
 		request.setErp(req.getOperateUserErp());
 		request.setSortingSite(req.getOperateSiteCode());
+		request.setReasonType(req.getReasonType());
 		if(log.isInfoEnabled()){
 			log.info("buildWaybillForPreSortOnSiteRequest -{}",JSON.toJSONString(request));
 

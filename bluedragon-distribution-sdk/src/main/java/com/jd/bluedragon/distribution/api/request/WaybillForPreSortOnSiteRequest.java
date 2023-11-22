@@ -36,6 +36,12 @@ public class WaybillForPreSortOnSiteRequest extends JdRequest {
      */
     private String areaHubName;
 
+    /**
+     * 返调度原因编码
+     *  1：预分拣站点无法派送 2：特殊时期管制违禁品 3：邮政拒收 4：无预分拣站点
+     */
+    private Integer reasonType;
+
 
     public String getErp() {
         return erp;
@@ -99,5 +105,13 @@ public class WaybillForPreSortOnSiteRequest extends JdRequest {
 
     public void setAreaHubName(String areaHubName) {
         this.areaHubName = areaHubName;
+    }
+
+    public Integer getReasonType() {
+        return reasonType;
+    }
+
+    public void setReasonType(Integer reasonType) {
+        this.reasonType = reasonType;
     }
 }

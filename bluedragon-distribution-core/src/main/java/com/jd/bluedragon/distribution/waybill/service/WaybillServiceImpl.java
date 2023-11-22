@@ -19,6 +19,7 @@ import com.jd.bluedragon.core.security.dataam.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.enums.ReassignWaybillReasonTypeEnum;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
@@ -1662,17 +1663,18 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
 
-            //校验原预分拣站点线上关停
-            BaseSite oldSite = baseMajorManager.getSiteBySiteCode(waybill.getOldSiteId());
-            if(oldSite == null){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_NOT_SITE);
-                return result;
+            //校验原预分拣站点线上关停 在选择返调度原因选择无预分拣站点时不进行校验
+            if(!Objects.equals(ReassignWaybillReasonTypeEnum.NO_PRE_SORTING_STATION.getCode(),waybillForPreSortOnSiteRequest.getReasonType())){
+                BaseSite oldSite = baseMajorManager.getSiteBySiteCode(waybill.getOldSiteId());
+                if(oldSite == null){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_NOT_SITE);
+                    return result;
+                }
+                if(!(Constants.INTEGER_FLG_TRUE.equals(oldSite.getYn()) && Constants.BASE_SITE_OPERATESTATE_1.equals(oldSite.getOperateState()))){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_SITE_CLOSE);
+                    return result;
+                }
             }
-            if(!(Constants.INTEGER_FLG_TRUE.equals(oldSite.getYn()) && Constants.BASE_SITE_OPERATESTATE_1.equals(oldSite.getOperateState()))){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_SITE_CLOSE);
-                return result;
-            }
-
             //作为透传用 避免多次查询
             waybillForPreSortOnSiteRequest.setSiteName(operateSite.getSiteName());
             waybillForPreSortOnSiteRequest.setProvinceAgencyCode(operateSite.getProvinceAgencyCode());
