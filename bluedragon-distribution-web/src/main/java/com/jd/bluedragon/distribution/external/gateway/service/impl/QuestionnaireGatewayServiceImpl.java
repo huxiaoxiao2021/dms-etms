@@ -26,9 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import static com.jd.bluedragon.Constants.PDA_QUESTIONNAIRE_ID;
 
@@ -47,6 +45,9 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
 
     private static final String SAVE_ANSWER_HTTP_URL = "http://dongjian.jd.local/wj/saveAnswer";
 
+    // 调查问卷
+    public static final int NOT_FOUNT_QUESTIONNAIRE_ID = 3068;
+
     @Value("${questionnaire.appSecret}")
     private String appSecret;
 
@@ -62,12 +63,15 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(PDA_QUESTIONNAIRE_ID);
         if (sysConfig == null || StringUtils.isEmpty(sysConfig.getConfigContent())) {
             log.info("未获取到调查问卷id");
+            response.setCode(NOT_FOUNT_QUESTIONNAIRE_ID);
             return response;
         }
         String questionnaireId = sysConfig.getConfigContent();
 
         // 判断当前用户是否已经作答
         if (checkUserHasAnswered(questionnaireId,req.getUserErp())) {
+            log.info("用户已经作答:{}", req.getUserErp());
+            response.setCode(NOT_FOUNT_QUESTIONNAIRE_ID);
             return response;
         }
         // 获取调查问卷信息
@@ -139,8 +143,9 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
             response.toFail("未获取到用户信息！");
             return response;
         }
-        String body = exeHttpPostMethod(req);
-        return JsonHelper.fromJson(body, JdCResponse.class);
+        exeHttpPostMethod(req);
+        response.toSucceed("提交成功");
+        return response;
     }
 
     private String exeHttpPostMethod(AnswerQuestionnaireReq req) {
