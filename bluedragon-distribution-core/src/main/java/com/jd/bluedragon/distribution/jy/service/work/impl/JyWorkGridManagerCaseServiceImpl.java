@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -217,12 +218,16 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 		}
 		List<JyWorkGridManagerCaseData> caseList = new ArrayList<>();
 		JyWorkGridManagerCaseData caseData = new JyWorkGridManagerCaseData();
+		logger.info("toImproveTaskCaseDataList-1:caseData:{},caseModle:{}", JsonHelper.toJson(caseData),
+				JsonHelper.toJson(caseModle));
 		fillDataByTaskCase(caseData,caseModle);
 		if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(jyTaskCaseList)){
 			fillDataByJyTaskCase(caseData,jyTaskCaseList.get(0));
 		}
 		Map<String, JyWorkGridManagerCaseItem> jyCaseItemMap = jyItemList.stream()
 				.collect(Collectors.toMap(JyWorkGridManagerCaseItem::getCaseItemCode, i->i));
+		logger.info("toImproveTaskCaseDataList-2:caseData:{},caseModle:{},jyCaseItemMap:{}", JsonHelper.toJson(caseData),
+				JsonHelper.toJson(caseModle),JsonHelper.toJson(jyCaseItemMap));
 		fillItemData(caseData,caseModle,jyCaseItemMap);
 		if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(attachmentList)) {
 			caseData.setAttachmentList(attachmentList);
@@ -231,7 +236,8 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 			caseData.setImproveAttachmentList(improveAttachmentList);
 		}
 		caseList.add(caseData);
-		
+		logger.info("toImproveTaskCaseDataList-3:caseData:{},caseList:{}", JsonHelper.toJson(caseData),
+				JsonHelper.toJson(caseList));
 		return caseList;
 	}
 	/**
@@ -244,6 +250,8 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 	private List<JyWorkGridManagerCaseData> toCaseDataList(JyWorkGridManagerCaseQuery taskCaseQuery,
 														   List<WorkGridManagerCaseWithItem> taskCaseList, 
 														   List<JyWorkGridManagerCase> jyTaskCaseList){
+		logger.info("toCaseDataList入参:taskCaseQuery:{},taskCaseList:{}", JsonHelper.toJson(taskCaseQuery),
+				JsonHelper.toJson(taskCaseList));
 		Integer taskType = taskCaseQuery.getTaskType();
 		List<JyWorkGridManagerCaseData> caseList = new ArrayList<>();
 		//正常任务-case定义列表不会为空
@@ -254,16 +262,20 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 		boolean isSaved = !CollectionUtils.isEmpty(jyTaskCaseList);
 		WorkTaskTypeEnum workTaskTypeEnum = WorkTaskTypeEnum.getEnum(taskType);
 		if(workTaskTypeEnum == null){
+			logger.info("toCaseDataList-workTaskTypeEnum为空:taskType:{}", taskType);
 			return caseList;
 		}
 		switch (workTaskTypeEnum){
 			case MEETING:
+				logger.info("toCaseDataList-MEETING:workTaskTypeEnum:{}", workTaskTypeEnum);
 				caseList = toMultipleCaseDataList(isSaved, taskCaseList, jyTaskCaseList);
 				break;
 			case IMPROVE:
+				logger.info("toCaseDataList-IMPROVE:workTaskTypeEnum:{}", workTaskTypeEnum);
 				caseList = toImproveTaskCaseDataList(taskCaseQuery, isSaved, taskCaseList, jyTaskCaseList);
 				break;
 			default:
+				logger.info("toCaseDataList-default:workTaskTypeEnum:{}", workTaskTypeEnum);
 				caseList = toCaseDataListByCaseCode(taskCaseQuery, isSaved, taskCaseList, jyTaskCaseList);
 				
 		}
