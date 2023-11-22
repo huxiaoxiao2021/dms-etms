@@ -949,6 +949,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setAreaName(grid.getAreaName());
 		jyTask.setGridName(grid.getGridName());
 		jyTask.setSiteCode(grid.getSiteCode());
+		jyTask.setFloor(grid.getFloor());
 		//设置省区相关字段
 		jyTask.setSiteName(siteInfo.getSiteName());
 		jyTask.setAreaHubCode(StringHelper.getStringValue(siteInfo.getAreaCode()));
