@@ -1111,6 +1111,18 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             }
         }
 
+        // 场地ID白名单
+        final Result<FuncUsageConfigDto> whiteFuncUsageByCodeConfig4SpecificListResult = getWhiteFuncUsageByCodeConfig4SpecificList(funcUsageConfigRequestDto);
+        if (whiteFuncUsageByCodeConfig4SpecificListResult != null) {
+            if(whiteFuncUsageByCodeConfig4SpecificListResult.isSuccess()){
+                return null;
+            } else {
+                if (whiteFuncUsageByCodeConfig4SpecificListResult.getData() != null) {
+                    return whiteFuncUsageByCodeConfig4SpecificListResult.getData().getProcess();
+                }
+            }
+        }
+
         final FuncUsageProcessDto clientMenuUsageByCodeConfig = getFuncUsageByCodeConfig4SpecificList(funcUsageConfigRequestDto);
         if (clientMenuUsageByCodeConfig != null) {
             return clientMenuUsageByCodeConfig;
