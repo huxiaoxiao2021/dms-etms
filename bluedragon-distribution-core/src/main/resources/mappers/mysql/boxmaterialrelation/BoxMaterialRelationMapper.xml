@@ -133,7 +133,7 @@
     </update>
 
     <!-- 集包袋明细报表专用 其余接口请勿使用-->
-    <select id="findByMaterialCodeAndBoxCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" resultMap="BaseResultMap">
+    <select id="findByMaterialCodeAndBoxCode" parameterType="java.util.Map" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from box_material_relation
@@ -152,7 +152,7 @@
     </select>
 
     <!-- 集包袋明细报表专用 其余接口请勿使用-->
-    <select id="countByMaterialCodeAndBoxCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" resultType="int">
+    <select id="countByMaterialCodeAndBoxCode" parameterType="java.util.Map" resultType="int">
         select count(*) as count
         from box_material_relation
         WHERE is_delete = 0
