@@ -1032,6 +1032,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (ObjectHelper.isEmpty(task) || JyBizTaskCollectPackageStatusEnum.CANCEL.getCode().equals(task.getTaskStatus())) {
             throw new JyBizException("该任务已作废或者过期，请勿重复操作！");
         }
+        if (JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode().equals(task.getTaskStatus())){
+            throw new JyBizException("空箱不允许取消！");
+        }
         //判断箱子是否已发货
         if (boxService.checkBoxIsSent(request.getBoxCode(), request.getCurrentOperate().getSiteCode())) {
             throw new JyBizException("箱号已经发货，不允许取消集包！");
