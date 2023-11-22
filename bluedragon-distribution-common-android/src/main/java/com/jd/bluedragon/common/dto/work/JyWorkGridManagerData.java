@@ -139,6 +139,8 @@ public class JyWorkGridManagerData implements Serializable {
 
 	private Integer yn;
 
+	private Integer taskBizType;
+
 	public String getOrignHandlerErp() {
 		return orignHandlerErp;
 	}
@@ -353,5 +355,13 @@ public class JyWorkGridManagerData implements Serializable {
 
 	public void setYn(Integer yn) {
 		this.yn = yn;
+	}
+
+	public Integer getTaskBizType() {
+		return taskBizType;
+	}
+
+	public void setTaskBizType(Integer taskBizType) {
+		this.taskBizType = taskBizType;
 	}
 }

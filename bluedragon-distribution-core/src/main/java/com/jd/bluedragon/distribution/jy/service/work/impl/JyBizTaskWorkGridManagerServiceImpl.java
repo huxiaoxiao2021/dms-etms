@@ -506,6 +506,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		entity.setId(data.getId());
 		entity.setHandlerErp(data.getHandlerErp());
 		entity.setYn(data.getYn());
+		entity.setTaskBizType(data.getTaskBizType());
 		return jyBizTaskWorkGridManagerDao.update(JyBizTaskWorkGridManagerDao.NAMESPACE, entity);
 	}
 }
