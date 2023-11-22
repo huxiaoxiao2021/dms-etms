@@ -1552,6 +1552,9 @@ public class WaybillServiceImpl implements WaybillService {
             }
             //获取当前操作站点信息
             BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(waybillForPreSortOnSiteRequest.getSortingSite());
+            if(log.isInfoEnabled()){
+                log.info("当前操作站点信息-{}",JSON.toJSONString(operateSite));
+            }
             if (operateSite == null){
                 result.error("当前操作站点信息不存在");
                 log.warn("当前操作站点信息不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
@@ -1676,6 +1679,9 @@ public class WaybillServiceImpl implements WaybillService {
             waybillForPreSortOnSiteRequest.setProvinceAgencyName(operateSite.getProvinceAgencyName());
             waybillForPreSortOnSiteRequest.setAreaHubCode(operateSite.getAreaCode());
             waybillForPreSortOnSiteRequest.setAreaHubName(operateSite.getAreaName());
+            if(log.isInfoEnabled()){
+                log.info("waybillForPreSortOnSiteRequest-{}",JSON.toJSONString(waybillForPreSortOnSiteRequest));
+            }
 
 
         }catch (Exception ex){

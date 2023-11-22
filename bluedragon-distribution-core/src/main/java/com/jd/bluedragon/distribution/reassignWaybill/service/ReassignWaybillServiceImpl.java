@@ -441,7 +441,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 				log.info("ReassignWaybillReq 入参-{}",JSON.toJSONString(req));
 			}
 			if(!checkCheckerIsExsit(req.getProvinceAgencyCode(),req.getAreaHubCode())){
-				String msg = "根据当前当前场地所属的省区编码 %s 枢纽编码 %s未查询到审核人信息!";
+				String msg = "当前场地未查询到审核人信息! 请联系分拣小秘!";
 				String.format(msg,req.getProvinceAgencyCode(),req.getAreaHubCode());
 				result.toFail(msg);
 				result.setData(Boolean.FALSE);
