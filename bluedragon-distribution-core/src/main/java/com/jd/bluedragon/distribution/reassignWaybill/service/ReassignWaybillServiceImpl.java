@@ -432,6 +432,11 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			//现场预分拣拦截校验
 			WaybillForPreSortOnSiteRequest preSortOnSiteRequest = buildWaybillForPreSortOnSiteRequest(req);
 			InvokeResult<String> invokeResult = waybillService.checkWaybillForPreSortOnSite(preSortOnSiteRequest);
+			if(InvokeResult.RESULT_SUCCESS_CODE != invokeResult.getCode()){
+				result.setCode(invokeResult.getCode());
+				result.setMessage(invokeResult.getMessage());
+				return result;
+			}
 			req.setOperateSiteName(preSortOnSiteRequest.getSiteName());
 			req.setProvinceAgencyCode(preSortOnSiteRequest.getProvinceAgencyCode());
 			req.setProvinceAgencyName(preSortOnSiteRequest.getProvinceAgencyName());
@@ -445,11 +450,6 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 				String.format(msg,req.getProvinceAgencyCode(),req.getAreaHubCode());
 				result.toFail(msg);
 				result.setData(Boolean.FALSE);
-				return result;
-			}
-			if(InvokeResult.RESULT_SUCCESS_CODE != invokeResult.getCode()){
-				result.setCode(invokeResult.getCode());
-				result.setMessage(invokeResult.getMessage());
 				return result;
 			}
 			//判断返调度原因类型
