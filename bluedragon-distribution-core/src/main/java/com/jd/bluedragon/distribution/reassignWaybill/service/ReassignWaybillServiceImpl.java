@@ -536,7 +536,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 
 		ReassignWaybillApprovalRecord record = reassignWaybillApprovalRecordDao.selectByBarCodeApprovalNoPass(mq.getBarCode());
 		if(record == null){
-			log.warn("未查到当前运单的申请记录-{}",record.getBarCode());
+			log.warn("未查到当前运单的申请记录-{}",mq.getBarCode());
 			return ;
 		}
 		// 提交审批
