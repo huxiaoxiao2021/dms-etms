@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 任务管理--Service接口
@@ -65,6 +66,6 @@ public interface JyWorkGridManagerGatewayService {
 	 * @param jyWorkGridManagerData
 	 * @return
 	 */
-	JdCResponse<Boolean> updateTask4Uat(JyWorkGridManagerData jyWorkGridManagerData);
+	JdCResponse<Boolean> updateTask4Uat(Map<String,Object> data);
 	
 }

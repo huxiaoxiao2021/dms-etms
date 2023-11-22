@@ -137,8 +137,6 @@ public class JyWorkGridManagerData implements Serializable {
 	 */
 	private String orignHandlerErp;
 
-	private Integer yn;
-
 	public String getOrignHandlerErp() {
 		return orignHandlerErp;
 	}
@@ -345,13 +343,5 @@ public class JyWorkGridManagerData implements Serializable {
 
 	public void setTransfered(Integer transfered) {
 		this.transfered = transfered;
-	}
-
-	public Integer getYn() {
-		return yn;
-	}
-
-	public void setYn(Integer yn) {
-		this.yn = yn;
 	}
 }
