@@ -94,6 +94,7 @@ public class SealSyncOpenCloseSendTaskConsumer extends MessageBaseConsumer {
         String switchStr = uccPropertyConfiguration.getSealSyncOpenCloseSendTaskSwitch();
         if(!Constants.NUMBER_ONE.toString().equals(switchStr)) {
             logger.warn("封车同步jy发货任务状态开关关闭，不做处理，批次号={}，ucc同步开关关闭（ucc:sealSyncOpenCloseSendTaskSwitch）", mqBody.getSingleBatchCode());
+            return true;
         }
 
         return sealSyncOpenCloseSendTaskService.dealSeal(mqBody);
