@@ -334,13 +334,13 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             jyAviationSealMq.setAirType(entity.getAirType());
             jyAviationSealMq.setCargoType(entity.getCargoType());
             jyAviationSealMq.setTaskType(entity.getManualCreatedFlag());
-            jyAviationSealMq.setBookingCode(entity.getBookingCode());
             if(!Constants.NUMBER_ONE.equals(entity.getManualCreatedFlag())) {
                 //航空任务属性
                 jyAviationSealMq.setBeginNodeCode(entity.getBeginNodeCode());
                 jyAviationSealMq.setBeginNodeName(entity.getBeginNodeName());
                 jyAviationSealMq.setEndNodeCode(entity.getEndNodeCode());
                 jyAviationSealMq.setEndNodeName(entity.getEndNodeName());
+                jyAviationSealMq.setBookingCode(entity.getBookingCode());
             }
 
             aviationSealProducer.send(jyAviationSealMq.getFlightNumber(), JsonHelper.toJson(jyAviationSealMq));
