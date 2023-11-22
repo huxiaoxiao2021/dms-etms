@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
@@ -394,6 +395,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	public JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest dmsClientHeartbeatRequest){
 		//调用jsf记录心跳信息
 		JdResult<DmsClientHeartbeatResponse> result = dmsClientManager.sendHeartbeat(dmsClientHeartbeatRequest);
+		log.info("dmsClientManager.sendHeartbeat result-{}", JSON.toJSONString(result));
 		if(result != null 
 				&& result.isSucceed()
 				&& result.getData() != null){
