@@ -1207,7 +1207,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             return result.toFail();
         }
 
-        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_TYPE + funcUsageConfigRequestDto.getFuncCode());
+        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_WHITE_BY_ERP + funcUsageConfigRequestDto.getFuncCode());
         if (sysConfig == null) {
             return result.toFail("无白名单");
         }
@@ -1252,7 +1252,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
     private Result<FuncUsageConfigDto> getWhiteFuncUsageByCodeConfig4SpecificList(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
         Result<FuncUsageConfigDto> result = Result.success();
 
-        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_TYPE + funcUsageConfigRequestDto.getFuncCode());
+        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_CODE + funcUsageConfigRequestDto.getFuncCode());
         if (sysConfig == null) {
             return result.toFail("无白名单");
         }

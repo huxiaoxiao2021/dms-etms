@@ -916,6 +916,10 @@ public class Constants {
      */
     public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_CODE = "func_usage_white_by_site_code_";
     /**
+     * 功能可用性配置白名单，按人员erp列表
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_ERP = "func_usage_white_by_erp_";
+    /**
      * 功能可用配置白名单，按人员erp列表
      */
     public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
