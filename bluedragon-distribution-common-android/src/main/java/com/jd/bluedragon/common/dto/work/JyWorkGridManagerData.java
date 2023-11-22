@@ -136,6 +136,11 @@ public class JyWorkGridManagerData implements Serializable {
 	 * 源处理人erp
 	 */
 	private String orignHandlerErp;
+	/**
+	 *  暴力分拣任务-视频监控相关信息
+	 *  只有暴力分拣任务才会有
+	 */
+	private ViolenceSortInfoData violenceSortInfoData;
 
 
 	public String getOrignHandlerErp() {
@@ -344,5 +349,13 @@ public class JyWorkGridManagerData implements Serializable {
 
 	public void setTransfered(Integer transfered) {
 		this.transfered = transfered;
+	}
+
+	public ViolenceSortInfoData getViolenceSortInfoData() {
+		return violenceSortInfoData;
+	}
+
+	public void setViolenceSortInfoData(ViolenceSortInfoData violenceSortInfoData) {
+		this.violenceSortInfoData = violenceSortInfoData;
 	}
 }
