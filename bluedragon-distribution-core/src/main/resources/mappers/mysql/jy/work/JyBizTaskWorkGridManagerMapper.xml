@@ -367,7 +367,9 @@
              grid_name,
              create_user,
              create_user_name,
-             create_time
+             create_time,
+             floor,
+             extend_info
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
@@ -392,7 +394,9 @@
             #{item.gridName},
             #{item.createUser},
             #{item.createUserName},
-            #{item.createTime}
+            #{item.createTime},
+            #{item.floor},
+            #{item.extendInfo}
             )
         </foreach>
     </insert>
