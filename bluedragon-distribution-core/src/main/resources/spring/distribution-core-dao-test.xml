@@ -171,6 +171,11 @@
 		<property name="sqlSession" ref="sessionTemplate" />
 	</bean>
 
+	<bean id="reassignWaybillApprovalRecordDao"
+		  class="com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillApprovalRecordDao">
+		<property name="sqlSession" ref="sessionTemplate" />
+	</bean>
+
 	<bean id="popSigninDao"
 		class="com.jd.bluedragon.distribution.popPrint.dao.PopSigninDao">
 		<property name="sqlSession" ref="sessionTemplate" />

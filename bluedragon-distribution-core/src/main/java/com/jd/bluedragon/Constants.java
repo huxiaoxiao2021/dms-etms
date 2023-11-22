@@ -139,6 +139,26 @@ public class Constants {
       */
     public static final Integer SITE_SUBTYPE_THIRD = 6410;
 
+    /**
+     * 退货组
+     */
+    public static final Integer SITE_RETURN_GROUP = 12354;
+
+    /**
+     * 请求应用程序类型
+     */
+    public static final Integer PROGRAM_TYPE = 60;
+
+    /**
+     * 业务类型
+     */
+    public static final Integer BUSINESS_TYPE = 1005;
+
+    /**
+     * 业务操作类型
+     */
+    public static final Integer OPERATE_TYPE = 100503;
+
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
     public static final int WAREHOUSE_HANDOVER_OPERATE_TYPE = 2;
@@ -281,6 +301,12 @@ public class Constants {
 
     /* 站点operateState：2为线下运营 */
     public static final Integer BASE_SITE_OPERATESTATE = 2;
+
+    /**
+     * 运营状态 operate_state 0关闭 1线上运营 2线下运营
+     */
+    public static final Integer BASE_SITE_OPERATESTATE_1 = 1;
+
 
     /**
      * 承运商类型 1:司机 0:承运商（三方快递，即站点表中类型为16的数据）
@@ -2251,4 +2277,18 @@ public class Constants {
      * PDA调查问卷ID配置
      */
     public static final String PDA_QUESTIONNAIRE_ID = "pda.questionnaire.id";
+
+    /**
+     * 运单返调度审批配置
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG = "reassignWaybill.province.area.approval.config";
+
+
+    /**
+     * 返调度运单任务锁key
+     */
+    public static final String REASSIGN_WAYBILL_LOCK_KEY_PREFIX ="reassign.waybill.lock:";
+
+
+
 }

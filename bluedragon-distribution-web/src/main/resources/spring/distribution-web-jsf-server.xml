@@ -642,4 +642,13 @@
                   alias="${dms.jsf.alias}"
                   ref="iDmsSortingService" server="dmsjsf">
     </jsf:provider>
+
+    <!-- 返调度JSF接口 -->
+    <jsf:provider id="jsfReassignWaybillJsfService"
+                  interface="com.jd.bluedragon.distribution.jsf.service.ReassignWaybillJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="reassignWaybillJsfService" server="dmsjsf">
+    </jsf:provider>
+
+
 </beans>
