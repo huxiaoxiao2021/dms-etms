@@ -55,7 +55,8 @@ public class JyAviationSealMq implements Serializable {
     private String endNodeCode;
     private String endNodeName;
     private String bookingCode;
-
+    //货物类型
+    private Integer cargoType;
 
     public Integer getStartSiteId() {
         return startSiteId;
@@ -191,5 +192,13 @@ public class JyAviationSealMq implements Serializable {
 
     public void setBookingCode(String bookingCode) {
         this.bookingCode = bookingCode;
+    }
+
+    public Integer getCargoType() {
+        return cargoType;
+    }
+
+    public void setCargoType(Integer cargoType) {
+        this.cargoType = cargoType;
     }
 }
