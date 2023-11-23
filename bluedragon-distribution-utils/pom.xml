@@ -29,6 +29,12 @@
             <groupId>com.jd.binlake</groupId>
             <artifactId>binlake-wave.client</artifactId>
             <version>1.0.3_alpha</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
