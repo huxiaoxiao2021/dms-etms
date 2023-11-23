@@ -1282,17 +1282,28 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return minStartDate;
 	}
 
-	private Date getMaxStartDate(Date maxStartDate, Date startDate, Map<Integer, String> maxEndTimeMap, String endTime, Integer waveType) {
+	private Date getMaxStartDate(Date maxStartDate, Date startDate) {
 		if (maxStartDate == null) {
-			maxEndTimeMap.put(waveType, endTime);
 			return startDate;
 		} else {
 			if (maxStartDate.before(startDate)) {
-				maxEndTimeMap.put(waveType, endTime);
 				return startDate;
 			}
 		}
 		return maxStartDate;
+	}
+
+	private Date getMaxEndDate(Date maxEndDate, Date endDate, Map<Integer, String> maxEndTimeMap, String endTime, Integer waveType) {
+		if (maxEndDate == null) {
+			maxEndTimeMap.put(waveType, endTime);
+			return endDate;
+		} else {
+			if (maxEndDate.before(endDate)) {
+				maxEndTimeMap.put(waveType, endTime);
+				return endDate;
+			}
+		}
+		return maxEndDate;
 	}
 
 
@@ -1370,14 +1381,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Date minDayStartDate = null;
 		// 白班最大起始时间
 		Date maxDayStartDate = null;
+		// 白班最大结束时间
+		Date maxDayEndDate = null;
 		// 中班最小起始时间
 		Date minMiddleStartDate = null;
 		// 中班最大起始时间
 		Date maxMiddleStartDate = null;
+		// 中班最大结束时间
+		Date maxMiddleEndDate = null;
 		// 晚班最小起始时间
 		Date minNightStartDate = null;
 		// 晚班最大起始时间
 		Date maxNightStartDate = null;
+		// 晚班最大结束时间
+		Date maxNightEndDate = null;
 		// <班次，最大结束时间>
 		Map<Integer, String> maxEndTimeMap = new HashMap<>(Constants.NUMBER_THREE);
 		// <班次，最小开始时间>
@@ -1394,20 +1411,30 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 			// 班次日期形式 yyyy-MM-dd HH:mm:ss
 			Date startDate = getSpecialDateByStr(startTime, null);
+			Date endDate;
+			// 如果结束日期代表第二天的时间点，则转换时需要加一天
+			if (LocalTime.parse(startTime).isAfter(LocalTime.parse(endTime))) {
+				endDate = getSpecialDateByStr(endTime, Constants.NUMBER_ONE);
+			} else {
+				endDate = getSpecialDateByStr(endTime, null);
+			}
 			// 班次类型
 			Integer scheduleType = workGridSchedule.getScheduleType();
 			// 如果是白班
 			if (WaveTypeEnum.DAY.getCode().equals(scheduleType)) {
 				minDayStartDate = getMinStartDate(minDayStartDate, startDate, minStartTimeMap, startTime, WaveTypeEnum.DAY.getCode());
-				maxDayStartDate = getMaxStartDate(maxDayStartDate, startDate, maxEndTimeMap, endTime, WaveTypeEnum.DAY.getCode());
+				maxDayStartDate = getMaxStartDate(maxDayStartDate, startDate);
+				maxDayEndDate = getMaxEndDate(maxDayEndDate, endDate, maxEndTimeMap, endTime, WaveTypeEnum.DAY.getCode());
 				// 如果是中班
 			} else if (WaveTypeEnum.MIDDLE.getCode().equals(scheduleType)) {
 				minMiddleStartDate = getMinStartDate(minMiddleStartDate, startDate, minStartTimeMap, startTime, WaveTypeEnum.MIDDLE.getCode());
-				maxMiddleStartDate = getMaxStartDate(maxMiddleStartDate, startDate, maxEndTimeMap, endTime, WaveTypeEnum.MIDDLE.getCode());
+				maxMiddleStartDate = getMaxStartDate(maxMiddleStartDate, startDate);
+				maxMiddleEndDate = getMaxEndDate(maxMiddleEndDate, endDate, maxEndTimeMap, endTime, WaveTypeEnum.DAY.getCode());
 				// 如果是晚班
 			} else if (WaveTypeEnum.NIGHT.getCode().equals(scheduleType)) {
 				minNightStartDate = getMinStartDate(minNightStartDate, startDate, minStartTimeMap, startTime, WaveTypeEnum.NIGHT.getCode());
-				maxNightStartDate = getMaxStartDate(maxNightStartDate, startDate, maxEndTimeMap, endTime, WaveTypeEnum.NIGHT.getCode());
+				maxNightStartDate = getMaxStartDate(maxNightStartDate, startDate);
+				maxNightEndDate = getMaxEndDate(maxNightEndDate, endDate, maxEndTimeMap, endTime, WaveTypeEnum.DAY.getCode());
 			}
 		}
 		log.info("assembleInformalEmployeesWaveCode|各个班次最小起始时间与最大起始时间:request={},minDayStartDate={},maxDayStartDate={},minMiddleStartDate={},maxMiddleStartDate={},minNightStartDate={},maxNightStartDate={}",
