@@ -108,13 +108,6 @@ public class JyComboardSealVehicleServiceImpl extends JySealVehicleServiceImpl {
         query.setSendVehicleBizId(sealVehicleReq.getSendVehicleBizId());
         JySendAttachmentEntity attachmentEntity = jySendAttachmentService.selectBySendVehicleBizId(query);
         if (attachmentEntity == null || StringUtils.isEmpty(attachmentEntity.getSealImgUrl())) {
-            // 封车板数量校验
-            if (CollectionUtils.isEmpty(sealVehicleReq.getBatchCodes()) || sealVehicleReq.getBatchCodes().size() < boardMinLimit) {
-                log.info("车辆封车的板数量不能小于{}", boardMinLimit);
-                result.setCode(CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_CODE);
-                result.setMessage(String.format(CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_MESSAGE, boardMinLimit));
-                return false;
-            }
 
             // 根据批次查询板信息
             JyBizTaskComboardEntity querySendCode = new JyBizTaskComboardEntity();
@@ -132,18 +125,19 @@ public class JyComboardSealVehicleServiceImpl extends JySealVehicleServiceImpl {
             }
 
             // 封车包裹件数校验
+            int packageCount = 0;
             if (!CollectionUtils.isEmpty(aggsEntities)) {
-                int packageCount = 0;
                 for (JyComboardAggsEntity aggsEntity : aggsEntities) {
                     packageCount += aggsEntity.getPackageScannedCount() == null ? 0 : aggsEntity.getPackageScannedCount();
                     packageCount += aggsEntity.getBoxScannedCount() == null ? 0 : aggsEntity.getBoxScannedCount();
                 }
-                if (packageCount < packageMinLimit) {
-                    log.info("车辆封车的件数小于{}", packageMinLimit);
-                    result.setCode(CZ_SEAL_CAR_PACKAGE_COUNT_MIN_LIMIT_CODE);
-                    result.setMessage(String.format(CZ_SEAL_CAR_PACKAGE_COUNT_MIN_LIMIT_MESSAGE, packageMinLimit));
-                    return false;
-                }
+            }
+            // 封车板数量校验
+            if (packageCount < packageMinLimit && sealVehicleReq.getBatchCodes().size() < boardMinLimit) {
+                log.info("车辆封车的板数量不能小于{}", boardMinLimit);
+                result.setCode(CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_CODE);
+                result.setMessage(String.format(CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_MESSAGE, boardMinLimit, packageMinLimit));
+                return false;
             }
         }
 
