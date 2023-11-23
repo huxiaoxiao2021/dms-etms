@@ -864,7 +864,8 @@
         where
             yn = 1
             and task_code = #{taskCode,jdbcType=VARCHAR}
-            and handler_erp is not null
+            and handler_erp is not null and handler_erp != ''
+            and site_code =  #{siteCode,jdbcType=INTEGER}
             order by id desc 
         limit 1
     </select>
