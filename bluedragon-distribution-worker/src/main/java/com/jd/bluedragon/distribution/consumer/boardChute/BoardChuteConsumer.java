@@ -73,7 +73,7 @@ public class BoardChuteConsumer  implements MessageListener {
             //获取数据行消息，分为INSERT、DELETE、UPDATE和其他
             BoardChute boardChute = BinLakeUtils.copyByList(entryMessage, BoardChute.class);
             if (boardChute == null) {
-                logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", JsonHelper.toJson(entryMessage));
+//                logger.error("BoardChuteConsumer consume -->JSON转换后为空，内容为【{}】", JsonHelper.toJson(entryMessage));
                 continue;
             }
             if (boardChute.getStatus()!=0){

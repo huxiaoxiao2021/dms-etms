@@ -112,7 +112,10 @@ public class TextConstants {
      */
     public static final String B2B_TKZH ="特快重货";
 
-
+    /**
+     * 当wbs40=2 && 80=D时，赋值“特惠泡货”
+     */
+    public static final String B2B_THPH ="特惠泡货";
     /**
      * Waybill_sign54=2生鲜行业 且Waybill_sign40=2 纯配快运零担 且Waybill_sign80=6 且118=2：  城配整车
      */
