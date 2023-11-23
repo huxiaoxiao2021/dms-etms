@@ -369,7 +369,8 @@
              create_user_name,
              create_time,
              floor,
-             extend_info
+             extend_info,
+             task_biz_type                          
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
@@ -396,7 +397,8 @@
             #{item.createUserName},
             #{item.createTime},
             #{item.floor},
-            #{item.extendInfo}
+            #{item.extendInfo},
+            #{item.taskBizType}
             )
         </foreach>
     </insert>
