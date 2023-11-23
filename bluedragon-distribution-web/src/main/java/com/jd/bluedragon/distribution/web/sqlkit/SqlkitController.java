@@ -276,7 +276,7 @@ public class SqlkitController {
 			String sql = sqlkit.getSqlContent().trim().replaceAll("\r", "").replaceAll("\n", "");
 
 			connection = this.dataSource.getConnection();
-			
+
 			if (sql.toLowerCase().startsWith("select")) {
 				pager = setPager(pager);
 				setTotalSize(pager, connection, sql);
@@ -306,9 +306,12 @@ public class SqlkitController {
 			        || sql.toLowerCase().startsWith("insert")) {
 				if (SqlkitController.modifyUsers.contains(erpUser.getUserCode().toLowerCase())) {
                     pstmt = connection.prepareStatement(sql);
-					int changeRows = pstmt.executeUpdate();
-//					connection.commit();
-					model.addAttribute("message", "影响行数" + changeRows);
+					pstmt.execute();
+					ResultSet resultSet1 = pstmt.getResultSet();
+					if(resultSet1.last()) {
+						int rowCount = resultSet1.getRow();
+						model.addAttribute("message", "影响行数" + rowCount);
+					}
 					log.info("访问sqlkit/toView用户erp账号:[{}]执行sql[{}]",erpUser.getUserCode(), sql);
 				} else {
 					model.addAttribute("message", "你没有权限执行update/insert");
