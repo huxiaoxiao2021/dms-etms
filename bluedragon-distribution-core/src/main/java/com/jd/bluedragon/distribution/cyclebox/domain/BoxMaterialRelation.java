@@ -58,15 +58,6 @@ public class BoxMaterialRelation {
      */
     private Date ts;
 
-
-    public String getSiteName() {
-        return siteName;
-    }
-
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
-    }
-
     public Long getId() {
         return id;
     }
