@@ -995,4 +995,8 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!-- 封车取消封车状态同步新版发货任务 -->
+    <bean id="sealSyncOpenCloseSendTaskProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.sealSyncOpenCloseSendTask}"/>
+    </bean>
 </beans>

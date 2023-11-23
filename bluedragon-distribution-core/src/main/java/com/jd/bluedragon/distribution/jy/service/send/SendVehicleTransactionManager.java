@@ -13,25 +13,30 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.jy.dao.send.JySendTransferLogDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
+import com.jd.bluedragon.distribution.jy.dto.task.SealSyncOpenCloseSendTaskDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.summary.JySealStatisticsSummaryService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.enums.JySendTaskTypeEnum;
 import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -68,6 +73,7 @@ import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSource
 public class SendVehicleTransactionManager {
 
     private static final Logger log = LoggerFactory.getLogger(SendVehicleTransactionManager.class);
+    private static final String DEFAULT_USER = "sys";
 
     @Autowired
     private JyBizTaskSendVehicleService taskSendVehicleService;
@@ -109,6 +115,13 @@ public class SendVehicleTransactionManager {
     @Autowired
     private JySealStatisticsSummaryService statisticsSummaryService;
 
+    @Autowired
+    private JySendTransferLogDao jySendTransferLogDao;
+
+    @Autowired
+    private JyVehicleSendRelationService jyVehicleSendRelationService;
+    @Autowired
+    private NewSealVehicleService newsealVehicleService;
 
 
     /**
@@ -697,4 +710,104 @@ public class SendVehicleTransactionManager {
         }
         return true;
     }
+    /**
+     * 调用场景： 消费封车消息时，根据封车批次反查jy发货任务，将未封车任务状态置为封车
+     *  解决问题：非新版app发货岗封车后，新版发货任务状态依然未封车
+     * @param detailBizId
+     * @param taskSend
+     * @param myBody
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.syncSendTaskSealStatusHandler",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean syncSendTaskSealStatusHandler(String detailBizId, JyBizTaskSendVehicleEntity taskSend, SealSyncOpenCloseSendTaskDto myBody) {
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = taskSendVehicleDetailService.findByBizId(detailBizId);
+        //从未封车（待发货、发货中、待封车）改为封车状态
+        if(!JyBizTaskSendDetailStatusEnum.TO_SEND.getCode().equals(taskSendDetail.getVehicleStatus()) && !JyBizTaskSendDetailStatusEnum.SENDING.getCode().equals(taskSendDetail.getVehicleStatus()) && !JyBizTaskSendDetailStatusEnum.TO_SEAL.getCode().equals(taskSendDetail.getVehicleStatus())) {
+            if(log.isInfoEnabled()) {
+                log.info("封车同步新版发货任务数据，任务{}|{}状态为{}，不做处理(仅处理未封车状态)", taskSendDetail.getSendVehicleBizId(), taskSendDetail.getBizId(), taskSendDetail.getVehicleStatus());
+            }
+            return true;
+        }
+        //查看该流向下是否多批次，如果多批次需要保证每个批次都封车才修改状态
+        List<String> batchCodesList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(taskSendDetail.getBizId());
+        if(!CollectionUtils.isEmpty(batchCodesList)) {
+            for(String batchCode : batchCodesList) {
+                if(myBody.getSingleBatchCode().equals(batchCode)) {
+                   continue;
+                }
+                if(!newsealVehicleService.newCheckSendCodeSealed(batchCode, new StringBuffer())) {
+                    if(log.isInfoEnabled()) {
+                        log.info("发货流向【】下有{}个批次，且存在未封车批次【】，状态不做变更", taskSendDetail.getBizId(), batchCodesList.size(), batchCode);
+                    }
+                    return true;
+                }
+            }
+        }
+        //发货主表
+        taskSend.setUpdateTime(new Date());
+        taskSend.setUpdateUserErp(DEFAULT_USER);
+        taskSend.setUpdateUserName(DEFAULT_USER);
+        //发货明细表
+        taskSendDetail.setSealCarTime(new Date(myBody.getOperateTime()));
+        taskSendDetail.setUpdateTime(taskSend.getUpdateTime());
+        taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
+        taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
+        //发货航空表（特殊场景）
+        JyBizTaskSendAviationPlanEntity aviationPlanEntity = null;
+        if(JySendTaskTypeEnum.AVIATION.getCode().equals(taskSendDetail.getTaskType())) {
+            JyBizTaskSendAviationPlanEntity sendAviationPlanEntity = jyBizTaskSendAviationPlanService.findByBizId(taskSend.getBizId());
+            //只处理未发货
+            if(!Objects.isNull(sendAviationPlanEntity) && (JyBizTaskSendDetailStatusEnum.TO_SEND.getCode().equals(taskSendDetail.getVehicleStatus()) || JyBizTaskSendDetailStatusEnum.SENDING.getCode().equals(taskSendDetail.getVehicleStatus()) || JyBizTaskSendDetailStatusEnum.TO_SEAL.getCode().equals(taskSendDetail.getVehicleStatus()))){
+                aviationPlanEntity = new JyBizTaskSendAviationPlanEntity();
+                aviationPlanEntity.setTaskStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());//航空任务不存在主子状态不一致场景，不需要计算主任务取最小子任务状态，所有表状态相同，直接置为封车状态
+                aviationPlanEntity.setUpdateTime(taskSend.getUpdateTime());
+                aviationPlanEntity.setUpdateUserName(taskSend.getUpdateUserName());
+                aviationPlanEntity.setUpdateUserErp(taskSend.getUpdateUserErp());
+                aviationPlanEntity.setBizId(taskSend.getBizId());
+            }
+        }
+
+        sendVehicleTransactionManager.updateTaskStatus(taskSend, taskSendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
+        if(!Objects.isNull(aviationPlanEntity)) {
+            jyBizTaskSendAviationPlanService.updateStatus(aviationPlanEntity);
+        }
+
+        return true;
+    }
+
+
+    /**
+     * jy主子发货任务删除：yn=0
+     * @param detailBizId
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.deleteSendTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean deleteSendTask(String detailBizId) {
+        //封车批次关联的bizId是自建任务：yn=0
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = taskSendVehicleDetailService.findByBizId(detailBizId);
+        if(Objects.isNull(taskSendDetail)) {
+            return true;
+        }
+        Date now = new Date();
+        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
+        entity.setBizId(taskSendDetail.getSendVehicleBizId());
+        entity.setYn(Constants.YN_NO);
+        entity.setUpdateTime(now);
+        entity.setUpdateUserErp(DEFAULT_USER);
+        entity.setUpdateUserName(DEFAULT_USER);
+        taskSendVehicleService.updateSendVehicleTask(entity);
+        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
+        detailEntity.setSendVehicleBizId(taskSendDetail.getSendVehicleBizId());
+        detailEntity.setYn(Constants.YN_NO);
+        detailEntity.setUpdateTime(now);
+        detailEntity.setUpdateUserErp(DEFAULT_USER);
+        detailEntity.setUpdateUserName(DEFAULT_USER);
+        taskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+        return true;
+    }
+
 }
