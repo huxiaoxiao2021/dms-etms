@@ -55,6 +55,8 @@ public class BoxPrintServiceImpl implements BoxPrintService{
     @Autowired
     private CrossBoxService crossBoxService;
 
+    public static final int batchCreateBoxMaxCount = 200;
+
     /**
      * 创建箱号
      *
@@ -197,6 +199,10 @@ public class BoxPrintServiceImpl implements BoxPrintService{
         // 排除非法箱号类型
         if (this.boxTypeCheckSwitchOn() && !BoxSubTypeEnum.ENUM_LIST.contains(createBoxReq.getSubType())) {
             return checkResult.toFail("箱号子类型不合法!", CreateBoxInfo.Code_boxTypeIllegal);
+        }
+
+        if(createBoxReq.getQuantity() > batchCreateBoxMaxCount){
+            return checkResult.toFail(String.format("一次最多生成%s个", batchCreateBoxMaxCount));
         }
         return checkResult;
     }
