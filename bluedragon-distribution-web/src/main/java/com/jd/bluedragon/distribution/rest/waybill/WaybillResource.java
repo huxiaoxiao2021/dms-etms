@@ -88,8 +88,8 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSON;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.etms.waybill.dto.WaybillRegionDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
@@ -1910,16 +1910,16 @@ public class WaybillResource {
         if(log.isDebugEnabled()){
             log.debug("换单前获取信息接口入参：{}",JsonHelper.toJson(request));
         }
-		
+
 		log.info("开始校验运单是否撤销拦截：{}",request.getWaybillCode());
-		if (request.getNeedCheckRevokeIntercept() != null && 
-				request.getNeedCheckRevokeIntercept() && 
+		if (request.getNeedCheckRevokeIntercept() != null &&
+				request.getNeedCheckRevokeIntercept() &&
 				waybillCancelService.checkWaybillRevokeIntercept(request.getWaybillCode())){
 			invokeResult.setCode(InvokeResult.REVOKE_INTERCEPT_CONFIRM_CODE);
 			invokeResult.setMessage(InvokeResult.REVOKE_INTERCEPT_CONFIRM_MESSAGE);
 			return invokeResult;
 		}
-		
+
 		try {
 			// fill request
 			request.setReverseReasonCode(queryReverseReasonCode(request.getWaybillCode()));

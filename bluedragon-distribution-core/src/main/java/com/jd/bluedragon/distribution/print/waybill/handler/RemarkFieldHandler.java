@@ -13,7 +13,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -32,7 +32,7 @@ import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTyp
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SMS_REVERSE_CHANGE_PRINT;
 
 /**
- * 
+ *
  * @ClassName: RemarkFieldHandler
  * @Description: 包裹标签打印-备注字段处理
  * @author: wuyoude
@@ -42,7 +42,7 @@ import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTyp
 @Service
 public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(RemarkFieldHandler.class);
-    
+
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
@@ -58,7 +58,7 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-    
+
 	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.RemarkFieldHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
 	public JdResult<String> handle(WaybillPrintContext context) {

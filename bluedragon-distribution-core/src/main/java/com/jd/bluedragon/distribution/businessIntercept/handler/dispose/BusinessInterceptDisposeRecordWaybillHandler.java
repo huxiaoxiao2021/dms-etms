@@ -7,7 +7,7 @@ import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;

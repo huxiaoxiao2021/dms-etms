@@ -21,7 +21,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.vos.dto.CommonDto;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import org.apache.commons.lang.StringUtils;
@@ -35,7 +35,7 @@ import javax.annotation.Resource;
 import java.util.*;
 
 /**
- * 
+ *
  * @ClassName: OfflineCoreTaskExecutor
  * @Description: 离线worker处理器
  * @author: wuyoude
@@ -70,7 +70,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
-    
+
 	@Resource(name = "offlineArReceiveService")
 	private OfflineService offlineArReceiveService;
     @Autowired

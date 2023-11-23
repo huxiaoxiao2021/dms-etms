@@ -14,7 +14,7 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.StopoverInfoDto;
 import com.jd.etms.vos.dto.StopoverQueryDto;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
