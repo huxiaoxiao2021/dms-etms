@@ -16,8 +16,8 @@ public class SysConfigResourceTestCase {
 		SysConfig sysConfig = new SysConfig();
 
 		sysConfig.setConfigName("special.password.2015");
-		sysConfig.setOldPassword("111111");
-		sysConfig.setNewPassword("222222");
+//		sysConfig.setOldPassword("111111");
+//		sysConfig.setNewPassword("222222");
 
 		SysConfigResponse response = this.template.postForObject(url, sysConfig,
 		        SysConfigResponse.class);

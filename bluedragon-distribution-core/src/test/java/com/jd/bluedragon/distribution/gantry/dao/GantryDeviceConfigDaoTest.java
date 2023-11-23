@@ -36,7 +36,7 @@ public class GantryDeviceConfigDaoTest extends AbstractDaoIntegrationTest{
         gantryDevice.setSiteName("南京配送中心");
         gantryDevice.setSerialNumber("11111");
         gantryDevice.setSupplier("xinshijiang");
-        gantryDevice.setToken("ERHWQEJRJWERDFDFHEWREW");
+//        gantryDevice.setToken("ERHWQEJRJWERDFDFHEWREW");
         Assert.assertEquals(1, gantryDeviceDao.addGantry(gantryDevice));
     }
 
