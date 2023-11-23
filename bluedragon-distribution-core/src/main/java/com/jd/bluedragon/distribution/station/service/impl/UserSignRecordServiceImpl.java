@@ -1261,7 +1261,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return minStartDate;
 	}
 
-	private Date getMaxStartDate(Date maxStartDate, Date startDate, Integer waveType) {
+	private Date getMaxStartDate(Date maxStartDate, Date startDate) {
 		if (maxStartDate == null) {
 			return startDate;
 		} else {
@@ -1402,17 +1402,17 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			// 如果是白班
 			if (WaveTypeEnum.DAY.getCode().equals(scheduleType)) {
 				minDayStartDate = getMinStartDate(minDayStartDate, startDate, minStartTimeMap, startTime, WaveTypeEnum.DAY.getCode());
-				maxDayStartDate = getMaxStartDate(maxDayStartDate, startDate, WaveTypeEnum.DAY.getCode());
+				maxDayStartDate = getMaxStartDate(maxDayStartDate, startDate);
 				maxDayEndDate = getMaxEndDate(maxDayEndDate, endDate, maxEndTimeMap, endTime, WaveTypeEnum.DAY.getCode());
 				// 如果是中班
 			} else if (WaveTypeEnum.MIDDLE.getCode().equals(scheduleType)) {
 				minMiddleStartDate = getMinStartDate(minMiddleStartDate, startDate, minStartTimeMap, startTime, WaveTypeEnum.MIDDLE.getCode());
-				maxMiddleStartDate = getMaxStartDate(maxMiddleStartDate, startDate, WaveTypeEnum.MIDDLE.getCode());
+				maxMiddleStartDate = getMaxStartDate(maxMiddleStartDate, startDate);
 				maxMiddleEndDate = getMaxEndDate(maxMiddleEndDate, endDate, maxEndTimeMap, endTime, WaveTypeEnum.DAY.getCode());
 				// 如果是晚班
 			} else if (WaveTypeEnum.NIGHT.getCode().equals(scheduleType)) {
 				minNightStartDate = getMinStartDate(minNightStartDate, startDate, minStartTimeMap, startTime, WaveTypeEnum.NIGHT.getCode());
-				maxNightStartDate = getMaxStartDate(maxNightStartDate, startDate, WaveTypeEnum.NIGHT.getCode());
+				maxNightStartDate = getMaxStartDate(maxNightStartDate, startDate);
 				maxNightEndDate = getMaxEndDate(maxNightEndDate, endDate, maxEndTimeMap, endTime, WaveTypeEnum.DAY.getCode());
 			}
 		}
