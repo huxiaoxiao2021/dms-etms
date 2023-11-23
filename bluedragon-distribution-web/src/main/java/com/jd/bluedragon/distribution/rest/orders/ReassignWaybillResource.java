@@ -66,7 +66,7 @@ public class ReassignWaybillResource {
                 return new JdResponse(JdResponse.CODE_WRONG_STATUS, processDto.getMsg());
             }
         }catch (Exception e){
-            log.error("ReassignWaybillResource.returnPack ", e);
+            log.error("ReassignWaybillResource.returnPack exception ", e);
         }
 		JdResult<Boolean> jdResult = reassignWaybillService.backScheduleAfter(request);
 		if (jdResult.isSucceed()) {
