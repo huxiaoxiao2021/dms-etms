@@ -1565,6 +1565,10 @@ public class UccPropertyConfiguration{
      */
     private Integer reverseExchangeCount;
 
+    /**
+     * 封车或取消封车时同步新版app发货任务状态开关: 默认 ： 1, 开启
+     */
+    private String sealSyncOpenCloseSendTaskSwitch;
 
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
@@ -4129,4 +4133,12 @@ public class UccPropertyConfiguration{
     @Setter
     @Getter
     private String superiorErpKV;
+
+    public String getSealSyncOpenCloseSendTaskSwitch() {
+        return sealSyncOpenCloseSendTaskSwitch;
+    }
+
+    public void setSealSyncOpenCloseSendTaskSwitch(String sealSyncOpenCloseSendTaskSwitch) {
+        this.sealSyncOpenCloseSendTaskSwitch = sealSyncOpenCloseSendTaskSwitch;
+    }
 }
