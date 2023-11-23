@@ -285,7 +285,8 @@ public class SqlkitController {
                 pstmt.setQueryTimeout(StringHelper.isEmpty(SqlkitController.STATEMENT_TIME_OUT)?30:Integer.valueOf(SqlkitController.STATEMENT_TIME_OUT));
                 pstmt.setInt(1, pager.getStartIndex());
                 pstmt.setInt(2, pager.getPageSize());
-				resultSet = pstmt.executeQuery();
+				pstmt.execute();
+				resultSet = pstmt.getResultSet();
 				log.info("访问sqlkit/toView用户erp账号:[{}]执行sql[{}]",erpUser.getUserCode(), sql);
 				ResultSetMetaData rsmd = resultSet.getMetaData();
 				int columnCount = rsmd.getColumnCount();// 获得列数
@@ -371,7 +372,8 @@ public class SqlkitController {
             sqlBuilder.append(sql);
             sqlBuilder.append(") AS b");
             pstmt = connection.prepareStatement(sqlBuilder.toString());
-			resultSet = pstmt.executeQuery();
+			pstmt.execute();
+			resultSet = pstmt.getResultSet();
 			resultSet.next();
 			pager.setTotalSize(resultSet.getInt(1));
 		} finally {
