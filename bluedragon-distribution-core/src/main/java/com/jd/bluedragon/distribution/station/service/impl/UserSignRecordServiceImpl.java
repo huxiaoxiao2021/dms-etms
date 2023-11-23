@@ -483,6 +483,16 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private UserSignRecord queryLastUnSignOutRecord(UserSignRecordQuery query) {
 		return fillOtherInfo(userSignRecordDao.queryLastUnSignOutRecord(query));
 	}
+
+	/**
+	 * 忽略身份证末尾字母大小写查询签到记录
+	 * 查最新一条未签退记录
+	 * @param userCodeList
+	 * @return
+	 */
+	private UserSignRecord queryLastUnSignOutRecordIgnoreCase(List<String> userCodeList) {
+		return fillOtherInfo(userSignRecordDao.queryLastUnSignOutRecordIgnoreCase(userCodeList));
+	}
 	@Override
 	public Result<UserSignRecordReportSumVo> queryReportSum(UserSignRecordQuery query) {
 		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
@@ -903,12 +913,18 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail(gridResult.getMessage());
 			return result;
 		}
-		WorkStationGrid gridInfo = gridResult.getData();
-		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
-		lastSignRecordQuery.setUserCode(userSignRequest.getUserCode());
-		//查询签到记录，自动签退
-        UserSignRecordData lastSignRecord = this.toUserSignRecordData(this.queryLastUnSignOutRecord(lastSignRecordQuery));
 
+		WorkStationGrid gridInfo = gridResult.getData();
+		//查询签到记录，自动签退
+		UserSignRecordData lastSignRecord;
+		if (BusinessUtil.isIdCardNo(userSignRequest.getUserCode()) && dmsConfigManager.getUccPropertyConfiguration().getUserSignIgnoreCaseSwitch()) {
+			List<String> userCodeList = Arrays.asList(userSignRequest.getUserCode(), userSignRequest.getUserCode().toLowerCase());
+			lastSignRecord = this.toUserSignRecordData(this.queryLastUnSignOutRecordIgnoreCase(userCodeList));
+		} else {
+			UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
+			lastSignRecordQuery.setUserCode(userSignRequest.getUserCode());
+		 	lastSignRecord = this.toUserSignRecordData(this.queryLastUnSignOutRecord(lastSignRecordQuery));
+		}
         boolean needSignIn = true;
         boolean needSignOut = false;
         boolean changeGrid = false;
@@ -987,8 +1003,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				result.toFail("请扫描正确的人员码！");
 				return result;
 			}
+			String userCode = BusinessUtil.getUserCodeFromScanUserCode(scanUserCode);
+			// 身份证字母转大写
+			if (BusinessUtil.isIdCardNo(userCode)) {
+				userCode = userCode.toUpperCase();
+			}
 			signRequest.setJobCode(BusinessUtil.getJobCodeFromScanUserCode(scanUserCode));
-			signRequest.setUserCode(BusinessUtil.getUserCodeFromScanUserCode(scanUserCode));
+			signRequest.setUserCode(userCode);
 		}else if(StringHelper.isEmpty(signRequest.getUserCode())) {
 			result.toFail("用户编码不能为空！");
 			return result;
