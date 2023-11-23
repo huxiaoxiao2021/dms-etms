@@ -2183,7 +2183,7 @@ public class Constants {
      * 运输内网账号类型
      */
     public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
-    
+
     /**
      * oss链接内外网key
      */
@@ -2194,4 +2194,9 @@ public class Constants {
      * 配置信息-自动签退超过多少小时未签退的数据
      */
     public static final String SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS="sys.config.autoHandleSignInRecord.notSignedOutRecordMoreThanHours";
+
+    /**
+     * 集包岗-任务锁前缀
+     */
+    public static final String JY_COLLECT_BOX_LOCK_PREFIX  = "jy_collect_package_box_lock_%s";
 }

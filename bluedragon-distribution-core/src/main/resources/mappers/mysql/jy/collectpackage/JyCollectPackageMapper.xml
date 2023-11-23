@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.collectpackage.JyCollectPackageDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="biz_id" jdbcType="VARCHAR" property="bizId" />
+    <result column="box_code" jdbcType="VARCHAR" property="boxCode" />
+    <result column="package_code" jdbcType="VARCHAR" property="packageCode" />
+    <result column="start_site_id" jdbcType="BIGINT" property="startSiteId" />
+    <result column="start_site_name" jdbcType="VARCHAR" property="startSiteName" />
+    <result column="end_site_id" jdbcType="BIGINT" property="endSiteId" />
+    <result column="end_site_name" jdbcType="VARCHAR" property="endSiteName" />
+    <result column="box_end_site_id" jdbcType="BIGINT" property="boxEndSiteId" />
+    <result column="box_end_site_name" jdbcType="VARCHAR" property="boxEndSiteName" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
+    <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
+    <result column="update_user_erp" jdbcType="VARCHAR" property="updateUserErp" />
+    <result column="update_user_name" jdbcType="VARCHAR" property="updateUserName" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="intercept_flag" jdbcType="BIT" property="interceptFlag" />
+    <result column="force_flag" jdbcType="BIT" property="forceFlag" />
+    <result column="yn" jdbcType="BIT" property="yn" />
+    <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, biz_id, box_code, package_code, start_site_id, start_site_name, end_site_id, 
+    end_site_name, box_end_site_id, box_end_site_name, create_user_erp, create_user_name, 
+    update_user_erp, update_user_name, create_time, update_time, intercept_flag, force_flag, 
+    yn, ts
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from jy_collect_package
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from jy_collect_package
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity">
+    insert into jy_collect_package (id, biz_id, box_code, 
+      package_code, start_site_id, start_site_name, 
+      end_site_id, end_site_name, box_end_site_id, 
+      box_end_site_name, create_user_erp, create_user_name, 
+      update_user_erp, update_user_name, create_time, 
+      update_time, intercept_flag, force_flag, 
+      yn, ts)
+    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR}, 
+      #{packageCode,jdbcType=VARCHAR}, #{startSiteId,jdbcType=BIGINT}, #{startSiteName,jdbcType=VARCHAR}, 
+      #{endSiteId,jdbcType=BIGINT}, #{endSiteName,jdbcType=VARCHAR}, #{boxEndSiteId,jdbcType=BIGINT}, 
+      #{boxEndSiteName,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, 
+      #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{interceptFlag,jdbcType=BIT}, #{forceFlag,jdbcType=BIT}, 
+      #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity">
+    insert into jy_collect_package
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="bizId != null">
+        biz_id,
+      </if>
+      <if test="boxCode != null">
+        box_code,
+      </if>
+      <if test="packageCode != null">
+        package_code,
+      </if>
+      <if test="startSiteId != null">
+        start_site_id,
+      </if>
+      <if test="startSiteName != null">
+        start_site_name,
+      </if>
+      <if test="endSiteId != null">
+        end_site_id,
+      </if>
+      <if test="endSiteName != null">
+        end_site_name,
+      </if>
+      <if test="boxEndSiteId != null">
+        box_end_site_id,
+      </if>
+      <if test="boxEndSiteName != null">
+        box_end_site_name,
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp,
+      </if>
+      <if test="createUserName != null">
+        create_user_name,
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp,
+      </if>
+      <if test="updateUserName != null">
+        update_user_name,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="interceptFlag != null">
+        intercept_flag,
+      </if>
+      <if test="forceFlag != null">
+        force_flag,
+      </if>
+      <if test="yn != null">
+        yn,
+      </if>
+      <if test="ts != null">
+        ts,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="bizId != null">
+        #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="boxCode != null">
+        #{boxCode,jdbcType=VARCHAR},
+      </if>
+      <if test="packageCode != null">
+        #{packageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="startSiteId != null">
+        #{startSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="startSiteName != null">
+        #{startSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="endSiteId != null">
+        #{endSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="endSiteName != null">
+        #{endSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="boxEndSiteId != null">
+        #{boxEndSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="boxEndSiteName != null">
+        #{boxEndSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="interceptFlag != null">
+        #{interceptFlag,jdbcType=BIT},
+      </if>
+      <if test="forceFlag != null">
+        #{forceFlag,jdbcType=BIT},
+      </if>
+      <if test="yn != null">
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity">
+    update jy_collect_package
+    <set>
+      <if test="bizId != null">
+        biz_id = #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="boxCode != null">
+        box_code = #{boxCode,jdbcType=VARCHAR},
+      </if>
+      <if test="packageCode != null">
+        package_code = #{packageCode,jdbcType=VARCHAR},
+      </if>
+      <if test="startSiteId != null">
+        start_site_id = #{startSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="startSiteName != null">
+        start_site_name = #{startSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="endSiteId != null">
+        end_site_id = #{endSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="endSiteName != null">
+        end_site_name = #{endSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="boxEndSiteId != null">
+        box_end_site_id = #{boxEndSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="boxEndSiteName != null">
+        box_end_site_name = #{boxEndSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="interceptFlag != null">
+        intercept_flag = #{interceptFlag,jdbcType=BIT},
+      </if>
+      <if test="forceFlag != null">
+        force_flag = #{forceFlag,jdbcType=BIT},
+      </if>
+      <if test="yn != null">
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity">
+    update jy_collect_package
+    set biz_id = #{bizId,jdbcType=VARCHAR},
+      box_code = #{boxCode,jdbcType=VARCHAR},
+      package_code = #{packageCode,jdbcType=VARCHAR},
+      start_site_id = #{startSiteId,jdbcType=BIGINT},
+      start_site_name = #{startSiteName,jdbcType=VARCHAR},
+      end_site_id = #{endSiteId,jdbcType=BIGINT},
+      end_site_name = #{endSiteName,jdbcType=VARCHAR},
+      box_end_site_id = #{boxEndSiteId,jdbcType=BIGINT},
+      box_end_site_name = #{boxEndSiteName,jdbcType=VARCHAR},
+      create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      intercept_flag = #{interceptFlag,jdbcType=BIT},
+      force_flag = #{forceFlag,jdbcType=BIT},
+      yn = #{yn,jdbcType=BIT},
+      ts = #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="queryJyCollectPackageRecord"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from jy_collect_package
+    where yn = 1 and package_code =#{packageCode} and start_site_id =#{startSiteId} and intercept_flag =0
+    <if test="bizId != null">
+      and biz_id = #{bizId,jdbcType=VARCHAR}
+    </if>
+    limit 1;
+  </select>
+</mapper>

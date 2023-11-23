@@ -679,6 +679,11 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         return result;
     }
 
+    @Override
+    public List<BoxMaterialRelation> getBoxMaterialRelationList(List<String> boxCodeList) {
+        return boxMaterialRelationService.getDataByBoxCodeList(boxCodeList);
+    }
+
 
     //获取开关状态
     private boolean getBCFilterFlag(Integer siteCode){
