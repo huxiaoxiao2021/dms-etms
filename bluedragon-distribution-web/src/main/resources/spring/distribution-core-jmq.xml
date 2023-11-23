@@ -943,4 +943,15 @@
         <property name="timeout" value="3000" />
     </bean>
 
+    <!-- 箱号首次打印 -->
+    <bean id="boxFirstPrintProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.boxFirstPrint}" />
+        <property name="timeout" value="3000" />
+    </bean>
+
+    <!-- 异步取消箱号 -->
+    <bean id="batchCancelCollectPackageProduce" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.batchCancelCollectPackageProduce}" />
+        <property name="timeout" value="3000" />
+    </bean>
 </beans>

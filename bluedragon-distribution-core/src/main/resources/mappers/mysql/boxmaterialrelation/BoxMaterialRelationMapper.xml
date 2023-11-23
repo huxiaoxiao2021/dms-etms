@@ -131,4 +131,17 @@
           AND  material_code =  #{materialCode,jdbcType=VARCHAR}
           AND  box_code = #{boxCode,jdbcType=VARCHAR}
     </update>
+
+    <select id="getDataByBoxCodeList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from box_material_relation
+        where
+        box_code in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item, jdbcType=VARCHAR}
+        </foreach>
+        AND bind_flag = 1
+        AND is_delete = 0
+    </select>
 </mapper>

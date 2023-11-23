@@ -92,4 +92,7 @@ public class BoxMaterialRelationDao  extends BaseDao<BoxMaterialRelation> {
     }
 
 
+    public List<BoxMaterialRelation> getDataByBoxCodeList(List<String> boxCodeList) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getDataByBoxCodeList", boxCodeList);
+    }
 }

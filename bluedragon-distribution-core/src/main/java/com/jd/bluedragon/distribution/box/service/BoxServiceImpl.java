@@ -134,6 +134,10 @@ public class BoxServiceImpl implements BoxService {
 	@Value("${box.addBatch.size:20}")
 	private Integer boxAddBatchSize;
 
+	@Autowired
+	@Qualifier(value = "boxFirstPrintProducer")
+	private DefaultJMQProducer boxFirstPrintProducer;
+	
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
         //持久化
@@ -812,12 +816,31 @@ public class BoxServiceImpl implements BoxService {
             availableBoxes = this.batchAdd(this.toBoxWithRouter(request, routInfoRes));
         }
         response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
-
+		
+		// 打印客户端创建 并且是首次打印 推送箱号打印消息
+		if (BoxSystemTypeEnum.PRINT_CLIENT.getCode().equals(systemType)) {
+			pushBoxPrintMq(availableBoxes);
+		}
+		
         this.buildBoxPrintInfo(request.getCreateSiteCode(), request.getReceiveSiteCode(), response);
         return response;
     }
 
-    /**
+	private void pushBoxPrintMq(List<Box> availableBoxes) {
+		if (CollectionUtils.isEmpty(availableBoxes)) {
+			return;
+		}
+		try{
+			for (Box box : availableBoxes) {
+				log.info("推送箱号mq:{}",JsonHelper.toJson(box));
+				boxFirstPrintProducer.sendOnFailPersistent(box.getCode(), JsonHelper.toJson(box));
+			}
+		}catch (Exception e) {
+			log.info("推送箱号打印消息失败，消息体{}",JsonHelper.toJson(availableBoxes));
+		}
+	}
+
+	/**
      * 构建目的地打印属性
      *
      * @param createSiteCode

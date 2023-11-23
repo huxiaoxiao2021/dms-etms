@@ -54,4 +54,11 @@ public interface BoxMaterialRelationService {
     int updateUnBindByMaterialCodeAndBoxCode(BoxMaterialRelation boxMaterialRelation);
 
     BoxMaterialRelation getBoxMaterialRelationByMaterialCodeAndBoxcode(String boxCode, String materialCode);
+
+    /**
+     * 根据箱号批量获取绑定信息
+     * @param boxCodeList
+     * @return
+     */
+    List<BoxMaterialRelation> getDataByBoxCodeList(List<String> boxCodeList);
 }
