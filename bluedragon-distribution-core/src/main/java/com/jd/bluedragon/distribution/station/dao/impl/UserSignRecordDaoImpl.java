@@ -223,4 +223,8 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryFirstUserSignRecordData", query);
 	}
 
+	@Override
+	public UserSignRecord queryLastUnSignOutRecordIgnoreCase(List<String> list) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryLastUnSignOutRecordIgnoreCase", list);
+	}
 }

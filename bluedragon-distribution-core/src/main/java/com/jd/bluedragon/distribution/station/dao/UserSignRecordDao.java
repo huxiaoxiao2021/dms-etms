@@ -206,4 +206,6 @@ public interface UserSignRecordDao {
 	 */
 	UserSignRecordData queryFirstUserSignRecordData(UserSignQueryRequest query);
 
+
+	UserSignRecord queryLastUnSignOutRecordIgnoreCase(List<String> list);
 }
