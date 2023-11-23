@@ -58,6 +58,8 @@ public class BoxMaterialRelationDto {
      */
     private Date ts;
 
+    private String siteName;
+
     public Long getId() {
         return id;
     }
@@ -82,7 +84,13 @@ public class BoxMaterialRelationDto {
         this.materialCode = materialCode;
     }
 
+    public String getSiteName() {
+        return siteName;
+    }
 
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
 
     public Integer getSiteCode() {
         return siteCode;
