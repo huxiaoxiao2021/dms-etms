@@ -33,6 +33,7 @@ public class BoxMaterialRelation {
      */
     private Integer siteCode;
 
+    private String siteName;
     /**
      * 绑定标识 1 绑定 2 解绑
      */
@@ -57,6 +58,15 @@ public class BoxMaterialRelation {
      * 时间戳
      */
     private Date ts;
+
+
+    public String getSiteName() {
+        return siteName;
+    }
+
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
 
     public Long getId() {
         return id;

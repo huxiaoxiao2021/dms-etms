@@ -91,5 +91,11 @@ public class BoxMaterialRelationDao  extends BaseDao<BoxMaterialRelation> {
 
     }
 
+    public List<BoxMaterialRelation> findByMaterialCodeAndBoxCode(Map<String, Object> map) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findByMaterialCodeAndBoxCode", map);
+    }
 
+    public int countByMaterialCodeAndBoxCode(Map<String, Object> map) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countByMaterialCodeAndBoxCode", map);
+    }
 }
