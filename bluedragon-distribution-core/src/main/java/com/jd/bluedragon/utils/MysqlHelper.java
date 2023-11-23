@@ -143,7 +143,8 @@ public class MysqlHelper {
 
         try {
             ps = conn.prepareStatement(sql);
-            try(ResultSet rs = ps.executeQuery()){
+            ps.execute();
+            try(ResultSet rs = ps.getResultSet()){
                 ResultSetMetaData meta = rs.getMetaData();
                 List<String> nameList = new ArrayList<String>();
                 for (int i = 0; i < meta.getColumnCount(); i++) {
