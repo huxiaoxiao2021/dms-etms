@@ -84,4 +84,12 @@ public interface BoxService {
     BoxResponse commonGenBox(BoxRequest request, String systemType, boolean isNew);
 
     void computeRouter(List<Map.Entry<Integer, String>> router);
+
+    /**
+     * 判断小件集包功能是否已经推广给当前场地
+     * @param siteCode
+     * @param orgId
+     * @return
+     */
+    boolean checkCollectPackageIfReleasedForSite(Integer orgId,Integer siteCode);
 }
