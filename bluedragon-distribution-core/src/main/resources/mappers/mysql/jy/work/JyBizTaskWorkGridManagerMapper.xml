@@ -816,7 +816,8 @@
         handler_user_position_name,
         handler_position_code,
         process_begin_time,
-        task_biz_type
+        task_biz_type,
+        floor
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
@@ -851,7 +852,8 @@
             #{item.handlerUserPositionName},
             #{item.handlerPositionCode},
             #{item.processBeginTime},
-            #{item.taskBizType}
+            #{item.taskBizType},
+            #{item.floor}
             )
         </foreach>
     </insert>
