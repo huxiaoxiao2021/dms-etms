@@ -17,7 +17,7 @@ import com.jd.eclp.spare.ext.api.inbound.InboundCancelRequest;
 import com.jd.eclp.spare.ext.api.inbound.InboundOrderService;
 import com.jd.eclp.spare.ext.api.inbound.OrderResponse;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.kom.ext.service.OrderExtendService;
 import com.jd.kom.ext.service.domain.request.SoNoItemRequest;
 import com.jd.kom.ext.service.domain.response.ItemInfo;

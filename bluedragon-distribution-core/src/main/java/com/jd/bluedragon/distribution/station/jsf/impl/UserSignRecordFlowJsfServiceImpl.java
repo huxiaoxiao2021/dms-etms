@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,7 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 人员签到表--JsfService接口实现
- * 
+ *
  * @author wuyoude
  * @date 2021年12月30日 14:30:43
  *
@@ -66,7 +66,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 	@Autowired
 	@Qualifier("userSignRecordService")
 	private UserSignRecordService userSignRecordService;
-	
+
 	@Autowired
 	@Qualifier("userSignRecordHistoryService")
 	private UserSignRecordHistoryService userSignRecordHistoryService;
@@ -79,20 +79,20 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 	 */
 	@Value("${beans.userSignRecordFlowJsfService.maxSignRangeHours:18}")
 	private int maxSignRangeHours;
-	
+
 	@Autowired
 	FlowServiceManager flowServiceManager;
-	
+
 	@Autowired
 	private WorkStationGridManager workStationGridManager;
-	
+
 	@Autowired
-	private PositionManager positionManager;	
-	
+	private PositionManager positionManager;
+
 	@Autowired
 	@Qualifier("jyGroupMemberService")
 	private JyGroupMemberService jyGroupMemberService;
-	
+
 	@Autowired
 	@Qualifier("jyGroupService")
 	private JyGroupService jyGroupService;
@@ -104,13 +104,13 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 	 * 流程状态-未完成状态
 	 */
 	private static List<Integer> unCompletedStatus = new ArrayList<Integer>();
-	
+
 	static {
 		hiddenHistoryStatus.add(SignFlowStatusEnum.PENDING_APPROVAL.getCode());
 		hiddenHistoryStatus.add(SignFlowStatusEnum.ADD_COMPLETE.getCode());
 		hiddenHistoryStatus.add(SignFlowStatusEnum.MODIFY_COMPLETE.getCode());
 		hiddenHistoryStatus.add(SignFlowStatusEnum.DELETE_COMPLETE.getCode());
-		
+
 		unCompletedStatus.add(SignFlowStatusEnum.PENDING_APPROVAL.getCode());
 	}
 	@Override
@@ -133,13 +133,13 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 
         String flowKey = FlowConstants.FLOW_CODE_SIGN_MODIFY + Constants.SEPARATOR_VERTICAL_LINE
                 + FlowConstants.FLOW_VERSION + Constants.SEPARATOR_VERTICAL_LINE + System.currentTimeMillis();
-        
+
         UserSignRecordFlow signData= addRequest.getUserSignRecordFlow();
         Integer flowType = signData.getFlowType();
         String flowTypeName = SignFlowTypeEnum.getNameByCode(flowType);
         String flowTitle = "签到数据【"+flowTypeName+"】申请单";
         String flowRemark = "签到数据【"+flowTypeName+"】申请";
-        
+
         List<String> mainColList = new ArrayList<>();
         mainColList.add("ERP|身份证号:" + signData.getUserCode());
         mainColList.add("签到网格、工序:" + signData.getGridName()+"、"+signData.getGridName());
@@ -149,7 +149,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
             mainColList.add("修改后签到时间:" + DateHelper.formatDateTime(signData.getSignInTimeNew()));
             mainColList.add("修改后签退时间:" + DateHelper.formatDateTime(signData.getSignOutTimeNew()));
         }
-        
+
         oaMap.put(FlowConstants.FLOW_OA_JMEMAINCOLLIST,mainColList);
         oaMap.put(FlowConstants.FLOW_OA_JMEREQNAME, flowTitle);
         oaMap.put(FlowConstants.FLOW_OA_JMEREQCOMMENTS, flowRemark);
@@ -223,7 +223,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 				return result;
 			}
 			signDateNew = DateHelper.parseDate(DateHelper.formatDate(signInTimeNew));
-			
+
 			//修改-签到时间范围限制
 			if(SignFlowTypeEnum.MODIFY.getCode().equals(flowType)) {
 				Date signInStart = DateHelper.addHours(signData.getSignInTime(), -DateHelper.ONE_DAY_HOURS);
@@ -237,7 +237,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 					return result;
 				}
 			}
-			
+
 			//查询history签到时长是否重合
 			UserSignRecordFlowQuery checkQuery = new UserSignRecordFlowQuery();
 			checkQuery.setUserCode(addRequest.getUserCode());
@@ -266,7 +266,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 			}else {
 				String msg = "签到失败！";
 				if(newSignResult != null) {
-					msg = newSignResult.getMessage(); 
+					msg = newSignResult.getMessage();
 				}
 				result.toFail(msg);
 				return result;
@@ -277,17 +277,17 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 			signData.setSignOutTimeNew(signOutTimeNew);
 			signData.setSignDateNew(signDateNew);
 		}
-		
+
 		if(!userSignRecordFlowService.checkSignInTime(signData.getSignInTime(),signInTimeNew)) {
 			result.toFail("提交失败，修改时间为上一个计提周期，无法修改！");
 			return result;
 		}
-		
+
 		//存在未审批完成的流程，不允许发起新流程
 		UserSignRecordFlowQuery checkFlowQuery = new UserSignRecordFlowQuery();
 		checkFlowQuery.setUserCode(signData.getUserCode());
 		checkFlowQuery.setFlowStatusList(unCompletedStatus);
-		
+
 		boolean checkFlowFlag = userSignRecordFlowService.checkUnCompletedFlow(checkFlowQuery);
 		if(!checkFlowFlag) {
 			result.toFail("该ERP/身份证号存在未审批的签到流程，审批完成后再提交！");
@@ -310,7 +310,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		flowData.setId(null);
 		flowData.setRefRecordId(signData.getId());
 		return flowData;
-	}	
+	}
 	@Override
 	public Result<PageDto<UserSignRecordFlow>> queryFlowPageList(UserSignRecordFlowQuery query) {
 		Result<PageDto<UserSignRecordFlow>> result = Result.success();
@@ -360,7 +360,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 							continue;
 						}
 						dataList.add(flowData);
-					}					
+					}
 				}
 			}
 			Collections.sort(dataList, new Comparator<UserSignRecordFlow>(){
@@ -402,7 +402,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 		signData.setUserCodeHidden(BusinessUtil.encryptIdCardDoubleStar(signData.getUserCode()));
 		signData.setUserNameHidden(BusinessUtil.encryptIdCard(signData.getUserName()));
 	}
-			
+
 	/**
 	 * 签到记录-加载网格相关数据
 	 * @param signData

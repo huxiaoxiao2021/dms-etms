@@ -12,7 +12,7 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.service.Expr
 import com.jd.bluedragon.distribution.exceptionReport.billException.vo.ExpressBillExceptionReportVo;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.sdk.util.DateUtil;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.apache.commons.collections.CollectionUtils;
@@ -192,4 +192,4 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
         return response;
     }
 }
-    
+

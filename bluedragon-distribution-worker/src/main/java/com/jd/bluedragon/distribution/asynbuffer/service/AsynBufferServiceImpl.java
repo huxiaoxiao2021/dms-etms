@@ -47,7 +47,7 @@ import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
 import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -79,7 +79,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 
     @Autowired
     private InspectionTaskExeStrategy inspectionTaskExeStrategy;
-    
+
 
     public boolean receiveTaskProcess(Task task)
             throws Exception {
@@ -118,12 +118,12 @@ public class AsynBufferServiceImpl implements AsynBufferService {
                     }
                 }
                 //添加自动化设备信息
-                if(request.getOperatorTypeCode() == null 
+                if(request.getOperatorTypeCode() == null
                 		&& StringUtils.isNotBlank(request.getMachineCode())){
                     OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(request);
                     request.setOperatorTypeCode(operatorData.getOperatorTypeCode());
                     request.setOperatorId(operatorData.getOperatorId());
-                    request.setOperatorData(operatorData); 
+                    request.setOperatorData(operatorData);
                 }
                 inspectionTaskExeStrategy.decideExecutor(request).process(request);
             }
