@@ -33,7 +33,6 @@ public class BoxMaterialRelation {
      */
     private Integer siteCode;
 
-    private String siteName;
     /**
      * 绑定标识 1 绑定 2 解绑
      */
