@@ -28,6 +28,7 @@ import com.jdl.basic.api.domain.user.JyUserDto;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
+import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.common.utils.DateUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jsoup.helper.StringUtil;
@@ -311,7 +312,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		List<String> taskCodeList = taskResult.getData().stream().map(WorkGridManagerTask::getTaskCode).collect(Collectors.toList());
 		//检查是否已生成本erp的今天的管理任务
 		Integer taskCount = jyBizTaskWorkGridManagerDao.selectHandlerTodayTaskCountByTaskBizType(detailRecord.getSiteCode(),
-				DateHelper.getZeroFromDay(new Date(), 0), erp, taskCodeList);
+				DateHelper.getZeroFromDay(new Date(), 0), erp, taskCodeList, null);
 		if(taskCount > 0){
 			logger.info("生成飞检巡场任务，今天已生成管理任务，不再重复生成, erp:{}, siteCode:{}", erp, detailRecord.getSiteCode());
 			return;
@@ -504,5 +505,37 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	@Override
 	public String selectLastHandlerErp(String taskCode){
 		return jyBizTaskWorkGridManagerDao.selectLastHandlerErp(taskCode);
+	}
+
+	/**
+	 * 暴击分拣消息生成暴力分拣任务
+	 * 相同网格5分内只触发一次
+	 * 同一个场地每天最多十个任务
+	 * @param violentSortingDto
+	 * @param workStationGrid
+	 */
+	@Override
+	public void generateViolentSortingTask(ViolentSortingDto violentSortingDto, WorkGrid workGrid){
+		//todo 网格主键??
+		String gridBusinessKey = violentSortingDto.getGridBusinessKey();
+		String infoPrefix = "生成异常检查任务-";
+		Date createTime = new Date(violentSortingDto.getCreateTime());
+		int gapMin= 5;
+		Date before5min= DateHelper.add(createTime,Calendar.MINUTE , -1 * gapMin);
+		//检查是否已生成本erp的今天的管理任务
+		Result<List<WorkGridManagerTask>> taskResult = workGridManagerTaskJsfManager.queryByBizType(WorkGridManagerTaskBizType.EXP_INSPECT.getCode());
+		if(taskResult == null || CollectionUtils.isEmpty(taskResult.getData())){
+			logger.info("{}根据类型未查询管理任务定义,gridBusinessKey:{}", infoPrefix, gridBusinessKey);
+			return;
+		}
+		List<String> taskCodeList = taskResult.getData().stream().map(WorkGridManagerTask::getTaskCode).collect(Collectors.toList());
+		Integer siteCode = workGrid.getSiteCode();
+		Integer taskCount = jyBizTaskWorkGridManagerDao.selectHandlerTodayTaskCountByTaskBizType(siteCode,
+				before5min, null, taskCodeList, gridBusinessKey);
+		if(taskCount > 0){
+			logger.info("{}{}分钟内已经生成过任务，,gridBusinessKey:{}", infoPrefix,gapMin, gridBusinessKey);
+			return;
+		}
+		
 	}
 }
