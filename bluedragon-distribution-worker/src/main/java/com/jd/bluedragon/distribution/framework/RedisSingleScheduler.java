@@ -11,7 +11,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.template.TBRedisWorkerMultiTemplate;
 import com.jd.tbschedule.redis.template.TaskEntry;
@@ -37,13 +37,13 @@ public abstract class RedisSingleScheduler extends
 
 	@Autowired
 	private TaskHanlder redisTaskHanlder;
-	
+
 	private boolean initFinished = false;
 	/**
 	 * 标识是否处于激活状态，任务初始化成功并且spring容器初始化成功，才能正常运行
 	 */
 	private boolean isActive = false;
-	
+
 	@Autowired
 	private BaseService baseService;
 
@@ -52,7 +52,7 @@ public abstract class RedisSingleScheduler extends
 
 	//redis开关
 	public static final String HANDLE_SWITCH = "HANDLE_SWITCH";
-	
+
 	@Override
 	public void init() throws Exception {
 		if(!initFinished){//如果还未初始化成功，则重新进行初始化，保证只成功初始化一次
@@ -76,21 +76,21 @@ public abstract class RedisSingleScheduler extends
 			log.warn("Spring关闭，任务[{}-{}]停止执行！", this.taskType, this.ownSign);
 			isActive = false;
 		}
-	}	
+	}
 	@Override
 	public List<TaskEntry<Task>> selectTasks(String ownSign, int taskQueueNum,
 			List<String> taskQueueList, int eachFetchDataNum) throws Exception {
 		//初始化，内部逻辑保证只初始化一次
 		init();
-		if(initFinished && isActive){//初始化成功, 查询redis 
+		if(initFinished && isActive){//初始化成功, 查询redis
 			return super.selectTasks(ownSign, taskQueueNum, taskQueueList, eachFetchDataNum);
 		}else{
 			log.warn("任务[{}-{}]未准备就绪或已停止，本次不抓取任务数据！", this.taskType, this.ownSign);
 			return new ArrayList<TaskEntry<Task>>();
 		}
 	}
-	
-	
+
+
 	/**
 	 * 分拣中心由于使用PRE以及DMS而不是使用PRE以及BASE而需要做特殊化处理
 	 */
@@ -159,7 +159,7 @@ public abstract class RedisSingleScheduler extends
 				}
 			}
 		} catch (Exception e) {
-			
+
 			/**
 			 * 这里有两种情况
 			 * 1. result = true  说明处理成功，但redisTaskHanlder.handleSuccess(task);抛出异常。那么由于任务已经执行完成，所以此任务数据可以抛弃。
@@ -195,7 +195,7 @@ public abstract class RedisSingleScheduler extends
 						.build();
 
 				logEngine.addLog(businessLogProfiler);
-				
+
 				int count = SystemLogUtil.log(systemLog);
 				if(count<1){//说明此时数据库有异常，存不进去。向上抛出异常，防止redis 删除数据。
 					log.error("Redis任务数据存入System_Log表失败, 数据库可能存在异常!");
@@ -206,7 +206,7 @@ public abstract class RedisSingleScheduler extends
 		return result;
 	}
 
-	
+
 	public Comparator<TaskEntry<Task>> getComparator() {
 		return redisTaskHanlder.getComparator();
 	}

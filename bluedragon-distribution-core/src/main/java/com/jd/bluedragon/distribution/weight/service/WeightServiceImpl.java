@@ -24,7 +24,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheKeyGenerator;
@@ -68,11 +68,11 @@ public class WeightServiceImpl implements WeightService {
 
     @Resource(name = "goddessService")
     private GoddessService goddessService;
-    
+
 	@Autowired
 	@Qualifier("cacheKeyGenerator")
 	private CacheKeyGenerator cacheKeyGenerator;
-	
+
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;

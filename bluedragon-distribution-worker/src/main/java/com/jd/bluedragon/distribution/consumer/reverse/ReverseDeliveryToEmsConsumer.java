@@ -11,7 +11,7 @@ import com.jd.bluedragon.external.crossbow.ems.manager.EMSBusinessManager;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

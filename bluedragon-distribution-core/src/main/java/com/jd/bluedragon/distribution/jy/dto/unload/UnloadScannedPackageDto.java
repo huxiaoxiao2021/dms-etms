@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
-import com.jd.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 /**

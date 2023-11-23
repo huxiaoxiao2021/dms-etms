@@ -17,7 +17,7 @@ import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * 
+ *
  * @ClassName: InterceptSiteTypePrinrHandler
  * @Description: 站点类型拦截打印
  * @author: 陈亚国

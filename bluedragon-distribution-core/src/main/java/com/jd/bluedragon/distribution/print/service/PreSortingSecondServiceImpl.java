@@ -27,7 +27,7 @@ import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.preseparate.vo.BaseResponseIncidental;
 import com.jd.preseparate.vo.MediumStationOrderInfo;
 import com.jd.preseparate.vo.OriginalOrderInfo;
@@ -69,24 +69,24 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
     @Autowired
     @Qualifier("waybillSiteChangeProducer")
     private DefaultJMQProducer waybillSiteChangeProducer;
-    
+
     @Autowired
     private DmsOperateHintService dmsOperateHintService;
 
     @Autowired
     private WeightService weightService;
-    
+
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
-    
+
     @Autowired
     private PrintRecordService printRecordService;
     /**
      * 2次预分拣变更提示信息
      */
     private static final String SITE_CHANGE_MSG ="单号‘%s’由中件站配送，请务必更换包裹标签";
-    
+
     private static final String SITE_CHANGE_MSG_FORMAT = "预分拣站点变更为【%s】，请操作包裹补打更换面单！";
 
     /**
@@ -102,7 +102,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 		InterceptResult<String> result = context.getResult();
 		String waybillCode = waybill.getWaybillCode();
 		String waybillSign = waybill.getWaybillSign();
-		
+
         Integer oldPrepareSiteCode = waybill.getSiteCode();
         //指定目的站点targetSiteCode>0或预分拣站点<=0或999999999EMS全国直发，则无法触发二次预分拣
         if(NumberHelper.gt0(context.getRequest().getTargetSiteCode())
@@ -118,7 +118,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         }
         int packageNum = waybill.getPackageNum();
         //一单一件 纯外单，上传了新的体积或重量 ，走原中小件分离逻辑
-        if(packageNum == 1 
+        if(packageNum == 1
         		&& BusinessUtil.isExternal(waybill.getWaybillSign())
         		&& BusinessHelper.hasWeightOrVolume(context.getRequest())){
             OriginalOrderInfo originalOrderInfo = new OriginalOrderInfo();

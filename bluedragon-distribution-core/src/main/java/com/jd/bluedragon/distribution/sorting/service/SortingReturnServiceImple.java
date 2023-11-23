@@ -22,7 +22,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -75,7 +75,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 * 记录拦截订单操作数据
 	 */
 	public final static Integer INTERCEPT_RECORD_TYPE = -1;
-	
+
 	@Autowired
 	private TaskService taskService;
 
@@ -97,7 +97,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 
 	@Autowired
 	private IPushPackageToMqService pushMqService;
-	
+
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
 
@@ -106,7 +106,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 
 	@JProfiler(jKey= "DMSWORKER.SortingReturnService.doSortingReturnForTask",mState = {JProEnum.TP})
 	public void doSortingReturn(Task task) throws Exception {
-			this.execReturns(task);	
+			this.execReturns(task);
 	}
 
 	/********************************************* 基础逻辑 ******************************************/
@@ -396,7 +396,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 			return true;
 		}
 	}
-	
+
 	/**
 	 * 前面Task_sorting 已经去掉重复数据... 所以包裹数据至推送包裹运单第一个包裹号生成的MQ消息...
 	 * 注意：分拣拦截生成的分拣退货不会推送运单快退消息,详见{@link #addReturnLog(Set)}
@@ -502,7 +502,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	private boolean checkIntegerValue(String value) {
 		return checkInteger.matcher(value).matches();
 	}
-	
+
 	/**
 	 * 查询是否已经操作了分拣退货
 	 * @param packageCodeOrWaybillCode
@@ -518,7 +518,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		}
 		return sortingReturnDao.exists(returns);
 	}
-	
+
 	/**
 	 * 查询包裹是否进行过站点发调度操作
 	 * @param packageCode

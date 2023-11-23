@@ -10,7 +10,7 @@ import com.jd.dms.wb.report.api.dto.base.BaseEntity;
 import com.jd.dms.wb.report.api.dto.base.Pager;
 import com.jd.dms.wb.report.api.working.dto.WorkingClockDTO;
 import com.jd.dms.wb.report.api.working.dto.WorkingClockRecordPdaVO;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;

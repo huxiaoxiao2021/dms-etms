@@ -11,7 +11,7 @@ import com.jd.bluedragon.distribution.jsf.domain.ReassignWaybillReq;
 import com.jd.bluedragon.distribution.jsf.domain.StationMatchRequest;
 import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.junit.Test;

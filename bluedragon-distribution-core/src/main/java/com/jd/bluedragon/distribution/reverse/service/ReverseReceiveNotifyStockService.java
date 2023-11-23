@@ -35,7 +35,7 @@ import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ipc.csa.model.*;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -63,7 +63,7 @@ import java.util.*;
 
 
 /**
- * 备件库收货推出管  
+ * 备件库收货推出管
  * @author huangliang
  *
  */
@@ -80,7 +80,7 @@ public class ReverseReceiveNotifyStockService {
 	private static final Integer PAY_TYPE_UNKNOWN = 3;
 	// 获得支付类型错误
 	private static final Integer PAY_TYPE_ERROR = 4;
-			
+
 	private static final Integer STOCK_TYPE_1601 = 1601; // 逆向物流后款退货-虚入
 	private static final Integer STOCK_TYPE_1602 = 1602; // 逆向物流-虚出
 	private static final Integer STOCK_TYPE_1603 = 1603; // 逆向物流先款退货-虚入
@@ -118,10 +118,10 @@ public class ReverseReceiveNotifyStockService {
 	@Qualifier("wmsStockChuGuanMQ")
     @Autowired
     private DefaultJMQProducer wmsStockChuGuanMQ;
-	
+
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
 	@Autowired
 	private StockExportManager stockExportManager;
 
@@ -139,7 +139,7 @@ public class ReverseReceiveNotifyStockService {
     private DmsConfigManager dmsConfigManager;
 
 	public Long receive(String message) {
-		
+
 		if (XmlHelper.isXml(message, ReceiveRequest.class, null)) {
 			ReceiveRequest request = (ReceiveRequest) XmlHelper.toObject(message,
 					ReceiveRequest.class);
@@ -202,7 +202,7 @@ public class ReverseReceiveNotifyStockService {
 			}else if(order == null){//为空时，取一下历史的订单信息
 				this.log.debug("订单可能转历史，获取历史订单, 运单号 为：{}" , orderId);
 				jd.oom.client.orderfile.Order hisOrder = this.orderWebService.getHistoryOrder(orderId);
-				
+
 				if (hisOrder == null) {
                     this.log.error("备件库消费处理出管-订单信息为空orderId[{}]" , orderId);
 					sysLog.setContent("运单信息为空");
@@ -222,7 +222,7 @@ public class ReverseReceiveNotifyStockService {
                     }
                 }
 			}
-			
+
 			{
 				//FIXME:======================================增加获得财务部机构名的逻辑，需要缓存的支持=================================
 			}
@@ -235,10 +235,10 @@ public class ReverseReceiveNotifyStockService {
 	            }
 	            this.log.info("原机构名为空，从基础资料重新获得订单{}机构名 IdCompanyBranchName:{}",orderId,order.getIdCompanyBranchName());
 	        }
-			
+
 			sysLog.setKeyword2(String.valueOf(order.getOrderType()));//设置订单的类型
-			
-			
+
+
 			//此区域:符合主动推送的条件的单子判断是否推送过,获得支付类型
 			KuGuanDomain kuguanDomain = null;
 			Integer payType = PAY_TYPE_UNKNOWN;
@@ -271,7 +271,7 @@ public class ReverseReceiveNotifyStockService {
 					this.wmsStockChuGuanMQ.send(String.valueOf(orderId),this.stockMessage(order, products, STOCK_TYPE_1601, payType));
 					this.wmsStockChuGuanMQ.send(String.valueOf(orderId),this.stockMessage(order, products, STOCK_TYPE_1602, payType));
 				}
-				
+
 				sysLog.setKeyword3("MQ");
                 sysLog.setContent("推出管成功!");
 			}else if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
@@ -308,7 +308,7 @@ public class ReverseReceiveNotifyStockService {
 //            logEngine.addLog(businessLogProfiler);
             SystemLogUtil.log(sysLog);
 		}
-		
+
 		return Boolean.TRUE;
 	}
 
@@ -772,19 +772,19 @@ public class ReverseReceiveNotifyStockService {
 			return -1;
 		}
 	}
-	
+
 	private Integer negate(Integer num) {
 		return num == null ? 0 : 0 - num;
 	}
-	
+
 	/**
 	 * 根据出管判断先款还是后款使用方法：
 	 * 入参StockParamter 对象的Orderid 属性赋值要查询的订单号 该方法会返回这个订单号的所有出管记录，然后请在返回的出管记录中匹配：
 	 * 如果 churu=‘出库’ 且 feilei=‘放货’ 且 qite=0 即为后款订单（先货后款）， 如果 churu=‘出库’ 且
 	 * feilei=‘销售’ 即为先款订单
-	 * 
+	 *
 	 * @return
-	 * @throws StockCallPayTypeException 
+	 * @throws StockCallPayTypeException
 	 */
 	public Integer getPayType(KuGuanDomain domain) throws StockCallPayTypeException {
 		Integer result = PAY_TYPE_UNKNOWN;
@@ -792,7 +792,7 @@ public class ReverseReceiveNotifyStockService {
 		String churu = null;
 		String feifei = null;
 		BigDecimal qite = null;
-		
+
 		if (domain != null) {// 校验参数,如果为空则不能判断是什么类型的
 			waybillCode = domain.getWaybillCode();
 			churu = domain.getLblWay();
@@ -807,7 +807,7 @@ public class ReverseReceiveNotifyStockService {
 			// 异常情况日志记录方便定位问题
 			log.info("getPayType waybillCode:{}detail: churu:{},feifei:{},qite:{}" ,waybillCode,churu,feifei,qite);
 		}
-		
+
 		if (result.equals(PAY_TYPE_UNKNOWN)) {
 			// 异常情况日志记录方便定位问题
             log.warn("getPayType waybillCode:{}detail: churu:{},feifei:{},qite:{}" ,waybillCode,churu,feifei,qite);

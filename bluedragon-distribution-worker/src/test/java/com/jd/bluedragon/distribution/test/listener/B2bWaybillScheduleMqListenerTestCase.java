@@ -4,7 +4,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.consumer.schedule.B2bWaybillScheduleMqListener;
 import com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo;
 import com.jd.bluedragon.distribution.schedule.service.DmsScheduleInfoService;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class B2bWaybillScheduleMqListenerTestCase {
     private DmsScheduleInfoService dmsScheduleInfoService;
     @Mock
     private BaseMajorManager baseMajorManager;
-	
+
 	public static void main(String[] args) throws Exception{
 
 	}

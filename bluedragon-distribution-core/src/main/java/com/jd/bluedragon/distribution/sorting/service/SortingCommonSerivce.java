@@ -45,7 +45,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -130,13 +130,13 @@ public abstract class SortingCommonSerivce {
 
     @Autowired
     private LogEngine logEngine;
-    
+
     @Resource
     private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private CycleMaterialNoticeService cycleMaterialNoticeService;
-    
+
     @Autowired
     private JyOperateFlowService jyOperateFlowService;
 
