@@ -1,21 +1,26 @@
 package com.jd.bluedragon.distribution.consumer.spotCheck;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
+import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppendixDto;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckNotifyMQ;
-import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckStatusEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.*;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -27,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -53,6 +59,12 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
 
     @Autowired
     private SpotCheckServiceProxy spotCheckServiceProxy;
+
+    @Autowired
+    private SpotCheckAppealService spotCheckAppealService;
+
+    @Autowired
+    private JyAttachmentDetailService jyAttachmentDetailService;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -91,6 +103,19 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         }
         Integer status = spotCheckNotifyMQ.getStatus();
         WeightVolumeSpotCheckDto updateDto = existSpotCheckList.get(0);
+
+        // 如果是申诉状态，走另一个流程
+        if (SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_UPGRADE.getCode().equals(status)) {
+            // 组装申诉记录数据
+            SpotCheckAppealEntity spotCheckAppealEntity = transformData(spotCheckNotifyMQ, updateDto);
+            // 插入数据库
+            spotCheckAppealService.insertRecord(spotCheckAppealEntity);
+            // 组装附件数据
+            List<JyAttachmentDetailEntity> jyAttachmentDetailEntityList = createAttachmentList(spotCheckNotifyMQ);
+            // 插入附件表
+            jyAttachmentDetailService.batchInsert(jyAttachmentDetailEntityList);
+            return;
+        }
         // 上传称重流水
         if((Objects.equals(SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ.getCode(), status)
                 || Objects.equals(SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ_OVERTIME.getCode(), status)
@@ -110,6 +135,78 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             updateDto.setContrastStaffType(spotCheckNotifyMQ.getDutyStaffType());
         }
         spotCheckServiceProxy.insertOrUpdateProxyReform(updateDto);
+    }
+
+    private List<JyAttachmentDetailEntity> createAttachmentList(SpotCheckNotifyMQ spotCheckNotifyMQ) {
+        List<JyAttachmentDetailEntity> jyAttachmentDetailEntityList = new ArrayList<>();
+        List<SpotCheckAppendixDto> spotCheckAppendixDtoList = spotCheckNotifyMQ.getAppendixList();
+        if (CollectionUtils.isEmpty(spotCheckAppendixDtoList)) {
+            logger.warn("设备抽检申诉附件列表为空:waybillCode={}", spotCheckNotifyMQ.getWaybillCode());
+            return jyAttachmentDetailEntityList;
+        }
+        for (SpotCheckAppendixDto appendixDto : spotCheckAppendixDtoList) {
+            Integer appendixType = appendixDto.getAppendixType();
+            String appendixUrl = appendixDto.getAppendixUrl();
+            JyAttachmentDetailEntity attachmentDetailEntity = new JyAttachmentDetailEntity();
+            attachmentDetailEntity.setBizId(spotCheckNotifyMQ.getFlowId());
+            // 存抽检人站点还是申诉人的站点 todo
+            attachmentDetailEntity.setSiteCode(Integer.valueOf(spotCheckNotifyMQ.getOrgCode()));
+            attachmentDetailEntity.setBizType(JyAttachmentBizTypeEnum.DEVICE_SPOT_APPEAL.getCode());
+            // 存system.dms还是申诉人的erp todo
+            attachmentDetailEntity.setCreateUserErp(spotCheckNotifyMQ.getDutyStaffAccount());
+            attachmentDetailEntity.setUpdateUserErp(spotCheckNotifyMQ.getDutyStaffAccount());
+            // 如果是图片
+            if (SpotCheckAppendixTypeEnum.ESCALATION_PICTURE.getCode().equals(appendixType)) {
+                attachmentDetailEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
+                // 如果是视频
+            } else if (SpotCheckAppendixTypeEnum.ESCALATION_VIDEO.getCode().equals(appendixType)) {
+                attachmentDetailEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
+            }
+            attachmentDetailEntity.setAttachmentUrl(appendixUrl);
+            jyAttachmentDetailEntityList.add(attachmentDetailEntity);
+        }
+        return jyAttachmentDetailEntityList;
+    }
+
+    private SpotCheckAppealEntity transformData(SpotCheckNotifyMQ spotCheckNotifyMQ, WeightVolumeSpotCheckDto updateDto) {
+        SpotCheckAppealEntity spotCheckAppealEntity = new SpotCheckAppealEntity();
+        spotCheckAppealEntity.setBizId(spotCheckNotifyMQ.getFlowId());
+        spotCheckAppealEntity.setWaybillCode(spotCheckNotifyMQ.getWaybillCode());
+        spotCheckAppealEntity.setDeviceCode(updateDto.getMachineCode());
+        spotCheckAppealEntity.setStartTime(DateHelper.parseDateTime(spotCheckNotifyMQ.getStartTime()));
+        spotCheckAppealEntity.setStartProvinceCode(spotCheckNotifyMQ.getStartProvinceAgencyCode());
+        spotCheckAppealEntity.setStartProvinceName(spotCheckNotifyMQ.getStartProvinceAgencyName());
+        spotCheckAppealEntity.setStartHubCode(updateDto.getReviewAreaHubCode());
+        spotCheckAppealEntity.setStartHubName(updateDto.getReviewAreaHubName());
+        spotCheckAppealEntity.setStartSiteCode(spotCheckNotifyMQ.getOrgCode());
+        spotCheckAppealEntity.setStartSiteName(spotCheckNotifyMQ.getOrgName());
+        spotCheckAppealEntity.setStartErp(spotCheckNotifyMQ.getStartStaffAccount());
+        spotCheckAppealEntity.setDutyProvinceCode(spotCheckNotifyMQ.getDutyProvinceAgencyCode());
+        spotCheckAppealEntity.setDutyProvinceName(spotCheckNotifyMQ.getDutyProvinceAgencyCode());
+        spotCheckAppealEntity.setDutyWarCode(spotCheckNotifyMQ.getDutyProvinceCompanyCode());
+        spotCheckAppealEntity.setDutyWarName(spotCheckNotifyMQ.getDutyProvinceCompanyName());
+        spotCheckAppealEntity.setDutyAreaCode(spotCheckNotifyMQ.getDutyAreaCode());
+        spotCheckAppealEntity.setDutyAreaName(spotCheckNotifyMQ.getDutyAreaName());
+        spotCheckAppealEntity.setDutySiteCode(spotCheckNotifyMQ.getDutyOrgCode());
+        spotCheckAppealEntity.setDutySiteName(spotCheckNotifyMQ.getDutyOrgName());
+        spotCheckAppealEntity.setDutyErp(spotCheckNotifyMQ.getDutyStaffAccount());
+        spotCheckAppealEntity.setConfirmWeight(spotCheckNotifyMQ.getConfirmWeight());
+        spotCheckAppealEntity.setConfirmVolume(spotCheckNotifyMQ.getConfirmVolume());
+        spotCheckAppealEntity.setReConfirmWeight(spotCheckNotifyMQ.getReConfirmWeight());
+        spotCheckAppealEntity.setReConfirmVolume(spotCheckNotifyMQ.getReConfirmVolume());
+        spotCheckAppealEntity.setDiffWeight(spotCheckNotifyMQ.getDiffWeight());
+        spotCheckAppealEntity.setStanderDiff(spotCheckNotifyMQ.getStanderDiff());
+        // 调用自动化接口获取设备校准 todo
+        spotCheckAppealEntity.setBeforeWeightStatus(0);
+        spotCheckAppealEntity.setBeforeVolumeStatus(0);
+        spotCheckAppealEntity.setAfterWeightStatus(0);
+        spotCheckAppealEntity.setAfterVolumeStatus(0);
+        spotCheckAppealEntity.setAppealWeightStatus(0);
+        spotCheckAppealEntity.setAppealVolumeStatus(0);
+        spotCheckAppealEntity.setConfirmStatus(Constants.NUMBER_ZERO);
+        spotCheckAppealEntity.setAutoStatus(Constants.NUMBER_ZERO);
+        spotCheckAppealEntity.setYn(Constants.YN_YES);
+        return spotCheckAppealEntity;
     }
 
     private void uploadWeightVolume(SpotCheckNotifyMQ spotCheckNotifyMQ, Long operateTime) {
