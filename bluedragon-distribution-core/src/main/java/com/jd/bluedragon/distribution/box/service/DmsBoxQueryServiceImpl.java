@@ -88,6 +88,7 @@ public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
         }
         BoxDto result = new BoxDto();
         BeanUtils.copyProperties(box,result);
+        result.setSubType(box.getBoxSubType());
         return result;
     }
 
