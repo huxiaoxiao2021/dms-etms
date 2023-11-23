@@ -101,6 +101,10 @@ public class JyComboardSealVehicleServiceImpl extends JySealVehicleServiceImpl {
                 result.setMessage(String.format(CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_MESSAGE, taskDetail.getEndSiteName()));
                 return false;
             }
+        }else {
+            result.setCode(RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage("未获取到登录网格信息！");
+            return false;
         }
 
         // 根据任务ID查询封车前拍照数据
