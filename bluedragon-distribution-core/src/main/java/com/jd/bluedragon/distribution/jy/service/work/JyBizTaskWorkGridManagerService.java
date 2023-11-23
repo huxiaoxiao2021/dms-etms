@@ -102,7 +102,7 @@ public interface JyBizTaskWorkGridManagerService {
 
 	JdCResponse<Boolean> transferCandidate(JyWorkGridManagerTransferData request);
 
-    String selectLastHandlerErp(String taskCode);
+    String selectLastHandlerErp(String taskCode, Integer siteCode);
 
 	int updateTask4Uat(Map<String,Object> data);
 }

@@ -91,9 +91,10 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 		return this.getSqlSession().update(NAMESPACE + ".transfer", manager);
 	}
 	
-	public String selectLastHandlerErp(String taskCode){
+	public String selectLastHandlerErp(String taskCode, Integer siteCode){
 		Map<String, Object> param = new HashMap<>();
 		param.put("taskCode", taskCode);
+		param.put("siteCode", siteCode);
 		return this.getSqlSession().selectOne(NAMESPACE + ".selectLastHandlerErp", param);
 	}
 }
