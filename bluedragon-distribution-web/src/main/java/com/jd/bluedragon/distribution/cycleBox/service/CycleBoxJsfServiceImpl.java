@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service("cycleBoxJsfService")
 public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
@@ -140,10 +141,8 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
 
     @Override
     public InvokeResult<List<BoxMaterialRelationDto>> findByMaterialCodeAndBoxCode(BoxMaterialRelationRequest request) {
-        BoxMaterialRelation query = new BoxMaterialRelation();
-        BeanUtils.copyProperties(request, query);
         InvokeResult<List<BoxMaterialRelationDto>> result = new InvokeResult<>();
-        List<BoxMaterialRelation> boxes = boxMaterialRelationService.findByMaterialCodeAndBoxCode(query);
+        List<BoxMaterialRelation> boxes = boxMaterialRelationService.findByMaterialCodeAndBoxCode(makeRequestMap(request));
         List<BoxMaterialRelationDto> dtoList = new ArrayList<>();
         makeBoxMaterialDto(boxes, dtoList);
         result.setData(dtoList);
@@ -152,10 +151,8 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
 
     @Override
     public InvokeResult<Integer> countByMaterialCodeAndBoxCode(BoxMaterialRelationRequest request) {
-        BoxMaterialRelation query = new BoxMaterialRelation();
-        BeanUtils.copyProperties(request, query);
         InvokeResult<Integer> result = new InvokeResult<>();
-        int count = boxMaterialRelationService.countByMaterialCodeAndBoxCode(query);
+        int count = boxMaterialRelationService.countByMaterialCodeAndBoxCode(makeRequestMap(request));
         result.setData(count);
         return result;
     }
@@ -168,5 +165,11 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
             dto.setOperatorERP(box.getOperatorErp());
             dtoList.add(dto);
         });
+    }
+
+    private Map<String, Object> makeRequestMap(BoxMaterialRelationRequest request) {
+        Map<String, Object> map = JsonHelper.fromJson(JsonHelper.toJson(request), Map.class);
+        map.put("offset", (request.getPageNumber()-1)*request.getPageSize());
+        return map;
     }
 }

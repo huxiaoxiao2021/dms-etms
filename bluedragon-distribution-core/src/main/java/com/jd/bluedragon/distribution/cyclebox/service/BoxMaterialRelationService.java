@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.cyclebox.service;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BoxMaterialRelationService {
 
@@ -55,7 +56,7 @@ public interface BoxMaterialRelationService {
 
     BoxMaterialRelation getBoxMaterialRelationByMaterialCodeAndBoxcode(String boxCode, String materialCode);
 
-    List<BoxMaterialRelation> findByMaterialCodeAndBoxCode(BoxMaterialRelation query);
+    List<BoxMaterialRelation> findByMaterialCodeAndBoxCode(Map<String, Object> map);
 
-    int countByMaterialCodeAndBoxCode(BoxMaterialRelation query);
+    int countByMaterialCodeAndBoxCode(Map<String, Object> map);
 }
