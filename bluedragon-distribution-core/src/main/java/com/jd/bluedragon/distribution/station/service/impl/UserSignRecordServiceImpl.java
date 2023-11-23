@@ -1387,6 +1387,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			// 班次时分形式 HH:mm
 			String startTime = workGridSchedule.getStartTime();
 			String endTime = workGridSchedule.getEndTime();
+			// 如果修改过班次时间，但是属于非立即生效场景，需要使用原来的时间
+			if (StringUtils.isNotBlank(workGridSchedule.getOldStartTime())) {
+				startTime = workGridSchedule.getOldStartTime();
+				endTime = workGridSchedule.getOldEndTime();
+			}
 			// 班次日期形式 yyyy-MM-dd HH:mm:ss
 			Date startDate = getSpecialDateByStr(startTime, null);
 			// 班次类型
@@ -1572,6 +1577,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		for (WorkGridSchedule workGridSchedule : scheduleList) {
 			workGridScheduleMap.put(workGridSchedule.getScheduleKey(), workGridSchedule);
 			String startTime = workGridSchedule.getStartTime();
+			// 如果修改过班次时间，但是属于非立即生效场景，需要使用原来的时间
+			if (StringUtils.isNotBlank(workGridSchedule.getOldStartTime())) {
+				startTime = workGridSchedule.getOldStartTime();
+			}
 			if (StringUtils.isBlank(earlierDayTime)) {
 				earlierDayTime = startTime;
 			} else {
@@ -1629,7 +1638,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			if (isBetweenBeforeAndAfterOneHour(workGridSchedule, currentDate)) {
 				Integer waveType = getWaveType(workGridSchedule);
 				signInData.setWaveCodeNew(String.valueOf(waveType));
-				signInData.setWaveTime(workGridSchedule.getStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getEndTime());
+				if (StringUtils.isNotBlank(workGridSchedule.getOldStartTime())) {
+					signInData.setWaveTime(workGridSchedule.getOldStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getOldEndTime());
+				} else {
+					signInData.setWaveTime(workGridSchedule.getStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getEndTime());
+				}
 				return;
 			}
 			log.warn("assembleRegularEmployeesWaveCode|当前人员在当天仅存在一条排班计划,但是不满足排班计划对应班次时间的前后1小时内:request={}", JsonHelper.toJson(request));
@@ -1644,6 +1657,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			if (isBetweenBeforeAndAfterOneHour(workGridSchedule, currentDate)) {
 				Integer waveType = getWaveType(workGridSchedule);
 				String waveTime = workGridSchedule.getStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getEndTime();
+				if (StringUtils.isNotBlank(workGridSchedule.getOldStartTime())) {
+					waveTime = workGridSchedule.getOldStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getOldEndTime();
+				}
 				waveCodeStr.append(Constants.SEPARATOR_COMMA).append(waveType);
 				waveTimeStr.append(Constants.SEPARATOR_COMMA).append(waveTime);
 			}
