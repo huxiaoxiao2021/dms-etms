@@ -13,6 +13,8 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
 import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
+import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
@@ -37,6 +39,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.client.enums.DeskClientMenuEnum;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
@@ -2696,6 +2699,24 @@ public class WaybillResource {
 	@Path("/waybill/checkWaybillForPreSortOnSite")
 	@JProfiler(jKey = "DMS.WEB.WaybillResource.checkWaybillForPreSortOnSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
+		try{
+			// 校验可用新
+			FuncUsageConfigRequestDto funcUsageConfigRequestDto = new FuncUsageConfigRequestDto();
+			funcUsageConfigRequestDto.setFuncCode(DeskClientMenuEnum.SCENE_PRE_SORT.getCode());
+			com.jd.bluedragon.common.dto.base.request.OperateUser operateUser = new com.jd.bluedragon.common.dto.base.request.OperateUser();
+			operateUser.setSiteCode(waybillForPreSortOnSiteRequest.getSortingSite());
+			operateUser.setUserCode(waybillForPreSortOnSiteRequest.getErp());
+			funcUsageConfigRequestDto.setOperateUser(operateUser);
+			FuncUsageProcessDto processDto = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
+			if(processDto != null && Constants.YN_NO.equals(processDto.getCanUse())){
+				log.info("WaybillResource.checkWaybillForPreSortOnSite {}", JsonHelper.toJson(waybillForPreSortOnSiteRequest));
+				InvokeResult<String> result = new InvokeResult<>();
+				result.customMessage(InvokeResult.SERVER_ERROR_CODE, processDto.getMsg());
+				return result;
+			}
+		}catch (Exception e){
+			log.error("WaybillResource.checkWaybillForPreSortOnSite exception ", e);
+		}
 		return waybillService.checkWaybillForPreSortOnSite(waybillForPreSortOnSiteRequest);
 	}
 
