@@ -894,7 +894,7 @@ public class Constants {
     public static final String SYS_CONFIG_GLOBAL_FUNC_USAGE_CONTROL= "global_func_usage_control_";
 
     /**
-     * 功能可用性配置
+     * 功能可用性配置黑名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
 
@@ -904,9 +904,26 @@ public class Constants {
     public static final String SYS_CONFIG_HIDE_PHONE_6Char= "hide_phone_6char";
 
     /**
-     * 安卓菜单可用性配置，按场地id配置
+     * 功能可用性配置黑名单，按人员ERP配置
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_BY_ERP = "func_usage_by_erp_";
+
+    /**
+     * 功能可用性配置黑名单，按场地id配置
      */
     public static final String SYS_CONFIG_FUNC_USAGE_BY_SITE_CODE = "func_usage_by_site_code_";
+    /**
+     * 功能可用性配置白名单，按场地类型
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_TYPE = "func_usage_white_by_site_type_";
+    /**
+     * 功能可用性配置白名单，按场地名单
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_CODE = "func_usage_white_by_site_code_";
+    /**
+     * 功能可用性配置白名单，按人员erp列表
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_ERP = "func_usage_white_by_erp_";
     /**
      * 是否启用中台创建箱号开关key
      */
@@ -2087,11 +2104,6 @@ public class Constants {
      * 异常上报原因与二次安检关系-老版异常上报
      */
     public static final Long SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID = 27000L;
-
-    /**
-     * 功能可用配置白名单
-     */
-    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
 
     // 新版分拣中心规范-分拣中心类型
     public static final Integer SORTING_SORT_TYPE = 12351;
