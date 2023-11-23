@@ -58,7 +58,7 @@
 		<sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
 		<!--将所有jacoco定位到同样的父目录位置-->
 		<sonar.jacoco.reportPaths>${project.basedir}/../coverage-report/jacoco.exec</sonar.jacoco.reportPaths>
-		<aces.version>2.2.0-SNAPSHOT</aces.version>
+		<aces.version>3.0.1-SNAPSHOT</aces.version>
 		<lombok.version>1.18.20</lombok.version>
 		<eclp-so-api.version>0.0.1-GRAY-SNAPSHOT</eclp-so-api.version>
 

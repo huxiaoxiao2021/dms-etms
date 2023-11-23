@@ -33,7 +33,7 @@ public class DADALoginTest {
         request.setCheckVersion(true);
         request.setErpAccount("372924199109182116");
         request.setLoginVersion(new Byte("1"));
-        request.setPassword("4a734174a6f79b7cc1b94200c4a9c11f");
+//        request.setPassword("4a734174a6f79b7cc1b94200c4a9c11f");
         request.setPositionCode("GW00184002");
         request.setClientInfo( "{\"deviceId\":\"3F05C77D5F4EC\",\"ipv4\":null,\"ipv6\":null,\"macAdress\":null,\"programType\":\"60\",\"versionCode\":\"3.3.39\",\"versionName\":\"PDA_Android\"}");
 

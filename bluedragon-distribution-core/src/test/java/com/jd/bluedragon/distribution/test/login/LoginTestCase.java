@@ -18,13 +18,13 @@ public class LoginTestCase {
 	            ClientRequest request = new ClientRequest(uri);
 	            request.accept(MediaType.APPLICATION_JSON);
 	            //request.header("Content-Encoding", "gzip,deflate,compress");
-	            
+
 	            BaseRequest bq = new BaseRequest();
 	    		bq.setErpAccount("bjwangzhipeng");
-	    		bq.setPassword("chenzhe123");
-	    		
+//	    		bq.setPassword("chenzhe123");
+
 	    		System.out.println(JsonHelper.toJson(bq));
-	    		
+
 	    		request.body(MediaType.APPLICATION_JSON, bq);
 
 	            ClientResponse<BaseResponse> response = request.post(BaseResponse.class);
