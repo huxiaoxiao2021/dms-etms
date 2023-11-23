@@ -785,7 +785,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			case KPI_IMPROVE:
 				List<JyUserDto> userDtos = getUserList(siteInfo.getSiteCode(),siteInfo.getOrganizationCode(),
 						configData.getHandlerUserPositionCode(),configData.getHandlerUserPositionName());
-				return sortUserListByLast(userDtos, configData.getTaskCode());
+				return sortUserListByLast(userDtos, configData.getTaskCode(), siteInfo.getSiteCode());
 		}
 		logger.error("获取任务处理人失败，无匹配方法");
 		return null;
@@ -949,6 +949,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyTask.setAreaName(grid.getAreaName());
 		jyTask.setGridName(grid.getGridName());
 		jyTask.setSiteCode(grid.getSiteCode());
+		jyTask.setFloor(grid.getFloor());
 		//设置省区相关字段
 		jyTask.setSiteName(siteInfo.getSiteName());
 		jyTask.setAreaHubCode(StringHelper.getStringValue(siteInfo.getAreaCode()));
@@ -1200,16 +1201,16 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	}
 
 	/**
-	 * 根据最后一个处理人erp 从新排序userList,以实现用户轮询分配任务
+	 * 根据最近处理人erp在userDtos位置，所有元素右移，最近处理人erp移至最后。
 	 * @param userDtos
 	 * @param taskCode
 	 * @return
 	 */
-	public List<JyUserDto> sortUserListByLast(List<JyUserDto> userDtos, String taskCode){
-		if(CollectionUtils.isEmpty(userDtos)){
+	public List<JyUserDto> sortUserListByLast(List<JyUserDto> userDtos, String taskCode, Integer siteCode){
+		if(CollectionUtils.isEmpty(userDtos) || userDtos.size() == 1){
 			return userDtos;
 		}
-		String lastErp = jyBizTaskWorkGridManagerService.selectLastHandlerErp(taskCode);
+		String lastErp = jyBizTaskWorkGridManagerService.selectLastHandlerErp(taskCode, siteCode);
 		if(org.apache.commons.lang3.StringUtils.isBlank(lastErp)){
 			logger.info("根据任务未查到任务实例，处理人list不重新排序，taskCode:{}", taskCode);
 			return userDtos;
@@ -1225,17 +1226,23 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		if(lastUserIndex == null){
 			return userDtos;
 		}
+		//已经是最后是最后一个
+		if(lastUserIndex == userDtos.size() -1){
+			return userDtos;
+		}
+		//是第一位所有元素左移，0位放到最后一位
+		if(lastUserIndex == 0){
+			JyUserDto first = userDtos.remove(0);
+			userDtos.add(first);
+			return userDtos;
+		}
+		
 		List<JyUserDto> list = new ArrayList<>(userDtos.size());
-		//非最后一个，截取之后的
-		if(lastUserIndex < userDtos.size() -1){
-			//后半部分list,不包含上次已分任务erp
-			List<JyUserDto> secondHalfList = userDtos.subList(lastUserIndex + 1, userDtos.size());
-			list.addAll(secondHalfList);
-		}
-		if(lastUserIndex != 0){
-			List<JyUserDto> firstHalfList = userDtos.subList(0, lastUserIndex);
-			list.addAll(firstHalfList);
-		}
+		//后半部分list,不包含上次已分任务erp
+		List<JyUserDto> secondHalfList = userDtos.subList(lastUserIndex + 1, userDtos.size());
+		list.addAll(secondHalfList);
+		List<JyUserDto> firstHalfList = userDtos.subList(0, lastUserIndex + 1);
+		list.addAll(firstHalfList);
 		return list;
 	}
 }

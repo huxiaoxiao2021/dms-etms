@@ -367,7 +367,10 @@
              grid_name,
              create_user,
              create_user_name,
-             create_time
+             create_time,
+             floor,
+             extend_info,
+             task_biz_type                          
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
@@ -392,7 +395,10 @@
             #{item.gridName},
             #{item.createUser},
             #{item.createUserName},
-            #{item.createTime}
+            #{item.createTime},
+            #{item.floor},
+            #{item.extendInfo},
+            #{item.taskBizType}
             )
         </foreach>
     </insert>
@@ -815,7 +821,8 @@
         handler_user_position_name,
         handler_position_code,
         process_begin_time,
-        task_biz_type
+        task_biz_type,
+        floor
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
@@ -850,7 +857,8 @@
             #{item.handlerUserPositionName},
             #{item.handlerPositionCode},
             #{item.processBeginTime},
-            #{item.taskBizType}
+            #{item.taskBizType},
+            #{item.floor}
             )
         </foreach>
     </insert>
@@ -861,7 +869,8 @@
         where
             yn = 1
             and task_code = #{taskCode,jdbcType=VARCHAR}
-            and handler_erp is not null
+            and handler_erp is not null and handler_erp != ''
+            and site_code =  #{siteCode,jdbcType=INTEGER}
             order by id desc 
         limit 1
     </select>
