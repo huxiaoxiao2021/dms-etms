@@ -538,9 +538,14 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		}
 		taskCount = jyBizTaskWorkGridManagerDao.selectHandlerTodayTaskCountByTaskBizType(siteCode,
 				DateHelper.getZeroFromDay(new Date(), 0), null, taskCodeList, null);
-		
-		if(taskCount >= 10){
-			logger.info("{}{}今天已经达到上限gridBusinessKey:{}，siteCode:{}", infoPrefix,gapMin,  gridBusinessKey, siteCode);
+		int maxTask = 10;
+		if(taskCount >= maxTask){
+			logger.info("{}今天已经达到上限:{},gridBusinessKey:{}，siteCode:{}", infoPrefix,maxTask,  gridBusinessKey, siteCode);
+			return;
+		}
+		BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+		if(siteInfo == null) {
+			logger.warn("{}场地【{}】在青龙基础资料不存在！siteCode:{},gridBusinessKey:{}",infoPrefix,siteCode, gridBusinessKey);
 			return;
 		}
 		
