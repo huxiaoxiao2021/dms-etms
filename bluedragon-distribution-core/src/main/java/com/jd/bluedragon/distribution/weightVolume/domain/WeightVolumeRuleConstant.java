@@ -219,6 +219,15 @@ public class WeightVolumeRuleConstant {
      */
     private Integer foamWeightRatioMultiple;
 
+    /**
+     * 体积最小限制：0.01CM3
+     */
+    private Double volumeMinLimit;
+    /**
+     * C网-重量最小限制：0.01KG
+     */
+    private Double weightMinLimit;
+
     public Integer getSideMaxLengthC() {
         return sideMaxLengthC;
     }
@@ -337,5 +346,21 @@ public class WeightVolumeRuleConstant {
 
     public void setFoamWeightRatioMultiple(Integer foamWeightRatioMultiple) {
         this.foamWeightRatioMultiple = foamWeightRatioMultiple;
+    }
+
+    public Double getVolumeMinLimit() {
+        return volumeMinLimit;
+    }
+
+    public void setVolumeMinLimit(Double volumeMinLimit) {
+        this.volumeMinLimit = volumeMinLimit;
+    }
+
+    public Double getWeightMinLimit() {
+        return weightMinLimit;
+    }
+
+    public void setWeightMinLimit(Double weightMinLimit) {
+        this.weightMinLimit = weightMinLimit;
     }
 }
