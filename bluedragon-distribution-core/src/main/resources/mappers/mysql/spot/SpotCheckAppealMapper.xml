@@ -30,29 +30,19 @@
 		<result column="re_confirm_volume" property="reConfirmVolume" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="diff_weight" property="diffWeight" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="stander_diff" property="standerDiff" javaType="java.lang.String" jdbcType="VARCHAR" />
-
-
-		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="before_weight_status" property="beforeWeightStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="before_volume_status" property="beforeVolumeStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="after_weight_status" property="afterWeightStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="after_volume_status" property="afterVolumeStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="appeal_weight_status" property="appealWeightStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="appeal_volume_status" property="appealVolumeStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="reject_reason" property="rejectReason" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="confirm_status" property="confirmStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="auto_status" property="autoStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="floor" property="floor" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="grid_no" property="gridNo" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="grid_code" property="gridCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="grid_name" property="gridName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="area_code" property="areaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="biz_source" property="bizSource" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="ref_work_grid_key" property="refWorkGridKey" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="id_card" property="idCard" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
 
 
