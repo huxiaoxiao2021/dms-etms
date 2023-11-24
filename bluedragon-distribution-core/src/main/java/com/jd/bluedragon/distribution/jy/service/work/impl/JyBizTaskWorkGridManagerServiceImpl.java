@@ -533,7 +533,14 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		Integer taskCount = jyBizTaskWorkGridManagerDao.selectHandlerTodayTaskCountByTaskBizType(siteCode,
 				before5min, null, taskCodeList, gridBusinessKey);
 		if(taskCount > 0){
-			logger.info("{}{}分钟内已经生成过任务，,gridBusinessKey:{}", infoPrefix,gapMin, gridBusinessKey);
+			logger.info("{}{}分钟内已经生成过任务,gridBusinessKey:{}，siteCode:{}", infoPrefix,gapMin, gridBusinessKey, siteCode);
+			return;
+		}
+		taskCount = jyBizTaskWorkGridManagerDao.selectHandlerTodayTaskCountByTaskBizType(siteCode,
+				DateHelper.getZeroFromDay(new Date(), 0), null, taskCodeList, null);
+		
+		if(taskCount >= 10){
+			logger.info("{}{}今天已经达到上限gridBusinessKey:{}，siteCode:{}", infoPrefix,gapMin,  gridBusinessKey, siteCode);
 			return;
 		}
 		
