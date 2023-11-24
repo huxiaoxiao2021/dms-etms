@@ -513,7 +513,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	 * @param violentSortingDto
 	 * @param workStationGrid
 	 */
-	/*@Override
+	@Override
 	public void generateViolentSortingTask(ViolentSortingDto violentSortingDto, WorkGrid workGrid){
 		//todo 网格主键??
 		String gridBusinessKey = violentSortingDto.getGridBusinessKey();
@@ -548,5 +548,5 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			return;
 		}
 		
-	}*/
+	}
 }
