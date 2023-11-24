@@ -1408,12 +1408,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			} else if (WaveTypeEnum.MIDDLE.getCode().equals(scheduleType)) {
 				minMiddleStartDate = getMinStartDate(minMiddleStartDate, startDate, minStartTimeMap, startTime, WaveTypeEnum.MIDDLE.getCode());
 				maxMiddleStartDate = getMaxStartDate(maxMiddleStartDate, startDate);
-				maxMiddleEndDate = getMaxEndDate(maxMiddleEndDate, endDate, maxEndTimeMap, endTime, WaveTypeEnum.DAY.getCode());
+				maxMiddleEndDate = getMaxEndDate(maxMiddleEndDate, endDate, maxEndTimeMap, endTime, WaveTypeEnum.MIDDLE.getCode());
 				// 如果是晚班
 			} else if (WaveTypeEnum.NIGHT.getCode().equals(scheduleType)) {
 				minNightStartDate = getMinStartDate(minNightStartDate, startDate, minStartTimeMap, startTime, WaveTypeEnum.NIGHT.getCode());
 				maxNightStartDate = getMaxStartDate(maxNightStartDate, startDate);
-				maxNightEndDate = getMaxEndDate(maxNightEndDate, endDate, maxEndTimeMap, endTime, WaveTypeEnum.DAY.getCode());
+				maxNightEndDate = getMaxEndDate(maxNightEndDate, endDate, maxEndTimeMap, endTime, WaveTypeEnum.NIGHT.getCode());
 			}
 		}
 		log.info("assembleInformalEmployeesWaveCode|各个班次最小起始时间与最大起始时间:request={},minDayStartDate={},maxDayStartDate={},minMiddleStartDate={},maxMiddleStartDate={},minNightStartDate={},maxNightStartDate={}",
