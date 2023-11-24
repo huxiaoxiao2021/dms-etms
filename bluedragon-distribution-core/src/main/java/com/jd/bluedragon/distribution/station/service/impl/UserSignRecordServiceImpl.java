@@ -1596,13 +1596,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return;
 		}
 		log.info("assembleRegularEmployeesWaveCode|网格下所有班次:request={},signInData={},scheduleList={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData), JsonHelper.toJson(scheduleList));
-		// <scheduleKey, workGridSchedule>
-		Map<String, WorkGridSchedule> workGridScheduleMap = new HashMap<>(Constants.NUMBER_NINE);
+
 		// 最早的白班开始时间
 		String earlierDayTime = null;
 		// 对班次列表按照时间排序
 		for (WorkGridSchedule workGridSchedule : scheduleList) {
-			workGridScheduleMap.put(workGridSchedule.getScheduleKey(), workGridSchedule);
 			String startTime = workGridSchedule.getStartTime();
 			// 如果修改过班次时间，但是属于非立即生效场景，需要使用原来的时间
 			if (StringUtils.isNotBlank(workGridSchedule.getOldStartTime())) {
@@ -1660,16 +1658,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if (scheduleDetailDtoList.size() == Constants.CONSTANT_NUMBER_ONE) {
 			ScheduleDetailDto scheduleDetailDto = scheduleDetailDtoList.get(Constants.CONSTANT_NUMBER_ZERO);
 			log.info("assembleRegularEmployeesWaveCode|当前人员在当天仅存在一条排班计划:request={},scheduleDetailDto={}", JsonHelper.toJson(request), JsonHelper.toJson(scheduleDetailDto));
-			WorkGridSchedule workGridSchedule = workGridScheduleMap.get(scheduleDetailDto.getScheduleKey());
 			// 且当前erp签到时间处于该排班计划对应班次时间的前后1小时内，则班次类型展示对应的班次，班次时间展示对应班次的时间
-			if (isBetweenBeforeAndAfterOneHour(workGridSchedule, currentDate)) {
-				Integer waveType = getWaveType(workGridSchedule);
+			if (isBetweenBeforeAndAfterOneHour(scheduleDetailDto, currentDate)) {
+				Integer waveType = getWaveType(scheduleDetailDto.getScheduleKey());
 				signInData.setWaveCodeNew(String.valueOf(waveType));
-				if (StringUtils.isNotBlank(workGridSchedule.getOldStartTime())) {
-					signInData.setWaveTime(workGridSchedule.getOldStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getOldEndTime());
-				} else {
-					signInData.setWaveTime(workGridSchedule.getStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getEndTime());
-				}
+				signInData.setWaveTime(scheduleDetailDto.getStartTime() + Constants.SEPARATOR_TILDE + scheduleDetailDto.getEndTime());
 				return;
 			}
 			log.warn("assembleRegularEmployeesWaveCode|当前人员在当天仅存在一条排班计划,但是不满足排班计划对应班次时间的前后1小时内:request={}", JsonHelper.toJson(request));
@@ -1680,13 +1673,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		StringBuilder waveTimeStr = new StringBuilder(Constants.EMPTY_FILL);
 		// 若当前人员存在多个排班计划,依次判断签到时间是否处于每个排班计划对应班次时间的前后1小时内，多个中间用顿号隔开
 		for (ScheduleDetailDto scheduleDetailDto : scheduleDetailDtoList) {
-			WorkGridSchedule workGridSchedule = workGridScheduleMap.get(scheduleDetailDto.getScheduleKey());
-			if (isBetweenBeforeAndAfterOneHour(workGridSchedule, currentDate)) {
-				Integer waveType = getWaveType(workGridSchedule);
-				String waveTime = workGridSchedule.getStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getEndTime();
-				if (StringUtils.isNotBlank(workGridSchedule.getOldStartTime())) {
-					waveTime = workGridSchedule.getOldStartTime() + Constants.SEPARATOR_TILDE + workGridSchedule.getOldEndTime();
-				}
+			if (isBetweenBeforeAndAfterOneHour(scheduleDetailDto, currentDate)) {
+				Integer waveType = getWaveType(scheduleDetailDto.getScheduleKey());
+				String waveTime = scheduleDetailDto.getStartTime() + Constants.SEPARATOR_TILDE + scheduleDetailDto.getEndTime();
 				waveCodeStr.append(Constants.SEPARATOR_COMMA).append(waveType);
 				waveTimeStr.append(Constants.SEPARATOR_COMMA).append(waveTime);
 			}
@@ -1701,11 +1690,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 	}
 
-	private Integer getWaveType(WorkGridSchedule workGridSchedule) {
+	private Integer getWaveType(String scheduleKey) {
+		String[] scheduleArray = scheduleKey.split(Constants.SEPARATOR_HYPHEN);
 		// 班次类型
-		Integer scheduleType = workGridSchedule.getScheduleType();
+		Integer scheduleType = Integer.valueOf(scheduleArray[1]);
 		// 班次顺序
-		Integer scheduleNo = workGridSchedule.getScheduleNo();
+		Integer scheduleNo = Integer.valueOf(scheduleArray[2]);
 		if (WaveTypeEnum.DAY.getCode().equals(scheduleType) && ScheduleEnum.TIME_1.getCode().equals(scheduleNo)) {
 			return WaveTypeNewEnum.DAY1.getCode();
 		} else if (WaveTypeEnum.DAY.getCode().equals(scheduleType) && ScheduleEnum.TIME_2.getCode().equals(scheduleNo)) {
@@ -1728,10 +1718,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return null;
 	}
 
-	private boolean isBetweenBeforeAndAfterOneHour(WorkGridSchedule workGridSchedule, Date currentDate) {
+	private boolean isBetweenBeforeAndAfterOneHour(ScheduleDetailDto scheduleDetailDto, Date currentDate) {
 		// 班次时分形式 HH:mm
-		String startTime = workGridSchedule.getStartTime();
-		String endTime = workGridSchedule.getEndTime();
+		String startTime = scheduleDetailDto.getStartTime();
+		String endTime = scheduleDetailDto.getEndTime();
 		// 班次日期形式 yyyy-MM-dd HH:mm:ss
 		Date startDate = getSpecialDateByStr(startTime, null);
 		Date endDate;
