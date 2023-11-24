@@ -104,6 +104,9 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         Integer status = spotCheckNotifyMQ.getStatus();
         WeightVolumeSpotCheckDto updateDto = existSpotCheckList.get(0);
 
+        // 更新抽检状态
+        updateDto.setSpotCheckStatus(status);
+
         // 如果是申诉状态，走另一个流程
         if (SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_UPGRADE.getCode().equals(status)) {
             // 组装申诉记录数据
@@ -114,6 +117,7 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             List<JyAttachmentDetailEntity> jyAttachmentDetailEntityList = createAttachmentList(spotCheckNotifyMQ);
             // 插入附件表
             jyAttachmentDetailService.batchInsert(jyAttachmentDetailEntityList);
+            spotCheckServiceProxy.insertOrUpdateProxyReform(updateDto);
             return;
         }
         // 上传称重流水
@@ -127,8 +131,7 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             updateDto.setManualUploadWeight(Constants.CONSTANT_NUMBER_ONE);
             uploadWeightVolume(spotCheckNotifyMQ, updateDto.getReviewDate());
         }
-        // 更新抽检状态
-        updateDto.setSpotCheckStatus(status);
+
         if(Objects.equals(SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ_SYSTEM_ERP_Y.getCode(), status)){
             updateDto.setContrastStaffAccount(spotCheckNotifyMQ.getDutyStaffAccount());
             updateDto.setContrastStaffName(spotCheckNotifyMQ.getDutyStaffName());
@@ -174,13 +177,23 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         spotCheckAppealEntity.setStartTime(DateHelper.parseDateTime(spotCheckNotifyMQ.getStartTime()));
         spotCheckAppealEntity.setStartProvinceCode(spotCheckNotifyMQ.getStartProvinceAgencyCode());
         spotCheckAppealEntity.setStartProvinceName(spotCheckNotifyMQ.getStartProvinceAgencyName());
-        spotCheckAppealEntity.setStartHubCode(updateDto.getReviewAreaHubCode());
-        spotCheckAppealEntity.setStartHubName(updateDto.getReviewAreaHubName());
+        // 查询青龙基础资料补全抽检人枢纽
+        BaseStaffSiteOrgDto startBaseSite = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(spotCheckNotifyMQ.getOrgCode()));
+        if (startBaseSite != null) {
+            spotCheckAppealEntity.setStartHubCode(startBaseSite.getAreaCode());
+            spotCheckAppealEntity.setStartHubName(startBaseSite.getAreaName());
+        }
         spotCheckAppealEntity.setStartSiteCode(spotCheckNotifyMQ.getOrgCode());
         spotCheckAppealEntity.setStartSiteName(spotCheckNotifyMQ.getOrgName());
         spotCheckAppealEntity.setStartErp(spotCheckNotifyMQ.getStartStaffAccount());
         spotCheckAppealEntity.setDutyProvinceCode(spotCheckNotifyMQ.getDutyProvinceAgencyCode());
         spotCheckAppealEntity.setDutyProvinceName(spotCheckNotifyMQ.getDutyProvinceAgencyCode());
+        // 查询青龙基础资料补全申诉人枢纽
+        BaseStaffSiteOrgDto dutyBaseSite = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(spotCheckNotifyMQ.getDutyOrgCode()));
+        if (dutyBaseSite != null) {
+            spotCheckAppealEntity.setDutyHubCode(dutyBaseSite.getAreaCode());
+            spotCheckAppealEntity.setDutyHubName(dutyBaseSite.getAreaName());
+        }
         spotCheckAppealEntity.setDutyWarCode(spotCheckNotifyMQ.getDutyProvinceCompanyCode());
         spotCheckAppealEntity.setDutyWarName(spotCheckNotifyMQ.getDutyProvinceCompanyName());
         spotCheckAppealEntity.setDutyAreaCode(spotCheckNotifyMQ.getDutyAreaCode());
