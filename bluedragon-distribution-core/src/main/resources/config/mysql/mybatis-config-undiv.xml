@@ -404,6 +404,8 @@
 
         <!--移动微仓 -->
         <mapper resource="mappers/mysql/ministore/MiniStoreBindRelationMapper.xml" />
+        <!--设备抽检申诉 -->
+        <mapper resource="mappers/mysql/spot/SpotCheckAppealMapper.xml" />
 
     </mappers>
 </configuration>

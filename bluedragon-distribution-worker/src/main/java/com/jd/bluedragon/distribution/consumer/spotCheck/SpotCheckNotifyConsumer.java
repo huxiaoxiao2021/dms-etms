@@ -160,7 +160,7 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
                 attachmentDetailEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
                 // 如果是视频
             } else if (SpotCheckAppendixTypeEnum.ESCALATION_VIDEO.getCode().equals(appendixType)) {
-                attachmentDetailEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
+                attachmentDetailEntity.setAttachmentType(JyAttachmentTypeEnum.VIDEO.getCode());
             }
             attachmentDetailEntity.setAttachmentUrl(appendixUrl);
             jyAttachmentDetailEntityList.add(attachmentDetailEntity);
