@@ -419,6 +419,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             if(StringUtils.isBlank(airLineResp.getLineCode())) {
                 continue;
             }
+            if(!entity.getStartSiteCode().equals(airLineResp.getStartNodeCode())) {
+                continue;
+            }
             if(!entity.getNextSiteCode().equals(airLineResp.getEndNodeCode())) {
                 //路由可能返回多个流向运力线路，仅过滤当前流向
                 continue;
