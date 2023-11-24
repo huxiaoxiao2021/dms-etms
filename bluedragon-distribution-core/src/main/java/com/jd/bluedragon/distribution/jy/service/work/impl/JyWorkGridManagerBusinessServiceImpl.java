@@ -90,6 +90,7 @@ import com.jdl.basic.common.utils.Result;
 
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentSubBizTypeEnum.TASK_WORK_GRID_MANAGER_IMPROVE;
 import static com.jd.bluedragon.distribution.jy.service.work.impl.JyWorkGridManagerCaseServiceImpl.CASE_ZHIBIAO_QITA_ITEM_CODE;
+import static com.jdl.basic.api.enums.WorkGridManagerTaskBizType.EXP_INSPECT;
 import static com.jdl.basic.api.enums.WorkGridManagerTaskBizType.KPI_IMPROVE;
 
 /**
@@ -287,14 +288,19 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 							attachmentData,caseData.getCaseCode()));
 				}
 			}
-			//改善反馈附件
+			//改善反馈附件,指标改善任务 只有1个case, 附件bizSubType为TASK_WORK_GRID_MANAGER_IMPROVE.code
+			WorkGridManagerTaskBizType taskBizType = WorkGridManagerTaskBizType.getEnum(oldData.getTaskBizType());
 			if(!CollectionUtils.isEmpty(caseData.getImproveAttachmentList())) {
+				String subBizType = TASK_WORK_GRID_MANAGER_IMPROVE.getCode();
+				if(!KPI_IMPROVE.equals(taskBizType)){
+					subBizType += ("|" + caseData.getCaseCode());
+				}
 				for(AttachmentDetailData attachmentData : caseData.getImproveAttachmentList()) {
 					if(attachmentData == null) {
 						continue;
 					}
 					improveAttachmentList.add(toJyAttachmentDetailEntity(userErp,currentTime,taskData,caseData,attachmentData,
-							TASK_WORK_GRID_MANAGER_IMPROVE.getCode()));
+							subBizType));
 				}
 			}
 			if(!CollectionUtils.isEmpty(caseData.getItemList())) {

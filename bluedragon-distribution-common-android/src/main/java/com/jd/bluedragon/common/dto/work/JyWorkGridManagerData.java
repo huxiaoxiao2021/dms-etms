@@ -142,6 +142,9 @@ public class JyWorkGridManagerData implements Serializable {
 	 */
 	private ViolenceSortInfoData violenceSortInfoData;
 
+	//任务业务类型：1-日常巡查 2-管理巡视 3-异常及时检查 4-指标周期改善 5-事件治理整改任务
+	private Integer taskBizType;
+
 
 	public String getOrignHandlerErp() {
 		return orignHandlerErp;
@@ -357,5 +360,13 @@ public class JyWorkGridManagerData implements Serializable {
 
 	public void setViolenceSortInfoData(ViolenceSortInfoData violenceSortInfoData) {
 		this.violenceSortInfoData = violenceSortInfoData;
+	}
+
+	public Integer getTaskBizType() {
+		return taskBizType;
+	}
+
+	public void setTaskBizType(Integer taskBizType) {
+		this.taskBizType = taskBizType;
 	}
 }
