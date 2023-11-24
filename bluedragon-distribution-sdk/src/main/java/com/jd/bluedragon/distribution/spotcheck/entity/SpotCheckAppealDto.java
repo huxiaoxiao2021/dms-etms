@@ -72,6 +72,11 @@ public class SpotCheckAppealDto implements Serializable {
     private String dutyAreaCode;
 
     /**
+     * 申诉人枢纽编码
+     */
+    private String dutyHubCode;
+
+    /**
      * 申诉人站点编码
      */
     private String dutySiteCode;
@@ -103,6 +108,10 @@ public class SpotCheckAppealDto implements Serializable {
     private Date spotEndTime;
 
     private List<Long> idList;
+
+    private Integer offset;
+
+    private Integer pageSize;
 
     public Long getId() {
         return id;
@@ -200,6 +209,14 @@ public class SpotCheckAppealDto implements Serializable {
         this.dutyAreaCode = dutyAreaCode;
     }
 
+    public String getDutyHubCode() {
+        return dutyHubCode;
+    }
+
+    public void setDutyHubCode(String dutyHubCode) {
+        this.dutyHubCode = dutyHubCode;
+    }
+
     public String getDutySiteCode() {
         return dutySiteCode;
     }
@@ -270,6 +287,22 @@ public class SpotCheckAppealDto implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 }
 

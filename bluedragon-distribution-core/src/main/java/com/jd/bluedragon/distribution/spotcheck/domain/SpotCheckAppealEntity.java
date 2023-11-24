@@ -232,6 +232,10 @@ public class SpotCheckAppealEntity implements Serializable {
 
     private List<Long> idList;
 
+    private Integer offset;
+
+    private Integer pageSize;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -598,5 +602,21 @@ public class SpotCheckAppealEntity implements Serializable {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 }

@@ -82,6 +82,16 @@ public class SpotCheckAppealResult implements Serializable {
     private String dutyProvinceName;
 
     /**
+     * 申诉人枢纽编码
+     */
+    private String dutyHubCode;
+
+    /**
+     * 申诉人枢纽名称
+     */
+    private String dutyHubName;
+
+    /**
      * 申诉人战区编码
      */
     private String dutyWarCode;
@@ -185,6 +195,11 @@ public class SpotCheckAppealResult implements Serializable {
      * 驳回理由
      */
     private String rejectReason;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 
     /**
      * 确认时间
@@ -307,6 +322,22 @@ public class SpotCheckAppealResult implements Serializable {
         this.dutyProvinceName = dutyProvinceName;
     }
 
+    public String getDutyHubCode() {
+        return dutyHubCode;
+    }
+
+    public void setDutyHubCode(String dutyHubCode) {
+        this.dutyHubCode = dutyHubCode;
+    }
+
+    public String getDutyHubName() {
+        return dutyHubName;
+    }
+
+    public void setDutyHubName(String dutyHubName) {
+        this.dutyHubName = dutyHubName;
+    }
+
     public String getDutyWarCode() {
         return dutyWarCode;
     }
@@ -425,6 +456,14 @@ public class SpotCheckAppealResult implements Serializable {
 
     public void setRejectReason(String rejectReason) {
         this.rejectReason = rejectReason;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public Date getUpdateTime() {
