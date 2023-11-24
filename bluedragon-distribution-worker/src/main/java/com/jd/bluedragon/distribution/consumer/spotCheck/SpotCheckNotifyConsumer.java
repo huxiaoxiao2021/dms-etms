@@ -149,12 +149,10 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             String appendixUrl = appendixDto.getAppendixUrl();
             JyAttachmentDetailEntity attachmentDetailEntity = new JyAttachmentDetailEntity();
             attachmentDetailEntity.setBizId(spotCheckNotifyMQ.getFlowId());
-            // 存抽检人站点还是申诉人的站点 todo
             attachmentDetailEntity.setSiteCode(Integer.valueOf(spotCheckNotifyMQ.getOrgCode()));
             attachmentDetailEntity.setBizType(JyAttachmentBizTypeEnum.DEVICE_SPOT_APPEAL.getCode());
-            // 存system.dms还是申诉人的erp todo
-            attachmentDetailEntity.setCreateUserErp(spotCheckNotifyMQ.getDutyStaffAccount());
-            attachmentDetailEntity.setUpdateUserErp(spotCheckNotifyMQ.getDutyStaffAccount());
+            attachmentDetailEntity.setCreateUserErp(Constants.SYS_NAME);
+            attachmentDetailEntity.setUpdateUserErp(Constants.SYS_NAME);
             // 如果是图片
             if (SpotCheckAppendixTypeEnum.ESCALATION_PICTURE.getCode().equals(appendixType)) {
                 attachmentDetailEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());

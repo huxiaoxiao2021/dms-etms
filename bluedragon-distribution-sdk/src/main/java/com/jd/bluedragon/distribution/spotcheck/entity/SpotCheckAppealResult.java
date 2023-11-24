@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.spotcheck.domain;
+package com.jd.bluedragon.distribution.spotcheck.entity;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * 抽检申诉记录对象
  */
-public class SpotCheckAppealEntity implements Serializable {
+public class SpotCheckAppealResult implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -80,16 +80,6 @@ public class SpotCheckAppealEntity implements Serializable {
      * 申诉人省区名称
      */
     private String dutyProvinceName;
-
-    /**
-     * 申诉人枢纽编码
-     */
-    private String dutyHubCode;
-
-    /**
-     * 申诉人枢纽名称
-     */
-    private String dutyHubName;
 
     /**
      * 申诉人战区编码
@@ -221,12 +211,6 @@ public class SpotCheckAppealEntity implements Serializable {
      */
     private Date ts;
 
-    private Date spotStartTime;
-
-    private Date spotEndTime;
-
-    private List<Long> idList;
-
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -321,22 +305,6 @@ public class SpotCheckAppealEntity implements Serializable {
 
     public void setDutyProvinceName(String dutyProvinceName) {
         this.dutyProvinceName = dutyProvinceName;
-    }
-
-    public String getDutyHubCode() {
-        return dutyHubCode;
-    }
-
-    public void setDutyHubCode(String dutyHubCode) {
-        this.dutyHubCode = dutyHubCode;
-    }
-
-    public String getDutyHubName() {
-        return dutyHubName;
-    }
-
-    public void setDutyHubName(String dutyHubName) {
-        this.dutyHubName = dutyHubName;
     }
 
     public String getDutyWarCode() {
@@ -563,27 +531,4 @@ public class SpotCheckAppealEntity implements Serializable {
         this.bizId = bizId;
     }
 
-    public Date getSpotStartTime() {
-        return spotStartTime;
-    }
-
-    public void setSpotStartTime(Date spotStartTime) {
-        this.spotStartTime = spotStartTime;
-    }
-
-    public Date getSpotEndTime() {
-        return spotEndTime;
-    }
-
-    public void setSpotEndTime(Date spotEndTime) {
-        this.spotEndTime = spotEndTime;
-    }
-
-    public List<Long> getIdList() {
-        return idList;
-    }
-
-    public void setIdList(List<Long> idList) {
-        this.idList = idList;
-    }
 }
