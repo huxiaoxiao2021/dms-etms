@@ -28,7 +28,6 @@ import com.jdl.basic.api.domain.user.JyUserDto;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
-import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.common.utils.DateUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jsoup.helper.StringUtil;
@@ -514,7 +513,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	 * @param violentSortingDto
 	 * @param workStationGrid
 	 */
-	@Override
+	/*@Override
 	public void generateViolentSortingTask(ViolentSortingDto violentSortingDto, WorkGrid workGrid){
 		//todo 网格主键??
 		String gridBusinessKey = violentSortingDto.getGridBusinessKey();
@@ -549,5 +548,5 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			return;
 		}
 		
-	}
+	}*/
 }
