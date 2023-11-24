@@ -39,6 +39,7 @@
 		<result column="appeal_weight_status" property="appealWeightStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="appeal_volume_status" property="appealVolumeStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="reject_reason" property="rejectReason" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="confirm_status" property="confirmStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -53,7 +54,7 @@
 		id,biz_id,waybill_code,start_time,device_code,start_province_code,start_province_name,start_hub_code,start_hub_name,start_site_code,start_site_name,
 		start_erp,duty_province_code,duty_province_name,duty_hub_code,duty_hub_name,duty_war_code,duty_war_name,duty_area_code,duty_area_name,duty_site_code,duty_site_name,duty_erp,
 		confirm_weight,confirm_volume,re_confirm_weight,re_confirm_volume,diff_weight,stander_diff,before_weight_status,before_volume_status,after_weight_status,
-		after_volume_status,appeal_weight_status,appeal_volume_status,reject_reason,update_time,update_user_erp,confirm_status,auto_status,yn,ts
+		after_volume_status,appeal_weight_status,appeal_volume_status,reject_reason,create_time,update_time,update_user_erp,confirm_status,auto_status,yn,ts
 	</sql>
 
 
@@ -171,6 +172,9 @@
 				</if>
 				<if test="updateUserErp != null and updateUserErp != ''" >
 					update_user_erp,
+				</if>
+				<if test="createTime != null" >
+					create_time,
 				</if>
 				<if test="updateTime != null" >
 					update_time,
@@ -296,6 +300,9 @@
 				</if>
 				<if test="updateUserErp != null" >
 					#{updateUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="updateTime != null" >
 					#{updateTime,jdbcType=TIMESTAMP},

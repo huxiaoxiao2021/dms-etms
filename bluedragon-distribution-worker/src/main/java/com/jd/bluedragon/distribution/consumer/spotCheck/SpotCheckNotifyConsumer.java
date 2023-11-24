@@ -216,6 +216,9 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         spotCheckAppealEntity.setAppealVolumeStatus(0);
         spotCheckAppealEntity.setConfirmStatus(Constants.NUMBER_ZERO);
         spotCheckAppealEntity.setAutoStatus(Constants.NUMBER_ZERO);
+        Date date = new Date();
+        spotCheckAppealEntity.setCreateTime(date);
+        spotCheckAppealEntity.setUpdateTime(date);
         spotCheckAppealEntity.setYn(Constants.YN_YES);
         return spotCheckAppealEntity;
     }

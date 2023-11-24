@@ -197,6 +197,11 @@ public class SpotCheckAppealEntity implements Serializable {
     private String rejectReason;
 
     /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
      * 确认时间
      */
     private Date updateTime;
@@ -585,5 +590,13 @@ public class SpotCheckAppealEntity implements Serializable {
 
     public void setIdList(List<Long> idList) {
         this.idList = idList;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 }
