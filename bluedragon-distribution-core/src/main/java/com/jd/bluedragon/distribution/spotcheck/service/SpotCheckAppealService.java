@@ -34,4 +34,14 @@ public interface SpotCheckAppealService {
      */
     void batchUpdateByIds(SpotCheckAppealEntity spotCheckAppealEntity);
 
+    /**
+     * 根据ID查找
+     */
+    SpotCheckAppealEntity findById(SpotCheckAppealEntity spotCheckAppealEntity);
+
+    /**
+     * 根据ID列表批量查找
+     */
+    List<SpotCheckAppealEntity> batchFindByIds(SpotCheckAppealEntity spotCheckAppealEntity);
+
 }

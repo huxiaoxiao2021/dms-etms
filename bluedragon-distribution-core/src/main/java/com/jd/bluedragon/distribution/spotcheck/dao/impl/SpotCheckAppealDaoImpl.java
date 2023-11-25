@@ -36,6 +36,16 @@ public class SpotCheckAppealDaoImpl extends BaseDao<SpotCheckAppealEntity> imple
 		return this.getSqlSession().update(NAMESPACE + ".batchUpdateByIds", spotCheckAppealEntity);
 	}
 
+	@Override
+	public SpotCheckAppealEntity findById(SpotCheckAppealEntity spotCheckAppealEntity) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".findById", spotCheckAppealEntity);
+	}
+
+	@Override
+	public List<SpotCheckAppealEntity> batchFindByIds(SpotCheckAppealEntity spotCheckAppealEntity) {
+		return this.getSqlSession().selectList(NAMESPACE + ".batchFindByIds", spotCheckAppealEntity);
+	}
+
 	/**
 	 * 根据条件统计总数
 	 */

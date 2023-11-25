@@ -72,6 +72,11 @@ public class SpotCheckAppealResult implements Serializable {
     private String startErp;
 
     /**
+     * 责任类型
+     */
+    private Integer dutyType;
+
+    /**
      * 申诉人省区编码
      */
     private String dutyProvinceCode;
@@ -304,6 +309,14 @@ public class SpotCheckAppealResult implements Serializable {
 
     public void setStartErp(String startErp) {
         this.startErp = startErp;
+    }
+
+    public Integer getDutyType() {
+        return dutyType;
+    }
+
+    public void setDutyType(Integer dutyType) {
+        this.dutyType = dutyType;
     }
 
     public String getDutyProvinceCode() {

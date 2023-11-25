@@ -15,6 +15,7 @@
 		<result column="start_site_code" property="startSiteCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="start_site_name" property="startSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="start_erp" property="startErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_type" property="dutyType" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="duty_province_code" property="dutyProvinceCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="duty_province_name" property="dutyProvinceName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="duty_hub_code" property="dutyHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -52,7 +53,7 @@
 
 	<sql id="Base_Column_List" >
 		id,biz_id,waybill_code,start_time,device_code,start_province_code,start_province_name,start_hub_code,start_hub_name,start_site_code,start_site_name,
-		start_erp,duty_province_code,duty_province_name,duty_hub_code,duty_hub_name,duty_war_code,duty_war_name,duty_area_code,duty_area_name,duty_site_code,duty_site_name,duty_erp,
+		start_erp,duty_type,duty_province_code,duty_province_name,duty_hub_code,duty_hub_name,duty_war_code,duty_war_name,duty_area_code,duty_area_name,duty_site_code,duty_site_name,duty_erp,
 		confirm_weight,confirm_volume,re_confirm_weight,re_confirm_volume,diff_weight,stander_diff,before_weight_status,before_volume_status,after_weight_status,
 		after_volume_status,appeal_weight_status,appeal_volume_status,reject_reason,create_time,update_time,update_user_erp,confirm_status,auto_status,yn,ts
 	</sql>
@@ -97,6 +98,9 @@
 				</if>
 				<if test="startErp != null and startErp != ''" >
 					start_erp,
+				</if>
+				<if test="dutyType != null" >
+					duty_type,
 				</if>
 				<if test="dutyProvinceCode != null and dutyProvinceCode != ''" >
 					duty_province_code,
@@ -228,6 +232,9 @@
 				</if>
 				<if test="startErp != null and startErp != ''" >
 					#{startErp,jdbcType=VARCHAR},
+				</if>
+				<if test="dutyType != null" >
+					#{dutyType,jdbcType=TINYINT},
 				</if>
 				<if test="dutyProvinceCode != null and dutyProvinceCode != ''" >
 					#{dutyProvinceCode,jdbcType=VARCHAR},
@@ -363,6 +370,23 @@
 			#{item,jdbcType=BIGINT}
 		</foreach>
 	</update>
+
+	<select id="findById" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from spot_check_appeal
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="batchFindByIds" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from spot_check_appeal
+		where id in
+		<foreach collection="idList" item="item" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</select>
 
     <select id="findByCondition" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="BaseResultMap">
         select

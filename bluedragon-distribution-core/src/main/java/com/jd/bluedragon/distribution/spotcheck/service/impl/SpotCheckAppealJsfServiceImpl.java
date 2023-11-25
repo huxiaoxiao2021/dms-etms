@@ -3,14 +3,18 @@ package com.jd.bluedragon.distribution.spotcheck.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckIssueMQ;
 import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealAppendixResult;
 import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealDto;
 import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealResult;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealJsfService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -22,9 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service("spotCheckAppealJsfService")
@@ -37,6 +43,10 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
 
     @Autowired
     private JyAttachmentDetailService jyAttachmentDetailService;
+
+    @Autowired
+    @Qualifier("spotCheckIssueProducer")
+    private DefaultJMQProducer spotCheckIssueProducer;
 
 
     @Override
@@ -89,7 +99,17 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
         try {
             SpotCheckAppealEntity params = new SpotCheckAppealEntity();
             BeanUtils.copyProperties(request, params);
+            // 更新确认状态
             spotCheckAppealService.updateById(params);
+            // 根据ID查询设备抽检申诉核对记录
+            SpotCheckAppealEntity entity = spotCheckAppealService.findById(params);
+            if (entity == null) {
+                logger.warn("updateById|根据ID查询设备抽检申诉核对记录返回空:request={}", JsonHelper.toJson(request));
+                response.toWarn("根据ID查询设备抽检申诉核对记录返回空");
+                return response;
+            }
+            // 通知称重再造系统
+            notifyRemakeSystem(entity);
             return response;
         } catch (Exception e) {
             logger.error("updateById|根据ID更新设备抽检申诉记录明细出现异常:request={},e=", JsonHelper.toJson(request), e);
@@ -107,7 +127,19 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
         try {
             SpotCheckAppealEntity params = new SpotCheckAppealEntity();
             BeanUtils.copyProperties(request, params);
+            // 批量更新确认状态
             spotCheckAppealService.batchUpdateByIds(params);
+            // 根据ID查询设备抽检申诉核对记录
+            List<SpotCheckAppealEntity> entityList = spotCheckAppealService.batchFindByIds(params);
+            if (CollectionUtils.isEmpty(entityList)) {
+                logger.warn("batchUpdateByIds|根据ID列表批量查询设备抽检申诉核对记录返回空:request={}", JsonHelper.toJson(request));
+                response.toWarn("根据ID列表批量查询设备抽检申诉核对记录返回空");
+                return response;
+            }
+            // 通知称重再造系统
+            for (SpotCheckAppealEntity entity : entityList) {
+                notifyRemakeSystem(entity);
+            }
             return response;
         } catch (Exception e) {
             logger.error("batchUpdateByIds|根据ID列表批量更新设备抽检申诉记录明细出现异常:request={},e=", JsonHelper.toJson(request), e);
@@ -167,4 +199,60 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
             return response;
         }
     }
+
+
+    /**
+     * 通知称重再造系统
+     */
+    private void notifyRemakeSystem(SpotCheckAppealEntity spotCheckDto) {
+        SpotCheckIssueMQ spotCheckIssueMQ = new SpotCheckIssueMQ();
+        // 流程发起系统
+        spotCheckIssueMQ.setFlowSystem(SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
+        // 流程发起环节
+        spotCheckIssueMQ.setInitiationLink(String.valueOf(SpotCheckConstants.DMS_SPOT_CHECK_ISSUE));
+        // 数据来源系统
+        spotCheckIssueMQ.setSysSource(String.valueOf(SpotCheckConstants.SYS_DMS_DWS));
+        // 数据操作类型
+        spotCheckIssueMQ.setOperateType(Constants.CONSTANT_NUMBER_TWO);
+        // 流程唯一标识
+        spotCheckIssueMQ.setFlowId(spotCheckIssueMQ.getFlowSystem() + Constants.UNDERLINE_FILL + spotCheckDto.getWaybillCode()
+                + Constants.UNDERLINE_FILL + spotCheckDto.getStartSiteCode() + Constants.UNDERLINE_FILL + SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_UPGRADE.getCode());
+        // 运单号
+        spotCheckIssueMQ.setWaybillCode(spotCheckDto.getWaybillCode());
+        // 如果同意申诉，则状态为判责无效
+        if (Constants.NUMBER_ONE.equals(spotCheckDto.getConfirmStatus())) {
+            spotCheckIssueMQ.setStatus(SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_INVALID.getCode());
+            // 如果驳回申诉，则状态为判责有效
+        } else if (String.valueOf(Constants.CONSTANT_NUMBER_TWO).equals(String.valueOf(spotCheckDto.getConfirmStatus()))) {
+            spotCheckIssueMQ.setStatus(SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_EFFECT.getCode());
+        }
+        // 责任类型
+        spotCheckIssueMQ.setDutyType(spotCheckDto.getDutyType());
+        // 发起人账号
+        spotCheckIssueMQ.setStartStaffAccount(spotCheckDto.getUpdateUserErp());
+        // 发起人类型
+        spotCheckIssueMQ.setStartStaffType(Constants.CONSTANT_NUMBER_ONE);
+        // 核对(被举报)重量 单位为kg
+        spotCheckIssueMQ.setConfirmWeight(spotCheckDto.getConfirmWeight());
+        // 核对(被举报)体积 单位为cm3
+        spotCheckIssueMQ.setConfirmVolume(spotCheckDto.getConfirmVolume());
+        // 复核(举报)重量 单位为kg
+        spotCheckIssueMQ.setReConfirmWeight(spotCheckDto.getReConfirmWeight());
+        // 复核(举报)体积 单位为cm3
+        spotCheckIssueMQ.setReConfirmVolume(spotCheckDto.getReConfirmVolume());
+        // 差异标准
+        spotCheckIssueMQ.setStanderDiff(spotCheckDto.getStanderDiff());
+        // 流程发起时间
+        spotCheckIssueMQ.setStartTime(new Date());
+        // 流程状态变更时间
+        spotCheckIssueMQ.setStatusUpdateTime(new Date());
+        // 判责结果描述
+        spotCheckIssueMQ.setComment(spotCheckDto.getRejectReason());
+
+        if(logger.isInfoEnabled()){
+            logger.info("下发运单号:{}的设备抽检申诉核对数据至称重再造流程,明细如下:{}", spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
+        }
+        spotCheckIssueProducer.sendOnFailPersistent(SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_UPGRADE.getCode() + spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
+    }
+
 }
