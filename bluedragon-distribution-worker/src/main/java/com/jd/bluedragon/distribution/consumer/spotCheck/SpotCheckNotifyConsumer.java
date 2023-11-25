@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppendixDto;
@@ -22,6 +23,7 @@ import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
@@ -30,12 +32,14 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 抽检回传消息消费
@@ -47,6 +51,8 @@ import java.util.Objects;
 public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
 
     private final Logger logger = LoggerFactory.getLogger(SpotCheckNotifyConsumer.class);
+
+    private static final String SPOT_CHECK_APPEAL_PREFIX = "spot:check:appeal:";
 
     @Autowired
     private SpotCheckQueryManager spotCheckQueryManager;
@@ -65,6 +71,10 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
 
     @Autowired
     private JyAttachmentDetailService jyAttachmentDetailService;
+
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -109,15 +119,26 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
 
         // 如果是申诉状态，走另一个流程
         if (SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_UPGRADE.getCode().equals(status)) {
+            // 运单加锁防止并发问题
+            String mutexKey = SPOT_CHECK_APPEAL_PREFIX + waybillCode;
+            if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {
+                String warnMsg = String.format("运单号:%s-设备抽检申诉核对记录保存正在处理中!", waybillCode);
+                logger.warn(warnMsg);
+                throw new JyBizException(warnMsg);
+            }
             // 组装申诉记录数据
             SpotCheckAppealEntity spotCheckAppealEntity = transformData(spotCheckNotifyMQ, updateDto);
-            // 插入数据库
-            spotCheckAppealService.insertRecord(spotCheckAppealEntity);
-            // 组装附件数据
-            List<JyAttachmentDetailEntity> jyAttachmentDetailEntityList = createAttachmentList(spotCheckNotifyMQ);
-            // 插入附件表
-            jyAttachmentDetailService.batchInsert(jyAttachmentDetailEntityList);
-            spotCheckServiceProxy.insertOrUpdateProxyReform(updateDto);
+            // 查询是否已经保存过
+            if (spotCheckAppealService.findByBizId(spotCheckAppealEntity) == null) {
+                // 插入数据库
+                spotCheckAppealService.insertRecord(spotCheckAppealEntity);
+                // 组装附件数据
+                List<JyAttachmentDetailEntity> jyAttachmentDetailEntityList = createAttachmentList(spotCheckNotifyMQ);
+                // 插入附件表
+                jyAttachmentDetailService.batchInsert(jyAttachmentDetailEntityList);
+                spotCheckServiceProxy.insertOrUpdateProxyReform(updateDto);
+            }
+            redisClientOfJy.del(mutexKey);
             return;
         }
         // 上传称重流水
@@ -186,6 +207,7 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         spotCheckAppealEntity.setStartSiteCode(spotCheckNotifyMQ.getOrgCode());
         spotCheckAppealEntity.setStartSiteName(spotCheckNotifyMQ.getOrgName());
         spotCheckAppealEntity.setStartErp(spotCheckNotifyMQ.getStartStaffAccount());
+        spotCheckAppealEntity.setDutyType(spotCheckNotifyMQ.getDutyType());
         spotCheckAppealEntity.setDutyProvinceCode(spotCheckNotifyMQ.getDutyProvinceAgencyCode());
         spotCheckAppealEntity.setDutyProvinceName(spotCheckNotifyMQ.getDutyProvinceAgencyCode());
         // 查询青龙基础资料补全申诉人枢纽

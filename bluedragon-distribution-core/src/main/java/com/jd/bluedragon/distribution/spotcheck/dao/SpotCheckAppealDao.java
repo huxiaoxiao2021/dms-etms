@@ -41,4 +41,9 @@ public interface SpotCheckAppealDao {
      */
     List<SpotCheckAppealEntity> batchFindByIds(SpotCheckAppealEntity spotCheckAppealEntity);
 
+    /**
+     * 根据bizId查找
+     */
+    SpotCheckAppealEntity findByBizId(SpotCheckAppealEntity spotCheckAppealEntity);
+
 }

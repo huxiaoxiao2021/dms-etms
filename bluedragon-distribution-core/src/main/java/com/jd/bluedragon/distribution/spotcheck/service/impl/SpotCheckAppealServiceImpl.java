@@ -56,4 +56,9 @@ public class SpotCheckAppealServiceImpl implements SpotCheckAppealService {
     public List<SpotCheckAppealEntity> batchFindByIds(SpotCheckAppealEntity spotCheckAppealEntity) {
         return spotCheckAppealDao.batchFindByIds(spotCheckAppealEntity);
     }
+
+    @Override
+    public SpotCheckAppealEntity findByBizId(SpotCheckAppealEntity spotCheckAppealEntity) {
+        return spotCheckAppealDao.findByBizId(spotCheckAppealEntity);
+    }
 }

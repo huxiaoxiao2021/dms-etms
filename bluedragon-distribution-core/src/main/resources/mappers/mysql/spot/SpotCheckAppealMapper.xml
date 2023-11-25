@@ -378,6 +378,13 @@
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 
+	<select id="findByBizId" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from spot_check_appeal
+		where biz_id = #{bizId,jdbcType=VARCHAR}
+	</select>
+
 	<select id="batchFindByIds" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
