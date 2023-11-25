@@ -99,7 +99,7 @@ $(function () {
         var upSuccess6 = '#upSuccess6';
         var upFail6 = '#upFail6';
         var upIsSuccessFlage6 = '#upIsSuccessFlage6';
-        uploadVideoNew($('#pictureField6').val().trim(),$('#fileField6')[0].files[0],upSuccess6,upFail6,upIsSuccessFlage6,6);
+        uploadVideo($('#pictureField6').val().trim(),$('#fileField6')[0].files[0],upSuccess6,upFail6,upIsSuccessFlage6,6);
     });
 
     // 图片上传失败两次后，第三次可强制上传
