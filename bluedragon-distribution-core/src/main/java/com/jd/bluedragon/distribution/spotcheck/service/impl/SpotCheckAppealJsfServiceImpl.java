@@ -215,8 +215,7 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
         // 数据操作类型
         spotCheckIssueMQ.setOperateType(Constants.CONSTANT_NUMBER_TWO);
         // 流程唯一标识
-        spotCheckIssueMQ.setFlowId(spotCheckIssueMQ.getFlowSystem() + Constants.UNDERLINE_FILL + spotCheckDto.getWaybillCode()
-                + Constants.UNDERLINE_FILL + spotCheckDto.getStartSiteCode() + Constants.UNDERLINE_FILL + SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_UPGRADE.getCode());
+        spotCheckIssueMQ.setFlowId(spotCheckDto.getBizId());
         // 运单号
         spotCheckIssueMQ.setWaybillCode(spotCheckDto.getWaybillCode());
         // 如果同意申诉，则状态为判责无效
