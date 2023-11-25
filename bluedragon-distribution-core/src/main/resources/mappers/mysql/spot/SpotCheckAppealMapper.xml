@@ -346,7 +346,7 @@
 					reject_reason = #{rejectReason,jdbcType=VARCHAR},
 				</if>
 			</set>
-		where id = #{id,jdbcType=BIGINT}
+		where confirm_status = 0 and id = #{id,jdbcType=BIGINT}
 	</update>
 
 	<update id="batchUpdateByIds" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity">
@@ -365,7 +365,7 @@
 				reject_reason = #{rejectReason,jdbcType=VARCHAR},
 			</if>
 		</set>
-		where id in
+		where confirm_status = 0 and id in
 		<foreach collection="idList" item="item" open="(" separator="," close=")">
 			#{item,jdbcType=BIGINT}
 		</foreach>
