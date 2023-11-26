@@ -24,6 +24,8 @@ import com.jd.dms.wb.sdk.enums.oneTable.TimeTypeEnum;
 import com.jd.dms.wb.sdk.model.base.BaseEntity;
 import com.jd.fds.lib.dto.server.FdsPage;
 import com.jd.fds.lib.dto.server.FdsServerResult;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.work.WorkGridCandidate;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
@@ -1163,40 +1165,50 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	 * @return
 	 */
 	private List<WorkGrid> getWorkGridByLoadCarQualityReport(List<String> areaCodes, Integer siteCode, Integer limit, Integer pageNum){
-		//指标业务只查一页
-		if(pageNum > 1){
-			return null;
-		}
-		Map<String, Object> queryParam = new HashMap<>();
-		String dt = DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2));
-		queryParam.put("dt", dt);
-		queryParam.put("siteCode", siteCode.toString());
-		//调用easydata 装车质量 发货扫描率倒数第一的网格
-		FdsPage edresult = easyDataClientUtil.query(dmsWEasyDataConfig.getQueryLoadCarQualityGrid(), queryParam,
-				dmsWEasyDataConfig.getApiGroupName(),dmsWEasyDataConfig.getAppToken(),
-				limit,pageNum - 1, null);
-		if(edresult == null || CollectionUtils.isEmpty(edresult.getContent())) {
-			logger.info("从装车质量报表ck未查到网格信息,dt:{},siteCode:{}", dt, siteCode);
-			return null;
-		}
-		List<WorkGrid> workGrids = new ArrayList<>();
-		List<String> refGridKeys = new ArrayList<>();
-		for(Object data : edresult.getContent()){
-			Map map = (Map)data;
-			String refGridKey = null;
-			if(map.containsKey("refGridKey") && map.get("refGridKey") != null) {
-				refGridKey = map.get("refGridKey").toString();
-				Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(refGridKey);
-				if(workGridResult == null || workGridResult.getData() == null) {
-					logger.info("从装车质量报表ck未查到网格信息,网格信息为空,refGridKey:{}", refGridKey);
-					continue;
-				}
-				refGridKeys.add(refGridKey);
-				workGrids.add(workGridResult.getData());
+		CallerInfo callerInfo = Profiler.registerInfo("dmsWork.JyWorkGridManagerBusinessService.getWorkGridByLoadCarQualityReport",
+				Constants.UMP_APP_NAME_DMSWORKER,false,true);
+		List<WorkGrid> workGrids = null;
+		try {
+			//指标业务只查一页
+			if(pageNum > 1){
+				return null;
 			}
+			Map<String, Object> queryParam = new HashMap<>();
+			String dt = DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2));
+			queryParam.put("dt", dt);
+			queryParam.put("siteCode", siteCode.toString());
+			//调用easydata 装车质量 发货扫描率倒数第一的网格
+			FdsPage edresult = easyDataClientUtil.query(dmsWEasyDataConfig.getQueryLoadCarQualityGrid(), queryParam,
+					dmsWEasyDataConfig.getApiGroupName(),dmsWEasyDataConfig.getAppToken(),
+					limit,pageNum - 1, null);
+			if(edresult == null || CollectionUtils.isEmpty(edresult.getContent())) {
+				logger.info("从装车质量报表ck未查到网格信息,dt:{},siteCode:{}", dt, siteCode);
+				return null;
+			}
+			workGrids = new ArrayList<>();
+			List<String> refGridKeys = new ArrayList<>();
+			for(Object data : edresult.getContent()){
+				Map map = (Map)data;
+				String refGridKey = null;
+				if(map.containsKey("refGridKey") && map.get("refGridKey") != null) {
+					refGridKey = map.get("refGridKey").toString();
+					Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(refGridKey);
+					if(workGridResult == null || workGridResult.getData() == null) {
+						logger.info("从装车质量报表ck未查到网格信息,网格信息为空,refGridKey:{}", refGridKey);
+						continue;
+					}
+					refGridKeys.add(refGridKey);
+					workGrids.add(workGridResult.getData());
+				}
+			}
+			logger.info("装车质量报表查到指标平均得分倒数的网格,dt:{},siteCode:{},refGridKeys:{}", dt, siteCode, 
+					JsonHelper.toJson(refGridKeys));
+		} catch (Exception e) {
+			logger.error("从装车质量报表ck查询该场地网格异常，siteCode:{}",siteCode,e);
+			Profiler.functionError(callerInfo);
+		} finally {
+			Profiler.registerInfoEnd(callerInfo);
 		}
-		logger.info("装车质量报表查到指标平均得分倒数的网格,dt:{},siteCode:{},refGridKeys:{}", dt, siteCode, 
-				JsonHelper.toJson(refGridKeys));
 		return workGrids;
 	}
 
