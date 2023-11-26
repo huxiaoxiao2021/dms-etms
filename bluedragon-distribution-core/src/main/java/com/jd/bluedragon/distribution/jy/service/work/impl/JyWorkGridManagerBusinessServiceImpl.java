@@ -596,7 +596,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		String targetStr = "";
 		if(target != null){
 			queryParam.put("target", target/100);
-			targetStr = String.format("%.2f",target);
+			targetStr = String.format("%.2f",target) + "%";
 		}
 		Integer limit = 20;
 		SysConfig kpiImproveTaskSiteNumConfig = sysConfigService.findConfigContentByConfigName(KPI_IMPROVE_TASK_SITE_NUM_KEY);
@@ -632,7 +632,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				businessQuotaInfoData.setTarget(targetStr);
 				Double actual = Double.parseDouble(data.get("actual").toString());
 				actual = actual * 100;
-				businessQuotaInfoData.setActual(String.format("%.2f",actual));
+				businessQuotaInfoData.setActual(String.format("%.2f",actual) + "%");
 				businessQuotaInfoData.setQuotaAchieveInfo(quotaAchieveInfo);
 				businessQuotaInfoDataMap.put(siteCode, businessQuotaInfoData);
 			}
