@@ -319,6 +319,8 @@
 		<property name="collectPackageSiteForbiddenList" value="${collectPackageSiteForbiddenList:''}"/>
 
 		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
+		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -625,6 +627,7 @@
 				<value>uccPropertyConfiguration.jyCollectPackageInterceptBitCode</value>
 				<value>uccPropertyConfiguration.collectPackageSiteForbiddenList</value>
 				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
+				<value>uccPropertyConfiguration.sealSyncOpenCloseSendTaskSwitch</value>
 			</list>
 		</property>
 	</bean>

@@ -1514,6 +1514,14 @@ public class UccPropertyConfiguration{
      */
     private boolean dmsToVendorSendMQSwitch;
 
+    /**
+     * 封车或取消封车时同步新版app发货任务状态开关: 默认 ： 1, 开启
+     */
+    private String sealSyncOpenCloseSendTaskSwitch;
+
+
+
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4031,5 +4039,13 @@ public class UccPropertyConfiguration{
 
     public void setCollectPackageTaskRefreshSwitch(boolean collectPackageTaskRefreshSwitch) {
         this.collectPackageTaskRefreshSwitch = collectPackageTaskRefreshSwitch;
+    }
+
+    public String getSealSyncOpenCloseSendTaskSwitch() {
+        return sealSyncOpenCloseSendTaskSwitch;
+    }
+
+    public void setSealSyncOpenCloseSendTaskSwitch(String sealSyncOpenCloseSendTaskSwitch) {
+        this.sealSyncOpenCloseSendTaskSwitch = sealSyncOpenCloseSendTaskSwitch;
     }
 }
