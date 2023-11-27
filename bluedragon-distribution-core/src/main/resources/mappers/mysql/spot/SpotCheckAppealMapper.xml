@@ -200,16 +200,16 @@
 				<if test="id != null" >
 					#{id,jdbcType=BIGINT},
 				</if>
-				<if test="bizId != null" >
+				<if test="bizId != null and bizId != ''" >
 					#{bizId,jdbcType=VARCHAR},
 				</if>
-				<if test="waybillCode != null" >
+				<if test="waybillCode != null and waybillCode != ''" >
 					#{waybillCode,jdbcType=VARCHAR},
 				</if>
-				<if test="bizId != null" >
+				<if test="startTime != null" >
 					#{startTime,jdbcType=TIMESTAMP},
 				</if>
-				<if test="bizId != null" >
+				<if test="deviceCode != null and deviceCode != ''" >
 					#{deviceCode,jdbcType=VARCHAR},
 				</if>
 				<if test="startProvinceCode != null and startProvinceCode != ''" >
@@ -305,7 +305,10 @@
 				<if test="appealVolumeStatus != null">
 					#{appealVolumeStatus,jdbcType=TINYINT},
 				</if>
-				<if test="updateUserErp != null" >
+				<if test="rejectReason != null and rejectReason != ''" >
+					#{rejectReason,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserErp != null and updateUserErp != ''" >
 					#{updateUserErp,jdbcType=VARCHAR},
 				</if>
 				<if test="createTime != null" >
@@ -313,9 +316,6 @@
 				</if>
 				<if test="updateTime != null" >
 					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="rejectReason != null" >
-					#{rejectReason,jdbcType=VARCHAR},
 				</if>
 				<if test="confirmStatus != null" >
 					#{confirmStatus,jdbcType=TINYINT},
@@ -333,7 +333,7 @@
 	<update id="updateById" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity">
 		update spot_check_appeal
 			<set>
-				<if test="updateUserErp != null" >
+				<if test="updateUserErp != null and updateUserErp != ''" >
 					update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
 				</if>
 				<if test="updateTime != null" >
@@ -342,7 +342,7 @@
 				<if test="confirmStatus != null">
 					confirm_status = #{confirmStatus,jdbcType=TINYINT},
 				</if>
-				<if test="rejectReason != null">
+				<if test="rejectReason != null and rejectReason != ''">
 					reject_reason = #{rejectReason,jdbcType=VARCHAR},
 				</if>
 			</set>
@@ -352,7 +352,7 @@
 	<update id="batchUpdateByIds" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity">
 		update spot_check_appeal
 		<set>
-			<if test="updateUserErp != null" >
+			<if test="updateUserErp != null and updateUserErp != ''" >
 				update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
 			</if>
 			<if test="updateTime != null" >
@@ -361,7 +361,7 @@
 			<if test="confirmStatus != null">
 				confirm_status = #{confirmStatus,jdbcType=TINYINT},
 			</if>
-			<if test="rejectReason != null">
+			<if test="rejectReason != null and rejectReason != ''">
 				reject_reason = #{rejectReason,jdbcType=VARCHAR},
 			</if>
 		</set>
@@ -409,22 +409,22 @@
 			<if test="deviceCode != null and deviceCode != ''">
 				and device_code = #{deviceCode,jdbcType=VARCHAR}
 			</if>
-            <if test="startProvinceCode != null">
+            <if test="startProvinceCode != null and startProvinceCode != ''">
                 and start_province_code = #{startProvinceCode,jdbcType=VARCHAR}
             </if>
-			<if test="startHubCode != null">
+			<if test="startHubCode != null and startHubCode != ''">
 				and start_hub_code = #{startHubCode,jdbcType=VARCHAR}
 			</if>
-			<if test="startSiteCode != null">
+			<if test="startSiteCode != null and startSiteCode != ''">
 				and start_site_code = #{startSiteCode,jdbcType=VARCHAR}
 			</if>
-			<if test="dutyProvinceCode != null">
+			<if test="dutyProvinceCode != null and dutyProvinceCode != ''">
 				and duty_province_code = #{dutyProvinceCode,jdbcType=VARCHAR}
 			</if>
-			<if test="dutyHubCode != null">
+			<if test="dutyHubCode != null and dutyHubCode != ''">
 				and duty_hub_code = #{dutyHubCode,jdbcType=VARCHAR}
 			</if>
-			<if test="dutySiteCode != null">
+			<if test="dutySiteCode != null and dutySiteCode != ''">
 				and duty_site_code = #{dutySiteCode,jdbcType=VARCHAR}
 			</if>
             <if test="dutyErp != null and dutyErp != ''">
@@ -451,22 +451,22 @@
 			<if test="deviceCode != null and deviceCode != ''">
 				and device_code = #{deviceCode,jdbcType=VARCHAR}
 			</if>
-			<if test="startProvinceCode != null">
+			<if test="startProvinceCode != null and startProvinceCode != ''">
 				and start_province_code = #{startProvinceCode,jdbcType=VARCHAR}
 			</if>
-			<if test="startHubCode != null">
+			<if test="startHubCode != null and startHubCode != ''">
 				and start_hub_code = #{startHubCode,jdbcType=VARCHAR}
 			</if>
-			<if test="startSiteCode != null">
+			<if test="startSiteCode != null and startSiteCode != ''">
 				and start_site_code = #{startSiteCode,jdbcType=VARCHAR}
 			</if>
-			<if test="dutyProvinceCode != null">
+			<if test="dutyProvinceCode != null and dutyProvinceCode != ''">
 				and duty_province_code = #{dutyProvinceCode,jdbcType=VARCHAR}
 			</if>
-			<if test="dutyHubCode != null">
+			<if test="dutyHubCode != null and dutyHubCode != ''">
 				and duty_hub_code = #{dutyHubCode,jdbcType=VARCHAR}
 			</if>
-			<if test="dutySiteCode != null">
+			<if test="dutySiteCode != null and dutySiteCode != ''">
 				and duty_site_code = #{dutySiteCode,jdbcType=VARCHAR}
 			</if>
 			<if test="dutyErp != null and dutyErp != ''">
