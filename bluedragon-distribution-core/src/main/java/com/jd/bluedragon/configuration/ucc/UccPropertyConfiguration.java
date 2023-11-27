@@ -1623,12 +1623,26 @@ public class UccPropertyConfiguration{
      */
     private boolean terminalSitePackagePrintLimitSwitch;
 
+
     public boolean isTerminalSitePackagePrintLimitSwitch() {
         return terminalSitePackagePrintLimitSwitch;
     }
 
     public void setTerminalSitePackagePrintLimitSwitch(boolean terminalSitePackagePrintLimitSwitch) {
         this.terminalSitePackagePrintLimitSwitch = terminalSitePackagePrintLimitSwitch;
+    }
+
+    /**
+     * 分拣中心、接货仓、退货组 包裹补打限制开关
+     */
+    private boolean sortOrWarehouseOrReturngroupPackagePrintLimitSwitch;
+
+    public boolean isSortOrWarehouseOrReturngroupPackagePrintLimitSwitch() {
+        return sortOrWarehouseOrReturngroupPackagePrintLimitSwitch;
+    }
+
+    public void setSortOrWarehouseOrReturngroupPackagePrintLimitSwitch(boolean sortOrWarehouseOrReturngroupPackagePrintLimitSwitch) {
+        this.sortOrWarehouseOrReturngroupPackagePrintLimitSwitch = sortOrWarehouseOrReturngroupPackagePrintLimitSwitch;
     }
 
     private boolean needValidateBatchCodeHasSealed;
