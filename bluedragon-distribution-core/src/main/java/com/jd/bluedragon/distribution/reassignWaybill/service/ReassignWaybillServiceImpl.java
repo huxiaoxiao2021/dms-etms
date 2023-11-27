@@ -354,9 +354,11 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		List<BaseStaffSiteOrgDto> resList = new ArrayList<>();
 		try{
 			if (NumberHelper.isNumber(siteCodeOrName)) {
+				log.info("getSiteByCodeOrName queryDmsBaseSiteByCodeDmsver -入参 {}",siteCodeOrName);
 				/* 站点code精确匹配 */
 				resList.add(baseMajorManager.queryDmsBaseSiteByCodeDmsver(siteCodeOrName));
 			} else {
+				log.info("getSiteByCodeOrName fuzzyGetSiteBySiteName -入参 {}",siteCodeOrName);
 				/* 站点名称模糊匹配 */
 				resList.addAll(siteService.fuzzyGetSiteBySiteName(siteCodeOrName));
 			}

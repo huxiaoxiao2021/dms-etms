@@ -465,6 +465,7 @@ public class WaybillServiceImpl implements WaybillService {
             return new DmsWaybillInfoResponse(JdResponse.CODE_WRONG_STATUS, JdResponse.MESSAGE_OUT_ZONE);
         }
         DmsWaybillInfoResponse response = getDmsWaybillInfoResponse(packageCode);
+        log.info("获取运单信息 getDmsWaybillInfoAndCheck 入参-{}-出参-{}",packageCode,JSON.toJSONString(response));
         return response;
     }
 
