@@ -1740,6 +1740,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         condition.setOffset(Constants.CONSTANT_NUMBER_ZERO);
         condition.setPageSize(Constants.CONSTANT_NUMBER_ONE);
         condition.setTakeOffTimeOrderDesc(Constants.CONSTANT_NUMBER_ONE);
+        condition.setTakeOffTimeStart(null);//自建任务没有起飞时间
+
         List<JyBizTaskSendAviationPlanEntity> taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
         if(CollectionUtils.isEmpty(taskDtoList)) {
             res.setMessage("该流向未查到待发货任务");

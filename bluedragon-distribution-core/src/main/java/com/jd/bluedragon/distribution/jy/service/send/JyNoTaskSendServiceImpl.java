@@ -304,8 +304,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Override
     public InvokeResult<CreateAviationTaskResp> createAviationTask(CreateAviationTaskReq request) {
         InvokeResult<CreateAviationTaskResp> res = new InvokeResult<>();
-        CreateAviationTaskResp resDate = new CreateAviationTaskResp();
-        res.setData(resDate);
+        CreateAviationTaskResp resData = new CreateAviationTaskResp();
+        res.setData(resData);
         //
         this.createAviationTaskParamValidate(request, res);
         if(!res.codeSuccess()) {
@@ -329,7 +329,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 return res;
             }
             if(!Objects.isNull(invokeResult.getData())) {
-                resDate.setAviationSendTaskDto(invokeResult.getData());
+                resData.setAviationSendTaskDto(invokeResult.getData());
                 res.setCode(CreateAviationTaskResp.EXIST_SAME_DESTINATION_TASK_CODE);
                 res.setMessage(CreateAviationTaskResp.EXIST_SAME_DESTINATION_TASK_MSG);
                 return res;
@@ -341,6 +341,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity = this.aviationPlanConvertSendTaskDetail(aviationPlanEntity);
 
         sendVehicleTransactionManager.saveAviationPlanAndTaskSendAndDetail(aviationPlanEntity, sendVehicleEntity, sendVehicleDetailEntity);
+        resData.setBizId(aviationPlanEntity.getBizId());
+        resData.setDetailBizId(aviationPlanEntity.getBookingCode());
         return res;
     }
 
