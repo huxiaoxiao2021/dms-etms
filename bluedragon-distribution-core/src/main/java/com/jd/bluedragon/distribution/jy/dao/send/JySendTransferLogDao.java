@@ -27,4 +27,13 @@ public class JySendTransferLogDao extends BaseDao<JySendTransferLogEntity> {
     public int batchInsert(List<JySendTransferLogEntity> list) {
         return this.getSqlSession().insert(NAMESPACE + ".batchInsert", list);
     }
+
+    /**
+     * 查最后一次绑定或者转移的操作记录
+     * @param fromSendVehicleDetailBizId
+     * @return
+     */
+    public JySendTransferLogEntity findLatestByFromDetailBizId(String fromSendVehicleDetailBizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findLatestByFromDetailBizId", fromSendVehicleDetailBizId);
+    }
 }

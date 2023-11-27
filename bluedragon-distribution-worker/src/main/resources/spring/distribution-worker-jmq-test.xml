@@ -738,5 +738,9 @@
     <jmq:consumer id="jmq.batchCancelCollectPackageConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.batchCancelCollectPackageProduce}" listener="batchCancelCollectPackageConsumer"/>
     </jmq:consumer>
+    <!--封车取消封车同步新版app发货任务状态-->
+    <jmq:consumer id="jmq.sealSyncOpenCloseSendTaskConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.sealSyncOpenCloseSendTask}" listener="sealSyncOpenCloseSendTaskConsumer"/>
+    </jmq:consumer>
 </beans>
 
