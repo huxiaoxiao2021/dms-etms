@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
@@ -85,4 +86,6 @@ public interface JyDamageExceptionService {
      * 处理超48小时客服未反馈破损任务状态
      */
     JdCResponse<Boolean> dealDamageExpTaskOverTwoDags();
+
+    JdCResponse<List<JyExceptionDamageEnum.ConsumableEnum>> getConsumables();
 }

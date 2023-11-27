@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
 import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
@@ -305,5 +306,11 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.processTaskOfContraband", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {
         return jyContrabandExceptionService.processTaskOfContraband(req);
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.getConsumables", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<JyExceptionDamageEnum.ConsumableEnum>> getConsumables() {
+        return jyDamageExceptionService.getConsumables();
     }
 }

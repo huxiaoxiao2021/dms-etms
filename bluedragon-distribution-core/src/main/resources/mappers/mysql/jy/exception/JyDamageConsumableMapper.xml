@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.exception.JyDamageConsumableDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.exception.JyDamageConsumableEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="damage_biz_id" property="damageBizId" jdbcType="VARCHAR" />
+    <result column="province_agency_code" property="provinceAgencyCode" jdbcType="VARCHAR" />
+    <result column="province_agency_name" property="provinceAgencyName" jdbcType="VARCHAR" />
+    <result column="area_hub_code" property="areaHubCode" jdbcType="VARCHAR" />
+    <result column="area_hub_name" property="areaHubName" jdbcType="VARCHAR" />
+    <result column="site_code" property="siteCode" jdbcType="INTEGER" />
+    <result column="site_name" property="siteName" jdbcType="VARCHAR" />
+    <result column="floor" property="floor" jdbcType="INTEGER" />
+    <result column="grid_no" property="gridNo" jdbcType="VARCHAR" />
+    <result column="grid_code" property="gridCode" jdbcType="VARCHAR" />
+    <result column="grid_name" property="gridName" jdbcType="VARCHAR" />
+    <result column="owner_user_erp" property="ownerUserErp" jdbcType="VARCHAR" />
+    <result column="area_code" property="areaCode" jdbcType="VARCHAR" />
+    <result column="area_name" property="areaName" jdbcType="VARCHAR" />
+    <result column="bar_code" property="barCode" jdbcType="VARCHAR" />
+    <result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+    <result column="consumable_code" property="consumableCode" jdbcType="INTEGER" />
+    <result column="consumable_name" property="consumableName" jdbcType="VARCHAR" />
+    <result column="consumable_barcode" property="consumableBarcode" jdbcType="VARCHAR" />
+    <result column="operator_erp" property="operatorErp" jdbcType="VARCHAR" />
+    <result column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, damage_biz_id, province_agency_code, province_agency_name, area_hub_code, area_hub_name,site_code, site_name,
+    site_code, site_name, floor, grid_no, grid_code, grid_name, owner_user_erp, area_code, area_name, bar_code, waybill_code,
+    consumable_code, consumable_name, consumable_barcode, operator_erp, operate_time, ts, yn
+  </sql>
+
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyDamageConsumableEntity" >
+    insert into jy_damage_consumable_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="damageBizId != null" >
+        damage_biz_id,
+      </if>
+      <if test="provinceAgencyCode != null" >
+        province_agency_code,
+      </if>
+      <if test="provinceAgencyName != null" >
+        province_agency_name,
+      </if>
+      <if test="areaHubCode != null" >
+        area_hub_code,
+      </if>
+      <if test="areaHubName != null" >
+        area_hub_name,
+      </if>
+      <if test="siteCode != null" >
+        site_code,
+      </if>
+      <if test="siteName != null" >
+        site_name,
+      </if>
+      <if test="floor != null" >
+        floor,
+      </if>
+      <if test="gridNo != null" >
+        grid_no,
+      </if>
+      <if test="gridCode != null" >
+        grid_code,
+      </if>
+      <if test="gridName != null" >
+        grid_name,
+      </if>
+      <if test="ownerUserErp != null" >
+        owner_user_erp,
+      </if>
+      <if test="areaCode != null" >
+        area_code,
+      </if>
+      <if test="areaName != null" >
+        area_name,
+      </if>
+      <if test="barCode != null" >
+        bar_code,
+      </if>
+      <if test="waybillCode != null" >
+        waybillCode,
+      </if>
+      <if test="consumableCode != null" >
+        consumable_code,
+      </if>
+      <if test="consumableName != null" >
+        consumable_name,
+      </if>
+      <if test="consumableBarcode != null" >
+        consumable_barcode,
+      </if>
+      <if test="operatorErp != null" >
+        operator_erp,
+      </if>
+      <if test="operateTime != null" >
+        operate_time,
+      </if>
+      <if test="ts != null" >
+        ts,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+    </trim>
+    <foreach collection="list" item="item" index="index">
+      <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          #{item.id,jdbcType=BIGINT},
+        </if>
+        <if test="damageBizId != null" >
+          #{item.damageBizId,jdbcType=VARCHAR},
+        </if>
+        <if test="provinceAgencyCode != null" >
+          #{item.provinceAgencyCode,jdbcType=INTEGER},
+        </if>
+        <if test="provinceAgencyName != null" >
+          #{item.provinceAgencyName,jdbcType=VARCHAR},
+        </if>
+        <if test="areaHubCode != null" >
+          #{item.areaHubCode,jdbcType=INTEGER},
+        </if>
+        <if test="areaHubName != null" >
+          #{item.areaHubName,jdbcType=VARCHAR},
+        </if>
+        <if test="siteCode != null" >
+          #{item.siteCode,jdbcType=INTEGER},
+        </if>
+        <if test="siteName != null" >
+          #{item.siteName,jdbcType=VARCHAR},
+        </if>
+        <if test="floor != null" >
+          #{item.floor,jdbcType=INTEGER},
+        </if>
+        <if test="gridNo != null" >
+          #{item.gridNo,jdbcType=VARCHAR},
+        </if>
+        <if test="gridCode != null" >
+          #{item.gridCode,jdbcType=INTEGER},
+        </if>
+        <if test="gridName != null" >
+          #{item.gridName,jdbcType=VARCHAR},
+        </if>
+        <if test="ownerUserErp != null" >
+          #{item.ownerUserErp,jdbcType=INTEGER},
+        </if>
+        <if test="areaCode != null" >
+          #{item.areaCode,jdbcType=VARCHAR},
+        </if>
+        <if test="areaName != null" >
+          #{item.areaName,jdbcType=VARCHAR},
+        </if>
+        <if test="barCode != null" >
+          #{item.barCode,jdbcType=VARCHAR},
+        </if>
+        <if test="waybillCode != null" >
+          #{item.waybillCode,jdbcType=VARCHAR},
+        </if>
+        <if test="consumableCode != null" >
+          #{item.consumableCode,jdbcType=INTEGER},
+        </if>
+        <if test="consumableName != null" >
+          #{item.consumableName,jdbcType=VARCHAR},
+        </if>
+        <if test="consumableBarcode != null" >
+          #{item.consumableBarcode,jdbcType=VARCHAR},
+        </if>
+        <if test="operatorErp != null" >
+          #{item.operatorErp,jdbcType=VARCHAR},
+        </if>
+        <if test="operateTime != null" >
+          #{item.operateTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="ts != null" >
+          #{item.ts,jdbcType=TIMESTAMP},
+        </if>
+        <if test="yn != null" >
+          #{item.yn,jdbcType=BIT},
+        </if>
+      </trim>
+    </foreach>
+  </insert>
+
+  <select id="selectByBizId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from jy_damage_consumable_detail
+    where damage_biz_id = #{damageBizId,jdbcType=VARCHAR} and yn =1
+  </select>
+
+  <update id="deleteByBizId" parameterType="java.lang.String" >
+    update jy_damage_consumable_detail
+    set yn = 0
+    where yn =1 AND biz_id = #{damageBizId,jdbcType=VARCHAR}
+  </update>
+
+</mapper>
