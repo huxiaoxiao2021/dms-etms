@@ -798,7 +798,6 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                //待发货列表只查有任务
                condition.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ZERO);
            }
-           condition.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ZERO);//待发货列表
            //  查询发车任务列表
            taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
        }else {
