@@ -7,30 +7,19 @@ import java.util.stream.Collectors;
 import com.jd.bluedragon.common.dto.work.*;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.jy.dto.work.*;
-import com.jd.bluedragon.distribution.jy.enums.TransferTypeEnum;
 import com.jd.bluedragon.distribution.jy.manager.IQuotaTargetConfigManager;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.utils.easydata.OneTableEasyDataConfig;
-import com.jd.dms.wb.sdk.dto.loss.QuotaTargetConfigDto;
 import com.jd.dms.wb.sdk.enums.oneTable.BusinessTypeEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.easydata.DmsWEasyDataConfig;
 import com.jd.bluedragon.utils.easydata.EasyDataClientUtil;
-import com.jd.dms.wb.sdk.api.loss.IQuotaTargetConfigJsfService;
-import com.jd.dms.wb.sdk.dto.loss.QuotaTargetConfigRequest;
 import com.jd.dms.wb.sdk.enums.oneTable.Class2TypeEnum;
-import com.jd.dms.wb.sdk.enums.oneTable.TimeTypeEnum;
-import com.jd.dms.wb.sdk.model.base.BaseEntity;
 import com.jd.fds.lib.dto.server.FdsPage;
-import com.jd.fds.lib.dto.server.FdsServerResult;
 import com.jdl.basic.api.domain.work.WorkGridCandidate;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
-import com.jdl.basic.common.utils.DateUtil;
-import com.jdl.basic.common.utils.MathUtil;
-import org.apache.avro.data.Json;
-import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +79,6 @@ import com.jdl.basic.common.utils.Result;
 
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentSubBizTypeEnum.TASK_WORK_GRID_MANAGER_IMPROVE;
 import static com.jd.bluedragon.distribution.jy.service.work.impl.JyWorkGridManagerCaseServiceImpl.CASE_ZHIBIAO_QITA_ITEM_CODE;
-import static com.jdl.basic.api.enums.WorkGridManagerTaskBizType.EXP_INSPECT;
 import static com.jdl.basic.api.enums.WorkGridManagerTaskBizType.KPI_IMPROVE;
 
 /**
@@ -783,8 +771,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		logger.info("新增下次执行时间的任务：batchCode={},executeTime={}",taskData.getTaskBatchCode(),DateHelper.formatDateTime(taskData.getExecuteTime()));
 		return true;
 	}
-	private List<JyUserDto> getTaskHandleUser(WorkGridManagerTaskConfigVo configData, BaseSiteInfoDto siteInfo,
-											  Integer taskBizType){
+	@Override
+	public List<JyUserDto> getTaskHandleUser(WorkGridManagerTaskConfigVo configData, BaseSiteInfoDto siteInfo,
+											 Integer taskBizType){
 		WorkGridManagerTaskBizType bizTypeEnum = WorkGridManagerTaskBizType.getEnum(taskBizType);
 		switch (bizTypeEnum){
 			case DAILY_PATROL:
