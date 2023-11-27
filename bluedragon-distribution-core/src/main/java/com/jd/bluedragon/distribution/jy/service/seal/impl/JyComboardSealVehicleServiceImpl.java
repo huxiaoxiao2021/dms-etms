@@ -87,6 +87,9 @@ public class JyComboardSealVehicleServiceImpl extends JySealVehicleServiceImpl {
     }
 
     private boolean comBoardSealCheckHandler(SealVehicleReq sealVehicleReq, InvokeResult<Void> result) {
+        if (sealVehicleReq.getCheckBoardSumAndFlow() == null || !sealVehicleReq.getCheckBoardSumAndFlow()) {
+            return true;
+        }
         Integer boardMinLimit = dmsConfigManager.getPropertyConfig().getCzSealCarBoardCountMinLimit();
         Integer packageMinLimit = dmsConfigManager.getPropertyConfig().getCzSealCarPackageCountMinLimit();
 
