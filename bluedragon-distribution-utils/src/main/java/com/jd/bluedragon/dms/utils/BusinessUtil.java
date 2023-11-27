@@ -2009,7 +2009,7 @@ public class BusinessUtil {
     public static boolean isLLBoxBindingCollectionBag(String materialCode) {
         if (StringUtils.isBlank(materialCode)) {
             return false;
-        } 
+        }
         return (materialCode.toUpperCase().startsWith(COLLECTION_AD02_PREFIX) && materialCode.length() == 16) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
     }
@@ -2025,7 +2025,7 @@ public class BusinessUtil {
         }
         return (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
     }
-    
+
     /**
      * 判断是否无人车配送，sendpay第307位=1
      *
@@ -2923,7 +2923,7 @@ public class BusinessUtil {
     /**
      * 是否港澳运单
      *  desc：运单的始发和目的其一是香港澳门则为港澳运单
-     * 
+     *
      * @param waybillStart 运单始发
      * @param waybillEnd 运单目的
      * @return
@@ -2984,6 +2984,37 @@ public class BusinessUtil {
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_124,WaybillSignConstants.CHAR_124_2);
     }
 
+
+    /**
+     * 是否国际运单
+     *
+     * @param waybillSign waybillSign
+     * @param waybillStart 运单始发
+     * @param waybillEnd 运单目的
+     * @return
+     */
+    public static boolean isInternational(String waybillSign, String waybillStart, String waybillEnd){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_F)
+                || (DmsConstants.CN.equals(waybillStart) && !DmsConstants.CN.equals(waybillEnd) && !DmsConstants.HK.equals(waybillEnd) && !DmsConstants.MO.equals(waybillEnd));
+    }
+
+    /**
+     * 判断是否是快运的运单
+     *  -hint use by reverseExchange function
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isKyWaybillOfReverseExchange(String waybillSign){
+        if (waybillSign == null){
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,40,'2')
+                && BusinessUtil.isSignChar(waybillSign,54,'0')
+                && BusinessUtil.isSignInChars(waybillSign,62,'0', '4', '9')
+                && BusinessUtil.isSignChar(waybillSign,89,'0');
+    }
+
     /**
      * 判断是否是 特快送-次晨(此判断只满足部分条件，使用前请判断标位是否满足)
      *
@@ -3037,7 +3068,7 @@ public class BusinessUtil {
     public static boolean isPrinttextContact(String traderSign){
         return BusinessUtil.isSignChar(traderSign, TraderSignConstants.POSITION_158, TraderSignConstants.CHAR_158_0);
     }
-    
+
     /**
      * 判断自营生鲜
      * 
