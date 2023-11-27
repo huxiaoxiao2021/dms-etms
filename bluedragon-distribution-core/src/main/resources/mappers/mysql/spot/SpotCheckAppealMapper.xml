@@ -400,7 +400,7 @@
         <include refid="Base_Column_List" />
         from spot_check_appeal
         <where>
-			<if test="waybillCode != null and userErp != ''">
+			<if test="waybillCode != null and waybillCode != ''">
 				and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 			</if>
 			<if test="spotStartTime != null and spotEndTime != null">
