@@ -517,6 +517,20 @@ public class DmsConstants {
 
     public static final Integer NUMBER_ZERO = 0; //数字0
     public static final Integer NUMBER_HUNDRED = 100; //数字100
+
+    /**
+     * 国标：中国
+     */
+    public static final String CN = "CN";
+    /**
+     * 国标：澳门
+     */
+    public static final String MO = "MO";
+    /**
+     * 国标：香港
+     */
+    public static final String HK = "HK";
+
     /**
      * 笼车前缀
      */
