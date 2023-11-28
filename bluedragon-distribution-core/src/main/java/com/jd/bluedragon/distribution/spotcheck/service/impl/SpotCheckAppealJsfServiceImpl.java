@@ -237,6 +237,10 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
         Response<List<SpotCheckAppealTaskDto>> response = new Response<>();
         response.toSucceed();
         try {
+            if (request.getOffset() == null || request.getPageSize() == null) {
+                logger.warn("findListByNotConfirm|分页查询未确认的设备抽检申诉核对记录列表参数不合法:offset={},pageSize={}", request.getOffset(), request.getPageSize());
+                return response;
+            }
             SpotCheckAppealEntity params = new SpotCheckAppealEntity();
             params.setOffset(request.getOffset());
             params.setPageSize(request.getPageSize());
