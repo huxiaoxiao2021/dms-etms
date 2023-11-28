@@ -517,7 +517,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	 * @param violentSortingDto
 	 * @param workStationGrid
 	 */
-	@Override
+/*	@Override
 	public void generateViolentSortingTask(ViolentSortingDto violentSortingDto, WorkGrid workGrid){
 		String infoPrefix = "生成异常检查任务-";
 		SysConfig positonNamesConfig = sysConfigService.findConfigContentByConfigName(EXP_INSPECTION_TASK_POSITION_NAMES_CONF_KEY);
@@ -544,13 +544,6 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			logger.info("{}{}分钟内已经生成过任务,gridBusinessKey:{}，siteCode:{}", infoPrefix,gapMin, gridBusinessKey, siteCode);
 			return;
 		}
-//		taskCount = jyBizTaskWorkGridManagerDao.selectHandlerTodayTaskCountByTaskBizType(siteCode,
-//				DateHelper.getZeroFromDay(new Date(), 0), null, taskCodeList, null);
-//		int maxTask = 10;
-//		if(taskCount >= maxTask){
-//			logger.info("{}今天已经达到上限:{},gridBusinessKey:{}，siteCode:{}", infoPrefix,maxTask,  gridBusinessKey, siteCode);
-//			return;
-//		}
 		BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
 		if(siteInfo == null) {
 			logger.error("{}场地【{}】在青龙基础资料不存在！siteCode:{},gridBusinessKey:{}",infoPrefix,siteCode, gridBusinessKey);
@@ -585,5 +578,5 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		//保存超时任务
 		saveAutoCloseTask(preFinishTime,siteCode, bizIdList);
 		
-	}
+	}*/
 }
