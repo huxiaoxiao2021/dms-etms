@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.consumer.violentSorting;
 
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.automatic.DeviceConfigInfoJsfManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
@@ -24,6 +27,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
+import com.jdl.basic.api.utils.BusinessKeyUtils;
 import com.jdl.basic.common.utils.Result;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -91,7 +95,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
 
         Integer id = violentSortingDto.getId();
         Long createTime = violentSortingDto.getCreateTime();
-        String gridStationBusinessKey = violentSortingDto.getGridBusinessKey();
+        String gridStationOrGridBusinessKey = violentSortingDto.getGridBusinessKey();
 
         if (id == null) {
             logger.warn("ViolentSortingConsumer consume -->暴力分拣id为空，消息体为【{}】", message.getText());
@@ -101,21 +105,25 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
             logger.warn("ViolentSortingConsumer consume -->创建时间为空，消息体为【{}】", message.getText());
             return;
         }
-        if (StringUtils.isEmpty(gridStationBusinessKey)) {
+        if (StringUtils.isEmpty(gridStationOrGridBusinessKey)) {
             logger.warn("ViolentSortingConsumer consume -->网格业务主键为空，消息体为【{}】", message.getText());
             return;
         }
         String gridBusinessKey = null;
 
-        // 根据网格businesskey查网格,补全dto内容
-        WorkStationGridQuery workStationGridCheckQuery = new WorkStationGridQuery();
-        workStationGridCheckQuery.setBusinessKey(gridStationBusinessKey);
-        Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
-        if (workStationGridResult.isSuccess() && workStationGridResult.getData() != null) {
-            gridBusinessKey = workStationGridResult.getData().getRefWorkGridKey();
-        } else {
-            logger.warn("根据gridStationBusinessKey查网格失败，key：" + gridStationBusinessKey + "消息体：" + message.getText());
-            return;
+        // 如果是网格工序的话，给转换成网格
+        if (BusinessKeyUtils.businessKeyIsWorkGrid(gridStationOrGridBusinessKey)) {
+            gridBusinessKey = gridStationOrGridBusinessKey;
+        } else if (BusinessKeyUtils.businessKeyIsWorkStationGrid(gridStationOrGridBusinessKey)) {
+            WorkStationGridQuery workStationGridCheckQuery = new WorkStationGridQuery();
+            workStationGridCheckQuery.setBusinessKey(gridStationOrGridBusinessKey);
+            Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
+            if (workStationGridResult.isSuccess() && workStationGridResult.getData() != null) {
+                gridBusinessKey = workStationGridResult.getData().getRefWorkGridKey();
+            } else {
+                logger.warn("根据gridStationBusinessKey查网格失败，key：" + gridStationOrGridBusinessKey + "消息体：" + message.getText());
+                return;
+            }
         }
         // 根据网格查出设备编码
         List<DeviceGridDto> data = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(gridBusinessKey, null);
@@ -184,7 +192,13 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
         redisClient.set(redisKey, "0", 1l, TimeUnit.DAYS, false);
         Long incr = redisClient.incr(redisKey);
 
-        String content = MessageFormat.format("{0}[{1}({2})]网格违规操作已触发亮灯，当日累积触发{3}次安灯系统，请核查原因与责任人，推动改善！", d.getSiteName(), d.getGridName(), d.getGridCode(), incr);
+        Map<String, String> argsMap = new HashMap<>();
+        argsMap.put(HintArgsConstants.ARG_FIRST, d.getSiteName());
+        argsMap.put(HintArgsConstants.ARG_FIRST, d.getGridName());
+        argsMap.put(HintArgsConstants.ARG_FIRST, d.getGridCode());
+        argsMap.put(HintArgsConstants.ARG_FOURTH, incr.toString());
+        String content = HintService.getHint(HintCodeConstants.VIOLENT_ANDON_JD_ME_CODE, argsMap);
+//        String content = MessageFormat.format("{0}[{1}({2})]网格违规操作已触发亮灯，当日累积触发{3}次安灯系统，请核查原因与责任人，推动改善！", d.getSiteName(), d.getGridName(), d.getGridCode(), incr);
         HashSet<String> pins = new HashSet<>();
         // 网格负责人
         pins.add(d.getOwnerUserErp());
