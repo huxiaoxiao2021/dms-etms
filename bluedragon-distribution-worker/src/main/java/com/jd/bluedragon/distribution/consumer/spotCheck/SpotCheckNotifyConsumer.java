@@ -1,9 +1,13 @@
 package com.jd.bluedragon.distribution.consumer.spotCheck;
 
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckAppealDto;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckAppealRequest;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateStatusEnum;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -71,6 +75,9 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
 
     @Autowired
     private JyAttachmentDetailService jyAttachmentDetailService;
+
+    @Autowired
+    private DWSCheckManager dwsCheckManager;
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -229,20 +236,50 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         spotCheckAppealEntity.setReConfirmVolume(spotCheckNotifyMQ.getReConfirmVolume());
         spotCheckAppealEntity.setDiffWeight(spotCheckNotifyMQ.getDiffWeight());
         spotCheckAppealEntity.setStanderDiff(spotCheckNotifyMQ.getStanderDiff());
-        // 调用自动化接口获取设备校准 todo
-        spotCheckAppealEntity.setBeforeWeightStatus(0);
-        spotCheckAppealEntity.setBeforeVolumeStatus(0);
-        spotCheckAppealEntity.setAfterWeightStatus(0);
-        spotCheckAppealEntity.setAfterVolumeStatus(0);
-        spotCheckAppealEntity.setAppealWeightStatus(0);
-        spotCheckAppealEntity.setAppealVolumeStatus(0);
         spotCheckAppealEntity.setConfirmStatus(Constants.NUMBER_ZERO);
         spotCheckAppealEntity.setAutoStatus(Constants.NUMBER_ZERO);
-        Date date = new Date();
-        spotCheckAppealEntity.setCreateTime(date);
-        spotCheckAppealEntity.setUpdateTime(date);
+        // 创建时间和更新时间初始化为申诉时间
+        spotCheckAppealEntity.setCreateTime(DateHelper.parseDateTime(spotCheckNotifyMQ.getStatusUpdateTime()));
+        spotCheckAppealEntity.setUpdateTime(DateHelper.parseDateTime(spotCheckNotifyMQ.getStatusUpdateTime()));
         spotCheckAppealEntity.setYn(Constants.YN_YES);
+        // 调用自动化接口获取设备校准
+        setDwsCheckStatus(spotCheckAppealEntity);
         return spotCheckAppealEntity;
+    }
+
+    private void setDwsCheckStatus(SpotCheckAppealEntity spotCheckAppealEntity) {
+        DWSCheckAppealRequest dwsCheckAppealRequest = new DWSCheckAppealRequest();
+        // 设备编码
+        dwsCheckAppealRequest.setMachineCode(spotCheckAppealEntity.getDeviceCode());
+        // 抽检时间
+        dwsCheckAppealRequest.setStartTime(spotCheckAppealEntity.getStartTime());
+        // 申诉时间
+        dwsCheckAppealRequest.setAppealTime(spotCheckAppealEntity.getCreateTime());
+        DWSCheckAppealDto dwsCheckResult = dwsCheckManager.getDwsCheckStatusAppeal(dwsCheckAppealRequest);
+        if (dwsCheckResult != null) {
+            spotCheckAppealEntity.setBeforeWeightStatus(getRealStatus(dwsCheckResult.getBeforeWeightStatus()));
+            spotCheckAppealEntity.setBeforeVolumeStatus(getRealStatus(dwsCheckResult.getBeforeVolumeStatus()));
+            spotCheckAppealEntity.setAfterWeightStatus(getRealStatus(dwsCheckResult.getAfterWeightStatus()));
+            spotCheckAppealEntity.setAfterVolumeStatus(getRealStatus(dwsCheckResult.getAfterVolumeStatus()));
+            spotCheckAppealEntity.setAppealWeightStatus(getRealStatus(dwsCheckResult.getAppealWeightStatus()));
+            spotCheckAppealEntity.setAppealVolumeStatus(getRealStatus(dwsCheckResult.getAppealVolumeStatus()));
+        } else {
+            spotCheckAppealEntity.setBeforeWeightStatus(Constants.NUMBER_ZERO);
+            spotCheckAppealEntity.setBeforeVolumeStatus(Constants.NUMBER_ZERO);
+            spotCheckAppealEntity.setAfterWeightStatus(Constants.NUMBER_ZERO);
+            spotCheckAppealEntity.setAfterVolumeStatus(Constants.NUMBER_ZERO);
+            spotCheckAppealEntity.setAppealWeightStatus(Constants.NUMBER_ZERO);
+            spotCheckAppealEntity.setAppealVolumeStatus(Constants.NUMBER_ZERO);
+        }
+    }
+
+    private Integer getRealStatus(Integer dwsCheckStatus) {
+        if (Constants.NUMBER_ZERO.equals(dwsCheckStatus)) {
+            return JyBizTaskMachineCalibrateStatusEnum.UN_ELIGIBLE.getCode();
+        } else if (Constants.NUMBER_ONE.equals(dwsCheckStatus)) {
+            return JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode();
+        }
+        return JyBizTaskMachineCalibrateStatusEnum.NO_CALIBRATE.getCode();
     }
 
     private void uploadWeightVolume(SpotCheckNotifyMQ spotCheckNotifyMQ, Long operateTime) {

@@ -216,9 +216,9 @@ public class SpotCheckAppealServiceImpl implements SpotCheckAppealService {
         // 差异标准
         spotCheckIssueMQ.setStanderDiff(spotCheckDto.getStanderDiff());
         // 流程发起时间
-        spotCheckIssueMQ.setStartTime(new Date());
+        spotCheckIssueMQ.setStartTime(spotCheckDto.getStartTime());
         // 流程状态变更时间
-        spotCheckIssueMQ.setStatusUpdateTime(new Date());
+        spotCheckIssueMQ.setStatusUpdateTime(spotCheckDto.getUpdateTime());
         // 判责结果描述
         spotCheckIssueMQ.setComment(spotCheckDto.getRejectReason());
 

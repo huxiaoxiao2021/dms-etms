@@ -162,32 +162,32 @@ public class SpotCheckAppealEntity implements Serializable {
     private String standerDiff;
 
     /**
-     * 抽检前设备重量校准：0-不合格，1-合格
+     * 抽检前设备重量校准：0-未校准，1-合格，2-不合格
      */
     private Integer beforeWeightStatus;
 
     /**
-     * 抽检前设备体积校准：0-不合格，1-合格
+     * 抽检前设备体积校准：0-未校准，1-合格，2-不合格
      */
     private Integer beforeVolumeStatus;
 
     /**
-     * 抽检后设备重量校准：0-不合格，1-合格
+     * 抽检后设备重量校准：0-未校准，1-合格，2-不合格
      */
     private Integer afterWeightStatus;
 
     /**
-     * 抽检后设备体积校准：0-不合格，1-合格
+     * 抽检后设备体积校准：0-未校准，1-合格，2-不合格
      */
     private Integer afterVolumeStatus;
 
     /**
-     * 申诉时设备重量校准：0-不合格，1-合格
+     * 申诉时设备重量校准：0-未校准，1-合格，2-不合格
      */
     private Integer appealWeightStatus;
 
     /**
-     * 申诉时设备体积校准：0-不合格，1-合格
+     * 申诉时设备体积校准：0-未校准，1-合格，2-不合格
      */
     private Integer appealVolumeStatus;
 
