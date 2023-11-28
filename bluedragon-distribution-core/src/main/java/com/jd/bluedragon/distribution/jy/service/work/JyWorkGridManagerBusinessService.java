@@ -21,6 +21,7 @@ import com.jdl.basic.api.domain.workStation.WorkGridModifyMqData;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @ClassName: JyWorkGridManagerBusinessService
@@ -51,6 +52,9 @@ public interface JyWorkGridManagerBusinessService {
 	 * @return
 	 */
 	boolean executeWorkGridManagerSiteScanTask(Task task);
+
+	List<JyUserDto> getTaskHandleUser(WorkGridManagerTaskConfigVo configData, BaseSiteInfoDto siteInfo,
+									  Integer taskBizType);
 
 	void sendTimeLineNotice(WorkGridManagerTaskBizType type, JyUserDto user);
 

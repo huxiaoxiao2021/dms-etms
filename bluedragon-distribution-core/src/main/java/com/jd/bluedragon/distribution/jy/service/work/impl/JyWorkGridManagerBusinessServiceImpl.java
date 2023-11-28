@@ -13,23 +13,17 @@ import java.util.stream.Collectors;
 import com.jd.bluedragon.common.dto.work.*;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.jy.dto.work.*;
-import com.jd.bluedragon.distribution.jy.enums.TransferTypeEnum;
 import com.jd.bluedragon.distribution.jy.manager.IQuotaTargetConfigManager;
 import com.google.common.base.Objects;
 import com.jd.bluedragon.core.jsf.work.ScheduleJSFServiceManager;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.utils.easydata.OneTableEasyDataConfig;
-import com.jd.dms.wb.sdk.dto.loss.QuotaTargetConfigDto;
 import com.jd.dms.wb.sdk.enums.oneTable.BusinessTypeEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.easydata.DmsWEasyDataConfig;
 import com.jd.bluedragon.utils.easydata.EasyDataClientUtil;
-import com.jd.dms.wb.sdk.api.loss.IQuotaTargetConfigJsfService;
-import com.jd.dms.wb.sdk.dto.loss.QuotaTargetConfigRequest;
 import com.jd.dms.wb.sdk.enums.oneTable.Class2TypeEnum;
-import com.jd.dms.wb.sdk.enums.oneTable.TimeTypeEnum;
-import com.jd.dms.wb.sdk.model.base.BaseEntity;
 import com.jd.fds.lib.dto.server.FdsPage;
 import com.jd.fds.lib.dto.server.FdsServerResult;
 import com.jd.ump.profiler.CallerInfo;
@@ -306,14 +300,19 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 							attachmentData,caseData.getCaseCode()));
 				}
 			}
-			//改善反馈附件
+			//改善反馈附件,指标改善任务 只有1个case, 附件bizSubType为TASK_WORK_GRID_MANAGER_IMPROVE.code
+			WorkGridManagerTaskBizType taskBizType = WorkGridManagerTaskBizType.getEnum(oldData.getTaskBizType());
 			if(!CollectionUtils.isEmpty(caseData.getImproveAttachmentList())) {
+				String subBizType = TASK_WORK_GRID_MANAGER_IMPROVE.getCode();
+				if(!KPI_IMPROVE.equals(taskBizType)){
+					subBizType += ("|" + caseData.getCaseCode());
+				}
 				for(AttachmentDetailData attachmentData : caseData.getImproveAttachmentList()) {
 					if(attachmentData == null) {
 						continue;
 					}
 					improveAttachmentList.add(toJyAttachmentDetailEntity(userErp,currentTime,taskData,caseData,attachmentData,
-							TASK_WORK_GRID_MANAGER_IMPROVE.getCode()));
+							subBizType));
 				}
 			}
 			if(!CollectionUtils.isEmpty(caseData.getItemList())) {
@@ -799,8 +798,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		logger.info("新增下次执行时间的任务：batchCode={},executeTime={}",taskData.getTaskBatchCode(),DateHelper.formatDateTime(taskData.getExecuteTime()));
 		return true;
 	}
-	private List<JyUserDto> getTaskHandleUser(WorkGridManagerTaskConfigVo configData, BaseSiteInfoDto siteInfo,
-											  Integer taskBizType){
+	@Override
+	public List<JyUserDto> getTaskHandleUser(WorkGridManagerTaskConfigVo configData, BaseSiteInfoDto siteInfo,
+											 Integer taskBizType){
 		WorkGridManagerTaskBizType bizTypeEnum = WorkGridManagerTaskBizType.getEnum(taskBizType);
 		switch (bizTypeEnum){
 			case DAILY_PATROL:
