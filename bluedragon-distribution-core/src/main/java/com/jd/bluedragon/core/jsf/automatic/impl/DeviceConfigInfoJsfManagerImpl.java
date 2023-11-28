@@ -5,6 +5,7 @@ import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigDto;
 import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceGridDto;
 import com.jd.bluedragon.core.jsf.automatic.DeviceConfigInfoJsfManager;
+import com.jd.common.annotation.CacheMethod;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -22,8 +23,7 @@ public class DeviceConfigInfoJsfManagerImpl implements DeviceConfigInfoJsfManage
 
 
     @Override
-    @Cache(key = "DeviceConfigInfoJsfManagerImpl.findDeviceGridByBusinessKey-@args0@args1", memoryEnable = false, memoryExpiredTime = 10 * 60 * 1000,
-            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @CacheMethod(key = "DeviceConfigInfoJsfManagerImpl.findDeviceGridByBusinessKey-{0}-{1}", cacheBean = "redisCache", timeout = 1000 * 60 * 1)
     @JProfiler(jKey = "DMS.Manager.DeviceConfigInfoJsfManager.findDeviceGridByBusinessKey", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<DeviceGridDto> findDeviceGridByBusinessKey(String businessKey, List<String> businessKeys) {
         BaseDmsAutoJsfResponse<List<DeviceGridDto>> deviceGridByBusinessKey = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(businessKey, businessKeys);
@@ -35,8 +35,7 @@ public class DeviceConfigInfoJsfManagerImpl implements DeviceConfigInfoJsfManage
     }
 
     @Override
-    @Cache(key = "DeviceConfigInfoJsfManagerImpl.findOneDeviceConfigByMachineCode-@args0", memoryEnable = false, memoryExpiredTime = 10 * 60 * 1000,
-            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @CacheMethod(key = "DeviceConfigInfoJsfManagerImpl.findOneDeviceConfigByMachineCode-{0}", cacheBean = "redisCache", timeout = 1000 * 60 * 1)
     @JProfiler(jKey = "DMS.Manager.DeviceConfigInfoJsfManager.findOneDeviceConfigByMachineCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public DeviceConfigDto findOneDeviceConfigByMachineCode(String machineCode) {
         DeviceConfigDto oneDeviceConfigByMachineCode = deviceConfigInfoJsfService.findOneDeviceConfigByMachineCode(machineCode);
