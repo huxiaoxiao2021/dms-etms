@@ -420,6 +420,11 @@ public class Constants {
     public static final int TIME_SECONDS_ONE_HOUR = 3600;
 
     /**
+     * 时间：48小时
+     */
+    public static final int FORTY_EIGHT_HOURS = 48;
+
+    /**
      * 时间：一天的秒数
      */
     public static final int TIME_SECONDS_ONE_DAY = 86400;
@@ -2167,6 +2172,12 @@ public class Constants {
      *
      */
     public static final String MORE_SCAN_QUERY_ES_SWITCH = "more.scan.query.es.switch";
+
+    /**
+     *  配置信息-设备抽检申诉核对超时未确认时长
+     *
+     */
+    public static final String SPOT_CHECK_APPEAL_TIME_OUT = "spot.check.appeal.time.out";
 
 
     /**

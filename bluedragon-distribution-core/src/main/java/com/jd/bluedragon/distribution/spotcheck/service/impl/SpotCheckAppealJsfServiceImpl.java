@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTyp
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
@@ -14,6 +16,7 @@ import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckIssueMQ;
 import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealAppendixResult;
 import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealDto;
 import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealResult;
+import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealTaskDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealJsfService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealService;
@@ -47,6 +50,9 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
     @Autowired
     @Qualifier("spotCheckIssueProducer")
     private DefaultJMQProducer spotCheckIssueProducer;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
 
     @Override
@@ -196,6 +202,50 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
         } catch (Exception e) {
             logger.error("findAppendixByBizId|根据BizId查询设备抽检申诉记录附件出现异常:request={},e=", JsonHelper.toJson(request), e);
             response.toError("服务端异常");
+            return response;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.findTimeoutConfig", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<Integer> findTimeoutConfig() {
+        logger.info("findTimeoutConfig|查询配置信息-设备抽检申诉核对超时未确认时长");
+        Response<Integer> response = new Response<>();
+        response.toSucceed();
+        // 设置默认值48小时
+        response.setData(Constants.FORTY_EIGHT_HOURS);
+        try {
+            // 查询配置信息-设备抽检申诉核对超时未确认时长
+            SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SPOT_CHECK_APPEAL_TIME_OUT);
+            if (sysConfig == null) {
+                logger.warn("findTimeoutConfig|查询配置信息-设备抽检申诉核对超时未确认时长返回空");
+                return response;
+            }
+            String configContent = sysConfig.getConfigContent();
+            response.setData(Integer.valueOf(configContent));
+            return response;
+        } catch (Exception e) {
+            logger.error("findTimeoutConfig|查询配置信息-设备抽检申诉核对超时未确认时长出现异常:e=",  e);
+            return response;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.findListByNotConfirm", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<List<SpotCheckAppealTaskDto>> findListByNotConfirm(SpotCheckAppealDto request) {
+        logger.info("findListByNotConfirm|分页查询未确认的设备抽检申诉核对记录列表:offset={},pageSize={}", request.getOffset(), request.getPageSize());
+        Response<List<SpotCheckAppealTaskDto>> response = new Response<>();
+        response.toSucceed();
+        try {
+            SpotCheckAppealEntity params = new SpotCheckAppealEntity();
+            params.setOffset(request.getOffset());
+            params.setPageSize(request.getPageSize());
+            // 查询配置信息-设备抽检申诉核对超时未确认时长
+            List<SpotCheckAppealTaskDto> taskDtoList = spotCheckAppealService.findListByNotConfirm(params);
+            response.setData(taskDtoList);
+            return response;
+        } catch (Exception e) {
+            logger.error("findListByNotConfirm|分页查询未确认的设备抽检申诉核对记录列表出现异常:offset={},pageSize={},e=", request.getOffset(), request.getPageSize(), e);
             return response;
         }
     }

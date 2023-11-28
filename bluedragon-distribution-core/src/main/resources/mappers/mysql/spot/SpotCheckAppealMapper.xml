@@ -49,7 +49,10 @@
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
-
+	<resultMap id="SpotCheckAppealTaskDto" type="com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealTaskDto" >
+	    <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
 
 	<sql id="Base_Column_List" >
 		id,biz_id,waybill_code,start_time,device_code,start_province_code,start_province_name,start_hub_code,start_hub_name,start_site_code,start_site_name,
@@ -361,6 +364,9 @@
 			<if test="confirmStatus != null">
 				confirm_status = #{confirmStatus,jdbcType=TINYINT},
 			</if>
+			<if test="autoStatus != null">
+				auto_status = #{autoStatus,jdbcType=TINYINT},
+			</if>
 			<if test="rejectReason != null and rejectReason != ''">
 				reject_reason = #{rejectReason,jdbcType=VARCHAR},
 			</if>
@@ -393,6 +399,13 @@
 		<foreach collection="idList" item="item" open="(" separator="," close=")">
 			#{item,jdbcType=BIGINT}
 		</foreach>
+	</select>
+
+	<select id="findListByNotConfirm" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="SpotCheckAppealTaskDto">
+		select
+		  id,create_time
+		from spot_check_appeal
+		where confirm_status = 0 and yn = 1 limit #{offset,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
 	</select>
 
     <select id="findByCondition" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="BaseResultMap">

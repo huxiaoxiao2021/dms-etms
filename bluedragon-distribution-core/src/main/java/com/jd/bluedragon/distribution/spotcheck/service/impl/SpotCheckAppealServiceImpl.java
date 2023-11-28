@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.spotcheck.service.impl;
 
 import com.jd.bluedragon.distribution.spotcheck.dao.SpotCheckAppealDao;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity;
+import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealTaskDto;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,5 +61,10 @@ public class SpotCheckAppealServiceImpl implements SpotCheckAppealService {
     @Override
     public SpotCheckAppealEntity findByBizId(SpotCheckAppealEntity spotCheckAppealEntity) {
         return spotCheckAppealDao.findByBizId(spotCheckAppealEntity);
+    }
+
+    @Override
+    public List<SpotCheckAppealTaskDto> findListByNotConfirm(SpotCheckAppealEntity spotCheckAppealEntity) {
+        return spotCheckAppealDao.findListByNotConfirm(spotCheckAppealEntity);
     }
 }
