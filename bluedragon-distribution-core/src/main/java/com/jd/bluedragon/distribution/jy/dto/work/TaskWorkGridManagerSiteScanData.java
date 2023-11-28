@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.work;
 
+import com.jd.bluedragon.common.dto.work.BusinessQuotaInfoData;
+
 import java.util.Date;
 import java.io.Serializable;
 
@@ -41,6 +43,8 @@ public class TaskWorkGridManagerSiteScanData implements Serializable {
 	 */
 	private Date lastExecuteTime;
 	
+	private BusinessQuotaInfoData businessQuotaInfoData;
+	
 	public String getTaskConfigCode() {
 		return taskConfigCode;
 	}
@@ -76,5 +80,13 @@ public class TaskWorkGridManagerSiteScanData implements Serializable {
 	}
 	public void setLastExecuteTime(Date lastExecuteTime) {
 		this.lastExecuteTime = lastExecuteTime;
+	}
+
+	public BusinessQuotaInfoData getBusinessQuotaInfoData() {
+		return businessQuotaInfoData;
+	}
+
+	public void setBusinessQuotaInfoData(BusinessQuotaInfoData businessQuotaInfoData) {
+		this.businessQuotaInfoData = businessQuotaInfoData;
 	}
 }

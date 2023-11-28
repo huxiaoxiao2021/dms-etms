@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,10 @@ import com.jdl.basic.api.domain.work.WorkGridManagerCaseWithItem;
 public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseService {
 
 	private static final Logger logger = LoggerFactory.getLogger(JyWorkGridManagerCaseServiceImpl.class);
-
+	/**
+	 * 指标改善的其他 item的code ,固定值，作业app根据此值控制，用户自定义
+	 */
+	public static final String CASE_ZHIBIAO_QITA_ITEM_CODE = "case_zhibiao_qita";
 	@Autowired
 	@Qualifier("jyWorkGridManagerCaseDao")
 	private JyWorkGridManagerCaseDao jyWorkGridManagerCaseDao;
@@ -68,8 +72,178 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 		List<WorkGridManagerCaseWithItem> taskCaseList = workGridManagerCaseJsfManager.queryCaseWithItemListByTaskCode(taskCaseQuery.getTaskCode());
 		return toCaseDataList(taskCaseQuery,taskCaseList,jyTaskCaseList);
 	}
-	private List<JyWorkGridManagerCaseData> toCaseDataList(JyWorkGridManagerCaseQuery taskCaseQuery,List<WorkGridManagerCaseWithItem> taskCaseList, List<JyWorkGridManagerCase> jyTaskCaseList){
-		String bizId = taskCaseQuery.getBizId();
+
+	/**
+	 * 允许多个重复的case，以保存的数据列表为准
+	 * @param isSaved
+	 * @param taskCaseList
+	 * @param jyTaskCaseList
+	 * @return
+	 */
+   private List<JyWorkGridManagerCaseData> toMultipleCaseDataList(boolean isSaved, List<WorkGridManagerCaseWithItem> taskCaseList,
+																	 List<JyWorkGridManagerCase> jyTaskCaseList){
+	   List<JyWorkGridManagerCaseData> caseList = new ArrayList<>();
+	   WorkGridManagerCaseWithItem caseModle = taskCaseList.get(0);
+	   if(isSaved) {
+		   for(JyWorkGridManagerCase jyTaskCase: jyTaskCaseList) {
+			   JyWorkGridManagerCaseData caseData = new JyWorkGridManagerCaseData();
+			   fillDataByTaskCase(caseData,caseModle);
+			   fillDataByJyTaskCase(caseData,jyTaskCase);
+			   caseList.add(caseData);
+		   }
+	   }else {
+		   JyWorkGridManagerCaseData caseData = new JyWorkGridManagerCaseData();
+		   fillDataByTaskCase(caseData,caseModle);
+		   caseList.add(caseData);
+	   }
+	   return caseList;
+   }
+
+	/**
+	 * 以caseCode为准，设置数据相关状态
+	 * @param taskCaseQuery
+	 * @param isSaved
+	 * @param taskCaseList
+	 * @param jyTaskCaseList
+	 * @return
+	 */
+   private List<JyWorkGridManagerCaseData> toCaseDataListByCaseCode(JyWorkGridManagerCaseQuery taskCaseQuery,
+																	boolean isSaved, List<WorkGridManagerCaseWithItem> taskCaseList,
+																	List<JyWorkGridManagerCase> jyTaskCaseList){
+	   List<JyWorkGridManagerCaseData> caseList = new ArrayList<>();
+	   //其他场景：以caseCode为准，设置数据相关状态
+	   Map<String,JyWorkGridManagerCase> caseMap = new HashMap<>();
+	   //caseCode-附件列表
+	   Map<String,List<AttachmentDetailData>> attachmentMap = new HashMap<>();
+	   //caseCode-item数据map
+	   Map<String,Map<String,JyWorkGridManagerCaseItem>> jyCaseItemMap = new HashMap<>();
+	   if(isSaved) {
+		   for(JyWorkGridManagerCase jyTaskCase: jyTaskCaseList) {
+			   caseMap.put(jyTaskCase.getCaseCode(), jyTaskCase);
+		   }
+		   //查询附件
+		   JyAttachmentDetailQuery query = new JyAttachmentDetailQuery();
+		   query.setSiteCode(taskCaseQuery.getSiteCode());
+		   query.setBizType(JyAttachmentBizTypeEnum.TASK_WORK_GRID_MANAGER.getCode());
+		   String bizId = taskCaseQuery.getBizId();
+		   query.setBizId(bizId);
+		   query.setPageSize(DmsConstants.PAGE_SIZE_DEFAULT_ATTACHMENT_QUERY);
+		   List<JyAttachmentDetailEntity> attachmentList = jyAttachmentDetailService.queryDataListByCondition(query);
+		   if(!CollectionUtils.isEmpty(attachmentList)) {
+			   for(JyAttachmentDetailEntity attachmentDb : attachmentList) {
+				   String caseCode = attachmentDb.getBizSubType();
+				   if(!attachmentMap.containsKey(caseCode)) {
+					   attachmentMap.put(caseCode, new ArrayList<>());
+				   }
+				   AttachmentDetailData attachmentData = new AttachmentDetailData();
+				   BeanUtils.copyProperties(attachmentDb, attachmentData);
+				   attachmentMap.get(caseCode).add(attachmentData);
+			   }
+		   }
+
+		   //查询item数据
+		   List<JyWorkGridManagerCaseItem> jyItemList = jyWorkGridManagerCaseItemService.queryItemListByBizId(bizId);
+		   if(!CollectionUtils.isEmpty(jyItemList)) {
+			   for(JyWorkGridManagerCaseItem jyItem: jyItemList) {
+				   String caseCode = jyItem.getCaseCode();
+				   String caseItemCode = jyItem.getCaseItemCode();
+				   if(!jyCaseItemMap.containsKey(caseCode)) {
+					   jyCaseItemMap.put(caseCode, new HashMap<String,JyWorkGridManagerCaseItem>());
+				   }
+				   jyCaseItemMap.get(caseCode).put(caseItemCode, jyItem);
+			   }
+		   }
+	   }
+
+	   for(WorkGridManagerCaseWithItem caseModle: taskCaseList) {
+		   String caseCode = caseModle.getCaseCode();
+		   JyWorkGridManagerCaseData caseData = new JyWorkGridManagerCaseData();
+		   fillDataByTaskCase(caseData,caseModle);
+		   fillDataByJyTaskCase(caseData,caseMap.get(caseCode));
+		   fillItemData(caseData,caseModle,jyCaseItemMap.get(caseCode));
+		   if(attachmentMap.containsKey(caseCode)) {
+			   caseData.setAttachmentList(attachmentMap.get(caseCode));
+		   }
+		   caseList.add(caseData);
+	   }
+	   return caseList;
+   }
+
+	/**
+	 * 改善反馈任务
+	 * 只有一个case ，两个附件列表，如果不满足不要走此方法
+	 * @param taskCaseQuery 查询条件
+	 * @param isSaved 是否已保存过
+	 * @param taskCaseList  任务定义-case列表
+	 * @param jyTaskCaseList  任务实例case列表
+	 * @return
+	 */
+	private List<JyWorkGridManagerCaseData> toImproveTaskCaseDataList(JyWorkGridManagerCaseQuery taskCaseQuery,
+																	 boolean isSaved, List<WorkGridManagerCaseWithItem> taskCaseList,
+																	 List<JyWorkGridManagerCase> jyTaskCaseList){
+		//caseCode-附件列表
+		List<AttachmentDetailData> attachmentList = new ArrayList<>();
+		//改进方案附件
+		List<AttachmentDetailData> improveAttachmentList = new ArrayList<>();
+		//item
+		List<JyWorkGridManagerCaseItem> jyItemList = new ArrayList<>();
+		//改善反馈任务 只有一个case
+		WorkGridManagerCaseWithItem caseModle = taskCaseList.get(0);
+		if(isSaved) {
+			//查询附件
+			JyAttachmentDetailQuery query = new JyAttachmentDetailQuery();
+			query.setSiteCode(taskCaseQuery.getSiteCode());
+			query.setBizType(JyAttachmentBizTypeEnum.TASK_WORK_GRID_MANAGER.getCode());
+			String bizId = taskCaseQuery.getBizId();
+			query.setBizId(bizId);
+			query.setPageSize(DmsConstants.PAGE_SIZE_DEFAULT_ATTACHMENT_QUERY);
+			List<JyAttachmentDetailEntity> jyAttachments = jyAttachmentDetailService.queryDataListByCondition(query);
+			String caseCode = caseModle.getCaseCode();
+			if(!CollectionUtils.isEmpty(jyAttachments)) {
+				for(JyAttachmentDetailEntity attachmentDb : jyAttachments) {
+					String bizSubType = attachmentDb.getBizSubType();
+					AttachmentDetailData attachData = new AttachmentDetailData();
+					BeanUtils.copyProperties(attachmentDb, attachData);
+					if(caseCode.equals(bizSubType)){
+						attachmentList.add(attachData);
+					}else {
+						improveAttachmentList.add(attachData);
+					}
+				}
+			}
+
+			//查询item数据
+			jyItemList = jyWorkGridManagerCaseItemService.queryItemListByBizId(bizId);
+		}
+		List<JyWorkGridManagerCaseData> caseList = new ArrayList<>();
+		JyWorkGridManagerCaseData caseData = new JyWorkGridManagerCaseData();
+		fillDataByTaskCase(caseData,caseModle);
+		if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(jyTaskCaseList)){
+			fillDataByJyTaskCase(caseData,jyTaskCaseList.get(0));
+		}
+		Map<String, JyWorkGridManagerCaseItem> jyCaseItemMap = jyItemList.stream()
+				.collect(Collectors.toMap(JyWorkGridManagerCaseItem::getCaseItemCode, i->i));
+		fillItemData(caseData,caseModle,jyCaseItemMap);
+		if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(attachmentList)) {
+			caseData.setAttachmentList(attachmentList);
+		}
+		if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(improveAttachmentList)) {
+			caseData.setImproveAttachmentList(improveAttachmentList);
+		}
+		caseList.add(caseData);
+		
+		return caseList;
+	}
+	/**
+	 * 
+	 * @param taskCaseQuery 查询条件
+	 * @param taskCaseList 任务定义-case-item
+	 * @param jyTaskCaseList 任务实例case列表
+	 * @return
+	 */
+	private List<JyWorkGridManagerCaseData> toCaseDataList(JyWorkGridManagerCaseQuery taskCaseQuery,
+														   List<WorkGridManagerCaseWithItem> taskCaseList, 
+														   List<JyWorkGridManagerCase> jyTaskCaseList){
 		Integer taskType = taskCaseQuery.getTaskType();
 		List<JyWorkGridManagerCaseData> caseList = new ArrayList<>();
 		//正常任务-case定义列表不会为空
@@ -78,76 +252,20 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 		}
 		//判断是否存在保存的数据
 		boolean isSaved = !CollectionUtils.isEmpty(jyTaskCaseList);
-		//会议：允许多个重复的case，以保存的数据列表为准
-		if(WorkTaskTypeEnum.MEETING.getCode().equals(taskType)) {
-			WorkGridManagerCaseWithItem caseModle = taskCaseList.get(0);
-			if(isSaved) {
-				for(JyWorkGridManagerCase jyTaskCase: jyTaskCaseList) {
-					JyWorkGridManagerCaseData caseData = new JyWorkGridManagerCaseData();
-					fillDataByTaskCase(caseData,caseModle);
-					fillDataByJyTaskCase(caseData,jyTaskCase);
-					caseList.add(caseData);
-				}
-			}else {
-				JyWorkGridManagerCaseData caseData = new JyWorkGridManagerCaseData();
-				fillDataByTaskCase(caseData,caseModle);
-				caseList.add(caseData);
-			}
-		} else {
-			//其他场景：以caseCode为准，设置数据相关状态
-			Map<String,JyWorkGridManagerCase> caseMap = new HashMap<>();
-			//caseCode-附件列表
-			Map<String,List<AttachmentDetailData>> attachmentMap = new HashMap<>();
-			//caseCode-item数据map
-			Map<String,Map<String,JyWorkGridManagerCaseItem>> jyCaseItemMap = new HashMap<>();
-			if(isSaved) {
-				for(JyWorkGridManagerCase jyTaskCase: jyTaskCaseList) {
-					caseMap.put(jyTaskCase.getCaseCode(), jyTaskCase);
-				}
-				//查询附件
-				JyAttachmentDetailQuery query = new JyAttachmentDetailQuery();
-				query.setSiteCode(taskCaseQuery.getSiteCode());
-				query.setBizType(JyAttachmentBizTypeEnum.TASK_WORK_GRID_MANAGER.getCode());
-				query.setBizId(bizId);
-				query.setPageSize(DmsConstants.PAGE_SIZE_DEFAULT_ATTACHMENT_QUERY);
-				List<JyAttachmentDetailEntity> attachmentList = jyAttachmentDetailService.queryDataListByCondition(query);
-				if(!CollectionUtils.isEmpty(attachmentList)) {
-					for(JyAttachmentDetailEntity attachmentDb : attachmentList) {
-						String caseCode = attachmentDb.getBizSubType();
-						if(!attachmentMap.containsKey(caseCode)) {
-							attachmentMap.put(caseCode, new ArrayList<>());
-						}
-						AttachmentDetailData attachmentData = new AttachmentDetailData();
-						BeanUtils.copyProperties(attachmentDb, attachmentData);
-						attachmentMap.get(caseCode).add(attachmentData);
-					}
-				}
+		WorkTaskTypeEnum workTaskTypeEnum = WorkTaskTypeEnum.getEnum(taskType);
+		if(workTaskTypeEnum == null){
+			return caseList;
+		}
+		switch (workTaskTypeEnum){
+			case MEETING:
+				caseList = toMultipleCaseDataList(isSaved, taskCaseList, jyTaskCaseList);
+				break;
+			case IMPROVE:
+				caseList = toImproveTaskCaseDataList(taskCaseQuery, isSaved, taskCaseList, jyTaskCaseList);
+				break;
+			default:
+				caseList = toCaseDataListByCaseCode(taskCaseQuery, isSaved, taskCaseList, jyTaskCaseList);
 				
-				//查询item数据
-				List<JyWorkGridManagerCaseItem> jyItemList = jyWorkGridManagerCaseItemService.queryItemListByBizId(bizId);
-				if(!CollectionUtils.isEmpty(jyItemList)) {
-					for(JyWorkGridManagerCaseItem jyItem: jyItemList) {
-						String caseCode = jyItem.getCaseCode();
-						String caseItemCode = jyItem.getCaseItemCode();
-						if(!jyCaseItemMap.containsKey(caseCode)) {
-							jyCaseItemMap.put(caseCode, new HashMap<String,JyWorkGridManagerCaseItem>());
-						}
-						jyCaseItemMap.get(caseCode).put(caseItemCode, jyItem);
-					}
-				}
-			}
-			
-			for(WorkGridManagerCaseWithItem caseModle: taskCaseList) {
-				String caseCode = caseModle.getCaseCode();
-				JyWorkGridManagerCaseData caseData = new JyWorkGridManagerCaseData();
-				fillDataByTaskCase(caseData,caseModle);
-				fillDataByJyTaskCase(caseData,caseMap.get(caseCode));
-				fillItemData(caseData,caseModle,jyCaseItemMap.get(caseCode));
-				if(attachmentMap.containsKey(caseCode)) {
-					caseData.setAttachmentList(attachmentMap.get(caseCode));
-				}
-				caseList.add(caseData);
-			}
 		}
 		return caseList;
 	}
@@ -169,7 +287,13 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 			//设置选中状态
 			if(jyCaseItemMap != null 
 					&& jyCaseItemMap.containsKey(caseItemModle.getCaseItemCode())) {
-				itemData.setSelectFlag(jyCaseItemMap.get(caseItemModle.getCaseItemCode()).getSelectFlag());
+				JyWorkGridManagerCaseItem jsCaseItem = jyCaseItemMap.get(caseItemModle.getCaseItemCode());
+				itemData.setSelectFlag(jsCaseItem.getSelectFlag());
+				itemData.setFeedbackContent(jsCaseItem.getFeedBackContent());
+				//指标改善的其他 item的code ,固定值，作业app根据此值控制，用户自定义
+				if(CASE_ZHIBIAO_QITA_ITEM_CODE.equals(jsCaseItem.getCaseItemCode())){
+					itemData.setUserDefinedTitle(jsCaseItem.getUserDefinedTitle());
+				}
 			}
 			itemList.add(itemData);
 		}
@@ -193,6 +317,7 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 		caseData.setCaseContent(jytaskCase.getCaseContent());
 		caseData.setEditStatus(jytaskCase.getEditStatus());
 		caseData.setCheckResult(jytaskCase.getCheckResult());
+		caseData.setImproveEndTime(jytaskCase.getImproveEndTime());
 	}
 	@Override
 	public int batchInsert(List<JyWorkGridManagerCase> addCase) {

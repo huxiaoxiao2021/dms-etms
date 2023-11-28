@@ -517,7 +517,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 			isCPKYLD = BusinessUtil.isCPKYLD(waybillSign) && 
 					(DmsConstants.PRODUCT_TYPE_KY_001.equals(productType)
 							|| DmsConstants.PRODUCT_TYPE_KY_0002.equals(productType)
-							|| DmsConstants.PRODUCT_TYPE_KY_0004.equals(productType));
+							|| DmsConstants.PRODUCT_TYPE_KY_0004.equals(productType)
+                            || DmsConstants.PRODUCT_TYPE_KY_0017.equals(productType));
 		}
 		//非快运产品
 		if(!isCPKYLD) {

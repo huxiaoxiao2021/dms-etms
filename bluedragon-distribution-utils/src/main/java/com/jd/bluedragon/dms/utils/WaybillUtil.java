@@ -8,7 +8,6 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author tangchunqing
@@ -23,6 +22,25 @@ public class WaybillUtil {
 
     public static boolean isPackageCode(String packageCode) {
         return WaybillCodeRuleValidateUtil.isPackageCode(packageCode);
+    }
+
+    /**
+     * 判断是否包裹号 剔除大件包裹号（JD0115129629473-1-1）
+     * @param packageCode
+     * @return
+     */
+    public static boolean isPackageCodeExcludeDJ(String packageCode) {
+        if(StringUtils.isBlank(packageCode)) {
+            return false;
+        }
+        if(WaybillUtil.isPackageCode(packageCode)) {
+            String temp = packageCode.replace("-", StringUtils.EMPTY);
+//            if(packageCode.length() - temp.length() == 0 || packageCode.length() - temp.length() == 3){
+            if(packageCode.length() - temp.length() == 2){
+                return false;
+            }
+        }
+        return true;
     }
 
     public static boolean isEffectiveOperateCode(String operateCode) {

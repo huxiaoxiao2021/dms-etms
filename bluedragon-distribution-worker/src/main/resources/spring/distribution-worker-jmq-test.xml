@@ -712,7 +712,7 @@
     <!--  操作流水mq消费  -->
     <jmq:consumer id="jmq.jyOperateFlowMqConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jyOperateFlowMq}" listener="jyOperateFlowMqConsumer"/>
-    </jmq:consumer>    
+    </jmq:consumer>
     <!-- 延时处理板任务 -->
     <jmq:consumer id="jmq.jyComboardTaskFirstSaveDelayConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jyComboardTaskFirstSave}" listener="jyComboardTaskFirstSaveDelayConsumer"/>
@@ -729,6 +729,18 @@
     <!-- app登录信息消费  -->
     <jmq:consumer id="jmq.loginInfoConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.login.info}" listener="loginInfoConsumer"/>
+    </jmq:consumer>
+    <!-- 箱号首次打印 -->
+    <jmq:consumer id="jmq.boxFirstPrintConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.boxFirstPrint}" listener="boxFirstPrintConsumer"/>
+    </jmq:consumer>
+    <!-- 批量取消集包-异步执行 -->
+    <jmq:consumer id="jmq.batchCancelCollectPackageConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.batchCancelCollectPackageProduce}" listener="batchCancelCollectPackageConsumer"/>
+    </jmq:consumer>
+    <!--封车取消封车同步新版app发货任务状态-->
+    <jmq:consumer id="jmq.sealSyncOpenCloseSendTaskConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.sealSyncOpenCloseSendTask}" listener="sealSyncOpenCloseSendTaskConsumer"/>
     </jmq:consumer>
 </beans>
 

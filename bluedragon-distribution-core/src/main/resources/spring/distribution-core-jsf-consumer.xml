@@ -1008,6 +1008,12 @@
                   protocol="jsf" alias="${jsf.dataAmOrder.alias}" timeout="${jsf.dataAmOrder.timeout}" retries="0" check="false" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!--  转运工作台外包计提配置  -->
+    <jsf:consumer id="adapterApiJsfService" interface="cn.jdl.jecap.adapter.AdapterApi"  serialization="hessian"
+                  protocol="jsf" alias="${jsf.adapterApi.alias}" timeout="${jsf.adapterApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.adapterApi.token}" hide="true"/>
+    </jsf:consumer>
+
     <!-- dms校验接口 -->
     <jsf:consumer id="dmsCheckJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService"
                   protocol="jsf" alias="${jsf.dmsCheck.alias}" timeout="${jsf.dmsCheck.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -1103,6 +1109,15 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!--线上化-备选责任人-jsf服务-->
+    <jsf:consumer id="workGridCandidateJsfService"
+                  interface="com.jdl.basic.api.service.work.WorkGridCandidateJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
     <!--  用户管理-jsf服务  -->
@@ -1479,5 +1494,27 @@
     <!--运单拦截信息接口-->
     <jsf:consumer id="blockerApplyWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerApplyWS"
                   protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <jsf:consumer id="collectBoxFlowDirectionConfJsfService"
+                  interface="com.jdl.basic.api.service.boxFlow.CollectBoxFlowDirectionConfJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+
+    <!--运单拦截信息接口-->
+    <jsf:consumer id="apiQueryService" interface="com.jd.udata.query.api.service.ApiQueryService"
+                  protocol="jsf" alias="${jsf.udata.query.alias}" timeout="${jsf.udata.query.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 任务分配配置接口 -->
+    <jsf:consumer id="quotaTargetConfigJsfService" interface="com.jd.dms.wb.sdk.api.loss.IQuotaTargetConfigJsfService" protocol="jsf"
+                  alias="${jsf.alias.workbench.service}" retries="${jsf.retries}"
+                  serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 </beans>

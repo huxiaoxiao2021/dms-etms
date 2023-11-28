@@ -16,12 +16,14 @@
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="user_defined_title" property="userDefinedTitle" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="feed_back_content" property="feedBackContent" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
 
 	<sql id="Base_Column_List" >
 		id,biz_id,case_code,case_item_code,select_flag,create_user,
 		create_user_name,update_user,update_user_name,create_time,update_time,
-		yn,ts
+		yn,ts,user_defined_title,feed_back_content
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseItem" useGeneratedKeys="true" keyProperty="id">
@@ -121,7 +123,9 @@
              case_item_code, 
              select_flag, 
              create_user, 
-             create_time
+             create_time,
+		     user_defined_title,
+		     feed_back_content
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
@@ -130,7 +134,9 @@
             #{item.caseItemCode},
             #{item.selectFlag},
             #{item.createUser},
-            #{item.createTime}
+            #{item.createTime},
+            #{item.userDefinedTitle},
+            #{item.feedBackContent}
             )
         </foreach>
     </insert>
