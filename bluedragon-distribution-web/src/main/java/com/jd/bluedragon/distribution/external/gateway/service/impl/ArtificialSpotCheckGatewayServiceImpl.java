@@ -127,7 +127,11 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
         result.setIsMultiPack(packNum > Constants.CONSTANT_NUMBER_ONE);
         result.setWaybillCode(waybill.getWaybillCode());
         result.setOriginalWeight(waybill.getAgainWeight());
-        result.setOriginalVolume(Double.valueOf(waybill.getSpareColumn2()));
+        if (StringUtils.isNotBlank(waybill.getSpareColumn2())) {
+            result.setOriginalVolume(Double.valueOf(waybill.getSpareColumn2()));
+        } else {
+            result.setOriginalVolume(null);
+        }
         return result;
     }
 
