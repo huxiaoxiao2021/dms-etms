@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.sdk.modules.andon.utils.AndonEventIdGenera
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dto.violentSorting.ViolentSortingDto;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -30,6 +31,8 @@ public class AndonEventServiceImpl implements AndonEventService {
     @Autowired
     @Qualifier("andonEventProducer")
     private DefaultJMQProducer andonEventProducer;
+    @Autowired
+    private SequenceGenAdaptor sequenceGenAdaptor;
 
 
     @Override
@@ -51,7 +54,9 @@ public class AndonEventServiceImpl implements AndonEventService {
 
     // 亮灯
     private void emitViolentSortingLightOn2DeviceMQ(ViolentSortingDto violentSorting, String andonMachineCode) {
-        String eventId = AndonEventIdGenerator.generate(violentSorting.getSiteCode(), violentSorting.getGridCode(), new Date(), andonMachineCode, VIOLENT_SORTING, String.valueOf(violentSorting.getId()));
+//        String eventId = AndonEventIdGenerator.generate(violentSorting.getSiteCode(), violentSorting.getGridCode(), new Date(), andonMachineCode, VIOLENT_SORTING, String.valueOf(violentSorting.getId()));
+        long andon = sequenceGenAdaptor.newId("ANDON");
+        String eventId = new Long(andon).toString();
         logger.info("暴力分拣事件亮灯，eventId:[{}]", eventId);
         AndonEvent event = new AndonEvent();
         event.setEventId(eventId);
