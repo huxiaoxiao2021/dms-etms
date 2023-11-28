@@ -773,7 +773,9 @@ public class SendVehicleTransactionManager {
         if(!Objects.isNull(aviationPlanEntity)) {
             jyBizTaskSendAviationPlanService.updateStatus(aviationPlanEntity);
         }
-
+        if(log.isInfoEnabled()) {
+            log.info("封车同步运输任务状态变更结束，detailBizId={}", detailBizId);
+        }
         return true;
     }
 
@@ -807,6 +809,9 @@ public class SendVehicleTransactionManager {
         detailEntity.setUpdateUserErp(DEFAULT_USER);
         detailEntity.setUpdateUserName(DEFAULT_USER);
         taskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+        if(log.isInfoEnabled()) {
+            log.info("封车同步自建任务删除结束，bizId={}", taskSendDetail.getSendVehicleBizId());
+        }
         return true;
     }
 
