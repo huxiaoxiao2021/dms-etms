@@ -1577,6 +1577,16 @@ public class Constants {
     public static final int  CONSTANT_NUMBER_TWO = 2;
 
     /**
+     * 常量值：200
+     * */
+    public static final int CONSTANT_TWO_HUNDRED = 200;
+
+    /**
+     * 常量值：1000
+     * */
+    public static final int CONSTANT_ONE_THOUSAND = 1000;
+
+    /**
      * 组板转移标识
      */
     public static final Integer IS_COMBITION_TRANSFER = 1;
@@ -2178,7 +2188,6 @@ public class Constants {
      *
      */
     public static final String SPOT_CHECK_APPEAL_TIME_OUT = "spot.check.appeal.time.out";
-
 
     /**
      * 运输内网账号类型

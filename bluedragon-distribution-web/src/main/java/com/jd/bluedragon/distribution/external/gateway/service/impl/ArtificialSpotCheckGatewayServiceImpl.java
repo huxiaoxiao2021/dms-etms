@@ -126,8 +126,8 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
         int packNum = (waybill.getGoodNumber() == null) ? Constants.NUMBER_ZERO : waybill.getGoodNumber();
         result.setIsMultiPack(packNum > Constants.CONSTANT_NUMBER_ONE);
         result.setWaybillCode(waybill.getWaybillCode());
-        result.setOriginalWeight(waybill.getGoodWeight());
-        result.setOriginalVolume(waybill.getGoodVolume());
+        result.setOriginalWeight(waybill.getAgainWeight());
+        result.setOriginalVolume(Double.valueOf(waybill.getSpareColumn2()));
         return result;
     }
 

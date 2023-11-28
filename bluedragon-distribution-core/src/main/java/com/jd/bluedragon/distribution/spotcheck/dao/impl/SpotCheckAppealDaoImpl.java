@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.spotcheck.dao.impl;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.spotcheck.dao.SpotCheckAppealDao;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity;
-import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealTaskDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -53,7 +52,7 @@ public class SpotCheckAppealDaoImpl extends BaseDao<SpotCheckAppealEntity> imple
 	}
 
 	@Override
-	public List<SpotCheckAppealTaskDto> findListByNotConfirm(SpotCheckAppealEntity spotCheckAppealEntity) {
+	public List<Long> findListByNotConfirm(SpotCheckAppealEntity spotCheckAppealEntity) {
 		return this.getSqlSession().selectList(NAMESPACE + ".findListByNotConfirm", spotCheckAppealEntity);
 	}
 

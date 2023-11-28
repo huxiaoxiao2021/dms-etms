@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.spotcheck.dao;
 
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity;
-import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealTaskDto;
 
 import java.util.List;
 
@@ -50,6 +49,6 @@ public interface SpotCheckAppealDao {
     /**
      * 分页查询未确认的记录
      */
-    List<SpotCheckAppealTaskDto> findListByNotConfirm(SpotCheckAppealEntity spotCheckAppealEntity);
+    List<Long> findListByNotConfirm(SpotCheckAppealEntity spotCheckAppealEntity);
 
 }

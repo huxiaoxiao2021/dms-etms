@@ -3,21 +3,14 @@ package com.jd.bluedragon.distribution.spotcheck.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity;
-import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
-import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckIssueMQ;
 import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealAppendixResult;
 import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealDto;
 import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealResult;
-import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealTaskDto;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealJsfService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -29,11 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service("spotCheckAppealJsfService")
@@ -47,18 +38,13 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
     @Autowired
     private JyAttachmentDetailService jyAttachmentDetailService;
 
-    @Autowired
-    @Qualifier("spotCheckIssueProducer")
-    private DefaultJMQProducer spotCheckIssueProducer;
-
-    @Autowired
-    private SysConfigService sysConfigService;
-
 
     @Override
     @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.findByCondition", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<PagerResult<SpotCheckAppealResult>> findByCondition(SpotCheckAppealDto request) {
-        logger.info("findByCondition|根据条件查询设备抽检申诉记录列表:request={}", JsonHelper.toJson(request));
+        if (logger.isInfoEnabled()) {
+            logger.info("findByCondition|根据条件查询设备抽检申诉记录列表:request={}", JsonHelper.toJson(request));
+        }
         Response<PagerResult<SpotCheckAppealResult>> response = new Response<>();
         PagerResult<SpotCheckAppealResult> pagerResult = new PagerResult<>();
         response.setData(pagerResult);
@@ -99,7 +85,9 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
     @Override
     @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.updateById", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Void> updateById(SpotCheckAppealDto request) {
-        logger.info("updateById|根据ID更新设备抽检申诉记录:request={}", JsonHelper.toJson(request));
+        if (logger.isInfoEnabled()) {
+            logger.info("updateById|根据ID更新设备抽检申诉记录:request={}", JsonHelper.toJson(request));
+        }
         Response<Void> response = new Response<>();
         response.toSucceed();
         try {
@@ -115,7 +103,7 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
                 return response;
             }
             // 通知称重再造系统
-            notifyRemakeSystem(entity);
+            spotCheckAppealService.notifyRemakeSystem(entity);
             return response;
         } catch (Exception e) {
             logger.error("updateById|根据ID更新设备抽检申诉记录明细出现异常:request={},e=", JsonHelper.toJson(request), e);
@@ -127,7 +115,9 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
     @Override
     @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.batchUpdateByIds", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Void> batchUpdateByIds(SpotCheckAppealDto request) {
-        logger.info("batchUpdateByIds|根据ID列表批量更新设备抽检申诉记录:request={}", JsonHelper.toJson(request));
+        if (logger.isInfoEnabled()) {
+            logger.info("batchUpdateByIds|根据ID列表批量更新设备抽检申诉记录:request={}", JsonHelper.toJson(request));
+        }
         Response<Void> response = new Response<>();
         response.toSucceed();
         try {
@@ -142,10 +132,8 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
                 response.toWarn("根据ID列表批量查询设备抽检申诉核对记录返回空");
                 return response;
             }
-            // 通知称重再造系统
-            for (SpotCheckAppealEntity entity : entityList) {
-                notifyRemakeSystem(entity);
-            }
+            // 批量通知称重再造系统
+            spotCheckAppealService.batchNotifyRemakeSystem(entityList);
             return response;
         } catch (Exception e) {
             logger.error("batchUpdateByIds|根据ID列表批量更新设备抽检申诉记录明细出现异常:request={},e=", JsonHelper.toJson(request), e);
@@ -157,7 +145,9 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
     @Override
     @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.findAppendixByBizId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<List<SpotCheckAppealAppendixResult>> findAppendixByBizId(SpotCheckAppealDto request) {
-        logger.info("findAppendixByBizId|根据BizId查询设备抽检申诉记录附件:request={}", JsonHelper.toJson(request));
+        if (logger.isInfoEnabled()) {
+            logger.info("findAppendixByBizId|根据BizId查询设备抽检申诉记录附件:request={}", JsonHelper.toJson(request));
+        }
         Response<List<SpotCheckAppealAppendixResult>> response = new Response<>();
         response.toSucceed();
         try {
@@ -206,106 +196,7 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
         }
     }
 
-    @Override
-    @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.findTimeoutConfig", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Response<Integer> findTimeoutConfig() {
-        logger.info("findTimeoutConfig|查询配置信息-设备抽检申诉核对超时未确认时长");
-        Response<Integer> response = new Response<>();
-        response.toSucceed();
-        // 设置默认值48小时
-        response.setData(Constants.FORTY_EIGHT_HOURS);
-        try {
-            // 查询配置信息-设备抽检申诉核对超时未确认时长
-            SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SPOT_CHECK_APPEAL_TIME_OUT);
-            if (sysConfig == null) {
-                logger.warn("findTimeoutConfig|查询配置信息-设备抽检申诉核对超时未确认时长返回空");
-                return response;
-            }
-            String configContent = sysConfig.getConfigContent();
-            response.setData(Integer.valueOf(configContent));
-            return response;
-        } catch (Exception e) {
-            logger.error("findTimeoutConfig|查询配置信息-设备抽检申诉核对超时未确认时长出现异常:e=",  e);
-            return response;
-        }
-    }
-
-    @Override
-    @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.findListByNotConfirm", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Response<List<SpotCheckAppealTaskDto>> findListByNotConfirm(SpotCheckAppealDto request) {
-        logger.info("findListByNotConfirm|分页查询未确认的设备抽检申诉核对记录列表:offset={},pageSize={}", request.getOffset(), request.getPageSize());
-        Response<List<SpotCheckAppealTaskDto>> response = new Response<>();
-        response.toSucceed();
-        try {
-            if (request.getOffset() == null || request.getPageSize() == null) {
-                logger.warn("findListByNotConfirm|分页查询未确认的设备抽检申诉核对记录列表参数不合法:offset={},pageSize={}", request.getOffset(), request.getPageSize());
-                return response;
-            }
-            SpotCheckAppealEntity params = new SpotCheckAppealEntity();
-            params.setOffset(request.getOffset());
-            params.setPageSize(request.getPageSize());
-            // 查询配置信息-设备抽检申诉核对超时未确认时长
-            List<SpotCheckAppealTaskDto> taskDtoList = spotCheckAppealService.findListByNotConfirm(params);
-            response.setData(taskDtoList);
-            return response;
-        } catch (Exception e) {
-            logger.error("findListByNotConfirm|分页查询未确认的设备抽检申诉核对记录列表出现异常:offset={},pageSize={},e=", request.getOffset(), request.getPageSize(), e);
-            return response;
-        }
-    }
 
 
-    /**
-     * 通知称重再造系统
-     */
-    private void notifyRemakeSystem(SpotCheckAppealEntity spotCheckDto) {
-        SpotCheckIssueMQ spotCheckIssueMQ = new SpotCheckIssueMQ();
-        // 流程发起系统
-        spotCheckIssueMQ.setFlowSystem(SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
-        // 流程发起环节
-        spotCheckIssueMQ.setInitiationLink(String.valueOf(SpotCheckConstants.DMS_SPOT_CHECK_ISSUE));
-        // 数据来源系统
-        spotCheckIssueMQ.setSysSource(String.valueOf(SpotCheckConstants.SYS_DMS_DWS));
-        // 数据操作类型
-        spotCheckIssueMQ.setOperateType(Constants.CONSTANT_NUMBER_TWO);
-        // 流程唯一标识
-        spotCheckIssueMQ.setFlowId(spotCheckDto.getBizId());
-        // 运单号
-        spotCheckIssueMQ.setWaybillCode(spotCheckDto.getWaybillCode());
-        // 如果同意申诉，则状态为判责无效
-        if (Constants.NUMBER_ONE.equals(spotCheckDto.getConfirmStatus())) {
-            spotCheckIssueMQ.setStatus(SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_INVALID.getCode());
-            // 如果驳回申诉，则状态为判责有效
-        } else if (String.valueOf(Constants.CONSTANT_NUMBER_TWO).equals(String.valueOf(spotCheckDto.getConfirmStatus()))) {
-            spotCheckIssueMQ.setStatus(SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_EFFECT.getCode());
-        }
-        // 责任类型
-        spotCheckIssueMQ.setDutyType(spotCheckDto.getDutyType());
-        // 发起人账号
-        spotCheckIssueMQ.setStartStaffAccount(spotCheckDto.getUpdateUserErp());
-        // 发起人类型
-        spotCheckIssueMQ.setStartStaffType(Constants.CONSTANT_NUMBER_ONE);
-        // 核对(被举报)重量 单位为kg
-        spotCheckIssueMQ.setConfirmWeight(spotCheckDto.getConfirmWeight());
-        // 核对(被举报)体积 单位为cm3
-        spotCheckIssueMQ.setConfirmVolume(spotCheckDto.getConfirmVolume());
-        // 复核(举报)重量 单位为kg
-        spotCheckIssueMQ.setReConfirmWeight(spotCheckDto.getReConfirmWeight());
-        // 复核(举报)体积 单位为cm3
-        spotCheckIssueMQ.setReConfirmVolume(spotCheckDto.getReConfirmVolume());
-        // 差异标准
-        spotCheckIssueMQ.setStanderDiff(spotCheckDto.getStanderDiff());
-        // 流程发起时间
-        spotCheckIssueMQ.setStartTime(new Date());
-        // 流程状态变更时间
-        spotCheckIssueMQ.setStatusUpdateTime(new Date());
-        // 判责结果描述
-        spotCheckIssueMQ.setComment(spotCheckDto.getRejectReason());
-
-        if(logger.isInfoEnabled()){
-            logger.info("下发运单号:{}的设备抽检申诉核对数据至称重再造流程,明细如下:{}", spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
-        }
-        spotCheckIssueProducer.sendOnFailPersistent(SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_UPGRADE.getCode() + spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
-    }
 
 }

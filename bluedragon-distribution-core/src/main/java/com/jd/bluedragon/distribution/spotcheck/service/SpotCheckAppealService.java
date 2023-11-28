@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.spotcheck.service;
 
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity;
-import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealTaskDto;
 
 import java.util.List;
 
@@ -51,8 +50,18 @@ public interface SpotCheckAppealService {
     SpotCheckAppealEntity findByBizId(SpotCheckAppealEntity spotCheckAppealEntity);
 
     /**
-     * 分页查询未确认的记录
+     * 定时处理超时未确认的设备抽检申诉核对记录
      */
-    List<SpotCheckAppealTaskDto> findListByNotConfirm(SpotCheckAppealEntity spotCheckAppealEntity);
+    void dealSpotCheckAppealByNotConfirmAndOverTime();
+
+    /**
+     * 通知称重再造系统
+     */
+    void notifyRemakeSystem(SpotCheckAppealEntity spotCheckAppealEntity);
+
+    /**
+     * 批量通知称重再造系统
+     */
+    void batchNotifyRemakeSystem(List<SpotCheckAppealEntity> entityList);
 
 }
