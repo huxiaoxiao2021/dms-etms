@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.rest.box;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -35,7 +35,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,11 +92,19 @@ public class BoxResource {
     @Resource(name="sortingBoxTypeMap")
     private Map<String,String> sortingBoxTypeMap;
 
+    @Resource(name="sortingBoxSubTypeMap")
+    private Map<String,String> sortingBoxSubTypeMap;
+    @Resource(name="siteBoxSubTypeMap")
+    private Map<String,String> siteBoxSubTypeMap;
+
     @Autowired
     private CycleBoxService cycleBoxService;
 
     @Autowired
     private FuncSwitchConfigServiceImpl funcSwitchConfigService;
+
+    @Autowired
+    private DmsConfigManager dmsConfigManager;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -339,7 +346,7 @@ public class BoxResource {
     }
 
     /**
-     * 为自动分拣机生成箱号 新版
+     * 为自动分拣机生成箱号 新版 // todo
      *
      * @param request
      * @return
@@ -652,7 +659,7 @@ public class BoxResource {
      * @return
      */
     @POST
-    @Path("/boxes/getBoxType")
+    @Path("/boxes/getBoxType") // todo
     public BoxResponse getBoxType(BoxRequest request) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getOperateUserErp(), "request receiveSiteCode must not be null");
@@ -667,10 +674,16 @@ public class BoxResource {
         //营业部,自营京东派 人员使用部分箱型
         if (siteTypes.contains(baseStaffSiteOrgDto.getSubType())){
             response.setBoxTypes(siteBoxTypeMap);
+            if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
+                response.setBoxTypes(siteBoxSubTypeMap);
+            }
             return response;
         }
         //分拣中心
         response.setBoxTypes(sortingBoxTypeMap);
+        if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
+            response.setBoxTypes(sortingBoxSubTypeMap);
+        }
         return response;
     }
 
