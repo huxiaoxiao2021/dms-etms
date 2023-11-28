@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.questionnaire.*;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.external.gateway.service.QuestionnaireGatewayService;
@@ -12,6 +13,8 @@ import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.position.PositionData;
+import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.httpclient.HttpClient;
@@ -26,8 +29,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
+import static com.jd.bluedragon.Constants.PDA_QUESTIONNAIRE_FUNC_CODE;
 import static com.jd.bluedragon.Constants.PDA_QUESTIONNAIRE_ID;
 
 @Service
@@ -47,6 +53,9 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
 
     // 调查问卷
     public static final int NOT_FOUNT_QUESTIONNAIRE_ID = 3068;
+
+    @Autowired
+    private PositionManager positionManager;
 
     @Value("${questionnaire.appSecret}")
     private String appSecret;
@@ -68,6 +77,12 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         }
         String questionnaireId = sysConfig.getConfigContent();
 
+        if (StringUtils.isNotEmpty(req.getPositionCode()) || checkPositionCode(req)) {
+            response.setCode(NOT_FOUNT_QUESTIONNAIRE_ID);
+            return response;
+        }
+
+
         // 判断当前用户是否已经作答
         if (checkUserHasAnswered(questionnaireId,req.getUserErp())) {
             log.info("用户已经作答:{}", req.getUserErp());
@@ -77,6 +92,32 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         // 获取调查问卷信息
         String body = exeHttpGetMethod(HTTP_REQUEST_PREFIX + "/wj/getQuestionnaire/" + questionnaireId);
         return JsonHelper.fromJson(body, JdCResponse.class);
+    }
+
+    private boolean checkPositionCode(QuestionnaireReq req) {
+        // 校验岗位是否需要弹窗
+        SysConfig funcConfig = sysConfigService.findConfigContentByConfigName(PDA_QUESTIONNAIRE_FUNC_CODE);
+        if (StringUtils.isEmpty(funcConfig.getConfigContent())) {
+            return true;
+        }
+        String[] funcs = funcConfig.getConfigContent().split(",");
+        List<String> funcList = Arrays.asList(funcs);
+        Result<PositionData> dataResult = positionManager.queryPositionWithIsMatchAppFunc(req.getPositionCode());
+        if(dataResult == null){
+            return true;
+        }
+        if(!dataResult.isSuccess() || dataResult.getData() == null){
+            return true;
+        }
+        PositionData positionData = dataResult.getData();
+        if (StringUtils.isEmpty(positionData.getDefaultMenuCode())) {
+            return true;
+        }
+
+        if (funcList.contains(positionData.getDefaultMenuCode())) {
+            return false;
+        }
+        return true;
     }
 
     private String exeHttpGetMethod(String url) {

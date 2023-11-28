@@ -2297,4 +2297,9 @@ public class Constants {
 
 
 
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_FUNC_CODE = "pda.questionnaire.func.code";
 }
