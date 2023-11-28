@@ -193,10 +193,11 @@ public class ViolentSortingConsumer extends MessageBaseConsumer {
 
         Map<String, String> argsMap = new HashMap<>();
         argsMap.put(HintArgsConstants.ARG_FIRST, d.getSiteName());
-        argsMap.put(HintArgsConstants.ARG_FIRST, d.getGridName());
-        argsMap.put(HintArgsConstants.ARG_FIRST, d.getGridCode());
+        argsMap.put(HintArgsConstants.ARG_SECOND, d.getGridName());
+        argsMap.put(HintArgsConstants.ARG_THIRD, d.getGridCode());
         argsMap.put(HintArgsConstants.ARG_FOURTH, incr.toString());
         String content = HintService.getHint(HintCodeConstants.VIOLENT_ANDON_JD_ME_CODE, argsMap);
+        content = content.replaceAll(HintCodeConstants.VIOLENT_ANDON_JD_ME_CODE + "-", "");
 //        String content = MessageFormat.format("{0}[{1}({2})]网格违规操作已触发亮灯，当日累积触发{3}次安灯系统，请核查原因与责任人，推动改善！", d.getSiteName(), d.getGridName(), d.getGridCode(), incr);
         HashSet<String> pins = new HashSet<>();
         // 网格负责人
