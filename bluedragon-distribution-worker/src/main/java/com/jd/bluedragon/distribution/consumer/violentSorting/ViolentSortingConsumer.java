@@ -24,6 +24,8 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
@@ -79,110 +81,117 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
     private HrUserManager hrUserManager;
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.ViolentSortingConsumer.consume", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public void consume(Message message) throws Exception {
-        if (StringHelper.isEmpty(message.getText())) {
-            logger.warn("ViolentSortingConsumer consume --> 消息为空");
-            return;
-        }
-        if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn("ViolentSortingConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
-            return;
-        }
-        logger.info("ViolentSortingConsumer consume --> 消息Body为【{}】", message.getText());
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.ViolentSortingConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER, false, true);
+        try {
+            if (StringHelper.isEmpty(message.getText())) {
+                logger.warn("ViolentSortingConsumer consume --> 消息为空");
+                return;
+            }
+            if (!JsonHelper.isJsonString(message.getText())) {
+                logger.warn("ViolentSortingConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
+                return;
+            }
+            logger.info("ViolentSortingConsumer consume --> 消息Body为【{}】", message.getText());
 
-        ViolentSortingDto violentSortingDto = JsonHelper.fromJson(message.getText(), ViolentSortingDto.class);
+            ViolentSortingDto violentSortingDto = JsonHelper.fromJson(message.getText(), ViolentSortingDto.class);
 
-        Integer id = violentSortingDto.getId();
-        Long createTime = violentSortingDto.getCreateTime();
-        String gridStationOrGridBusinessKey = violentSortingDto.getGridBusinessKey();
+            Integer id = violentSortingDto.getId();
+            Long createTime = violentSortingDto.getCreateTime();
+            String gridStationOrGridBusinessKey = violentSortingDto.getGridBusinessKey();
 
-        if (id == null) {
-            logger.warn("ViolentSortingConsumer consume -->暴力分拣id为空，消息体为【{}】", message.getText());
-            return;
-        }
-        if (createTime == null) {
-            logger.warn("ViolentSortingConsumer consume -->创建时间为空，消息体为【{}】", message.getText());
-            return;
-        }
-        if (StringUtils.isEmpty(gridStationOrGridBusinessKey)) {
-            logger.warn("ViolentSortingConsumer consume -->网格业务主键为空，消息体为【{}】", message.getText());
-            return;
-        }
-        String gridBusinessKey = null;
+            if (id == null) {
+                logger.warn("ViolentSortingConsumer consume -->暴力分拣id为空，消息体为【{}】", message.getText());
+                return;
+            }
+            if (createTime == null) {
+                logger.warn("ViolentSortingConsumer consume -->创建时间为空，消息体为【{}】", message.getText());
+                return;
+            }
+            if (StringUtils.isEmpty(gridStationOrGridBusinessKey)) {
+                logger.warn("ViolentSortingConsumer consume -->网格业务主键为空，消息体为【{}】", message.getText());
+                return;
+            }
+            String gridBusinessKey = null;
 
-        // 如果是网格工序的话，给转换成网格
-        if (BusinessKeyUtils.businessKeyIsWorkGrid(gridStationOrGridBusinessKey)) {
-            gridBusinessKey = gridStationOrGridBusinessKey;
-        } else if (BusinessKeyUtils.businessKeyIsWorkStationGrid(gridStationOrGridBusinessKey)) {
-            WorkStationGridQuery workStationGridCheckQuery = new WorkStationGridQuery();
-            workStationGridCheckQuery.setBusinessKey(gridStationOrGridBusinessKey);
-            Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
-            if (workStationGridResult.isSuccess() && workStationGridResult.getData() != null) {
-                gridBusinessKey = workStationGridResult.getData().getRefWorkGridKey();
+            // 如果是网格工序的话，给转换成网格
+            if (BusinessKeyUtils.businessKeyIsWorkGrid(gridStationOrGridBusinessKey)) {
+                gridBusinessKey = gridStationOrGridBusinessKey;
+            } else if (BusinessKeyUtils.businessKeyIsWorkStationGrid(gridStationOrGridBusinessKey)) {
+                WorkStationGridQuery workStationGridCheckQuery = new WorkStationGridQuery();
+                workStationGridCheckQuery.setBusinessKey(gridStationOrGridBusinessKey);
+                Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
+                if (workStationGridResult.isSuccess() && workStationGridResult.getData() != null) {
+                    gridBusinessKey = workStationGridResult.getData().getRefWorkGridKey();
+                } else {
+                    logger.warn("根据gridStationBusinessKey查网格失败，key：" + gridStationOrGridBusinessKey + "消息体：" + message.getText());
+                    return;
+                }
+            }
+            // 根据网格查出设备编码
+            List<DeviceGridDto> data = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(gridBusinessKey, null);
+
+            // 过滤出是安灯的设备
+            List<String> allAndonMachine = new ArrayList<>();
+            for (DeviceGridDto datum : data) {
+                DeviceConfigDto oneDeviceConfigByMachineCode = deviceConfigInfoJsfService.findOneDeviceConfigByMachineCode(datum.getMachineCode());
+                if (oneDeviceConfigByMachineCode != null && Objects.equals(oneDeviceConfigByMachineCode.getTypeCode(), TYPE_ANDON)) {
+                    allAndonMachine.add(oneDeviceConfigByMachineCode.getMachineCode());
+                }
+            }
+            if (CollectionUtils.isEmpty(allAndonMachine)) {
+                logger.warn("ViolentSortingConsumer consume -->根据GridByBusinessKey查设绑定的安灯备编码为空，消息体为【{}】", message.getText());
+                return;
+            }
+            if (allAndonMachine.size() > 1) {
+                logger.warn("ViolentSortingConsumer consume -->根据GridByBusinessKey查设绑定的安灯备编码查出多个，会取第一个，忽略其他，消息体为【{}】", message.getText());
+            }
+            String andonMachineCode = allAndonMachine.get(0);
+            violentSortingDto.setAndonMachineCode(andonMachineCode);
+
+            // 根据网格businesskey查网格,补全dto内容
+
+            Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridBusinessKey);
+            if (workGridResult.isSuccess()) {
+                WorkGrid grid = workGridResult.getData();
+
+                if (grid == null) {
+                    logger.warn("根据网格businesskey查网格数据为空，消息体为【{}】", message.getText());
+                    return;
+                }
+                violentSortingDto.setAreaHubCode(grid.getAreaHubCode());
+                violentSortingDto.setAreaHubName(grid.getAreaHubName());
+                violentSortingDto.setProvinceAgencyCode(grid.getProvinceAgencyCode());
+                violentSortingDto.setProvinceAgencyName(grid.getProvinceAgencyName());
+                violentSortingDto.setSiteCode(grid.getSiteCode());
+                violentSortingDto.setSiteName(grid.getSiteName());
+                violentSortingDto.setGridCode(grid.getGridCode());
+                violentSortingDto.setGridName(grid.getGridName());
+                violentSortingDto.setOwnerUserErp(grid.getOwnerUserErp());
             } else {
-                logger.warn("根据gridStationBusinessKey查网格失败，key：" + gridStationOrGridBusinessKey + "消息体：" + message.getText());
-                return;
+                logger.warn("根据网格businesskey查网格失败，消息体为【{}】", message.getText());
+                throw new RuntimeException("根据网格businesskey查网格失败" + message.getText());// 异常mq重试
             }
+
+
+            // 需要亮灯时，推送消息给灯绑定网格的网格长。
+            // 若事件为该网格当日（0点到23点59分59秒）第三次或更多次事件时，消息额外推送给场地负责人「网格长的上级」。
+            // 消息标题：违规操作预警，内容：XX分拣XXX网格违规操作已触发亮灯，当日累积触发X次安灯系统，请核查原因与责任人，推动改善！视频链接：xxxxxx
+            Long l = notifyViolentSortingGridOwnerOrLerder(violentSortingDto);
+
+
+            // 亮灯
+            andonEventService.lightOn(AndonEventSourceEnum.VIOLENT_SORTING,
+                    String.valueOf(violentSortingDto.getId()),
+                    violentSortingDto.getSiteCode(),
+                    violentSortingDto.getGridCode(), andonMachineCode, new Date(violentSortingDto.getCreateTime()), violentSortingDto);
+
+        } catch (Exception e) {
+            Profiler.functionError(info);
+            logger.error("暴力分拣消费失败" + message.getText(), e);
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
-        // 根据网格查出设备编码
-        List<DeviceGridDto> data = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(gridBusinessKey, null);
-
-        // 过滤出是安灯的设备
-        List<String> allAndonMachine = new ArrayList<>();
-        for (DeviceGridDto datum : data) {
-            DeviceConfigDto oneDeviceConfigByMachineCode = deviceConfigInfoJsfService.findOneDeviceConfigByMachineCode(datum.getMachineCode());
-            if (oneDeviceConfigByMachineCode != null && Objects.equals(oneDeviceConfigByMachineCode.getTypeCode(), TYPE_ANDON)) {
-                allAndonMachine.add(oneDeviceConfigByMachineCode.getMachineCode());
-            }
-        }
-        if (CollectionUtils.isEmpty(allAndonMachine)) {
-            logger.warn("ViolentSortingConsumer consume -->根据GridByBusinessKey查设绑定的安灯备编码为空，消息体为【{}】", message.getText());
-            return;
-        }
-        if (allAndonMachine.size() > 1) {
-            logger.warn("ViolentSortingConsumer consume -->根据GridByBusinessKey查设绑定的安灯备编码查出多个，会取第一个，忽略其他，消息体为【{}】", message.getText());
-        }
-        String andonMachineCode = allAndonMachine.get(0);
-        violentSortingDto.setAndonMachineCode(andonMachineCode);
-
-        // 根据网格businesskey查网格,补全dto内容
-
-        Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridBusinessKey);
-        if (workGridResult.isSuccess()) {
-            WorkGrid grid = workGridResult.getData();
-
-            if (grid == null) {
-                logger.warn("根据网格businesskey查网格数据为空，消息体为【{}】", message.getText());
-                return;
-            }
-            violentSortingDto.setAreaHubCode(grid.getAreaHubCode());
-            violentSortingDto.setAreaHubName(grid.getAreaHubName());
-            violentSortingDto.setProvinceAgencyCode(grid.getProvinceAgencyCode());
-            violentSortingDto.setProvinceAgencyName(grid.getProvinceAgencyName());
-            violentSortingDto.setSiteCode(grid.getSiteCode());
-            violentSortingDto.setSiteName(grid.getSiteName());
-            violentSortingDto.setGridCode(grid.getGridCode());
-            violentSortingDto.setGridName(grid.getGridName());
-            violentSortingDto.setOwnerUserErp(grid.getOwnerUserErp());
-        } else {
-            logger.warn("根据网格businesskey查网格失败，消息体为【{}】", message.getText());
-            throw new RuntimeException("根据网格businesskey查网格失败" + message.getText());// 异常mq重试
-        }
-
-
-        // 需要亮灯时，推送消息给灯绑定网格的网格长。
-        // 若事件为该网格当日（0点到23点59分59秒）第三次或更多次事件时，消息额外推送给场地负责人「网格长的上级」。
-        // 消息标题：违规操作预警，内容：XX分拣XXX网格违规操作已触发亮灯，当日累积触发X次安灯系统，请核查原因与责任人，推动改善！视频链接：xxxxxx
-        Long l = notifyViolentSortingGridOwnerOrLerder(violentSortingDto);
-
-
-        // 亮灯
-        andonEventService.lightOn(AndonEventSourceEnum.VIOLENT_SORTING,
-                String.valueOf(violentSortingDto.getId()),
-                violentSortingDto.getSiteCode(),
-                violentSortingDto.getGridCode(), andonMachineCode, new Date(violentSortingDto.getCreateTime()), violentSortingDto);
-
     }
 
     // 通知
