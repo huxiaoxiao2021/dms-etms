@@ -517,7 +517,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	 * @param violentSortingDto
 	 * @param workStationGrid
 	 */
-/*	@Override
+	@Override
 	public void generateViolentSortingTask(ViolentSortingDto violentSortingDto, WorkGrid workGrid){
 		String infoPrefix = "生成异常检查任务-";
 		SysConfig positonNamesConfig = sysConfigService.findConfigContentByConfigName(EXP_INSPECTION_TASK_POSITION_NAMES_CONF_KEY);
@@ -578,5 +578,5 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		//保存超时任务
 		saveAutoCloseTask(preFinishTime,siteCode, bizIdList);
 		
-	}*/
+	}
 }
