@@ -13,6 +13,8 @@ public class QuestionnaireReq implements Serializable {
 
     private String userName;
 
+    private String positionCode;
+
     public String getUserErp() {
         return userErp;
     }
@@ -27,5 +29,13 @@ public class QuestionnaireReq implements Serializable {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getPositionCode() {
+        return positionCode;
+    }
+
+    public void setPositionCode(String positionCode) {
+        this.positionCode = positionCode;
     }
 }
