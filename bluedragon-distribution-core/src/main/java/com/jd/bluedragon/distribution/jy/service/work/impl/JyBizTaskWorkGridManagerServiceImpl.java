@@ -562,11 +562,17 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		List<JyUserDto> jyUserDtos = jyWorkGridManagerBusinessService.getTaskHandleUser(configData, siteInfo,
 				WorkGridManagerTaskBizType.EXP_INSPECT.getCode());
 		if(CollectionUtils.isEmpty(jyUserDtos)){
-			logger.error("{}未查到任务处理人positonNames:{}，siteCode:{}", infoPrefix, positonNames, siteCode);
+			logger.error("{}未查到任务处理人,positonNames:{}，siteCode:{}", infoPrefix, positonNames, siteCode);
 			return;
 		}
+		//三定排班过滤
 		Date curDate = new Date();
 		Date preFinishTime = DateUtil.addDay(curDate, 1);
+		jyUserDtos = jyWorkGridManagerBusinessService.filterJyUserDtoInSchedule("", curDate, preFinishTime, jyUserDtos);
+		if(CollectionUtils.isEmpty(jyUserDtos)){
+			logger.error("{}场地人员未在任务时间内无排班,positonNames:{}，siteCode:{}", infoPrefix, positonNames, siteCode);
+			return;
+		}
 		JyUserDto jyUserDto = jyUserDtos.get(0);
 		JyBizTaskWorkGridManager jyBizTaskWorkGridManager = initJyBizTaskWorkGridManager(siteInfo, workGridManagerTask,jyUserDto.getPositionCode(), jyUserDto.getPositionName(),
 				workGrid, curDate, jyUserDto.getUserErp(), jyUserDto.getUserName(), preFinishTime,
@@ -577,6 +583,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		List<String> bizIdList = jyBizTaskWorkGridManagers.stream().map(JyBizTaskWorkGridManager::getBizId).collect(Collectors.toList());
 		//保存超时任务
 		saveAutoCloseTask(preFinishTime,siteCode, bizIdList);
-		
+		logger.error("{}保存成功,positonNames:{}，siteCode:{},businessKey:{}", infoPrefix, positonNames, siteCode, workGrid.getBusinessKey());
+
+
 	}
 }

@@ -56,6 +56,8 @@ public interface JyWorkGridManagerBusinessService {
 	List<JyUserDto> getTaskHandleUser(WorkGridManagerTaskConfigVo configData, BaseSiteInfoDto siteInfo,
 									  Integer taskBizType);
 
+	List<JyUserDto> filterJyUserDtoInSchedule(String taskConfigCode, Date taskTime, Date taskEndTime, List<JyUserDto> userList);
+
 	void sendTimeLineNotice(WorkGridManagerTaskBizType type, JyUserDto user);
 
 	JyBizTaskWorkGridManager initJyBizTaskWorkGridManager(BaseSiteInfoDto siteInfo, TaskWorkGridManagerSiteScanData taskWorkGridManagerScan,

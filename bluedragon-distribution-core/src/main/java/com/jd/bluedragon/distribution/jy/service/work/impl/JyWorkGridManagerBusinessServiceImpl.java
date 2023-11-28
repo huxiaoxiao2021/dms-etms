@@ -25,16 +25,11 @@ import com.jd.bluedragon.utils.easydata.DmsWEasyDataConfig;
 import com.jd.bluedragon.utils.easydata.EasyDataClientUtil;
 import com.jd.dms.wb.sdk.enums.oneTable.Class2TypeEnum;
 import com.jd.fds.lib.dto.server.FdsPage;
-import com.jd.fds.lib.dto.server.FdsServerResult;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.work.WorkGridCandidate;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
-import com.jdl.basic.common.utils.DateUtil;
-import com.jdl.basic.common.utils.MathUtil;
-import org.apache.avro.data.Json;
-import org.apache.commons.lang3.time.DateUtils;
 import com.jdl.jy.flat.base.ServiceResult;
 import com.jdl.jy.flat.dto.schedule.ScheduleDetailDto;
 import com.jdl.jy.flat.dto.schedule.UserDateScheduleQueryDto;
@@ -837,8 +832,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		return null;
 	}
 
-
-	private List<JyUserDto> filterJyUserDtoInSchedule(String taskConfigCode, Date taskTime, Date taskEndTime, List<JyUserDto> userList) {
+	@Override
+	public List<JyUserDto> filterJyUserDtoInSchedule(String taskConfigCode, Date taskTime, Date taskEndTime, List<JyUserDto> userList) {
 		if (CollectionUtils.isEmpty(userList)){
 			return userList;
 		}
