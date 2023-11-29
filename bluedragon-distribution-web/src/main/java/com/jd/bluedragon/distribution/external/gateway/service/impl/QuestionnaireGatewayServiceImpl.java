@@ -77,7 +77,7 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         }
         String questionnaireId = sysConfig.getConfigContent();
 
-        if (StringUtils.isEmpty(req.getPositionCode()) || checkPositionCode(req)) {
+        if (StringUtils.isNotEmpty(req.getPositionCode()) && checkPositionCode(req)) {
             response.setCode(NOT_FOUNT_QUESTIONNAIRE_ID);
             return response;
         }
