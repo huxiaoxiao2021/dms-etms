@@ -324,6 +324,8 @@
 
 		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
 		<property name="terminalSiteTypeForBoxType" value="${siteTypeTerminalForBoxType:4,10}"/>
+		<property name="czSealCarBoardCountMinLimit" value="${czSealCarBoardCountMinLimit:4}"/>
+		<property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -653,6 +655,8 @@
 				<value>uccPropertyConfiguration.sealSyncOpenCloseSendTaskSwitch</value>
 				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
 				<value>uccPropertyConfiguration.siteTypeTerminalForBoxType</value>
+				<value>uccPropertyConfiguration.czSealCarBoardCountMinLimit</value>
+				<value>uccPropertyConfiguration.czSealCarPackageCountMinLimit</value>
 			</list>
 		</property>
 	</bean>
