@@ -658,5 +658,9 @@
     <jmq:consumer id="jmq.sealSyncOpenCloseSendTaskConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.sealSyncOpenCloseSendTask}" listener="sealSyncOpenCloseSendTaskConsumer"/>
     </jmq:consumer>
+    <!-- 安灯消费暴力分拣 -->
+    <jmq:consumer id="jmq.violentSortingConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.ai.violentSorting}" listener="violentSortingConsumer"/>
+    </jmq:consumer>
 </beans>
 
