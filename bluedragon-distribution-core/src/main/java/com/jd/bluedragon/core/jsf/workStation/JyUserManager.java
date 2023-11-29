@@ -9,6 +9,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.user.JyUser;
 import com.jdl.basic.api.domain.user.JyUserDto;
+import com.jdl.basic.api.domain.user.JyUserQueryDto;
 import com.jdl.basic.common.utils.Result;
 
 /**
@@ -29,4 +30,14 @@ public interface JyUserManager {
     Result<List<JyUserDto>> queryUserListBySiteAndPosition(Integer siteCode,String organizationCode,String userPositionCode,String userPositionName);
 
     Result<JyUser> queryUserInfo(String erp);
+
+    /**
+     * 根据用户ERP查询用户信息
+     *
+     * @param 用户ERP信息
+     * @return Result<JyUserDto> 返回包含用户信息的结果对象
+     */
+    Result<JyUserDto> queryByUserErp(String erp);
+
+
 }

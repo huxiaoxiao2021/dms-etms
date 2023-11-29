@@ -2211,4 +2211,16 @@ public class Constants {
      * 集包岗-任务锁前缀
      */
     public static final String JY_COLLECT_BOX_LOCK_PREFIX  = "jy_collect_package_box_lock_%s";
+
+    /**
+     * 包裹补打站点类型限制配置
+     */
+    public static final String PACKAGE_PRINT_LIMIT_SITE_TYPE_CONFIG  = "package.print.limit.siteType.config";
+
+    /**
+     * 标准岗位编码限制配置
+     */
+    public static final String PACKAGE_PRINT_LIMIT_POSITION_CODE_TYPE_CONFIG  = "package.print.limit.positionCode.config";
+
+
 }

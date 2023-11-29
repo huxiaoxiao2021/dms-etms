@@ -317,9 +317,8 @@
 		<property name="forceCollectPackageSiteListStr" value="${forceCollectPackageSiteListStr:''}"/>
 		<property name="jyCollectPackageInterceptBitCode" value="${jyCollectPackageInterceptBitCode:2199023255033}"/>
 		<property name="collectPackageSiteForbiddenList" value="${collectPackageSiteForbiddenList:''}"/>
-		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
-		<property name="sortOrWarehouseOrReturngroupPackagePrintLimitSwitch" value="${sortOrWarehouseOrReturngroupPackagePrintLimitSwitch:false}"/>
 
+		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -626,7 +625,6 @@
 				<value>uccPropertyConfiguration.jyCollectPackageInterceptBitCode</value>
 				<value>uccPropertyConfiguration.collectPackageSiteForbiddenList</value>
 				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
-				<value>uccPropertyConfiguration.sortOrWarehouseOrReturngroupPackagePrintLimitSwitch</value>
 			</list>
 		</property>
 	</bean>
