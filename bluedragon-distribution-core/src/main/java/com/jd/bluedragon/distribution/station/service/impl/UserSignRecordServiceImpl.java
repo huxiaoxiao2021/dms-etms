@@ -1635,16 +1635,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		calendar.set(Calendar.MINUTE, localCurrentTime.getMinute());
 		calendar.set(Calendar.SECOND, Constants.NUMBER_ZERO);
 		Date earlierStartDate = calendar.getTime();
+		// 排班日期标识：0代表当天，-1代表前一天
+		Integer scheduleDateType;
 		// 当前打卡时间是否在当天首个班次的起始时间前1个小时
 		Date earlierStartDateBeforeOneHour = DateHelper.addHours(earlierStartDate, Constants.NEGATIVE_NUMBER_ONE);
 		if (currentDate.getTime() >= earlierStartDateBeforeOneHour.getTime()) {
 			log.info("assembleRegularEmployeesWaveCode|签到时间在当天首个班次的起始时间前1个小时之内,因此获取当天的排班数据:request={},earlierDayTime={},earlierDayTimeBeforeOneHour={}", JsonHelper.toJson(request), earlierDayTime, earlierStartDateBeforeOneHour);
 			// 获取当天的排班数据
 			queryDto.setScheduleDate(DateHelper.getSpecialDateOfyyMMdd2(currentDate.getTime()));
+			scheduleDateType = Constants.NUMBER_ZERO;
 		} else {
 			log.info("assembleRegularEmployeesWaveCode|签到时间不在当天首个班次的起始时间前1个小时之内,因此获取前一天的排班数据:request={},earlierDayTime={},earlierDayTimeBeforeOneHour={}", JsonHelper.toJson(request), earlierDayTime, earlierStartDateBeforeOneHour);
 			// 获取前一天的排班数据
 			queryDto.setScheduleDate(DateHelper.getSpecialDateOfyyMMdd2(currentDate.getTime() - DateHelper.ONE_DAY));
+			scheduleDateType = Constants.NEGATIVE_NUMBER_ONE;
 		}
 		scheduleDetailDtoList = workGridScheduleManager.findListByGridKeyAndErp(queryDto);
 		// 若当前人员在没有存在排班计划，则该出勤数据展示“未排班”
@@ -1659,7 +1663,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			ScheduleDetailDto scheduleDetailDto = scheduleDetailDtoList.get(Constants.CONSTANT_NUMBER_ZERO);
 			log.info("assembleRegularEmployeesWaveCode|当前人员在当天仅存在一条排班计划:request={},scheduleDetailDto={}", JsonHelper.toJson(request), JsonHelper.toJson(scheduleDetailDto));
 			// 且当前erp签到时间处于该排班计划对应班次时间的前后1小时内，则班次类型展示对应的班次，班次时间展示对应班次的时间
-			if (isBetweenBeforeAndAfterOneHour(scheduleDetailDto, currentDate)) {
+			if (isBetweenBeforeAndAfterOneHour(scheduleDetailDto, currentDate, scheduleDateType)) {
 				Integer waveType = getWaveType(scheduleDetailDto.getScheduleKey());
 				signInData.setWaveCodeNew(String.valueOf(waveType));
 				signInData.setWaveTime(scheduleDetailDto.getStartTime() + Constants.SEPARATOR_TILDE + scheduleDetailDto.getEndTime());
@@ -1673,7 +1677,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		StringBuilder waveTimeStr = new StringBuilder(Constants.EMPTY_FILL);
 		// 若当前人员存在多个排班计划,依次判断签到时间是否处于每个排班计划对应班次时间的前后1小时内，多个中间用顿号隔开
 		for (ScheduleDetailDto scheduleDetailDto : scheduleDetailDtoList) {
-			if (isBetweenBeforeAndAfterOneHour(scheduleDetailDto, currentDate)) {
+			if (isBetweenBeforeAndAfterOneHour(scheduleDetailDto, currentDate, scheduleDateType)) {
 				Integer waveType = getWaveType(scheduleDetailDto.getScheduleKey());
 				String waveTime = scheduleDetailDto.getStartTime() + Constants.SEPARATOR_TILDE + scheduleDetailDto.getEndTime();
 				waveCodeStr.append(Constants.SEPARATOR_COMMA).append(waveType);
@@ -1718,21 +1722,23 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return null;
 	}
 
-	private boolean isBetweenBeforeAndAfterOneHour(ScheduleDetailDto scheduleDetailDto, Date currentDate) {
+	private boolean isBetweenBeforeAndAfterOneHour(ScheduleDetailDto scheduleDetailDto, Date currentDate, Integer scheduleDateType) {
 		// 班次时分形式 HH:mm
 		String startTime = scheduleDetailDto.getStartTime();
 		String endTime = scheduleDetailDto.getEndTime();
 		// 班次日期形式 yyyy-MM-dd HH:mm:ss
-		Date startDate = getSpecialDateByStr(startTime, null);
+		Date startDate = getSpecialDateByStr(startTime, scheduleDateType);
 		Date endDate;
 		// 如果结束日期代表后一天的时间点，则转换时需要加一天
 		if (LocalTime.parse(startTime).isAfter(LocalTime.parse(endTime))) {
-			endDate = getSpecialDateByStr(endTime, Constants.NUMBER_ONE);
+			endDate = getSpecialDateByStr(endTime, scheduleDateType + Constants.NUMBER_ONE);
 		} else {
-			endDate = getSpecialDateByStr(endTime, null);
+			endDate = getSpecialDateByStr(endTime, scheduleDateType);
 		}
 		Date startDateBeforeOneHour = DateHelper.addHours(startDate, Constants.NEGATIVE_NUMBER_ONE);
 		Date endDateAfterOneHour = DateHelper.addHours(endDate, Constants.NUMBER_ONE);
+		log.info("assembleRegularEmployeesWaveCode|开始比较当前erp签到时间是否处于该排班计划对应班次时间的前后1小时内:scheduleDetailDto={},startDateBeforeOneHour={},endDateAfterOneHour={},scheduleDateType={}",
+				JsonHelper.toJson(scheduleDetailDto), startDateBeforeOneHour, endDateAfterOneHour, scheduleDateType);
 		// 且当前erp签到时间处于该排班计划对应班次时间的前后1小时内，则班次类型展示对应的班次，班次时间展示对应班次的时间
 		if (currentDate.getTime() <= endDateAfterOneHour.getTime() && currentDate.getTime() >= startDateBeforeOneHour.getTime()) {
 			return true;
