@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.jd.bluedragon.utils.easydata.EasyDataClientUtil.sqlValidate;
+
 
 public class MysqlHelper {
 
@@ -142,6 +144,7 @@ public class MysqlHelper {
 
 
         try {
+            sqlValidate(sql);
             ps = conn.prepareStatement(sql);
             ps.execute();
             try(ResultSet rs = ps.getResultSet()){
