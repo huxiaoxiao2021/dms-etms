@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.jy.service.seal.JyAppDataSealService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleServiceImpl;
@@ -69,6 +70,9 @@ public class JyComboardSealVehicleServiceImpl extends JySealVehicleServiceImpl {
     @Autowired
     private JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
 
+    @Autowired
+    private JyComboardService jyComboardService;
+
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComboardSealVehicleServiceImpl.setSavedPageData", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void setSavedPageData(SealVehicleInfoReq sealVehicleInfoReq, SealVehicleInfoResp sealVehicleInfoResp) {
         JyAppDataSealVo jyAppDataSealVo = jyAppDataSealService.loadSavedPageData(sealVehicleInfoReq.getSendVehicleDetailBizId());
@@ -123,22 +127,8 @@ public class JyComboardSealVehicleServiceImpl extends JySealVehicleServiceImpl {
             List<String> boardList = taskList.stream().map(JyBizTaskComboardEntity::getBoardCode).collect(Collectors.toList());
 
             // 查询板的统计数据
-            List<JyComboardAggsEntity> aggsEntities;
-            try {
-                aggsEntities = jyComboardAggsService.queryComboardAggs(boardList);
-            } catch (Exception e) {
-                log.info("组版封车查询板统计数据异常：{}", JsonHelper.toJson(boardList), e);
-                return true;
-            }
+            long packageCount = jyComboardService.countByBoardList(Long.valueOf(sealVehicleReq.getCurrentOperate().getSiteCode()), boardList);
 
-            // 封车包裹件数校验
-            int packageCount = 0;
-            if (!CollectionUtils.isEmpty(aggsEntities)) {
-                for (JyComboardAggsEntity aggsEntity : aggsEntities) {
-                    packageCount += aggsEntity.getPackageScannedCount() == null ? 0 : aggsEntity.getPackageScannedCount();
-                    packageCount += aggsEntity.getBoxScannedCount() == null ? 0 : aggsEntity.getBoxScannedCount();
-                }
-            }
             // 封车板数量校验
             if (packageCount < packageMinLimit && sealVehicleReq.getBatchCodes().size() < boardMinLimit) {
                 log.info("车辆封车的板数量不能小于{}", boardMinLimit);

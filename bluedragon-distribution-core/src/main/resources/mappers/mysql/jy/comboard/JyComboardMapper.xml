@@ -349,4 +349,17 @@
     </if>
     order by id desc limit 1
   </select>
+
+  <select id="countByBoardList" resultType="java.lang.Long">
+    select count(1)
+    from jy_comboard
+    where cancel_flag = 0
+    and intercept_flag = 0
+    and start_site_id =#{startSiteId}
+    and yn = 1
+    and board_code in
+    <foreach collection="boardCodeList" item="item" index="index" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
 </mapper>
