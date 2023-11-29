@@ -4,6 +4,8 @@ import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.cycleBox.domain.BoxMaterialRelationDto;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 
+import java.util.List;
+
 public interface CycleBoxJsfService {
 
     /**
@@ -28,4 +30,8 @@ public interface CycleBoxJsfService {
      * @return
      */
     InvokeResult<Boolean> addBoxMaterialRelation(BoxMaterialRelationRequest request);
+
+    InvokeResult<List<BoxMaterialRelationDto>> findByMaterialCodeAndBoxCode(BoxMaterialRelationRequest request);
+
+     InvokeResult<Integer> countByMaterialCodeAndBoxCode(BoxMaterialRelationRequest request);
 }

@@ -976,6 +976,25 @@
         <property name="topic" value="${jmq.topic.login.info}"/>
         <property name="timeout" value="1000"/>
     </bean>
+    <!-- 箱号首次打印消息 -->
+    <bean id="boxFirstPrintProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.boxFirstPrint}" />
+        <property name="timeout" value="3000" />
+    </bean>
+
+    <!-- 箱号首次打印 -->
+    <bean id="batchCancelCollectPackageProduce" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.batchCancelCollectPackageProduce}" />
+        <property name="timeout" value="3000" />
+    </bean>
+    <!-- 封车取消封车状态同步新版发货任务 -->
+    <bean id="sealSyncOpenCloseSendTaskProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.sealSyncOpenCloseSendTask}"/>
+    </bean>
+    <!-- 安灯亮灭灯信息-->
+    <bean id="andonEventProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.andon.event}"/>
+    </bean>
 
     <!--  运单返调度审批异步处理  -->
     <bean id="reassignWaybillApprovalProducer" parent="jmq4DmsWebDefaultJMQProducer">

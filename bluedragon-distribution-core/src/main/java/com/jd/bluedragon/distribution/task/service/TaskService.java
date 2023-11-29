@@ -162,4 +162,6 @@ public interface TaskService {
      * @time 2023-06-20 16:34:55 周二
      */
     List<Task> findListForDelayTask(Integer type, Integer fetchNum, String ownSign, List<String> queueIds);
+
+    void initOthers(String jsonVal, Task task);
 }

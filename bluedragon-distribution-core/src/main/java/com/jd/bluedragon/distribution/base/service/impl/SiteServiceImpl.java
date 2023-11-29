@@ -622,6 +622,7 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
         ownSite.setName(basicSite.getSiteName());
         ownSite.setType(basicSite.getSiteType());
         ownSite.setSubType(basicSite.getSubType());
+        ownSite.setThirdType(basicSite.getThirdType());
         ownSite.setProvinceId(basicSite.getProvinceId());
         ownSite.setCityId(basicSite.getCityId());
         ownSite.setSortType(basicSite.getSortType());

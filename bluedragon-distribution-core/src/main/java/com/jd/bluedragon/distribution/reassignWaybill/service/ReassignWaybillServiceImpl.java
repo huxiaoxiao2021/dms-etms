@@ -159,7 +159,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		if(WaybillUtil.getCurrentPackageNum(packTagPrint.getPackageBarcode()) == 1){
 			//每个运单只需要发一次就可以
 			SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
-			siteChangeMqDto.setWaybillCode(packTagPrint.getWaybillCode());
+			siteChangeMqDto.setWaybillCode(packTagPrint.getWaybillCode().trim());
 			siteChangeMqDto.setNewSiteId(packTagPrint.getChangeSiteCode());
 			siteChangeMqDto.setNewSiteName(packTagPrint.getChangeSiteName());
 			siteChangeMqDto.setNewSiteRoadCode("0"); // 此操作无法触发预分拣 故传默认值0
@@ -169,7 +169,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			siteChangeMqDto.setOperatorSiteName(packTagPrint.getSiteName());
 			siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
 			try {
-				waybillSiteChangeProducer.sendOnFailPersistent(packTagPrint.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+				waybillSiteChangeProducer.sendOnFailPersistent(packTagPrint.getWaybillCode().trim(), JsonHelper.toJsonUseGson(siteChangeMqDto));
 				if(log.isDebugEnabled()){
 					log.debug("发送预分拣站点变更mq消息成功(现场预分拣)：{}",JsonHelper.toJsonUseGson(siteChangeMqDto));
 				}
@@ -278,7 +278,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		if(WaybillUtil.getCurrentPackageNum(packTagPrint.getPackageBarcode()) == 1){
 			//每个运单只需要发一次就可以
 			SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
-			siteChangeMqDto.setWaybillCode(packTagPrint.getWaybillCode());
+			siteChangeMqDto.setWaybillCode(packTagPrint.getWaybillCode().trim());
 			siteChangeMqDto.setNewSiteId(packTagPrint.getChangeSiteCode());
 			siteChangeMqDto.setNewSiteName(packTagPrint.getChangeSiteName());
 			siteChangeMqDto.setNewSiteRoadCode("0"); // 此操作无法触发预分拣 故传默认值0
@@ -289,7 +289,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
 			try {
 				log.info("addToDebon-siteChangeMqDto-信息-{}",JsonHelper.toJson(siteChangeMqDto));
-				waybillSiteChangeProducer.sendOnFailPersistent(packTagPrint.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+				waybillSiteChangeProducer.sendOnFailPersistent(packTagPrint.getWaybillCode().trim(), JsonHelper.toJsonUseGson(siteChangeMqDto));
 				if(log.isDebugEnabled()){
 					log.debug("发送预分拣站点变更mq消息成功(现场预分拣)：{}",JsonHelper.toJsonUseGson(siteChangeMqDto));
 				}

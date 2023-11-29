@@ -721,7 +721,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setDiffWeight(spotCheckDto.getDiffWeight() == null ? null : decimalFormat.format(spotCheckDto.getDiffWeight()));
         spotCheckIssueMQ.setStanderDiff(spotCheckDto.getDiffStandard());
         spotCheckIssueMQ.setExceedType(spotCheckDto.getExcessType());
-        spotCheckIssueMQ.setStatus(spotCheckDto.getSpotCheckStatus());
+        spotCheckIssueMQ.setStatus(Constants.CONSTANT_NUMBER_ONE);
         spotCheckIssueMQ.setAppendix(Constants.CONSTANT_NUMBER_ONE);
         spotCheckIssueMQ.setUrl(picUrlDeal(spotCheckDto));
         spotCheckIssueMQ.setStartTime(new Date());
