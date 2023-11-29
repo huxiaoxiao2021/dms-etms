@@ -5,6 +5,7 @@ import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CrossSortingRequest;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingResponse;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
@@ -58,6 +59,9 @@ public class CrossSortingResource {
     @Autowired
     private BoxLimitConfigManager boxLimitConfigManager;
 
+    @Autowired
+    private BoxService boxService;
+
     @POST
     @Path("/crosssorting/queryMixBoxSite")
     public CrossSortingResponse queryMixBoxSite(CrossSortingRequest request) {
@@ -80,7 +84,7 @@ public class CrossSortingResource {
             }
             //如果使用新混装规则，则走新的混装规则
             log.info("是否使用新混装规则：{}", useNewMixedConfig);
-            if (dmsConfigManager.getPropertyConfig().getMixedConfigUseBasicNew()) {
+            if (dmsConfigManager.getPropertyConfig().getMixedConfigUseBasicNew()  && boxService.checkCollectPackageIfReleasedForSite(request.getOrgId(),request.getCreateDmsCode())) {
                 // 使用分拣工作台配置的新规则
                 log.info("混包校验使用分拣工作台配置规则");
                 mixDmsList = getMixedConfigUseBasicNew(request);

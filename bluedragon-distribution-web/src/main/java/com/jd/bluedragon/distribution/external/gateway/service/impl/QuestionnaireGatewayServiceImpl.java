@@ -77,7 +77,7 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         }
         String questionnaireId = sysConfig.getConfigContent();
 
-        if (StringUtils.isNotEmpty(req.getPositionCode()) || checkPositionCode(req)) {
+        if (StringUtils.isEmpty(req.getPositionCode()) || checkPositionCode(req)) {
             response.setCode(NOT_FOUNT_QUESTIONNAIRE_ID);
             return response;
         }
@@ -92,6 +92,13 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         // 获取调查问卷信息
         String body = exeHttpGetMethod(HTTP_REQUEST_PREFIX + "/wj/getQuestionnaire/" + questionnaireId);
         return JsonHelper.fromJson(body, JdCResponse.class);
+    }
+
+    public static void main(String[] args) {
+        String funcConfig = "COMBOARD_SEND_POSITION,PATROL_MANAGER_POSITION";
+        String[] funcs = funcConfig.split(",");
+        List<String> funcList = Arrays.asList(funcs);
+        System.out.println(JsonHelper.toJson(funcList));
     }
 
     private boolean checkPositionCode(QuestionnaireReq req) {
