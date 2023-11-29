@@ -991,4 +991,9 @@
     <bean id="sealSyncOpenCloseSendTaskProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.sealSyncOpenCloseSendTask}"/>
     </bean>
+    <!-- 安灯亮灭灯信息-->
+    <bean id="andonEventProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.andon.event}"/>
+    </bean>
+
 </beans>
