@@ -346,7 +346,8 @@ public class EasyDataClientUtil {
         String[] badStrs = badStr.split("\\|");
         for (int i = 0; i < badStrs.length; i++) {
             if (str.indexOf(badStrs[i]) !=-1) {
-                return true;
+                log.info("sqlValidate关键字：{}", str);
+                return false;
             }
         }
         return false;
