@@ -133,6 +133,7 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
         boolean checkSwitch = jdSiteTypeConfig.isCheckSwitch();
         if(!checkSwitch){
             log.warn("分拣中心、接货仓、退货组 包裹补打功能拦截功能关闭!");
+            return false;
         }
         SysConfig positionConfig = sysConfigService.findConfigContentByConfigName(Constants.PACKAGE_PRINT_LIMIT_POSITION_CODE_TYPE_CONFIG);
         if(positionConfig == null){
@@ -151,7 +152,8 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
         List<Integer> sortSubTypes = jdSiteTypeConfig.getSortSubTypes();
         List<String> positionCodes = jdStdPositionCodeConfig.getPositionCodes();
         log.info("sortTypes -{} sortSubTypes-{} positionCodes-{}",JSON.toJSONString(sortTypes),JSON.toJSONString(sortSubTypes),JSON.toJSON(positionCodes));
-        boolean matchSiteType = matchSiteType(sortTypes, sortTypes, baseSite);
+        boolean matchSiteType = matchSiteType(sortTypes, sortSubTypes, baseSite);
+        log.info(" matchSiteType -{}",matchSiteType);
         if(matchSiteType){
             Result<JyUserDto> jyUserDtoResult = jyUserManager.queryByUserErp(userERP);
             JyUserDto data = jyUserDtoResult.getData();
