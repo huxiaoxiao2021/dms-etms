@@ -6,7 +6,11 @@ import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
 
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class JyComboardDao extends BaseDao<JyComboardEntity> {
@@ -57,5 +61,12 @@ public class JyComboardDao extends BaseDao<JyComboardEntity> {
      */
     public int batchUpdateCancelFlag(BatchUpdateCancelReq req) {
         return this.getSqlSession().update(NAMESPACE + ".batchUpdateCancelFlag", req);
+    }
+
+    public long countByBoardList(Long startSiteCode, List<String> boardCodeList) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("startSiteId", startSiteCode);
+        param.put("boardCodeList", boardCodeList);
+        return this.getSqlSession().selectOne(NAMESPACE + ".countByBoardList", param);
     }
 }

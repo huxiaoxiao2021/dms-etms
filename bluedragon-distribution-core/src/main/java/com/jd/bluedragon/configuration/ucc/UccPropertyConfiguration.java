@@ -1569,6 +1569,26 @@ public class UccPropertyConfiguration{
      * 封车或取消封车时同步新版app发货任务状态开关: 默认 ： 1, 开启
      */
     private String sealSyncOpenCloseSendTaskSwitch;
+    private boolean dmsToVendorSendMQSwitch;
+
+    /**
+     * 传站封车板最小数量限制
+     */
+    private Integer czSealCarBoardCountMinLimit;
+
+    /**
+     * 传站封车件数最小数量限制
+     */
+    private Integer czSealCarPackageCountMinLimit;
+
+    public boolean isDmsToVendorSendMQSwitch() {
+        return dmsToVendorSendMQSwitch;
+    }
+
+    public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
+        this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
+    }
+
 
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
@@ -4079,10 +4099,6 @@ public class UccPropertyConfiguration{
      * 违禁品运单缓存时长
      */
     private int contrabandWaybillCacheTime;
-    /**
-     * dmsToVendor 通知调度系统发送MQ消息 开关
-     */
-    private boolean dmsToVendorSendMQSwitch;
 
     public int getContrabandWaybillCacheTime() {
         return contrabandWaybillCacheTime;
@@ -4114,14 +4130,6 @@ public class UccPropertyConfiguration{
 
 	public void setbTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
 		this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
-	}
-
-	public boolean isDmsToVendorSendMQSwitch() {
-		return dmsToVendorSendMQSwitch;
-	}
-
-	public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
-		this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
 	}
 
     public String getJyCollectPackageTaskQueryTimeLimit() {
@@ -4194,5 +4202,21 @@ public class UccPropertyConfiguration{
     public UccPropertyConfiguration setBoxTypeNewVersionSwitch(boolean boxTypeNewVersionSwitch) {
         this.boxTypeNewVersionSwitch = boxTypeNewVersionSwitch;
         return this;
+    }
+
+    public Integer getCzSealCarBoardCountMinLimit() {
+        return czSealCarBoardCountMinLimit;
+    }
+
+    public void setCzSealCarBoardCountMinLimit(Integer czSealCarBoardCountMinLimit) {
+        this.czSealCarBoardCountMinLimit = czSealCarBoardCountMinLimit;
+    }
+
+    public Integer getCzSealCarPackageCountMinLimit() {
+        return czSealCarPackageCountMinLimit;
+    }
+
+    public void setCzSealCarPackageCountMinLimit(Integer czSealCarPackageCountMinLimit) {
+        this.czSealCarPackageCountMinLimit = czSealCarPackageCountMinLimit;
     }
 }
