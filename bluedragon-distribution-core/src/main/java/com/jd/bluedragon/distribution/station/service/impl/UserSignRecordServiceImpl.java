@@ -1301,6 +1301,16 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return calendar.getTime();
 	}
 
+	private boolean isNatureUserCountLessThanOrEqualToZero(List<ScheduleAggsDto> scheduleAggsDtoList) {
+		for (ScheduleAggsDto scheduleAggsDto : scheduleAggsDtoList) {
+			Integer natureUserCount = scheduleAggsDto.getNatureUserCount();
+			if (natureUserCount != null && natureUserCount > Constants.NUMBER_ZERO) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 
 
 	private void assembleInformalEmployeesWaveCode(UserSignRequest request, UserSignRecord signInData) {
@@ -1316,15 +1326,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			log.warn("assembleInformalEmployeesWaveCode|根据指定条件从flat查询排班计划工种人数统计返回空:request={},signInData={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData));
 			return;
 		}
-		ScheduleAggsDto scheduleAggsDto = scheduleAggsDtoList.get(Constants.NUMBER_ZERO);
-		if (scheduleAggsDto != null) {
-			Integer natureUserCount = scheduleAggsDto.getNatureUserCount();
-			if (natureUserCount == null || natureUserCount <= Constants.NUMBER_ZERO) {
-				log.warn("assembleInformalEmployeesWaveCode|根据指定条件从flat查询排班计划工种人数不满足数量大于0,:request={},signInData={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData));
-				return;
-			}
-		}
 		log.info("assembleInformalEmployeesWaveCode|网格下该工种人数统计:request={},signInData={},scheduleAggsDtoList={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData), JsonHelper.toJson(scheduleAggsDtoList));
+		// 如果记录不为空，但是每条记录上的工种人数都不大于0，则视为未排班
+		if (isNatureUserCountLessThanOrEqualToZero(scheduleAggsDtoList)) {
+			log.warn("assembleInformalEmployeesWaveCode|根据指定条件从flat查询排班计划工种人数不满足数量大于0,:request={},signInData={}", JsonHelper.toJson(request), JsonHelper.toJson(signInData));
+			return;
+		}
 
 		// 当天0点
 		long currentZero = DateHelper.getZero(currentDate);
