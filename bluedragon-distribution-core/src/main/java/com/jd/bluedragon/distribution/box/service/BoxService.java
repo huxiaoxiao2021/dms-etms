@@ -96,4 +96,12 @@ public interface BoxService {
      * @time 2023-10-24 14:14:24 周二
      */
     Result<List<BoxTypeDto>> getBoxTypeList(BoxTypeReq boxTypeReq);
+
+    /**
+     * 判断小件集包功能是否已经推广给当前场地
+     * @param siteCode
+     * @param orgId
+     * @return
+     */
+    boolean checkCollectPackageIfReleasedForSite(Integer orgId,Integer siteCode);
 }

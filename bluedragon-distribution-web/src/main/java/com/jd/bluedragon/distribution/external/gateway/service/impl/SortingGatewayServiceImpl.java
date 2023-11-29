@@ -107,11 +107,6 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
         pdaOperateRequest.setOperateUserName(checkRequest.getUser().getUserName());
 
         JdVerifyResponse jdVerifyResponse = new JdVerifyResponse();
-        if (checkOfflined(checkRequest)){
-            jdVerifyResponse.toError("该功能已下线，请使用新版小件集包岗功能进行集包！");
-            return jdVerifyResponse;
-        }
-
         try {
             SortingJsfResponse sortingResponse = sortingResource.check(pdaOperateRequest);
             JdVerifyResponse.MsgBox msgBox = null;
