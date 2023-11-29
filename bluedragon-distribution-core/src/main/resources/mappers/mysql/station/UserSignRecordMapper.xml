@@ -1224,4 +1224,16 @@
 		AND sign_out_time is null
 		limit #{offset}, #{limit}
 	</select>
+	
+	<select id="queryFirstExistGridRecord" parameterType="java.lang.Long" resultMap="UserSignRecord">
+		select
+		<include refid="Base_Column_List"/>
+		from user_sign_record
+		where 1=1
+		and sign_date = #{signDate}
+		and site_code = #{siteCode}
+		and ref_grid_key is not null
+		order by create_user desc
+		limit 1
+	</select>
 </mapper>

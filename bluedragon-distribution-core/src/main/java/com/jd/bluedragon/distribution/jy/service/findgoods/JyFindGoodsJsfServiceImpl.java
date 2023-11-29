@@ -1,46 +1,61 @@
 package com.jd.bluedragon.distribution.jy.service.findgoods;
 
-import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_WAITFIND_DATA_CODE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_WAITFIND_DATA_MESSAGE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_CODE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_MESSAGE;
-
+import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.inventory.InventoryTaskDto;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryTaskStatusEnum;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
+import com.jd.bluedragon.core.base.HrUserManager;
+import com.jd.bluedragon.core.base.MspClientProxy;
+import com.jd.bluedragon.distribution.api.request.SingleSiteWaveQuery;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyFindGoodsJsfService;
 import com.jd.bluedragon.distribution.jy.dto.findgoods.CreateFindGoodsTask;
 import com.jd.bluedragon.distribution.jy.dto.findgoods.DistributPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.findgoods.FindGoodsTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.findgoods.FindGoodsTaskQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.findgoods.SingleSiteWaveDto;
 import com.jd.bluedragon.distribution.jy.dto.findgoods.UpdateWaitFindPackageStatusDto;
 import com.jd.bluedragon.distribution.jy.dto.findgoods.WaitFindPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.findgoods.WaitFindPackageQueryDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.findgoods.JyBizTaskFindGoods;
 import com.jd.bluedragon.distribution.jy.manager.JyFindGoodsManager;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
+import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
-import com.jd.dms.wb.sdk.enums.task.biz.TaskBizStatusEnum;
+import com.jd.dms.workbench.utils.core.common.DateUtil;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import com.jd.udata.query.api.dto.ApiDataQueryRequest;
+import com.jd.udata.query.api.dto.ApiDataQueryResult;
+import com.jd.udata.query.api.service.ApiQueryService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
+
+@Slf4j
 @Service("jyFindGoodsJsfService")
 public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
 
@@ -53,7 +68,31 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
   @Autowired
   @Qualifier("redisJySendBizIdSequenceGen")
   private JimdbSequenceGen redisJyBizIdSequenceGen;
+  
+  @Autowired
+  private UserSignRecordDao userSignRecordDao;
+  
+  @Autowired
+  private HrUserManager hrUserManager;
 
+  @Autowired
+  @Qualifier("jimdbCacheService")
+  private CacheService cacheService;
+
+  @Autowired
+  private ApiQueryService apiQueryService;
+  
+  @Value("${sortingClean.udata.appToken}")
+  private String udataAppToken;
+
+  @Value("${sortingClean.udata.apiGroupName}")
+  private String apiGroupName;
+
+  @Value("${sortingClean.udata.apiName.sortingCleanSingleSiteWave}")
+  private String sortingCleanSingleSiteWave;
+  @Autowired
+  private MspClientProxy mspClientProxy;
+    
 
   @Override
   public InvokeResult<PagerResult<WaitFindPackageDto>> listWaitFindPackage(
@@ -225,7 +264,90 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
     }
     return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
   }
-
   private void checkUpdateFindGoodsTaskDto(FindGoodsTaskDto findGoodsTaskDto) {
+  }
+
+
+  @Override
+  public void findGoodsNotice(FindGoodsTaskDto findGoodsTaskDto) {
+    log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice findGoodsTaskDto:{}", JSON.toJSONString(findGoodsTaskDto));
+    if (StringUtils.isBlank(cacheService.get(getFindGoodsNoticeCacheKey(findGoodsTaskDto)))) {
+        String sendErp = getLeaderErp(findGoodsTaskDto);
+        log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice sendErp:{}", sendErp);
+        if (StringUtils.isNotBlank(sendErp)) {
+            // send message
+            this.sendFindGoodsMessage(findGoodsTaskDto, sendErp);
+            // record cache
+            cacheService.setEx(getFindGoodsNoticeCacheKey(findGoodsTaskDto),"1",1L,TimeUnit.DAYS);
+        }
+    }
+  }
+
+  private void sendFindGoodsMessage(FindGoodsTaskDto findGoodsTaskDto, String sendErp) {
+    SingleSiteWaveDto siteWaveDto = querySingleSiteWave(findGoodsTaskDto);
+    if (siteWaveDto == null) {
+      log.error("JyFindGoodsJsfServiceImpl.sendFindGoodsMessage  siteWaveDto is null");
+      cacheService.del(getFindGoodsNoticeCacheKey(findGoodsTaskDto));
+    }
+    String content = String.format(Constants.FIND_GOODS_NOTICE_CONTENT,
+            siteWaveDto.getSortingSiteName(),
+            DateUtil.format(new Date(),DateUtil.FORMATE_MONTH_DAY),
+            findGoodsTaskDto.getWaveStartTime(),
+            findGoodsTaskDto.getWaveEndTime(),
+            siteWaveDto.getWaitFindCount(),
+            siteWaveDto.getHaveFindCount(),
+            siteWaveDto.getNotFindCount(),
+            siteWaveDto.getNotFindHighValueCount(),
+            siteWaveDto.getNotFindExpressCount(),
+            siteWaveDto.getNotFindFreshCount()
+            );
+    Set<String> pins = new HashSet<>();
+    pins.add(sendErp);
+    log.info("JyFindGoodsJsfServiceImpl.sendFindGoodsMessage sendErp:{},content:{}", sendErp, content);
+    mspClientProxy.sendTimeline(Constants.FIND_GOODS_NOTICE_TITLE, content, null, pins, false);
+  }
+  
+  private SingleSiteWaveDto querySingleSiteWave(FindGoodsTaskDto findGoodsTaskDto) {
+    SingleSiteWaveQuery query = new SingleSiteWaveQuery();
+    query.setSortingSiteCode(findGoodsTaskDto.getSiteCode());
+    query.setWaveDate(DateUtil.formatDate(new Date()));
+    query.setWaveBeginTm(findGoodsTaskDto.getWaveStartTime());
+    query.setWaveEndTm(findGoodsTaskDto.getWaveEndTime());
+    Map<String, Object> params = ObjectMapHelper.convertObject2Map(query);
+    ApiDataQueryRequest request = new ApiDataQueryRequest();
+    request.setApiName(sortingCleanSingleSiteWave);
+    request.setAppToken(udataAppToken);
+    request.setApiGroupName(apiGroupName);
+    request.setParams(params);
+    log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave request:{}", JSON.toJSONString(request));
+    ApiDataQueryResult apiDataQueryResult = apiQueryService.apiDataQuery(request);
+    if (apiDataQueryResult.getCode() == null || !apiDataQueryResult.getCode().equals(200)) {
+      return null;
+    }
+    log.error("JyFindGoodsJsfServiceImpl.querySingleSiteWave apiDataQueryResult:{}", JSON.toJSONString(apiDataQueryResult));
+    ObjectMapper objectMapper = new ObjectMapper();
+    return objectMapper.convertValue(apiDataQueryResult.getData().get(0), SingleSiteWaveDto.class);
+  }
+
+  private String getFindGoodsNoticeCacheKey(FindGoodsTaskDto findGoodsTaskDto){
+    return String.format(Constants.FIND_GOODS_NOTICE_CACHE_KEY, findGoodsTaskDto.getSiteCode(), DateUtil.formatDate(new Date()),
+            findGoodsTaskDto.getWaveStartTime(), findGoodsTaskDto.getWaveEndTime());
+  }
+  
+  
+  private String getLeaderErp(FindGoodsTaskDto findGoodsTaskDto) {
+    UserSignRecord userSignRecord = null;
+    try {
+      UserSignRecordQuery query = new UserSignRecordQuery();
+      query.setSignDateStr(DateUtil.formatDate(new Date()));
+      query.setSiteCode(Integer.valueOf(findGoodsTaskDto.getSiteCode().toString()));
+      userSignRecord = userSignRecordDao.queryFirstExistGridRecord(query);
+    } catch (Exception e) {
+      log.error("JyFindGoodsJsfServiceImpl.leaderErp  queryFirstExistGridRecord error:{}",e.getMessage());
+    }
+    if (userSignRecord == null) {
+      return null;
+    }
+    return hrUserManager.getSuperiorErp(userSignRecord.getUserCode());
   }
 }

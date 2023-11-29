@@ -110,9 +110,9 @@
 		<dependency>
 			<groupId>erp.ql.station</groupId>
 			<artifactId>erp.ql.station-api</artifactId>
-			<version>1.0.1-printcheck-20210426.063930-1</version>
+			<version>1.1.20-SNAPSHOT</version>
 		</dependency>
-
+ 
 		<dependency>
 			<groupId>com.jd.rd.unpack</groupId>
 			<artifactId>unpack-jsf</artifactId>
