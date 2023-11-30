@@ -565,6 +565,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			logger.error("{}未查到任务处理人,positonNames:{}，siteCode:{}", infoPrefix, positonNames, siteCode);
 			return;
 		}
+		String erps = jyUserDtos.stream().map(JyUserDto::getUserErp).collect(Collectors.joining(","));
+		logger.info("{},根据岗位配置查到任务处理人，positonNames:{}，siteCode:{}，erps:{}", infoPrefix, positonNames, siteCode, erps);
 		//三定排班过滤
 		Date curDate = new Date();
 		Date preFinishTime = DateUtil.addDay(curDate, 1);
@@ -573,6 +575,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			logger.error("{}场地人员未在任务时间内无排班,positonNames:{}，siteCode:{}", infoPrefix, positonNames, siteCode);
 			return;
 		}
+		erps = jyUserDtos.stream().map(JyUserDto::getUserErp).collect(Collectors.joining(","));
+		logger.info("{},任务处理经过三定排班过滤后人员，siteCode:{}，erps:{}", infoPrefix, siteCode, erps);
 		JyUserDto jyUserDto = jyUserDtos.get(0);
 		JyBizTaskWorkGridManager jyBizTaskWorkGridManager = initJyBizTaskWorkGridManager(siteInfo, workGridManagerTask,jyUserDto.getPositionCode(), jyUserDto.getPositionName(),
 				workGrid, curDate, jyUserDto.getUserErp(), jyUserDto.getUserName(), preFinishTime,
