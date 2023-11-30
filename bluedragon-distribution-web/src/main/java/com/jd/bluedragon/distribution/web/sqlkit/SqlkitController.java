@@ -313,7 +313,7 @@ public class SqlkitController {
                     pstmt = connection.prepareStatement(sql);
 					pstmt.execute();
 					ResultSet resultSet1 = pstmt.getResultSet();
-					if(resultSet1.last()) {
+					if(resultSet1 != null && resultSet1.last()) {
 						int rowCount = resultSet1.getRow();
 						model.addAttribute("message", "影响行数" + rowCount);
 					}
