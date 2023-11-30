@@ -18,7 +18,7 @@ public class JyAviationSealMq implements Serializable {
      * 操作场地
      */
     private Integer startSiteId;
-    private String startSiteCode;
+    private String startSiteName;
     /**
      * 流向场地
      */
@@ -66,12 +66,12 @@ public class JyAviationSealMq implements Serializable {
         this.startSiteId = startSiteId;
     }
 
-    public String getStartSiteCode() {
-        return startSiteCode;
+    public String getStartSiteName() {
+        return startSiteName;
     }
 
-    public void setStartSiteCode(String startSiteCode) {
-        this.startSiteCode = startSiteCode;
+    public void setStartSiteName(String startSiteName) {
+        this.startSiteName = startSiteName;
     }
 
     public Integer getNextSiteId() {

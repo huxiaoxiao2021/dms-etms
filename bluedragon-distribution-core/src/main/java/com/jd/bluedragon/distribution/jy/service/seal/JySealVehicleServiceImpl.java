@@ -322,7 +322,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(sealVehicleReq.getSendVehicleBizId());
 
             jyAviationSealMq.setStartSiteId(entity.getStartSiteId());
-            jyAviationSealMq.setStartSiteCode(entity.getNextSiteCode());
+            jyAviationSealMq.setStartSiteName(entity.getNextSiteCode());
             jyAviationSealMq.setNextSiteId(entity.getNextSiteId());
             jyAviationSealMq.setNextSiteName(entity.getNextSiteName());
             jyAviationSealMq.setOperatorErp(sealVehicleReq.getUser().getUserErp());
