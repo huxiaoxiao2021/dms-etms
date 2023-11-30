@@ -124,8 +124,12 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         // 更新抽检状态
         updateDto.setSpotCheckStatus(status);
 
-        // 如果是申诉状态，走另一个流程
-        if (SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_UPGRADE.getCode().equals(status)) {
+        // 是否是分拣-设备抽检
+        boolean isDwsSpotCheck = SpotCheckConstants.EQUIPMENT_SPOT_CHECK.equals(flowSystem);
+        // 是否是申诉状态
+        boolean isAppealStatus = SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_UPGRADE.getCode().equals(status);
+        // 针对设备抽检且是申诉状态的单据及申诉附件需要走新业务流程
+        if (isDwsSpotCheck && isAppealStatus) {
             // 运单加锁防止并发问题
             String mutexKey = SPOT_CHECK_APPEAL_PREFIX + waybillCode;
             if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {

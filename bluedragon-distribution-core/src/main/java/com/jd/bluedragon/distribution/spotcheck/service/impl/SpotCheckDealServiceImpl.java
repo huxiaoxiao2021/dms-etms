@@ -632,8 +632,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         // 1.1、人工抽检：图片肯定有（都是按运单维度操作，肯定有5张图片）
         // 1.2、设备抽检：一单一件下发一张则必须要有图片，一单多件不下发图片则不需要图片限制条件
         if(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){ // 人工抽检
-            if(!Objects.equals(spotCheckDto.getIsHasPicture(), Constants.CONSTANT_NUMBER_ONE)){
-                // 人工抽检无图片不下发
+            if(!Objects.equals(spotCheckDto.getIsHasPicture(), Constants.CONSTANT_NUMBER_ONE) && !Objects.equals(spotCheckDto.getIsHasVideo(), Constants.CONSTANT_NUMBER_ONE)){
+                // 人工抽检无图片并且无视频不下发，视频和图片有其一即可下发
                 return;
             }
         }else if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){ // 设备抽检
@@ -720,7 +720,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setExceedType(spotCheckDto.getExcessType());
         spotCheckIssueMQ.setStatus(spotCheckDto.getSpotCheckStatus());
         // 新版抽检附件传参方式:传了appendixList，appendix和url字段就不用传了
-        if (Constants.NUMBER_ONE.equals(version)) {
+        if (Constants.NUMBER_ONE.equals(spotCheckDto.getIsHasVideo())) {
             // 组装附件列表
             List<SpotCheckAppendixDto> appendixDtoList = transformAppendixData(spotCheckDto);
             spotCheckIssueMQ.setAppendixList(appendixDtoList);
@@ -742,11 +742,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         List<String> picList = picUrlDeal(spotCheckDto);
         List<SpotCheckAppendixDto> appendixDtoList = new ArrayList<>(6);
         // 图片
-        for (String picUrl : picList) {
-            SpotCheckAppendixDto spotCheckAppendixDto = new SpotCheckAppendixDto();
-            spotCheckAppendixDto.setAppendixType(SpotCheckAppendixTypeEnum.REPORT_PICTURE.getCode());
-            spotCheckAppendixDto.setAppendixUrl(picUrl);
-            appendixDtoList.add(spotCheckAppendixDto);
+        if (CollectionUtils.isNotEmpty(picList)) {
+            for (String picUrl : picList) {
+                SpotCheckAppendixDto spotCheckAppendixDto = new SpotCheckAppendixDto();
+                spotCheckAppendixDto.setAppendixType(SpotCheckAppendixTypeEnum.REPORT_PICTURE.getCode());
+                spotCheckAppendixDto.setAppendixUrl(picUrl);
+                appendixDtoList.add(spotCheckAppendixDto);
+            }
         }
         // 视频
         if (Constants.NUMBER_ONE.equals(spotCheckDto.getIsHasVideo())) {
@@ -760,6 +762,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     private List<String> picUrlDeal(WeightVolumeSpotCheckDto spotCheckDto) {
         List<String> picList = new ArrayList<>();
+        if (StringUtils.isBlank(spotCheckDto.getPictureAddress())) {
+            return picList;
+        }
         if(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){
             // 人工抽检（只有运单维度，无包裹维度）
             List<String> picUrlList = Arrays.asList(spotCheckDto.getPictureAddress().split(Constants.SEPARATOR_SEMICOLON));
