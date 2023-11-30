@@ -799,6 +799,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		WorkGridManagerTaskBizType bizTypeEnum = WorkGridManagerTaskBizType.getEnum(taskBizType);
 		switch (bizTypeEnum){
 			case DAILY_PATROL:
+			case EXP_INSPECT:
 			case KPI_IMPROVE:
 				List<JyUserDto> userDtos = getUserList(siteInfo.getSiteCode(),siteInfo.getOrganizationCode(),
 						configData.getHandlerUserPositionCode(),configData.getHandlerUserPositionName());
