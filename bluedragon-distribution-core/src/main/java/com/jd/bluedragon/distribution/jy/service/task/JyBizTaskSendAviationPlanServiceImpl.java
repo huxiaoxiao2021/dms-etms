@@ -106,7 +106,7 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
         //发货中状态时查待发货统计
         if(!JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getSendTaskStatus().equals(condition.getTaskStatus())) {
             toSendQueryCondition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), toSendQueryTakeOffTimeStartHour));
-            condition.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ZERO);
+            toSendQueryCondition.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ZERO);
         }
         List<JyBizTaskAviationStatusStatistics> toSendRes = jyBizTaskSendAviationPlanDao.statusStatistics(toSendQueryCondition);
 
