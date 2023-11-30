@@ -1601,7 +1601,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			compareThreeTimeAndSetData(signInData, firstSignTime, minDayStartDateBeforeOneHour, minMiddleStartDateBeforeOneHour,
 					minNightStartDateBeforeOneHour, maxEndTimeMap, minStartTimeMap);
 			// 如果白班、中班和晚班都不符合
-		} else if (!isBetweenDayFlag && !isBetweenMiddleFlag && !isBetweenNightFlag) {
+		} else {
 			if (log.isInfoEnabled()) {
 				log.info("assembleInformalEmployeesWaveCode|白班以及中班和晚班都不符合:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
 			}
@@ -1613,34 +1613,121 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private void compareThreeTimeAndSetData(UserSignRecord signInData, Date firstSignTime, Date minDayStartDateBeforeOneHour,
 								  Date minMiddleStartDateBeforeOneHour, Date minNightStartDateBeforeOneHour,
 								  Map<Integer, String> maxEndTimeMap, Map<Integer, String> minStartTimeMap) {
-		long minDayDifference = firstSignTime.getTime() - minDayStartDateBeforeOneHour.getTime();
-		long minMiddleDifference = firstSignTime.getTime() - minMiddleStartDateBeforeOneHour.getTime();
-		long minNightDifference = firstSignTime.getTime() - minNightStartDateBeforeOneHour.getTime();
-		if (minDayDifference < minMiddleDifference && minDayDifference < minNightDifference) {
-			if (log.isInfoEnabled()) {
-				log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,首次签到时间距离白班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minMiddleDifference={},minNightDifference={}",
-						JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minMiddleDifference, minNightDifference);
-			}
-			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.DAY.getCode()));
-			String waveTime = minStartTimeMap.get(WaveTypeEnum.DAY.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.DAY.getCode());
-			signInData.setWaveTime(waveTime);
-		} else if (minMiddleDifference < minDayDifference && minMiddleDifference < minNightDifference) {
-			if (log.isInfoEnabled()) {
-				log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,首次签到时间距离中班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minMiddleDifference={},minNightDifference={}",
-						JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minMiddleDifference, minNightDifference);
-			}
-			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.MIDDLE.getCode()));
-			String waveTime = minStartTimeMap.get(WaveTypeEnum.MIDDLE.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.MIDDLE.getCode());
-			signInData.setWaveTime(waveTime);
-		} else if (minNightDifference < minDayDifference && minNightDifference < minMiddleDifference) {
-			if (log.isInfoEnabled()) {
-				log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,首次签到时间距离晚班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minMiddleDifference={},minNightDifference={}",
-						JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minMiddleDifference, minNightDifference);
-			}
-			signInData.setWaveCodeNew(String.valueOf(WaveTypeNewEnum.NIGHT.getCode()));
-			String waveTime = minStartTimeMap.get(WaveTypeEnum.NIGHT.getCode()) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(WaveTypeEnum.NIGHT.getCode());
-			signInData.setWaveTime(waveTime);
+		// 首次签到时间距离最早的白班开始时间(减1小时)的差值
+		long minDayDifference = 0;
+		// 首次签到时间距离最早的中班开始时间(减1小时)的差值
+		long minMiddleDifference = 0;
+		// 首次签到时间距离最早的晚班开始时间(减1小时)的差值
+		long minNightDifference = 0;
+		if (minDayStartDateBeforeOneHour != null) {
+			minDayDifference = Math.abs(firstSignTime.getTime() - minDayStartDateBeforeOneHour.getTime());
 		}
+		if (minMiddleStartDateBeforeOneHour != null) {
+			minMiddleDifference = Math.abs(firstSignTime.getTime() - minMiddleStartDateBeforeOneHour.getTime());
+		}
+		if (minNightStartDateBeforeOneHour != null) {
+			minNightDifference = Math.abs(firstSignTime.getTime() - minNightStartDateBeforeOneHour.getTime());
+		}
+		// 如果白班、中班、晚班都不为空
+		if (minDayDifference > 0 && minMiddleDifference > 0 && minNightDifference > 0) {
+			if (minDayDifference < minMiddleDifference && minDayDifference < minNightDifference) {
+				if (log.isInfoEnabled()) {
+					log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,白中晚都不为空,首次签到时间距离白班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minMiddleDifference={},minNightDifference={}",
+							JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minMiddleDifference, minNightDifference);
+				}
+				setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.DAY.getCode());
+			} else if (minMiddleDifference < minDayDifference && minMiddleDifference < minNightDifference) {
+				if (log.isInfoEnabled()) {
+					log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,白中晚都不为空,首次签到时间距离中班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minMiddleDifference={},minNightDifference={}",
+							JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minMiddleDifference, minNightDifference);
+				}
+				setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.MIDDLE.getCode());
+			} else if (minNightDifference < minDayDifference && minNightDifference < minMiddleDifference) {
+				if (log.isInfoEnabled()) {
+					log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,白中晚都不为空,首次签到时间距离晚班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minMiddleDifference={},minNightDifference={}",
+							JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minMiddleDifference, minNightDifference);
+				}
+				setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.NIGHT.getCode());
+			}
+			// 如果只有白班、中班不为空
+		} else if (minDayDifference > 0 && minMiddleDifference > 0) {
+			if (minDayDifference < minMiddleDifference) {
+				if (log.isInfoEnabled()) {
+					log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,白中不为空,首次签到时间距离白班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minMiddleDifference={}",
+							JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minMiddleDifference);
+				}
+				setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.DAY.getCode());
+			} else {
+				if (log.isInfoEnabled()) {
+					log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,白中不为空,首次签到时间距离中班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minMiddleDifference={}",
+							JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minMiddleDifference);
+				}
+				setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.MIDDLE.getCode());
+			}
+			// 如果只有白班、晚班不为空
+		} else if (minDayDifference > 0 && minNightDifference > 0) {
+			if (minDayDifference < minNightDifference) {
+				if (log.isInfoEnabled()) {
+					log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,白晚不为空,首次签到时间距离白班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minNightDifference={}",
+							JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minNightDifference);
+				}
+				setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.DAY.getCode());
+			} else {
+				if (log.isInfoEnabled()) {
+					log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,白晚不为空,首次签到时间距离晚班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={},minNightDifference={}",
+							JsonHelper.toJson(signInData), firstSignTime, minDayDifference, minNightDifference);
+				}
+				setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.NIGHT.getCode());
+			}
+			// 如果只有中班、晚班不为空
+		} else if (minMiddleDifference > 0 && minNightDifference > 0) {
+			if (minMiddleDifference < minNightDifference) {
+				if (log.isInfoEnabled()) {
+					log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,中晚不为空,首次签到时间距离白班最小起始时间更接近:signInData={},firstSignTime={},minMiddleDifference={},minNightDifference={}",
+							JsonHelper.toJson(signInData), firstSignTime, minMiddleDifference, minNightDifference);
+				}
+				setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.MIDDLE.getCode());
+			} else {
+				if (log.isInfoEnabled()) {
+					log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,中晚不为空,首次签到时间距离晚班最小起始时间更接近:signInData={},firstSignTime={},minMiddleDifference={},minNightDifference={}",
+							JsonHelper.toJson(signInData), firstSignTime, minMiddleDifference, minNightDifference);
+				}
+				setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.NIGHT.getCode());
+			}
+			// 如果只有白班不为空
+		} else if (minDayDifference > 0) {
+			if (log.isInfoEnabled()) {
+				log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,只有白不为空,首次签到时间距离白班最小起始时间更接近:signInData={},firstSignTime={},minDayDifference={}",
+						JsonHelper.toJson(signInData), firstSignTime, minDayDifference);
+			}
+			setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.DAY.getCode());
+			// 如果只有中班不为空
+		} else if (minMiddleDifference > 0) {
+			if (log.isInfoEnabled()) {
+				log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,只有中不为空,首次签到时间距离中班最小起始时间更接近:signInData={},firstSignTime={},minMiddleDifference={}",
+						JsonHelper.toJson(signInData), firstSignTime, minMiddleDifference);
+			}
+			setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.MIDDLE.getCode());
+			// 如果只有晚班不为空
+		} else if (minNightDifference > 0) {
+			if (log.isInfoEnabled()) {
+				log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,只有晚不为空,首次签到时间距离晚班最小起始时间更接近:signInData={},firstSignTime={},minNightDifference={}",
+						JsonHelper.toJson(signInData), firstSignTime, minNightDifference);
+			}
+			// 如果只有晚班不为空
+			setInformalWaveInfo(signInData, minStartTimeMap, maxEndTimeMap, WaveTypeEnum.NIGHT.getCode());
+		} else {
+			// 如果白班、中班、晚班都为空
+			if (log.isInfoEnabled()) {
+				log.info("assembleInformalEmployeesWaveCode|白班及中班和晚班比较,白中晚都为空:signInData={},firstSignTime={}", JsonHelper.toJson(signInData), firstSignTime);
+			}
+		}
+	}
+
+	private void setInformalWaveInfo(UserSignRecord signInData, Map<Integer, String> minStartTimeMap, Map<Integer, String> maxEndTimeMap, Integer waveType) {
+		signInData.setWaveCodeNew(String.valueOf(waveType));
+		String waveTime = minStartTimeMap.get(waveType) + Constants.SEPARATOR_TILDE + maxEndTimeMap.get(waveType);
+		signInData.setWaveTime(waveTime);
 	}
 
 	private void assembleRegularEmployeesWaveCode(UserSignRequest request, UserSignRecord signInData) {
