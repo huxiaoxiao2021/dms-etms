@@ -1314,7 +1314,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         res.setAirType(entity.getAirType());
         res.setNextSiteId(entity.getNextSiteId());
         res.setNextSiteName(entity.getNextSiteName());
-
+        res.setManualCreatedFlag(entity.getManualCreatedFlag());
         return res;
     }
 
