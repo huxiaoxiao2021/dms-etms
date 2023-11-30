@@ -526,10 +526,10 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			return;
 		}
 		String gridBusinessKey = violentSortingDto.getGridBusinessKey();
-		
-		Date createTime = new Date(violentSortingDto.getCreateTime());
+
+		Date curDate = new Date();
 		int gapMin= 5;
-		Date before5min= DateHelper.add(createTime,Calendar.MINUTE , -1 * gapMin);
+		Date before5min= DateHelper.add(curDate,Calendar.MINUTE , -1 * gapMin);
 		//检查是否已生成本erp的今天的管理任务
 		Result<List<WorkGridManagerTask>> taskResult = workGridManagerTaskJsfManager.queryByBizType(WorkGridManagerTaskBizType.EXP_INSPECT.getCode());
 		if(taskResult == null || CollectionUtils.isEmpty(taskResult.getData())){
@@ -568,7 +568,6 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		String erps = jyUserDtos.stream().map(JyUserDto::getUserErp).collect(Collectors.joining(","));
 		logger.info("{},根据岗位配置查到任务处理人，positonNames:{}，siteCode:{}，erps:{}", infoPrefix, positonNames, siteCode, erps);
 		//三定排班过滤
-		Date curDate = new Date();
 		Date preFinishTime = DateUtil.addDay(curDate, 1);
 		jyUserDtos = jyWorkGridManagerBusinessService.filterJyUserDtoInSchedule("", curDate, preFinishTime, jyUserDtos);
 		if(CollectionUtils.isEmpty(jyUserDtos)){
