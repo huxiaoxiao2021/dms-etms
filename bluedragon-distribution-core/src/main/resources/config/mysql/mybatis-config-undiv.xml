@@ -202,6 +202,7 @@
         <mapper resource="mappers/mysql/departure/DepartureTmpMapper.xml"/>
 
         <mapper resource="mappers/mysql/reassignWaybill/ReassignWaybillMapper.xml"/>
+        <mapper resource="mappers/mysql/reassignWaybill/ReassignWaybillApprovalRecordMapper.xml"/>
 
         <mapper resource="mappers/mysql/popPickup/PopPickupMapper.xml"/>
         <mapper resource="mappers/mysql/sysconfig/SysConfigMapper.xml"/>
