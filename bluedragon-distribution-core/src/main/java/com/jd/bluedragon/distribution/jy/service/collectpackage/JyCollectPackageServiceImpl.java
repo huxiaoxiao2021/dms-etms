@@ -63,6 +63,8 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
 import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -608,6 +610,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.listCollectPackageTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CollectPackageTaskResp> listCollectPackageTask(CollectPackageTaskReq request) {
         InvokeResult<CollectPackageTaskResp> result = new InvokeResult<>();
         CollectPackageTaskResp resp = new CollectPackageTaskResp();
@@ -796,6 +799,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.queryTaskDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<TaskDetailResp> queryTaskDetail(TaskDetailReq request) {
         InvokeResult<TaskDetailResp> result = new InvokeResult<>();
 
@@ -880,6 +884,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.sealingBox", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SealingBoxResp> sealingBox(SealingBoxReq request) {
         InvokeResult<SealingBoxResp> result = new InvokeResult<>();
         if (!checkSealingReq(request, result)) {
@@ -1125,6 +1130,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.searchPackageTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CollectPackageTaskResp> searchPackageTask(SearchPackageTaskReq request) {
         InvokeResult<CollectPackageTaskResp> result = new InvokeResult<>();
         if (!checkSearchPackageTaskReq(request, result)) {
@@ -1143,6 +1149,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.queryStatisticsUnderTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<StatisticsUnderTaskQueryResp> queryStatisticsUnderTask(StatisticsUnderTaskQueryReq request) {
         checkStatisticsUnderTaskQueryReq(request);
 
@@ -1196,6 +1203,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.queryStatisticsUnderFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request) {
         checkStatisticsUnderFlowQueryReq(request);
         StatisticsUnderFlowQueryReq statisticsUnderFlowQueryReq =assembleStatisticsUnderFlowQueryReq(request);
@@ -1207,6 +1215,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.querySiteMixFlowList", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<MixFlowListResp> querySiteMixFlowList(MixFlowListReq request) {
         InvokeResult<MixFlowListResp> result = new InvokeResult<>();
         if (!checkMixFlowListReq(request, result)) {
@@ -1249,6 +1258,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.updateTaskFlowList", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public InvokeResult<UpdateMixFlowListResp> updateTaskFlowList(UpdateMixFlowListReq request) {
         InvokeResult<UpdateMixFlowListResp> result = new InvokeResult<>();
