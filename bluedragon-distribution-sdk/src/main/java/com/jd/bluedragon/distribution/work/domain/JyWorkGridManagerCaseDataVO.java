@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.work.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,6 +85,13 @@ public class JyWorkGridManagerCaseDataVO implements Serializable {
 	 * @return
 	 */
 	private List<AttachmentDetailDataVO> improveAttachmentList;
+
+	/**
+	 * 指标改善截止时间
+	 * 只有指标改善任务有
+	 * @return
+	 */
+	private Date improveEndTime;
 	
 	public Long getId() {
 		return id;
@@ -176,5 +184,13 @@ public class JyWorkGridManagerCaseDataVO implements Serializable {
 
 	public void setImproveAttachmentList(List<AttachmentDetailDataVO> improveAttachmentList) {
 		this.improveAttachmentList = improveAttachmentList;
+	}
+
+	public Date getImproveEndTime() {
+		return improveEndTime;
+	}
+
+	public void setImproveEndTime(Date improveEndTime) {
+		this.improveEndTime = improveEndTime;
 	}
 }
