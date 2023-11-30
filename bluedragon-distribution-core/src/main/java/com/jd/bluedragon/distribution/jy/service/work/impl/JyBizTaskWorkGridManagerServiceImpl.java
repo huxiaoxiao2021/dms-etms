@@ -29,6 +29,7 @@ import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
 import com.jdl.basic.common.utils.DateUtil;
+import erp.ql.station.api.dto.ViolentSortVideoDto;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
@@ -526,7 +527,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			return;
 		}
 		String gridBusinessKey = violentSortingDto.getGridBusinessKey();
-
+		
 		Date curDate = new Date();
 		int gapMin= 5;
 		Date before5min= DateHelper.add(curDate,Calendar.MINUTE , -1 * gapMin);
@@ -580,6 +581,14 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		JyBizTaskWorkGridManager jyBizTaskWorkGridManager = initJyBizTaskWorkGridManager(siteInfo, workGridManagerTask,jyUserDto.getPositionCode(), jyUserDto.getPositionName(),
 				workGrid, curDate, jyUserDto.getUserErp(), jyUserDto.getUserName(), preFinishTime,
 				WorkGridManagerTaskBizType.EXP_INSPECT.getCode());
+		// 设置扩展信息
+		ViolenceSortInfoData violenceSortInfoData = new ViolenceSortInfoData();
+		String creatTimeStr = DateHelper.formatDate(new Date(violentSortingDto.getCreateTime()), "MM/dd HH:mm:ss");
+		violenceSortInfoData.setCreateTime(creatTimeStr);
+		violenceSortInfoData.setTitle("暴力分拣");
+		violenceSortInfoData.setUrl(violentSortingDto.getUrl());
+		violenceSortInfoData.setDeviceName(violentSortingDto.getDeviceName());
+		jyBizTaskWorkGridManager.setExtendInfo(JsonHelper.toJson(violenceSortInfoData));
 		//保存已分配的任务
 		List<JyBizTaskWorkGridManager> jyBizTaskWorkGridManagers = Collections.singletonList(jyBizTaskWorkGridManager);
 		batchInsertDistributionTask(jyBizTaskWorkGridManagers);
