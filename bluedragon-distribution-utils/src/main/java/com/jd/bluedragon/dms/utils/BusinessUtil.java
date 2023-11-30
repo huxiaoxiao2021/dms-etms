@@ -2938,6 +2938,19 @@ public class BusinessUtil {
     }
 
     /**
+     * 是否国际运单
+     *
+     * @param waybillSign waybillSign
+     * @param waybillStart 运单始发
+     * @param waybillEnd 运单目的
+     * @return
+     */
+    public static boolean isInternational(String waybillSign, String waybillStart, String waybillEnd){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_F) 
+                || (DmsConstants.CN.equals(waybillStart) && !DmsConstants.CN.equals(waybillEnd) && !DmsConstants.HK.equals(waybillEnd) && !DmsConstants.MO.equals(waybillEnd));
+    }
+
+    /**
      * 判断是否是快运的运单
      *  -hint use by reverseExchange function
      *
@@ -2952,6 +2965,37 @@ public class BusinessUtil {
                 && BusinessUtil.isSignChar(waybillSign,54,'0')
                 && BusinessUtil.isSignInChars(waybillSign,62,'0', '4', '9')
                 && BusinessUtil.isSignChar(waybillSign,89,'0');
+    }
+
+    /**
+     * 判断是否是 特惠送-次晨1000 专用
+     *
+     */
+    public static boolean isTHSCC(String waybillSign){
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_0)){
+            return true;
+        }
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+            if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_5)
+                    && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116,  WaybillSignConstants.CHAR_116_7,WaybillSignConstants.CHAR_116_8)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否是 生鲜特惠送-次晨专用
+     */
+    public static boolean isSXTHSCC(String waybillSign){
+
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+            if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_A)
+                    && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_7,WaybillSignConstants.CHAR_116_8)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
