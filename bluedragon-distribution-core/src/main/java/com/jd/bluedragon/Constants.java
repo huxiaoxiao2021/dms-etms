@@ -2211,4 +2211,14 @@ public class Constants {
      * 集包岗-任务锁前缀
      */
     public static final String JY_COLLECT_BOX_LOCK_PREFIX  = "jy_collect_package_box_lock_%s";
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_ID = "pda.questionnaire.id";
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_FUNC_CODE = "pda.questionnaire.func.code";
 }
