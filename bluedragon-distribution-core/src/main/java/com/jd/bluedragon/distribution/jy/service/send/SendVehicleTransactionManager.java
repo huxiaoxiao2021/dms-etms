@@ -746,7 +746,7 @@ public class SendVehicleTransactionManager {
                     }
                 }
             }
-            if(nullBatchCodeSet.size() > 0) {
+            if(toSealBatchCodeSet.size() > 0) {
                 if(log.isInfoEnabled()) {
                     log.info("该发货流向【】下有批次{}个，存在未封车的非空批次【{}】，状态不做变更", taskSendDetail.getBizId(), batchCodesList.size(), JsonHelper.toJson(toSealBatchCodeSet));
                 }
