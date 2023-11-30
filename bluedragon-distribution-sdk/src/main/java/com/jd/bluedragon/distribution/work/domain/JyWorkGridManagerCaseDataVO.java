@@ -78,6 +78,12 @@ public class JyWorkGridManagerCaseDataVO implements Serializable {
 	 * 文件列表
 	 */
 	private List<AttachmentDetailDataVO> attachmentList;
+
+	/**
+	 * 改善附件
+	 * @return
+	 */
+	private List<AttachmentDetailDataVO> improveAttachmentList;
 	
 	public Long getId() {
 		return id;
@@ -162,5 +168,13 @@ public class JyWorkGridManagerCaseDataVO implements Serializable {
 	}
 	public void setEditStatus(Integer editStatus) {
 		this.editStatus = editStatus;
+	}
+
+	public List<AttachmentDetailDataVO> getImproveAttachmentList() {
+		return improveAttachmentList;
+	}
+
+	public void setImproveAttachmentList(List<AttachmentDetailDataVO> improveAttachmentList) {
+		this.improveAttachmentList = improveAttachmentList;
 	}
 }
