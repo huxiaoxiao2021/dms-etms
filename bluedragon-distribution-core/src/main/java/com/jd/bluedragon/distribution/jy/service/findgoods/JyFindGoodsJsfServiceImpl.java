@@ -270,16 +270,22 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
 
   @Override
   public void findGoodsNotice(FindGoodsTaskDto findGoodsTaskDto) {
-    log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice findGoodsTaskDto:{}", JSON.toJSONString(findGoodsTaskDto));
-    if (StringUtils.isBlank(cacheService.get(getFindGoodsNoticeCacheKey(findGoodsTaskDto)))) {
-        String sendErp = getLeaderErp(findGoodsTaskDto);
-        log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice sendErp:{}", sendErp);
-        if (StringUtils.isNotBlank(sendErp)) {
-            // send message
-            this.sendFindGoodsMessage(findGoodsTaskDto, sendErp);
-            // record cache
-            cacheService.setEx(getFindGoodsNoticeCacheKey(findGoodsTaskDto),"1",1L,TimeUnit.DAYS);
-        }
+    try {
+      log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice findGoodsTaskDto:{}", JSON.toJSONString(findGoodsTaskDto));
+      if (StringUtils.isBlank(cacheService.get(getFindGoodsNoticeCacheKey(findGoodsTaskDto)))) {
+          String sendErp = getLeaderErp(findGoodsTaskDto);
+          log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice sendErp:{}", sendErp);
+          if (StringUtils.isNotBlank(sendErp)) {
+              // send message
+              this.sendFindGoodsMessage(findGoodsTaskDto, sendErp);
+              // record cache
+              cacheService.setEx(getFindGoodsNoticeCacheKey(findGoodsTaskDto),"1",1L,TimeUnit.DAYS);
+          }
+      }
+    } catch (Exception e) {
+      log.info("JyFindGoodsJsfServiceImpl.sendFindGoodsMessage error:{}", e.getMessage());
+    } finally {
+      log.info("findGoodsNotice run finish!");
     }
   }
 
@@ -321,10 +327,10 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
     request.setParams(params);
     log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave request:{}", JSON.toJSONString(request));
     ApiDataQueryResult apiDataQueryResult = apiQueryService.apiDataQuery(request);
+    log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave apiDataQueryResult:{}", JSON.toJSONString(apiDataQueryResult));
     if (apiDataQueryResult.getCode() == null || !apiDataQueryResult.getCode().equals(200)) {
       return null;
     }
-    log.error("JyFindGoodsJsfServiceImpl.querySingleSiteWave apiDataQueryResult:{}", JSON.toJSONString(apiDataQueryResult));
     ObjectMapper objectMapper = new ObjectMapper();
     return objectMapper.convertValue(apiDataQueryResult.getData().get(0), SingleSiteWaveDto.class);
   }
@@ -333,8 +339,6 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
     return String.format(Constants.FIND_GOODS_NOTICE_CACHE_KEY, findGoodsTaskDto.getSiteCode(), DateUtil.formatDate(new Date()),
             findGoodsTaskDto.getWaveStartTime(), findGoodsTaskDto.getWaveEndTime());
   }
-  
-  
   private String getLeaderErp(FindGoodsTaskDto findGoodsTaskDto) {
     UserSignRecord userSignRecord = null;
     try {
