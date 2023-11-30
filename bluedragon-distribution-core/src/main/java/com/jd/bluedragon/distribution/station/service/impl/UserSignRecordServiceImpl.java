@@ -1345,6 +1345,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		UserSignQueryRequest userSignQueryRequest = new UserSignQueryRequest();
 		userSignQueryRequest.setSignInTimeStart(new Date(currentZero));
 		userSignQueryRequest.setSignInTimeEnd(new Date(currentZeroAdd24));
+		userSignQueryRequest.setSiteCode(signInData.getSiteCode());
+		userSignQueryRequest.setUserCode(signInData.getUserCode());
 		UserSignRecordData userSignRecordData = userSignRecordDao.queryFirstUserSignRecordData(userSignQueryRequest);
 		if (userSignRecordData == null) {
 			if (log.isInfoEnabled()) {
