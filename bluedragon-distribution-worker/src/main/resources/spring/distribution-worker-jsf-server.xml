@@ -28,5 +28,16 @@
                   ref="signModifyApprovePostHandler"
                   server="dmsjsf">
         <jsf:parameter key="token" value="${dms.flow.signModifyApprovePostHandler.token}"/>
-    </jsf:provider>    
+    </jsf:provider>
+
+    <!-- 返调度审批回调使用 -->
+    <jsf:provider id="reassignWaybillJsfApprovePostHandler"
+                  interface="com.jd.lsb.flow.handler.ApprovePostHandler"
+                  alias="${dms.flow.reassignWaybillApprovePostHandler.alias}"
+                  ref="reassignWaybillApprovePostHandler"
+                  server="dmsjsf">
+        <jsf:parameter key="token" value="${dms.flow.reassignWaybillApprovePostHandler.token}"/>
+    </jsf:provider>
+
+
 </beans>
