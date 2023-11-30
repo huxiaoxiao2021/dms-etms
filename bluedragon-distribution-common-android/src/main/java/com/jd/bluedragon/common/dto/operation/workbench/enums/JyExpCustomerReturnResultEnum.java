@@ -28,8 +28,12 @@ public enum JyExpCustomerReturnResultEnum {
     HA_MO_CHANGE_PACKAGE_DOWN(3,"356","更换包装下传"),
     HA_MO_SCRAPPED(4,"353","报废"),
     HA_MO_REVERSE_FALLBACK_1(5,"352","逆向退回"),
-    HA_MO_REVERSE_FALLBACK_2(5,"350","逆向退回");
+    HA_MO_REVERSE_FALLBACK_2(5,"350","逆向退回"),
 
+    INTERNATIONAL_DIRECT_DOWN_1(2, "652", "直接下传"),
+    INTERNATIONAL_DIRECT_DOWN_2(2, "653", "直接下传"),
+    INTERNATIONAL_REVERSE_FALLBACK_1(5,"651","逆向退回"),
+    INTERNATIONAL_REVERSE_FALLBACK_2(5,"654","逆向退回");
     private Integer type;
 
     private String code;
