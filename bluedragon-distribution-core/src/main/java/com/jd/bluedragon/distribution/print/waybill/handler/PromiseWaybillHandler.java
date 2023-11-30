@@ -166,6 +166,8 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
             log.error("外单调用promise接口异常:{}" , basePrintWaybill.getWaybillCode(),e);
         }
         this.dealJZD(sendPay,waybillSign, waybillData, basePrintWaybill);
+
+        this.dealCC(waybillData, basePrintWaybill);
     }
 	/**
 	 * 处理sop京准达时效信息
@@ -207,4 +209,20 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 			}
 		}
 	}
+
+     /**
+     * 处理次晨时效
+     * @param waybillData
+     * @param basePrintWaybill
+     */
+    public void dealCC(Waybill waybillData,BasePrintWaybill basePrintWaybill){
+        //处理 特惠送 和 特快送 次晨时效产品
+        if(BusinessUtil.isTKSCC(waybillData.getWaybillSign()) || BusinessUtil.isSXTKCC(waybillData.getWaybillSign())
+                || BusinessUtil.isTHSCC(waybillData.getWaybillSign()) || BusinessUtil.isSXTHSCC(waybillData.getWaybillSign())) {
+            if (waybillData.getRequireTime() != null) {
+                String requireTimeStr = DateHelper.formatDate(waybillData.getRequireTime(), DateHelper.DATE_FORMAT_HHmm);
+                basePrintWaybill.setPromiseText(requireTimeStr);
+            }
+        }
+    }
 }
