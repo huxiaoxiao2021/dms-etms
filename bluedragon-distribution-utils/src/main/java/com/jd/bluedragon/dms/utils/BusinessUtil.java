@@ -3019,4 +3019,16 @@ public class BusinessUtil {
         return isSignInChars(sendPay, SendPayConstants.POSITION_2, 
                 SendPayConstants.CHAR_2_5, SendPayConstants.CHAR_2_6, SendPayConstants.CHAR_2_7, SendPayConstants.CHAR_2_8, SendPayConstants.CHAR_2_9);
     }
+
+    /**
+     * 航班号校验
+     * @param flightNumber
+     * @return
+     */
+    public static boolean isFlightNumber(String flightNumber) {
+        if(StringUtils.isBlank(flightNumber)) {
+            return false;
+        }
+        return flightNumber.matches(FLIGHT_NUMBER_REGEX);
+    }
 }

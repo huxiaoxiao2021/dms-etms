@@ -357,9 +357,12 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             res.parameterError("请求为空");
             return;
         }
-        if(StringUtils.isBlank(createAviationTaskReq.getFlightNumber())) {
-            res.parameterError("航班号不能为空");
-            return;
+        if(StringUtils.isNotBlank(createAviationTaskReq.getFlightNumber())) {
+            createAviationTaskReq.setFlightNumber(createAviationTaskReq.getFlightNumber().trim().toUpperCase());
+            if(!BusinessUtil.isFlightNumber(createAviationTaskReq.getFlightNumber())) {
+                res.parameterError("航班号不能为空");
+                return;
+            }
         }
         if(Objects.isNull(createAviationTaskReq.getNextSiteId()) || !NumberHelper.gt0(createAviationTaskReq.getNextSiteId()) || StringUtils.isBlank(createAviationTaskReq.getNextSiteName())) {
             res.parameterError("流向场地编码和流向场地名称不能为空");
