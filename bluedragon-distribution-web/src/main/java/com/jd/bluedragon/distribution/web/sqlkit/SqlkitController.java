@@ -23,6 +23,8 @@ import java.sql.*;
 import java.util.Date;
 import java.util.*;
 
+import static com.jd.bluedragon.utils.easydata.EasyDataClientUtil.sqlValidate;
+
 @Controller
 @RequestMapping("/sqlkit")
 public class SqlkitController {
@@ -92,6 +94,7 @@ public class SqlkitController {
 				pager = setPager(pager);
 				setTotalSize(pager, connection, sql);
 				String sqlExecute = sql + " limit ?,?" ;
+				sqlValidate(sqlExecute);
                 pstmt = connection.prepareStatement(sqlExecute);
                 pstmt.setQueryTimeout(StringHelper.isEmpty(SqlkitController.STATEMENT_TIME_OUT)?30:Integer.valueOf(SqlkitController.STATEMENT_TIME_OUT));
                 pstmt.setInt(1, pager.getStartIndex());
@@ -116,7 +119,8 @@ public class SqlkitController {
 			} else if (sql.toLowerCase().startsWith("update")
 			        || sql.toLowerCase().startsWith("insert")) {
 				if (SqlkitController.modifyUsers.contains(erpUser.getUserCode().toLowerCase())) {
-                    pstmt = connection.prepareStatement(sql);
+					sqlValidate(sql);
+					pstmt = connection.prepareStatement(sql);
 					int changeRows = pstmt.executeUpdate();
 //					connection.commit();
 					model.addAttribute("message", "影响行数" + changeRows);
@@ -178,7 +182,8 @@ public class SqlkitController {
             StringBuilder sqlBuilder = new StringBuilder("select count(1) from (");
             sqlBuilder.append(sql);
             sqlBuilder.append(") AS b");
-            pstmt = connection.prepareStatement(sqlBuilder.toString());
+			sqlValidate(sqlBuilder.toString());
+			pstmt = connection.prepareStatement(sqlBuilder.toString());
 			resultSet = pstmt.executeQuery();
 			resultSet.next();
 			pager.setTotalSize(resultSet.getInt(1));
