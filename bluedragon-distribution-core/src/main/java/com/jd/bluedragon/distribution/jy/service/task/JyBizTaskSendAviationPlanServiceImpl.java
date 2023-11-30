@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendAviationPlanDao;
@@ -102,8 +103,10 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
         //待发货统计
         JyBizTaskSendAviationPlanQueryCondition toSendQueryCondition = new JyBizTaskSendAviationPlanQueryCondition();
         BeanUtils.copyProperties(condition, toSendQueryCondition);
+        //发货中状态时查待发货统计
         if(!JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getSendTaskStatus().equals(condition.getTaskStatus())) {
             toSendQueryCondition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), toSendQueryTakeOffTimeStartHour));
+            condition.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ZERO);
         }
         List<JyBizTaskAviationStatusStatistics> toSendRes = jyBizTaskSendAviationPlanDao.statusStatistics(toSendQueryCondition);
 
@@ -111,6 +114,7 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
         JyBizTaskSendAviationPlanQueryCondition sendingQueryCondition = new JyBizTaskSendAviationPlanQueryCondition();
         BeanUtils.copyProperties(condition, sendingQueryCondition);
         sendingQueryCondition.setTakeOffTimeStart(null);
+        sendingQueryCondition.setManualCreatedFlag(null);
         List<JyBizTaskAviationStatusStatistics> sendingRes = jyBizTaskSendAviationPlanDao.statusStatistics(sendingQueryCondition);
 
         if(CollectionUtils.isEmpty(toSendRes) && CollectionUtils.isEmpty(sendingRes)) {
