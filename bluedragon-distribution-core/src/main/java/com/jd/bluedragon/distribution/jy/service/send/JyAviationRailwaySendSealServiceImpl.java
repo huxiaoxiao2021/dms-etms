@@ -391,6 +391,10 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         InvokeResult<TransportInfoQueryRes> res = new InvokeResult<>();
 
         JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(request.getBizId());
+        if(!Constants.NUMBER_ZERO.equals(entity.getManualCreatedFlag())) {
+            res.error("自建任务不推荐运力，请手动输入");
+            return res;
+        }
         AirlineReq airlineReq = new AirlineReq();
         if(!Objects.isNull(request.getAirTransportType())) {
             airlineReq.setAirTransportType(request.getAirTransportType());
@@ -1401,6 +1405,10 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     }
 
     private void fillFocusTransportInfo(AviationSealListDto sealListDto) {
+        //无任务不推荐运力，因为没有机场
+        if(!Constants.NUMBER_ZERO.equals(sealListDto.getManualCreatedFlag())) {
+            return;
+        }
         TransportCodeQueryReq param = new TransportCodeQueryReq();
         param.setBizId(sealListDto.getBizId());
         param.setDetailBizId(sealListDto.getDetailBizId());
