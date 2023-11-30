@@ -383,6 +383,7 @@ public interface WaybillSignConstants {
 	char CHAR_29_C = 'C';
 	char CHAR_29_D = 'D';
 	char CHAR_29_E = 'E';
+	char CHAR_29_F = 'F';
 	/**
 	 * 86
 	 */

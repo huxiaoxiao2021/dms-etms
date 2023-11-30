@@ -2938,6 +2938,19 @@ public class BusinessUtil {
     }
 
     /**
+     * 是否国际运单
+     *
+     * @param waybillSign waybillSign
+     * @param waybillStart 运单始发
+     * @param waybillEnd 运单目的
+     * @return
+     */
+    public static boolean isInternational(String waybillSign, String waybillStart, String waybillEnd){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_F) 
+                || (DmsConstants.CN.equals(waybillStart) && !DmsConstants.CN.equals(waybillEnd) && !DmsConstants.HK.equals(waybillEnd) && !DmsConstants.MO.equals(waybillEnd));
+    }
+
+    /**
      * 判断是否是快运的运单
      *  -hint use by reverseExchange function
      *
