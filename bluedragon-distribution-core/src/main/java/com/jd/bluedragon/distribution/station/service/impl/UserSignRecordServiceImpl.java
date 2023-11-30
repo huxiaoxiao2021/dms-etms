@@ -1350,7 +1350,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		UserSignRecordData userSignRecordData = userSignRecordDao.queryFirstUserSignRecordData(userSignQueryRequest);
 		if (userSignRecordData == null) {
 			if (log.isInfoEnabled()) {
-				log.info("assembleInformalEmployeesWaveCode|当前签到是当天首次签到:request={}", JsonHelper.toJson(request));
+				log.info("assembleInformalEmployeesWaveCode|当前签到是当天首次签到:request={},userSignQueryRequest={}", JsonHelper.toJson(request), JsonHelper.toJson(userSignQueryRequest));
 			}
 			// 若是首次打卡，取当前时间
 			firstSignTime = currentDate;
@@ -1358,7 +1358,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			// 若非首次打卡，取首次打卡时间
 			firstSignTime = userSignRecordData.getSignInTime();
 			if (log.isInfoEnabled()) {
-				log.info("assembleInformalEmployeesWaveCode|当前签到不是当天首次签到:request={},firstSignTime={}", JsonHelper.toJson(request), firstSignTime);
+				log.info("assembleInformalEmployeesWaveCode|当前签到不是当天首次签到:request={},firstSignTime={},userSignQueryRequest={}", JsonHelper.toJson(request), firstSignTime, JsonHelper.toJson(userSignQueryRequest));
 			}
 		}
 		// 查询网格下所有班次
