@@ -235,10 +235,14 @@ public class TextConstants {
      */
     public static final String PRODUCT_NAME_SXTK = "生鲜特快";
 
-    // --- start 生鲜特快下运营类型
-    public static final String PRODUCT_NAME_SXTK_JR = "即日";
-    public static final String PRODUCT_NAME_SXTK_CC = "次晨";
-    // --- end 生鲜特快下运营类型
+    /**
+     * 产品名-组合时效 追加 即日
+     */
+    public static final String PRODUCT_NAME_APPEND_JR = "即日";
+    /**
+     * 产品名-组合时效 追加 次晨
+     */
+    public static final String PRODUCT_NAME_APPEND_CC = "次晨";
 
     /**
      * 产品名-生鲜专送

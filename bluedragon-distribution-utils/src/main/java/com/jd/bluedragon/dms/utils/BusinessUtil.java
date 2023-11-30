@@ -2968,6 +2968,37 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是 特惠送-次晨1000 专用
+     *
+     */
+    public static boolean isTHSCC(String waybillSign){
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_0)){
+            return true;
+        }
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+            if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_5)
+                    && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116,  WaybillSignConstants.CHAR_116_7,WaybillSignConstants.CHAR_116_8)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否是 生鲜特惠送-次晨专用
+     */
+    public static boolean isSXTHSCC(String waybillSign){
+
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+            if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_A)
+                    && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_7,WaybillSignConstants.CHAR_116_8)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 判断是否是 特快送-次晨(此判断只满足部分条件，使用前请判断标位是否满足)
      *
      * 1、waybillSign第55位等于0
