@@ -84,7 +84,7 @@ public class SiteTypeLevel {
      * 三级站点类型
      */
     public enum SiteTypeThreeLevelEnum{
-
+        TERMINAL_SITE(1,"营业部"),
         CAMPUS_SCHOOL(12801,"校园派"),
         JD_STAR_DISTRIBUTION(12802,"京东星配"),
         TOWN_SHARE_DISTRIBUTION_STATION(160501,"乡镇共配站"),
