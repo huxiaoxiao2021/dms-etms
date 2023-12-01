@@ -223,6 +223,7 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 	private WorkGridManagerReportVo covertWorkGridManagerReportVo(JyWorkGridManagerData taskData) {
 		WorkGridManagerReportVo workGridManagerReportVo = new WorkGridManagerReportVo();
 		BeanUtils.copyProperties(taskData, workGridManagerReportVo);
+		workGridManagerReportVo.setStatusName(WorkTaskStatusEnum.getNameByCode(taskData.getStatus()));
 		//指标任务扩展信息
 		if(taskData.getBusinessQuotaInfoData() != null){
 			workGridManagerReportVo.setBusinessQuotaInfoData(new BusinessQuotaInfoData());
