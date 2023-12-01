@@ -132,24 +132,29 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         if (isDwsSpotCheck && isAppealStatus) {
             // 运单加锁防止并发问题
             String mutexKey = SPOT_CHECK_APPEAL_PREFIX + waybillCode;
-            if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {
-                String warnMsg = String.format("运单号:%s-设备抽检申诉核对记录保存正在处理中!", waybillCode);
-                logger.warn(warnMsg);
-                throw new JyBizException(warnMsg);
+            try {
+                if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {
+                    String warnMsg = String.format("运单号:%s-设备抽检申诉核对记录保存正在处理中!", waybillCode);
+                    logger.warn(warnMsg);
+                    throw new JyBizException(warnMsg);
+                }
+                // 组装申诉记录数据
+                SpotCheckAppealEntity spotCheckAppealEntity = transformData(spotCheckNotifyMQ, updateDto);
+                // 查询是否已经保存过
+                if (spotCheckAppealService.findByBizId(spotCheckAppealEntity) == null) {
+                    // 插入数据库
+                    spotCheckAppealService.insertRecord(spotCheckAppealEntity);
+                    // 组装附件数据
+                    List<JyAttachmentDetailEntity> jyAttachmentDetailEntityList = createAttachmentList(spotCheckNotifyMQ);
+                    // 插入附件表
+                    jyAttachmentDetailService.batchInsert(jyAttachmentDetailEntityList);
+                    spotCheckServiceProxy.insertOrUpdateProxyReform(updateDto);
+                }
+            } catch (Exception e) {
+                logger.error("设备抽检申诉核对记录保存出现异常:waybillCode={},e=", waybillCode, e);
+            } finally {
+                redisClientOfJy.del(mutexKey);
             }
-            // 组装申诉记录数据
-            SpotCheckAppealEntity spotCheckAppealEntity = transformData(spotCheckNotifyMQ, updateDto);
-            // 查询是否已经保存过
-            if (spotCheckAppealService.findByBizId(spotCheckAppealEntity) == null) {
-                // 插入数据库
-                spotCheckAppealService.insertRecord(spotCheckAppealEntity);
-                // 组装附件数据
-                List<JyAttachmentDetailEntity> jyAttachmentDetailEntityList = createAttachmentList(spotCheckNotifyMQ);
-                // 插入附件表
-                jyAttachmentDetailService.batchInsert(jyAttachmentDetailEntityList);
-                spotCheckServiceProxy.insertOrUpdateProxyReform(updateDto);
-            }
-            redisClientOfJy.del(mutexKey);
             return;
         }
         // 上传称重流水
