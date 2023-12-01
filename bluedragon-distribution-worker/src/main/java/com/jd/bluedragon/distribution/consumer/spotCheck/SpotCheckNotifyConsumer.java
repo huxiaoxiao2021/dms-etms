@@ -206,7 +206,7 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         spotCheckAppealEntity.setBizId(spotCheckNotifyMQ.getFlowId());
         spotCheckAppealEntity.setWaybillCode(spotCheckNotifyMQ.getWaybillCode());
         spotCheckAppealEntity.setDeviceCode(updateDto.getMachineCode());
-        spotCheckAppealEntity.setStartTime(DateHelper.parseDateTime(spotCheckNotifyMQ.getStartTime()));
+        spotCheckAppealEntity.setStartTime(new Date(updateDto.getReviewDate()));
         spotCheckAppealEntity.setStartProvinceCode(spotCheckNotifyMQ.getStartProvinceAgencyCode());
         spotCheckAppealEntity.setStartProvinceName(spotCheckNotifyMQ.getStartProvinceAgencyName());
         // 查询青龙基础资料补全抽检人枢纽
@@ -268,10 +268,10 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             spotCheckAppealEntity.setAppealWeightStatus(getRealStatus(dwsCheckResult.getAppealWeightStatus()));
             spotCheckAppealEntity.setAppealVolumeStatus(getRealStatus(dwsCheckResult.getAppealVolumeStatus()));
         } else {
-            spotCheckAppealEntity.setBeforeWeightStatus(Constants.NUMBER_ZERO);
-            spotCheckAppealEntity.setBeforeVolumeStatus(Constants.NUMBER_ZERO);
-            spotCheckAppealEntity.setAfterWeightStatus(Constants.NUMBER_ZERO);
-            spotCheckAppealEntity.setAfterVolumeStatus(Constants.NUMBER_ZERO);
+            spotCheckAppealEntity.setBeforeWeightStatus(Constants.NUMBER_ONE);
+            spotCheckAppealEntity.setBeforeVolumeStatus(Constants.NUMBER_ONE);
+            spotCheckAppealEntity.setAfterWeightStatus(Constants.NUMBER_ONE);
+            spotCheckAppealEntity.setAfterVolumeStatus(Constants.NUMBER_ONE);
             spotCheckAppealEntity.setAppealWeightStatus(Constants.NUMBER_ZERO);
             spotCheckAppealEntity.setAppealVolumeStatus(Constants.NUMBER_ZERO);
         }
