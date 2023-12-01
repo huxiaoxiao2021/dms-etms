@@ -564,7 +564,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                     }
                 });
         for (String key : picMap.keySet()) {
-            sortMap.put(key, picMap.get(key));
+            String picUrl = picMap.get(key);
+            if (StringUtils.isNotBlank(picUrl)) {
+                sortMap.put(key, picUrl);
+            }
         }
         return StringUtils.join(sortMap.values(), Constants.SEPARATOR_SEMICOLON);
     }

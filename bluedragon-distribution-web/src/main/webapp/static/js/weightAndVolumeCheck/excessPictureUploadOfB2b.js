@@ -457,22 +457,43 @@ $(function () {
             //全部上传成功，显示记录
             var index = parent.layer.getFrameIndex('upExcessPicture');
             parent.layer.close(index);
+        } else {
+            Jd.alert('请先上传超标图片或视频!');
         }
 
     });
 
     //返回
     $('#btn_return').click(function () {
-        if($('#upIsSuccessFlage1').val()==1
-            && $('#upIsSuccessFlage2').val()==1
-            && $('#upIsSuccessFlage3').val()==1
-            && $('#upIsSuccessFlage4').val()==1
+        let lessOneFlag = false;
+        if($('#upIsSuccessFlage1').val()==1 || $('#upIsSuccessFlage2').val()==1
+            || $('#upIsSuccessFlage3').val()==1 || $('#upIsSuccessFlage4').val()==1
+            || $('#upIsSuccessFlage5').val()==1){
+            lessOneFlag = true;
+        }
+        if($('#upIsSuccessFlage1').val()==1 && $('#upIsSuccessFlage2').val()==1
+            && $('#upIsSuccessFlage3').val()==1 && $('#upIsSuccessFlage4').val()==1
             && $('#upIsSuccessFlage5').val()==1){
+            // 如果视频也上传了，设置父页面图片数量为：6
+            if ($('#upIsSuccessFlage6').val()==1) {
+                parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 6;
+            } else {
+                // 设置父页面图片数量为：5
+                parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 5;
+            }
             //全部上传成功，显示记录
             var index = parent.layer.getFrameIndex('upExcessPicture');
             parent.layer.close(index);
-        }else {
-            Jd.alert('全部上传成功后再返回!');
+        } else if (lessOneFlag) {
+            Jd.alert('请5张图片全部上传成功后再返回!');
+        } else if ($('#upIsSuccessFlage6').val()==1) {
+            // 如果只上传视频，设置父页面图片数量为：1
+            parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 1;
+            //全部上传成功，显示记录
+            var index = parent.layer.getFrameIndex('upExcessPicture');
+            parent.layer.close(index);
+        } else {
+            Jd.alert('请先上传超标图片或视频再返回!');
         }
     });
 
