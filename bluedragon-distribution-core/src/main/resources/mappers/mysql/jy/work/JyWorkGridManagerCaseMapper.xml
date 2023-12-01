@@ -19,12 +19,13 @@
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="improve_end_time" property="improveEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
 	<sql id="Base_Column_List" >
 		id,biz_id,case_code,case_title,case_content,edit_status,
 		check_result,need_upload_photo,create_user,create_user_name,update_user,
-		update_user_name,create_time,update_time,yn,ts
+		update_user_name,create_time,update_time,yn,ts,improve_end_time
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCase" useGeneratedKeys="true" keyProperty="id">
@@ -143,7 +144,8 @@
              case_content,
              check_result, 
              create_user,
-             create_time
+             create_time,
+		     improve_end_time
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
@@ -153,7 +155,8 @@
             #{item.caseContent},
             #{item.checkResult},
             #{item.createUser},
-            #{item.createTime}
+            #{item.createTime},
+            #{item.improveEndTime}
             )
         </foreach>
     </insert>
@@ -235,6 +238,9 @@
                 <if test="updateTime != null" >
                     update_time = #{updateTime,jdbcType=TIMESTAMP},
                 </if>
+				<if test="improveEndTime != null" >
+					improve_end_time = #{improveEndTime,jdbcType=TIMESTAMP},
+				</if>
             </set>
         where id = #{id,jdbcType=BIGINT}
     </update>

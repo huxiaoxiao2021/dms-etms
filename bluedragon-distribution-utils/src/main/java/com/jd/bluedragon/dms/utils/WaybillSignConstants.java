@@ -237,7 +237,9 @@ public interface WaybillSignConstants {
 	char CHAR_116_3 = '3';
 	char CHAR_116_4 = '4';
 	char CHAR_116_5 = '5';
-	
+	char CHAR_116_6 = '6';
+	char CHAR_116_7 = '7';
+	char CHAR_116_8 = '8';
 	/**
 	 * waybillsign第31位
 	 */
@@ -383,6 +385,7 @@ public interface WaybillSignConstants {
 	char CHAR_29_C = 'C';
 	char CHAR_29_D = 'D';
 	char CHAR_29_E = 'E';
+	char CHAR_29_F = 'F';
 	/**
 	 * 86
 	 */
@@ -434,6 +437,12 @@ public interface WaybillSignConstants {
 	int POSITION_140 = 140;
 	char CHAR_140_2 = '2';
 	char CHAR_140_1 = '1';
+
+	/**
+	 * 142 脱敏
+	 */
+	int POSITION_142 = 142;
+	char CHAR_142_1 = '1';
 
 	/**
 	 * 67

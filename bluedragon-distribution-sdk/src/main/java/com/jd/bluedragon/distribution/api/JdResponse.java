@@ -145,6 +145,12 @@ public class JdResponse extends JdObject {
     public static final String MESSAGE_NO_FEATHER_LETTER="非鸡毛信运单，不用取消鸡毛信服务";
     public static final String MESSAGE_OUT_ZONE="此运单收件地址为春节禁售或疫情地区，请操作逆向换单后退回";
     public static final String MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE = "到付、COD类型订单，禁止转三方邮政网点，请拦截后换单原路返回。";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_TO_RETURN_GROUP = "不允许反调度到退货组！此为违规操作，超过3次将通报给场地负责人！";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_TO_TERMINAL= "请使用站长工作台操作!";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_SAME_SITE= "反调度站点与原预分拣站点一致，无法调度，请联系省区滑道接口人维护大全表!";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_NOT_SITE = "未查询到原预分拣站点信息!";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_SITE_CLOSE= "原预分拣站点线上关停，请补打面单!";
+
 
     public static final Integer CODE_RE_PRINT_IN_ONE_HOUR = 30100;
     public static final String MESSAGE_RE_PRINT_IN_ONE_HOUR = "条码在1小时内重复打印，是否继续？";

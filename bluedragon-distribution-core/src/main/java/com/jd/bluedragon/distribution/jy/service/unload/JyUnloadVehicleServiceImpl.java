@@ -575,9 +575,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             // 保存扫描记录，发运单全程跟踪。首次扫描分配卸车任务
             UnloadScanDto unloadScanDto = createUnloadDto(request, taskUnloadVehicle);
+
+            unloadScanProducer.sendOnFailPersistent(unloadScanDto.getBarCode(), JsonHelper.toJson(unloadScanDto));
+
             // 判断是否本场地单子
             this.handleMoreLocalOrOutScan(request, unloadScanDto, result);
-            unloadScanProducer.sendOnFailPersistent(unloadScanDto.getBarCode(), JsonHelper.toJson(unloadScanDto));
 
             // 统计本次扫描的包裹数
             this.calculateScanPackageCount(request, result, unloadScanContextDto);

@@ -17,6 +17,11 @@ public class FuncUsageConfigDto implements Serializable {
     private FuncUsageProcessDto process;
 
     /**
+     * 是否只允许白名单
+     */
+    private Boolean onlyAllowWhiteList;
+
+    /**
      * 生效时间
      */
     private String effectiveTime;
@@ -40,6 +45,15 @@ public class FuncUsageConfigDto implements Serializable {
 
     public void setProcess(FuncUsageProcessDto process) {
         this.process = process;
+    }
+
+    public Boolean getOnlyAllowWhiteList() {
+        return onlyAllowWhiteList;
+    }
+
+    public FuncUsageConfigDto setOnlyAllowWhiteList(Boolean onlyAllowWhiteList) {
+        this.onlyAllowWhiteList = onlyAllowWhiteList;
+        return this;
     }
 
     public String getEffectiveTime() {

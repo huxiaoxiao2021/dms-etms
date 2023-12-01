@@ -19,6 +19,7 @@ import com.jd.bluedragon.core.security.dataam.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.enums.ReassignWaybillReasonTypeEnum;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
@@ -461,6 +462,7 @@ public class WaybillServiceImpl implements WaybillService {
             return new DmsWaybillInfoResponse(JdResponse.CODE_WRONG_STATUS, JdResponse.MESSAGE_OUT_ZONE);
         }
         DmsWaybillInfoResponse response = getDmsWaybillInfoResponse(packageCode);
+        log.info("获取运单信息 getDmsWaybillInfoAndCheck 入参-{}-出参-{}",packageCode,JSON.toJSONString(response));
         return response;
     }
 
@@ -1516,6 +1518,7 @@ public class WaybillServiceImpl implements WaybillService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillServiceImpl.checkWaybillForPreSortOnSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();
@@ -1549,6 +1552,18 @@ public class WaybillServiceImpl implements WaybillService {
                 log.warn("预分拣站点信息不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
                 return result;
             }
+            //获取当前操作站点信息
+            BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(waybillForPreSortOnSiteRequest.getSortingSite());
+            if(log.isInfoEnabled()){
+                log.info("当前操作站点信息-{}",JSON.toJSONString(operateSite));
+            }
+            if (operateSite == null){
+                result.error("当前操作站点信息不存在");
+                log.warn("当前操作站点信息不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
+                return result;
+            }
+
+
             Site site = new Site();
             site.setType(siteOfSchedulingOnSite.getSiteType());
             site.setSubType(siteOfSchedulingOnSite.getSubType());
@@ -1623,12 +1638,50 @@ public class WaybillServiceImpl implements WaybillService {
             }
 
             // 当前校验必须放在最后
-            //规则5- 预分拣站点校验滑道信息  (因为存在确认跳过检验)
-            InvokeResult<String>  crossResult =   scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),
-                    waybill.getWaybillCode(),waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite(),waybillForPreSortOnSiteRequest.getSortingSite());
-            if(!crossResult.codeSuccess()){
-                result.customMessage(crossResult.getCode(),crossResult.getMessage());
+            //规则5- 预分拣站点校验滑道信息  (因为存在确认跳过检验) 与 产品马童文沟通 去掉这个校验
+//            InvokeResult<String>  crossResult =   scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),
+//                    waybill.getWaybillCode(),waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite(),waybillForPreSortOnSiteRequest.getSortingSite());
+//            if(!crossResult.codeSuccess()){
+//                result.customMessage(crossResult.getCode(),crossResult.getMessage());
+//                return result;
+//            }
+
+            //检验调度站点信息是否是退货组
+            if(Objects.equals(Constants.SITE_RETURN_GROUP,siteOfSchedulingOnSite.getSortType())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_RETURN_GROUP);
                 return result;
+            }
+
+            //校验 提报人所在场地类型为营业部、城配车队、集配站
+            if(Objects.equals(Constants.BASE_SITE_SITE,operateSite.getSiteType()) || Objects.equals(Constants.BASE_SITE_MOTORCADE,operateSite.getSiteType())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_TERMINAL);
+                return result;
+            }
+
+            //校验反调度站点与原预分拣站点是否一致
+            if(Objects.equals(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite(),waybill.getOldSiteId())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_SAME_SITE);
+                return result;
+            }
+
+            //校验原预分拣站点线上关停 在选择返调度原因选择无预分拣站点时不进行校验
+            if(!Objects.equals(ReassignWaybillReasonTypeEnum.NO_PRE_SORTING_STATION.getCode(),waybillForPreSortOnSiteRequest.getReasonType())){
+                BaseSite oldSite = baseMajorManager.getSiteBySiteCode(waybill.getOldSiteId());
+                if(oldSite != null){
+                    if(!(Constants.INTEGER_FLG_TRUE.equals(oldSite.getYn()) && Constants.BASE_SITE_OPERATESTATE_1.equals(oldSite.getOperateState()))){
+                        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_SITE_CLOSE);
+                        return result;
+                    }
+                }
+            }
+            //作为透传用 避免多次查询
+            waybillForPreSortOnSiteRequest.setSiteName(operateSite.getSiteName());
+            waybillForPreSortOnSiteRequest.setProvinceAgencyCode(operateSite.getProvinceAgencyCode());
+            waybillForPreSortOnSiteRequest.setProvinceAgencyName(operateSite.getProvinceAgencyName());
+            waybillForPreSortOnSiteRequest.setAreaHubCode(operateSite.getAreaCode());
+            waybillForPreSortOnSiteRequest.setAreaHubName(operateSite.getAreaName());
+            if(log.isInfoEnabled()){
+                log.info("waybillForPreSortOnSiteRequest-{}",JSON.toJSONString(waybillForPreSortOnSiteRequest));
             }
 
 

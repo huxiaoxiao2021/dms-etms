@@ -6,7 +6,7 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 /**
  * 人员签到表-查询条件实体类
- * 
+ *
  * @author wuyoude
  * @date 2021年12月30日 14:30:43
  *
@@ -22,7 +22,7 @@ public class WorkGridManagerReportQuery extends BasePagerCondition {
 	 * 省区编码
 	 */
 	private String provinceAgencyCode;
-	
+
 	/**
 	 * 机构编码
 	 */
@@ -62,13 +62,17 @@ public class WorkGridManagerReportQuery extends BasePagerCondition {
 	 * 签到日期-结束
 	 */
 	private Date taskDateEnd;
-	
+
 	/**
 	 * 分页-pageSize
 	 */
 	private Integer pageSize;
 	//任务业务类型：1-日常巡查 2-管理巡视 3-异常及时检查 4-指标周期改善 5-事件治理整改任务
 	private Integer taskBizType;
+
+	private Integer isMatch;
+
+	private Integer transfer;
 
 	public String getAreaHubCode() {
 		return areaHubCode;
@@ -172,5 +176,21 @@ public class WorkGridManagerReportQuery extends BasePagerCondition {
 
 	public void setTaskBizType(Integer taskBizType) {
 		this.taskBizType = taskBizType;
+	}
+
+	public Integer getIsMatch() {
+		return isMatch;
+	}
+
+	public void setIsMatch(Integer isMatch) {
+		this.isMatch = isMatch;
+	}
+
+	public Integer getTransfer() {
+		return transfer;
+	}
+
+	public void setTransfer(Integer transfer) {
+		this.transfer = transfer;
 	}
 }

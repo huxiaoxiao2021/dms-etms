@@ -215,18 +215,12 @@ public class SiteHelper {
 
     /**
      * 判断是否是自营营业部
-     * 4-1
+     * 4-4-1
      */
     public static Boolean isSelfSalesDeptSite(Site site) {
-
-        if (site == null || site.getType() == null || site.getSubType() == null) {
-            return Boolean.FALSE;
-        }
-
-        if (site.getType() == 4 && site.getSubType() == 1) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+        return Objects.equals(site.getType(), 4) 
+                && Objects.equals(site.getSubType(), 4)
+                && Objects.equals(site.getThirdType(), 1);
     }
 
     /**
@@ -521,6 +515,22 @@ public class SiteHelper {
 
         return Objects.equals(site.getSortType(), Constants.JHC_SORT_TYPE);
     }
-    
+
+    /**
+     * 判断是否是邮政站点
+     * @param baseSite
+     * @return
+     */
+    public static Boolean isPostalSite(BaseStaffSiteOrgDto baseSite){
+        if(baseSite == null){
+            return Boolean.FALSE;
+        }
+        if(Objects.equals(Constants.THIRD_SITE_TYPE,baseSite.getSiteType())
+            && Objects.equals(Constants.THIRD_SITE_SUB_TYPE,baseSite.getSubType())
+            && Objects.equals(Constants.THIRD_SITE_THIRD_TYPE_SMS,baseSite.getThirdType())){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
     
 }

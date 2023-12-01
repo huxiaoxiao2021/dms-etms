@@ -11,6 +11,7 @@ import com.jd.etms.waybill.dto.WaybillAbilityAttrDto;
 import com.jd.etms.waybill.dto.WaybillAbilityDto;
 import com.jd.etms.waybill.dto.WaybillProductDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Map;
@@ -108,7 +109,15 @@ public class FilterContext {
      */
     private List<WaybillVasDto> waybillVasDtos;
 
+    private long bitCode;
 
+    public long getBitCode(){
+        return bitCode;
+    }
+
+    public void setBitCode(long bitCode) {
+        this.bitCode = bitCode;
+    }
     /**
      * 判断是否有预分拣站点
      * @return
