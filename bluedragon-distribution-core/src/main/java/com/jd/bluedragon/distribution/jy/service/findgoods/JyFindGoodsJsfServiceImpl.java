@@ -30,7 +30,7 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
-import com.jd.dms.workbench.utils.core.common.DateUtil;
+import com.jd.etms.sdk.util.DateUtil;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.udata.query.api.dto.ApiDataQueryRequest;
@@ -303,7 +303,7 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
     }
     String content = String.format(Constants.FIND_GOODS_NOTICE_CONTENT,
             siteWaveDto.getSortingSiteName(),
-            DateUtil.format(new Date(),DateUtil.FORMATE_MONTH_DAY),
+            DateUtil.format(new Date(),"MM月dd日"),
             findGoodsTaskDto.getWaveStartTime(),
             findGoodsTaskDto.getWaveEndTime(),
             siteWaveDto.getWaitFindCount(),
