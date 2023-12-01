@@ -274,5 +274,5 @@ public interface BaseMajorManager {
 	 * @param staffId
 	 * @return
 	 */
-	ResultData<BaseStaffSiteDTO> queryBaseStaffByStaffId(Integer staffId);
+	BaseStaffSiteDTO queryBaseStaffByStaffId(Integer staffId);
 }
