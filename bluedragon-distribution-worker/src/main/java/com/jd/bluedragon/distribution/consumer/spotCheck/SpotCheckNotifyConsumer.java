@@ -33,6 +33,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -215,10 +216,12 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         spotCheckAppealEntity.setStartProvinceCode(spotCheckNotifyMQ.getStartProvinceAgencyCode());
         spotCheckAppealEntity.setStartProvinceName(spotCheckNotifyMQ.getStartProvinceAgencyName());
         // 查询青龙基础资料补全抽检人枢纽
-        BaseStaffSiteOrgDto startBaseSite = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(spotCheckNotifyMQ.getOrgCode()));
-        if (startBaseSite != null) {
-            spotCheckAppealEntity.setStartHubCode(startBaseSite.getAreaCode());
-            spotCheckAppealEntity.setStartHubName(startBaseSite.getAreaName());
+        if (StringUtils.isNotBlank(spotCheckNotifyMQ.getOrgCode())) {
+            BaseStaffSiteOrgDto startBaseSite = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(spotCheckNotifyMQ.getOrgCode()));
+            if (startBaseSite != null) {
+                spotCheckAppealEntity.setStartHubCode(startBaseSite.getAreaCode());
+                spotCheckAppealEntity.setStartHubName(startBaseSite.getAreaName());
+            }
         }
         spotCheckAppealEntity.setStartSiteCode(spotCheckNotifyMQ.getOrgCode());
         spotCheckAppealEntity.setStartSiteName(spotCheckNotifyMQ.getOrgName());
@@ -227,10 +230,12 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         spotCheckAppealEntity.setDutyProvinceCode(spotCheckNotifyMQ.getDutyProvinceAgencyCode());
         spotCheckAppealEntity.setDutyProvinceName(spotCheckNotifyMQ.getDutyProvinceAgencyCode());
         // 查询青龙基础资料补全申诉人枢纽
-        BaseStaffSiteOrgDto dutyBaseSite = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(spotCheckNotifyMQ.getDutyOrgCode()));
-        if (dutyBaseSite != null) {
-            spotCheckAppealEntity.setDutyHubCode(dutyBaseSite.getAreaCode());
-            spotCheckAppealEntity.setDutyHubName(dutyBaseSite.getAreaName());
+        if (StringUtils.isNotBlank(spotCheckNotifyMQ.getDutyOrgCode())) {
+            BaseStaffSiteOrgDto dutyBaseSite = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(spotCheckNotifyMQ.getDutyOrgCode()));
+            if (dutyBaseSite != null) {
+                spotCheckAppealEntity.setDutyHubCode(dutyBaseSite.getAreaCode());
+                spotCheckAppealEntity.setDutyHubName(dutyBaseSite.getAreaName());
+            }
         }
         spotCheckAppealEntity.setDutyWarCode(spotCheckNotifyMQ.getDutyProvinceCompanyCode());
         spotCheckAppealEntity.setDutyWarName(spotCheckNotifyMQ.getDutyProvinceCompanyName());
