@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.domain.Waybi
 import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.*;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
+import com.jd.bluedragon.distribution.jy.enums.SiteTypeLevel;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordPo;
@@ -55,6 +56,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import static com.jd.bluedragon.Constants.BASE_SITE_DISTRIBUTION_CENTER;
+import static com.jd.bluedragon.distribution.jy.enums.SiteTypeLevel.SiteTypeOneLevelEnum.TERMINAL_SITE;
 
 /**
  * @Author: liming522
@@ -141,6 +145,12 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                 result.toFail(assembleFirstSiteInfoResult.getMessage());
                 return result;
             }
+
+            // 如果被举报人场地为分拣中心或营业部，则过滤数据并返回成功
+            if (record.getFirstSiteCode() != null && checkFirstSiteCode(record, result)) {
+                return result;
+            }
+
             // 如果被举报人erp为空，则查一次基础资料
             if(StringUtils.isEmpty(record.getReportedUserErp()) && null != record.getReportedUserId()){
                 BaseStaffSiteOrgDto baseStaffByStaffId = baseMajorManager.getBaseStaffByStaffId(record.getReportedUserId().intValue());
@@ -173,6 +183,27 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             result.setData(false);
         }
         return result;
+    }
+
+    private boolean checkFirstSiteCode(ExpressBillExceptionReport record, JdCResponse<Boolean> result) {
+        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(record.getFirstSiteCode());
+        if (siteInfo != null) {
+            // 分拣中心
+            if (Objects.equals(siteInfo.getSiteType(), BASE_SITE_DISTRIBUTION_CENTER)) {
+                result.toSucceed("举报成功");
+                result.setData(true);
+                return true;
+            }
+            //  营业部
+            if (Objects.equals(siteInfo.getSiteType(), SiteTypeLevel.SiteTypeOneLevelEnum.TERMINAL_SITE.getCode())
+                    && Objects.equals(siteInfo.getSubType(), SiteTypeLevel.SiteTypeTwoLevelEnum.TERMINAL_SITE.getCode())
+                    && Objects.equals(siteInfo.getThirdType(),SiteTypeLevel.SiteTypeThreeLevelEnum.TERMINAL_SITE.getCode())) {
+                result.toSucceed("举报成功");
+                result.setData(true);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
