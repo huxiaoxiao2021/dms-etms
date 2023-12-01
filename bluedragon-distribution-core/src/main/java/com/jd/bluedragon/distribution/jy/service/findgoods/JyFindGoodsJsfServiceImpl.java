@@ -92,6 +92,9 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
   private String sortingCleanSingleSiteWave;
   @Autowired
   private MspClientProxy mspClientProxy;
+  
+  @Value("${find.good.send.message.default.erp:}")
+  private String findGoodSendMessageDErp;
     
 
   @Override
@@ -274,6 +277,9 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
       log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice findGoodsTaskDto:{}", JSON.toJSONString(findGoodsTaskDto));
       if (StringUtils.isBlank(cacheService.get(getFindGoodsNoticeCacheKey(findGoodsTaskDto)))) {
           String sendErp = getLeaderErp(findGoodsTaskDto);
+          if (StringUtils.isNotBlank(findGoodSendMessageDErp)) {
+            sendErp = findGoodSendMessageDErp;
+          }
           log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice sendErp:{}", sendErp);
           if (StringUtils.isNotBlank(sendErp)) {
               // send message
