@@ -1055,9 +1055,12 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Override
     @Cache(key = "BaseMajorManager.queryBaseStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-    public ResultData<BaseStaffSiteDTO> queryBaseStaffByStaffId(Integer staffId) {
+    public BaseStaffSiteDTO queryBaseStaffByStaffId(Integer staffId) {
         if(staffId != null){
-            return basicStaffQueryWS.queryBaseStaffByStaffId(staffId);
+            ResultData<BaseStaffSiteDTO> resultData = basicStaffQueryWS.queryBaseStaffByStaffId(staffId);
+            if(resultData != null && resultData.getData() != null){
+                return resultData.getData();
+            }
         }
         return null;
     }
