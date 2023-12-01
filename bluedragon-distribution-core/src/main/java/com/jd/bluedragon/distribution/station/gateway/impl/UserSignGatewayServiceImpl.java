@@ -364,14 +364,14 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				return "";
 			}
 			log.info("获取登录用户的PIN码 queryBaseStaffByStaffId 入参-{}",baseStaff.getStaffNo());
-			ResultData<BaseStaffSiteDTO> staffInfo = baseMajorManager.queryBaseStaffByStaffId(baseStaff.getStaffNo());
+			BaseStaffSiteDTO staffInfo = baseMajorManager.queryBaseStaffByStaffId(baseStaff.getStaffNo());
 			log.info("获取登录用户的PIN码 queryBaseStaffByStaffId 出参-{}",JSON.toJSONString(staffInfo));
-			if(staffInfo == null || staffInfo.getData() == null ||org.apache.commons.lang.StringUtils.isBlank(staffInfo.getData().getPin())){
+			if(staffInfo== null ||org.apache.commons.lang.StringUtils.isBlank(staffInfo.getPin())){
 				response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
 				response.setCode(JdResponse.CODE_INTERNAL_ERROR);
 				return "";
 			}
-			return Constants.PDA_THIRDPL_TYPE+staffInfo.getData().getPin();
+			return Constants.PDA_THIRDPL_TYPE+staffInfo.getPin();
 		}catch (Exception e){
 			log.error("获取达达人员数据信息异常！{}",erpAccount,e);
 			response.setMessage("获取达达人员数据信息异常！{"+erpAccount+"}");
