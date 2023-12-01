@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.JdSiteTypeConfig;
-import com.jd.bluedragon.distribution.print.domain.JdStdPositionCodeConfig;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
@@ -135,22 +134,10 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
             log.warn("分拣中心、接货仓、退货组 包裹补打功能拦截功能关闭!");
             return false;
         }
-        SysConfig positionConfig = sysConfigService.findConfigContentByConfigName(Constants.PACKAGE_PRINT_LIMIT_POSITION_CODE_TYPE_CONFIG);
-        if(positionConfig == null){
-            log.warn("获取标准岗位编码限制配置为空！");
-            return false;
-        }
-        JdStdPositionCodeConfig jdStdPositionCodeConfig = com.alibaba.fastjson.JSON.parseObject(positionConfig.getConfigContent(), JdStdPositionCodeConfig.class);
-        if(jdStdPositionCodeConfig == null){
-            log.warn("获取标准岗位编码限制配置为空！");
-            return false;
-        }
-
         log.info("获取包裹补打限制站点配置-{}",JSON.toJSONString(jdSiteTypeConfig));
-        log.info("获取标准岗位编码限制配置-{}",JSON.toJSONString(jdStdPositionCodeConfig));
         List<Integer> sortTypes = jdSiteTypeConfig.getSortTypes();
         List<Integer> sortSubTypes = jdSiteTypeConfig.getSortSubTypes();
-        List<String> positionCodes = jdStdPositionCodeConfig.getPositionCodes();
+        List<String> positionCodes = jdSiteTypeConfig.getPositionCodes();
         log.info("sortTypes -{} sortSubTypes-{} positionCodes-{}",JSON.toJSONString(sortTypes),JSON.toJSONString(sortSubTypes),JSON.toJSON(positionCodes));
         boolean matchSiteType = matchSiteType(sortTypes, sortSubTypes, baseSite);
         log.info(" matchSiteType -{}",matchSiteType);

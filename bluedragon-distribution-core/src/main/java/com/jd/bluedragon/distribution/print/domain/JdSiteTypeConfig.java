@@ -24,6 +24,19 @@ public class JdSiteTypeConfig {
      */
     private boolean checkSwitch = false;
 
+    /**
+     * 标准岗位编码
+     */
+    private List<String> positionCodes;
+
+    public List<String> getPositionCodes() {
+        return positionCodes;
+    }
+
+    public void setPositionCodes(List<String> positionCodes) {
+        this.positionCodes = positionCodes;
+    }
+
 
     public List<Integer> getSortTypes() {
         return sortTypes;
