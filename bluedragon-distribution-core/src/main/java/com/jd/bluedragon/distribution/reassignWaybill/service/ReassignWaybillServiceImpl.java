@@ -433,7 +433,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 
 			//现场预分拣拦截校验
 			WaybillForPreSortOnSiteRequest preSortOnSiteRequest = buildWaybillForPreSortOnSiteRequest(req);
-			InvokeResult<String> invokeResult = waybillService.checkWaybillForPreSortOnSite(preSortOnSiteRequest);
+			InvokeResult<String> invokeResult = waybillService.checkWaybillForPreSortOnSiteForApprove(preSortOnSiteRequest);
 			if(InvokeResult.RESULT_SUCCESS_CODE != invokeResult.getCode()){
 				result.setCode(invokeResult.getCode());
 				result.setMessage(invokeResult.getMessage());

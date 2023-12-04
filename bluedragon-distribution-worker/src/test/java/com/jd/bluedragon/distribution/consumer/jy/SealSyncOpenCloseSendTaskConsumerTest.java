@@ -107,14 +107,25 @@ public class SealSyncOpenCloseSendTaskConsumerTest {
         param.setSingleBatchCode(batchCode);
 
 
-
+        String str = "{\n" +
+                "    \"batchCodes\": [\n" +
+                "        \"40240-910-20231201142214392\"\n" +
+                "    ],\n" +
+                "    \"operateTime\": 1701413437000,\n" +
+                "    \"operateUserCode\": \"huzhihao3\",\n" +
+                "    \"operateUserName\": \"胡志浩\",\n" +
+                "    \"sealCarCode\": \"SC23120100039011\",\n" +
+                "    \"singleBatchCode\": \"40240-910-20231201142214392\",\n" +
+                "    \"status\": 1,\n" +
+                "    \"sysTime\": 1701413438407\n" +
+                "}";
 
         int i = 0;
         while(i++ < 100) {
             try{
                 Message message = new Message();
-                message.setText(JsonHelper.toJson(param));
-                message.setBusinessId(param.getSingleBatchCode());
+                message.setText(str);
+                message.setBusinessId("40240-910-20231201142214392");
                 consume.consume(message);
                  System.out.println("success");
             }catch (Exception e) {
