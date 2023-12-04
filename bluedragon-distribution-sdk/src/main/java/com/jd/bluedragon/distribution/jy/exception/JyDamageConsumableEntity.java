@@ -107,11 +107,6 @@ public class JyDamageConsumableEntity implements Serializable {
     private String operatorErp;
 
     /**
-     * 操作人
-     */
-    private String operatorName;
-
-    /**
      * 操作时间
      */
     private Date operateTime;
@@ -292,14 +287,6 @@ public class JyDamageConsumableEntity implements Serializable {
 
     public void setOperatorErp(String operatorErp) {
         this.operatorErp = operatorErp;
-    }
-
-    public String getOperatorName() {
-        return operatorName;
-    }
-
-    public void setOperatorName(String operatorName) {
-        this.operatorName = operatorName;
     }
 
     public Date getOperateTime() {

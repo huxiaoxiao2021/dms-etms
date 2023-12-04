@@ -23,7 +23,7 @@ public class ConsumableManagerImpl implements ConsumableManager{
     public Boolean checkConsumable(List<String> consumableBarcodes, String Erp) {
         CommonResponseDto<List<WrapBillManageDto>> listCommonResponseDto;
         try {
-            listCommonResponseDto = wrapCategoryAndWrapBillInfoApi.queryWrapPrices(EXPRESS_DELIVERY, consumableBarcodes, erp);
+            listCommonResponseDto = wrapCategoryAndWrapBillInfoApi.queryWrapPrices(EXPRESS_DELIVERY, consumableBarcodes, Erp);
             if (CommonResponseDto.CODE_SUCCESS != listCommonResponseDto.getCode()) {
                 return false;
             }
