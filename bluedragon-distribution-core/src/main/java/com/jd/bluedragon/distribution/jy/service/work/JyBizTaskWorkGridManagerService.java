@@ -2,14 +2,18 @@ package com.jd.bluedragon.distribution.jy.service.work;
 
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCountData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTransferData;
+import com.jd.bluedragon.distribution.jy.dto.violentSorting.ViolentSortingDto;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 
 /**
@@ -103,4 +107,8 @@ public interface JyBizTaskWorkGridManagerService {
 	JdCResponse<Boolean> transferCandidate(JyWorkGridManagerTransferData request);
 
     String selectLastHandlerErp(String taskCode, Integer siteCode);
+
+	@JProfiler(jKey = "JyBizTaskWorkGridManagerService.generateViolentSortingTask",
+			mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWORKER)
+	void generateViolentSortingTask(ViolentSortingDto violentSortingDto, WorkGrid workGrid);
 }
