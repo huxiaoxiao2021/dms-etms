@@ -59,4 +59,11 @@ public interface BoxMaterialRelationService {
     List<BoxMaterialRelation> findByMaterialCodeAndBoxCode(Map<String, Object> map);
 
     int countByMaterialCodeAndBoxCode(Map<String, Object> map);
+
+    /**
+     * 根据箱号批量获取绑定信息
+     * @param boxCodeList
+     * @return
+     */
+    List<BoxMaterialRelation> getDataByBoxCodeList(List<String> boxCodeList);
 }

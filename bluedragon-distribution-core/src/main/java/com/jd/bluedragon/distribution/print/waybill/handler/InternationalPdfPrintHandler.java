@@ -52,9 +52,9 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
             return interceptResult;
         }
 
-        // 目前只处理港澳类运单
-        if(!checkIsGA(context)){
-            log.warn("单号:{}为非港澳订单", request.getPackageBarCode());
+        // 目前只处理港澳类运单|国际类运单
+        if(!checkIsDeal(context)){
+            log.warn("单号:{}为非港澳订单|国际类运单", request.getPackageBarCode());
             return interceptResult;
         }
         
@@ -100,12 +100,13 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
         return false;
     }
     
-    private boolean checkIsGA(WaybillPrintContext context) {
+    private boolean checkIsDeal(WaybillPrintContext context) {
         WaybillExtVO waybillExtVO = context.getWaybill().getWaybillExtVO();
+        String waybillSign = context.getWaybill().getWaybillSign();
         String startFlowDirection = waybillExtVO == null ? null : waybillExtVO.getStartFlowDirection();
         String endFlowDirection = waybillExtVO == null ? null : waybillExtVO.getEndFlowDirection();
         if(Objects.equals(context.getRequest().getOperateType(), WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType())){
-            // 换单打印需判断老单是否为港澳单
+            // 换单打印需判断老单
             if(context.getOldBigWaybillDto() != null && context.getOldBigWaybillDto().getWaybill() != null){
                 WaybillExt oldWaybillExt = context.getOldBigWaybillDto().getWaybill().getWaybillExt();
                 startFlowDirection = oldWaybillExt == null ? null : oldWaybillExt.getStartFlowDirection();
@@ -114,7 +115,8 @@ public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPri
                 log.warn("根据新单号:{}未获取老单运单信息", context.getRequest().getPackageBarCode());
             }
         }
-        return BusinessUtil.isGAWaybill(startFlowDirection, endFlowDirection);
+        return BusinessUtil.isGAWaybill(startFlowDirection, endFlowDirection) 
+                || BusinessUtil.isInternational(waybillSign, startFlowDirection, endFlowDirection);
     }
 
     private String generateCloudPrintPdfUrl(WaybillPrintRequest request) {

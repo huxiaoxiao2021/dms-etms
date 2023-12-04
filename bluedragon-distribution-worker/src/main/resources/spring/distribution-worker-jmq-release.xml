@@ -731,5 +731,40 @@
     <jmq:consumer id="jmq.boardChuteConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.boardChute}" listener="boardChuteConsumer"/>
     </jmq:consumer>
+    <!-- 箱号首次打印 -->
+    <jmq:consumer id="jmq.boxFirstPrintConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.boxFirstPrint}" listener="boxFirstPrintConsumer"/>
+    </jmq:consumer>
+    <!-- 批量取消集包-异步执行 -->
+    <jmq:consumer id="jmq.batchCancelCollectPackageConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.batchCancelCollectPackageProduce}" listener="batchCancelCollectPackageConsumer"/>
+    </jmq:consumer>
+    <!--封车取消封车同步新版app发货任务状态-->
+    <jmq:consumer id="jmq.sealSyncOpenCloseSendTaskConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.sealSyncOpenCloseSendTask}" listener="sealSyncOpenCloseSendTaskConsumer"/>
+    </jmq:consumer>
+
+    <!--    来自暴力分拣手动亮灯的消息-->
+    <bean id="violentSortingConsumerManual"
+          class="com.jd.bluedragon.distribution.consumer.violentSorting.ViolentSortingConsumer"></bean>
+    <!--来自暴力分拣真实的消息AI部门-->
+    <bean id="violentSortingConsumerReal"
+          class="com.jd.bluedragon.distribution.consumer.violentSorting.ViolentSortingConsumer"></bean>
+
+    <!-- 安灯消费暴力分拣手动亮灯 -->
+    <jmq:consumer id="jmq.violentSortingConsumerManual" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.ai.violentSortingManual}" listener="violentSortingConsumerManual"/>
+    </jmq:consumer>
+
+    <!-- 安灯消费暴力分拣AI部门 -->
+    <jmq:consumer id="jmq.violentSortingConsumerReal" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.ai.violentSortingReal}" listener="violentSortingConsumerReal"/>
+    </jmq:consumer>
+
+
+    <!-- 返调度审批处理自消费  -->
+    <jmq:consumer id="jmq.reassignWaybillApprovalConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.reassign.waybill.approval}" listener="reassignWaybillApprovalConsumer"/>
+    </jmq:consumer>
 </beans>
 

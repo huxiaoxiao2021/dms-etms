@@ -29,6 +29,11 @@ public class FlowConstants {
     public static final String FLOW_CODE_FRESH_SCRAP = "fresh_scrap_approve";
 
     /**
+     * 流程编码-返调度流程编码
+     */
+    public static final String FLOW_CODE_REASSIGN_WAYBILL = "reassign_waybill_approve";
+
+    /**
      * 流程业务数据唯一key
      */
     public static final String FLOW_BUSINESS_NO_KEY = "businessNoKey";
@@ -66,6 +71,16 @@ public class FlowConstants {
 
 
     /**
+     * 申请单主题-返调度申请
+     */
+    public static final String FLOW_FLOW_WORK_THEME_REASSIGN_WAYBILL = "返调度申请单";
+    /**
+     * 申请单备注-返调度申请
+     */
+    public static final String FLOW_FLOW_WORK_REMARK_REASSIGN_WAYBILL = "返调度申请";
+
+
+    /**
      * 流程-OA数据-申请单主表数据key
      */
     public static final String FLOW_OA_JMEMAINCOLLIST = "jmeMainColList";
@@ -95,4 +110,12 @@ public class FlowConstants {
     public static final String FLOW_DATA_MAP_SECOND_TRIGGER_ERP = "secondTriggerErp";
     // 生鲜报废流程控制key：审批三级触发人ERP
     public static final String FLOW_DATA_MAP_THIRD_TRIGGER_ERP = "thirdTriggerErp";
+
+
+    // 返调度流程控制key：审批次数
+    public static final String FLOW_DATA_MAP_REASSIGN_WAYBILL_APPROVE_COUNT = "reassignWaybillApproveCount";
+    // 返调度流程控制key：审批一级触发人ERP
+    public static final String FLOW_DATA_MAP_FIRST_REASSIGN_WAYBILL_APPROVE_TRIGGER_ERP = "reassignWaybillApproveFirstTriggerErp";
+    // 返调度流程控制key：审批二级触发人ERP
+    public static final String FLOW_DATA_MAP_SECOND_REASSIGN_WAYBILL_APPROVE_TRIGGER_ERP = "reassignWaybillApproveSecondTriggerErp";
 }

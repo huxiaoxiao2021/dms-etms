@@ -1111,6 +1111,15 @@
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
+    <!--线上化-备选责任人-jsf服务-->
+    <jsf:consumer id="workGridCandidateJsfService"
+                  interface="com.jdl.basic.api.service.work.WorkGridCandidateJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
     <!--  用户管理-jsf服务  -->
     <jsf:consumer id="userJsfService"
                   interface="com.jdl.basic.api.service.user.UserJsfService"
@@ -1485,5 +1494,37 @@
     <!--运单拦截信息接口-->
     <jsf:consumer id="blockerApplyWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerApplyWS"
                   protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <jsf:consumer id="collectBoxFlowDirectionConfJsfService"
+                  interface="com.jdl.basic.api.service.boxFlow.CollectBoxFlowDirectionConfJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+
+    <!--运单拦截信息接口-->
+    <jsf:consumer id="apiQueryService" interface="com.jd.udata.query.api.service.ApiQueryService"
+                  protocol="jsf" alias="${jsf.udata.query.alias}" timeout="${jsf.udata.query.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 任务分配配置接口 -->
+    <jsf:consumer id="quotaTargetConfigJsfService" interface="com.jd.dms.wb.sdk.api.loss.IQuotaTargetConfigJsfService" protocol="jsf"
+                  alias="${jsf.alias.workbench.service}" retries="${jsf.retries}"
+                  serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--四级地址匹配预分拣站点接口-->
+    <jsf:consumer id="stationMatchServiceApi"
+                  interface="com.jd.bluedragon.preseparate.jsf.StationMatchServiceApi"
+                  protocol="jsf"
+                  alias="${jsf.presort.expressTransfer.alias}"
+                  timeout="${jsf.presort.expressTransfer.timeout}"
+    >
+        <jsf:parameter key="token" value="${jsf.presort.expressTransfer.token}" hide="true"/>
     </jsf:consumer>
 </beans>

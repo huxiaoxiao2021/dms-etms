@@ -68,6 +68,7 @@
         <mapper resource="mappers/mysql/collectNew/JyCollectRecordDetailMapper.xml"/>
         <mapper resource="mappers/mysql/collectNew/JyCollectRecordMapper.xml"/>
         <mapper resource="mappers/mysql/jy/common/JyOperateFlowMapper.xml"/>
+        <mapper resource="mappers/mysql/jy/collectpackage/JyCollectPackageMapper.xml" />
     </mappers>
 
 </configuration>

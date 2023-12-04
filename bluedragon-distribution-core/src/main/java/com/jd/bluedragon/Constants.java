@@ -138,6 +138,26 @@ public class Constants {
       */
     public static final Integer SITE_SUBTYPE_THIRD = 6410;
 
+    /**
+     * 退货组
+     */
+    public static final Integer SITE_RETURN_GROUP = 12354;
+
+    /**
+     * 请求应用程序类型
+     */
+    public static final Integer PROGRAM_TYPE = 60;
+
+    /**
+     * 业务类型
+     */
+    public static final Integer BUSINESS_TYPE = 1005;
+
+    /**
+     * 业务操作类型
+     */
+    public static final Integer OPERATE_TYPE = 100503;
+
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
     public static final int WAREHOUSE_HANDOVER_OPERATE_TYPE = 2;
@@ -280,6 +300,12 @@ public class Constants {
 
     /* 站点operateState：2为线下运营 */
     public static final Integer BASE_SITE_OPERATESTATE = 2;
+
+    /**
+     * 运营状态 operate_state 0关闭 1线上运营 2线下运营
+     */
+    public static final Integer BASE_SITE_OPERATESTATE_1 = 1;
+
 
     /**
      * 承运商类型 1:司机 0:承运商（三方快递，即站点表中类型为16的数据）
@@ -894,7 +920,7 @@ public class Constants {
     public static final String SYS_CONFIG_GLOBAL_FUNC_USAGE_CONTROL= "global_func_usage_control_";
 
     /**
-     * 功能可用性配置
+     * 功能可用性配置黑名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
 
@@ -904,9 +930,26 @@ public class Constants {
     public static final String SYS_CONFIG_HIDE_PHONE_6Char= "hide_phone_6char";
 
     /**
-     * 安卓菜单可用性配置，按场地id配置
+     * 功能可用性配置黑名单，按人员ERP配置
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_BY_ERP = "func_usage_by_erp_";
+
+    /**
+     * 功能可用性配置黑名单，按场地id配置
      */
     public static final String SYS_CONFIG_FUNC_USAGE_BY_SITE_CODE = "func_usage_by_site_code_";
+    /**
+     * 功能可用性配置白名单，按场地类型
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_TYPE = "func_usage_white_by_site_type_";
+    /**
+     * 功能可用性配置白名单，按场地名单
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_CODE = "func_usage_white_by_site_code_";
+    /**
+     * 功能可用性配置白名单，按人员erp列表
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_ERP = "func_usage_white_by_erp_";
     /**
      * 是否启用中台创建箱号开关key
      */
@@ -2088,11 +2131,6 @@ public class Constants {
      */
     public static final Long SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID = 27000L;
 
-    /**
-     * 功能可用配置白名单
-     */
-    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
-
     // 新版分拣中心规范-分拣中心类型
     public static final Integer SORTING_SORT_TYPE = 12351;
     // 新版分拣中心规范-分拣中心子类型
@@ -2183,7 +2221,7 @@ public class Constants {
      * 运输内网账号类型
      */
     public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
-    
+
     /**
      * oss链接内外网key
      */
@@ -2194,4 +2232,33 @@ public class Constants {
      * 配置信息-自动签退超过多少小时未签退的数据
      */
     public static final String SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS="sys.config.autoHandleSignInRecord.notSignedOutRecordMoreThanHours";
+
+    /**
+     * 集包岗-任务锁前缀
+     */
+    public static final String JY_COLLECT_BOX_LOCK_PREFIX  = "jy_collect_package_box_lock_%s";
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_ID = "pda.questionnaire.id";
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_FUNC_CODE = "pda.questionnaire.func.code";
+
+    /**
+     * 运单返调度审批配置
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG = "reassignWaybill.province.area.approval.config";
+
+
+    /**
+     * 返调度运单任务锁key
+     */
+    public static final String REASSIGN_WAYBILL_LOCK_KEY_PREFIX ="reassign.waybill.lock:";
+
+
+
 }
