@@ -21,9 +21,13 @@ public class JyStatisticsSummaryEntity implements Serializable {
      * SummarySourceEnum
      */
     private String source;
-
+    /**
+     * kg
+     */
     private Double weight;
-
+    /**
+     * 立方厘米（按最小展示粒度存储）
+     */
     private Double volume;
 
     private Integer itemNum;

@@ -17,6 +17,7 @@ public class Site {
     private Integer code;
     private Integer orgId;
     private Integer subType;
+    private Integer thirdType;
     private Integer cityId;
     private Integer provinceId;
     private Integer airSign;
@@ -75,6 +76,14 @@ public class Site {
 	public void setSubType(Integer subType) {
 		this.subType = subType;
 	}
+
+    public Integer getThirdType() {
+        return thirdType;
+    }
+
+    public void setThirdType(Integer thirdType) {
+        this.thirdType = thirdType;
+    }
 
 	public Integer getCityId() {
 		return cityId;

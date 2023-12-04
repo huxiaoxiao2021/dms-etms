@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.jy.service.exception.impl.JyDamageExceptio
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,28 @@ public abstract class JyExceptionStrategy {
             if((org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
                     || (org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
                 logger.info("港澳单-{}",waybillCode);
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * 判断是否为国际运单
+     *
+     * @param waybillCode 运单编号
+     * @param waybill 运单对象
+     * @return 是否为国际运单：true-是，false-否
+     */
+    public boolean isInternationWaybill(String waybillCode, Waybill waybill) {
+        if(waybill != null &&  waybill.getWaybillExt() != null){
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            if(StringUtils.isNotBlank(waybillExt.getStartFlowDirection())
+                    && (Objects.equals("CN",waybillExt.getStartFlowDirection()))
+                    && StringUtils.isNotBlank(waybillExt.getEndFlowDirection())
+                    && !Objects.equals("CN",waybillExt.getEndFlowDirection())
+                    && !Objects.equals("MO",waybillExt.getEndFlowDirection())
+                    && !Objects.equals("HK",waybillExt.getEndFlowDirection())){
+                logger.info("国际单-{}",waybillCode);
                 return true;
             }
         }

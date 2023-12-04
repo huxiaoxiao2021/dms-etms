@@ -63,8 +63,12 @@ public class JimDbLock {
     if (StringUtils.isEmpty(key) || StringUtils.isEmpty(value)) {
       log.info("参数问题，无法释放锁 key:{} value:{}", key, value);
     }
-    if (redisClient.exists(key) && value.equals(redisClient.get(key))) {
-      redisClient.del(key);
+    try {
+      if (redisClient.exists(key) && value.equals(redisClient.get(key))) {
+        redisClient.del(key);
+      }
+    } catch (Exception e) {
+      log.error("释放分布式锁参数：key:{} value:{} 出现异常：", key, value,e);
     }
     log.info("释放分布式锁参数：key:{} value:{}", key, value);
   }

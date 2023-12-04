@@ -321,6 +321,84 @@ public class NumberHelper {
         return input.matches(pattern);
     }
 
+
+
+    /**
+     * 将二进制转换为十进制的方法
+     * @param binary 二进制字符串
+     * @return 十进制表示的整数
+     */
+
+    public static int binaryToDecimal(String binary) {
+        int decimal = 0;
+        int power = 0;
+        for (int i = binary.length() - 1; i >= 0; i--) {
+            int digit = binary.charAt(i) - '0';
+            decimal += digit * Math.pow(2, power);
+            power++;
+        }
+        return decimal;
+    }
+
+
+    /**
+     * 将十进制数转换为二进制数
+     *
+     * @param decimal 十进制数
+     * @param n 二进制数的位数
+     * @return 二进制表示的字符串
+     */
+    public static String decimalToBinary(int decimal, int n) {
+        StringBuilder binary = new StringBuilder();
+        while (decimal > 0) {
+            int remainder = decimal % 2;
+            binary.insert(0, remainder);
+            decimal /= 2;
+        }
+        while (binary.length() < n) {
+            binary.insert(0, "0");
+        }
+        return binary.toString();
+    }
+
+    public static long binaryToLongDecimal(String binary) {
+        long decimal = 0;
+        int power = 0;
+        for (int i = binary.length() - 1; i >= 0; i--) {
+            int digit = binary.charAt(i) - '0';
+            decimal += (long) (digit * Math.pow(2, power));
+            power++;
+        }
+        return decimal;
+    }
+
+    public static String longDecimalToBinary(long decimal, int n) {
+        StringBuilder binary = new StringBuilder();
+        while (decimal > 0) {
+            long remainder = decimal % 2;
+            binary.insert(0, remainder);
+            decimal /= 2;
+        }
+        while (binary.length() < n) {
+            binary.insert(0, "0");
+        }
+        return binary.toString();
+    }
+
+    public static boolean isZeroBitSet(long decimal, int n, int i) {
+        String binary = longDecimalToBinary(decimal, n);
+        char bit = binary.charAt(i);
+        return bit == '0';
+    }
+
+    public static boolean isOneBitSet(long decimal, int n, int i) {
+        String binary = longDecimalToBinary(decimal, n);
+        char bit = binary.charAt(i);
+        return bit == '1';
+    }
+
+
+
     public static void main(String[] args) {
         Double d1 = 7000000.0;
         System.out.println(cm3ToM3(d1));

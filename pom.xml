@@ -40,15 +40,18 @@
 		<waybill.cache.version>1.0.3</waybill.cache.version>
 		<business-sdk.version>1.1.6-SNAPSHOT</business-sdk.version>
 		<dms-component-sdk.version>1.0.2-SNAPSHOT</dms-component-sdk.version>
-        <jy-basic-api.version>1.5.4-SNAPSHOT</jy-basic-api.version>
+        <jy-basic-api.version>1.5.8-SNAPSHOT</jy-basic-api.version>
         <jy-basic-common.version>1.5.3-SNAPSHOT</jy-basic-common.version>
         <dms-java-utils-sdk.version>1.0.0-SNAPSHOT</dms-java-utils-sdk.version>
-		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
+		<workbench.services.sdk.version>1.3.3-SNAPSHOT</workbench.services.sdk.version>
         <jy.realtime.sdk.version>1.0.11-SNAPSHOT</jy.realtime.sdk.version>
         <jy_msp_api_version>1.0-jdk7-SNAPSHOT</jy_msp_api_version>
         <shorturl.rpc.version>0.0.6-SNAPSHOT</shorturl.rpc.version>
         <jd.omdm.client.version>0.2.7-SNAPSHOT</jd.omdm.client.version>
         <cloud.print.version>1.0.13-SNAPSHOT</cloud.print.version>
+		<jdl-eca-api.version>1.1.4.4-SNAPSHOT</jdl-eca-api.version>
+
+
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
@@ -250,7 +253,12 @@
 				<artifactId>business-sdk</artifactId>
 				<version>${business-sdk.version}</version>
 			</dependency>
-
+			<!-- 商家系统 -->
+			<dependency>
+				<groupId>cn.jdl.express</groupId>
+				<artifactId>jdl-eca-api</artifactId>
+				<version>${jdl-eca-api.version}</version>
+			</dependency>
 			<!-- 提示语系统 -->
 			<dependency>
 				<artifactId>dms-component-sdk</artifactId>
@@ -345,6 +353,12 @@
 				<groupId>com.jdl.basic</groupId>
 				<artifactId>jy-basic-api</artifactId>
 				<version>${jy-basic-api.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.junit.jupiter</groupId>
+						<artifactId>junit-jupiter</artifactId>
+					</exclusion>
+				</exclusions>
             </dependency>
             <dependency>
                 <groupId>com.jdl.basic</groupId>
