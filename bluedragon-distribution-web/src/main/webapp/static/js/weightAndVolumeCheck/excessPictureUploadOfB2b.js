@@ -99,7 +99,7 @@ $(function () {
         var upSuccess6 = '#upSuccess6';
         var upFail6 = '#upFail6';
         var upIsSuccessFlage6 = '#upIsSuccessFlage6';
-        uploadVideoNew($('#pictureField6').val().trim(),$('#fileField6')[0].files[0],upSuccess6,upFail6,upIsSuccessFlage6,6);
+        uploadVideo($('#pictureField6').val().trim(),$('#fileField6')[0].files[0],upSuccess6,upFail6,upIsSuccessFlage6,6);
     });
 
     // 图片上传失败两次后，第三次可强制上传
@@ -347,6 +347,7 @@ $(function () {
                         return;
                     }
                     $('#uploadVideoUrl').val(data.data.uploadUrl);
+                    $("#videoUploadForm").attr("action", data.data.uploadUrl);
                     $('#playUrl').val(data.data.playUrl);
                     $('#videoId').val(data.data.videoId);
                 } else {
@@ -363,27 +364,29 @@ $(function () {
             Jd.alert('获取视频上传地址失败');
             return;
         }
-        $.ajax({
-            url : uploadAddress,
-            type : 'POST',
-            processData : false,
-            contentType : false,
-            async : false,
-            success : function(data) {
-                if (data && data.code === 200) {
-                    $(param3).css("display","block");
-                    $(param4).css("display","none");
-                    $(param5).val(1);
-                    setPicUrl(picType, $('#playUrl').val());
-                } else {
-                    $(param4).css("display","block");
-                    $(param3).css("display","none");
-                    $(param5).val(0);
-                    Jd.alert(data.message);
-                }
-            }
-        })
+        $("#videoUploadForm").submit();
+        console.log('视频上传表单已提交');
     }
+
+    $("#videoCallback").load(function(){
+        console.log('触发视频上传回调事件');
+        let str = $("#videoCallback").contents().text();
+        console.log('videoCallback=' + str);
+        let result = JSON.parse(str);
+        console.log('result=' + result);
+        console.log('result.code=' + result.code + 'result.message=' + result.message);
+        if (result.code === 200) {
+            $('#upSuccess6').css("display","block");
+            $('#upFail6').css("display","none");
+            $('#upIsSuccessFlage6').val(1);
+            setPicUrl(picType, $('#playUrl').val());
+        } else {
+            $('#upSuccess6').css("display","none");
+            $('#upFail6').css("display","block");
+            $('#upIsSuccessFlage6').val(0);
+            Jd.alert(data.message);
+        }
+    });
 
     function setPicUrl(picType, picUrl) {
         if(picType === 1 || picType === 0){
@@ -454,22 +457,43 @@ $(function () {
             //全部上传成功，显示记录
             var index = parent.layer.getFrameIndex('upExcessPicture');
             parent.layer.close(index);
+        } else {
+            Jd.alert('请先上传超标图片或视频!');
         }
 
     });
 
     //返回
     $('#btn_return').click(function () {
-        if($('#upIsSuccessFlage1').val()==1
-            && $('#upIsSuccessFlage2').val()==1
-            && $('#upIsSuccessFlage3').val()==1
-            && $('#upIsSuccessFlage4').val()==1
+        let lessOneFlag = false;
+        if($('#upIsSuccessFlage1').val()==1 || $('#upIsSuccessFlage2').val()==1
+            || $('#upIsSuccessFlage3').val()==1 || $('#upIsSuccessFlage4').val()==1
+            || $('#upIsSuccessFlage5').val()==1){
+            lessOneFlag = true;
+        }
+        if($('#upIsSuccessFlage1').val()==1 && $('#upIsSuccessFlage2').val()==1
+            && $('#upIsSuccessFlage3').val()==1 && $('#upIsSuccessFlage4').val()==1
             && $('#upIsSuccessFlage5').val()==1){
+            // 如果视频也上传了，设置父页面图片数量为：6
+            if ($('#upIsSuccessFlage6').val()==1) {
+                parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 6;
+            } else {
+                // 设置父页面图片数量为：5
+                parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 5;
+            }
             //全部上传成功，显示记录
             var index = parent.layer.getFrameIndex('upExcessPicture');
             parent.layer.close(index);
-        }else {
-            Jd.alert('全部上传成功后再返回!');
+        } else if (lessOneFlag) {
+            Jd.alert('请5张图片全部上传成功后再返回!');
+        } else if ($('#upIsSuccessFlage6').val()==1) {
+            // 如果只上传视频，设置父页面图片数量为：1
+            parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 1;
+            //全部上传成功，显示记录
+            var index = parent.layer.getFrameIndex('upExcessPicture');
+            parent.layer.close(index);
+        } else {
+            Jd.alert('请先上传超标图片或视频再返回!');
         }
     });
 
