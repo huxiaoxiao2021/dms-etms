@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
@@ -60,6 +61,8 @@ import com.jd.etms.api.resource.resp.AirLineResp;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.job.SendBoxAgg;
 import com.jdl.jy.realtime.model.es.job.SendPackageEsDto;
@@ -1310,7 +1313,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         res.setAirType(entity.getAirType());
         res.setNextSiteId(entity.getNextSiteId());
         res.setNextSiteName(entity.getNextSiteName());
-
+        if(!Objects.isNull(entity.getTakeOffTime())) {
+            res.setTakeOffTime(entity.getTakeOffTime().getTime());
+        }
         return res;
     }
 
@@ -1789,5 +1794,37 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         resData.setTotalVolume(totalVolume);
         resData.setTotalItemNum(totalItemNum);
         return res;
+    }
+
+
+
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.sendTaskDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public InvokeResult<SendTaskInfoRes> sendTaskDetail(SendTaskInfoReq request) {
+        InvokeResult<SendTaskInfoRes> invokeResult = new InvokeResult<>();
+        if (request.getCurrentOperate() == null
+                || request.getCurrentOperate().getSiteCode() <= 0
+                || org.apache.commons.lang3.StringUtils.isBlank(request.getSendVehicleBizId())) {
+            invokeResult.parameterError();
+            return invokeResult;
+        }
+
+        SendTaskInfoRes sendTaskInfo = new SendTaskInfoRes();
+        invokeResult.setData(sendTaskInfo);
+
+        // 查询主任务数据
+        JyBizTaskSendVehicleEntity sendVehicleEntity = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
+        if (sendVehicleEntity == null) {
+            invokeResult.hintMessage("发货任务不存在！");
+            return invokeResult;
+        }
+
+        // 查询批次
+        final List<String> sendCodes = jyVehicleSendRelationService.querySendCodesByVehicleBizId(request.getSendVehicleBizId());
+        if (CollectionUtils.isNotEmpty(sendCodes)) {
+            sendTaskInfo.setBatchCodes(sendCodes);
+        }
+
+        return invokeResult;
     }
 }
