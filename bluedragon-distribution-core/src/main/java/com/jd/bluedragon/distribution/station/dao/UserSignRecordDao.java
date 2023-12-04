@@ -208,4 +208,7 @@ public interface UserSignRecordDao {
 
 
 	UserSignRecord queryLastUnSignOutRecordIgnoreCase(List<String> list);
+
+	UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query);
+	
 }
