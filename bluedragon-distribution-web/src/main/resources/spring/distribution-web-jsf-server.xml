@@ -658,5 +658,12 @@
                   ref="reassignWaybillJsfService" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 设备抽检申诉相关JSF接口 -->
+    <jsf:provider id="jsfSpotCheckAppealService"
+                  interface="com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="spotCheckAppealJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 
 </beans>
