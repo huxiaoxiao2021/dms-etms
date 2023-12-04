@@ -78,12 +78,14 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 	public int autoCancelTaskForGridDelete(JyBizTaskWorkGridManagerBatchUpdate cancelData) {
 		return this.getSqlSession().update(NAMESPACE + ".autoCancelTaskForGridDelete", cancelData);
 	}
-	public Integer selectHandlerTodayTaskCountByTaskBizType(Integer siteCode, Date startTime, String handlerErp, List<String> taskCodeList){
+	public Integer selectHandlerTodayTaskCountByTaskBizType(Integer siteCode, Date startTime, String handlerErp,
+															List<String> taskCodeList, String taskRefGridKey){
 		Map<String, Object> param = new HashMap<>();
 		param.put("siteCode", siteCode);
 		param.put("startTime", startTime);
 		param.put("handlerErp", handlerErp);
 		param.put("taskCodeList", taskCodeList);
+		param.put("taskRefGridKey", taskRefGridKey);
 		return this.getSqlSession().selectOne(NAMESPACE + ".selectHandlerTodayTaskCountByTaskBizType", param);
 	}
 
