@@ -768,7 +768,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         if(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){
             // 人工抽检（只有运单维度，无包裹维度）
             List<String> picUrlList = Arrays.asList(spotCheckDto.getPictureAddress().split(Constants.SEPARATOR_SEMICOLON));
-            if(picUrlList.size() < 5){
+            if(picUrlList.size() < 2){
                 logger.warn("运单:{}的抽检图片未集齐!", spotCheckDto.getWaybillCode());
                 return picList;
             }
