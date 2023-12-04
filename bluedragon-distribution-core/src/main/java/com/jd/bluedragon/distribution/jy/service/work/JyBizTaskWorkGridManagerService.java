@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTransferData;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery;
+import com.jdl.basic.api.domain.workStation.WorkGrid;
 
 /**
  * @ClassName: JyBizTaskWorkGridManagerService
