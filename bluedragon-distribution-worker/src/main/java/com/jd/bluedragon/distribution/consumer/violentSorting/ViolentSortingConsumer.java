@@ -6,6 +6,8 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.automatic.DeviceConfigInfoJsfManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
+import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
 import com.jd.bluedragon.distribution.sdk.modules.andon.enums.AndonEventSourceEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
@@ -59,6 +61,8 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
 
     @Autowired
     private DeviceConfigInfoJsfManager deviceConfigInfoJsfService;
+    @Autowired
+    private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
 
 
     @Autowired
@@ -128,6 +132,14 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
                     return;
                 }
             }
+            // 根据网格businesskey查网格,补全dto内容
+
+            Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridBusinessKey);
+            if(workGridResult != null && workGridResult.getData() != null){
+                jyBizTaskWorkGridManagerService.generateViolentSortingTask(violentSortingDto, workGridResult.getData());
+            }
+            
+            
             // 根据网格查出设备编码
             List<DeviceGridDto> data = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(gridBusinessKey, null);
 
@@ -149,9 +161,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
             String andonMachineCode = allAndonMachine.get(0);
             violentSortingDto.setAndonMachineCode(andonMachineCode);
 
-            // 根据网格businesskey查网格,补全dto内容
-
-            Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridBusinessKey);
+           
             if (workGridResult.isSuccess()) {
                 WorkGrid grid = workGridResult.getData();
 
