@@ -162,6 +162,13 @@ public interface WaybillService {
      */
     InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest);
 
+
+    /**
+     * 现场预分拣拦截校验 增加审批使用
+     * @param waybillForPreSortOnSiteRequest
+     * @return
+     */
+    InvokeResult<String> checkWaybillForPreSortOnSiteForApprove(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest);
     /**
      * 判断满足文件类型的拦截条件
      * @param subType
