@@ -248,7 +248,7 @@ public class DmsConstants {
     /**
      * 工种类型
      */
-    public static final String JOB_TYPE_REGEX = "^[1-7]$";
+    public static final String JOB_TYPE_REGEX = "^[1-8]$";
     /**
      * 身份证正则
      */
