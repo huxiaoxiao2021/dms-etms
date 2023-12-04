@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.spotcheck.dao.SpotCheckAppealDao" >
+
+	<resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="biz_id" property="bizId" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_time" property="startTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="device_code" property="deviceCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_province_code" property="startProvinceCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_province_name" property="startProvinceName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_hub_code" property="startHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_hub_name" property="startHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_site_code" property="startSiteCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_site_name" property="startSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_erp" property="startErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_type" property="dutyType" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="duty_province_code" property="dutyProvinceCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_province_name" property="dutyProvinceName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_hub_code" property="dutyHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_hub_name" property="dutyHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_war_code" property="dutyWarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_war_name" property="dutyWarName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_area_code" property="dutyAreaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_area_name" property="dutyAreaName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_site_code" property="dutySiteCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_site_name" property="dutySiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="duty_erp" property="dutyErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="confirm_weight" property="confirmWeight" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="confirm_volume" property="confirmVolume" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="re_confirm_weight" property="reConfirmWeight" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="re_confirm_volume" property="reConfirmVolume" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="diff_weight" property="diffWeight" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="stander_diff" property="standerDiff" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="before_weight_status" property="beforeWeightStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="before_volume_status" property="beforeVolumeStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="after_weight_status" property="afterWeightStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="after_volume_status" property="afterVolumeStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="appeal_weight_status" property="appealWeightStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="appeal_volume_status" property="appealVolumeStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="reject_reason" property="rejectReason" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="confirm_status" property="confirmStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="auto_status" property="autoStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,biz_id,waybill_code,start_time,device_code,start_province_code,start_province_name,start_hub_code,start_hub_name,start_site_code,start_site_name,
+		start_erp,duty_type,duty_province_code,duty_province_name,duty_hub_code,duty_hub_name,duty_war_code,duty_war_name,duty_area_code,duty_area_name,duty_site_code,duty_site_name,duty_erp,
+		confirm_weight,confirm_volume,re_confirm_weight,re_confirm_volume,diff_weight,stander_diff,before_weight_status,before_volume_status,after_weight_status,
+		after_volume_status,appeal_weight_status,appeal_volume_status,reject_reason,create_time,update_time,update_user_erp,confirm_status,auto_status,yn,ts
+	</sql>
+
+
+	<insert id="insertRecord" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into spot_check_appeal
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="bizId != null and bizId != ''" >
+					biz_id,
+				</if>
+				<if test="waybillCode != null and waybillCode != ''" >
+					waybill_code,
+				</if>
+				<if test="startTime != null" >
+					start_time,
+				</if>
+				<if test="deviceCode != null and deviceCode != ''" >
+					device_code,
+				</if>
+				<if test="startProvinceCode != null and startProvinceCode != ''" >
+					start_province_code,
+				</if>
+				<if test="startProvinceName != null and startProvinceName != ''" >
+					start_province_name,
+				</if>
+				<if test="startHubCode != null and startHubCode != ''" >
+					start_hub_code,
+				</if>
+				<if test="startHubName != null and startHubName != ''" >
+					start_hub_name,
+				</if>
+				<if test="startSiteCode != null and startSiteCode != ''" >
+					start_site_code,
+				</if>
+				<if test="startSiteName != null and startSiteName != ''" >
+					start_site_name,
+				</if>
+				<if test="startErp != null and startErp != ''" >
+					start_erp,
+				</if>
+				<if test="dutyType != null" >
+					duty_type,
+				</if>
+				<if test="dutyProvinceCode != null and dutyProvinceCode != ''" >
+					duty_province_code,
+				</if>
+				<if test="dutyProvinceName != null and dutyProvinceName != ''" >
+					duty_province_name,
+				</if>
+				<if test="dutyHubCode != null and dutyHubCode != ''" >
+					duty_hub_code,
+				</if>
+				<if test="dutyHubName != null and dutyHubName != ''" >
+					duty_hub_name,
+				</if>
+				<if test="dutyWarCode != null and dutyWarCode != ''" >
+					duty_war_code,
+				</if>
+				<if test="dutyWarName != null and dutyWarName != ''" >
+					duty_war_name,
+				</if>
+				<if test="dutyAreaCode != null and dutyAreaCode != ''" >
+					duty_area_code,
+				</if>
+				<if test="dutyAreaName != null and dutyAreaName != ''" >
+					duty_area_name,
+				</if>
+				<if test="dutySiteCode != null and dutySiteCode != ''" >
+					duty_site_code,
+				</if>
+				<if test="dutySiteName != null and dutySiteName != ''" >
+					duty_site_name,
+				</if>
+				<if test="dutyErp != null and dutyErp != ''" >
+					duty_erp,
+				</if>
+				<if test="confirmWeight != null and confirmWeight != ''" >
+					confirm_weight,
+				</if>
+				<if test="confirmVolume != null and confirmVolume != ''" >
+					confirm_volume,
+				</if>
+				<if test="reConfirmWeight != null and reConfirmWeight != ''" >
+					re_confirm_weight,
+				</if>
+				<if test="reConfirmVolume != null and reConfirmVolume != ''" >
+					re_confirm_volume,
+				</if>
+				<if test="diffWeight != null and diffWeight != ''" >
+					diff_weight,
+				</if>
+				<if test="standerDiff != null and standerDiff != ''" >
+					stander_diff,
+				</if>
+				<if test="beforeWeightStatus != null" >
+					before_weight_status,
+				</if>
+				<if test="beforeVolumeStatus != null" >
+					before_volume_status,
+				</if>
+				<if test="afterWeightStatus != null" >
+					after_weight_status,
+				</if>
+				<if test="afterVolumeStatus != null" >
+					after_volume_status,
+				</if>
+				<if test="appealWeightStatus != null" >
+					appeal_weight_status,
+				</if>
+				<if test="appealVolumeStatus != null" >
+					appeal_volume_status,
+				</if>
+				<if test="rejectReason != null and rejectReason != ''" >
+					reject_reason,
+				</if>
+				<if test="updateUserErp != null and updateUserErp != ''" >
+					update_user_erp,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="updateTime != null" >
+					update_time,
+				</if>
+				<if test="confirmStatus != null">
+					confirm_status,
+				</if>
+				<if test="autoStatus != null">
+					auto_status,
+				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="bizId != null and bizId != ''" >
+					#{bizId,jdbcType=VARCHAR},
+				</if>
+				<if test="waybillCode != null and waybillCode != ''" >
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="startTime != null" >
+					#{startTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="deviceCode != null and deviceCode != ''" >
+					#{deviceCode,jdbcType=VARCHAR},
+				</if>
+				<if test="startProvinceCode != null and startProvinceCode != ''" >
+					#{startProvinceCode,jdbcType=VARCHAR},
+				</if>
+				<if test="startProvinceName != null and startProvinceName != ''" >
+					#{startProvinceName,jdbcType=VARCHAR},
+				</if>
+				<if test="startHubCode != null and startHubCode != ''" >
+					#{startHubCode,jdbcType=VARCHAR},
+				</if>
+				<if test="startHubName != null and startHubName != ''" >
+					#{startHubName,jdbcType=VARCHAR},
+				</if>
+				<if test="startSiteCode != null and startSiteCode != ''" >
+					#{startSiteCode,jdbcType=VARCHAR},
+				</if>
+				<if test="startSiteName != null and startSiteName != ''" >
+					#{startSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="startErp != null and startErp != ''" >
+					#{startErp,jdbcType=VARCHAR},
+				</if>
+				<if test="dutyType != null" >
+					#{dutyType,jdbcType=TINYINT},
+				</if>
+				<if test="dutyProvinceCode != null and dutyProvinceCode != ''" >
+					#{dutyProvinceCode,jdbcType=VARCHAR},
+				</if>
+				<if test="dutyProvinceName != null and dutyProvinceName != ''" >
+					#{dutyProvinceName,jdbcType=VARCHAR},
+				</if>
+				<if test="dutyHubCode != null and dutyHubCode != ''" >
+					#{dutyHubCode,jdbcType=VARCHAR},
+				</if>
+				<if test="dutyHubName != null and dutyHubName != ''" >
+					#{dutyHubName,jdbcType=VARCHAR},
+				</if>
+				<if test="dutyWarCode != null and dutyWarCode != ''" >
+					#{dutyWarCode,jdbcType=VARCHAR},
+				</if>
+				<if test="dutyWarName != null and dutyWarName != ''" >
+					#{dutyWarName,jdbcType=VARCHAR},
+				</if>
+				<if test="dutyAreaCode != null and dutyAreaCode != ''" >
+					#{dutyAreaCode,jdbcType=VARCHAR},
+				</if>
+				<if test="dutyAreaName != null and dutyAreaName != ''" >
+					#{dutyAreaName,jdbcType=VARCHAR},
+				</if>
+				<if test="dutySiteCode != null and dutySiteCode != ''" >
+					#{dutySiteCode,jdbcType=VARCHAR},
+				</if>
+				<if test="dutySiteName != null and dutySiteName != ''" >
+					#{dutySiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="dutyErp != null and dutyErp != ''" >
+					#{dutyErp,jdbcType=VARCHAR},
+				</if>
+				<if test="confirmWeight != null and confirmWeight != ''">
+					#{confirmWeight,jdbcType=VARCHAR},
+				</if>
+				<if test="confirmVolume != null and confirmVolume != ''">
+					#{confirmVolume,jdbcType=VARCHAR},
+				</if>
+				<if test="reConfirmWeight != null and reConfirmWeight != ''">
+					#{reConfirmWeight,jdbcType=VARCHAR},
+				</if>
+				<if test="reConfirmVolume != null and reConfirmVolume != ''">
+					#{reConfirmVolume,jdbcType=VARCHAR},
+				</if>
+				<if test="diffWeight != null and diffWeight != ''">
+					#{diffWeight,jdbcType=VARCHAR},
+				</if>
+				<if test="standerDiff != null and standerDiff != ''">
+					#{standerDiff,jdbcType=VARCHAR},
+				</if>
+				<if test="beforeWeightStatus != null">
+					#{beforeWeightStatus,jdbcType=TINYINT},
+				</if>
+				<if test="beforeVolumeStatus != null">
+					#{beforeVolumeStatus,jdbcType=TINYINT},
+				</if>
+				<if test="afterWeightStatus != null">
+					#{afterWeightStatus,jdbcType=TINYINT},
+				</if>
+				<if test="afterVolumeStatus != null">
+					#{afterVolumeStatus,jdbcType=TINYINT},
+				</if>
+				<if test="appealWeightStatus != null">
+					#{appealWeightStatus,jdbcType=TINYINT},
+				</if>
+				<if test="appealVolumeStatus != null">
+					#{appealVolumeStatus,jdbcType=TINYINT},
+				</if>
+				<if test="rejectReason != null and rejectReason != ''" >
+					#{rejectReason,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserErp != null and updateUserErp != ''" >
+					#{updateUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="confirmStatus != null" >
+					#{confirmStatus,jdbcType=TINYINT},
+				</if>
+				<if test="autoStatus != null" >
+					#{autoStatus,jdbcType=TINYINT},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="updateById" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity">
+		update spot_check_appeal
+			<set>
+				<if test="updateUserErp != null and updateUserErp != ''" >
+					update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="updateTime != null" >
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="confirmStatus != null">
+					confirm_status = #{confirmStatus,jdbcType=TINYINT},
+				</if>
+				<if test="rejectReason != null and rejectReason != ''">
+					reject_reason = #{rejectReason,jdbcType=VARCHAR},
+				</if>
+			</set>
+		where confirm_status = 0 and id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="batchUpdateByIds" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity">
+		update spot_check_appeal
+		<set>
+			<if test="updateUserErp != null and updateUserErp != ''" >
+				update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="confirmStatus != null">
+				confirm_status = #{confirmStatus,jdbcType=TINYINT},
+			</if>
+			<if test="autoStatus != null">
+				auto_status = #{autoStatus,jdbcType=TINYINT},
+			</if>
+			<if test="rejectReason != null and rejectReason != ''">
+				reject_reason = #{rejectReason,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where confirm_status = 0 and id in
+		<foreach collection="idList" item="item" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from spot_check_appeal
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByBizId" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from spot_check_appeal
+		where biz_id = #{bizId,jdbcType=VARCHAR}
+	</select>
+
+	<select id="batchFindByIds" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from spot_check_appeal
+		where id in
+		<foreach collection="idList" item="item" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</select>
+
+	<select id="findListByNotConfirm" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultType="java.lang.Long">
+		select
+		  id
+		from spot_check_appeal
+		where confirm_status = 0 and yn = 1
+		  and  <![CDATA[ create_time < #{createTime,jdbcType=TIMESTAMP} ]]>
+        limit #{pageSize,jdbcType=INTEGER}
+	</select>
+
+    <select id="findByCondition" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from spot_check_appeal
+        <where>
+			<if test="waybillCode != null and waybillCode != ''">
+				and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+			<if test="spotStartTime != null and spotEndTime != null">
+				and start_time between #{spotStartTime,jdbcType=TIMESTAMP} and #{spotEndTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="deviceCode != null and deviceCode != ''">
+				and device_code = #{deviceCode,jdbcType=VARCHAR}
+			</if>
+            <if test="startProvinceCode != null and startProvinceCode != ''">
+                and start_province_code = #{startProvinceCode,jdbcType=VARCHAR}
+            </if>
+			<if test="startHubCode != null and startHubCode != ''">
+				and start_hub_code = #{startHubCode,jdbcType=VARCHAR}
+			</if>
+			<if test="startSiteCode != null and startSiteCode != ''">
+				and start_site_code = #{startSiteCode,jdbcType=VARCHAR}
+			</if>
+			<if test="dutyProvinceCode != null and dutyProvinceCode != ''">
+				and duty_province_code = #{dutyProvinceCode,jdbcType=VARCHAR}
+			</if>
+			<if test="dutyHubCode != null and dutyHubCode != ''">
+				and duty_hub_code = #{dutyHubCode,jdbcType=VARCHAR}
+			</if>
+			<if test="dutySiteCode != null and dutySiteCode != ''">
+				and duty_site_code = #{dutySiteCode,jdbcType=VARCHAR}
+			</if>
+            <if test="dutyErp != null and dutyErp != ''">
+                and duty_erp = #{dutyErp,jdbcType=VARCHAR}
+            </if>
+            <if test="confirmStatus != null">
+                and confirm_status = #{confirmStatus,jdbcType=INTEGER}
+            </if>
+            limit #{offset,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </where>
+    </select>
+
+    <select id="countByCondition" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultType="int">
+        select
+        count(*)
+        from spot_check_appeal
+        <where>
+			<if test="waybillCode != null and waybillCode != ''">
+				and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+			<if test="spotStartTime != null and spotEndTime != null">
+				and start_time between #{spotStartTime,jdbcType=TIMESTAMP} and #{spotEndTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="deviceCode != null and deviceCode != ''">
+				and device_code = #{deviceCode,jdbcType=VARCHAR}
+			</if>
+			<if test="startProvinceCode != null and startProvinceCode != ''">
+				and start_province_code = #{startProvinceCode,jdbcType=VARCHAR}
+			</if>
+			<if test="startHubCode != null and startHubCode != ''">
+				and start_hub_code = #{startHubCode,jdbcType=VARCHAR}
+			</if>
+			<if test="startSiteCode != null and startSiteCode != ''">
+				and start_site_code = #{startSiteCode,jdbcType=VARCHAR}
+			</if>
+			<if test="dutyProvinceCode != null and dutyProvinceCode != ''">
+				and duty_province_code = #{dutyProvinceCode,jdbcType=VARCHAR}
+			</if>
+			<if test="dutyHubCode != null and dutyHubCode != ''">
+				and duty_hub_code = #{dutyHubCode,jdbcType=VARCHAR}
+			</if>
+			<if test="dutySiteCode != null and dutySiteCode != ''">
+				and duty_site_code = #{dutySiteCode,jdbcType=VARCHAR}
+			</if>
+			<if test="dutyErp != null and dutyErp != ''">
+				and duty_erp = #{dutyErp,jdbcType=VARCHAR}
+			</if>
+			<if test="confirmStatus != null">
+				and confirm_status = #{confirmStatus,jdbcType=INTEGER}
+			</if>
+        </where>
+    </select>
+
+</mapper>

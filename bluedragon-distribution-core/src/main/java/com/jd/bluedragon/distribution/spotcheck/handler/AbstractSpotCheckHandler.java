@@ -263,7 +263,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         // 下发超标数据
         spotCheckDealService.spotCheckIssue(summaryDto, spotCheckDto.getVersion());
         // 抽检全程跟踪
-        spotCheckDealService.sendWaybillTrace(spotCheckContext);
+        // spotCheckDealService.sendWaybillTrace(spotCheckContext);
     }
 
     protected WeightVolumeSpotCheckDto assembleSummaryReform(SpotCheckContext spotCheckContext) {
@@ -564,7 +564,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                     }
                 });
         for (String key : picMap.keySet()) {
-            sortMap.put(key, picMap.get(key));
+            String picUrl = picMap.get(key);
+            if (StringUtils.isNotBlank(picUrl)) {
+                sortMap.put(key, picUrl);
+            }
         }
         return StringUtils.join(sortMap.values(), Constants.SEPARATOR_SEMICOLON);
     }
