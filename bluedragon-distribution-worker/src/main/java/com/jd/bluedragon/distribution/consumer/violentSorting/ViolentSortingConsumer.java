@@ -90,8 +90,6 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
 
     @Autowired
     private HrUserManager hrUserManager;
-    @Autowired
-    private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
 
     @Override
     public void consume(Message message) throws Exception {
