@@ -143,6 +143,7 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
         log.info(" matchSiteType -{}",matchSiteType);
         if(matchSiteType){
             Result<JyUserDto> jyUserDtoResult = jyUserManager.queryByUserErp(userERP);
+            log.info("根据erp 获取人员信息出参-{}",JSON.toJSONString(jyUserDtoResult));
             JyUserDto data = jyUserDtoResult.getData();
             if(data == null){
                 //操作人ERP不在人资花名册里面
