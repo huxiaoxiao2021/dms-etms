@@ -209,6 +209,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Autowired
   private NewSealVehicleService newsealVehicleService;
 
+  @Autowired
+  @Qualifier("jyComboardTaskFirstSaveProducer")
+  private DefaultJMQProducer jyComboardTaskFirstSaveProducer;
+
   private static final Integer BOX_TYPE = 1;
 
   private static final Integer PACKAGE_TYPE = 2;
@@ -1063,6 +1067,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           .listSendFlowByTemplateCodeOrEndSiteCode(entity);
       // 获取目的地
       List<Integer> endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
+      if (CollectionUtils.isEmpty(endSiteCodeList)) {
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+      }
       List<JyBizTaskComboardEntity> boardInProcess = jyBizTaskComboardService
               .queryInProcessBoardListBySendFlowList(startSiteId, endSiteCodeList,request.getGroupCode());
       if (CollectionUtils.isEmpty(boardInProcess)){
@@ -1212,6 +1219,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         record.setCreateTime(request.getCurrentOperate().getOperateTime());
         record.setUnsealTime(request.getCurrentOperate().getOperateTime());
         jyBizTaskComboardService.save(record);
+        // 板创建成功后，发送延时消息，处理两小时没有操作过组板的板号
+        pushDelayDeleteBoardMQ(record);
         request.setBizId(record.getBizId());
       }else{
         request.setBizId(entity.getBizId());
@@ -1235,6 +1244,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
+  private void pushDelayDeleteBoardMQ(JyBizTaskComboardEntity record) {
+    try {
+      jyComboardTaskFirstSaveProducer.send(record.getBoardCode(), JsonHelper.toJson(record));
+    } catch (Exception e) {
+      log.info("首次保存组板任务发送jmq消息异常{}", JsonHelper.toJson(record));
+    }
+  }
+
   /**
    * 执行租板
    */
@@ -1249,6 +1266,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
       condition.setBoardCode(request.getBoardCode());
       JyBizTaskComboardEntity entity = jyBizTaskComboardService.queryBizTaskByBoardCode(condition);
+      
+      if (ObjectHelper.isEmpty(entity)) {
+        throw new JyBizException("该板以被清理，请重新扫描！");
+      }
+      
       if (!entity.getBulkFlag() && entity.getHaveScanCount() < dmsConfigManager.getPropertyConfig().getJyComboardCountLimit()) {
         Date now = new Date();
         if (entity.getHaveScanCount()<= Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {
@@ -1506,6 +1528,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         JyBizTaskComboardEntity record = assembleJyBizTaskComboardParam(request);
         //空板是不确定-是大宗还是非大宗，组板扫描成功后再确定
         jyBizTaskComboardService.save(record);
+        // 板创建成功后，发送延时消息，删除两小时没有操作过组板的板号
+        pushDelayDeleteBoardMQ(record);
       }
     } finally {
       if (dmsConfigManager.getPropertyConfig().getCreateBoardBySendFlowSwitch()){
@@ -2515,6 +2539,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       batchUpdateCancelReq.setCancelFlag(Boolean.TRUE);
       query.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
       JyBizTaskComboardEntity comboardEntity = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
+
+      if (comboardEntity == null) {
+        return new InvokeResult<>(RESULT_PARAMETER_ERROR_CODE, "板号:" + request.getBoardCode() +"已被删除！");
+      }
+
       //如果已封车的批次不触发取消组板发货
       if (checkSealTime(comboardEntity) && newsealVehicleService.newCheckSendCodeSealed(comboardEntity.getSendCode(), new StringBuffer())) {
         return new InvokeResult<>(BOARD_HAVE_SEAL_CAR_CODE, BOARD_HAVE_SEAL_CAR_MESSAGE);
@@ -2573,6 +2602,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
                 barCodeList.add(dto.getBarCode());
               }
             }
+            // 全部取消，发送延时删除板消息
+            pushDelayDeleteBoardMQ(comboardEntity);
           } else {
             // 包裹号或箱号
             for (ComboardDetailDto comboardDetailDto : cancelList) {

@@ -138,6 +138,26 @@ public class Constants {
       */
     public static final Integer SITE_SUBTYPE_THIRD = 6410;
 
+    /**
+     * 退货组
+     */
+    public static final Integer SITE_RETURN_GROUP = 12354;
+
+    /**
+     * 请求应用程序类型
+     */
+    public static final Integer PROGRAM_TYPE = 60;
+
+    /**
+     * 业务类型
+     */
+    public static final Integer BUSINESS_TYPE = 1005;
+
+    /**
+     * 业务操作类型
+     */
+    public static final Integer OPERATE_TYPE = 100503;
+
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
     public static final int WAREHOUSE_HANDOVER_OPERATE_TYPE = 2;
@@ -280,6 +300,12 @@ public class Constants {
 
     /* 站点operateState：2为线下运营 */
     public static final Integer BASE_SITE_OPERATESTATE = 2;
+
+    /**
+     * 运营状态 operate_state 0关闭 1线上运营 2线下运营
+     */
+    public static final Integer BASE_SITE_OPERATESTATE_1 = 1;
+
 
     /**
      * 承运商类型 1:司机 0:承运商（三方快递，即站点表中类型为16的数据）
@@ -867,6 +893,11 @@ public class Constants {
     public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
+
+    /**
+     * 解密虚拟手机号最长等待 时间天
+     */
+    public static final String SYS_CONFIG_ZJ_DECODE_MOBILE_VIRTUAL_AFTER_DAYS= "decode.mobile.virtual.after.days";
     /**
      * print titles
      */
@@ -889,7 +920,7 @@ public class Constants {
     public static final String SYS_CONFIG_GLOBAL_FUNC_USAGE_CONTROL= "global_func_usage_control_";
 
     /**
-     * 功能可用性配置
+     * 功能可用性配置黑名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
 
@@ -899,9 +930,26 @@ public class Constants {
     public static final String SYS_CONFIG_HIDE_PHONE_6Char= "hide_phone_6char";
 
     /**
-     * 安卓菜单可用性配置，按场地id配置
+     * 功能可用性配置黑名单，按人员ERP配置
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_BY_ERP = "func_usage_by_erp_";
+
+    /**
+     * 功能可用性配置黑名单，按场地id配置
      */
     public static final String SYS_CONFIG_FUNC_USAGE_BY_SITE_CODE = "func_usage_by_site_code_";
+    /**
+     * 功能可用性配置白名单，按场地类型
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_TYPE = "func_usage_white_by_site_type_";
+    /**
+     * 功能可用性配置白名单，按场地名单
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_CODE = "func_usage_white_by_site_code_";
+    /**
+     * 功能可用性配置白名单，按人员erp列表
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_ERP = "func_usage_white_by_erp_";
     /**
      * 是否启用中台创建箱号开关key
      */
@@ -1002,11 +1050,11 @@ public class Constants {
     /**
      * UMP监控应用名-dms.etms
      */
-    public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
+    public static final String UMP_APP_NAME_DMSWEB= "dms-etms";
     /**
      * UMP监控应用名-bluedragon-distribution-worker
      */
-    public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
+    public static final String UMP_APP_NAME_DMSWORKER= "dms-etms-worker";
 
     /**
      *  重泡比超过正常范围168:1到330:1
@@ -1572,6 +1620,11 @@ public class Constants {
     public static final int  CONSTANT_NUMBER_TWO = 2;
 
     /**
+     * 常量值：10
+     * */
+    public static final int  CONSTANT_NUMBER_TEN = 10;
+
+    /**
      * 组板转移标识
      */
     public static final Integer IS_COMBITION_TRANSFER = 1;
@@ -2078,11 +2131,6 @@ public class Constants {
      */
     public static final Long SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID = 27000L;
 
-    /**
-     * 功能可用配置白名单
-     */
-    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_LIST = "func_usage_white_list_by_erp_";
-
     // 新版分拣中心规范-分拣中心类型
     public static final Integer SORTING_SORT_TYPE = 12351;
     // 新版分拣中心规范-分拣中心子类型
@@ -2126,6 +2174,19 @@ public class Constants {
      */
     public static final Integer  WAYBILL_TRACE_DISPLAY =1;
 
+    /**
+     * 异常类型 1-快速退款，2-外单拦截，3-仓储病单拦截 , 4-理赔拦截,5-生产单,6-客服 7-eclp，8,运营拦截，9-仓预售单拦截
+     */
+    public static final int WAYBILL_EXCEPTION_ID_8 = 8;
+
+    /**
+     * 拦截类型 1:取消订单拦截,2:拒收订单拦截,3:恶意订单拦截,4:分拣中心拦截,5-仓储异常拦截,6-白条强制拦截，7-仓储病单拦截，
+     * 8.伽利略拒收订单拦截，9.京沃取消订单拦截 ，10-理赔拦截，11-取消订单拦截仓已拦截成功，12-理赔破损拦截，13-运营退货拦截，14-派送地址不详下单失败拦截15审单失败拦截
+     */
+    public static final int WAYBILL_INTERCEPT_TYPE_4 = 4;
+
+    public static final String WAYBILL_INTERCEPT_REASON = "违禁品退回";
+
 
 
     /**
@@ -2160,7 +2221,7 @@ public class Constants {
      * 运输内网账号类型
      */
     public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
-    
+
     /**
      * oss链接内外网key
      */
@@ -2171,4 +2232,33 @@ public class Constants {
      * 配置信息-自动签退超过多少小时未签退的数据
      */
     public static final String SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS="sys.config.autoHandleSignInRecord.notSignedOutRecordMoreThanHours";
+
+    /**
+     * 集包岗-任务锁前缀
+     */
+    public static final String JY_COLLECT_BOX_LOCK_PREFIX  = "jy_collect_package_box_lock_%s";
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_ID = "pda.questionnaire.id";
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_FUNC_CODE = "pda.questionnaire.func.code";
+
+    /**
+     * 运单返调度审批配置
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG = "reassignWaybill.province.area.approval.config";
+
+
+    /**
+     * 返调度运单任务锁key
+     */
+    public static final String REASSIGN_WAYBILL_LOCK_KEY_PREFIX ="reassign.waybill.lock:";
+
+
+
 }

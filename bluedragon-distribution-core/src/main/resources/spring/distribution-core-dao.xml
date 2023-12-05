@@ -179,6 +179,11 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <bean id="reassignWaybillApprovalRecordDao"
+          class="com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillApprovalRecordDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
+
     <bean id="popSigninDao"
           class="com.jd.bluedragon.distribution.popPrint.dao.PopSigninDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -878,6 +883,15 @@
     </bean>
     <bean id="jyComboardDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardDao">
         <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+    <bean id="jyCollectPackageDao" class="com.jd.bluedragon.distribution.jy.dao.collectpackage.JyCollectPackageDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskCollectPackageDao" class="com.jd.bluedragon.distribution.jy.dao.collectpackage.JyBizTaskCollectPackageDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskCollectPackageFlowDao" class="com.jd.bluedragon.distribution.jy.dao.collectpackage.JyBizTaskCollectPackageFlowDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
     <bean id="jyBizTaskComboardDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>

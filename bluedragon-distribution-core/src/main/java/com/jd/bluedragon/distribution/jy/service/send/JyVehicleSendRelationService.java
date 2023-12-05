@@ -62,5 +62,16 @@ public interface JyVehicleSendRelationService {
 
     List<JySendCodeEntity> queryByVehicleDetailBizId(String vehicleDetailBizId);
 
+    /**
+     * 根据明细BizIds查询批次号集合
+     * @param detailBizIdList
+     * @return
+     */
     List<String> findSendCodesByDetailBizIds(List<String> detailBizIdList);
+    /**
+     * 根据bizIds查询批次号集合
+     * @param bizIdList
+     * @return
+     */
+    List<String> findSendCodesByBizIds(List<String> bizIdList);
 }

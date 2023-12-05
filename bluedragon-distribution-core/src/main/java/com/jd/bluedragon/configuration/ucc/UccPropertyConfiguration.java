@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -1377,6 +1378,33 @@ public class UccPropertyConfiguration{
      */
     private String czOrgForbiddenList;
 
+
+    /**
+     * 旧版集包功能下线- 场地黑名单
+     */
+    private String collectPackageSiteForbiddenList;
+
+    /**
+     * 旧版集包功能下线-- 大区黑名单
+     */
+    private String collectPackageOrgForbiddenList;
+
+    public String getCollectPackageSiteForbiddenList() {
+        return collectPackageSiteForbiddenList;
+    }
+
+    public void setCollectPackageSiteForbiddenList(String collectPackageSiteForbiddenList) {
+        this.collectPackageSiteForbiddenList = collectPackageSiteForbiddenList;
+    }
+
+    public String getCollectPackageOrgForbiddenList(){
+        return collectPackageOrgForbiddenList;
+    }
+
+    public void setCollectPackageOrgForbiddenList(String collectPackageOrgForbiddenList) {
+        this.collectPackageOrgForbiddenList = collectPackageOrgForbiddenList;
+    }
+
     /**
      * 传站拦截-场地类型黑名单
      */
@@ -1479,6 +1507,29 @@ public class UccPropertyConfiguration{
      * 外单逆向换单次数
      */
     private Integer reverseExchangeCount;
+
+
+    /**
+     * dmsToVendor 通知调度系统发送MQ消息 开关
+     */
+    private boolean dmsToVendorSendMQSwitch;
+
+    /**
+     * 封车或取消封车时同步新版app发货任务状态开关: 默认 ： 1, 开启
+     */
+    private String sealSyncOpenCloseSendTaskSwitch;
+
+
+
+
+    public boolean isDmsToVendorSendMQSwitch() {
+        return dmsToVendorSendMQSwitch;
+    }
+
+    public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
+        this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
+    }
+
 
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
@@ -1592,6 +1643,33 @@ public class UccPropertyConfiguration{
 
     private String forceSendSiteList;
 
+
+    private String forceCollectPackageSiteListStr;
+
+    private List<String> forceCollectPackageSiteList;
+
+    public List<String> getForceCollectPackageSiteList(){
+        return forceCollectPackageSiteList;
+    }
+
+    public void setForceCollectPackageSiteList() {
+        if (ObjectHelper.isNotNull(forceCollectPackageSiteListStr)){
+            forceCollectPackageSiteList =new ArrayList<>();
+            if (forceCollectPackageSiteListStr.contains(",")){
+                forceCollectPackageSiteList =Arrays.asList(forceCollectPackageSiteListStr.split(","));
+            }else {
+                forceCollectPackageSiteList.add(forceCollectPackageSiteListStr);
+            }
+        }
+    }
+
+    public String getForceCollectPackageSiteListStr(){
+        return forceCollectPackageSiteListStr;
+    }
+    public void setForceCollectPackageSiteListStr(String forceCollectPackageSiteListStr) {
+        this.forceCollectPackageSiteListStr = forceCollectPackageSiteListStr;
+    }
+
     public String getForceSendSiteList() {
         return forceSendSiteList;
     }
@@ -1693,6 +1771,16 @@ public class UccPropertyConfiguration{
 
     private String aggsDataSource;
 
+    private Boolean userSignIgnoreCaseSwitch;
+
+    public Boolean getUserSignIgnoreCaseSwitch() {
+        return userSignIgnoreCaseSwitch;
+    }
+
+    public void setUserSignIgnoreCaseSwitch(Boolean userSignIgnoreCaseSwitch) {
+        this.userSignIgnoreCaseSwitch = userSignIgnoreCaseSwitch;
+    }
+
     public String getAggsDataSource() {
         return aggsDataSource;
     }
@@ -1717,6 +1805,28 @@ public class UccPropertyConfiguration{
      * 作业APP发货特殊产品类型提示，到指定剩余分钟数才提示
      */
     private Integer jySendSpecialProductTypeToScanShowRemainMinutes;
+
+    /**
+     * 集包岗查询时间限制
+     */
+    private String jyCollectPackageTaskQueryTimeLimit;
+
+    /**
+     * 混包校验使用分拣工作台新版配置
+     */
+    private boolean mixedConfigUseBasicNew;
+
+    private boolean collectPackageTaskRefreshSwitch;
+
+    private long jyCollectPackageInterceptBitCode;
+
+    public long getJyCollectPackageInterceptBitCode(){
+        return jyCollectPackageInterceptBitCode;
+    }
+
+    public void setJyCollectPackageInterceptBitCode(long jyCollectPackageInterceptBitCode) {
+        this.jyCollectPackageInterceptBitCode = jyCollectPackageInterceptBitCode;
+    }
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -3906,4 +4016,36 @@ public class UccPropertyConfiguration{
 	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
 		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
 	}
+
+    public String getJyCollectPackageTaskQueryTimeLimit() {
+        return jyCollectPackageTaskQueryTimeLimit;
+    }
+
+    public void setJyCollectPackageTaskQueryTimeLimit(String jyCollectPackageTaskQueryTimeLimit) {
+        this.jyCollectPackageTaskQueryTimeLimit = jyCollectPackageTaskQueryTimeLimit;
+    }
+
+    public boolean getMixedConfigUseBasicNew() {
+        return mixedConfigUseBasicNew;
+    }
+
+    public void setMixedConfigUseBasicNew(boolean mixedConfigUseBasicNew) {
+        this.mixedConfigUseBasicNew = mixedConfigUseBasicNew;
+    }
+
+    public boolean getCollectPackageTaskRefreshSwitch() {
+        return collectPackageTaskRefreshSwitch;
+    }
+
+    public void setCollectPackageTaskRefreshSwitch(boolean collectPackageTaskRefreshSwitch) {
+        this.collectPackageTaskRefreshSwitch = collectPackageTaskRefreshSwitch;
+    }
+
+    public String getSealSyncOpenCloseSendTaskSwitch() {
+        return sealSyncOpenCloseSendTaskSwitch;
+    }
+
+    public void setSealSyncOpenCloseSendTaskSwitch(String sealSyncOpenCloseSendTaskSwitch) {
+        this.sealSyncOpenCloseSendTaskSwitch = sealSyncOpenCloseSendTaskSwitch;
+    }
 }

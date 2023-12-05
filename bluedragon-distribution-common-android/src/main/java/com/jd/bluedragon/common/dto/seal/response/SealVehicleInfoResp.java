@@ -56,6 +56,11 @@ public class SealVehicleInfoResp implements Serializable {
      */
     private String routeLineName;
     
+    /**
+     * 一次性提交封车的上限
+     */
+    private Integer boardLimit;
+    
     public String getRouteLineCode() {
         return routeLineCode;
     }
@@ -143,4 +148,12 @@ public class SealVehicleInfoResp implements Serializable {
 	public void setSavedPageData(JyAppDataSealVo savedPageData) {
 		this.savedPageData = savedPageData;
 	}
+
+    public Integer getBoardLimit() {
+        return boardLimit;
+    }
+
+    public void setBoardLimit(Integer boardLimit) {
+        this.boardLimit = boardLimit;
+    }
 }

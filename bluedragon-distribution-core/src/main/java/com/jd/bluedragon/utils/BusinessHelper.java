@@ -7,6 +7,9 @@ import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.jss.oss.OssUrlNetTypeEnum;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.dms.utils.*;
+import com.jd.bluedragon.enums.WaybillFlowTypeEnum;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -1070,6 +1073,15 @@ public class BusinessHelper {
     }
 
     /**
+     * 是否已脱敏,需要进行解密
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNeedDecode(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_142, WaybillSignConstants.CHAR_142_1);
+    }
+
+    /**
      * 是否特殊品类运单（黄金或珠宝等贵重物品）
      *
      * @param sendPayMap
@@ -1153,5 +1165,27 @@ public class BusinessHelper {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
+    }
+
+    public static WaybillFlowTypeEnum getWaybillFlowType(Waybill waybill) {
+        if(waybill != null &&  waybill.getWaybillExt() != null){
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            if((org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getStartFlowDirection()) && (Objects.equals("HK",waybillExt.getStartFlowDirection()) || Objects.equals("MO",waybillExt.getStartFlowDirection())))
+                    || (org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getEndFlowDirection()) && (Objects.equals("HK",waybillExt.getEndFlowDirection()) || Objects.equals("MO",waybillExt.getEndFlowDirection())))){
+                return WaybillFlowTypeEnum.HK_OR_MO;
+            }
+        }
+        if(waybill != null &&  waybill.getWaybillExt() != null){
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            if(org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getStartFlowDirection())
+                    && (Objects.equals("CN",waybillExt.getStartFlowDirection()))
+                    && org.apache.commons.lang3.StringUtils.isNotBlank(waybillExt.getEndFlowDirection())
+                    && !Objects.equals("CN",waybillExt.getEndFlowDirection())
+                    && !Objects.equals("MO",waybillExt.getEndFlowDirection())
+                    && !Objects.equals("HK",waybillExt.getEndFlowDirection())){
+                return WaybillFlowTypeEnum.INTERNATION;
+            }
+        }
+        return WaybillFlowTypeEnum.MAINLAND;
     }
 }

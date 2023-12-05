@@ -73,7 +73,30 @@ public class PdaOperateRequest {
     Integer operateNode;
 
     Integer onlineStatus;
-	
+
+	/**
+	 * 拦截链的二进制编码（有效位编码为1）
+	 */
+	long interceptChainBitCode;
+
+	boolean jyCollectPackageFlag;
+
+	public boolean getJyCollectPackageFlag() {
+		return jyCollectPackageFlag;
+	}
+
+	public void setJyCollectPackageFlag(boolean jyCollectPackageFlag) {
+		this.jyCollectPackageFlag = jyCollectPackageFlag;
+	}
+
+	public long getInterceptChainBitCode() {
+		return interceptChainBitCode;
+	}
+
+	public void setInterceptChainBitCode(long interceptChainBitCode) {
+		this.interceptChainBitCode = interceptChainBitCode;
+	}
+
 	public Integer getOperateType() {
 		return operateType;
 	}

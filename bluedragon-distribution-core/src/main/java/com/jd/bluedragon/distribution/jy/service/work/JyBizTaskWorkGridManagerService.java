@@ -2,9 +2,11 @@ package com.jd.bluedragon.distribution.jy.service.work;
 
 import java.util.List;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCountData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
+import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTransferData;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery;
@@ -17,7 +19,7 @@ import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery;
  *
  */
 public interface JyBizTaskWorkGridManagerService {
-	
+
 	/**
 	 * 新增一条任务数据
 	 * @param jyTask
@@ -30,7 +32,7 @@ public interface JyBizTaskWorkGridManagerService {
 	 * @return
 	 */
 	JyWorkGridManagerData queryTaskDataByBizId(String bizId);
-	
+
 	/**
 	 * 查询状态统计列表
 	 * @param query
@@ -85,10 +87,19 @@ public interface JyBizTaskWorkGridManagerService {
 	 * @return
 	 */
 	int batchAddTask(List<JyBizTaskWorkGridManager> taskList);
+
+	int batchInsertDistributionTask(List<JyBizTaskWorkGridManager> taskList);
+
 	/**
 	 * 自动取消任务-由网格删除触发
 	 * @param data
 	 * @return
 	 */
-	int autoCancelTaskForGridDelete(JyBizTaskWorkGridManagerBatchUpdate data);	
+	int autoCancelTaskForGridDelete(JyBizTaskWorkGridManagerBatchUpdate data);
+
+	void generateManageInspectionTask(String erp, String positionCode, String userName, Integer userSiteCode);
+
+	JdCResponse<Boolean> transferCandidate(JyWorkGridManagerTransferData request);
+
+    String selectLastHandlerErp(String taskCode, Integer siteCode);
 }

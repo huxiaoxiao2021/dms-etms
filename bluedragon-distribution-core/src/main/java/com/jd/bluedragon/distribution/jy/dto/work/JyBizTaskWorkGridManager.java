@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class JyBizTaskWorkGridManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * 主键ID
 	 */
@@ -155,6 +155,31 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	private Integer status;
 
 	/**
+	 * 是否转派
+	 */
+	private Integer transfered;
+	/**
+	 * 原处理人岗位编号
+	 */
+	private String orignHandlerUserPositionCode;
+	/**
+	 * 原处理人岗位名称
+	 */
+	private String orignHandlerUserPositionName;
+	/**
+	 * 转派时间
+	 */
+	private Date transferTime;
+	/**
+	 * 源处理人erp
+	 */
+	private String orignHandlerErp;
+	/**
+	 * 原处理人姓名
+	 */
+	private String orignHandlerUserName;
+
+	/**
 	 * 开始处理时间
 	 */
 	private Date processBeginTime;
@@ -209,6 +234,16 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 * 是否符合,0-未选择,1-符合 2-不符合
 	 */
 	private Integer isMatch;
+	//任务业务类型：1-日常巡查 2-管理巡视 3-异常及时检查 4-指标周期改善 5-事件治理整改任务
+	private Integer taskBizType;
+	/**
+	 * 网格楼层
+	 */
+	private Integer floor;
+	/**
+	 *  任务的个性化扩信息(用于展示,不参与查询 json格式)
+	 */
+	private String extendInfo;
 	/**
 	 *
 	 * @param id
@@ -823,5 +858,77 @@ public class JyBizTaskWorkGridManager implements Serializable {
 
 	public void setIsMatch(Integer isMatch) {
 		this.isMatch = isMatch;
+	}
+
+	public Integer getTaskBizType() {
+		return taskBizType;
+	}
+
+	public void setTaskBizType(Integer taskBizType) {
+		this.taskBizType = taskBizType;
+	}
+
+	public Integer getTransfered() {
+		return transfered;
+	}
+
+	public void setTransfered(Integer transfered) {
+		this.transfered = transfered;
+	}
+
+	public String getOrignHandlerErp() {
+		return orignHandlerErp;
+	}
+
+	public void setOrignHandlerErp(String orignHandlerErp) {
+		this.orignHandlerErp = orignHandlerErp;
+	}
+
+	public String getOrignHandlerUserName() {
+		return orignHandlerUserName;
+	}
+
+	public void setOrignHandlerUserName(String orignHandlerUserName) {
+		this.orignHandlerUserName = orignHandlerUserName;
+	}
+
+	public String getOrignHandlerUserPositionCode() {
+		return orignHandlerUserPositionCode;
+	}
+
+	public void setOrignHandlerUserPositionCode(String orignHandlerUserPositionCode) {
+		this.orignHandlerUserPositionCode = orignHandlerUserPositionCode;
+	}
+
+	public String getOrignHandlerUserPositionName() {
+		return orignHandlerUserPositionName;
+	}
+
+	public void setOrignHandlerUserPositionName(String orignHandlerUserPositionName) {
+		this.orignHandlerUserPositionName = orignHandlerUserPositionName;
+	}
+
+	public Date getTransferTime() {
+		return transferTime;
+	}
+
+	public void setTransferTime(Date transferTime) {
+		this.transferTime = transferTime;
+	}
+
+	public Integer getFloor() {
+		return floor;
+	}
+
+	public void setFloor(Integer floor) {
+		this.floor = floor;
+	}
+
+	public String getExtendInfo() {
+		return extendInfo;
+	}
+
+	public void setExtendInfo(String extendInfo) {
+		this.extendInfo = extendInfo;
 	}
 }

@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpBaseReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpReceiveReq;
@@ -78,6 +79,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -91,6 +93,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.erp.dto.delivery.DeliveredReqDTO;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
@@ -327,11 +331,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             scheduleTaskAddProducer.sendOnFailPersistent(bizId, body);
             logger.info("异常岗-写入任务发送mq完成:body={}", body);
 
-            //如果是运单号，将运单号放入缓存 妥投时校验运单是否妥投
+            //如果是运单号，将运单号放入缓存 妥投时校验运单是否妥投 && 增加验货全程跟踪
             if(WaybillUtil.isWaybillCode(req.getBarCode())){
                 String cacheKey =  Constants.EXP_WAYBILL_CACHE_KEY_PREFIX+req.getBarCode();
                 Boolean result = redisClientOfJy.set(cacheKey, "1", 7, TimeUnit.DAYS, false);
                 logger.info("异常上报 运单放入缓存结果-{}",result);
+                //记录运单验货全程跟踪 暂时不写
+                //sendForwardInspectionTrance(taskEntity,baseStaffByErp);
             }
 
         }catch (Exception e) {
@@ -342,6 +348,74 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         return JdCResponse.ok();
+    }
+
+    /**
+     *  记录运单验货全程跟踪
+     * @param entity
+     */
+    private void sendForwardInspectionTrance(JyBizTaskExceptionEntity entity,BaseStaffSiteOrgDto baseStaffByErp){
+        CallerInfo info = Profiler.registerInfo("DMSWEB.JyExceptionServiceImpl.sendForwardInspectionTrance", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            WaybillStatus waybillStatus = new WaybillStatus();
+            //设置站点相关属性
+            waybillStatus.setWaybillCode(entity.getBarCode());
+            waybillStatus.setPackageCode(entity.getBarCode());
+            waybillStatus.setCreateSiteCode(entity.getSiteCode().intValue());
+            waybillStatus.setCreateSiteName(entity.getSiteName());
+            waybillStatus.setCreateSiteType(Constants.DMS_SITE_TYPE);
+            if(StringUtils.isNotBlank(baseStaffByErp.getUserCode())){
+                waybillStatus.setOperatorId(new Integer(baseStaffByErp.getUserCode()));
+            }
+            waybillStatus.setOperator(entity.getCreateUserName());
+            waybillStatus.setOperateTime(new Date());
+            waybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_INSPECTION);
+            waybillStatus.setRemark("验货");
+            waybillStatus.setOrgId(baseStaffByErp.getOrgId());
+            waybillStatus.setOrgName(baseStaffByErp.getOrgName());
+            // 添加到task表
+            logger.info("异常上报发送验货全称跟踪");
+            taskService.add(toTask(waybillStatus));
+
+        } catch (Exception e) {
+            Profiler.functionError(info);
+            logger.error("异常上报发送验货全称跟踪失败！",  e);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+    }
+
+    /**
+     * 转换成全称跟踪的Task
+     *
+     * @param waybillStatus
+     * @return
+     */
+    private Task toTask(WaybillStatus waybillStatus) {
+        Task task = new Task();
+        task.setTableName(Task.TABLE_NAME_WAYBILL);
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setKeyword1(waybillStatus.getWaybillCode());
+        task.setKeyword2(waybillStatus.getPackageCode());
+        task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
+        task.setBody(JsonHelper.toJson(waybillStatus));
+        task.setType(Task.TASK_TYPE_WAYBILL);
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        StringBuffer fingerprint = new StringBuffer();
+        fingerprint
+                .append(waybillStatus.getCreateSiteCode())
+                .append("_")
+                .append((waybillStatus.getReceiveSiteCode() == null ? "-1"
+                        : waybillStatus.getReceiveSiteCode())).append("_")
+                .append(waybillStatus.getOperateType()).append("_")
+                .append(waybillStatus.getWaybillCode()).append("_")
+                .append(waybillStatus.getOperateTime()).append("_");
+        if (waybillStatus.getPackageCode() != null
+                && !"".equals(waybillStatus.getPackageCode())) {
+            fingerprint.append("_").append(waybillStatus.getPackageCode());
+        }
+        task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
+        return task;
     }
 
     /**

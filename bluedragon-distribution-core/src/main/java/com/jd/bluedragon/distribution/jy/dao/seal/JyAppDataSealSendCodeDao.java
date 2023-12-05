@@ -30,4 +30,7 @@ public class JyAppDataSealSendCodeDao extends BaseDao<JyAppDataSealSendCode> {
 		return this.getSqlSession().selectList(NAMESPACE + ".querySendCodeList", sendVehicleDetailBizId);
 	}
 
+	public int deleteBySendCode(String sendCode) {
+		return this.getSqlSession().update(NAMESPACE + ".deleteBySendCode", sendCode);
+	}
 }

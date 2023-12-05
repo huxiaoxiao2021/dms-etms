@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.jy.dao.work;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
@@ -18,9 +21,9 @@ import com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportQuery;
  *
  */
 public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManager> {
-	
+
     final static String NAMESPACE = JyBizTaskWorkGridManagerDao.class.getName();
-    
+
 	public int addTask(JyBizTaskWorkGridManager jyTask) {
 		return this.getSqlSession().insert(NAMESPACE + ".insert", jyTask);
 	}
@@ -34,6 +37,10 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 
 	public List<JyBizTaskWorkGridManager> queryDataListForPda(JyWorkGridManagerQueryRequest query) {
 		return this.getSqlSession().selectList(NAMESPACE + ".queryDataListForPda", query);
+	}
+
+	public Integer queryTransferCountListForPda(JyWorkGridManagerQueryRequest query) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryTransferCountListForPda", query);
 	}
 
 	public int finishTask(JyBizTaskWorkGridManager updateTaskData) {
@@ -65,8 +72,29 @@ public class JyBizTaskWorkGridManagerDao extends BaseDao<JyBizTaskWorkGridManage
 	public int batchAddTask(List<JyBizTaskWorkGridManager> taskList) {
 		return this.getSqlSession().update(NAMESPACE + ".batchInsert", taskList);
 	}
+	public int batchInsertDistributionTask(List<JyBizTaskWorkGridManager> taskList) {
+		return this.getSqlSession().update(NAMESPACE + ".batchInsertDistributionTask", taskList);
+	}
 	public int autoCancelTaskForGridDelete(JyBizTaskWorkGridManagerBatchUpdate cancelData) {
 		return this.getSqlSession().update(NAMESPACE + ".autoCancelTaskForGridDelete", cancelData);
 	}
+	public Integer selectHandlerTodayTaskCountByTaskBizType(Integer siteCode, Date startTime, String handlerErp, List<String> taskCodeList){
+		Map<String, Object> param = new HashMap<>();
+		param.put("siteCode", siteCode);
+		param.put("startTime", startTime);
+		param.put("handlerErp", handlerErp);
+		param.put("taskCodeList", taskCodeList);
+		return this.getSqlSession().selectOne(NAMESPACE + ".selectHandlerTodayTaskCountByTaskBizType", param);
+	}
+
+	public int transfer(JyBizTaskWorkGridManager manager) {
+		return this.getSqlSession().update(NAMESPACE + ".transfer", manager);
+	}
 	
+	public String selectLastHandlerErp(String taskCode, Integer siteCode){
+		Map<String, Object> param = new HashMap<>();
+		param.put("taskCode", taskCode);
+		param.put("siteCode", siteCode);
+		return this.getSqlSession().selectOne(NAMESPACE + ".selectLastHandlerErp", param);
+	}
 }

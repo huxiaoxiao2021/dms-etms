@@ -13,6 +13,9 @@ public class SealVehicleResponseData implements Serializable {
 
     private String message;
 
+    private Double weight;
+    private Double volume;
+
     public Integer getCode() {
         return code;
     }
@@ -27,5 +30,21 @@ public class SealVehicleResponseData implements Serializable {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
     }
 }

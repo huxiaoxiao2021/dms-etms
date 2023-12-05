@@ -50,7 +50,7 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
             // 组装basicQueryEntity对象，写入es
             PrintHandoverListDto dto = sendPrintService.buildPrintHandoverListDto(sendDetailMQ);
             if(dto == null){
-                log.warn("构建打印交接清单数据为空!");
+                log.warn("构建打印交接清单数据为空! {}",message.getText());
                 return;
             }
             recordPrintHandoverListData(dto);
@@ -67,7 +67,7 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
         Boolean isSuccess = printHandoverListManager.recordForPrintHandoverList(dto);
         if(Objects.equals(isSuccess, true)){
             if(log.isInfoEnabled()){
-                log.info("消费发货消息前置打印交接清单数据落es成功!");
+                log.info("消费发货消息前置打印交接清单数据落es成功!{}",dto.getWaybillCode());
             }
             return;
         }

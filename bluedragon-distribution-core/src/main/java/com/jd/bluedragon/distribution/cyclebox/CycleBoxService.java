@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.response.box.BCGroupBinDingDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
@@ -99,4 +100,11 @@ public interface CycleBoxService {
    * @return
    */
   InvokeResult<BCGroupBinDingDto> checkGroupBingResult(BoxMaterialRelationRequest request);
+
+  /**
+   * 根据箱号批量获取箱号绑定的集包袋
+   * @param boxCodeList
+   * @return
+   */
+   List<BoxMaterialRelation> getBoxMaterialRelationList(List<String> boxCodeList);
 }

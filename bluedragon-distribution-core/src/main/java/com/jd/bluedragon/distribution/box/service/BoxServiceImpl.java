@@ -60,6 +60,7 @@ import org.springframework.util.Assert;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
@@ -134,6 +135,10 @@ public class BoxServiceImpl implements BoxService {
 	@Value("${box.addBatch.size:20}")
 	private Integer boxAddBatchSize;
 
+	@Autowired
+	@Qualifier(value = "boxFirstPrintProducer")
+	private DefaultJMQProducer boxFirstPrintProducer;
+	
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
         //持久化
@@ -812,12 +817,31 @@ public class BoxServiceImpl implements BoxService {
             availableBoxes = this.batchAdd(this.toBoxWithRouter(request, routInfoRes));
         }
         response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
-
+		
+		// 打印客户端创建 并且是首次打印 推送箱号打印消息
+		if (checkIfReleasedForSite(request.getCreateSiteCode()) && BoxSystemTypeEnum.PRINT_CLIENT.getCode().equals(systemType)) {
+			pushBoxPrintMq(availableBoxes);
+		}
+		
         this.buildBoxPrintInfo(request.getCreateSiteCode(), request.getReceiveSiteCode(), response);
         return response;
     }
 
-    /**
+	private void pushBoxPrintMq(List<Box> availableBoxes) {
+		if (CollectionUtils.isEmpty(availableBoxes)) {
+			return;
+		}
+		try{
+			for (Box box : availableBoxes) {
+				log.info("推送箱号mq:{}",JsonHelper.toJson(box));
+				boxFirstPrintProducer.sendOnFailPersistent(box.getCode(), JsonHelper.toJson(box));
+			}
+		}catch (Exception e) {
+			log.info("推送箱号打印消息失败，消息体{}",JsonHelper.toJson(availableBoxes));
+		}
+	}
+
+	/**
      * 构建目的地打印属性
      *
      * @param createSiteCode
@@ -926,4 +950,56 @@ public class BoxServiceImpl implements BoxService {
 		}
 	}
 
+	@Override
+	public boolean checkCollectPackageIfReleasedForSite(Integer orgId, Integer siteCode) {
+		if ((checkIfReleasedForOrg(orgId)) || checkIfReleasedForSite(siteCode)){
+			return true;
+		}
+		return false;
+	}
+
+	private boolean checkIfReleasedForOrg(Integer orgId) {
+		if (ObjectHelper.isNotNull(dmsConfigManager.getPropertyConfig().getCollectPackageOrgForbiddenList()) && ObjectHelper.isNotNull(orgId)){
+			if ("*".equals(dmsConfigManager.getPropertyConfig().getCollectPackageOrgForbiddenList())){
+				return true;
+			}
+			List<Integer> orgForbiddenList = buildOrgForbiddenList(dmsConfigManager.getPropertyConfig().getCollectPackageOrgForbiddenList());
+			if (CollectionUtils.isNotEmpty(orgForbiddenList) && orgForbiddenList.contains(orgId)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean checkIfReleasedForSite(Integer siteCode) {
+		if (ObjectHelper.isNotNull(dmsConfigManager.getPropertyConfig().getCollectPackageSiteForbiddenList()) && ObjectHelper.isNotNull(siteCode)){
+			List<Integer> siteForbiddenList = buildSiteForbiddenList(dmsConfigManager.getPropertyConfig().getCollectPackageSiteForbiddenList());
+			if (CollectionUtils.isNotEmpty(siteForbiddenList) && siteForbiddenList.contains(siteCode)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private List<Integer> buildOrgForbiddenList(String collectPackageOrgForbiddenList) {
+		List<Integer> list =new ArrayList<>();
+		if (collectPackageOrgForbiddenList.contains(",")){
+			list = Arrays.asList(collectPackageOrgForbiddenList.split(",")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
+		}
+		else {
+			list.add(Integer.valueOf(collectPackageOrgForbiddenList));
+		}
+		return list;
+	}
+
+	private List<Integer> buildSiteForbiddenList(String collectPackageSiteForbiddenList) {
+		List<Integer> list =new ArrayList<>();
+		if (collectPackageSiteForbiddenList.contains(",")){
+			list = Arrays.asList(collectPackageSiteForbiddenList.split(",")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
+		}
+		else {
+			list.add(Integer.valueOf(collectPackageSiteForbiddenList));
+		}
+		return list;
+	}
 }
