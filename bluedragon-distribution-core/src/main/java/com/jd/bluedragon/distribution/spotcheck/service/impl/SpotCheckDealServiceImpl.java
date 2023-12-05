@@ -732,8 +732,6 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setStanderDiff(spotCheckDto.getDiffStandard());
         spotCheckIssueMQ.setExceedType(spotCheckDto.getExcessType());
         spotCheckIssueMQ.setStatus(Constants.CONSTANT_NUMBER_ONE);
-        spotCheckIssueMQ.setAppendix(Constants.CONSTANT_NUMBER_ONE);
-        spotCheckIssueMQ.setUrl(picUrlDeal(spotCheckDto));
         // 新版抽检附件传参方式:传了appendixList，appendix和url字段就不用传了
         if (Constants.NUMBER_ONE.equals(spotCheckDto.getIsHasVideo())) {
             // 组装附件列表
