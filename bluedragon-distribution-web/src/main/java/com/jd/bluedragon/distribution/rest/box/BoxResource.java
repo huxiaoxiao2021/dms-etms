@@ -10,7 +10,6 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
-import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -692,7 +691,7 @@ public class BoxResource {
     }
 
     private Map<String, String> getBoxSubTypeShowMap(Map<String, String> siteBoxTypeMap) {
-        Map<String, String> boxSubTypeShowMap = new HashMap<>();
+        Map<String, String> boxSubTypeShowMap = new LinkedHashMap<>();
         for (String code : siteBoxTypeMap.keySet()) {
             final BoxSubTypeEnum boxSubTypeEnum = BoxSubTypeEnum.getFromCode(code);
             if (boxSubTypeEnum == null) {
