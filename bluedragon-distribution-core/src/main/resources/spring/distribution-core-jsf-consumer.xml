@@ -789,6 +789,11 @@
                   alias="${jsf.signBillReturn.alias}" timeout="${jsf.signBillReturn.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!--破损耗材-->
+    <jsf:consumer id="wrapCategoryAndWrapBillInfoApi" interface="erp.ql.station.api.service.wrap.WrapCategoryAndWrapBillInfoApi" protocol="jsf"
+                  alias="${jsf.terminalConsume.alias}" timeout="${jsf.terminalConsume.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <!--大促保障-运单配送优先级配置-->
     <jsf:consumer id="guaranteeConfigApi" interface="com.jd.bluedragon.sdk.modules.configCenter.GuaranteeConfigApi"
                   alias="${jsf.alias.configCenter}"

@@ -197,7 +197,7 @@
   <update id="deleteByBizId" parameterType="java.lang.String" >
     update jy_damage_consumable_detail
     set yn = 0
-    where yn =1 AND biz_id = #{damageBizId,jdbcType=VARCHAR}
+    where yn =1 AND damage_biz_id = #{damageBizId,jdbcType=VARCHAR}
   </update>
 
 </mapper>
