@@ -60,6 +60,9 @@ public class AviationSealListDto implements Serializable {
      */
     private Integer manualCreatedFlag;
 
+    private Long takeOffTime;
+
+
     public String getBizId() {
         return bizId;
     }
@@ -178,5 +181,13 @@ public class AviationSealListDto implements Serializable {
 
     public void setManualCreatedFlag(Integer manualCreatedFlag) {
         this.manualCreatedFlag = manualCreatedFlag;
+    }
+
+    public Long getTakeOffTime() {
+        return takeOffTime;
+    }
+
+    public void setTakeOffTime(Long takeOffTime) {
+        this.takeOffTime = takeOffTime;
     }
 }
