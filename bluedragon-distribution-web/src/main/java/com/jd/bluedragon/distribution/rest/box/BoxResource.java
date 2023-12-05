@@ -10,10 +10,12 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -243,7 +245,7 @@ public class BoxResource {
      * @return
      */
     @POST
-    @Path("/printClient/boxes")
+    @Path("/printClient/boxes") // todo
     @JProfiler(jKey = "DMS.WEB.BoxResource.printClientBoxes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse printClientBoxes(BoxRequest request) {
         return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),true);
@@ -659,7 +661,7 @@ public class BoxResource {
      * @return
      */
     @POST
-    @Path("/boxes/getBoxType") // todo
+    @Path("/boxes/getBoxType")
     public BoxResponse getBoxType(BoxRequest request) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getOperateUserErp(), "request receiveSiteCode must not be null");
@@ -675,16 +677,30 @@ public class BoxResource {
         if (siteTypes.contains(baseStaffSiteOrgDto.getSubType())){
             response.setBoxTypes(siteBoxTypeMap);
             if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
-                response.setBoxSubTypes(siteBoxSubTypeMap);
+                Map<String, String> boxSubTypeShowMap = this.getBoxSubTypeShowMap(siteBoxSubTypeMap);
+                response.setBoxSubTypes(boxSubTypeShowMap);
             }
             return response;
         }
         //分拣中心
         response.setBoxTypes(sortingBoxTypeMap);
         if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
-            response.setBoxSubTypes(sortingBoxSubTypeMap);
+            Map<String, String> boxSubTypeShowMap = this.getBoxSubTypeShowMap(sortingBoxSubTypeMap);
+            response.setBoxSubTypes(boxSubTypeShowMap);
         }
         return response;
+    }
+
+    private Map<String, String> getBoxSubTypeShowMap(Map<String, String> siteBoxTypeMap) {
+        Map<String, String> boxSubTypeShowMap = new HashMap<>();
+        for (String code : siteBoxTypeMap.keySet()) {
+            final BoxSubTypeEnum boxSubTypeEnum = BoxSubTypeEnum.getFromCode(code);
+            if (boxSubTypeEnum == null) {
+                continue;
+            }
+            boxSubTypeShowMap.put(code, String.format("%s-%s", boxSubTypeEnum.getName(), boxSubTypeEnum.getParentTypeCode()));
+        }
+        return boxSubTypeShowMap;
     }
 
     /**

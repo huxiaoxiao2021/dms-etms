@@ -1015,7 +1015,7 @@ public class BoxServiceImpl implements BoxService {
             final BoxTypeDto boxTypeDto = new BoxTypeDto();
             boxTypeDto.setTypeCode(boxSubTypeEnum.getParentTypeCode());
             boxTypeDto.setSubTypeCode(code);
-            boxTypeDto.setName(String.format("%s-%s", boxSubTypeEnum.getParentTypeCode(), boxSubTypeEnum.getName()));
+            boxTypeDto.setName(String.format("%s-%s", boxSubTypeEnum.getName(), boxSubTypeEnum.getParentTypeCode()));
             typeDtoList.add(boxTypeDto);
         }
         return typeDtoList;
