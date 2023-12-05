@@ -1229,7 +1229,7 @@
 		select
 		<include refid="Base_Column_List"/>
 		from user_sign_record
-		where sign_date = #{signDate}
+		where sign_date = #{signDateStr}
 		and site_code = #{siteCode}
 		order by sign_in_time asc
 		limit 1

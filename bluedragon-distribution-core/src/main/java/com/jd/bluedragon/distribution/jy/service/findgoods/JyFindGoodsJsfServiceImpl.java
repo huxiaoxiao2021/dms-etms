@@ -388,6 +388,7 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
             UserSignRecordQuery query = new UserSignRecordQuery();
             query.setSignDateStr(this.getWaveDate(findGoodsTaskDto));
             query.setSiteCode(Integer.valueOf(findGoodsTaskDto.getSiteCode().toString()));
+            log.info("JyFindGoodsJsfServiceImpl.leaderErp query:{}", JSON.toJSONString(query));
             userSignRecord = userSignRecordDao.queryFirstExistGridRecord(query);
         } catch (Exception e) {
             log.error("JyFindGoodsJsfServiceImpl.leaderErp  queryFirstExistGridRecord error:{}", e.getMessage());
