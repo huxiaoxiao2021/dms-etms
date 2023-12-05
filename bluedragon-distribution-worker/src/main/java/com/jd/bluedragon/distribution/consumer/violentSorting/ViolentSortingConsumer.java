@@ -144,7 +144,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
                 generateViolentSortingTask(violentSortingDto, workGridResult.getData());
             }
             // 根据网格查出设备编码
-            List<DeviceGridDto> data = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(gridBusinessKey, null);
+            /*List<DeviceGridDto> data = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(gridBusinessKey, null);
 
             // 过滤出是安灯的设备
             List<String> allAndonMachine = new ArrayList<>();
@@ -164,7 +164,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
             String andonMachineCode = allAndonMachine.get(0);
             violentSortingDto.setAndonMachineCode(andonMachineCode);
 
-           
+
             if (workGridResult.isSuccess()) {
                 WorkGrid grid = workGridResult.getData();
 
@@ -197,7 +197,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
             andonEventService.lightOn(AndonEventSourceEnum.VIOLENT_SORTING,
                     String.valueOf(violentSortingDto.getId()),
                     violentSortingDto.getSiteCode(),
-                    violentSortingDto.getGridCode(), andonMachineCode, new Date(violentSortingDto.getCreateTime()), violentSortingDto);
+                    violentSortingDto.getGridCode(), andonMachineCode, new Date(violentSortingDto.getCreateTime()), violentSortingDto);*/
 
         } catch (Exception e) {
             Profiler.functionError(info);
