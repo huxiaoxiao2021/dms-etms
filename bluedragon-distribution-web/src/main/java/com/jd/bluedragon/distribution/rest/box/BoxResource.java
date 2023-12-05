@@ -244,9 +244,16 @@ public class BoxResource {
      * @return
      */
     @POST
-    @Path("/printClient/boxes") // todo
+    @Path("/printClient/boxes")
     @JProfiler(jKey = "DMS.WEB.BoxResource.printClientBoxes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse printClientBoxes(BoxRequest request) {
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(request.getSubType())){
+            final BoxSubTypeEnum boxSubTypeEnum = BoxSubTypeEnum.getFromCode(request.getSubType());
+            if (boxSubTypeEnum == null) {
+                return new BoxResponse(BoxResponse.CODE_BOX_NOT_FOUND, "箱号子类型错误");
+            }
+            request.setType(boxSubTypeEnum.getParentTypeCode());
+        }
         return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),true);
     }
 
