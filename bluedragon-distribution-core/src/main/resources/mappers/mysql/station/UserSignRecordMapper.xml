@@ -1270,4 +1270,14 @@
 		limit 1
 	</select>
 
+	
+	<select id="queryFirstExistGridRecord" parameterType="java.lang.Long" resultMap="UserSignRecord">
+		select
+		<include refid="Base_Column_List"/>
+		from user_sign_record
+		where sign_date = #{signDate}
+		and site_code = #{siteCode}
+		order by sign_in_time asc
+		limit 1
+	</select>
 </mapper>
