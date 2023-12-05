@@ -890,7 +890,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	 */
 	public static boolean hasIntersection(LocalDateTime startDateTime1,LocalDateTime endDateTime1,LocalDate date2, String timeRange2) {
 		String[] range2 = timeRange2.split("-");
-
+		if (StringUtils.isEmpty(range2[0])||StringUtils.isEmpty(range2[1])){
+			return true;
+		}
 		LocalTime startTime2 = LocalTime.parse(range2[0]);
 		LocalTime endTime2 = LocalTime.parse(range2[1]);
 
