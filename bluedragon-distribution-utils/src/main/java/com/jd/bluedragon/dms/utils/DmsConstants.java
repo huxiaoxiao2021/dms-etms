@@ -248,7 +248,7 @@ public class DmsConstants {
     /**
      * 工种类型
      */
-    public static final String JOB_TYPE_REGEX = "^[1-7]$";
+    public static final String JOB_TYPE_REGEX = "^[1-8]$";
     /**
      * 身份证正则
      */
@@ -540,4 +540,8 @@ public class DmsConstants {
      * 围板箱前缀
      */
     public static final String COLLECTION_AD02_PREFIX= "AD02";
+    /**
+     * 航班号正则
+     */
+    public static final String FLIGHT_NUMBER_REGEX = "[0-9A-Z]{6}";
 }

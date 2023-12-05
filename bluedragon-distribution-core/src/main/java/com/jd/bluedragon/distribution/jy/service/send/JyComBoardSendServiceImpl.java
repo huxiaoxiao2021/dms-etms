@@ -2542,6 +2542,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       batchUpdateCancelReq.setCancelFlag(Boolean.TRUE);
       query.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
       JyBizTaskComboardEntity comboardEntity = jyBizTaskComboardService.queryBizTaskByBoardCode(query);
+
+      if (comboardEntity == null) {
+        return new InvokeResult<>(RESULT_PARAMETER_ERROR_CODE, "板号:" + request.getBoardCode() +"已被删除！");
+      }
+
       //如果已封车的批次不触发取消组板发货
       if (checkSealTime(comboardEntity) && newsealVehicleService.newCheckSendCodeSealed(comboardEntity.getSendCode(), new StringBuffer())) {
         return new InvokeResult<>(BOARD_HAVE_SEAL_CAR_CODE, BOARD_HAVE_SEAL_CAR_MESSAGE);

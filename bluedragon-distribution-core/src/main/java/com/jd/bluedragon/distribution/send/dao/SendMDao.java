@@ -318,6 +318,6 @@ public  class SendMDao extends BaseDao<SendM>  {
 		SendM querySendM = new SendM();
 		querySendM.setCreateSiteCode(siteId);
 		querySendM.setSendCode(batchCode);
-		return	this.getSqlSession().selectOne(SendDatailDao.namespace + ".countBoxCodeNumBySendCode", querySendM);
+		return	this.getSqlSession().selectOne(SendMDao.namespace + ".countBoxCodeNumBySendCode", querySendM);
 	}
 }

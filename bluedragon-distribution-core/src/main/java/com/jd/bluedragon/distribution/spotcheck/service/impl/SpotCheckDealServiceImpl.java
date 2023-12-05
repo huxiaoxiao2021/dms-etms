@@ -732,8 +732,6 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setStanderDiff(spotCheckDto.getDiffStandard());
         spotCheckIssueMQ.setExceedType(spotCheckDto.getExcessType());
         spotCheckIssueMQ.setStatus(Constants.CONSTANT_NUMBER_ONE);
-        spotCheckIssueMQ.setAppendix(Constants.CONSTANT_NUMBER_ONE);
-        spotCheckIssueMQ.setUrl(picUrlDeal(spotCheckDto));
         // 新版抽检附件传参方式:传了appendixList，appendix和url字段就不用传了
         if (Constants.NUMBER_ONE.equals(spotCheckDto.getIsHasVideo())) {
             // 组装附件列表
@@ -783,7 +781,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         if(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){
             // 人工抽检（只有运单维度，无包裹维度）
             List<String> picUrlList = Arrays.asList(spotCheckDto.getPictureAddress().split(Constants.SEPARATOR_SEMICOLON));
-            if(picUrlList.size() < 5){
+            if(picUrlList.size() < 2){
                 logger.warn("运单:{}的抽检图片未集齐!", spotCheckDto.getWaybillCode());
                 return picList;
             }

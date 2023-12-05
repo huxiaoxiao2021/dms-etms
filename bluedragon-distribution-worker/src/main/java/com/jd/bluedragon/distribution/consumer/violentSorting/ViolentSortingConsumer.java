@@ -6,6 +6,8 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.automatic.DeviceConfigInfoJsfManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
+import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
+import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
 import com.jd.bluedragon.distribution.sdk.modules.andon.enums.AndonEventSourceEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
@@ -42,6 +44,9 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static com.jd.ql.basic.util.DateUtil.FORMAT_DATE;
@@ -55,10 +60,16 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
 
     Long UpgradeNotifyCount = 3l;//同一天同一网格，多少次后升级提醒网格长leader
 
+    ExecutorService executor = new ThreadPoolExecutor(10, 10,
+            1L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<Runnable>());
+
     private static final Logger logger = LoggerFactory.getLogger(ViolentSortingConsumer.class);
 
     @Autowired
     private DeviceConfigInfoJsfManager deviceConfigInfoJsfService;
+    @Autowired
+    private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
 
 
     @Autowired
@@ -128,8 +139,12 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
                     return;
                 }
             }
+            Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridBusinessKey);
+            if(workGridResult != null && workGridResult.getData() != null){
+                generateViolentSortingTask(violentSortingDto, workGridResult.getData());
+            }
             // 根据网格查出设备编码
-            List<DeviceGridDto> data = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(gridBusinessKey, null);
+            /*List<DeviceGridDto> data = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(gridBusinessKey, null);
 
             // 过滤出是安灯的设备
             List<String> allAndonMachine = new ArrayList<>();
@@ -149,9 +164,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
             String andonMachineCode = allAndonMachine.get(0);
             violentSortingDto.setAndonMachineCode(andonMachineCode);
 
-            // 根据网格businesskey查网格,补全dto内容
 
-            Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridBusinessKey);
             if (workGridResult.isSuccess()) {
                 WorkGrid grid = workGridResult.getData();
 
@@ -184,7 +197,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
             andonEventService.lightOn(AndonEventSourceEnum.VIOLENT_SORTING,
                     String.valueOf(violentSortingDto.getId()),
                     violentSortingDto.getSiteCode(),
-                    violentSortingDto.getGridCode(), andonMachineCode, new Date(violentSortingDto.getCreateTime()), violentSortingDto);
+                    violentSortingDto.getGridCode(), andonMachineCode, new Date(violentSortingDto.getCreateTime()), violentSortingDto);*/
 
         } catch (Exception e) {
             Profiler.functionError(info);
@@ -192,6 +205,15 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
         } finally {
             Profiler.registerInfoEnd(info);
         }
+    }
+    
+    private void generateViolentSortingTask(ViolentSortingDto violentSortingDto, WorkGrid workGrid){
+        try {
+            executor.execute(()-> jyBizTaskWorkGridManagerService.generateViolentSortingTask(violentSortingDto, workGrid));
+        }catch (Exception e){
+            logger.error("生成异常检查任务-异常:",e);
+        }
+        
     }
 
     // 通知
