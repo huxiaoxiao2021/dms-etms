@@ -401,6 +401,12 @@ public class BoxResource {
             return result;
         }
 
+        if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
+            if(StringUtils.isEmpty(request.getSubType())){
+                request.setSubType(BoxSubTypeEnum.PARENT_ASSOCIATE_NORMAL_SBU_TYPE_MAP.get(request.getType()));
+            }
+        }
+
         List<Box> availableBoxes;
         if(isNew){
             availableBoxes = this.boxService.batchAddNew(this.toBox(request),systemType);
