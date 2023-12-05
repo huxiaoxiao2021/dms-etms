@@ -326,6 +326,7 @@
 		<property name="terminalSiteTypeForBoxType" value="${siteTypeTerminalForBoxType:4,10}"/>
 		<property name="czSealCarBoardCountMinLimit" value="${czSealCarBoardCountMinLimit:4}"/>
 		<property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
+		<property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:5000}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -657,6 +658,7 @@
 				<value>uccPropertyConfiguration.siteTypeTerminalForBoxType</value>
 				<value>uccPropertyConfiguration.czSealCarBoardCountMinLimit</value>
 				<value>uccPropertyConfiguration.czSealCarPackageCountMinLimit</value>
+				<value>uccPropertyConfiguration.jyAviationManualCreateSendTaskMaxBookingWeight</value>
 			</list>
 		</property>
 	</bean>
