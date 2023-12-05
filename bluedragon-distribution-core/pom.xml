@@ -111,12 +111,6 @@
 			<groupId>erp.ql.station</groupId>
 			<artifactId>erp.ql.station-api</artifactId>
 			<version>1.0.1-printcheck-20210426.063930-1</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.jd.jim.cli</groupId>
-					<artifactId>jim-cli-jedis</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
  
 		<dependency>
