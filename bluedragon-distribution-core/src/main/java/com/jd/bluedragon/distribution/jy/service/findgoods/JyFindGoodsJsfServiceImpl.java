@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.findgoods;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
@@ -351,12 +352,17 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
             query.setWaveBeginTm(query.getWaveDate() + " " + findGoodsTaskDto.getWaveStartTime());
             query.setWaveEndTm(findGoodsTaskDto.getTaskDate() + " " + findGoodsTaskDto.getWaveEndTime());
         }
-        Map<String, Object> params = ObjectMapHelper.convertObject2Map(query);
         ApiDataQueryRequest request = new ApiDataQueryRequest();
         request.setApiName(sortingCleanSingleSiteWave);
         request.setAppToken(udataAppToken);
         request.setApiGroupName(apiGroupName);
-        request.setParams(params);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            Map params = mapper.readValue(mapper.writeValueAsString(query), Map.class);
+            request.setParams(params);
+        } catch (JsonProcessingException e) {
+            log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave toMap error:{}", e.getMessage());
+        }
         log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave request:{}", JSON.toJSONString(request));
         ApiDataQueryResult apiDataQueryResult = apiQueryService.apiDataQuery(request);
         log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave apiDataQueryResult:{}", JSON.toJSONString(apiDataQueryResult));
