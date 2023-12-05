@@ -1275,11 +1275,9 @@
 		select
 		<include refid="Base_Column_List"/>
 		from user_sign_record
-		where 1=1
-		and sign_date = #{signDate}
+		where sign_date = #{signDate}
 		and site_code = #{siteCode}
-		and ref_grid_key is not null
-		order by create_user desc
+		order by sign_in_time desc
 		limit 1
 	</select>
 </mapper>

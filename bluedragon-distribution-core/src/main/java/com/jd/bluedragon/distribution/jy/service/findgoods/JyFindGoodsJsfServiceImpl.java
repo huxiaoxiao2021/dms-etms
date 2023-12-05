@@ -28,6 +28,7 @@ import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -52,8 +53,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -285,93 +289,122 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
   }
 
 
-  @Override
-  public void findGoodsNotice(FindGoodsTaskDto findGoodsTaskDto) {
-    try {
-      log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice findGoodsTaskDto:{}", JSON.toJSONString(findGoodsTaskDto));
-      if (StringUtils.isBlank(cacheService.get(getFindGoodsNoticeCacheKey(findGoodsTaskDto)))) {
-          String sendErp = getLeaderErp(findGoodsTaskDto);
-          if (StringUtils.isNotBlank(findGoodSendMessageDErp)) {
-            sendErp = findGoodSendMessageDErp;
-          }
-          log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice sendErp:{}", sendErp);
-          if (StringUtils.isNotBlank(sendErp)) {
-              // send message
-              this.sendFindGoodsMessage(findGoodsTaskDto, sendErp);
-              // record cache
-              cacheService.setEx(getFindGoodsNoticeCacheKey(findGoodsTaskDto),"1",1L,TimeUnit.DAYS);
-          }
-      }
-    } catch (Exception e) {
-      log.info("JyFindGoodsJsfServiceImpl.sendFindGoodsMessage error:{}", e.getMessage());
-    } finally {
-      log.info("findGoodsNotice run finish!");
+    @Override
+    public void findGoodsNotice(FindGoodsTaskDto findGoodsTaskDto) {
+        try {
+            log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice findGoodsTaskDto:{}", JSON.toJSONString(findGoodsTaskDto));
+            if (StringUtils.isBlank(cacheService.get(getFindGoodsNoticeCacheKey(findGoodsTaskDto)))) {
+                String sendErp = getLeaderErp(findGoodsTaskDto);
+                log.info("JyFindGoodsJsfServiceImpl.FindGoodsNotice sendErp:{}", sendErp);
+                if (StringUtils.isNotBlank(sendErp)) {
+                    // send message
+                    this.sendFindGoodsMessage(findGoodsTaskDto, sendErp);
+                    // record cache
+                    cacheService.setEx(getFindGoodsNoticeCacheKey(findGoodsTaskDto), "1", 1L, TimeUnit.DAYS);
+                }
+            }
+        } catch (Exception e) {
+            log.info("JyFindGoodsJsfServiceImpl.sendFindGoodsMessage error:{}", e.getMessage());
+        } finally {
+            log.info("findGoodsNotice run finish!");
+        }
     }
-  }
 
-  private void sendFindGoodsMessage(FindGoodsTaskDto findGoodsTaskDto, String sendErp) {
-    SingleSiteWaveDto siteWaveDto = querySingleSiteWave(findGoodsTaskDto);
-    if (siteWaveDto == null) {
-      log.error("JyFindGoodsJsfServiceImpl.sendFindGoodsMessage  siteWaveDto is null");
-      cacheService.del(getFindGoodsNoticeCacheKey(findGoodsTaskDto));
+    private void sendFindGoodsMessage(FindGoodsTaskDto findGoodsTaskDto, String sendErp) {
+        SingleSiteWaveDto siteWaveDto = querySingleSiteWave(findGoodsTaskDto);
+        if (siteWaveDto == null) {
+            log.warn("JyFindGoodsJsfServiceImpl.sendFindGoodsMessage siteWaveDto is null");
+            return;
+        }
+        String content = String.format(Constants.FIND_GOODS_NOTICE_CONTENT,
+                siteWaveDto.getSortingSiteName(),
+                DateUtil.format(new Date(), "MM月dd日"),
+                findGoodsTaskDto.getWaveStartTime(),
+                findGoodsTaskDto.getWaveEndTime(),
+                siteWaveDto.getWaitFindCount(),
+                siteWaveDto.getHaveFindCount(),
+                siteWaveDto.getNotFindCount(),
+                siteWaveDto.getNotFindHighValueCount(),
+                siteWaveDto.getNotFindExpressCount(),
+                siteWaveDto.getNotFindFreshCount()
+        );
+        List<String> pins = new ArrayList<>();
+        if (StringUtils.isNotBlank(findGoodSendMessageDErp)) {
+            pins.addAll(Arrays.asList(findGoodSendMessageDErp.split(",")));
+        } else {
+            pins.add(sendErp);
+        }
+        log.info("JyFindGoodsJsfServiceImpl.sendFindGoodsMessage sendErp:{},content:{}", sendErp, content);
+        NoticeUtils.noticeToTimeline(Constants.FIND_GOODS_NOTICE_TITLE, content, null, pins);
     }
-    String content = String.format(Constants.FIND_GOODS_NOTICE_CONTENT,
-            siteWaveDto.getSortingSiteName(),
-            DateUtil.format(new Date(),"MM月dd日"),
-            findGoodsTaskDto.getWaveStartTime(),
-            findGoodsTaskDto.getWaveEndTime(),
-            siteWaveDto.getWaitFindCount(),
-            siteWaveDto.getHaveFindCount(),
-            siteWaveDto.getNotFindCount(),
-            siteWaveDto.getNotFindHighValueCount(),
-            siteWaveDto.getNotFindExpressCount(),
-            siteWaveDto.getNotFindFreshCount()
-            );
-    Set<String> pins = new HashSet<>();
-    pins.add(sendErp);
-    log.info("JyFindGoodsJsfServiceImpl.sendFindGoodsMessage sendErp:{},content:{}", sendErp, content);
-    mspClientProxy.sendTimeline(Constants.FIND_GOODS_NOTICE_TITLE, content, null, pins, false);
-  }
-  
-  private SingleSiteWaveDto querySingleSiteWave(FindGoodsTaskDto findGoodsTaskDto) {
-    SingleSiteWaveQuery query = new SingleSiteWaveQuery();
-    query.setSortingSiteCode(findGoodsTaskDto.getSiteCode());
-    query.setWaveDate(DateUtil.formatDate(new Date()));
-    query.setWaveBeginTm(findGoodsTaskDto.getWaveStartTime());
-    query.setWaveEndTm(findGoodsTaskDto.getWaveEndTime());
-    Map<String, Object> params = ObjectMapHelper.convertObject2Map(query);
-    ApiDataQueryRequest request = new ApiDataQueryRequest();
-    request.setApiName(sortingCleanSingleSiteWave);
-    request.setAppToken(udataAppToken);
-    request.setApiGroupName(apiGroupName);
-    request.setParams(params);
-    log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave request:{}", JSON.toJSONString(request));
-    ApiDataQueryResult apiDataQueryResult = apiQueryService.apiDataQuery(request);
-    log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave apiDataQueryResult:{}", JSON.toJSONString(apiDataQueryResult));
-    if (apiDataQueryResult.getCode() == null || !apiDataQueryResult.getCode().equals(200)) {
-      return null;
+    private SingleSiteWaveDto querySingleSiteWave(FindGoodsTaskDto findGoodsTaskDto) {
+        SingleSiteWaveQuery query = new SingleSiteWaveQuery();
+        query.setSortingSiteCode(findGoodsTaskDto.getSiteCode());
+        String waveDate = this.getWaveDate(findGoodsTaskDto);
+        log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave waveDate:{}", waveDate);
+        if (waveDate == null) {
+            query.setWaveDate(findGoodsTaskDto.getTaskDate());
+            query.setWaveBeginTm(query.getWaveDate() + " " + findGoodsTaskDto.getWaveStartTime());
+            query.setWaveEndTm(query.getWaveDate() + " " + findGoodsTaskDto.getWaveEndTime());
+        } else {
+            query.setWaveDate(waveDate);
+            query.setWaveBeginTm(query.getWaveDate() + " " + findGoodsTaskDto.getWaveStartTime());
+            query.setWaveEndTm(findGoodsTaskDto.getTaskDate() + " " + findGoodsTaskDto.getWaveEndTime());
+        }
+        Map<String, Object> params = ObjectMapHelper.convertObject2Map(query);
+        ApiDataQueryRequest request = new ApiDataQueryRequest();
+        request.setApiName(sortingCleanSingleSiteWave);
+        request.setAppToken(udataAppToken);
+        request.setApiGroupName(apiGroupName);
+        request.setParams(params);
+        log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave request:{}", JSON.toJSONString(request));
+        ApiDataQueryResult apiDataQueryResult = apiQueryService.apiDataQuery(request);
+        log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave apiDataQueryResult:{}", JSON.toJSONString(apiDataQueryResult));
+        if (apiDataQueryResult.getCode() == null || !apiDataQueryResult.getCode().equals(200)) {
+            return null;
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.convertValue(apiDataQueryResult.getData().get(0), SingleSiteWaveDto.class);
     }
-    ObjectMapper objectMapper = new ObjectMapper();
-    return objectMapper.convertValue(apiDataQueryResult.getData().get(0), SingleSiteWaveDto.class);
-  }
 
-  private String getFindGoodsNoticeCacheKey(FindGoodsTaskDto findGoodsTaskDto){
-    return String.format(Constants.FIND_GOODS_NOTICE_CACHE_KEY, findGoodsTaskDto.getSiteCode(), DateUtil.formatDate(new Date()),
-            findGoodsTaskDto.getWaveStartTime(), findGoodsTaskDto.getWaveEndTime());
-  }
-  private String getLeaderErp(FindGoodsTaskDto findGoodsTaskDto) {
-    UserSignRecord userSignRecord = null;
-    try {
-      UserSignRecordQuery query = new UserSignRecordQuery();
-      query.setSignDateStr(DateUtil.formatDate(new Date()));
-      query.setSiteCode(Integer.valueOf(findGoodsTaskDto.getSiteCode().toString()));
-      userSignRecord = userSignRecordDao.queryFirstExistGridRecord(query);
-    } catch (Exception e) {
-      log.error("JyFindGoodsJsfServiceImpl.leaderErp  queryFirstExistGridRecord error:{}",e.getMessage());
+
+    private String getWaveDate(FindGoodsTaskDto findGoodsTaskDto) {
+        if (StringUtils.isBlank(findGoodsTaskDto.getWaveStartTime()) || StringUtils.isBlank(findGoodsTaskDto.getWaveEndTime())) {
+            return null;
+        }
+        try {
+            long startTimeL = DateHelper.parseDateTime(findGoodsTaskDto.getTaskDate() + " " + findGoodsTaskDto.getWaveStartTime()).getTime();
+            long endTimeL = DateHelper.parseDateTime(findGoodsTaskDto.getTaskDate() + " " + findGoodsTaskDto.getWaveEndTime()).getTime();
+            if (endTimeL <= startTimeL) {
+                return DateHelper.formatDate(DateHelper.addDate(DateHelper.parseDate(findGoodsTaskDto.getTaskDate()), -1));
+            }
+        } catch (Exception e) {
+            log.error("getWaveDate");
+            return null;
+        }
+        return null;
     }
-    if (userSignRecord == null) {
-      return null;
+
+    private String getFindGoodsNoticeCacheKey(FindGoodsTaskDto findGoodsTaskDto) {
+        return String.format(Constants.FIND_GOODS_NOTICE_CACHE_KEY, findGoodsTaskDto.getSiteCode(), this.getWaveDate(findGoodsTaskDto),
+                findGoodsTaskDto.getWaveStartTime(), findGoodsTaskDto.getWaveEndTime());
     }
-    return hrUserManager.getSuperiorErp(userSignRecord.getUserCode());
-  }
+
+    private String getLeaderErp(FindGoodsTaskDto findGoodsTaskDto) {
+        UserSignRecord userSignRecord = null;
+        try {
+            UserSignRecordQuery query = new UserSignRecordQuery();
+            query.setSignDateStr(this.getWaveDate(findGoodsTaskDto));
+            query.setSiteCode(Integer.valueOf(findGoodsTaskDto.getSiteCode().toString()));
+            userSignRecord = userSignRecordDao.queryFirstExistGridRecord(query);
+        } catch (Exception e) {
+            log.error("JyFindGoodsJsfServiceImpl.leaderErp  queryFirstExistGridRecord error:{}", e.getMessage());
+        } finally {
+            log.info("JyFindGoodsJsfServiceImpl.leaderErp userSignRecord:{}", JSON.toJSONString(userSignRecord));
+        }
+        if (userSignRecord == null) {
+            return null;
+        }
+        return hrUserManager.getSuperiorErp(userSignRecord.getUserCode());
+    }
 }
