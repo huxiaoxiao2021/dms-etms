@@ -540,4 +540,8 @@ public class DmsConstants {
      * 围板箱前缀
      */
     public static final String COLLECTION_AD02_PREFIX= "AD02";
+    /**
+     * 航班号正则
+     */
+    public static final String FLIGHT_NUMBER_REGEX = "[0-9A-Z]{6}";
 }

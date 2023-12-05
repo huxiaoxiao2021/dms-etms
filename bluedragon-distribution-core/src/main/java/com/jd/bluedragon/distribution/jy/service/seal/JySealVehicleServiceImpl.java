@@ -18,6 +18,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jsf.vehicle.VehicleBasicManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -31,6 +32,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealSendCode;
+import com.jd.bluedragon.distribution.jy.dto.seal.JyAviationSealMq;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JdiBoardLoadWSManager;
@@ -41,6 +43,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.send.*;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskBindService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.summary.BusinessKeyTypeEnum;
@@ -185,6 +188,13 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     DMSSendCodeJSFService dmsSendCodeJSFService;
 
     public static final Integer LOADING_COMPLETEDC = 30;
+    @Autowired
+    @Qualifier("aviationSealProducer")
+    private DefaultJMQProducer aviationSealProducer;
+    @Autowired
+    private JyBizTaskSendAviationPlanService jyBizTaskSendAviationPlanService;
+
+
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -303,6 +313,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     }
                     if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(sealVehicleReq.getFuncType())) {
                         //空铁任务
+                        sendToTmsAviationSealMq(sealVehicleReq, sealCarDto);
                         updateTaskStatusSealAndSummary(sealVehicleReq, sendCodes, sealCarDto);
                     }else {
                         updateTaskStatus(sealVehicleReq, sealCarDto);
@@ -316,6 +327,44 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
         }
         return new InvokeResult(NO_SEND_CODE_DATA_UNDER_BIZTASK_CODE, NO_SEND_CODE_DATA_UNDER_BIZTASK_MESSAGE);
+    }
+
+    private void sendToTmsAviationSealMq(SealVehicleReq sealVehicleReq, SealCarDto sealCarDto){
+        //给运输发送封车消息
+        JyAviationSealMq jyAviationSealMq = new JyAviationSealMq();
+        try {
+            JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(sealVehicleReq.getSendVehicleBizId());
+
+            jyAviationSealMq.setStartSiteId(entity.getStartSiteId());
+            jyAviationSealMq.setStartSiteName(entity.getStartSiteName());
+            jyAviationSealMq.setNextSiteId(entity.getNextSiteId());
+            jyAviationSealMq.setNextSiteName(entity.getNextSiteName());
+            jyAviationSealMq.setOperatorErp(sealVehicleReq.getUser().getUserErp());
+            jyAviationSealMq.setOperateTime(TimeUtils.strToDate(sealCarDto.getSealCarTime(), yyyy_MM_dd_HH_mm_ss).getTime());
+            jyAviationSealMq.setFlightNumber(entity.getFlightNumber());
+            jyAviationSealMq.setBatchCodeList(sealCarDto.getBatchCodes());
+            jyAviationSealMq.setItemNum(sealVehicleReq.getItemNum());
+            jyAviationSealMq.setWeight(sealVehicleReq.getWeight());
+            jyAviationSealMq.setAirType(entity.getAirType());
+            jyAviationSealMq.setCargoType(entity.getCargoType());
+            jyAviationSealMq.setTaskType(entity.getManualCreatedFlag());
+            if(!Constants.NUMBER_ONE.equals(entity.getManualCreatedFlag())) {
+                //航空任务属性
+                jyAviationSealMq.setBeginNodeCode(entity.getBeginNodeCode());
+                jyAviationSealMq.setBeginNodeName(entity.getBeginNodeName());
+                jyAviationSealMq.setEndNodeCode(entity.getEndNodeCode());
+                jyAviationSealMq.setEndNodeName(entity.getEndNodeName());
+                jyAviationSealMq.setBookingCode(entity.getBookingCode());
+            }
+
+            aviationSealProducer.send(jyAviationSealMq.getFlightNumber(), JsonHelper.toJson(jyAviationSealMq));
+        } catch (Exception e) {
+            log.info("航空任务封车给运输发消息异常，{}", JsonHelper.toJson(jyAviationSealMq));
+        }finally {
+            if(log.isInfoEnabled()) {
+                log.info("sendToTmsAviationSealMq：航空【{}】封车数据={}", jyAviationSealMq.getFlightNumber(), JsonHelper.toJson(jyAviationSealMq));
+            }
+        }
     }
 
     private List<String> getSealCodes(SealVehicleReq sealVehicleReq) {

@@ -999,4 +999,9 @@
     <bean id="sealSyncOpenCloseSendTaskProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.sealSyncOpenCloseSendTask}"/>
     </bean>
+    <!-- 航空封车 -->
+    <bean id="aviationSealProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.aviationSeal}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>
