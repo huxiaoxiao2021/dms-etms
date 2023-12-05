@@ -1225,7 +1225,7 @@
 		limit #{offset}, #{limit}
 	</select>
 	
-	<select id="queryFirstExistGridRecord" parameterType="java.lang.Long" resultMap="UserSignRecord">
+	<select id="queryFirstExistGridRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
 		select
 		<include refid="Base_Column_List"/>
 		from user_sign_record

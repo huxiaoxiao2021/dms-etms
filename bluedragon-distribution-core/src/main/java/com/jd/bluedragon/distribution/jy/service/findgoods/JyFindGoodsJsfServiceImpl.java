@@ -378,7 +378,9 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
     }
 
     private String getFindGoodsNoticeCacheKey(FindGoodsTaskDto findGoodsTaskDto) {
-        return String.format(Constants.FIND_GOODS_NOTICE_CACHE_KEY, findGoodsTaskDto.getSiteCode(), this.getWaveDate(findGoodsTaskDto),
+        String waveDate = this.getWaveDate(findGoodsTaskDto);
+        waveDate = waveDate == null? findGoodsTaskDto.getTaskDate(): waveDate;
+        return String.format(Constants.FIND_GOODS_NOTICE_CACHE_KEY, findGoodsTaskDto.getSiteCode(), waveDate,
                 findGoodsTaskDto.getWaveStartTime(), findGoodsTaskDto.getWaveEndTime());
     }
 
@@ -386,7 +388,9 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
         UserSignRecord userSignRecord = null;
         try {
             UserSignRecordQuery query = new UserSignRecordQuery();
-            query.setSignDateStr(this.getWaveDate(findGoodsTaskDto));
+            String waveDate = this.getWaveDate(findGoodsTaskDto);
+            waveDate = waveDate == null? findGoodsTaskDto.getTaskDate(): waveDate;
+            query.setSignDateStr(waveDate);
             query.setSiteCode(Integer.valueOf(findGoodsTaskDto.getSiteCode().toString()));
             log.info("JyFindGoodsJsfServiceImpl.leaderErp query:{}", JSON.toJSONString(query));
             userSignRecord = userSignRecordDao.queryFirstExistGridRecord(query);
