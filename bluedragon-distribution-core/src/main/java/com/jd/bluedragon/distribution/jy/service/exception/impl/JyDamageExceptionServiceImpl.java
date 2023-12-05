@@ -845,8 +845,8 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         logger.info("JySanwuExceptionServiceImpl.processTaskOfDamage req:{}", JSON.toJSONString(req));
         //仅当外包装破损且选择修复或更换外包装时 走终端校验耗材条码
         if (JyExceptionDamageEnum.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode().equals(req.getDamageType())
-        && (JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPAIR.getCode().equals(req.getDamageType())
-                || JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode().equals(req.getDamageType()))
+        && (JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPAIR.getCode().equals(req.getRepairType())
+                || JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode().equals(req.getRepairType()))
         && req.getConsumables() != null) {
             List<String> barcodes = req.getConsumables().stream().map(e -> e.getBarcode()).collect(Collectors.toList());
             if (Boolean.FALSE.equals(consumableManager.checkConsumable(barcodes, req.getUserErp()))) {

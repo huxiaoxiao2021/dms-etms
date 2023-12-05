@@ -28,7 +28,7 @@ public class JyDamageConsumableDao extends BaseDao<JyDamageConsumableEntity> {
 
 
     public int insertBatch(List<JyDamageConsumableEntity> entities) {
-        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entities);
+        return this.getSqlSession().insert(NAMESPACE + ".insertBatch", entities);
     }
 
     public List<JyDamageConsumableEntity> selectByBizId(String bizId) {

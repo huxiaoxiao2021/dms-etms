@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.Consumable;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyDamageConsumableDao;
+import com.jd.bluedragon.distribution.jy.exception.JyDamageConsumableEntity;
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.utils.JsonHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,9 @@ public class JyDamageExceptionServiceTest {
     @Autowired
     private JyDamageExceptionService jyDamageExceptionService;
     private ExpDamageDetailReq req;
+
+    @Autowired
+    private JyDamageConsumableDao jyDamageConsumableDao;
 
     @Before
     public void init() {
@@ -48,6 +53,7 @@ public class JyDamageExceptionServiceTest {
 
         req.setDamageType(1);
         req.setRepairType(2);
+        req.setPositionCode("GW00010001");
     }
 
     @Test
@@ -62,5 +68,19 @@ public class JyDamageExceptionServiceTest {
         JdCResponse<List<JyExceptionDamageEnum.ConsumableEnum>> consumables = jyDamageExceptionService.getConsumables();
 
         System.out.println(JsonHelper.toJson(consumables));
+    }
+
+    @Test
+    public void damageConsumableDao(){
+//        List<JyDamageConsumableEntity> jyDamageConsumableEntities = jyDamageConsumableDao.selectByBizId("testclf001");
+//        System.out.println(JsonHelper.toJson(jyDamageConsumableEntities));
+
+    }
+
+    @Test
+    public void insertDamageConsumable(){
+        List<JyDamageConsumableEntity> jyDamageConsumableEntities = jyDamageConsumableDao.selectByBizId("testclf001");
+        System.out.println(JsonHelper.toJson(jyDamageConsumableEntities));
+
     }
 }

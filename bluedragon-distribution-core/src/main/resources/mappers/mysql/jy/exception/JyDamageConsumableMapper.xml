@@ -33,157 +33,62 @@
     consumable_code, consumable_name, consumable_barcode, operator_erp, operate_time, ts, yn
   </sql>
 
-  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyDamageConsumableEntity" >
+  <insert id="insertBatch" parameterType="com.jd.bluedragon.distribution.jy.exception.JyDamageConsumableEntity" >
     insert into jy_damage_consumable_detail
     <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
         id,
-      </if>
-      <if test="damageBizId != null" >
         damage_biz_id,
-      </if>
-      <if test="provinceAgencyCode != null" >
         province_agency_code,
-      </if>
-      <if test="provinceAgencyName != null" >
         province_agency_name,
-      </if>
-      <if test="areaHubCode != null" >
         area_hub_code,
-      </if>
-      <if test="areaHubName != null" >
         area_hub_name,
-      </if>
-      <if test="siteCode != null" >
         site_code,
-      </if>
-      <if test="siteName != null" >
         site_name,
-      </if>
-      <if test="floor != null" >
         floor,
-      </if>
-      <if test="gridNo != null" >
         grid_no,
-      </if>
-      <if test="gridCode != null" >
         grid_code,
-      </if>
-      <if test="gridName != null" >
         grid_name,
-      </if>
-      <if test="ownerUserErp != null" >
         owner_user_erp,
-      </if>
-      <if test="areaCode != null" >
         area_code,
-      </if>
-      <if test="areaName != null" >
         area_name,
-      </if>
-      <if test="barCode != null" >
         bar_code,
-      </if>
-      <if test="waybillCode != null" >
-        waybillCode,
-      </if>
-      <if test="consumableCode != null" >
+        waybill_code,
         consumable_code,
-      </if>
-      <if test="consumableName != null" >
         consumable_name,
-      </if>
-      <if test="consumableBarcode != null" >
         consumable_barcode,
-      </if>
-      <if test="operatorErp != null" >
         operator_erp,
-      </if>
-      <if test="operateTime != null" >
         operate_time,
-      </if>
-      <if test="ts != null" >
         ts,
-      </if>
-      <if test="yn != null" >
-        yn,
-      </if>
+        yn
     </trim>
-    <foreach collection="list" item="item" index="index">
-      <trim prefix="values (" suffix=")" suffixOverrides="," >
-        <if test="id != null" >
-          #{item.id,jdbcType=BIGINT},
-        </if>
-        <if test="damageBizId != null" >
-          #{item.damageBizId,jdbcType=VARCHAR},
-        </if>
-        <if test="provinceAgencyCode != null" >
-          #{item.provinceAgencyCode,jdbcType=INTEGER},
-        </if>
-        <if test="provinceAgencyName != null" >
-          #{item.provinceAgencyName,jdbcType=VARCHAR},
-        </if>
-        <if test="areaHubCode != null" >
-          #{item.areaHubCode,jdbcType=INTEGER},
-        </if>
-        <if test="areaHubName != null" >
-          #{item.areaHubName,jdbcType=VARCHAR},
-        </if>
-        <if test="siteCode != null" >
-          #{item.siteCode,jdbcType=INTEGER},
-        </if>
-        <if test="siteName != null" >
-          #{item.siteName,jdbcType=VARCHAR},
-        </if>
-        <if test="floor != null" >
-          #{item.floor,jdbcType=INTEGER},
-        </if>
-        <if test="gridNo != null" >
-          #{item.gridNo,jdbcType=VARCHAR},
-        </if>
-        <if test="gridCode != null" >
-          #{item.gridCode,jdbcType=INTEGER},
-        </if>
-        <if test="gridName != null" >
-          #{item.gridName,jdbcType=VARCHAR},
-        </if>
-        <if test="ownerUserErp != null" >
-          #{item.ownerUserErp,jdbcType=INTEGER},
-        </if>
-        <if test="areaCode != null" >
-          #{item.areaCode,jdbcType=VARCHAR},
-        </if>
-        <if test="areaName != null" >
-          #{item.areaName,jdbcType=VARCHAR},
-        </if>
-        <if test="barCode != null" >
-          #{item.barCode,jdbcType=VARCHAR},
-        </if>
-        <if test="waybillCode != null" >
-          #{item.waybillCode,jdbcType=VARCHAR},
-        </if>
-        <if test="consumableCode != null" >
-          #{item.consumableCode,jdbcType=INTEGER},
-        </if>
-        <if test="consumableName != null" >
-          #{item.consumableName,jdbcType=VARCHAR},
-        </if>
-        <if test="consumableBarcode != null" >
-          #{item.consumableBarcode,jdbcType=VARCHAR},
-        </if>
-        <if test="operatorErp != null" >
-          #{item.operatorErp,jdbcType=VARCHAR},
-        </if>
-        <if test="operateTime != null" >
-          #{item.operateTime,jdbcType=TIMESTAMP},
-        </if>
-        <if test="ts != null" >
-          #{item.ts,jdbcType=TIMESTAMP},
-        </if>
-        <if test="yn != null" >
-          #{item.yn,jdbcType=BIT},
-        </if>
-      </trim>
+      values
+    <foreach collection="list" item="item" index="index" separator=",">
+    (
+        #{item.id,jdbcType=BIGINT},
+        #{item.damageBizId,jdbcType=VARCHAR},
+        #{item.provinceAgencyCode,jdbcType=INTEGER},
+        #{item.provinceAgencyName,jdbcType=VARCHAR},
+        #{item.areaHubCode,jdbcType=INTEGER},
+        #{item.areaHubName,jdbcType=VARCHAR},
+        #{item.siteCode,jdbcType=INTEGER},
+        #{item.siteName,jdbcType=VARCHAR},
+        #{item.floor,jdbcType=INTEGER},
+        #{item.gridNo,jdbcType=VARCHAR},
+        #{item.gridCode,jdbcType=INTEGER},
+        #{item.gridName,jdbcType=VARCHAR},
+        #{item.ownerUserErp,jdbcType=INTEGER},
+        #{item.areaCode,jdbcType=VARCHAR},
+        #{item.areaName,jdbcType=VARCHAR},
+        #{item.barCode,jdbcType=VARCHAR},
+        #{item.waybillCode,jdbcType=VARCHAR},
+        #{item.consumableCode,jdbcType=INTEGER},
+        #{item.consumableName,jdbcType=VARCHAR},
+        #{item.consumableBarcode,jdbcType=VARCHAR},
+        #{item.operatorErp,jdbcType=VARCHAR},
+        #{item.operateTime,jdbcType=TIMESTAMP},
+        #{item.ts,jdbcType=TIMESTAMP},
+        #{item.yn,jdbcType=BIT}
+    )
     </foreach>
   </insert>
 
