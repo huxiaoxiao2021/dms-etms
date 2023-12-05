@@ -585,7 +585,8 @@ public class SortingResponse extends JdResponse {
 
 
     public static final Integer PACKAGE_PRINT_BAN_CODE =40009;
-    public static final String PACKAGE_PRINT_BAN_MESSAGE ="请使用站长工作台http://z-ql.jd.com/#/workbench，分拣打印-包裹打印功能!";
+    public static final String PACKAGE_PRINT_BAN_MESSAGE_1 ="请使用站长工作台http://z-ql.jd.com/#/workbench，分拣打印-包裹打印功能!";
+    public static final String PACKAGE_PRINT_BAN_MESSAGE_2 ="登录人ERP在人资系统中不是【异常岗】，无法操作包裹补打功能，请联系异常岗人员操作!";
 
 
     public static final Integer MESSAGE_SHOW_TYPE_TIP = 1;

@@ -2333,4 +2333,16 @@ public class Constants {
 
     public static final String FIND_GOODS_NOTICE_CONTENT = "%s分拣中心，%s%s（波次开始时间）-%s（波次结束时间）班次清场，需找货%s件，已找到%s件，仍有%s件未找到，其中包含%s件高值、%s件特快、%s件生鲜，请安排继续找货。";
 
+
+    /**
+     * 包裹补打站点类型限制配置
+     */
+    public static final String PACKAGE_PRINT_LIMIT_SITE_TYPE_CONFIG  = "package.print.limit.siteType.config";
+
+    /**
+     * 标准岗位编码限制配置
+     */
+    public static final String PACKAGE_PRINT_LIMIT_POSITION_CODE_TYPE_CONFIG  = "package.print.limit.positionCode.config";
+
+
 }
