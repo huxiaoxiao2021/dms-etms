@@ -51,8 +51,8 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
 
     private static final String SAVE_ANSWER_HTTP_URL = "http://dongjian.jd.local/wj/saveAnswer";
 
-    // 调查问卷
-    public static final int NOT_FOUNT_QUESTIONNAIRE_ID = 3068;
+    // 调查问卷不显示code
+    public static final int QUESTIONNAIRE_NOT_SHOW_CODE = 3068;
 
     @Autowired
     private PositionManager positionManager;
@@ -63,8 +63,11 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.QuestionnaireGatewayServiceImpl.getQuestionnaire",mState={JProEnum.TP,JProEnum.FunctionError})
     public JdCResponse<String> getQuestionnaire(QuestionnaireReq req) {
+        log.info("调查问卷查询：{}", JsonHelper.toJson(req));
         JdCResponse<String> response = new JdCResponse<>();
         if (!checkQuestionnaireReq(req)) {
+            response.setCode(QUESTIONNAIRE_NOT_SHOW_CODE);
+            response.setMessage("未获取到用户erp信息");
             return response;
         }
 
@@ -72,13 +75,15 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(PDA_QUESTIONNAIRE_ID);
         if (sysConfig == null || StringUtils.isEmpty(sysConfig.getConfigContent())) {
             log.info("未获取到调查问卷id");
-            response.setCode(NOT_FOUNT_QUESTIONNAIRE_ID);
+            response.setCode(QUESTIONNAIRE_NOT_SHOW_CODE);
+            response.setMessage("未获取到调查问卷id");
             return response;
         }
         String questionnaireId = sysConfig.getConfigContent();
 
         if (StringUtils.isNotEmpty(req.getPositionCode()) && checkPositionCode(req)) {
-            response.setCode(NOT_FOUNT_QUESTIONNAIRE_ID);
+            response.setCode(QUESTIONNAIRE_NOT_SHOW_CODE);
+            response.setMessage("该岗位不在调查范围");
             return response;
         }
 
@@ -86,7 +91,8 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         // 判断当前用户是否已经作答
         if (checkUserHasAnswered(questionnaireId,req.getUserErp())) {
             log.info("用户已经作答:{}", req.getUserErp());
-            response.setCode(NOT_FOUNT_QUESTIONNAIRE_ID);
+            response.setCode(QUESTIONNAIRE_NOT_SHOW_CODE);
+            response.setMessage("用户已经作答！");
             return response;
         }
         // 获取调查问卷信息
