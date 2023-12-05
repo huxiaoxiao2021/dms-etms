@@ -1079,7 +1079,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setWaveName(WaveTypeEnum.getNameByCode(waveCode));
 		signInData.setRefWorkGridKey(gridInfo.getRefWorkGridKey());
 		// 计算班次 新逻辑
-		calculateWaveNew(signInRequest, signInData);
+//		calculateWaveNew(signInRequest, signInData);
 		signInData.setRefPlanKey(queryPlanKey(signInData));
 		setWarZoneInfo(signInData);
 
