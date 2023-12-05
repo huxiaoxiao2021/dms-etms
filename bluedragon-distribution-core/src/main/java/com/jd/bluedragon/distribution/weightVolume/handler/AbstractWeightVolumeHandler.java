@@ -524,18 +524,18 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
 
     private boolean checkMinWeightAndVolume(double weight, Double volume, WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
         // 强卡控 重量校验：是否小于0.01kg
-        Double waybillWeightMinLimit = weightVolumeContext.getWeightVolumeRuleConstant().getWeightMinLimit();
-        if (weight < waybillWeightMinLimit) {
-            result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_5, waybillWeightMinLimit));
-            return false;
-        }
-
-        // 强卡控 体积校验：是否小于0.01cm3
-        Double waybillVolumeMinLimit = weightVolumeContext.getWeightVolumeRuleConstant().getVolumeMinLimit();
-        if(volume < waybillVolumeMinLimit){
-            result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_6, waybillVolumeMinLimit));
-            return false;
-        }
+//        Double waybillWeightMinLimit = weightVolumeContext.getWeightVolumeRuleConstant().getWeightMinLimit();
+//        if (weight < waybillWeightMinLimit) {
+//            result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_5, waybillWeightMinLimit));
+//            return false;
+//        }
+//
+//        // 强卡控 体积校验：是否小于0.01cm3
+//        Double waybillVolumeMinLimit = weightVolumeContext.getWeightVolumeRuleConstant().getVolumeMinLimit();
+//        if(volume < waybillVolumeMinLimit){
+//            result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_6, waybillVolumeMinLimit));
+//            return false;
+//        }
         return true;
     }
 

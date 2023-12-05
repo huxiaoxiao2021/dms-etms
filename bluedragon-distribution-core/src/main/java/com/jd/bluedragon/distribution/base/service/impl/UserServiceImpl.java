@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
@@ -395,7 +394,6 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	public JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest dmsClientHeartbeatRequest){
 		//调用jsf记录心跳信息
 		JdResult<DmsClientHeartbeatResponse> result = dmsClientManager.sendHeartbeat(dmsClientHeartbeatRequest);
-		log.info("dmsClientManager.sendHeartbeat result-{}", JSON.toJSONString(result));
 		if(result != null 
 				&& result.isSucceed()
 				&& result.getData() != null){
@@ -429,9 +427,6 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 				}
 				//校验账号是否有效
 				if(!checkUserCode(userCode)){
-					if(log.isInfoEnabled()){
-						log.info("账号无效 userCode-{}",userCode);
-					}
 					result.getData().setForceLogout(Boolean.TRUE);
 					result.getData().setLogoutType(LogoutTypeEnum.WARN_USER_INVALID.getTypeCode());
 	                result.toWarn(JdResponse.CODE_RESIGNATION,JdResponse.MESSAGE_RESIGNATION);
@@ -491,20 +486,11 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
      * @return
      */
     public boolean checkUserCode(String userCode){
-		if(log.isInfoEnabled()){
-			log.info("checkUserCode userCode-{}",userCode);
-		}
 		if(userCode != null && !userCode.toLowerCase().contains(Constants.PDA_THIRDPL_TYPE)){
             BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(userCode);
             if(baseDto == null || baseDto.getIsResign() == null || baseDto.getIsResign() != 1){
-				if(log.isInfoEnabled()){
-					log.info("checkUserCode false");
-				}
-				return false;
+                return false;
             }
-		}
-		if(log.isInfoEnabled()){
-			log.info("checkUserCode true");
 		}
         return true;
     }

@@ -12,6 +12,7 @@ import com.jd.bluedragon.core.jsf.workStation.JyUserManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.jy.dto.violentSorting.ViolentSortingDto;
 import com.jd.bluedragon.distribution.jy.dto.work.*;
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerBusinessService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
@@ -22,6 +23,8 @@ import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.user.JyUser;
 import com.jdl.basic.api.domain.user.JyUserDto;
@@ -64,6 +67,11 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	private static final String MANAGER_PATROL_SYS_CONF_KEY = "manager.patrol.task.grid.config";
 	//飞检巡场任务 登录岗位码所在的作业区
 	private static final String MANAGER_PATROL_AREA_CODE_SYS_CONF_KEY = "manager.patrol.login.area.code";
+	
+	//异常检查任务岗位名称
+	private static final String EXP_INSPECTION_TASK_POSITION_NAMES_CONF_KEY = "exp.inspection.task.position.names";
+	//异常检查任务间隔(分钟），0为不限制，间隔内本场地只能触发1个任务
+	private static final String EXP_INSPECTION_TASK_INTERVAL_CONF_KEY = "exp.inspection.task.interval.minute";
 
 
 
@@ -107,6 +115,12 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 				BusinessQuotaInfoData data  = JsonHelper.fromJsonMs(jyTaskData.getExtendInfo(), BusinessQuotaInfoData.class);
 				taskData.setBusinessQuotaInfoData(data);
 			}
+			//异常任务的扩展信息
+			if(WorkTaskTypeEnum.VIOLENCE_SORT.getCode().equals(jyTaskData.getTaskType())){
+				ViolenceSortInfoData data  = JsonHelper.fromJsonMs(jyTaskData.getExtendInfo(), ViolenceSortInfoData.class);
+				taskData.setViolenceSortInfoData(data);
+			}
+			
 		}
 		//飞检 和 非待处理状态的  不能转派
 		WorkGridManagerTaskBizType bizTypeEnum = WorkGridManagerTaskBizType.getEnum(jyTaskData.getTaskBizType());
@@ -305,7 +319,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		List<String> taskCodeList = taskResult.getData().stream().map(WorkGridManagerTask::getTaskCode).collect(Collectors.toList());
 		//检查是否已生成本erp的今天的管理任务
 		Integer taskCount = jyBizTaskWorkGridManagerDao.selectHandlerTodayTaskCountByTaskBizType(detailRecord.getSiteCode(),
-				DateHelper.getZeroFromDay(new Date(), 0), erp, taskCodeList);
+				DateHelper.getZeroFromDay(new Date(), 0), erp, taskCodeList, null);
 		if(taskCount > 0){
 			logger.info("生成飞检巡场任务，今天已生成管理任务，不再重复生成, erp:{}, siteCode:{}", erp, detailRecord.getSiteCode());
 			return;
@@ -390,7 +404,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			WorkGridManagerTask taskInfo = entry.getKey();
 			for(WorkGrid workGrid : entry.getValue()){
 				jyTaskInitList.add(initJyBizTaskWorkGridManager(siteInfo, taskInfo, handlerPositionCode,
-						handlerPositionName, workGrid,curDate, erp, userName, preFinishTime));
+						handlerPositionName, workGrid,curDate, erp, userName, preFinishTime,
+						WorkGridManagerTaskBizType.MANAGER_PATROL.getCode()));
 			}
 		}
 		return jyTaskInitList;
@@ -461,7 +476,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 																  String handlerPositionName,
 																  WorkGrid grid, Date curDate,
 																  String erp, String userName,
-																  Date preFinishTime) {
+																  Date preFinishTime, Integer taskBizTask) {
 		TaskWorkGridManagerSiteScanData taskWorkGridManagerScan = new TaskWorkGridManagerSiteScanData();
 		taskWorkGridManagerScan.setTaskConfigCode("");
 		taskWorkGridManagerScan.setTaskBatchCode("");
@@ -473,7 +488,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 
 		//设置任务配置信息
 		jyTask.setHandlerPositionCode(handlerPositionCode);
-		jyTask.setTaskBizType(WorkGridManagerTaskBizType.MANAGER_PATROL.getCode());
+		jyTask.setTaskBizType(taskBizTask);
 		jyTask.setProcessBeginTime(curDate);
 		jyTask.setHandlerErp(erp);
 		jyTask.setHandlerUserName(userName);
@@ -498,6 +513,119 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	@Override
 	public String selectLastHandlerErp(String taskCode, Integer siteCode){
 		return jyBizTaskWorkGridManagerDao.selectLastHandlerErp(taskCode, siteCode);
+	}
+
+	/**
+	 * 暴击分拣消息生成暴力分拣任务
+	 * 相同网格5分内只触发一次
+	 * 同一个场地每天最多十个任务
+	 * @param violentSortingDto
+	 * @param workGrid
+	 */
+	@Override
+	public void generateViolentSortingTask(ViolentSortingDto violentSortingDto, WorkGrid workGrid){
+		CallerInfo info = Profiler.registerInfo("JyBizTaskWorkGridManagerService.generateViolentSortingTask",
+				Constants.UMP_APP_NAME_DMSWORKER,false, true);
+		String infoPrefix = "生成异常检查任务-";
+		try {
+			SysConfig positonNamesConfig = sysConfigService.findConfigContentByConfigName(EXP_INSPECTION_TASK_POSITION_NAMES_CONF_KEY);
+			if(positonNamesConfig == null || StringUtils.isBlank(positonNamesConfig.getConfigContent())){
+				logger.error("{}未查到岗位名称配置", infoPrefix);
+				return;
+			}
+			String gridBusinessKey = violentSortingDto.getGridBusinessKey();
+			//检查是否已生成本erp的今天的管理任务
+			Result<List<WorkGridManagerTask>> taskResult = workGridManagerTaskJsfManager.queryByBizType(WorkGridManagerTaskBizType.EXP_INSPECT.getCode());
+			if(taskResult == null || CollectionUtils.isEmpty(taskResult.getData())){
+				logger.info("{}根据类型未查询管理任务定义,gridBusinessKey:{}", infoPrefix, gridBusinessKey);
+				return;
+			}
+			List<String> taskCodeList = taskResult.getData().stream().map(WorkGridManagerTask::getTaskCode).collect(Collectors.toList());
+			Integer siteCode = workGrid.getSiteCode();
+			Date curDate = new Date();
+			if(taskToFrequentlyInInterval(infoPrefix, siteCode, taskCodeList, gridBusinessKey)){
+				return;
+			}
+			BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+			if(siteInfo == null) {
+				logger.error("{}场地在青龙基础资料不存在！siteCode:{},gridBusinessKey:{}",infoPrefix,siteCode, gridBusinessKey);
+				return;
+			}
+			String positonNames = positonNamesConfig.getConfigContent();
+			WorkGridManagerTaskConfigVo configData = new WorkGridManagerTaskConfigVo();
+			configData.setHandlerUserPositionName(positonNames);
+			configData.setTaskCode(taskCodeList.get(0));
+			List<JyUserDto> jyUserDtos = jyWorkGridManagerBusinessService.getTaskHandleUser(configData, siteInfo,
+					WorkGridManagerTaskBizType.EXP_INSPECT.getCode());
+			if(CollectionUtils.isEmpty(jyUserDtos)){
+				logger.error("{}未查到任务处理人,positonNames:{}，siteCode:{}", infoPrefix, positonNames, siteCode);
+				return;
+			}
+			String erps = jyUserDtos.stream().map(JyUserDto::getUserErp).collect(Collectors.joining(","));
+			logger.info("{},根据岗位配置查到任务处理人，positonNames:{}，siteCode:{}，erps:{}", infoPrefix, positonNames, siteCode, erps);
+			//三定排班过滤
+			Date preFinishTime = DateUtil.addDay(curDate, 1);
+			jyUserDtos = jyWorkGridManagerBusinessService.filterJyUserDtoInSchedule("", curDate, preFinishTime, jyUserDtos);
+			if(CollectionUtils.isEmpty(jyUserDtos)){
+				logger.error("{}场地人员未在任务时间内无排班,positonNames:{}，siteCode:{}", infoPrefix, positonNames, siteCode);
+				return;
+			}
+			erps = jyUserDtos.stream().map(JyUserDto::getUserErp).collect(Collectors.joining(","));
+			logger.info("{},任务处理经过三定排班过滤后人员，siteCode:{}，erps:{}", infoPrefix, siteCode, erps);
+			JyUserDto jyUserDto = jyUserDtos.get(0);
+			WorkGridManagerTask workGridManagerTask = taskResult.getData().get(0);
+			JyBizTaskWorkGridManager jyBizTaskWorkGridManager = initJyBizTaskWorkGridManager(siteInfo, workGridManagerTask,jyUserDto.getPositionCode(), jyUserDto.getPositionName(),
+					workGrid, curDate, jyUserDto.getUserErp(), jyUserDto.getUserName(), preFinishTime,
+					WorkGridManagerTaskBizType.EXP_INSPECT.getCode());
+			// 设置扩展信息
+			ViolenceSortInfoData violenceSortInfoData = new ViolenceSortInfoData();
+			String creatTimeStr = DateHelper.formatDate(new Date(violentSortingDto.getCreateTime()), "MM/dd HH:mm:ss");
+			violenceSortInfoData.setCreateTime(creatTimeStr);
+			violenceSortInfoData.setTitle("暴力分拣");
+			violenceSortInfoData.setUrl(violentSortingDto.getUrl());
+			violenceSortInfoData.setDeviceName(violentSortingDto.getDeviceName());
+			jyBizTaskWorkGridManager.setExtendInfo(JsonHelper.toJson(violenceSortInfoData));
+			//保存已分配的任务
+			List<JyBizTaskWorkGridManager> jyBizTaskWorkGridManagers = Collections.singletonList(jyBizTaskWorkGridManager);
+			batchInsertDistributionTask(jyBizTaskWorkGridManagers);
+			List<String> bizIdList = jyBizTaskWorkGridManagers.stream().map(JyBizTaskWorkGridManager::getBizId).collect(Collectors.toList());
+			//保存超时任务
+			saveAutoCloseTask(preFinishTime,siteCode, bizIdList);
+			logger.info("{}保存成功,positonNames:{}，siteCode:{},businessKey:{}", infoPrefix, positonNames, siteCode, workGrid.getBusinessKey());
+		} catch (Exception e) {
+			logger.error("{}异常",infoPrefix,e);
+			Profiler.functionError(info);
+		} finally {
+			Profiler.registerInfoEnd(info);
+		}
+
+	}
+	
+
+	/**
+	 * 检查任务是否太频繁触发
+	 * @return
+	 */
+	private Boolean taskToFrequentlyInInterval(String infoPrefix, Integer siteCode, List<String> taskCodeList, String gridBusinessKey){
+		Date curDate = new Date();
+		int gapMin= 5;
+		Date before5min= DateHelper.add(curDate,Calendar.MINUTE , -1 * gapMin);
+		SysConfig intervalMinute = sysConfigService.findConfigContentByConfigName(EXP_INSPECTION_TASK_INTERVAL_CONF_KEY);
+		if(intervalMinute != null && org.apache.commons.lang3.StringUtils.isNumeric(intervalMinute.getConfigContent())){
+			gapMin = Integer.parseInt(intervalMinute.getConfigContent());
+		}
+		logger.info("{}任务频繁检查时间:{}", intervalMinute, gapMin);
+		if(gapMin == 0){
+			logger.info("{}任务频繁,不校验,gapMin:{}", intervalMinute, gapMin);
+			return false;
+		}
+		Integer taskCount = jyBizTaskWorkGridManagerDao.selectHandlerTodayTaskCountByTaskBizType(siteCode,
+				before5min, null, taskCodeList, gridBusinessKey);
+		if(taskCount > 0){
+			logger.info("{}{}分钟内已经生成过任务,不再触发，gridBusinessKey:{}，siteCode:{}", infoPrefix,gapMin, gridBusinessKey, siteCode);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

@@ -22,7 +22,6 @@ import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
-import com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.summary.JySealStatisticsSummaryService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
@@ -34,11 +33,9 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
@@ -122,7 +119,8 @@ public class SendVehicleTransactionManager {
     private JyVehicleSendRelationService jyVehicleSendRelationService;
     @Autowired
     private NewSealVehicleService newsealVehicleService;
-
+    @Autowired
+    private SendMDao sendMDao;
 
     /**
      * 保存发货任务和发货流向
@@ -733,15 +731,30 @@ public class SendVehicleTransactionManager {
         //查看该流向下是否多批次，如果多批次需要保证每个批次都封车才修改状态
         List<String> batchCodesList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(taskSendDetail.getBizId());
         if(!CollectionUtils.isEmpty(batchCodesList)) {
+            Set toSealBatchCodeSet = new HashSet();
+            Set nullBatchCodeSet = new HashSet();
             for(String batchCode : batchCodesList) {
                 if(myBody.getSingleBatchCode().equals(batchCode)) {
                    continue;
                 }
                 if(!newsealVehicleService.newCheckSendCodeSealed(batchCode, new StringBuffer())) {
-                    if(log.isInfoEnabled()) {
-                        log.info("发货流向【】下有{}个批次，且存在未封车批次【】，状态不做变更", taskSendDetail.getBizId(), batchCodesList.size(), batchCode);
+                    Integer itemNum = sendMDao.countBoxCodeNumBySendCode(batchCode, taskSendDetail.getStartSiteId().intValue());
+                    if(NumberHelper.gt0(itemNum)) {
+                        toSealBatchCodeSet.add(batchCode);
+                    }else {
+                        nullBatchCodeSet.add(batchCode);
                     }
-                    return true;
+                }
+            }
+            if(toSealBatchCodeSet.size() > 0) {
+                if(log.isInfoEnabled()) {
+                    log.info("该发货流向【】下有批次{}个，存在未封车的非空批次【{}】，状态不做变更", taskSendDetail.getBizId(), batchCodesList.size(), JsonHelper.toJson(toSealBatchCodeSet));
+                }
+                return true;
+            }
+            if(nullBatchCodeSet.size() > 0) {
+                if(log.isInfoEnabled()) {
+                    log.info("该发货流向【】下有批次{}个，存在未封车的空批次【{}】，执行状态变更", taskSendDetail.getBizId(), batchCodesList.size(), JsonHelper.toJson(nullBatchCodeSet));
                 }
             }
         }
@@ -773,7 +786,9 @@ public class SendVehicleTransactionManager {
         if(!Objects.isNull(aviationPlanEntity)) {
             jyBizTaskSendAviationPlanService.updateStatus(aviationPlanEntity);
         }
-
+        if(log.isInfoEnabled()) {
+            log.info("封车同步运输任务状态变更结束，detailBizId={}", detailBizId);
+        }
         return true;
     }
 
@@ -790,6 +805,9 @@ public class SendVehicleTransactionManager {
         //封车批次关联的bizId是自建任务：yn=0
         JyBizTaskSendVehicleDetailEntity taskSendDetail = taskSendVehicleDetailService.findByBizId(detailBizId);
         if(Objects.isNull(taskSendDetail)) {
+            if(log.isInfoEnabled()) {
+                log.info("封车同步自建任务删除未查到该任务信息，bizId={}", taskSendDetail.getSendVehicleBizId());
+            }
             return true;
         }
         Date now = new Date();
@@ -807,6 +825,9 @@ public class SendVehicleTransactionManager {
         detailEntity.setUpdateUserErp(DEFAULT_USER);
         detailEntity.setUpdateUserName(DEFAULT_USER);
         taskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+        if(log.isInfoEnabled()) {
+            log.info("封车同步自建任务删除结束，bizId={}", taskSendDetail.getSendVehicleBizId());
+        }
         return true;
     }
 
