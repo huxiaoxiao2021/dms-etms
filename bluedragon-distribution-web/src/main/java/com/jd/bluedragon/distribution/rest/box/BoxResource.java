@@ -675,14 +675,14 @@ public class BoxResource {
         if (siteTypes.contains(baseStaffSiteOrgDto.getSubType())){
             response.setBoxTypes(siteBoxTypeMap);
             if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
-                response.setBoxTypes(siteBoxSubTypeMap);
+                response.setBoxSubTypes(siteBoxSubTypeMap);
             }
             return response;
         }
         //分拣中心
         response.setBoxTypes(sortingBoxTypeMap);
         if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
-            response.setBoxTypes(sortingBoxSubTypeMap);
+            response.setBoxSubTypes(sortingBoxSubTypeMap);
         }
         return response;
     }
