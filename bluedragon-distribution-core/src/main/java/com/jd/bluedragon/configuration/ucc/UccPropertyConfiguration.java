@@ -1869,6 +1869,9 @@ public class UccPropertyConfiguration{
      */
     private boolean boxTypeNewVersionSwitch;
 
+
+    private Double jyAviationManualCreateSendTaskMaxBookingWeight;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -4218,5 +4221,13 @@ public class UccPropertyConfiguration{
 
     public void setCzSealCarPackageCountMinLimit(Integer czSealCarPackageCountMinLimit) {
         this.czSealCarPackageCountMinLimit = czSealCarPackageCountMinLimit;
+    }
+
+    public Double getJyAviationManualCreateSendTaskMaxBookingWeight() {
+        return jyAviationManualCreateSendTaskMaxBookingWeight;
+    }
+
+    public void setJyAviationManualCreateSendTaskMaxBookingWeight(Double jyAviationManualCreateSendTaskMaxBookingWeight) {
+        this.jyAviationManualCreateSendTaskMaxBookingWeight = jyAviationManualCreateSendTaskMaxBookingWeight;
     }
 }
