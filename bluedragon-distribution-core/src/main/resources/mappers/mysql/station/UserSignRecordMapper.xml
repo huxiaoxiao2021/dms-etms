@@ -1277,7 +1277,7 @@
 		from user_sign_record
 		where sign_date = #{signDate}
 		and site_code = #{siteCode}
-		order by sign_in_time desc
+		order by sign_in_time asc
 		limit 1
 	</select>
 </mapper>
