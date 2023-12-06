@@ -766,5 +766,9 @@
     <jmq:consumer id="jmq.reassignWaybillApprovalConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.reassign.waybill.approval}" listener="reassignWaybillApprovalConsumer"/>
     </jmq:consumer>
+    <!--  运输航空提货计划下发  -->
+    <jmq:consumer id="jmq.TmsAviationPickingGoodConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.aviationPickingGood}" listener="tmsAviationPickingGoodConsumer"/>
+    </jmq:consumer>
 </beans>
 
