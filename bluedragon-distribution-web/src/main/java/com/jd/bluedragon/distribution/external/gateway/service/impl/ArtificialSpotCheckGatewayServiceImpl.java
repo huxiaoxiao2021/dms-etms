@@ -199,10 +199,6 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
             spotCheckDto.setSpotCheckHandlerType(SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode());
             InvokeResult<Boolean> result = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
             response.init(result.getCode(), result.getMessage());
-            // 提交成功以后，如果本次提交了视频并且跟redis缓存中的videoId不一致，则需要删除之前的垃圾视频
-            if (JdCResponse.CODE_SUCCESS.equals(response.getCode())) {
-                deleteTrashVideo(artificialSpotCheckRequest);
-            }
         }catch (Exception e){
             logger.error("提交抽检数据异常!", e);
             response.toError();
@@ -265,14 +261,14 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
             VideoUploadInfo videoUploadInfo = videoServiceManager.getVideoUploadUrl(params);
             if (videoUploadInfo != null) {
                 // 为了防止垃圾数据，临时记录本次抽检运单号对应的视频ID一天，待抽检数据提交时便于比较删除
-                String cacheVideoId = redisClientOfJy.get(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode());
-                if (cacheVideoId == null) {
-                    redisClientOfJy.setEx(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode(), String.valueOf(videoUploadInfo.getVideoId()), SPOT_CHECK_VIDEO_TIMEOUT, TimeUnit.HOURS);
-                } else {
-                    cacheVideoId = cacheVideoId + Constants.SEPARATOR_COMMA + videoUploadInfo.getVideoId();
-                    logger.info("getVideoUploadUrl|非首次获取视频上传信息:request={},size={}", JsonHelper.toJson(request), cacheVideoId.split(Constants.SEPARATOR_COMMA).length);
-                    redisClientOfJy.setEx(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode(), cacheVideoId, SPOT_CHECK_VIDEO_TIMEOUT, TimeUnit.HOURS);
-                }
+//                String cacheVideoId = redisClientOfJy.get(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode());
+//                if (cacheVideoId == null) {
+//                    redisClientOfJy.setEx(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode(), String.valueOf(videoUploadInfo.getVideoId()), SPOT_CHECK_VIDEO_TIMEOUT, TimeUnit.HOURS);
+//                } else {
+//                    cacheVideoId = cacheVideoId + Constants.SEPARATOR_COMMA + videoUploadInfo.getVideoId();
+//                    logger.info("getVideoUploadUrl|非首次获取视频上传信息:request={},size={}", JsonHelper.toJson(request), cacheVideoId.split(Constants.SEPARATOR_COMMA).length);
+//                    redisClientOfJy.setEx(SPOT_CHECK_VIDEO_PREFIX + request.getWaybillCode(), cacheVideoId, SPOT_CHECK_VIDEO_TIMEOUT, TimeUnit.HOURS);
+//                }
                 response.setData(videoUploadInfo);
             }
         } catch (Exception e) {
