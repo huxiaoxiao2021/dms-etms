@@ -291,7 +291,9 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 					data.setStatus(WorkGridCandidateStatusEnum.ABNORMAL.getCode());
 					log.info("任务转派人员根据三排排班过滤，该erp未在职，erp:{},bizId:{}", data.getErp(), query.getBizId());
 				}
-			}
+			}else {
+				data.setName("");
+			} 
 			datas.add(data);
 		}
 		result.toSucceed();
