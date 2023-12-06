@@ -87,7 +87,7 @@
         #{item.operatorErp,jdbcType=VARCHAR},
         #{item.operateTime,jdbcType=TIMESTAMP},
         #{item.ts,jdbcType=TIMESTAMP},
-        #{item.yn,jdbcType=BIT}
+        1
     )
     </foreach>
   </insert>

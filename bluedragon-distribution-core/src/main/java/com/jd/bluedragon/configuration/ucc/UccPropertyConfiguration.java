@@ -3659,12 +3659,12 @@ public class UccPropertyConfiguration{
 
     public void setJyWorkAppAutoRefreshConfig(String jyWorkAppAutoRefreshConfig) {
         this.jyWorkAppAutoRefreshConfig = jyWorkAppAutoRefreshConfig;
-//        if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
-//            final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
-//            if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
-//                jyWorkAppAutoRefreshConfigList = clientAutoRefreshConfigList;
-//            }
-//        }
+        if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
+            final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
+            if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
+                jyWorkAppAutoRefreshConfigList = clientAutoRefreshConfigList;
+            }
+        }
     }
 
     public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
