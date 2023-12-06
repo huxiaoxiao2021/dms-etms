@@ -335,12 +335,14 @@ $(function () {
         let suffixName = filePath.substring(startIndex + 1, filePath.length);
         let arr = ["mp4", "avi", "wmv", "flv", "mpg", ".mpeg", "mkv", "mov", "3gp", "rmvb"];
         if (!arr.includes(suffixName)) {
+            event.target.value = '';
             Jd.alert('上传视频的格式不正确,请检查后再上传!');
             return;
         }
         // 文件不能大于500M
         let fileSize = $(this)[0].files[0].size;
         if (fileSize > 500 * 1024 * 1024) {
+            event.target.value = '';
             Jd.alert('视频文件大小不能超过500M!');
             return;
         }

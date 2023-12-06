@@ -192,6 +192,7 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             attachmentDetailEntity.setBizId(spotCheckNotifyMQ.getFlowId());
             attachmentDetailEntity.setSiteCode(Integer.valueOf(spotCheckNotifyMQ.getOrgCode()));
             attachmentDetailEntity.setBizType(JyAttachmentBizTypeEnum.DEVICE_SPOT_APPEAL.getCode());
+            attachmentDetailEntity.setBizSubType(String.valueOf(appendixType));
             attachmentDetailEntity.setCreateUserErp(Constants.SYS_NAME);
             attachmentDetailEntity.setUpdateUserErp(Constants.SYS_NAME);
             // 如果是图片
@@ -203,8 +204,6 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             } else {
                 attachmentDetailEntity.setAttachmentType(Constants.NUMBER_ZERO);
             }
-            // 保存图片业务类型:用来区分是举报类型还是升级类型
-            attachmentDetailEntity.setBizType(String.valueOf(appendixType));
             attachmentDetailEntity.setAttachmentUrl(appendixUrl);
             jyAttachmentDetailEntityList.add(attachmentDetailEntity);
         }
