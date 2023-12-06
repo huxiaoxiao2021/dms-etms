@@ -325,47 +325,47 @@ $(function () {
         });
     }
 
-    // $("#fileField6").change(function () {
-    //     let filePath = $(this).val();
-    //     if (!filePath) {
-    //         Jd.alert('请选择视频文件再上传!');
-    //         return;
-    //     }
-    //     let startIndex = filePath.lastIndexOf(".");
-    //     let suffixName = filePath.substring(startIndex + 1, filePath.length);
-    //     let arr = ["mp4", "avi", "wmv", "flv", "mpg", ".mpeg", "mkv", "mov", "3gp", "rmvb"];
-    //     if (!arr.includes(suffixName)) {
-    //         Jd.alert('上传视频的格式不正确,请检查后再上传!');
-    //         return;
-    //     }
-    //     document.getElementById('pictureField6').value = filePath;
-    //     let formData = new FormData();
-    //     formData.append('videoName', $('#waybillOrPackageCode').val());
-    //     formData.append('fileSize', $(this)[0].files[0].size);
-    //     formData.append('operateErp', parent.$('#loginErp').val());
-    //     $.ajax({
-    //         url : getVideoUploadUrl,
-    //         type : 'POST',
-    //         data : formData,
-    //         processData : false,
-    //         contentType : false,
-    //         async : false,
-    //         success : function(data) {
-    //             if (data && data.code === 200) {
-    //                 if (!data.data) {
-    //                     Jd.alert('获取视频上传地址失败');
-    //                     return;
-    //                 }
-    //                 $('#uploadVideoUrl').val(data.data.uploadUrl);
-    //                 $("#videoUploadForm").attr("action", data.data.uploadUrl);
-    //                 $('#playUrl').val(data.data.playUrl);
-    //                 $('#videoId').val(data.data.videoId);
-    //             } else {
-    //                 Jd.alert(data.message);
-    //             }
-    //         }
-    //     })
-    // });
+    $("#fileField6").change(function () {
+        let filePath = $(this).val();
+        if (!filePath) {
+            Jd.alert('请选择视频文件再上传!');
+            return;
+        }
+        let startIndex = filePath.lastIndexOf(".");
+        let suffixName = filePath.substring(startIndex + 1, filePath.length);
+        let arr = ["mp4", "avi", "wmv", "flv", "mpg", ".mpeg", "mkv", "mov", "3gp", "rmvb"];
+        if (!arr.includes(suffixName)) {
+            Jd.alert('上传视频的格式不正确,请检查后再上传!');
+            return;
+        }
+        document.getElementById('pictureField6').value = filePath;
+        // let formData = new FormData();
+        // formData.append('videoName', $('#waybillOrPackageCode').val());
+        // formData.append('fileSize', $(this)[0].files[0].size);
+        // formData.append('operateErp', parent.$('#loginErp').val());
+        // $.ajax({
+        //     url : getVideoUploadUrl,
+        //     type : 'POST',
+        //     data : formData,
+        //     processData : false,
+        //     contentType : false,
+        //     async : false,
+        //     success : function(data) {
+        //         if (data && data.code === 200) {
+        //             if (!data.data) {
+        //                 Jd.alert('获取视频上传地址失败');
+        //                 return;
+        //             }
+        //             $('#uploadVideoUrl').val(data.data.uploadUrl);
+        //             $("#videoUploadForm").attr("action", data.data.uploadUrl);
+        //             $('#playUrl').val(data.data.playUrl);
+        //             $('#videoId').val(data.data.videoId);
+        //         } else {
+        //             Jd.alert(data.message);
+        //         }
+        //     }
+        // })
+    });
 
     // 上传视频事件
     function uploadVideoNew (param1,param2,param3,param4,param5,picType) {
