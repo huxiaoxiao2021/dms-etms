@@ -272,21 +272,16 @@ $(function () {
         let uploadNum = $('#waybillDataTable')[0].rows[1].cells[5].innerHTML;
         let videoUrl = $('#excessVideo').val();
         let videoId = $('#excessVideoId').val();
-        let lessOnePicFlag = false;
-        if($('#excessPicWeightOrPanorama').val() || $('#excessPicFace').val()
-            || $('#excessPicLength').val() || $('#excessPicWidth').val()
-            || $('#excessPicHeight').val()){
-            lessOnePicFlag = true;
-        }
+        let excessPicWeightOrPanorama = $('#excessPicWeightOrPanorama').val();
+        let excessPicFace = $('#excessPicFace').val();
+        let excessPicLength = $('#excessPicLength').val();
+        let excessPicWidth = $('#excessPicWidth').val();
+        let excessPicHeight = $('#excessPicHeight').val();
+
         if(waybillData[0].isExcess === 1) {
-            // 如果没有上传视频，并且图片也没上传
-            if (!videoUrl && uploadNum !== '5') {
+            // 如果什么都没有上传
+            if (!uploadNum) {
                 Jd.alert('请先上传' + waybillData[0].waybillCode + '的超标图片或视频!');
-                return;
-            }
-            // 如果上传了视频，图片也上传了但是不满足5张
-            if (videoUrl && lessOnePicFlag && uploadNum !== '6') {
-                Jd.alert('如果选择上传超标图片，则必须上传5张!');
                 return;
             }
         }
@@ -304,13 +299,23 @@ $(function () {
         param.createSiteCode = $('#createSiteCode').val();
         param.loginErp = $('#loginErp').val();
         if(waybillData[0].isExcess === 1){
-            if (uploadNum === '5' || uploadNum === '6') {
+            if (uploadNum) {
                 let excessPicUrls = [];
-                excessPicUrls.push($('#excessPicWeightOrPanorama').val());
-                excessPicUrls.push($('#excessPicFace').val());
-                excessPicUrls.push($('#excessPicLength').val());
-                excessPicUrls.push($('#excessPicWidth').val());
-                excessPicUrls.push($('#excessPicHeight').val());
+                if (excessPicWeightOrPanorama) {
+                    excessPicUrls.push(excessPicWeightOrPanorama);
+                }
+                if (excessPicFace) {
+                    excessPicUrls.push(excessPicFace);
+                }
+                if (excessPicLength) {
+                    excessPicUrls.push(excessPicLength);
+                }
+                if (excessPicWidth) {
+                    excessPicUrls.push(excessPicWidth);
+                }
+                if (excessPicHeight) {
+                    excessPicUrls.push(excessPicHeight);
+                }
                 param.urls = excessPicUrls;
             }
             param.videoUrl = videoUrl;

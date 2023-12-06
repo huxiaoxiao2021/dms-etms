@@ -564,7 +564,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			String erps = jyUserDtos.stream().map(JyUserDto::getUserErp).collect(Collectors.joining(","));
 			logger.info("{},根据岗位配置查到任务处理人，positonNames:{}，siteCode:{}，erps:{}", infoPrefix, positonNames, siteCode, erps);
 			//三定排班过滤
-			Date preFinishTime = DateUtil.addDay(curDate, 1);
+			Date preFinishTime = DateUtil.addHour(curDate, 1);
 			jyUserDtos = jyWorkGridManagerBusinessService.filterJyUserDtoInSchedule("", curDate, preFinishTime, jyUserDtos);
 			if(CollectionUtils.isEmpty(jyUserDtos)){
 				logger.error("{}场地人员未在任务时间内无排班,positonNames:{}，siteCode:{}", infoPrefix, positonNames, siteCode);
@@ -591,6 +591,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			List<String> bizIdList = jyBizTaskWorkGridManagers.stream().map(JyBizTaskWorkGridManager::getBizId).collect(Collectors.toList());
 			//保存超时任务
 			saveAutoCloseTask(preFinishTime,siteCode, bizIdList);
+			//发送咚咚通知
+			jyWorkGridManagerBusinessService.sendTimeLineNotice(WorkGridManagerTaskBizType.EXP_INSPECT,jyUserDto);
 			logger.info("{}保存成功,positonNames:{}，siteCode:{},businessKey:{}", infoPrefix, positonNames, siteCode, workGrid.getBusinessKey());
 		} catch (Exception e) {
 			logger.error("{}异常",infoPrefix,e);
