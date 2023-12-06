@@ -461,7 +461,7 @@ $(function () {
 
         // 设置父页面图片数量
         if (picNum > 0) {
-            // 如果视频也上传了，设置父页面图片数量为：6
+            // 如果视频也上传了，设置父页面图片数量为：照片数量+视频数量
             if ($('#upIsSuccessFlage6').val() === 1) {
                 parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = picNum + 1;
             } else {
@@ -474,6 +474,7 @@ $(function () {
                     Jd.alert('保存失败,体积超标至少上传5张图片!');
                     return;
                 }
+                // 如果只上传照片，那么设置父页面图片数量为：照片数量
                 parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = picNum;
             }
             // 关闭上传对话框
@@ -514,7 +515,7 @@ $(function () {
 
         // 设置父页面图片数量
         if (picNum > 0) {
-            // 如果视频也上传了，设置父页面图片数量为：6
+            // 如果视频也上传了，设置父页面图片数量为：照片数量+视频数量
             if ($('#upIsSuccessFlage6').val() === 1) {
                 parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = picNum + 1;
             } else {
@@ -527,6 +528,7 @@ $(function () {
                     Jd.alert('请5张图片全部上传完成后再返回!');
                     return;
                 }
+                // 如果只上传照片，那么设置父页面图片数量为：照片数量
                 parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = picNum;
             }
             // 关闭上传对话框
