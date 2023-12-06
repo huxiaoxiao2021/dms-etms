@@ -82,6 +82,13 @@ public class BoxPrintServiceImpl implements BoxPrintService{
 
             final BaseStaffSiteOrgDto operateUserStaffInfo = baseMajorManager.getBaseStaffIgnoreIsResignByErp(createBoxReq.getOperateUser().getUserCode());
             if(operateUserStaffInfo == null){
+                // 用户组接口验证通过后，从基础资料获取具体信息
+                BaseStaffSiteOrgDto thirdStaffInfo = baseMajorManager.getThirdStaffByJdAccountNoCache(createBoxReq.getOperateUser().getUserCode());
+                if (null == thirdStaffInfo) {
+                    return result.toFail(String.format("未找到员工为%s的数据", createBoxReq.getOperateUser().getUserCode()));
+                } else {
+                    createBoxReq.getOperateUser().setUserId(thirdStaffInfo.getStaffNo().longValue());
+                }
                 return result.toFail(String.format("未找到员工为%s的数据", createBoxReq.getOperateUser().getUserCode()));
             }
             createBoxReq.getOperateUser().setUserId(operateUserStaffInfo.getStaffNo().longValue());
