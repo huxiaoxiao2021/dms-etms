@@ -195,12 +195,16 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             attachmentDetailEntity.setCreateUserErp(Constants.SYS_NAME);
             attachmentDetailEntity.setUpdateUserErp(Constants.SYS_NAME);
             // 如果是图片
-            if (SpotCheckAppendixTypeEnum.ESCALATION_PICTURE.getCode().equals(appendixType)) {
+            if (SpotCheckAppendixTypeEnum.ESCALATION_PICTURE.getCode().equals(appendixType) || SpotCheckAppendixTypeEnum.REPORT_PICTURE.getCode().equals(appendixType)) {
                 attachmentDetailEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
                 // 如果是视频
-            } else if (SpotCheckAppendixTypeEnum.ESCALATION_VIDEO.getCode().equals(appendixType)) {
+            } else if (SpotCheckAppendixTypeEnum.ESCALATION_VIDEO.getCode().equals(appendixType) || SpotCheckAppendixTypeEnum.REPORT_VIDEO.getCode().equals(appendixType)) {
                 attachmentDetailEntity.setAttachmentType(JyAttachmentTypeEnum.VIDEO.getCode());
+            } else {
+                attachmentDetailEntity.setAttachmentType(Constants.NUMBER_ZERO);
             }
+            // 保存图片业务类型:用来区分是举报类型还是升级类型
+            attachmentDetailEntity.setBizType(String.valueOf(appendixType));
             attachmentDetailEntity.setAttachmentUrl(appendixUrl);
             jyAttachmentDetailEntityList.add(attachmentDetailEntity);
         }
