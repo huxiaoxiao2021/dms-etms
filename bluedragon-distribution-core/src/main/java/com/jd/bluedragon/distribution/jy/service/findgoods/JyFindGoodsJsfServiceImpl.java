@@ -340,7 +340,7 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
     }
     private SingleSiteWaveDto querySingleSiteWave(FindGoodsTaskDto findGoodsTaskDto) {
         SingleSiteWaveQuery query = new SingleSiteWaveQuery();
-        query.setSortingSiteCode(findGoodsTaskDto.getSiteCode());
+        query.setSortingSiteCode(findGoodsTaskDto.getSiteCode().toString());
         String waveDate = this.getWaveDate(findGoodsTaskDto);
         log.info("JyFindGoodsJsfServiceImpl.querySingleSiteWave waveDate:{}", waveDate);
         if (waveDate == null) {

@@ -19,7 +19,7 @@ public class SingleSiteWaveQuery implements Serializable {
      */
     @JsonProperty("sorting_site_code")
     @JsonAlias("sorting_site_code")
-    private Long sortingSiteCode;
+    private String sortingSiteCode;
     /**
      * 波次开始时间
      */
@@ -41,11 +41,11 @@ public class SingleSiteWaveQuery implements Serializable {
         this.waveDate = waveDate;
     }
 
-    public Long getSortingSiteCode() {
+    public String getSortingSiteCode() {
         return sortingSiteCode;
     }
 
-    public void setSortingSiteCode(Long sortingSiteCode) {
+    public void setSortingSiteCode(String sortingSiteCode) {
         this.sortingSiteCode = sortingSiteCode;
     }
 
