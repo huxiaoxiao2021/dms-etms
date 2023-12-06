@@ -2,48 +2,89 @@ package com.jd.bluedragon.distribution.jy.pickinggood;
 
 import java.util.Date;
 
+/**
+ * 空提提货任务表
+ */
 public class JyBizTaskPickingGoodEntity {
     private Long id;
 
     private String bizId;
-
+    /**
+     * 始发场地id
+     */
     private Long startSiteId;
-
+    /**
+     * 流向场地ID（待提货场地）
+     */
     private Long nextSiteId;
-
+    /**
+     * 空铁班次流水号
+     */
     private String businessNumber;
-
+    /**
+     * 班次号：航班号/车次号
+     */
     private String serviceNumber;
-
+    /**
+     * 始发机场/车站编码
+     */
     private String beginNodeCode;
-
+    /**
+     * 始发机场/车站名称
+     */
     private String beginNodeName;
-
+    /**
+     * 目的机场/车站编码
+     */
     private String endNodeCode;
-
+    /**
+     * 目的机场/车站名称
+     */
     private String endNodeName;
-
+    /**
+     * 起飞时间/出发时间
+     */
     private Date nodeStartTime;
-
+    /**
+     * 预计降落时间/预计到达时间
+     */
     private Date nodePlanArriveTime;
-
+    /**
+     * 实际降落时间/实际到达时间
+     */
     private Date nodeRealArriveTime;
-
-    private Byte status;
-
-    private Byte completeNode;
-
+    /**
+     * 提货状态（0-待提，1-提货中，2-提货完成）
+     */
+    private Integer status;
+    /**
+     * 完成节点[1-完成按钮点击，2-待提0系统默认完成，3-异常完成]，4 自建任务定时完成
+     */
+    private Integer completeNode;
+    /**
+     * 提货开始时间
+     */
     private Date pickingStartTime;
-
+    /**
+     * 提货完成时间
+     */
     private Date pickingCompleteTime;
-
-    private Byte intercept;
-
+    /**
+     * 拦截标识（0：不拦截【默认】1：拦截）
+     */
+    private Integer intercept;
+    /**
+     * 拦截时间
+     */
     private Date interceptTime;
-
-    private Byte taskType;
-
-    private Byte manualCreatedFlag;
+    /**
+     * 提货任务类型（1-航空提货，2-铁路提货）
+     */
+    private Integer taskType;
+    /**
+     * 是否自建任务；（0-否【默认】 1-是）
+     */
+    private Integer manualCreatedFlag;
 
     private String createUserErp;
 
@@ -57,9 +98,10 @@ public class JyBizTaskPickingGoodEntity {
 
     private Date updateTime;
 
-    private Boolean yn;
+    private Integer yn;
 
     private Date ts;
+
 
     public Long getId() {
         return id;
@@ -165,19 +207,19 @@ public class JyBizTaskPickingGoodEntity {
         this.nodeRealArriveTime = nodeRealArriveTime;
     }
 
-    public Byte getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Byte status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
-    public Byte getCompleteNode() {
+    public Integer getCompleteNode() {
         return completeNode;
     }
 
-    public void setCompleteNode(Byte completeNode) {
+    public void setCompleteNode(Integer completeNode) {
         this.completeNode = completeNode;
     }
 
@@ -197,11 +239,11 @@ public class JyBizTaskPickingGoodEntity {
         this.pickingCompleteTime = pickingCompleteTime;
     }
 
-    public Byte getIntercept() {
+    public Integer getIntercept() {
         return intercept;
     }
 
-    public void setIntercept(Byte intercept) {
+    public void setIntercept(Integer intercept) {
         this.intercept = intercept;
     }
 
@@ -213,19 +255,19 @@ public class JyBizTaskPickingGoodEntity {
         this.interceptTime = interceptTime;
     }
 
-    public Byte getTaskType() {
+    public Integer getTaskType() {
         return taskType;
     }
 
-    public void setTaskType(Byte taskType) {
+    public void setTaskType(Integer taskType) {
         this.taskType = taskType;
     }
 
-    public Byte getManualCreatedFlag() {
+    public Integer getManualCreatedFlag() {
         return manualCreatedFlag;
     }
 
-    public void setManualCreatedFlag(Byte manualCreatedFlag) {
+    public void setManualCreatedFlag(Integer manualCreatedFlag) {
         this.manualCreatedFlag = manualCreatedFlag;
     }
 
@@ -277,11 +319,11 @@ public class JyBizTaskPickingGoodEntity {
         this.updateTime = updateTime;
     }
 
-    public Boolean getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(Boolean yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
     }
 

@@ -2,66 +2,118 @@ package com.jd.bluedragon.distribution.jy.pickinggood;
 
 import java.util.Date;
 
+/**
+ * 空提待提、提货、发货记录表
+ */
 public class JyPickingSendRecordEntity {
     private Long id;
 
     private String bizId;
-
+    /**
+     * 提货场地id
+     */
     private Long pickingSiteId;
-
+    /**
+     * 提货机场编码/提货车站编码
+     */
     private String pickingNodeCode;
-
+    /**
+     *
+     */
     private String packageCode;
-
+    /**
+     *
+     */
     private String waybillCode;
-
+    /**
+     *
+     */
     private String boxCode;
-
+    /**
+     * 待提单据
+     */
     private String waitScanCode;
-
-    private Byte waitScanCodeType;
-
+    /**
+     * 类型[1-包裹号，2-箱号]
+     */
+    private Integer waitScanCodeType;
+    /**
+     * 待提初始化时单据的发货流向
+     */
     private Long initNextSiteId;
-
+    /**
+     * 箱号初始化流向依据的包裹号
+     */
     private String boxInitFlowKey;
-
-    private Byte waitScanFlag;
-
-    private Byte scanFalg;
-
-    private Byte scanCodeType;
-
-    private Byte moreScanFlag;
-
+    /**
+     * 待提标识：1是
+     */
+    private Integer waitScanFlag;
+    /**
+     * 已提标识：1是
+     */
+    private Integer scanFlag;
+    /**
+     * 实际提货单据类型[1-包裹号，2-箱号]
+     */
+    private Integer scanCodeType;
+    /**
+     * 多提标识：1是
+     */
+    private Integer moreScanFlag;
+    /**
+     *
+     */
     private String pickingUserErp;
-
+    /**
+     *
+     */
     private String pickingUserName;
-
+    /**
+     * 提货时间
+     */
     private Date pickingTime;
-
-    private Byte sendFlag;
-
+    /**
+     * 发货标识：1是
+     */
+    private Integer sendFlag;
+    /**
+     * 实际发货下一场地id
+     */
     private Long realNextSiteId;
-
+    /**
+     * 箱发货流向依据的包裹号
+     */
     private String boxRealFlowKey;
-
-    private Byte moreSendFlag;
-
-    private Byte forceSendFlag;
-
+    /**
+     * 是否多发：1是[多发=多提+已发]
+     */
+    private Integer moreSendFlag;
+    /**
+     * 是否强发：1是
+     */
+    private Integer forceSendFlag;
+    /**
+     * 发货操作时间
+     */
     private Date sendTime;
-
+    /**
+     *
+     */
     private String sendUserErp;
-
+    /**
+     *
+     */
     private String sendUserName;
 
     private Date createTime;
 
     private Date updateTime;
 
-    private Boolean yn;
+    private Integer yn;
 
     private Date ts;
+
 
     public Long getId() {
         return id;
@@ -127,11 +179,11 @@ public class JyPickingSendRecordEntity {
         this.waitScanCode = waitScanCode;
     }
 
-    public Byte getWaitScanCodeType() {
+    public Integer getWaitScanCodeType() {
         return waitScanCodeType;
     }
 
-    public void setWaitScanCodeType(Byte waitScanCodeType) {
+    public void setWaitScanCodeType(Integer waitScanCodeType) {
         this.waitScanCodeType = waitScanCodeType;
     }
 
@@ -151,35 +203,35 @@ public class JyPickingSendRecordEntity {
         this.boxInitFlowKey = boxInitFlowKey;
     }
 
-    public Byte getWaitScanFlag() {
+    public Integer getWaitScanFlag() {
         return waitScanFlag;
     }
 
-    public void setWaitScanFlag(Byte waitScanFlag) {
+    public void setWaitScanFlag(Integer waitScanFlag) {
         this.waitScanFlag = waitScanFlag;
     }
 
-    public Byte getScanFalg() {
-        return scanFalg;
+    public Integer getScanFlag() {
+        return scanFlag;
     }
 
-    public void setScanFalg(Byte scanFalg) {
-        this.scanFalg = scanFalg;
+    public void setScanFlag(Integer scanFlag) {
+        this.scanFlag = scanFlag;
     }
 
-    public Byte getScanCodeType() {
+    public Integer getScanCodeType() {
         return scanCodeType;
     }
 
-    public void setScanCodeType(Byte scanCodeType) {
+    public void setScanCodeType(Integer scanCodeType) {
         this.scanCodeType = scanCodeType;
     }
 
-    public Byte getMoreScanFlag() {
+    public Integer getMoreScanFlag() {
         return moreScanFlag;
     }
 
-    public void setMoreScanFlag(Byte moreScanFlag) {
+    public void setMoreScanFlag(Integer moreScanFlag) {
         this.moreScanFlag = moreScanFlag;
     }
 
@@ -207,11 +259,11 @@ public class JyPickingSendRecordEntity {
         this.pickingTime = pickingTime;
     }
 
-    public Byte getSendFlag() {
+    public Integer getSendFlag() {
         return sendFlag;
     }
 
-    public void setSendFlag(Byte sendFlag) {
+    public void setSendFlag(Integer sendFlag) {
         this.sendFlag = sendFlag;
     }
 
@@ -231,19 +283,19 @@ public class JyPickingSendRecordEntity {
         this.boxRealFlowKey = boxRealFlowKey;
     }
 
-    public Byte getMoreSendFlag() {
+    public Integer getMoreSendFlag() {
         return moreSendFlag;
     }
 
-    public void setMoreSendFlag(Byte moreSendFlag) {
+    public void setMoreSendFlag(Integer moreSendFlag) {
         this.moreSendFlag = moreSendFlag;
     }
 
-    public Byte getForceSendFlag() {
+    public Integer getForceSendFlag() {
         return forceSendFlag;
     }
 
-    public void setForceSendFlag(Byte forceSendFlag) {
+    public void setForceSendFlag(Integer forceSendFlag) {
         this.forceSendFlag = forceSendFlag;
     }
 
@@ -287,11 +339,11 @@ public class JyPickingSendRecordEntity {
         this.updateTime = updateTime;
     }
 
-    public Boolean getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(Boolean yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
     }
 

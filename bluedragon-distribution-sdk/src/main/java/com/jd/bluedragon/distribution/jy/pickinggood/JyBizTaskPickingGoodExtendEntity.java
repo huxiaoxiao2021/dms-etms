@@ -2,21 +2,36 @@ package com.jd.bluedragon.distribution.jy.pickinggood;
 
 import java.util.Date;
 
+/**
+ * 空提提货任务扩展表
+ */
 public class JyBizTaskPickingGoodExtendEntity {
     private Long id;
 
     private String bizId;
-
+    /**
+     * 待提批次号
+     */
     private String sendCode;
-
-    private Byte waitScanInitComplete;
-
+    /**
+     * 待提数据初始化完成标识：1 初始化完成
+     */
+    private Integer waitScanInitComplete;
+    /**
+     * 待提数据初始化完成时间
+     */
     private Date waitScanInitCompleteTime;
-
+    /**
+     * 待扫总件数
+     */
     private Integer waitScanNum;
-
+    /**
+     * 待扫包裹数
+     */
     private Integer waitScanPackageNum;
-
+    /**
+     * 待扫箱数
+     */
     private Integer waitScanBoxNum;
 
     private String createUserErp;
@@ -31,9 +46,10 @@ public class JyBizTaskPickingGoodExtendEntity {
 
     private Date updateTime;
 
-    private Boolean yn;
+    private Integer yn;
 
     private Date ts;
+
 
     public Long getId() {
         return id;
@@ -59,11 +75,11 @@ public class JyBizTaskPickingGoodExtendEntity {
         this.sendCode = sendCode;
     }
 
-    public Byte getWaitScanInitComplete() {
+    public Integer getWaitScanInitComplete() {
         return waitScanInitComplete;
     }
 
-    public void setWaitScanInitComplete(Byte waitScanInitComplete) {
+    public void setWaitScanInitComplete(Integer waitScanInitComplete) {
         this.waitScanInitComplete = waitScanInitComplete;
     }
 
@@ -147,11 +163,11 @@ public class JyBizTaskPickingGoodExtendEntity {
         this.updateTime = updateTime;
     }
 
-    public Boolean getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(Boolean yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
     }
 

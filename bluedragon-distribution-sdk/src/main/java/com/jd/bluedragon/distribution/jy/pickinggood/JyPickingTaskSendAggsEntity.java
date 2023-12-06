@@ -2,58 +2,103 @@ package com.jd.bluedragon.distribution.jy.pickinggood;
 
 import java.util.Date;
 
+/**
+ * 空提航班任务发货流向维度统计表
+ */
 public class JyPickingTaskSendAggsEntity {
     private Long id;
 
     private String bizId;
-
+    /**
+     * 提货场地id
+     */
     private Long pickingSiteId;
-
+    /**
+     * 待发流向
+     */
     private Long nextSiteId;
-
+    /**
+     * 提货机场编码/提货车站编码
+     */
     private String pickingNodeCode;
-
+    /**
+     * 待提包裹件数
+     */
     private Integer waitScanPackageCount;
-
+    /**
+     * 待提箱件数
+     */
     private Integer waitScanBoxCount;
-
+    /**
+     * 待提总件数
+     */
     private Integer waitScanTotalCount;
-
+    /**
+     * 已提包裹件数
+     */
     private Integer scanPackageCount;
-
+    /**
+     * 已提箱件数
+     */
     private Integer scanBoxCount;
-
+    /**
+     * 已提总件数
+     */
     private Integer scanTotalCount;
-
+    /**
+     * 多提包裹件数
+     */
     private Integer moreScanPackageCount;
-
+    /**
+     * 多提箱件数
+     */
     private Integer moreScanBoxCount;
-
+    /**
+     * 多提总件数
+     */
     private Integer moreScanTotalCount;
-
+    /**
+     * 已发包裹件数
+     */
     private Integer sendPackageCount;
-
+    /**
+     * 已发箱件数
+     */
     private Integer sendBoxCount;
-
+    /**
+     * 已发总件数
+     */
     private Integer sendTotalCount;
-
+    /**
+     * 多发包裹件数
+     */
     private Integer moreSendPackageCount;
-
+    /**
+     * 多发箱件数
+     */
     private Integer moreSendBoxCount;
-
+    /**
+     * 多发总件数
+     */
     private Integer moreSendTotalCount;
-
+    /**
+     * 强发包裹件数
+     */
     private Integer forceSendPackageCount;
-
+    /**
+     * 强发箱件数
+     */
     private Integer forceSendBoxCount;
-
+    /**
+     * 强发总件数
+     */
     private Integer forceSendTotalCount;
 
     private Date createTime;
 
     private Date updateTime;
 
-    private Boolean yn;
+    private Integer yn;
 
     private Date ts;
 
@@ -257,11 +302,11 @@ public class JyPickingTaskSendAggsEntity {
         this.updateTime = updateTime;
     }
 
-    public Boolean getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(Boolean yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
     }
 

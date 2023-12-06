@@ -2,21 +2,38 @@ package com.jd.bluedragon.distribution.jy.pickinggood;
 
 import java.util.Date;
 
+/**
+ * 空提提货发货流向批次明细
+ */
 public class JyPickingSendDestinationDetailEntity {
     private Long id;
-
+    /**
+     * 创建场地id
+     */
     private Long createSiteId;
-
+    /**
+     * 流向场地ID
+     */
     private Long nextSiteId;
-
+    /**
+     * 发货批次号
+     */
     private String sendCode;
-
-    private Byte status;
-
-    private Byte sealFlag;
-
+    /**
+     * 提货状态（0-待发货，1-发货中，2-待封车[发货完成]，3-已封车）
+     */
+    private Integer status;
+    /**
+     * 是否操作过封车标识：1-是，0-否
+     */
+    private Integer sealFlag;
+    /**
+     * 首次扫描时间
+     */
     private Date firstScanTime;
-
+    /**
+     * 完成时间
+     */
     private Date completeTime;
 
     private String createUserErp;
@@ -31,9 +48,10 @@ public class JyPickingSendDestinationDetailEntity {
 
     private Date updateTime;
 
-    private Boolean yn;
+    private Integer yn;
 
     private Date ts;
+
 
     public Long getId() {
         return id;
@@ -67,19 +85,19 @@ public class JyPickingSendDestinationDetailEntity {
         this.sendCode = sendCode;
     }
 
-    public Byte getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Byte status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
-    public Byte getSealFlag() {
+    public Integer getSealFlag() {
         return sealFlag;
     }
 
-    public void setSealFlag(Byte sealFlag) {
+    public void setSealFlag(Integer sealFlag) {
         this.sealFlag = sealFlag;
     }
 
@@ -147,11 +165,11 @@ public class JyPickingSendDestinationDetailEntity {
         this.updateTime = updateTime;
     }
 
-    public Boolean getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(Boolean yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
     }
 

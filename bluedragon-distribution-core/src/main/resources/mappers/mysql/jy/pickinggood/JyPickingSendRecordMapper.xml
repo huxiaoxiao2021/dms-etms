@@ -14,7 +14,7 @@
     <result column="init_next_site_id" property="initNextSiteId" jdbcType="BIGINT" />
     <result column="box_init_flow_key" property="boxInitFlowKey" jdbcType="VARCHAR" />
     <result column="wait_scan_flag" property="waitScanFlag" jdbcType="TINYINT" />
-    <result column="scan_falg" property="scanFalg" jdbcType="TINYINT" />
+    <result column="scan_flag" property="scanFlag" jdbcType="TINYINT" />
     <result column="scan_code_type" property="scanCodeType" jdbcType="TINYINT" />
     <result column="more_scan_flag" property="moreScanFlag" jdbcType="TINYINT" />
     <result column="picking_user_erp" property="pickingUserErp" jdbcType="VARCHAR" />
@@ -36,7 +36,7 @@
   <sql id="Base_Column_List" >
     id, biz_id, picking_site_id, picking_node_code, package_code, waybill_code, box_code,
     wait_scan_code, wait_scan_code_type, init_next_site_id, box_init_flow_key, wait_scan_flag,
-    scan_falg, scan_code_type, more_scan_flag, picking_user_erp, picking_user_name, picking_time,
+    scan_flag, scan_code_type, more_scan_flag, picking_user_erp, picking_user_name, picking_time,
     send_flag, real_next_site_id, box_real_flow_key, more_send_flag, force_send_flag,
     send_time, send_user_erp, send_user_name, create_time, update_time, yn, ts
   </sql>
@@ -58,7 +58,7 @@
 <!--    picking_node_code, package_code, waybill_code,-->
 <!--    box_code, wait_scan_code, wait_scan_code_type,-->
 <!--    init_next_site_id, box_init_flow_key, wait_scan_flag,-->
-<!--    scan_falg, scan_code_type, more_scan_flag,-->
+<!--    scan_flag, scan_code_type, more_scan_flag,-->
 <!--    picking_user_erp, picking_user_name, picking_time,-->
 <!--    send_flag, real_next_site_id, box_real_flow_key,-->
 <!--    more_send_flag, force_send_flag, send_time,-->
@@ -68,7 +68,7 @@
 <!--    #{pickingNodeCode,jdbcType=VARCHAR}, #{packageCode,jdbcType=VARCHAR}, #{waybillCode,jdbcType=VARCHAR},-->
 <!--    #{boxCode,jdbcType=VARCHAR}, #{waitScanCode,jdbcType=VARCHAR}, #{waitScanCodeType,jdbcType=TINYINT},-->
 <!--    #{initNextSiteId,jdbcType=BIGINT}, #{boxInitFlowKey,jdbcType=VARCHAR}, #{waitScanFlag,jdbcType=TINYINT},-->
-<!--    #{scanFalg,jdbcType=TINYINT}, #{scanCodeType,jdbcType=TINYINT}, #{moreScanFlag,jdbcType=TINYINT},-->
+<!--    #{scanFlag,jdbcType=TINYINT}, #{scanCodeType,jdbcType=TINYINT}, #{moreScanFlag,jdbcType=TINYINT},-->
 <!--    #{pickingUserErp,jdbcType=VARCHAR}, #{pickingUserName,jdbcType=VARCHAR}, #{pickingTime,jdbcType=TIMESTAMP},-->
 <!--    #{sendFlag,jdbcType=TINYINT}, #{realNextSiteId,jdbcType=BIGINT}, #{boxRealFlowKey,jdbcType=VARCHAR},-->
 <!--    #{moreSendFlag,jdbcType=TINYINT}, #{forceSendFlag,jdbcType=TINYINT}, #{sendTime,jdbcType=TIMESTAMP},-->
@@ -114,8 +114,8 @@
 <!--      <if test="waitScanFlag != null" >-->
 <!--        wait_scan_flag,-->
 <!--      </if>-->
-<!--      <if test="scanFalg != null" >-->
-<!--        scan_falg,-->
+<!--      <if test="scanFlag != null" >-->
+<!--        scan_flag,-->
 <!--      </if>-->
 <!--      <if test="scanCodeType != null" >-->
 <!--        scan_code_type,-->
@@ -206,8 +206,8 @@
 <!--      <if test="waitScanFlag != null" >-->
 <!--        #{waitScanFlag,jdbcType=TINYINT},-->
 <!--      </if>-->
-<!--      <if test="scanFalg != null" >-->
-<!--        #{scanFalg,jdbcType=TINYINT},-->
+<!--      <if test="scanFlag != null" >-->
+<!--        #{scanFlag,jdbcType=TINYINT},-->
 <!--      </if>-->
 <!--      <if test="scanCodeType != null" >-->
 <!--        #{scanCodeType,jdbcType=TINYINT},-->
@@ -298,8 +298,8 @@
 <!--      <if test="waitScanFlag != null" >-->
 <!--        wait_scan_flag = #{waitScanFlag,jdbcType=TINYINT},-->
 <!--      </if>-->
-<!--      <if test="scanFalg != null" >-->
-<!--        scan_falg = #{scanFalg,jdbcType=TINYINT},-->
+<!--      <if test="scanFlag != null" >-->
+<!--        scan_flag = #{scanFlag,jdbcType=TINYINT},-->
 <!--      </if>-->
 <!--      <if test="scanCodeType != null" >-->
 <!--        scan_code_type = #{scanCodeType,jdbcType=TINYINT},-->
@@ -368,7 +368,7 @@
 <!--    init_next_site_id = #{initNextSiteId,jdbcType=BIGINT},-->
 <!--    box_init_flow_key = #{boxInitFlowKey,jdbcType=VARCHAR},-->
 <!--    wait_scan_flag = #{waitScanFlag,jdbcType=TINYINT},-->
-<!--    scan_falg = #{scanFalg,jdbcType=TINYINT},-->
+<!--    scan_flag = #{scanFlag,jdbcType=TINYINT},-->
 <!--    scan_code_type = #{scanCodeType,jdbcType=TINYINT},-->
 <!--    more_scan_flag = #{moreScanFlag,jdbcType=TINYINT},-->
 <!--    picking_user_erp = #{pickingUserErp,jdbcType=VARCHAR},-->
