@@ -443,26 +443,26 @@ $(function () {
         // 上传对话框frame对象
         let index = parent.layer.getFrameIndex('upExcessPicture');
         let picNum = 0;
-        if ($('#upIsSuccessFlage1').val() === 1) {
+        if ($('#upIsSuccessFlage1').val() === '1') {
             picNum = picNum + 1;
         }
-        if ($('#upIsSuccessFlage2').val() === 1) {
+        if ($('#upIsSuccessFlage2').val() === '1') {
             picNum = picNum + 1;
         }
-        if ($('#upIsSuccessFlage3').val() === 1) {
+        if ($('#upIsSuccessFlage3').val() === '1') {
             picNum = picNum + 1;
         }
-        if ($('#upIsSuccessFlage4').val() === 1) {
+        if ($('#upIsSuccessFlage4').val() === '1') {
             picNum = picNum + 1;
         }
-        if ($('#upIsSuccessFlage5').val() === 1) {
+        if ($('#upIsSuccessFlage5').val() === '1') {
             picNum = picNum + 1;
         }
 
         // 设置父页面图片数量
         if (picNum > 0) {
             // 如果视频也上传了，设置父页面图片数量为：照片数量+视频数量
-            if ($('#upIsSuccessFlage6').val() === 1) {
+            if ($('#upIsSuccessFlage6').val() === '1') {
                 parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = picNum + 1;
             } else {
                 let excessType = $('#excessType').val();
@@ -481,7 +481,7 @@ $(function () {
             parent.layer.close(index);
         } else {
             // 如果只上传视频，设置父页面图片数量为：1
-            if ($('#upIsSuccessFlage6').val() === 1) {
+            if ($('#upIsSuccessFlage6').val() === '1') {
                 parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 1;
                 // 关闭上传对话框
                 parent.layer.close(index);
@@ -497,26 +497,26 @@ $(function () {
         // 上传对话框frame对象
         let index = parent.layer.getFrameIndex('upExcessPicture');
         let picNum = 0;
-        if ($('#upIsSuccessFlage1').val() === 1) {
+        if ($('#upIsSuccessFlage1').val() === '1') {
             picNum = picNum + 1;
         }
-        if ($('#upIsSuccessFlage2').val() === 1) {
+        if ($('#upIsSuccessFlage2').val() === '1') {
             picNum = picNum + 1;
         }
-        if ($('#upIsSuccessFlage3').val() === 1) {
+        if ($('#upIsSuccessFlage3').val() === '1') {
             picNum = picNum + 1;
         }
-        if ($('#upIsSuccessFlage4').val() === 1) {
+        if ($('#upIsSuccessFlage4').val() === '1') {
             picNum = picNum + 1;
         }
-        if ($('#upIsSuccessFlage5').val() === 1) {
+        if ($('#upIsSuccessFlage5').val() === '1') {
             picNum = picNum + 1;
         }
 
         // 设置父页面图片数量
         if (picNum > 0) {
             // 如果视频也上传了，设置父页面图片数量为：照片数量+视频数量
-            if ($('#upIsSuccessFlage6').val() === 1) {
+            if ($('#upIsSuccessFlage6').val() === '1') {
                 parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = picNum + 1;
             } else {
                 let excessType = $('#excessType').val();
@@ -535,7 +535,7 @@ $(function () {
             parent.layer.close(index);
         } else {
             // 如果只上传视频，设置父页面图片数量为：1
-            if ($('#upIsSuccessFlage6').val() === 1) {
+            if ($('#upIsSuccessFlage6').val() === '1') {
                 parent.$('#waybillDataTable')[0].rows[1].cells[5].innerHTML = 1;
                 // 关闭上传对话框
                 parent.layer.close(index);
