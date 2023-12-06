@@ -141,11 +141,10 @@ $(function () {
                             + "&isMultiPack=" + row.isMultiPack,
                         cancel: function() {
                             // 右上角关闭事件的逻辑
-                            console.log('上传对话框右上角关闭');
                             let uploadNum = getUploadNum();
                             console.log('上传对话框右上角关闭,uploadNum=' + uploadNum);
                             if (uploadNum > 0) {
-                                $('#waybillDataTable')[0].rows[rowIndex].cells[5].innerHTML = uploadNum;
+                                $('#waybillDataTable')[0].rows[1].cells[5].innerHTML = uploadNum;
                             }
                         },
                         success: function (layero, index) {
