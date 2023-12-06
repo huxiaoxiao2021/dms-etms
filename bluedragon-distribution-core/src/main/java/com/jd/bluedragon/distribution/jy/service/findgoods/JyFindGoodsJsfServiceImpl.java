@@ -317,9 +317,12 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
             log.warn("JyFindGoodsJsfServiceImpl.sendFindGoodsMessage siteWaveDto is null");
             return;
         }
+        String waveDate = this.getWaveDate(findGoodsTaskDto);
+        waveDate = waveDate == null ? findGoodsTaskDto.getTaskDate(): waveDate;
+        String waveMonthDay = waveDate.substring(waveDate.indexOf("-") + 1).replace("-", "月") + "日";
         String content = String.format(Constants.FIND_GOODS_NOTICE_CONTENT,
                 siteWaveDto.getSortingSiteName(),
-                DateUtil.format(new Date(), "MM月dd日"),
+                waveMonthDay,
                 findGoodsTaskDto.getWaveStartTime(),
                 findGoodsTaskDto.getWaveEndTime(),
                 siteWaveDto.getWaitFindCount(),
