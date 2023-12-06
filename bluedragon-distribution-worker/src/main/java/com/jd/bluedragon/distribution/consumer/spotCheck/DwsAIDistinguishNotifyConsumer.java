@@ -92,7 +92,7 @@ public class DwsAIDistinguishNotifyConsumer extends MessageBaseConsumer {
             WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = spotCheckDtoList.get(0);
             weightVolumeSpotCheckDto.setPicIsQualify(dto.getPicIsQualify());
             weightVolumeSpotCheckDto.setPictureAIDistinguishReason(dto.getPictureAIDistinguishReason());
-            spotCheckDealService.executeIssue(weightVolumeSpotCheckDto, null);
+            spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
         } catch (SpotCheckSysException e) {
             logger.warn("设备图片AI识别MQ处理异常进行重试", e);
             throw e;

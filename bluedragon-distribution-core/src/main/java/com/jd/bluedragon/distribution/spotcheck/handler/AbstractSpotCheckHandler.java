@@ -261,7 +261,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
         spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
         // 下发超标数据
-        spotCheckDealService.spotCheckIssue(summaryDto, spotCheckDto.getVersion());
+        spotCheckDealService.spotCheckIssue(summaryDto);
         // 抽检全程跟踪
         // spotCheckDealService.sendWaybillTrace(spotCheckContext);
     }

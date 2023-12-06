@@ -108,7 +108,7 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
             }
 
             // 下发抽检数据处理
-            spotCheckDealService.executeIssue(weightVolumeSpotCheckDto, null);
+            spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
 
         } catch (Exception e) {
             Profiler.functionError(info);
