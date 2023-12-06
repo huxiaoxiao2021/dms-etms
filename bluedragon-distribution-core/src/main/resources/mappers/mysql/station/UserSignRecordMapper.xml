@@ -1273,11 +1273,11 @@
 	
 	<select id="queryFirstExistGridRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
 		select
-		<include refid="Base_Column_List"/>
-		from user_sign_record
-		where sign_date = #{signDateStr}
-		and site_code = #{siteCode}
-		order by sign_in_time asc
+		<include refid="Main_Column_List"/>
+		from user_sign_record r
+		where r.sign_date = #{signDateStr}
+		and r.site_code = #{siteCode}
+		order by r.sign_in_time asc
 		limit 1
 	</select>
 </mapper>
