@@ -325,9 +325,10 @@ $(function () {
         });
     }
 
-    $("#fileField6").change(function () {
+    $("#fileField6").addEventListener('change', function(event) {
         let filePath = $(this).val();
         if (!filePath) {
+            event.target.value = '';
             Jd.alert('请选择视频文件再上传!');
             return;
         }
