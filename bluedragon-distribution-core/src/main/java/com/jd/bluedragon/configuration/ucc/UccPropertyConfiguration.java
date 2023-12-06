@@ -3425,6 +3425,7 @@ public class UccPropertyConfiguration{
             final String[] split = dpSpringSiteCode.split(Constants.SEPARATOR_COMMA);
             dpSpringSiteCodeList = Arrays.asList(split);
         }
+        this.dpSpringSiteCodeList.clear();
         for (String siteCodeStr : dpSpringSiteCodeList) {
             this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
         }
@@ -3947,12 +3948,13 @@ public class UccPropertyConfiguration{
     }
 
     public void setTerminalSiteTypeListForBoxType() {
-        List<String> dpSpringSiteCodeList = new ArrayList<>();
+        List<String> terminalSiteTypeList = new ArrayList<>();
         if(StringUtils.isNotBlank(terminalSiteTypeForBoxType)){
             final String[] split = terminalSiteTypeForBoxType.split(Constants.SEPARATOR_COMMA);
-            dpSpringSiteCodeList = Arrays.asList(split);
+            terminalSiteTypeList = Arrays.asList(split);
         }
-        for (String siteCodeStr : dpSpringSiteCodeList) {
+        this.terminalSiteTypeListForBoxType.clear();
+        for (String siteCodeStr : terminalSiteTypeList) {
             this.terminalSiteTypeListForBoxType.add(Integer.valueOf(siteCodeStr));
         }
     }
