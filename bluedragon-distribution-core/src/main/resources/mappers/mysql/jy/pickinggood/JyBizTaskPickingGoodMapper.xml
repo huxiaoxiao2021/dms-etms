@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
+    <result column="start_site_id" property="startSiteId" jdbcType="BIGINT" />
+    <result column="next_site_id" property="nextSiteId" jdbcType="BIGINT" />
+    <result column="business_number" property="businessNumber" jdbcType="VARCHAR" />
+    <result column="service_number" property="serviceNumber" jdbcType="VARCHAR" />
+    <result column="begin_node_code" property="beginNodeCode" jdbcType="VARCHAR" />
+    <result column="begin_node_name" property="beginNodeName" jdbcType="VARCHAR" />
+    <result column="end_node_code" property="endNodeCode" jdbcType="VARCHAR" />
+    <result column="end_node_name" property="endNodeName" jdbcType="VARCHAR" />
+    <result column="node_start_time" property="nodeStartTime" jdbcType="TIMESTAMP" />
+    <result column="node_plan_arrive_time" property="nodePlanArriveTime" jdbcType="TIMESTAMP" />
+    <result column="node_real_arrive_time" property="nodeRealArriveTime" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="complete_node" property="completeNode" jdbcType="TINYINT" />
+    <result column="picking_start_time" property="pickingStartTime" jdbcType="TIMESTAMP" />
+    <result column="picking_complete_time" property="pickingCompleteTime" jdbcType="TIMESTAMP" />
+    <result column="intercept" property="intercept" jdbcType="TINYINT" />
+    <result column="intercept_time" property="interceptTime" jdbcType="TIMESTAMP" />
+    <result column="task_type" property="taskType" jdbcType="TINYINT" />
+    <result column="manual_created_flag" property="manualCreatedFlag" jdbcType="TINYINT" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, biz_id, start_site_id, next_site_id, business_number, service_number, begin_node_code, 
+    begin_node_name, end_node_code, end_node_name, node_start_time, node_plan_arrive_time, 
+    node_real_arrive_time, status, complete_node, picking_start_time, picking_complete_time, 
+    intercept, intercept_time, task_type, manual_created_flag, create_user_erp, create_user_name, 
+    update_user_erp, update_user_name, create_time, update_time, yn, ts
+  </sql>
+
+
+
+<!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
+<!--    select -->
+<!--    <include refid="Base_Column_List" />-->
+<!--    from jy_biz_task_picking_good-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </select>-->
+<!--  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >-->
+<!--    delete from jy_biz_task_picking_good-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </delete>-->
+<!--  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >-->
+<!--    insert into jy_biz_task_picking_good (id, biz_id, start_site_id, -->
+<!--      next_site_id, business_number, service_number, -->
+<!--      begin_node_code, begin_node_name, end_node_code, -->
+<!--      end_node_name, node_start_time, node_plan_arrive_time, -->
+<!--      node_real_arrive_time, status, complete_node, -->
+<!--      picking_start_time, picking_complete_time, -->
+<!--      intercept, intercept_time, task_type, -->
+<!--      manual_created_flag, create_user_erp, create_user_name, -->
+<!--      update_user_erp, update_user_name, create_time, -->
+<!--      update_time, yn, ts)-->
+<!--    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{startSiteId,jdbcType=BIGINT}, -->
+<!--      #{nextSiteId,jdbcType=BIGINT}, #{businessNumber,jdbcType=VARCHAR}, #{serviceNumber,jdbcType=VARCHAR}, -->
+<!--      #{beginNodeCode,jdbcType=VARCHAR}, #{beginNodeName,jdbcType=VARCHAR}, #{endNodeCode,jdbcType=VARCHAR}, -->
+<!--      #{endNodeName,jdbcType=VARCHAR}, #{nodeStartTime,jdbcType=TIMESTAMP}, #{nodePlanArriveTime,jdbcType=TIMESTAMP}, -->
+<!--      #{nodeRealArriveTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, #{completeNode,jdbcType=TINYINT}, -->
+<!--      #{pickingStartTime,jdbcType=TIMESTAMP}, #{pickingCompleteTime,jdbcType=TIMESTAMP}, -->
+<!--      #{intercept,jdbcType=TINYINT}, #{interceptTime,jdbcType=TIMESTAMP}, #{taskType,jdbcType=TINYINT}, -->
+<!--      #{manualCreatedFlag,jdbcType=TINYINT}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, -->
+<!--      #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, -->
+<!--      #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})-->
+<!--  </insert>-->
+<!--  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >-->
+<!--    insert into jy_biz_task_picking_good-->
+<!--    <trim prefix="(" suffix=")" suffixOverrides="," >-->
+<!--      <if test="id != null" >-->
+<!--        id,-->
+<!--      </if>-->
+<!--      <if test="bizId != null" >-->
+<!--        biz_id,-->
+<!--      </if>-->
+<!--      <if test="startSiteId != null" >-->
+<!--        start_site_id,-->
+<!--      </if>-->
+<!--      <if test="nextSiteId != null" >-->
+<!--        next_site_id,-->
+<!--      </if>-->
+<!--      <if test="businessNumber != null" >-->
+<!--        business_number,-->
+<!--      </if>-->
+<!--      <if test="serviceNumber != null" >-->
+<!--        service_number,-->
+<!--      </if>-->
+<!--      <if test="beginNodeCode != null" >-->
+<!--        begin_node_code,-->
+<!--      </if>-->
+<!--      <if test="beginNodeName != null" >-->
+<!--        begin_node_name,-->
+<!--      </if>-->
+<!--      <if test="endNodeCode != null" >-->
+<!--        end_node_code,-->
+<!--      </if>-->
+<!--      <if test="endNodeName != null" >-->
+<!--        end_node_name,-->
+<!--      </if>-->
+<!--      <if test="nodeStartTime != null" >-->
+<!--        node_start_time,-->
+<!--      </if>-->
+<!--      <if test="nodePlanArriveTime != null" >-->
+<!--        node_plan_arrive_time,-->
+<!--      </if>-->
+<!--      <if test="nodeRealArriveTime != null" >-->
+<!--        node_real_arrive_time,-->
+<!--      </if>-->
+<!--      <if test="status != null" >-->
+<!--        status,-->
+<!--      </if>-->
+<!--      <if test="completeNode != null" >-->
+<!--        complete_node,-->
+<!--      </if>-->
+<!--      <if test="pickingStartTime != null" >-->
+<!--        picking_start_time,-->
+<!--      </if>-->
+<!--      <if test="pickingCompleteTime != null" >-->
+<!--        picking_complete_time,-->
+<!--      </if>-->
+<!--      <if test="intercept != null" >-->
+<!--        intercept,-->
+<!--      </if>-->
+<!--      <if test="interceptTime != null" >-->
+<!--        intercept_time,-->
+<!--      </if>-->
+<!--      <if test="taskType != null" >-->
+<!--        task_type,-->
+<!--      </if>-->
+<!--      <if test="manualCreatedFlag != null" >-->
+<!--        manual_created_flag,-->
+<!--      </if>-->
+<!--      <if test="createUserErp != null" >-->
+<!--        create_user_erp,-->
+<!--      </if>-->
+<!--      <if test="createUserName != null" >-->
+<!--        create_user_name,-->
+<!--      </if>-->
+<!--      <if test="updateUserErp != null" >-->
+<!--        update_user_erp,-->
+<!--      </if>-->
+<!--      <if test="updateUserName != null" >-->
+<!--        update_user_name,-->
+<!--      </if>-->
+<!--      <if test="createTime != null" >-->
+<!--        create_time,-->
+<!--      </if>-->
+<!--      <if test="updateTime != null" >-->
+<!--        update_time,-->
+<!--      </if>-->
+<!--      <if test="yn != null" >-->
+<!--        yn,-->
+<!--      </if>-->
+<!--      <if test="ts != null" >-->
+<!--        ts,-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--    <trim prefix="values (" suffix=")" suffixOverrides="," >-->
+<!--      <if test="id != null" >-->
+<!--        #{id,jdbcType=BIGINT},-->
+<!--      </if>-->
+<!--      <if test="bizId != null" >-->
+<!--        #{bizId,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="startSiteId != null" >-->
+<!--        #{startSiteId,jdbcType=BIGINT},-->
+<!--      </if>-->
+<!--      <if test="nextSiteId != null" >-->
+<!--        #{nextSiteId,jdbcType=BIGINT},-->
+<!--      </if>-->
+<!--      <if test="businessNumber != null" >-->
+<!--        #{businessNumber,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="serviceNumber != null" >-->
+<!--        #{serviceNumber,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="beginNodeCode != null" >-->
+<!--        #{beginNodeCode,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="beginNodeName != null" >-->
+<!--        #{beginNodeName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="endNodeCode != null" >-->
+<!--        #{endNodeCode,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="endNodeName != null" >-->
+<!--        #{endNodeName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="nodeStartTime != null" >-->
+<!--        #{nodeStartTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="nodePlanArriveTime != null" >-->
+<!--        #{nodePlanArriveTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="nodeRealArriveTime != null" >-->
+<!--        #{nodeRealArriveTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="status != null" >-->
+<!--        #{status,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="completeNode != null" >-->
+<!--        #{completeNode,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="pickingStartTime != null" >-->
+<!--        #{pickingStartTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="pickingCompleteTime != null" >-->
+<!--        #{pickingCompleteTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="intercept != null" >-->
+<!--        #{intercept,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="interceptTime != null" >-->
+<!--        #{interceptTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="taskType != null" >-->
+<!--        #{taskType,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="manualCreatedFlag != null" >-->
+<!--        #{manualCreatedFlag,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="createUserErp != null" >-->
+<!--        #{createUserErp,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="createUserName != null" >-->
+<!--        #{createUserName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="updateUserErp != null" >-->
+<!--        #{updateUserErp,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="updateUserName != null" >-->
+<!--        #{updateUserName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="createTime != null" >-->
+<!--        #{createTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="updateTime != null" >-->
+<!--        #{updateTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="yn != null" >-->
+<!--        #{yn,jdbcType=BIT},-->
+<!--      </if>-->
+<!--      <if test="ts != null" >-->
+<!--        #{ts,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--  </insert>-->
+<!--  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >-->
+<!--    update jy_biz_task_picking_good-->
+<!--    <set >-->
+<!--      <if test="bizId != null" >-->
+<!--        biz_id = #{bizId,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="startSiteId != null" >-->
+<!--        start_site_id = #{startSiteId,jdbcType=BIGINT},-->
+<!--      </if>-->
+<!--      <if test="nextSiteId != null" >-->
+<!--        next_site_id = #{nextSiteId,jdbcType=BIGINT},-->
+<!--      </if>-->
+<!--      <if test="businessNumber != null" >-->
+<!--        business_number = #{businessNumber,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="serviceNumber != null" >-->
+<!--        service_number = #{serviceNumber,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="beginNodeCode != null" >-->
+<!--        begin_node_code = #{beginNodeCode,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="beginNodeName != null" >-->
+<!--        begin_node_name = #{beginNodeName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="endNodeCode != null" >-->
+<!--        end_node_code = #{endNodeCode,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="endNodeName != null" >-->
+<!--        end_node_name = #{endNodeName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="nodeStartTime != null" >-->
+<!--        node_start_time = #{nodeStartTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="nodePlanArriveTime != null" >-->
+<!--        node_plan_arrive_time = #{nodePlanArriveTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="nodeRealArriveTime != null" >-->
+<!--        node_real_arrive_time = #{nodeRealArriveTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="status != null" >-->
+<!--        status = #{status,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="completeNode != null" >-->
+<!--        complete_node = #{completeNode,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="pickingStartTime != null" >-->
+<!--        picking_start_time = #{pickingStartTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="pickingCompleteTime != null" >-->
+<!--        picking_complete_time = #{pickingCompleteTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="intercept != null" >-->
+<!--        intercept = #{intercept,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="interceptTime != null" >-->
+<!--        intercept_time = #{interceptTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="taskType != null" >-->
+<!--        task_type = #{taskType,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="manualCreatedFlag != null" >-->
+<!--        manual_created_flag = #{manualCreatedFlag,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="createUserErp != null" >-->
+<!--        create_user_erp = #{createUserErp,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="createUserName != null" >-->
+<!--        create_user_name = #{createUserName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="updateUserErp != null" >-->
+<!--        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="updateUserName != null" >-->
+<!--        update_user_name = #{updateUserName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="createTime != null" >-->
+<!--        create_time = #{createTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="updateTime != null" >-->
+<!--        update_time = #{updateTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="yn != null" >-->
+<!--        yn = #{yn,jdbcType=BIT},-->
+<!--      </if>-->
+<!--      <if test="ts != null" >-->
+<!--        ts = #{ts,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--    </set>-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </update>-->
+<!--  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >-->
+<!--    update jy_biz_task_picking_good-->
+<!--    set biz_id = #{bizId,jdbcType=VARCHAR},-->
+<!--      start_site_id = #{startSiteId,jdbcType=BIGINT},-->
+<!--      next_site_id = #{nextSiteId,jdbcType=BIGINT},-->
+<!--      business_number = #{businessNumber,jdbcType=VARCHAR},-->
+<!--      service_number = #{serviceNumber,jdbcType=VARCHAR},-->
+<!--      begin_node_code = #{beginNodeCode,jdbcType=VARCHAR},-->
+<!--      begin_node_name = #{beginNodeName,jdbcType=VARCHAR},-->
+<!--      end_node_code = #{endNodeCode,jdbcType=VARCHAR},-->
+<!--      end_node_name = #{endNodeName,jdbcType=VARCHAR},-->
+<!--      node_start_time = #{nodeStartTime,jdbcType=TIMESTAMP},-->
+<!--      node_plan_arrive_time = #{nodePlanArriveTime,jdbcType=TIMESTAMP},-->
+<!--      node_real_arrive_time = #{nodeRealArriveTime,jdbcType=TIMESTAMP},-->
+<!--      status = #{status,jdbcType=TINYINT},-->
+<!--      complete_node = #{completeNode,jdbcType=TINYINT},-->
+<!--      picking_start_time = #{pickingStartTime,jdbcType=TIMESTAMP},-->
+<!--      picking_complete_time = #{pickingCompleteTime,jdbcType=TIMESTAMP},-->
+<!--      intercept = #{intercept,jdbcType=TINYINT},-->
+<!--      intercept_time = #{interceptTime,jdbcType=TIMESTAMP},-->
+<!--      task_type = #{taskType,jdbcType=TINYINT},-->
+<!--      manual_created_flag = #{manualCreatedFlag,jdbcType=TINYINT},-->
+<!--      create_user_erp = #{createUserErp,jdbcType=VARCHAR},-->
+<!--      create_user_name = #{createUserName,jdbcType=VARCHAR},-->
+<!--      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},-->
+<!--      update_user_name = #{updateUserName,jdbcType=VARCHAR},-->
+<!--      create_time = #{createTime,jdbcType=TIMESTAMP},-->
+<!--      update_time = #{updateTime,jdbcType=TIMESTAMP},-->
+<!--      yn = #{yn,jdbcType=BIT},-->
+<!--      ts = #{ts,jdbcType=TIMESTAMP}-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </update>-->
+</mapper>

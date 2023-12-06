@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskAggsDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
+    <result column="picking_site_id" property="pickingSiteId" jdbcType="BIGINT" />
+    <result column="picking_node_code" property="pickingNodeCode" jdbcType="VARCHAR" />
+    <result column="wait_scan_package_count" property="waitScanPackageCount" jdbcType="INTEGER" />
+    <result column="wait_scan_box_count" property="waitScanBoxCount" jdbcType="INTEGER" />
+    <result column="wait_scan_total_count" property="waitScanTotalCount" jdbcType="INTEGER" />
+    <result column="scan_package_count" property="scanPackageCount" jdbcType="INTEGER" />
+    <result column="scan_box_count" property="scanBoxCount" jdbcType="INTEGER" />
+    <result column="scan_total_count" property="scanTotalCount" jdbcType="INTEGER" />
+    <result column="more_scan_package_count" property="moreScanPackageCount" jdbcType="INTEGER" />
+    <result column="more_scan_box_count" property="moreScanBoxCount" jdbcType="INTEGER" />
+    <result column="more_scan_total_count" property="moreScanTotalCount" jdbcType="INTEGER" />
+    <result column="send_package_count" property="sendPackageCount" jdbcType="INTEGER" />
+    <result column="send_box_count" property="sendBoxCount" jdbcType="INTEGER" />
+    <result column="send_total_count" property="sendTotalCount" jdbcType="INTEGER" />
+    <result column="more_send_package_count" property="moreSendPackageCount" jdbcType="INTEGER" />
+    <result column="more_send_box_count" property="moreSendBoxCount" jdbcType="INTEGER" />
+    <result column="more_send_total_count" property="moreSendTotalCount" jdbcType="INTEGER" />
+    <result column="force_send_package_count" property="forceSendPackageCount" jdbcType="INTEGER" />
+    <result column="force_send_box_count" property="forceSendBoxCount" jdbcType="INTEGER" />
+    <result column="force_send_total_count" property="forceSendTotalCount" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, biz_id, picking_site_id, picking_node_code, wait_scan_package_count, wait_scan_box_count, 
+    wait_scan_total_count, scan_package_count, scan_box_count, scan_total_count, more_scan_package_count, 
+    more_scan_box_count, more_scan_total_count, send_package_count, send_box_count, send_total_count, 
+    more_send_package_count, more_send_box_count, more_send_total_count, force_send_package_count, 
+    force_send_box_count, force_send_total_count, create_time, update_time, yn, ts
+  </sql>
+
+
+<!--  -->
+<!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
+<!--    select -->
+<!--    <include refid="Base_Column_List" />-->
+<!--    from jy_picking_task_aggs-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </select>-->
+<!--  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >-->
+<!--    delete from jy_picking_task_aggs-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </delete>-->
+<!--  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity" >-->
+<!--    insert into jy_picking_task_aggs (id, biz_id, picking_site_id, -->
+<!--      picking_node_code, wait_scan_package_count, -->
+<!--      wait_scan_box_count, wait_scan_total_count, scan_package_count, -->
+<!--      scan_box_count, scan_total_count, more_scan_package_count, -->
+<!--      more_scan_box_count, more_scan_total_count, send_package_count, -->
+<!--      send_box_count, send_total_count, more_send_package_count, -->
+<!--      more_send_box_count, more_send_total_count, force_send_package_count, -->
+<!--      force_send_box_count, force_send_total_count, -->
+<!--      create_time, update_time, yn, -->
+<!--      ts)-->
+<!--    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{pickingSiteId,jdbcType=BIGINT}, -->
+<!--      #{pickingNodeCode,jdbcType=VARCHAR}, #{waitScanPackageCount,jdbcType=INTEGER}, -->
+<!--      #{waitScanBoxCount,jdbcType=INTEGER}, #{waitScanTotalCount,jdbcType=INTEGER}, #{scanPackageCount,jdbcType=INTEGER}, -->
+<!--      #{scanBoxCount,jdbcType=INTEGER}, #{scanTotalCount,jdbcType=INTEGER}, #{moreScanPackageCount,jdbcType=INTEGER}, -->
+<!--      #{moreScanBoxCount,jdbcType=INTEGER}, #{moreScanTotalCount,jdbcType=INTEGER}, #{sendPackageCount,jdbcType=INTEGER}, -->
+<!--      #{sendBoxCount,jdbcType=INTEGER}, #{sendTotalCount,jdbcType=INTEGER}, #{moreSendPackageCount,jdbcType=INTEGER}, -->
+<!--      #{moreSendBoxCount,jdbcType=INTEGER}, #{moreSendTotalCount,jdbcType=INTEGER}, #{forceSendPackageCount,jdbcType=INTEGER}, -->
+<!--      #{forceSendBoxCount,jdbcType=INTEGER}, #{forceSendTotalCount,jdbcType=INTEGER}, -->
+<!--      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, -->
+<!--      #{ts,jdbcType=TIMESTAMP})-->
+<!--  </insert>-->
+<!--  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity" >-->
+<!--    insert into jy_picking_task_aggs-->
+<!--    <trim prefix="(" suffix=")" suffixOverrides="," >-->
+<!--      <if test="id != null" >-->
+<!--        id,-->
+<!--      </if>-->
+<!--      <if test="bizId != null" >-->
+<!--        biz_id,-->
+<!--      </if>-->
+<!--      <if test="pickingSiteId != null" >-->
+<!--        picking_site_id,-->
+<!--      </if>-->
+<!--      <if test="pickingNodeCode != null" >-->
+<!--        picking_node_code,-->
+<!--      </if>-->
+<!--      <if test="waitScanPackageCount != null" >-->
+<!--        wait_scan_package_count,-->
+<!--      </if>-->
+<!--      <if test="waitScanBoxCount != null" >-->
+<!--        wait_scan_box_count,-->
+<!--      </if>-->
+<!--      <if test="waitScanTotalCount != null" >-->
+<!--        wait_scan_total_count,-->
+<!--      </if>-->
+<!--      <if test="scanPackageCount != null" >-->
+<!--        scan_package_count,-->
+<!--      </if>-->
+<!--      <if test="scanBoxCount != null" >-->
+<!--        scan_box_count,-->
+<!--      </if>-->
+<!--      <if test="scanTotalCount != null" >-->
+<!--        scan_total_count,-->
+<!--      </if>-->
+<!--      <if test="moreScanPackageCount != null" >-->
+<!--        more_scan_package_count,-->
+<!--      </if>-->
+<!--      <if test="moreScanBoxCount != null" >-->
+<!--        more_scan_box_count,-->
+<!--      </if>-->
+<!--      <if test="moreScanTotalCount != null" >-->
+<!--        more_scan_total_count,-->
+<!--      </if>-->
+<!--      <if test="sendPackageCount != null" >-->
+<!--        send_package_count,-->
+<!--      </if>-->
+<!--      <if test="sendBoxCount != null" >-->
+<!--        send_box_count,-->
+<!--      </if>-->
+<!--      <if test="sendTotalCount != null" >-->
+<!--        send_total_count,-->
+<!--      </if>-->
+<!--      <if test="moreSendPackageCount != null" >-->
+<!--        more_send_package_count,-->
+<!--      </if>-->
+<!--      <if test="moreSendBoxCount != null" >-->
+<!--        more_send_box_count,-->
+<!--      </if>-->
+<!--      <if test="moreSendTotalCount != null" >-->
+<!--        more_send_total_count,-->
+<!--      </if>-->
+<!--      <if test="forceSendPackageCount != null" >-->
+<!--        force_send_package_count,-->
+<!--      </if>-->
+<!--      <if test="forceSendBoxCount != null" >-->
+<!--        force_send_box_count,-->
+<!--      </if>-->
+<!--      <if test="forceSendTotalCount != null" >-->
+<!--        force_send_total_count,-->
+<!--      </if>-->
+<!--      <if test="createTime != null" >-->
+<!--        create_time,-->
+<!--      </if>-->
+<!--      <if test="updateTime != null" >-->
+<!--        update_time,-->
+<!--      </if>-->
+<!--      <if test="yn != null" >-->
+<!--        yn,-->
+<!--      </if>-->
+<!--      <if test="ts != null" >-->
+<!--        ts,-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--    <trim prefix="values (" suffix=")" suffixOverrides="," >-->
+<!--      <if test="id != null" >-->
+<!--        #{id,jdbcType=BIGINT},-->
+<!--      </if>-->
+<!--      <if test="bizId != null" >-->
+<!--        #{bizId,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="pickingSiteId != null" >-->
+<!--        #{pickingSiteId,jdbcType=BIGINT},-->
+<!--      </if>-->
+<!--      <if test="pickingNodeCode != null" >-->
+<!--        #{pickingNodeCode,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="waitScanPackageCount != null" >-->
+<!--        #{waitScanPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="waitScanBoxCount != null" >-->
+<!--        #{waitScanBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="waitScanTotalCount != null" >-->
+<!--        #{waitScanTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="scanPackageCount != null" >-->
+<!--        #{scanPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="scanBoxCount != null" >-->
+<!--        #{scanBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="scanTotalCount != null" >-->
+<!--        #{scanTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreScanPackageCount != null" >-->
+<!--        #{moreScanPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreScanBoxCount != null" >-->
+<!--        #{moreScanBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreScanTotalCount != null" >-->
+<!--        #{moreScanTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="sendPackageCount != null" >-->
+<!--        #{sendPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="sendBoxCount != null" >-->
+<!--        #{sendBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="sendTotalCount != null" >-->
+<!--        #{sendTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreSendPackageCount != null" >-->
+<!--        #{moreSendPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreSendBoxCount != null" >-->
+<!--        #{moreSendBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreSendTotalCount != null" >-->
+<!--        #{moreSendTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="forceSendPackageCount != null" >-->
+<!--        #{forceSendPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="forceSendBoxCount != null" >-->
+<!--        #{forceSendBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="forceSendTotalCount != null" >-->
+<!--        #{forceSendTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="createTime != null" >-->
+<!--        #{createTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="updateTime != null" >-->
+<!--        #{updateTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="yn != null" >-->
+<!--        #{yn,jdbcType=BIT},-->
+<!--      </if>-->
+<!--      <if test="ts != null" >-->
+<!--        #{ts,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--  </insert>-->
+<!--  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity" >-->
+<!--    update jy_picking_task_aggs-->
+<!--    <set >-->
+<!--      <if test="bizId != null" >-->
+<!--        biz_id = #{bizId,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="pickingSiteId != null" >-->
+<!--        picking_site_id = #{pickingSiteId,jdbcType=BIGINT},-->
+<!--      </if>-->
+<!--      <if test="pickingNodeCode != null" >-->
+<!--        picking_node_code = #{pickingNodeCode,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="waitScanPackageCount != null" >-->
+<!--        wait_scan_package_count = #{waitScanPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="waitScanBoxCount != null" >-->
+<!--        wait_scan_box_count = #{waitScanBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="waitScanTotalCount != null" >-->
+<!--        wait_scan_total_count = #{waitScanTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="scanPackageCount != null" >-->
+<!--        scan_package_count = #{scanPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="scanBoxCount != null" >-->
+<!--        scan_box_count = #{scanBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="scanTotalCount != null" >-->
+<!--        scan_total_count = #{scanTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreScanPackageCount != null" >-->
+<!--        more_scan_package_count = #{moreScanPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreScanBoxCount != null" >-->
+<!--        more_scan_box_count = #{moreScanBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreScanTotalCount != null" >-->
+<!--        more_scan_total_count = #{moreScanTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="sendPackageCount != null" >-->
+<!--        send_package_count = #{sendPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="sendBoxCount != null" >-->
+<!--        send_box_count = #{sendBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="sendTotalCount != null" >-->
+<!--        send_total_count = #{sendTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreSendPackageCount != null" >-->
+<!--        more_send_package_count = #{moreSendPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreSendBoxCount != null" >-->
+<!--        more_send_box_count = #{moreSendBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="moreSendTotalCount != null" >-->
+<!--        more_send_total_count = #{moreSendTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="forceSendPackageCount != null" >-->
+<!--        force_send_package_count = #{forceSendPackageCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="forceSendBoxCount != null" >-->
+<!--        force_send_box_count = #{forceSendBoxCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="forceSendTotalCount != null" >-->
+<!--        force_send_total_count = #{forceSendTotalCount,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="createTime != null" >-->
+<!--        create_time = #{createTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="updateTime != null" >-->
+<!--        update_time = #{updateTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="yn != null" >-->
+<!--        yn = #{yn,jdbcType=BIT},-->
+<!--      </if>-->
+<!--      <if test="ts != null" >-->
+<!--        ts = #{ts,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--    </set>-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </update>-->
+<!--  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity" >-->
+<!--    update jy_picking_task_aggs-->
+<!--    set biz_id = #{bizId,jdbcType=VARCHAR},-->
+<!--      picking_site_id = #{pickingSiteId,jdbcType=BIGINT},-->
+<!--      picking_node_code = #{pickingNodeCode,jdbcType=VARCHAR},-->
+<!--      wait_scan_package_count = #{waitScanPackageCount,jdbcType=INTEGER},-->
+<!--      wait_scan_box_count = #{waitScanBoxCount,jdbcType=INTEGER},-->
+<!--      wait_scan_total_count = #{waitScanTotalCount,jdbcType=INTEGER},-->
+<!--      scan_package_count = #{scanPackageCount,jdbcType=INTEGER},-->
+<!--      scan_box_count = #{scanBoxCount,jdbcType=INTEGER},-->
+<!--      scan_total_count = #{scanTotalCount,jdbcType=INTEGER},-->
+<!--      more_scan_package_count = #{moreScanPackageCount,jdbcType=INTEGER},-->
+<!--      more_scan_box_count = #{moreScanBoxCount,jdbcType=INTEGER},-->
+<!--      more_scan_total_count = #{moreScanTotalCount,jdbcType=INTEGER},-->
+<!--      send_package_count = #{sendPackageCount,jdbcType=INTEGER},-->
+<!--      send_box_count = #{sendBoxCount,jdbcType=INTEGER},-->
+<!--      send_total_count = #{sendTotalCount,jdbcType=INTEGER},-->
+<!--      more_send_package_count = #{moreSendPackageCount,jdbcType=INTEGER},-->
+<!--      more_send_box_count = #{moreSendBoxCount,jdbcType=INTEGER},-->
+<!--      more_send_total_count = #{moreSendTotalCount,jdbcType=INTEGER},-->
+<!--      force_send_package_count = #{forceSendPackageCount,jdbcType=INTEGER},-->
+<!--      force_send_box_count = #{forceSendBoxCount,jdbcType=INTEGER},-->
+<!--      force_send_total_count = #{forceSendTotalCount,jdbcType=INTEGER},-->
+<!--      create_time = #{createTime,jdbcType=TIMESTAMP},-->
+<!--      update_time = #{updateTime,jdbcType=TIMESTAMP},-->
+<!--      yn = #{yn,jdbcType=BIT},-->
+<!--      ts = #{ts,jdbcType=TIMESTAMP}-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </update>-->
+</mapper>

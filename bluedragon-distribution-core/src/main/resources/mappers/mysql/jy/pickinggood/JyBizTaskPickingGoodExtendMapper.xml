@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodExtendDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodExtendEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
+    <result column="send_code" property="sendCode" jdbcType="VARCHAR" />
+    <result column="wait_scan_init_complete" property="waitScanInitComplete" jdbcType="TINYINT" />
+    <result column="wait_scan_init_complete_time" property="waitScanInitCompleteTime" jdbcType="TIMESTAMP" />
+    <result column="wait_scan_num" property="waitScanNum" jdbcType="INTEGER" />
+    <result column="wait_scan_package_num" property="waitScanPackageNum" jdbcType="INTEGER" />
+    <result column="wait_scan_box_num" property="waitScanBoxNum" jdbcType="INTEGER" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, biz_id, send_code, wait_scan_init_complete, wait_scan_init_complete_time, wait_scan_num, 
+    wait_scan_package_num, wait_scan_box_num, create_user_erp, create_user_name, update_user_erp, 
+    update_user_name, create_time, update_time, yn, ts
+  </sql>
+
+
+<!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
+<!--    select -->
+<!--    <include refid="Base_Column_List" />-->
+<!--    from jy_biz_task_picking_good_extend-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </select>-->
+<!--  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >-->
+<!--    delete from jy_biz_task_picking_good_extend-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </delete>-->
+<!--  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodExtendEntity" >-->
+<!--    insert into jy_biz_task_picking_good_extend (id, biz_id, send_code, -->
+<!--      wait_scan_init_complete, wait_scan_init_complete_time, -->
+<!--      wait_scan_num, wait_scan_package_num, wait_scan_box_num, -->
+<!--      create_user_erp, create_user_name, update_user_erp, -->
+<!--      update_user_name, create_time, update_time, -->
+<!--      yn, ts)-->
+<!--    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{sendCode,jdbcType=VARCHAR}, -->
+<!--      #{waitScanInitComplete,jdbcType=TINYINT}, #{waitScanInitCompleteTime,jdbcType=TIMESTAMP}, -->
+<!--      #{waitScanNum,jdbcType=INTEGER}, #{waitScanPackageNum,jdbcType=INTEGER}, #{waitScanBoxNum,jdbcType=INTEGER}, -->
+<!--      #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, -->
+<!--      #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, -->
+<!--      #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})-->
+<!--  </insert>-->
+<!--  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodExtendEntity" >-->
+<!--    insert into jy_biz_task_picking_good_extend-->
+<!--    <trim prefix="(" suffix=")" suffixOverrides="," >-->
+<!--      <if test="id != null" >-->
+<!--        id,-->
+<!--      </if>-->
+<!--      <if test="bizId != null" >-->
+<!--        biz_id,-->
+<!--      </if>-->
+<!--      <if test="sendCode != null" >-->
+<!--        send_code,-->
+<!--      </if>-->
+<!--      <if test="waitScanInitComplete != null" >-->
+<!--        wait_scan_init_complete,-->
+<!--      </if>-->
+<!--      <if test="waitScanInitCompleteTime != null" >-->
+<!--        wait_scan_init_complete_time,-->
+<!--      </if>-->
+<!--      <if test="waitScanNum != null" >-->
+<!--        wait_scan_num,-->
+<!--      </if>-->
+<!--      <if test="waitScanPackageNum != null" >-->
+<!--        wait_scan_package_num,-->
+<!--      </if>-->
+<!--      <if test="waitScanBoxNum != null" >-->
+<!--        wait_scan_box_num,-->
+<!--      </if>-->
+<!--      <if test="createUserErp != null" >-->
+<!--        create_user_erp,-->
+<!--      </if>-->
+<!--      <if test="createUserName != null" >-->
+<!--        create_user_name,-->
+<!--      </if>-->
+<!--      <if test="updateUserErp != null" >-->
+<!--        update_user_erp,-->
+<!--      </if>-->
+<!--      <if test="updateUserName != null" >-->
+<!--        update_user_name,-->
+<!--      </if>-->
+<!--      <if test="createTime != null" >-->
+<!--        create_time,-->
+<!--      </if>-->
+<!--      <if test="updateTime != null" >-->
+<!--        update_time,-->
+<!--      </if>-->
+<!--      <if test="yn != null" >-->
+<!--        yn,-->
+<!--      </if>-->
+<!--      <if test="ts != null" >-->
+<!--        ts,-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--    <trim prefix="values (" suffix=")" suffixOverrides="," >-->
+<!--      <if test="id != null" >-->
+<!--        #{id,jdbcType=BIGINT},-->
+<!--      </if>-->
+<!--      <if test="bizId != null" >-->
+<!--        #{bizId,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="sendCode != null" >-->
+<!--        #{sendCode,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="waitScanInitComplete != null" >-->
+<!--        #{waitScanInitComplete,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="waitScanInitCompleteTime != null" >-->
+<!--        #{waitScanInitCompleteTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="waitScanNum != null" >-->
+<!--        #{waitScanNum,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="waitScanPackageNum != null" >-->
+<!--        #{waitScanPackageNum,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="waitScanBoxNum != null" >-->
+<!--        #{waitScanBoxNum,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="createUserErp != null" >-->
+<!--        #{createUserErp,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="createUserName != null" >-->
+<!--        #{createUserName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="updateUserErp != null" >-->
+<!--        #{updateUserErp,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="updateUserName != null" >-->
+<!--        #{updateUserName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="createTime != null" >-->
+<!--        #{createTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="updateTime != null" >-->
+<!--        #{updateTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="yn != null" >-->
+<!--        #{yn,jdbcType=BIT},-->
+<!--      </if>-->
+<!--      <if test="ts != null" >-->
+<!--        #{ts,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--    </trim>-->
+<!--  </insert>-->
+<!--  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodExtendEntity" >-->
+<!--    update jy_biz_task_picking_good_extend-->
+<!--    <set >-->
+<!--      <if test="bizId != null" >-->
+<!--        biz_id = #{bizId,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="sendCode != null" >-->
+<!--        send_code = #{sendCode,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="waitScanInitComplete != null" >-->
+<!--        wait_scan_init_complete = #{waitScanInitComplete,jdbcType=TINYINT},-->
+<!--      </if>-->
+<!--      <if test="waitScanInitCompleteTime != null" >-->
+<!--        wait_scan_init_complete_time = #{waitScanInitCompleteTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="waitScanNum != null" >-->
+<!--        wait_scan_num = #{waitScanNum,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="waitScanPackageNum != null" >-->
+<!--        wait_scan_package_num = #{waitScanPackageNum,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="waitScanBoxNum != null" >-->
+<!--        wait_scan_box_num = #{waitScanBoxNum,jdbcType=INTEGER},-->
+<!--      </if>-->
+<!--      <if test="createUserErp != null" >-->
+<!--        create_user_erp = #{createUserErp,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="createUserName != null" >-->
+<!--        create_user_name = #{createUserName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="updateUserErp != null" >-->
+<!--        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="updateUserName != null" >-->
+<!--        update_user_name = #{updateUserName,jdbcType=VARCHAR},-->
+<!--      </if>-->
+<!--      <if test="createTime != null" >-->
+<!--        create_time = #{createTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="updateTime != null" >-->
+<!--        update_time = #{updateTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="yn != null" >-->
+<!--        yn = #{yn,jdbcType=BIT},-->
+<!--      </if>-->
+<!--      <if test="ts != null" >-->
+<!--        ts = #{ts,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--    </set>-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </update>-->
+<!--  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodExtendEntity" >-->
+<!--    update jy_biz_task_picking_good_extend-->
+<!--    set biz_id = #{bizId,jdbcType=VARCHAR},-->
+<!--      send_code = #{sendCode,jdbcType=VARCHAR},-->
+<!--      wait_scan_init_complete = #{waitScanInitComplete,jdbcType=TINYINT},-->
+<!--      wait_scan_init_complete_time = #{waitScanInitCompleteTime,jdbcType=TIMESTAMP},-->
+<!--      wait_scan_num = #{waitScanNum,jdbcType=INTEGER},-->
+<!--      wait_scan_package_num = #{waitScanPackageNum,jdbcType=INTEGER},-->
+<!--      wait_scan_box_num = #{waitScanBoxNum,jdbcType=INTEGER},-->
+<!--      create_user_erp = #{createUserErp,jdbcType=VARCHAR},-->
+<!--      create_user_name = #{createUserName,jdbcType=VARCHAR},-->
+<!--      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},-->
+<!--      update_user_name = #{updateUserName,jdbcType=VARCHAR},-->
+<!--      create_time = #{createTime,jdbcType=TIMESTAMP},-->
+<!--      update_time = #{updateTime,jdbcType=TIMESTAMP},-->
+<!--      yn = #{yn,jdbcType=BIT},-->
+<!--      ts = #{ts,jdbcType=TIMESTAMP}-->
+<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--  </update>-->
+</mapper>
