@@ -765,25 +765,14 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         if (StringUtils.isBlank(spotCheckDto.getPictureAddress())) {
             return picList;
         }
-        if(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){
+        if (SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())) {
             // 人工抽检（只有运单维度，无包裹维度）
-            List<String> picUrlList = Arrays.asList(spotCheckDto.getPictureAddress().split(Constants.SEPARATOR_SEMICOLON));
-            if(picUrlList.size() < 2){
-                logger.warn("运单:{}的抽检图片未集齐!", spotCheckDto.getWaybillCode());
-                return picList;
+            String[] picUrlList = spotCheckDto.getPictureAddress().split(Constants.SEPARATOR_SEMICOLON);
+            // 重量超标：2张(面单和重量)  体积超标：5张(面单、全景、长、宽、高)
+            for (String picUrl : picUrlList) {
+                picList.add(BusinessHelper.switchOssUrlByType(picUrl, OssUrlNetTypeEnum.OUT.getType()));
             }
-            if(Objects.equals(spotCheckDto.getExcessType(), SpotCheckConstants.EXCESS_TYPE_WEIGHT)){
-                // 1）、重量超标：2张，面单和重量
-                picList.add(BusinessHelper.switchOssUrlByType(picUrlList.get(0), OssUrlNetTypeEnum.OUT.getType()));
-                picList.add(BusinessHelper.switchOssUrlByType(picUrlList.get(1), OssUrlNetTypeEnum.OUT.getType()));
-                return picList;
-            }else {
-                // 2）、体积超标：5张，面单、全景、长、宽、高
-                for (String picUrl : picUrlList) {
-                    picList.add(BusinessHelper.switchOssUrlByType(picUrl, OssUrlNetTypeEnum.OUT.getType()));
-                }
-                return picList;
-            }
+            return picList;
         }
         if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){
             // 设备抽检：
