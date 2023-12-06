@@ -732,15 +732,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setStanderDiff(spotCheckDto.getDiffStandard());
         spotCheckIssueMQ.setExceedType(spotCheckDto.getExcessType());
         spotCheckIssueMQ.setStatus(Constants.CONSTANT_NUMBER_ONE);
+        // 组装附件列表
+        List<SpotCheckAppendixDto> appendixDtoList = transformAppendixData(spotCheckDto);
         // 新版抽检附件传参方式:传了appendixList，appendix和url字段就不用传了
-        if (Constants.NUMBER_ONE.equals(spotCheckDto.getIsHasVideo())) {
-            // 组装附件列表
-            List<SpotCheckAppendixDto> appendixDtoList = transformAppendixData(spotCheckDto);
-            spotCheckIssueMQ.setAppendixList(appendixDtoList);
-        } else {
-            spotCheckIssueMQ.setAppendix(Constants.CONSTANT_NUMBER_ONE);
-            spotCheckIssueMQ.setUrl(picUrlDeal(spotCheckDto));
-        }
+        spotCheckIssueMQ.setAppendixList(appendixDtoList);
         spotCheckIssueMQ.setStartTime(new Date());
         if(logger.isInfoEnabled()){
             logger.info("下发运单号:{}的抽检超标数据至称重再造流程,明细如下:{}", spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));

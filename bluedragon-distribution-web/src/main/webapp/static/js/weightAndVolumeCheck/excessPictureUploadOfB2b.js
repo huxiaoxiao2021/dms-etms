@@ -325,7 +325,7 @@ $(function () {
         });
     }
 
-    $("#fileField6").addEventListener('change', function(event) {
+    $("#fileField6")[0].addEventListener('change', function(event) {
         let filePath = $(this).val();
         if (!filePath) {
             event.target.value = '';
