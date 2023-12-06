@@ -89,9 +89,9 @@ public class BoxPrintServiceImpl implements BoxPrintService{
                 } else {
                     createBoxReq.getOperateUser().setUserId(thirdStaffInfo.getStaffNo().longValue());
                 }
-                return result.toFail(String.format("未找到员工为%s的数据", createBoxReq.getOperateUser().getUserCode()));
+            } else {
+                createBoxReq.getOperateUser().setUserId(operateUserStaffInfo.getStaffNo().longValue());
             }
-            createBoxReq.getOperateUser().setUserId(operateUserStaffInfo.getStaffNo().longValue());
 
             final BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(createBoxReq.getCreateSiteCode());
 
@@ -106,27 +106,7 @@ public class BoxPrintServiceImpl implements BoxPrintService{
             if (createBoxReq.getTransportType() != null && createBoxReq.getTransportType() == 2) {// 只有公路运输的支持路由信息查询2014.3.10
                 // 获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
                 try {
-                    CrossBoxResult<CrossBox> resData = crossBoxService.getCrossDmsBoxByOriAndDes(createBoxReq.getCreateSiteCode(), createBoxReq.getReceiveSiteCode());
-                    if (log.isInfoEnabled()) {
-                        this.log.info("调用跨箱号中转获取箱号路由:{}", com.jd.bluedragon.utils.JsonHelper.toJson(resData));
-                    }
-                    List<AbstractMap.SimpleEntry<Integer, String>> routerMapList = new ArrayList<AbstractMap.SimpleEntry<Integer, String>>();
-                    if (null != resData.getData()) {
-                        routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getOriginalDmsId(), resData.getData().getOriginalDmsName()));
-                        if (null != resData.getData().getTransferOneId()) {
-                            routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getTransferOneId(), resData.getData().getTransferOneName()));
-                        }
-                        if (null != resData.getData().getTransferTwoId()) {
-                            routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getTransferTwoId(), resData.getData().getTransferTwoName()));
-                        }
-                        if (null != resData.getData().getTransferThreeId()) {
-                            routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getTransferThreeId(), resData.getData().getTransferThreeName()));
-                        }
-                        routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getDestinationDmsId(), resData.getData().getDestinationDmsName()));
-                    } else {
-                        routerMapList.add(new AbstractMap.SimpleEntry<>(createBoxReq.getCreateSiteCode(), createBoxReq.getCreateSiteName()));
-                        routerMapList.add(new AbstractMap.SimpleEntry<>(createBoxReq.getReceiveSiteCode(), createBoxReq.getReceiveSiteName()));
-                    }
+                    final List<AbstractMap.SimpleEntry<Integer, String>> routerMapList = this.getRouterMapList(createBoxReq.getCreateSiteCode(), createBoxReq.getCreateSiteName(), createBoxReq.getReceiveSiteCode(), createBoxReq.getReceiveSiteName());
                     createBoxInfo.setRouter(getRouterNameList(routerMapList));
                     createBoxInfo.setRouterText(getRouterText(routerMapList));
                 } catch (Exception e) {
@@ -257,6 +237,31 @@ public class BoxPrintServiceImpl implements BoxPrintService{
         return box;
     }
 
+    private List<AbstractMap.SimpleEntry<Integer, String>> getRouterMapList(Integer createSiteCode, String createSiteName, Integer receiveSiteCode, String receiveSiteName) {
+        CrossBoxResult<CrossBox> resData = crossBoxService.getCrossDmsBoxByOriAndDes(createSiteCode, receiveSiteCode);
+        if (log.isInfoEnabled()) {
+            this.log.info("调用跨箱号中转获取箱号路由:{}", com.jd.bluedragon.utils.JsonHelper.toJson(resData));
+        }
+        List<AbstractMap.SimpleEntry<Integer, String>> routerMapList = new ArrayList<AbstractMap.SimpleEntry<Integer, String>>();
+        if (null != resData.getData()) {
+            routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getOriginalDmsId(), resData.getData().getOriginalDmsName()));
+            if (null != resData.getData().getTransferOneId()) {
+                routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getTransferOneId(), resData.getData().getTransferOneName()));
+            }
+            if (null != resData.getData().getTransferTwoId()) {
+                routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getTransferTwoId(), resData.getData().getTransferTwoName()));
+            }
+            if (null != resData.getData().getTransferThreeId()) {
+                routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getTransferThreeId(), resData.getData().getTransferThreeName()));
+            }
+            routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getDestinationDmsId(), resData.getData().getDestinationDmsName()));
+        } else {
+            routerMapList.add(new AbstractMap.SimpleEntry<>(createSiteCode, createSiteName));
+            routerMapList.add(new AbstractMap.SimpleEntry<>(receiveSiteCode, receiveSiteName));
+        }
+        return routerMapList;
+    }
+
     private List<String> getRouterNameList(List<AbstractMap.SimpleEntry<Integer, String>> routerInfo){
         List<String> routerNameList = new ArrayList<>();
         if (routerInfo == null || routerInfo.isEmpty() || routerInfo.size() <= 2) {
@@ -323,27 +328,7 @@ public class BoxPrintServiceImpl implements BoxPrintService{
             if (boxExist.getTransportType() != null && boxExist.getTransportType() == 2) {// 只有公路运输的支持路由信息查询2014.3.10
                 // 获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
                 try {
-                    CrossBoxResult<CrossBox> resData = crossBoxService.getCrossDmsBoxByOriAndDes(boxExist.getCreateSiteCode(), boxExist.getReceiveSiteCode());
-                    if (log.isInfoEnabled()) {
-                        this.log.info("调用跨箱号中转获取箱号路由:{}", com.jd.bluedragon.utils.JsonHelper.toJson(resData));
-                    }
-                    List<AbstractMap.SimpleEntry<Integer, String>> routerMapList = new ArrayList<AbstractMap.SimpleEntry<Integer, String>>();
-                    if (null != resData.getData()) {
-                        routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getOriginalDmsId(), resData.getData().getOriginalDmsName()));
-                        if (null != resData.getData().getTransferOneId()) {
-                            routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getTransferOneId(), resData.getData().getTransferOneName()));
-                        }
-                        if (null != resData.getData().getTransferTwoId()) {
-                            routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getTransferTwoId(), resData.getData().getTransferTwoName()));
-                        }
-                        if (null != resData.getData().getTransferThreeId()) {
-                            routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getTransferThreeId(), resData.getData().getTransferThreeName()));
-                        }
-                        routerMapList.add(new AbstractMap.SimpleEntry<>(resData.getData().getDestinationDmsId(), resData.getData().getDestinationDmsName()));
-                    } else {
-                        routerMapList.add(new AbstractMap.SimpleEntry<>(boxExist.getCreateSiteCode(), boxExist.getCreateSiteName()));
-                        routerMapList.add(new AbstractMap.SimpleEntry<>(boxExist.getReceiveSiteCode(), boxExist.getReceiveSiteName()));
-                    }
+                    final List<AbstractMap.SimpleEntry<Integer, String>> routerMapList = this.getRouterMapList(boxExist.getCreateSiteCode(), boxExist.getCreateSiteName(), boxExist.getReceiveSiteCode(), boxExist.getReceiveSiteName());
                     boxPrintInfo.setRouter(getRouterNameList(routerMapList));
                     boxPrintInfo.setRouterText(getRouterText(routerMapList));
                 } catch (Exception e) {
