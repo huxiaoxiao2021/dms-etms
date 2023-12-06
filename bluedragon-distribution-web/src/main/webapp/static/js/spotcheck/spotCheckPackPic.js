@@ -21,7 +21,7 @@ $(function() {
                 visible: true
             }, {
                 field: 'url',
-                title: '图片链接',
+                title: '图片/视频链接',
                 align: 'center',
                 formatter: function (value, row, index) {
                     let allPictureUrl = '';

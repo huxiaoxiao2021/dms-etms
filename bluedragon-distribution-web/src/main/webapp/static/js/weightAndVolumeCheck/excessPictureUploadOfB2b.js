@@ -338,7 +338,14 @@ $(function () {
             Jd.alert('上传视频的格式不正确,请检查后再上传!');
             return;
         }
+        // 文件不能大于500M
+        let fileSize = $(this)[0].files[0].size;
+        if (fileSize > 500 * 1024 * 1024) {
+            Jd.alert('视频文件大小不能超过500M!');
+            return;
+        }
         document.getElementById('pictureField6').value = filePath;
+
         // let formData = new FormData();
         // formData.append('videoName', $('#waybillOrPackageCode').val());
         // formData.append('fileSize', $(this)[0].files[0].size);
