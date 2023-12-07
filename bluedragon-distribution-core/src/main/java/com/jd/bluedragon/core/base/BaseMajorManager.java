@@ -275,4 +275,12 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	BaseStaffSiteDTO queryBaseStaffByStaffId(Integer staffId);
+
+    /**
+     * 根据dmsSiteId获取库房信息
+     *
+     * @param siteId DMS站点ID
+     * @return 响应的基础门店信息
+     */
+	PsStoreInfo selectBaseStoreByDmsSiteId(Integer siteId);
 }
