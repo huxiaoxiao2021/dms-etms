@@ -1546,7 +1546,6 @@
         <jsf:parameter key="secretKey" value="${jsf.vodService.secretKey}" />
     </jsf:consumer>
 
-
     <jsf:consumer id="collectBoxFlowDirectionConfJsfService"
                   interface="com.jdl.basic.api.service.boxFlow.CollectBoxFlowDirectionConfJsfService"
                   alias="${jsf.alias.jy_basic}"
@@ -1588,4 +1587,5 @@
                   alias="${jsf.alias.jy_basic}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
+
 </beans>

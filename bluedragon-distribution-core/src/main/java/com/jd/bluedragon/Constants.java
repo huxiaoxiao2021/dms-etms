@@ -2315,6 +2315,10 @@ public class Constants {
      */
     public static final String REASSIGN_WAYBILL_LOCK_KEY_PREFIX ="reassign.waybill.lock:";
 
+    /**
+     * 调查问卷场地白名单
+     */
+    public static final String PDA_QUESTIONNAIRE_SITE_WHITE_LIST = "pda.questionnaire.white.list";
 
 
 

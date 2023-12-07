@@ -413,9 +413,9 @@
 			<if test="waybillCode != null and waybillCode != ''">
 				and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 			</if>
-			<if test="spotStartTime != null and spotEndTime != null">
-				and start_time between #{spotStartTime,jdbcType=TIMESTAMP} and #{spotEndTime,jdbcType=TIMESTAMP}
-			</if>
+
+			and start_time between #{spotStartTime,jdbcType=TIMESTAMP} and #{spotEndTime,jdbcType=TIMESTAMP}
+
 			<if test="deviceCode != null and deviceCode != ''">
 				and device_code = #{deviceCode,jdbcType=VARCHAR}
 			</if>
@@ -425,9 +425,9 @@
 			<if test="startHubCode != null and startHubCode != ''">
 				and start_hub_code = #{startHubCode,jdbcType=VARCHAR}
 			</if>
-			<if test="startSiteCode != null and startSiteCode != ''">
-				and start_site_code = #{startSiteCode,jdbcType=VARCHAR}
-			</if>
+
+			and start_site_code = #{startSiteCode,jdbcType=VARCHAR}
+
 			<if test="dutyProvinceCode != null and dutyProvinceCode != ''">
 				and duty_province_code = #{dutyProvinceCode,jdbcType=VARCHAR}
 			</if>
@@ -455,9 +455,9 @@
 			<if test="waybillCode != null and waybillCode != ''">
 				and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 			</if>
-			<if test="spotStartTime != null and spotEndTime != null">
-				and start_time between #{spotStartTime,jdbcType=TIMESTAMP} and #{spotEndTime,jdbcType=TIMESTAMP}
-			</if>
+
+			and start_time between #{spotStartTime,jdbcType=TIMESTAMP} and #{spotEndTime,jdbcType=TIMESTAMP}
+
 			<if test="deviceCode != null and deviceCode != ''">
 				and device_code = #{deviceCode,jdbcType=VARCHAR}
 			</if>
@@ -467,9 +467,9 @@
 			<if test="startHubCode != null and startHubCode != ''">
 				and start_hub_code = #{startHubCode,jdbcType=VARCHAR}
 			</if>
-			<if test="startSiteCode != null and startSiteCode != ''">
-				and start_site_code = #{startSiteCode,jdbcType=VARCHAR}
-			</if>
+
+			and start_site_code = #{startSiteCode,jdbcType=VARCHAR}
+
 			<if test="dutyProvinceCode != null and dutyProvinceCode != ''">
 				and duty_province_code = #{dutyProvinceCode,jdbcType=VARCHAR}
 			</if>
