@@ -446,6 +446,11 @@ public class Constants {
     public static final int TIME_SECONDS_ONE_HOUR = 3600;
 
     /**
+     * 时间：48小时
+     */
+    public static final int FORTY_EIGHT_HOURS = 48;
+
+    /**
      * 时间：一天的秒数
      */
     public static final int TIME_SECONDS_ONE_DAY = 86400;
@@ -1625,6 +1630,16 @@ public class Constants {
     public static final int  CONSTANT_NUMBER_TEN = 10;
 
     /**
+     * 常量值：200
+     * */
+    public static final int CONSTANT_TWO_HUNDRED = 200;
+
+    /**
+     * 常量值：1000
+     * */
+    public static final int CONSTANT_ONE_THOUSAND = 1000;
+
+    /**
      * 组板转移标识
      */
     public static final Integer IS_COMBITION_TRANSFER = 1;
@@ -2216,6 +2231,11 @@ public class Constants {
      */
     public static final String MORE_SCAN_QUERY_ES_SWITCH = "more.scan.query.es.switch";
 
+    /**
+     *  配置信息-设备抽检申诉核对超时未确认时长
+     *
+     */
+    public static final String SPOT_CHECK_APPEAL_TIME_OUT = "spot.check.appeal.time.out";
 
     /**
      * 运输内网账号类型
