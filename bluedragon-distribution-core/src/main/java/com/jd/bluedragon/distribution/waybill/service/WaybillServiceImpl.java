@@ -1805,7 +1805,7 @@ public class WaybillServiceImpl implements WaybillService {
             if(!Objects.equals(ReassignWaybillReasonTypeEnum.NO_PRE_SORTING_STATION.getCode(),waybillForPreSortOnSiteRequest.getReasonType())){
                 BaseSite oldSite = baseMajorManager.getSiteBySiteCode(waybill.getOldSiteId());
                 if(oldSite != null){
-                    if(!(Constants.INTEGER_FLG_TRUE.equals(oldSite.getYn()) && Constants.BASE_SITE_OPERATESTATE_1.equals(oldSite.getOperateState()))){
+                    if(Constants.INTEGER_FLG_FALSE.equals(oldSite.getYn()) || Constants.BASE_SITE_OPERATESTATE.equals(oldSite.getOperateState())){
                         result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_SITE_CLOSE);
                         return result;
                     }
