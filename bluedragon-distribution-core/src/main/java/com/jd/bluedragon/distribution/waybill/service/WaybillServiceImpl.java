@@ -65,6 +65,7 @@ import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.basic.domain.BaseSite;
+import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -1682,6 +1683,13 @@ public class WaybillServiceImpl implements WaybillService {
                 log.warn("运单不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
                 return result;
             }
+            //获取备件库信息 不允许返调度到备件库
+            PsStoreInfo psStoreInfo = baseMajorManager.selectBaseStoreByDmsSiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
+            if(psStoreInfo != null){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_BACKUP_STORE_REVERSE_SCHEDULE_ERROR);
+                return result;
+            }
+
             // 获取站点信息-预分拣站点
             BaseStaffSiteOrgDto siteOfSchedulingOnSite = baseMajorManager.getBaseSiteBySiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
             if (siteOfSchedulingOnSite == null){
@@ -1712,11 +1720,9 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
             /*------------------------------------------------------------规则校验----------------------------------------------------------------------------*/
-            // 特殊品类自营逆向单不能返调度到仓
-            String sendPayMap = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getSendPayMap();
-            if(BusinessUtil.isSelfReverse(waybill.getWaybillSign()) && BusinessHelper.isSpecialOrder(com.jd.bluedragon.utils.JsonHelper.json2MapByJSON(sendPayMap))
-                    && BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
+            // 不能返调度到仓
+            if(BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR_2);
                 return result;
             }
             //规则1

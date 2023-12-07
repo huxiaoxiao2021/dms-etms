@@ -94,6 +94,8 @@ public class JdResponse extends JdObject {
 
     public static final Integer CODE_SELF_REVERSE_SCHEDULE_ERROR = 20018;
     public static final String MESSAGE_SELF_REVERSE_SCHEDULE_ERROR = "特殊品类逆向订单禁止直接返调度到库房，请操作返调度到就近【备件库】";
+    public static final String MESSAGE_SELF_REVERSE_SCHEDULE_ERROR_2 = "不允许反调度到仓！此为违规操作，超过3次将通报给场地负责人！";
+    public static final String MESSAGE_BACKUP_STORE_REVERSE_SCHEDULE_ERROR = "不允许反调度到备件库！此为违规操作，超过3次将通报给场地负责人！";
 
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
