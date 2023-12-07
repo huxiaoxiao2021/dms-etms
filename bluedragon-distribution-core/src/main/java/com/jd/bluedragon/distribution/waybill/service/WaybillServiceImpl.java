@@ -80,6 +80,8 @@ import javax.annotation.Resource;
 import java.text.MessageFormat;
 import java.util.*;
 
+import static com.jd.bluedragon.Constants.SITE_TYPE_SPWMS;
+
 @Service
 public class WaybillServiceImpl implements WaybillService {
 
@@ -1685,7 +1687,7 @@ public class WaybillServiceImpl implements WaybillService {
             }
             //获取备件库信息 不允许返调度到备件库
             PsStoreInfo psStoreInfo = baseMajorManager.selectBaseStoreByDmsSiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
-            if(psStoreInfo != null){
+            if(psStoreInfo != null && SITE_TYPE_SPWMS.equals(psStoreInfo.getDsmStoreType())){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_BACKUP_STORE_REVERSE_SCHEDULE_ERROR);
                 return result;
             }
