@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -246,6 +247,13 @@ public class BoxResource {
     @Path("/printClient/boxes")
     @JProfiler(jKey = "DMS.WEB.BoxResource.printClientBoxes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse printClientBoxes(BoxRequest request) {
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(request.getSubType())){
+            final BoxSubTypeEnum boxSubTypeEnum = BoxSubTypeEnum.getFromCode(request.getSubType());
+            if (boxSubTypeEnum == null) {
+                return new BoxResponse(BoxResponse.CODE_BOX_NOT_FOUND, "箱号子类型错误");
+            }
+            request.setType(boxSubTypeEnum.getParentTypeCode());
+        }
         return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),true);
     }
 
@@ -391,6 +399,12 @@ public class BoxResource {
                     = new com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult>();
             result.customMessage(600,"箱号类型不合法!");
             return result;
+        }
+
+        if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
+            if(StringUtils.isEmpty(request.getSubType())){
+                request.setSubType(BoxSubTypeEnum.PARENT_ASSOCIATE_NORMAL_SBU_TYPE_MAP.get(request.getType()));
+            }
         }
 
         List<Box> availableBoxes;
@@ -659,7 +673,7 @@ public class BoxResource {
      * @return
      */
     @POST
-    @Path("/boxes/getBoxType") // todo
+    @Path("/boxes/getBoxType")
     public BoxResponse getBoxType(BoxRequest request) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getOperateUserErp(), "request receiveSiteCode must not be null");
@@ -675,16 +689,30 @@ public class BoxResource {
         if (siteTypes.contains(baseStaffSiteOrgDto.getSubType())){
             response.setBoxTypes(siteBoxTypeMap);
             if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
-                response.setBoxTypes(siteBoxSubTypeMap);
+                Map<String, String> boxSubTypeShowMap = this.getBoxSubTypeShowMap(siteBoxSubTypeMap);
+                response.setBoxSubTypes(boxSubTypeShowMap);
             }
             return response;
         }
         //分拣中心
         response.setBoxTypes(sortingBoxTypeMap);
         if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
-            response.setBoxTypes(sortingBoxSubTypeMap);
+            Map<String, String> boxSubTypeShowMap = this.getBoxSubTypeShowMap(sortingBoxSubTypeMap);
+            response.setBoxSubTypes(boxSubTypeShowMap);
         }
         return response;
+    }
+
+    private Map<String, String> getBoxSubTypeShowMap(Map<String, String> siteBoxTypeMap) {
+        Map<String, String> boxSubTypeShowMap = new LinkedHashMap<>();
+        for (String code : siteBoxTypeMap.keySet()) {
+            final BoxSubTypeEnum boxSubTypeEnum = BoxSubTypeEnum.getFromCode(code);
+            if (boxSubTypeEnum == null) {
+                continue;
+            }
+            boxSubTypeShowMap.put(code, String.format("%s-%s", boxSubTypeEnum.getName(), boxSubTypeEnum.getParentTypeCode()));
+        }
+        return boxSubTypeShowMap;
     }
 
     /**

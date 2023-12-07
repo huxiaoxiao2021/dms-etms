@@ -192,14 +192,17 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             attachmentDetailEntity.setBizId(spotCheckNotifyMQ.getFlowId());
             attachmentDetailEntity.setSiteCode(Integer.valueOf(spotCheckNotifyMQ.getOrgCode()));
             attachmentDetailEntity.setBizType(JyAttachmentBizTypeEnum.DEVICE_SPOT_APPEAL.getCode());
+            attachmentDetailEntity.setBizSubType(String.valueOf(appendixType));
             attachmentDetailEntity.setCreateUserErp(Constants.SYS_NAME);
             attachmentDetailEntity.setUpdateUserErp(Constants.SYS_NAME);
             // 如果是图片
-            if (SpotCheckAppendixTypeEnum.ESCALATION_PICTURE.getCode().equals(appendixType)) {
+            if (SpotCheckAppendixTypeEnum.ESCALATION_PICTURE.getCode().equals(appendixType) || SpotCheckAppendixTypeEnum.REPORT_PICTURE.getCode().equals(appendixType)) {
                 attachmentDetailEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
                 // 如果是视频
-            } else if (SpotCheckAppendixTypeEnum.ESCALATION_VIDEO.getCode().equals(appendixType)) {
+            } else if (SpotCheckAppendixTypeEnum.ESCALATION_VIDEO.getCode().equals(appendixType) || SpotCheckAppendixTypeEnum.REPORT_VIDEO.getCode().equals(appendixType)) {
                 attachmentDetailEntity.setAttachmentType(JyAttachmentTypeEnum.VIDEO.getCode());
+            } else {
+                attachmentDetailEntity.setAttachmentType(Constants.NUMBER_ZERO);
             }
             attachmentDetailEntity.setAttachmentUrl(appendixUrl);
             jyAttachmentDetailEntityList.add(attachmentDetailEntity);

@@ -57,6 +57,7 @@ import com.jd.lsb.flow.domain.ApprovalResult;
 import com.jd.lsb.flow.domain.ApproveRequestOrder;
 import com.jd.lsb.flow.domain.HistoryApprove;
 import com.jd.ql.basic.domain.BaseSite;
+import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
@@ -478,7 +479,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					dealNewReassignWaybillApprovalRecord(req,false);
 					return returnPack(req);
 				case NO_PRE_SORTING_STATION :
-					if(req.getOldSiteCode() != null){
+
+					if(checkSiteIsEfficient(req.getOldSiteCode())){
 						result.setData(Boolean.FALSE);
 						result.toFail("该单有预分拣站点，请继续下传！");
 						return result;
@@ -502,6 +504,28 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			redisClientOfJy.del(lockKey);
 		}
 		return result;
+	}
+
+
+	/**
+	 * 校验
+	 * @param siteCode
+	 * @return true  有效站点（营业部 、分拣中心、仓） false :无效
+	 */
+	private boolean checkSiteIsEfficient(Integer siteCode){
+		if(siteCode != null && siteCode >0){
+			//查询营业部
+			BaseSite baseSite = baseMajorManager.getSiteBySiteCode(siteCode);
+			if( baseSite != null){
+				return true;
+			}
+			//查询库房信息
+			PsStoreInfo psStoreInfo = baseMajorManager.selectBaseStoreByDmsSiteId(siteCode);
+			if(psStoreInfo != null){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private boolean  checkCheckerIsExsit(String provinceAgencyCode,String areaHubCode){

@@ -139,6 +139,14 @@ $(function () {
                             + "&weight=" + row.waybillWeight
                             + "&excessType=" + row.excessType
                             + "&isMultiPack=" + row.isMultiPack,
+                        cancel: function() {
+                            // 右上角关闭事件的逻辑
+                            let uploadNum = getUploadNum();
+                            console.log('上传对话框右上角关闭,uploadNum=' + uploadNum);
+                            if (uploadNum > 0) {
+                                $('#waybillDataTable')[0].rows[1].cells[5].innerHTML = uploadNum;
+                            }
+                        },
                         success: function (layero, index) {
                         }
                     });
@@ -182,6 +190,35 @@ $(function () {
         };
         return oTableInit;
     };
+
+    function getUploadNum() {
+        let excessPicWeightOrPanoramaUrl = $('#excessPicWeightOrPanorama').val();
+        let excessPicFaceUrl = $('#excessPicFace').val();
+        let excessPicLengthUrl = $('#excessPicLength').val();
+        let excessPicWidthUrl = $('#excessPicWidth').val();
+        let excessPicHeightUrl = $('#excessPicHeight').val();
+        let excessVideoUrl = $('#excessVideo').val();
+        let picNum = 0;
+        if (excessPicWeightOrPanoramaUrl) {
+            picNum = picNum + 1;
+        }
+        if (excessPicFaceUrl) {
+            picNum = picNum + 1;
+        }
+        if (excessPicLengthUrl) {
+            picNum = picNum + 1;
+        }
+        if (excessPicWidthUrl) {
+            picNum = picNum + 1;
+        }
+        if (excessPicHeightUrl) {
+            picNum = picNum + 1;
+        }
+        if (excessVideoUrl) {
+            picNum = picNum + 1;
+        }
+        return picNum;
+    }
 
     // 页面初始化查询
     $("#btn_submit").attr("disabled", true);
@@ -278,11 +315,21 @@ $(function () {
         let excessPicWidth = $('#excessPicWidth').val();
         let excessPicHeight = $('#excessPicHeight').val();
 
-        if(waybillData[0].isExcess === 1) {
+        if (waybillData[0].isExcess === 1) {
             // 如果什么都没有上传
-            if (!uploadNum) {
+            if (!uploadNum || uploadNum === '0') {
                 Jd.alert('请先上传' + waybillData[0].waybillCode + '的超标图片或视频!');
                 return;
+            }
+            if (!videoUrl) {
+                if (waybillData[0].excessType === 1 && parseInt(uploadNum) < 2) {
+                    Jd.alert('重量超标至少上传2张图片!');
+                    return;
+                }
+                if (waybillData[0].excessType === 2 && parseInt(uploadNum) < 5) {
+                    Jd.alert('体积超标至少上传5张图片!');
+                    return;
+                }
             }
         }
         let param = {};

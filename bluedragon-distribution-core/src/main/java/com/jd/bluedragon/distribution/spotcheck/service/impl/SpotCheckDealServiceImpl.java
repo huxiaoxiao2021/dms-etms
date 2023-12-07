@@ -560,7 +560,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     }
 
     @Override
-    public void spotCheckIssue(WeightVolumeSpotCheckDto spotCheckDto, Integer version) {
+    public void spotCheckIssue(WeightVolumeSpotCheckDto spotCheckDto) {
         // 下发前置条件：超标&&集齐
         if(!Objects.equals(spotCheckDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             return;
@@ -582,7 +582,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             return;
         }
         // 执行下发
-        executeIssue(spotCheckDto, version);
+        executeIssue(spotCheckDto);
     }
 
     private void pushAIDistinguish(String packageCode, Integer siteCode, String picUrl) {
@@ -610,7 +610,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      * @param spotCheckDto
      */
     @Override
-    public void executeIssue(WeightVolumeSpotCheckDto spotCheckDto, Integer version) {
+    public void executeIssue(WeightVolumeSpotCheckDto spotCheckDto) {
         if(!Objects.equals(spotCheckDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             // 抽检不超标不下发
             logger.warn("单号:{}的抽检数据不执行下发!", spotCheckDto.getPackageCode());
@@ -669,7 +669,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         // 设置已下发缓存
         setIssueWaybillCache(spotCheckDto.getWaybillCode());
         // 构建超标消息并下发
-        buildAndIssue(spotCheckDto, version);
+        buildAndIssue(spotCheckDto);
     }
 
     private boolean checkIsDownByPicAI(WeightVolumeSpotCheckDto spotCheckDto) {
@@ -688,7 +688,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      *
      * @param spotCheckDto
      */
-    private void buildAndIssue(WeightVolumeSpotCheckDto spotCheckDto, Integer version) {
+    private void buildAndIssue(WeightVolumeSpotCheckDto spotCheckDto) {
         SpotCheckIssueMQ spotCheckIssueMQ = new SpotCheckIssueMQ();
         spotCheckIssueMQ.setFlowSystem(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())
                 ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
@@ -732,15 +732,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setStanderDiff(spotCheckDto.getDiffStandard());
         spotCheckIssueMQ.setExceedType(spotCheckDto.getExcessType());
         spotCheckIssueMQ.setStatus(Constants.CONSTANT_NUMBER_ONE);
+        // 组装附件列表
+        List<SpotCheckAppendixDto> appendixDtoList = transformAppendixData(spotCheckDto);
         // 新版抽检附件传参方式:传了appendixList，appendix和url字段就不用传了
-        if (Constants.NUMBER_ONE.equals(spotCheckDto.getIsHasVideo())) {
-            // 组装附件列表
-            List<SpotCheckAppendixDto> appendixDtoList = transformAppendixData(spotCheckDto);
-            spotCheckIssueMQ.setAppendixList(appendixDtoList);
-        } else {
-            spotCheckIssueMQ.setAppendix(Constants.CONSTANT_NUMBER_ONE);
-            spotCheckIssueMQ.setUrl(picUrlDeal(spotCheckDto));
-        }
+        spotCheckIssueMQ.setAppendixList(appendixDtoList);
         spotCheckIssueMQ.setStartTime(new Date());
         if(logger.isInfoEnabled()){
             logger.info("下发运单号:{}的抽检超标数据至称重再造流程,明细如下:{}", spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
