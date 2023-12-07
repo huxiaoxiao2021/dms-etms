@@ -11,6 +11,11 @@ public class BoxRequest extends JdRequest {
 	/** 箱号类型 */
 	private String type;
 
+    /**
+     * 箱号子类型
+     */
+    private String subType;
+
 	/** 箱号编号 */
 	private String boxCode;
 
@@ -96,7 +101,15 @@ public class BoxRequest extends JdRequest {
 		this.type = type;
 	}
 
-	public String getBoxCode() {
+    public String getSubType() {
+        return subType;
+    }
+
+    public void setSubType(String subType) {
+        this.subType = subType;
+    }
+
+    public String getBoxCode() {
 		return this.boxCode;
 	}
 
@@ -189,6 +202,7 @@ public class BoxRequest extends JdRequest {
 	public String toString() {
 		return "BoxRequest{" +
 				"type='" + type + '\'' +
+				", subType='" + subType + '\'' +
 				", boxCode='" + boxCode + '\'' +
 				", createSiteCode=" + createSiteCode +
 				", createSiteName='" + createSiteName + '\'' +

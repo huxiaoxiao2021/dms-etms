@@ -323,10 +323,11 @@
 		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
 
 		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
-		<property name="terminalSiteTypeForBoxType" value="${siteTypeTerminalForBoxType:4,10}"/>
-		<property name="czSealCarBoardCountMinLimit" value="${czSealCarBoardCountMinLimit:4}"/>
-		<property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
-		<property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:5000}"/>
+        <property name="boxTypeNewVersionSwitch" value="${boxTypeNewVersionSwitch:false}"/>
+        <property name="terminalSiteTypeForBoxType" value="${siteTypeTerminalForBoxType:4,10}"/>
+        <property name="czSealCarBoardCountMinLimit" value="${czSealCarBoardCountMinLimit:4}"/>
+        <property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
+        <property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:5000}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -645,7 +646,6 @@
 				<value>uccPropertyConfiguration.dmsToVendorSendMQSwitch</value>
 				<value>uccPropertyConfiguration.teAnSendTaskTipsOptimizationSwitch</value>
 				<value>uccPropertyConfiguration.teAnSendTaskNumberLimit</value>
-				<value>uccPropertyConfiguration.dmsToVendorSendMQSwitch</value>
 				<value>uccPropertyConfiguration.jyCollectPackageTaskQueryTimeLimit</value>
 				<value>uccPropertyConfiguration.mixedConfigUseBasicNew</value>
 				<value>uccPropertyConfiguration.collectPackageTaskRefreshSwitch</value>
@@ -659,6 +659,8 @@
 				<value>uccPropertyConfiguration.czSealCarBoardCountMinLimit</value>
 				<value>uccPropertyConfiguration.czSealCarPackageCountMinLimit</value>
 				<value>uccPropertyConfiguration.jyAviationManualCreateSendTaskMaxBookingWeight</value>
+				<value>uccPropertyConfiguration.terminalSiteTypeForBoxType</value>
+				<value>uccPropertyConfiguration.boxTypeNewVersionSwitch</value>
 			</list>
 		</property>
 	</bean>

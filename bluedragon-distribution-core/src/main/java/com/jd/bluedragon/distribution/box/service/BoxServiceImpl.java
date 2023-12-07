@@ -857,6 +857,7 @@ public class BoxServiceImpl implements BoxService {
         if (null != response) {
             UUID.randomUUID();
 			response.setBoxTypes(BoxTypeEnum.getMap());
+            response.setBoxSubTypes(BoxSubTypeEnum.ENUM_MAP);
 		}
 
     }
@@ -883,6 +884,7 @@ public class BoxServiceImpl implements BoxService {
     private Box toBox(BoxRequest request) {
         Box box = new Box();
         box.setType(request.getType());
+        box.setBoxSubType(request.getSubType());
         box.setQuantity(request.getQuantity());
         box.setCreateSiteCode(request.getCreateSiteCode());
         box.setCreateSiteName(request.getCreateSiteName());
@@ -1021,7 +1023,7 @@ public class BoxServiceImpl implements BoxService {
             final BoxTypeDto boxTypeDto = new BoxTypeDto();
             boxTypeDto.setTypeCode(boxSubTypeEnum.getParentTypeCode());
             boxTypeDto.setSubTypeCode(code);
-            boxTypeDto.setName(String.format("%s-%s", boxSubTypeEnum.getParentTypeCode(), boxSubTypeEnum.getName()));
+            boxTypeDto.setName(String.format("%s-%s", boxSubTypeEnum.getName(), boxSubTypeEnum.getParentTypeCode()));
             typeDtoList.add(boxTypeDto);
         }
         return typeDtoList;
