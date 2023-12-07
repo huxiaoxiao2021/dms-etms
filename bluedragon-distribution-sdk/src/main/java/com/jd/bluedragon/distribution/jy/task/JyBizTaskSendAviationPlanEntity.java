@@ -81,7 +81,10 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
     private Integer intercept;
     private Date interceptTime;
 
-
+    /**
+     * 是否无任务；0-否 1-是
+     */
+    private Integer manualCreatedFlag;
 
     public Long getId() {
         return id;
@@ -353,5 +356,13 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
 
     public void setInterceptTime(Date interceptTime) {
         this.interceptTime = interceptTime;
+    }
+
+    public Integer getManualCreatedFlag() {
+        return manualCreatedFlag;
+    }
+
+    public void setManualCreatedFlag(Integer manualCreatedFlag) {
+        this.manualCreatedFlag = manualCreatedFlag;
     }
 }
