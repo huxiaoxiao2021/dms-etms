@@ -310,13 +310,10 @@ public class SqlkitController {
 			        || sql.toLowerCase().startsWith("insert")) {
 				if (SqlkitController.modifyUsers.contains(erpUser.getUserCode().toLowerCase())) {
                     sqlValidate(sql);
-                    pstmt = connection.prepareStatement(sql);
-					pstmt.execute();
-					ResultSet resultSet1 = pstmt.getResultSet();
-					if(resultSet1 != null && resultSet1.last()) {
-						int rowCount = resultSet1.getRow();
-						model.addAttribute("message", "影响行数" + rowCount);
-					}
+					pstmt = connection.prepareStatement(sql);
+					int changeRows = pstmt.executeUpdate();
+//					connection.commit();
+					model.addAttribute("message", "影响行数" + changeRows);
 					log.info("访问sqlkit/toView用户erp账号:[{}]执行sql[{}]",erpUser.getUserCode(), sql);
 				} else {
 					model.addAttribute("message", "你没有权限执行update/insert");
