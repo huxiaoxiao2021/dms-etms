@@ -68,7 +68,6 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
                 invokeResult.parameterError(beforeCheckResult.getMessage());
                 return invokeResult;
             }
-            String waybillSign = waybill.getWaybillSign();
             // 如果是自营
             if (WaybillUtil.isJDWaybillCode(oldWaybillCode)) {
                 LOGGER.info("exchangeNewWaybill|自营换单:waybillCode={}", oldWaybillCode);
