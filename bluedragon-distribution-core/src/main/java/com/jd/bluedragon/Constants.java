@@ -2349,4 +2349,8 @@ public class Constants {
     public static final String PACKAGE_PRINT_LIMIT_POSITION_CODE_TYPE_CONFIG  = "package.print.limit.positionCode.config";
 
 
+    /**
+     * 备件库
+     */
+    public static final String SITE_TYPE_SPWMS = "spwms";
 }
