@@ -39,6 +39,11 @@ public class AviationSendVehicleProgressResp extends AviationSendTaskDto impleme
      */
     private String taskId;
 
+    /**
+     * 是否无任务；0-否 1-是
+     */
+    private Integer manualCreatedFlag;
+
     public Integer getScannedCount() {
         return scannedCount;
     }
@@ -85,5 +90,13 @@ public class AviationSendVehicleProgressResp extends AviationSendTaskDto impleme
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
+    }
+
+    public Integer getManualCreatedFlag() {
+        return manualCreatedFlag;
+    }
+
+    public void setManualCreatedFlag(Integer manualCreatedFlag) {
+        this.manualCreatedFlag = manualCreatedFlag;
     }
 }
