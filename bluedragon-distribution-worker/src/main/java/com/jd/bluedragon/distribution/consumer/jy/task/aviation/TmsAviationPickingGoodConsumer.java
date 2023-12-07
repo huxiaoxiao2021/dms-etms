@@ -2,8 +2,12 @@ package com.jd.bluedragon.distribution.consumer.jy.task.aviation;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jy.constants.PickingGoodTaskDetailInitServiceEnum;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskInitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.service.picking.JyAviationRailwayPickingGoodsServiceImpl;
+import com.jd.bluedragon.distribution.jy.service.picking.bridge.AviationPickingGoodTask;
+import com.jd.bluedragon.distribution.jy.service.picking.bridge.PickingGoodDetailInitService;
+import com.jd.bluedragon.distribution.jy.service.picking.factory.PickingGoodDetailInitServiceFactory;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
@@ -29,7 +33,7 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
 
 
     @Autowired
-    private JyAviationRailwayPickingGoodsServiceImpl pickingGoodsService;
+    private AviationPickingGoodTask aviationPickingGoodTask;
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsAviationPickingGoodConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -70,8 +74,22 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
     }
 
     private void deal(TmsAviationPickingGoodMqBody mqBody) {
+        PickingGoodTaskInitDto initDto = new PickingGoodTaskInitDto();
         //todo zcf
-        //pickingGoodsService.init();
+
+
+        //根据场地类型获取待提明细初始化服务实例
+        Integer startSiteType = 64; //上游场地类型
+        PickingGoodTaskDetailInitServiceEnum detailInitServiceEnum = PickingGoodTaskDetailInitServiceEnum.getEnumBySource(startSiteType);
+        if(!Objects.isNull(detailInitServiceEnum)) {
+            PickingGoodDetailInitService pickingGoodDetailInitService = PickingGoodDetailInitServiceFactory.getPickingGoodDetailInitService(detailInitServiceEnum.getTargetCode());
+            if(!Objects.isNull(pickingGoodDetailInitService)) {
+                aviationPickingGoodTask.setPickingGoodDetailInitService(pickingGoodDetailInitService);
+            }else {
+                log.warn("航空提货计划消费，未查到待提明细初始化服务，mqBody={}, 上游场地类型为{}", JsonHelper.toJson(mqBody), startSiteType);
+            }
+        }
+        aviationPickingGoodTask.generatePickingGoodTask(initDto);
     }
 
 

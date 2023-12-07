@@ -3,8 +3,10 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingSendGoodsReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingSendGoodsRes;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import com.jd.bluedragon.distribution.task.service.TaskService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +41,13 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     //空铁提发记录服务
     @Autowired
     private JyPickingSendRecordService jyPickingSendRecordService;
-
+    @Autowired
+    private TaskService taskService;
 
     @Override
     public InvokeResult<PickingSendGoodsRes> pickingSendGoodsScan(PickingSendGoodsReq request) {
+        TaskRequest taskRequest = new TaskRequest();
+        taskService.add(taskRequest);
         return null;
     }
 
