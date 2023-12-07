@@ -1304,7 +1304,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
 
         if (scanWeight > bookingWeight) {
             // 校验是否超载 提示过超载的任务不再提示
-            if (jySeaCarlCacheService.lockOutBookingWeightTask(request.getSendVehicleBizId())) {
+            if (jySeaCarlCacheService.outBookingWeightTaskCheck(request.getSendVehicleBizId())) {
                 result.setMessage(InvokeResult.AVIATION_TASK_OUT_WEIGHT_MESSAGE);
                 result.setCode(InvokeResult.AVIATION_TASK_OUT_WEIGHT_CODE);
                 return false;
