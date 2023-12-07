@@ -796,4 +796,31 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "摆渡封车前置数据查询失败", null);//500+非自定义异常
         }
     }
+
+    @Override
+    public JdCResponse<SendTaskInfoRes> sendTaskDetail(SendTaskInfoReq request) {
+        if(Objects.isNull(request)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.sendTaskDetail:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
+            //业务参数校验
+            if(StringUtils.isEmpty(request.getSendVehicleBizId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "bizId为空", null);
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            }
+            return retJdCResponse(jyAviationRailwaySendSealService.sendTaskDetail(request));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "发货任务详情查询失败", null);//500+非自定义异常
+        }
+    }
 }
