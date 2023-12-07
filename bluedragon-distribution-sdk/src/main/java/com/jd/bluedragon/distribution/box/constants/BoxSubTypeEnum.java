@@ -33,6 +33,7 @@ public enum BoxSubTypeEnum {
     private String name;
 
     public static Map<String, String> ENUM_MAP;
+    public static Map<String, String> PARENT_ASSOCIATE_NORMAL_SBU_TYPE_MAP;
 
     public static List<String> ENUM_LIST;
 
@@ -79,9 +80,14 @@ public enum BoxSubTypeEnum {
         //将所有枚举装载到map中
         ENUM_MAP = new HashMap<String, String>();
         ENUM_LIST = new ArrayList<String>();
+        PARENT_ASSOCIATE_NORMAL_SBU_TYPE_MAP = new HashMap<String, String>();
         for (BoxSubTypeEnum enumItem : BoxSubTypeEnum.values()) {
             ENUM_MAP.put(enumItem.getCode(), enumItem.getName());
             ENUM_LIST.add(enumItem.getCode());
+
+            if (!PARENT_ASSOCIATE_NORMAL_SBU_TYPE_MAP.containsKey(enumItem.getParentTypeCode())) {
+                PARENT_ASSOCIATE_NORMAL_SBU_TYPE_MAP.put(enumItem.getParentTypeCode(), enumItem.getCode());
+            }
         }
     }
 
