@@ -125,22 +125,15 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
             return true;
         }
 
-        if (funcList.contains(positionData.getDefaultMenuCode())) {
-            return false;
-        }
-
         // 场地白名单
         SysConfig siteWhiteConfig = sysConfigService.findConfigContentByConfigName(PDA_QUESTIONNAIRE_SITE_WHITE_LIST);
-        if (StringUtils.isEmpty(siteWhiteConfig.getConfigContent())) {
-            return false;
-        }
         String[] siteWhiteConfigStr = siteWhiteConfig.getConfigContent().split(",");
         List<String> siteWhiteConfigList = Arrays.asList(siteWhiteConfigStr);
         Integer siteCode = positionData.getSiteCode();
         if (null == siteCode) {
             return true;
         }
-        if (!siteWhiteConfigList.contains(siteCode.toString())) {
+        if ((StringUtils.isEmpty(siteWhiteConfig.getConfigContent()) || !siteWhiteConfigList.contains(siteCode.toString())) && funcList.contains(positionData.getDefaultMenuCode())) {
             return false;
         }
 
