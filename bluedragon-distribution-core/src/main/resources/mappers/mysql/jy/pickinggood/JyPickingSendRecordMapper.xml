@@ -41,6 +41,14 @@
     send_time, send_user_erp, send_user_name, create_time, update_time, yn, ts
   </sql>
 
+    <select id="fetchPickingBizIdByBarCode" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
+      select biz_id
+      from jy_picking_send_record
+      where yn = 1 and picking_site_id = #{pickingSiteId} and wait_scan_code = #{waitScanCode}
+      limit 1
+    </select>
+
+
 
 <!--  -->
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->

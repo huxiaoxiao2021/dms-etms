@@ -4,6 +4,11 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 
 public class JyPickingSendRecordDao extends BaseDao<JyPickingSendRecordEntity> {
+    private final static String NAMESPACE = JyPickingSendRecordDao.class.getName();
+
+    public String fetchPickingBizIdByBarCode(JyPickingSendRecordEntity recordEntity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".fetchPickingBizIdByBarCode", recordEntity);
+    }
 //
 //    int deleteByPrimaryKey(Long id);
 //

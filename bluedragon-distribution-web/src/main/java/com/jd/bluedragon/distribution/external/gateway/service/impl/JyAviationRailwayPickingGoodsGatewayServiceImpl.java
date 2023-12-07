@@ -41,13 +41,13 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
 
 
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.pickingSendGoods",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.pickingSendGoodsScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public JdCResponse<PickingSendGoodsRes> pickingSendGoods(PickingSendGoodsReq request) {
+    public JdCResponse<PickingSendGoodsRes> pickingSendGoodsScan(PickingSendGoodsReq request) {
         if(Objects.isNull(request)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.pickingSendGoods:";
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.pickingSendGoodsScan:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -56,7 +56,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.pickingSendGoods(request));
+            return retJdCResponse(jyAviationRailwayPickingGoodsService.pickingSendGoodsScan(request));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常

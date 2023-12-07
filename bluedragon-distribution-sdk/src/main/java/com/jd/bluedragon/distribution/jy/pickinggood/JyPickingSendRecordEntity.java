@@ -115,6 +115,13 @@ public class JyPickingSendRecordEntity {
     private Date ts;
 
 
+    public JyPickingSendRecordEntity() {
+    }
+
+    public JyPickingSendRecordEntity(Long pickingSiteId) {
+        this.pickingSiteId = pickingSiteId;
+    }
+
     public Long getId() {
         return id;
     }

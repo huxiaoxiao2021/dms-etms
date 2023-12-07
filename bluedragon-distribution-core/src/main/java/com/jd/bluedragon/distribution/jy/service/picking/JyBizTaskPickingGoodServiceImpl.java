@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodExtendDao;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,4 +24,14 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     private JyBizTaskPickingGoodDao jyBizTaskPickingGoodDao;
     @Autowired
     private JyBizTaskPickingGoodExtendDao jyBizTaskPickingGoodExtendDao;
+
+    @Override
+    public JyBizTaskPickingGoodEntity findByBizIdWithYn(String bizId, boolean ignoreYn) {
+        JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
+        entity.setBizId(bizId);
+        if(!ignoreYn) {
+            entity.setYn(Constants.YN_YES);
+        }
+        return jyBizTaskPickingGoodDao.findByBizIdWithYn(entity);
+    }
 }

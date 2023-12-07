@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingSendGoodsReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingSendGoodsRes;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 
 /**
  * @Author zhengchengfa
@@ -10,5 +11,18 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
  * @Description
  */
 public interface JyAviationRailwayPickingGoodsService {
-    InvokeResult<PickingSendGoodsRes> pickingSendGoods(PickingSendGoodsReq request);
+    /**
+     * 提货发货扫描
+     * @param request
+     * @return
+     */
+    InvokeResult<PickingSendGoodsRes> pickingSendGoodsScan(PickingSendGoodsReq request);
+
+    /**
+     * 根据待扫单据查询待扫任务服务
+     * @param siteCode
+     * @param barCode
+     * @return
+     */
+    InvokeResult<JyBizTaskPickingGoodEntity> fetchPickingTaskByBarCode(Long siteCode, String barCode);
 }

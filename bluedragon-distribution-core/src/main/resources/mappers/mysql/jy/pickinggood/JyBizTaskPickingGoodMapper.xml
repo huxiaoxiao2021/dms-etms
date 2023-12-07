@@ -41,6 +41,15 @@
   </sql>
 
 
+  <select id="findByBizIdWithYn" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
+    select <include refid="Base_Column_List" />
+    from jy_biz_task_picking_good
+    where biz_id = #{bizId,jdbcType=VARCHAR}
+      <if test="yn != null" >
+        and yn = #{yn}
+      </if>
+    limit 1
+  </select>
 
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select -->

@@ -4,6 +4,12 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity> {
 
+    private final static String NAMESPACE = JyBizTaskPickingGoodDao.class.getName();
+
+    public JyBizTaskPickingGoodEntity findByBizIdWithYn(JyBizTaskPickingGoodEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findByBizIdWithYn", entity);
+    }
+
 
 //    int deleteByPrimaryKey(Long id);
 //

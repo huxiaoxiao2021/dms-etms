@@ -12,7 +12,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.
  */
 public interface JyAviationRailwayPickingGoodsGatewayService {
 
-    JdCResponse<PickingSendGoodsRes> pickingSendGoods(PickingSendGoodsReq request);
+    JdCResponse<PickingSendGoodsRes> pickingSendGoodsScan(PickingSendGoodsReq request);
 
 
 }
