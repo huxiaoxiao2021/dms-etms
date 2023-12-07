@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
@@ -69,7 +70,7 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
             }
             String waybillSign = waybill.getWaybillSign();
             // 如果是自营
-            if (BusinessUtil.isSelf(waybillSign)) {
+            if (WaybillUtil.isJDWaybillCode(oldWaybillCode)) {
                 LOGGER.info("exchangeNewWaybill|自营换单:waybillCode={}", oldWaybillCode);
                 // 执行自营逆向换单提交
                 OwnReverseTransferDomain ownReverseParam = createOwnReverseTransferDomain(request);
