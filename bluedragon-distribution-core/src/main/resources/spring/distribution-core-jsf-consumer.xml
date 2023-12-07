@@ -1527,4 +1527,18 @@
     >
         <jsf:parameter key="token" value="${jsf.presort.expressTransfer.token}" hide="true"/>
     </jsf:consumer>
+
+    <!--视频信息接口-->
+    <jsf:consumer id="vodService"
+                  interface="com.jd.vd.api.service.VODService"
+                  alias="${jsf.vodService.alias}"
+                  protocol="jsf"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}"
+                  timeout="${jsf.vodService.timeout}">
+        <jsf:parameter key="appId" value="${jsf.vodService.appId}" />
+        <jsf:parameter key="secretKey" value="${jsf.vodService.secretKey}" />
+    </jsf:consumer>
+
 </beans>
