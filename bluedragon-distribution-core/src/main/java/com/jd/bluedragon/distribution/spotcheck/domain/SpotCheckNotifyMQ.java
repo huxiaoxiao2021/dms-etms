@@ -126,6 +126,63 @@ public class SpotCheckNotifyMQ implements Serializable {
     // 描述
     private String comment;
 
+    // 数据来源系统
+    private String sysSource;
+
+    /**
+     * 责任省区编码
+     */
+    private String dutyProvinceAgencyCode;
+
+    /**
+     * 责任省区名称
+     */
+    private String dutyProvinceAgencyName;
+
+    // 发起区域编码
+    private String startRegionCode;
+
+    /**
+     * 发起省区编码
+     */
+    private String startProvinceAgencyCode;
+
+    /**
+     * 发起省区名称
+     */
+    private String startProvinceAgencyName;
+
+    // 复核(举报)长
+    private String reConfirmLong;
+
+    // 复核(举报)宽
+    private String reConfirmWidth;
+
+    // 复核(举报)高
+    private String reConfirmHigh;
+
+    // 差异重量
+    private String diffWeight;
+
+    // 流程发起时间 格式 "yyyy-MM-dd HH:mm:ss"
+    private String startTime;
+
+    // 流程状态变更时间 格式 "yyyy-MM-dd HH:mm:ss"
+    private String statusUpdateTime;
+
+    // 包裹数量
+    private Integer packageNumber;
+
+    /**
+     * 举报附件列表（图片/视频）
+     */
+    private List<SpotCheckAppendixDto> appendixList;
+
+    /**
+     * 申诉描述-最多200字符
+     */
+    private String upgradeDesc;
+
     public String getFlowSystem() {
         return flowSystem;
     }
@@ -413,5 +470,125 @@ public class SpotCheckNotifyMQ implements Serializable {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public String getSysSource() {
+        return sysSource;
+    }
+
+    public void setSysSource(String sysSource) {
+        this.sysSource = sysSource;
+    }
+
+    public String getDutyProvinceAgencyCode() {
+        return dutyProvinceAgencyCode;
+    }
+
+    public void setDutyProvinceAgencyCode(String dutyProvinceAgencyCode) {
+        this.dutyProvinceAgencyCode = dutyProvinceAgencyCode;
+    }
+
+    public String getDutyProvinceAgencyName() {
+        return dutyProvinceAgencyName;
+    }
+
+    public void setDutyProvinceAgencyName(String dutyProvinceAgencyName) {
+        this.dutyProvinceAgencyName = dutyProvinceAgencyName;
+    }
+
+    public String getStartRegionCode() {
+        return startRegionCode;
+    }
+
+    public void setStartRegionCode(String startRegionCode) {
+        this.startRegionCode = startRegionCode;
+    }
+
+    public String getStartProvinceAgencyCode() {
+        return startProvinceAgencyCode;
+    }
+
+    public void setStartProvinceAgencyCode(String startProvinceAgencyCode) {
+        this.startProvinceAgencyCode = startProvinceAgencyCode;
+    }
+
+    public String getStartProvinceAgencyName() {
+        return startProvinceAgencyName;
+    }
+
+    public void setStartProvinceAgencyName(String startProvinceAgencyName) {
+        this.startProvinceAgencyName = startProvinceAgencyName;
+    }
+
+    public String getReConfirmLong() {
+        return reConfirmLong;
+    }
+
+    public void setReConfirmLong(String reConfirmLong) {
+        this.reConfirmLong = reConfirmLong;
+    }
+
+    public String getReConfirmWidth() {
+        return reConfirmWidth;
+    }
+
+    public void setReConfirmWidth(String reConfirmWidth) {
+        this.reConfirmWidth = reConfirmWidth;
+    }
+
+    public String getReConfirmHigh() {
+        return reConfirmHigh;
+    }
+
+    public void setReConfirmHigh(String reConfirmHigh) {
+        this.reConfirmHigh = reConfirmHigh;
+    }
+
+    public String getDiffWeight() {
+        return diffWeight;
+    }
+
+    public void setDiffWeight(String diffWeight) {
+        this.diffWeight = diffWeight;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getStatusUpdateTime() {
+        return statusUpdateTime;
+    }
+
+    public void setStatusUpdateTime(String statusUpdateTime) {
+        this.statusUpdateTime = statusUpdateTime;
+    }
+
+    public Integer getPackageNumber() {
+        return packageNumber;
+    }
+
+    public void setPackageNumber(Integer packageNumber) {
+        this.packageNumber = packageNumber;
+    }
+
+    public List<SpotCheckAppendixDto> getAppendixList() {
+        return appendixList;
+    }
+
+    public void setAppendixList(List<SpotCheckAppendixDto> appendixList) {
+        this.appendixList = appendixList;
+    }
+
+    public String getUpgradeDesc() {
+        return upgradeDesc;
+    }
+
+    public void setUpgradeDesc(String upgradeDesc) {
+        this.upgradeDesc = upgradeDesc;
     }
 }
