@@ -33,8 +33,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static com.jd.bluedragon.Constants.PDA_QUESTIONNAIRE_FUNC_CODE;
-import static com.jd.bluedragon.Constants.PDA_QUESTIONNAIRE_ID;
+import static com.jd.bluedragon.Constants.*;
 
 @Service
 @Slf4j
@@ -87,7 +86,6 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
             return response;
         }
 
-
         // 判断当前用户是否已经作答
         if (checkUserHasAnswered(questionnaireId,req.getUserErp())) {
             log.info("用户已经作答:{}", req.getUserErp());
@@ -127,9 +125,18 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
             return true;
         }
 
-        if (funcList.contains(positionData.getDefaultMenuCode())) {
+        // 场地白名单
+        SysConfig siteWhiteConfig = sysConfigService.findConfigContentByConfigName(PDA_QUESTIONNAIRE_SITE_WHITE_LIST);
+        String[] siteWhiteConfigStr = siteWhiteConfig.getConfigContent().split(",");
+        List<String> siteWhiteConfigList = Arrays.asList(siteWhiteConfigStr);
+        Integer siteCode = positionData.getSiteCode();
+        if (null == siteCode) {
+            return true;
+        }
+        if ((StringUtils.isEmpty(siteWhiteConfig.getConfigContent()) || !siteWhiteConfigList.contains(siteCode.toString())) && funcList.contains(positionData.getDefaultMenuCode())) {
             return false;
         }
+
         return true;
     }
 
