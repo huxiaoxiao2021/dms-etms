@@ -2284,5 +2284,8 @@ public class Constants {
      */
     public static final String PDA_QUESTIONNAIRE_SITE_WHITE_LIST = "pda.questionnaire.white.list";
 
-
+    /**
+     * 备件库
+     */
+    public static final String SITE_TYPE_SPWMS = "spwms";
 }
