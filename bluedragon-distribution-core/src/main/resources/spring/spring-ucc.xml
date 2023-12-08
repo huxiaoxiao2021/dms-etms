@@ -321,6 +321,7 @@
 		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
 		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
 
+		<property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:10000}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -628,6 +629,7 @@
 				<value>uccPropertyConfiguration.collectPackageSiteForbiddenList</value>
 				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
 				<value>uccPropertyConfiguration.sealSyncOpenCloseSendTaskSwitch</value>
+				<value>uccPropertyConfiguration.jyAviationManualCreateSendTaskMaxBookingWeight</value>
 			</list>
 		</property>
 	</bean>

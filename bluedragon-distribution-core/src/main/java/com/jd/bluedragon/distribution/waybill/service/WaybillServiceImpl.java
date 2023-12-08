@@ -65,6 +65,7 @@ import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.basic.domain.BaseSite;
+import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -78,6 +79,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.text.MessageFormat;
 import java.util.*;
+
+import static com.jd.bluedragon.Constants.SITE_TYPE_SPWMS;
 
 @Service
 public class WaybillServiceImpl implements WaybillService {
@@ -1506,6 +1509,7 @@ public class WaybillServiceImpl implements WaybillService {
         }
     }
 
+
     /**
      * 现场预分拣拦截校验
      * 校验逻辑：
@@ -1518,7 +1522,6 @@ public class WaybillServiceImpl implements WaybillService {
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.WaybillServiceImpl.checkWaybillForPreSortOnSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();
@@ -1552,6 +1555,150 @@ public class WaybillServiceImpl implements WaybillService {
                 log.warn("预分拣站点信息不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
                 return result;
             }
+            Site site = new Site();
+            site.setType(siteOfSchedulingOnSite.getSiteType());
+            site.setSubType(siteOfSchedulingOnSite.getSubType());
+            // 获取登录人信息
+            BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffByErpNoCache(waybillForPreSortOnSiteRequest.getErp());
+            if (userInfo == null){
+                result.error("登陆人信息不存在");
+                log.warn("登陆人信息不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
+                return result;
+            }
+            /*------------------------------------------------------------规则校验----------------------------------------------------------------------------*/
+            // 特殊品类自营逆向单不能返调度到仓
+            String sendPayMap = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getSendPayMap();
+            if(BusinessUtil.isSelfReverse(waybill.getWaybillSign()) && BusinessHelper.isSpecialOrder(com.jd.bluedragon.utils.JsonHelper.json2MapByJSON(sendPayMap))
+                    && BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
+                return result;
+            }
+            //规则1
+            if(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'4') &&
+                    SiteTypeEnum.SORTING_CENTER.getCode().equals(userInfo.getSiteType())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"此单为重货网运单，禁止分拣人员操作现场预分拣");
+                return result;
+            }
+            //规则2
+            if (!BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'4') &&
+                    SiteHelper.isBigElectricApplianceSite(site)){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"此单非重货网运单，禁止选择京东帮网点");
+                return result;
+            }
+            //规则3
+            JsfResponse<WaybillCancelJsfResponse> cancelJsfResponseJsfResponse = cancelWaybillJsfManager.dealCancelWaybill(waybillForPreSortOnSiteRequest.getWaybill());
+            if (!cancelJsfResponseJsfResponse.getCode().equals(JsfResponse.SUCCESS_CODE)){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,cancelJsfResponseJsfResponse.getMessage());
+                return result;
+            }
+            //规则4-已退款的禁止 操作现场预分拣
+            JdCResponse jdCResponse = blockerQueryWSJsfManager.queryExceptionOrders(waybill.getWaybillCode());
+            if(!jdCResponse.getCode().equals(JdCResponse.CODE_SUCCESS)){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,jdCResponse.getMessage());
+                return result;
+            }
+
+            // 规则6- 同城站点才能返调度
+            InvokeResult<Boolean> invokeResult = scheduleSiteSupportInterceptService.checkSameCity(waybillForPreSortOnSiteRequest, waybill, userInfo);
+            if (!invokeResult.codeSuccess()) {
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, invokeResult.getMessage());
+                return result;
+            }
+
+            //自营逆向单（waybill_sign第一位=T），且为全球购订单（sendPay第8位 = 6），禁止反调度到普通库房「类型为wms」
+            if(BusinessUtil.isReverseGlobalWaybill(waybill.getWaybillSign(), waybill.getSendPay())){
+                if(BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
+                    return result;
+                }
+            }
+
+            //针对运费到付「waybillsign第25位=2」的运单，禁止反调度到三方网点「同cod限制逻辑，sitetype = 16」
+            if(BusinessUtil.isDF(waybill.getWaybillSign())){
+                if(Objects.equals(Constants.THIRD_SITE_TYPE, siteOfSchedulingOnSite.getSiteType())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE);
+                    return result;
+                }
+            }
+
+            // 在得物商家的名单范围内，禁止返调度
+            final boolean matchDewuReSortCondition = this.matchTerminalSiteReSortDewuCondition(waybill.getCustomerCode(), userInfo.getSiteCode());
+            if(matchDewuReSortCondition){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, HintService.getHint(HintCodeConstants.TERMIANL_RE_SORT_DEWU_FORBID));
+                return result;
+            }
+
+            // 当前校验必须放在最后
+            //规则5- 预分拣站点校验滑道信息  (因为存在确认跳过检验)
+            InvokeResult<String>  crossResult =   scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),
+                    waybill.getWaybillCode(),waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite(),waybillForPreSortOnSiteRequest.getSortingSite());
+            if(!crossResult.codeSuccess()){
+                result.customMessage(crossResult.getCode(),crossResult.getMessage());
+                return result;
+            }
+
+
+        }catch (Exception ex){
+            log.error("WaybillService.checkWaybillForPreSortOnSite has error. The error is " + ex.getMessage(),ex);
+            result.error("系统异常，请联系分拣小秘！");
+        }
+        return result;
+    }
+
+
+    /**
+     * 现场预分拣拦截校验
+     * 校验逻辑：
+     * 1.如果运单类型为重货网运单，即waybillsign 第36位=4 且 操作人ERP所属部分类型为分拣中心64类型
+     * 2.只有重货网的运单现场调度站点可以选择京东帮类型的站点
+     * 3.是否取消
+     * 4.是否已退款
+     * 5.预分拣站点校验滑道信息
+     * @param waybillForPreSortOnSiteRequest
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillServiceImpl.checkWaybillForPreSortOnSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<String> checkWaybillForPreSortOnSiteForApprove(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
+        InvokeResult<String> result = new InvokeResult<>();
+        result.success();
+        if (!dmsConfigManager.getPropertyConfig().getPreSortOnSiteSwitchOn()){
+            return result;
+        }
+        // 信息安全校验
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> securityCheckResult
+                = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_PRINT, waybillForPreSortOnSiteRequest.getErp(), WaybillUtil.getWaybillCodeByPackCode(waybillForPreSortOnSiteRequest.getWaybill()));
+        if(!securityCheckResult.codeSuccess()){
+            result.error(securityCheckResult.getMessage());
+            return result;
+        }
+        try{
+            /*------------------------------------------------------------数据准备--------------------------------------------------------------*/
+            //获取运单
+            if (WaybillUtil.isPackageCode(waybillForPreSortOnSiteRequest.getWaybill())){
+                //如果是包裹，提取运单号
+                waybillForPreSortOnSiteRequest.setWaybill(WaybillUtil.getWaybillCodeByPackCode(waybillForPreSortOnSiteRequest.getWaybill()));
+            }
+            Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillForPreSortOnSiteRequest.getWaybill());
+            if (waybill == null) {
+                result.error("运单不存在。");
+                log.warn("运单不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
+                return result;
+            }
+            //获取备件库信息 不允许返调度到备件库
+            PsStoreInfo psStoreInfo = baseMajorManager.selectBaseStoreByDmsSiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
+            if(psStoreInfo != null && SITE_TYPE_SPWMS.equals(psStoreInfo.getDsmStoreType())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_BACKUP_STORE_REVERSE_SCHEDULE_ERROR);
+                return result;
+            }
+
+            // 获取站点信息-预分拣站点
+            BaseStaffSiteOrgDto siteOfSchedulingOnSite = baseMajorManager.getBaseSiteBySiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
+            if (siteOfSchedulingOnSite == null){
+                result.error("预分拣站点信息不存在");
+                log.warn("预分拣站点信息不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
+                return result;
+            }
             //获取当前操作站点信息
             BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(waybillForPreSortOnSiteRequest.getSortingSite());
             if(log.isInfoEnabled()){
@@ -1575,11 +1722,9 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
             /*------------------------------------------------------------规则校验----------------------------------------------------------------------------*/
-            // 特殊品类自营逆向单不能返调度到仓
-            String sendPayMap = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getSendPayMap();
-            if(BusinessUtil.isSelfReverse(waybill.getWaybillSign()) && BusinessHelper.isSpecialOrder(com.jd.bluedragon.utils.JsonHelper.json2MapByJSON(sendPayMap))
-                    && BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
+            // 不能返调度到仓
+            if(BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR_2);
                 return result;
             }
             //规则1
@@ -1668,7 +1813,7 @@ public class WaybillServiceImpl implements WaybillService {
             if(!Objects.equals(ReassignWaybillReasonTypeEnum.NO_PRE_SORTING_STATION.getCode(),waybillForPreSortOnSiteRequest.getReasonType())){
                 BaseSite oldSite = baseMajorManager.getSiteBySiteCode(waybill.getOldSiteId());
                 if(oldSite != null){
-                    if(!(Constants.INTEGER_FLG_TRUE.equals(oldSite.getYn()) && Constants.BASE_SITE_OPERATESTATE_1.equals(oldSite.getOperateState()))){
+                    if(Constants.INTEGER_FLG_FALSE.equals(oldSite.getYn()) || Constants.BASE_SITE_OPERATESTATE.equals(oldSite.getOperateState())){
                         result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_SITE_CLOSE);
                         return result;
                     }

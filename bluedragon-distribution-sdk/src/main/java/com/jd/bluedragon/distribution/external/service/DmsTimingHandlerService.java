@@ -23,10 +23,14 @@ public interface DmsTimingHandlerService {
      */
     void timingHandlerDeleteCTTGroupData();
 
-
     /**
      *处理超48小时客服未反馈破损任务状态
      */
     void dealDamageExpTaskOverTwoDags();
+
+    /**
+     * 定时处理超48小时未确认的设备抽检申诉核对记录
+     */
+    void timingHandlerSpotCheckAppealConfirm();
     
 }
