@@ -776,8 +776,13 @@
         jy_biz_task_work_grid_manager t
         where t.yn = 1
         and t.site_code = #{siteCode,jdbcType=INTEGER}
-        and t.create_time > #{startTime,jdbcType=TIMESTAMP}
-        and t.handler_erp = #{handlerErp,jdbcType=VARCHAR}
+        and t.create_time &gt; #{startTime,jdbcType=TIMESTAMP}
+        <if test="handlerErp != null">
+            and t.handler_erp = #{handlerErp,jdbcType=VARCHAR}
+        </if>
+        <if test="taskRefGridKey != null">
+            and t.task_ref_grid_key = #{taskRefGridKey,jdbcType=VARCHAR}
+        </if>
         and t.task_code in
         <foreach collection="taskCodeList" item="item" open="(" close=")" separator=",">
             #{item,jdbcType=VARCHAR}
@@ -817,7 +822,8 @@
         handler_position_code,
         process_begin_time,
         task_biz_type,
-        floor
+        floor,
+        extend_info
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
@@ -853,7 +859,8 @@
             #{item.handlerPositionCode},
             #{item.processBeginTime},
             #{item.taskBizType},
-            #{item.floor}
+            #{item.floor},
+            #{item.extendInfo}
             )
         </foreach>
     </insert>

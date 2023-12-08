@@ -223,11 +223,24 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 	private WorkGridManagerReportVo covertWorkGridManagerReportVo(JyWorkGridManagerData taskData) {
 		WorkGridManagerReportVo workGridManagerReportVo = new WorkGridManagerReportVo();
 		BeanUtils.copyProperties(taskData, workGridManagerReportVo);
+		workGridManagerReportVo.setStatusName(WorkTaskStatusEnum.getNameByCode(taskData.getStatus()));
+		//指标任务扩展信息
+		if(taskData.getBusinessQuotaInfoData() != null){
+			workGridManagerReportVo.setBusinessQuotaInfoData(new BusinessQuotaInfoData());
+			BeanUtils.copyProperties(taskData.getBusinessQuotaInfoData(), workGridManagerReportVo.getBusinessQuotaInfoData());
+		}
+		//暴力分拣任务扩展信息
+		if(taskData.getViolenceSortInfoData() != null){
+			workGridManagerReportVo.setViolenceSortInfoData(new ViolenceSortInfoData());
+			BeanUtils.copyProperties(taskData.getViolenceSortInfoData(), workGridManagerReportVo.getViolenceSortInfoData());
+		}
+		
 		List<JyWorkGridManagerCaseDataVO> jyWorkGridManagerCaseDataVOList = new ArrayList<JyWorkGridManagerCaseDataVO>();
 		if (!CollectionUtils.isEmpty(taskData.getCaseList())) {
 			for (JyWorkGridManagerCaseData jyWorkGridManagerCaseData : taskData.getCaseList()) {
 				JyWorkGridManagerCaseDataVO jyWorkGridManagerCaseDataVO = new JyWorkGridManagerCaseDataVO();
 				List<AttachmentDetailDataVO> attachmentDetailDataVOList = new ArrayList<AttachmentDetailDataVO>();
+				List<AttachmentDetailDataVO> improveAttachmentList = new ArrayList<AttachmentDetailDataVO>();
 				List<JyWorkGridManagerCaseItemDataVO> jyWorkGridManagerCaseItemDataVOList = new ArrayList<JyWorkGridManagerCaseItemDataVO>();
 				//AttachmentDetailData 转为 AttachmentDetailDataVO
 				if (!CollectionUtils.isEmpty(jyWorkGridManagerCaseData.getAttachmentList())) {
@@ -235,6 +248,14 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 						AttachmentDetailDataVO attachmentDetailDataVO = new AttachmentDetailDataVO();
 						BeanUtils.copyProperties(detailData, attachmentDetailDataVO);
 						attachmentDetailDataVOList.add(attachmentDetailDataVO);
+					}
+				}
+				//AttachmentDetailData 转为 AttachmentDetailDataVO
+				if (!CollectionUtils.isEmpty(jyWorkGridManagerCaseData.getImproveAttachmentList())) {
+					for (AttachmentDetailData detailData : jyWorkGridManagerCaseData.getImproveAttachmentList()) {
+						AttachmentDetailDataVO attachmentDetailDataVO = new AttachmentDetailDataVO();
+						BeanUtils.copyProperties(detailData, attachmentDetailDataVO);
+						improveAttachmentList.add(attachmentDetailDataVO);
 					}
 				}
 				//JyWorkGridManagerCaseItemData 转为 JyWorkGridManagerCaseItemDataVO
@@ -248,6 +269,7 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 				//JyWorkGridManagerCaseData 转为 JyWorkGridManagerCaseDataVO
 				BeanUtils.copyProperties(jyWorkGridManagerCaseData, jyWorkGridManagerCaseDataVO);
 				jyWorkGridManagerCaseDataVO.setAttachmentList(attachmentDetailDataVOList);
+				jyWorkGridManagerCaseDataVO.setImproveAttachmentList(improveAttachmentList);
 				jyWorkGridManagerCaseDataVO.setItemList(jyWorkGridManagerCaseItemDataVOList);
 				jyWorkGridManagerCaseDataVOList.add(jyWorkGridManagerCaseDataVO);
 			}
