@@ -68,9 +68,9 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
                 invokeResult.parameterError(beforeCheckResult.getMessage());
                 return invokeResult;
             }
-            String waybillSign = waybill.getWaybillSign();
             // 如果是自营
-            if (WaybillUtil.isJDWaybillCode(oldWaybillCode)) {
+            final String waybillSign = waybill.getWaybillSign();
+            if (WaybillUtil.isJDWaybillCode(oldWaybillCode) || BusinessUtil.isSelfReverse(waybillSign)) {
                 LOGGER.info("exchangeNewWaybill|自营换单:waybillCode={}", oldWaybillCode);
                 // 执行自营逆向换单提交
                 OwnReverseTransferDomain ownReverseParam = createOwnReverseTransferDomain(request);
