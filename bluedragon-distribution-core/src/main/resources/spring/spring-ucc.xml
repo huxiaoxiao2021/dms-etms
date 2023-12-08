@@ -321,6 +321,8 @@
 		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
 		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
 
+		<property name="czSealCarBoardCountMinLimit" value="${czSealCarBoardCountMinLimit:4}"/>
+		<property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
 		<property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:10000}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -629,6 +631,8 @@
 				<value>uccPropertyConfiguration.collectPackageSiteForbiddenList</value>
 				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
 				<value>uccPropertyConfiguration.sealSyncOpenCloseSendTaskSwitch</value>
+				<value>uccPropertyConfiguration.czSealCarBoardCountMinLimit</value>
+				<value>uccPropertyConfiguration.czSealCarPackageCountMinLimit</value>
 				<value>uccPropertyConfiguration.jyAviationManualCreateSendTaskMaxBookingWeight</value>
 			</list>
 		</property>
