@@ -1024,13 +1024,21 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.sealVehicle",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> sealVehicle(SealVehicleReq sealVehicleReq) {
-        if (sealVehicleReq == null) {
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "请求参数为空！");
+        try{
+            if (sealVehicleReq == null) {
+                return new JdCResponse<>(JdCResponse.CODE_ERROR, "请求参数为空！");
+            }
+            if (CollectionUtils.isEmpty(sealVehicleReq.getSealCodes()) && CollectionUtils.isNotEmpty(sealVehicleReq.getScannedSealCodes())) {
+                sealVehicleReq.setSealCodes(sealVehicleReq.getScannedSealCodes());
+            }
+            return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
+        }catch (JyBizException e) {
+            log.info("接货仓发货岗封车失败：{}",JsonHelper.toJson(sealVehicleReq),e);
+            return new JdCResponse<>(JdCResponse.CODE_FAIL,e.getMessage());
+        }catch (Exception e) {
+            log.error("接货仓发货岗封车异常：{}",JsonHelper.toJson(sealVehicleReq),e);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR,"接货仓发货岗封车异常,请联系分拣小秘！");
         }
-        if (CollectionUtils.isEmpty(sealVehicleReq.getSealCodes()) && CollectionUtils.isNotEmpty(sealVehicleReq.getScannedSealCodes())) {
-            sealVehicleReq.setSealCodes(sealVehicleReq.getScannedSealCodes());
-        }
-        return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
     }
 
     @Override
