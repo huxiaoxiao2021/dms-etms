@@ -268,7 +268,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		}).collect(Collectors.toList());
 		//根据三单排班过滤
 		jyUserDtos = jyWorkGridManagerBusinessService.filterJyUserDtoInSchedule(jyWorkGridManagerData.getTaskCode(), jyWorkGridManagerData.getProcessBeginTime(), 
-				jyWorkGridManagerData.getProcessEndTime(), jyUserDtos);
+				jyWorkGridManagerData.getPreFinishTime(), jyUserDtos);
 		Map<String , String> erpMap = new HashMap<>();
 		if(!CollectionUtils.isEmpty(jyUserDtos)){
 			erpMap = jyUserDtos.stream().collect(Collectors.toMap(JyUserDto::getUserErp , JyUserDto::getUserErp));
