@@ -3,11 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProductTypeAgg;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.*;
-import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
-import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
-import com.jd.bluedragon.common.dto.send.response.DeleteVehicleTaskCheckResponse;
-import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
+import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.tms.TmsUrgeVehicleMq;
 import com.jd.dms.java.utils.sdk.base.Result;
@@ -27,6 +23,13 @@ public interface JyNoTaskSendService {
      * @return
      */
     InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq);
+
+    /**
+     * 航空任务自建
+     * @param request
+     * @return
+     */
+    InvokeResult<CreateAviationTaskResp> createAviationTask(CreateAviationTaskReq request);
 
     /**
      * 删除自建类型的运输车辆任务（主任务）
