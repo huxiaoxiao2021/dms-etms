@@ -1702,6 +1702,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
             String receiveMobileMapStr = waybillVasDtoBaseEntity.getData().getExtendMap().get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_RECEIVE_MOBILE.getCode());
             String receiveNameMapStr = waybillVasDtoBaseEntity.getData().getExtendMap().get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_RECEIVE_NAME.getCode());
+            String encPlatform = waybillVasDtoBaseEntity.getData().getExtendMap().get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_ESC_ENC_PLATFORM.getCode());
 
             if(receiveMobileMapStr == null && receiveNameMapStr == null){
                 log.info("运单{},未获取到增值服中关键信息项！receiveMobile和receiveName 均为空",waybillCode);
@@ -1746,6 +1747,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             req.setWaybillCode(waybillCode);
             //原因
             req.setQueryReason(AdapterApiManagerImpl.QUERY_REASON_EMS);
+            //平台条线
+            req.setPlatform(encPlatform);
             AdapterOutOfPlatformDecryRouter resp = adapterApiManager.commonAdapterExecuteOfPlatformDecryRouter(req);
             if(resp == null || resp.getData() == null
                     || resp.getData().getReceiver() == null

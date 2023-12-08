@@ -30,13 +30,9 @@ public class AdapterApiManagerImpl implements AdapterApiManager {
     @Autowired
     private AdapterApi adapterApiJsfService;
 
-    /**
-     * 所属平台：同运单增值服务中保持一致，10:字节
-     */
-    public static String PLATFORM_ZJ = "10";
 
     /**
-     * 抖音解密服务
+     * 解密服务
      */
     public static String PLATFORM_DECRY_ROUTER = "platformDecryRouter";
 
@@ -46,7 +42,7 @@ public class AdapterApiManagerImpl implements AdapterApiManager {
     public static String QUERY_REASON_EMS = "转三方邮政使用";
 
     /**
-     * 字节相关运单的收件人信息 解密服务
+     * 字节和得物相关运单的收件人信息 解密服务
      *
      * 给其他系统提供服务包装接口尽量不要用string，如果用了那最好把实体放依赖包里，与人方便自己方便。
      *
@@ -64,7 +60,6 @@ public class AdapterApiManagerImpl implements AdapterApiManager {
         try{
             AdapterRequest jsfRequest = new AdapterRequest();
             request.setDecryType(Constants.CONSTANT_NUMBER_ONE);
-            request.setPlatform(PLATFORM_ZJ);
             request.setUserType(Constants.CONSTANT_NUMBER_ONE);
             request.setUserId(Constants.UMP_APP_NAME_DMSWORKER);
             request.setSystemSource(Constants.UMP_APP_NAME_DMSWORKER);
