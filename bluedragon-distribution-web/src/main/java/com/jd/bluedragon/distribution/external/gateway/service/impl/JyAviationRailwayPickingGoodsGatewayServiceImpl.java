@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.FinishPickGoodsReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingSendGoodsReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingSendGoodsRes;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -64,6 +65,11 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货[发货]服务异常", null);//500+非自定义异常
         }
+    }
+
+    @Override
+    public JdCResponse<Void> finishPickGoods(FinishPickGoodsReq req) {
+        return null;
     }
 
 
