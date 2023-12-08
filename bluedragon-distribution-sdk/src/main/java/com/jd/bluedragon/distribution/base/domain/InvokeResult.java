@@ -315,6 +315,8 @@ public class InvokeResult<T> implements Serializable {
     public static final int COLLECT_PACKAGE_TASK_NO_EXIT_CODE = 3071;
     public static final String COLLECT_PACKAGE_TASK_NO_EXIT_MESSAGE = "集包任务不存在或已过期/作废！";
 
+    public static final int WAYBILL_EXCHANGE_NUM_CODE = 3072;
+    public static final String WAYBILL_EXCHANGE_NUM_MESSAGE = "客服理赔及客户取消的运单，限制只能换单1次，无法再换单，请联系网格负责人处理！";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

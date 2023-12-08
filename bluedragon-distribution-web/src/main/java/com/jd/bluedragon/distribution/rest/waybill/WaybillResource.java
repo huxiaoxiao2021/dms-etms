@@ -81,10 +81,7 @@ import com.jd.etms.sdk.util.DateUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.PackOpeFlowDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.dto.WaybillRegionDto;
+import com.jd.etms.waybill.dto.*;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -107,6 +104,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
 
+import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.CANCEL;
+import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.COMPENSATE;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.*;
 
 @Component
@@ -1910,7 +1909,14 @@ public class WaybillResource {
 			invokeResult.setMessage(InvokeResult.REVOKE_INTERCEPT_CONFIRM_MESSAGE);
 			return invokeResult;
 		}
-		
+
+		// 理赔拦截和取消订单拦截只能换单一次
+		if (checkExchangeNum(request)) {
+			invokeResult.setCode(InvokeResult.WAYBILL_EXCHANGE_NUM_CODE);
+			invokeResult.setMessage(InvokeResult.WAYBILL_EXCHANGE_NUM_MESSAGE);
+			return invokeResult;
+		}
+
 		try {
 			// fill request
 			request.setReverseReasonCode(queryReverseReasonCode(request.getWaybillCode()));
@@ -1939,6 +1945,28 @@ public class WaybillResource {
 			invokeResult.setMessage("系统异常");
 		}
         return invokeResult;
+	}
+
+	private boolean checkExchangeNum(ExchangeWaybillQuery request) {
+		// 获取运单拦截信息
+		List<CancelWaybill> cancelWaybillList = waybillCancelService.getByWaybillCode(request.getWaybillCode());
+		if (CollectionUtils.isEmpty(cancelWaybillList)) {
+			return false;
+		}
+
+		for (CancelWaybill cancelWaybill : cancelWaybillList) {
+			// 拦截信息为取消订单拦拦截或理赔拦截，则获取换单打印的次数
+			if (Objects.equals(CANCEL.getCode(), cancelWaybill.getInterceptType())
+					|| Objects.equals(COMPENSATE.getCode(), cancelWaybill.getInterceptType())) {
+				// 调用运单接口，获取所有换单打印记录，如果大于1，则不能换单
+				JdResult<List<RelationWaybillBodyDto>> result = waybillQueryManager.getRelationWaybillList(request.getWaybillCode());
+				if (result.isSucceed() && !CollectionUtils.isEmpty(result.getData()) && result.getData().size() > 1) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	private void getInfoHide(DmsWaybillReverseResponseDTO data, ExchangeWaybillQuery request) {
