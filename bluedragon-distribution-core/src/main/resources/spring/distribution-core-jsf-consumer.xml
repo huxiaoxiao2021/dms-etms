@@ -1518,6 +1518,15 @@
                   serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <jsf:consumer id="scheduleJSFService"
+                  interface="com.jdl.jy.flat.api.schedule.ScheduleJSFService"
+                  alias="${jsf.alias.flat}"
+                  timeout="${jsf.timeout.flat}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <!--四级地址匹配预分拣站点接口-->
     <jsf:consumer id="stationMatchServiceApi"
                   interface="com.jd.bluedragon.preseparate.jsf.StationMatchServiceApi"
