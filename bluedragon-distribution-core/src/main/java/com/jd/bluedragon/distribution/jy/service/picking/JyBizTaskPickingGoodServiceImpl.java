@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodExtendDao;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
@@ -33,5 +34,11 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
             entity.setYn(Constants.YN_YES);
         }
         return jyBizTaskPickingGoodDao.findByBizIdWithYn(entity);
+    }
+
+    @Override
+    public JyBizTaskPickingGoodEntity generateManualCreateTask(PickingGoodsReq request) {
+        //todo zcf
+        return null;
     }
 }

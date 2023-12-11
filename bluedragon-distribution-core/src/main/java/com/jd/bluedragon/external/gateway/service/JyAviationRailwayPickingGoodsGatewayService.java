@@ -14,8 +14,7 @@ import java.util.List;
  */
 public interface JyAviationRailwayPickingGoodsGatewayService {
 
-    JdCResponse<PickingSendGoodsRes> pickingSendGoodsScan(PickingSendGoodsReq request);
-
+    JdCResponse<PickingGoodsRes> pickingGoodsScan(PickingGoodsReq request);
     /**
      * 提货完成
      * @param req

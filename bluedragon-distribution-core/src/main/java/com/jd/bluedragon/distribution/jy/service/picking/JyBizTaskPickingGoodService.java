@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 
 /**
@@ -15,4 +16,11 @@ public interface JyBizTaskPickingGoodService {
      * @return
      */
     JyBizTaskPickingGoodEntity findByBizIdWithYn(String bizId, boolean ignoreYn);
+
+    /**
+     * 自建提货任务生成
+     * @param request
+     * @return
+     */
+    JyBizTaskPickingGoodEntity generateManualCreateTask(PickingGoodsReq request);
 }

@@ -15,6 +15,13 @@ public enum PickingGoodTaskTypeEnum {
         this.name = name;
     }
 
+    public static boolean legalCheck(Integer code) {
+        if(PickingGoodTaskTypeEnum.AVIATION.code.equals(code) || PickingGoodTaskTypeEnum.RAILWAY.code.equals(code)) {
+            return true;
+        }
+        return false;
+    }
+
     public Integer getCode() {
         return code;
     }
