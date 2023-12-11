@@ -106,6 +106,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.*;
 
 import static com.jd.bluedragon.Constants.EXCHANGE_WAYBILL_PRINT_LIMIT_1_SITE_WHITE_LIST;
+import static com.jd.bluedragon.Constants.EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.CANCEL;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.COMPENSATE;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.*;
@@ -1950,6 +1951,9 @@ public class WaybillResource {
 	}
 
 	private boolean checkExchangeNum(ExchangeWaybillQuery request) {
+		if (!sysConfigService.getConfigByName(EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH)) {
+			return false;
+		}
 		// 场地白名单
 		Integer siteCode = request.getCreateSiteCode();
 		SysConfig siteConfig = sysConfigService.findConfigContentByConfigName(EXCHANGE_WAYBILL_PRINT_LIMIT_1_SITE_WHITE_LIST);
