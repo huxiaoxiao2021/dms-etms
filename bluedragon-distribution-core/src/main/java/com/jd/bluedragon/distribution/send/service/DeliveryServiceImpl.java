@@ -1824,7 +1824,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         deliverGoodsNoticeMQ(domain);
         // 判断是否是中转发货
         this.transitSend(domain);
-        this.pushStatusTask(domain);
+        this.pushStatusTaskWithByWaybillFlag(domain);
     }
 
     /**
@@ -1963,6 +1963,19 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     @Override
     public int pushStatusTask(SendM domain) {
+        return pushStatusTask(domain,Boolean.FALSE);
+    }
+    /**
+     * 推送发货状态数据至运单系统[写WORKER] 仅在按运单维度处理时使用
+     * @param domain
+     * @return
+     */
+    @Override
+    public int pushStatusTaskWithByWaybillFlag(SendM domain) {
+        return pushStatusTask(domain,Boolean.TRUE);
+    }
+
+    private int pushStatusTask(SendM domain,Boolean byWaybillFlag) {
     	/**
     	 * 是否按箱发货
     	 */
@@ -1974,6 +1987,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         	body.setHandleCategory(SendTaskCategoryEnum.PACKAGE_SEND.getCode());
         }
         body.copyFromParent(domain);
+        body.setByWaybillFlag(byWaybillFlag);
         Task tTask = new Task();
         tTask.setBoxCode(domain.getBoxCode());
         tTask.setBody(JsonHelper.toJson(body));
@@ -3977,6 +3991,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             CallerInfo info0 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.0", false, true);
             // 增加获取订单类型判断是否是LBP订单e
             for (SendDetail tSendDetail : sendDetails) {
+                if(log.isInfoEnabled()){
+                    log.info("updateWaybillStatus deal {} , send_d: {}",tSendDetail.getPackageBarcode(),JsonHelper.toJson(tSendDetail));
+                }
                 tSendDetail.setStatus(1);
                 if (tSendDetail.getIsCancel().equals(1)) {
                     cancelSendList.add(tSendDetail);
@@ -4033,6 +4050,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                     waybillStatusList.add(tWaybillStatus);
                                     sendTypeList.add(tSendDetail.getSendType());
                                 }
+                            }else{
+                                this.log.info("updateWaybillStatus 匹配tSendDetail yn IsCancel 都没匹配到,waybillStatusList不增加 {}, {}",tSendDetail.getPackageBarcode(),JsonHelper.toJson(tSendDetail));
                             }
                         }
                     }
@@ -4043,7 +4062,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 }
             }
             if(log.isInfoEnabled() && sendDetails.size() > 10) {
-                log.info("DeliveryService.updateWaybillStatus更新运单回传之后状态, 參數sendDetails大小为", sendDetails.size());
+                log.info("DeliveryService.updateWaybillStatus更新运单回传之后状态, 參數sendDetails大小为{}", sendDetails.size());
             }
             Profiler.registerInfoEnd(info0);
 
@@ -4228,6 +4247,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         int sendMNum = 0;
         int sendDNum = 0;
         String sendCode = "";
+        boolean byWaybillFlag = false;
         try {
         	//body里是任务
             timeMap.put("2", System.currentTimeMillis());
@@ -4247,6 +4267,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 	                tSendM.add(body);
 	            }
                 timeMap.put("2.2", System.currentTimeMillis());
+                byWaybillFlag = body.getByWaybillFlag();
 	        } else {
 	        	sendCode = task.getBoxCode();
 	        	info = startMonitor(SendTaskCategoryEnum.BATCH_SEND);
@@ -4276,6 +4297,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 	            for (SendDetail dSendDetail : sendDetailListTemp) {
 	                //只处理未发货的数据, 如果已发货则跳过
 	                if (dSendDetail.getStatus().equals(Constants.CONTAINER_RELATION_SEND_STATUS_YES)) {
+                        log.info("只处理未发货的数据, 如果已发货则跳过 {}，send_d:{}",newSendM.getBoxCode(),JsonHelper.toJson(dSendDetail));
 	                    continue;
 	                }
 	                dSendDetail.setSendCode(newSendM.getSendCode());
@@ -4305,7 +4327,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 	        updateWaybillStatus(sendDetailList);
             timeMap.put("5", System.currentTimeMillis());
 	        //如果是按运单发货，解除按运单发货的redis锁
-	        unlockWaybillByPack(tSendM);
+	        unlockWaybillByPack(tSendM,byWaybillFlag);
             timeMap.put("6", System.currentTimeMillis());
         }catch(Exception e){
         	Profiler.functionError(info);
@@ -4321,7 +4343,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         return true;
     }
 
-    private void unlockWaybillByPack(List<SendM> tSendM) {
+    private void unlockWaybillByPack(List<SendM> tSendM,boolean byWaybillFlag) {
         if (log.isInfoEnabled()) {
             log.info("按运单发货解锁运单中的包裹:{}", JsonHelper.toJsonMs(tSendM));
         }
@@ -4330,7 +4352,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
         try {
             for (SendM sendM : tSendM) {
-                if (SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sendM.getBizSource())) {
+                if (byWaybillFlag) {
                     String waybillCode = WaybillUtil.getWaybillCode(sendM.getBoxCode());
                     String packLockKey = getSendByWaybillPackLockKey(waybillCode, sendM.getCreateSiteCode());
                     String waybillLockKey = getSendByWaybillLockKey(waybillCode, sendM.getCreateSiteCode());

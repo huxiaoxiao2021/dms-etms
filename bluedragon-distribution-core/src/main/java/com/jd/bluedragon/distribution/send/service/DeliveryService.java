@@ -129,6 +129,12 @@ public interface DeliveryService {
     int pushStatusTask(SendM domain);
 
     /**
+     * 推送发货状态数据至运单系统[写WORKER] 仅在按运单维度处理时使用
+     * @param domain
+     * @return
+     */
+    int pushStatusTaskWithByWaybillFlag(SendM domain);
+    /**
      * 推组板发货任务
      * @param domain
      * @return
