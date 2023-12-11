@@ -2292,5 +2292,5 @@ public class Constants {
     /**
      * 换单打印限制1次全国开关
      */
-    public static final String  EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH = "exchange.waybill.print.limit.SWITCH";
+    public static final String  EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH = "exchange.waybill.print.limit.switch";
 }
