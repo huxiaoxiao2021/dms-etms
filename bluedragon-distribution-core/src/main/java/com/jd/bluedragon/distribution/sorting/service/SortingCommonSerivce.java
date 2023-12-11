@@ -249,13 +249,13 @@ public abstract class SortingCommonSerivce {
                 //更新运单状态
                 sortingService.addSortingAdditionalTask(sorting);
 
+                // 写包裹和箱号关系
+                this.writePackageCodeAssociateBoxCodeKvIndex(sorting);
+
                 // 分拣发送循环集包袋MQ
                 pushCycleMaterialMessage(sorting);
                 //发送操作流水mq
                 sendSortingFlowMq(sorting);
-
-                // 写包裹和箱号关系
-                this.writePackageCodeAssociateBoxCodeKvIndex(sorting);
             }
             if (sorting.getIsCancel().equals(SortingService.SORTING_CANCEL)) {
                 // 取消分拣，删除包谷与箱的绑定关系
