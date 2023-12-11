@@ -2284,5 +2284,8 @@ public class Constants {
      */
     public static final String PDA_QUESTIONNAIRE_SITE_WHITE_LIST = "pda.questionnaire.white.list";
 
-
+    /**
+     * 换单打印限制1次场地白名单
+     */
+    public static final String  EXCHANGE_WAYBILL_PRINT_LIMIT_1_SITE_WHITE_LIST = "exchange.waybill.print.limit.site.white.list";
 }

@@ -33,6 +33,7 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -104,6 +105,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
 
+import static com.jd.bluedragon.Constants.EXCHANGE_WAYBILL_PRINT_LIMIT_1_SITE_WHITE_LIST;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.CANCEL;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.COMPENSATE;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.*;
@@ -1948,6 +1950,16 @@ public class WaybillResource {
 	}
 
 	private boolean checkExchangeNum(ExchangeWaybillQuery request) {
+		// 场地白名单
+		Integer siteCode = request.getCreateSiteCode();
+		SysConfig siteConfig = sysConfigService.findConfigContentByConfigName(EXCHANGE_WAYBILL_PRINT_LIMIT_1_SITE_WHITE_LIST);
+		if (null != siteCode && null != siteConfig && StringUtils.isNotEmpty(siteConfig.getConfigContent())) {
+			List<String> siteWhiteList = Arrays.asList(siteConfig.getConfigContent().split(","));
+			if (siteWhiteList.contains(siteCode.toString())) {
+				return false;
+			}
+		}
+
 		// 获取运单拦截信息
 		List<CancelWaybill> cancelWaybillList = waybillCancelService.getByWaybillCode(request.getWaybillCode());
 		if (CollectionUtils.isEmpty(cancelWaybillList)) {
