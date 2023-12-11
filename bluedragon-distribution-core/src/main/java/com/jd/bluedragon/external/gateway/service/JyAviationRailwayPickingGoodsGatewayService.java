@@ -2,8 +2,9 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingSendGoodsRes;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowRes;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.*;
+
+import java.util.List;
 
 /**
  * 空铁提货岗网关
@@ -58,4 +59,7 @@ public interface JyAviationRailwayPickingGoodsGatewayService {
     JdCResponse<Void> finishSendTask(FinishSendTaskReq req);
 
 
+    JdCResponse<AirportTaskRes> listAirportTaskList(AirportTaskReq req);
+
+    JdCResponse<List<AirportTaskAggDto>> listAirportTaskAggList(AirportTaskAggReq req);
 }

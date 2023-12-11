@@ -3,9 +3,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.FinishPickGoodsReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingSendGoodsReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingSendGoodsRes;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.picking.JyAviationRailwayPickingGoodsService;
@@ -18,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -72,5 +72,38 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
         return null;
     }
 
+    @Override
+    public JdCResponse<Void> submitException(ExceptionSubmitReq req) {
+        return null;
+    }
 
+    @Override
+    public JdCResponse<SendFlowRes> listSendFlowInfo(SendFlowReq req) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<Void> addSendFlow(SendFlowAddReq req) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<Void> deleteSendFlow(SendFlowReq req) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<Void> finishSendTask(FinishSendTaskReq req) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<AirportTaskRes> listAirportTaskList(AirportTaskReq req) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<List<AirportTaskAggDto>> listAirportTaskAggList(AirportTaskAggReq req) {
+        return null;
+    }
 }
