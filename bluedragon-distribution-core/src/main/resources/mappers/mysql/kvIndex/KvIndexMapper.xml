@@ -59,4 +59,10 @@
 		FROM kv_index
 		WHERE keyword = #{keyword} order by ts desc
 	</select>
+
+    <update id="updateByKey" parameterType="java.lang.String">
+        update kv_index
+        set vallue = #{value}
+        where keyword = #{keyword}
+    </update>
 </mapper>
