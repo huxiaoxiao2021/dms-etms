@@ -88,7 +88,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
     }
 
     @Override
-    public JdCResponse<Void> deleteSendFlow(SendFlowReq req) {
+    public JdCResponse<Void> deleteSendFlow(SendFlowDeleteReq req) {
         return null;
     }
 

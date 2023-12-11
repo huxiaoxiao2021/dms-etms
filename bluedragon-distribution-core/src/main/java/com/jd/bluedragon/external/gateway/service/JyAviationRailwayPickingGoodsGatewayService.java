@@ -49,7 +49,7 @@ public interface JyAviationRailwayPickingGoodsGatewayService {
      * @param req
      * @return
      */
-    JdCResponse<Void> deleteSendFlow(SendFlowReq req);
+    JdCResponse<Void> deleteSendFlow(SendFlowDeleteReq req);
 
     /**
      * 发货完成
