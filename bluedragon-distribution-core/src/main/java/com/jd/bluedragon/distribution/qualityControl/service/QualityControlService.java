@@ -29,6 +29,7 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.dto.SiteCodeAssociationDto;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
@@ -39,14 +40,12 @@ import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -59,6 +58,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import com.jd.etms.waybill.dto.RelationWaybillBodyDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import com.jd.ldop.business.api.AbnormalOrderApi;
@@ -72,7 +72,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.aspectj.weaver.ast.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +81,11 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.Constants.EXCHANGE_WAYBILL_PRINT_LIMIT_1_SITE_WHITE_LIST;
+import static com.jd.bluedragon.Constants.EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH;
+import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.CANCEL;
+import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.COMPENSATE;
 
 /**
  * Created by dudong on 2014/12/1.
@@ -265,12 +269,18 @@ public class QualityControlService {
     private Result<Void> checkCanSubmit(QualityControlRequest request){
         Result<Void> result = Result.success();
         try {
+            log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
+            String waybillCode=WaybillUtil.getWaybillCode(request.getQcValue());
+            // 理赔拦截和取消订单拦截只能换单一次
+            if (checkExchangeNum(request, waybillCode)) {
+                result.toFail(InvokeResult.WAYBILL_EXCHANGE_NUM_MESSAGE);
+                return result;
+            }
             // ucc开关
             if(!dmsConfigManager.getPropertyConfig().matchExceptionSubmitCheckSite(request.getDistCenterID())){
                 return result;
             }
-            log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
-            String waybillCode=WaybillUtil.getWaybillCode(request.getQcValue());
+
             final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(waybillCode);
             if(isExistOldWaybillCode(waybillCode) || CollectionUtils.isNotEmpty(waybillCancelList)){
                 return result;
@@ -289,6 +299,42 @@ public class QualityControlService {
         }
         return result;
     }
+
+    private boolean checkExchangeNum(QualityControlRequest request, String waybillCode) {
+        if (!sysConfigService.getConfigByName(EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH)) {
+            return false;
+        }
+        // 场地白名单
+        Integer siteCode = request.getDistCenterID();
+        SysConfig siteConfig = sysConfigService.findConfigContentByConfigName(EXCHANGE_WAYBILL_PRINT_LIMIT_1_SITE_WHITE_LIST);
+        if (null != siteCode && null != siteConfig && StringUtils.isNotEmpty(siteConfig.getConfigContent())) {
+            List<String> siteWhiteList = Arrays.asList(siteConfig.getConfigContent().split(","));
+            if (siteWhiteList.contains(siteCode.toString())) {
+                return false;
+            }
+        }
+
+        // 获取运单拦截信息
+        List<CancelWaybill> cancelWaybillList = waybillCancelService.getByWaybillCode(waybillCode);
+        if (org.springframework.util.CollectionUtils.isEmpty(cancelWaybillList)) {
+            return false;
+        }
+
+        for (CancelWaybill cancelWaybill : cancelWaybillList) {
+            // 拦截信息为取消订单拦拦截或理赔拦截，则获取换单打印的次数
+            if (Objects.equals(CANCEL.getCode(), cancelWaybill.getInterceptType())
+                    || Objects.equals(COMPENSATE.getCode(), cancelWaybill.getInterceptType())) {
+                // 调用运单接口，获取所有换单打印记录，如果大于1，则不能换单
+                JdResult<List<RelationWaybillBodyDto>> result = waybillQueryManager.getRelationWaybillList(waybillCode);
+                if (result.isSucceed() && !org.springframework.util.CollectionUtils.isEmpty(result.getData()) && result.getData().size() > 1) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 
     @Autowired
     @Qualifier("abnormalReportRecordProducer")

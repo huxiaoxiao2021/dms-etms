@@ -1913,13 +1913,6 @@ public class WaybillResource {
 			return invokeResult;
 		}
 
-		// 理赔拦截和取消订单拦截只能换单一次
-		if (checkExchangeNum(request)) {
-			invokeResult.setCode(InvokeResult.WAYBILL_EXCHANGE_NUM_CODE);
-			invokeResult.setMessage(InvokeResult.WAYBILL_EXCHANGE_NUM_MESSAGE);
-			return invokeResult;
-		}
-
 		try {
 			// fill request
 			request.setReverseReasonCode(queryReverseReasonCode(request.getWaybillCode()));
@@ -1948,41 +1941,6 @@ public class WaybillResource {
 			invokeResult.setMessage("系统异常");
 		}
         return invokeResult;
-	}
-
-	private boolean checkExchangeNum(ExchangeWaybillQuery request) {
-		if (!sysConfigService.getConfigByName(EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH)) {
-			return false;
-		}
-		// 场地白名单
-		Integer siteCode = request.getCreateSiteCode();
-		SysConfig siteConfig = sysConfigService.findConfigContentByConfigName(EXCHANGE_WAYBILL_PRINT_LIMIT_1_SITE_WHITE_LIST);
-		if (null != siteCode && null != siteConfig && StringUtils.isNotEmpty(siteConfig.getConfigContent())) {
-			List<String> siteWhiteList = Arrays.asList(siteConfig.getConfigContent().split(","));
-			if (siteWhiteList.contains(siteCode.toString())) {
-				return false;
-			}
-		}
-
-		// 获取运单拦截信息
-		List<CancelWaybill> cancelWaybillList = waybillCancelService.getByWaybillCode(request.getWaybillCode());
-		if (CollectionUtils.isEmpty(cancelWaybillList)) {
-			return false;
-		}
-
-		for (CancelWaybill cancelWaybill : cancelWaybillList) {
-			// 拦截信息为取消订单拦拦截或理赔拦截，则获取换单打印的次数
-			if (Objects.equals(CANCEL.getCode(), cancelWaybill.getInterceptType())
-					|| Objects.equals(COMPENSATE.getCode(), cancelWaybill.getInterceptType())) {
-				// 调用运单接口，获取所有换单打印记录，如果大于1，则不能换单
-				JdResult<List<RelationWaybillBodyDto>> result = waybillQueryManager.getRelationWaybillList(request.getWaybillCode());
-				if (result.isSucceed() && !CollectionUtils.isEmpty(result.getData()) && result.getData().size() > 1) {
-					return true;
-				}
-			}
-		}
-
-		return false;
 	}
 
 	private void getInfoHide(DmsWaybillReverseResponseDTO data, ExchangeWaybillQuery request) {
