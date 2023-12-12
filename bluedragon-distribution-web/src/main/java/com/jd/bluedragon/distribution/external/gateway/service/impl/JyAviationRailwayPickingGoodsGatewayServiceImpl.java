@@ -69,41 +69,193 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
 
     @Override
     public JdCResponse<Void> finishPickGoods(FinishPickGoodsReq req) {
-        return null;
+        if(Objects.isNull(req)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.finishPickGoods:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
+
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
+            }
+            return retJdCResponse(jyAviationRailwayPickingGoodsService.finishPickGoods(req));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+        }
     }
 
     @Override
     public JdCResponse<Void> submitException(ExceptionSubmitReq req) {
-        return null;
+        if(Objects.isNull(req)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.submitException:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
+
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
+            }
+            return retJdCResponse(jyAviationRailwayPickingGoodsService.submitException(req));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+        }
     }
 
     @Override
     public JdCResponse<SendFlowRes> listSendFlowInfo(SendFlowReq req) {
-        return null;
+        if(Objects.isNull(req)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.listSendFlowInfo:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
+
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
+            }
+            return retJdCResponse(jyAviationRailwayPickingGoodsService.listSendFlowInfo(req));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+        }
     }
 
     @Override
     public JdCResponse<Void> addSendFlow(SendFlowAddReq req) {
-        return null;
+        if(Objects.isNull(req)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.addSendFlow:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
+
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
+            }
+            return retJdCResponse(jyAviationRailwayPickingGoodsService.addSendFlow(req));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+        }
     }
 
     @Override
     public JdCResponse<Void> deleteSendFlow(SendFlowDeleteReq req) {
-        return null;
+        if(Objects.isNull(req)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.deleteSendFlow:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
+
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
+            }
+            return retJdCResponse(jyAviationRailwayPickingGoodsService.deleteSendFlow(req));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+        }
     }
 
     @Override
     public JdCResponse<Void> finishSendTask(FinishSendTaskReq req) {
-        return null;
+        if(Objects.isNull(req)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.finishSendTask:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
+
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
+            }
+            return retJdCResponse(jyAviationRailwayPickingGoodsService.finishSendTask(req));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+        }
     }
 
     @Override
-    public JdCResponse<AirportTaskRes> listAirportTaskList(AirportTaskReq req) {
-        return null;
+    public JdCResponse<AirportTaskRes> listAirportTask(AirportTaskReq req) {
+        if(Objects.isNull(req)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.listAirportTask:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
+
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
+            }
+            return retJdCResponse(jyAviationRailwayPickingGoodsService.listAirportTask(req));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+        }
     }
 
     @Override
-    public JdCResponse<List<AirportTaskAggDto>> listAirportTaskAggList(AirportTaskAggReq req) {
-        return null;
+    public JdCResponse<List<AirportTaskAggDto>> listAirportTaskAgg(AirportTaskAggReq req) {
+        if(Objects.isNull(req)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.listAirportTaskAgg:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
+
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
+            }
+            return retJdCResponse(jyAviationRailwayPickingGoodsService.listAirportTaskAgg(req));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+        }
     }
 }
