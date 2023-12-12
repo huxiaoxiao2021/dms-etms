@@ -23,4 +23,6 @@ public interface JyBizTaskPickingGoodService {
      * @return
      */
     JyBizTaskPickingGoodEntity generateManualCreateTask(PickingGoodsReq request);
+
+    boolean updateStatusByBizId(String bizId, Integer status);
 }

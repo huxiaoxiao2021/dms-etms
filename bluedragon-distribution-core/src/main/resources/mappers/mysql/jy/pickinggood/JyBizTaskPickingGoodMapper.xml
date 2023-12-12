@@ -51,6 +51,17 @@
     limit 1
   </select>
 
+  <update id="updateStatusByBizId" parameterType="JyPickingSendRecordEntity">
+    update
+        jy_biz_task_picking_good
+    set
+        status = #{status}
+    where
+        yn = 1
+    and
+        biz_id = #{bizId}
+  </update>
+
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select -->
 <!--    <include refid="Base_Column_List" />-->

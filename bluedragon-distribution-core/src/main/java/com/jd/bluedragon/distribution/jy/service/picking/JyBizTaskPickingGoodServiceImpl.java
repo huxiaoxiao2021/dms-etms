@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodExtendDao;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +41,13 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     public JyBizTaskPickingGoodEntity generateManualCreateTask(PickingGoodsReq request) {
         //todo zcf
         return null;
+    }
+
+    @Override
+    public boolean updateStatusByBizId(String bizId, Integer status) {
+        JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
+        entity.setBizId(bizId);
+        entity.setStatus(status);
+        return jyBizTaskPickingGoodDao.updateStatusByBizId(entity);
     }
 }
