@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingGoodsRes;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+
+import java.util.List;
 
 /**
  * @Author zhengchengfa
@@ -25,4 +28,60 @@ public interface JyAviationRailwayPickingGoodsService {
      * @return
      */
     InvokeResult<JyBizTaskPickingGoodEntity> fetchPickingTaskByBarCode(Long siteCode, String barCode);
+
+    /**
+     * 提货完成
+     * @param req
+     * @return
+     */
+    InvokeResult<Void> finishPickGoods(FinishPickGoodsReq req);
+
+    /**
+     * 异常提报
+     * @param req
+     * @return
+     */
+    InvokeResult<Void> submitException(ExceptionSubmitReq req);
+
+    /**
+     * 查询已维护流向信息
+     * @param req
+     * @return
+     */
+    InvokeResult<SendFlowRes> listSendFlowInfo(SendFlowReq req);
+
+    /**
+     * 添加流向
+     * @param req
+     * @return
+     */
+    InvokeResult<Void> addSendFlow(SendFlowAddReq req);
+
+    /**
+     * 删除流向
+     * @param req
+     * @return
+     */
+    InvokeResult<Void> deleteSendFlow(SendFlowDeleteReq req);
+
+    /**
+     * 发货完成
+     * @param req
+     * @return
+     */
+    InvokeResult<Void> finishSendTask(FinishSendTaskReq req);
+
+    /**
+     * 所有机场任务列表
+     * @param req
+     * @return
+     */
+    InvokeResult<AirportTaskRes> listAirportTask(AirportTaskReq req);
+
+    /**
+     * 某机场下的任务列表
+     * @param req
+     * @return
+     */
+    InvokeResult<List<AirportTaskAggDto>> listAirportTaskAgg(AirportTaskAggReq req);
 }

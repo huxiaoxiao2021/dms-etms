@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingGoodsRes;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.*;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -308,4 +308,47 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         return res;
     }
 
+    @Override
+    public InvokeResult<Void> finishPickGoods(FinishPickGoodsReq req) {
+        InvokeResult<Void> ret = new InvokeResult<>();
+        if (StringUtils.isEmpty(req.getBizId())) {
+            ret.parameterError("参数错误：提货任务BizId不能为空！");
+        }
+        return null;
+    }
+
+    @Override
+    public InvokeResult<Void> submitException(ExceptionSubmitReq req) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<SendFlowRes> listSendFlowInfo(SendFlowReq req) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<Void> addSendFlow(SendFlowAddReq req) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<Void> deleteSendFlow(SendFlowDeleteReq req) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<Void> finishSendTask(FinishSendTaskReq req) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<AirportTaskRes> listAirportTask(AirportTaskReq req) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<List<AirportTaskAggDto>> listAirportTaskAgg(AirportTaskAggReq req) {
+        return null;
+    }
 }
