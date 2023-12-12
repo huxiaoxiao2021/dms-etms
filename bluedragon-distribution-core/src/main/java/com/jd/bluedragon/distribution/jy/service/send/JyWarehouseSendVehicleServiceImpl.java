@@ -1648,4 +1648,33 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
         return true;
     }
+
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean mixScanTaskFlowComplete(MixScanTaskCompleteReq request) {
+        try {
+            // 完成混扫流向任务
+            JyGroupSortCrossDetailEntity updateInfo = new JyGroupSortCrossDetailEntity();
+            updateInfo.setGroupCode(request.getGroupCode());
+            updateInfo.setTemplateCode(request.getTemplateCode());
+            updateInfo.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+            updateInfo.setSendVehicleDetailBizId(request.getSendVehicleDetailBizId());
+            updateInfo.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
+            updateInfo.setUpdateUserErp(request.getUser().getUserErp());
+            updateInfo.setUpdateUserName(request.getUser().getUserName());
+            if (!jyGroupSortCrossDetailService.mixScanTaskFlowComplete(updateInfo)) {
+                return false;
+            }
+            List<String> detailBizIds = new ArrayList<>();
+            detailBizIds.add(request.getSendVehicleDetailBizId());
+            // 更新车辆状态
+            if (!updateStatusByDetailBizIds(request, detailBizIds)) {
+                throw new JyBizException("完成混扫流向任务失败!");
+            }
+        } catch (Exception e) {
+            log.warn("完成混扫流向任务异常: {}",JsonHelper.toJson(request), e);
+            throw new JyBizException("完成混扫流向任务异常!");
+        }
+        return true;
+    }
+
 }

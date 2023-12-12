@@ -117,6 +117,12 @@ public interface JyWarehouseSendGatewayService {
      */
     JdCResponse<Void> mixScanTaskComplete(MixScanTaskCompleteReq mixScanTaskCompleteReq);
     /**
+     * 混扫任务单个流向完成
+     * @param mixScanTaskCompleteReq
+     * @return
+     */
+    JdCResponse<Void> mixScanTaskFlowComplete(MixScanTaskCompleteReq mixScanTaskCompleteReq);
+    /**
      * 混扫任务关注/取消关注
      * @param mixScanTaskFocusReq
      * @return
