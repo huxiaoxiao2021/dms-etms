@@ -324,7 +324,17 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
 
     @Override
     public InvokeResult<Void> submitException(ExceptionSubmitReq req) {
-        return null;
+        InvokeResult<Void> ret = new InvokeResult<>();
+        if (StringUtils.isEmpty(req.getBizId())) {
+            ret.parameterError("参数错误：提货任务BizId不能为空！");
+            return ret;
+        }
+        // 当前异常上报只将任务状态修改为完成
+        boolean success = jyBizTaskPickingGoodService.updateStatusByBizId(req.getBizId(), PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
+        if (!success) {
+            log.warn("jyBizTaskPickingGoodService 根据bizId={} 完成提货任务状态失败！", req.getBizId());
+        }
+        return ret;
     }
 
     @Override
