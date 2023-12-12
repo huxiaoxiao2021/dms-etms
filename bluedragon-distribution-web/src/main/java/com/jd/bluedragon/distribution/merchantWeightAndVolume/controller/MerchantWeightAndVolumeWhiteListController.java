@@ -200,16 +200,16 @@ public class MerchantWeightAndVolumeWhiteListController extends DmsBaseControlle
             packOpeDto.setOpeType(1);//分拣操作环节赋值：1
             // 处理每行数据
             PackOpeDetail packOpeDetail = new PackOpeDetail();
-            packOpeDetail.setOpeSiteId(2505);
-            packOpeDetail.setOpeSiteName("南京散货分拣中心");
+            packOpeDetail.setOpeSiteId(364609);
+            packOpeDetail.setOpeSiteName("北京顺义分拣中心");
             packOpeDetail.setPackageCode(csvRecord.get(1));
             packOpeDetail.setpWeight(Double.parseDouble(csvRecord.get(2)));
             packOpeDetail.setpLength(Double.parseDouble(csvRecord.get(3)));
             packOpeDetail.setpWidth(Double.parseDouble(csvRecord.get(4)));
             packOpeDetail.setpHigh(Double.parseDouble(csvRecord.get(5)));
             packOpeDetail.setOpeTime(DateHelper.formatDateTime(DateHelper.toDate(Long.valueOf(csvRecord.get(6)))));
-            packOpeDetail.setOpeUserId(22491993);
-            packOpeDetail.setOpeUserName("武美媛");
+            packOpeDetail.setOpeUserId(44731);
+            packOpeDetail.setOpeUserName("李存意");
             packOpeDetail.setLongPackage(0);
 
             packOpeDto.setOpeDetails(Collections.singletonList(packOpeDetail));
