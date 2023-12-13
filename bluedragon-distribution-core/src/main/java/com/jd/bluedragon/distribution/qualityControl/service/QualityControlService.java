@@ -18,6 +18,7 @@ import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.enums.QualityControlInletEnum;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
@@ -240,7 +241,7 @@ public class QualityControlService {
         return result;
     }
 
-    public InvokeResult<Boolean> exceptionSubmit(QualityControlRequest request) {
+    public InvokeResult<Boolean> exceptionSubmit(QualityControlRequest request, Integer inlet) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(StringUtils.isEmpty(request.getQcValue()) || !WaybillCodeRuleValidateUtil.isEffectiveOperateCode(request.getQcValue())){
             log.warn("PDA调用异常配送接口插入质控任务表失败-参数错误[{}]",JsonHelper.toJson(request));
@@ -249,7 +250,7 @@ public class QualityControlService {
             return result;
         }
         try{
-            final Result<Void> checkCanSubmitResult = this.checkCanSubmit(request);
+            final Result<Void> checkCanSubmitResult = this.checkCanSubmit(request,inlet);
             if (!checkCanSubmitResult.isSuccess()) {
                 result.customMessage(QualityControlResponse.CODE_WRONG_STATUS, checkCanSubmitResult.getMessage());
                 return result;
@@ -266,13 +267,13 @@ public class QualityControlService {
         return result;
     }
 
-    private Result<Void> checkCanSubmit(QualityControlRequest request){
+    private Result<Void> checkCanSubmit(QualityControlRequest request, Integer inlet){
         Result<Void> result = Result.success();
         try {
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
             String waybillCode=WaybillUtil.getWaybillCode(request.getQcValue());
-            // 理赔拦截和取消订单拦截只能换单一次
-            if (checkExchangeNum(request, waybillCode)) {
+            // 只针对分拣系统， 理赔拦截和取消订单拦截只能换单一次
+            if (Objects.equals(QualityControlInletEnum.DMS_SORTING.getCode(), inlet) && checkExchangeNum(request, waybillCode)) {
                 result.toFail(InvokeResult.WAYBILL_EXCHANGE_NUM_MESSAGE);
                 return result;
             }

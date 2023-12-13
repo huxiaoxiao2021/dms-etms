@@ -10,6 +10,7 @@ import com.jd.bluedragon.common.dto.strandreport.request.ConfigStrandReasonData;
 import com.jd.bluedragon.distribution.abnormal.domain.RedeliveryMode;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
 import com.jd.bluedragon.distribution.abnormal.service.StrandService;
+import com.jd.bluedragon.distribution.api.enums.QualityControlInletEnum;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.request.material.collectionbag.CollectionBagRequest;
 import com.jd.bluedragon.distribution.api.request.material.recyclingbox.RecyclingBoxInOutboundRequest;
@@ -171,7 +172,7 @@ public class ReverseIntensiveServiceImpl implements ReverseIntensiveService {
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
     public InvokeResult<Boolean> exceptionSubmit(QualityControlRequest request) {
-        return qualityControlService.exceptionSubmit(request);
+        return qualityControlService.exceptionSubmit(request, QualityControlInletEnum.REVERSE_INTENSIVE.getCode());
     }
     
     @Override
