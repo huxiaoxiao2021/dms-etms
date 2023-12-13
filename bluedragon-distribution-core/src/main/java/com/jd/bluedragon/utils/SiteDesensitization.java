@@ -11,9 +11,9 @@ public class SiteDesensitization {
         baseStaffSiteOrgDto.setAddress(null);
         baseStaffSiteOrgDto.setSitePhone(null);
         baseStaffSiteOrgDto.setMobilePhone1(null);
-        baseStaffSiteOrgDto.setStaffName(null);
+//        baseStaffSiteOrgDto.setStaffName(null);
         baseStaffSiteOrgDto.setAccountNumber(null);
-        baseStaffSiteOrgDto.setErp(null);
+//        baseStaffSiteOrgDto.setErp(null);
         baseStaffSiteOrgDto.setSitePhone(null);
         baseStaffSiteOrgDto.setSiteContact(null);
         baseStaffSiteOrgDto.setSitePhone(null);
