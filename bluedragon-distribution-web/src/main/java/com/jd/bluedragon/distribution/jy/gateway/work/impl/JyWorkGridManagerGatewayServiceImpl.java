@@ -1,10 +1,7 @@
 package com.jd.bluedragon.distribution.jy.gateway.work.impl;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
@@ -266,7 +263,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 			jyUserDto.setUserErp(c.getErp());
 			return jyUserDto;
 		}).collect(Collectors.toList());
-		//根据三单排班过滤
+		//根据三定排班过滤
 		jyUserDtos = jyWorkGridManagerBusinessService.filterJyUserDtoInSchedule(jyWorkGridManagerData.getTaskCode(), jyWorkGridManagerData.getProcessBeginTime(), 
 				jyWorkGridManagerData.getPreFinishTime(), jyUserDtos);
 		Map<String , String> erpMap = new HashMap<>();
@@ -296,6 +293,8 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 			} 
 			datas.add(data);
 		}
+		//根据状态排序，正常状态的排在前面
+		datas = datas.stream().sorted(Comparator.comparing(WorkGridCandidateData::getStatus)).collect(Collectors.toList());
 		result.toSucceed();
 		result.setData(datas);
 		return result;
