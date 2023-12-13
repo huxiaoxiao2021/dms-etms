@@ -350,6 +350,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		String areaCode = signInRequest.getAreaCode();
 		String workCode = signInRequest.getWorkCode();
 
+		signInRequest.setUserCode(signInRequest.getUserCode().trim());
 		log.info("signIn -获取基础服务数据");
 		WorkStation workStationCheckQuery = new WorkStation ();
 		workStationCheckQuery.setWorkCode(workCode);
@@ -428,6 +429,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     @Override
 	public Result<Boolean> signOut(UserSignRecord signOutRequest) {
 		Result<Boolean> result = Result.success();
+		signOutRequest.setUserCode(signOutRequest.getUserCode().trim());
 
 		UserSignRecord data = new UserSignRecord();
 		if(signOutRequest.getId() != null) {
@@ -990,6 +992,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				return result;
 			}
 			String userCode = BusinessUtil.getUserCodeFromScanUserCode(scanUserCode);
+			if (userCode != null) userCode = userCode.trim();
 			// 身份证字母转大写
 			if (BusinessUtil.isIdCardNo(userCode)) {
 				userCode = userCode.toUpperCase();
