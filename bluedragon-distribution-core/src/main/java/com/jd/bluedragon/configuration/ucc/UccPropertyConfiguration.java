@@ -491,6 +491,10 @@ public class UccPropertyConfiguration{
      * 获取异常完结数据范围限制天数
      */
     private int completeExpDayNumLimit;
+    /**
+     * 找货通知默认消息发送人
+     */
+    private String findGoodSendMessageDefaultErp;
 
     public boolean isPrintCompeteAllPackageUpdateCancel() {
         return printCompeteAllPackageUpdateCancel;
@@ -4084,5 +4088,13 @@ public class UccPropertyConfiguration{
 
     public void setJyAviationManualCreateSendTaskMaxBookingWeight(Double jyAviationManualCreateSendTaskMaxBookingWeight) {
         this.jyAviationManualCreateSendTaskMaxBookingWeight = jyAviationManualCreateSendTaskMaxBookingWeight;
+    }
+
+    public String getFindGoodSendMessageDefaultErp() {
+        return findGoodSendMessageDefaultErp;
+    }
+
+    public void setFindGoodSendMessageDefaultErp(String findGoodSendMessageDefaultErp) {
+        this.findGoodSendMessageDefaultErp = findGoodSendMessageDefaultErp;
     }
 }
