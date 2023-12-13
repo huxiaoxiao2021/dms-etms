@@ -328,6 +328,7 @@
         <property name="czSealCarBoardCountMinLimit" value="${czSealCarBoardCountMinLimit:4}"/>
         <property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
         <property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:5000}"/>
+		<property name="findGoodSendMessageDefaultErp" value="${findGoodSendMessageDefaultErp:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -661,6 +662,7 @@
 				<value>uccPropertyConfiguration.jyAviationManualCreateSendTaskMaxBookingWeight</value>
 				<value>uccPropertyConfiguration.terminalSiteTypeForBoxType</value>
 				<value>uccPropertyConfiguration.boxTypeNewVersionSwitch</value>
+				<value>uccPropertyConfiguration.findGoodSendMessageDefaultErp</value>
 			</list>
 		</property>
 	</bean>
