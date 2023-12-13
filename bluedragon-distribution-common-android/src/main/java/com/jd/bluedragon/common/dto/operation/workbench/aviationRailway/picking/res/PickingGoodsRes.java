@@ -37,6 +37,13 @@ public class PickingGoodsRes implements Serializable {
      */
     private Long operateTime;
 
+    /**
+     * 提货任务来源【PDA不需要关注】
+     * 根据提货单据反查任务，确定任务多重规则，记录具体找任务的规则
+     * com.jd.bluedragon.distribution.jy.constants.BarCodeFetchPickingTaskRuleEnum
+     */
+    private Integer taskSource;
+
 
     public Integer getRealNextSiteId() {
         return realNextSiteId;
@@ -76,5 +83,13 @@ public class PickingGoodsRes implements Serializable {
 
     public void setOperateTime(Long operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public Integer getTaskSource() {
+        return taskSource;
+    }
+
+    public void setTaskSource(Integer taskSource) {
+        this.taskSource = taskSource;
     }
 }

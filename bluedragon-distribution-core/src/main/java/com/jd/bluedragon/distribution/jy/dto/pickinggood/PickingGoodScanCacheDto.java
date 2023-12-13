@@ -18,8 +18,6 @@ public class PickingGoodScanCacheDto implements Serializable {
     private String bizId;
     //是否同时发货
     private Boolean sendFlag;
-    //创建场地
-    private Integer createSiteId;
 
     public String getBarCode() {
         return barCode;
@@ -61,11 +59,4 @@ public class PickingGoodScanCacheDto implements Serializable {
         this.bizId = bizId;
     }
 
-    public Integer getCreateSiteId() {
-        return createSiteId;
-    }
-
-    public void setCreateSiteId(Integer createSiteId) {
-        this.createSiteId = createSiteId;
-    }
 }

@@ -28,7 +28,7 @@ public class JyPickingSendRecordEntity {
     /**
      *
      */
-    private String boxCode;
+    private String scanCode;
     /**
      * 待提单据
      */
@@ -170,12 +170,12 @@ public class JyPickingSendRecordEntity {
         this.waybillCode = waybillCode;
     }
 
-    public String getBoxCode() {
-        return boxCode;
+    public String getScanCode() {
+        return scanCode;
     }
 
-    public void setBoxCode(String boxCode) {
-        this.boxCode = boxCode;
+    public void setScanCode(String scanCode) {
+        this.scanCode = scanCode;
     }
 
     public String getWaitScanCode() {

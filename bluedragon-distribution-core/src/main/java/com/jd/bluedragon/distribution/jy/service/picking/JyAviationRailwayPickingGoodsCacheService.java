@@ -24,7 +24,10 @@ public class JyAviationRailwayPickingGoodsCacheService {
     private static final String DEFAULT_VALUE_1 = "1";
 
     private static final String CACHE_PICKING_SCAN_PRE = "cache:picking:scan:%s:%s";
-    private static final Integer CACHE_PICKING_SCAN_TIMEOUT = 15;
+    private static final Integer CACHE_PICKING_SCAN_TIMEOUT_DAYS = 3;
+
+    private static final String LOCK_PICKING_SCAN_PRE = "lock:picking:scan:%s:%s";
+    private static final Integer LOCK_PICKING_SCAN_TIMEOUT_SECONDS = 60;
 
     @Autowired
     private JimDbLock jimDbLock;
@@ -52,31 +55,43 @@ public class JyAviationRailwayPickingGoodsCacheService {
 
     /**
      * 提货扫描缓存保存
-     * @param cacheDto
      */
-    public void saveCachePickingGoodScan(PickingGoodScanCacheDto cacheDto) {
-        if(Objects.isNull(cacheDto) || StringUtils.isBlank(cacheDto.getBarCode()) || StringUtils.isBlank(cacheDto.getBizId())) {
-            return;
-        }
-        String cacheKey = this.getCachePickingGoodScanKey(cacheDto.getBarCode(), cacheDto.getBizId());
-        redisClientOfJy.setEx(cacheKey, "", JyAviationRailwayPickingGoodsCacheService.CACHE_PICKING_SCAN_TIMEOUT, TimeUnit.DAYS);
+    public void saveCachePickingGoodScan(String barCode, Integer siteId) {
+        String cacheKey = this.getCachePickingGoodScanKey(barCode, siteId);
+        redisClientOfJy.setEx(cacheKey, DEFAULT_VALUE_1, CACHE_PICKING_SCAN_TIMEOUT_DAYS, TimeUnit.DAYS);
     }
-    //提货扫描缓存查找
-    public PickingGoodScanCacheDto getCachePickingGoodScanValue(String barCode, String bizId) {
-        String cacheKey = this.getCachePickingGoodScanKey(barCode, bizId);
+    /**
+     * 是否提货扫描
+     * true: 是  false: 否
+     */
+    public boolean getCachePickingGoodScanValue(String barCode, Integer siteId) {
+        String cacheKey = this.getCachePickingGoodScanKey(barCode, siteId);
         String value = redisClientOfJy.get(cacheKey);
-        if(StringUtils.isNotBlank(value)) {
-            PickingGoodScanCacheDto cache = JSONObject.parseObject(value, PickingGoodScanCacheDto.class);
-            return cache;
-        }
-        return null;
+        return StringUtils.isNotBlank(value);
     }
     //提货扫描缓存key生成
-    public String getCachePickingGoodScanKey(String barCode, String bizId) {
-        return String.format(JyAviationRailwayPickingGoodsCacheService.CACHE_PICKING_SCAN_PRE, barCode, bizId);
+    private String getCachePickingGoodScanKey(String barCode, Integer siteId) {
+        return String.format(JyAviationRailwayPickingGoodsCacheService.CACHE_PICKING_SCAN_PRE, barCode, siteId);
     }
 
-
+    /**
+     * 提货扫描并发锁
+     * @param barCode
+     * @param siteId
+     * @return
+     */
+    public boolean lockPickingGoodScan(String barCode, Integer siteId) {
+        String lockKey = this.getLockKeyPickingGoodScan(barCode, siteId);
+        return jimDbLock.lock(lockKey, DEFAULT_VALUE_1, LOCK_PICKING_SCAN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    }
+    public void unlockPickingGoodScan(String barCode, Integer siteId) {
+        String lockKey = this.getLockKeyPickingGoodScan(barCode, siteId);
+        jimDbLock.releaseLock(lockKey, DEFAULT_VALUE_1);
+    }
+    //提货扫描加锁
+    private String getLockKeyPickingGoodScan(String barCode, Integer siteId) {
+        return String.format(LOCK_PICKING_SCAN_PRE, barCode, siteId);
+    }
 
 
 }
