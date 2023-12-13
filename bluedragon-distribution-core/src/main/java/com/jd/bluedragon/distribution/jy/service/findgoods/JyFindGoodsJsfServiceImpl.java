@@ -8,6 +8,7 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.inventory.InventoryTaskDto;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryTaskStatusEnum;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.HrUserManager;
 import com.jd.bluedragon.core.base.MspClientProxy;
 import com.jd.bluedragon.distribution.api.request.SingleSiteWaveQuery;
@@ -31,10 +32,8 @@ import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NoticeUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
-import com.jd.etms.sdk.util.DateUtil;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.udata.query.api.dto.ApiDataQueryRequest;
@@ -54,13 +53,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
@@ -103,9 +101,9 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
   private String sortingCleanSingleSiteWave;
   @Autowired
   private MspClientProxy mspClientProxy;
-  
-  @Value("${find.good.send.message.default.erp:}")
-  private String findGoodSendMessageDErp;
+
+  @Resource
+  private DmsConfigManager dmsConfigManager;
     
 
   @Override
@@ -333,8 +331,9 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
                 siteWaveDto.getNotFindFreshCount()
         );
         List<String> pins = new ArrayList<>();
-        if (StringUtils.isNotBlank(findGoodSendMessageDErp)) {
-            pins.addAll(Arrays.asList(findGoodSendMessageDErp.split(",")));
+        String defaultErp = dmsConfigManager.getPropertyConfig().getFindGoodSendMessageDefaultErp();
+        if (StringUtils.isNotBlank(defaultErp)) {
+            pins.addAll(Arrays.asList(defaultErp.split(",")));
         } else {
             pins.add(sendErp);
         }
