@@ -306,6 +306,7 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
                 weightVolumePictureDto.setWaybillCode(spotCheckDto.getWaybillCode());
                 weightVolumePictureDto.setPackageCode(spotCheckDto.getPackageCode());
                 weightVolumePictureDto.setUrl(spotCheckDto.getPictureAddress());
+                weightVolumePictureDto.setVideoUrl(spotCheckDto.getVideoPicture());
 
                 if(Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_ARTIFICIAL.getCode(), condition.getReviewSource())
                         || Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getCode(), condition.getReviewSource())

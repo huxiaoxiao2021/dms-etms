@@ -138,6 +138,26 @@ public class Constants {
       */
     public static final Integer SITE_SUBTYPE_THIRD = 6410;
 
+    /**
+     * 退货组
+     */
+    public static final Integer SITE_RETURN_GROUP = 12354;
+
+    /**
+     * 请求应用程序类型
+     */
+    public static final Integer PROGRAM_TYPE = 60;
+
+    /**
+     * 业务类型
+     */
+    public static final Integer BUSINESS_TYPE = 1005;
+
+    /**
+     * 业务操作类型
+     */
+    public static final Integer OPERATE_TYPE = 100503;
+
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
     public static final int WAREHOUSE_HANDOVER_OPERATE_TYPE = 2;
@@ -282,6 +302,12 @@ public class Constants {
     public static final Integer BASE_SITE_OPERATESTATE = 2;
 
     /**
+     * 运营状态 operate_state 0关闭 1线上运营 2线下运营
+     */
+    public static final Integer BASE_SITE_OPERATESTATE_1 = 1;
+
+
+    /**
      * 承运商类型 1:司机 0:承运商（三方快递，即站点表中类型为16的数据）
      */
     public static final Integer SENDUSERTYEP_DRIVER = 1;
@@ -418,6 +444,11 @@ public class Constants {
      * 时间：一小时的秒数
      */
     public static final int TIME_SECONDS_ONE_HOUR = 3600;
+
+    /**
+     * 时间：48小时
+     */
+    public static final int FORTY_EIGHT_HOURS = 48;
 
     /**
      * 时间：一天的秒数
@@ -1599,6 +1630,16 @@ public class Constants {
     public static final int  CONSTANT_NUMBER_TEN = 10;
 
     /**
+     * 常量值：200
+     * */
+    public static final int CONSTANT_TWO_HUNDRED = 200;
+
+    /**
+     * 常量值：1000
+     * */
+    public static final int CONSTANT_ONE_THOUSAND = 1000;
+
+    /**
      * 组板转移标识
      */
     public static final Integer IS_COMBITION_TRANSFER = 1;
@@ -2190,6 +2231,11 @@ public class Constants {
      */
     public static final String MORE_SCAN_QUERY_ES_SWITCH = "more.scan.query.es.switch";
 
+    /**
+     *  配置信息-设备抽检申诉核对超时未确认时长
+     *
+     */
+    public static final String SPOT_CHECK_APPEAL_TIME_OUT = "spot.check.appeal.time.out";
 
     /**
      * 运输内网账号类型
@@ -2222,4 +2268,35 @@ public class Constants {
 
     public static final String FIND_GOODS_NOTICE_CONTENT = "%s分拣中心，%s%s（波次开始时间）-%s（波次结束时间）班次清场，需找货%s件，已找到%s件，仍有%s件未找到，其中包含%s件高值、%s件特快、%s件生鲜，请安排继续找货。";
 
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_ID = "pda.questionnaire.id";
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_FUNC_CODE = "pda.questionnaire.func.code";
+
+    /**
+     * 运单返调度审批配置
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG = "reassignWaybill.province.area.approval.config";
+
+
+    /**
+     * 返调度运单任务锁key
+     */
+    public static final String REASSIGN_WAYBILL_LOCK_KEY_PREFIX ="reassign.waybill.lock:";
+
+    /**
+     * 调查问卷场地白名单
+     */
+    public static final String PDA_QUESTIONNAIRE_SITE_WHITE_LIST = "pda.questionnaire.white.list";
+
+    /**
+     * 备件库
+     */
+    public static final String SITE_TYPE_SPWMS = "spwms";
 }

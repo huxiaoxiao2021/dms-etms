@@ -1526,6 +1526,16 @@ public class UccPropertyConfiguration{
 
 
 
+    /**
+     * 传站封车板最小数量限制
+     */
+    private Integer czSealCarBoardCountMinLimit;
+
+    /**
+     * 传站封车件数最小数量限制
+     */
+    private Integer czSealCarPackageCountMinLimit;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -1831,6 +1841,9 @@ public class UccPropertyConfiguration{
     public void setJyCollectPackageInterceptBitCode(long jyCollectPackageInterceptBitCode) {
         this.jyCollectPackageInterceptBitCode = jyCollectPackageInterceptBitCode;
     }
+
+
+    private Double jyAviationManualCreateSendTaskMaxBookingWeight;
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -4051,6 +4064,30 @@ public class UccPropertyConfiguration{
 
     public void setSealSyncOpenCloseSendTaskSwitch(String sealSyncOpenCloseSendTaskSwitch) {
         this.sealSyncOpenCloseSendTaskSwitch = sealSyncOpenCloseSendTaskSwitch;
+    }
+
+    public Integer getCzSealCarBoardCountMinLimit() {
+        return czSealCarBoardCountMinLimit;
+    }
+
+    public void setCzSealCarBoardCountMinLimit(Integer czSealCarBoardCountMinLimit) {
+        this.czSealCarBoardCountMinLimit = czSealCarBoardCountMinLimit;
+    }
+
+    public Integer getCzSealCarPackageCountMinLimit() {
+        return czSealCarPackageCountMinLimit;
+    }
+
+    public void setCzSealCarPackageCountMinLimit(Integer czSealCarPackageCountMinLimit) {
+        this.czSealCarPackageCountMinLimit = czSealCarPackageCountMinLimit;
+    }
+
+    public Double getJyAviationManualCreateSendTaskMaxBookingWeight() {
+        return jyAviationManualCreateSendTaskMaxBookingWeight;
+    }
+
+    public void setJyAviationManualCreateSendTaskMaxBookingWeight(Double jyAviationManualCreateSendTaskMaxBookingWeight) {
+        this.jyAviationManualCreateSendTaskMaxBookingWeight = jyAviationManualCreateSendTaskMaxBookingWeight;
     }
 
     public String getFindGoodSendMessageDefaultErp() {

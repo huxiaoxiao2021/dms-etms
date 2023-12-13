@@ -23,6 +23,10 @@ public class SpotCheckConstants {
      */
     public static final String EQUIPMENT_SPOT_CHECK = "DMS-DWS";
     public static final String ARTIFICIAL_SPOT_CHECK = "DMS-MSI";
+    /**
+     * 数据来源系统:SYS_DMS_DWS("分拣设备抽检", "1"),
+     */
+    public static final Integer SYS_DMS_DWS = 1;
 
     public static final String PICTURE_LOOK_URL = "%s/weightAndVolumeCheck/toSearchPicture4MultiplePackage/?waybillCode=%s&siteCode=%s&fromSource=%s&pageNo=1&pageSize=20";
 

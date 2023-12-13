@@ -2,37 +2,38 @@ package com.jd.bluedragon.distribution.jy.service.work.impl;
 
 
 import java.util.*;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.jd.bluedragon.common.dto.work.*;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.jy.dto.work.*;
-import com.jd.bluedragon.distribution.jy.enums.TransferTypeEnum;
 import com.jd.bluedragon.distribution.jy.manager.IQuotaTargetConfigManager;
+import com.google.common.base.Objects;
+import com.jd.bluedragon.core.jsf.work.ScheduleJSFServiceManager;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.utils.easydata.OneTableEasyDataConfig;
-import com.jd.dms.wb.sdk.dto.loss.QuotaTargetConfigDto;
 import com.jd.dms.wb.sdk.enums.oneTable.BusinessTypeEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.easydata.DmsWEasyDataConfig;
 import com.jd.bluedragon.utils.easydata.EasyDataClientUtil;
-import com.jd.dms.wb.sdk.api.loss.IQuotaTargetConfigJsfService;
-import com.jd.dms.wb.sdk.dto.loss.QuotaTargetConfigRequest;
 import com.jd.dms.wb.sdk.enums.oneTable.Class2TypeEnum;
-import com.jd.dms.wb.sdk.enums.oneTable.TimeTypeEnum;
-import com.jd.dms.wb.sdk.model.base.BaseEntity;
 import com.jd.fds.lib.dto.server.FdsPage;
-import com.jd.fds.lib.dto.server.FdsServerResult;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.work.WorkGridCandidate;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
-import com.jdl.basic.common.utils.DateUtil;
-import com.jdl.basic.common.utils.MathUtil;
-import org.apache.avro.data.Json;
-import org.apache.commons.lang3.time.DateUtils;
+import com.jdl.jy.flat.base.ServiceResult;
+import com.jdl.jy.flat.dto.schedule.ScheduleDetailDto;
+import com.jdl.jy.flat.dto.schedule.UserDateScheduleQueryDto;
+import com.jdl.jy.flat.dto.schedule.UserScheduleDto;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +110,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	private static final String SEND_SCAN_QUOTA_CODE="dis000034";
 	// 指标改善任务场地数量 sysconfig配置
 	private static final String KPI_IMPROVE_TASK_SITE_NUM_KEY = "kpi.improve.task.site.num";
-	
+
 	@Autowired
 	@Qualifier("jyBizTaskWorkGridManagerService")
 	private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
@@ -152,6 +153,11 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	private PositionManager positionManager;
 	@Autowired
 	private WorkGridCandidateJsfService workGridCandidateJsfService;
+
+	@Autowired
+	private ScheduleJSFServiceManager scheduleJSFServiceManager;
+
+
     @Autowired
     SysConfigService sysConfigService;
     @Autowired
@@ -163,7 +169,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 
 	@Autowired
 	private OneTableEasyDataConfig oneTableEasyDataConfig;
-	
+
 	@Autowired
 	private IQuotaTargetConfigManager iQuotaTargetConfigManager;
     /**
@@ -289,14 +295,19 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 							attachmentData,caseData.getCaseCode()));
 				}
 			}
-			//改善反馈附件
+			//改善反馈附件,指标改善任务 只有1个case, 附件bizSubType为TASK_WORK_GRID_MANAGER_IMPROVE.code
+			WorkGridManagerTaskBizType taskBizType = WorkGridManagerTaskBizType.getEnum(oldData.getTaskBizType());
 			if(!CollectionUtils.isEmpty(caseData.getImproveAttachmentList())) {
+				String subBizType = TASK_WORK_GRID_MANAGER_IMPROVE.getCode();
+				if(!KPI_IMPROVE.equals(taskBizType)){
+					subBizType += ("|" + caseData.getCaseCode());
+				}
 				for(AttachmentDetailData attachmentData : caseData.getImproveAttachmentList()) {
 					if(attachmentData == null) {
 						continue;
 					}
 					improveAttachmentList.add(toJyAttachmentDetailEntity(userErp,currentTime,taskData,caseData,attachmentData,
-							TASK_WORK_GRID_MANAGER_IMPROVE.getCode()));
+							subBizType));
 				}
 			}
 			if(!CollectionUtils.isEmpty(caseData.getItemList())) {
@@ -610,7 +621,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					limit, pageNum -1);
 			return scanSiteInfo;
 		}
-		
+
 		Map<Integer, BusinessQuotaInfoData> businessQuotaInfoDataMap = new HashMap<>();
 		scanSiteInfo.setBusinessQuotaInfoDataMap(businessQuotaInfoDataMap);
 		String quotaAchieveInfo = DateHelper.formatDate(DateHelper.getZeroFromDay(new Date(), 2), "MM/dd") + "未达标";
@@ -622,7 +633,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			}
 			Integer siteCode = Integer.valueOf(obSiteCode.toString());
 			siteCodes.add(siteCode);
-			if(data.containsKey("actual") && 
+			if(data.containsKey("actual") &&
 					org.apache.commons.lang3.StringUtils.isNotBlank(String.valueOf(data.get("actual")))){
 				BusinessQuotaInfoData businessQuotaInfoData = new BusinessQuotaInfoData();
 				businessQuotaInfoData.setTarget(targetStr);
@@ -637,7 +648,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				JsonHelper.toJson(siteCodes));
 		return scanSiteInfo;
 	}
-	
+
 	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "executeWorkGridManagerSiteScanTask",mState={JProEnum.TP,JProEnum.FunctionError})
 	public boolean executeWorkGridManagerSiteScanTask(Task task) {
@@ -720,6 +731,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			return true;
 		}
 		List<JyUserDto> userList = getTaskHandleUser(configData, siteInfo, taskInfo.getTaskBizType());
+		//查询网格排班,校验用户是否在班
+		userList = filterJyUserDtoInSchedule(configData.getTaskConfigCode(),taskTime,taskEndTime,userList);
+
 		int needGridNum = userList.size() * configData.getPerGridNum();
 		if(needGridNum == 0) {
 			needDistribution = false;
@@ -779,11 +793,13 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		logger.info("新增下次执行时间的任务：batchCode={},executeTime={}",taskData.getTaskBatchCode(),DateHelper.formatDateTime(taskData.getExecuteTime()));
 		return true;
 	}
-	private List<JyUserDto> getTaskHandleUser(WorkGridManagerTaskConfigVo configData, BaseSiteInfoDto siteInfo,
-											  Integer taskBizType){
+	@Override
+	public List<JyUserDto> getTaskHandleUser(WorkGridManagerTaskConfigVo configData, BaseSiteInfoDto siteInfo,
+											 Integer taskBizType){
 		WorkGridManagerTaskBizType bizTypeEnum = WorkGridManagerTaskBizType.getEnum(taskBizType);
 		switch (bizTypeEnum){
 			case DAILY_PATROL:
+			case EXP_INSPECT:
 			case KPI_IMPROVE:
 				List<JyUserDto> userDtos = getUserList(siteInfo.getSiteCode(),siteInfo.getOrganizationCode(),
 						configData.getHandlerUserPositionCode(),configData.getHandlerUserPositionName());
@@ -817,7 +833,82 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		return null;
 	}
 
-    /**
+	@Override
+	public List<JyUserDto> filterJyUserDtoInSchedule(String taskConfigCode, Date taskTime, Date taskEndTime, List<JyUserDto> userList) {
+		if (CollectionUtils.isEmpty(userList)){
+			return userList;
+		}
+		List<JyUserDto> result = Lists.newArrayList();
+		for (JyUserDto user:userList){
+			//erp
+			List<String> userErpList = Lists.newArrayList();
+			userErpList.add(user.getUserErp());
+			//任务时间区间
+			String start = DateHelper.formatDate(taskTime);
+			String end = DateHelper.formatDate(taskEndTime);
+			List<String> scheduleDateList = Lists.newArrayList();
+			scheduleDateList.add(start);
+			if (!Objects.equal(start,end)){
+				scheduleDateList.add(end);
+			}
+
+			UserDateScheduleQueryDto dto = new UserDateScheduleQueryDto();
+			dto.setUserErpList(userErpList);
+			dto.setScheduleDateList(scheduleDateList);
+			ServiceResult<UserScheduleDto> userScheduleDtoServiceResult = scheduleJSFServiceManager.listUserDateSchedule(dto);
+			if (userScheduleDtoServiceResult == null
+					|| !userScheduleDtoServiceResult.getSuccess()
+					|| userScheduleDtoServiceResult.getData() == null
+					|| CollectionUtils.isEmpty(userScheduleDtoServiceResult.getData().getScheduleDeatilDtoList())){
+				logger.warn("查询不到排班信息，任务编号{}过滤用户{}",taskConfigCode,user.getUserErp());
+				continue;
+			}
+
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(com.jdl.basic.common.utils.DateHelper.DATE_FORMAT_YYYY_MM_DD);
+			Instant instant1 = taskTime.toInstant();
+			LocalDateTime startDateTime1 = LocalDateTime.ofInstant(instant1, ZoneId.systemDefault());
+			Instant instant2 = taskEndTime.toInstant();
+			LocalDateTime endDateTime1 = LocalDateTime.ofInstant(instant2, ZoneId.systemDefault());
+
+			List<ScheduleDetailDto> scheduleDeatilDtoList = userScheduleDtoServiceResult.getData().getScheduleDeatilDtoList();
+			for (ScheduleDetailDto scheduleDate:scheduleDeatilDtoList){
+				String timeRange2 =scheduleDate.getStartTime()+"-"+scheduleDate.getEndTime();
+				LocalDate localDate2 = LocalDate.parse(scheduleDate.getScheduleDate(), formatter);
+				if (hasIntersection(startDateTime1,endDateTime1,localDate2,timeRange2)){
+					result.add(user);
+					break;
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 判断两个时间区间是否有交叉/交集
+	 * @param timeRange2
+	 * @return
+	 */
+	public static boolean hasIntersection(LocalDateTime startDateTime1,LocalDateTime endDateTime1,LocalDate date2, String timeRange2) {
+		String[] range2 = timeRange2.split("-");
+		if (StringUtils.isEmpty(range2[0]) || "null".equals(range2[0]) || StringUtils.isEmpty(range2[1]) || "null".equals(range2[1]) ){
+			return true;
+		}
+		LocalTime startTime2 = LocalTime.parse(range2[0]);
+		LocalTime endTime2 = LocalTime.parse(range2[1]);
+
+		// 将时间转换为带日期的 LocalDateTime
+		LocalDateTime startDateTime2 = LocalDateTime.of(date2, startTime2);
+		LocalDateTime endDateTime2 = LocalDateTime.of(date2, endTime2);
+
+		if (!startDateTime2.isAfter(endDateTime2)) {
+			endDateTime2 = endDateTime2.plusDays(1);
+		}
+
+		// 判断是否有交叉
+		return !(endDateTime1.isBefore(startDateTime2) || endDateTime2.isBefore(startDateTime1));
+	}
+
+	/**
      * 判断是否开启站点推送
      * @param siteCode
      * @return
@@ -1201,7 +1292,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					workGrids.add(workGridResult.getData());
 				}
 			}
-			logger.info("装车质量报表查到指标平均得分倒数的网格,dt:{},siteCode:{},refGridKeys:{}", dt, siteCode, 
+			logger.info("装车质量报表查到指标平均得分倒数的网格,dt:{},siteCode:{},refGridKeys:{}", dt, siteCode,
 					JsonHelper.toJson(refGridKeys));
 		} catch (Exception e) {
 			logger.error("从装车质量报表ck查询该场地网格异常，siteCode:{}",siteCode,e);
@@ -1248,7 +1339,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			userDtos.add(first);
 			return userDtos;
 		}
-		
+
 		List<JyUserDto> list = new ArrayList<>(userDtos.size());
 		//后半部分list,不包含上次已分任务erp
 		List<JyUserDto> secondHalfList = userDtos.subList(lastUserIndex + 1, userDtos.size());

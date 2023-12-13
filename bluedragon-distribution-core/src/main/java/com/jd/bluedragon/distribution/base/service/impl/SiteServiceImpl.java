@@ -30,6 +30,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.fastjson.JSON;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -508,6 +509,7 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
         }
         String url = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteFuzzyByName/" + siteName;
         List<SiteEntity> siteEntities = RestHelper.jsonGetForEntity(url,new TypeToken<List<SiteEntity>>(){}.getType());
+        log.info("fuzzyGetSiteBySiteName 出参-{}", JSON.toJSONString(siteEntities));
         if (null == siteEntities || siteEntities.isEmpty()) {
         	return Collections.emptyList();
         }
