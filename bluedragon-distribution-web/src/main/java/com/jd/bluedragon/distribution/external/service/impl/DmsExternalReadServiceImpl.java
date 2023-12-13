@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.DmsBaseResponse;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
+import com.jd.bluedragon.distribution.api.response.box.BoxDto;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.service.DmsExternalReadService;
@@ -23,6 +24,7 @@ import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
 import com.jd.bluedragon.distribution.wss.dto.*;
 import com.jd.bluedragon.distribution.wss.service.DistributionWssService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -68,6 +70,9 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 
     @Value("${jsf.dmsExternal.pageLimit}")
 	private int pageLimit;
+
+    @Autowired
+    private com.jd.bluedragon.external.service.DmsExternalReadService dmsCoreExternalReadService;
 
 	/* (non-Javadoc)
 	 * @see com.jd.bluedragon.distribution.external.service.DmsExternalService#findWaybillByBoxCode(java.lang.String)
@@ -278,4 +283,17 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 //		return getWaybillSafService.getPackageCodesBySendCode(sendCode);
 //	}
 
+    /**
+     * 根据包裹号查询箱号数据
+     *
+     * @param packageCode 包裹号
+     * @return 箱号数据
+     * @author fanggang7
+     * @time 2023-12-09 15:30:44 周六
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsExternalReadServiceImpl.getBoxInfoByPackageCode", mState = {JProEnum.TP})
+    public Result<BoxDto> getBoxInfoByPackageCode(String packageCode) {
+        return dmsCoreExternalReadService.getBoxInfoByPackageCode(packageCode);
+    }
 }

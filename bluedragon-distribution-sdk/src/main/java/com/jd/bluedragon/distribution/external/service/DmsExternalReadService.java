@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.DmsBaseResponse;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
+import com.jd.bluedragon.distribution.api.response.box.BoxDto;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDSimple;
@@ -13,6 +14,7 @@ import com.jd.bluedragon.distribution.wss.dto.DepartureWaybillDto;
 import com.jd.bluedragon.distribution.wss.dto.PackageSummaryDto;
 import com.jd.bluedragon.distribution.wss.dto.SealVehicleSummaryDto;
 import com.jd.bluedragon.distribution.wss.dto.WaybillCodeSummatyDto;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 import java.util.Date;
@@ -160,4 +162,13 @@ public interface DmsExternalReadService {
 	 * @return key:批次号 value:批次号对应的发货信息
 	 */
 	DmsBaseResponse<Map<String,List<SendDSimple>>> getSendDSimpleBySendCodes(List<String>sendCodes);
+
+    /**
+     * 根据包裹号查询箱号数据
+     * @param packageCode 包裹号
+     * @return 箱号数据
+     * @author fanggang7
+     * @time 2023-12-09 15:30:44 周六
+     */
+    Result<BoxDto> getBoxInfoByPackageCode(String packageCode);
 }
