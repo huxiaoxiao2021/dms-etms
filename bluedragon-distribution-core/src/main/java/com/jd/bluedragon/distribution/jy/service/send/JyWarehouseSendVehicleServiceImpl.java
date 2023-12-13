@@ -567,18 +567,20 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
         List<MixScanTaskDetailDto> sendVehicleDetailDtoList = new ArrayList<>();
         entityList.forEach(en -> {
-            MixScanTaskDetailDto dto = new MixScanTaskDetailDto();
-            dto.setStartSiteId(en.getStartSiteId());
-            dto.setStartSiteName(en.getStartSiteName());
-            dto.setCrossCode(en.getCrossCode());
-            dto.setTabletrolleyCode(en.getTabletrolleyCode());
-            dto.setTemplateName(en.getTemplateName());
-            dto.setTemplateCode(en.getTemplateCode());
-            dto.setEndSiteId(en.getEndSiteId());
-            dto.setEndSiteName(en.getEndSiteName());
-            dto.setSendVehicleDetailBizId(en.getSendVehicleDetailBizId());
-            dto.setFocus(en.getFocus());
-            sendVehicleDetailDtoList.add(dto);
+            if (JyMixScanTaskCompleteEnum.DOING.getCode().equals(en.getCompleteStatus())) {
+                MixScanTaskDetailDto dto = new MixScanTaskDetailDto();
+                dto.setStartSiteId(en.getStartSiteId());
+                dto.setStartSiteName(en.getStartSiteName());
+                dto.setCrossCode(en.getCrossCode());
+                dto.setTabletrolleyCode(en.getTabletrolleyCode());
+                dto.setTemplateName(en.getTemplateName());
+                dto.setTemplateCode(en.getTemplateCode());
+                dto.setEndSiteId(en.getEndSiteId());
+                dto.setEndSiteName(en.getEndSiteName());
+                dto.setSendVehicleDetailBizId(en.getSendVehicleDetailBizId());
+                dto.setFocus(en.getFocus());
+                sendVehicleDetailDtoList.add(dto);
+            }
         });
         MixScanTaskDetailRes resData = new MixScanTaskDetailRes();
         resData.setMixScanTaskDetailDtoList(sendVehicleDetailDtoList);
