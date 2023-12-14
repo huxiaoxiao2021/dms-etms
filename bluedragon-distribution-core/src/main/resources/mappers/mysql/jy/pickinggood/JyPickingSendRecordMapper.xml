@@ -8,7 +8,7 @@
     <result column="picking_node_code" property="pickingNodeCode" jdbcType="VARCHAR" />
     <result column="package_code" property="packageCode" jdbcType="VARCHAR" />
     <result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
-    <result column="box_code" property="boxCode" jdbcType="VARCHAR" />
+    <result column="scan_code" property="scanCode" jdbcType="VARCHAR" />
     <result column="wait_scan_code" property="waitScanCode" jdbcType="VARCHAR" />
     <result column="wait_scan_code_type" property="waitScanCodeType" jdbcType="TINYINT" />
     <result column="init_next_site_id" property="initNextSiteId" jdbcType="BIGINT" />
@@ -34,22 +34,34 @@
     <result column="ts" property="ts" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, biz_id, picking_site_id, picking_node_code, package_code, waybill_code, box_code,
+    id, biz_id, picking_site_id, picking_node_code, package_code, waybill_code, scan_code,
     wait_scan_code, wait_scan_code_type, init_next_site_id, box_init_flow_key, wait_scan_flag,
     scan_flag, scan_code_type, more_scan_flag, picking_user_erp, picking_user_name, picking_time,
     send_flag, real_next_site_id, box_real_flow_key, more_send_flag, force_send_flag,
     send_time, send_user_erp, send_user_name, create_time, update_time, yn, ts
   </sql>
 
-    <select id="fetchPickingBizIdByBarCode" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
-      select biz_id
-      from jy_picking_send_record
-      where yn = 1 and picking_site_id = #{pickingSiteId} and wait_scan_code = #{waitScanCode}
-      limit 1
-    </select>
+  <select id="fetchWaitPickingBizIdByBarCode" resultType="java.lang.String" parameterType="JyPickingSendRecordEntity" >
+    select biz_id
+    from jy_picking_send_record
+    where yn = 1 and picking_site_id = #{pickingSiteId} and wait_scan_code = #{waitScanCode}
+    limit 1
+  </select>
 
+  <select id="fetchRealPickingRecordByBarCodeAndBizId" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
+    select <include refid="Base_Column_List" />
+    from jy_picking_send_record
+    where yn = 1 and picking_site_id = #{pickingSiteId} and scan_code = #{waitScanCode} and biz_id = #{bizId}
+    limit 1
+  </select>
 
-
+  <select id="latestPickingRecord" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
+    select <include refid="Base_Column_List" />
+    from jy_picking_send_record
+    where yn = 1 and picking_site_id = #{pickingSiteId} and scan_code = #{waitScanCode}
+    order by picking_time desc
+    limit 1
+  </select>
 <!--  -->
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select-->
@@ -64,7 +76,7 @@
 <!--  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >-->
 <!--    insert into jy_picking_send_record (id, biz_id, picking_site_id,-->
 <!--    picking_node_code, package_code, waybill_code,-->
-<!--    box_code, wait_scan_code, wait_scan_code_type,-->
+<!--    scan_code, wait_scan_code, wait_scan_code_type,-->
 <!--    init_next_site_id, box_init_flow_key, wait_scan_flag,-->
 <!--    scan_flag, scan_code_type, more_scan_flag,-->
 <!--    picking_user_erp, picking_user_name, picking_time,-->
@@ -74,7 +86,7 @@
 <!--    update_time, yn, ts)-->
 <!--    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{pickingSiteId,jdbcType=BIGINT},-->
 <!--    #{pickingNodeCode,jdbcType=VARCHAR}, #{packageCode,jdbcType=VARCHAR}, #{waybillCode,jdbcType=VARCHAR},-->
-<!--    #{boxCode,jdbcType=VARCHAR}, #{waitScanCode,jdbcType=VARCHAR}, #{waitScanCodeType,jdbcType=TINYINT},-->
+<!--    #{scanCode,jdbcType=VARCHAR}, #{waitScanCode,jdbcType=VARCHAR}, #{waitScanCodeType,jdbcType=TINYINT},-->
 <!--    #{initNextSiteId,jdbcType=BIGINT}, #{boxInitFlowKey,jdbcType=VARCHAR}, #{waitScanFlag,jdbcType=TINYINT},-->
 <!--    #{scanFlag,jdbcType=TINYINT}, #{scanCodeType,jdbcType=TINYINT}, #{moreScanFlag,jdbcType=TINYINT},-->
 <!--    #{pickingUserErp,jdbcType=VARCHAR}, #{pickingUserName,jdbcType=VARCHAR}, #{pickingTime,jdbcType=TIMESTAMP},-->
@@ -104,8 +116,8 @@
 <!--      <if test="waybillCode != null" >-->
 <!--        waybill_code,-->
 <!--      </if>-->
-<!--      <if test="boxCode != null" >-->
-<!--        box_code,-->
+<!--      <if test="scanCode != null" >-->
+<!--        scan_code,-->
 <!--      </if>-->
 <!--      <if test="waitScanCode != null" >-->
 <!--        wait_scan_code,-->
@@ -196,8 +208,8 @@
 <!--      <if test="waybillCode != null" >-->
 <!--        #{waybillCode,jdbcType=VARCHAR},-->
 <!--      </if>-->
-<!--      <if test="boxCode != null" >-->
-<!--        #{boxCode,jdbcType=VARCHAR},-->
+<!--      <if test="scanCode != null" >-->
+<!--        #{scanCode,jdbcType=VARCHAR},-->
 <!--      </if>-->
 <!--      <if test="waitScanCode != null" >-->
 <!--        #{waitScanCode,jdbcType=VARCHAR},-->
@@ -288,8 +300,8 @@
 <!--      <if test="waybillCode != null" >-->
 <!--        waybill_code = #{waybillCode,jdbcType=VARCHAR},-->
 <!--      </if>-->
-<!--      <if test="boxCode != null" >-->
-<!--        box_code = #{boxCode,jdbcType=VARCHAR},-->
+<!--      <if test="scanCode != null" >-->
+<!--        scan_code = #{scanCode,jdbcType=VARCHAR},-->
 <!--      </if>-->
 <!--      <if test="waitScanCode != null" >-->
 <!--        wait_scan_code = #{waitScanCode,jdbcType=VARCHAR},-->
@@ -370,7 +382,7 @@
 <!--    picking_node_code = #{pickingNodeCode,jdbcType=VARCHAR},-->
 <!--    package_code = #{packageCode,jdbcType=VARCHAR},-->
 <!--    waybill_code = #{waybillCode,jdbcType=VARCHAR},-->
-<!--    box_code = #{boxCode,jdbcType=VARCHAR},-->
+<!--    scan_code = #{scanCode,jdbcType=VARCHAR},-->
 <!--    wait_scan_code = #{waitScanCode,jdbcType=VARCHAR},-->
 <!--    wait_scan_code_type = #{waitScanCodeType,jdbcType=TINYINT},-->
 <!--    init_next_site_id = #{initNextSiteId,jdbcType=BIGINT},-->

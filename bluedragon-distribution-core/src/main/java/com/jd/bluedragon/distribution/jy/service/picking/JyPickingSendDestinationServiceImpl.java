@@ -24,4 +24,10 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
     private JyPickingSendDestinationDetailDao jyPickingSendDestinationDetailDao;
 
 
+    @Override
+    public String fetchSendingBatchCode(Integer curSiteId, Integer nextSiteId) {
+
+        //todo zcf
+        return null;
+    }
 }

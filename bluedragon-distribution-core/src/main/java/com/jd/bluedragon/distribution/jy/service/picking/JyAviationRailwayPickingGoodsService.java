@@ -22,11 +22,14 @@ public interface JyAviationRailwayPickingGoodsService {
     InvokeResult<PickingGoodsRes> pickingGoodsScan(PickingGoodsReq request);
 
     /**
-     * 根据待扫单据查询待扫任务服务
+     * 根据待扫单据查询待提任务服务
+     *   [ ** 这里查待提， 非已提任务， 已提可能因为多提存在多个实际提货的任务]
      * @param siteCode
      * @param barCode
      * @return
      */
+    JyBizTaskPickingGoodEntity fetchWaitPickingBizIdByBarCode(Long siteCode, String barCode);
+
     InvokeResult<JyBizTaskPickingGoodEntity> fetchPickingTaskByBarCode(Long siteCode, String barCode);
 
     /**

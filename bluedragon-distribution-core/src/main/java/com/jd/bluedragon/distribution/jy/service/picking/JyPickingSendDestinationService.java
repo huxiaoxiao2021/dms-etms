@@ -6,4 +6,12 @@ package com.jd.bluedragon.distribution.jy.service.picking;
  * @Description
  */
 public interface JyPickingSendDestinationService {
+
+    /**
+     * 获取该流向发货中批次号
+     * @param curSiteId
+     * @param nextSiteId
+     * @return
+     */
+    String fetchSendingBatchCode(Integer curSiteId, Integer nextSiteId);
 }
