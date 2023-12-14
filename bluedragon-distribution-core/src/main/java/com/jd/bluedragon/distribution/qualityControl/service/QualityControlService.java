@@ -272,8 +272,10 @@ public class QualityControlService {
         try {
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
             String waybillCode=WaybillUtil.getWaybillCode(request.getQcValue());
+            // 获取原单数据
+            String oldWaybillCode = isExistOldWaybillCode(waybillCode);
             // 只针对分拣系统， 理赔拦截和取消订单拦截只能换单一次
-            if (Objects.equals(QualityControlInletEnum.DMS_SORTING.getCode(), inlet) && checkExchangeNum(request, waybillCode)) {
+            if (Objects.equals(QualityControlInletEnum.DMS_SORTING.getCode(), inlet) && checkExchangeNum(request, waybillCode, oldWaybillCode)) {
                 result.toFail(InvokeResult.WAYBILL_EXCHANGE_NUM_MESSAGE);
                 return result;
             }
@@ -281,9 +283,8 @@ public class QualityControlService {
             if(!dmsConfigManager.getPropertyConfig().matchExceptionSubmitCheckSite(request.getDistCenterID())){
                 return result;
             }
-
             final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(waybillCode);
-            if(isExistOldWaybillCode(waybillCode) || CollectionUtils.isNotEmpty(waybillCancelList)){
+            if(!StringUtils.isEmpty(oldWaybillCode) || CollectionUtils.isNotEmpty(waybillCancelList)){
                 return result;
             }
             String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG, HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT);
@@ -301,7 +302,7 @@ public class QualityControlService {
         return result;
     }
 
-    private boolean checkExchangeNum(QualityControlRequest request, String waybillCode) {
+    private boolean checkExchangeNum(QualityControlRequest request, String waybillCode, String oldWaybillCode) {
         if (!sysConfigService.getConfigByName(EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH)) {
             return false;
         }
@@ -316,7 +317,7 @@ public class QualityControlService {
         }
 
         // 获取运单拦截信息
-        List<CancelWaybill> cancelWaybillList = waybillCancelService.getByWaybillCode(waybillCode);
+        List<CancelWaybill> cancelWaybillList = waybillCancelService.getByWaybillCode(oldWaybillCode);
         if (org.springframework.util.CollectionUtils.isEmpty(cancelWaybillList)) {
             return false;
         }
@@ -326,7 +327,7 @@ public class QualityControlService {
             if (Objects.equals(CANCEL.getCode(), cancelWaybill.getInterceptType())
                     || Objects.equals(COMPENSATE.getCode(), cancelWaybill.getInterceptType())) {
                 // 调用运单接口，获取所有换单打印记录，如果大于1，则不能换单
-                JdResult<List<RelationWaybillBodyDto>> result = waybillQueryManager.getRelationWaybillList(waybillCode);
+                JdResult<List<RelationWaybillBodyDto>> result = waybillQueryManager.getRelationWaybillList(oldWaybillCode);
                 if (result.isSucceed() && !org.springframework.util.CollectionUtils.isEmpty(result.getData()) && result.getData().size() > 1) {
                     return true;
                 }
@@ -1126,9 +1127,8 @@ public class QualityControlService {
         task.setOwnSign(BusinessHelper.getOwnSign());
         return task;
     }
-    private  boolean isExistOldWaybillCode(String waybillCode){
+    private  String isExistOldWaybillCode(String waybillCode){
         //根据运单号校验是否存在原单号(是否是逆向单)，如果是 则可以正常提交异常处理，否则进行拦截校验
-        boolean flag=false;
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillC(true);
         wChoice.setQueryWaybillE(true);
@@ -1138,9 +1138,9 @@ public class QualityControlService {
         if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null && baseEntity.getData().getWaybill().getWaybillExt() !=null) {
             WaybillExt waybillExt=baseEntity.getData().getWaybill().getWaybillExt();
             if(StringUtils.isNotBlank(waybillExt.getOldWaybillCode())){
-                flag=true;
+                return waybillExt.getOldWaybillCode();
             }
         }
-        return flag;
+        return null;
     }
 }
