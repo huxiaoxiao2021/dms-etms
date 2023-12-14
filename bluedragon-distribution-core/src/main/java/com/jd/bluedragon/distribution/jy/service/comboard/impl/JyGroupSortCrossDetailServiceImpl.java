@@ -17,6 +17,7 @@ import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
+import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
@@ -478,7 +479,9 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         if(jyGroupSortCrossDetailCacheService.existMixScanTaskCompleteCache(queryDto.getGroupCode(), queryDto.getTemplateCode())){
             res = true;
         } else {
-            if(this.countByCondition(queryDto) > 0) {
+            // 由于本次新增删除单个流向的功能，所以此处判断整个混扫任务是否结束的方式有所变化
+            queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.DOING.getCode());
+            if(this.countByCondition(queryDto) == 0) {
                 res = true;
                 jyGroupSortCrossDetailCacheService.saveMixScanTaskCompleteCache(queryDto.getGroupCode(), queryDto.getTemplateCode());
             }

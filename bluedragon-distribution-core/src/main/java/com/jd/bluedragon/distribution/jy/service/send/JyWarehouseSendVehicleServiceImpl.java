@@ -32,10 +32,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.busineCode.jqCode.JQCodeService;
 import com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordCondition;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailCondition;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo;
-import com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordStatistics;
+import com.jd.bluedragon.distribution.collectNew.entity.*;
 import com.jd.bluedragon.distribution.collectNew.service.JyScanCollectService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
@@ -54,6 +51,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity;
 import com.jd.bluedragon.distribution.jy.service.collectNew.strategy.JyScanCollectStrategy;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -95,6 +93,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.jd.bluedragon.Constants.CONSTANT_NUMBER_ZERO;
 import static com.jd.bluedragon.Constants.LONG_ZERO;
 
 @Service("jyWarehouseSendVehicleServiceImpl")
@@ -172,6 +171,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
     @Autowired
     private BaseMajorManager baseMajorManager;
+    @Autowired
+    private JySendTransferLogService jySendTransferLogService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendVehicleServiceImpl.fetchSendVehicleTaskPage",
@@ -1037,7 +1038,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             res.parameterError("未查到该任务发货批次数据");
             return res;
         }
-        List<String> collectionCodeList = this.getTaskAllCollectionCode(siteId, sendCodes);
+        List<String> collectionCodeList = this.getTaskAllCollectionCode(request, sendCodes);
         if(CollectionUtils.isEmpty(collectionCodeList)) {
             log.warn("{}根据condition没有查到集齐collectionCode信息，req={}", methodDesc, JsonHelper.toJson(request));
             res.setMessage("未查到该任务扫描信息");
@@ -1084,21 +1085,29 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
     /**
      * 获取任务下可能的所有collectionCode
-     * @param siteCode
+     * @param request
      * @param sendCodes
      * @return
      */
-    private List<String> getTaskAllCollectionCode(Integer siteCode, List<String> sendCodes) {
+    private List<String> getTaskAllCollectionCode(BuQiWaybillReq request, List<String> sendCodes) {
         //当前场地直接
         Set<String> collectionCodeNewList = new HashSet<>();
         //跨流向任务迁移时会生成新批次作为当前批次，原批次删除，集齐扫描关系不变还在原批次上，需要找到当前批次被跨流向迁移之前的批次
         Set<String> collectionCodeOldList = new HashSet<>();
-
+        // 递归查询参数
+        JyRecursiveCondition condition = new JyRecursiveCondition();
+        // 指定最大查询次数
+        condition.setQueryCount(5);
+        condition.setSendVehicleBizId(request.getSendVehicleBizId());
+        // 递归查询批次迁移记录表，拿到所有相关联的批次
+        findSendCodeList(condition, collectionCodeOldList);
+        // 放到批次集合里
+        sendCodes.addAll(collectionCodeOldList);
         for(String sendCode : sendCodes) {
             String jqCondition = jqCodeService.getJyScanSendCodeCollectionCondition(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION, sendCode);
             String collectionCode = kvIndexDao.queryRecentOneByKeyword(jqCondition);
             if(StringUtils.isBlank(collectionCode)) {
-                log.warn("接货仓发货岗根据批次号condition查collectionCode为空，场地={}，jqCondition={}", siteCode, jqCondition);
+                log.warn("接货仓发货岗根据批次号condition查collectionCode为空:request={},jqCondition={}", JsonHelper.toJson(request), jqCondition);
                 continue;
             }
             collectionCodeNewList.add(collectionCode);
@@ -1110,6 +1119,29 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
         collectionCodeNewList.addAll(collectionCodeOldList);
         return collectionCodeNewList.stream().collect(Collectors.toList());
+    }
+
+    private void findSendCodeList(JyRecursiveCondition request, Set<String> collectionCodeOldList) {
+        // 根据toSendVehicleBizId查询错流向迁移记录
+        List<JySendTransferLogEntity> transferLogEntityList = jySendTransferLogService.findByToBizIdAndType(request.getSendVehicleBizId());
+        // 如果没有错流向迁移记录，直接返回
+        if (CollectionUtils.isEmpty(transferLogEntityList)) {
+            return;
+        }
+        // 如果有则把批次号都添加集合
+        for (JySendTransferLogEntity entity : transferLogEntityList) {
+            collectionCodeOldList.add(entity.getSendCode());
+            request.setSendVehicleBizId(entity.getFromSendVehicleBizId());
+        }
+        // 计数器减一
+        request.setQueryCount(request.getQueryCount() - Constants.NUMBER_ONE);
+        // 将fromSendVehicleBizId作为toSendVehicleBizId继续查询错流向迁移记录
+        if (request.getQueryCount() > CONSTANT_NUMBER_ZERO) {
+            if (log.isInfoEnabled()) {
+                log.info("接货仓不齐查询错流向批次记录,request={}", JsonHelper.toJson(request));
+            }
+            findSendCodeList(request, collectionCodeOldList);
+        }
     }
 
     @Override
@@ -1125,7 +1157,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             return res;
         }
         Integer siteId = request.getCurrentOperate().getSiteCode();
-        List<String> collectionCodeList = this.getTaskAllCollectionCode(siteId, sendCodes);
+        List<String> collectionCodeList = this.getTaskAllCollectionCode(request, sendCodes);
         if(CollectionUtils.isEmpty(collectionCodeList)) {
             log.warn("{}根据condition没有查到集齐collectionCode信息，req={}", methodDesc, JsonHelper.toJson(request));
             res.setMessage("未查到该任务扫描信息");
