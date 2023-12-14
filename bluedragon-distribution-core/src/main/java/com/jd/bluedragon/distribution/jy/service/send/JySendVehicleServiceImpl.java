@@ -4543,7 +4543,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         List<JyBizTaskSendVehicleEntity> sendTaskByBizIds = taskSendVehicleService.findSendTaskByBizIds(sendVehicleBizIds);
         // 过滤待发货状态和自建任务的数据
         HashMap<String, JyBizTaskSendVehicleEntity> sendTaskMap = getTaskSendVehicleSendingMap(sendTaskByBizIds);
-
+        if (sendTaskMap.isEmpty()) {
+            return true;
+        }
         for (JyBizTaskSendVehicleDetailEntity detailEntity : sendDetailList) {
             JyBizTaskSendVehicleEntity taskSendVehicle = sendTaskMap.get(detailEntity.getSendVehicleBizId());
             JyBizTaskSendVehicleDetailEntity sendVehicleDetail = sendDetailMap.get(detailEntity.getBizId());
