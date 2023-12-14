@@ -1100,10 +1100,12 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         // 指定最大查询次数
         condition.setQueryCount(jyWarehouseSendTaskBuQiMaxQueryCount);
         condition.setSendVehicleBizId(request.getSendVehicleBizId());
+        // 跨流向迁移批次记录
+        Set<String> transferSenCodeList = new HashSet<>();
         // 递归查询批次迁移记录表，拿到所有相关联的批次
-        findSendCodeList(condition, collectionCodeOldList);
+        findSendCodeList(condition, transferSenCodeList);
         // 放到批次集合里
-        sendCodes.addAll(collectionCodeOldList);
+        sendCodes.addAll(transferSenCodeList);
         for(String sendCode : sendCodes) {
             String jqCondition = jqCodeService.getJyScanSendCodeCollectionCondition(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION, sendCode);
             String collectionCode = kvIndexDao.queryRecentOneByKeyword(jqCondition);
@@ -1122,7 +1124,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         return collectionCodeNewList.stream().collect(Collectors.toList());
     }
 
-    private void findSendCodeList(JyRecursiveCondition request, Set<String> collectionCodeOldList) {
+    private void findSendCodeList(JyRecursiveCondition request, Set<String> transferSenCodeList) {
         // 根据toSendVehicleBizId查询错流向迁移记录
         List<JySendTransferLogEntity> transferLogEntityList = jySendTransferLogService.findByToBizIdAndType(request.getSendVehicleBizId());
         // 如果没有错流向迁移记录，直接返回
@@ -1131,7 +1133,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
         // 如果有则把批次号都添加集合
         for (JySendTransferLogEntity entity : transferLogEntityList) {
-            collectionCodeOldList.add(entity.getSendCode());
+            transferSenCodeList.add(entity.getSendCode());
             request.setSendVehicleBizId(entity.getFromSendVehicleBizId());
         }
         // 计数器减一
@@ -1141,7 +1143,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             if (log.isInfoEnabled()) {
                 log.info("接货仓不齐查询错流向批次记录,request={}", JsonHelper.toJson(request));
             }
-            findSendCodeList(request, collectionCodeOldList);
+            findSendCodeList(request, transferSenCodeList);
         }
     }
 
