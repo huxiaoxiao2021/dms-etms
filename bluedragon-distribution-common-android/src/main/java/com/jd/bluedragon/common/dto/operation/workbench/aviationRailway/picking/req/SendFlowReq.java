@@ -6,4 +6,9 @@ import java.io.Serializable;
 
 public class SendFlowReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -2186860688140786034L;
+
+    /**
+     * 展示类型
+     */
+    private Integer displayType;
 }
