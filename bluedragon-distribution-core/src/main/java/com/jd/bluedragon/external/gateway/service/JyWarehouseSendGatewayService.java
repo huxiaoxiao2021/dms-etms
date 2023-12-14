@@ -117,6 +117,12 @@ public interface JyWarehouseSendGatewayService {
      */
     JdCResponse<Void> mixScanTaskComplete(MixScanTaskCompleteReq mixScanTaskCompleteReq);
     /**
+     * 混扫任务单个流向完成
+     * @param mixScanTaskCompleteReq
+     * @return
+     */
+    JdCResponse<Void> mixScanTaskFlowComplete(MixScanTaskCompleteReq mixScanTaskCompleteReq);
+    /**
      * 混扫任务关注/取消关注
      * @param mixScanTaskFocusReq
      * @return
@@ -134,7 +140,7 @@ public interface JyWarehouseSendGatewayService {
      */
     JdCResponse<MixScanTaskFlowDetailRes> getMixScanTaskFlowDetailList(MixScanTaskFlowDetailReq mixScanTaskFlowReq);
     /**
-     * 获取混扫任务下流向信息(根据业务场景，无需支持分页)
+     * 获取混扫任务下流向信息(根据业务场景，无需支持分页) 此方法目前没有使用
      * getMixScanTaskFlowDetailList接口 查询混扫下流向，附带每个流向的统计数据
      * 本接口仅查询混扫任务流向信息
      * @param mixScanTaskQueryReq
