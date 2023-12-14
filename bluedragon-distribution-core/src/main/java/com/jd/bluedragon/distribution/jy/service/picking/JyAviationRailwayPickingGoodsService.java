@@ -30,8 +30,6 @@ public interface JyAviationRailwayPickingGoodsService {
      */
     JyBizTaskPickingGoodEntity fetchWaitPickingBizIdByBarCode(Long siteCode, String barCode);
 
-    InvokeResult<JyBizTaskPickingGoodEntity> fetchPickingTaskByBarCode(Long siteCode, String barCode);
-
     /**
      * 提货完成
      * @param req

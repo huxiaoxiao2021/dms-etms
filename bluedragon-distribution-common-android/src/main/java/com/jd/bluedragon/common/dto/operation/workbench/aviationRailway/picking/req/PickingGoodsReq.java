@@ -33,7 +33,7 @@ public class PickingGoodsReq extends BaseReq implements Serializable {
      */
     private Boolean forceSendFlag;
     /**
-     * 发货流向场地（强发时必填）
+     * 发货流向场地（发货sendGoodFlag=true时必填）
      */
     private Integer nextSiteId;
     private String nextSiteName;

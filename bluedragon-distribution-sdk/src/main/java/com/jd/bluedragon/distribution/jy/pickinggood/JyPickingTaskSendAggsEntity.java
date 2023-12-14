@@ -102,6 +102,15 @@ public class JyPickingTaskSendAggsEntity {
 
     private Date ts;
 
+    public JyPickingTaskSendAggsEntity() {
+    }
+
+    public JyPickingTaskSendAggsEntity(Long pickingSiteId, Long nextSiteId, String bizId) {
+        this.pickingSiteId = pickingSiteId;
+        this.nextSiteId = nextSiteId;
+        this.bizId = bizId;
+    }
+
     public Long getId() {
         return id;
     }

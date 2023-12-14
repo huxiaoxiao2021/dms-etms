@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 
 /**
  * @Author zhengchengfa
@@ -23,6 +24,20 @@ public interface JyBizTaskPickingGoodService {
      * @return
      */
     JyBizTaskPickingGoodEntity generateManualCreateTask(PickingGoodsReq request);
+
+    /**
+     * 获取自建任务唯一bizId
+     * @param isNoTaskFlag  true： 无任务bizId
+     * @return
+     */
+    String genPickingGoodTaskBizId(Boolean isNoTaskFlag);
+
+    /**
+     * 根据bizId修改任务信息
+     * @param entity
+     * @return
+     */
+    int updateTaskByBizIdWithCondition(JyBizTaskPickingGoodEntityCondition entity);
 
     boolean updateStatusByBizId(String bizId, Integer status);
 }

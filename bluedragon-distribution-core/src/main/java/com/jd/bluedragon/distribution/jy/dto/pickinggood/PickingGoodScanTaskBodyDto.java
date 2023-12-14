@@ -31,11 +31,12 @@ public class PickingGoodScanTaskBodyDto implements Serializable {
     private String siteName;
     // 操作时间
     private String operateTime;
-
     //批次号
     private String batchCode;
     //发货批次流向
     private int receiveSiteCode;
+    //提货任务bizId
+    private String bizId;
 
     public String getBoxCode() {
         return boxCode;
@@ -123,5 +124,13 @@ public class PickingGoodScanTaskBodyDto implements Serializable {
 
     public void setReceiveSiteCode(int receiveSiteCode) {
         this.receiveSiteCode = receiveSiteCode;
+    }
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 }

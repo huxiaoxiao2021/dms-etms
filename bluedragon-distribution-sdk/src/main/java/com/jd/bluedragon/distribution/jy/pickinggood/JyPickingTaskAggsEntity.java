@@ -98,6 +98,14 @@ public class JyPickingTaskAggsEntity {
 
     private Date ts;
 
+    public JyPickingTaskAggsEntity() {
+    }
+
+    public JyPickingTaskAggsEntity(Long pickingSiteId, String bizId) {
+        this.pickingSiteId = pickingSiteId;
+        this.bizId = bizId;
+    }
+
     public Long getId() {
         return id;
     }
