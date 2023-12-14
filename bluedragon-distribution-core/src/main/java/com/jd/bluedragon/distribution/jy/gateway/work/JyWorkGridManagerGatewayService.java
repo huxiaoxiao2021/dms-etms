@@ -60,6 +60,8 @@ public interface JyWorkGridManagerGatewayService {
 	 */
 	JdCResponse<List<String>> queryCandidateList(JyWorkGridManagerQueryRequest query);
 
+	JdCResponse<List<WorkGridCandidateData>> queryCandidates(JyWorkGridManagerQueryRequest query);
+
 	/**
 	 * uat 用代码不会合并到正式
 	 * 根据id修改任务处理人获改成无效
