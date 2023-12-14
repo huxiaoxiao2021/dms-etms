@@ -634,7 +634,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                             //中转场地流向不一致时，弹窗确认是否继续封车
                             invokeResult.setCode(NewSealVehicleResponse.CODE_DESTINATION_DIFF_ERROR);
                             invokeResult.setMessage(MessageFormat.format(NewSealVehicleResponse.TIPS_TRANSPORT_BATCHCODE_DESTINATION_DIFF_ERROR,endNodeSite.getSiteName()));
-                            return invokeResult;
+                            // 因为中转场地可以选择继续封车，也可以不继续，所以此处不能直接return，需要继续往下执行等重量体积都查完再return
                         } else {
                             invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                             invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
