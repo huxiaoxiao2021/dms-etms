@@ -122,7 +122,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private Integer jyWarehouseSendTaskPlanTimeBeginDay;
     @Value("${jyWarehouseSendTaskPlanTimeEndDay:2}")
     private Integer jyWarehouseSendTaskPlanTimeEndDay;
-
+    @Value("${jyWarehouseSendTaskBuQiMaxQueryCount:5}")
+    private Integer jyWarehouseSendTaskBuQiMaxQueryCount;
 
 
     @Autowired
@@ -1097,7 +1098,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         // 递归查询参数
         JyRecursiveCondition condition = new JyRecursiveCondition();
         // 指定最大查询次数
-        condition.setQueryCount(5);
+        condition.setQueryCount(jyWarehouseSendTaskBuQiMaxQueryCount);
         condition.setSendVehicleBizId(request.getSendVehicleBizId());
         // 递归查询批次迁移记录表，拿到所有相关联的批次
         findSendCodeList(condition, collectionCodeOldList);
