@@ -3363,7 +3363,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return map;
         }
         taskSendList.forEach(item -> {
-            if (JyBizTaskSendStatusEnum.SENDING.getCode().equals(item.getVehicleStatus())) {
+            if (JyBizTaskSendStatusEnum.SENDING.getCode().equals(item.getVehicleStatus()) && !Constants.NUMBER_ONE.equals(item.getManualCreatedFlag())) {
                 map.put(item.getBizId(),item);
             }
         });
@@ -4541,9 +4541,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             sendVehicleBizIds.add(detailEntity.getSendVehicleBizId());
         }
         List<JyBizTaskSendVehicleEntity> sendTaskByBizIds = taskSendVehicleService.findSendTaskByBizIds(sendVehicleBizIds);
-        // 过滤待发货状态的数据
+        // 过滤待发货状态和自建任务的数据
         HashMap<String, JyBizTaskSendVehicleEntity> sendTaskMap = getTaskSendVehicleSendingMap(sendTaskByBizIds);
-
+        if (sendTaskMap.isEmpty()) {
+            return true;
+        }
         for (JyBizTaskSendVehicleDetailEntity detailEntity : sendDetailList) {
             JyBizTaskSendVehicleEntity taskSendVehicle = sendTaskMap.get(detailEntity.getSendVehicleBizId());
             JyBizTaskSendVehicleDetailEntity sendVehicleDetail = sendDetailMap.get(detailEntity.getBizId());
