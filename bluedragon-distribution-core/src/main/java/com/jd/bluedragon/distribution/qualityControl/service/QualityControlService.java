@@ -273,9 +273,11 @@ public class QualityControlService {
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
             String waybillCode=WaybillUtil.getWaybillCode(request.getQcValue());
             // 获取原单数据
-            String oldWaybillCode = isExistOldWaybillCode(waybillCode);
+            String oldWaybillCode = getOldWaybillCode(waybillCode);
             // 只针对分拣系统， 理赔拦截和取消订单拦截只能换单一次
-            if (Objects.equals(QualityControlInletEnum.DMS_SORTING.getCode(), request.getInletFlag()) && checkExchangeNum(request, waybillCode, oldWaybillCode)) {
+            if (Objects.equals(QualityControlInletEnum.DMS_SORTING.getCode(), request.getInletFlag())
+                    && StringUtils.isEmpty(oldWaybillCode)
+                    && checkExchangeNum(request, oldWaybillCode)) {
                 result.toFail(InvokeResult.WAYBILL_EXCHANGE_NUM_MESSAGE);
                 return result;
             }
@@ -302,7 +304,7 @@ public class QualityControlService {
         return result;
     }
 
-    private boolean checkExchangeNum(QualityControlRequest request, String waybillCode, String oldWaybillCode) {
+    private boolean checkExchangeNum(QualityControlRequest request, String oldWaybillCode) {
         if (!sysConfigService.getConfigByName(EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH)) {
             return false;
         }
@@ -1127,7 +1129,7 @@ public class QualityControlService {
         task.setOwnSign(BusinessHelper.getOwnSign());
         return task;
     }
-    private  String isExistOldWaybillCode(String waybillCode){
+    private  String getOldWaybillCode(String waybillCode){
         //根据运单号校验是否存在原单号(是否是逆向单)，如果是 则可以正常提交异常处理，否则进行拦截校验
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillC(true);
