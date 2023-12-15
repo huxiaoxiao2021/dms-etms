@@ -172,7 +172,8 @@ public class ReverseIntensiveServiceImpl implements ReverseIntensiveService {
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Override
     public InvokeResult<Boolean> exceptionSubmit(QualityControlRequest request) {
-        return qualityControlService.exceptionSubmit(request, QualityControlInletEnum.REVERSE_INTENSIVE.getCode());
+        request.setInletFlag(QualityControlInletEnum.REVERSE_INTENSIVE.getCode());
+        return qualityControlService.exceptionSubmit(request);
     }
     
     @Override

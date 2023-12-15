@@ -241,7 +241,7 @@ public class QualityControlService {
         return result;
     }
 
-    public InvokeResult<Boolean> exceptionSubmit(QualityControlRequest request, Integer inlet) {
+    public InvokeResult<Boolean> exceptionSubmit(QualityControlRequest request) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(StringUtils.isEmpty(request.getQcValue()) || !WaybillCodeRuleValidateUtil.isEffectiveOperateCode(request.getQcValue())){
             log.warn("PDA调用异常配送接口插入质控任务表失败-参数错误[{}]",JsonHelper.toJson(request));
@@ -250,7 +250,7 @@ public class QualityControlService {
             return result;
         }
         try{
-            final Result<Void> checkCanSubmitResult = this.checkCanSubmit(request,inlet);
+            final Result<Void> checkCanSubmitResult = this.checkCanSubmit(request);
             if (!checkCanSubmitResult.isSuccess()) {
                 result.customMessage(QualityControlResponse.CODE_WRONG_STATUS, checkCanSubmitResult.getMessage());
                 return result;
@@ -267,7 +267,7 @@ public class QualityControlService {
         return result;
     }
 
-    private Result<Void> checkCanSubmit(QualityControlRequest request, Integer inlet){
+    private Result<Void> checkCanSubmit(QualityControlRequest request){
         Result<Void> result = Result.success();
         try {
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
@@ -275,7 +275,7 @@ public class QualityControlService {
             // 获取原单数据
             String oldWaybillCode = isExistOldWaybillCode(waybillCode);
             // 只针对分拣系统， 理赔拦截和取消订单拦截只能换单一次
-            if (Objects.equals(QualityControlInletEnum.DMS_SORTING.getCode(), inlet) && checkExchangeNum(request, waybillCode, oldWaybillCode)) {
+            if (Objects.equals(QualityControlInletEnum.DMS_SORTING.getCode(), request.getInletFlag()) && checkExchangeNum(request, waybillCode, oldWaybillCode)) {
                 result.toFail(InvokeResult.WAYBILL_EXCHANGE_NUM_MESSAGE);
                 return result;
             }

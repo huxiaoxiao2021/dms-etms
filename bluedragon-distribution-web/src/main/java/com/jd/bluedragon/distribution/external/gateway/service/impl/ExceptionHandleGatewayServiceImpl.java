@@ -29,7 +29,8 @@ public class ExceptionHandleGatewayServiceImpl implements ExceptionHandleGateway
     @Override
     public QualityControlResponse exceptionSubmit(QualityControlRequest request) {
         QualityControlResponse response = new QualityControlResponse();
-        InvokeResult<Boolean> result = qualityControlService.exceptionSubmit(request, QualityControlInletEnum.DMS_SORTING.getCode());
+        request.setInletFlag(QualityControlInletEnum.DMS_SORTING.getCode());
+        InvokeResult<Boolean> result = qualityControlService.exceptionSubmit(request);
         response.setCode(result.getCode());
         response.setMessage(result.getMessage());
         return response;
