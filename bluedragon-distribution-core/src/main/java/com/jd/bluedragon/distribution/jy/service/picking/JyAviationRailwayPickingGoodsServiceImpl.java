@@ -121,7 +121,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             }
             this.pickingGoodTaskUpdate(request, resData, taskPickingGoodEntity);
             //统计字段维护
-            jyPickingTaskAggsService.updatePickingGoodStatistics(request, resData,taskPickingGoodEntity);
+//            jyPickingTaskAggsService.updatePickingGoodStatistics(request, resData,taskPickingGoodEntity);
             //提货防重
             pickingGoodsCacheService.saveCachePickingGoodScan(request.getBarCode(), request.getCurrentOperate().getSiteCode());
 

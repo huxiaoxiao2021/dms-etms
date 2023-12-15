@@ -2,9 +2,12 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingGoodsRes;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodAggRefreshAggMqBody;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingSendGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 
 /**
  * @Author zhengchengfa
@@ -15,7 +18,7 @@ public interface JyPickingTaskAggsService {
     /**
      * 修改统计数据
      */
-    void updatePickingGoodStatistics(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity);
+//    void updatePickingGoodStatistics(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity);
 
     /**
      * 提货任务维度统计数据
@@ -33,4 +36,10 @@ public interface JyPickingTaskAggsService {
      * @return
      */
     PickingSendGoodAggsDto findTaskPickingSendAgg(Integer curSiteId, Integer nextSiteId, String bizId);
+
+    /**
+     * 统计数据count回刷
+     * @param bizId
+     */
+    void aggRefresh(String bizId, Long nextSiteId);
 }

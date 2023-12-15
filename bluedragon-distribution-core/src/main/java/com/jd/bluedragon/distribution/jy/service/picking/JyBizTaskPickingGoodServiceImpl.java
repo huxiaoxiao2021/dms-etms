@@ -40,10 +40,10 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     private JimdbSequenceGen redisJyBizIdSequenceGen;
 
     @Override
-    public JyBizTaskPickingGoodEntity findByBizIdWithYn(String bizId, boolean ignoreYn) {
+    public JyBizTaskPickingGoodEntity findByBizIdWithYn(String bizId, Boolean ignoreYn) {
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
         entity.setBizId(bizId);
-        if(!ignoreYn) {
+        if(!Boolean.TRUE.equals(ignoreYn)) {
             entity.setYn(Constants.YN_YES);
         }
         return jyBizTaskPickingGoodDao.findByBizIdWithYn(entity);

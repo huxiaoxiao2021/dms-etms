@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingSendGoodAggsDto;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -8,6 +9,7 @@ import com.jd.jim.cli.Cluster;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -29,9 +31,13 @@ public class JyPickingTaskAggsCacheService {
     private static final String CACHE_TASK_PICKING_SEND_AGG = "cache:task:picking:send:agg:%s:%s:%s";
     private static final Integer CACHE_TASK_PICKING_SEND_AGG_TIMEOUT_DAYS = 3;
 
+    private static final String LOCK_PICKING_GOOD_TASK = "lock:picking:good:task:%s";
+    private static final Integer LOCK_PICKING_GOOD_TASK_TIMEOUT_SECONDS = 300;
+
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
-
+    @Autowired
+    private JimDbLock jimDbLock;
 
     /**
      * 提货任务统计缓存处理
@@ -80,5 +86,24 @@ public class JyPickingTaskAggsCacheService {
     }
     private String getCacheKeyTaskPickingSendAgg(Integer siteId, Integer nextSiteId, String bizId) {
         return String.format(CACHE_TASK_PICKING_SEND_AGG, siteId, nextSiteId, bizId);
+    }
+
+
+    /**
+     * 提货任务维度锁 bizId
+     * 使用场景说明
+     * 1、按任务维度回刷统计数据
+     * 2、
+     */
+    public boolean saveLockPickingGoodTask(String bizId) {
+        String cacheKey = this.getLockKeyPickingGoodTask(bizId);
+        return jimDbLock.lock(cacheKey, DEFAULT_VALUE_1, LOCK_PICKING_GOOD_TASK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    }
+    public void unlockLockPickingGoodTask(String bizId) {
+        String cacheKey = this.getLockKeyPickingGoodTask(bizId);
+        jimDbLock.releaseLock(cacheKey, DEFAULT_VALUE_1);
+    }
+    private String getLockKeyPickingGoodTask(String bizId) {
+        return String.format(LOCK_PICKING_GOOD_TASK, bizId);
     }
 }

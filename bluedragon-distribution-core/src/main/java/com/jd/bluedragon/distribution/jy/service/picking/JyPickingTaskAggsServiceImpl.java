@@ -1,21 +1,29 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingGoodsRes;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.constants.BarCodeFetchPickingTaskRuleEnum;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskSendAggsDao;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodAggRefreshAggMqBody;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodAggsDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskStatisticsDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingSendGoodAggsDto;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskSendAggsEntity;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -33,6 +41,9 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
 
     private static final Logger log = LoggerFactory.getLogger(JyPickingTaskAggsServiceImpl.class);
 
+    public static final Integer GET_LOCK_FAIL_CODE = 40001;
+    public static final String GET_LOCK_FAIL_MSG = "获取锁失败";
+
     @Autowired
     private JyPickingTaskAggsDao jyPickingTaskAggsDao;
     @Autowired
@@ -40,8 +51,11 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     @Autowired
     private JyPickingTaskAggsCacheService cacheService;
     @Autowired
-    private JyPickingTaskAggsTransactionManager transactionManager;
-
+    private JyPickingTaskAggsTransactionManager aggTransactionManager;
+    @Autowired
+    private JyBizTaskPickingGoodService jyBizTaskPickingGoodService;
+    @Autowired
+    private JyPickingSendRecordService jyPickingSendRecordService;
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -67,21 +81,21 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
      * 2、直接触发异步计算，同步取缓存值后+1 -1  只能保证最终一致，中间过程是弱一致性
      *
      */
-    @Override
-    public void updatePickingGoodStatistics(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity) {
-        Integer curSiteId = request.getCurrentOperate().getSiteCode();
-
-        JyPickingTaskAggsEntity pickingTaskAggsEntity = new JyPickingTaskAggsEntity(curSiteId.longValue(), entity.getBizId());
-        JyPickingTaskSendAggsEntity pickingTaskSendAggsEntity = new JyPickingTaskSendAggsEntity(curSiteId.longValue(), request.getNextSiteId().longValue(), entity.getBizId());
-        transactionManager.updatePickingGoodAggs(pickingTaskAggsEntity, pickingTaskSendAggsEntity);
-
-        this.taskPickingAggCache(request, resData, entity);
-
-        //提货任务发货流向维度缓存
-        if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
-            this.taskPickingSendAggCache(request, resData, entity);
-        }
-    }
+//    @Override
+//    public void updatePickingGoodStatistics(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity) {
+//        Integer curSiteId = request.getCurrentOperate().getSiteCode();
+//
+//        JyPickingTaskAggsEntity pickingTaskAggsEntity = new JyPickingTaskAggsEntity(curSiteId.longValue(), entity.getBizId());
+//        JyPickingTaskSendAggsEntity pickingTaskSendAggsEntity = new JyPickingTaskSendAggsEntity(curSiteId.longValue(), request.getNextSiteId().longValue(), entity.getBizId());
+////        aggTransactionManager.updatePickingGoodAggs(pickingTaskAggsEntity, pickingTaskSendAggsEntity);
+//
+//        this.taskPickingAggCache(request, resData, entity);
+//
+//        //提货任务发货流向维度缓存
+//        if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
+//            this.taskPickingSendAggCache(request, resData, entity);
+//        }
+//    }
 
     /**
      * 提货任务维度缓存加工
@@ -89,72 +103,68 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
      * @param resData
      * @param entity
      */
-    private void taskPickingAggCache(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity) {
-        Integer curSiteId = request.getCurrentOperate().getSiteCode();
-
-        PickingGoodAggsDto aggDto = new PickingGoodAggsDto();
-        PickingGoodAggsDto cacheAggDto = cacheService.getCacheTaskPickingAgg(curSiteId, entity.getBizId());
-        if(Objects.isNull(cacheAggDto)) {
-            cacheAggDto = new PickingGoodAggsDto();
-            Integer waitPickingNum = 0;//todo zcf 需要确认待提取航空的还是运输的还是从表里聚合出来， 任务模型确认之后才能确定该逻辑
-            cacheAggDto.setWaitPickingTotalNum(waitPickingNum);
-            cacheAggDto.setRealPickingTotalNum(1);
-            cacheAggDto.setMorePickingTotalNum(BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource()) ? 1 : 0);
-        }else {
-            cacheAggDto.setRealPickingTotalNum(cacheAggDto.getRealPickingTotalNum() + 1);
-            if(BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
-                Integer waitPickingNum = cacheAggDto.getWaitPickingTotalNum() - 1;
-                if(!NumberHelper.gte(waitPickingNum, 0)) {
-                    cacheAggDto.setWaitPickingTotalNum(0);
-                    //todo zcf 这里待提数据出现负数时怀疑统计数据出现偏差，触发异步刷数（同任务完成）  如果考虑此种方案，需要保证redis缓存查改在一个事务
-                }else {
-                    cacheAggDto.setWaitPickingTotalNum(waitPickingNum);
-                }
-            }else {
-                cacheAggDto.setMorePickingTotalNum(cacheAggDto.getMorePickingTotalNum() + 1);
-            }
-        }
-        //提货任务维度缓存
-        cacheService.saveCacheTaskPickingAgg(curSiteId, entity.getBizId(), aggDto);
-    }
+//    private void taskPickingAggCache(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity) {
+//        Integer curSiteId = request.getCurrentOperate().getSiteCode();
+//
+//        PickingGoodAggsDto aggDto = new PickingGoodAggsDto();
+//        PickingGoodAggsDto cacheAggDto = cacheService.getCacheTaskPickingAgg(curSiteId, entity.getBizId());
+//        if(Objects.isNull(cacheAggDto)) {
+//            cacheAggDto = new PickingGoodAggsDto();
+//            Integer waitPickingNum = 0;//todo zcf 需要确认待提取航空的还是运输的还是从表里聚合出来， 任务模型确认之后才能确定该逻辑
+//            cacheAggDto.setWaitPickingTotalNum(waitPickingNum);
+//            cacheAggDto.setRealPickingTotalNum(1);
+//            cacheAggDto.setMorePickingTotalNum(BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource()) ? 1 : 0);
+//        }else {
+//            cacheAggDto.setRealPickingTotalNum(cacheAggDto.getRealPickingTotalNum() + 1);
+//            if(BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
+//                Integer waitPickingNum = cacheAggDto.getWaitPickingTotalNum() - 1;
+//                if(!NumberHelper.gte(waitPickingNum, 0)) {
+//                    cacheAggDto.setWaitPickingTotalNum(0);
+//                    //todo zcf 这里待提数据出现负数时怀疑统计数据出现偏差，触发异步刷数（同任务完成）  如果考虑此种方案，需要保证redis缓存查改在一个事务
+//                }else {
+//                    cacheAggDto.setWaitPickingTotalNum(waitPickingNum);
+//                }
+//            }else {
+//                cacheAggDto.setMorePickingTotalNum(cacheAggDto.getMorePickingTotalNum() + 1);
+//            }
+//        }
+//        //提货任务维度缓存
+//        cacheService.saveCacheTaskPickingAgg(curSiteId, entity.getBizId(), aggDto);
+//    }
 
     /**
      * 发货流向维度提货任务维度缓存加工
-     * @param request
-     * @param resData
-     * @param entity
      */
-    private void taskPickingSendAggCache(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity) {
-        Integer curSiteId = request.getCurrentOperate().getSiteCode();
-        PickingSendGoodAggsDto aggDto = new PickingSendGoodAggsDto();
-        PickingSendGoodAggsDto cacheAggDto = cacheService.getCacheTaskPickingSendAgg(curSiteId, request.getNextSiteId(), entity.getBizId());
-        if(Objects.isNull(cacheAggDto)) {
-            cacheAggDto = new PickingSendGoodAggsDto();
-            Integer waitSendNum = 0;//todo zcf 明细加工完成之后才能知道最终待发数量
-            cacheAggDto.setWaitSendTotalNum(waitSendNum);
-            cacheAggDto.setRealSendTotalNum(1);
-            cacheAggDto.setMoreSendTotalNum(BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource()) ? 1 : 0);
-            cacheAggDto.setForceSendTotalNum(Boolean.TRUE.equals(request.getForceSendFlag()) ? 1 : 0);
-        }else {
-            cacheAggDto.setRealSendTotalNum(cacheAggDto.getRealSendTotalNum() + 1);
-            if(BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
-                Integer waitSendNum = cacheAggDto.getWaitSendTotalNum() - 1;
-                if(NumberHelper.gte(waitSendNum, 0)) {
-                    cacheAggDto.setWaitSendTotalNum(waitSendNum);
-                }else {
-                    cacheAggDto.setRealSendTotalNum(0);
-                    //todo zcf 这里待发数据出现负数时怀疑统计数据出现偏差，触发异步刷数（同任务完成）  如果考虑此种方案，需要保证redis缓存查改在一个事务
-                }
-            }else {
-                cacheAggDto.setMoreSendTotalNum(cacheAggDto.getMoreSendTotalNum() + 1);
-            }
-            if(Boolean.TRUE.equals(request.getForceSendFlag())) {
-                cacheAggDto.setForceSendTotalNum(cacheAggDto.getForceSendTotalNum() + 1);
-            }
-        }
-        cacheService.saveCacheTaskPickingSendAgg(curSiteId, request.getNextSiteId(), entity.getBizId(), aggDto);
-
-    }
+//    private void taskPickingSendAggCache(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity) {
+//        Integer curSiteId = request.getCurrentOperate().getSiteCode();
+//        PickingSendGoodAggsDto aggDto = new PickingSendGoodAggsDto();
+//        PickingSendGoodAggsDto cacheAggDto = cacheService.getCacheTaskPickingSendAgg(curSiteId, request.getNextSiteId(), entity.getBizId());
+//        if(Objects.isNull(cacheAggDto)) {
+//            cacheAggDto = new PickingSendGoodAggsDto();
+//            Integer waitSendNum = 0;//todo zcf 明细加工完成之后才能知道最终待发数量
+//            cacheAggDto.setWaitSendTotalNum(waitSendNum);
+//            cacheAggDto.setRealSendTotalNum(1);
+//            cacheAggDto.setMoreSendTotalNum(BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource()) ? 1 : 0);
+//            cacheAggDto.setForceSendTotalNum(Boolean.TRUE.equals(request.getForceSendFlag()) ? 1 : 0);
+//        }else {
+//            cacheAggDto.setRealSendTotalNum(cacheAggDto.getRealSendTotalNum() + 1);
+//            if(BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
+//                Integer waitSendNum = cacheAggDto.getWaitSendTotalNum() - 1;
+//                if(NumberHelper.gte(waitSendNum, 0)) {
+//                    cacheAggDto.setWaitSendTotalNum(waitSendNum);
+//                }else {
+//                    cacheAggDto.setRealSendTotalNum(0);
+//                    //todo zcf 这里待发数据出现负数时怀疑统计数据出现偏差，触发异步刷数（同任务完成）  如果考虑此种方案，需要保证redis缓存查改在一个事务
+//                }
+//            }else {
+//                cacheAggDto.setMoreSendTotalNum(cacheAggDto.getMoreSendTotalNum() + 1);
+//            }
+//            if(Boolean.TRUE.equals(request.getForceSendFlag())) {
+//                cacheAggDto.setForceSendTotalNum(cacheAggDto.getForceSendTotalNum() + 1);
+//            }
+//        }
+//        cacheService.saveCacheTaskPickingSendAgg(curSiteId, request.getNextSiteId(), entity.getBizId(), aggDto);
+//    }
 
 
     @Override
@@ -172,9 +182,47 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     public PickingSendGoodAggsDto findTaskPickingSendAgg(Integer curSiteId, Integer nextSiteId, String bizId) {
         PickingSendGoodAggsDto aggsDto = cacheService.getCacheTaskPickingSendAgg(curSiteId, nextSiteId, bizId);
         if(Objects.isNull(aggsDto)) {
-            //todo zcf 查DB返回并做redis续期
+            aggsDto = new PickingSendGoodAggsDto();
         }
         return aggsDto;
+    }
+
+    @Override
+    public void aggRefresh(String bizId, Long nextSiteId) {
+        if(StringUtils.isBlank(bizId)) {
+            logWarn("提货任务统计回算:参数bizId为空,放弃回算");
+            return ;
+        }
+
+        JyBizTaskPickingGoodEntity entity = jyBizTaskPickingGoodService.findByBizIdWithYn(bizId, false);
+        if(Objects.isNull(entity)) {
+            logWarn("提货任务统计回算:根据bizId：{}查询提货任务为空,放弃回算", bizId);
+            return ;
+        }
+        if(PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(entity.getStatus())) {
+            if(Objects.isNull(entity.getPickingCompleteTime())) {
+                logWarn("提货任务统计回算:根据bizId：{}查询提货任务已经完成但是没有完成时间,放弃回算", bizId);
+                return ;
+            }
+            if(DateHelper.betweenHours(entity.getPickingCompleteTime(), new Date()) > 24) {
+                logWarn("提货任务统计回算:根据bizId：{}查询提货任务已经完成超过24小时,不支持回算", bizId);
+                return ;
+            }
+        }
+
+        if(!cacheService.saveLockPickingGoodTask(bizId)) {
+            logWarn("提货任务统计回算获取锁失败，bizId={}", bizId);
+            throw new JyBizException("未获取到锁:" + bizId);
+        }
+        try{
+            PickingGoodTaskStatisticsDto statisticsDto = jyPickingSendRecordService.statisticsByBizId(entity.getNextSiteId(), bizId, nextSiteId);
+            aggTransactionManager.updatePickingGoodAggs(statisticsDto);
+        }catch (Exception e) {
+            log.error("提货任务统计回算服务异常，bizId={}， errMsg={}", bizId, e.getMessage(), e);
+            throw new JyBizException("提货任务统计回算服务异常：" + bizId);
+        }finally {
+            cacheService.unlockLockPickingGoodTask(bizId);
+        }
     }
 
 

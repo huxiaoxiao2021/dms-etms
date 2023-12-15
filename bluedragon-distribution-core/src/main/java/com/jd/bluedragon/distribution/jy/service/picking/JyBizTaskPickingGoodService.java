@@ -12,11 +12,12 @@ import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityC
 public interface JyBizTaskPickingGoodService {
     /**
      * 根据bizId待提货任务
+     * [调用方自己考虑是否查询yn=0]
      * @param bizId
-     * @param ignoreYn  true: 忽略yn   false：只查yn=1
+     * @param ignoreYn  true: 忽略yn   false or null：只查yn=1
      * @return
      */
-    JyBizTaskPickingGoodEntity findByBizIdWithYn(String bizId, boolean ignoreYn);
+    JyBizTaskPickingGoodEntity findByBizIdWithYn(String bizId, Boolean ignoreYn);
 
     /**
      * 自建提货任务生成

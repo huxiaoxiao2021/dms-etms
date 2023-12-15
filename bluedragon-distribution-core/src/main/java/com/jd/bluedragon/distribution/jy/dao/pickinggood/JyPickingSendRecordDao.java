@@ -17,6 +17,23 @@ public class JyPickingSendRecordDao extends BaseDao<JyPickingSendRecordEntity> {
     public JyPickingSendRecordEntity latestPickingRecord(JyPickingSendRecordEntity recordEntity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".latestPickingRecord", recordEntity);
     }
+
+    /**
+     * 任务待扫、待发件数
+     * @return
+     */
+    public Integer countTaskWaitScanItemNum(JyPickingSendRecordEntity recordEntity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countTaskWaitScanItemNum", recordEntity);
+    }
+
+    /**
+     * 任务待扫数量
+     * @param recordEntity
+     * @return
+     */
+    public Integer countTaskRealScanItemNum(JyPickingSendRecordEntity recordEntity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countTaskRealScanItemNum", recordEntity);
+    }
 //
 //    int deleteByPrimaryKey(Long id);
 //
