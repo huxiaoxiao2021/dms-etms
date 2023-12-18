@@ -12,6 +12,8 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillErrorDomain;
 import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
+import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
@@ -36,6 +38,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.client.enums.DeskClientMenuEnum;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
@@ -1860,20 +1863,24 @@ public class WaybillResource {
 
 	private Integer queryReverseReasonCode(String waybillCode) {
 		// 外单逆向换单
-		// 1、港澳单-默认设置1（拦截逆向）；全程跟踪节点是-3040|700节点则设置3（清关逆向）
+		// 1、港澳单-默认设置1（拦截逆向）；全程跟踪节点是-3040|700节点则设置3（清关逆向）(国际单同港澳单)
 		// 2、快运单子-默认设置1
 		// 3、其它-默认不设置
 		com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
-		if(waybill != null && waybill.getWaybillExt() != null
-				&& BusinessUtil.isGAWaybill(waybill.getWaybillExt().getStartFlowDirection(), waybill.getWaybillExt().getEndFlowDirection())){
-			if(waybillTraceManager.isExReturn(waybillCode)){
-				// fill reverseReasonCode
-				return Constants.INTERCEPT_REVERSE_CODE_3;
+		if(waybill != null){ 
+			String waybillSign = waybill.getWaybillSign();
+			String waybillStart = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getStartFlowDirection();
+			String waybillEnd = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getEndFlowDirection();
+			if(BusinessUtil.isGAWaybill(waybillStart, waybillEnd) || BusinessUtil.isInternational(waybillSign, waybillStart, waybillEnd)){
+				if(waybillTraceManager.isExReturn(waybillCode)){
+					// fill reverseReasonCode
+					return Constants.INTERCEPT_REVERSE_CODE_3;
+				}
+				return Constants.INTERCEPT_REVERSE_CODE_1;
 			}
-			return Constants.INTERCEPT_REVERSE_CODE_1;
-		}
-		if(waybill != null && BusinessUtil.isKyWaybillOfReverseExchange(waybill.getWaybillSign())){
-			return Constants.INTERCEPT_REVERSE_CODE_1;
+			if(BusinessUtil.isKyWaybillOfReverseExchange(waybillSign)){
+				return Constants.INTERCEPT_REVERSE_CODE_1;
+			}
 		}
 		return null;
 	}
@@ -2683,6 +2690,24 @@ public class WaybillResource {
 	@Path("/waybill/checkWaybillForPreSortOnSite")
 	@JProfiler(jKey = "DMS.WEB.WaybillResource.checkWaybillForPreSortOnSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
+		try{
+			// 校验可用新
+			FuncUsageConfigRequestDto funcUsageConfigRequestDto = new FuncUsageConfigRequestDto();
+			funcUsageConfigRequestDto.setFuncCode(DeskClientMenuEnum.SCENE_PRE_SORT.getCode());
+			com.jd.bluedragon.common.dto.base.request.OperateUser operateUser = new com.jd.bluedragon.common.dto.base.request.OperateUser();
+			operateUser.setSiteCode(waybillForPreSortOnSiteRequest.getSortingSite());
+			operateUser.setUserCode(waybillForPreSortOnSiteRequest.getErp());
+			funcUsageConfigRequestDto.setOperateUser(operateUser);
+			FuncUsageProcessDto processDto = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
+			if(processDto != null && Constants.YN_NO.equals(processDto.getCanUse())){
+				log.info("WaybillResource.checkWaybillForPreSortOnSite {}", JsonHelper.toJson(waybillForPreSortOnSiteRequest));
+				InvokeResult<String> result = new InvokeResult<>();
+				result.customMessage(InvokeResult.SERVER_ERROR_CODE, processDto.getMsg());
+				return result;
+			}
+		}catch (Exception e){
+			log.error("WaybillResource.checkWaybillForPreSortOnSite exception ", e);
+		}
 		return waybillService.checkWaybillForPreSortOnSite(waybillForPreSortOnSiteRequest);
 	}
 

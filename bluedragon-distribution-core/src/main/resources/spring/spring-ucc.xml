@@ -311,6 +311,20 @@
 		<property name="teAnSendTaskTipsOptimizationSwitch" value="${teAnSendTaskTipsOptimizationSwitch:false}"/>
 		<property name="teAnSendTaskNumberLimit" value="${teAnSendTaskNumberLimit:100}"/>
 		<property name="dmsToVendorSendMQSwitch" value="${dmsToVendorSendMQSwitch:true}"/>
+		<property name="jyCollectPackageTaskQueryTimeLimit" value="${jyCollectPackageTaskQueryTimeLimit:3.0}"/>
+		<property name="mixedConfigUseBasicNew" value="${mixedConfigUseBasicNew:true}"/>
+		<property name="collectPackageTaskRefreshSwitch" value="${collectPackageTaskRefreshSwitch:false}"/>
+		<property name="forceCollectPackageSiteListStr" value="${forceCollectPackageSiteListStr:''}"/>
+		<property name="jyCollectPackageInterceptBitCode" value="${jyCollectPackageInterceptBitCode:2199023255033}"/>
+		<property name="collectPackageSiteForbiddenList" value="${collectPackageSiteForbiddenList:''}"/>
+
+		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
+		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
+
+		<property name="czSealCarBoardCountMinLimit" value="${czSealCarBoardCountMinLimit:4}"/>
+		<property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
+		<property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:10000}"/>
+		<property name="findGoodSendMessageDefaultErp" value="${findGoodSendMessageDefaultErp:''}"/>
 		<property name="terminalSiteTypeForBoxType" value="${terminalSiteTypeForBoxType:4,10}"/>
 		<property name="boxTypeNewVersionSwitch" value="${boxTypeNewVersionSwitch:false}"/>
 	</bean>
@@ -612,6 +626,18 @@
 				<value>uccPropertyConfiguration.teAnSendTaskTipsOptimizationSwitch</value>
 				<value>uccPropertyConfiguration.teAnSendTaskNumberLimit</value>
 				<value>uccPropertyConfiguration.dmsToVendorSendMQSwitch</value>
+				<value>uccPropertyConfiguration.jyCollectPackageTaskQueryTimeLimit</value>
+				<value>uccPropertyConfiguration.mixedConfigUseBasicNew</value>
+				<value>uccPropertyConfiguration.collectPackageTaskRefreshSwitch</value>
+				<value>uccPropertyConfiguration.forceCollectPackageSiteListStr</value>
+				<value>uccPropertyConfiguration.jyCollectPackageInterceptBitCode</value>
+				<value>uccPropertyConfiguration.collectPackageSiteForbiddenList</value>
+				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
+				<value>uccPropertyConfiguration.sealSyncOpenCloseSendTaskSwitch</value>
+				<value>uccPropertyConfiguration.czSealCarBoardCountMinLimit</value>
+				<value>uccPropertyConfiguration.czSealCarPackageCountMinLimit</value>
+				<value>uccPropertyConfiguration.jyAviationManualCreateSendTaskMaxBookingWeight</value>
+				<value>uccPropertyConfiguration.findGoodSendMessageDefaultErp</value>
 				<value>uccPropertyConfiguration.terminalSiteTypeForBoxType</value>
 				<value>uccPropertyConfiguration.boxTypeNewVersionSwitch</value>
 			</list>

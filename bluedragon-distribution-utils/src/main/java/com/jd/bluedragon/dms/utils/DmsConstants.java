@@ -240,7 +240,11 @@ public class DmsConstants {
     /**
      * 快运产品-特快重货（fr-m-0004)\fr-m-0002)
      */
-    public static final String PRODUCT_TYPE_KY_0004 = "fr-m-0004";     
+    public static final String PRODUCT_TYPE_KY_0004 = "fr-m-0004";
+    /**
+     * 快运产品-特惠泡货（fr-m-0004)\fr-m-0002)
+     */
+    public static final String PRODUCT_TYPE_KY_0017 = "fr-m-0017";
     /**
      * 工种类型
      */
@@ -509,11 +513,30 @@ public class DmsConstants {
 
     public static final Integer NUMBER_ZERO = 0; //数字0
     public static final Integer NUMBER_HUNDRED = 100; //数字100
+
+    /**
+     * 国标：中国
+     */
+    public static final String CN = "CN";
+    /**
+     * 国标：澳门
+     */
+    public static final String MO = "MO";
+    /**
+     * 国标：香港
+     */
+    public static final String HK = "HK";
+    
     /**
      * 香港澳门区域国标
      */
     public static final List<String> HK_MO_REGION = new ArrayList<String>(){{
-        add("HK");
-        add("MO");
+        add(HK);
+        add(MO);
     }};
+
+    /**
+     * 航班号正则
+     */
+    public static final String FLIGHT_NUMBER_REGEX = "[0-9A-Z]{6}";
 }

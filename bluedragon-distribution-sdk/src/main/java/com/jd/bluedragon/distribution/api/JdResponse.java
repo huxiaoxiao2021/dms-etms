@@ -94,6 +94,8 @@ public class JdResponse extends JdObject {
 
     public static final Integer CODE_SELF_REVERSE_SCHEDULE_ERROR = 20018;
     public static final String MESSAGE_SELF_REVERSE_SCHEDULE_ERROR = "特殊品类逆向订单禁止直接返调度到库房，请操作返调度到就近【备件库】";
+    public static final String MESSAGE_SELF_REVERSE_SCHEDULE_ERROR_2 = "不允许反调度到仓！此为违规操作，超过3次将通报给场地负责人！";
+    public static final String MESSAGE_BACKUP_STORE_REVERSE_SCHEDULE_ERROR = "不允许反调度到备件库！此为违规操作，超过3次将通报给场地负责人！";
 
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
@@ -145,6 +147,12 @@ public class JdResponse extends JdObject {
     public static final String MESSAGE_NO_FEATHER_LETTER="非鸡毛信运单，不用取消鸡毛信服务";
     public static final String MESSAGE_OUT_ZONE="此运单收件地址为春节禁售或疫情地区，请操作逆向换单后退回";
     public static final String MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE = "到付、COD类型订单，禁止转三方邮政网点，请拦截后换单原路返回。";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_TO_RETURN_GROUP = "不允许反调度到退货组！此为违规操作，超过3次将通报给场地负责人！";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_TO_TERMINAL= "请使用站长工作台操作!";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_SAME_SITE= "反调度站点与原预分拣站点一致，无法调度，请联系省区滑道接口人维护大全表「拣运场地滑道维护接口人」!";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_NOT_SITE = "未查询到原预分拣站点信息!";
+    public static final String MESSAGE_FORBIDDEN_SCHEDULE_SITE_CLOSE= "原预分拣站点线上关停，请补打面单!";
+
 
     public static final Integer CODE_RE_PRINT_IN_ONE_HOUR = 30100;
     public static final String MESSAGE_RE_PRINT_IN_ONE_HOUR = "条码在1小时内重复打印，是否继续？";

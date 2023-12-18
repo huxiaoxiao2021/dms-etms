@@ -89,6 +89,14 @@ public interface BoxService {
     void computeRouter(List<Map.Entry<Integer, String>> router);
 
     /**
+     * 判断小件集包功能是否已经推广给当前场地
+     * @param siteCode
+     * @param orgId
+     * @return
+     */
+    boolean checkCollectPackageIfReleasedForSite(Integer orgId,Integer siteCode);
+
+    /**
      * 查询箱类型
      * @param boxTypeReq 查询箱类型入参
      * @return 箱号类型列表

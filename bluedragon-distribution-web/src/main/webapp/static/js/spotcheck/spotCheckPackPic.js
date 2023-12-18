@@ -21,18 +21,22 @@ $(function() {
                 visible: true
             }, {
                 field: 'url',
-                title: '图片链接',
+                title: '图片/视频链接',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    if(value == null || value === ''){
-                        return null;
-                    }
                     let allPictureUrl = '';
-                    const total = value.split(";");
-                    let order = 0;
-                    for(const single of total){
-                        order ++;
-                        allPictureUrl += '<a href="' + single + '" target="_blank">图片' + order + '</a>&nbsp;'
+                    if (value) {
+                        const total = value.split(";");
+                        let order = 0;
+                        for (const single of total) {
+                            if (single) {
+                                order++;
+                                allPictureUrl += '<a href="' + single + '" target="_blank">图片' + order + '</a>&nbsp;'
+                            }
+                        }
+                    }
+                    if (row.videoUrl) {
+                        allPictureUrl += '<a href="' + row.videoUrl + '" target="_blank">视频1' + '</a>&nbsp;'
                     }
                     return allPictureUrl;
                 }

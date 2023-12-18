@@ -35,7 +35,7 @@ public class FuncUsageProcessDto implements Serializable {
     /**
      * 指引跳转的链接地址-对应的信息（默认：点击跳转）
      */
-    private String urlMsg;    
+    private String urlMsg;
 
     public Integer getCanUse() {
         return canUse;

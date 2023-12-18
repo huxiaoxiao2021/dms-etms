@@ -81,16 +81,18 @@ public class DwsAIDistinguishNotifyConsumer extends MessageBaseConsumer {
             dto.setReviewSiteCode(siteCode);
             if(!picIsQualify){
                 dto.setSpotCheckStatus(SpotCheckStatusEnum.SPOT_CHECK_STATUS_INVALID_AI_FAIL.getCode());
-                String distinguishFailMessage = (StringUtils.isEmpty(distinguishNotifyMQ.getPackageCode()) ? Constants.EMPTY_FILL : distinguishNotifyMQ.getPackageCode())
-                        + Constants.SEPARATOR_HYPHEN + distinguishNotifyMQ.getMessage();
-                dto.setPictureAIDistinguishReason(distinguishFailMessage);
             }
+            String distinguishFailMessage = (StringUtils.isEmpty(distinguishNotifyMQ.getStatus()) ? Constants.EMPTY_FILL : distinguishNotifyMQ.getStatus())
+                    + Constants.SEPARATOR_HYPHEN
+                    + (StringUtils.isEmpty(distinguishNotifyMQ.getMessage()) ? Constants.EMPTY_FILL : distinguishNotifyMQ.getMessage());
+            dto.setPictureAIDistinguishReason(distinguishFailMessage);
             dto.setPicIsQualify(picIsQualify ? Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
             spotCheckServiceProxy.insertOrUpdateProxyReform(dto);
             
             // 下发数据处理
             WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = spotCheckDtoList.get(0);
             weightVolumeSpotCheckDto.setPicIsQualify(dto.getPicIsQualify());
+            weightVolumeSpotCheckDto.setPictureAIDistinguishReason(dto.getPictureAIDistinguishReason());
             spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
         } catch (SpotCheckSysException e) {
             logger.warn("设备图片AI识别MQ处理异常进行重试", e);

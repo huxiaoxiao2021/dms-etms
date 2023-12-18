@@ -774,6 +774,88 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.mixScanTaskFlowComplete",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<Void> mixScanTaskFlowComplete(MixScanTaskCompleteReq mixScanTaskReq) {
+        JdCResponse<Void> response = new JdCResponse<>();
+        response.toSucceed();
+        try {
+            checkUser(mixScanTaskReq.getUser());
+            checkCurrentOperate(mixScanTaskReq.getCurrentOperate());
+            checkGroupCode(mixScanTaskReq.getGroupCode());
+            if (StringUtils.isEmpty(mixScanTaskReq.getTemplateCode())) {
+                response.toFail("未获取到混扫任务编号！");
+                return response;
+            }
+            if (StringUtils.isEmpty(mixScanTaskReq.getSendVehicleDetailBizId())) {
+                response.toFail("未获取到流向业务主键！");
+                return response;
+            }
+            if (mixScanTaskReq.getEndSiteId() == null) {
+                response.toFail("未获取到流向目的站点编码！");
+                return response;
+            }
+
+            JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+            queryDto.setGroupCode(mixScanTaskReq.getGroupCode());
+            queryDto.setTemplateCode(mixScanTaskReq.getTemplateCode());
+            queryDto.setStartSiteId((long) mixScanTaskReq.getCurrentOperate().getSiteCode());
+            queryDto.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
+            queryDto.setCompleteStatus(JyMixScanTaskCompleteEnum.COMPLETE.getCode());
+            if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
+                response.toFail("该混扫任务已经完成，请勿重新操作");
+                return response;
+            }
+            if(!jyGroupSortCrossDetailCacheService.getMixScanTaskCompleteLock(mixScanTaskReq.getGroupCode(), mixScanTaskReq.getTemplateCode())) {
+                response.toFail("系统繁忙，请稍后再试！");
+                return response;
+            }
+            if(jyGroupSortCrossDetailService.mixScanTaskStatusComplete(queryDto)) {
+                response.toFail("该混扫任务已经完成，请勿重新操作");
+                return response;
+            }
+            queryDto.setCompleteStatus(null);
+            if (jyGroupSortCrossDetailService.countByCondition(queryDto) < 1) {
+                response.toFail("该混扫任务已被删除，请前往混扫任务列表！");
+                return response;
+            }
+
+            JyGroupSortCrossDetailEntity query = new JyGroupSortCrossDetailEntity();
+            query.setStartSiteId((long) mixScanTaskReq.getCurrentOperate().getSiteCode());
+            query.setGroupCode(mixScanTaskReq.getGroupCode());
+            query.setTemplateCode(mixScanTaskReq.getTemplateCode());
+            query.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
+            query.setEndSiteId(mixScanTaskReq.getEndSiteId());
+            query.setSendVehicleDetailBizId(mixScanTaskReq.getSendVehicleDetailBizId());
+            JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailService.selectOneByFlowAndTemplateCode(query);
+            if (entity == null) {
+                response.toFail("该混扫流向任务已被删除，请重新打开流向列表！");
+                return response;
+            }
+            if (Constants.YN_YES.equals(entity.getCompleteStatus())) {
+                response.toFail("该混扫流向任务已经完成，请勿重新操作！");
+                return response;
+            }
+
+            // 完成混扫流向任务 修改派车任务状态
+            if (!jyWarehouseSendVehicleService.mixScanTaskFlowComplete(mixScanTaskReq)){
+                response.toFail("完成混扫流向任务失败！");
+                return response;
+            }
+
+        } catch (JyBizException e) {
+            log.warn("完成混扫流向任务失败:error={},req={}", e.getMessage(), JsonHelper.toJson(mixScanTaskReq));
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, e.getMessage());
+        } catch (Exception e) {
+            log.error("mixScanTaskFlowComplete|完成混扫流向任务异常:request={}", JsonHelper.toJson(mixScanTaskReq), e);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "完成混扫流向任务异常！");
+        } finally {
+            jyGroupSortCrossDetailCacheService.delMixScanTaskCompleteLock(mixScanTaskReq.getGroupCode(), mixScanTaskReq.getTemplateCode());
+        }
+        return response;
+    }
+
+    @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.mixScanTaskFocus",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Integer> mixScanTaskFocus(MixScanTaskFocusReq mixScanTaskFocusReq) {
@@ -1024,13 +1106,21 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.sealVehicle",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> sealVehicle(SealVehicleReq sealVehicleReq) {
-        if (sealVehicleReq == null) {
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "请求参数为空！");
+        try{
+            if (sealVehicleReq == null) {
+                return new JdCResponse<>(JdCResponse.CODE_ERROR, "请求参数为空！");
+            }
+            if (CollectionUtils.isEmpty(sealVehicleReq.getSealCodes()) && CollectionUtils.isNotEmpty(sealVehicleReq.getScannedSealCodes())) {
+                sealVehicleReq.setSealCodes(sealVehicleReq.getScannedSealCodes());
+            }
+            return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
+        }catch (JyBizException e) {
+            log.info("接货仓发货岗封车失败：{}",JsonHelper.toJson(sealVehicleReq),e);
+            return new JdCResponse<>(JdCResponse.CODE_FAIL,e.getMessage());
+        }catch (Exception e) {
+            log.error("接货仓发货岗封车异常：{}",JsonHelper.toJson(sealVehicleReq),e);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR,"接货仓发货岗封车异常,请联系分拣小秘！");
         }
-        if (CollectionUtils.isEmpty(sealVehicleReq.getSealCodes()) && CollectionUtils.isNotEmpty(sealVehicleReq.getScannedSealCodes())) {
-            sealVehicleReq.setSealCodes(sealVehicleReq.getScannedSealCodes());
-        }
-        return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
     }
 
     @Override

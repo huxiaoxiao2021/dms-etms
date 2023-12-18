@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiSelectWSManager;
 import com.jd.bluedragon.core.base.ReportExternalManager;
@@ -156,6 +157,9 @@ public class NewSealVehicleResource {
     @Qualifier("sendVehicleTransactionManager")
     private SendVehicleTransactionManager sendVehicleTransactionManager;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
 
     @Autowired
     @Qualifier("createTransAbnormalAndUnsealProducer")
@@ -224,6 +228,8 @@ public class NewSealVehicleResource {
 
         //设置运力基本信息
         response.setSiteCode(data.getEndNodeId());
+        response.setSiteName(data.getEndNodeName());
+
         response.setSendUserType(data.getTransType());
         response.setRouteType(data.getTransType());
         response.setDriver(data.getCarrierName());

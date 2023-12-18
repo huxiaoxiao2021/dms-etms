@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingQuery;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
@@ -232,4 +233,11 @@ public interface SortingService {
      * @return
      */
     List<String> getPagePackageNoByBoxCode(SortingPageRequest request);
+
+    /**
+     * 按照箱号查询集包明细-分页查询
+     * @param query
+     * @return
+     */
+    List<Sorting> pageQueryByBoxCode(SortingQuery query);
 }

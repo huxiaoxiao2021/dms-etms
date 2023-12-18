@@ -13,4 +13,6 @@ public class HintArgsConstants {
     public static String ARG_SECOND = "arg2";
 
     public static String ARG_THIRD = "arg3";
+
+    public static String ARG_FOURTH = "arg4";
 }

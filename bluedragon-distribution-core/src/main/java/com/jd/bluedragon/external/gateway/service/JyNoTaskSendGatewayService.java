@@ -23,6 +23,14 @@ public interface JyNoTaskSendGatewayService {
      */
     JdCResponse<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq);
 
+
+    /**
+     * 创建自建类型的航空任务（主任务）
+     * @param request
+     * @return
+     */
+    JdCResponse<CreateAviationTaskResp> createAviationTask(CreateAviationTaskReq request);
+
     /**
      * 删除自建类型的运输车辆任务（主任务）
      * @param deleteVehicleTaskReq

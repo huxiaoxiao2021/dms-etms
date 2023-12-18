@@ -29,6 +29,12 @@ public enum WaybillVasEnum {
      */
     WAYBILL_VAS_SPECIAL_SAFEGUARD_COLD_FRESH_OPERATION("specialSafeguard_coldFreshOperation", "生鲜特保"),
 
+
+    /**
+     * 个人信息安全脱敏
+     */
+    WAYBILL_VAS_SPECIAL_PERSONAL_INFO_SEC("personalInfoSec", "个人信息安全脱敏")
+
     ;
 
     public static Map<String, String> ENUM_MAP;
@@ -81,6 +87,39 @@ public enum WaybillVasEnum {
          * 保障类型-生鲜
          */
         GUARANTEE_TYPE_COLD_FRESH_OPERATION("guaranteeType", "coldFreshOperation", "生鲜"),
+
+        /**
+         *个人信息安全脱敏 收件人名字
+         */
+        PERSONAL_INFO_SEC_RECEIVE_MOBILE("receiveMobile", "Map", "收件人名字"),
+        /**
+         *个人信息安全脱敏 收件人电话
+         */
+        PERSONAL_INFO_SEC_RECEIVE_NAME("receiveName", "Map", "收件人电话"),
+
+        /**
+         *个人信息安全脱敏 加密信息模式
+         */
+        PERSONAL_INFO_SEC_ENC_MODE_1("encMode", "1", "加密信息模式"),
+
+        /**
+         *个人信息安全脱敏 虚拟号模式
+         */
+        PERSONAL_INFO_SEC_ENC_MODE_2("encMode", "2", "虚拟号模式"),
+
+        /**
+         *个人信息安全脱敏- 虚拟号失效时间
+         */
+        PERSONAL_INFO_ESC_VIRTUAL_NUMBER_EXPIRE("virtualNumberExpire", "DateTime", "虚拟号失效时间"),
+
+
+        /**
+         *个人信息安全脱敏- 脱敏加密平台
+         */
+        PERSONAL_INFO_ESC_ENC_PLATFORM("encPlatform", "String", "脱敏加密平台"),
+
+
+
         ;
 
         public static Map<String, String> ENUM_MAP;

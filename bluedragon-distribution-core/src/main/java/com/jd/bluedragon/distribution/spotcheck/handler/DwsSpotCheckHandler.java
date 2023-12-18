@@ -123,7 +123,7 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         // 设置包裹维度缓存
         setSpotCheckPackCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode());
         // 抽检全程跟踪
-        spotCheckDealService.sendWaybillTrace(spotCheckContext);
+        // spotCheckDealService.sendWaybillTrace(spotCheckContext);
     }
 
     private void lastPackPreDeal(SpotCheckContext spotCheckContext) {

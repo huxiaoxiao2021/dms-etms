@@ -198,4 +198,9 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
+
+	UserSignRecord queryLastUnSignOutRecordIgnoreCase(List<String> list);
+
+	UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query);
+	
 }

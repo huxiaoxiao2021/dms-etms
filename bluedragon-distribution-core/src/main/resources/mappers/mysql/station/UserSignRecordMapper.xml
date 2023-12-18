@@ -935,6 +935,34 @@
 		<include refid="joinSql"/>
 		limit 1
 	</select>
+
+	<select id="queryLastUnSignOutRecordIgnoreCase" resultMap="UserSignRecord">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		(select t.* from user_sign_record t
+		where t.yn = 1
+		<choose>
+			<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+				and t.user_code in
+				<foreach collection="list" item="item" open="(" close=")" separator=",">
+					#{item,jdbcType=VARCHAR}
+				</foreach>
+			</when>
+			<otherwise>
+				and t.user_code_index in
+				<foreach collection="list" item="item" open="(" close=")" separator=",">
+					#{item,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+				</foreach>
+			</otherwise>
+		</choose>
+		and t.sign_out_time is null
+		order by t.sign_in_time desc
+		) r
+		<include refid="joinSql"/>
+		limit 1
+	</select>
+
 	<select id="queryListWithPosition" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultMap="UserSignRecordData">
 		select
 			<include refid="Base_Column_List"/>
@@ -1195,5 +1223,15 @@
 		</foreach>
 		AND sign_out_time is null
 		limit #{offset}, #{limit}
+	</select>
+	
+	<select id="queryFirstExistGridRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
+		select
+		<include refid="Main_Column_List"/>
+		from user_sign_record r
+		where r.sign_date = #{signDateStr}
+		and r.site_code = #{siteCode}
+		order by r.sign_in_time asc
+		limit 1
 	</select>
 </mapper>

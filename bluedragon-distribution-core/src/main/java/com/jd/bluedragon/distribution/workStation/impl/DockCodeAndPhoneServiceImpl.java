@@ -44,7 +44,7 @@ public class DockCodeAndPhoneServiceImpl implements DockCodeAndPhoneService {
     @Autowired
     private DockCodeAndPhoneMapper dockCodeAndPhoneQuery;
 
-    @Value("${jobCodeList}")
+    @Value("#{'${jobCodeList}'.split(',')}")
     private List<Integer> jobCodeList;
 
     @Value("${dockCodeAndPhoneSize}")
