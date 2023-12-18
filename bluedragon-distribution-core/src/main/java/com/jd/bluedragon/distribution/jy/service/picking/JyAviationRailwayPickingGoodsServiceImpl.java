@@ -1,11 +1,16 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
+import com.jd.bluedragon.common.dto.comboard.request.AddCTTReq;
+import com.jd.bluedragon.common.dto.comboard.response.TableTrolleyDto;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.*;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.constants.BarCodeFetchPickingTaskRuleEnum;
 import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodScanTaskBodyDto;
@@ -13,6 +18,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.common.CommonService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -21,6 +27,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+
+import static com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum.AVIATION_RAILWAY_PICKING_GOOD_POSITION;
 
 
 /**
@@ -43,6 +52,8 @@ import java.util.Objects;
 public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailwayPickingGoodsService{
 
     private static final Logger log = LoggerFactory.getLogger(JyAviationRailwayPickingGoodsServiceImpl.class);
+
+    private static final String TEMPLATE_NAME = "空铁提货岗流向模板";
 
     @Autowired
     private JyAviationRailwayPickingGoodsParamCheckService paramCheckService;
@@ -67,6 +78,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     private BaseMajorManager baseMajorManager;
     @Autowired
     private CommonService commonService;
+    @Autowired
+    private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
 
 
     private void logInfo(String message, Object... objects) {
@@ -395,12 +408,48 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
 
     @Override
     public InvokeResult<SendFlowRes> listSendFlowInfo(SendFlowReq req) {
+        Integer startSiteId = req.getCurrentOperate().getSiteCode();
+        String templateCode = Constants.AVIATION_RAIL_TEMPLATE_PREFIX + startSiteId;
+
         return null;
     }
 
     @Override
     public InvokeResult<Void> addSendFlow(SendFlowAddReq req) {
-        return null;
+        InvokeResult<Void> ret = new InvokeResult<>();
+        if (CollectionUtils.isEmpty(req.getSiteList())) {
+            ret.parameterError("所选流向场地不能为空！");
+            return ret;
+        }
+
+        String templateCode = Constants.AVIATION_RAIL_TEMPLATE_PREFIX + req.getCurrentOperate().getSiteCode();
+        List<JyGroupSortCrossDetailEntity> entities = new ArrayList<>();
+        for (StreamlinedBasicSite basicSite : req.getSiteList()) {
+            JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+            entity.setGroupCode(req.getGroupCode());
+            entity.setTemplateCode(templateCode);
+            entity.setTemplateName(TEMPLATE_NAME);
+            entity.setCreateTime(new Date());
+            entity.setCreateUserErp(req.getUser().getUserErp());
+            entity.setCreateUserName(req.getUser().getUserName());
+            entity.setCrossCode(Constants.EMPTY_FILL);
+            entity.setEndSiteId(basicSite.getSiteCode().longValue());
+            entity.setEndSiteName(basicSite.getSiteName());
+            entity.setStartSiteId((long) req.getCurrentOperate().getSiteCode());
+            entity.setStartSiteName(req.getCurrentOperate().getSiteName());
+            entity.setTabletrolleyCode(Constants.EMPTY_FILL);
+            entity.setFuncType(AVIATION_RAILWAY_PICKING_GOOD_POSITION.getCode());
+
+            entities.add(entity);
+        }
+        if (CollectionUtils.isNotEmpty(entities)) {
+            boolean success = jyGroupSortCrossDetailService.batchAddGroup(entities);
+            if (!success) {
+                ret.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                ret.setMessage("空铁提货岗-添加流向失败！");
+            }
+        }
+        return ret;
     }
 
     @Override

@@ -2259,6 +2259,8 @@ public class Constants {
      */
     public static final String REASSIGN_WAYBILL_LOCK_KEY_PREFIX ="reassign.waybill.lock:";
 
-
-
+    /**
+     * 空铁提货岗流向模板号前缀 AVIATION_RAIL各取前两字母
+     */
+    public static final String AVIATION_RAIL_TEMPLATE_PREFIX = "AVRA";
 }

@@ -39,6 +39,8 @@ public interface JyGroupSortCrossDetailService {
      */
     boolean addCTTGroup(AddCTTReq request);
 
+    boolean batchAddGroup(List<JyGroupSortCrossDetailEntity> entities);
+
     /**
      * 移除流向
      * @param request
