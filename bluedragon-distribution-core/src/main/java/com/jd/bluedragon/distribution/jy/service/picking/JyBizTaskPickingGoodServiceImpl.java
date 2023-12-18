@@ -1,14 +1,16 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodExtendDao;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import org.slf4j.Logger;
@@ -39,6 +41,18 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     @Qualifier("redisJySendBizIdSequenceGen")
     private JimdbSequenceGen redisJyBizIdSequenceGen;
 
+    private void logInfo(String message, Object... objects) {
+        if (log.isInfoEnabled()) {
+            log.info(message, objects);
+        }
+    }
+    private void logWarn(String message, Object... objects) {
+        if (log.isWarnEnabled()) {
+            log.warn(message, objects);
+        }
+    }
+
+
     @Override
     public JyBizTaskPickingGoodEntity findByBizIdWithYn(String bizId, Boolean ignoreYn) {
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
@@ -62,21 +76,22 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     }
 
     @Override
-    public JyBizTaskPickingGoodEntity generateManualCreateTask(PickingGoodsReq request) {
+    public JyBizTaskPickingGoodEntity generateManualCreateTask(CurrentOperate site, User user) {
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
         entity.setBizId(this.genPickingGoodTaskBizId(true));
-        entity.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
-        entity.setNextSiteId((long)request.getCurrentOperate().getSiteCode());
+        entity.setStartSiteId((long)site.getSiteCode());
+        entity.setNextSiteId((long)site.getSiteCode());
         entity.setServiceNumber(entity.getBizId());
         entity.setStatus(PickingGoodStatusEnum.TO_PICKING.getCode());
         entity.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
         entity.setManualCreatedFlag(Constants.NUMBER_ONE);
-        entity.setCreateUserErp(request.getUser().getUserErp());
-        entity.setCreateUserName(request.getUser().getUserName());
+        entity.setCreateUserErp(user.getUserErp());
+        entity.setCreateUserName(user.getUserName());
         entity.setUpdateUserErp(entity.getCreateUserErp());
         entity.setUpdateUserName(entity.getCreateUserName());
         entity.setCreateTime(new Date());
         entity.setUpdateTime(entity.getCreateTime());
+        logInfo("生成自建任务【{}】,entity={}", entity.getBizId(), JsonHelper.toJson(entity));
         jyBizTaskPickingGoodDao.insertSelective(entity);
         return entity;
     }
@@ -88,4 +103,11 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
         entity.setStatus(status);
         return jyBizTaskPickingGoodDao.updateStatusByBizId(entity);
     }
+
+    @Override
+    public JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId) {
+        return jyBizTaskPickingGoodDao.findLatestEffectiveManualCreateTask(siteId);
+    }
+
+
 }

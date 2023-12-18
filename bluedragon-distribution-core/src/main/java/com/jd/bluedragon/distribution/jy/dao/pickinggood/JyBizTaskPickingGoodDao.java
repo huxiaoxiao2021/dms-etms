@@ -23,6 +23,10 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
         return this.getSqlSession().selectOne(NAMESPACE + ".updateStatusByBizId", entity);
     }
 
+
+    public JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findLatestEffectiveManualCreateTask", siteId);
+    }
 //    int deleteByPrimaryKey(Long id);
 //
 //    int insert(JyBizTaskPickingGood record);

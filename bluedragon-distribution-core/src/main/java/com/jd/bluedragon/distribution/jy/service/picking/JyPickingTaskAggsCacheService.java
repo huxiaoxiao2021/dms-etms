@@ -34,6 +34,47 @@ public class JyPickingTaskAggsCacheService {
     private static final String LOCK_PICKING_GOOD_TASK = "lock:picking:good:task:%s";
     private static final Integer LOCK_PICKING_GOOD_TASK_TIMEOUT_SECONDS = 300;
 
+    /**
+     * 实际提货的待提包裹数
+     */
+    private static final String CACHE_REAL_SCAN_WAIT_PICKING_PACKAGE = "cache:real:scan:wait:picking:package:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_WAIT_PICKING_PACKAGE_TIMEOUT_DAYS = 15;
+    /**
+     * 实际提货的待提箱数
+     */
+    private static final String CACHE_REAL_SCAN_WAIT_PICKING_BOX = "cache:real:scan:wait:pinking:box:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_WAIT_PICKING_BOX_TIMEOUT_DAYS = 15;
+    /**
+     * 实际提货的多提包裹数
+     */
+    private static final String CACHE_REAL_SCAN_MORE_PICKING_PACKAGE = "cache:real:scan:more:pinking:package:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_MORE_PICKING_PACKAGE_TIMEOUT_DAYS = 15;
+    /**
+     * 实际提货的多提箱数
+     */
+    private static final String CACHE_REAL_SCAN_MORE_PICKING_BOX = "cache:real:scan:more:pinking:box:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_MORE_PICKING_BOX_TIMEOUT_DAYS = 15;
+    /**
+     * 实际提发货的待提包裹数
+     */
+    private static final String CACHE_REAL_SCAN_WAIT_SEND_PACKAGE = "cache:real:scan:wait:send:package:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_WAIT_SEND_PACKAGE_TIMEOUT_DAYS = 15;
+    /**
+     * 实际提发货的待提箱数
+     */
+    private static final String CACHE_REAL_SCAN_WAIT_SEND_BOX = "cache:real:scan:wait:send:box:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_WAIT_SEND_BOX_TIMEOUT_DAYS = 15;
+    /**
+     * 实际提发货的多提包裹数
+     */
+    private static final String CACHE_REAL_SCAN_MORE_SEND_PACKAGE = "cache:real:scan:more:send:package:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_MORE_SEND_PACKAGE_TIMEOUT_DAYS = 15;
+    /**
+     * 实际提发货的多提箱数
+     */
+    private static final String CACHE_REAL_SCAN_MORE_SEND_BOX = "cache:real:scan:more:send:box:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_MORE_SEND_BOX_TIMEOUT_DAYS = 15;
+
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
     @Autowired
@@ -105,5 +146,123 @@ public class JyPickingTaskAggsCacheService {
     }
     private String getLockKeyPickingGoodTask(String bizId) {
         return String.format(LOCK_PICKING_GOOD_TASK, bizId);
+    }
+
+
+    /**
+     * 实际提货的待提包裹数
+     * @param bizId
+     * @param siteId
+     * @return
+     */
+    public Integer incrRealScanWaitPickingPackageNum(String bizId, Long siteId){
+        String key = this.getCacheKeyRealScanWaitPickingPackageNum(bizId, siteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_WAIT_PICKING_PACKAGE_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
+    }
+    public Integer getValueRealScanWaitPickingPackageNum(String bizId, Long siteId){
+        String key = this.getCacheKeyRealScanWaitPickingPackageNum(bizId, siteId);
+        String numStr = redisClientOfJy.get(key);
+        if(StringUtils.isBlank(numStr)) {
+            return 0;
+        }
+        return Integer.valueOf(numStr);
+    }
+    private String getCacheKeyRealScanWaitPickingPackageNum(String bizId, Long siteId){
+        return String.format(CACHE_REAL_SCAN_WAIT_PICKING_PACKAGE, bizId, siteId);
+    }
+
+
+    /**
+     * 实际提货的待提箱数
+     */
+    public Integer incrRealScanWaitPickingBoxNum(String bizId, Long siteId){
+        String key = this.getCacheKeyRealScanWaitPickingBoxNum(bizId, siteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_WAIT_PICKING_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
+    }
+    public Integer getValueRealScanWaitPickingBoxNum(String bizId, Long siteId){
+        String key = this.getCacheKeyRealScanWaitPickingBoxNum(bizId, siteId);
+        String numStr = redisClientOfJy.get(key);
+        if(StringUtils.isBlank(numStr)) {
+            return 0;
+        }
+        return Integer.valueOf(numStr);
+    }
+    private String getCacheKeyRealScanWaitPickingBoxNum(String bizId, Long siteId){
+        return String.format(CACHE_REAL_SCAN_WAIT_PICKING_BOX, bizId, siteId);
+    }
+
+    /**
+     * 实际提货的多提包裹数
+     */
+    public Integer incrRealScanMorePickingPackageNum(String bizId, Long siteId){
+        String key = this.getCacheKeyRealScanMorePickingPackageNum(bizId, siteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_MORE_PICKING_PACKAGE_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
+    }
+    public Integer getValueRealScanMorePickingPackageNum(String bizId, Long siteId){
+        String key = this.getCacheKeyRealScanMorePickingPackageNum(bizId, siteId);
+        String numStr = redisClientOfJy.get(key);
+        if(StringUtils.isBlank(numStr)) {
+            return 0;
+        }
+        return Integer.valueOf(numStr);
+    }
+    private String getCacheKeyRealScanMorePickingPackageNum(String bizId, Long siteId){
+        return String.format(CACHE_REAL_SCAN_MORE_PICKING_PACKAGE, bizId, siteId);
+    }
+
+    /**
+     * 实际提货的多提箱数
+     */
+    public Integer incrRealScanMorePickingBoxNum(String bizId, Long siteId){
+        String key = this.getCacheKeyRealScanMorePickingBoxNum(bizId, siteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_MORE_PICKING_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
+    }
+    public Integer getValueRealScanMorePickingBoxNum(String bizId, Long siteId){
+        String key = this.getCacheKeyRealScanMorePickingBoxNum(bizId, siteId);
+        String numStr = redisClientOfJy.get(key);
+        if(StringUtils.isBlank(numStr)) {
+            return 0;
+        }
+        return Integer.valueOf(numStr);
+    }
+    private String getCacheKeyRealScanMorePickingBoxNum(String bizId, Long siteId){
+        return String.format(CACHE_REAL_SCAN_MORE_PICKING_BOX, bizId, siteId);
+    }
+
+    //
+    public Integer incrRealScanWaitSendPackageNum(String bizId, Long siteId){
+        String key = String.format(CACHE_REAL_SCAN_WAIT_SEND_PACKAGE, bizId, siteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_WAIT_SEND_PACKAGE_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
+    }
+
+    public Integer incrRealScanWaitSendBoxNum(String bizId, Long siteId){
+        String key = String.format(CACHE_REAL_SCAN_WAIT_SEND_BOX, bizId, siteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_WAIT_SEND_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
+    }
+
+    public Integer incrRealScanMoreSendPackageNum(String bizId, Long siteId){
+        String key = String.format(CACHE_REAL_SCAN_MORE_SEND_PACKAGE, bizId, siteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_MORE_SEND_PACKAGE_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
+    }
+
+    public Integer incrRealScanMoreSendBoxNum(String bizId, Long siteId){
+        String key = String.format(CACHE_REAL_SCAN_MORE_SEND_BOX, bizId, siteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_MORE_SEND_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
     }
 }

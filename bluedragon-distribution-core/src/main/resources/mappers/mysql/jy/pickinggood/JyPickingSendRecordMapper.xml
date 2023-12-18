@@ -60,6 +60,9 @@
     select <include refid="Base_Column_List" />
     from jy_picking_send_record
     where yn = 1 and picking_site_id = #{pickingSiteId} and scan_code = #{waitScanCode}
+      <if test="bizId != null" >
+        and biz_id = #{bizId}
+      </if>
     order by picking_time desc
     limit 1
   </select>

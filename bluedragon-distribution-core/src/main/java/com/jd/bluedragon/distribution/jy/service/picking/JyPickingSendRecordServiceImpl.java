@@ -41,9 +41,10 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
     }
 
     @Override
-    public JyPickingSendRecordEntity latestPickingRecord(Long curSiteId, String barCode) {
+    public JyPickingSendRecordEntity latestPickingRecord(Long curSiteId, String bizId, String barCode) {
         JyPickingSendRecordEntity recordEntity = new JyPickingSendRecordEntity(curSiteId);
         recordEntity.setScanCode(barCode);
+        recordEntity.setBizId(bizId);
         return jyPickingSendRecordDao.latestPickingRecord(recordEntity);
     }
 
@@ -96,4 +97,19 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
         }
         return res;
     }
+
+    /**
+     * 已提件数
+     * @param bizId
+     * @param siteId
+     * @return
+     */
+    public Integer countTaskRealScanItemNum (String bizId, Long siteId) {
+        JyPickingSendRecordEntity realPicking = new JyPickingSendRecordEntity(siteId);
+        realPicking.setScanCode(bizId);
+        return jyPickingSendRecordDao.countTaskRealScanItemNum(realPicking);
+
+    }
+
+
 }
