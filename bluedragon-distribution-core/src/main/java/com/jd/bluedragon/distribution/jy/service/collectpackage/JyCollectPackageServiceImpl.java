@@ -373,32 +373,29 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
         if (request.getForceCollectPackage()) {
             request.setEndSiteId(collectPackageTask.getEndSiteId());
-            return;
-        }
-        Waybill waybill =waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(request.getBarCode()));
-        if (ObjectHelper.isEmpty(waybill)) {
-            throw new JyBizException("未查询到运单数据!");
-        }
-        //获取包裹预分拣站点
-        Integer yufenjian = getYufenjianByPackage(waybill);
-        if (checkYufenjianIfMatchDestination(yufenjian,request,collectPackageTask)){
-            return;
-        }
-        //如果预分拣站点不匹配箱号目的地，再去判断末级分拣
-
-        //获取包裹的末级分拣中心
-        Integer lastDmsId = getLastDmsByPackage(waybill);
-        if (MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())) {
-            //校验末级分拣中心是否为箱号目的地
-            List<Integer> flowList = Collections.singletonList(collectPackageTask.getEndSiteId().intValue());
-            checkLastDmsIfExitInCollectFlowList(lastDmsId, flowList, request, collectPackageTask);
         } else {
-            //查询可混集的流向集合信息，校验末级分拣中心是否 在可集包的流向集合内
-            List<Integer> flowList = queryMixBoxFlowListUnderTask(request);
-            if (CollectionUtils.isEmpty(flowList)) {
-                throw new JyBizException("未查询到当前任务的集包流向信息！");
+            Waybill waybill =waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(request.getBarCode()));
+            if (ObjectHelper.isEmpty(waybill)) {
+                throw new JyBizException("未查询到运单数据!");
             }
-            checkLastDmsIfExitInCollectFlowList(lastDmsId, flowList, request, collectPackageTask);
+            //获取包裹预分拣站点
+            Integer yufenjian = getYufenjianByPackage(waybill);
+            if (!checkYufenjianIfMatchDestination(yufenjian,request,collectPackageTask)){//如果预分拣站点不匹配箱号目的地，再去判断末级分拣
+                //获取包裹的末级分拣中心
+                Integer lastDmsId = getLastDmsByPackage(waybill);
+                if (MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())) {
+                    //校验末级分拣中心是否为箱号目的地
+                    List<Integer> flowList = Collections.singletonList(collectPackageTask.getEndSiteId().intValue());
+                    checkLastDmsIfExitInCollectFlowList(lastDmsId, flowList, request, collectPackageTask);
+                } else {
+                    //查询可混集的流向集合信息，校验末级分拣中心是否 在可集包的流向集合内
+                    List<Integer> flowList = queryMixBoxFlowListUnderTask(request);
+                    if (CollectionUtils.isEmpty(flowList)) {
+                        throw new JyBizException("未查询到当前任务的集包流向信息！");
+                    }
+                    checkLastDmsIfExitInCollectFlowList(lastDmsId, flowList, request, collectPackageTask);
+                }
+            }
         }
         if (ObjectHelper.isNotNull(request.getEndSiteId())) {
             BaseStaffSiteOrgDto staffSiteOrgDto = baseService.getSiteBySiteID(request.getEndSiteId().intValue());
@@ -1449,22 +1446,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     public static void main(String[] args) {
 
-        String bitCode ="11111111111111111111111111111110111111001";
-        System.out.println(NumberHelper.binaryToDecimal(bitCode));
-        String reBitCode =NumberHelper.decimalToBinary(2147483647,41);
-        System.out.println(reBitCode);
-
-        System.out.println(bitCode.equals(reBitCode));
-
-
-
-
-        String lbitCode ="11111111111111111111111111111110111111001";
-        System.out.println(NumberHelper.binaryToLongDecimal(lbitCode));
-        String lreBitCode =NumberHelper.longDecimalToBinary(2199023255033L,41);
-        System.out.println(lreBitCode);
-
-        System.out.println(lbitCode.equals(lreBitCode));
     }
 
 
