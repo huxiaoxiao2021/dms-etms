@@ -347,6 +347,17 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         flowCheck(request);
         //sorting拦截器链
         execInterceptorChain(request);
+        //封箱校验
+        sealBoxCheck(request);
+    }
+
+    private void sealBoxCheck(CollectPackageReq request) {
+        /*if (request.getSkipSealBoxCheck()){
+            return;
+        }
+        if (JyBizTaskCollectPackageStatusEnum.SEALED.getCode().equals(request.getTaskStatus())){
+            throw new JyBizException(CONFIRM_COLLECT_PACKAGE_WARNING, "该任务已封箱，是否继续装箱");
+        }*/
     }
 
     private void reCollectCheck(CollectPackageReq request) {
@@ -371,6 +382,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (JyBizTaskCollectPackageStatusEnum.CANCEL.getCode().equals(collectPackageTask.getTaskStatus())) {
             throw new JyBizException("集包任务已作废-操作了批量取消集包！");
         }
+        request.setTaskStatus(collectPackageTask.getTaskStatus());
         if (request.getForceCollectPackage()) {
             request.setEndSiteId(collectPackageTask.getEndSiteId());
         } else {
