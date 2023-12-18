@@ -1,11 +1,14 @@
 package com.jd.bluedragon.distribution.jy.pickinggood;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * 空提航班任务发货流向维度统计表
  */
-public class JyPickingTaskSendAggsEntity {
+public class JyPickingTaskSendAggsEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private Long id;
 
     private String bizId;
@@ -101,6 +104,15 @@ public class JyPickingTaskSendAggsEntity {
     private Integer yn;
 
     private Date ts;
+
+    public JyPickingTaskSendAggsEntity() {
+    }
+
+    public JyPickingTaskSendAggsEntity(Long pickingSiteId, Long nextSiteId, String bizId) {
+        this.pickingSiteId = pickingSiteId;
+        this.nextSiteId = nextSiteId;
+        this.bizId = bizId;
+    }
 
     public Long getId() {
         return id;

@@ -1,11 +1,14 @@
 package com.jd.bluedragon.distribution.jy.pickinggood;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * 空提提货发货流向批次明细
  */
-public class JyPickingSendDestinationDetailEntity {
+public class JyPickingSendDestinationDetailEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private Long id;
     /**
      * 创建场地id

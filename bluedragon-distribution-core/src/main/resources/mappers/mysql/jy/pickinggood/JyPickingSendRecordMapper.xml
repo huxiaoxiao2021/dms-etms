@@ -33,6 +33,7 @@
     <result column="yn" property="yn" jdbcType="BIT" />
     <result column="ts" property="ts" jdbcType="TIMESTAMP" />
   </resultMap>
+
   <sql id="Base_Column_List" >
     id, biz_id, picking_site_id, picking_node_code, package_code, waybill_code, scan_code,
     wait_scan_code, wait_scan_code_type, init_next_site_id, box_init_flow_key, wait_scan_flag,
@@ -62,7 +63,38 @@
     order by picking_time desc
     limit 1
   </select>
-<!--  -->
+  <!-- 任务待提、流向待发 件数-->
+  <select id="countTaskWaitScanItemNum" resultType="java.lang.Integer" parameterType="JyPickingSendRecordEntity" >
+    select count(*)
+    from (
+      select wait_scan_code
+      from jy_picking_send_record
+      where yn = 1 and picking_site_id = #{pickingSiteId} and biz_id = #{bizId} and wait_scan_flag = 1
+        <if test="initNextSiteId != null" >
+          and init_next_site_id = #{initNextSiteId}
+        </if>
+      group by wait_scan_code
+      ) t
+  </select>
+  <!-- 任务已提、流向已发/任务多提、流向多发 件数 -->
+  <select id="countTaskRealScanItemNum" resultType="java.lang.Integer" parameterType="JyPickingSendRecordEntity" >
+    select count(*)
+    from (
+    select scan_code
+    from jy_picking_send_record
+    where yn = 1 and picking_site_id = #{pickingSiteId} and biz_id = #{bizId} and scan_flag = 1
+    <if test="moreScanFlag != null" >
+      and more_scan_flag = #{moreScanFlag},
+    </if>
+    <if test="initNextSiteId != null" >
+      and init_next_site_id = #{initNextSiteId}
+      and send_flag = 1
+    </if>
+    group by wait_scan_code
+    ) t
+  </select>
+
+  <!--  -->
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select-->
 <!--    <include refid="Base_Column_List" />-->

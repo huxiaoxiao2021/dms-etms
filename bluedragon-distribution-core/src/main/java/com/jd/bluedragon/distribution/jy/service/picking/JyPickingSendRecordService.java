@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskStatisticsDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 
 /**
@@ -35,7 +36,11 @@ public interface JyPickingSendRecordService {
      */
     JyPickingSendRecordEntity latestPickingRecord(Long curSiteId, String barCode);
 
-
-
-
+    /**
+     * 统计
+     * @param siteId 操作场地
+     * @param bizId 提货任务bizId
+     * @param nextSiteId  发货流向，非空是统计该流向发货数据
+     */
+    PickingGoodTaskStatisticsDto statisticsByBizId(Long siteId, String bizId, Long nextSiteId);
 }

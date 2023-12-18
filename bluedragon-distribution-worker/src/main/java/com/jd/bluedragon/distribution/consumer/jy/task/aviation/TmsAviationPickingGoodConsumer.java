@@ -2,12 +2,9 @@ package com.jd.bluedragon.distribution.consumer.jy.task.aviation;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.jy.constants.PickingGoodTaskDetailInitServiceEnum;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskInitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.service.picking.bridge.AviationPickingGoodTask;
-import com.jd.bluedragon.distribution.jy.service.picking.bridge.PickingGoodDetailInitService;
-import com.jd.bluedragon.distribution.jy.service.picking.factory.PickingGoodDetailInitServiceFactory;
+import com.jd.bluedragon.distribution.jy.service.picking.bridge.AviationPickingGoodTaskInit;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
@@ -33,7 +30,7 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
 
 
     @Autowired
-    private AviationPickingGoodTask aviationPickingGoodTask;
+    private AviationPickingGoodTaskInit aviationPickingGoodTask;
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsAviationPickingGoodConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -62,10 +59,9 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
         mqBody.setBusinessId(message.getBusinessId());
 
         try{
-            this.deal(mqBody);
-            if (log.isInfoEnabled()) {
-                log.info("航空提货计划生成航空发货任务成功，businessId={}", message.getBusinessId());
-            }
+            PickingGoodTaskInitDto initDto = new PickingGoodTaskInitDto();
+            //todo zcf
+            aviationPickingGoodTask.initTaskTemplate(initDto);
         }catch (Exception ex) {
             log.error("航空提货计划生成提货任务消费异常,businessId={},mqBody={}", message.getBusinessId(), message.getText());
             throw new JyBizException(String.format("航空提货计划生成提货任务消费异常,businessId：%s", message.getBusinessId()));
@@ -73,24 +69,6 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
 
     }
 
-    private void deal(TmsAviationPickingGoodMqBody mqBody) {
-        PickingGoodTaskInitDto initDto = new PickingGoodTaskInitDto();
-        //todo zcf
-
-
-        //根据场地类型获取待提明细初始化服务实例
-        Integer startSiteType = 64; //上游场地类型
-        PickingGoodTaskDetailInitServiceEnum detailInitServiceEnum = PickingGoodTaskDetailInitServiceEnum.getEnumBySource(startSiteType);
-        if(!Objects.isNull(detailInitServiceEnum)) {
-            PickingGoodDetailInitService pickingGoodDetailInitService = PickingGoodDetailInitServiceFactory.getPickingGoodDetailInitService(detailInitServiceEnum.getTargetCode());
-            if(!Objects.isNull(pickingGoodDetailInitService)) {
-                aviationPickingGoodTask.setPickingGoodDetailInitService(pickingGoodDetailInitService);
-            }else {
-                log.warn("航空提货计划消费，未查到待提明细初始化服务，mqBody={}, 上游场地类型为{}", JsonHelper.toJson(mqBody), startSiteType);
-            }
-        }
-        aviationPickingGoodTask.generatePickingGoodTask(initDto);
-    }
 
 
 

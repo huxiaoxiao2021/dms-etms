@@ -7,7 +7,12 @@ import java.util.Date;
  * 空提提货任务表
  */
 public class JyBizTaskPickingGoodEntity implements Serializable {
+
     private static final long serialVersionUID = 1L;
+
+    //PinkingGoodTask -- PGT
+    public static final String BIZ_PREFIX = "PGT";
+    public static final String BIZ_PREFIX_NOTASK = "NPGT";
 
     public static final Integer INTERCEPT_FLAG = 1;
 
@@ -60,6 +65,7 @@ public class JyBizTaskPickingGoodEntity implements Serializable {
     private Date nodeRealArriveTime;
     /**
      * 提货状态（0-待提，1-提货中，2-提货完成）
+     * com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum
      */
     private Integer status;
     /**

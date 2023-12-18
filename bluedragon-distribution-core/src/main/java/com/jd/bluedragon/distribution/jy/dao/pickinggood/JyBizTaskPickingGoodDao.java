@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.dao.pickinggood;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
+
 public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity> {
 
     private final static String NAMESPACE = JyBizTaskPickingGoodDao.class.getName();
@@ -10,6 +12,13 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBizIdWithYn", entity);
     }
 
+    public int insertSelective(JyBizTaskPickingGoodEntity entity) {
+        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
+    }
+
+    public int updateTaskByBizIdWithCondition(JyBizTaskPickingGoodEntityCondition entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateTaskByBizIdWithCondition", entity);
+    }
     public boolean updateStatusByBizId(JyBizTaskPickingGoodEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".updateStatusByBizId", entity);
     }
@@ -18,7 +27,6 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
 //
 //    int insert(JyBizTaskPickingGood record);
 //
-//    int insertSelective(JyBizTaskPickingGood record);
 //
 //    JyBizTaskPickingGood selectByPrimaryKey(Long id);
 //

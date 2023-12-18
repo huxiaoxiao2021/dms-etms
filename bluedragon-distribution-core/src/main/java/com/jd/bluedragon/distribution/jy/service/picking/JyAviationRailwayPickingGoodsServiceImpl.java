@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodScanTaskBodyDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 import com.jd.bluedragon.distribution.jy.service.common.CommonService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -90,13 +91,13 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             res.parameterError(paramCheckRes.getMessage());
             return res;
         }
-
+        //场地barCode锁
         if(pickingGoodsCacheService.lockPickingGoodScan(request.getBarCode(), request.getCurrentOperate().getSiteCode())) {
             res.error("该单据【包裹】被多人提货操作中，请稍后操作");
             return res;
         }
         try{
-            //防重提货校验【BizId + barCode】  该防重规则一个场地仅能提货一次，如果需要支持多次，把防重逻辑放在查找待提任务之后，按照任务+barCode做防重
+            //防重提货校验【siteId + barCode】  该防重规则一个场地仅能提货一次，如果需要支持多次，把防重逻辑放在查找待提任务之后，改成【siteId+bizId锁】或者【bizId+barCode锁】
             if(!this.repeatScanCheck(request.getBarCode(), request.getCurrentOperate().getSiteCode(),  res)) {
                 logWarn("重复提货，request={},res={}", JsonHelper.toJson(request), JsonHelper.toJson(res));
                 return res;
@@ -105,23 +106,22 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             JyBizTaskPickingGoodEntity taskPickingGoodEntity = this.getTaskPickingGoodEntity(request, resData);
             //提货并发货执行
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
-                //发货流向校验
                 if(!misSendingCheck(request, res)) {
                     return res;
                 }
-                //执行提货并发货逻辑
-                if(!doPickingSendGoods(request, res)) {
+                if(!doPickingSendGoods(request, res, taskPickingGoodEntity)) {
                     return res;
                 }
             }
             //仅提货逻辑
             else {
-                if(!doPickingGoods(request, res)) {
+                if(!doPickingGoods(request, res, taskPickingGoodEntity)) {
                     return res;
                 };
             }
+            this.pickingGoodTaskUpdate(request, resData, taskPickingGoodEntity);
             //统计字段维护
-
+//            jyPickingTaskAggsService.updatePickingGoodStatistics(request, resData,taskPickingGoodEntity);
             //提货防重
             pickingGoodsCacheService.saveCachePickingGoodScan(request.getBarCode(), request.getCurrentOperate().getSiteCode());
 
@@ -136,6 +136,19 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             pickingGoodsCacheService.unlockPickingGoodScan(request.getBarCode(), request.getCurrentOperate().getSiteCode());
         }
 
+    }
+
+    private void pickingGoodTaskUpdate(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity) {
+        if(PickingGoodStatusEnum.TO_PICKING.getCode().equals(entity.getStatus())) {
+            JyBizTaskPickingGoodEntityCondition updateEntity = new JyBizTaskPickingGoodEntityCondition();
+            updateEntity.setBizId(entity.getBizId());
+            updateEntity.setStatus(PickingGoodStatusEnum.PICKING.getCode());
+            updateEntity.setPickingStartTime(new Date(resData.getOperateTime()));
+            updateEntity.setUpdateTime(new Date());
+            updateEntity.setUpdateUserErp(request.getUser().getUserErp());
+            updateEntity.setUpdateUserName(request.getUser().getUserName());
+            jyBizTaskPickingGoodService.updateTaskByBizIdWithCondition(updateEntity);
+        }
     }
 
     /**
@@ -197,7 +210,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
      * @param res
      * @return
      */
-    private boolean doPickingSendGoods(PickingGoodsReq request, InvokeResult<PickingGoodsRes> res) {
+    private boolean doPickingSendGoods(PickingGoodsReq request, InvokeResult<PickingGoodsRes> res, JyBizTaskPickingGoodEntity taskPickingGoodEntity) {
         PickingGoodScanTaskBodyDto bodyDto = new PickingGoodScanTaskBodyDto();
         bodyDto.setBoxCode(request.getBarCode());
         bodyDto.setBusinessType(10);
@@ -214,6 +227,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         //
         Date date = new Date();
         bodyDto.setOperateTime(DateHelper.formatDateTime(date));
+        bodyDto.setBizId(taskPickingGoodEntity.getBizId());
         String bodyJson = JsonHelper.toJson(bodyDto);
 
         TaskRequest taskRequest = new TaskRequest();
@@ -243,8 +257,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
         PickingGoodsRes resData = res.getData();
 
-        Integer routerNextSiteId = null;
-        String routerNextSiteName = null;
+        Integer routerNextSiteId;
+        String routerNextSiteName;
         String boxConfirmNextSiteKey = null;
         if(!BusinessUtil.isBoxcode(request.getBarCode())) {
             BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(request.getCurrentOperate().getSiteCode(), WaybillUtil.getWaybillCode(request.getBarCode()));
@@ -271,7 +285,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             resData.setRealNextSiteId(routerNextSiteId);
             resData.setRealNextSiteName(routerNextSiteName);
             resData.setBoxConfirmNextSiteKey(boxConfirmNextSiteKey);
-            String msg = String.format(PickingGoodsRes.CODE_30001_MSG_1, routerNextSiteId, request.getNextSiteId());
+            String msg = String.format(PickingGoodsRes.CODE_30001_MSG_1, routerNextSiteName, request.getNextSiteName());
             res.customMessage(PickingGoodsRes.CODE_30001, msg);
             return false;
         }
@@ -301,7 +315,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
      * @param res
      * @return
      */
-    private boolean doPickingGoods(PickingGoodsReq request, InvokeResult<PickingGoodsRes> res) {
+    private boolean doPickingGoods(PickingGoodsReq request, InvokeResult<PickingGoodsRes> res, JyBizTaskPickingGoodEntity taskPickingGoodEntity) {
         PickingGoodScanTaskBodyDto bodyDto = new PickingGoodScanTaskBodyDto();
         bodyDto.setBoxCode(request.getBarCode());
         bodyDto.setBusinessType(10);
@@ -316,6 +330,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         //
         Date date = new Date();
         bodyDto.setOperateTime(DateHelper.formatDateTime(date));
+
+        bodyDto.setBizId(taskPickingGoodEntity.getBizId());
         String bodyJson = JsonHelper.toJson(bodyDto);
 
         TaskRequest taskRequest = new TaskRequest();
