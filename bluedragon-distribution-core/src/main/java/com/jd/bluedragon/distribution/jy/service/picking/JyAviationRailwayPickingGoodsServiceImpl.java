@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendFlowDisplayEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.*;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -11,6 +12,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.BarCodeFetchPickingTaskRuleEnum;
 import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
@@ -477,10 +479,35 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
 
     @Override
     public InvokeResult<SendFlowRes> listSendFlowInfo(SendFlowReq req) {
-        Integer startSiteId = req.getCurrentOperate().getSiteCode();
-        String templateCode = Constants.AVIATION_RAIL_TEMPLATE_PREFIX + startSiteId;
+        InvokeResult<SendFlowRes> invokeResult = new InvokeResult<>();
+        if (req.getDisplayType() == null) {
+            invokeResult.parameterError("展示类型不能为空！");
+            return invokeResult;
+        }
+        SendFlowRes res = new SendFlowRes();
+        invokeResult.setData(res);
 
-        return null;
+        // todo
+        if (SendFlowDisplayEnum.COUNT.getCode().equals(req.getDisplayType())) {
+
+        }
+        int startSiteId = req.getCurrentOperate().getSiteCode();
+        String templateCode = Constants.AVIATION_RAIL_TEMPLATE_PREFIX + startSiteId;
+        String groupCode = req.getGroupCode();
+        JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+        queryDto.setStartSiteId((long) startSiteId);
+        queryDto.setTemplateCode(templateCode);
+        queryDto.setGroupCode(groupCode);
+        List<JyGroupSortCrossDetailEntity> flowList = jyGroupSortCrossDetailService.selectByCondition(queryDto);
+        List<SendFlowDto> dtoList = new ArrayList<>();
+        for (JyGroupSortCrossDetailEntity entity : flowList) {
+            SendFlowDto dto = new SendFlowDto();
+            dto.setNextSiteId(entity.getEndSiteId().intValue());
+            dto.setNextSiteName(entity.getEndSiteName());
+            dtoList.add(dto);
+        }
+        res.setFlowDtoList(dtoList);
+        return invokeResult;
     }
 
     @Override

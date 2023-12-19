@@ -13,4 +13,12 @@ public class SendFlowReq extends BaseReq implements Serializable {
      * @see SendFlowDisplayEnum
      */
     private Integer displayType;
+
+    public Integer getDisplayType() {
+        return displayType;
+    }
+
+    public void setDisplayType(Integer displayType) {
+        this.displayType = displayType;
+    }
 }
