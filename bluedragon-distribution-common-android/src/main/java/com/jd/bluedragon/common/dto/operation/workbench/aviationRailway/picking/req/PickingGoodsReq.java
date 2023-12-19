@@ -35,7 +35,7 @@ public class PickingGoodsReq extends BaseReq implements Serializable {
     /**
      * 发货流向场地（发货sendGoodFlag=true时必填）
      */
-    private Integer nextSiteId;
+    private Long nextSiteId;
     private String nextSiteName;
     /**
      * 箱号确认流向场地的key[包裹号]
@@ -83,11 +83,11 @@ public class PickingGoodsReq extends BaseReq implements Serializable {
         this.forceSendFlag = forceSendFlag;
     }
 
-    public Integer getNextSiteId() {
+    public Long getNextSiteId() {
         return nextSiteId;
     }
 
-    public void setNextSiteId(Integer nextSiteId) {
+    public void setNextSiteId(Long nextSiteId) {
         this.nextSiteId = nextSiteId;
     }
 

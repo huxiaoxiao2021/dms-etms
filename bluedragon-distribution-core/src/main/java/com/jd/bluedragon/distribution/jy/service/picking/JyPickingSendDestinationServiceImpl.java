@@ -30,7 +30,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
 
 
     @Override
-    public String fetchSendingBatchCode(Integer curSiteId, Integer nextSiteId) {
+    public String fetchSendingBatchCode(Integer curSiteId, Long nextSiteId) {
 
         //todo zcf
         return null;

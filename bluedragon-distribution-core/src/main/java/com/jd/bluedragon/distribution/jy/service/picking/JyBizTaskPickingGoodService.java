@@ -24,7 +24,7 @@ public interface JyBizTaskPickingGoodService {
      * 自建提货任务生成
      * @return
      */
-    JyBizTaskPickingGoodEntity generateManualCreateTask(CurrentOperate site, User user);
+    JyBizTaskPickingGoodEntity generateManualCreateTask(CurrentOperate site, User user, Integer taskType);
 
     /**
      * 获取自建任务唯一bizId

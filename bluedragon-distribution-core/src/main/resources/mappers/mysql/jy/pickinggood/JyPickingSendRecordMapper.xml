@@ -42,6 +42,191 @@
     send_time, send_user_erp, send_user_name, create_time, update_time, yn, ts
   </sql>
 
+
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >
+      insert into jy_picking_send_record
+      <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          id,
+        </if>
+        <if test="bizId != null" >
+          biz_id,
+        </if>
+        <if test="pickingSiteId != null" >
+          picking_site_id,
+        </if>
+        <if test="pickingNodeCode != null" >
+          picking_node_code,
+        </if>
+        <if test="packageCode != null" >
+          package_code,
+        </if>
+        <if test="waybillCode != null" >
+          waybill_code,
+        </if>
+        <if test="scanCode != null" >
+          scan_code,
+        </if>
+        <if test="waitScanCode != null" >
+          wait_scan_code,
+        </if>
+        <if test="waitScanCodeType != null" >
+          wait_scan_code_type,
+        </if>
+        <if test="initNextSiteId != null" >
+          init_next_site_id,
+        </if>
+        <if test="boxInitFlowKey != null" >
+          box_init_flow_key,
+        </if>
+        <if test="waitScanFlag != null" >
+          wait_scan_flag,
+        </if>
+        <if test="scanFlag != null" >
+          scan_flag,
+        </if>
+        <if test="scanCodeType != null" >
+          scan_code_type,
+        </if>
+        <if test="moreScanFlag != null" >
+          more_scan_flag,
+        </if>
+        <if test="pickingUserErp != null" >
+          picking_user_erp,
+        </if>
+        <if test="pickingUserName != null" >
+          picking_user_name,
+        </if>
+        <if test="pickingTime != null" >
+          picking_time,
+        </if>
+        <if test="sendFlag != null" >
+          send_flag,
+        </if>
+        <if test="realNextSiteId != null" >
+          real_next_site_id,
+        </if>
+        <if test="boxRealFlowKey != null" >
+          box_real_flow_key,
+        </if>
+        <if test="moreSendFlag != null" >
+          more_send_flag,
+        </if>
+        <if test="forceSendFlag != null" >
+          force_send_flag,
+        </if>
+        <if test="sendTime != null" >
+          send_time,
+        </if>
+        <if test="sendUserErp != null" >
+          send_user_erp,
+        </if>
+        <if test="sendUserName != null" >
+          send_user_name,
+        </if>
+        <if test="createTime != null" >
+          create_time,
+        </if>
+        <if test="updateTime != null" >
+          update_time,
+        </if>
+        <if test="ts != null" >
+          ts,
+        </if>
+        yn
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          #{id,jdbcType=BIGINT},
+        </if>
+        <if test="bizId != null" >
+          #{bizId,jdbcType=VARCHAR},
+        </if>
+        <if test="pickingSiteId != null" >
+          #{pickingSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="pickingNodeCode != null" >
+          #{pickingNodeCode,jdbcType=VARCHAR},
+        </if>
+        <if test="packageCode != null" >
+          #{packageCode,jdbcType=VARCHAR},
+        </if>
+        <if test="waybillCode != null" >
+          #{waybillCode,jdbcType=VARCHAR},
+        </if>
+        <if test="scanCode != null" >
+          #{scanCode,jdbcType=VARCHAR},
+        </if>
+        <if test="waitScanCode != null" >
+          #{waitScanCode,jdbcType=VARCHAR},
+        </if>
+        <if test="waitScanCodeType != null" >
+          #{waitScanCodeType,jdbcType=TINYINT},
+        </if>
+        <if test="initNextSiteId != null" >
+          #{initNextSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="boxInitFlowKey != null" >
+          #{boxInitFlowKey,jdbcType=VARCHAR},
+        </if>
+        <if test="waitScanFlag != null" >
+          #{waitScanFlag,jdbcType=TINYINT},
+        </if>
+        <if test="scanFlag != null" >
+          #{scanFlag,jdbcType=TINYINT},
+        </if>
+        <if test="scanCodeType != null" >
+          #{scanCodeType,jdbcType=TINYINT},
+        </if>
+        <if test="moreScanFlag != null" >
+          #{moreScanFlag,jdbcType=TINYINT},
+        </if>
+        <if test="pickingUserErp != null" >
+          #{pickingUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="pickingUserName != null" >
+          #{pickingUserName,jdbcType=VARCHAR},
+        </if>
+        <if test="pickingTime != null" >
+          #{pickingTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="sendFlag != null" >
+          #{sendFlag,jdbcType=TINYINT},
+        </if>
+        <if test="realNextSiteId != null" >
+          #{realNextSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="boxRealFlowKey != null" >
+          #{boxRealFlowKey,jdbcType=VARCHAR},
+        </if>
+        <if test="moreSendFlag != null" >
+          #{moreSendFlag,jdbcType=TINYINT},
+        </if>
+        <if test="forceSendFlag != null" >
+          #{forceSendFlag,jdbcType=TINYINT},
+        </if>
+        <if test="sendTime != null" >
+          #{sendTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="sendUserErp != null" >
+          #{sendUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="sendUserName != null" >
+          #{sendUserName,jdbcType=VARCHAR},
+        </if>
+        <if test="createTime != null" >
+          #{createTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="updateTime != null" >
+          #{updateTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="ts != null" >
+          #{ts,jdbcType=TIMESTAMP},
+        </if>
+        1
+      </trim>
+    </insert>
+
   <select id="fetchWaitPickingBizIdByBarCode" resultType="java.lang.String" parameterType="JyPickingSendRecordEntity" >
     select biz_id
     from jy_picking_send_record
@@ -97,6 +282,53 @@
     ) t
   </select>
 
+
+
+    <update id="updatePickingGoodRecordByWaitScanCode" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >
+      update jy_picking_send_record
+      set
+          scan_code = #{scanCode,jdbcType=VARCHAR},
+          scan_flag = #{scanFlag,jdbcType=TINYINT},
+          scan_code_type = #{scanCodeType,jdbcType=TINYINT},
+          picking_user_erp = #{pickingUserErp,jdbcType=VARCHAR},
+          picking_user_name = #{pickingUserName,jdbcType=VARCHAR},
+          picking_time = #{pickingTime,jdbcType=TIMESTAMP},
+          update_time = #{updateTime},
+        <if test="moreScanFlag != null" >
+          more_scan_flag = #{moreScanFlag},
+        </if>
+        <if test="sendFlag != null" >
+          send_flag = #{sendFlag,jdbcType=TINYINT},
+        </if>
+        <if test="realNextSiteId != null" >
+          real_next_site_id = #{realNextSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="boxRealFlowKey != null" >
+          box_real_flow_key = #{boxRealFlowKey,jdbcType=VARCHAR},
+        </if>
+        <if test="moreSendFlag != null" >
+          more_send_flag = #{moreSendFlag,jdbcType=TINYINT},
+        </if>
+        <if test="forceSendFlag != null" >
+          force_send_flag = #{forceSendFlag,jdbcType=TINYINT},
+        </if>
+        <if test="sendTime != null" >
+          send_time = #{sendTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="sendUserErp != null" >
+          send_user_erp = #{sendUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="sendUserName != null" >
+          send_user_name = #{sendUserName,jdbcType=VARCHAR},
+        </if>
+      where yn = 1
+        and picking_site_id = #{pickingSiteId}
+        and biz_id = #{bizId}
+        and wait_scan_code = #{waitScanCode}
+    </update>
+
+
+
   <!--  -->
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select-->
@@ -129,193 +361,6 @@
 <!--    #{moreSendFlag,jdbcType=TINYINT}, #{forceSendFlag,jdbcType=TINYINT}, #{sendTime,jdbcType=TIMESTAMP},-->
 <!--    #{sendUserErp,jdbcType=VARCHAR}, #{sendUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},-->
 <!--    #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})-->
-<!--  </insert>-->
-<!--  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >-->
-<!--    insert into jy_picking_send_record-->
-<!--    <trim prefix="(" suffix=")" suffixOverrides="," >-->
-<!--      <if test="id != null" >-->
-<!--        id,-->
-<!--      </if>-->
-<!--      <if test="bizId != null" >-->
-<!--        biz_id,-->
-<!--      </if>-->
-<!--      <if test="pickingSiteId != null" >-->
-<!--        picking_site_id,-->
-<!--      </if>-->
-<!--      <if test="pickingNodeCode != null" >-->
-<!--        picking_node_code,-->
-<!--      </if>-->
-<!--      <if test="packageCode != null" >-->
-<!--        package_code,-->
-<!--      </if>-->
-<!--      <if test="waybillCode != null" >-->
-<!--        waybill_code,-->
-<!--      </if>-->
-<!--      <if test="scanCode != null" >-->
-<!--        scan_code,-->
-<!--      </if>-->
-<!--      <if test="waitScanCode != null" >-->
-<!--        wait_scan_code,-->
-<!--      </if>-->
-<!--      <if test="waitScanCodeType != null" >-->
-<!--        wait_scan_code_type,-->
-<!--      </if>-->
-<!--      <if test="initNextSiteId != null" >-->
-<!--        init_next_site_id,-->
-<!--      </if>-->
-<!--      <if test="boxInitFlowKey != null" >-->
-<!--        box_init_flow_key,-->
-<!--      </if>-->
-<!--      <if test="waitScanFlag != null" >-->
-<!--        wait_scan_flag,-->
-<!--      </if>-->
-<!--      <if test="scanFlag != null" >-->
-<!--        scan_flag,-->
-<!--      </if>-->
-<!--      <if test="scanCodeType != null" >-->
-<!--        scan_code_type,-->
-<!--      </if>-->
-<!--      <if test="moreScanFlag != null" >-->
-<!--        more_scan_flag,-->
-<!--      </if>-->
-<!--      <if test="pickingUserErp != null" >-->
-<!--        picking_user_erp,-->
-<!--      </if>-->
-<!--      <if test="pickingUserName != null" >-->
-<!--        picking_user_name,-->
-<!--      </if>-->
-<!--      <if test="pickingTime != null" >-->
-<!--        picking_time,-->
-<!--      </if>-->
-<!--      <if test="sendFlag != null" >-->
-<!--        send_flag,-->
-<!--      </if>-->
-<!--      <if test="realNextSiteId != null" >-->
-<!--        real_next_site_id,-->
-<!--      </if>-->
-<!--      <if test="boxRealFlowKey != null" >-->
-<!--        box_real_flow_key,-->
-<!--      </if>-->
-<!--      <if test="moreSendFlag != null" >-->
-<!--        more_send_flag,-->
-<!--      </if>-->
-<!--      <if test="forceSendFlag != null" >-->
-<!--        force_send_flag,-->
-<!--      </if>-->
-<!--      <if test="sendTime != null" >-->
-<!--        send_time,-->
-<!--      </if>-->
-<!--      <if test="sendUserErp != null" >-->
-<!--        send_user_erp,-->
-<!--      </if>-->
-<!--      <if test="sendUserName != null" >-->
-<!--        send_user_name,-->
-<!--      </if>-->
-<!--      <if test="createTime != null" >-->
-<!--        create_time,-->
-<!--      </if>-->
-<!--      <if test="updateTime != null" >-->
-<!--        update_time,-->
-<!--      </if>-->
-<!--      <if test="yn != null" >-->
-<!--        yn,-->
-<!--      </if>-->
-<!--      <if test="ts != null" >-->
-<!--        ts,-->
-<!--      </if>-->
-<!--    </trim>-->
-<!--    <trim prefix="values (" suffix=")" suffixOverrides="," >-->
-<!--      <if test="id != null" >-->
-<!--        #{id,jdbcType=BIGINT},-->
-<!--      </if>-->
-<!--      <if test="bizId != null" >-->
-<!--        #{bizId,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="pickingSiteId != null" >-->
-<!--        #{pickingSiteId,jdbcType=BIGINT},-->
-<!--      </if>-->
-<!--      <if test="pickingNodeCode != null" >-->
-<!--        #{pickingNodeCode,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="packageCode != null" >-->
-<!--        #{packageCode,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="waybillCode != null" >-->
-<!--        #{waybillCode,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="scanCode != null" >-->
-<!--        #{scanCode,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="waitScanCode != null" >-->
-<!--        #{waitScanCode,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="waitScanCodeType != null" >-->
-<!--        #{waitScanCodeType,jdbcType=TINYINT},-->
-<!--      </if>-->
-<!--      <if test="initNextSiteId != null" >-->
-<!--        #{initNextSiteId,jdbcType=BIGINT},-->
-<!--      </if>-->
-<!--      <if test="boxInitFlowKey != null" >-->
-<!--        #{boxInitFlowKey,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="waitScanFlag != null" >-->
-<!--        #{waitScanFlag,jdbcType=TINYINT},-->
-<!--      </if>-->
-<!--      <if test="scanFlag != null" >-->
-<!--        #{scanFlag,jdbcType=TINYINT},-->
-<!--      </if>-->
-<!--      <if test="scanCodeType != null" >-->
-<!--        #{scanCodeType,jdbcType=TINYINT},-->
-<!--      </if>-->
-<!--      <if test="moreScanFlag != null" >-->
-<!--        #{moreScanFlag,jdbcType=TINYINT},-->
-<!--      </if>-->
-<!--      <if test="pickingUserErp != null" >-->
-<!--        #{pickingUserErp,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="pickingUserName != null" >-->
-<!--        #{pickingUserName,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="pickingTime != null" >-->
-<!--        #{pickingTime,jdbcType=TIMESTAMP},-->
-<!--      </if>-->
-<!--      <if test="sendFlag != null" >-->
-<!--        #{sendFlag,jdbcType=TINYINT},-->
-<!--      </if>-->
-<!--      <if test="realNextSiteId != null" >-->
-<!--        #{realNextSiteId,jdbcType=BIGINT},-->
-<!--      </if>-->
-<!--      <if test="boxRealFlowKey != null" >-->
-<!--        #{boxRealFlowKey,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="moreSendFlag != null" >-->
-<!--        #{moreSendFlag,jdbcType=TINYINT},-->
-<!--      </if>-->
-<!--      <if test="forceSendFlag != null" >-->
-<!--        #{forceSendFlag,jdbcType=TINYINT},-->
-<!--      </if>-->
-<!--      <if test="sendTime != null" >-->
-<!--        #{sendTime,jdbcType=TIMESTAMP},-->
-<!--      </if>-->
-<!--      <if test="sendUserErp != null" >-->
-<!--        #{sendUserErp,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="sendUserName != null" >-->
-<!--        #{sendUserName,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="createTime != null" >-->
-<!--        #{createTime,jdbcType=TIMESTAMP},-->
-<!--      </if>-->
-<!--      <if test="updateTime != null" >-->
-<!--        #{updateTime,jdbcType=TIMESTAMP},-->
-<!--      </if>-->
-<!--      <if test="yn != null" >-->
-<!--        #{yn,jdbcType=BIT},-->
-<!--      </if>-->
-<!--      <if test="ts != null" >-->
-<!--        #{ts,jdbcType=TIMESTAMP},-->
-<!--      </if>-->
-<!--    </trim>-->
 <!--  </insert>-->
 <!--  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >-->
 <!--    update jy_picking_send_record-->

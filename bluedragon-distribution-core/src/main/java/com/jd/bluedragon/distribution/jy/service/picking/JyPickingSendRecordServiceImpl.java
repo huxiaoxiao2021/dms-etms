@@ -51,14 +51,10 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
     @Override
     public PickingGoodTaskStatisticsDto statisticsByBizId(Long siteId, String bizId, Long nextSiteId) {
         //待提
-        JyPickingSendRecordEntity waitPickingEntity = new JyPickingSendRecordEntity(siteId);
-        waitPickingEntity.setScanCode(bizId);
-        Integer waitPickingTotalNum = jyPickingSendRecordDao.countTaskWaitScanItemNum(waitPickingEntity);
+        Integer waitPickingTotalNum = this.countTaskWaitScanItemNum(bizId, siteId);
 
         //已提
-        JyPickingSendRecordEntity realPicking = new JyPickingSendRecordEntity(siteId);
-        realPicking.setScanCode(bizId);
-        Integer realPickingTotalNum = jyPickingSendRecordDao.countTaskRealScanItemNum(realPicking);
+        Integer realPickingTotalNum = this.countTaskRealScanItemNum(bizId, siteId);
 
         //多提
         JyPickingSendRecordEntity morePicking = new JyPickingSendRecordEntity(siteId);
@@ -98,17 +94,28 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
         return res;
     }
 
-    /**
-     * 已提件数
-     * @param bizId
-     * @param siteId
-     * @return
-     */
+    @Override
     public Integer countTaskRealScanItemNum (String bizId, Long siteId) {
         JyPickingSendRecordEntity realPicking = new JyPickingSendRecordEntity(siteId);
         realPicking.setScanCode(bizId);
         return jyPickingSendRecordDao.countTaskRealScanItemNum(realPicking);
+    }
 
+    @Override
+    public Integer countTaskWaitScanItemNum(String bizId, Long siteId) {
+        JyPickingSendRecordEntity waitPickingEntity = new JyPickingSendRecordEntity(siteId);
+        waitPickingEntity.setScanCode(bizId);
+        return jyPickingSendRecordDao.countTaskWaitScanItemNum(waitPickingEntity);
+    }
+
+    @Override
+    public void savePickingRecord(JyPickingSendRecordEntity recordEntity) {
+        jyPickingSendRecordDao.insertSelective(recordEntity);
+    }
+
+    @Override
+    public void updatePickingGoodRecordByWaitScanCode(JyPickingSendRecordEntity updateEntity) {
+        jyPickingSendRecordDao.updatePickingGoodRecordByWaitScanCode(updateEntity);
     }
 
 

@@ -9,6 +9,10 @@ import java.util.Date;
 public class JyPickingSendRecordEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    public static final Integer SCAN_PACKAGE = 1;
+    public static final Integer SCAN_BOX = 2;
+
+
     private Long id;
 
     private String bizId;
@@ -29,10 +33,6 @@ public class JyPickingSendRecordEntity implements Serializable {
      */
     private String waybillCode;
     /**
-     *
-     */
-    private String scanCode;
-    /**
      * 待提单据
      */
     private String waitScanCode;
@@ -52,6 +52,10 @@ public class JyPickingSendRecordEntity implements Serializable {
      * 待提标识：1是
      */
     private Integer waitScanFlag;
+    /**
+     * 实际提货的单据
+     */
+    private String scanCode;
     /**
      * 已提标识：1是
      */
@@ -85,7 +89,7 @@ public class JyPickingSendRecordEntity implements Serializable {
      */
     private Long realNextSiteId;
     /**
-     * 箱发货流向依据的包裹号
+     * 箱发货流向依据的单据
      */
     private String boxRealFlowKey;
     /**

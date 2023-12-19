@@ -52,4 +52,22 @@ public interface JyPickingSendRecordService {
      * @return
      */
     Integer countTaskRealScanItemNum(String bizId, Long siteId);
+    /**
+     * 待提件数
+     * @param bizId
+     * @param siteId
+     * @return
+     */
+    Integer countTaskWaitScanItemNum(String bizId, Long siteId);
+    /**
+     * 提货记录保存
+     * @param recordEntity
+     */
+    void savePickingRecord(JyPickingSendRecordEntity recordEntity);
+
+    /**
+     * 根据指定任务的baoCode修改扫描记录
+     * @param updateEntity
+     */
+    void updatePickingGoodRecordByWaitScanCode(JyPickingSendRecordEntity updateEntity);
 }
