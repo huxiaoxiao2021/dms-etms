@@ -47,6 +47,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -547,10 +548,12 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckContext.setDiffStandard(reportInfo == null ? null : reportInfo.getDiffStandard());
         spotCheckContext.setVolumeRate((reportInfo == null || reportInfo.getConvertCoefficient() == null)
                 ? null : reportInfo.getConvertCoefficient());
+        // 扩展字段
+        spotCheckContext.setExtendMap(reportInfo == null ? null : JsonHelper.toJson(reportInfo.getExtendMap()));
     }
 
     @Override
-    public void spotCheckIssue(WeightVolumeSpotCheckDto spotCheckDto) {
+    public void spotCheckIssue(SpotCheckIssueDetail spotCheckDto) {
         // 下发前置条件：超标&&集齐
         if(!Objects.equals(spotCheckDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             return;
@@ -600,7 +603,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      * @param spotCheckDto
      */
     @Override
-    public void executeIssue(WeightVolumeSpotCheckDto spotCheckDto) {
+    public void executeIssue(SpotCheckIssueDetail spotCheckDto) {
         if(!Objects.equals(spotCheckDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             // 抽检不超标不下发
             logger.warn("单号:{}的抽检数据不执行下发!", spotCheckDto.getPackageCode());
@@ -659,7 +662,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         buildAndIssue(spotCheckDto);
     }
 
-    private boolean checkIsDownByPicAI(WeightVolumeSpotCheckDto spotCheckDto) {
+    private boolean checkIsDownByPicAI(SpotCheckIssueDetail spotCheckDto) {
         if(Objects.equals(spotCheckDto.getPicIsQualify(), Constants.CONSTANT_NUMBER_ONE)){
             return true;
         }
@@ -675,7 +678,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      *
      * @param spotCheckDto
      */
-    private void buildAndIssue(WeightVolumeSpotCheckDto spotCheckDto) {
+    private void buildAndIssue(SpotCheckIssueDetail spotCheckDto) {
         SpotCheckIssueMQ spotCheckIssueMQ = new SpotCheckIssueMQ();
         spotCheckIssueMQ.setFlowSystem(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())
                 ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
@@ -687,13 +690,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setOperateType(Constants.CONSTANT_NUMBER_ONE);
         spotCheckIssueMQ.setWaybillCode(spotCheckDto.getWaybillCode());
         spotCheckIssueMQ.setDutyType(spotCheckDto.getContrastDutyType());
-        spotCheckIssueMQ.setDutyRegionCode(String.valueOf(spotCheckDto.getContrastOrgCode()));
+        spotCheckIssueMQ.setDutyRegionCode(spotCheckDto.getContrastOrgCode() == null ? null : String.valueOf(spotCheckDto.getContrastOrgCode()));
         spotCheckIssueMQ.setDutyRegion(spotCheckDto.getContrastOrgName());
         spotCheckIssueMQ.setDutyProvinceCompanyCode(spotCheckDto.getContrastWarZoneCode());
         spotCheckIssueMQ.setDutyProvinceCompanyName(spotCheckDto.getContrastWarZoneName());
         spotCheckIssueMQ.setDutyAreaCode(spotCheckDto.getContrastAreaCode());
         spotCheckIssueMQ.setDutyAreaName(spotCheckDto.getContrastAreaName());
-        spotCheckIssueMQ.setDutyOrgCode(String.valueOf(spotCheckDto.getContrastSiteCode()));
+        spotCheckIssueMQ.setDutyOrgCode(spotCheckDto.getContrastSiteCode() == null ? null : String.valueOf(spotCheckDto.getContrastSiteCode()));
         spotCheckIssueMQ.setDutyOrgName(spotCheckDto.getContrastSiteName());
         spotCheckIssueMQ.setDutyStaffAccount(spotCheckDto.getContrastStaffAccount());
         spotCheckIssueMQ.setDutyStaffName(spotCheckDto.getContrastStaffName());
@@ -704,9 +707,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setStartStaffAccount(spotCheckDto.getReviewUserErp());
         spotCheckIssueMQ.setStartStaffName(spotCheckDto.getReviewUserName());
         spotCheckIssueMQ.setStartStaffType(Constants.CONSTANT_NUMBER_ONE);
-        spotCheckIssueMQ.setStartRegionCode(String.valueOf(spotCheckDto.getReviewOrgCode()));
+        spotCheckIssueMQ.setStartRegionCode(spotCheckDto.getReviewOrgCode() == null ? null : String.valueOf(spotCheckDto.getReviewOrgCode()));
         spotCheckIssueMQ.setStartRegion(spotCheckDto.getReviewOrgName());
-        spotCheckIssueMQ.setOrgCode(String.valueOf(spotCheckDto.getReviewSiteCode()));
+        spotCheckIssueMQ.setOrgCode(spotCheckDto.getReviewSiteCode() == null ? null : String.valueOf(spotCheckDto.getReviewSiteCode()));
         spotCheckIssueMQ.setOrgName(spotCheckDto.getReviewSiteName());
         spotCheckIssueMQ.setReConfirmLong(spotCheckDto.getReviewLength() == null ? null : String.valueOf(spotCheckDto.getReviewLength()));
         spotCheckIssueMQ.setReConfirmWidth(spotCheckDto.getReviewWidth() == null ? null : String.valueOf(spotCheckDto.getReviewWidth()));
@@ -724,16 +727,21 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         // 新版抽检附件传参方式:传了appendixList，appendix和url字段就不用传了
         spotCheckIssueMQ.setAppendixList(appendixDtoList);
         spotCheckIssueMQ.setStartTime(new Date());
+        // 扩展字段
+        spotCheckIssueMQ.setExtendMap(spotCheckDto.getExtendMap() == null ? null : JsonHelper.json2MapNormal(spotCheckDto.getExtendMap()));
         if(logger.isInfoEnabled()){
             logger.info("下发运单号:{}的抽检超标数据至称重再造流程,明细如下:{}", spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
         }
         spotCheckIssueProducer.sendOnFailPersistent(spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
         // 更新抽检主记录数据
         spotCheckDto.setIsIssueDownstream(Constants.CONSTANT_NUMBER_ONE);
-        spotCheckServiceProxy.insertOrUpdateProxyReform(spotCheckDto);
+        // 转换report对象
+        WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = new WeightVolumeSpotCheckDto();
+        BeanUtils.copyProperties(spotCheckDto, weightVolumeSpotCheckDto);
+        spotCheckServiceProxy.insertOrUpdateProxyReform(weightVolumeSpotCheckDto);
     }
 
-    private List<SpotCheckAppendixDto> transformAppendixData(WeightVolumeSpotCheckDto spotCheckDto) {
+    private List<SpotCheckAppendixDto> transformAppendixData(SpotCheckIssueDetail spotCheckDto) {
         List<String> picList = picUrlDeal(spotCheckDto);
         List<SpotCheckAppendixDto> appendixDtoList = new ArrayList<>(6);
         // 图片
@@ -755,7 +763,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         return appendixDtoList;
     }
 
-    private List<String> picUrlDeal(WeightVolumeSpotCheckDto spotCheckDto) {
+    private List<String> picUrlDeal(SpotCheckIssueDetail spotCheckDto) {
         List<String> picList = new ArrayList<>();
         if (StringUtils.isBlank(spotCheckDto.getPictureAddress())) {
             return picList;

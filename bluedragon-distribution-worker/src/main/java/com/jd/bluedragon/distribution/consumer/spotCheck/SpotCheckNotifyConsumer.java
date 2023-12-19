@@ -124,6 +124,8 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
 
         // 更新抽检状态
         updateDto.setSpotCheckStatus(status);
+        // 二级超标类型
+        updateDto.setExcessSubType(spotCheckNotifyMQ.getExceedSubType());
 
         // 是否是分拣-设备抽检
         boolean isDwsSpotCheck = SpotCheckConstants.EQUIPMENT_SPOT_CHECK.equals(flowSystem);
