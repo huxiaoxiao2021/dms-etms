@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.FinishSendTaskReq;
+
 /**
  * @Author zhengchengfa
  * @Date 2023/12/6 20:20
@@ -14,4 +16,6 @@ public interface JyPickingSendDestinationService {
      * @return
      */
     String fetchSendingBatchCode(Integer curSiteId, Integer nextSiteId);
+
+    Boolean finishSendTask(FinishSendTaskReq req);
 }

@@ -224,4 +224,23 @@
 <!--      ts = #{ts,jdbcType=TIMESTAMP}-->
 <!--    where id = #{id,jdbcType=BIGINT}-->
 <!--  </update>-->
+  <update id="updateSendTaskStatus" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity">
+    update
+        jy_picking_send_destination_detail
+    set
+        status = #{status}
+    where
+        yn = 1
+    and
+        send_code = #{send_code}
+    <if test="createSiteId != null">
+    and create_site_id = #{createSiteId}
+    </if>
+    <if test="nextSiteId != null">
+    and next_site_id = #{nextSiteId}
+    </if>
+    <if test="completeTime != null">
+    and complete_time = #{completeTime}
+    </if>
+  </update>
 </mapper>

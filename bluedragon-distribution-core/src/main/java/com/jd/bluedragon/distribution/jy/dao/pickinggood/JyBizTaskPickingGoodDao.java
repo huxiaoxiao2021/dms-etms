@@ -19,8 +19,8 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
     public int updateTaskByBizIdWithCondition(JyBizTaskPickingGoodEntityCondition entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateTaskByBizIdWithCondition", entity);
     }
-    public boolean updateStatusByBizId(JyBizTaskPickingGoodEntity entity) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".updateStatusByBizId", entity);
+    public int updateStatusByBizId(JyBizTaskPickingGoodEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateStatusByBizId", entity);
     }
 
 
