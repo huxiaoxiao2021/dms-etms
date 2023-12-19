@@ -2259,6 +2259,17 @@ public class Constants {
     public static final String JY_COLLECT_BOX_LOCK_PREFIX  = "jy_collect_package_box_lock_%s";
 
     /**
+     * 找货通知redis key:  find_goods_notice_场地id_签到日期_波次开始时间_波次结束时间
+     * eg:find_goods_notice_8663_2023-11-28_09:00:00_12:00:00
+     */
+    public static final String FIND_GOODS_NOTICE_CACHE_KEY = "find_goods_notice_%s_%s_%s_%s";
+
+    public static final String FIND_GOODS_NOTICE_TITLE = "波次清场找货通知";
+
+    public static final String FIND_GOODS_NOTICE_CONTENT = "%s分拣中心，%s%s（波次开始时间）-%s（波次结束时间）班次清场，需找货%s件，已找到%s件，仍有%s件未找到，其中包含%s件高值、%s件特快、%s件生鲜，请安排继续找货。";
+
+
+    /**
      * PDA调查问卷ID配置
      */
     public static final String PDA_QUESTIONNAIRE_ID = "pda.questionnaire.id";

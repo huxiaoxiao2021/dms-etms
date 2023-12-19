@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SiteDesensitization;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -71,7 +72,9 @@ public class SiteResource {
 	@Path("/site/{siteCode}")
 	@JProfiler(jKey = "DMS.WEB.SiteResource.getSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getSite(@PathParam("siteCode") Integer siteCode) {
-		return this.siteService.getSite(siteCode);
+		BaseStaffSiteOrgDto site = this.siteService.getSite(siteCode);
+		SiteDesensitization.desensitizeBaseStaffSiteOrgDto(site);
+		return site;
 	}
 
 

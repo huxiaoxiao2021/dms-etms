@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SiteDesensitization;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillPickup;
@@ -89,6 +90,9 @@ public class CenterServiceResource {
 			result = baseMajorManager.getBaseSiteBySiteId(siteId);
 		} catch (Exception e) {
 			log.error("中心服务调用基础资料getBaseSiteBySiteId出错 siteId={}", siteId, e);
+		}
+		if (result!=null) {
+			SiteDesensitization.desensitizeBaseStaffSiteOrgDto(result);
 		}
 		return result;
 	}
