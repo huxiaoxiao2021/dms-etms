@@ -47,7 +47,11 @@ public class PickingGoodsRes implements Serializable {
     /**
      * 当前barCode提货任务
      */
-    AirRailTaskAggDto airRailTaskAggDto;
+    private AirRailTaskAggDto airRailTaskAggDto;
+    /**
+     * 实际发货的批次号
+     */
+    private String batchCode;
 
     public Integer getRealNextSiteId() {
         return realNextSiteId;
@@ -103,5 +107,13 @@ public class PickingGoodsRes implements Serializable {
 
     public void setAirRailTaskAggDto(AirRailTaskAggDto airRailTaskAggDto) {
         this.airRailTaskAggDto = airRailTaskAggDto;
+    }
+
+    public String getBatchCode() {
+        return batchCode;
+    }
+
+    public void setBatchCode(String batchCode) {
+        this.batchCode = batchCode;
     }
 }

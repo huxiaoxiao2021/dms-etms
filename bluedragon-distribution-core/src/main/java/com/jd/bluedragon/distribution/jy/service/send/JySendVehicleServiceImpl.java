@@ -2499,7 +2499,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         jySendCodeService.add(sendCodeEntity);
     }
 
-    private String generateSendCode(Long startSiteId, Long destSiteId, String createUser) {
+    @Override
+    public String generateSendCode(Long startSiteId, Long destSiteId, String createUser) {
         Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
         attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(startSiteId));
         attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(destSiteId));

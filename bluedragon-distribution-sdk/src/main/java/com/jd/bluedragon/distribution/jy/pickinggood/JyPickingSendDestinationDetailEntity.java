@@ -9,6 +9,20 @@ import java.util.Date;
 public class JyPickingSendDestinationDetailEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    public static Integer STATUS_SENDING = 1;
+    public static Integer STATUS_COMPLETE = 2;
+    public static Integer STATUS_SEAL = 3;
+
+
+    public JyPickingSendDestinationDetailEntity() {
+    }
+
+    public JyPickingSendDestinationDetailEntity(Long createSiteId, Long nextSiteId) {
+        this.createSiteId = createSiteId;
+        this.nextSiteId = nextSiteId;
+    }
+
     private Long id;
     /**
      * 创建场地id
@@ -23,7 +37,7 @@ public class JyPickingSendDestinationDetailEntity implements Serializable {
      */
     private String sendCode;
     /**
-     * 提货状态（0-待发货，1-发货中，2-待封车[发货完成]，3-已封车）
+     * 提货状态（1-发货中，2-待封车[发货完成]，3-已封车）
      */
     private Integer status;
     /**

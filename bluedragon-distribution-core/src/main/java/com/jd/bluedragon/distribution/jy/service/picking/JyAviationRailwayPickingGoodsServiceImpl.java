@@ -133,18 +133,14 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             }
             //提货并发货执行
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
-                if(!misSendingCheck(request, res)) {
+                if(!this.sendGoodBusinessCheck(request, res)) {
                     return res;
                 }
-                if(!doPickingSendGoods(request, res, taskPickingGoodEntity)) {
-                    return res;
-                }
+                this.doPickingSendGoods(request, res, taskPickingGoodEntity);
             }
             //仅提货逻辑
             else {
-                if(!doPickingGoods(request, res, taskPickingGoodEntity)) {
-                    return res;
-                };
+                this.doPickingGoods(request, res, taskPickingGoodEntity);
             }
             //提货记录
             this.savePickingRecord(request, resData, taskPickingGoodEntity);
@@ -167,6 +163,21 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             pickingGoodsCacheService.unlockPickingGoodScan(request.getBarCode(), request.getCurrentOperate().getSiteCode());
         }
 
+    }
+
+    /**
+     * 提货发货校验
+     */
+    private boolean sendGoodBusinessCheck(PickingGoodsReq request, InvokeResult<PickingGoodsRes> res) {
+        if(!jyPickingSendDestinationService.existSendNextSite((long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId())){
+            String siteName = this.getSiteNameBySiteId(request.getNextSiteId().intValue());
+            res.parameterError(String.format("发货场地[%s|%s]未维护，请先添加发货流向", request.getNextSiteId(), siteName));
+            return false;
+        }
+        if(!misSendingCheck(request, res)) {
+            return false;
+        }
+        return true;
     }
 
     private void savePickingRecord(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity taskEntity) {
@@ -380,7 +391,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         bodyDto.setBoxCode(request.getBarCode());
         bodyDto.setBusinessType(10);
         bodyDto.setTaskType(Task.TASK_TYPE_AR_RECEIVE_AND_SEND);
-        bodyDto.setBatchCode(jyPickingSendDestinationService.fetchSendingBatchCode(request.getCurrentOperate().getSiteCode(), request.getNextSiteId()));
+        bodyDto.setBatchCode(jyPickingSendDestinationService.findOrGenerateBatchCode((long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId(), request.getUser()));
         bodyDto.setReceiveSiteCode(request.getNextSiteId().intValue());
         //
         bodyDto.setUserErp(request.getUser().getUserErp());
@@ -407,6 +418,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         taskRequest.setUserName(request.getUser().getUserName());
         taskService.add(taskRequest);
         res.getData().setOperateTime(date.getTime());
+        res.getData().setBatchCode(bodyDto.getBatchCode());
         return true;
     }
 
@@ -464,14 +476,11 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
      * @return
      */
     private String getSiteNameBySiteId(Integer siteId){
-        BaseStaffSiteOrgDto dto = null;
-        try{
-            dto = baseMajorManager.getBaseSiteBySiteId(siteId);
-            return dto.getSiteName();
-        }catch (Exception e) {
-            log.error("根据场地编码{}获取场地名称服务异常，res={},errMsg={}", siteId, JsonHelper.toJson(dto), e.getMessage(), e);
-            throw new JyBizException();
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(siteId);
+        if(Objects.isNull(dto)) {
+            throw new JyBizException(String.format("根据场地编码%s查询场地不存在", siteId));
         }
+        return dto.getSiteName();
     }
 
     /**
