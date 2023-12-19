@@ -2,7 +2,7 @@ package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking
 
 import java.io.Serializable;
 
-public class AirportTaskCountDto implements Serializable {
+public class AirRailTaskCountDto implements Serializable {
     private static final long serialVersionUID = -4172381752372812829L;
 
     /**

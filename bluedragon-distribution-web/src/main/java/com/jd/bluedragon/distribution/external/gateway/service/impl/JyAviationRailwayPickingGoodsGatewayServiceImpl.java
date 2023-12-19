@@ -212,7 +212,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
     }
 
     @Override
-    public JdCResponse<AirportTaskRes> listAirportTask(AirportTaskReq req) {
+    public JdCResponse<AirRailTaskRes> listAirportTask(AirportTaskReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
@@ -236,7 +236,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
     }
 
     @Override
-    public JdCResponse<List<AirportTaskAggDto>> listAirportTaskAgg(AirportTaskAggReq req) {
+    public JdCResponse<List<AirRailTaskAggDto>> listAirportTaskAgg(AirRailTaskAggReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }

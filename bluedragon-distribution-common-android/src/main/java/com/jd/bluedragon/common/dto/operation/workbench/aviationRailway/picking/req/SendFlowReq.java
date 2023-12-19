@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendFlowDisplayEnum;
 
 import java.io.Serializable;
 
@@ -9,6 +10,7 @@ public class SendFlowReq extends BaseReq implements Serializable {
 
     /**
      * 展示类型
+     * @see SendFlowDisplayEnum
      */
     private Integer displayType;
 }

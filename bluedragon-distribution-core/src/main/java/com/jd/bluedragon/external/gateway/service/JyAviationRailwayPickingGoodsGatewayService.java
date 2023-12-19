@@ -62,12 +62,12 @@ public interface JyAviationRailwayPickingGoodsGatewayService {
      * @param req
      * @return
      */
-    JdCResponse<AirportTaskRes> listAirportTask(AirportTaskReq req);
+    JdCResponse<AirRailTaskRes> listAirportTask(AirportTaskReq req);
 
     /**
      * 某机场下的任务列表
      * @param req
      * @return
      */
-    JdCResponse<List<AirportTaskAggDto>> listAirportTaskAgg(AirportTaskAggReq req);
+    JdCResponse<List<AirRailTaskAggDto>> listAirportTaskAgg(AirRailTaskAggReq req);
 }

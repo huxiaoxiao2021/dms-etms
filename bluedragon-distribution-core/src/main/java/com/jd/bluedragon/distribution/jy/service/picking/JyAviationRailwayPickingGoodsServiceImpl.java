@@ -2,8 +2,6 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
-import com.jd.bluedragon.common.dto.comboard.request.AddCTTReq;
-import com.jd.bluedragon.common.dto.comboard.response.TableTrolleyDto;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
@@ -110,8 +108,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         InvokeResult<PickingGoodsRes> res = new InvokeResult<>();
         PickingGoodsRes resData = new PickingGoodsRes();
         res.setData(resData);
-        AirportTaskAggDto airportTaskAggDto = new AirportTaskAggDto();
-        resData.setAirportTaskAggDto(airportTaskAggDto);
+        AirRailTaskAggDto airRailTaskAggDto = new AirRailTaskAggDto();
+        resData.setAirRailTaskAggDto(airRailTaskAggDto);
 
         //必填业务参数校验
         InvokeResult<String> paramCheckRes = new InvokeResult<>();
@@ -168,8 +166,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     private void convertPickingTask(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity taskPickingGoodEntity) {
-        AirportTaskAggDto airportTaskAggDto = resData.getAirportTaskAggDto();
-        BeanUtils.copyProperties(airportTaskAggDto, taskPickingGoodEntity);
+        AirRailTaskAggDto airRailTaskAggDto = resData.getAirRailTaskAggDto();
+        BeanUtils.copyProperties(airRailTaskAggDto, taskPickingGoodEntity);
         Integer waitPickingTotalNum = this.getWaitPickingTotalItemNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
         Integer realPickingTotalNum = 1;
         Integer morePickingTotalNum = (BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode()).equals(resData.getTaskSource()) ? 1 : 0;
@@ -177,15 +175,15 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         int realScanWaitPackageNum = aggsCacheService.getValueRealScanWaitPickingPackageNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
         int realScanWaitBoxNum = aggsCacheService.getValueRealScanWaitPickingBoxNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
         int waitPickingTotalNumTemp = waitPickingTotalNum - (realScanWaitPackageNum + realScanWaitBoxNum);
-        airportTaskAggDto.setWaitScanTotal(NumberHelper.gt(waitPickingTotalNumTemp, waitPickingTotalNum) ? waitPickingTotalNumTemp : waitPickingTotalNum);
+        airRailTaskAggDto.setWaitScanTotal(NumberHelper.gt(waitPickingTotalNumTemp, waitPickingTotalNum) ? waitPickingTotalNumTemp : waitPickingTotalNum);
         //已提
         int morePickingPackageNum = aggsCacheService.getValueRealScanMorePickingPackageNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
         int morePickingBoxNum = aggsCacheService.getValueRealScanMorePickingBoxNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
         Integer realPickingTotalNumTemp = realScanWaitPackageNum + realScanWaitBoxNum + morePickingPackageNum + morePickingBoxNum;
-        airportTaskAggDto.setHaveScannedTotal(NumberHelper.gt(realPickingTotalNumTemp, realPickingTotalNum) ? realPickingTotalNumTemp : realPickingTotalNum);
+        airRailTaskAggDto.setHaveScannedTotal(NumberHelper.gt(realPickingTotalNumTemp, realPickingTotalNum) ? realPickingTotalNumTemp : realPickingTotalNum);
         //多提
         int morePickingTotalNumTemp = morePickingPackageNum + morePickingBoxNum;
-        airportTaskAggDto.setMultipleScanTotal(NumberHelper.gt(morePickingTotalNumTemp, morePickingTotalNum) ? morePickingTotalNumTemp : morePickingTotalNum);
+        airRailTaskAggDto.setMultipleScanTotal(NumberHelper.gt(morePickingTotalNumTemp, morePickingTotalNum) ? morePickingTotalNumTemp : morePickingTotalNum);
 
     }
     //待提总件数
@@ -534,12 +532,12 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
-    public InvokeResult<AirportTaskRes> listAirportTask(AirportTaskReq req) {
+    public InvokeResult<AirRailTaskRes> listAirportTask(AirportTaskReq req) {
         return null;
     }
 
     @Override
-    public InvokeResult<List<AirportTaskAggDto>> listAirportTaskAgg(AirportTaskAggReq req) {
+    public InvokeResult<List<AirRailTaskAggDto>> listAirportTaskAgg(AirRailTaskAggReq req) {
         return null;
     }
 

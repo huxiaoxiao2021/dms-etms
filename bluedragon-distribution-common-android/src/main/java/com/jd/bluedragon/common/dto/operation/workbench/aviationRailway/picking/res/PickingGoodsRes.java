@@ -47,7 +47,7 @@ public class PickingGoodsRes implements Serializable {
     /**
      * 当前barCode提货任务
      */
-    AirportTaskAggDto airportTaskAggDto;
+    AirRailTaskAggDto airRailTaskAggDto;
 
     public Integer getRealNextSiteId() {
         return realNextSiteId;
@@ -97,11 +97,11 @@ public class PickingGoodsRes implements Serializable {
         this.taskSource = taskSource;
     }
 
-    public AirportTaskAggDto getAirportTaskAggDto() {
-        return airportTaskAggDto;
+    public AirRailTaskAggDto getAirRailTaskAggDto() {
+        return airRailTaskAggDto;
     }
 
-    public void setAirportTaskAggDto(AirportTaskAggDto airportTaskAggDto) {
-        this.airportTaskAggDto = airportTaskAggDto;
+    public void setAirRailTaskAggDto(AirRailTaskAggDto airRailTaskAggDto) {
+        this.airRailTaskAggDto = airRailTaskAggDto;
     }
 }
