@@ -537,7 +537,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
-    public InvokeResult<List<AirRailTaskAggDto>> listAirportTaskAgg(AirRailTaskAggReq req) {
+    public InvokeResult<AirRailTaskAggRes> listAirportTaskAgg(AirRailTaskAggReq req) {
         return null;
     }
 
