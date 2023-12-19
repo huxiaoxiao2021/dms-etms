@@ -13,5 +13,5 @@ public interface JyPickingSendDestinationService {
      * @param nextSiteId
      * @return
      */
-    String fetchSendingBatchCode(Integer curSiteId, Integer nextSiteId);
+    String fetchSendingBatchCode(Integer curSiteId, Long nextSiteId);
 }

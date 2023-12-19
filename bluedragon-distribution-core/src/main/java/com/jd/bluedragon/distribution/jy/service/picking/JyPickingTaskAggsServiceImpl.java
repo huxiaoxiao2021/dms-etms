@@ -83,11 +83,12 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
      * c: 多发总件数 = 多发包裹件数 + 多发箱件数
      * d: 强发件数 = 强发包裹件数 + 强发箱件数 【目前场景不需要，DB定义了该字段，可暂时不做加工】
      *
-     *
-
-     * @param request
-     * @param resData
-     * @param entity
+     * 上面是提货任务维度统计
+     * 下面提货发货流向统计
+     * 1、流向内实发发货的需要提货的包裹件数
+     * 2、流向内实发发货的需要提货的箱件数
+     * 3、流向内实发发货的多货的包裹件数
+     * 4、流向内实发发货的多货的箱件数
      */
     @Override
     public void saveCacheAggStatistics(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity) {
@@ -104,11 +105,17 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
                 //实际提货发货的待提箱件数
                 cacheService.incrRealScanWaitSendBoxNum(bizId, siteId);
+                //实际提货发货的待提箱的件数【流向维度】
+                cacheService.incrRealScaFlowWaitSendBoxNum(bizId, siteId, request.getNextSiteId());
+
                 if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
                     //多提发的箱件数
                     cacheService.incrRealScanMoreSendBoxNum(bizId, siteId);
+                    //多提发的箱件数【流向维度】
+                    cacheService.incrRealScanFlowMoreSendBoxNum(bizId, siteId, request.getNextSiteId());
                 }
                 //强发箱件数
+
             }
         }else if(WaybillUtil.isPackageCode(request.getBarCode())) {
             //实际提货的待提包裹件数
@@ -120,9 +127,13 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
                 //实际提货发货的待提包裹件数
                 cacheService.incrRealScanWaitSendPackageNum(bizId, siteId);
+                //实际提货发货的待提包裹件数【流向维度】
+                cacheService.incrRealScanFlowWaitSendPackageNum(bizId, siteId, request.getNextSiteId());
                 if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
                     //多提发的包裹件数
                     cacheService.incrRealScanMoreSendPackageNum(bizId, siteId);
+                    //多提发的包裹件数【流向维度】
+                    cacheService.incrRealScanFlowMoreSendPackageNum(bizId, siteId, request.getNextSiteId());
                 }
                 //强发包裹件数
             }

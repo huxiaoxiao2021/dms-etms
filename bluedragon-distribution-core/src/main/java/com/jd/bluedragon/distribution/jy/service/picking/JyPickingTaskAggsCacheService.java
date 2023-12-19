@@ -75,6 +75,34 @@ public class JyPickingTaskAggsCacheService {
     private static final String CACHE_REAL_SCAN_MORE_SEND_BOX = "cache:real:scan:more:send:box:%s:%s";
     private static final Integer CACHE_REAL_SCAN_MORE_SEND_BOX_TIMEOUT_DAYS = 15;
 
+
+    /**
+     * 按发货流向维度：该流向实际提发货的待提包裹数
+     */
+    private static final String CACHE_REAL_SCAN_FLOW_WAIT_SEND_PACKAGE = "cache:real:scan:flow:wait:send:package:%s:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_FLOW_WAIT_SEND_PACKAGE_TIMEOUT_DAYS = 15;
+    /**
+     * 按发货流向维度：该流向实际提发货的待提箱数
+     */
+    private static final String CACHE_REAL_SCAN_FLOW_WAIT_SEND_BOX = "cache:real:scan:flow:wait:send:box:%s:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_FLOW_WAIT_SEND_BOX_TIMEOUT_DAYS = 15;
+    /**
+     * 按发货流向维度：该流向实际提发货的多提包裹数
+     */
+    private static final String CACHE_REAL_SCAN_FLOW_MORE_SEND_PACKAGE = "cache:real:scan:flow:more:send:package:%s:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_FLOW_MORE_SEND_PACKAGE_TIMEOUT_DAYS = 15;
+    /**
+     * 按发货流向维度：该流向实际提发货的多提箱数
+     */
+    private static final String CACHE_REAL_SCAN_FLOW_MORE_SEND_BOX = "cache:real:scan:flow:more:send:box:%s:%s:%s";
+    private static final Integer CACHE_REAL_SCAN_FLOW_MORE_SEND_BOX_TIMEOUT_DAYS = 15;
+
+    /**
+     * 按发货流向维度：该流向实际提发货的多提箱数
+     */
+    private static final String CACHE_INIT_WAIT_PICKING_TOTAL_NUM = "cache:init:wait:picking:total:num:%s:%s";
+    private static final Integer CACHE_INIT_WAIT_PICKING_TOTAL_NUM_TIMEOUT_DAYS = 15;
+
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
     @Autowired
@@ -264,5 +292,123 @@ public class JyPickingTaskAggsCacheService {
         Long num = redisClientOfJy.incr(key);
         redisClientOfJy.expire(key, CACHE_REAL_SCAN_MORE_SEND_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
         return num.intValue();
+    }
+
+
+    /**
+     * 按发货流向维度：该流向实际提发货的需要待提的包裹数
+     * @param bizId
+     * @param siteId
+     * @param nextSiteId
+     * @return
+     */
+    public Integer incrRealScanFlowWaitSendPackageNum(String bizId, Long siteId, Long nextSiteId){
+        String key = this.getCacheKeyRealScanFlowWaitSendPackageNum(bizId, siteId, nextSiteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_FLOW_WAIT_SEND_PACKAGE_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
+    }
+    public Integer getValueRealScanFlowWaitSendPackageNum(String bizId, Long siteId, Long nextSiteId){
+        String key = this.getCacheKeyRealScanFlowWaitSendPackageNum(bizId, siteId, nextSiteId);
+        String numStr = redisClientOfJy.get(key);
+        if(StringUtils.isBlank(numStr)) {
+            return 0;
+        }
+        return Integer.valueOf(numStr);
+    }
+    private String getCacheKeyRealScanFlowWaitSendPackageNum(String bizId, Long siteId, Long nextSiteId){
+        return String.format(CACHE_REAL_SCAN_FLOW_WAIT_SEND_PACKAGE, bizId, siteId);
+    }
+
+    /**
+     * 按发货流向维度：该流向实际提发货的需要待提的箱数
+     * @param bizId
+     * @param siteId
+     * @param nextSiteId
+     * @return
+     */
+    public Integer incrRealScaFlowWaitSendBoxNum(String bizId, Long siteId, Long nextSiteId){
+        String key = this.getCacheKeyRealScaFlowWaitSendBoxNum(bizId, siteId, nextSiteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_FLOW_WAIT_SEND_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
+    }
+    public Integer getValueRealScaFlowWaitSendBoxNum(String bizId, Long siteId, Long nextSiteId){
+        String key = this.getCacheKeyRealScaFlowWaitSendBoxNum(bizId, siteId, nextSiteId);
+        String numStr = redisClientOfJy.get(key);
+        if(StringUtils.isBlank(numStr)) {
+            return 0;
+        }
+        return Integer.valueOf(numStr);
+    }
+    private String getCacheKeyRealScaFlowWaitSendBoxNum(String bizId, Long siteId, Long nextSiteId){
+        return String.format(CACHE_REAL_SCAN_FLOW_WAIT_SEND_BOX, bizId, siteId);
+    }
+    /**
+     * 按发货流向维度：该流向实际提发货的多发包裹数
+     * @param bizId
+     * @param siteId
+     * @param nextSiteId
+     * @return
+     */
+    public Integer incrRealScanFlowMoreSendPackageNum(String bizId, Long siteId, Long nextSiteId){
+        String key = this.getCacheKeyRealScanFlowMoreSendPackageNum(bizId, siteId, nextSiteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_FLOW_MORE_SEND_PACKAGE_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
+    }
+    public Integer getValueRealScanFlowMoreSendPackageNum(String bizId, Long siteId, Long nextSiteId){
+        String key = this.getCacheKeyRealScanFlowMoreSendPackageNum(bizId, siteId, nextSiteId);
+        String numStr = redisClientOfJy.get(key);
+        if(StringUtils.isBlank(numStr)) {
+            return 0;
+        }
+        return Integer.valueOf(numStr);
+    }
+    private String getCacheKeyRealScanFlowMoreSendPackageNum(String bizId, Long siteId, Long nextSiteId){
+        return String.format(CACHE_REAL_SCAN_FLOW_MORE_SEND_PACKAGE, bizId, siteId);
+    }
+    /**
+     * 按发货流向维度：该流向实际提发货的多发箱数
+     * @param bizId
+     * @param siteId
+     * @param nextSiteId
+     * @return
+     */
+    public Integer incrRealScanFlowMoreSendBoxNum(String bizId, Long siteId, Long nextSiteId){
+        String key = this.getCacheKeyRealScanFlowMoreSendBoxNum(bizId, siteId, nextSiteId);
+        Long num = redisClientOfJy.incr(key);
+        redisClientOfJy.expire(key, CACHE_REAL_SCAN_FLOW_MORE_SEND_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
+        return num.intValue();
+    }
+    public Integer getValueRealScanFlowMoreSendBoxNum(String bizId, Long siteId, Long nextSiteId){
+        String key = this.getCacheKeyRealScanFlowMoreSendBoxNum(bizId, siteId, nextSiteId);
+        String numStr = redisClientOfJy.get(key);
+        if(StringUtils.isBlank(numStr)) {
+            return 0;
+        }
+        return Integer.valueOf(numStr);
+    }
+    private String getCacheKeyRealScanFlowMoreSendBoxNum(String bizId, Long siteId, Long nextSiteId){
+        return String.format(CACHE_REAL_SCAN_FLOW_MORE_SEND_BOX, bizId, siteId);
+    }
+
+    /**
+     * 任务初始化的待提数量
+     */
+    public void saveCacheInitWaitPickingTotalItemNum(String bizId, Long siteId, Integer value) {
+        String cacheKey = this.getCacheKeyInitWaitPickingTotalItemNum(bizId, siteId);
+        redisClientOfJy.setEx(cacheKey, value.toString(), CACHE_INIT_WAIT_PICKING_TOTAL_NUM_TIMEOUT_DAYS, TimeUnit.DAYS);
+    }
+    public Integer getCacheInitWaitPickingTotalItemNum(String bizId, Long siteId) {
+        String key = this.getCacheKeyInitWaitPickingTotalItemNum(bizId, siteId);
+        String value = redisClientOfJy.get(key);
+        if(StringUtils.isBlank(value)) {
+            return 0;
+        }
+        return Integer.valueOf(value);
+    }
+    private String getCacheKeyInitWaitPickingTotalItemNum(String bizId, Long siteId){
+        return String.format(CACHE_INIT_WAIT_PICKING_TOTAL_NUM, bizId, siteId);
     }
 }

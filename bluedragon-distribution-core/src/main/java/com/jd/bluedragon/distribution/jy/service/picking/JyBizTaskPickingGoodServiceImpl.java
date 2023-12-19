@@ -76,14 +76,14 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     }
 
     @Override
-    public JyBizTaskPickingGoodEntity generateManualCreateTask(CurrentOperate site, User user) {
+    public JyBizTaskPickingGoodEntity generateManualCreateTask(CurrentOperate site, User user, Integer taskType) {
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
         entity.setBizId(this.genPickingGoodTaskBizId(true));
-        entity.setStartSiteId((long)site.getSiteCode());
+//        entity.setStartSiteId((long)site.getSiteCode());
         entity.setNextSiteId((long)site.getSiteCode());
         entity.setServiceNumber(entity.getBizId());
         entity.setStatus(PickingGoodStatusEnum.TO_PICKING.getCode());
-        entity.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+        entity.setTaskType(taskType);
         entity.setManualCreatedFlag(Constants.NUMBER_ONE);
         entity.setCreateUserErp(user.getUserErp());
         entity.setCreateUserName(user.getUserName());
