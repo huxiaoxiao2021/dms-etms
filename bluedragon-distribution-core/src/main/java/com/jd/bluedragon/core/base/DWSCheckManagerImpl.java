@@ -4,10 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.common.utils.DateHelper;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService;
-import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckRequest;
-import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckAroundRecord;
-import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckPackageRequest;
-import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckResponse;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.*;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
@@ -104,5 +101,26 @@ public class DWSCheckManagerImpl implements DWSCheckManager {
             Profiler.registerInfoEnd(callerInfo);
         }
         return resultList;
+    }
+
+    @Override
+    public DWSCheckAppealDto getDwsCheckStatusAppeal(DWSCheckAppealRequest request) {
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.DWSCheckManager.getDwsCheckStatusAppeal",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        try {
+            BaseDmsAutoJsfResponse<DWSCheckAppealDto> response = dmsCheckJsfService.getDwsCheckStatusAppeal(request);
+            if (logger.isInfoEnabled()) {
+                logger.info("getDwsCheckStatusAppeal|批量查询设备抽检申诉核对校准状态,request={},response={}", JsonHelper.toJson(request), JsonHelper.toJson(response));
+            }
+            if (response != null && response.getData() != null) {
+                return response.getData();
+            }
+        } catch (Exception e) {
+            logger.error("getDwsCheckStatusAppeal|批量查询设备抽检申诉核对校准状态结果异常,request={},e=", JsonHelper.toJson(request), e);
+            Profiler.functionError(callerInfo);
+        } finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return null;
     }
 }

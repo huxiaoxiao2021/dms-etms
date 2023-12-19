@@ -534,4 +534,9 @@ public class DmsConstants {
         add(HK);
         add(MO);
     }};
+
+    /**
+     * 航班号正则
+     */
+    public static final String FLIGHT_NUMBER_REGEX = "[0-9A-Z]{6}";
 }

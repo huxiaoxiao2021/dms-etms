@@ -1224,4 +1224,14 @@
 		AND sign_out_time is null
 		limit #{offset}, #{limit}
 	</select>
+	
+	<select id="queryFirstExistGridRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
+		select
+		<include refid="Main_Column_List"/>
+		from user_sign_record r
+		where r.sign_date = #{signDateStr}
+		and r.site_code = #{siteCode}
+		order by r.sign_in_time asc
+		limit 1
+	</select>
 </mapper>

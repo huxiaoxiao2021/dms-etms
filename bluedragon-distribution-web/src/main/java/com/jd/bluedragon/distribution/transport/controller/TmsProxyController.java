@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.transport.domain.TmsProxyCondition;
 import com.jd.bluedragon.distribution.transport.domain.TransBookBillDto;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SiteDesensitization;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -76,6 +77,9 @@ public class TmsProxyController extends DmsBaseController{
             allDms.addAll(siteService.getAllDmsSite());
         } catch (Exception e) {
             log.error("加载站点失败：", e);
+        }
+        for (BaseStaffSiteOrgDto result : allDms) {
+            SiteDesensitization.desensitizeBaseStaffSiteOrgDto(result);
         }
         return allDms;
     }

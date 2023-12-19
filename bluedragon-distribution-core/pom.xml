@@ -112,7 +112,7 @@
 			<artifactId>erp.ql.station-api</artifactId>
 			<version>1.0.1-printcheck-20210426.063930-1</version>
 		</dependency>
-
+ 
 		<dependency>
 			<groupId>com.jd.rd.unpack</groupId>
 			<artifactId>unpack-jsf</artifactId>
@@ -243,12 +243,12 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>2.0.23-SNAPSHOT</version>
+			<version>2.0.25-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.5.4-SNAPSHOT</version>
+			<version>1.5.5-SNAPSHOT</version>
 		</dependency>
 <!--		积分-->
 		<dependency>
@@ -277,7 +277,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.7.5-SNAPSHOT</version>
+            <version>1.7.7-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1443,7 +1443,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>2.3-SNAPSHOT</version>
+			<version>2.4-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>hibernate-validator</artifactId>
@@ -2732,6 +2732,10 @@
 			<version>1.1.0-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>vd-service-sdk</groupId>
+			<artifactId>vd-service-sdk</artifactId>
+		</dependency>
     </dependencies>
 
 	<profiles>
