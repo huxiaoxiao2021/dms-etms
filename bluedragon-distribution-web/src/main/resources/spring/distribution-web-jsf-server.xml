@@ -612,10 +612,10 @@
     </jsf:provider>
 
     <!-- 德邦融合接口服务 -->
-    <jsf:provider id="jsfDmsUserSignService"
-                  interface="com.jd.bluedragon.distribution.jsf.service.DmsUserSignService"
+    <jsf:provider id="jsfForeignUserSignService"
+                  interface="com.jd.bluedragon.distribution.external.intensive.service.ForeignUserSignService"
                   alias="${dms.jsf.alias}"
-                  ref="dmsUserSignService"
+                  ref="foreignUserSignService"
                   server="dmsjsf">
     </jsf:provider>
 </beans>
