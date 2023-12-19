@@ -671,5 +671,9 @@
     <jmq:consumer id="jmq.TmsAviationPickingGoodConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tms.aviationPickingGood}" listener="tmsAviationPickingGoodConsumer"/>
     </jmq:consumer>
+    <!--  空铁提货扫描  -->
+    <jmq:consumer id="jmq.JyPickingGoodScanConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.picking.good.scan}" listener="jyPickingGoodScanConsumer"/>
+    </jmq:consumer>
 </beans>
 

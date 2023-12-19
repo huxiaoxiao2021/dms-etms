@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 
@@ -21,10 +22,9 @@ public interface JyBizTaskPickingGoodService {
 
     /**
      * 自建提货任务生成
-     * @param request
      * @return
      */
-    JyBizTaskPickingGoodEntity generateManualCreateTask(PickingGoodsReq request);
+    JyBizTaskPickingGoodEntity generateManualCreateTask(CurrentOperate site, User user);
 
     /**
      * 获取自建任务唯一bizId
@@ -41,4 +41,11 @@ public interface JyBizTaskPickingGoodService {
     int updateTaskByBizIdWithCondition(JyBizTaskPickingGoodEntityCondition entity);
 
     boolean updateStatusByBizId(String bizId, Integer status);
+
+    /**
+     * 根据场地查找最新的可发货自建任务
+     * @param siteId
+     * @return
+     */
+    JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId);
 }

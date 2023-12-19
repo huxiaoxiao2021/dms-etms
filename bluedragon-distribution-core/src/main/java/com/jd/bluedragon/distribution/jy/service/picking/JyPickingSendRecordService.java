@@ -31,10 +31,11 @@ public interface JyPickingSendRecordService {
     /**
      * 查询最近的已提任务
      * @param curSiteId
+     * @param bizId  可选
      * @param barCode
      * @return
      */
-    JyPickingSendRecordEntity latestPickingRecord(Long curSiteId, String barCode);
+    JyPickingSendRecordEntity latestPickingRecord(Long curSiteId, String bizId, String barCode);
 
     /**
      * 统计
@@ -43,4 +44,12 @@ public interface JyPickingSendRecordService {
      * @param nextSiteId  发货流向，非空是统计该流向发货数据
      */
     PickingGoodTaskStatisticsDto statisticsByBizId(Long siteId, String bizId, Long nextSiteId);
+
+    /**
+     * 已提件数
+     * @param bizId
+     * @param siteId
+     * @return
+     */
+    Integer countTaskRealScanItemNum(String bizId, Long siteId);
 }

@@ -270,6 +270,15 @@
       where yn = 1 and biz_id = #{bizId}
     </update>
 
+
+  <select id="findLatestEffectiveManualCreateTask" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select <include refid="Base_Column_List" />
+    from jy_biz_task_picking_good
+    where next_site_id= #{siteId} and manual_created_flag = 1 and status != 2 and yn = 1
+    order by create_time desc
+    limit 1
+  </select>
+
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select -->
 <!--    <include refid="Base_Column_List" />-->
@@ -313,7 +322,7 @@
 <!--        start_site_id = #{startSiteId,jdbcType=BIGINT},-->
 <!--      </if>-->
 <!--      <if test="nextSiteId != null" >-->
-<!--        next_site_id = #{nextSiteId,jdbcType=BIGINT},-->
+<!--         next_site_id= #{nextSiteId,jdbcType=BIGINT},-->
 <!--      </if>-->
 <!--      <if test="businessNumber != null" >-->
 <!--        business_number = #{businessNumber,jdbcType=VARCHAR},-->
