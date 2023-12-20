@@ -1532,6 +1532,26 @@ public class UccPropertyConfiguration{
      */
     private Integer czSealCarPackageCountMinLimit;
 
+    /**
+     * 接货仓发货岗待发货任务列表计划发车时间查询条件前X天
+     */
+    private Integer jyWarehouseToSendPlanTimeBeginDay;
+
+    /**
+     * 接货仓发货岗待发货任务列表计划发车时间查询条件后X天
+     */
+    private Integer jyWarehouseToSendPlanTimeEndDay;
+
+    /**
+     * 接货仓发货岗发货中任务列表计划发车时间查询条件前X天
+     */
+    private Integer jyWarehouseSendingPlanTimeBeginDay;
+
+    /**
+     * 接货仓发货岗发货中任务列表计划发车时间查询条件后X天
+     */
+    private Integer jyWarehouseSendingPlanTimeEndDay;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4084,5 +4104,37 @@ public class UccPropertyConfiguration{
 
     public void setJyAviationManualCreateSendTaskMaxBookingWeight(Double jyAviationManualCreateSendTaskMaxBookingWeight) {
         this.jyAviationManualCreateSendTaskMaxBookingWeight = jyAviationManualCreateSendTaskMaxBookingWeight;
+    }
+
+    public Integer getJyWarehouseToSendPlanTimeBeginDay() {
+        return jyWarehouseToSendPlanTimeBeginDay;
+    }
+
+    public void setJyWarehouseToSendPlanTimeBeginDay(Integer jyWarehouseToSendPlanTimeBeginDay) {
+        this.jyWarehouseToSendPlanTimeBeginDay = jyWarehouseToSendPlanTimeBeginDay;
+    }
+
+    public Integer getJyWarehouseToSendPlanTimeEndDay() {
+        return jyWarehouseToSendPlanTimeEndDay;
+    }
+
+    public void setJyWarehouseToSendPlanTimeEndDay(Integer jyWarehouseToSendPlanTimeEndDay) {
+        this.jyWarehouseToSendPlanTimeEndDay = jyWarehouseToSendPlanTimeEndDay;
+    }
+
+    public Integer getJyWarehouseSendingPlanTimeBeginDay() {
+        return jyWarehouseSendingPlanTimeBeginDay;
+    }
+
+    public void setJyWarehouseSendingPlanTimeBeginDay(Integer jyWarehouseSendingPlanTimeBeginDay) {
+        this.jyWarehouseSendingPlanTimeBeginDay = jyWarehouseSendingPlanTimeBeginDay;
+    }
+
+    public Integer getJyWarehouseSendingPlanTimeEndDay() {
+        return jyWarehouseSendingPlanTimeEndDay;
+    }
+
+    public void setJyWarehouseSendingPlanTimeEndDay(Integer jyWarehouseSendingPlanTimeEndDay) {
+        this.jyWarehouseSendingPlanTimeEndDay = jyWarehouseSendingPlanTimeEndDay;
     }
 }

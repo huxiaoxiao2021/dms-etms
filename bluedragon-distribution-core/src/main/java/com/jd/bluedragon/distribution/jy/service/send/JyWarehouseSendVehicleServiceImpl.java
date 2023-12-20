@@ -204,21 +204,33 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeBegin())) {
             request.setLastPlanDepartTimeBegin(request.getLastPlanDepartTimeBegin());
         } else {
-            request.setLastPlanDepartTimeBegin(this.defaultTaskPlanTimeBegin());
+            request.setLastPlanDepartTimeBegin(this.defaultTaskPlanTimeBegin(request.getVehicleStatus()));
         }
         if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeEnd())) {
             request.setLastPlanDepartTimeEnd(request.getLastPlanDepartTimeEnd());
         } else {
-            request.setLastPlanDepartTimeEnd(this.defaultTaskPlanTimeEnd());
+            request.setLastPlanDepartTimeEnd(this.defaultTaskPlanTimeEnd(request.getVehicleStatus()));
         }
     }
 
-    private Date defaultTaskPlanTimeBegin() {
-        return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -jyWarehouseSendTaskPlanTimeBeginDay);
+    private Date defaultTaskPlanTimeBegin(Integer vehicleStatus) {
+        if (JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(vehicleStatus)) {
+            return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeBeginDay());
+        } else if (JyBizTaskSendStatusEnum.SENDING.getCode().equals(vehicleStatus)) {
+            return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeBeginDay());
+        } else {
+            return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -jyWarehouseSendTaskPlanTimeBeginDay);
+        }
     }
 
-    private Date defaultTaskPlanTimeEnd() {
-        return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), jyWarehouseSendTaskPlanTimeEndDay);
+    private Date defaultTaskPlanTimeEnd(Integer vehicleStatus) {
+        if (JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(vehicleStatus)) {
+            return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeEndDay());
+        } else if (JyBizTaskSendStatusEnum.SENDING.getCode().equals(vehicleStatus)) {
+            return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeEndDay());
+        } else {
+            return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), jyWarehouseSendTaskPlanTimeEndDay);
+        }
     }
 
     private void fillMustField(SendVehicleTaskResponse response) {
@@ -762,12 +774,12 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeBegin())) {
                 queryEntity.setLastPlanDepartTimeBegin(request.getLastPlanDepartTimeBegin());
             } else {
-                queryEntity.setLastPlanDepartTimeBegin(this.defaultTaskPlanTimeBegin());
+                queryEntity.setLastPlanDepartTimeBegin(this.defaultTaskPlanTimeBegin(null));
             }
             if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeEnd())) {
                 queryEntity.setLastPlanDepartTimeEnd(request.getLastPlanDepartTimeEnd());
             } else {
-                queryEntity.setLastPlanDepartTimeEnd(this.defaultTaskPlanTimeEnd());
+                queryEntity.setLastPlanDepartTimeEnd(this.defaultTaskPlanTimeEnd(null));
             }
             queryEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
 
