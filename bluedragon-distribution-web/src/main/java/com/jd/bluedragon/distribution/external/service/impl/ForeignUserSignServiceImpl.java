@@ -67,12 +67,13 @@ public class ForeignUserSignServiceImpl implements ForeignUserSignService {
             return jdResponse;
         }
         Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionInfo(positionCode);
-        jdResponse.setCode(result.getCode());
-        jdResponse.setMessage(result.getMessage());
         if(result.isSuccess() && result.getData() != null){
             PositionData data = new PositionData();
             BeanUtils.copyProperties(result.getData(), data);
+            jdResponse.toSucceed();
             jdResponse.setData(data);
+        }else {
+            jdResponse.toFail(result.getMessage());
         }
         return jdResponse;
     }
