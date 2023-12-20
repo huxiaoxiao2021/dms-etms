@@ -1,6 +1,14 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.FinishSendTaskReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowAddReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowDeleteReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowDto;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowRes;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+
+import java.util.List;
 
 import com.jd.bluedragon.common.dto.base.request.User;
 
@@ -28,4 +36,25 @@ public interface JyPickingSendDestinationService {
     boolean existSendNextSite(Long curSiteId, Long nextSiteId);
 
     Boolean finishSendTask(FinishSendTaskReq req);
+
+    /**
+     * 查询已维护流向信息
+     * @param req
+     * @return
+     */
+    List<SendFlowDto> listSendFlowInfo(SendFlowReq req);
+
+    /**
+     * 添加流向
+     * @param req
+     * @return
+     */
+    boolean addSendFlow(SendFlowAddReq req);
+
+    /**
+     * 删除流向
+     * @param req
+     * @return
+     */
+    boolean deleteSendFlow(SendFlowDeleteReq req);
 }

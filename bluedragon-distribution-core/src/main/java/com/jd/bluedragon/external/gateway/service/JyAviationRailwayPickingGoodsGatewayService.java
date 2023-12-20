@@ -4,8 +4,6 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.*;
 
-import java.util.List;
-
 /**
  * 空铁提货岗网关
  * @Author zhengchengfa
@@ -62,12 +60,12 @@ public interface JyAviationRailwayPickingGoodsGatewayService {
      * @param req
      * @return
      */
-    JdCResponse<AirRailTaskRes> listAirportTask(AirportTaskReq req);
+    JdCResponse<AirRailTaskRes> listAirRailTaskSummary(AirRailTaskSummaryReq req);
 
     /**
      * 某机场下的任务列表
      * @param req
      * @return
      */
-    JdCResponse<AirRailTaskAggRes> listAirportTaskAgg(AirRailTaskAggReq req);
+    JdCResponse<AirRailTaskAggRes> listAirRailTaskAgg(AirRailTaskAggReq req);
 }

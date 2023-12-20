@@ -4,7 +4,7 @@ import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
 
-public class AirportTaskReq extends BaseReq implements Serializable {
+public class AirRailTaskSummaryReq extends BaseReq implements Serializable {
 
     private static final long serialVersionUID = 3806841102018939936L;
 
