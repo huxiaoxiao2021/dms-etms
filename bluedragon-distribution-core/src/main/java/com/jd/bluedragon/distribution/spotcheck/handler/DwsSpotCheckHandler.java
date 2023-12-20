@@ -19,6 +19,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -135,8 +136,11 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         // 2、设置已抽检缓存
         setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         // 3、更新总记录
-        WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
-        spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
+        SpotCheckIssueDetail summaryDto = assembleSummaryReform(spotCheckContext);
+        // 4、转换report对象
+        WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = new WeightVolumeSpotCheckDto();
+        BeanUtils.copyProperties(summaryDto, weightVolumeSpotCheckDto);
+        spotCheckServiceProxy.insertOrUpdateProxyReform(weightVolumeSpotCheckDto);
         // 4、下发超标数据
         if(Objects.equals(spotCheckContext.getExcessStatus(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             // 异步处理dws一单多件图片下发AI逻辑

@@ -4,12 +4,11 @@ import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckContext;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckIssueDetail;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckResult;
-import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.InputStream;
-import java.util.List;
 
 /**
  * 抽检处理接口
@@ -121,13 +120,13 @@ public interface SpotCheckDealService {
      * 下发超标数据
      * @param weightVolumeSpotCheckDto
      */
-    void spotCheckIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);
+    void spotCheckIssue(SpotCheckIssueDetail weightVolumeSpotCheckDto);
 
     /**
      * 执行下发
      * @param weightVolumeSpotCheckDto
      */
-    void executeIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);
+    void executeIssue(SpotCheckIssueDetail weightVolumeSpotCheckDto);
 
     /**
      * 上传图片

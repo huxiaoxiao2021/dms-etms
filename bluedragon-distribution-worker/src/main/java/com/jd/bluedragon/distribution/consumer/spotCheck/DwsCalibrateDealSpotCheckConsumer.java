@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckIssueDetail;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
@@ -22,6 +23,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -110,8 +112,11 @@ public class DwsCalibrateDealSpotCheckConsumer extends MessageBaseConsumer {
                 spotCheckServiceProxy.insertOrUpdateProxyReform(updateSpotDto);
             }
 
+            // 参数转换
+            SpotCheckIssueDetail summaryDto = new SpotCheckIssueDetail();
+            BeanUtils.copyProperties(weightVolumeSpotCheckDto, summaryDto);
             // 下发抽检数据处理
-            spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
+            spotCheckDealService.executeIssue(summaryDto);
 
         } catch (Exception e) {
             Profiler.functionError(info);
