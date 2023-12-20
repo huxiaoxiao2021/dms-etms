@@ -303,4 +303,13 @@ public interface IJySendVehicleService {
     InvokeResult<Pager<WaitingVehicleDistribution>> fetchWaitingVehicleDistributionList(WaitingVehicleDistributionRequest request);
 
     InvokeResult<String> remindTransJob(RemindTransJobRequest request);
+
+    /**
+     * 生成批次号
+     * @param startSiteId
+     * @param destSiteId
+     * @param createUser
+     * @return
+     */
+    String generateSendCode(Long startSiteId, Long destSiteId, String createUser);
 }

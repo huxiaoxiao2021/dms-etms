@@ -316,9 +316,12 @@
     select
     <include refid="Base_Column_List"/>
     from jy_group_sort_cross_detail where yn = 1
-    and start_site_id = #{startSiteId,jdbcType=BIGINT} and group_code = #{groupCode,jdbcType=VARCHAR}
+    and start_site_id = #{startSiteId,jdbcType=BIGINT}
     and template_code = #{templateCode,jdbcType=VARCHAR}
     and end_site_id = #{endSiteId,jdbcType=BIGINT}
+    <if test="groupCode != null and groupCode != ''">
+      and group_code = #{groupCode,jdbcType=VARCHAR}
+    </if>
     <if test="sendVehicleDetailBizId != null and sendVehicleDetailBizId != ''">
       and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
     </if>

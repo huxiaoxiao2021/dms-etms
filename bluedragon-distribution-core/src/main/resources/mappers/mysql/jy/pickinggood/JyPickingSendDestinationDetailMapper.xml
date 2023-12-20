@@ -26,6 +26,120 @@
   </sql>
 
 
+    <select id="fetchLatestNoCompleteBatchCode" resultMap="BaseResultMap" parameterType="JyPickingSendDestinationDetailEntity" >
+      select send_code
+      from jy_picking_send_destination_detail
+      where yn = 1
+        and create_site_id = #{createSiteId}
+        and next_site_id = #{nextSiteId}
+        and status = 1
+      order by create_time desc limit 1
+    </select>
+
+
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity" >
+      insert into jy_picking_send_destination_detail
+      <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          id,
+        </if>
+        <if test="createSiteId != null" >
+          create_site_id,
+        </if>
+        <if test="nextSiteId != null" >
+          next_site_id,
+        </if>
+        <if test="sendCode != null" >
+          send_code,
+        </if>
+        <if test="status != null" >
+          status,
+        </if>
+        <if test="sealFlag != null" >
+          seal_flag,
+        </if>
+        <if test="firstScanTime != null" >
+          first_scan_time,
+        </if>
+        <if test="completeTime != null" >
+          complete_time,
+        </if>
+        <if test="createUserErp != null" >
+          create_user_erp,
+        </if>
+        <if test="createUserName != null" >
+          create_user_name,
+        </if>
+        <if test="updateUserErp != null" >
+          update_user_erp,
+        </if>
+        <if test="updateUserName != null" >
+          update_user_name,
+        </if>
+        <if test="createTime != null" >
+          create_time,
+        </if>
+        <if test="updateTime != null" >
+          update_time,
+        </if>
+        <if test="yn != null" >
+          yn,
+        </if>
+        <if test="ts != null" >
+          ts,
+        </if>
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          #{id,jdbcType=BIGINT},
+        </if>
+        <if test="createSiteId != null" >
+          #{createSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="nextSiteId != null" >
+          #{nextSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="sendCode != null" >
+          #{sendCode,jdbcType=VARCHAR},
+        </if>
+        <if test="status != null" >
+          #{status,jdbcType=TINYINT},
+        </if>
+        <if test="sealFlag != null" >
+          #{sealFlag,jdbcType=TINYINT},
+        </if>
+        <if test="firstScanTime != null" >
+          #{firstScanTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="completeTime != null" >
+          #{completeTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="createUserErp != null" >
+          #{createUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="createUserName != null" >
+          #{createUserName,jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserErp != null" >
+          #{updateUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="updateUserName != null" >
+          #{updateUserName,jdbcType=VARCHAR},
+        </if>
+        <if test="createTime != null" >
+          #{createTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="updateTime != null" >
+          #{updateTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="yn != null" >
+          #{yn,jdbcType=BIT},
+        </if>
+        <if test="ts != null" >
+          #{ts,jdbcType=TIMESTAMP},
+        </if>
+      </trim>
+    </insert>
 <!--  -->
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select -->
@@ -50,109 +164,6 @@
 <!--      #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, -->
 <!--      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, -->
 <!--      #{ts,jdbcType=TIMESTAMP})-->
-<!--  </insert>-->
-<!--  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity" >-->
-<!--    insert into jy_picking_send_destination_detail-->
-<!--    <trim prefix="(" suffix=")" suffixOverrides="," >-->
-<!--      <if test="id != null" >-->
-<!--        id,-->
-<!--      </if>-->
-<!--      <if test="createSiteId != null" >-->
-<!--        create_site_id,-->
-<!--      </if>-->
-<!--      <if test="nextSiteId != null" >-->
-<!--        next_site_id,-->
-<!--      </if>-->
-<!--      <if test="sendCode != null" >-->
-<!--        send_code,-->
-<!--      </if>-->
-<!--      <if test="status != null" >-->
-<!--        status,-->
-<!--      </if>-->
-<!--      <if test="sealFlag != null" >-->
-<!--        seal_flag,-->
-<!--      </if>-->
-<!--      <if test="firstScanTime != null" >-->
-<!--        first_scan_time,-->
-<!--      </if>-->
-<!--      <if test="completeTime != null" >-->
-<!--        complete_time,-->
-<!--      </if>-->
-<!--      <if test="createUserErp != null" >-->
-<!--        create_user_erp,-->
-<!--      </if>-->
-<!--      <if test="createUserName != null" >-->
-<!--        create_user_name,-->
-<!--      </if>-->
-<!--      <if test="updateUserErp != null" >-->
-<!--        update_user_erp,-->
-<!--      </if>-->
-<!--      <if test="updateUserName != null" >-->
-<!--        update_user_name,-->
-<!--      </if>-->
-<!--      <if test="createTime != null" >-->
-<!--        create_time,-->
-<!--      </if>-->
-<!--      <if test="updateTime != null" >-->
-<!--        update_time,-->
-<!--      </if>-->
-<!--      <if test="yn != null" >-->
-<!--        yn,-->
-<!--      </if>-->
-<!--      <if test="ts != null" >-->
-<!--        ts,-->
-<!--      </if>-->
-<!--    </trim>-->
-<!--    <trim prefix="values (" suffix=")" suffixOverrides="," >-->
-<!--      <if test="id != null" >-->
-<!--        #{id,jdbcType=BIGINT},-->
-<!--      </if>-->
-<!--      <if test="createSiteId != null" >-->
-<!--        #{createSiteId,jdbcType=BIGINT},-->
-<!--      </if>-->
-<!--      <if test="nextSiteId != null" >-->
-<!--        #{nextSiteId,jdbcType=BIGINT},-->
-<!--      </if>-->
-<!--      <if test="sendCode != null" >-->
-<!--        #{sendCode,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="status != null" >-->
-<!--        #{status,jdbcType=TINYINT},-->
-<!--      </if>-->
-<!--      <if test="sealFlag != null" >-->
-<!--        #{sealFlag,jdbcType=TINYINT},-->
-<!--      </if>-->
-<!--      <if test="firstScanTime != null" >-->
-<!--        #{firstScanTime,jdbcType=TIMESTAMP},-->
-<!--      </if>-->
-<!--      <if test="completeTime != null" >-->
-<!--        #{completeTime,jdbcType=TIMESTAMP},-->
-<!--      </if>-->
-<!--      <if test="createUserErp != null" >-->
-<!--        #{createUserErp,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="createUserName != null" >-->
-<!--        #{createUserName,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="updateUserErp != null" >-->
-<!--        #{updateUserErp,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="updateUserName != null" >-->
-<!--        #{updateUserName,jdbcType=VARCHAR},-->
-<!--      </if>-->
-<!--      <if test="createTime != null" >-->
-<!--        #{createTime,jdbcType=TIMESTAMP},-->
-<!--      </if>-->
-<!--      <if test="updateTime != null" >-->
-<!--        #{updateTime,jdbcType=TIMESTAMP},-->
-<!--      </if>-->
-<!--      <if test="yn != null" >-->
-<!--        #{yn,jdbcType=BIT},-->
-<!--      </if>-->
-<!--      <if test="ts != null" >-->
-<!--        #{ts,jdbcType=TIMESTAMP},-->
-<!--      </if>-->
-<!--    </trim>-->
 <!--  </insert>-->
 <!--  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity" >-->
 <!--    update jy_picking_send_destination_detail-->
