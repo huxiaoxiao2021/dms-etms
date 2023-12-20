@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.spotcheck.domain.DwsAIDistinguishNotifyMQ;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckIssueDetail;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckStatusEnum;
@@ -20,6 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -93,7 +95,10 @@ public class DwsAIDistinguishNotifyConsumer extends MessageBaseConsumer {
             WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = spotCheckDtoList.get(0);
             weightVolumeSpotCheckDto.setPicIsQualify(dto.getPicIsQualify());
             weightVolumeSpotCheckDto.setPictureAIDistinguishReason(dto.getPictureAIDistinguishReason());
-            spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
+            // 参数转换
+            SpotCheckIssueDetail summaryDto = new SpotCheckIssueDetail();
+            BeanUtils.copyProperties(weightVolumeSpotCheckDto, summaryDto);
+            spotCheckDealService.executeIssue(summaryDto);
         } catch (SpotCheckSysException e) {
             logger.warn("设备图片AI识别MQ处理异常进行重试", e);
             throw e;

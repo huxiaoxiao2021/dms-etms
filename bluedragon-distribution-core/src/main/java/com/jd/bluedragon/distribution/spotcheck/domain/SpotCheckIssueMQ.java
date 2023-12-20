@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.spotcheck.domain;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 抽检异常下发MQ实体
@@ -156,6 +157,11 @@ public class SpotCheckIssueMQ implements Serializable {
      * 举报附件列表（图片/视频）传了这个字段，appendix和url字段就不用传了
      */
     private List<SpotCheckAppendixDto> appendixList;
+
+    /**
+     * 扩展字段 <a href="https://joyspace.jd.com/pages/ILE90taNyoY9AYFQ8cWy">...</a>
+     */
+    private Map<String, Object> extendMap;
 
     public String getFlowSystem() {
         return flowSystem;
@@ -515,5 +521,13 @@ public class SpotCheckIssueMQ implements Serializable {
 
     public void setAppendixList(List<SpotCheckAppendixDto> appendixList) {
         this.appendixList = appendixList;
+    }
+
+    public Map<String, Object> getExtendMap() {
+        return extendMap;
+    }
+
+    public void setExtendMap(Map<String, Object> extendMap) {
+        this.extendMap = extendMap;
     }
 }
