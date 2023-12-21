@@ -4,9 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao;
-import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodExtendDao;
+import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodSubsidiaryDao;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 import com.jd.bluedragon.utils.DateHelper;
@@ -35,7 +34,7 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     @Autowired
     private JyBizTaskPickingGoodDao jyBizTaskPickingGoodDao;
     @Autowired
-    private JyBizTaskPickingGoodExtendDao jyBizTaskPickingGoodExtendDao;
+    private JyBizTaskPickingGoodSubsidiaryDao jyBizTaskPickingGoodSubsidiaryDao;
 
     @Autowired
     @Qualifier("redisJySendBizIdSequenceGen")

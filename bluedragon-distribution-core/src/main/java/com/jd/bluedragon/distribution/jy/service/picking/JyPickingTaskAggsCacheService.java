@@ -25,11 +25,11 @@ public class JyPickingTaskAggsCacheService {
 
     private static final String DEFAULT_VALUE_1 = "1";
 
-    private static final String CACHE_TASK_PICKING_AGG = "cache:task:picking:agg:%s:%s";
-    private static final Integer CACHE_TASK_PICKING_AGG_TIMEOUT_DAYS = 3;
-
-    private static final String CACHE_TASK_PICKING_SEND_AGG = "cache:task:picking:send:agg:%s:%s:%s";
-    private static final Integer CACHE_TASK_PICKING_SEND_AGG_TIMEOUT_DAYS = 3;
+//    private static final String CACHE_TASK_PICKING_AGG = "cache:task:picking:agg:%s:%s";
+//    private static final Integer CACHE_TASK_PICKING_AGG_TIMEOUT_DAYS = 3;
+//
+//    private static final String CACHE_TASK_PICKING_SEND_AGG = "cache:task:picking:send:agg:%s:%s:%s";
+//    private static final Integer CACHE_TASK_PICKING_SEND_AGG_TIMEOUT_DAYS = 3;
 
     private static final String LOCK_PICKING_GOOD_TASK = "lock:picking:good:task:%s";
     private static final Integer LOCK_PICKING_GOOD_TASK_TIMEOUT_SECONDS = 300;
@@ -111,51 +111,51 @@ public class JyPickingTaskAggsCacheService {
     /**
      * 提货任务统计缓存处理
      */
-    public void saveCacheTaskPickingAgg(Integer siteId, String bizId, PickingGoodAggsDto value) {
-        if(Objects.isNull(siteId) || StringUtils.isBlank(bizId) || Objects.isNull(value)) {
-            return;
-        }
-        String cacheKey = this.getCacheKeyTaskPickingAgg(siteId, bizId);
-        redisClientOfJy.setEx(cacheKey, JsonHelper.toJson(value), CACHE_TASK_PICKING_AGG_TIMEOUT_DAYS, TimeUnit.DAYS);
-    }
-
-    public PickingGoodAggsDto getCacheTaskPickingAgg(Integer siteId, String bizId) {
-        String cacheKey = this.getCacheKeyTaskPickingAgg(siteId, bizId);
-        String cacheValue = redisClientOfJy.get(cacheKey);
-        if(StringUtils.isNotBlank(cacheKey)) {
-            PickingGoodAggsDto aggsDto = JSONObject.parseObject(cacheValue, PickingGoodAggsDto.class);
-            return aggsDto;
-        }
-        return null;
-    }
-
-    private String getCacheKeyTaskPickingAgg(Integer siteId, String bizId) {
-        return String.format(CACHE_TASK_PICKING_AGG, siteId, bizId);
-    }
+//    public void saveCacheTaskPickingAgg(Integer siteId, String bizId, PickingGoodAggsDto value) {
+//        if(Objects.isNull(siteId) || StringUtils.isBlank(bizId) || Objects.isNull(value)) {
+//            return;
+//        }
+//        String cacheKey = this.getCacheKeyTaskPickingAgg(siteId, bizId);
+//        redisClientOfJy.setEx(cacheKey, JsonHelper.toJson(value), CACHE_TASK_PICKING_AGG_TIMEOUT_DAYS, TimeUnit.DAYS);
+//    }
+//
+//    public PickingGoodAggsDto getCacheTaskPickingAgg(Integer siteId, String bizId) {
+//        String cacheKey = this.getCacheKeyTaskPickingAgg(siteId, bizId);
+//        String cacheValue = redisClientOfJy.get(cacheKey);
+//        if(StringUtils.isNotBlank(cacheKey)) {
+//            PickingGoodAggsDto aggsDto = JSONObject.parseObject(cacheValue, PickingGoodAggsDto.class);
+//            return aggsDto;
+//        }
+//        return null;
+//    }
+//
+//    private String getCacheKeyTaskPickingAgg(Integer siteId, String bizId) {
+//        return String.format(CACHE_TASK_PICKING_AGG, siteId, bizId);
+//    }
 
     /**
      * 发货流向提货任务统计缓存处理
      * * 待发数据需要在发货明细初始化完成之后统计待发
      */
-    public void saveCacheTaskPickingSendAgg(Integer siteId, Integer nextSiteId, String bizId, PickingSendGoodAggsDto value) {
-        if(Objects.isNull(siteId) || Objects.isNull(nextSiteId) || StringUtils.isBlank(bizId) || Objects.isNull(value)) {
-            return;
-        }
-        String cacheKey = this.getCacheKeyTaskPickingSendAgg(siteId, nextSiteId, bizId);
-        redisClientOfJy.setEx(cacheKey, JsonHelper.toJson(value), CACHE_TASK_PICKING_SEND_AGG_TIMEOUT_DAYS, TimeUnit.DAYS);
-    }
-    public PickingSendGoodAggsDto getCacheTaskPickingSendAgg(Integer siteId, Integer nextSiteId, String bizId) {
-        String cacheKey = this.getCacheKeyTaskPickingSendAgg(siteId, nextSiteId, bizId);
-        String cacheValue = redisClientOfJy.get(cacheKey);
-        if(StringUtils.isNotBlank(cacheKey)) {
-            PickingSendGoodAggsDto aggsDto = JSONObject.parseObject(cacheValue, PickingSendGoodAggsDto.class);
-            return aggsDto;
-        }
-        return null;
-    }
-    private String getCacheKeyTaskPickingSendAgg(Integer siteId, Integer nextSiteId, String bizId) {
-        return String.format(CACHE_TASK_PICKING_SEND_AGG, siteId, nextSiteId, bizId);
-    }
+//    public void saveCacheTaskPickingSendAgg(Integer siteId, Integer nextSiteId, String bizId, PickingSendGoodAggsDto value) {
+//        if(Objects.isNull(siteId) || Objects.isNull(nextSiteId) || StringUtils.isBlank(bizId) || Objects.isNull(value)) {
+//            return;
+//        }
+//        String cacheKey = this.getCacheKeyTaskPickingSendAgg(siteId, nextSiteId, bizId);
+//        redisClientOfJy.setEx(cacheKey, JsonHelper.toJson(value), CACHE_TASK_PICKING_SEND_AGG_TIMEOUT_DAYS, TimeUnit.DAYS);
+//    }
+//    public PickingSendGoodAggsDto getCacheTaskPickingSendAgg(Integer siteId, Integer nextSiteId, String bizId) {
+//        String cacheKey = this.getCacheKeyTaskPickingSendAgg(siteId, nextSiteId, bizId);
+//        String cacheValue = redisClientOfJy.get(cacheKey);
+//        if(StringUtils.isNotBlank(cacheKey)) {
+//            PickingSendGoodAggsDto aggsDto = JSONObject.parseObject(cacheValue, PickingSendGoodAggsDto.class);
+//            return aggsDto;
+//        }
+//        return null;
+//    }
+//    private String getCacheKeyTaskPickingSendAgg(Integer siteId, Integer nextSiteId, String bizId) {
+//        return String.format(CACHE_TASK_PICKING_SEND_AGG, siteId, nextSiteId, bizId);
+//    }
 
 
     /**

@@ -6,7 +6,7 @@ import java.util.Map;
 public enum PickingGoodTaskDetailInitServiceEnum {
 
     DMS_SEND_DMS_PICKING(64, 101, "提货时上游发货场地是分拣中心发货，待提明细初始化数据依赖分拣发货数据"),
-    OTHER_SEND_DMS_PICKING(0, 102, "提货时上游发货场地非分拣中心发货，待提明细初始化数据依赖运输封车数据"),
+    OTHER_SEND_DMS_PICKING(999, 102, "提货时上游发货场地非分拣中心发货，待提明细初始化数据依赖运输封车数据"),
     ;
 
     /**
@@ -17,12 +17,12 @@ public enum PickingGoodTaskDetailInitServiceEnum {
      * 初始化服务类code值
      */
     private int targetCode;
-    private String msg;
+    private String desc;
 
-    PickingGoodTaskDetailInitServiceEnum(int source, int targetCode, String msg) {
+    PickingGoodTaskDetailInitServiceEnum(int source, int targetCode, String desc) {
         this.source = source;
         this.targetCode = targetCode;
-        this.msg = msg;
+        this.desc = desc;
     }
 
     private static final Map<Integer, PickingGoodTaskDetailInitServiceEnum> map;
@@ -54,11 +54,11 @@ public enum PickingGoodTaskDetailInitServiceEnum {
         this.targetCode = targetCode;
     }
 
-    public String getMsg() {
-        return msg;
+    public String getDesc() {
+        return desc;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 }
