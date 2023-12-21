@@ -176,6 +176,7 @@
         <entry key="WJPT" value="文件"/>
         <entry key="TAPT" value="特安"/>
         <entry key="LLPT" value="笼车/围板箱"/>
+        <entry key="BXPT" value="正向虚拟"/>
     </util:map>
 
     <!-- 营业部，自营京东派 使用的箱型 【新版 2023-10-25 14:01:16】 -->
