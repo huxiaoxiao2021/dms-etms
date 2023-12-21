@@ -102,6 +102,23 @@ public interface JyBizTaskSendVehicleService {
                                                          List<Integer> statuses);
 
     /**
+     * 分页查询发货任务
+     * 待发货、发货中、待封车三个状态采用不同计划发车时间范围的任务列表查询语句：目前接货仓有这种特殊需求在使用
+     * @param entity
+     * @param sendVehicleBizList
+     * @param typeEnum
+     * @param pageNum
+     * @param pageSize
+     * @param statuses
+     * @return
+     */
+    List<JyBizTaskSendVehicleEntity> querySpecifySendTaskOfPage(JyBizTaskSendVehicleEntity entity,
+                                                         List<String> sendVehicleBizList,
+                                                         JyBizTaskSendSortTypeEnum typeEnum,
+                                                         Integer pageNum, Integer pageSize,
+                                                         List<Integer> statuses);
+
+    /**
      * 统计发车任务数量
      * @param entity
      * @param sendVehicleBizList
@@ -152,8 +169,17 @@ public interface JyBizTaskSendVehicleService {
     List<JyBizTaskSendVehicleEntity> findSendTaskByDestOfPage(JyBizTaskSendVehicleDetailEntity entity,
                                                               Integer pageNum, Integer pageSize);
 
+    /**
+     * 分页查询未封车的发货任务
+     * 待发货、发货中、待封车三个状态采用不同计划发车时间范围的任务列表查询语句：目前接货仓有这种特殊需求在使用
+     */
+    List<JyBizTaskSendVehicleEntity> findSpecifySendTaskByDestOfPage(JyBizTaskSendVehicleDetailEntity entity,
+                                    Integer pageNum, Integer pageSize);
+
 
     Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity);
+
+    Integer countSpecifySendTaskByDest(JyBizTaskSendVehicleDetailEntity entity);
 
 
     List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId);

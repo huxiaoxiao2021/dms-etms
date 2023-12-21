@@ -1127,8 +1127,15 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             curSendDest.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
             // 接货仓发货岗计划发货时间有自己的特殊范围
             if (JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
-                curSendDest.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeBeginDay()));
-                curSendDest.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeEndDay()));
+                // 待发货状态任务 计划发货时间 开始与结束
+                curSendDest.setToSendLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeBeginDay()));
+                curSendDest.setToSendLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeEndDay()));
+                // 发货中状态任务 计划发货时间 开始与结束
+                curSendDest.setSendingLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeBeginDay()));
+                curSendDest.setSendingLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeEndDay()));
+                // 待封车状态任务 计划发货时间 开始与结束
+                curSendDest.setToSealLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeBeginDay()));
+                curSendDest.setToSealLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeEndDay()));
             }
             //接货仓发货岗绑定不限制线路类型，分拣发货岗绑定只查干支
             if(!JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
@@ -1136,7 +1143,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 curSendDest.setLineTypeList(lineTypeList);
             }
             // 统计发货任务数量
-            Integer taskCount = taskSendVehicleService.countSendTaskByDest(curSendDest);
+            Integer taskCount;
+            // 待发货、发货中、待封车三个状态采用不同计划发车时间范围的任务列表查询语句：目前接货仓有这种特殊需求在使用
+            if (JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
+                taskCount = taskSendVehicleService.countSpecifySendTaskByDest(curSendDest);
+            } else {
+                taskCount = taskSendVehicleService.countSendTaskByDest(curSendDest);
+            }
             VehicleTaskResp taskResp = new VehicleTaskResp();
             result.setData(taskResp);
             taskResp.setCount(taskCount);
@@ -1149,8 +1162,15 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             // 默认按预计发车时间排序
             curSendDest.setSendVehicleBizId(null);
             curSendDest.setTransferFlag(TransFlagEnum.IN.getCode());
-            List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(curSendDest,
-                    vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
+            List<JyBizTaskSendVehicleEntity> vehiclePageList;
+            // 待发货、发货中、待封车三个状态采用不同计划发车时间范围的任务列表查询语句：目前接货仓有这种特殊需求在使用
+            if (JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
+                vehiclePageList = taskSendVehicleService.findSpecifySendTaskByDestOfPage(curSendDest,
+                        vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
+            } else {
+                vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(curSendDest,
+                        vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
+            }
 
             if (CollectionUtils.isEmpty(vehiclePageList)) {
                 result.setMessage(HintService.getHint(HintCodeConstants.NOT_FOUND_BINDING_TASK_DATA_MSG));
@@ -1431,14 +1451,28 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
             // 接货仓发货岗计划发货时间有自己的特殊范围
             if (JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
-                queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeBeginDay()));
-                queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeEndDay()));
+                // 待发货状态任务 计划发货时间 开始与结束
+                queryDetail.setToSendLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeBeginDay()));
+                queryDetail.setToSendLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeEndDay()));
+                // 发货中状态任务 计划发货时间 开始与结束
+                queryDetail.setSendingLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeBeginDay()));
+                queryDetail.setSendingLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeEndDay()));
+                // 待封车状态任务 计划发货时间 开始与结束
+                queryDetail.setToSealLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeBeginDay()));
+                queryDetail.setToSealLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeEndDay()));
             }
             //仅关注干支
             List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
             queryDetail.setLineTypeList(lineTypeList);
-            List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(queryDetail,
-                    vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
+            List<JyBizTaskSendVehicleEntity> vehiclePageList;
+            // 待发货、发货中、待封车三个状态采用不同计划发车时间范围的任务列表查询语句：目前接货仓有这种特殊需求在使用
+            if (JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
+                vehiclePageList = taskSendVehicleService.findSpecifySendTaskByDestOfPage(queryDetail,
+                        vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
+            } else {
+                vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(queryDetail,
+                        vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
+            }
 
             if (CollectionUtils.isEmpty(vehiclePageList)) {
                 result.setMessage(HintService.getHint(HintCodeConstants.NOT_FOUND_TRANSFER_TASK_DATA_MSG));

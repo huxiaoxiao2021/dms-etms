@@ -1552,6 +1552,16 @@ public class UccPropertyConfiguration{
      */
     private Integer jyWarehouseSendingPlanTimeEndDay;
 
+    /**
+     * 接货仓发货岗待封车任务列表计划发车时间查询条件前X天
+     */
+    private Integer jyWarehouseToSealPlanTimeBeginDay;
+
+    /**
+     * 接货仓发货岗待封车任务列表计划发车时间查询条件后X天
+     */
+    private Integer jyWarehouseToSealPlanTimeEndDay;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4136,5 +4146,21 @@ public class UccPropertyConfiguration{
 
     public void setJyWarehouseSendingPlanTimeEndDay(Integer jyWarehouseSendingPlanTimeEndDay) {
         this.jyWarehouseSendingPlanTimeEndDay = jyWarehouseSendingPlanTimeEndDay;
+    }
+
+    public Integer getJyWarehouseToSealPlanTimeBeginDay() {
+        return jyWarehouseToSealPlanTimeBeginDay;
+    }
+
+    public void setJyWarehouseToSealPlanTimeBeginDay(Integer jyWarehouseToSealPlanTimeBeginDay) {
+        this.jyWarehouseToSealPlanTimeBeginDay = jyWarehouseToSealPlanTimeBeginDay;
+    }
+
+    public Integer getJyWarehouseToSealPlanTimeEndDay() {
+        return jyWarehouseToSealPlanTimeEndDay;
+    }
+
+    public void setJyWarehouseToSealPlanTimeEndDay(Integer jyWarehouseToSealPlanTimeEndDay) {
+        this.jyWarehouseToSealPlanTimeEndDay = jyWarehouseToSealPlanTimeEndDay;
     }
 }

@@ -124,6 +124,36 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".querySendTaskOfPage", params);
     }
 
+    public List<JyBizTaskSendVehicleEntity> querySpecifySendTaskOfPage(JyBizTaskSendVehicleEntity entity,
+                                                                List<String> sendVehicleBizList,
+                                                                JyBizTaskSendSortTypeEnum typeEnum,
+                                                                Integer offset, Integer limit,
+                                                                List<Integer> statuses) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        if(sendVehicleBizList != null && sendVehicleBizList.size() > 0){
+            params.put("sendVehicleBizList", sendVehicleBizList.toArray());
+        }
+        if (entity.getLineType() != null) {
+            List<Integer> lineType = new ArrayList<>();
+            if (JyLineTypeEnum.TRUNK_LINE.getCode().equals(entity.getLineType())
+                    ||JyLineTypeEnum.BRANCH_LINE.getCode().equals(entity.getLineType())){
+                lineType.add(JyLineTypeEnum.OTHER.getCode());
+            }
+            lineType.add(entity.getLineType());
+            params.put("lineTypeList", lineType.toArray());
+        }
+        if (typeEnum != null) {
+            params.put("sortType", typeEnum.getCode());
+        }
+        if (statuses != null && statuses.size() > 0) {
+            params.put("statuses", statuses.toArray());
+        }
+        params.put("offset", offset);
+        params.put("limit", limit);
+        return this.getSqlSession().selectList(NAMESPACE + ".querySpecifySendTaskOfPage", params);
+    }
+
     public Integer countByCondition(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList, List<Integer> statuses) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
@@ -172,8 +202,24 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByDestOfPage", params);
     }
 
+    /**
+     * 待发货、发货中、待封车三个状态采用不同计划发车时间范围的任务列表查询语句：目前接货仓有这种特殊需求在使用
+     */
+    public List<JyBizTaskSendVehicleEntity> findSpecifySendTaskByDestOfPage(JyBizTaskSendVehicleDetailEntity entity,
+                                                                     Integer offset, Integer limit) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        params.put("offset", offset);
+        params.put("limit", limit);
+        return this.getSqlSession().selectList(NAMESPACE + ".findSpecifySendTaskByDestOfPage", params);
+    }
+
     public Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".countSendTaskByDest", entity);
+    }
+
+    public Integer countSpecifySendTaskByDest(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countSpecifySendTaskByDest", entity);
     }
 
     public List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId) {
