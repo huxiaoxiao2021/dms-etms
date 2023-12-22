@@ -1562,6 +1562,11 @@ public class UccPropertyConfiguration{
      */
     private Integer jyWarehouseToSealPlanTimeEndDay;
 
+    /**
+     * 接货仓发货岗任务列表创建时间查询条件前X天
+     */
+    private Integer jyWarehouseTaskCreateTimeBeginDay;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4162,5 +4167,13 @@ public class UccPropertyConfiguration{
 
     public void setJyWarehouseToSealPlanTimeEndDay(Integer jyWarehouseToSealPlanTimeEndDay) {
         this.jyWarehouseToSealPlanTimeEndDay = jyWarehouseToSealPlanTimeEndDay;
+    }
+
+    public Integer getJyWarehouseTaskCreateTimeBeginDay() {
+        return jyWarehouseTaskCreateTimeBeginDay;
+    }
+
+    public void setJyWarehouseTaskCreateTimeBeginDay(Integer jyWarehouseTaskCreateTimeBeginDay) {
+        this.jyWarehouseTaskCreateTimeBeginDay = jyWarehouseTaskCreateTimeBeginDay;
     }
 }

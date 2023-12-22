@@ -330,6 +330,7 @@
 		<property name="jyWarehouseSendingPlanTimeEndDay" value="${jyWarehouseSendingPlanTimeEndDay:2}"/>
 		<property name="jyWarehouseToSealPlanTimeBeginDay" value="${jyWarehouseToSealPlanTimeBeginDay:1}"/>
 		<property name="jyWarehouseToSealPlanTimeEndDay" value="${jyWarehouseToSealPlanTimeEndDay:2}"/>
+		<property name="jyWarehouseTaskCreateTimeBeginDay" value="${jyWarehouseTaskCreateTimeBeginDay:30}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -646,6 +647,7 @@
 				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeEndDay</value>
 				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeEndDay</value>
+				<value>uccPropertyConfiguration.jyWarehouseTaskCreateTimeBeginDay</value>
 			</list>
 		</property>
 	</bean>

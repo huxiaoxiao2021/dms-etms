@@ -503,8 +503,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             } else {
                 queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJySendTaskPlanTimeEndDay()));
             }
-            queryTaskSendDto.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
-
+            if (ObjectHelper.isNotNull(request.getCreateTimeBegin())) {
+                queryTaskSendDto.setCreateTimeBegin(request.getCreateTimeBegin());
+            } else {
+                queryTaskSendDto.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
+            }
         } catch (Exception e) {
             log.error("查询发货任务设置默认查询条件异常，入参{}", JsonHelper.toJson(request), e.getMessage(), e);
         }
@@ -1136,6 +1139,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 // 待封车状态任务 计划发货时间 开始与结束
                 curSendDest.setToSealLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeBeginDay()));
                 curSendDest.setToSealLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeEndDay()));
+                curSendDest.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseTaskCreateTimeBeginDay()));
             }
             //接货仓发货岗绑定不限制线路类型，分拣发货岗绑定只查干支
             if(!JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
@@ -1460,6 +1464,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 // 待封车状态任务 计划发货时间 开始与结束
                 queryDetail.setToSealLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeBeginDay()));
                 queryDetail.setToSealLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeEndDay()));
+                queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), - dmsConfigManager.getPropertyConfig().getJyWarehouseTaskCreateTimeBeginDay()));
             }
             //仅关注干支
             List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
