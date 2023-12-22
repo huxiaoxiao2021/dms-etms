@@ -324,6 +324,12 @@
 		<property name="czSealCarBoardCountMinLimit" value="${czSealCarBoardCountMinLimit:4}"/>
 		<property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
 		<property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:10000}"/>
+		<property name="jyWarehouseToSendPlanTimeBeginDay" value="${jyWarehouseToSendPlanTimeBeginDay:1}"/>
+		<property name="jyWarehouseToSendPlanTimeEndDay" value="${jyWarehouseToSendPlanTimeEndDay:2}"/>
+		<property name="jyWarehouseSendingPlanTimeBeginDay" value="${jyWarehouseSendingPlanTimeBeginDay:1}"/>
+		<property name="jyWarehouseSendingPlanTimeEndDay" value="${jyWarehouseSendingPlanTimeEndDay:2}"/>
+		<property name="jyWarehouseToSealPlanTimeBeginDay" value="${jyWarehouseToSealPlanTimeBeginDay:1}"/>
+		<property name="jyWarehouseToSealPlanTimeEndDay" value="${jyWarehouseToSealPlanTimeEndDay:2}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -634,6 +640,12 @@
 				<value>uccPropertyConfiguration.czSealCarBoardCountMinLimit</value>
 				<value>uccPropertyConfiguration.czSealCarPackageCountMinLimit</value>
 				<value>uccPropertyConfiguration.jyAviationManualCreateSendTaskMaxBookingWeight</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeBeginDay</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeEndDay</value>
+				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeBeginDay</value>
+				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeEndDay</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeBeginDay</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeEndDay</value>
 			</list>
 		</property>
 	</bean>
