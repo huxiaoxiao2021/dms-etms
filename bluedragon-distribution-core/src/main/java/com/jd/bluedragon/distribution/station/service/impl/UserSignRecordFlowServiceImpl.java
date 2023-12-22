@@ -4,6 +4,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,6 +45,9 @@ import com.jd.lsb.flow.domain.HistoryApprove;
 import com.jdl.basic.api.domain.position.PositionData;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static com.jd.bluedragon.Constants.USER_SIGN_RECORD_FLOW_ACCRUAL_DAY;
+import static com.jd.bluedragon.Constants.USER_SIGN_RECORD_FLOW_ACCRUAL_HOUR;
 
 /**
  * 人员签到流程业务--Service接口实现
@@ -89,18 +96,19 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 	private JyGroupService jyGroupService;
 	
 	@Autowired
-	private PositionManager positionManager;	
-	
+	private PositionManager positionManager;
+
 	/**
-	 * 计提日-日期
+	 * 默认计提日-日期
 	 */
-	@Value("${beans.userSignRecordFlowService.accrualDay:21}")
-	private int accrualDay;
+	private static final int ACCRUAL_DAY = 23;
 	/**
-	 * 计提时间-小时
+	 * 默认计提时间-小时
 	 */
-	@Value("${beans.userSignRecordFlowService.accrualHour:7}")
-	private int accrualHour;
+	private static final int ACCRUAL_HOUR = 0;
+
+	@Autowired
+	private SysConfigService sysConfigService;
 	
 	/**
 	 * 签到日期-不能小于上个计提日期
@@ -109,7 +117,9 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 	 * @return
 	 */
 	public boolean checkSignInTime(Date signInTime,Date signInTimeNew) {
-        Date lastAccrualDate = DateHelper.getLastAccrualDate(accrualDay,accrualHour,0);
+		int accrualDay = getAccrualDay();
+		int accrualHour = getAccrualHour();
+		Date lastAccrualDate = DateHelper.getLastAccrualDate(accrualDay,accrualHour,0);
 		if(signInTime != null && !signInTime.after(lastAccrualDate)) {
 			return false;
 		}
@@ -118,6 +128,27 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		}
 		return true;
 	}
+
+	private int getAccrualHour() {
+		SysConfig hourConf = sysConfigService.findConfigContentByConfigName(USER_SIGN_RECORD_FLOW_ACCRUAL_HOUR);
+		if (hourConf != null
+				&& StringUtils.isNotEmpty(hourConf.getConfigContent())
+				&& NumberUtils.isNumber(hourConf.getConfigContent())) {
+			 return Integer.parseInt(hourConf.getConfigContent());
+		}
+		return ACCRUAL_HOUR;
+	}
+
+	private int getAccrualDay() {
+		SysConfig dayConf = sysConfigService.findConfigContentByConfigName(USER_SIGN_RECORD_FLOW_ACCRUAL_DAY);
+		if (dayConf != null
+				&& StringUtils.isNotEmpty(dayConf.getConfigContent())
+				&& NumberUtils.isNumber(dayConf.getConfigContent())) {
+			return Integer.parseInt(dayConf.getConfigContent());
+		}
+		return ACCRUAL_DAY;
+	}
+
 	@Override
 	public boolean addData(UserSignRecordFlow userSignRecordFlow) {
 		return userSignRecordFlowDao.insert(userSignRecordFlow) == 1;
@@ -178,6 +209,8 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		if(log.isDebugEnabled()) {
 			log.debug("更新流程状态：流程单号{},更新数据{},更新结果{}",processInstanceNo,JsonHelper.toJson(updateData),updateCount);
 		}
+		int accrualDay = getAccrualDay();
+		int accrualHour = getAccrualHour();
 		if(!checkSignInTime) {
 			log.warn("审批超时，审批通过时间在当前计提周期({}号{}点)结束之前：流程单号{},更新数据{},更新结果{}",accrualDay,accrualHour,processInstanceNo,JsonHelper.toJson(updateData),updateCount);
 			return;
