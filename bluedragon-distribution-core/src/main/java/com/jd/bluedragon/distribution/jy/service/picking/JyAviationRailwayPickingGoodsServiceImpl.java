@@ -459,8 +459,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             List<Integer> nextSiteIdList = new ArrayList<>();//todo zcf 调用已维护发货流向接口
             //
             resData.setNextSiteSupportSwitch(nextSiteIdList.contains(routerNextSiteId));
-            resData.setRealNextSiteId(routerNextSiteId);
-            resData.setRealNextSiteName(routerNextSiteName);
+            resData.setRouterNextSiteId(routerNextSiteId);
+            resData.setRouterNextSiteName(routerNextSiteName);
             resData.setBoxConfirmNextSiteKey(boxConfirmNextSiteKey);
             String msg = String.format(PickingGoodsRes.CODE_30001_MSG_1, routerNextSiteName, request.getNextSiteName());
             res.customMessage(PickingGoodsRes.CODE_30001, msg);

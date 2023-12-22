@@ -19,9 +19,9 @@ public class PickingGoodsRes implements Serializable {
     public static final String CODE_30001_MSG_2 = "该包裹[箱号]路由下一流向查询为空";
 
 
-    //实际发货流向场地
-    private Integer realNextSiteId;
-    private String realNextSiteName;
+    //路由流向场地
+    private Integer routerNextSiteId;
+    private String routerNextSiteName;
     /**
      * 箱号确认流向场地的key[包裹号]
      */
@@ -53,20 +53,20 @@ public class PickingGoodsRes implements Serializable {
      */
     private String batchCode;
 
-    public Integer getRealNextSiteId() {
-        return realNextSiteId;
+    public Integer getRouterNextSiteId() {
+        return routerNextSiteId;
     }
 
-    public void setRealNextSiteId(Integer realNextSiteId) {
-        this.realNextSiteId = realNextSiteId;
+    public void setRouterNextSiteId(Integer routerNextSiteId) {
+        this.routerNextSiteId = routerNextSiteId;
     }
 
-    public String getRealNextSiteName() {
-        return realNextSiteName;
+    public String getRouterNextSiteName() {
+        return routerNextSiteName;
     }
 
-    public void setRealNextSiteName(String realNextSiteName) {
-        this.realNextSiteName = realNextSiteName;
+    public void setRouterNextSiteName(String routerNextSiteName) {
+        this.routerNextSiteName = routerNextSiteName;
     }
 
     public String getBoxConfirmNextSiteKey() {
