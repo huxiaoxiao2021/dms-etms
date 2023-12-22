@@ -11,17 +11,23 @@ import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskStatisti
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingSendGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskSendAggsEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -205,6 +211,55 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         }finally {
             cacheService.unlockLockPickingGoodTask(bizId);
         }
+    }
+
+    @Override
+    public List<PickingSendGoodAggsDto> waitPickingInitTotalNum(List<String> bizIdList, Long siteId, Long sendNextSiteId) {
+        List<PickingSendGoodAggsDto> res = new ArrayList<>();
+        List<String> nullCacheBizId = new ArrayList<>();
+
+        bizIdList.forEach(bizId -> {
+            Integer num = null;
+            if(Objects.isNull(sendNextSiteId)) {
+                num = cacheService.getCacheInitWaitPickingTotalItemNum(bizId, siteId);
+            }else {
+                num = cacheService.getCacheInitWaitSendTotalItemNum(bizId, siteId, sendNextSiteId);
+            }
+            if(NumberHelper.gt0(num)) {
+                PickingSendGoodAggsDto aggs = new PickingSendGoodAggsDto();
+                aggs.setBizId(bizId);
+                aggs.setWaitSendTotalNum(num);
+                res.add(aggs);
+            }else {
+                nullCacheBizId.add(bizId);
+            }
+        });
+
+        if(!CollectionUtils.isEmpty(nullCacheBizId)) {
+            List<PickingSendGoodAggsDto> dbQueryDtoList = new ArrayList<>();
+            if(Objects.isNull(sendNextSiteId)) {
+                List<JyPickingTaskAggsEntity> pickingAggsEntityList = jyPickingTaskAggsDao.findByBizIdList(nullCacheBizId, siteId);
+                pickingAggsEntityList.forEach(entity -> {
+                    PickingSendGoodAggsDto aggs = new PickingSendGoodAggsDto();
+                    aggs.setBizId(entity.getBizId());
+                    aggs.setWaitSendTotalNum(entity.getWaitScanTotalCount());
+                    res.add(aggs);
+                    cacheService.saveCacheInitWaitPickingTotalItemNum(entity.getBizId(), siteId, entity.getWaitScanTotalCount());
+                });
+            }else {
+                List<JyPickingTaskSendAggsEntity> sendAggsEntityList = jyPickingTaskSendAggsDao.findByBizIdList(nullCacheBizId, siteId, sendNextSiteId);
+                sendAggsEntityList.forEach(entity -> {
+                    PickingSendGoodAggsDto aggs = new PickingSendGoodAggsDto();
+                    aggs.setBizId(entity.getBizId());
+                    aggs.setWaitSendTotalNum(entity.getWaitScanTotalCount());
+                    res.add(aggs);
+                    cacheService.saveCacheInitWaitSendTotalItemNum(entity.getBizId(), siteId, sendNextSiteId, entity.getWaitScanTotalCount());
+                });
+            }
+
+            res.addAll(dbQueryDtoList);
+        }
+        return res;
     }
 
 

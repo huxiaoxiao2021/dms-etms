@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingSendGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 
+import java.util.List;
+
 /**
  * @Author zhengchengfa
  * @Date 2023/12/6 20:16
@@ -39,4 +41,15 @@ public interface JyPickingTaskAggsService {
      * @param bizId
      */
     void aggRefresh(String bizId, Long nextSiteId);
+
+    /**
+     * 根据bizId集合查询初始化之后的待提数量
+     * 【初始化之前入口：取DB中上游发货登记数量】
+     * ** 注： 这里查的任务未开始前的应提总数，非实时待提
+     * @param bizIdList
+     * @param siteId
+     * @param sendNextSiteId   选填，非空，会查该流向待发数量
+     * @return
+     */
+    List<PickingSendGoodAggsDto> waitPickingInitTotalNum(List<String> bizIdList, Long siteId, Long sendNextSiteId);
 }

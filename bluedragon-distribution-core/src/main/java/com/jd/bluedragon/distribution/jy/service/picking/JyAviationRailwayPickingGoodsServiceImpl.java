@@ -38,10 +38,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 /**
@@ -146,7 +143,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             //提货成功save缓存
             this.pickingGoodScanCache(request, resData,taskPickingGoodEntity);
 
-            //返回结果处理
+            //返回结果处理  todo zcf 这里只有待提任务的，没有考虑提发的时候统计数据
             this.convertPickingTask(request, resData, taskPickingGoodEntity);
 
             return res;
@@ -275,8 +272,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     private Integer getInitWaitPickingTotalItemNum(String bizId, Long siteId) {
         Integer num = aggsCacheService.getCacheInitWaitPickingTotalItemNum(bizId, siteId);
         if(!NumberHelper.gt0(num)) {
-            num = jyPickingSendRecordService.countTaskWaitScanItemNum(bizId, siteId);
-            aggsCacheService.saveCacheInitWaitPickingTotalItemNum(bizId, siteId, num);
+            List<String> bizIdList = Arrays.asList(bizId);
+            jyPickingTaskAggsService.waitPickingInitTotalNum(bizIdList, siteId, null);
         }
         return num;
     }

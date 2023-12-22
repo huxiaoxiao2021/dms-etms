@@ -10,6 +10,8 @@ import java.io.Serializable;
 public class PickingSendGoodAggsDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private String bizId;
+
     /**
      * 待提总数
      */
@@ -26,6 +28,14 @@ public class PickingSendGoodAggsDto implements Serializable {
      * 强发
      */
     private int forceSendTotalNum;
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
 
     public int getWaitSendTotalNum() {
         return waitSendTotalNum;
