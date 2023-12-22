@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodSubsidiaryDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
+    <result column="business_number" property="businessNumber" jdbcType="VARCHAR" />
+    <result column="send_code" property="sendCode" jdbcType="VARCHAR" />
+    <result column="seal_car_code" property="sendCode" jdbcType="VARCHAR" />
+    <result column="start_site_id" property="startSiteId" jdbcType="INTEGER" />
+    <result column="start_site_code" property="startSiteCode" jdbcType="VARCHAR" />
+    <result column="start_site_name" property="startSiteName" jdbcType="VARCHAR" />
+    <result column="end_site_id" property="endSiteId" jdbcType="INTEGER" />
+    <result column="end_site_code" property="endSiteCode" jdbcType="VARCHAR" />
+    <result column="end_site_name" property="endSiteName" jdbcType="VARCHAR" />
+    <result column="transport_code" property="transportCode" jdbcType="VARCHAR" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List" >
+    id, biz_id, business_number, send_code, seal_car_code, start_site_id, start_site_code, start_site_name,
+    end_site_id, end_site_code, end_site_name, transport_code, create_user_erp, create_user_name, update_user_erp,
+    update_user_name, create_time, update_time, yn, ts
+  </sql>
+
+
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity" >
+      insert into jy_biz_task_picking_good_subsidiary
+      <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          id,
+        </if>
+        <if test="bizId != null" >
+          biz_id,
+        </if>
+        <if test="businessNumber != null" >
+          business_number,
+        </if>
+        <if test="sendCode != null" >
+          send_code,
+        </if>
+        <if test="sealCarCode != null" >
+          seal_car_code,
+        </if>
+        <if test="startSiteId != null" >
+          start_site_id,
+        </if>
+        <if test="startSiteCode != null" >
+          start_site_code,
+        </if>
+        <if test="startSiteName != null" >
+          start_site_name,
+        </if>
+        <if test="endSiteId != null" >
+          end_site_id,
+        </if>
+        <if test="endSiteCode != null" >
+          end_site_code,
+        </if>
+        <if test="endSiteName != null" >
+          end_site_name,
+        </if>
+        <if test="transportCode != null" >
+          transport_code,
+        </if>
+        <if test="createUserErp != null" >
+          create_user_erp,
+        </if>
+        <if test="createUserName != null" >
+          create_user_name,
+        </if>
+        <if test="updateUserErp != null" >
+          update_user_erp,
+        </if>
+        <if test="updateUserName != null" >
+          update_user_name,
+        </if>
+        <if test="createTime != null" >
+          create_time,
+        </if>
+        <if test="updateTime != null" >
+          update_time,
+        </if>
+        <if test="yn != null" >
+          yn,
+        </if>
+        <if test="ts != null" >
+          ts,
+        </if>
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          #{id},
+        </if>
+        <if test="bizId != null" >
+          #{bizId},
+        </if>
+        <if test="businessNumber != null" >
+          #{businessNumber},
+        </if>
+        <if test="sendCode != null" >
+          #{sendCode},
+        </if>
+        <if test="sealCarCode != null" >
+          #{sealCarCode},
+        </if>
+        <if test="startSiteId != null" >
+          #{startSiteId},
+        </if>
+        <if test="startSiteCode != null" >
+          #{startSiteCode},
+        </if>
+        <if test="startSiteName != null" >
+          #{startSiteName},
+        </if>
+        <if test="endSiteId != null" >
+          #{endSiteId},
+        </if>
+        <if test="endSiteCode != null" >
+          #{endSiteCode},
+        </if>
+        <if test="endSiteName != null" >
+          #{endSiteName},
+        </if>
+        <if test="transportCode != null" >
+          #{transportCode},
+        </if>
+        <if test="createUserErp != null" >
+          #{createUserErp},
+        </if>
+        <if test="createUserName != null" >
+          #{createUserName},
+        </if>
+        <if test="updateUserErp != null" >
+          #{updateUserErp},
+        </if>
+        <if test="updateUserName != null" >
+          #{updateUserName},
+        </if>
+        <if test="createTime != null" >
+          #{createTime},
+        </if>
+        <if test="updateTime != null" >
+          #{updateTime},
+        </if>
+        <if test="yn != null" >
+          #{yn,jdbcType=BIT},
+        </if>
+        <if test="ts != null" >
+          #{ts},
+        </if>
+      </trim>
+    </insert>
+
+
+    <update id="deleteByBizId" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity" >
+      update jy_biz_task_picking_good_subsidiary
+      set
+        <if test="updateUserErp != null" >
+          update_user_erp = #{updateUserErp},
+        </if>
+        <if test="updateUserName != null" >
+          update_user_name = #{updateUserName},
+        </if>
+        yn = 0,
+        update_time = #{updateTime},
+      where yn = 1 and biz_id = #{bizId}
+    </update>
+  
+<!--  -->
+<!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
+<!--    select-->
+<!--    <include refid="Base_Column_List" />-->
+<!--    from jy_biz_task_picking_good_subsidiary-->
+<!--    where id = #{id}-->
+<!--  </select>-->
+<!--  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >-->
+<!--    delete from jy_biz_task_picking_good_subsidiary-->
+<!--    where id = #{id}-->
+<!--  </delete>-->
+<!--  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity" >-->
+<!--    insert into jy_biz_task_picking_good_subsidiary (id, biz_id, business_number,-->
+<!--    send_code, start_site_code, start_site_name,-->
+<!--    end_site_code, end_site_name, transport_code,-->
+<!--    create_user_erp, create_user_name, update_user_erp,-->
+<!--    update_user_name, create_time, update_time,-->
+<!--    yn, ts)-->
+<!--    values (#{id}, #{bizId}, #{businessNumber},-->
+<!--    #{sendCode}, #{startSiteCode}, #{startSiteName},-->
+<!--    #{endSiteCode}, #{endSiteName}, #{transportCode},-->
+<!--    #{createUserErp}, #{createUserName}, #{updateUserErp},-->
+<!--    #{updateUserName}, #{createTime}, #{updateTime},-->
+<!--    #{yn,jdbcType=BIT}, #{ts})-->
+<!--  </insert>-->
+<!--  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity" >-->
+<!--    update jy_biz_task_picking_good_subsidiary-->
+<!--    <set >-->
+<!--      <if test="bizId != null" >-->
+<!--        biz_id = #{bizId},-->
+<!--      </if>-->
+<!--      <if test="businessNumber != null" >-->
+<!--        business_number = #{businessNumber},-->
+<!--      </if>-->
+<!--      <if test="sendCode != null" >-->
+<!--        send_code = #{sendCode},-->
+<!--      </if>-->
+<!--      <if test="startSiteCode != null" >-->
+<!--        start_site_code = #{startSiteCode},-->
+<!--      </if>-->
+<!--      <if test="startSiteName != null" >-->
+<!--        start_site_name = #{startSiteName},-->
+<!--      </if>-->
+<!--      <if test="endSiteCode != null" >-->
+<!--        end_site_code = #{endSiteCode},-->
+<!--      </if>-->
+<!--      <if test="endSiteName != null" >-->
+<!--        end_site_name = #{endSiteName},-->
+<!--      </if>-->
+<!--      <if test="transportCode != null" >-->
+<!--        transport_code = #{transportCode},-->
+<!--      </if>-->
+<!--      <if test="createUserErp != null" >-->
+<!--        create_user_erp = #{createUserErp},-->
+<!--      </if>-->
+<!--      <if test="createUserName != null" >-->
+<!--        create_user_name = #{createUserName},-->
+<!--      </if>-->
+<!--      <if test="updateUserErp != null" >-->
+<!--        update_user_erp = #{updateUserErp},-->
+<!--      </if>-->
+<!--      <if test="updateUserName != null" >-->
+<!--        update_user_name = #{updateUserName},-->
+<!--      </if>-->
+<!--      <if test="createTime != null" >-->
+<!--        create_time = #{createTime},-->
+<!--      </if>-->
+<!--      <if test="updateTime != null" >-->
+<!--        update_time = #{updateTime},-->
+<!--      </if>-->
+<!--      <if test="yn != null" >-->
+<!--        yn = #{yn,jdbcType=BIT},-->
+<!--      </if>-->
+<!--      <if test="ts != null" >-->
+<!--        ts = #{ts},-->
+<!--      </if>-->
+<!--    </set>-->
+<!--    where id = #{id}-->
+<!--  </update>-->
+<!--  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity" >-->
+<!--    update jy_biz_task_picking_good_subsidiary-->
+<!--    set biz_id = #{bizId},-->
+<!--    business_number = #{businessNumber},-->
+<!--    send_code = #{sendCode},-->
+<!--    start_site_code = #{startSiteCode},-->
+<!--    start_site_name = #{startSiteName},-->
+<!--    end_site_code = #{endSiteCode},-->
+<!--    end_site_name = #{endSiteName},-->
+<!--    transport_code = #{transportCode},-->
+<!--    create_user_erp = #{createUserErp},-->
+<!--    create_user_name = #{createUserName},-->
+<!--    update_user_erp = #{updateUserErp},-->
+<!--    update_user_name = #{updateUserName},-->
+<!--    create_time = #{createTime},-->
+<!--    update_time = #{updateTime},-->
+<!--    yn = #{yn,jdbcType=BIT},-->
+<!--    ts = #{ts}-->
+<!--    where id = #{id}-->
+<!--  </update>-->
+</mapper>

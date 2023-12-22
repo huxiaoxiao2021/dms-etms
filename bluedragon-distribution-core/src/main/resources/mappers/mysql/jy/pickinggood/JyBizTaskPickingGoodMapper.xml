@@ -12,9 +12,13 @@
     <result column="begin_node_name" property="beginNodeName" jdbcType="VARCHAR" />
     <result column="end_node_code" property="endNodeCode" jdbcType="VARCHAR" />
     <result column="end_node_name" property="endNodeName" jdbcType="VARCHAR" />
-    <result column="node_start_time" property="nodeStartTime" jdbcType="TIMESTAMP" />
+    <result column="node_plan_start_time" property="nodePlanStartTime" jdbcType="TIMESTAMP" />
+    <result column="node_real_start_time" property="nodeRealStartTime" jdbcType="TIMESTAMP" />
     <result column="node_plan_arrive_time" property="nodePlanArriveTime" jdbcType="TIMESTAMP" />
     <result column="node_real_arrive_time" property="nodeRealArriveTime" jdbcType="TIMESTAMP" />
+    <result column="operate_node_type" property="operateNodeType" jdbcType="INTEGER" />
+    <result column="cargo_number" property="cargoNumber" jdbcType="INTEGER" />
+    <result column="cargo_weight" property="cargoWeight" jdbcType="DOUBLE" />
     <result column="status" property="status" jdbcType="TINYINT" />
     <result column="complete_node" property="completeNode" jdbcType="TINYINT" />
     <result column="picking_start_time" property="pickingStartTime" jdbcType="TIMESTAMP" />
@@ -34,9 +38,9 @@
   </resultMap>
   <sql id="Base_Column_List" >
     id, biz_id, start_site_id, next_site_id, business_number, service_number, begin_node_code, 
-    begin_node_name, end_node_code, end_node_name, node_start_time, node_plan_arrive_time, 
-    node_real_arrive_time, status, complete_node, picking_start_time, picking_complete_time, 
-    intercept, intercept_time, task_type, manual_created_flag, create_user_erp, create_user_name, 
+    begin_node_name, end_node_code, end_node_name, node_plan_start_time, node_real_start_time, node_plan_arrive_time,
+    node_real_arrive_time, operate_node_type, cargo_number, cargo_weight, status, complete_node, picking_start_time,
+    picking_complete_time, intercept, intercept_time, task_type, manual_created_flag, create_user_erp, create_user_name,
     update_user_erp, update_user_name, create_time, update_time, yn, ts
   </sql>
 
@@ -73,14 +77,26 @@
         <if test="endNodeName != null" >
           end_node_name,
         </if>
-        <if test="nodeStartTime != null" >
-          node_start_time,
+        <if test="nodePlanStartTime != null" >
+          node_plan_start_time,
+        </if>
+        <if test="nodeRealStartTime != null" >
+          node_real_start_time,
         </if>
         <if test="nodePlanArriveTime != null" >
           node_plan_arrive_time,
         </if>
         <if test="nodeRealArriveTime != null" >
           node_real_arrive_time,
+        </if>
+        <if test="operateNodeType != null" >
+          operate_node_type,
+        </if>
+        <if test="cargoNumber != null" >
+          cargo_number,
+        </if>
+        <if test="cargoWeight != null" >
+          cargo_weight,
         </if>
         <if test="status != null" >
           status,
@@ -170,6 +186,15 @@
         </if>
         <if test="nodeRealArriveTime != null" >
           #{nodeRealArriveTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="operateNodeType != null" >
+          #{operateNodeType},
+        </if>
+        <if test="cargoNumber != null" >
+          #{cargoNumber},
+        </if>
+        <if test="cargoWeight != null" >
+          #{cargoWeight},
         </if>
         <if test="status != null" >
           #{status,jdbcType=TINYINT},
@@ -293,7 +318,7 @@
 <!--    insert into jy_biz_task_picking_good (id, biz_id, start_site_id, -->
 <!--      next_site_id, business_number, service_number, -->
 <!--      begin_node_code, begin_node_name, end_node_code, -->
-<!--      end_node_name, node_start_time, node_plan_arrive_time, -->
+<!--      end_node_name, node_plan_start_time, node_real_start_time, node_plan_arrive_time, -->
 <!--      node_real_arrive_time, status, complete_node, -->
 <!--      picking_start_time, picking_complete_time, -->
 <!--      intercept, intercept_time, task_type, -->
@@ -342,8 +367,11 @@
 <!--      <if test="endNodeName != null" >-->
 <!--        end_node_name = #{endNodeName,jdbcType=VARCHAR},-->
 <!--      </if>-->
-<!--      <if test="nodeStartTime != null" >-->
-<!--        node_start_time = #{nodeStartTime,jdbcType=TIMESTAMP},-->
+<!--      <if test="nodePlanStartTime != null" >-->
+<!--        node_plan_start_time = #{nodePlanStartTime,jdbcType=TIMESTAMP},-->
+<!--      </if>-->
+<!--      <if test="nodeRealStartTime != null" >-->
+<!--        node_real_start_time = #{nodeRealStartTime,jdbcType=TIMESTAMP},-->
 <!--      </if>-->
 <!--      <if test="nodePlanArriveTime != null" >-->
 <!--        node_plan_arrive_time = #{nodePlanArriveTime,jdbcType=TIMESTAMP},-->
@@ -413,7 +441,8 @@
 <!--      begin_node_name = #{beginNodeName,jdbcType=VARCHAR},-->
 <!--      end_node_code = #{endNodeCode,jdbcType=VARCHAR},-->
 <!--      end_node_name = #{endNodeName,jdbcType=VARCHAR},-->
-<!--      node_start_time = #{nodeStartTime,jdbcType=TIMESTAMP},-->
+<!--      node_plan_start_time = #{nodePlanStartTime,jdbcType=TIMESTAMP},-->
+<!--      node_real_start_time = #{nodeRealStartTime,jdbcType=TIMESTAMP},-->
 <!--      node_plan_arrive_time = #{nodePlanArriveTime,jdbcType=TIMESTAMP},-->
 <!--      node_real_arrive_time = #{nodeRealArriveTime,jdbcType=TIMESTAMP},-->
 <!--      status = #{status,jdbcType=TINYINT},-->

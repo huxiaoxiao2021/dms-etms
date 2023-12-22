@@ -4,38 +4,32 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 空提提货任务扩展表
+ * 空提提货任务附属表
  */
-public class JyBizTaskPickingGoodExtendEntity implements Serializable {
+public class JyBizTaskPickingGoodSubsidiaryEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Long id;
 
     private String bizId;
-    /**
-     * 待提批次号
-     */
+
+    private String businessNumber;
+
     private String sendCode;
-    /**
-     * 待提数据初始化完成标识：1 初始化完成
-     */
-    private Integer waitScanInitComplete;
-    /**
-     * 待提数据初始化完成时间
-     */
-    private Date waitScanInitCompleteTime;
-    /**
-     * 待扫总件数
-     */
-    private Integer waitScanNum;
-    /**
-     * 待扫包裹数
-     */
-    private Integer waitScanPackageNum;
-    /**
-     * 待扫箱数
-     */
-    private Integer waitScanBoxNum;
+
+    private Long startSiteId;
+
+    private String startSiteCode;
+
+    private String startSiteName;
+
+    private Long endSiteId;
+
+    private String endSiteCode;
+
+    private String endSiteName;
+
+    private String transportCode;
 
     private String createUserErp;
 
@@ -53,6 +47,12 @@ public class JyBizTaskPickingGoodExtendEntity implements Serializable {
 
     private Date ts;
 
+    public JyBizTaskPickingGoodSubsidiaryEntity() {
+    }
+
+    public JyBizTaskPickingGoodSubsidiaryEntity(String bizId) {
+        this.bizId = bizId;
+    }
 
     public Long getId() {
         return id;
@@ -70,6 +70,14 @@ public class JyBizTaskPickingGoodExtendEntity implements Serializable {
         this.bizId = bizId;
     }
 
+    public String getBusinessNumber() {
+        return businessNumber;
+    }
+
+    public void setBusinessNumber(String businessNumber) {
+        this.businessNumber = businessNumber;
+    }
+
     public String getSendCode() {
         return sendCode;
     }
@@ -78,44 +86,44 @@ public class JyBizTaskPickingGoodExtendEntity implements Serializable {
         this.sendCode = sendCode;
     }
 
-    public Integer getWaitScanInitComplete() {
-        return waitScanInitComplete;
+    public String getStartSiteCode() {
+        return startSiteCode;
     }
 
-    public void setWaitScanInitComplete(Integer waitScanInitComplete) {
-        this.waitScanInitComplete = waitScanInitComplete;
+    public void setStartSiteCode(String startSiteCode) {
+        this.startSiteCode = startSiteCode;
     }
 
-    public Date getWaitScanInitCompleteTime() {
-        return waitScanInitCompleteTime;
+    public String getStartSiteName() {
+        return startSiteName;
     }
 
-    public void setWaitScanInitCompleteTime(Date waitScanInitCompleteTime) {
-        this.waitScanInitCompleteTime = waitScanInitCompleteTime;
+    public void setStartSiteName(String startSiteName) {
+        this.startSiteName = startSiteName;
     }
 
-    public Integer getWaitScanNum() {
-        return waitScanNum;
+    public String getEndSiteCode() {
+        return endSiteCode;
     }
 
-    public void setWaitScanNum(Integer waitScanNum) {
-        this.waitScanNum = waitScanNum;
+    public void setEndSiteCode(String endSiteCode) {
+        this.endSiteCode = endSiteCode;
     }
 
-    public Integer getWaitScanPackageNum() {
-        return waitScanPackageNum;
+    public String getEndSiteName() {
+        return endSiteName;
     }
 
-    public void setWaitScanPackageNum(Integer waitScanPackageNum) {
-        this.waitScanPackageNum = waitScanPackageNum;
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
     }
 
-    public Integer getWaitScanBoxNum() {
-        return waitScanBoxNum;
+    public String getTransportCode() {
+        return transportCode;
     }
 
-    public void setWaitScanBoxNum(Integer waitScanBoxNum) {
-        this.waitScanBoxNum = waitScanBoxNum;
+    public void setTransportCode(String transportCode) {
+        this.transportCode = transportCode;
     }
 
     public String getCreateUserErp() {
@@ -180,5 +188,21 @@ public class JyBizTaskPickingGoodExtendEntity implements Serializable {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public Long getStartSiteId() {
+        return startSiteId;
+    }
+
+    public void setStartSiteId(Long startSiteId) {
+        this.startSiteId = startSiteId;
+    }
+
+    public Long getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Long endSiteId) {
+        this.endSiteId = endSiteId;
     }
 }

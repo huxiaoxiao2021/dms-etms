@@ -52,9 +52,13 @@ public class JyBizTaskPickingGoodEntity implements Serializable {
      */
     private String endNodeName;
     /**
-     * 起飞时间/出发时间
+     * 计划起飞时间/出发时间
      */
-    private Date nodeStartTime;
+    private Date nodePlanStartTime;
+    /**
+     * 实际起飞时间/出发时间
+     */
+    private Date nodeRealStartTime;
     /**
      * 预计降落时间/预计到达时间
      */
@@ -63,6 +67,18 @@ public class JyBizTaskPickingGoodEntity implements Serializable {
      * 实际降落时间/实际到达时间
      */
     private Date nodeRealArriveTime;
+    /**
+     * 操作类型
+     */
+    private Integer operateNodeType;
+    /**
+     * 上游登记货物数量
+     */
+    private Integer cargoNumber;
+    /**
+     * 上游登记货物重量
+     */
+    private Double cargoWeight;
     /**
      * 提货状态（0-待提，1-提货中，2-提货完成）
      * com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum
@@ -194,12 +210,20 @@ public class JyBizTaskPickingGoodEntity implements Serializable {
         this.endNodeName = endNodeName;
     }
 
-    public Date getNodeStartTime() {
-        return nodeStartTime;
+    public Date getNodePlanStartTime() {
+        return nodePlanStartTime;
     }
 
-    public void setNodeStartTime(Date nodeStartTime) {
-        this.nodeStartTime = nodeStartTime;
+    public void setNodePlanStartTime(Date nodePlanStartTime) {
+        this.nodePlanStartTime = nodePlanStartTime;
+    }
+
+    public Date getNodeRealStartTime() {
+        return nodeRealStartTime;
+    }
+
+    public void setNodeRealStartTime(Date nodeRealStartTime) {
+        this.nodeRealStartTime = nodeRealStartTime;
     }
 
     public Date getNodePlanArriveTime() {
@@ -216,6 +240,30 @@ public class JyBizTaskPickingGoodEntity implements Serializable {
 
     public void setNodeRealArriveTime(Date nodeRealArriveTime) {
         this.nodeRealArriveTime = nodeRealArriveTime;
+    }
+
+    public Integer getOperateNodeType() {
+        return operateNodeType;
+    }
+
+    public void setOperateNodeType(Integer operateNodeType) {
+        this.operateNodeType = operateNodeType;
+    }
+
+    public Integer getCargoNumber() {
+        return cargoNumber;
+    }
+
+    public void setCargoNumber(Integer cargoNumber) {
+        this.cargoNumber = cargoNumber;
+    }
+
+    public Double getCargoWeight() {
+        return cargoWeight;
+    }
+
+    public void setCargoWeight(Double cargoWeight) {
+        this.cargoWeight = cargoWeight;
     }
 
     public Integer getStatus() {
