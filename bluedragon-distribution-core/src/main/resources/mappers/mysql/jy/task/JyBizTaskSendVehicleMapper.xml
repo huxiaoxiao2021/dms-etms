@@ -701,19 +701,6 @@
                 last_plan_depart_time &lt;= #{entity.toSealLastPlanDepartTimeEnd}) OR (last_plan_depart_time is null
                 and create_time &gt;= #{entity.createTimeBegin})))
             </if>
-            <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
-                <trim prefix="OR (" suffix=")" prefixOverrides="AND|OR">
-                    <if test="statuses != null and statuses.length > 0">
-                        AND vehicle_status IN
-                        <foreach collection="statuses" separator="," open="(" close=")" item="item">
-                            #{item}
-                        </foreach>
-                    </if>
-                    AND ((last_plan_depart_time &gt;= #{entity.toSealLastPlanDepartTimeBegin} AND
-                    last_plan_depart_time &lt;= #{entity.toSealLastPlanDepartTimeEnd}) OR (last_plan_depart_time is
-                    null and create_time &gt;= #{entity.createTimeBegin}))
-                </trim>
-            </if>
         </trim>
         <include refid="default_task_type_vehicle"/>
         <if test="sortType != null">
@@ -940,10 +927,6 @@
                 m.last_plan_depart_time &lt;= #{entity.toSealLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is null
                 and m.create_time &gt;= #{entity.createTimeBegin})))
             </if>
-            <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
-                AND d.vehicle_status IN ( 0, 1, 2 )
-                AND ((m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{entity.createTimeBegin}))
-            </if>
         </trim>
         GROUP BY m.biz_id
         ORDER BY m.last_plan_depart_time DESC
@@ -1014,10 +997,6 @@
                 OR (d.vehicle_status = 2 and ((m.last_plan_depart_time &gt;= #{toSealLastPlanDepartTimeBegin} and
                 m.last_plan_depart_time &lt;= #{toSealLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is null
                 and m.create_time &gt;= #{createTimeBegin})))
-            </if>
-            <if test="lastPlanDepartTimeBegin !=null and lastPlanDepartTimeEnd !=null and createTimeBegin !=null">
-                AND d.vehicle_status IN ( 0, 1, 2 )
-                AND ((m.last_plan_depart_time &gt;= #{lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{createTimeBegin}))
             </if>
         </trim>
         GROUP BY m.biz_id
