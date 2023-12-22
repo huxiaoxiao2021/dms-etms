@@ -6,8 +6,6 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 
-import java.util.List;
-
 /**
  * @Author zhengchengfa
  * @Date 2023/12/4 13:27
@@ -77,7 +75,7 @@ public interface JyAviationRailwayPickingGoodsService {
      * @param req
      * @return
      */
-    InvokeResult<AirRailTaskRes> listAirportTask(AirportTaskReq req);
+    InvokeResult<AirRailTaskRes> listAirportTask(AirRailTaskSummaryReq req);
 
     /**
      * 某机场下的任务列表

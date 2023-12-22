@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -212,7 +211,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
     }
 
     @Override
-    public JdCResponse<AirRailTaskRes> listAirportTask(AirportTaskReq req) {
+    public JdCResponse<AirRailTaskRes> listAirRailTaskSummary(AirRailTaskSummaryReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
@@ -236,7 +235,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
     }
 
     @Override
-    public JdCResponse<AirRailTaskAggRes> listAirportTaskAgg(AirRailTaskAggReq req) {
+    public JdCResponse<AirRailTaskAggRes> listAirRailTaskAgg(AirRailTaskAggReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }

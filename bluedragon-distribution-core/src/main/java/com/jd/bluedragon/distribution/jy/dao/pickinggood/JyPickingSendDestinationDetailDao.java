@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dao.pickinggood;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.FinishSendTaskReq;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
 
 public class JyPickingSendDestinationDetailDao extends BaseDao<JyPickingSendDestinationDetailEntity> {
@@ -29,4 +30,8 @@ public class JyPickingSendDestinationDetailDao extends BaseDao<JyPickingSendDest
 //    int updateByPrimaryKeySelective(JyPickingSendDestinationDetail record);
 //
 //    int updateByPrimaryKey(JyPickingSendDestinationDetail record);
+
+    public int updateSendTaskStatus(JyPickingSendDestinationDetailEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateSendTaskStatus", entity);
+    }
 }

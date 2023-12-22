@@ -100,7 +100,8 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
         entity.setBizId(bizId);
         entity.setStatus(status);
-        return jyBizTaskPickingGoodDao.updateStatusByBizId(entity);
+        jyBizTaskPickingGoodDao.updateStatusByBizId(entity);
+        return true;
     }
 
     @Override
