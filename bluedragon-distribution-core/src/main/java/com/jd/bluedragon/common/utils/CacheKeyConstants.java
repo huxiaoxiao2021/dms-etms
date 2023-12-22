@@ -416,4 +416,9 @@ public class CacheKeyConstants {
      * 违禁品上报并发key
      */
     public static final String CONTRABAND_LOCK_KEY = "DMS.EXCEPTION.CONTRABAND.UPLOAD:%s";
+
+    /**
+     * 空铁提货岗添加流向
+     */
+    public static final String CACHE_KEY_AIR_RAIL_ADD_SEND_FLOW = JY_CACHE_PREFIX + "AIR_RAIL_ADD_SEND_FLOW:%s";
 }

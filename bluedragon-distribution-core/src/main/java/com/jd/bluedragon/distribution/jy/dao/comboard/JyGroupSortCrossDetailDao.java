@@ -147,5 +147,13 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
     public Long queryMinIdByGroupCode(JyGroupSortCrossDetailEntityQueryDto queryDto) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryMinIdByGroupCode", queryDto);
     }
-    
+
+    /**
+     * 删除流向
+     * @param entity
+     * @return
+     */
+    public int deleteSendFlow(JyGroupSortCrossDetailEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".deleteSendFlow", entity);
+    }
 }

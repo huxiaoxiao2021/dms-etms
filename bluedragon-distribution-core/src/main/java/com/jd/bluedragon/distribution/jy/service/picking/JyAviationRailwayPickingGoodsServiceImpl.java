@@ -587,19 +587,43 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
         boolean success = jyPickingSendDestinationService.addSendFlow(req);
         if (!success) {
-            ret.parameterError("流向添加失败！");
+            ret.customMessage(InvokeResult.AIR_RAIL_SEND_FLOW_ADD_FAIL_CODE, InvokeResult.AIR_RAIL_SEND_FLOW_ADD_FAIL_MESSAGE);
         }
         return ret;
     }
 
     @Override
     public InvokeResult<Void> deleteSendFlow(SendFlowDeleteReq req) {
-        return null;
+        InvokeResult<Void> ret = new InvokeResult<>();
+        if (req.getNextSiteId() == null) {
+            ret.parameterError("所选流向场地id不能为空！");
+            return ret;
+        }
+        jyPickingSendDestinationService.deleteSendFlow(req);
+        return ret;
     }
 
     @Override
     public InvokeResult<Void> finishSendTask(FinishSendTaskReq req) {
-        return null;
+        InvokeResult<Void> ret = new InvokeResult<>();
+        finishSendTaskCheck(req, ret);
+        if (!ret.codeSuccess()) {
+            return ret;
+        }
+        jyPickingSendDestinationService.finishSendTask(req);
+        return ret;
+    }
+
+    private void finishSendTaskCheck(FinishSendTaskReq req, InvokeResult invokeResult) {
+        if (StringUtils.isEmpty(req.getSendCode())) {
+            invokeResult.parameterError("批次号不能为空！");
+        }
+        if (req.getNextSiteId() == null) {
+            invokeResult.parameterError("目的场地编码不能为空！");
+        }
+        if (req.getTaskType() == null) {
+            invokeResult.parameterError("任务类型不能为空！");
+        }
     }
 
     @Override

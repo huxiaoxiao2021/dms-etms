@@ -523,4 +523,9 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             jyGroupSortCrossDetailDao.deleteCTTGroupDataByGroupCode(queryDto);
         }
     }
+
+    @Override
+    public boolean deleteSendFlow(JyGroupSortCrossDetailEntity entity) {
+        return jyGroupSortCrossDetailDao.deleteSendFlow(entity) > 0;
+    }
 }

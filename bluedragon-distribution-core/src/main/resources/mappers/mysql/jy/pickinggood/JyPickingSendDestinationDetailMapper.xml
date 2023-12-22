@@ -239,7 +239,9 @@
     update
         jy_picking_send_destination_detail
     set
-        status = #{status}
+        status = #{status},
+        update_user_erp = #{updateUserErp},
+        update_user_name = #{updateUserName}
     where
         yn = 1
     and

@@ -152,4 +152,11 @@ public interface JyGroupSortCrossDetailService {
     void deleteBySiteAndBizId(JyGroupSortCrossDetailEntity condition);
 
     void deleteMixScanTaskOutLimit();
+
+    /**
+     * 删除流向
+     * @param entity
+     * @return
+     */
+    boolean deleteSendFlow(JyGroupSortCrossDetailEntity entity);
 }
