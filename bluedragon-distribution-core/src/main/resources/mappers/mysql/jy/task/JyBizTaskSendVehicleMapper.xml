@@ -1000,24 +1000,24 @@
         AND d.end_site_id = #{endSiteId, jdbcType=BIGINT}
         AND d.excep_label =0
         <trim prefix="AND (" suffix=")" prefixOverrides="AND|OR">
-            <if test="entity.toSendLastPlanDepartTimeBegin !=null and entity.toSendLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
-                (vehicle_status = 0 and ((m.last_plan_depart_time &gt;= #{entity.toSendLastPlanDepartTimeBegin} and
-                m.last_plan_depart_time &lt;= #{entity.toSendLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is null
-                and m.create_time &gt;= #{entity.createTimeBegin})))
+            <if test="toSendLastPlanDepartTimeBegin !=null and toSendLastPlanDepartTimeEnd !=null and createTimeBegin !=null">
+                (vehicle_status = 0 and ((m.last_plan_depart_time &gt;= #{toSendLastPlanDepartTimeBegin} and
+                m.last_plan_depart_time &lt;= #{toSendLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is null
+                and m.create_time &gt;= #{createTimeBegin})))
             </if>
-            <if test="entity.sendingLastPlanDepartTimeBegin !=null and entity.sendingLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
-                OR (vehicle_status = 1 and ((m.last_plan_depart_time &gt;= #{entity.sendingLastPlanDepartTimeBegin} and
-                m.last_plan_depart_time &lt;= #{entity.sendingLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is
-                null and m.create_time &gt;= #{entity.createTimeBegin})))
+            <if test="sendingLastPlanDepartTimeBegin !=null and sendingLastPlanDepartTimeEnd !=null and createTimeBegin !=null">
+                OR (vehicle_status = 1 and ((m.last_plan_depart_time &gt;= #{sendingLastPlanDepartTimeBegin} and
+                m.last_plan_depart_time &lt;= #{sendingLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is
+                null and m.create_time &gt;= #{createTimeBegin})))
             </if>
-            <if test="entity.toSealLastPlanDepartTimeBegin !=null and entity.toSealLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
-                OR (vehicle_status = 2 and ((m.last_plan_depart_time &gt;= #{entity.toSealLastPlanDepartTimeBegin} and
-                m.last_plan_depart_time &lt;= #{entity.toSealLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is null
-                and m.create_time &gt;= #{entity.createTimeBegin})))
+            <if test="toSealLastPlanDepartTimeBegin !=null and toSealLastPlanDepartTimeEnd !=null and createTimeBegin !=null">
+                OR (vehicle_status = 2 and ((m.last_plan_depart_time &gt;= #{toSealLastPlanDepartTimeBegin} and
+                m.last_plan_depart_time &lt;= #{toSealLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is null
+                and m.create_time &gt;= #{createTimeBegin})))
             </if>
-            <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+            <if test="lastPlanDepartTimeBegin !=null and lastPlanDepartTimeEnd !=null and createTimeBegin !=null">
                 AND d.vehicle_status IN ( 0, 1, 2 )
-                AND ((m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{entity.createTimeBegin}))
+                AND ((m.last_plan_depart_time &gt;= #{lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{createTimeBegin}))
             </if>
         </trim>
         GROUP BY m.biz_id
