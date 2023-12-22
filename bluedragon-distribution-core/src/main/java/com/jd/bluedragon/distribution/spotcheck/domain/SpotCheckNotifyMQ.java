@@ -183,6 +183,11 @@ public class SpotCheckNotifyMQ implements Serializable {
      */
     private String upgradeDesc;
 
+    /**
+     * 二级超标类型（由超标计算系统提供）：1-计费超标，2-非计费超标
+     */
+    private Integer exceedSubType;
+
     public String getFlowSystem() {
         return flowSystem;
     }
@@ -590,5 +595,13 @@ public class SpotCheckNotifyMQ implements Serializable {
 
     public void setUpgradeDesc(String upgradeDesc) {
         this.upgradeDesc = upgradeDesc;
+    }
+
+    public Integer getExceedSubType() {
+        return exceedSubType;
+    }
+
+    public void setExceedSubType(Integer exceedSubType) {
+        this.exceedSubType = exceedSubType;
     }
 }

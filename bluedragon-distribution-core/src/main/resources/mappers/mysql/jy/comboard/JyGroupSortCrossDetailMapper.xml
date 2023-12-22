@@ -429,6 +429,21 @@
       and template_code = #{templateCode,jdbcType=VARCHAR}
       and start_site_id = #{startSiteId,jdbcType=BIGINT}
       and group_code = #{groupCode,jdbcType=VARCHAR}
+      and complete_status = 0
+  </update>
+
+  <update id="mixScanTaskFlowComplete"
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+    update jy_group_sort_cross_detail
+    set complete_status = 1 , yn = 0, update_time = now(),  update_user_erp = #{updateUserErp,jdbcType=VARCHAR} ,
+        update_user_name = #{updateUserName,jdbcType=VARCHAR}
+    where yn = 1
+      and template_code = #{templateCode,jdbcType=VARCHAR}
+      and start_site_id = #{startSiteId,jdbcType=BIGINT}
+      and group_code = #{groupCode,jdbcType=VARCHAR}
+      and func_type = #{funcType}
+      and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
+      and complete_status = 0
   </update>
 
 
@@ -446,6 +461,9 @@
     </if>
     <if test="completeStatus != null">
       and complete_status = #{completeStatus,jdbcType=BIT}
+    </if>
+    <if test="sendVehicleDetailBizId != null">
+      and send_vehicle_detail_biz_id = #{sendVehicleDetailBizId,jdbcType=VARCHAR}
     </if>
   </select>
 

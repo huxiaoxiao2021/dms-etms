@@ -31,6 +31,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -258,16 +259,19 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         // 设置已抽检缓存
         setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         // 数据落库
-        WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
-        spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
+        SpotCheckIssueDetail summaryDto = assembleSummaryReform(spotCheckContext);
+        // 转换report对象
+        WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = new WeightVolumeSpotCheckDto();
+        BeanUtils.copyProperties(summaryDto, weightVolumeSpotCheckDto);
+        spotCheckServiceProxy.insertOrUpdateProxyReform(weightVolumeSpotCheckDto);
         // 下发超标数据
         spotCheckDealService.spotCheckIssue(summaryDto);
         // 抽检全程跟踪
         // spotCheckDealService.sendWaybillTrace(spotCheckContext);
     }
 
-    protected WeightVolumeSpotCheckDto assembleSummaryReform(SpotCheckContext spotCheckContext) {
-        WeightVolumeSpotCheckDto dto = new WeightVolumeSpotCheckDto();
+    protected SpotCheckIssueDetail assembleSummaryReform(SpotCheckContext spotCheckContext) {
+        SpotCheckIssueDetail dto = new SpotCheckIssueDetail();
         // 复核数据
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
         dto.setReviewSource(SpotCheckSourceFromEnum.analysisCodeFromName(spotCheckContext.getSpotCheckSourceFrom()));
@@ -347,6 +351,8 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         dto.setSpotCheckStatus(Objects.equals(spotCheckContext.getExcessStatus(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())
                 ? SpotCheckStatusEnum.SPOT_CHECK_STATUS_VERIFY.getCode() : SpotCheckStatusEnum.SPOT_CHECK_STATUS_INVALID_UN_EXCESS.getCode());
         dto.setYn(Constants.CONSTANT_NUMBER_ONE);
+        // 扩展字段
+        dto.setExtendMap(spotCheckContext.getExtendMap());
         return dto;
     }
 

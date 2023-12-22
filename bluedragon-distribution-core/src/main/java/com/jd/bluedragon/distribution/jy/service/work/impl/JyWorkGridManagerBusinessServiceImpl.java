@@ -879,6 +879,11 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					break;
 				}
 			}
+			if (result.contains(user.getUserErp())){
+				logger.info("任务taskConfigCode"+taskConfigCode+"分配erp："+user.getUserErp()+"满足排班");
+			}else{
+				logger.info("任务taskConfigCode"+taskConfigCode+"分配erp："+user.getUserErp()+"不满足排班");
+			}
 		}
 		return result;
 	}
@@ -900,7 +905,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		LocalDateTime startDateTime2 = LocalDateTime.of(date2, startTime2);
 		LocalDateTime endDateTime2 = LocalDateTime.of(date2, endTime2);
 
-		if (!startDateTime2.isAfter(endDateTime2)) {
+		if (!startDateTime2.isBefore(endDateTime2)) {
 			endDateTime2 = endDateTime2.plusDays(1);
 		}
 

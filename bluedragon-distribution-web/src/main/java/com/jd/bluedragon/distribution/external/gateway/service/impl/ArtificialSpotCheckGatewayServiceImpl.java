@@ -206,6 +206,9 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
         return response;
     }
 
+    /**
+     * 由于用户重新上传导致之前上传的视频存储浪费；视频中台建议删除无效的视频，后续可考虑端上调删除接口
+     */
     private void deleteTrashVideo(ArtificialSpotCheckRequest request) {
         String waybillCode = request.getBarCode();
         if (StringUtils.isNotBlank(request.getVideoUrl())) {

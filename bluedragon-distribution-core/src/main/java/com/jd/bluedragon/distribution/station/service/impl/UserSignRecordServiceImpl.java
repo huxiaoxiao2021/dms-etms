@@ -1006,6 +1006,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				return result;
 			}
 			String userCode = BusinessUtil.getUserCodeFromScanUserCode(scanUserCode);
+			if (userCode != null) userCode = userCode.trim();
 			// 身份证字母转大写
 			if (BusinessUtil.isIdCardNo(userCode)) {
 				userCode = userCode.toUpperCase();
