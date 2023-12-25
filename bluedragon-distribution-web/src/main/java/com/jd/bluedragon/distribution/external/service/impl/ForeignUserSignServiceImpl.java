@@ -15,6 +15,7 @@ import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.common.utils.Result;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -139,8 +141,18 @@ public class ForeignUserSignServiceImpl implements ForeignUserSignService {
                 response.toFail("查询签到记录失败！");
                 return response;
             }
+            PageDto<com.jd.bluedragon.common.dto.station.UserSignRecordData> dmsPageDto = jdCResponse.getData();
             PageDto<UserSignRecordData> pageDto = new PageDto<>();
-            BeanUtils.copyProperties(jdCResponse.getData(),pageDto);
+            pageDto.setCurrentPage(dmsPageDto.getCurrentPage());
+            pageDto.setPageSize(dmsPageDto.getPageSize());
+            pageDto.setTotalRow(dmsPageDto.getTotalRow());
+            if(CollectionUtils.isNotEmpty(dmsPageDto.getResult())){
+                pageDto.setResult(dmsPageDto.getResult().stream().map(item -> {
+                    UserSignRecordData userSignRecordData = new UserSignRecordData();
+                    BeanUtils.copyProperties(item, userSignRecordData);
+                    return userSignRecordData;
+                }).collect(Collectors.toList()));    
+            }
             response.setData(pageDto);
 
         }catch (Exception e){
