@@ -1337,4 +1337,32 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		return result;
 	}
 
+    /**
+     * 获取关联运单列表
+     * @param waybillCode 运单编号
+     * @return 关联运单列表
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getWaybillVasWithExtendInfoByWaybillCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdResult<List<RelationWaybillBodyDto>> getRelationWaybillList(String waybillCode) {
+        JdResult<List<RelationWaybillBodyDto>> result = new JdResult<>();
+        try{
+            BaseEntity<List<RelationWaybillBodyDto>> rpcResult = waybillQueryApi.getRelationWaybillList(waybillCode);
+            if(rpcResult != null
+                    && rpcResult.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode()){
+                result.setData(rpcResult.getData());
+                result.toSuccess();
+            }else{
+                log.warn("根据运单号获取关联运单列表失败！return:{}",JsonHelper.toJson(rpcResult));
+                result.toFail("根据运单号获取关联运单列表失败！");
+            }
+            return result;
+        }catch (Exception e) {
+            log.error("根据运单号获取关联运单列表异常！{}",waybillCode,e);
+            result.toError("根据运单号获取围栏信息异常！");
+            return result;
+        }
+    }
+
 }

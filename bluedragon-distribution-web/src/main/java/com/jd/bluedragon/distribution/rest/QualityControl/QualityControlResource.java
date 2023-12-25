@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rest.QualityControl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.abnormal.domain.RedeliveryMode;
+import com.jd.bluedragon.distribution.api.enums.QualityControlInletEnum;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
@@ -46,6 +47,7 @@ public class QualityControlResource {
     @JProfiler(jKey = "DMS.WEB.QualityControlResource.exceptionInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public QualityControlResponse exceptionInfo(QualityControlRequest request) {
         QualityControlResponse response = new QualityControlResponse();
+        request.setInletFlag(QualityControlInletEnum.DMS_SORTING.getCode());
         InvokeResult<Boolean> result = qualityControlService.exceptionSubmit(request);
         response.setCode(result.getCode());
         response.setMessage(result.getMessage());

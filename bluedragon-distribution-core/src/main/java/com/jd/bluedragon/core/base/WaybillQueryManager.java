@@ -391,4 +391,11 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	JdResult<List<WaybillFenceDto>> getWaybillFenceInfoByWaybillCode(String waybillCode);
+
+	/**
+	 * 根据运单号查询关联单号集合
+	 * @param waybillCode
+	 * @return
+	 */
+	JdResult<List<RelationWaybillBodyDto>> getRelationWaybillList(String waybillCode);
 }

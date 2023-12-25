@@ -53,6 +53,8 @@ public class QualityControlRequest implements Serializable{
     private String waveBusinessId;//版次号，路由系统的字段
     private Integer qcVersionFlag;//对接质控版本，1是老质控，2是新质控，null默认为老质控
 
+    private Integer inletFlag; // 入口标识
+
     public Integer getUserID() {
         return userID;
     }
@@ -211,5 +213,13 @@ public class QualityControlRequest implements Serializable{
 
     public void setQcVersionFlag(Integer qcVersionFlag) {
         this.qcVersionFlag = qcVersionFlag;
+    }
+
+    public Integer getInletFlag() {
+        return inletFlag;
+    }
+
+    public void setInletFlag(Integer inletFlag) {
+        this.inletFlag = inletFlag;
     }
 }
