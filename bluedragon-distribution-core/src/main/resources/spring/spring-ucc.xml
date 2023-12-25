@@ -324,13 +324,13 @@
 		<property name="czSealCarBoardCountMinLimit" value="${czSealCarBoardCountMinLimit:4}"/>
 		<property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
 		<property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:10000}"/>
-		<property name="jyWarehouseToSendPlanTimeBeginDay" value="${jyWarehouseToSendPlanTimeBeginDay:1}"/>
-		<property name="jyWarehouseToSendPlanTimeEndDay" value="${jyWarehouseToSendPlanTimeEndDay:2}"/>
-		<property name="jyWarehouseSendingPlanTimeBeginDay" value="${jyWarehouseSendingPlanTimeBeginDay:1}"/>
-		<property name="jyWarehouseSendingPlanTimeEndDay" value="${jyWarehouseSendingPlanTimeEndDay:2}"/>
-		<property name="jyWarehouseToSealPlanTimeBeginDay" value="${jyWarehouseToSealPlanTimeBeginDay:1}"/>
-		<property name="jyWarehouseToSealPlanTimeEndDay" value="${jyWarehouseToSealPlanTimeEndDay:2}"/>
-		<property name="jyWarehouseTaskCreateTimeBeginDay" value="${jyWarehouseTaskCreateTimeBeginDay:30}"/>
+		<property name="jyWarehouseToSendPlanTimeBeginHours" value="${jyWarehouseToSendPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseToSendPlanTimeEndHours" value="${jyWarehouseToSendPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseSendingPlanTimeBeginHours" value="${jyWarehouseSendingPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseSendingPlanTimeEndHours" value="${jyWarehouseSendingPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseToSealPlanTimeBeginHours" value="${jyWarehouseToSealPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseToSealPlanTimeEndHours" value="${jyWarehouseToSealPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseTaskCreateTimeBeginHours" value="${jyWarehouseTaskCreateTimeBeginHours:168}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -641,13 +641,13 @@
 				<value>uccPropertyConfiguration.czSealCarBoardCountMinLimit</value>
 				<value>uccPropertyConfiguration.czSealCarPackageCountMinLimit</value>
 				<value>uccPropertyConfiguration.jyAviationManualCreateSendTaskMaxBookingWeight</value>
-				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeBeginDay</value>
-				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeEndDay</value>
-				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeBeginDay</value>
-				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeEndDay</value>
-				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeBeginDay</value>
-				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeEndDay</value>
-				<value>uccPropertyConfiguration.jyWarehouseTaskCreateTimeBeginDay</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseTaskCreateTimeBeginHours</value>
 			</list>
 		</property>
 	</bean>
