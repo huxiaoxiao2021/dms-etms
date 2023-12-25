@@ -58,4 +58,6 @@ public interface JyWorkGridManagerGatewayService {
 	 * @return
 	 */
 	JdCResponse<List<String>> queryCandidateList(JyWorkGridManagerQueryRequest query);
+
+	JdCResponse<List<WorkGridCandidateData>> queryCandidates(JyWorkGridManagerQueryRequest query);
 }
