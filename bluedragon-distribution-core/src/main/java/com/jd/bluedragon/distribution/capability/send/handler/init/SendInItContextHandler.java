@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.capability.send.handler.init;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.capability.send.domain.SendDimensionEnum;
 import com.jd.bluedragon.distribution.capability.send.domain.SendOfCAContext;
 import com.jd.bluedragon.distribution.capability.send.handler.SendDimensionStrategyHandler;
@@ -43,6 +46,9 @@ public class SendInItContextHandler extends SendDimensionStrategyHandler {
     @Autowired
     private GroupBoardManager groupBoardManager;
 
+    @Autowired
+    private BoxService boxService;
+
     /**
      * 构建上下文处理器
      * @param context
@@ -71,8 +77,7 @@ public class SendInItContextHandler extends SendDimensionStrategyHandler {
     @Override
     public boolean doPackHandler(SendOfCAContext context) {
         //初始化运单对象
-        initWaybillDomain(context);
-        return true;
+        return initWaybillDomain(context);
     }
 
     /**
@@ -83,7 +88,23 @@ public class SendInItContextHandler extends SendDimensionStrategyHandler {
     @Override
     public boolean doWaybillHandler(SendOfCAContext context) {
         //初始化运单对象
-        initWaybillDomain(context);
+        return initWaybillDomain(context);
+    }
+
+    /**
+     * 按箱号处理
+     * @param context
+     * @return
+     */
+    @Override
+    public boolean doBoxHandler(SendOfCAContext context) {
+        Box box = boxService.findBoxByCode(context.getBarCode());
+        if( box != null){
+            context.setBox(box);
+        }else {
+            context.getResponse().toFail(String.format("未能加载到箱号信息，请检查箱号%s是否正确！",context.getBarCode()));
+            return false;
+        }
         return true;
     }
 
@@ -148,10 +169,15 @@ public class SendInItContextHandler extends SendDimensionStrategyHandler {
      * 仅在运单和包裹维度时初始化
      * @param context
      */
-    private void initWaybillDomain(SendOfCAContext context){
-
-        context.setWaybill(waybillCommonService.findByWaybillCode(WaybillUtil.getWaybillCode(context.getBarCode())));
-
+    private boolean initWaybillDomain(SendOfCAContext context){
+        Waybill waybill = waybillCommonService.findByWaybillCode(WaybillUtil.getWaybillCode(context.getBarCode()));
+        if( waybill != null){
+            context.setWaybill(waybill);
+        }else {
+            context.getResponse().toFail(String.format("未能加载到运单信息，请检查条码%s是否正确！",context.getBarCode()));
+            return false;
+        }
+        return true;
     }
 
     /**

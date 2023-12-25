@@ -1686,71 +1686,54 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             SendM sendM = toSendMDomain(request, curSendDetail.getEndSiteId(), sendCode);
             sendM.setBoxCode(barCode);
 
-            // 发货状态校验
-            if (!doSendStatusVerify(result, sendType, sendResult, sendM)) {
-                return result;
-            }
-
-            // 执行发货前前置校验逻辑
-            if (!execSendInterceptChain(request, result, sendType, sendResult, sendM, sendFindDestInfoDto)) {
-                return result;
-            }
-
-            if (Boolean.TRUE.equals(request.getForceSubmit())) {
-                JySendEntity sendEntity = this.createJySendRecord(request, curSendDetail.getEndSiteId(), sendCode, barCode);
-                sendEntity.setForceSendFlag(1);
-                jySendService.save(sendEntity);
-            } else {
-                JySendEntity sendEntity = this.createJySendRecord(request, curSendDetail.getEndSiteId(), sendCode, barCode);
-                sendEntity.setForceSendFlag(0);
-                jySendService.save(sendEntity);
-            }
-
-            // 绑定集包袋逻辑
-            if (StringUtils.isNotBlank(request.getMaterialCode()) && BusinessHelper.isBoxcode(barCode)) {
-                BoxMaterialRelationRequest req = getBoxMaterialRelationRequest(request, barCode);
-                InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(req);
-                if (!bindMaterialRet.codeSuccess()) {
-                    if(HintCodeConstants.CYCLE_BOX_NOT_BELONG_ERROR.equals(String.valueOf(bindMaterialRet.getCode()))){
-                        result.toBizError();
-                        //此场景需要做弱提示
-                        result.addConfirmBox(bindMaterialRet.getCode(),bindMaterialRet.getMessage());
-                    }else{
-                        result.toFail("绑定失败：" + bindMaterialRet.getMessage());
-
-                    }
+            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(sendM.getCreateSiteCode()))){
+                log.info("IJySendVehicleService.sendScan 启用新模式 {}",sendM.getBoxCode());
+                SendRequest sendRequest = getSendRequest(request, sendType, sendM);
+                JdVerifyResponse<SendResult>  response = sendOfCapabilityAreaService.doSend(sendRequest);
+                result.setCode(response.getCode());
+                result.setMessage(response.getMessage());
+                result.setMsgBoxes(response.getMsgBoxes());
+                //返回错误信息
+                if(!response.codeSuccess()
+                        || !(CollectionUtils.isEmpty(result.getMsgBoxes()))){
+                    result.toBizError();
                     return result;
                 }
-            }
-
-
-            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(sendM.getCreateSiteCode()))){
-                log.info("execPackageSend 启用新模式 {}",sendM.getBoxCode());
-                //新接口
-                SendRequest sendRequest = new SendRequest();
-                sendRequest.setReceiveSiteCode(sendM.getReceiveSiteCode());
-                sendRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
-                sendRequest.setUserCode(request.getUser().getUserCode());
-                sendRequest.setUserName(request.getUser().getUserName());
-                sendRequest.setOpeUserErp(request.getUser().getUserErp());
-                sendRequest.setSendCode(sendM.getSendCode());
-                sendRequest.setBoxCode(sendM.getBoxCode());
-                sendRequest.setBusinessType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
-                sendRequest.setBizSource(SendBizSourceEnum.JY_APP_SEND.getCode());//默认初始化
-                sendRequest.setIsCancelLastSend(Boolean.TRUE); //此版发货没有让客户端感知到取消上次发货的逻辑，而是直接取消了
-                sendRequest.setOperatorId(sendM.getOperatorId());
-                sendRequest.setOperatorTypeCode(sendM.getOperatorTypeCode());
-                sendRequest.setOperatorData(sendM.getOperatorData());
-                sendRequest.setIsForceSend(request.getForceSubmit());
-                if (SendKeyTypeEnum.BY_WAYBILL.equals(sendType)) {
-                    // 按运单发货 客户端存在按包裹号传入的场景需要转换成运单
-                    sendRequest.setBarCode(WaybillUtil.getWaybillCode(sendM.getBoxCode()));
-                }else{
-                    sendRequest.setBarCode(sendM.getBoxCode());
-                }
-                JdVerifyResponse<SendResult>  response = sendOfCapabilityAreaService.doSend(sendRequest);
-
             }else{
+                //此部分待切换新服务后全部删除
+                //绑定集包袋校验，从原来的sendRequestBizCheck中剥离出来
+                if (!sendRequestBizCheckOfBindMaterial(result, request, taskSend)) {
+                    return result;
+                }
+
+                // 发货状态校验
+                if (!doSendStatusVerify(result, sendType, sendResult, sendM)) {
+                    return result;
+                }
+
+                // 执行发货前前置校验逻辑
+                if (!execSendInterceptChain(request, result, sendType, sendResult, sendM, sendFindDestInfoDto)) {
+                    return result;
+                }
+
+
+                // 绑定集包袋逻辑
+                if (StringUtils.isNotBlank(request.getMaterialCode()) && BusinessHelper.isBoxcode(barCode)) {
+                    BoxMaterialRelationRequest req = getBoxMaterialRelationRequest(request, barCode);
+                    InvokeResult bindMaterialRet = cycleBoxService.boxMaterialRelationAlter(req);
+                    if (!bindMaterialRet.codeSuccess()) {
+                        if(HintCodeConstants.CYCLE_BOX_NOT_BELONG_ERROR.equals(String.valueOf(bindMaterialRet.getCode()))){
+                            result.toBizError();
+                            //此场景需要做弱提示
+                            result.addConfirmBox(bindMaterialRet.getCode(),bindMaterialRet.getMessage());
+                        }else{
+                            result.toFail("绑定失败：" + bindMaterialRet.getMessage());
+
+                        }
+                        return result;
+                    }
+                }
+
                 // 执行一车一单发货逻辑
                 sendResult = this.execPackageSend(sendType, sendResult, sendM);
                 if (!sendResultToJdResp(result, sendResult)) {
@@ -1758,6 +1741,15 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 }
             }
 
+            if (Boolean.TRUE.equals(request.getForceSubmit())) {
+                JySendEntity sendEntity = this.createJySendRecord(request, curSendDetail.getEndSiteId(), sendCode, barCode);
+                sendEntity.setForceSendFlag(Constants.YN_YES);
+                jySendService.save(sendEntity);
+            } else {
+                JySendEntity sendEntity = this.createJySendRecord(request, curSendDetail.getEndSiteId(), sendCode, barCode);
+                sendEntity.setForceSendFlag(Constants.YN_NO);
+                jySendService.save(sendEntity);
+            }
 
             businessTips(request, result);
 
@@ -1789,7 +1781,40 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return result;
     }
 
-     public List<JyBizTaskSendVehicleDetailEntity> getSendVehicleDetail(JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailEntity) {
+    /**
+     * 构建新发货入参
+     * @param request
+     * @param sendType
+     * @param sendM
+     * @return
+     */
+    private static SendRequest getSendRequest(SendScanRequest request, SendKeyTypeEnum sendType, SendM sendM) {
+        //新接口
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setReceiveSiteCode(sendM.getReceiveSiteCode());
+        sendRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
+        sendRequest.setUserCode(request.getUser().getUserCode());
+        sendRequest.setUserName(request.getUser().getUserName());
+        sendRequest.setOpeUserErp(request.getUser().getUserErp());
+        sendRequest.setSendCode(sendM.getSendCode());
+        sendRequest.setBoxCode(sendM.getBoxCode());
+        sendRequest.setBusinessType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
+        sendRequest.setBizSource(SendBizSourceEnum.JY_APP_SEND.getCode());//默认初始化
+        sendRequest.setIsCancelLastSend(Boolean.TRUE); //此版发货没有让客户端感知到取消上次发货的逻辑，而是直接取消了
+        sendRequest.setOperatorId(sendM.getOperatorId());
+        sendRequest.setOperatorTypeCode(sendM.getOperatorTypeCode());
+        sendRequest.setOperatorData(sendM.getOperatorData());
+        sendRequest.setIsForceSend(request.getForceSubmit());
+        if (SendKeyTypeEnum.BY_WAYBILL.equals(sendType)) {
+            // 按运单发货 客户端存在按包裹号传入的场景需要转换成运单
+            sendRequest.setBarCode(WaybillUtil.getWaybillCode(sendM.getBoxCode()));
+        }else{
+            sendRequest.setBarCode(sendM.getBoxCode());
+        }
+        return sendRequest;
+    }
+
+    public List<JyBizTaskSendVehicleDetailEntity> getSendVehicleDetail(JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailEntity) {
         return taskSendVehicleDetailService.findEffectiveSendVehicleDetail(jyBizTaskSendVehicleDetailEntity);
     }
 
@@ -2614,6 +2639,54 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
+     * 绑定集包袋校验
+     * @param response
+     * @param request
+     * @param taskSend
+     * @return
+     */
+    private boolean sendRequestBizCheckOfBindMaterial(JdVerifyResponse<SendScanResponse> response, SendScanRequest request,
+                                        JyBizTaskSendVehicleEntity taskSend) {
+        String barCode = request.getBarCode();
+        int siteCode = request.getCurrentOperate().getSiteCode();
+        // 校验箱号是否绑定集包袋
+        if (BusinessHelper.isBoxcode(barCode)) {
+            Box box = boxService.findBoxByCode(barCode);
+            if (box == null) {
+                response.toBizError();
+                response.addPromptBox(0, "未查找到对应的箱号数据，请扫描或输入正确的箱号！");
+                return false;
+            }
+            if (BusinessHelper.isBCBoxType(box.getType())) {
+                boolean needBindMaterialBag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(), siteCode);
+                if (needBindMaterialBag) {
+                    // 箱号未绑定集包袋
+                    if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
+                        if (!BusinessUtil.isCollectionBag(request.getMaterialCode()) || BusinessUtil.isTrolleyCollectionBag(request.getMaterialCode())) {
+                            response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
+                            response.addInterceptBox(0, "请扫描或输入正确的集包袋！");
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            // 如果是LL类型箱号，绑定集包袋号校验
+            if (BusinessHelper.isLLBoxType(box.getType())) {
+                // 箱号未绑定集包袋
+                if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
+                    if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
+                        response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
+                        response.addInterceptBox(0, HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR, Boolean.TRUE));
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * 发货扫描业务场景校验
      * <h2>客户端弹窗提示类型</h2>
      * <ul>
@@ -2697,40 +2770,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
 
-        // 校验箱号是否绑定集包袋
-        if (BusinessHelper.isBoxcode(barCode)) {
-            Box box = boxService.findBoxByCode(barCode);
-            if (box == null) {
-                response.toBizError();
-                response.addPromptBox(0, "未查找到对应的箱号数据，请扫描或输入正确的箱号！");
-                return false;
-            }
-            if (BusinessHelper.isBCBoxType(box.getType())) {
-                boolean needBindMaterialBag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(), siteCode);
-                if (needBindMaterialBag) {
-                    // 箱号未绑定集包袋
-                    if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
-                        if (!BusinessUtil.isCollectionBag(request.getMaterialCode()) || BusinessUtil.isTrolleyCollectionBag(request.getMaterialCode())) {
-                            response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
-                            response.addInterceptBox(0, "请扫描或输入正确的集包袋！");
-                            return false;
-                        }
-                    }
-                }
-            }
 
-            // 如果是LL类型箱号，绑定集包袋号校验
-            if (BusinessHelper.isLLBoxType(box.getType())) {
-                // 箱号未绑定集包袋
-                if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
-                    if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
-                        response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
-                        response.addInterceptBox(0, HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR, Boolean.TRUE));
-                        return false;
-                    }
-                }
-            }
-        }
         return true;
     }
 
