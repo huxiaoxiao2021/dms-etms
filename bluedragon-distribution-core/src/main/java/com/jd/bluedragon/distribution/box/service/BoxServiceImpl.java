@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
-import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
@@ -15,13 +14,18 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
+import com.jd.bluedragon.distribution.api.request.base.OperateUser;
+import com.jd.bluedragon.distribution.api.request.base.RequestProfile;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
+import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -37,6 +41,7 @@ import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.SortCrossDetail;
@@ -138,7 +143,12 @@ public class BoxServiceImpl implements BoxService {
 	@Autowired
 	@Qualifier(value = "boxFirstPrintProducer")
 	private DefaultJMQProducer boxFirstPrintProducer;
-	
+
+    @Resource(name="sortingBoxSubTypeMap")
+    private Map<String,String> sortingBoxSubTypeMap;
+    @Resource(name="siteBoxSubTypeMap")
+    private Map<String,String> siteBoxSubTypeMap;
+
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
         //持久化
@@ -167,6 +177,9 @@ public class BoxServiceImpl implements BoxService {
 		// 生成主键ID
 		for (Box box : boxes) {
 			box.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
+			if(box.getBoxSubType() == null){
+				box.setBoxSubType(Constants.EMPTY_FILL);
+			}
 		}
 
 		List<List<Box>> list = Lists.partition(boxes, boxAddBatchSize);
@@ -197,6 +210,9 @@ public class BoxServiceImpl implements BoxService {
             BeanHelper.copyProperties(box, param);
 			if (param.getPredictSendTime()!=null){
 				box.setPredictSendTime(param.getPredictSendTime());
+			}
+			if(box.getBoxSubType() == null){
+				box.setBoxSubType(Constants.EMPTY_FILL);
 			}
             box.setCode(boxCodePrefix + boxCodeSuffix);
             boxes.add(box);
@@ -307,8 +323,8 @@ public class BoxServiceImpl implements BoxService {
 	private String generateBoxCodePrefixNew(Box box, String systemType,boolean isDB) {
 		StringBuilder preFix = new StringBuilder();
 		if (!this.genStableBoxPrefix(box, systemType)) {
-            preFix.append(box.getType());
-        }
+			preFix.append(box.getType());
+		}
 		else {
 		    // 箱号固定BC开头，不再根据类型区域不同的前缀
             preFix.append(BoxTypeEnum.TYPE_BC.getCode());
@@ -817,12 +833,12 @@ public class BoxServiceImpl implements BoxService {
             availableBoxes = this.batchAdd(this.toBoxWithRouter(request, routInfoRes));
         }
         response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
-		
+
 		// 打印客户端创建 并且是首次打印 推送箱号打印消息
 		if (checkIfReleasedForSite(request.getCreateSiteCode()) && BoxSystemTypeEnum.PRINT_CLIENT.getCode().equals(systemType)) {
 			pushBoxPrintMq(availableBoxes);
 		}
-		
+
         this.buildBoxPrintInfo(request.getCreateSiteCode(), request.getReceiveSiteCode(), response);
         return response;
     }
@@ -855,7 +871,9 @@ public class BoxServiceImpl implements BoxService {
             response.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
         }
         if (null != response) {
+            UUID.randomUUID();
 			response.setBoxTypes(BoxTypeEnum.getMap());
+            response.setBoxSubTypes(BoxSubTypeEnum.ENUM_MAP);
 		}
 
     }
@@ -882,6 +900,7 @@ public class BoxServiceImpl implements BoxService {
     private Box toBox(BoxRequest request) {
         Box box = new Box();
         box.setType(request.getType());
+        box.setBoxSubType(request.getSubType());
         box.setQuantity(request.getQuantity());
         box.setCreateSiteCode(request.getCreateSiteCode());
         box.setCreateSiteName(request.getCreateSiteName());
@@ -1002,4 +1021,79 @@ public class BoxServiceImpl implements BoxService {
 		}
 		return list;
 	}
+    /**
+     * 查询箱类型
+     *
+     * @param boxTypeReq 查询箱类型入参
+     * @return 箱号类型列表
+     * @author fanggang7
+     * @time 2023-10-24 14:14:24 周二
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.BoxService.getBoxTypeList",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public Result<List<BoxTypeDto>> getBoxTypeList(BoxTypeReq boxTypeReq) {
+        if(log.isInfoEnabled()){
+            log.info("BoxServiceImpl.getBoxTypeList param {}", JsonHelper.toJson(boxTypeReq));
+        }
+        Result<List<BoxTypeDto>> result = Result.success();
+        List<BoxTypeDto> typeDtoList = new ArrayList<>();
+        result.setData(typeDtoList);
+        try {
+            final Result<Void> checkResult = this.checkParam4GetBoxTypeList(boxTypeReq);
+            if (checkResult.isFail()) {
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
+
+            final BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxTypeReq.getOperateUser().getSiteCode());
+            //营业部,自营京东派 人员使用部分箱型
+            if (dmsConfigManager.getPropertyConfig().getTerminalSiteTypeListForBoxType().contains(createSiteInfo.getSubType())){
+                typeDtoList.addAll(this.genBoxTypeDtoListByMap(siteBoxSubTypeMap));
+                return result;
+            }
+
+            // 分拣类型场地看到全量箱号类型
+            typeDtoList.addAll(this.genBoxTypeDtoListByMap(sortingBoxSubTypeMap));
+        } catch (Exception e) {
+            log.error("BoxServiceImpl.getBoxTypeList exception {}", JsonHelper.toJson(boxTypeReq), e);
+            result.toFail("系统异常");
+        }
+        return result;
+    }
+
+    private Result<Void> checkParam4GetBoxTypeList(BoxTypeReq boxTypeReq) {
+        Result<Void> checkResult = Result.success();
+        final OperateUser operateUser = boxTypeReq.getOperateUser();
+        if (operateUser == null) {
+            return checkResult.toFail("参数错误，operateUser不能为空");
+        }
+        if (operateUser.getSiteCode() == null) {
+            return checkResult.toFail("参数错误，operateUser.siteCode不能为空");
+        }
+        if (StringUtils.isBlank(operateUser.getUserCode())) {
+            return checkResult.toFail("参数错误，operateUser.userCode不能为空");
+        }
+
+        final RequestProfile requestProfile = boxTypeReq.getRequestProfile();
+        if (requestProfile == null) {
+            return checkResult.toFail("参数错误，requestProfile不能为空");
+        }
+
+        return checkResult;
+    }
+
+    private List<BoxTypeDto> genBoxTypeDtoListByMap(Map<String,String> boxTypeMap){
+        List<BoxTypeDto> typeDtoList = new ArrayList<>();
+        for (String code : boxTypeMap.keySet()) {
+            final BoxSubTypeEnum boxSubTypeEnum = BoxSubTypeEnum.getFromCode(code);
+            if (boxSubTypeEnum == null) {
+                continue;
+            }
+            final BoxTypeDto boxTypeDto = new BoxTypeDto();
+            boxTypeDto.setTypeCode(boxSubTypeEnum.getParentTypeCode());
+            boxTypeDto.setSubTypeCode(code);
+            boxTypeDto.setName(String.format("%s-%s", boxSubTypeEnum.getName(), boxSubTypeEnum.getParentTypeCode()));
+            typeDtoList.add(boxTypeDto);
+        }
+        return typeDtoList;
+    }
 }

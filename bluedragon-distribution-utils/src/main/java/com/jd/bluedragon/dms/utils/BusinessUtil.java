@@ -977,6 +977,15 @@ public class BusinessUtil {
     }
 
     /**
+     *判断是否是冷链城配/卡班/小票
+     */
+    public static Boolean isColdChainCPKBReceipt(String waybillSign){
+        return isSignInChars(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_6,WaybillSignConstants.CHAR_80_7)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2);
+    }
+
+    /**
      * 判断是否是B网冷链运单
      * @param waybillSign
      * @return
@@ -3062,5 +3071,17 @@ public class BusinessUtil {
     public static boolean isSelfFresh(String sendPay) {
         return isSignInChars(sendPay, SendPayConstants.POSITION_2, 
                 SendPayConstants.CHAR_2_5, SendPayConstants.CHAR_2_6, SendPayConstants.CHAR_2_7, SendPayConstants.CHAR_2_8, SendPayConstants.CHAR_2_9);
+    }
+
+    /**
+     * 航班号校验
+     * @param flightNumber
+     * @return
+     */
+    public static boolean isFlightNumber(String flightNumber) {
+        if(StringUtils.isBlank(flightNumber)) {
+            return false;
+        }
+        return flightNumber.matches(FLIGHT_NUMBER_REGEX);
     }
 }

@@ -152,6 +152,11 @@ public class SpotCheckIssueMQ implements Serializable {
     // 补数字段
     private String errCode;
 
+    /**
+     * 举报附件列表（图片/视频）传了这个字段，appendix和url字段就不用传了
+     */
+    private List<SpotCheckAppendixDto> appendixList;
+
     public String getFlowSystem() {
         return flowSystem;
     }
@@ -502,5 +507,13 @@ public class SpotCheckIssueMQ implements Serializable {
 
     public void setErrCode(String errCode) {
         this.errCode = errCode;
+    }
+
+    public List<SpotCheckAppendixDto> getAppendixList() {
+        return appendixList;
+    }
+
+    public void setAppendixList(List<SpotCheckAppendixDto> appendixList) {
+        this.appendixList = appendixList;
     }
 }

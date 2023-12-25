@@ -52,14 +52,19 @@ public class LuxuryFilter implements Filter {
                                 HintService.getHintWithFuncModule(HintCodeConstants.LUXURY_WAYBILL, request.getFuncModule()));
                     }
                 }
-            } else if (BusinessUtil.isBoxcode(request.getBoxCode()) && !BoxHelper.isLuxuryForForward2(request.getBox())) {
+            }
+            // 去掉奢侈品箱号类型校验
+            /*else if (BusinessUtil.isBoxcode(request.getBoxCode()) && !BoxHelper.isLuxuryForForward2(request.getBox())) {
+
                 throw new SortingCheckException(SortingResponse.CODE_29107,
                         HintService.getHintWithFuncModule(HintCodeConstants.LUXURY_WAYBILL_CHOOSE_BOX, request.getFuncModule()));
-            }
-        } else if (BoxHelper.isLuxuryForForward(request.getBox())) {
+            }*/
+        }
+        // 去掉奢侈品箱号类型校验
+        /*else if (BoxHelper.isLuxuryForForward(request.getBox())) {
             throw new SortingCheckException(SortingResponse.CODE_29006,
                     HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_LUXURY_WAYBILL, request.getFuncModule()));
-        }
+        }*/
 
         chain.doFilter(request, chain);
 

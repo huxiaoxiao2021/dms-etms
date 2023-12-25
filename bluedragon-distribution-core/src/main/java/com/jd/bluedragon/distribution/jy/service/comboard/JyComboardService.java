@@ -35,4 +35,13 @@ public interface JyComboardService {
      * @return
      */
     boolean batchUpdateCancelFlag(BatchUpdateCancelReq req);
+
+    /**
+     * 批量查询包裹统计信息
+     * @param startSiteCode
+     * @param boardCodeList
+     * @return
+     */
+    long  countByBoardList(Long startSiteCode, List<String> boardCodeList);
+
 }

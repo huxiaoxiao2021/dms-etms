@@ -108,6 +108,11 @@ public class JyComboardServiceImpl implements JyComboardService {
     }
 
     @Override
+    public long countByBoardList(Long startSiteCode, List<String> boardCodeList) {
+        return jyComboardDao.countByBoardList(startSiteCode, boardCodeList);
+    }
+
+    @Override
     public String queryWayBillCodeByBoardCode(JyComboardEntity entity) {
         return jyComboardDao.queryWayBillCodeByBoardCode(entity);
     }

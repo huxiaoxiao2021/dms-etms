@@ -1518,6 +1518,15 @@
                   serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <jsf:consumer id="scheduleJSFService"
+                  interface="com.jdl.jy.flat.api.schedule.ScheduleJSFService"
+                  alias="${jsf.alias.flat}"
+                  timeout="${jsf.timeout.flat}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <!--四级地址匹配预分拣站点接口-->
     <jsf:consumer id="stationMatchServiceApi"
                   interface="com.jd.bluedragon.preseparate.jsf.StationMatchServiceApi"
@@ -1526,5 +1535,30 @@
                   timeout="${jsf.presort.expressTransfer.timeout}"
     >
         <jsf:parameter key="token" value="${jsf.presort.expressTransfer.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!--视频信息接口-->
+    <jsf:consumer id="vodService"
+                  interface="com.jd.vd.api.service.VODService"
+                  alias="${jsf.vodService.alias}"
+                  protocol="jsf"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}"
+                  timeout="${jsf.vodService.timeout}">
+        <jsf:parameter key="appId" value="${jsf.vodService.appId}" />
+        <jsf:parameter key="secretKey" value="${jsf.vodService.secretKey}" />
+    </jsf:consumer>
+
+
+    <!--网格流向信息-->
+    <jsf:consumer id="workGridFlowDirectionJsfService"
+                  interface="com.jdl.basic.api.service.workStation.WorkGridFlowDirectionJsfService"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}"
+                  alias="${jsf.alias.jy_basic}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 </beans>

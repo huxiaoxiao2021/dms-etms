@@ -78,6 +78,11 @@ public class AviationSendTaskDto implements Serializable {
     private Double scanWeight = 0d;
 
 
+    /**
+     * 是否无任务；0-否 1-是
+     */
+    private Integer manualCreatedFlag;
+
     public String getBizId() {
         return bizId;
     }
@@ -212,5 +217,13 @@ public class AviationSendTaskDto implements Serializable {
 
     public void setDetailBizId(String detailBizId) {
         this.detailBizId = detailBizId;
+    }
+
+    public Integer getManualCreatedFlag() {
+        return manualCreatedFlag;
+    }
+
+    public void setManualCreatedFlag(Integer manualCreatedFlag) {
+        this.manualCreatedFlag = manualCreatedFlag;
     }
 }

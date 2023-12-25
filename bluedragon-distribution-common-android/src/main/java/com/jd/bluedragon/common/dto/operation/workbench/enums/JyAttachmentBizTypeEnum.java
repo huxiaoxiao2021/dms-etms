@@ -12,7 +12,8 @@ public enum JyAttachmentBizTypeEnum {
 	TASK_WORK_GRID_MANAGER("task_work_grid_manager", "任务-线上管理化"),
     DAMAGE_EXCEPTION_PACKAGE_BEFORE("damage_exception_package_before","破损包裹修复前图片"),
     DAMAGE_EXCEPTION_PACKAGE_AFTER("damage_exception_package_after","破损包裹修复后图片"),
-    CONTRABAND_UPLOAD_EXCEPTION("contraband_upload_exception","违禁品上报图片")
+    CONTRABAND_UPLOAD_EXCEPTION("contraband_upload_exception","违禁品上报图片"),
+    DEVICE_SPOT_APPEAL("device_spot_appeal","设备抽检申诉附件")
     ;
 
     private final String code;
