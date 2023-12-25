@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -46,8 +47,7 @@ import com.jdl.basic.api.domain.position.PositionData;
 
 import lombok.extern.slf4j.Slf4j;
 
-import static com.jd.bluedragon.Constants.USER_SIGN_RECORD_FLOW_ACCRUAL_DAY;
-import static com.jd.bluedragon.Constants.USER_SIGN_RECORD_FLOW_ACCRUAL_HOUR;
+import static com.jd.bluedragon.Constants.*;
 
 /**
  * 人员签到流程业务--Service接口实现
@@ -101,15 +101,24 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 	/**
 	 * 默认计提日-日期
 	 */
-	private static final int ACCRUAL_DAY = 23;
+	private static final int ACCRUAL_DAY = 21;
 	/**
 	 * 默认计提时间-小时
 	 */
 	private static final int ACCRUAL_HOUR = 0;
 
+	/**
+	 * 默认计提修改最大日期
+	 */
+	private static final int LAST_MODIFY_ACCRUAL_DAY = 21;
+	/**
+	 * 默认计提修改最大小时
+	 */
+	private static final int LAST_MODIFY_ACCRUAL_HOUR = 12;
+
 	@Autowired
 	private SysConfigService sysConfigService;
-	
+
 	/**
 	 * 签到日期-不能小于上个计提日期
 	 * @param signInTime
@@ -117,9 +126,28 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 	 * @return
 	 */
 	public boolean checkSignInTime(Date signInTime,Date signInTimeNew) {
+		Date currentTime = new Date();
+
+		// 根据当前时间获取计提周期时间
 		int accrualDay = getAccrualDay();
 		int accrualHour = getAccrualHour();
 		Date lastAccrualDate = DateHelper.getLastAccrualDate(accrualDay,accrualHour,0);
+
+		// 根据当前时间获取修改计提周期的最大时间
+		int lastModifyAccrualDay = getLastModifyAccrualDay();
+		int lastModifyAccrualHour = getLastModifyAccrualHour();
+		Date lastModifyAccrualDate = DateHelper.getLastAccrualDate(lastModifyAccrualDay,lastModifyAccrualHour,0);
+		if (currentTime.before(lastModifyAccrualDate) && lastModifyAccrualDate.before(lastAccrualDate)) {
+			// 当前时间已经过了计提周期，但是还没有过计提修改的周期，根据最大修改时间来校验
+			if(signInTime != null && !signInTime.after(lastModifyAccrualDate)) {
+				return false;
+			}
+			if(signInTimeNew != null && !signInTimeNew.after(lastModifyAccrualDate)) {
+				return false;
+			}
+			return true;
+		}
+
 		if(signInTime != null && !signInTime.after(lastAccrualDate)) {
 			return false;
 		}
@@ -127,6 +155,26 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			return false;
 		}
 		return true;
+	}
+
+	private int getLastModifyAccrualHour() {
+		SysConfig hourConf = sysConfigService.findConfigContentByConfigName(USER_SIGN_RECORD_FLOW_LAST_MODIFY_ACCRUAL_HOUR);
+		if (hourConf != null
+				&& StringUtils.isNotEmpty(hourConf.getConfigContent())
+				&& NumberUtils.isNumber(hourConf.getConfigContent())) {
+			return Integer.parseInt(hourConf.getConfigContent());
+		}
+		return LAST_MODIFY_ACCRUAL_HOUR;
+	}
+
+	private int getLastModifyAccrualDay() {
+		SysConfig dayConf = sysConfigService.findConfigContentByConfigName(USER_SIGN_RECORD_FLOW_LAST_MODIFY_ACCRUAL_DAY);
+		if (dayConf != null
+				&& StringUtils.isNotEmpty(dayConf.getConfigContent())
+				&& NumberUtils.isNumber(dayConf.getConfigContent())) {
+			return Integer.parseInt(dayConf.getConfigContent());
+		}
+		return LAST_MODIFY_ACCRUAL_DAY;
 	}
 
 	private int getAccrualHour() {
