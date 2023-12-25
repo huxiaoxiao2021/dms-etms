@@ -137,7 +137,7 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 		int lastModifyAccrualDay = getLastModifyAccrualDay();
 		int lastModifyAccrualHour = getLastModifyAccrualHour();
 		Date lastModifyAccrualDate = DateHelper.getLastAccrualDate(lastModifyAccrualDay,lastModifyAccrualHour,0);
-		if (currentTime.before(lastModifyAccrualDate) && lastModifyAccrualDate.before(lastAccrualDate)) {
+		if (currentTime.after(lastModifyAccrualDate) && lastModifyAccrualDate.before(lastAccrualDate)) {
 			// 当前时间已经过了计提周期，但是还没有过计提修改的周期，根据最大修改时间来校验
 			if(signInTime != null && !signInTime.after(lastModifyAccrualDate)) {
 				return false;
