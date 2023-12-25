@@ -3,7 +3,9 @@ package com.jd.bluedragon.distribution.jy.service.picking.bridge;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.jy.constants.PickingGoodTaskDetailInitServiceEnum;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskExtendInitDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskInitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -14,11 +16,14 @@ import com.jd.bluedragon.distribution.jy.service.picking.JyBizTaskPickingGoodTra
 import com.jd.bluedragon.distribution.jy.service.picking.JyPickingTaskAggsCacheService;
 import com.jd.bluedragon.distribution.jy.service.picking.factory.PickingGoodDetailInitServiceFactory;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.vos.dto.CommonDto;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,10 +46,9 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
     private JyBizTaskPickingGoodService jyBizTaskPickingGoodService;
     @Autowired
     private JyBizTaskPickingGoodTransactionManager transactionManager;
-    @Override
-    public void setPickingGoodDetailInitService(PickingGoodDetailInitService pickingGoodDetailInitService) {
-        super.setPickingGoodDetailInitService(pickingGoodDetailInitService);
-    }
+    @Autowired
+    private VosManager vosManager;
+
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -59,6 +63,20 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
 
     @Override
     protected boolean generatePickingGoodTask(PickingGoodTaskInitDto initDto) {
+        JyBizTaskPickingGoodEntity pickingGoodEntity = jyBizTaskPickingGoodService.findLatestTaskByBusinessNumber(initDto.getBusinessNumber());
+        //重复校验
+        if(!Objects.isNull(pickingGoodEntity)) {
+            if(!Objects.isNull(pickingGoodEntity.getNodeRealArriveTime())) {
+                logWarn("空铁提货计划消费生成提货任务，根据流水号%s查找提货任务已经实际落地，落地时间为【%s|bizId=%s】，消息不在消费，msg={}",
+                        initDto.getBusinessNumber(), pickingGoodEntity.getNodeRealArriveTime(), pickingGoodEntity.getBizId(), JsonHelper.toJson(initDto));
+                return true;
+            }else {
+                //删除原来任务
+                jyBizTaskPickingGoodService.deleteByBusinessNumber(initDto.getBusinessNumber());
+                logInfo("空铁提货计划消费生成提货任务,删除批次【{}】已有任务成功，当前下发任务信息：{}", JsonHelper.toJson(initDto));
+            }
+        }
+        //
         List<PickingGoodTaskExtendInitDto> extendInitDtoList = initDto.getExtendInitDtoList();
         //按批次流向分组,每个流向组装一条待提任务
         Map<String, List<PickingGoodTaskExtendInitDto>> extendListMap =  extendInitDtoList.stream().collect(Collectors.groupingBy(PickingGoodTaskExtendInitDto::getEndSiteCode));
@@ -84,10 +102,28 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
         List<JyBizTaskPickingGoodEntity> taskEntityList = pickingTaskMap.keySet().stream().collect(Collectors.toList());
         List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList = pickingTaskMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
         transactionManager.batchInsertPickingGoodTask(taskEntityList, subsidiaryEntityList);
+        super.setTaskMap(pickingTaskMap);
         //调度任务初始化
         //todo zcf
         createUnSealScheduleTask(null);
         return true;
+    }
+
+
+
+    /**
+     * 通过封车编码获取封车信息
+     * @param sealCarCode
+     * @return
+     */
+    private SealCarDto findSealCarInfoBySealCarCodeOfTms(String sealCarCode){
+        logInfo("AviationPickingGoodTaskInit获取封车信息开始 {}",sealCarCode);
+        CommonDto<SealCarDto> sealCarDtoCommonDto = vosManager.querySealCarInfoBySealCarCode(sealCarCode);
+        logInfo("AviationPickingGoodTaskInit获取封车信息返回数据 {},{}",sealCarCode,JsonHelper.toJson(sealCarDtoCommonDto));
+        if(sealCarDtoCommonDto == null || Constants.RESULT_SUCCESS != sealCarDtoCommonDto.getCode()){
+            return null;
+        }
+        return sealCarDtoCommonDto.getData();
     }
 
     //todo zcf 看一下调度任务失败的逻辑， 和提货任务生成不在一个事务，考虑是否继续异步拆分，或者保证幂等
@@ -134,13 +170,14 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
         return entity;
     }
     //构建任务附属信息
-    private List<JyBizTaskPickingGoodSubsidiaryEntity> convertTaskSubsidiaryEntityList(JyBizTaskPickingGoodEntity taskEntity, List<PickingGoodTaskExtendInitDto> extendDtoList) {
+    private List<JyBizTaskPickingGoodSubsidiaryEntity> convertTaskSubsidiaryEntityList(JyBizTaskPickingGoodEntity taskEntity, List<PickingGoodTaskExtendInitDto> subsidiaryEntityList) {
         List<JyBizTaskPickingGoodSubsidiaryEntity> entityList = new ArrayList<>();
-        extendDtoList.forEach(subsidiaryEntity -> {
+        subsidiaryEntityList.forEach(subsidiaryEntity -> {
             JyBizTaskPickingGoodSubsidiaryEntity entity = new JyBizTaskPickingGoodSubsidiaryEntity();
             entity.setBizId(taskEntity.getBizId());
             entity.setBusinessNumber(taskEntity.getBusinessNumber());
             entity.setSendCode(subsidiaryEntity.getBatchCode());
+            entity.setSealCarCode(subsidiaryEntity.getSealCarCode());
             BaseStaffSiteOrgDto siteInfo = null;
             try{
                 siteInfo = baseMajorManager.getBaseSiteByDmsCode(subsidiaryEntity.getStartSiteCode());
@@ -176,25 +213,80 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
 
     @Override
     protected boolean pickingGoodDetailInit(PickingGoodTaskInitDto initDto) {
-        //根据场地类型获取待提明细初始化服务实例
-        Integer startSiteType = 64; //上游场地类型
-        PickingGoodTaskDetailInitServiceEnum detailInitServiceEnum = PickingGoodTaskDetailInitServiceEnum.getEnumBySource(startSiteType);
-        if(!Objects.isNull(detailInitServiceEnum)) {
-            PickingGoodDetailInitService pickingGoodDetailInitService = PickingGoodDetailInitServiceFactory.getPickingGoodDetailInitService(detailInitServiceEnum.getTargetCode());
-            if(!Objects.isNull(pickingGoodDetailInitService)) {
-                this.setPickingGoodDetailInitService(pickingGoodDetailInitService);
-            }else {
-                logWarn("航空提货计划消费，未查到待提明细初始化服务，initDto={}, 上游场地类型为{}", JsonHelper.toJson(initDto), startSiteType);
-            }
+        Map<JyBizTaskPickingGoodEntity, List<JyBizTaskPickingGoodSubsidiaryEntity>> taskMap = super.getTaskMap();
+        //K-sealCarCode, V-siteType
+        Map<String, Integer> scLastSiteType = new HashMap<>();
+        taskMap.forEach((taskEntity, subsidiaryEntityList) -> {
+            subsidiaryEntityList.forEach(subsidiaryEntity -> {
+                if(!Objects.isNull(scLastSiteType.get(subsidiaryEntity.getSealCarCode()))) {
+                    SealCarDto sealCarDto = this.findSealCarInfoBySealCarCodeOfTms(subsidiaryEntity.getSealCarCode());
+                    if(!Objects.isNull(sealCarDto) && !Objects.isNull(sealCarDto.getStartSiteId())) {
+                        BaseStaffSiteOrgDto siteDto = baseMajorManager.getBaseSiteBySiteId(sealCarDto.getStartSiteId());
+                        if(!Objects.isNull(siteDto)) {
+                            scLastSiteType.put(subsidiaryEntity.getSealCarCode(), siteDto.getSiteType());
+                        }
+                        if(!Objects.isNull(siteDto) && !Objects.isNull(siteDto.getSiteType())) {
+                            logWarn("空铁提货计划【{}】待提明细初始化，根据封车编码{}查询封车封车场地{}类型为空，siteInfo={}", initDto.getBusinessNumber(), subsidiaryEntity.getSealCarCode(), sealCarDto.getStartSiteId(), JsonHelper.toJson(siteDto));
+                        }
+                    }else {
+                        logWarn("空铁提货计划【{}】待提明细初始化，根据封车编码{}查询封车封车场地为空，sealInfo={}", initDto.getBusinessNumber(), subsidiaryEntity.getSealCarCode(), JsonHelper.toJson(sealCarDto));
+                    }
+
+                }
+            });
+        });
+
+        Map<String, PickingGoodTaskDetailInitDto> byScInitMap = new HashMap<>();
+        Map<String, PickingGoodTaskDetailInitDto> bySendCodeInitMap = new HashMap<>();
+
+        taskMap.forEach((taskEntity, subsidiaryEntityList) -> {
+            subsidiaryEntityList.forEach(subsidiaryEntity -> {
+                Integer siteType = scLastSiteType.get(subsidiaryEntity.getSealCarCode());
+                if(PickingGoodTaskDetailInitServiceEnum.DMS_SEND_DMS_PICKING.getSource().equals(siteType)) {
+                    if(Objects.isNull(bySendCodeInitMap.get(subsidiaryEntity.getSendCode()))) {
+                        PickingGoodTaskDetailInitDto detailInitDto = new PickingGoodTaskDetailInitDto();
+                        detailInitDto.setBizId(taskEntity.getBizId());
+                        detailInitDto.setPickingSiteId(taskEntity.getNextSiteId());
+                        detailInitDto.setPickingNodeCode(taskEntity.getEndNodeCode());
+                        detailInitDto.setBatchCode(subsidiaryEntity.getSendCode());
+                        bySendCodeInitMap.put(subsidiaryEntity.getSendCode(), detailInitDto);
+                    }
+                }else {
+                    if(Objects.isNull(byScInitMap.get(subsidiaryEntity.getSealCarCode()))) {
+                        PickingGoodTaskDetailInitDto detailInitDto = new PickingGoodTaskDetailInitDto();
+                        detailInitDto.setBizId(taskEntity.getBizId());
+                        detailInitDto.setPickingSiteId(taskEntity.getNextSiteId());
+                        detailInitDto.setPickingNodeCode(taskEntity.getEndNodeCode());
+                        detailInitDto.setBatchCode(subsidiaryEntity.getSealCarCode());
+                        byScInitMap.put(subsidiaryEntity.getSealCarCode(), detailInitDto);
+                    }
+                }
+            });
+        });
+
+        if(!CollectionUtils.isEmpty(byScInitMap.values())) {
+            PickingGoodDetailInitService detailInitService = PickingGoodDetailInitServiceFactory.getPickingGoodDetailInitService(PickingGoodTaskDetailInitServiceEnum.DMS_SEND_DMS_PICKING.getTargetCode());
+            byScInitMap.values().forEach(detailInit -> {
+                detailInitService.pickingGoodDetailInit(detailInit);
+            });
         }
 
-        pickingGoodDetailInitService.pickingGoodDetailInit(null);
+        if(!CollectionUtils.isEmpty(bySendCodeInitMap.values())) {
+            PickingGoodDetailInitService detailInitService = PickingGoodDetailInitServiceFactory.getPickingGoodDetailInitService(PickingGoodTaskDetailInitServiceEnum.OTHER_SEND_DMS_PICKING.getTargetCode());
+            byScInitMap.values().forEach(detailInit -> {
+                detailInitService.pickingGoodDetailInit(detailInit);
+            });
+        }
         return true;
     }
 
     @Override
     protected boolean initDetailSwitch(PickingGoodTaskInitDto pickingGoodTaskInitDto) {
-        //todo zcf  根据到达时间做初始化
-        return super.initDetailSwitch(pickingGoodTaskInitDto);
+        if(Objects.isNull(pickingGoodTaskInitDto.getNodeRealArriveTime())) {
+            logInfo("空铁提货计划【{}】没有落地时间，不做待提明细初始化,下发时间={}", pickingGoodTaskInitDto.getBusinessNumber(), pickingGoodTaskInitDto.getOperateTime());
+            return false;
+        }
+        return true;
     }
+
 }

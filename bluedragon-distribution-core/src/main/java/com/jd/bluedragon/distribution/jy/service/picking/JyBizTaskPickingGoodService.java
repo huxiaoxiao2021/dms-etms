@@ -48,4 +48,19 @@ public interface JyBizTaskPickingGoodService {
      * @return
      */
     JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId);
+
+    /**
+     * 根据空铁批货流水号查询最近提货任务
+     * 注：空铁业务特点，一批货为一组，一组存在多个场地提货，生成多个提货任务，一组任务唯一个整体，存在都存在，删除都删除
+     * @param businessNumber
+     * @return
+     */
+    JyBizTaskPickingGoodEntity findLatestTaskByBusinessNumber(String businessNumber);
+
+    /**
+     * 根据空铁批货流水号删除一批任务
+     * @param businessNumber
+     * @return
+     */
+    int deleteByBusinessNumber(String businessNumber);
 }

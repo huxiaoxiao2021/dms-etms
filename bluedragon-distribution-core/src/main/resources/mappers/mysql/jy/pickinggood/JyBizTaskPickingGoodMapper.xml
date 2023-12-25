@@ -140,12 +140,7 @@
         <if test="updateTime != null" >
           update_time,
         </if>
-        <if test="yn != null" >
-          yn,
-        </if>
-        <if test="ts != null" >
-          ts,
-        </if>
+        yn
       </trim>
       <trim prefix="values (" suffix=")" suffixOverrides="," >
         <if test="id != null" >
@@ -238,12 +233,7 @@
         <if test="updateTime != null" >
           #{updateTime,jdbcType=TIMESTAMP},
         </if>
-        <if test="yn != null" >
-          #{yn,jdbcType=BIT},
-        </if>
-        <if test="ts != null" >
-          #{ts,jdbcType=TIMESTAMP},
-        </if>
+        1
       </trim>
     </insert>
 
@@ -303,6 +293,28 @@
     order by create_time desc
     limit 1
   </select>
+
+  <select id="findLatestTaskByBusinessNumber" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select <include refid="Base_Column_List" />
+    from jy_biz_task_picking_good
+    where business_number= #{businessNumber} and yn = 1
+    order by create_time desc
+    limit 1
+  </select>
+
+  <update id="deleteByBusinessNumber" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition" >
+    update jy_biz_task_picking_good
+    set
+      <if test="updateUserErp != null" >
+        update_user_erp = #{updateUserErp},
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name = #{updateUserName},
+      </if>
+      update_time = #{updateTime},
+      yn = 0
+    where yn = 1 and business_number = #{businessNumber}
+  </update>
 
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select -->

@@ -17,6 +17,8 @@ public class JyBizTaskPickingGoodSubsidiaryEntity implements Serializable {
 
     private String sendCode;
 
+    private String sealCarCode;
+
     private Long startSiteId;
 
     private String startSiteCode;
@@ -84,6 +86,14 @@ public class JyBizTaskPickingGoodSubsidiaryEntity implements Serializable {
 
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
+    }
+
+    public String getSealCarCode() {
+        return sealCarCode;
+    }
+
+    public void setSealCarCode(String sealCarCode) {
+        this.sealCarCode = sealCarCode;
     }
 
     public String getStartSiteCode() {

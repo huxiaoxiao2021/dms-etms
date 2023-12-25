@@ -109,5 +109,18 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
         return jyBizTaskPickingGoodDao.findLatestEffectiveManualCreateTask(siteId);
     }
 
+    @Override
+    public JyBizTaskPickingGoodEntity findLatestTaskByBusinessNumber(String businessNumber) {
+        return jyBizTaskPickingGoodDao.findLatestTaskByBusinessNumber(businessNumber);
+    }
 
+    @Override
+    public int deleteByBusinessNumber(String businessNumber) {
+        JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
+        entity.setBusinessNumber(businessNumber);
+        entity.setUpdateTime(new Date());
+        entity.setUpdateUserErp(Constants.SYS_NAME);
+        entity.setUpdateUserName(Constants.SYS_NAME);
+        return jyBizTaskPickingGoodDao.deleteByBusinessNumber(entity);
+    }
 }

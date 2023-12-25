@@ -27,6 +27,15 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
     public JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findLatestEffectiveManualCreateTask", siteId);
     }
+
+    public JyBizTaskPickingGoodEntity findLatestTaskByBusinessNumber(String businessNumber) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findLatestTaskByBusinessNumber", businessNumber);
+    }
+
+    public int deleteByBusinessNumber(JyBizTaskPickingGoodEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".deleteByBusinessNumber", entity);
+    }
+
 //    int deleteByPrimaryKey(Long id);
 //
 //    int insert(JyBizTaskPickingGood record);

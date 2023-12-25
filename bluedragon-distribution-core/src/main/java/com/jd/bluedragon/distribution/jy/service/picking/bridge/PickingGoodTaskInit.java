@@ -1,6 +1,11 @@
 package com.jd.bluedragon.distribution.jy.service.picking.bridge;
 
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskInitDto;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 提货任务抽象化
@@ -9,13 +14,15 @@ import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskInitDto;
  * @Description
  */
 public abstract class PickingGoodTaskInit {
-    /**
-     * 待提明细初始化服务， 如不需要做明细初始化时允许为null, 业务层做好判空处理
-     */
-    PickingGoodDetailInitService pickingGoodDetailInitService;
 
-    public void setPickingGoodDetailInitService(PickingGoodDetailInitService pickingGoodDetailInitService) {
-        this.pickingGoodDetailInitService = pickingGoodDetailInitService;
+    private Map<JyBizTaskPickingGoodEntity, List<JyBizTaskPickingGoodSubsidiaryEntity>> taskMap;
+
+    public Map<JyBizTaskPickingGoodEntity, List<JyBizTaskPickingGoodSubsidiaryEntity>> getTaskMap() {
+        return taskMap;
+    }
+
+    public void setTaskMap(Map<JyBizTaskPickingGoodEntity, List<JyBizTaskPickingGoodSubsidiaryEntity>> taskMap) {
+        this.taskMap = taskMap;
     }
 
     /**
