@@ -729,4 +729,27 @@
             #{item}
         </foreach>
     </update>
+
+    <update id="batchUpdateByBizIds" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity">
+        update jy_biz_task_send_vehicle_detail
+        <trim prefix="set" suffixOverrides=",">
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="yn != null">
+                yn = #{yn},
+            </if>
+        </trim>
+        where yn = 1 and send_vehicle_biz_id in
+        <foreach collection="bizIdList" item="item" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
 </mapper>

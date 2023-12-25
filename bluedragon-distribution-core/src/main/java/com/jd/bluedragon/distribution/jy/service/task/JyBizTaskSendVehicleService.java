@@ -209,4 +209,15 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
     List<JyBizSendTaskAssociationDto> pageFindDetailSendTaskByCondition(JyBizTaskSendVehicleDetailQueryEntity entity, Integer pageNo, Integer pageSize);
+
+    /**
+     * 定时清理超3小时处于待发货状态的自建任务（发货岗）
+     */
+    void timingHandlerCleanToSendStatusManualTask();
+
+    /**
+     * 定时清理超72小时处于发货中状态并且没有绑定或删除的自建任务（发货岗）
+     */
+    void timingHandlerCleanSendingStatusManualTask();
+
 }
