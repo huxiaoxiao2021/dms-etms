@@ -53,28 +53,35 @@ public class RBoxFilter implements Filter {
             }
 
             if (BoxHelper.isLuxuryForForward(request.getBox())) {
-                throw new SortingCheckException(SortingResponse.CODE_29007,
-                        HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_FORWARD_LUXURY_WAYBILL, request.getFuncModule()));
+                // 去掉奢侈品箱号类型校验
+                /*throw new SortingCheckException(SortingResponse.CODE_29007,
+                        HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_FORWARD_LUXURY_WAYBILL, request.getFuncModule()));*/
             } else if (BoxHelper.isOrdinaryForWarehouse(request.getBox())
                     && !SiteHelper.isWarehouse(rule2.getContent(), request.getsReceiveSiteSubType())
                     && !BusinessUtil.isBizSite(sReceiveSiteType)) {
                 throw new SortingCheckException(SortingResponse.CODE_29004,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_COMMON_REVERSE, request.getFuncModule()));
-            } else if (BoxHelper.isLuxuryForWarehouse(request.getBox())
+            }
+            // 去掉奢侈品箱号类型校验
+            /*else if (BoxHelper.isLuxuryForWarehouse(request.getBox())
                     && !SiteHelper.isWarehouse(rule2.getContent(), request.getsReceiveSiteSubType())) {
                 throw new SortingCheckException(SortingResponse.CODE_29008,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_LUXURY_REVERSE, request.getFuncModule()));
-            } else if (BoxHelper.isOrdinaryForAfterSale(request.getBox())
+            }*/
+            else if (BoxHelper.isOrdinaryForAfterSale(request.getBox())
                     && !SiteHelper.isAfterSale(rule3.getContent(), request.getsReceiveSiteSubType())) {
                 throw new SortingCheckException(SortingResponse.CODE_29005,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_COMMON_AFTER_SALE, request.getFuncModule()));
-            } else if (BoxHelper.isLuxuryForAfterSale(request.getBox())
+            }
+            // 去掉奢侈品箱号类型校验
+            /*else if (BoxHelper.isLuxuryForAfterSale(request.getBox())
                     && !SiteHelper.isAfterSale(rule3.getContent(), request.getsReceiveSiteSubType())) {
                 throw new SortingCheckException(SortingResponse.CODE_29009,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_LUXURY_AFTER_SALE, request.getFuncModule()));
-            }
+            }*/
 
-            if ( WaybillUtil.isSurfaceCode(request.getPackageCode())) {
+            // 去掉奢侈品箱号类型校验
+            /*if ( WaybillUtil.isSurfaceCode(request.getPackageCode())) {
                 if (WaybillCacheHelper.isLuxury(request.getWaybillCache()) && ! BoxHelper.isLuxuryForAfterSale2(request.getBox())
                         && !BusinessHelper.isAuction(request.getWaybillCache().getType())) {
                     throw new SortingCheckException(SortingResponse.CODE_29111,
@@ -102,7 +109,7 @@ public class RBoxFilter implements Filter {
                     throw new SortingCheckException(SortingResponse.CODE_29008,
                             HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_LUXURY_REVERSE, request.getFuncModule()));
                 }
-            }
+            }*/
         }
 
         // 2021年12月15日17:58:37 下线
