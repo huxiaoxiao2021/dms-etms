@@ -2359,16 +2359,26 @@ public class Constants {
     public static final String SITE_TYPE_SPWMS = "spwms";
 
     /**
-     * 计提时间-小时 修改时请参考签到推送人资时间，不要晚于这个时间
+     * 计提时间-小时
      */
     public static final String USER_SIGN_RECORD_FLOW_ACCRUAL_HOUR = "userSignRecordFlow.accrualHour";
 
     /**
-     * 计提时间-日期  修改时请参考签到推送人资时间，不要晚于这个时间
+     * 计提时间-日期
      */
     public static final String USER_SIGN_RECORD_FLOW_ACCRUAL_DAY = "userSignRecordFlow.accrualDay";
     /**
      * 换单打印限制1次全国开关
      */
     public static final String  EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH = "exchange.waybill.print.limit.switch";
+
+    /**
+     * 计提时间-小时 最大修改时间 修改时请参考签到推送人资时间，不要晚于这个时间
+     */
+    public static final String USER_SIGN_RECORD_FLOW_LAST_MODIFY_ACCRUAL_HOUR = "userSignRecordFlow.lastModifyAccrualHour";
+
+    /**
+     * 计提时间-日期 最大修改时间 修改时请参考签到推送人资时间，不要晚于这个时间
+     */
+    public static final String USER_SIGN_RECORD_FLOW_LAST_MODIFY_ACCRUAL_DAY = "userSignRecordFlow.lastModifyAccrualDay";
 }
