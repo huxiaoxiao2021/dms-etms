@@ -2320,6 +2320,10 @@ public class Constants {
      */
     public static final String PDA_QUESTIONNAIRE_SITE_WHITE_LIST = "pda.questionnaire.white.list";
 
+    /**
+     * 换单打印限制1次场地白名单
+     */
+    public static final String  EXCHANGE_WAYBILL_PRINT_LIMIT_1_SITE_WHITE_LIST = "exchange.waybill.print.limit.site.white.list";
 
 
     /**
@@ -2363,4 +2367,8 @@ public class Constants {
      * 计提时间-日期  修改时请参考签到推送人资时间，不要晚于这个时间
      */
     public static final String USER_SIGN_RECORD_FLOW_ACCRUAL_DAY = "userSignRecordFlow.accrualDay";
+    /**
+     * 换单打印限制1次全国开关
+     */
+    public static final String  EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH = "exchange.waybill.print.limit.switch";
 }

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.distribution.abnormal.domain.RedeliveryMode;
+import com.jd.bluedragon.distribution.api.enums.QualityControlInletEnum;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
@@ -28,6 +29,7 @@ public class ExceptionHandleGatewayServiceImpl implements ExceptionHandleGateway
     @Override
     public QualityControlResponse exceptionSubmit(QualityControlRequest request) {
         QualityControlResponse response = new QualityControlResponse();
+        request.setInletFlag(QualityControlInletEnum.DMS_SORTING.getCode());
         InvokeResult<Boolean> result = qualityControlService.exceptionSubmit(request);
         response.setCode(result.getCode());
         response.setMessage(result.getMessage());

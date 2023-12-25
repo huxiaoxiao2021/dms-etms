@@ -323,6 +323,9 @@ public class InvokeResult<T> implements Serializable {
     public static final String CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_MESSAGE = "车辆封车的板数量小于【%s】 件数小于【%s】 请拍照！";
     public static final int CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_CODE = 3072;
     public static final String CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_MESSAGE = "发货目的地【%s】不在本网格的传站流向中，请使用正确的网格码登录封车";
+    public static final int WAYBILL_EXCHANGE_NUM_CODE = 3072;
+    public static final String WAYBILL_EXCHANGE_NUM_MESSAGE = "客服理赔及客户取消的运单，限制只能换单1次，无法再换单，请联系网格负责人处理！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
