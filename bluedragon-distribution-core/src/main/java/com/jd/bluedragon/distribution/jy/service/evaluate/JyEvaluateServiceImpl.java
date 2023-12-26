@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.Evaluat
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
+import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.JyEvaluateDimensionEnum;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
@@ -227,6 +228,10 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         JyBizTaskUnloadVehicleEntity entity = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
         List<ImgInfo> imgInfos = new ArrayList<>();
         for (EvaluateDimensionReq req : request.getDimensionList()) {
+            if (!Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_600.getCode())
+                    || !Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_800.getCode())) {
+                continue;
+            }
             ImgInfo info = new ImgInfo();
             info.setImgURLs(req.getImgUrlList());
             if ((entity == null || entity.getVehicleStatus() < WAIT_UN_LOAD.getCode())) {
