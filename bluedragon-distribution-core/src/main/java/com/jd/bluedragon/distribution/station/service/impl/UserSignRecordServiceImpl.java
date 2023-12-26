@@ -1141,7 +1141,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	private String  checkJobCodeSignIn(WorkStationGrid workStationGrid,Integer jobCode){
 		//添加开关 以便于上线后没维护工种类型 都进行卡控
-		if(!dmsConfigManager.getPropertyConfig().isJobTypeLimitSwitch()){
+		if(!dmsConfigManager.getPropertyConfig().isJobTypeLimitSwitch() || JobTypeEnum.JOBTYPE8.getCode().equals(jobCode)){
 			log.warn("网格工种限制功能开关关闭!");
 			return "";
 		}

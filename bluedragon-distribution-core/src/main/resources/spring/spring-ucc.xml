@@ -264,7 +264,7 @@
 		<property name="operateProgressRegions" value="${operateProgressRegions:10}"/>
 		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
 		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
-		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
+		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:true}"/>
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 		<property name="jySysStrandTaskCloseTime" value="${jySysStrandTaskCloseTime:14400000}"/>
