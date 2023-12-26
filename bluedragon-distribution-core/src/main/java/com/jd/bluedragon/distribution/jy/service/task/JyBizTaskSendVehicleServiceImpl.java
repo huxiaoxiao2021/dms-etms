@@ -332,6 +332,7 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         params.setManualCreatedFlag(Constants.NUMBER_ONE);
         // 未绑定运输任务
         params.setBindFlag(Constants.NUMBER_ZERO);
+        params.setPageSize(pageSize);
         params.setUpdateTime(currentDate);
         params.setUpdateUserName(Constants.SYS_NAME);
         params.setUpdateUserErp(Constants.SYS_NAME);
