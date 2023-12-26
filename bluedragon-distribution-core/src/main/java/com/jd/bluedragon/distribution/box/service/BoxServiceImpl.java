@@ -152,6 +152,9 @@ public class BoxServiceImpl implements BoxService {
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
         //持久化
+        if(box.getBoxSubType() == null){
+            box.setBoxSubType(Constants.EMPTY_FILL);
+        }
 		Integer result = this.boxDao.add(BoxDao.namespace, box);
         //缓存
 		Boolean isCatched = jimdbCacheService.setEx(getCacheKey(box.getCode()),JsonHelper.toJson(box), timeout);
