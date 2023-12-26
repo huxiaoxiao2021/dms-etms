@@ -1845,6 +1845,17 @@ public class UccPropertyConfiguration{
 
     private Double jyAviationManualCreateSendTaskMaxBookingWeight;
 
+    /**
+     * 箱号类型判断终端站点类型
+     */
+    private String terminalSiteTypeForBoxType;
+    private List<Integer> terminalSiteTypeListForBoxType = new ArrayList<>();
+
+    /**
+     * 箱号类型新版切换开关
+     */
+    private boolean boxTypeNewVersionSwitch;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -3526,6 +3537,7 @@ public class UccPropertyConfiguration{
             final String[] split = dpSpringSiteCode.split(Constants.SEPARATOR_COMMA);
             dpSpringSiteCodeList = Arrays.asList(split);
         }
+        this.dpSpringSiteCodeList.clear();
         for (String siteCodeStr : dpSpringSiteCodeList) {
             this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
         }
@@ -4096,5 +4108,39 @@ public class UccPropertyConfiguration{
 
     public void setFindGoodSendMessageDefaultErp(String findGoodSendMessageDefaultErp) {
         this.findGoodSendMessageDefaultErp = findGoodSendMessageDefaultErp;
+    }
+
+    public String getTerminalSiteTypeForBoxType() {
+        return terminalSiteTypeForBoxType;
+    }
+
+    public void setTerminalSiteTypeForBoxType(String terminalSiteTypeForBoxType) {
+        this.terminalSiteTypeForBoxType = terminalSiteTypeForBoxType;
+        this.setTerminalSiteTypeListForBoxType();
+    }
+
+    public List<Integer> getTerminalSiteTypeListForBoxType() {
+        return terminalSiteTypeListForBoxType;
+    }
+
+    public void setTerminalSiteTypeListForBoxType() {
+        List<String> terminalSiteTypeList = new ArrayList<>();
+        if(StringUtils.isNotBlank(terminalSiteTypeForBoxType)){
+            final String[] split = terminalSiteTypeForBoxType.split(Constants.SEPARATOR_COMMA);
+            terminalSiteTypeList = Arrays.asList(split);
+        }
+        this.terminalSiteTypeListForBoxType.clear();
+        for (String siteCodeStr : terminalSiteTypeList) {
+            this.terminalSiteTypeListForBoxType.add(Integer.valueOf(siteCodeStr));
+        }
+    }
+
+    public boolean getBoxTypeNewVersionSwitch() {
+        return boxTypeNewVersionSwitch;
+    }
+
+    public UccPropertyConfiguration setBoxTypeNewVersionSwitch(boolean boxTypeNewVersionSwitch) {
+        this.boxTypeNewVersionSwitch = boxTypeNewVersionSwitch;
+        return this;
     }
 }
