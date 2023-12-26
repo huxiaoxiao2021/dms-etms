@@ -256,7 +256,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         dto.setScCode(request.getSourceBizId());
         dto.setImgInfos(imgInfos);
 
-        evaluateInfoToQcProducer.sendOnFailPersistent(dto.getSourceSystemId(), JsonHelper.toJson(targetInitDto));
+        evaluateInfoToQcProducer.sendOnFailPersistent(dto.getSourceSystemId(), JsonHelper.toJson(dto));
     }
 
     private void checkEvaluateValidity(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto) {
