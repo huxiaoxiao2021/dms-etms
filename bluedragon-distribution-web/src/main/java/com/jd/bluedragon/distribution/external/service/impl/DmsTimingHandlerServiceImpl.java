@@ -91,7 +91,7 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public void timingHandlerCleanToSendStatusManualTask() {
         if (logger.isInfoEnabled()) {
-            logger.info("定时处理超48小时未确认的设备抽检申诉核对记录的定时任务开始执行:{}", System.currentTimeMillis());
+            logger.info("定时清理超3小时处于待发货状态的自建任务开始执行:{}", System.currentTimeMillis());
         }
         jyBizTaskSendVehicleService.timingHandlerCleanToSendStatusManualTask();
     }
@@ -101,7 +101,7 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public void timingHandlerCleanSendingStatusManualTask() {
         if (logger.isInfoEnabled()) {
-            logger.info("定时处理超48小时未确认的设备抽检申诉核对记录的定时任务开始执行:{}", System.currentTimeMillis());
+            logger.info("定时清理超72小时处于发货中状态并且没有绑定或删除的自建任务开始执行:{}", System.currentTimeMillis());
         }
         jyBizTaskSendVehicleService.timingHandlerCleanSendingStatusManualTask();
     }

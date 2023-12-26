@@ -284,6 +284,9 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         return jyBizTaskSendVehicleDao.pageFindDetailSendTaskByCondition(entity, offset, limit);
     }
 
+    /**
+     * 定时清理超3小时处于待发货状态的自建任务
+     */
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.timingHandlerCleanToSendStatusManualTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -297,6 +300,9 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     }
 
 
+    /**
+     * 定时清理超72小时处于发货中状态并且没有绑定或删除的自建任务
+     */
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.timingHandlerCleanSendingStatusManualTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
