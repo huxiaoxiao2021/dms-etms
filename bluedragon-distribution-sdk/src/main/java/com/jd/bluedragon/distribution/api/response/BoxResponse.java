@@ -76,6 +76,11 @@ public class BoxResponse extends JdResponse {
     private String type;
 
     /**
+     * 箱号子类型
+     */
+    private String subType;
+
+    /**
      * 运输方式 '1' 航空运输 '2' 公路运输 '3' 铁路运输
      */
     private Integer transportType;
@@ -138,6 +143,11 @@ public class BoxResponse extends JdResponse {
     private Map<String,String> boxTypes;
 
     /**
+     * 箱号子类型
+     */
+    private Map<String,String> boxSubTypes;
+
+    /**
      * 循环集包袋
      */
     private String materialCode;
@@ -158,6 +168,14 @@ public class BoxResponse extends JdResponse {
 
     public void setBoxTypes(Map<String, String> boxTypes) {
         this.boxTypes = boxTypes;
+    }
+
+    public Map<String, String> getBoxSubTypes() {
+        return boxSubTypes;
+    }
+
+    public void setBoxSubTypes(Map<String, String> boxSubTypes) {
+        this.boxSubTypes = boxSubTypes;
     }
 
     public String getRouterText() {
@@ -206,6 +224,14 @@ public class BoxResponse extends JdResponse {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getSubType() {
+        return subType;
+    }
+
+    public void setSubType(String subType) {
+        this.subType = subType;
     }
 
     public BoxResponse() {

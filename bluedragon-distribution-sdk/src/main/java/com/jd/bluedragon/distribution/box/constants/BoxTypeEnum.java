@@ -8,7 +8,9 @@ import java.util.Map;
  * @Description 箱号类型枚举
  * @Author wyh
  * @Date 2021/2/2 19:49
+ * @deprecated 使用 新的精简箱号大类 com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum 和 箱号子类型 com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum
  **/
+@Deprecated
 public enum BoxTypeEnum {
 
     TYPE_BC("BC", "正向普通"),
@@ -30,7 +32,8 @@ public enum BoxTypeEnum {
     TYPE_ZS("ZS", "售后件"),
     RECYCLE_BASKET("AK", "周转筐"),
     TYPE_MS("MS", "医药直发"),
-    TYPE_LL("LL","笼车/围板箱")
+    TYPE_TA("TA","特安"),
+    TYPE_LL("LL","笼车/围板箱"),
     ;
 
     private String code;

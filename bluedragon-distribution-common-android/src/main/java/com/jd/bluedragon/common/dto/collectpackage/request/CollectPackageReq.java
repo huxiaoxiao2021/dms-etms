@@ -20,6 +20,25 @@ public class CollectPackageReq  extends BaseReq implements Serializable {
      */
     private boolean skipInterceptChain;
 
+    private boolean skipSealBoxCheck;
+
+    public boolean getSkipSealBoxCheck(){
+        return skipSealBoxCheck;
+    }
+
+    public void setSkipSealBoxCheck(boolean skipSealBoxCheck) {
+        this.skipSealBoxCheck = skipSealBoxCheck;
+    }
+
+    private Integer taskStatus;
+
+    public Integer getTaskStatus(){
+        return taskStatus;
+    }
+    public void setTaskStatus(Integer taskStatus) {
+        this.taskStatus = taskStatus;
+    }
+
     public boolean getSkipInterceptChain() {
         return skipInterceptChain;
     }
