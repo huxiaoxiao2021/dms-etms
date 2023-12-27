@@ -85,6 +85,24 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".sumTaskByVehicleStatus", params);
     }
 
+    /**
+     * 待发货、发货中、待封车、已封车四个状态采用不同计划发车时间范围的任务数量统计查询语句：目前接货仓有这种特殊需求在使用
+     */
+    public List<JyBizTaskSendCountDto> sumSpecifyTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        if (entity.getLineType() != null) {
+            List<Integer> lineType = new ArrayList<>();
+            lineType.add(JyLineTypeEnum.OTHER.getCode());
+            lineType.add(entity.getLineType());
+            params.put("lineTypeList", lineType);
+        }
+        if (CollectionUtils.isNotEmpty(sendVehicleBizList)) {
+            params.put("sendVehicleBizList", sendVehicleBizList);
+        }
+        return this.getSqlSession().selectList(NAMESPACE + ".sumSpecifyTaskByVehicleStatus", params);
+    }
+
     public List<JyBizTaskSendLineTypeCountDto> sumTaskByLineType(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);

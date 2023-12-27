@@ -112,6 +112,16 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         return jyBizTaskSendVehicleDao.sumTaskByVehicleStatus(entity, sendVehicleBizList);
     }
 
+    /**
+     * 待发货、发货中、待封车、已封车四个状态采用不同计划发车时间范围的任务数量统计查询语句：目前接货仓有这种特殊需求在使用
+     */
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.sumSpecifyTaskByVehicleStatus",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public List<JyBizTaskSendCountDto> sumSpecifyTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
+        return jyBizTaskSendVehicleDao.sumSpecifyTaskByVehicleStatus(entity, sendVehicleBizList);
+    }
+
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.sumTaskByLineType",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})

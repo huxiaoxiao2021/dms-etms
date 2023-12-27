@@ -1563,6 +1563,16 @@ public class UccPropertyConfiguration{
     private Integer jyWarehouseToSealPlanTimeEndHours;
 
     /**
+     * 接货仓发货岗已封车任务列表计划发车时间查询条件前X小时
+     */
+    private Integer jyWarehouseSealedPlanTimeBeginHours;
+
+    /**
+     * 接货仓发货岗已封车任务列表计划发车时间查询条件后X小时
+     */
+    private Integer jyWarehouseSealedPlanTimeEndHours;
+
+    /**
      * 接货仓发货岗任务列表创建时间查询条件前X小时
      */
     private Integer jyWarehouseTaskCreateTimeBeginHours;
@@ -4167,6 +4177,22 @@ public class UccPropertyConfiguration{
 
     public void setJyWarehouseToSealPlanTimeEndHours(Integer jyWarehouseToSealPlanTimeEndHours) {
         this.jyWarehouseToSealPlanTimeEndHours = jyWarehouseToSealPlanTimeEndHours;
+    }
+
+    public Integer getJyWarehouseSealedPlanTimeBeginHours() {
+        return jyWarehouseSealedPlanTimeBeginHours;
+    }
+
+    public void setJyWarehouseSealedPlanTimeBeginHours(Integer jyWarehouseSealedPlanTimeBeginHours) {
+        this.jyWarehouseSealedPlanTimeBeginHours = jyWarehouseSealedPlanTimeBeginHours;
+    }
+
+    public Integer getJyWarehouseSealedPlanTimeEndHours() {
+        return jyWarehouseSealedPlanTimeEndHours;
+    }
+
+    public void setJyWarehouseSealedPlanTimeEndHours(Integer jyWarehouseSealedPlanTimeEndHours) {
+        this.jyWarehouseSealedPlanTimeEndHours = jyWarehouseSealedPlanTimeEndHours;
     }
 
     public Integer getJyWarehouseTaskCreateTimeBeginHours() {

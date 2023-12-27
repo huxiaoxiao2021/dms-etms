@@ -330,6 +330,8 @@
 		<property name="jyWarehouseSendingPlanTimeEndHours" value="${jyWarehouseSendingPlanTimeEndHours:48}"/>
 		<property name="jyWarehouseToSealPlanTimeBeginHours" value="${jyWarehouseToSealPlanTimeBeginHours:24}"/>
 		<property name="jyWarehouseToSealPlanTimeEndHours" value="${jyWarehouseToSealPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseSealedPlanTimeBeginHours" value="${jyWarehouseSealedPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseSealedPlanTimeEndHours" value="${jyWarehouseSealedPlanTimeEndHours:48}"/>
 		<property name="jyWarehouseTaskCreateTimeBeginHours" value="${jyWarehouseTaskCreateTimeBeginHours:168}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -647,6 +649,8 @@
 				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeEndHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeBeginHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeEndHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseTaskCreateTimeBeginHours</value>
 			</list>
 		</property>

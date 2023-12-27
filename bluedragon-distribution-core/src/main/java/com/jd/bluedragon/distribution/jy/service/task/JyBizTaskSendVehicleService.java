@@ -70,6 +70,12 @@ public interface JyBizTaskSendVehicleService {
     List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList);
 
     /**
+     * 按状态统计发货任务数量
+     * 待发货、发货中、待封车、已封车四个状态采用不同计划发车时间范围的任务数量统计查询语句：目前接货仓有这种特殊需求在使用
+     */
+    List<JyBizTaskSendCountDto> sumSpecifyTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList);
+
+    /**
      * 按线路类型统计发货任务数量
      * @param entity
      * @param sendVehicleBizList

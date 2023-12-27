@@ -491,6 +491,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         queryTaskSendDto.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         queryTaskSendDto.setEndSiteId(request.getEndSiteId());
         queryTaskSendDto.setKeyword(request.getKeyword());
+        queryTaskSendDto.setCurrentDate(request.getCurrentDate());
         //设置默认预计发货时间查询范围
         try {
             if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeBegin())) {
@@ -1073,6 +1074,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      */
     private JyBizTaskSendVehicleEntity makeFetchCondition(QueryTaskSendDto queryTaskSendDto) {
         JyBizTaskSendVehicleEntity condition = new JyBizTaskSendVehicleEntity();
+        condition.setCurrentDate(queryTaskSendDto.getCurrentDate());
         condition.setStartSiteId(queryTaskSendDto.getStartSiteId());
         if (queryTaskSendDto.getLineType() != null) {
             condition.setLineType(queryTaskSendDto.getLineType());

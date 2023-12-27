@@ -205,9 +205,20 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 */
 	private transient Date toSealLastPlanDepartTimeEnd;
 
+	/**
+	 * 已封车状态-最晚计划发车时间 范围查找-开始时间
+	 */
+	private transient Date sealedLastPlanDepartTimeBegin;
 
+	/**
+	 * 已封车状态-最晚计划发车时间 范围查找-结束时间
+	 */
+	private transient Date sealedLastPlanDepartTimeEnd;
 
-
+	/**
+	 * 当前日期
+	 */
+	private transient Date currentDate;
 
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
@@ -571,5 +582,29 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 
 	public void setToSealLastPlanDepartTimeEnd(Date toSealLastPlanDepartTimeEnd) {
 		this.toSealLastPlanDepartTimeEnd = toSealLastPlanDepartTimeEnd;
+	}
+
+	public Date getSealedLastPlanDepartTimeBegin() {
+		return sealedLastPlanDepartTimeBegin;
+	}
+
+	public void setSealedLastPlanDepartTimeBegin(Date sealedLastPlanDepartTimeBegin) {
+		this.sealedLastPlanDepartTimeBegin = sealedLastPlanDepartTimeBegin;
+	}
+
+	public Date getSealedLastPlanDepartTimeEnd() {
+		return sealedLastPlanDepartTimeEnd;
+	}
+
+	public void setSealedLastPlanDepartTimeEnd(Date sealedLastPlanDepartTimeEnd) {
+		this.sealedLastPlanDepartTimeEnd = sealedLastPlanDepartTimeEnd;
+	}
+
+	public Date getCurrentDate() {
+		return currentDate;
+	}
+
+	public void setCurrentDate(Date currentDate) {
+		this.currentDate = currentDate;
 	}
 }
