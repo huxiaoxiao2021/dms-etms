@@ -354,4 +354,8 @@ public class TextConstants {
      * 电商特惠
      */
     public static final String PRODUCT_NAME_DSTH = "电商特惠";
+    /**
+     * 定温送增值服务显示
+     */
+    public static final String FIX_TEMPERATURE_TEXT= "定:";
 }
