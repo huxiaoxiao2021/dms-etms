@@ -1949,6 +1949,23 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	specialRequirement = specialRequirement + TextConstants.GOODS_PAYMENT_COD_FLAG + ",";
         }
         if(StringUtils.isNotBlank(waybillSign)){
+            // 产品编码
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            String productType = null;
+            if(waybillExt != null){
+                productType = waybillExt.getProductType();
+            }
+            //冷链卡班，显示定温送温度
+            if(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB.equals(productType)){
+                //定温送增值服务
+                BaseEntity<WaybillVasDto> waybillVasJXD = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybill.getWaybillCode(),DmsConstants.FIX_TEMPERATURE_RANGE);
+                if (waybillVasJXD != null && waybillVasJXD.getData() != null){
+                    Map<String, String> extendMap = waybillVasJXD.getData().getExtendMap();
+                    if(extendMap != null && extendMap.containsKey(DmsConstants.FIX_TEMPERATURE_RANGE_EXTEND) && StringUtils.isNotBlank(extendMap.get(DmsConstants.FIX_TEMPERATURE_RANGE_EXTEND))){
+                        specialRequirement = specialRequirement + "【" + TextConstants.FIX_TEMPERATURE_TEXT  + extendMap.get(DmsConstants.FIX_TEMPERATURE_RANGE_EXTEND) + "】,";
+                    }
+                }
+            }
             //签单返还
             if(BusinessUtil.isSignBack(waybillSign)){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SIGNBACK + ",";
@@ -1960,12 +1977,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             //重货上楼
             if(BusinessUtil.isSignChar(waybillSign,49,'1')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS + ",";
-            }
-            // 精准送仓
-            WaybillExt waybillExt = waybill.getWaybillExt();
-            String productType = null;
-            if(waybillExt != null){
-                productType = waybillExt.getProductType();
             }
             //精准送仓 优先于 送货入仓
             if(BusinessUtil.isColdChainKB(waybill.getWaybillSign(),productType)&& WaybillVasUtil.isJZSC(printWaybill.getWaybillVasSign())){
