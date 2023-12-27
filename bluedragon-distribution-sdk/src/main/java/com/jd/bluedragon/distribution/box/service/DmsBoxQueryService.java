@@ -2,7 +2,12 @@ package com.jd.bluedragon.distribution.box.service;
 
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
+import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
 import com.jd.bluedragon.distribution.api.response.box.BoxDto;
+import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
+import com.jd.dms.java.utils.sdk.base.Result;
+
+import java.util.List;
 
 /**
  * @author : xumigen
@@ -30,4 +35,15 @@ public interface DmsBoxQueryService {
      * @return
      */
     Boolean updateBoxStatus(BoxReq boxReq);
+
+    /**
+     * 查询箱类型
+     *
+     * @param boxTypeReq 查询箱类型入参
+     * @return 箱号类型列表
+     * @author fanggang7
+     * @time 2023-10-24 14:14:24 周二
+     */
+    Result<List<BoxTypeDto>> getBoxTypeList(BoxTypeReq boxTypeReq);
+
 }
