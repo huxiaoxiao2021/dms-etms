@@ -241,6 +241,9 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             }
             imgInfos.add(info);
         }
+        if (CollectionUtils.isEmpty(imgInfos)) {
+            return;
+        }
         SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
         AssignResponsibilityDto dto = new AssignResponsibilityDto();
         dto.setSourceSystemId(UUID.randomUUID().toString());
