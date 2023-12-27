@@ -1018,4 +1018,10 @@
         <property name="topic" value="${jmq.topic.aviationSeal}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!--装车评价不规范发送图片至质控 -->
+    <bean id="evaluateInfoToQcProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.evaluate.load.info.to.qc}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>
