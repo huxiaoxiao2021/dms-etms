@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.jd.bluedragon.distribution.jy.enums.JyUnloadVehicleStatusEnum.WAIT_UN_LOAD;
+import static com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD;
 
 @Service("jyEvaluateService")
 public class JyEvaluateServiceImpl implements JyEvaluateService {
@@ -234,7 +234,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             }
             ImgInfo info = new ImgInfo();
             info.setImgURLs(req.getImgUrlList());
-            if ((entity == null || entity.getVehicleStatus() < WAIT_UN_LOAD.getCode())) {
+            if ((entity == null || entity.getVehicleStatus() <= WAIT_UN_LOAD.getCode())) {
                 info.setImgType(EvaluateImgTypeEnum.UNLOAD_BEFORE.getCode());
             } else {
                 info.setImgType(EvaluateImgTypeEnum.UNLOAD.getCode());
