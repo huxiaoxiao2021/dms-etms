@@ -72,6 +72,10 @@ public class JyUnloadEntity implements Serializable {
     /**
      * 创建人ERP
      */
+    private Integer createUserId;
+    /**
+     * 创建人ERP
+     */
     private String createUserErp;
     /**
      * 创建人姓名
@@ -202,6 +206,14 @@ public class JyUnloadEntity implements Serializable {
 
     public Date getOperateTime() {
         return this.operateTime;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
     }
 
     public String setCreateUserErp(String createUserErp) {
