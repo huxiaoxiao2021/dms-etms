@@ -514,7 +514,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				taskData.setSiteCode(siteCode);
 				taskData.setTaskBatchCode(String.format("%s_%s_%s",configData.getTaskConfigCode(),siteCode,DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS)));
 				taskData.setExecuteTime(getExecuteTime(configData));
-				taskData.setBusinessQuotaInfoData(businessQuotaInfoDataMap.get(siteCode));
+				if(businessQuotaInfoDataMap != null && businessQuotaInfoDataMap.get(siteCode) != null){
+					taskData.setBusinessQuotaInfoData(businessQuotaInfoDataMap.get(siteCode));
+				}
 				Task tTask = taskService.findLastWorkGridManagerSiteScanTask(taskData);
 				if(tTask != null) {
 					TaskWorkGridManagerSiteScanData oldTaskData = JsonHelper.fromJson(tTask.getBody(), TaskWorkGridManagerSiteScanData.class);
