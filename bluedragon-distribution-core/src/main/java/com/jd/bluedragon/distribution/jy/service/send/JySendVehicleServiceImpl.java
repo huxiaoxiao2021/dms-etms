@@ -1470,9 +1470,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 queryDetail.setToSealLastPlanDepartTimeEnd(DateHelper.addHours(currentDate, dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeEndHours()));
                 queryDetail.setCreateTimeBegin(DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseTaskCreateTimeBeginHours()));
             }
-            //仅关注干支
-            List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
-            queryDetail.setLineTypeList(lineTypeList);
+
+            // 接货仓发货岗迁移不限制线路类型，分拣发货岗迁移只查干支
+            if (!JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
+                List<Integer> lineTypeList = Arrays.asList(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getCode());
+                queryDetail.setLineTypeList(lineTypeList);
+            }
             List<JyBizTaskSendVehicleEntity> vehiclePageList;
             // 待发货、发货中、待封车三个状态采用不同计划发车时间范围的任务列表查询语句：目前接货仓有这种特殊需求在使用
             if (JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
