@@ -224,7 +224,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.listAirportTask(req));
+            return retJdCResponse(jyAviationRailwayPickingGoodsService.listAirRailTaskSummary(req));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -248,7 +248,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.listAirportTaskAgg(req));
+            return retJdCResponse(jyAviationRailwayPickingGoodsService.listAirRailTaskAgg(req));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常

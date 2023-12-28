@@ -5,12 +5,11 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowDeleteReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowDto;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowRes;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 import java.util.List;
 
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
 
 /**
  * @Author zhengchengfa
@@ -57,4 +56,6 @@ public interface JyPickingSendDestinationService {
      * @return
      */
     boolean deleteSendFlow(SendFlowDeleteReq req);
+
+    List<JyPickingSendDestinationDetailEntity> listSendCodesByCreateSiteId(Long createSiteId, List<Long> destinationSiteId);
 }

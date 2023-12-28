@@ -75,14 +75,14 @@ public interface JyAviationRailwayPickingGoodsService {
      * @param req
      * @return
      */
-    InvokeResult<AirRailTaskRes> listAirportTask(AirRailTaskSummaryReq req);
+    InvokeResult<AirRailTaskRes> listAirRailTaskSummary(AirRailTaskSummaryReq req);
 
     /**
      * 某机场下的任务列表
      * @param req
      * @return
      */
-    InvokeResult<AirRailTaskAggRes> listAirportTaskAgg(AirRailTaskAggReq req);
+    InvokeResult<AirRailTaskAggRes> listAirRailTaskAgg(AirRailTaskAggReq req);
 
     /**
      * 是否首次扫描

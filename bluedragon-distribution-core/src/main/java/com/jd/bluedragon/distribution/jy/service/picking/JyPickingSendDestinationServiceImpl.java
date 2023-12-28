@@ -9,17 +9,13 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyPickingSendTaskEnum;
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.User;
-import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingSendDestinationDetailDao;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -243,5 +239,10 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
         entity.setUpdateUserErp(req.getUser().getUserErp());
         entity.setUpdateUserName(req.getUser().getUserName());
         return jyGroupSortCrossDetailService.deleteSendFlow(entity);
+    }
+
+    @Override
+    public List<JyPickingSendDestinationDetailEntity> listSendCodesByCreateSiteId(Long createSiteId, List<Long> destinationSiteId) {
+        return null;
     }
 }

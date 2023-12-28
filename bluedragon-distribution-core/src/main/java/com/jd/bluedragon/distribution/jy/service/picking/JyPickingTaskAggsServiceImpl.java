@@ -2,13 +2,12 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingGoodsRes;
 import com.jd.bluedragon.distribution.jy.constants.BarCodeFetchPickingTaskRuleEnum;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskSendAggsDao;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodAggsDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskStatisticsDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingSendGoodAggsDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity;
@@ -262,5 +261,18 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         return res;
     }
 
+    @Override
+    public List<JyPickingTaskAggsEntity> listTaskGroupByPickingNodeCode(JyPickingTaskGroupQueryDto queryDto) {
+        return null;
+    }
 
+    @Override
+    public List<JyPickingTaskAggsEntity> listTaskByPickingNodeCode(JyPickingTaskBatchQueryDto queryDto) {
+        return null;
+    }
+
+    @Override
+    public List<AirRailTaskCountDto> countAllStatusByPickingSiteId(Long siteId) {
+        return null;
+    }
 }

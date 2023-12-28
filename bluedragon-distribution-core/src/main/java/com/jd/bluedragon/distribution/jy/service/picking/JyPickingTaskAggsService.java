@@ -1,10 +1,14 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingGoodsRes;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskBatchQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskGroupQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingSendGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity;
 
 import java.util.List;
 
@@ -52,4 +56,10 @@ public interface JyPickingTaskAggsService {
      * @return
      */
     List<PickingSendGoodAggsDto> waitPickingInitTotalNum(List<String> bizIdList, Long siteId, Long sendNextSiteId);
+
+    List<JyPickingTaskAggsEntity> listTaskGroupByPickingNodeCode(JyPickingTaskGroupQueryDto queryDto);
+
+    List<JyPickingTaskAggsEntity> listTaskByPickingNodeCode(JyPickingTaskBatchQueryDto queryDto);
+
+    List<AirRailTaskCountDto> countAllStatusByPickingSiteId(Long siteId);
 }

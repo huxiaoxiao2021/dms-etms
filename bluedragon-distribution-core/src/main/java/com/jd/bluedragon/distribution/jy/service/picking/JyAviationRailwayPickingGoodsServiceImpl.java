@@ -13,11 +13,11 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.constants.BarCodeFetchPickingTaskRuleEnum;
 import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskBatchQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskGroupQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodScanTaskBodyDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
-import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
-import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.common.CommonService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -570,11 +571,15 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         invokeResult.setData(res);
 
         List<SendFlowDto> dtoList = jyPickingSendDestinationService.listSendFlowInfo(req);
+        res.setFlowDtoList(dtoList);
+        if (CollectionUtils.isEmpty(dtoList)) {
+            return invokeResult;
+        }
         // todo
         if (SendFlowDisplayEnum.COUNT.getCode().equals(req.getDisplayType())) {
 
         }
-        res.setFlowDtoList(dtoList);
+
         return invokeResult;
     }
 
@@ -627,12 +632,86 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
-    public InvokeResult<AirRailTaskRes> listAirportTask(AirRailTaskSummaryReq req) {
+    public InvokeResult<AirRailTaskRes> listAirRailTaskSummary(AirRailTaskSummaryReq req) {
+        InvokeResult<AirRailTaskRes> ret = new InvokeResult<>();
+        AirRailTaskRes res = new AirRailTaskRes();
+        ret.setData(res);
+        // count当前场地各个status的任务数
+        List<AirRailTaskCountDto> countDtoList = jyPickingTaskAggsService.countAllStatusByPickingSiteId((long) req.getCurrentOperate().getSiteCode());
+        if (CollectionUtils.isEmpty(countDtoList)) {
+            return ret;
+        }
+        // 按机场先逻辑分页
+        JyPickingTaskGroupQueryDto groupQueryDto = buildGroupQueryDto(req);
+        List<JyPickingTaskAggsEntity> groupByTask = jyPickingTaskAggsService.listTaskGroupByPickingNodeCode(groupQueryDto);
+        if (CollectionUtils.isEmpty(groupByTask)) {
+            return ret;
+        }
+        // 查询明细计算数据
+        JyPickingTaskBatchQueryDto batchQueryDto = buildBatchQueryDto(req, groupByTask);
+        List<JyPickingTaskAggsEntity> taskDetail = jyPickingTaskAggsService.listTaskByPickingNodeCode(batchQueryDto);
+        calculateResponse(res, countDtoList, taskDetail);
+
         return null;
     }
 
+    private JyPickingTaskGroupQueryDto buildGroupQueryDto(AirRailTaskSummaryReq req) {
+        JyPickingTaskGroupQueryDto queryDto = new JyPickingTaskGroupQueryDto();
+        queryDto.setPickingSiteId((long) req.getCurrentOperate().getSiteCode());
+        queryDto.setStatus(req.getStatus());
+        queryDto.setTaskType(req.getTaskType());
+        queryDto.setPageSize(req.getPageSize());
+        queryDto.setPageNum(req.getPageNum());
+        return queryDto;
+    }
+
+    private JyPickingTaskBatchQueryDto buildBatchQueryDto(AirRailTaskSummaryReq req, List<JyPickingTaskAggsEntity> groupByTask) {
+        JyPickingTaskBatchQueryDto queryDto = new JyPickingTaskBatchQueryDto();
+        queryDto.setPickingSiteId((long) req.getCurrentOperate().getSiteCode());
+        queryDto.setStatus(req.getStatus());
+        queryDto.setTaskType(req.getTaskType());
+
+        List<String> pickingNodeCodes = groupByTask.stream().map(JyPickingTaskAggsEntity::getPickingNodeCode).distinct().collect(Collectors.toList());
+        queryDto.setPickingNodeCodeList(pickingNodeCodes);
+        return queryDto;
+    }
+
+    private void calculateResponse(AirRailTaskRes res, List<AirRailTaskCountDto> countDtoList, List<JyPickingTaskAggsEntity> taskDetail) {
+        res.setCountDtoList(countDtoList);
+        Map<String, List<JyPickingTaskAggsEntity>> taskGroupByPickingNodeCode = taskDetail.stream().collect(Collectors.groupingBy(JyPickingTaskAggsEntity::getPickingNodeCode));
+        List<AirRailDto> airRailDtoList = new ArrayList<>();
+        for (List<JyPickingTaskAggsEntity> taskList : taskGroupByPickingNodeCode.values()) {
+            AirRailDto airRailDto = new AirRailDto();
+            // 待提航班/车次任务数
+            int waitScanTaskNum = taskDetail.size();
+            // 是否无任务分组
+            Boolean noTaskFlag;
+
+            // 待提总件数
+            int waitScanTotal = 0;
+
+            // 已提总件数
+            int haveScannedTotal = 0;
+
+            // 多提总件数
+            int multipleScanTotal = 0;
+            for (JyPickingTaskAggsEntity task : taskList) {
+                waitScanTotal += task.getWaitScanTotalCount();
+                haveScannedTotal += task.getScanTotalCount();
+                multipleScanTotal += task.getMoreScanTotalCount();
+            }
+            airRailDto.setWaitScanTaskNum(waitScanTaskNum);
+            airRailDto.setWaitScanTotal(waitScanTotal);
+            airRailDto.setHaveScannedTotal(haveScannedTotal);
+            airRailDto.setMultipleScanTotal(multipleScanTotal);
+
+            airRailDtoList.add(airRailDto);
+        }
+        res.setAirRailDtoList(airRailDtoList);
+    }
+
     @Override
-    public InvokeResult<AirRailTaskAggRes> listAirportTaskAgg(AirRailTaskAggReq req) {
+    public InvokeResult<AirRailTaskAggRes> listAirRailTaskAgg(AirRailTaskAggReq req) {
         return null;
     }
 
