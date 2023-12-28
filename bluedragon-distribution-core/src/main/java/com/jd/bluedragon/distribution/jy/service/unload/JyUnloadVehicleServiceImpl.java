@@ -1019,6 +1019,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             unloadScanDto.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
         }
         unloadScanDto.setOperateTime(operateTime);
+        unloadScanDto.setCreateUserId(request.getUser().getUserCode());
         unloadScanDto.setCreateUserErp(request.getUser().getUserErp());
         unloadScanDto.setCreateUserName(request.getUser().getUserName());
         unloadScanDto.setUpdateUserErp(request.getUser().getUserErp());
