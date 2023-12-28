@@ -403,8 +403,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(inspectionVO.getSiteCode());
         inspectionVO.setSiteName(baseSite != null ? baseSite.getSiteName() : StringUtils.EMPTY);
 
-        final OperatorData operatorData = unloadScanDto.getOperatorData();
-        inspectionVO.setUserCode(NumberHelper.isNumber(operatorData.getOperatorId()) ? Integer.parseInt(operatorData.getOperatorId()) : 0);
+        inspectionVO.setUserCode(unloadScanDto.getCreateUserId());
         inspectionVO.setUserName(unloadScanDto.getCreateUserName());
 
         inspectionVO.setOperateTime(DateHelper.formatDateTime(unloadScanDto.getOperateTime()));
