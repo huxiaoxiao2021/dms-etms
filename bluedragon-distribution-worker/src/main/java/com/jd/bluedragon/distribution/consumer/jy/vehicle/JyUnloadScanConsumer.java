@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
@@ -29,6 +30,7 @@ import com.jd.bluedragon.distribution.transport.enums.StopoverSiteUnloadAndLoadT
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
@@ -401,8 +403,8 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(inspectionVO.getSiteCode());
         inspectionVO.setSiteName(baseSite != null ? baseSite.getSiteName() : StringUtils.EMPTY);
 
-        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(unloadScanDto.getCreateUserErp());
-        inspectionVO.setUserCode(baseStaff != null ? baseStaff.getStaffNo() : 0);
+        final OperatorData operatorData = unloadScanDto.getOperatorData();
+        inspectionVO.setUserCode(NumberHelper.isNumber(operatorData.getOperatorId()) ? Integer.parseInt(operatorData.getOperatorId()) : 0);
         inspectionVO.setUserName(unloadScanDto.getCreateUserName());
 
         inspectionVO.setOperateTime(DateHelper.formatDateTime(unloadScanDto.getOperateTime()));
