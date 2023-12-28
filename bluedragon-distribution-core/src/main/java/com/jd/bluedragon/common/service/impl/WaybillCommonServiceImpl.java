@@ -1956,7 +1956,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 productType = waybillExt.getProductType();
             }
             //冷链卡班，显示定温送温度
-            if(WaybillVasUtil.isContainsVos(WaybillVasUtil.WaybillVasEnum.FIX_TEMPERATURE_RANGE,printWaybill.getWaybillVasSign())){
+            if(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB.equals(productType) &&
+                    WaybillVasUtil.isContainsVos(WaybillVasUtil.WaybillVasEnum.FIX_TEMPERATURE_RANGE,printWaybill.getWaybillVasSign())){
                 //定温送增值服务
                 BaseEntity<WaybillVasDto> waybillVasJXD = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybill.getWaybillCode(),WaybillVasUtil.WaybillVasEnum.FIX_TEMPERATURE_RANGE.getVasCode());
                 if (waybillVasJXD != null && waybillVasJXD.getData() != null){
