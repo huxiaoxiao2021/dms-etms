@@ -1803,6 +1803,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         sendRequest.setOperatorTypeCode(sendM.getOperatorTypeCode());
         sendRequest.setOperatorData(sendM.getOperatorData());
         sendRequest.setIsForceSend(request.getForceSubmit());
+        sendRequest.setCycleBoxCode(request.getMaterialCode());
         if (SendKeyTypeEnum.BY_WAYBILL.equals(sendType)) {
             // 按运单发货 客户端存在按包裹号传入的场景需要转换成运单
             sendRequest.setBarCode(WaybillUtil.getWaybillCode(sendM.getBoxCode()));
