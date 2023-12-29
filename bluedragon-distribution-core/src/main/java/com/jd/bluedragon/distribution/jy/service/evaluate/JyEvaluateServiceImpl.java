@@ -226,17 +226,19 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         }
 
         List<ImgInfo> imgInfos = new ArrayList<>();
-        ImgInfo info = new ImgInfo();
+        List<String> imgUrls = new ArrayList<>();
         for (EvaluateDimensionReq req : request.getDimensionList()) {
             if (!Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_600.getCode())
                     && !Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_800.getCode())) {
                 continue;
             }
-            info.setImgURLs(req.getImgUrlList());
+            imgUrls.addAll(req.getImgUrlList());
         }
-        if (CollectionUtils.isEmpty(info.getImgURLs())) {
+        if (CollectionUtils.isEmpty(imgUrls)) {
             return;
         }
+        ImgInfo info = new ImgInfo();
+        info.setImgURLs(imgUrls);
         JyBizTaskUnloadVehicleEntity entity = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
         if ((entity == null || entity.getVehicleStatus() <= WAIT_UN_LOAD.getCode())) {
             info.setImgType(EvaluateImgTypeEnum.UNLOAD_BEFORE.getCode());
