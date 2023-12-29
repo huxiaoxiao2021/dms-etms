@@ -225,25 +225,26 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             return;
         }
 
-        JyBizTaskUnloadVehicleEntity entity = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
         List<ImgInfo> imgInfos = new ArrayList<>();
+        ImgInfo info = new ImgInfo();
         for (EvaluateDimensionReq req : request.getDimensionList()) {
             if (!Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_600.getCode())
                     && !Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_800.getCode())) {
                 continue;
             }
-            ImgInfo info = new ImgInfo();
             info.setImgURLs(req.getImgUrlList());
-            if ((entity == null || entity.getVehicleStatus() <= WAIT_UN_LOAD.getCode())) {
-                info.setImgType(EvaluateImgTypeEnum.UNLOAD_BEFORE.getCode());
-            } else {
-                info.setImgType(EvaluateImgTypeEnum.UNLOAD.getCode());
-            }
-            imgInfos.add(info);
         }
-        if (CollectionUtils.isEmpty(imgInfos)) {
+        if (CollectionUtils.isEmpty(info.getImgURLs())) {
             return;
         }
+        JyBizTaskUnloadVehicleEntity entity = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
+        if ((entity == null || entity.getVehicleStatus() <= WAIT_UN_LOAD.getCode())) {
+            info.setImgType(EvaluateImgTypeEnum.UNLOAD_BEFORE.getCode());
+        } else {
+            info.setImgType(EvaluateImgTypeEnum.UNLOAD.getCode());
+        }
+        imgInfos.add(info);
+
         SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
         AssignResponsibilityDto dto = new AssignResponsibilityDto();
         dto.setSourceSystemId(UUID.randomUUID().toString());
