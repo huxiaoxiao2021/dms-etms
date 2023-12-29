@@ -172,7 +172,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             // 发送报表加工异步消息
             sendEvaluateMQ(request, targetInitDto);
             // 发送图片数据给质控
-            sendAssignResponsibilityMQ(request, targetInitDto);
+            sendAssignResponsibilityMQ(request);
         } finally {
             unLock(request.getSourceBizId());
         }
@@ -197,7 +197,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             // 发送报表加工异步消息
             sendEvaluateMQ(request, targetInitDto);
             // 发送图片数据给质控
-            sendAssignResponsibilityMQ(request, targetInitDto);
+            sendAssignResponsibilityMQ(request);
         } finally {
             unLock(request.getSourceBizId());
         }
@@ -220,7 +220,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         evaluateTargetInitProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetInitDto));
     }
 
-    private void sendAssignResponsibilityMQ(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto) {
+    private void sendAssignResponsibilityMQ(EvaluateTargetReq request) {
         if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus()) || CollectionUtils.isEmpty(request.getDimensionList())) {
             return;
         }
@@ -248,11 +248,11 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         AssignResponsibilityDto dto = new AssignResponsibilityDto();
         dto.setSourceSystemId(UUID.randomUUID().toString());
         dto.setSourceSystem(SOURCE_SYSTEM);
-        dto.setLoadSiteCode(String.valueOf(targetInitDto.getTargetSiteCode()));
-        dto.setLoadSiteName(targetInitDto.getTargetSiteName());
+        dto.setLoadSiteCode(String.valueOf(sealCarDto.getStartSiteId()));
+        dto.setLoadSiteName(sealCarDto.getStartSiteName());
         dto.setUnloadSiteCode(String.valueOf(request.getCurrentOperate().getSiteCode()));
         dto.setUnloadSiteName(request.getCurrentOperate().getSiteName());
-        dto.setBatchCodes(sealCarDto == null ? new ArrayList<>() : sealCarDto.getBatchCodes());
+        dto.setBatchCodes(sealCarDto.getBatchCodes());
         dto.setLink(LINK_UNLOAD);
         dto.setEvaluatorErp(request.getUser().getUserErp());
         dto.setEvaluateTime(new Date());
