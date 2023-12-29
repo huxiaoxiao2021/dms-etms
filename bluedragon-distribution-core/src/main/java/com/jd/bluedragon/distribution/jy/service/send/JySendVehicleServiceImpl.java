@@ -1694,9 +1694,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 result.setMessage(response.getMessage());
                 result.setMsgBoxes(response.getMsgBoxes());
                 //返回错误信息
-                if(!response.codeSuccess()
-                        || !(CollectionUtils.isEmpty(result.getMsgBoxes()))){
-                    result.toBizError();
+                if(!response.codeSuccess()){
                     return result;
                 }
             }else{

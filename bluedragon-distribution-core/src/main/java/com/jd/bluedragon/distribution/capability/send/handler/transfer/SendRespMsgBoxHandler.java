@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.distribution.capability.send.domain.SendOfCAContext;
 import com.jd.bluedragon.distribution.capability.send.handler.SendDimensionStrategyHandler;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -52,6 +53,10 @@ public class SendRespMsgBoxHandler extends SendDimensionStrategyHandler {
             response.addWarningBox(sendResult.getKey(), sendResult.getValue());
         }
 
+        //返回错误信息统一处理 如果当消息盒子中有值的时候，response的code要转换成失败code编码。如果需要自定义code编码的不会覆盖
+        if( response.codeSuccess() && !(CollectionUtils.isEmpty(response.getMsgBoxes()))){
+            response.toBizError();
+        }
         return true;
     }
 }
