@@ -251,4 +251,12 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".pageFindDetailSendTaskByCondition", params);
     }
 
+    public List<String> findSpecifyStatusManualTaskByStayOverTime(JyBizTaskSendVehicleDetailQueryEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findSpecifyStatusManualTaskByStayOverTime", entity);
+    }
+
+    public int batchUpdateByBizIds(JyBizTaskSendVehicleDetailQueryEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".batchUpdateByBizIds", entity);
+    }
+
 }

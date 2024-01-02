@@ -1028,5 +1028,38 @@
         ) t
     </select>
 
+    <select id="findSpecifyStatusManualTaskByStayOverTime" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity" resultType="java.lang.String">
+        select
+            biz_id
+        from jy_biz_task_send_vehicle
+        where manual_created_flag = #{manualCreatedFlag}
+          and vehicle_status = #{vehicleStatus}
+          and bind_flag = #{bindFlag}
+          and yn = 1
+          and  <![CDATA[ create_time < #{createTime,jdbcType=TIMESTAMP} ]]>
+        limit #{pageSize,jdbcType=INTEGER}
+    </select>
+
+    <update id="batchUpdateByBizIds" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity">
+        update jy_biz_task_send_vehicle
+        <trim prefix="set" suffixOverrides=",">
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="yn != null">
+                yn = #{yn},
+            </if>
+        </trim>
+        where yn = 1 and biz_id in
+        <foreach collection="bizIdList" item="item" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </update>
 
 </mapper>
