@@ -112,7 +112,7 @@
 			<artifactId>erp.ql.station-api</artifactId>
 			<version>1.0.1-printcheck-20210426.063930-1</version>
 		</dependency>
-
+ 
 		<dependency>
 			<groupId>com.jd.rd.unpack</groupId>
 			<artifactId>unpack-jsf</artifactId>
@@ -248,7 +248,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.5.4-SNAPSHOT</version>
+			<version>1.5.5-SNAPSHOT</version>
 		</dependency>
 <!--		积分-->
 		<dependency>
@@ -277,7 +277,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.7.7-SNAPSHOT</version>
+            <version>1.7.8-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>

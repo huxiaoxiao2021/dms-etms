@@ -491,6 +491,10 @@ public class UccPropertyConfiguration{
      * 获取异常完结数据范围限制天数
      */
     private int completeExpDayNumLimit;
+    /**
+     * 找货通知默认消息发送人
+     */
+    private String findGoodSendMessageDefaultErp;
 
     public boolean isPrintCompeteAllPackageUpdateCancel() {
         return printCompeteAllPackageUpdateCancel;
@@ -1885,6 +1889,17 @@ public class UccPropertyConfiguration{
 
 
     private Double jyAviationManualCreateSendTaskMaxBookingWeight;
+
+    /**
+     * 箱号类型判断终端站点类型
+     */
+    private String terminalSiteTypeForBoxType;
+    private List<Integer> terminalSiteTypeListForBoxType = new ArrayList<>();
+
+    /**
+     * 箱号类型新版切换开关
+     */
+    private boolean boxTypeNewVersionSwitch;
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -3567,6 +3582,7 @@ public class UccPropertyConfiguration{
             final String[] split = dpSpringSiteCode.split(Constants.SEPARATOR_COMMA);
             dpSpringSiteCodeList = Arrays.asList(split);
         }
+        this.dpSpringSiteCodeList.clear();
         for (String siteCodeStr : dpSpringSiteCodeList) {
             this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
         }
@@ -4129,6 +4145,48 @@ public class UccPropertyConfiguration{
 
     public void setJyAviationManualCreateSendTaskMaxBookingWeight(Double jyAviationManualCreateSendTaskMaxBookingWeight) {
         this.jyAviationManualCreateSendTaskMaxBookingWeight = jyAviationManualCreateSendTaskMaxBookingWeight;
+    }
+
+    public String getFindGoodSendMessageDefaultErp() {
+        return findGoodSendMessageDefaultErp;
+    }
+
+    public void setFindGoodSendMessageDefaultErp(String findGoodSendMessageDefaultErp) {
+        this.findGoodSendMessageDefaultErp = findGoodSendMessageDefaultErp;
+    }
+
+    public String getTerminalSiteTypeForBoxType() {
+        return terminalSiteTypeForBoxType;
+    }
+
+    public void setTerminalSiteTypeForBoxType(String terminalSiteTypeForBoxType) {
+        this.terminalSiteTypeForBoxType = terminalSiteTypeForBoxType;
+        this.setTerminalSiteTypeListForBoxType();
+    }
+
+    public List<Integer> getTerminalSiteTypeListForBoxType() {
+        return terminalSiteTypeListForBoxType;
+    }
+
+    public void setTerminalSiteTypeListForBoxType() {
+        List<String> terminalSiteTypeList = new ArrayList<>();
+        if(StringUtils.isNotBlank(terminalSiteTypeForBoxType)){
+            final String[] split = terminalSiteTypeForBoxType.split(Constants.SEPARATOR_COMMA);
+            terminalSiteTypeList = Arrays.asList(split);
+        }
+        this.terminalSiteTypeListForBoxType.clear();
+        for (String siteCodeStr : terminalSiteTypeList) {
+            this.terminalSiteTypeListForBoxType.add(Integer.valueOf(siteCodeStr));
+        }
+    }
+
+    public boolean getBoxTypeNewVersionSwitch() {
+        return boxTypeNewVersionSwitch;
+    }
+
+    public UccPropertyConfiguration setBoxTypeNewVersionSwitch(boolean boxTypeNewVersionSwitch) {
+        this.boxTypeNewVersionSwitch = boxTypeNewVersionSwitch;
+        return this;
     }
 
     public Integer getJyWarehouseToSendPlanTimeBeginHours() {

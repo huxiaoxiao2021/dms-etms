@@ -514,7 +514,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				taskData.setSiteCode(siteCode);
 				taskData.setTaskBatchCode(String.format("%s_%s_%s",configData.getTaskConfigCode(),siteCode,DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS)));
 				taskData.setExecuteTime(getExecuteTime(configData));
-				taskData.setBusinessQuotaInfoData(businessQuotaInfoDataMap.get(siteCode));
+				if(businessQuotaInfoDataMap != null && businessQuotaInfoDataMap.get(siteCode) != null){
+					taskData.setBusinessQuotaInfoData(businessQuotaInfoDataMap.get(siteCode));
+				}
 				Task tTask = taskService.findLastWorkGridManagerSiteScanTask(taskData);
 				if(tTask != null) {
 					TaskWorkGridManagerSiteScanData oldTaskData = JsonHelper.fromJson(tTask.getBody(), TaskWorkGridManagerSiteScanData.class);
@@ -879,6 +881,11 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 					break;
 				}
 			}
+			if (result.contains(user.getUserErp())){
+				logger.info("任务taskConfigCode"+taskConfigCode+"分配erp："+user.getUserErp()+"满足排班");
+			}else{
+				logger.info("任务taskConfigCode"+taskConfigCode+"分配erp："+user.getUserErp()+"不满足排班");
+			}
 		}
 		return result;
 	}
@@ -900,7 +907,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		LocalDateTime startDateTime2 = LocalDateTime.of(date2, startTime2);
 		LocalDateTime endDateTime2 = LocalDateTime.of(date2, endTime2);
 
-		if (!startDateTime2.isAfter(endDateTime2)) {
+		if (!startDateTime2.isBefore(endDateTime2)) {
 			endDateTime2 = endDateTime2.plusDays(1);
 		}
 

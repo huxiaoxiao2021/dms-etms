@@ -324,6 +324,9 @@
 		<property name="czSealCarBoardCountMinLimit" value="${czSealCarBoardCountMinLimit:4}"/>
 		<property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
 		<property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:10000}"/>
+		<property name="findGoodSendMessageDefaultErp" value="${findGoodSendMessageDefaultErp:''}"/>
+		<property name="terminalSiteTypeForBoxType" value="${terminalSiteTypeForBoxType:4,10}"/>
+		<property name="boxTypeNewVersionSwitch" value="${boxTypeNewVersionSwitch:false}"/>
 		<property name="jyWarehouseToSendPlanTimeBeginHours" value="${jyWarehouseToSendPlanTimeBeginHours:24}"/>
 		<property name="jyWarehouseToSendPlanTimeEndHours" value="${jyWarehouseToSendPlanTimeEndHours:48}"/>
 		<property name="jyWarehouseSendingPlanTimeBeginHours" value="${jyWarehouseSendingPlanTimeBeginHours:24}"/>
@@ -643,6 +646,9 @@
 				<value>uccPropertyConfiguration.czSealCarBoardCountMinLimit</value>
 				<value>uccPropertyConfiguration.czSealCarPackageCountMinLimit</value>
 				<value>uccPropertyConfiguration.jyAviationManualCreateSendTaskMaxBookingWeight</value>
+				<value>uccPropertyConfiguration.findGoodSendMessageDefaultErp</value>
+				<value>uccPropertyConfiguration.terminalSiteTypeForBoxType</value>
+				<value>uccPropertyConfiguration.boxTypeNewVersionSwitch</value>
 				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeBeginHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeEndHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeBeginHours</value>
