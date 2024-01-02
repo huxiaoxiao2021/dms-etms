@@ -653,12 +653,12 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             return ret;
         }
         // 查询统计数据
-        List<String> bizList = taskDetail.stream().map(JyBizTaskPickingGoodEntity::getBizId).collect(Collectors.toList());
+        List<String> bizList = taskDetail.stream().map(JyBizTaskPickingGoodEntity::getBizId).distinct().collect(Collectors.toList());
         List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.waitPickingInitTotalNum(bizList, currentSiteId, null);
         // 计算统计总和
         calculateResponse(res, countDtoList, taskDetail, aggsDtoList);
 
-        return null;
+        return ret;
     }
 
     private JyPickingTaskGroupQueryDto buildGroupQueryDto(AirRailTaskSummaryReq req) {
