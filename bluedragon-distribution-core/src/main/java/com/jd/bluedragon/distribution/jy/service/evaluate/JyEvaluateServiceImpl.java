@@ -6,11 +6,15 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.Evaluat
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
+import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.JyEvaluateDimensionEnum;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
+import com.jd.bluedragon.distribution.jy.dto.evaluate.AssignResponsibilityDto;
+import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateImgTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateTargetInitDto;
+import com.jd.bluedragon.distribution.jy.dto.evaluate.ImgInfo;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateDimensionEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -18,6 +22,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -31,6 +36,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD;
 
 @Service("jyEvaluateService")
 public class JyEvaluateServiceImpl implements JyEvaluateService {
@@ -64,6 +71,15 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
      */
     private static final String EVALUATE_INIT_BUSINESS_KEY = "INIT";
 
+    /**
+     * 环节-卸车
+     */
+    private static final Integer LINK_UNLOAD = 2;
+    /**
+     * 分拣系统标识
+     */
+    private static final Integer SOURCE_SYSTEM = 3;
+
 
     @Autowired
     private JyEvaluateDimensionDao jyEvaluateDimensionDao;
@@ -79,7 +95,9 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     private DefaultJMQProducer evaluateTargetInitProducer;
     @Autowired
     private DmsConfigManager dmsConfigManager;
-
+    @Autowired
+    @Qualifier("evaluateInfoToQcProducer")
+    private DefaultJMQProducer evaluateInfoToQcProducer;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.dimensionOptions", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -153,6 +171,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             jyEvaluateCommonService.saveEvaluateInfo(recordList);
             // 发送报表加工异步消息
             sendEvaluateMQ(request, targetInitDto);
+            // 发送图片数据给质控
+            sendAssignResponsibilityMQ(request);
         } finally {
             unLock(request.getSourceBizId());
         }
@@ -176,6 +196,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             jyEvaluateCommonService.saveEvaluateInfo(recordList);
             // 发送报表加工异步消息
             sendEvaluateMQ(request, targetInitDto);
+            // 发送图片数据给质控
+            sendAssignResponsibilityMQ(request);
         } finally {
             unLock(request.getSourceBizId());
         }
@@ -196,6 +218,51 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         String businessId = request.getSourceBizId() + Constants.UNDER_LINE + EVALUATE_INIT_BUSINESS_KEY
                 + Constants.UNDER_LINE + targetInitDto.getOperateTime();
         evaluateTargetInitProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetInitDto));
+    }
+
+    private void sendAssignResponsibilityMQ(EvaluateTargetReq request) {
+        if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus()) || CollectionUtils.isEmpty(request.getDimensionList())) {
+            return;
+        }
+
+        List<ImgInfo> imgInfos = new ArrayList<>();
+        List<String> imgUrls = new ArrayList<>();
+        for (EvaluateDimensionReq req : request.getDimensionList()) {
+            if (!Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_600.getCode())
+                    && !Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_800.getCode())) {
+                continue;
+            }
+            imgUrls.addAll(req.getImgUrlList());
+        }
+        if (CollectionUtils.isEmpty(imgUrls)) {
+            return;
+        }
+        ImgInfo info = new ImgInfo();
+        info.setImgURLs(imgUrls);
+        JyBizTaskUnloadVehicleEntity entity = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
+        if ((entity == null || entity.getVehicleStatus() <= WAIT_UN_LOAD.getCode())) {
+            info.setImgType(EvaluateImgTypeEnum.UNLOAD_BEFORE.getCode());
+        } else {
+            info.setImgType(EvaluateImgTypeEnum.UNLOAD.getCode());
+        }
+        imgInfos.add(info);
+
+        SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
+        AssignResponsibilityDto dto = new AssignResponsibilityDto();
+        dto.setSourceSystemId(UUID.randomUUID().toString());
+        dto.setSourceSystem(SOURCE_SYSTEM);
+        dto.setLoadSiteCode(String.valueOf(sealCarDto.getStartSiteId()));
+        dto.setLoadSiteName(sealCarDto.getStartSiteName());
+        dto.setUnloadSiteCode(String.valueOf(request.getCurrentOperate().getSiteCode()));
+        dto.setUnloadSiteName(request.getCurrentOperate().getSiteName());
+        dto.setBatchCodes(sealCarDto.getBatchCodes());
+        dto.setLink(LINK_UNLOAD);
+        dto.setEvaluatorErp(request.getUser().getUserErp());
+        dto.setEvaluateTime(new Date());
+        dto.setScCode(request.getSourceBizId());
+        dto.setImgInfos(imgInfos);
+
+        evaluateInfoToQcProducer.sendOnFailPersistent(dto.getSourceSystemId(), JsonHelper.toJson(dto));
     }
 
     private void checkEvaluateValidity(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto) {
