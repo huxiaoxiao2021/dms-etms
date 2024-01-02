@@ -11,11 +11,24 @@ public class DeleteVehicleTaskReq extends BaseReq implements Serializable {
      */
     private String bizId;
 
+    /**
+     * 是否取消发货
+     */
+    private Boolean cancelSendFlag;
+
     public String getBizId() {
         return bizId;
     }
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public Boolean getCancelSendFlag() {
+        return cancelSendFlag;
+    }
+
+    public void setCancelSendFlag(Boolean cancelSendFlag) {
+        this.cancelSendFlag = cancelSendFlag;
     }
 }

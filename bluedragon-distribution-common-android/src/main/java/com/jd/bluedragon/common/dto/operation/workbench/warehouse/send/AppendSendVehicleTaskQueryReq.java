@@ -35,6 +35,10 @@ public class AppendSendVehicleTaskQueryReq extends BaseReq implements Serializab
      */
     private Date lastPlanDepartTimeEnd;
 
+    /**
+     * 创建时间 范围查找-开始时间
+     */
+    private Date createTimeBegin;
 
     public String getKeyword() {
         return keyword;
@@ -82,5 +86,13 @@ public class AppendSendVehicleTaskQueryReq extends BaseReq implements Serializab
 
     public void setLastPlanDepartTimeEnd(Date lastPlanDepartTimeEnd) {
         this.lastPlanDepartTimeEnd = lastPlanDepartTimeEnd;
+    }
+
+    public Date getCreateTimeBegin() {
+        return createTimeBegin;
+    }
+
+    public void setCreateTimeBegin(Date createTimeBegin) {
+        this.createTimeBegin = createTimeBegin;
     }
 }
