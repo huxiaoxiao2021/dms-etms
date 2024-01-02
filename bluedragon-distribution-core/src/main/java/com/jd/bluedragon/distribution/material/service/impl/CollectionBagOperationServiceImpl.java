@@ -76,7 +76,7 @@ public class CollectionBagOperationServiceImpl extends AbstractMaterialBaseServi
 
         List<Message> messages = Lists.newArrayListWithExpectedSize(materialSends.size());
         for (DmsMaterialSend send : materialSends) {
-            BoxMaterialRelationMQ mqBody = getMqBody(BoxMaterialRelationEnum.SEND_BAG, send.getMaterialCode(), send.getCreateUserName(), send.getCreateSiteCode(), operateTime);
+            BoxMaterialRelationMQ mqBody = getMqBody(BoxMaterialRelationEnum.SEND_BAG, send, operateTime);
             mqBody.setReceiveSiteCode(receiveSiteCode);
             mqBody.setReceiveSiteName(siteName);
             messages.add(makeMQMessage(mqBody));
@@ -91,7 +91,7 @@ public class CollectionBagOperationServiceImpl extends AbstractMaterialBaseServi
         List<Message> messages = Lists.newArrayListWithExpectedSize(receives.size());
         Date operateTime = new Date();
         for (DmsMaterialReceive receive : receives) {
-            BoxMaterialRelationMQ mqBody = getMqBody(BoxMaterialRelationEnum.RECEIVE_BAG, receive.getMaterialCode(), receive.getCreateUserName(), receive.getCreateSiteCode(), operateTime);
+            BoxMaterialRelationMQ mqBody = getMqBody(BoxMaterialRelationEnum.RECEIVE_BAG, receive, operateTime);
             messages.add(makeMQMessage(mqBody));
         }
 
@@ -100,13 +100,25 @@ public class CollectionBagOperationServiceImpl extends AbstractMaterialBaseServi
         return Boolean.TRUE;
     }
 
-    private BoxMaterialRelationMQ getMqBody(BoxMaterialRelationEnum enumType, String materialCode, String userName, Long siteCode, Date operateTime) {
+    private BoxMaterialRelationMQ getMqBody(BoxMaterialRelationEnum enumType, DmsMaterialSend dmsMaterialSend, Date operateTime) {
         BoxMaterialRelationMQ mqBody = new BoxMaterialRelationMQ();
-        mqBody.setMaterialCode(materialCode);
+        mqBody.setMaterialCode(dmsMaterialSend.getMaterialCode());
         mqBody.setBusinessType(enumType.getType());
-        mqBody.setOperatorCode(0);
-        mqBody.setOperatorName(userName);
-        mqBody.setSiteCode(String.valueOf(siteCode));
+        mqBody.setOperatorCode(dmsMaterialSend.getCreateUserId());
+        mqBody.setOperatorName(dmsMaterialSend.getCreateUserName());
+        mqBody.setSiteCode(String.valueOf(dmsMaterialSend.getCreateSiteCode()));
+        mqBody.setOperatorTime(operateTime);
+
+        return mqBody;
+    }
+
+    private BoxMaterialRelationMQ getMqBody(BoxMaterialRelationEnum enumType, DmsMaterialReceive receive, Date operateTime) {
+        BoxMaterialRelationMQ mqBody = new BoxMaterialRelationMQ();
+        mqBody.setMaterialCode(receive.getMaterialCode());
+        mqBody.setBusinessType(enumType.getType());
+        mqBody.setOperatorCode(receive.getCreateUserId());
+        mqBody.setOperatorName(receive.getCreateUserName());
+        mqBody.setSiteCode(String.valueOf(receive.getCreateSiteCode()));
         mqBody.setOperatorTime(operateTime);
 
         return mqBody;

@@ -841,7 +841,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
         //删除任务-发货绑定关系+取消发货
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(deleteVehicleTaskReq.getBizId());
-        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size() > 0) {
+        // 是否需要取消发货
+        boolean cancelSendFlag = deleteVehicleTaskReq.getCancelSendFlag() == null || Boolean.TRUE.equals(deleteVehicleTaskReq.getCancelSendFlag());
+        if (cancelSendFlag && ObjectHelper.isNotNull(sendCodeList) && !sendCodeList.isEmpty()) {
             JySendCodeDto dto = new JySendCodeDto();
             dto.setSendVehicleBizId(deleteVehicleTaskReq.getBizId());
             dto.setUpdateUserErp(deleteVehicleTaskReq.getUser().getUserErp());
