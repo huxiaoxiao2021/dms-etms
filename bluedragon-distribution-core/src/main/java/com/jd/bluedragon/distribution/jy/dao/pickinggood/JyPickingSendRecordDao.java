@@ -50,6 +50,12 @@ public class JyPickingSendRecordDao extends BaseDao<JyPickingSendRecordEntity> {
     public int updatePickingGoodRecordByWaitScanCode(JyPickingSendRecordEntity updateEntity) {
         return this.getSqlSession().update(NAMESPACE + ".updatePickingGoodRecordByWaitScanCode", updateEntity);
     }
+
+    public JyPickingSendRecordEntity fetchByPackageCodeAndBizId(JyPickingSendRecordEntity recordEntity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".latestPickingRecord", recordEntity);
+    }
+
+
 //
 //    int deleteByPrimaryKey(Long id);
 //

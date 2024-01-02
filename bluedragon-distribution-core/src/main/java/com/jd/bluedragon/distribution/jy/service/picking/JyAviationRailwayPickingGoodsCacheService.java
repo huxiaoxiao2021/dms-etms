@@ -32,6 +32,10 @@ public class JyAviationRailwayPickingGoodsCacheService {
     private static final String CACHE_PICKING_TASK_FIRST_SCAN_PRE = "cache:picking:first:scan:%s:%s";
     private static final Integer CACHE_PICKING_TASK_FIRST_SCAN_PRE_TIMEOUT_HOURS = 12;
 
+    private static final String LOCK_PICKING_DETAIL_RECORD_INIT_PRE = "lock:picking:detail:init:%s:%s:%s";
+    private static final Integer LOCK_PICKING_DETAIL_RECORD_INIT_PRE_TIMEOUT_SECONDS = 120;
+
+
     @Autowired
     private JimDbLock jimDbLock;
     @Qualifier("redisClientOfJy")
@@ -114,6 +118,24 @@ public class JyAviationRailwayPickingGoodsCacheService {
         return String.format(CACHE_PICKING_TASK_FIRST_SCAN_PRE, bizId, siteId);
     }
 
+    /**
+     * 提货明细初始化锁 场地+bizId+barCode
+     * @param siteId
+     * @param bizId
+     * @param barCode
+     * @return
+     */
+    public boolean lockPickingGoodDetailRecordInit(Long siteId, String bizId, String barCode) {
+        String lockKey = this.getLockKeyPickingGoodDetailRecordInit(siteId, bizId, barCode);
+        return jimDbLock.lock(lockKey, DEFAULT_VALUE_1, LOCK_PICKING_DETAIL_RECORD_INIT_PRE_TIMEOUT_SECONDS, TimeUnit.HOURS);
+    }
+    public void unlockPickingGoodDetailRecordInit(Long siteId, String bizId, String barCode) {
+        String lockKey = this.getLockKeyPickingGoodDetailRecordInit(siteId, bizId, barCode);
+        jimDbLock.releaseLock(lockKey, DEFAULT_VALUE_1);
+    }
+    private String getLockKeyPickingGoodDetailRecordInit(Long siteId, String bizId, String barCode) {
+        return String.format(LOCK_PICKING_DETAIL_RECORD_INIT_PRE, siteId, bizId, barCode);
+    }
 
 
 }

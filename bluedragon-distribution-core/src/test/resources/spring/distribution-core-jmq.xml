@@ -728,4 +728,15 @@
         <property name="topic" value="${jmq.topic.jy.picking.good.scan}" />
         <property name="timeout" value="1000" />
     </bean>
+
+    <!--  拣运提货待提明细初始化  -->
+    <bean id="jyPickingGoodDetailInitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.detail.init}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  拣运提货待提明细初始化拆分  -->
+    <bean id="jyPickingGoodDetailInitSplitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.detail.init.split}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>

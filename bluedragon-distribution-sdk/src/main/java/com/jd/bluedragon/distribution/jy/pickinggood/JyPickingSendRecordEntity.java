@@ -53,6 +53,10 @@ public class JyPickingSendRecordEntity implements Serializable {
      */
     private Integer waitScanFlag;
     /**
+     * 初始化时间
+     */
+    private Date initTime;
+    /**
      * 实际提货的单据
      */
     private String scanCode;
@@ -129,6 +133,7 @@ public class JyPickingSendRecordEntity implements Serializable {
         this.pickingSiteId = pickingSiteId;
     }
 
+
     public Long getId() {
         return id;
     }
@@ -177,14 +182,6 @@ public class JyPickingSendRecordEntity implements Serializable {
         this.waybillCode = waybillCode;
     }
 
-    public String getScanCode() {
-        return scanCode;
-    }
-
-    public void setScanCode(String scanCode) {
-        this.scanCode = scanCode;
-    }
-
     public String getWaitScanCode() {
         return waitScanCode;
     }
@@ -223,6 +220,22 @@ public class JyPickingSendRecordEntity implements Serializable {
 
     public void setWaitScanFlag(Integer waitScanFlag) {
         this.waitScanFlag = waitScanFlag;
+    }
+
+    public Date getInitTime() {
+        return initTime;
+    }
+
+    public void setInitTime(Date initTime) {
+        this.initTime = initTime;
+    }
+
+    public String getScanCode() {
+        return scanCode;
+    }
+
+    public void setScanCode(String scanCode) {
+        this.scanCode = scanCode;
     }
 
     public Integer getScanFlag() {

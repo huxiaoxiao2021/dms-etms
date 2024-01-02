@@ -1,12 +1,14 @@
 package com.jd.bluedragon.distribution.jy.constants;
 
+import com.jd.bluedragon.utils.BaseContants;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public enum PickingGoodTaskDetailInitServiceEnum {
 
-    DMS_SEND_DMS_PICKING(64, 101, "提货时上游发货场地是分拣中心发货，待提明细初始化数据依赖分拣发货数据"),
+    DMS_SEND_DMS_PICKING(BaseContants.DMS, 101, "提货时上游发货场地是分拣中心发货，待提明细初始化数据依赖分拣发货数据"),
     OTHER_SEND_DMS_PICKING(0, 102, "默认兜底：提货时上游发货场地非分拣中心发货，待提明细初始化数据依赖运输封车数据"),
     ;
 
