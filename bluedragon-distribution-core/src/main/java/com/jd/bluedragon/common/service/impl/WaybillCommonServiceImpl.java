@@ -835,7 +835,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
 
             //包裹有话说
-            if (WaybillVasUtil.isContainsVos(WaybillVasUtil.WaybillVasEnum.PACKAGE_SAY,target.getWaybillVasSign())){
+            if (WaybillVasUtil.isPackageSay(target.getWaybillVasSign())){
                 BaseEntity<List<WaybillAttachmentDto>> waybillAttachments = waybillQueryManager.getWaybillAttachmentByWaybillCodeAndType(waybill.getWaybillCode(), CUSTOMER_VIDEO);
                 if (CollectionUtils.isNotEmpty(waybillAttachments.getData())){
                     String attachmentUrl = this.getAttachmentUrl(waybillAttachments.getData());
@@ -1956,8 +1956,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 productType = waybillExt.getProductType();
             }
             //冷链卡班，显示定温送温度
-            if(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB.equals(productType) &&
-                    WaybillVasUtil.isContainsVos(WaybillVasUtil.WaybillVasEnum.FIX_TEMPERATURE_RANGE,printWaybill.getWaybillVasSign())){
+            if(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB.equals(productType) && WaybillVasUtil.isDWS(printWaybill.getWaybillVasSign())){
                 //定温送增值服务
                 BaseEntity<WaybillVasDto> waybillVasJXD = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybill.getWaybillCode(),WaybillVasUtil.WaybillVasEnum.FIX_TEMPERATURE_RANGE.getVasCode());
                 if (waybillVasJXD != null && waybillVasJXD.getData() != null){
@@ -1980,7 +1979,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS + ",";
             }
             //精准送仓 优先于 送货入仓
-            if(BusinessUtil.isColdChainKB(waybill.getWaybillSign(),productType)&& WaybillVasUtil.isContainsVos(WaybillVasUtil.WaybillVasEnum.JZSC_VALUE,printWaybill.getWaybillVasSign())){
+            if(BusinessUtil.isColdChainKB(waybill.getWaybillSign(),productType)&& WaybillVasUtil.isJZSC(printWaybill.getWaybillVasSign())){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_JZSC + ",";
             }else{
                 //送货入仓
