@@ -71,23 +71,4 @@ public class JyUserManagerImpl implements JyUserManager {
 		return result;
 	}
 
-
-	@Override
-	public  Result<JyUserDto>  queryByUserErp(String erp) {
-		Result<JyUserDto> result = Result.success();
-		JyUserQueryDto condition = new JyUserQueryDto();
-		condition.setUserErp(erp);
-		try {
-			log.info("queryByUserErp 根据erp获取岗位人员信息 erp:{}", erp);
-			com.jd.dms.java.utils.sdk.base.Result<JyUserDto> response = userJsfService.queryByUserErp(condition);
-			if(response != null && response.getData() != null){
-				result.setData(response.getData());
-			}
-		} catch (Exception e) {
-			result.toError("根据erp获取岗位人员信息数据异常");
-			log.error("根据erp获取岗位人员信息数据异常{}", e.getMessage(), e);
-		}
-		return result;
-	}
-
 }

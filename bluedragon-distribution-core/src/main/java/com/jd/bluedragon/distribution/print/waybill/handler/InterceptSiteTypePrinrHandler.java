@@ -16,7 +16,7 @@ import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.domain.user.JyUserDto;
+import com.jdl.basic.api.domain.user.JyUser;
 import com.jdl.basic.common.utils.Result;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -142,9 +142,9 @@ public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContex
         boolean matchSiteType = matchSiteType(sortTypes, sortSubTypes, baseSite);
         log.info(" matchSiteType -{}",matchSiteType);
         if(matchSiteType){
-            Result<JyUserDto> jyUserDtoResult = jyUserManager.queryByUserErp(userERP);
+            Result<JyUser> jyUserDtoResult = jyUserManager.queryUserInfo(userERP);
             log.info("根据erp 获取人员信息出参-{}",JSON.toJSONString(jyUserDtoResult));
-            JyUserDto data = jyUserDtoResult.getData();
+            JyUser data = jyUserDtoResult.getData();
             if(data == null){
                 //操作人ERP不在人资花名册里面
                 return true;
