@@ -6,7 +6,6 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.Evaluat
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
-import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.JyEvaluateDimensionEnum;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
@@ -228,8 +227,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         List<ImgInfo> imgInfos = new ArrayList<>();
         List<String> imgUrls = new ArrayList<>();
         for (EvaluateDimensionReq req : request.getDimensionList()) {
-            if (!Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_600.getCode())
-                    && !Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_800.getCode())) {
+            if (!Objects.equals(req.getDimensionCode(), Constants.DIMENSION_600)
+                    && !Objects.equals(req.getDimensionCode(), Constants.DIMENSION_800)) {
                 continue;
             }
             imgUrls.addAll(req.getImgUrlList());
