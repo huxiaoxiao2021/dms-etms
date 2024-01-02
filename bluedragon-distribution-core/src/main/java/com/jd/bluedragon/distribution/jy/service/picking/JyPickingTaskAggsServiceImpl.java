@@ -260,19 +260,4 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         }
         return res;
     }
-
-    @Override
-    public List<JyPickingTaskAggsEntity> listTaskGroupByPickingNodeCode(JyPickingTaskGroupQueryDto queryDto) {
-        return null;
-    }
-
-    @Override
-    public List<JyPickingTaskAggsEntity> listTaskByPickingNodeCode(JyPickingTaskBatchQueryDto queryDto) {
-        return null;
-    }
-
-    @Override
-    public List<AirRailTaskCountDto> countAllStatusByPickingSiteId(Long siteId) {
-        return null;
-    }
 }

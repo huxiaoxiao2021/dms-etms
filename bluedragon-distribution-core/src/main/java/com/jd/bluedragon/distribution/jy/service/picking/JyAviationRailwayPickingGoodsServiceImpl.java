@@ -11,11 +11,9 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.constants.BarCodeFetchPickingTaskRuleEnum;
+import com.jd.bluedragon.distribution.jy.constants.PickingCompleteNodeEnum;
 import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskBatchQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskGroupQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodScanTaskBodyDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
@@ -538,7 +536,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             ret.parameterError("参数错误：提货任务BizId不能为空！");
             return ret;
         }
-        boolean success = jyBizTaskPickingGoodService.updateStatusByBizId(req.getBizId(), PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
+        boolean success = jyBizTaskPickingGoodService.updateStatusByBizId(req.getBizId(), PickingCompleteNodeEnum.COMPLETE_BTN.getCode());
         if (!success) {
             log.warn("jyBizTaskPickingGoodService 根据bizId={} 完成提货任务状态失败！", req.getBizId());
         }
@@ -553,7 +551,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             return ret;
         }
         // 当前异常上报只将任务状态修改为完成
-        boolean success = jyBizTaskPickingGoodService.updateStatusByBizId(req.getBizId(), PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
+        boolean success = jyBizTaskPickingGoodService.updateStatusByBizId(req.getBizId(), PickingCompleteNodeEnum.EXCEPTION_BTN.getCode());
         if (!success) {
             log.warn("jyBizTaskPickingGoodService 根据bizId={} 完成提货任务状态失败！", req.getBizId());
         }
@@ -619,7 +617,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         return ret;
     }
 
-    private void finishSendTaskCheck(FinishSendTaskReq req, InvokeResult invokeResult) {
+    private void finishSendTaskCheck(FinishSendTaskReq req, InvokeResult<Void> invokeResult) {
         if (StringUtils.isEmpty(req.getSendCode())) {
             invokeResult.parameterError("批次号不能为空！");
         }
@@ -636,21 +634,29 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         InvokeResult<AirRailTaskRes> ret = new InvokeResult<>();
         AirRailTaskRes res = new AirRailTaskRes();
         ret.setData(res);
+        Long currentSiteId = (long) req.getCurrentOperate().getSiteCode();
         // count当前场地各个status的任务数
-        List<AirRailTaskCountDto> countDtoList = jyPickingTaskAggsService.countAllStatusByPickingSiteId((long) req.getCurrentOperate().getSiteCode());
+        List<AirRailTaskCountDto> countDtoList = jyBizTaskPickingGoodService.countAllStatusByPickingSiteId(currentSiteId);
         if (CollectionUtils.isEmpty(countDtoList)) {
             return ret;
         }
-        // 按机场先逻辑分页
+        // 按机场/车站分组逻辑分页查询
         JyPickingTaskGroupQueryDto groupQueryDto = buildGroupQueryDto(req);
-        List<JyPickingTaskAggsEntity> groupByTask = jyPickingTaskAggsService.listTaskGroupByPickingNodeCode(groupQueryDto);
-        if (CollectionUtils.isEmpty(groupByTask)) {
+        List<JyBizTaskPickingGoodEntity> groupedTask = jyBizTaskPickingGoodService.listTaskGroupByPickingNodeCode(groupQueryDto);
+        if (CollectionUtils.isEmpty(groupedTask)) {
             return ret;
         }
-        // 查询明细计算数据
-        JyPickingTaskBatchQueryDto batchQueryDto = buildBatchQueryDto(req, groupByTask);
-        List<JyPickingTaskAggsEntity> taskDetail = jyPickingTaskAggsService.listTaskByPickingNodeCode(batchQueryDto);
-        calculateResponse(res, countDtoList, taskDetail);
+        // 查询明细数据
+        JyPickingTaskBatchQueryDto batchQueryDto = buildBatchQueryDto(req, groupedTask);
+        List<JyBizTaskPickingGoodEntity> taskDetail = jyBizTaskPickingGoodService.listTaskByPickingNodeCode(batchQueryDto);
+        if (CollectionUtils.isEmpty(taskDetail)) {
+            return ret;
+        }
+        // 查询统计数据
+        List<String> bizList = taskDetail.stream().map(JyBizTaskPickingGoodEntity::getBizId).collect(Collectors.toList());
+        List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.waitPickingInitTotalNum(bizList, currentSiteId, null);
+        // 计算统计总和
+        calculateResponse(res, countDtoList, taskDetail, aggsDtoList);
 
         return null;
     }
@@ -665,27 +671,28 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         return queryDto;
     }
 
-    private JyPickingTaskBatchQueryDto buildBatchQueryDto(AirRailTaskSummaryReq req, List<JyPickingTaskAggsEntity> groupByTask) {
+    private JyPickingTaskBatchQueryDto buildBatchQueryDto(AirRailTaskSummaryReq req, List<JyBizTaskPickingGoodEntity> groupByTask) {
         JyPickingTaskBatchQueryDto queryDto = new JyPickingTaskBatchQueryDto();
         queryDto.setPickingSiteId((long) req.getCurrentOperate().getSiteCode());
         queryDto.setStatus(req.getStatus());
         queryDto.setTaskType(req.getTaskType());
 
-        List<String> pickingNodeCodes = groupByTask.stream().map(JyPickingTaskAggsEntity::getPickingNodeCode).distinct().collect(Collectors.toList());
+        List<String> pickingNodeCodes = groupByTask.stream().map(JyBizTaskPickingGoodEntity::getEndNodeCode).distinct().collect(Collectors.toList());
         queryDto.setPickingNodeCodeList(pickingNodeCodes);
         return queryDto;
     }
 
-    private void calculateResponse(AirRailTaskRes res, List<AirRailTaskCountDto> countDtoList, List<JyPickingTaskAggsEntity> taskDetail) {
+    private void calculateResponse(AirRailTaskRes res, List<AirRailTaskCountDto> countDtoList, List<JyBizTaskPickingGoodEntity> taskDetail, List<PickingSendGoodAggsDto> aggsDtoList) {
         res.setCountDtoList(countDtoList);
-        Map<String, List<JyPickingTaskAggsEntity>> taskGroupByPickingNodeCode = taskDetail.stream().collect(Collectors.groupingBy(JyPickingTaskAggsEntity::getPickingNodeCode));
+        Map<String, PickingSendGoodAggsDto> aggGroupedByPickingNodeCode = aggsDtoList.stream().collect(Collectors.toMap(PickingSendGoodAggsDto::getBizId, item -> item, (first, second) -> first));
+        Map<String, List<JyBizTaskPickingGoodEntity>> groupedTaskDetail = taskDetail.stream().collect(Collectors.groupingBy(JyBizTaskPickingGoodEntity::getEndNodeCode));
         List<AirRailDto> airRailDtoList = new ArrayList<>();
-        for (List<JyPickingTaskAggsEntity> taskList : taskGroupByPickingNodeCode.values()) {
+        for (List<JyBizTaskPickingGoodEntity> taskList : groupedTaskDetail.values()) {
             AirRailDto airRailDto = new AirRailDto();
             // 待提航班/车次任务数
-            int waitScanTaskNum = taskDetail.size();
+            int waitScanTaskNum = aggsDtoList.size();
             // 是否无任务分组
-            Boolean noTaskFlag;
+            Boolean noTaskFlag = Constants.NUMBER_ONE.equals(taskList.get(0).getManualCreatedFlag());
 
             // 待提总件数
             int waitScanTotal = 0;
@@ -695,11 +702,17 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
 
             // 多提总件数
             int multipleScanTotal = 0;
-            for (JyPickingTaskAggsEntity task : taskList) {
-                waitScanTotal += task.getWaitScanTotalCount();
-                haveScannedTotal += task.getScanTotalCount();
-                multipleScanTotal += task.getMoreScanTotalCount();
+            for (JyBizTaskPickingGoodEntity task : taskList) {
+                PickingSendGoodAggsDto aggsDto = aggGroupedByPickingNodeCode.get(task.getBizId());
+                if (aggsDto == null) {
+                    logInfo("JyAviationRailwayPickingGoodsServiceImpl.calculateResponse根据bizId{}找不到统计数据", task.getBizId());
+                    continue;
+                }
+                waitScanTotal += aggsDto.getWaitSendTotalNum();
+                haveScannedTotal += aggsDto.getRealSendTotalNum();
+                multipleScanTotal += aggsDto.getMoreSendTotalNum();
             }
+            airRailDto.setNoTaskFlag(noTaskFlag);
             airRailDto.setWaitScanTaskNum(waitScanTaskNum);
             airRailDto.setWaitScanTotal(waitScanTotal);
             airRailDto.setHaveScannedTotal(haveScannedTotal);

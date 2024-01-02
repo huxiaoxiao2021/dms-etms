@@ -4,8 +4,11 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodSubsidiaryDao;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskBatchQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskGroupQueryDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 import com.jd.bluedragon.utils.DateHelper;
@@ -19,6 +22,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 空铁提货任务服务
@@ -122,5 +126,20 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
         entity.setUpdateUserErp(Constants.SYS_NAME);
         entity.setUpdateUserName(Constants.SYS_NAME);
         return jyBizTaskPickingGoodDao.deleteByBusinessNumber(entity);
+    }
+
+    @Override
+    public List<JyBizTaskPickingGoodEntity> listTaskGroupByPickingNodeCode(JyPickingTaskGroupQueryDto queryDto) {
+        return null;
+    }
+
+    @Override
+    public List<JyBizTaskPickingGoodEntity> listTaskByPickingNodeCode(JyPickingTaskBatchQueryDto queryDto) {
+        return null;
+    }
+
+    @Override
+    public List<AirRailTaskCountDto> countAllStatusByPickingSiteId(Long siteId) {
+        return null;
     }
 }
