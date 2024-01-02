@@ -22,6 +22,8 @@ public class JyBizTaskSendVehicleDetailQueryEntity extends JyBizTaskSendVehicleD
     private Integer manualCreatedFlag;
 	private List<String> bizIdList;
 
+	private Integer bindFlag;
+
 
 	public List<Long> getEndSiteIdList() {
 		return endSiteIdList;
@@ -53,5 +55,13 @@ public class JyBizTaskSendVehicleDetailQueryEntity extends JyBizTaskSendVehicleD
 
 	public void setBizIdList(List<String> bizIdList) {
 		this.bizIdList = bizIdList;
+	}
+
+	public Integer getBindFlag() {
+		return bindFlag;
+	}
+
+	public void setBindFlag(Integer bindFlag) {
+		this.bindFlag = bindFlag;
 	}
 }

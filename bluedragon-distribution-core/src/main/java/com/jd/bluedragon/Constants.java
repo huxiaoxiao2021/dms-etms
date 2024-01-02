@@ -452,6 +452,11 @@ public class Constants {
     public static final int FORTY_EIGHT_HOURS = 48;
 
     /**
+     * 时间：72小时
+     */
+    public static final int SEVENTY_TWO_HOURS = 72;
+
+    /**
      * 时间：一天的秒数
      */
     public static final int TIME_SECONDS_ONE_DAY = 86400;
@@ -1632,6 +1637,10 @@ public class Constants {
      * 常量值：2
      * */
     public static final int  CONSTANT_NUMBER_TWO = 2;
+    /**
+     * 常量值：3
+     * */
+    public static final int  CONSTANT_NUMBER_THREE = 3;
 
     /**
      * 常量值：10
@@ -2277,6 +2286,18 @@ public class Constants {
      *
      */
     public static final String SPOT_CHECK_APPEAL_TIME_OUT = "spot.check.appeal.time.out";
+
+    /**
+     *  配置信息-处于待发货状态的自建任务停留时长
+     *
+     */
+    public static final String TO_SEND_MANUAL_TASK_TIME_OUT = "to.send.manual.task.time.out";
+
+    /**
+     *  配置信息-处于发货中状态的自建任务停留时长
+     *
+     */
+    public static final String SENDING_MANUAL_TASK_TIME_OUT = "sending.manual.task.time.out";
 
     /**
      * 滞留原因-清场
