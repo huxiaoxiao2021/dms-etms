@@ -65,7 +65,7 @@ public class JyDamageExceptionServiceTest {
     @Test
     public void getConsumables() {
 
-        JdCResponse<List<JyExceptionDamageEnum.ConsumableEnum>> consumables = jyDamageExceptionService.getConsumables();
+        JdCResponse<List<com.jd.bluedragon.distribution.jy.dto.Consumable>> consumables = jyDamageExceptionService.getConsumables();
 
         System.out.println(JsonHelper.toJson(consumables));
     }

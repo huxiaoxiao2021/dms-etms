@@ -1380,9 +1380,15 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     }
 
     @Override
-    public JdCResponse<List<JyExceptionDamageEnum.ConsumableEnum>> getConsumables() {
-        List<JyExceptionDamageEnum.ConsumableEnum> consumables = Arrays.asList(JyExceptionDamageEnum.ConsumableEnum.values());
-        JdCResponse<List<JyExceptionDamageEnum.ConsumableEnum>> response
+    public JdCResponse<List<Consumable>> getConsumables() {
+        List<Consumable> consumables = new ArrayList<>();
+        for (JyExceptionDamageEnum.ConsumableEnum e : JyExceptionDamageEnum.ConsumableEnum.values()) {
+            Consumable consumable = new Consumable();
+            consumable.setCode(e.getCode());
+            consumable.setName(e.getName());
+            consumables.add(consumable);
+        }
+        JdCResponse<List<Consumable>> response
                 = new JdCResponse(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS, consumables);
         return response;
     }

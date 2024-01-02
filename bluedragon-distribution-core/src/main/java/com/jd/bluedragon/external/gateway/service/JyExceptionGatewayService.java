@@ -207,6 +207,6 @@ public interface JyExceptionGatewayService {
     /**
      * 破损耗材明细
      */
-    JdCResponse<List<JyExceptionDamageEnum.ConsumableEnum>> getConsumables();
+    JdCResponse<List<com.jd.bluedragon.distribution.jy.dto.Consumable>> getConsumables();
 
 }

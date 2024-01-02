@@ -310,7 +310,7 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.getConsumables", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<List<JyExceptionDamageEnum.ConsumableEnum>> getConsumables() {
+    public JdCResponse<List<com.jd.bluedragon.distribution.jy.dto.Consumable>> getConsumables() {
         return jyDamageExceptionService.getConsumables();
     }
 }

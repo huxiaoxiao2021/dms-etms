@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProc
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
+import com.jd.bluedragon.distribution.jy.dto.Consumable;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
@@ -87,5 +88,5 @@ public interface JyDamageExceptionService {
      */
     JdCResponse<Boolean> dealDamageExpTaskOverTwoDags();
 
-    JdCResponse<List<JyExceptionDamageEnum.ConsumableEnum>> getConsumables();
+    JdCResponse<List<Consumable>> getConsumables();
 }
