@@ -782,15 +782,15 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         String vasSign = WaybillVasUtil.DEFAULT_VAS_SIGN;
         /*增值服务打标-包裹有话说*/
         if (isHasSpecifiedValue(context,WaybillVasUtil.WaybillVasEnum.PACKAGE_SAY.getVasCode())){
-            vasSign = WaybillVasUtil.markingVosSign(WaybillVasUtil.WaybillVasEnum.PACKAGE_SAY,vasSign);
+            vasSign = WaybillVasUtil.markingPackageSaySign(vasSign);
         }
         // 精准送仓
         if(isHasSpecifiedValue(context,WaybillVasUtil.WaybillVasEnum.JZSC_VALUE.getVasCode())){
-            vasSign = WaybillVasUtil.markingVosSign(WaybillVasUtil.WaybillVasEnum.JZSC_VALUE,vasSign);
+            vasSign = WaybillVasUtil.markingJZSCSign(vasSign);
         }
         // 定温送
         if(isHasSpecifiedValue(context, WaybillVasUtil.WaybillVasEnum.FIX_TEMPERATURE_RANGE.getVasCode())){
-            vasSign = WaybillVasUtil.markingVosSign(WaybillVasUtil.WaybillVasEnum.FIX_TEMPERATURE_RANGE,vasSign);
+            vasSign = WaybillVasUtil.markingDWSSign(vasSign);
         }
 
         context.getBasePrintWaybill().setWaybillVasSign(vasSign);
