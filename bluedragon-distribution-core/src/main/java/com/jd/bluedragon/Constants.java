@@ -2319,4 +2319,15 @@ public class Constants {
      * 计提时间-日期 最大修改时间 修改时请参考签到推送人资时间，不要晚于这个时间
      */
     public static final String USER_SIGN_RECORD_FLOW_LAST_MODIFY_ACCRUAL_DAY = "userSignRecordFlow.lastModifyAccrualDay";
+
+    /**
+     * 装车评价包裹凌乱倾倒
+     */
+    public static final Integer DIMENSION_600 = 600;
+
+    /**
+     * 装车评价大压小/重压轻/木压纸
+     */
+    public static final Integer DIMENSION_800 = 800;
+
 }

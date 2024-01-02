@@ -228,8 +228,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         List<ImgInfo> imgInfos = new ArrayList<>();
         List<String> imgUrls = new ArrayList<>();
         for (EvaluateDimensionReq req : request.getDimensionList()) {
-            if (!Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_600.getCode())
-                    && !Objects.equals(req.getDimensionCode(), JyEvaluateDimensionEnum.DIMENSION_800.getCode())) {
+            if (!Objects.equals(req.getDimensionCode(), Constants.DIMENSION_600)
+                    && !Objects.equals(req.getDimensionCode(), Constants.DIMENSION_800)) {
                 continue;
             }
             imgUrls.addAll(req.getImgUrlList());
