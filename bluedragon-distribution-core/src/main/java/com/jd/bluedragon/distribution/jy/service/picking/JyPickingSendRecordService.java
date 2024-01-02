@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskStatisticsDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 
@@ -70,4 +71,10 @@ public interface JyPickingSendRecordService {
      * @param updateEntity
      */
     void updatePickingGoodRecordByWaitScanCode(JyPickingSendRecordEntity updateEntity);
+
+    /**
+     * 待提明细初始化或修改
+     * @param detailInitDto
+     */
+    void initOrUpdateNeedScanDetail(PickingGoodTaskDetailInitDto detailInitDto);
 }

@@ -782,5 +782,15 @@
     <jmq:consumer id="jmq.JyPickingGoodScanConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.picking.good.scan}" listener="jyPickingGoodScanConsumer"/>
     </jmq:consumer>
+
+
+    <!--  空铁提货待提明细初始化  -->
+    <jmq:consumer id="jmq.jyPickingGoodDetailInitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.picking.good.detail.init}" listener="jyPickingGoodDetailInitConsumer"/>
+    </jmq:consumer>
+    <!--  空铁提货待提明细初始化拆分消费  -->
+    <jmq:consumer id="jmq.jyPickingGoodDetailInitSplitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.picking.good.detail.init.split}" listener="jyPickingGoodDetailInitSplitConsumer"/>
+    </jmq:consumer>
 </beans>
 

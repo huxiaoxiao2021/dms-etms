@@ -8,6 +8,15 @@ package com.jd.bluedragon.distribution.jy.dto.pickinggood;
 public class PickingGoodTaskDetailInitDto {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 空铁班次流水号
+     */
+    private String businessNumber;
+    /**
+     * 班次号：航班号/车次号
+     */
+    private String serviceNumber;
+
     private String bizId;
     /**
      * 提货场地id
@@ -22,6 +31,41 @@ public class PickingGoodTaskDetailInitDto {
 
     private String batchCode;
 
+    private Long startSiteId;
+    //startSiteId 场地类型
+    private Integer startSiteType;
+
+    private Integer taskType;
+    /**
+     * 待提包裹号
+     */
+    private String packageCode;
+    /**
+     * 待提包裹所属箱号
+     */
+    private String boxCode;
+    /**
+     * true: 按箱扫描类型
+     */
+    private Boolean scanIsBoxType;
+
+
+
+    public String getBusinessNumber() {
+        return businessNumber;
+    }
+
+    public void setBusinessNumber(String businessNumber) {
+        this.businessNumber = businessNumber;
+    }
+
+    public String getServiceNumber() {
+        return serviceNumber;
+    }
+
+    public void setServiceNumber(String serviceNumber) {
+        this.serviceNumber = serviceNumber;
+    }
 
     public String getBizId() {
         return bizId;
@@ -61,5 +105,53 @@ public class PickingGoodTaskDetailInitDto {
 
     public void setBatchCode(String batchCode) {
         this.batchCode = batchCode;
+    }
+
+    public Long getStartSiteId() {
+        return startSiteId;
+    }
+
+    public void setStartSiteId(Long startSiteId) {
+        this.startSiteId = startSiteId;
+    }
+
+    public Integer getStartSiteType() {
+        return startSiteType;
+    }
+
+    public void setStartSiteType(Integer startSiteType) {
+        this.startSiteType = startSiteType;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
+    }
+
+    public String getBoxCode() {
+        return boxCode;
+    }
+
+    public void setBoxCode(String boxCode) {
+        this.boxCode = boxCode;
+    }
+
+    public Boolean getScanIsBoxType() {
+        return scanIsBoxType;
+    }
+
+    public void setScanIsBoxType(Boolean scanIsBoxType) {
+        this.scanIsBoxType = scanIsBoxType;
     }
 }

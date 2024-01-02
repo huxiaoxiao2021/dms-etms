@@ -425,18 +425,22 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
         PickingGoodsRes resData = res.getData();
 
-        Integer routerNextSiteId;
-        String routerNextSiteName;
+        Integer routerNextSiteId = null;
+        String routerNextSiteName = null;
         String boxConfirmNextSiteKey = null;
         if(!BusinessUtil.isBoxcode(request.getBarCode())) {
             BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(request.getCurrentOperate().getSiteCode(), WaybillUtil.getWaybillCode(request.getBarCode()));
-            routerNextSiteName = dto.getSiteName();
-            routerNextSiteId = dto.getSiteCode();
+            if(!Objects.isNull(dto)) {
+                routerNextSiteName = dto.getSiteName();
+                routerNextSiteId = dto.getSiteCode();
+            }
         }else {
             BoxNextSiteDto boxNextSiteDto = commonService.getRouteNextSiteByBox(request.getCurrentOperate().getSiteCode(), request.getBarCode());
-            routerNextSiteId = boxNextSiteDto.getNextSiteId();
-            routerNextSiteName = boxNextSiteDto.getNextSiteName();
-            boxConfirmNextSiteKey = boxNextSiteDto.getBoxConfirmNextSiteKey();
+            if(!Objects.isNull(boxNextSiteDto)) {
+                routerNextSiteId = boxNextSiteDto.getNextSiteId();
+                routerNextSiteName = boxNextSiteDto.getNextSiteName();
+                boxConfirmNextSiteKey = boxNextSiteDto.getBoxConfirmNextSiteKey();
+            }
         }
 
         //流向为空
