@@ -9,5 +9,5 @@ package com.jd.bluedragon;
  */
 public class KvIndexConstants {
 
-    public static final String KEY_PACKAGE_BOX_ASSOCIATION = "package_box_association_%s";
+    public static final String KEY_PACKAGE_BOX_ASSOCIATION = "PACKAGE_BOX_ASSOCIATION_%s";
 }
