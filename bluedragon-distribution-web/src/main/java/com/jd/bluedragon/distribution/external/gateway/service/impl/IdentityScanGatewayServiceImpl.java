@@ -43,7 +43,10 @@ public class IdentityScanGatewayServiceImpl implements IdentityScanGatewayServic
     public JdCResponse<IdentityContentEntity> recognise(String picUrl) {
         IDCRRequestDto idcrRequestDto = new IDCRRequestDto();
         idcrRequestDto.setServiceUUID(UUID.randomUUID().toString());
+        log.info("recognise-switchOssUrlByType before:{}",picUrl);
         idcrRequestDto.setPicUrl(BusinessHelper.switchOssUrlByType(picUrl, OssUrlNetTypeEnum.IN.getType()));
+        log.info("recognise-switchOssUrlByType after:{}",idcrRequestDto.getPicUrl());
+
 
         JdCResponse<IdentityContentEntity> jdCResponse = new JdCResponse<>();
         jdCResponse.toSucceed();
