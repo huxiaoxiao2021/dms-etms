@@ -1,8 +1,14 @@
 package com.jd.bluedragon.distribution.jy.dao.pickinggood;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.AirRailTaskCountQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskBatchQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskGroupQueryDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
+
+import java.util.List;
 
 public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity> {
 
@@ -34,6 +40,18 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
 
     public int deleteByBusinessNumber(JyBizTaskPickingGoodEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".deleteByBusinessNumber", entity);
+    }
+
+    public List<JyBizTaskPickingGoodEntity> listTaskGroupByPickingNodeCode(JyPickingTaskGroupQueryDto queryDto) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listTaskGroupByPickingNodeCode", queryDto);
+    }
+
+    public List<JyBizTaskPickingGoodEntity> listTaskByPickingNodeCode(JyPickingTaskBatchQueryDto queryDto) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listTaskByPickingNodeCode", queryDto);
+    }
+
+    public List<AirRailTaskCountDto> countAllStatusByPickingSiteId(AirRailTaskCountQueryDto countQueryDto) {
+        return this.getSqlSession().selectList(NAMESPACE + ".countAllStatusByPickingSiteId", countQueryDto);
     }
 
 //    int deleteByPrimaryKey(Long id);

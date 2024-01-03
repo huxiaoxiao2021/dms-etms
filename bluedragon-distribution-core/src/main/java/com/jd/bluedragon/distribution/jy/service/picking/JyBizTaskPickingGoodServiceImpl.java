@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.Pi
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodSubsidiaryDao;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.AirRailTaskCountQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskBatchQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskGroupQueryDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
@@ -130,16 +131,16 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
 
     @Override
     public List<JyBizTaskPickingGoodEntity> listTaskGroupByPickingNodeCode(JyPickingTaskGroupQueryDto queryDto) {
-        return null;
+        return jyBizTaskPickingGoodDao.listTaskGroupByPickingNodeCode(queryDto);
     }
 
     @Override
     public List<JyBizTaskPickingGoodEntity> listTaskByPickingNodeCode(JyPickingTaskBatchQueryDto queryDto) {
-        return null;
+        return jyBizTaskPickingGoodDao.listTaskByPickingNodeCode(queryDto);
     }
 
     @Override
-    public List<AirRailTaskCountDto> countAllStatusByPickingSiteId(Long siteId) {
-        return null;
+    public List<AirRailTaskCountDto> countAllStatusByPickingSiteId(AirRailTaskCountQueryDto countQueryDto) {
+        return jyBizTaskPickingGoodDao.countAllStatusByPickingSiteId(countQueryDto);
     }
 }

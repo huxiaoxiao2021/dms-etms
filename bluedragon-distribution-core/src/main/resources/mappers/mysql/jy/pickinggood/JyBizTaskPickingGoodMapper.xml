@@ -316,6 +316,43 @@
     where yn = 1 and business_number = #{businessNumber}
   </update>
 
+  <select id="listTaskGroupByPickingNodeCode" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List" />
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     picking_site_id = #{pickingSiteId}
+    and     status = #{status}
+    and     task_type = #{taskType}
+    and     create_time >= {createTime}
+    group by picking_node_code
+    limit #{offset}, #{limit}
+  </select>
+
+  <select id="listTaskByPickingNodeCode" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List" />
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     picking_site_id = #{pickingSiteId}
+    and     status = #{status}
+    and     task_type = #{taskType}
+    and     create_time >= {createTime}
+    and     picking_node_code in
+    <foreach collection="pickingNodeCodeList" item="item" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
+  </select>
+
+  <select id="countAllStatusByPickingSiteId" resultType="com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto">
+    select  count(*) as count,
+            status
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     picking_site_id = #{pickingSiteId}
+    and     task_type = #{taskType}
+    and     create_time >= {createTime}
+    group by status
+  </select>
+
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select -->
 <!--    <include refid="Base_Column_List" />-->

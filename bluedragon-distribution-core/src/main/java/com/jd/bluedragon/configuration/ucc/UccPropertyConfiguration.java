@@ -1819,6 +1819,18 @@ public class UccPropertyConfiguration{
     private boolean collectPackageTaskRefreshSwitch;
 
     private long jyCollectPackageInterceptBitCode;
+    /**
+     * 空铁提货岗任务查询时间范围
+     */
+    private Integer jyBizTaskPickingGoodTimeRange;
+
+    public Integer getJyBizTaskPickingGoodTimeRange() {
+        return jyBizTaskPickingGoodTimeRange;
+    }
+
+    public void setJyBizTaskPickingGoodTimeRange(Integer jyBizTaskPickingGoodTimeRange) {
+        this.jyBizTaskPickingGoodTimeRange = jyBizTaskPickingGoodTimeRange;
+    }
 
     public long getJyCollectPackageInterceptBitCode(){
         return jyCollectPackageInterceptBitCode;

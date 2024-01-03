@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.AirRailTaskCountQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskBatchQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskGroupQueryDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
@@ -70,9 +71,24 @@ public interface JyBizTaskPickingGoodService {
     int deleteByBusinessNumber(String businessNumber);
 
 
+    /**
+     * 提货任务按机场编码分组逻辑分页查询
+     * @param queryDto
+     * @return
+     */
     List<JyBizTaskPickingGoodEntity> listTaskGroupByPickingNodeCode(JyPickingTaskGroupQueryDto queryDto);
 
+    /**
+     * 根据机场/车站编码批量查询提货任务
+     * @param queryDto
+     * @return
+     */
     List<JyBizTaskPickingGoodEntity> listTaskByPickingNodeCode(JyPickingTaskBatchQueryDto queryDto);
 
-    List<AirRailTaskCountDto> countAllStatusByPickingSiteId(Long siteId);
+    /**
+     * 统计各个状态的任务数
+     * @param queryDto
+     * @return
+     */
+    List<AirRailTaskCountDto> countAllStatusByPickingSiteId(AirRailTaskCountQueryDto queryDto);
 }

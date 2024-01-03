@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.pickinggood;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 public class JyPickingTaskBatchQueryDto implements Serializable {
@@ -23,6 +24,8 @@ public class JyPickingTaskBatchQueryDto implements Serializable {
     private Integer taskType;
 
     private List<String> pickingNodeCodeList;
+
+    private Date createTime;
 
     public String getBizId() {
         return bizId;
@@ -62,5 +65,13 @@ public class JyPickingTaskBatchQueryDto implements Serializable {
 
     public void setPickingNodeCodeList(List<String> pickingNodeCodeList) {
         this.pickingNodeCodeList = pickingNodeCodeList;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 }

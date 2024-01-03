@@ -320,6 +320,7 @@
 
 		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
 		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
+		<property name="jyBizTaskPickingGoodTimeRange" value="${jyBizTaskPickingGoodTimeRange:7}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -628,6 +629,7 @@
 				<value>uccPropertyConfiguration.collectPackageSiteForbiddenList</value>
 				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
 				<value>uccPropertyConfiguration.sealSyncOpenCloseSendTaskSwitch</value>
+				<value>uccPropertyConfiguration.jyBizTaskPickingGoodTimeRange</value>
 			</list>
 		</property>
 	</bean>

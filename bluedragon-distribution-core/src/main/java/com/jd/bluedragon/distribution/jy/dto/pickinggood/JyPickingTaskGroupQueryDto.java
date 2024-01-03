@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.pickinggood;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class JyPickingTaskGroupQueryDto implements Serializable {
     private static final long serialVersionUID = 1092594866188253310L;
@@ -24,9 +25,11 @@ public class JyPickingTaskGroupQueryDto implements Serializable {
      */
     private Integer taskType;
 
-    private Integer pageNum;
+    private Date createTime;
 
-    private Integer pageSize;
+    private Integer limit;
+
+    private Integer offset;
 
     public String getBizId() {
         return bizId;
@@ -68,19 +71,27 @@ public class JyPickingTaskGroupQueryDto implements Serializable {
         this.taskType = taskType;
     }
 
-    public Integer getPageNum() {
-        return pageNum;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setPageNum(Integer pageNum) {
-        this.pageNum = pageNum;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
-    public Integer getPageSize() {
-        return pageSize;
+    public Integer getLimit() {
+        return limit;
     }
 
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
     }
 }
