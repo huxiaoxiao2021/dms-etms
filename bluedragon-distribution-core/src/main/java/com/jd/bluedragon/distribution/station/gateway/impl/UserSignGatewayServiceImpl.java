@@ -1,44 +1,21 @@
 package com.jd.bluedragon.distribution.station.gateway.impl;
 
 
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
-import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
-import com.jd.bluedragon.core.hint.service.HintService;
-import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
-import com.jd.bluedragon.core.jsf.position.PositionManager;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
-import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
-import com.jd.ql.basic.domain.BaseStaff;
-import com.jd.ql.basic.dto.BaseStaffSiteDTO;
-import com.jd.ql.basic.dto.ResultData;
-import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
-import com.jdl.basic.common.utils.DateUtil;
-import com.jdl.basic.common.utils.Result;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.*;
-import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jd.ql.basic.domain.BaseStaff;
+import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -69,15 +46,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	@Autowired
 	private PositionManager positionManager;
 	
-	@Value("${beans.userSignGatewayService.needCheckAutoSignOutHours:2}")
-	private int needCheckAutoSignOutHours;
-
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-
-	@Autowired
-	private AttendanceBlackListManager attendanceBlackListManager;
-
+	
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithPosition",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
