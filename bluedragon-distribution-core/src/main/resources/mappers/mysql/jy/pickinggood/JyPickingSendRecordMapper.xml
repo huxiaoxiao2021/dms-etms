@@ -14,6 +14,7 @@
     <result column="init_next_site_id" property="initNextSiteId" jdbcType="BIGINT" />
     <result column="box_init_flow_key" property="boxInitFlowKey" jdbcType="VARCHAR" />
     <result column="wait_scan_flag" property="waitScanFlag" jdbcType="TINYINT" />
+    <result column="init_time" property="initTime" jdbcType="TIMESTAMP" />
     <result column="scan_flag" property="scanFlag" jdbcType="TINYINT" />
     <result column="scan_code_type" property="scanCodeType" jdbcType="TINYINT" />
     <result column="more_scan_flag" property="moreScanFlag" jdbcType="TINYINT" />
@@ -36,7 +37,7 @@
 
   <sql id="Base_Column_List" >
     id, biz_id, picking_site_id, picking_node_code, package_code, waybill_code, scan_code,
-    wait_scan_code, wait_scan_code_type, init_next_site_id, box_init_flow_key, wait_scan_flag,
+    wait_scan_code, wait_scan_code_type, init_next_site_id, box_init_flow_key, wait_scan_flag, init_time,
     scan_flag, scan_code_type, more_scan_flag, picking_user_erp, picking_user_name, picking_time,
     send_flag, real_next_site_id, box_real_flow_key, more_send_flag, force_send_flag,
     send_time, send_user_erp, send_user_name, create_time, update_time, yn, ts
@@ -81,6 +82,9 @@
         </if>
         <if test="waitScanFlag != null" >
           wait_scan_flag,
+        </if>
+        <if test="initTime != null" >
+          init_time,
         </if>
         <if test="scanFlag != null" >
           scan_flag,
@@ -171,6 +175,9 @@
         </if>
         <if test="waitScanFlag != null" >
           #{waitScanFlag,jdbcType=TINYINT},
+        </if>
+        <if test="initTime != null" >
+          #{initTime,jdbcType=TIMESTAMP},
         </if>
         <if test="scanFlag != null" >
           #{scanFlag,jdbcType=TINYINT},
@@ -334,6 +341,27 @@
         and wait_scan_code = #{waitScanCode}
     </update>
 
+
+  <update id="initUpdateIfExist" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >
+    update jy_picking_send_record
+    set
+      wait_scan_code = #{waitScanCode},
+      wait_scan_code_type = #{waitScanCodeType},
+      wait_scan_flag = #{waitScanFlag},
+      init_time = #{initTime},
+      update_time = #{updateTime},
+      <if test="initNextSiteId != null" >
+        init_next_site_id = #{initNextSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="boxInitFlowKey != null" >
+        box_init_flow_key = #{boxInitFlowKey,jdbcType=VARCHAR},
+      </if>
+    where
+      yn = 1
+      and picking_site_id = #{pickingSiteId}
+      and biz_id = #{bizId}
+      and package_code = #{packageCode}
+  </update>
 
 
   <!--  -->

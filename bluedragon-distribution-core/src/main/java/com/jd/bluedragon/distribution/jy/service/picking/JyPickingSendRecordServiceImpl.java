@@ -1,17 +1,13 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Waybill;
-import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingSendRecordDao;
 import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskStatisticsDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 import com.jd.bluedragon.distribution.jy.service.common.CommonService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -37,9 +33,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
     @Autowired
     private JyPickingSendRecordDao jyPickingSendRecordDao;
     @Autowired
-    private JyBizTaskPickingGoodDao jyBizTaskPickingGoodDao;
-    @Autowired
-    private JyAviationRailwayPickingGoodsCacheService cacheService;
+    private JyAviationRailwayPickingGoodsCacheService pickingGoodsCacheService;
     @Autowired
     private CommonService commonService;
 
@@ -151,7 +145,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
 
     @Override
     public void initOrUpdateNeedScanDetail(PickingGoodTaskDetailInitDto paramDto) {
-        if(!cacheService.lockPickingGoodDetailRecordInit(paramDto.getPickingSiteId(), paramDto.getBizId(), paramDto.getPackageCode())) {
+        if(!pickingGoodsCacheService.lockPickingGoodDetailRecordInit(paramDto.getPickingSiteId(), paramDto.getBizId(), paramDto.getPackageCode())) {
             logWarn("提货明细初始化获取锁失败，异常重试，param={}", JsonHelper.toJson(paramDto));
             throw new JyBizException(String.format("提货明细初始化获取锁失败%s:%s:%s", paramDto.getPickingSiteId(), paramDto.getBizId(), paramDto.getPackageCode()));
         }
@@ -181,7 +175,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
                 } else {
                     insertEntity.setWaitScanCode(paramDto.getPackageCode());
                     insertEntity.setWaitScanCodeType(JyPickingSendRecordEntity.SCAN_PACKAGE);
-                    BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(paramDto.getPickingSiteId().intValue(), paramDto.getPackageCode());
+                    BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(paramDto.getPickingSiteId().intValue(), WaybillUtil.getWaybillCode(paramDto.getPackageCode()));
                     if (!Objects.isNull(dto)) {
                         insertEntity.setInitNextSiteId(dto.getSiteCode().longValue());
                     }
@@ -209,7 +203,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
                     } else {
                         updateEntity.setWaitScanCode(paramDto.getPackageCode());
                         updateEntity.setWaitScanCodeType(JyPickingSendRecordEntity.SCAN_PACKAGE);
-                        BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(paramDto.getPickingSiteId().intValue(), paramDto.getPackageCode());
+                        BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(paramDto.getPickingSiteId().intValue(), WaybillUtil.getWaybillCode(paramDto.getPackageCode()));
                         if (!Objects.isNull(dto)) {
                             updateEntity.setInitNextSiteId(dto.getSiteCode().longValue());
                         }
@@ -217,7 +211,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
                     Date time = new Date();
                     updateEntity.setInitTime(time);
                     updateEntity.setUpdateTime(time);
-                    jyPickingSendRecordDao.insertSelective(updateEntity);
+                    jyPickingSendRecordDao.initUpdateIfExist(updateEntity);
                 } else {
                     logInfo("提货扫描明细初始化，重复数据，不做初始化，data={}", JsonHelper.toJson(paramDto));
                 }
@@ -226,7 +220,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
             log.error("提货扫描明细初始化异常，errMsg={}, data={}", ex.getMessage(), JsonHelper.toJson(paramDto), ex);
             throw new JyBizException(String.format("提货明细初始化服务异常%s:%s:%s:%s", paramDto.getPickingSiteId(), paramDto.getBizId(), paramDto.getPackageCode(), ex.getMessage()));
         }finally {
-            cacheService.unlockPickingGoodDetailRecordInit(paramDto.getPickingSiteId(), paramDto.getBizId(), paramDto.getPackageCode());
+            pickingGoodsCacheService.unlockPickingGoodDetailRecordInit(paramDto.getPickingSiteId(), paramDto.getBizId(), paramDto.getPackageCode());
         }
     }
 

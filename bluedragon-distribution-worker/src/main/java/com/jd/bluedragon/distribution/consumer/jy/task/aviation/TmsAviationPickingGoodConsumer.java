@@ -6,7 +6,7 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskExtendInitDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskInitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.service.picking.bridge.AviationPickingGoodTaskInit;
+import com.jd.bluedragon.distribution.jy.service.picking.template.AviationPickingGoodTaskInit;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;

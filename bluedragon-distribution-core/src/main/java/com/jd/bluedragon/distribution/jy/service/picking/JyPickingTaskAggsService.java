@@ -45,7 +45,7 @@ public interface JyPickingTaskAggsService {
     /**
      * 根据bizId集合查询初始化之后的待提数量
      * 【初始化之前入口：取DB中上游发货登记数量】
-     * ** 注： 这里查的任务未开始前的应提总数，非实时待提
+     * ** 注： 这里查的任务未开始前的应提总数，非实时待提   实时待提数量=应提总数-应提已提总数
      * @param bizIdList
      * @param siteId
      * @param sendNextSiteId   选填，非空，会查该流向待发数量

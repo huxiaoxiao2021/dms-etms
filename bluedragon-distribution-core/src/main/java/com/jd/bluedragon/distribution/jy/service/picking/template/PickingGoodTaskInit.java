@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.service.picking.bridge;
+package com.jd.bluedragon.distribution.jy.service.picking.template;
 
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskInitDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;

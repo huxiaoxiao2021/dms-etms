@@ -109,13 +109,13 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             }
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
                 //实际提货发货的待提箱件数
-                cacheService.incrRealScanWaitSendBoxNum(bizId, siteId);
+//                cacheService.incrRealScanWaitSendBoxNum(bizId, siteId);
                 //实际提货发货的待提箱的件数【流向维度】
                 cacheService.incrRealScaFlowWaitSendBoxNum(bizId, siteId, request.getNextSiteId());
 
                 if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
                     //多提发的箱件数
-                    cacheService.incrRealScanMoreSendBoxNum(bizId, siteId);
+//                    cacheService.incrRealScanMoreSendBoxNum(bizId, siteId);
                     //多提发的箱件数【流向维度】
                     cacheService.incrRealScanFlowMoreSendBoxNum(bizId, siteId, request.getNextSiteId());
                 }
@@ -131,12 +131,12 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             }
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
                 //实际提货发货的待提包裹件数
-                cacheService.incrRealScanWaitSendPackageNum(bizId, siteId);
+//                cacheService.incrRealScanWaitSendPackageNum(bizId, siteId);
                 //实际提货发货的待提包裹件数【流向维度】
                 cacheService.incrRealScanFlowWaitSendPackageNum(bizId, siteId, request.getNextSiteId());
                 if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
                     //多提发的包裹件数
-                    cacheService.incrRealScanMoreSendPackageNum(bizId, siteId);
+//                    cacheService.incrRealScanMoreSendPackageNum(bizId, siteId);
                     //多提发的包裹件数【流向维度】
                     cacheService.incrRealScanFlowMoreSendPackageNum(bizId, siteId, request.getNextSiteId());
                 }
@@ -235,7 +235,6 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         });
 
         if(!CollectionUtils.isEmpty(nullCacheBizId)) {
-            List<PickingSendGoodAggsDto> dbQueryDtoList = new ArrayList<>();
             if(Objects.isNull(sendNextSiteId)) {
                 List<JyPickingTaskAggsEntity> pickingAggsEntityList = jyPickingTaskAggsDao.findByBizIdList(nullCacheBizId, siteId);
                 pickingAggsEntityList.forEach(entity -> {
@@ -256,7 +255,6 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
                 });
             }
 
-            res.addAll(dbQueryDtoList);
         }
         return res;
     }

@@ -54,6 +54,10 @@ public class JyPickingSendRecordDao extends BaseDao<JyPickingSendRecordEntity> {
     public JyPickingSendRecordEntity fetchByPackageCodeAndBizId(JyPickingSendRecordEntity recordEntity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".latestPickingRecord", recordEntity);
     }
+    //初始化时如果已经存在做更新
+    public int initUpdateIfExist(JyPickingSendRecordEntity updateEntity) {
+        return this.getSqlSession().update(NAMESPACE + ".initUpdateIfExist", updateEntity);
+    }
 
 
 //

@@ -2,13 +2,9 @@ package com.jd.bluedragon.distribution.consumer.jy.task.aviation;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.jy.constants.PickingGoodTaskDetailInitServiceEnum;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.service.picking.JyAviationRailwayPickingGoodsService;
 import com.jd.bluedragon.distribution.jy.service.picking.JyPickingSendRecordService;
-import com.jd.bluedragon.distribution.jy.service.picking.bridge.PickingGoodDetailInitService;
-import com.jd.bluedragon.distribution.jy.service.picking.factory.PickingGoodDetailInitServiceFactory;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;

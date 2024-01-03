@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.service.picking.bridge;
+package com.jd.bluedragon.distribution.jy.service.picking.template;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
@@ -15,7 +15,6 @@ import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidi
 import com.jd.bluedragon.distribution.jy.service.picking.JyBizTaskPickingGoodService;
 import com.jd.bluedragon.distribution.jy.service.picking.JyBizTaskPickingGoodTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.picking.JyPickingTaskAggsCacheService;
-import com.jd.bluedragon.distribution.jy.service.picking.factory.PickingGoodDetailInitServiceFactory;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;

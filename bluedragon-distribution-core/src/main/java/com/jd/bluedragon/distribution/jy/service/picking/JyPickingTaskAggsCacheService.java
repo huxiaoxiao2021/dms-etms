@@ -273,34 +273,34 @@ public class JyPickingTaskAggsCacheService {
         return String.format(CACHE_REAL_SCAN_MORE_PICKING_BOX, bizId, siteId);
     }
 
-    //
-    public Integer incrRealScanWaitSendPackageNum(String bizId, Long siteId){
-        String key = String.format(CACHE_REAL_SCAN_WAIT_SEND_PACKAGE, bizId, siteId);
-        Long num = redisClientOfJy.incr(key);
-        redisClientOfJy.expire(key, CACHE_REAL_SCAN_WAIT_SEND_PACKAGE_TIMEOUT_DAYS, TimeUnit.DAYS);
-        return num.intValue();
-    }
-
-    public Integer incrRealScanWaitSendBoxNum(String bizId, Long siteId){
-        String key = String.format(CACHE_REAL_SCAN_WAIT_SEND_BOX, bizId, siteId);
-        Long num = redisClientOfJy.incr(key);
-        redisClientOfJy.expire(key, CACHE_REAL_SCAN_WAIT_SEND_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
-        return num.intValue();
-    }
-
-    public Integer incrRealScanMoreSendPackageNum(String bizId, Long siteId){
-        String key = String.format(CACHE_REAL_SCAN_MORE_SEND_PACKAGE, bizId, siteId);
-        Long num = redisClientOfJy.incr(key);
-        redisClientOfJy.expire(key, CACHE_REAL_SCAN_MORE_SEND_PACKAGE_TIMEOUT_DAYS, TimeUnit.DAYS);
-        return num.intValue();
-    }
-
-    public Integer incrRealScanMoreSendBoxNum(String bizId, Long siteId){
-        String key = String.format(CACHE_REAL_SCAN_MORE_SEND_BOX, bizId, siteId);
-        Long num = redisClientOfJy.incr(key);
-        redisClientOfJy.expire(key, CACHE_REAL_SCAN_MORE_SEND_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
-        return num.intValue();
-    }
+    //实际提货发货的待提包裹件数
+//    public Integer incrRealScanWaitSendPackageNum(String bizId, Long siteId){
+//        String key = String.format(CACHE_REAL_SCAN_WAIT_SEND_PACKAGE, bizId, siteId);
+//        Long num = redisClientOfJy.incr(key);
+//        redisClientOfJy.expire(key, CACHE_REAL_SCAN_WAIT_SEND_PACKAGE_TIMEOUT_DAYS, TimeUnit.DAYS);
+//        return num.intValue();
+//    }
+//实际提货发货的待提箱件数
+//    public Integer incrRealScanWaitSendBoxNum(String bizId, Long siteId){
+//        String key = String.format(CACHE_REAL_SCAN_WAIT_SEND_BOX, bizId, siteId);
+//        Long num = redisClientOfJy.incr(key);
+//        redisClientOfJy.expire(key, CACHE_REAL_SCAN_WAIT_SEND_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
+//        return num.intValue();
+//    }
+//多提发的包裹件数
+//    public Integer incrRealScanMoreSendPackageNum(String bizId, Long siteId){
+//        String key = String.format(CACHE_REAL_SCAN_MORE_SEND_PACKAGE, bizId, siteId);
+//        Long num = redisClientOfJy.incr(key);
+//        redisClientOfJy.expire(key, CACHE_REAL_SCAN_MORE_SEND_PACKAGE_TIMEOUT_DAYS, TimeUnit.DAYS);
+//        return num.intValue();
+//    }
+    //多提发的箱件数
+//    public Integer incrRealScanMoreSendBoxNum(String bizId, Long siteId){
+//        String key = String.format(CACHE_REAL_SCAN_MORE_SEND_BOX, bizId, siteId);
+//        Long num = redisClientOfJy.incr(key);
+//        redisClientOfJy.expire(key, CACHE_REAL_SCAN_MORE_SEND_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
+//        return num.intValue();
+//    }
 
 
     /**

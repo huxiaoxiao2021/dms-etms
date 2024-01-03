@@ -137,7 +137,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             else {
                 this.doPickingGoods(request, res, taskPickingGoodEntity);
             }
-            //提货记录
+            //提货记录 todo 考虑异步处理，避免和任务初始化并发时互相补偿， 和扫描不是一把锁
             this.savePickingRecord(request, resData, taskPickingGoodEntity);
 
             //异步相关处理
@@ -276,7 +276,11 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         Integer num = aggsCacheService.getCacheInitWaitPickingTotalItemNum(bizId, siteId);
         if(!NumberHelper.gt0(num)) {
             List<String> bizIdList = Arrays.asList(bizId);
-            jyPickingTaskAggsService.waitPickingInitTotalNum(bizIdList, siteId, null);
+            List<PickingSendGoodAggsDto> list = jyPickingTaskAggsService.waitPickingInitTotalNum(bizIdList, siteId, null);
+            if(CollectionUtils.isNotEmpty(list)) {
+                num = list.get(0).getWaitSendTotalNum();
+            }
+
         }
         return num;
     }

@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.picking.factory;
 
-import com.jd.bluedragon.distribution.jy.service.picking.bridge.PickingGoodDetailInitService;
+import com.jd.bluedragon.distribution.jy.service.picking.strategy.PickingGoodDetailInitService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

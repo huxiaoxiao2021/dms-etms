@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.service.picking.bridge;
+package com.jd.bluedragon.distribution.jy.service.picking.strategy;
 
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
 
@@ -18,10 +18,4 @@ public interface PickingGoodDetailInitService {
      * @return
      */
     public boolean pickingGoodDetailInitSplit(PickingGoodTaskDetailInitDto initDto);
-
-    /**
-     * 待提明细初始化
-     * @return
-     */
-    public boolean pickingGoodDetailInit(Collection<PickingGoodTaskDetailInitDto> values);
 }

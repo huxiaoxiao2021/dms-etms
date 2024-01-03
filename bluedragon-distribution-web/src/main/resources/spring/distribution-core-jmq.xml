@@ -984,4 +984,10 @@
         <property name="topic" value="${jmq.topic.jy.picking.good.detail.init.split}" />
         <property name="timeout" value="1000" />
     </bean>
+
+    <!--  拣运提货待提件数保持  -->
+    <bean id="jyPickingGoodSaveWaitScanItemNumProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.wait.scan.num}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>
