@@ -11,7 +11,9 @@ import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridScheduleManager;
@@ -20,14 +22,11 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.domain.SysConfigJobCodeHoursContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
@@ -48,13 +47,10 @@ import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.NoticeUtils;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.domain.BaseSite;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
@@ -68,6 +64,7 @@ import com.jdl.basic.api.domain.workStation.*;
 import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
+import com.jdl.basic.api.domain.workStation.WorkStationJobTypeDto;
 import com.jdl.basic.common.utils.DateUtil;
 import com.jdl.jy.flat.dto.schedule.DataScheduleNatureDto;
 import com.jdl.jy.flat.dto.schedule.ScheduleAggsDto;
@@ -108,6 +105,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 	@Value("${beans.userSignRecordService.queryByPositionRangeDays:2}")
 	private int queryByPositionRangeDays;
+
+	@Value("${beans.userSignGatewayService.needCheckAutoSignOutHours:2}")
+	private int needCheckAutoSignOutHours;
 
 	@Autowired
 	@Qualifier("workStationService")
@@ -2435,6 +2435,134 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.setData(signData);
 		return result;
 	}
+
+	@Override
+	public JdCResponse<UserSignRecordData> checkBeforeSignIn(UserSignRequest userSignRequest) {
+		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
+		result.toSucceed();
+		if(userSignRequest == null) {
+			result.toFail("请求参数不能为空！");
+			return result;
+		}
+		String positionCode = userSignRequest.getPositionCode();
+		String scanUserCode = userSignRequest.getScanUserCode();
+		if(StringHelper.isNotEmpty(scanUserCode)) {
+			if(!BusinessUtil.isScanUserCode(scanUserCode)){
+				result.toFail("请扫描正确的人员码！");
+				return result;
+			}
+			userSignRequest.setJobCode(BusinessUtil.getJobCodeFromScanUserCode(scanUserCode));
+			userSignRequest.setUserCode(BusinessUtil.getUserCodeFromScanUserCode(scanUserCode));
+		}else if(StringHelper.isEmpty(userSignRequest.getUserCode())) {
+			result.toFail("用户编码不能为空！");
+			return result;
+		}
+		
+		String userCode=userSignRequest.getUserCode();
+		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
+		if(isCarId){
+			String  msg=checkAttendanceBlackListOfBefore(result,userCode);
+			if(StringUtils.isNotBlank(msg)){
+				return result;
+			}
+		}
+		return checkUserSignStatus(positionCode, userSignRequest.getJobCode(), userSignRequest.getUserCode());
+	}
+
+	@Override
+	public JdCResponse<UserSignRecordData> checkUserSignStatus(String positionCode, Integer jobCode, String userCode) {
+		JdCResponse<UserSignRecordData> result = new JdCResponse<UserSignRecordData>();
+		result.toSucceed();
+		UserSignQueryRequest query = new UserSignQueryRequest();
+		query.setUserCode(userCode);
+		UserSignRecordData lastUnSignOutData = null;
+		JdCResponse<UserSignRecordData> lastUnSignOutResult = this.queryLastUnSignOutRecordData(query);
+		if(lastUnSignOutResult != null
+				&&lastUnSignOutResult.getData() != null) {
+			lastUnSignOutData = lastUnSignOutResult.getData();
+		}
+		//判断在岗状态，在岗岗位码和当前不一致，给出提示
+		if(lastUnSignOutData != null
+				&& lastUnSignOutData.getPositionCode() != null
+				&& !positionCode.equals(lastUnSignOutData.getPositionCode())) {
+			String workName = lastUnSignOutData.getPositionCode();
+			Map<String, String> argsMap = new HashMap<>();
+			if(StringUtils.isNotBlank(lastUnSignOutData.getGridName())
+					&& StringUtils.isNotBlank(lastUnSignOutData.getWorkName())) {
+				workName = StringHelper.append(lastUnSignOutData.getGridName(), Constants.SEPARATOR_COMMA_CN+lastUnSignOutData.getWorkName());
+			}else {
+				workName = lastUnSignOutData.getPositionCode();
+			}
+			argsMap.put(HintArgsConstants.ARG_FIRST, workName);
+			String defaultMsg = String.format(HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN_MSG, workName);
+			result.toConfirm(HintService.getHint(defaultMsg,HintCodeConstants.CONFIRM_CHANGE_GW_FOR_SIGN, argsMap));
+			return result;
+		}
+
+		// 校验网格码场地和用户场地是否一致
+		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
+			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
+					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
+			return result;
+		}
+		//判断上次签退是否人脸识别自动签退
+		if(lastUnSignOutData == null) {
+			UserSignQueryRequest lastSignQuery = new UserSignQueryRequest();
+			lastSignQuery.setUserCode(userCode);
+			JdCResponse<UserSignRecordData> lastSignResult = this.queryLastUserSignRecordData(lastSignQuery);
+			UserSignRecordData lastSignData = null;
+			if(lastSignResult != null
+					&&lastSignResult.getData() != null) {
+				lastSignData = lastSignResult.getData();
+				//需要判断当前时间与系统自动签退时间是否小于2小时，若小于2小时,需要确认
+				Date checkTime = DateHelper.addHours(new Date(), - needCheckAutoSignOutHours);
+				if(DmsConstants.USER_CODE_AUTO_SIGN_OUT_FORM_RZ.equals(lastSignData.getUpdateUser())
+						&& lastSignData.getSignOutTime() != null
+						&& lastSignData.getSignOutTime().after(checkTime)) {
+					result.toConfirm(HintCodeConstants.CONFIRM_AUTO_SIGN_OUT_FOR_SIGN_MSG);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 作业APP网格码错误检验
+	 */
+	private boolean checkOperatorBaseInfo(String positionCode, String userCode) {
+		if (StringUtils.isBlank(positionCode) || StringUtils.isBlank(userCode)) {
+			return true;
+		}
+		// 查询网格码信息
+		com.jdl.basic.common.utils.Result<PositionDetailRecord> apiResult = positionManager.queryOneByPositionCode(positionCode);
+		if(apiResult == null || !apiResult.isSuccess()  || apiResult.getData() == null){
+			return true;
+		}
+		BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(apiResult.getData().getSiteCode());
+		if (dtoStaff == null) {
+			return true;
+		}
+		// 查询人员信息
+		BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+		if(baseStaffByErp == null) {
+			return true;
+		}
+		// 网格码为分拣场地类型
+		if (BusinessUtil.isSortingCenter(dtoStaff.getSortType(), dtoStaff.getSortSubType(),dtoStaff.getSortThirdType())) {
+			// 所属场地是否与当前网格码对应场地一致
+			return baseStaffByErp.getSiteCode().equals(apiResult.getData().getSiteCode());
+		}
+		// 网格码为接货仓场地类型
+		if (BusinessUtil.isReceivingWarehouse(dtoStaff.getSortType())) {
+			// 所属场地对应省区与网格码所属接货仓省区是否一致
+			if (StringUtils.isBlank(baseStaffByErp.getProvinceAgencyCode()) || StringUtils.isBlank(apiResult.getData().getProvinceAgencyCode())) {
+				return true;
+			}
+			return baseStaffByErp.getProvinceAgencyCode().equals(apiResult.getData().getProvinceAgencyCode());
+		}
+		return true;
+	}
+
 	/**
 	 * 签到记录-加载网格相关数据
 	 * @param signData
@@ -2547,6 +2675,30 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 					//已生效
 					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TAKE_EFFECTIVE_MSG, userCode);
 					result.toFail(defaultMsg);
+					return defaultMsg;
+				}
+			}
+		}
+		return  "";
+	}
+
+	private String checkAttendanceBlackListOfBefore(JdCResponse<UserSignRecordData> result,String userCode){
+		//查询出勤黑名单，并校验
+		com.jdl.basic.common.utils.Result<AttendanceBlackList> rs=attendanceBlackListManager.queryByUserCode(userCode);
+		if(rs == null){
+			return "调用AttendanceBlackListJsfService失败";
+		}
+		if(rs.isSuccess()){
+			AttendanceBlackList attendanceBlackList=rs.getData();
+			if(attendanceBlackList !=null){
+				int cancelFlag=attendanceBlackList.getCancelFlag();
+				Date takeTime=attendanceBlackList.getTakeTime();
+				String dateStr= DateUtil.format(new Date(),DateUtil.FORMAT_DATE_MINUTE);
+				Date currentTime=DateUtil.parse(dateStr,DateUtil.FORMAT_DATE_MINUTE);
+				if(cancelFlag ==Constants.NUMBER_ZERO && (currentTime.compareTo(takeTime) < Constants.NUMBER_ZERO)){
+					//待生效
+					String defaultMsg = String.format(HintCodeConstants.ATTENDANCE_BLACK_LIST_TOBE_EFFECTIVE_MSG, userCode,DateUtil.format(takeTime,DateUtil.FORMAT_DATE));
+					result.toConfirm(defaultMsg);
 					return defaultMsg;
 				}
 			}
