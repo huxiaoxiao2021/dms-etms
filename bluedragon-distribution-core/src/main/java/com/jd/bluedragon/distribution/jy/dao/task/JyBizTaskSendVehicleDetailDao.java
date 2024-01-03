@@ -162,4 +162,8 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         return this.getSqlSession().update(NAMESPACE + ".updateStatusByDetailVehicleBizIds", params) > 0;
     }
 
+    public int batchUpdateByBizIds(JyBizTaskSendVehicleDetailQueryEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".batchUpdateByBizIds", entity);
+    }
+
 }

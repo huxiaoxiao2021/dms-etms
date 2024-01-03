@@ -1585,6 +1585,51 @@ public class UccPropertyConfiguration{
      */
     private Integer czSealCarPackageCountMinLimit;
 
+    /**
+     * 接货仓发货岗待发货任务列表计划发车时间查询条件前X小时
+     */
+    private Integer jyWarehouseToSendPlanTimeBeginHours;
+
+    /**
+     * 接货仓发货岗待发货任务列表计划发车时间查询条件后X小时
+     */
+    private Integer jyWarehouseToSendPlanTimeEndHours;
+
+    /**
+     * 接货仓发货岗发货中任务列表计划发车时间查询条件前X小时
+     */
+    private Integer jyWarehouseSendingPlanTimeBeginHours;
+
+    /**
+     * 接货仓发货岗发货中任务列表计划发车时间查询条件后X小时
+     */
+    private Integer jyWarehouseSendingPlanTimeEndHours;
+
+    /**
+     * 接货仓发货岗待封车任务列表计划发车时间查询条件前X小时
+     */
+    private Integer jyWarehouseToSealPlanTimeBeginHours;
+
+    /**
+     * 接货仓发货岗待封车任务列表计划发车时间查询条件后X小时
+     */
+    private Integer jyWarehouseToSealPlanTimeEndHours;
+
+    /**
+     * 接货仓发货岗已封车任务列表计划发车时间查询条件前X小时
+     */
+    private Integer jyWarehouseSealedPlanTimeBeginHours;
+
+    /**
+     * 接货仓发货岗已封车任务列表计划发车时间查询条件后X小时
+     */
+    private Integer jyWarehouseSealedPlanTimeEndHours;
+
+    /**
+     * 接货仓发货岗任务列表创建时间查询条件前X小时
+     */
+    private Integer jyWarehouseTaskCreateTimeBeginHours;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4243,5 +4288,77 @@ public class UccPropertyConfiguration{
 
     public void setFindGoodSendMessageDefaultErp(String findGoodSendMessageDefaultErp) {
         this.findGoodSendMessageDefaultErp = findGoodSendMessageDefaultErp;
+    }
+
+    public Integer getJyWarehouseToSendPlanTimeBeginHours() {
+        return jyWarehouseToSendPlanTimeBeginHours;
+    }
+
+    public void setJyWarehouseToSendPlanTimeBeginHours(Integer jyWarehouseToSendPlanTimeBeginHours) {
+        this.jyWarehouseToSendPlanTimeBeginHours = jyWarehouseToSendPlanTimeBeginHours;
+    }
+
+    public Integer getJyWarehouseToSendPlanTimeEndHours() {
+        return jyWarehouseToSendPlanTimeEndHours;
+    }
+
+    public void setJyWarehouseToSendPlanTimeEndHours(Integer jyWarehouseToSendPlanTimeEndHours) {
+        this.jyWarehouseToSendPlanTimeEndHours = jyWarehouseToSendPlanTimeEndHours;
+    }
+
+    public Integer getJyWarehouseSendingPlanTimeBeginHours() {
+        return jyWarehouseSendingPlanTimeBeginHours;
+    }
+
+    public void setJyWarehouseSendingPlanTimeBeginHours(Integer jyWarehouseSendingPlanTimeBeginHours) {
+        this.jyWarehouseSendingPlanTimeBeginHours = jyWarehouseSendingPlanTimeBeginHours;
+    }
+
+    public Integer getJyWarehouseSendingPlanTimeEndHours() {
+        return jyWarehouseSendingPlanTimeEndHours;
+    }
+
+    public void setJyWarehouseSendingPlanTimeEndHours(Integer jyWarehouseSendingPlanTimeEndHours) {
+        this.jyWarehouseSendingPlanTimeEndHours = jyWarehouseSendingPlanTimeEndHours;
+    }
+
+    public Integer getJyWarehouseToSealPlanTimeBeginHours() {
+        return jyWarehouseToSealPlanTimeBeginHours;
+    }
+
+    public void setJyWarehouseToSealPlanTimeBeginHours(Integer jyWarehouseToSealPlanTimeBeginHours) {
+        this.jyWarehouseToSealPlanTimeBeginHours = jyWarehouseToSealPlanTimeBeginHours;
+    }
+
+    public Integer getJyWarehouseToSealPlanTimeEndHours() {
+        return jyWarehouseToSealPlanTimeEndHours;
+    }
+
+    public void setJyWarehouseToSealPlanTimeEndHours(Integer jyWarehouseToSealPlanTimeEndHours) {
+        this.jyWarehouseToSealPlanTimeEndHours = jyWarehouseToSealPlanTimeEndHours;
+    }
+
+    public Integer getJyWarehouseSealedPlanTimeBeginHours() {
+        return jyWarehouseSealedPlanTimeBeginHours;
+    }
+
+    public void setJyWarehouseSealedPlanTimeBeginHours(Integer jyWarehouseSealedPlanTimeBeginHours) {
+        this.jyWarehouseSealedPlanTimeBeginHours = jyWarehouseSealedPlanTimeBeginHours;
+    }
+
+    public Integer getJyWarehouseSealedPlanTimeEndHours() {
+        return jyWarehouseSealedPlanTimeEndHours;
+    }
+
+    public void setJyWarehouseSealedPlanTimeEndHours(Integer jyWarehouseSealedPlanTimeEndHours) {
+        this.jyWarehouseSealedPlanTimeEndHours = jyWarehouseSealedPlanTimeEndHours;
+    }
+
+    public Integer getJyWarehouseTaskCreateTimeBeginHours() {
+        return jyWarehouseTaskCreateTimeBeginHours;
+    }
+
+    public void setJyWarehouseTaskCreateTimeBeginHours(Integer jyWarehouseTaskCreateTimeBeginHours) {
+        this.jyWarehouseTaskCreateTimeBeginHours = jyWarehouseTaskCreateTimeBeginHours;
     }
 }

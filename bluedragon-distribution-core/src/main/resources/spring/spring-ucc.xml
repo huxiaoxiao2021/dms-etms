@@ -329,6 +329,15 @@
         <property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
         <property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:5000}"/>
 		<property name="findGoodSendMessageDefaultErp" value="${findGoodSendMessageDefaultErp:''}"/>
+		<property name="jyWarehouseToSendPlanTimeBeginHours" value="${jyWarehouseToSendPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseToSendPlanTimeEndHours" value="${jyWarehouseToSendPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseSendingPlanTimeBeginHours" value="${jyWarehouseSendingPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseSendingPlanTimeEndHours" value="${jyWarehouseSendingPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseToSealPlanTimeBeginHours" value="${jyWarehouseToSealPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseToSealPlanTimeEndHours" value="${jyWarehouseToSealPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseSealedPlanTimeBeginHours" value="${jyWarehouseSealedPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseSealedPlanTimeEndHours" value="${jyWarehouseSealedPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseTaskCreateTimeBeginHours" value="${jyWarehouseTaskCreateTimeBeginHours:168}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -663,6 +672,15 @@
 				<value>uccPropertyConfiguration.terminalSiteTypeForBoxType</value>
 				<value>uccPropertyConfiguration.boxTypeNewVersionSwitch</value>
 				<value>uccPropertyConfiguration.findGoodSendMessageDefaultErp</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseTaskCreateTimeBeginHours</value>
 			</list>
 		</property>
 	</bean>
