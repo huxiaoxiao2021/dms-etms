@@ -847,8 +847,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         if (JyExceptionDamageEnum.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode().equals(req.getDamageType())
         && (JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPAIR.getCode().equals(req.getRepairType())
                 || JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode().equals(req.getRepairType()))
-        && req.getConsumables() != null) {
-            List<String> barcodes = req.getConsumables().stream().map(e -> e.getBarcode()).collect(Collectors.toList());
+        && req.getConsumables() != null) {//只有纸箱，防水袋，文件封需要填条码校验
+            List<String> barcodes = req.getConsumables().stream().filter(e->
+                e.getCode().equals(JyExceptionDamageEnum.ConsumableEnum.PAPER_BOX.getCode())
+                ||e.getCode().equals(JyExceptionDamageEnum.ConsumableEnum.FILE_SEALING.getCode())
+                ||e.getCode().equals(JyExceptionDamageEnum.ConsumableEnum.WATERPROOF_BAG.getCode())
+            ).map(e -> e.getBarcode()).collect(Collectors.toList());
             if (Boolean.FALSE.equals(consumableManager.checkConsumable(barcodes, req.getUserErp()))) {
                 return JdCResponse.fail("耗材条码有误");
             }
