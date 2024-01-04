@@ -600,7 +600,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             return true;
         }
         // 正向外单 waybillsign1=3且waybillsign34=0
-        if (!BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_3) &&
+        if (!BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_3) ||
                 !BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_34, WaybillSignConstants.CHAR_34_0)) {
             result.setData(false);
             return true;
