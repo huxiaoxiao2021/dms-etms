@@ -597,8 +597,8 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             }
 
             BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(baseStaffByErp.getSiteCode());
-            if (!Objects.equals(WorkSiteTypeEnum.DTS_TYPE.getFirstTypesOfThird(), siteInfo.getSortType())
-                    || !Objects.equals(WorkSiteTypeEnum.DTS_TYPE.getSecondTypesOfThird(), siteInfo.getSortSubType())) {
+            if (!Objects.equals(WorkSiteTypeEnum.DMS_TYPE.getFirstTypesOfThird(), siteInfo.getSortType())
+                    || !Objects.equals(WorkSiteTypeEnum.DMS_TYPE.getSecondTypesOfThird(), siteInfo.getSortSubType())) {
                 result.setData(false);
                 return true;
             }
