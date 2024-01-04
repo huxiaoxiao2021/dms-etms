@@ -426,6 +426,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         if (!DMS_CLIENT_BATCH_SORT_WEIGH_PRINT.equals(sourceCode) && !DMS_CLIENT_SITE_PLATE_PRINT.equals(sourceCode)
                 && !DMS_CLIENT_FAST_TRANSPORT_PRINT.equals(sourceCode) && !DMS_WEB_FAST_TRANSPORT.equals(sourceCode)
                 && !DMS_WEB_PACKAGE_FAST_TRANSPORT.equals(sourceCode) && !DMS_CLIENT_WEIGHT_VOLUME.equals(sourceCode) ) {
+            logger.info("{}非0重量包裹打印入口校验", barCode);
             result.setData(false);
             return result;
         }
@@ -439,6 +440,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
 
         // 根据erp判断当前操作人员所属机构是否为分拣场地人员
         if (checkErpBindingSite(operatorCode, result, sourceCode)) {
+            logger.info("{}操作人员非分拣场地人员", barCode);
             return result;
         }
 
@@ -512,6 +514,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             return true;
         }
 
+        logger.info("运单号{}存在复重复量方，继续校验包裹数据！", waybillCode);
         // 如果当前运单不存在，则对包裹的重量体积进行校验
         List<DeliveryPackageD> packageList = bigWaybill.getPackageList();
         for (DeliveryPackageD deliveryPackageD : packageList) {
@@ -530,6 +533,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
                         return true;
                     }
                 }
+                logger.info("运单号下的包裹号{}不存在前置操作节点", deliveryPackageD.getPackageBarcode());
                 result.setCode(WAYBILL_ZERO_WEIGHT_NOT_IN_CODE);
                 result.setMessage(WAYBILL_ZERO_WEIGHT_NOT_IN_MESSAGE);
                 result.setData(true);
