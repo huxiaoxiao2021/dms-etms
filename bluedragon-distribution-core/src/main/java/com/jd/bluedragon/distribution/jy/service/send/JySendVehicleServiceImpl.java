@@ -3885,7 +3885,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleServiceImpl.listVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<VehicleSpecResp>> listVehicleType() {
-        return jyNoTaskSendService.listVehicleType();
+        return jyNoTaskSendService.listVehicleType(new VehicleTaskReq());
     }
 
     @Override

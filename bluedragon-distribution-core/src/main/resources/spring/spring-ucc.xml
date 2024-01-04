@@ -336,6 +336,7 @@
 		<property name="jyWarehouseSealedPlanTimeBeginHours" value="${jyWarehouseSealedPlanTimeBeginHours:24}"/>
 		<property name="jyWarehouseSealedPlanTimeEndHours" value="${jyWarehouseSealedPlanTimeEndHours:48}"/>
 		<property name="jyWarehouseTaskCreateTimeBeginHours" value="${jyWarehouseTaskCreateTimeBeginHours:168}"/>
+		<property name="jyWarehouseManualTaskKeyVehicleTypes" value="${jyWarehouseManualTaskKeyVehicleTypes:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
