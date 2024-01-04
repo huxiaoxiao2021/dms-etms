@@ -590,13 +590,15 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
                 || DMS_CLIENT_FAST_TRANSPORT_PRINT.equals(sourceCode) || DMS_CLIENT_WEIGHT_VOLUME.equals(sourceCode)
                 || DMS_WEB_FAST_TRANSPORT.equals(sourceCode) || DMS_WEB_PACKAGE_FAST_TRANSPORT.equals(sourceCode)) {
             BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(operatorCode);
-            if (null == baseStaffByErp || null == baseStaffByErp.getSortType() || null == baseStaffByErp.getSortSubType()) {
+            if (null == baseStaffByErp || null == baseStaffByErp.getSiteCode()) {
                 logger.info("erp{}未获取到所属站点站点", operatorCode);
                 result.setData(false);
                 return true;
             }
-            if (!Objects.equals(WorkSiteTypeEnum.DTS_TYPE.getFirstTypesOfThird(), baseStaffByErp.getSortType())
-                    || !Objects.equals(WorkSiteTypeEnum.DTS_TYPE.getSecondTypesOfThird(), baseStaffByErp.getSortSubType())) {
+
+            BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(baseStaffByErp.getSiteCode());
+            if (!Objects.equals(WorkSiteTypeEnum.DTS_TYPE.getFirstTypesOfThird(), siteInfo.getSortType())
+                    || !Objects.equals(WorkSiteTypeEnum.DTS_TYPE.getSecondTypesOfThird(), siteInfo.getSortSubType())) {
                 result.setData(false);
                 return true;
             }
