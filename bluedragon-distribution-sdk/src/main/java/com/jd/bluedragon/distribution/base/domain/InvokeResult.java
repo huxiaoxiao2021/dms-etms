@@ -320,6 +320,16 @@ public class InvokeResult<T> implements Serializable {
     public static final String CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_MESSAGE = "车辆封车的板数量小于【%s】 件数小于【%s】 请拍照！";
     public static final int CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_CODE = 3072;
     public static final String CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_MESSAGE = "发货目的地【%s】不在本网格的传站流向中，请使用正确的网格码登录封车";
+
+    public static final int WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE = 3073;
+    public static final String WAYBILL_ZERO_WEIGHT_INTERCEPT_MESSAGE = "非0重体包裹，分拣无法进行复重，如需修改包裹重量体积请通过抽检功能！（人工抽检可通过PDA或PC端http://dms.etms.jd.com/?code=CK_U7EHDAmcJNI_pQP3gFz3A0D-7ahSXW2VBFEC9D1g&state=-4C3Ku4n-HWGM7cYpVsfFwcys9RVknqZNBjhFYLXe9I";
+
+    public static final int WAYBILL_ZERO_WEIGHT_NOT_IN_CODE = 3074;
+    public static final String WAYBILL_ZERO_WEIGHT_NOT_IN_MESSAGE = "该包裹未识别到在当前分拣中心有操作记录，请先在该场地进行操作后再进行称重量方！";
+
+    public static final int WAYBILL_ZERO_WEIGHT_RECYCLE_BASKET_CODE = 3075;
+    public static final String WAYBILL_ZERO_WEIGHT_RECYCLE_BASKET_MESSAGE = "包裹运单0重量且使用周转筐落自动化回流，由人工进行称重！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
