@@ -659,6 +659,7 @@
 				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeBeginHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeEndHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseTaskCreateTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseManualTaskKeyVehicleTypes</value>
 			</list>
 		</property>
 	</bean>
