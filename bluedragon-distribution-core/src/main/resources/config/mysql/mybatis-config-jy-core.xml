@@ -28,6 +28,7 @@
         <typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity" alias="JySendAggsEntity" />
 		<typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity" alias="JySendTransferLogEntity" />
 		<typeAlias type="com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity" alias="JyExceptionDamageEntity" />
+		<typeAlias type="com.jd.bluedragon.distribution.jy.exception.JyDamageConsumableEntity" alias="JyDamageConsumableEntity" />
 
 	</typeAliases>
 
@@ -76,6 +77,7 @@
 		<mapper resource="mappers/mysql/jy/findgoods/JyBizTaskFindGoodsDao.xml" />
 		<mapper resource="mappers/mysql/jy/findgoods/JyBizTaskFindGoodsDetailDao.xml" />
 		<mapper resource="mappers/mysql/jy/exception/JyExceptionDamageMapper.xml"/>
+		<mapper resource="mappers/mysql/jy/exception/JyDamageConsumableMapper.xml"/>
 
 		<!-- 航空任务发货表 -->
 		<mapper resource="mappers/mysql/jy/task/JyBizTaskSendAviationPlanMapper.xml" />

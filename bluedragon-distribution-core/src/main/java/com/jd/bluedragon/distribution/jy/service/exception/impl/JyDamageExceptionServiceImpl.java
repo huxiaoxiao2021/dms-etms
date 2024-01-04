@@ -12,16 +12,21 @@ import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeD
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.ConsumableManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
 import com.jd.bluedragon.distribution.abnormal.service.StrandService;
+import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.api.response.base.ResultCodeConstant;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyDamageConsumableDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDamageDao;
+import com.jd.bluedragon.distribution.jy.dto.Consumable;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
@@ -29,6 +34,10 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionServ
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
+import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
+import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
+import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
@@ -43,9 +52,11 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.tp.common.utils.Objects;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -57,6 +68,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -132,6 +144,16 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Autowired
     private DmsConfigManager dmsConfigManager;
 
+    @Autowired
+    private ConsumableManager consumableManager;
+
+    @Autowired
+    private JyDamageConsumableDao jyDamageConsumableDao;
+
+    @Autowired
+    private WorkStationGridService workStationGridService;
+
+    private static final Integer EXPRESS_DELIVERY = 1;
 
     public Integer getExceptionType() {
         return JyBizTaskExceptionTypeEnum.DAMAGE.getCode();
@@ -744,7 +766,20 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             damageDetail.setRepairTypeName(JyExceptionDamageEnum.InsideOutsideDamagedRepairTypeEnum.getNameByCode(damageDetail.getRepairType()));
         }
         damageDetail.setFeedBackTypeName(JyExceptionDamageEnum.FeedBackTypeEnum.getNameByCode(damageDetail.getFeedBackType()));
-
+        //只有客服反馈为修复下传和更换包装下传时才有耗材信息
+        if (damageDetail.getFeedBackType().equals(JyExceptionDamageEnum.FeedBackTypeEnum.REPAIR_HANDOVER.getCode())
+        || damageDetail.getFeedBackType().equals(JyExceptionDamageEnum.FeedBackTypeEnum.REPLACE_PACKAGING_HANDOVER.getCode())) {
+            List<JyDamageConsumableEntity> jyDamageConsumableEntities = jyDamageConsumableDao.selectByBizId(damageDetail.getBizId());
+            List<Consumable> consumables = new ArrayList<>();
+            jyDamageConsumableEntities.forEach(entity -> {
+                Consumable consumable = new Consumable();
+                consumable.setCode(entity.getConsumableCode());
+                consumable.setName(entity.getConsumableName());
+                consumable.setBarcode(entity.getConsumableBarcode());
+                consumables.add(consumable);
+            });
+            damageDetail.setConsumables(consumables);
+        }
         // 查询修复前图片
         damageDetail.setActualImageUrlList(this.getImageUrlList(oldEntity, JyAttachmentBizTypeEnum.DAMAGE_EXCEPTION_PACKAGE_BEFORE.getCode()));
         // 查询修复后图片
@@ -840,7 +875,22 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.processTaskOfDamage", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req) {
         logger.info("JySanwuExceptionServiceImpl.processTaskOfDamage req:{}", JSON.toJSONString(req));
+        //仅当外包装破损且选择修复或更换外包装时 走终端校验耗材条码
+        if (JyExceptionDamageEnum.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode().equals(req.getDamageType())
+        && (JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPAIR.getCode().equals(req.getRepairType())
+                || JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPLACE_PACKAGING.getCode().equals(req.getRepairType()))
+        && req.getConsumables() != null) {//只有纸箱，防水袋，文件封需要填条码校验
+            List<String> barcodes = req.getConsumables().stream().filter(e->
+                e.getCode().equals(JyExceptionDamageEnum.ConsumableEnum.PAPER_BOX.getCode())
+                ||e.getCode().equals(JyExceptionDamageEnum.ConsumableEnum.FILE_SEALING.getCode())
+                ||e.getCode().equals(JyExceptionDamageEnum.ConsumableEnum.WATERPROOF_BAG.getCode())
+            ).map(e -> e.getBarcode()).collect(Collectors.toList());
+            if (Boolean.FALSE.equals(consumableManager.checkConsumable(barcodes, req.getUserErp()))) {
+                return JdCResponse.fail("耗材条码有误");
+            }
+        }
         JyExceptionDamageEntity entity = new JyExceptionDamageEntity();
+        JyDamageConsumableEntity consumableEntity = new JyDamageConsumableEntity();
         try {
             this.setBaseInfoToEntity(req, entity);
             JyExceptionDamageEntity oldEntity = jyExceptionDamageDao.selectOneByBizId(req.getBizId());
@@ -850,47 +900,64 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             if (oldEntity == null) {
                 oldEntity = new JyExceptionDamageEntity();
                 this.saveDamage(req, entity, oldEntity);
+                if (req.getConsumables() != null) {
+                    this.saveConsumables(req);
+                }
                 return JdCResponse.ok();
             }
             JyExceptionDamageEnum.FeedBackTypeEnum reqFeedBackTypeEnum = JyExceptionDamageEnum.FeedBackTypeEnum.getEnumByCode(oldEntity.getFeedBackType());
             if (reqFeedBackTypeEnum == null)  return JdCResponse.fail("客服反馈类型匹配失败" + req.getBizId());
+            //只有更换包装下传和修复下传才保存包装耗材信息
             switch (reqFeedBackTypeEnum) {
                 case DEFAULT:
                     // 提交破损信息
                     this.saveDamage(req, entity, oldEntity);
+                    if (req.getConsumables() != null) {
+                        this.saveConsumables(req);
+                    }
                     break;
                 case REPAIR_HANDOVER:
                     // 1.修复下传
                     this.repairOrReplacePackagingHandover(req, entity);
                     //称重
                     this.dealExpDamageWeightVolumeUploadAfterRepair(req, entity);
+                    if (req.getConsumables() != null) {
+                        this.saveConsumables(req);
+                    }
                     break;
                 case HANDOVER:
                     //2.直接下传
                     this.finishFlow(req, entity);
+                    jyDamageConsumableDao.deleteByBizId(entity.getBizId());
                     break;
                 case REPLACE_PACKAGING_HANDOVER:
                     //3.更换包装下传
                     this.repairOrReplacePackagingHandover(req, entity);
                     //称重
                     this.dealExpDamageWeightVolumeUploadAfterRepair(req, entity);
+                    if (req.getConsumables() != null) {
+                        this.saveConsumables(req);
+                    }
                     break;
                 case DESTROY:
                     //4.报废
                     this.finishFlow(req, entity);
                     //报废全程跟踪
                     this.sendScrapTraceOfDamage(req.getBizId());
+                    jyDamageConsumableDao.deleteByBizId(entity.getBizId());
                     break;
                 case REVERSE_RETURN:
                     //5.逆向退回
                     // 该运单在提报场地操作换单打印成功后，任务状态变更为已完成
                     // this.finishFlow(req, entity);
+                    jyDamageConsumableDao.deleteByBizId(entity.getBizId());
                     break;
                 case REPLENISH:
                     //6.补单/补差
                     this.finishFlow(req, entity);
                     //调用妥投接口
                     jyExceptionService.delivered(req.getBizId());
+                    jyDamageConsumableDao.deleteByBizId(entity.getBizId());
                     break;
                 default:
                     return JdCResponse.fail("客服反馈类型匹配失败" + req.getBizId());
@@ -1355,5 +1422,58 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         map.put("endTime",DateHelper.parseDate(endTime,Constants.DATE_TIME_FORMAT));
         return jyExceptionDamageDao.getDamageCountByTime(map);
     }
+    @Override
+    public JdCResponse<List<Consumable>> getConsumables() {
+        List<Consumable> consumables = new ArrayList<>();
+        for (JyExceptionDamageEnum.ConsumableEnum e : JyExceptionDamageEnum.ConsumableEnum.values()) {
+            Consumable consumable = new Consumable();
+            consumable.setCode(e.getCode());
+            consumable.setName(e.getName());
+            consumables.add(consumable);
+        }
+        JdCResponse<List<Consumable>> response
+                = new JdCResponse(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS, consumables);
+        return response;
+    }
 
+    private void saveConsumables(ExpDamageDetailReq req) {
+        List<JyDamageConsumableEntity> consumableEntities = new ArrayList<>();
+        List<com.jd.bluedragon.common.dto.jyexpection.response.Consumable> consumables = req.getConsumables();
+        PositionDetailRecord positionDetail = jyExceptionService.getPosition(req.getPositionCode());
+        consumables.forEach(consumable -> {
+            JyDamageConsumableEntity consumableEntity = new JyDamageConsumableEntity();
+            consumableEntity.setDamageBizId(req.getBizId());
+            consumableEntity.setProvinceAgencyCode(positionDetail.getProvinceAgencyCode());
+            consumableEntity.setProvinceAgencyName(positionDetail.getProvinceAgencyName());
+            consumableEntity.setSiteCode(positionDetail.getSiteCode());
+            consumableEntity.setSiteName(positionDetail.getSiteName());
+            consumableEntity.setAreaHubCode(positionDetail.getAreaHubCode());
+            consumableEntity.setAreaHubName(positionDetail.getAreaHubName());
+            consumableEntity.setAreaCode(positionDetail.getAreaCode());
+            consumableEntity.setAreaName(positionDetail.getAreaName());
+            consumableEntity.setGridNo(positionDetail.getGridNo());
+            consumableEntity.setGridCode(positionDetail.getGridCode());
+            consumableEntity.setGridName(positionDetail.getGridName());
+            consumableEntity.setOwnerUserErp(getOwnerUserErpByGridCode(positionDetail.getGridCode()));
+            consumableEntity.setConsumableCode(consumable.getCode());
+            consumableEntity.setConsumableName(JyExceptionDamageEnum.ConsumableEnum.getNameByCode(consumable.getCode()));
+            consumableEntity.setConsumableBarcode(consumable.getBarcode());
+            consumableEntity.setOperatorErp(req.getUserErp());
+            consumableEntity.setOperateTime(new Date());
+            consumableEntities.add(consumableEntity);
+        });
+        jyDamageConsumableDao.deleteByBizId(req.getBizId());
+        jyDamageConsumableDao.insertBatch(consumableEntities);
+    }
+
+    private String getOwnerUserErpByGridCode(String gridCode) {
+        WorkStationGridQuery query = new WorkStationGridQuery();
+        query.setGridCode(gridCode);
+        Result<PageDto<WorkStationGrid>> pageDtoResult = workStationGridService.queryPageList(query);
+        if (ResultCodeConstant.SUCCESS == pageDtoResult.getCode()) {
+            List<WorkStationGrid> result = pageDtoResult.getData().getResult();
+            return result.get(0).getOwnerUserErp();
+        }
+        return null;
+    }
 }

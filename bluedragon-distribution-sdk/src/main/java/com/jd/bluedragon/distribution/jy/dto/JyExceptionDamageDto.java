@@ -25,6 +25,16 @@ public class JyExceptionDamageDto extends JyExceptionDamageEntity {
      */
     private List<String> imageUrlList;
 
+    private List<Consumable> consumables;
+
+    public List<Consumable> getConsumables() {
+        return consumables;
+    }
+
+    public void setConsumables(List<Consumable> consumables) {
+        this.consumables = consumables;
+    }
+
     public String getDamageTypeName() {
         return damageTypeName;
     }
