@@ -16,7 +16,7 @@ import com.jd.bluedragon.core.jsf.adapter.AdapterRequestOfPlatformDecryRouter;
 public interface AdapterApiManager {
 
     /**
-     * 字节相关运单的收件人信息 解密服务
+     * 字节和得物相关运单的收件人信息 解密服务
      *
      * 给其他系统提供服务包装接口尽量不要用string，如果用了那最好把实体放依赖包里，与人方便自己方便。
      *

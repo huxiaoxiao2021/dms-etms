@@ -39,7 +39,10 @@ public interface JyFindGoodsJsfService {
   InvokeResult updateFindGoodsStatus(FindGoodsTaskDto findGoodsTaskDto);
 
 
-
-
+  /**
+   * 波次清场任务结束时的找货通知
+   * @param findGoodsTaskDto
+   */
+  void findGoodsNotice(FindGoodsTaskDto findGoodsTaskDto);
 
 }

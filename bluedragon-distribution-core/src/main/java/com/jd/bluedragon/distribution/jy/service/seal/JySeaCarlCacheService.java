@@ -33,11 +33,14 @@ public class JySeaCarlCacheService {
     public static final int LOCK_SEND_TASK_SEAL_TIMEOUT_SECONDS = 60;
     public static final int LOCK_SEND_TASK_OUT_BOOKING_WEIGHT_TIMEOUT_SECONDS = 7;
 
+    public static final String OUT_WEIGHT_TASK_PREFIX = "aviation.out.weight:%s";
 
     @Autowired
     private JimDbLock jimDbLock;
+
+    @Autowired
     @Qualifier("redisClientOfJy")
-    private Cluster redisClientOfJy;
+    private Cluster redisDao;
 
 
     /**
@@ -69,12 +72,15 @@ public class JySeaCarlCacheService {
      * 场景：保存任务超载提示
      * @param bizId  任务bizId
      */
-    public boolean lockOutBookingWeightTask(String bizId) {
+    public boolean outBookingWeightTaskCheck(String bizId) {
         try {
-            return jimDbLock.lock(bizId,
-                    DEFAULT_VALUE_1,
-                    JySeaCarlCacheService.LOCK_SEND_TASK_OUT_BOOKING_WEIGHT_TIMEOUT_SECONDS,
-                    TimeUnit.DAYS);
+            String key = String.format(OUT_WEIGHT_TASK_PREFIX,bizId);
+            if (redisDao.exists(key)) {
+                return false;
+            }
+            redisDao.sAdd(key, DEFAULT_VALUE_1);
+            redisDao.expire(key, LOCK_SEND_TASK_OUT_BOOKING_WEIGHT_TIMEOUT_SECONDS, TimeUnit.DAYS);
+            return true;
         }catch (Exception e) {
             log.error("lockOutBookingWeightTask:超载任务加锁失败 :bizId={},errMsg={}", bizId, e.getMessage(), e);
             throw new JyBizException("超载任务加锁失败");

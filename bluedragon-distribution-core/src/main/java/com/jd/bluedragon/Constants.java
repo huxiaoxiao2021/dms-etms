@@ -446,6 +446,16 @@ public class Constants {
     public static final int TIME_SECONDS_ONE_HOUR = 3600;
 
     /**
+     * 时间：48小时
+     */
+    public static final int FORTY_EIGHT_HOURS = 48;
+
+    /**
+     * 时间：72小时
+     */
+    public static final int SEVENTY_TWO_HOURS = 72;
+
+    /**
      * 时间：一天的秒数
      */
     public static final int TIME_SECONDS_ONE_DAY = 86400;
@@ -1618,11 +1628,25 @@ public class Constants {
      * 常量值：2
      * */
     public static final int  CONSTANT_NUMBER_TWO = 2;
+    /**
+     * 常量值：3
+     * */
+    public static final int  CONSTANT_NUMBER_THREE = 3;
 
     /**
      * 常量值：10
      * */
     public static final int  CONSTANT_NUMBER_TEN = 10;
+
+    /**
+     * 常量值：200
+     * */
+    public static final int CONSTANT_TWO_HUNDRED = 200;
+
+    /**
+     * 常量值：1000
+     * */
+    public static final int CONSTANT_ONE_THOUSAND = 1000;
 
     /**
      * 组板转移标识
@@ -2216,6 +2240,23 @@ public class Constants {
      */
     public static final String MORE_SCAN_QUERY_ES_SWITCH = "more.scan.query.es.switch";
 
+    /**
+     *  配置信息-设备抽检申诉核对超时未确认时长
+     *
+     */
+    public static final String SPOT_CHECK_APPEAL_TIME_OUT = "spot.check.appeal.time.out";
+
+    /**
+     *  配置信息-处于待发货状态的自建任务停留时长
+     *
+     */
+    public static final String TO_SEND_MANUAL_TASK_TIME_OUT = "to.send.manual.task.time.out";
+
+    /**
+     *  配置信息-处于发货中状态的自建任务停留时长
+     *
+     */
+    public static final String SENDING_MANUAL_TASK_TIME_OUT = "sending.manual.task.time.out";
 
     /**
      * 运输内网账号类型
@@ -2239,6 +2280,17 @@ public class Constants {
     public static final String JY_COLLECT_BOX_LOCK_PREFIX  = "jy_collect_package_box_lock_%s";
 
     /**
+     * 找货通知redis key:  find_goods_notice_场地id_签到日期_波次开始时间_波次结束时间
+     * eg:find_goods_notice_8663_2023-11-28_09:00:00_12:00:00
+     */
+    public static final String FIND_GOODS_NOTICE_CACHE_KEY = "find_goods_notice_%s_%s_%s_%s";
+
+    public static final String FIND_GOODS_NOTICE_TITLE = "波次清场找货通知";
+
+    public static final String FIND_GOODS_NOTICE_CONTENT = "%s分拣中心，%s%s（波次开始时间）-%s（波次结束时间）班次清场，需找货%s件，已找到%s件，仍有%s件未找到，其中包含%s件高值、%s件特快、%s件生鲜，请安排继续找货。";
+
+
+    /**
      * PDA调查问卷ID配置
      */
     public static final String PDA_QUESTIONNAIRE_ID = "pda.questionnaire.id";
@@ -2259,6 +2311,56 @@ public class Constants {
      */
     public static final String REASSIGN_WAYBILL_LOCK_KEY_PREFIX ="reassign.waybill.lock:";
 
+    /**
+     * 调查问卷场地白名单
+     */
+    public static final String PDA_QUESTIONNAIRE_SITE_WHITE_LIST = "pda.questionnaire.white.list";
+
+    /**
+     * 备件库
+     */
+    public static final String SITE_TYPE_SPWMS = "spwms";
+
+    /**
+     * 计提时间-小时
+     */
+    public static final String USER_SIGN_RECORD_FLOW_ACCRUAL_HOUR = "userSignRecordFlow.accrualHour";
+
+    /**
+     * 计提时间-日期
+     */
+    public static final String USER_SIGN_RECORD_FLOW_ACCRUAL_DAY = "userSignRecordFlow.accrualDay";
+
+    /**
+     * 计提时间-小时 最大修改时间 修改时请参考签到推送人资时间，不要晚于这个时间
+     */
+    public static final String USER_SIGN_RECORD_FLOW_LAST_MODIFY_ACCRUAL_HOUR = "userSignRecordFlow.lastModifyAccrualHour";
+
+    /**
+     * 计提时间-日期 最大修改时间 修改时请参考签到推送人资时间，不要晚于这个时间
+     */
+    public static final String USER_SIGN_RECORD_FLOW_LAST_MODIFY_ACCRUAL_DAY = "userSignRecordFlow.lastModifyAccrualDay";
+
+    /**
+     * 装车评价包裹凌乱倾倒
+     */
+    public static final Integer DIMENSION_600 = 600;
+
+    /**
+     * 装车评价大压小/重压轻/木压纸
+     */
+    public static final Integer DIMENSION_800 = 800;
+
+
+    /**
+     * 包裹补打站点类型限制配置
+     */
+    public static final String PACKAGE_PRINT_LIMIT_SITE_TYPE_CONFIG  = "package.print.limit.siteType.config";
+
+    /**
+     * 标准岗位编码限制配置
+     */
+    public static final String PACKAGE_PRINT_LIMIT_POSITION_CODE_TYPE_CONFIG  = "package.print.limit.positionCode.config";
 
 
 }

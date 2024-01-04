@@ -1064,4 +1064,11 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }
         return null;
     }
+
+    @Override
+    @Cache(key = "BaseMajorManager.selectBaseStoreByDmsSiteId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public PsStoreInfo selectBaseStoreByDmsSiteId(Integer siteId) {
+        return basicPrimaryWS.selectBaseStoreByDmsSiteId(siteId);
+    }
 }

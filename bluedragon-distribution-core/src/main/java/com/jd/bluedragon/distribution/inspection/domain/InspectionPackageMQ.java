@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.inspection.domain;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -77,6 +79,21 @@ public class InspectionPackageMQ implements Serializable {
      * 按单验货标识
      */
     private Boolean waybillInspectionFlag;
+
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+    private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+    private String operatorId;
+    /**
+     * 操作信息对象
+     */
+    private OperatorData operatorData;
+
 
     public String getPackageCode() {
         return packageCode;
@@ -196,5 +213,29 @@ public class InspectionPackageMQ implements Serializable {
 
     public void setWaybillInspectionFlag(Boolean waybillInspectionFlag) {
         this.waybillInspectionFlag = waybillInspectionFlag;
+    }
+
+    public Integer getOperatorTypeCode() {
+        return operatorTypeCode;
+    }
+
+    public void setOperatorTypeCode(Integer operatorTypeCode) {
+        this.operatorTypeCode = operatorTypeCode;
+    }
+
+    public String getOperatorId() {
+        return operatorId;
+    }
+
+    public void setOperatorId(String operatorId) {
+        this.operatorId = operatorId;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
     }
 }
