@@ -9,10 +9,10 @@ package com.jd.bluedragon.distribution.jy.enums;
 public enum UnloadProductTypeEnum {
 
     NONE("NONE", "其他", 99),
-    HKANDMACAO("HKANDMACAO", "港澳件", 1),
+    HKANDMACAO("HKANDMACAO", "港澳", 1),
 
     FAST("FAST", "特快送", 2),
-    HANGKONGJIAN("HANGKONGJIAN", "航空件", 3),
+    HANGKONGJIAN("HANGKONGJIAN", "航空", 3),
     FRESH("FRESH", "生鲜", 4),
     SHENGXIANTEBAO("SHENGXIANTEBAO", "生鲜特保", 5),
     TIKTOK("TIKTOK", "抖音", 6),

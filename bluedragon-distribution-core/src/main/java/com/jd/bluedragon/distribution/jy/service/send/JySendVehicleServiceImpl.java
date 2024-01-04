@@ -4020,7 +4020,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 if(remainSeconds < dmsConfigManager.getPropertyConfig().getJySendSpecialProductTypeToScanShowRemainMinutes() || remainSeconds < 0){
                     sendVehicleToScanTipsDto.setNeedShowSpecialProductTypeToScanTips(true);
                     sendVehicleToScanTipsDto.setNeedShowRemainTimeMinutes(remainSeconds >= 0 ? (int) remainSeconds : 0);
-                    sendVehicleToScanTipsDto.setToSendRemainTimeMinutes(remainSeconds >= 0 ? (int) remainSeconds : 0);
                 }
             }
 
