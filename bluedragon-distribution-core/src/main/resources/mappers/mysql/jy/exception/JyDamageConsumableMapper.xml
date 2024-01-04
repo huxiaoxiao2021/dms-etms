@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.exception.JyDamageConsumableDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.exception.JyDamageConsumableEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="damage_biz_id" property="damageBizId" jdbcType="VARCHAR" />
+    <result column="province_agency_code" property="provinceAgencyCode" jdbcType="VARCHAR" />
+    <result column="province_agency_name" property="provinceAgencyName" jdbcType="VARCHAR" />
+    <result column="area_hub_code" property="areaHubCode" jdbcType="VARCHAR" />
+    <result column="area_hub_name" property="areaHubName" jdbcType="VARCHAR" />
+    <result column="site_code" property="siteCode" jdbcType="INTEGER" />
+    <result column="site_name" property="siteName" jdbcType="VARCHAR" />
+    <result column="floor" property="floor" jdbcType="INTEGER" />
+    <result column="grid_no" property="gridNo" jdbcType="VARCHAR" />
+    <result column="grid_code" property="gridCode" jdbcType="VARCHAR" />
+    <result column="grid_name" property="gridName" jdbcType="VARCHAR" />
+    <result column="owner_user_erp" property="ownerUserErp" jdbcType="VARCHAR" />
+    <result column="area_code" property="areaCode" jdbcType="VARCHAR" />
+    <result column="area_name" property="areaName" jdbcType="VARCHAR" />
+    <result column="bar_code" property="barCode" jdbcType="VARCHAR" />
+    <result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+    <result column="consumable_code" property="consumableCode" jdbcType="INTEGER" />
+    <result column="consumable_name" property="consumableName" jdbcType="VARCHAR" />
+    <result column="consumable_barcode" property="consumableBarcode" jdbcType="VARCHAR" />
+    <result column="operator_erp" property="operatorErp" jdbcType="VARCHAR" />
+    <result column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, damage_biz_id, province_agency_code, province_agency_name, area_hub_code, area_hub_name,site_code, site_name,
+    site_code, site_name, floor, grid_no, grid_code, grid_name, owner_user_erp, area_code, area_name, bar_code, waybill_code,
+    consumable_code, consumable_name, consumable_barcode, operator_erp, operate_time, ts, yn
+  </sql>
+
+  <insert id="insertBatch" parameterType="com.jd.bluedragon.distribution.jy.exception.JyDamageConsumableEntity" >
+    insert into jy_damage_consumable_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        id,
+        damage_biz_id,
+        province_agency_code,
+        province_agency_name,
+        area_hub_code,
+        area_hub_name,
+        site_code,
+        site_name,
+        floor,
+        grid_no,
+        grid_code,
+        grid_name,
+        owner_user_erp,
+        area_code,
+        area_name,
+        bar_code,
+        waybill_code,
+        consumable_code,
+        consumable_name,
+        consumable_barcode,
+        operator_erp,
+        operate_time,
+        ts,
+        yn
+    </trim>
+      values
+    <foreach collection="list" item="item" index="index" separator=",">
+    (
+        #{item.id,jdbcType=BIGINT},
+        #{item.damageBizId,jdbcType=VARCHAR},
+        #{item.provinceAgencyCode,jdbcType=INTEGER},
+        #{item.provinceAgencyName,jdbcType=VARCHAR},
+        #{item.areaHubCode,jdbcType=INTEGER},
+        #{item.areaHubName,jdbcType=VARCHAR},
+        #{item.siteCode,jdbcType=INTEGER},
+        #{item.siteName,jdbcType=VARCHAR},
+        #{item.floor,jdbcType=INTEGER},
+        #{item.gridNo,jdbcType=VARCHAR},
+        #{item.gridCode,jdbcType=INTEGER},
+        #{item.gridName,jdbcType=VARCHAR},
+        #{item.ownerUserErp,jdbcType=INTEGER},
+        #{item.areaCode,jdbcType=VARCHAR},
+        #{item.areaName,jdbcType=VARCHAR},
+        #{item.barCode,jdbcType=VARCHAR},
+        #{item.waybillCode,jdbcType=VARCHAR},
+        #{item.consumableCode,jdbcType=INTEGER},
+        #{item.consumableName,jdbcType=VARCHAR},
+        #{item.consumableBarcode,jdbcType=VARCHAR},
+        #{item.operatorErp,jdbcType=VARCHAR},
+        #{item.operateTime,jdbcType=TIMESTAMP},
+        #{item.ts,jdbcType=TIMESTAMP},
+        1
+    )
+    </foreach>
+  </insert>
+
+  <select id="selectByBizId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from jy_damage_consumable_detail
+    where damage_biz_id = #{damageBizId,jdbcType=VARCHAR} and yn =1
+  </select>
+
+  <update id="deleteByBizId" parameterType="java.lang.String" >
+    update jy_damage_consumable_detail
+    set yn = 0
+    where yn =1 AND damage_biz_id = #{damageBizId,jdbcType=VARCHAR}
+  </update>
+
+</mapper>

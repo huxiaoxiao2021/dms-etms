@@ -4,7 +4,9 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpDamageDetailReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
+import com.jd.bluedragon.distribution.jy.dto.Consumable;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
@@ -94,4 +96,6 @@ public interface JyDamageExceptionService {
     int getContrabandCountByTime(String startTime, String endTime);
 
 
+
+    JdCResponse<List<Consumable>> getConsumables();
 }
