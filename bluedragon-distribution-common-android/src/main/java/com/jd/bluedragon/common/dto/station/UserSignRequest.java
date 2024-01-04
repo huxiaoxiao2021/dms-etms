@@ -25,6 +25,10 @@ public class UserSignRequest implements Serializable {
 	 * 签到人姓名
 	 */
 	private String userName;
+    /**
+     * 签到人ID
+     */
+    private Long userId;
 	/**
 	 * 员工ERP|拼音|身份证号
 	 */
@@ -45,7 +49,11 @@ public class UserSignRequest implements Serializable {
 	 * 签到日期
 	 */
 	private Date signDate;
-	
+
+    /**
+     * 操作人ID
+     */
+    private Long operateUserId;
 	/**
 	 * 操作人code
 	 */
@@ -84,7 +92,15 @@ public class UserSignRequest implements Serializable {
 		this.userName = userName;
 	}
 
-	public String getUserCode() {
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getUserCode() {
 		return userCode;
 	}
 	public void setUserCode(String userCode) {
@@ -114,7 +130,16 @@ public class UserSignRequest implements Serializable {
 	public void setSignDate(Date signDate) {
 		this.signDate = signDate;
 	}
-	public String getOperateUserCode() {
+
+    public Long getOperateUserId() {
+        return operateUserId;
+    }
+
+    public void setOperateUserId(Long operateUserId) {
+        this.operateUserId = operateUserId;
+    }
+
+    public String getOperateUserCode() {
 		return operateUserCode;
 	}
 	public void setOperateUserCode(String operateUserCode) {

@@ -7,11 +7,9 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.ql.basic.domain.BaseStaff;
 import com.jd.ql.basic.dto.BaseStaffSiteDTO;
-import com.jd.ql.basic.dto.ResultData;
 import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
 import com.jdl.basic.common.utils.DateUtil;
 import com.jdl.basic.common.utils.Result;
@@ -36,11 +34,6 @@ import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
-import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
-import com.jd.bluedragon.core.hint.service.HintService;
-import com.jd.bluedragon.core.jsf.position.PositionManager;
-import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
@@ -55,15 +48,8 @@ import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
-import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -302,6 +288,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toFail("请扫描正确的人员码！");
 			return result;
 		}
+		ScanUserData data = new ScanUserData();
+
 		String scanUserCode = scanRequest.getScanUserCode();
 		String positionCode = scanRequest.getPositionCode();
 		Integer jobCode =  BusinessUtil.getJobCodeFromScanUserCode(scanUserCode);
@@ -324,7 +312,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				return result;
 			}
 
-			String loginUserPin = getLoginUserPin(result, userCode);
+			String loginUserPin = getLoginUserInfo(result, userCode);
 			if(!result.getCode().equals(JdResponse.CODE_OK)){
 				return result;
 			}
@@ -332,7 +320,6 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		}
 
 		//设置返回值对象
-		ScanUserData data = new ScanUserData();
 		data.setJobCode(jobCode);
 		data.setUserCode(userCode);
 		result.setData(data);
@@ -356,13 +343,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	 * @param erpAccount ERP账户
 	 * @return 登录用户的PIN码
 	 */
-	private String getLoginUserPin(JdCResponse<ScanUserData> response, String erpAccount){
+	private String getLoginUserInfo(JdCResponse<ScanUserData> response, String erpAccount){
 		try{
 			log.info("获取登录用户的PIN码 checkIDCardNoExists 入参-{}",erpAccount);
 			BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(erpAccount);
 			log.info("获取登录用户的PIN码 checkIDCardNoExists 出参-{}", JSON.toJSONString(baseStaff));
 			if(baseStaff == null || baseStaff.getStaffNo() == null){
-				response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
+				response.setMessage("未获取到人员数据，请检查青龙基础资料中是否存在员工信息!");
 				response.setCode(JdResponse.CODE_INTERNAL_ERROR);
 				return "";
 			}
@@ -370,14 +357,15 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			BaseStaffSiteDTO staffInfo = baseMajorManager.queryBaseStaffByStaffId(baseStaff.getStaffNo());
 			log.info("获取登录用户的PIN码 queryBaseStaffByStaffId 出参-{}",JSON.toJSONString(staffInfo));
 			if(staffInfo== null ||org.apache.commons.lang.StringUtils.isBlank(staffInfo.getPin())){
-				response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
+				response.setMessage("未获取到人员数据，请检查青龙基础资料中是否存在员工信息!");
 				response.setCode(JdResponse.CODE_INTERNAL_ERROR);
 				return "";
 			}
+			response.getData().setUserId(baseStaff.getStaffNo().longValue());
 			return Constants.PDA_THIRDPL_TYPE+staffInfo.getPin();
 		}catch (Exception e){
-			log.error("获取达达人员数据信息异常！{}",erpAccount,e);
-			response.setMessage("获取达达人员数据信息异常！{"+erpAccount+"}");
+			log.error("获取人员数据信息异常！{}",erpAccount,e);
+			response.setMessage("获取人员数据信息异常！{"+erpAccount+"}");
 			response.setCode(JdResponse.CODE_INTERNAL_ERROR);
 			return "";
 		}
