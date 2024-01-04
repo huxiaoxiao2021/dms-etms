@@ -1010,10 +1010,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setjZDFlag(TextConstants.PECIAL_TIMELY_MARK);
         }
 
-        // 判断 特快送-次晨 或者 生鲜特快-次晨
-        if(BusinessUtil.isTKSCC(waybill.getWaybillSign()) || BusinessUtil.isSXTKCC(waybill.getWaybillSign())){
-            log.info("满足特快送-次晨 或者 生鲜特快-次晨-{}",waybill.getRequireTime());
-            String requireTimeStr = DateHelper.formatDate(waybill.getRequireTime(), DateHelper.DATE_FORMAT_HHmm);
+        // 判断 特快送-次晨 或者 生鲜特快-次晨 或者 判断 特惠送-次晨 或者 生鲜特惠送-次晨
+        if(BusinessUtil.isTKSCC(waybill.getWaybillSign()) || BusinessUtil.isSXTKCC(waybill.getWaybillSign())
+            || BusinessUtil.isTHSCC(waybill.getWaybillSign()) || BusinessUtil.isSXTHSCC(waybill.getWaybillSign())){
+            log.info("{}满足特快送-次晨 或者 生鲜特快-次晨 或者 判断 特惠送-次晨 或者 生鲜特惠送-次晨-打印时效信息{}",waybill.getWaybillCode(),waybill.getRequireTime());
+            String requireTimeStr = StringUtils.EMPTY;
+            if(waybill.getRequireTime() != null){
+                requireTimeStr = DateHelper.formatDate(waybill.getRequireTime(), DateHelper.DATE_FORMAT_HHmm);
+            }
             String specialMark = target.getSpecialMark();
             target.appendSpecialMark(requireTimeStr+specialMark);
         }
@@ -1082,7 +1086,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
          *
          * 当wbs40=2 && 80=9时，赋值“特快重货”
          *
-         * 当wbs40=2 && 80=D时，赋值“特惠泡货”
+         * 当wbs40=2 && 80=D时，赋值“特惠专配”
          */
         if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'2')) {
             if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'1')) {
@@ -1098,7 +1102,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 //特快重货
                 target.setjZDFlag(TextConstants.B2B_TKZH);
             }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'D')) {
-                //特惠泡货
+                //特惠专配
                 target.setjZDFlag(TextConstants.B2B_THPH);
             }
         }

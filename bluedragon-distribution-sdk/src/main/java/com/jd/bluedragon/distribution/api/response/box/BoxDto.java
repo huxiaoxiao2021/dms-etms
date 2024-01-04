@@ -16,6 +16,10 @@ public class BoxDto implements Serializable {
 
     /** 箱号类型 */
     private String type;
+    /**
+     * 箱号子类型
+     */
+    private String subType;
 
     /** 创建站点编号 */
     private Integer createSiteCode;
@@ -131,6 +135,14 @@ public class BoxDto implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getSubType() {
+        return subType;
+    }
+
+    public void setSubType(String subType) {
+        this.subType = subType;
     }
 
     public Integer getCreateSiteCode() {

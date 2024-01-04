@@ -3,7 +3,11 @@ package com.jd.bluedragon.core.base;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.distribution.api.response.StationMatchResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jsf.domain.StationMatchRequest;
 import com.jd.bluedragon.preseparate.jsf.ExpressDispatchServiceAPI;
+import com.jd.bluedragon.preseparate.jsf.StationMatchServiceApi;
 import com.jd.preseparate.vo.B2bVehicleTeamMatchRequest;
 import com.jd.preseparate.vo.B2bVehicleTeamMatchResult;
 import com.jd.preseparate.vo.ServiceResponse;
@@ -11,6 +15,7 @@ import com.jd.preseparate.vo.stationmatch.StationMatchParameter;
 import com.jd.preseparate.vo.stationmatch.StationMatchResult;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +37,15 @@ public class ExpressDispatchServiceManagerImpl implements ExpressDispatchService
     @Value("${preseparate.config.systemCode}")
     private String systemCode;
 
+    @Autowired
+    StationMatchServiceApi stationMatchServiceApi;
+
+
+
+    @Value("${jsf.preseparate.stationMatchServiceApi.ownerErp:xnpyddxm}")
+    private String ownerErp;
+
+    private static Integer SUC_CODE = 200;
 
 
     @Autowired
@@ -72,4 +86,39 @@ public class ExpressDispatchServiceManagerImpl implements ExpressDispatchService
 
 
     }
+
+
+    @Override
+    public JdResult<StationMatchResponse> stationMatchByAddress(StationMatchRequest request) {
+        JdResult<StationMatchResponse> result = new JdResult<StationMatchResponse>();
+        result.toSuccess("匹配成功！");
+        if(request == null || StringUtils.isBlank(request.getAddress())){
+            result.toFail("入参不能为空！");
+        }
+        StationMatchParameter paramData = new StationMatchParameter();
+        paramData.setRequestId(UUID.randomUUID().toString());
+        paramData.setSystemCode(systemCode);
+        paramData.setAddress(request.getAddress().trim());
+
+        ServiceResponse<StationMatchResult> apiResult = null;
+        try {
+            apiResult = stationMatchServiceApi.stationMatchByAddress(paramData);
+        } catch (Exception e) {
+            logger.error("调用预分拣-地址匹配服务异常，请联系配运调度小秘（xnpyddxm）",e);
+            result.toFail("地址匹配服务异常，请联系配运调度小秘（"+ownerErp+"）");
+            return result;
+        }
+        if(apiResult != null
+                && SUC_CODE.equals(apiResult.getCode())
+                && apiResult.getData() != null) {
+            StationMatchResponse data = new StationMatchResponse();
+            data.setSiteCode(apiResult.getData().getStationId());
+            data.setSiteName(apiResult.getData().getStationName());
+            result.setData(data);
+        }else {
+            result.toFail("未找到预分拣站点，请确认地址准确性");
+        }
+        return result;
+    }
+
 }

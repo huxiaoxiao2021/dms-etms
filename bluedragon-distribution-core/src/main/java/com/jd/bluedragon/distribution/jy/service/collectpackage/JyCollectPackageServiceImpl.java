@@ -63,6 +63,8 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
 import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -345,6 +347,17 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         flowCheck(request);
         //sorting拦截器链
         execInterceptorChain(request);
+        //封箱校验
+        sealBoxCheck(request);
+    }
+
+    private void sealBoxCheck(CollectPackageReq request) {
+        /*if (request.getSkipSealBoxCheck()){
+            return;
+        }
+        if (JyBizTaskCollectPackageStatusEnum.SEALED.getCode().equals(request.getTaskStatus())){
+            throw new JyBizException(CONFIRM_COLLECT_PACKAGE_WARNING, "该任务已封箱，是否继续装箱");
+        }*/
     }
 
     private void reCollectCheck(CollectPackageReq request) {
@@ -369,23 +382,32 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (JyBizTaskCollectPackageStatusEnum.CANCEL.getCode().equals(collectPackageTask.getTaskStatus())) {
             throw new JyBizException("集包任务已作废-操作了批量取消集包！");
         }
+        request.setTaskStatus(collectPackageTask.getTaskStatus());
         if (request.getForceCollectPackage()) {
             request.setEndSiteId(collectPackageTask.getEndSiteId());
-            return;
-        }
-        //查询包裹的末级分拣中心
-        Integer lastDmsId = getLastDmsByPackage(request.getBarCode());
-        if (MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())) {
-            //校验末级分拣中心是否为箱号目的地
-            List<Integer> flowList = Collections.singletonList(collectPackageTask.getEndSiteId().intValue());
-            checkLastDmsIfExitInCollectFlowList(lastDmsId, flowList, request, collectPackageTask);
         } else {
-            //查询可混集的流向集合信息，校验末级分拣中心是否 在可集包的流向集合内
-            List<Integer> flowList = queryMixBoxFlowListUnderTask(request);
-            if (CollectionUtils.isEmpty(flowList)) {
-                throw new JyBizException("未查询到当前任务的集包流向信息！");
+            Waybill waybill =waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(request.getBarCode()));
+            if (ObjectHelper.isEmpty(waybill)) {
+                throw new JyBizException("未查询到运单数据!");
             }
-            checkLastDmsIfExitInCollectFlowList(lastDmsId, flowList, request, collectPackageTask);
+            //获取包裹预分拣站点
+            Integer yufenjian = getYufenjianByPackage(waybill);
+            if (!checkYufenjianIfMatchDestination(yufenjian,request,collectPackageTask)){//如果预分拣站点不匹配箱号目的地，再去判断末级分拣
+                //获取包裹的末级分拣中心
+                Integer lastDmsId = getLastDmsByPackage(waybill);
+                if (MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())) {
+                    //校验末级分拣中心是否为箱号目的地
+                    List<Integer> flowList = Collections.singletonList(collectPackageTask.getEndSiteId().intValue());
+                    checkLastDmsIfExitInCollectFlowList(lastDmsId, flowList, request, collectPackageTask);
+                } else {
+                    //查询可混集的流向集合信息，校验末级分拣中心是否 在可集包的流向集合内
+                    List<Integer> flowList = queryMixBoxFlowListUnderTask(request);
+                    if (CollectionUtils.isEmpty(flowList)) {
+                        throw new JyBizException("未查询到当前任务的集包流向信息！");
+                    }
+                    checkLastDmsIfExitInCollectFlowList(lastDmsId, flowList, request, collectPackageTask);
+                }
+            }
         }
         if (ObjectHelper.isNotNull(request.getEndSiteId())) {
             BaseStaffSiteOrgDto staffSiteOrgDto = baseService.getSiteBySiteID(request.getEndSiteId().intValue());
@@ -395,14 +417,29 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
     }
 
-    private Integer getLastDmsByPackage(String packageCode) {
-        Waybill waybill =waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(packageCode));
-        if (ObjectHelper.isEmpty(waybill)) {
-            throw new JyBizException("未查询到运单数据!");
+    private boolean checkYufenjianIfMatchDestination(Integer yufenjian, CollectPackageReq request, JyBizTaskCollectPackageEntity collectPackageTask) {
+        //预分拣==箱号目的地
+        if (yufenjian.equals(collectPackageTask.getEndSiteId().intValue())){
+            request.setEndSiteId(collectPackageTask.getEndSiteId());
+            return true;
         }
+        //判断是否存在大小站关系- 看看预分拣-归属的大站是否等于 箱号目的地
+        final Integer parentSiteId = baseService.getMappingSite(yufenjian);
+        if (ObjectHelper.isNotNull(parentSiteId) && parentSiteId.equals(collectPackageTask.getEndSiteId().intValue())) {
+            request.setEndSiteId(collectPackageTask.getEndSiteId());
+            return true;
+        }
+        return false;
+    }
+
+    private Integer getYufenjianByPackage(Waybill waybill) {
         if (ObjectHelper.isEmpty(waybill.getOldSiteId())) {
             throw new JyBizException("运单对应的预分拣站点为空!");
         }
+        return waybill.getOldSiteId();
+    }
+
+    private Integer getLastDmsByPackage(Waybill waybill) {
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(waybill.getOldSiteId());
         if(ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsId())){
             //todo 这个地方要不要留强制集包的口子呢？
@@ -608,6 +645,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.listCollectPackageTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CollectPackageTaskResp> listCollectPackageTask(CollectPackageTaskReq request) {
         InvokeResult<CollectPackageTaskResp> result = new InvokeResult<>();
         CollectPackageTaskResp resp = new CollectPackageTaskResp();
@@ -796,6 +834,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.queryTaskDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<TaskDetailResp> queryTaskDetail(TaskDetailReq request) {
         InvokeResult<TaskDetailResp> result = new InvokeResult<>();
 
@@ -880,6 +919,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.sealingBox", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SealingBoxResp> sealingBox(SealingBoxReq request) {
         InvokeResult<SealingBoxResp> result = new InvokeResult<>();
         if (!checkSealingReq(request, result)) {
@@ -1125,6 +1165,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.searchPackageTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CollectPackageTaskResp> searchPackageTask(SearchPackageTaskReq request) {
         InvokeResult<CollectPackageTaskResp> result = new InvokeResult<>();
         if (!checkSearchPackageTaskReq(request, result)) {
@@ -1143,6 +1184,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.queryStatisticsUnderTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<StatisticsUnderTaskQueryResp> queryStatisticsUnderTask(StatisticsUnderTaskQueryReq request) {
         checkStatisticsUnderTaskQueryReq(request);
 
@@ -1196,6 +1238,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.queryStatisticsUnderFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request) {
         checkStatisticsUnderFlowQueryReq(request);
         StatisticsUnderFlowQueryReq statisticsUnderFlowQueryReq =assembleStatisticsUnderFlowQueryReq(request);
@@ -1207,6 +1250,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.querySiteMixFlowList", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<MixFlowListResp> querySiteMixFlowList(MixFlowListReq request) {
         InvokeResult<MixFlowListResp> result = new InvokeResult<>();
         if (!checkMixFlowListReq(request, result)) {
@@ -1249,6 +1293,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.updateTaskFlowList", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public InvokeResult<UpdateMixFlowListResp> updateTaskFlowList(UpdateMixFlowListReq request) {
         InvokeResult<UpdateMixFlowListResp> result = new InvokeResult<>();
@@ -1413,22 +1458,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     public static void main(String[] args) {
 
-        String bitCode ="11111111111111111111111111111110111111001";
-        System.out.println(NumberHelper.binaryToDecimal(bitCode));
-        String reBitCode =NumberHelper.decimalToBinary(2147483647,41);
-        System.out.println(reBitCode);
-
-        System.out.println(bitCode.equals(reBitCode));
-
-
-
-
-        String lbitCode ="11111111111111111111111111111110111111001";
-        System.out.println(NumberHelper.binaryToLongDecimal(lbitCode));
-        String lreBitCode =NumberHelper.longDecimalToBinary(2199023255033L,41);
-        System.out.println(lreBitCode);
-
-        System.out.println(lbitCode.equals(lreBitCode));
     }
 
 

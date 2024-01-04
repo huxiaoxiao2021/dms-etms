@@ -179,6 +179,11 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <bean id="reassignWaybillApprovalRecordDao"
+          class="com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillApprovalRecordDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
+
     <bean id="popSigninDao"
           class="com.jd.bluedragon.distribution.popPrint.dao.PopSigninDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -758,6 +763,9 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
     </bean>
     <bean id="farmarPrintRecordDao" class="com.jd.bluedragon.distribution.labelPrint.dao.farmar.FarmarPrintRecordDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
+    <bean id="spotCheckAppealDao" class="com.jd.bluedragon.distribution.spotcheck.dao.impl.SpotCheckAppealDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
     </bean>
     <!--################################## bd_dms_business 相关DAO Start ############################################ -->

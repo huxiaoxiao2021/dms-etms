@@ -102,26 +102,19 @@ public class InspectionTaskTest {
 
     @Test
     public void executeSingleTaskTest() throws Exception{
-        String json = "{\n" +
-                "  \"shieldsCarCode\" : \"\",\n" +
-                "  \"carCode\" : \"\",\n" +
-                "  \"sealBoxCode\" : \"\",\n" +
-                "  \"packOrBox\" : \"BC1001201118100000000707\",\n" +
-                "  \"turnoverBoxCode\" : \"\",\n" +
-                "  \"queueNo\" : \"\",\n" +
-                "  \"departureCarId\" : \"\",\n" +
-                "  \"shieldsCarTime\" : \"\",\n" +
-                "  \"id\" : 4,\n" +
-                "  \"businessType\" : 10,\n" +
-                "  \"userCode\" : 10053,\n" +
-                "  \"userName\" : \"刑松\",\n" +
-                "  \"siteCode\" : 910,\n" +
-                "  \"siteName\" : \"北京马驹桥分拣中心\",\n" +
-                "  \"operateTime\" : \"2020-12-13 10:45:55.157\"\n" +
-                "}";
-        Task task = JsonHelper.fromJson(json, Task.class);
-        Method executeSingleTask = InspectionTask.class.getDeclaredMethod("executeSingleTask", Task.class, String.class);
-        executeSingleTask.setAccessible(true);
-        executeSingleTask.invoke(inspectionTask, task, "DMS");
+        for (int i = 0; i < 10; i++) {
+            String json = "{\n" +
+                    "  \"siteCode\" : 3104,\n" +
+                    "  \"type\" : 1130,\n" +
+                    "  \"keyword1\" : \"3104\",\n" +
+                    "  \"keyword2\" : \"TYSHFJ-JZ-GSBL-GDXY-UG\",\n" +
+                    "  \"body\" : \"[ {\\n  \\\"packageBarOrWaybillCode\\\" : \\\"JDX022494444870-1-1-\\\",\\n  \\\"exceptionType\\\" : \\\"\\\",\\n  \\\"operateType\\\" : 0,\\n  \\\"receiveSiteCode\\\" : 0,\\n  \\\"id\\\" : 0,\\n  \\\"businessType\\\" : 10,\\n  \\\"userCode\\\" : 23330679,\\n  \\\"userName\\\" : \\\"薛志郁\\\",\\n  \\\"siteCode\\\" : 3104,\\n  \\\"siteName\\\" : \\\"太原分拣中心\\\",\\n  \\\"operateTime\\\" : \\\"2024-01-01 04:04:46\\\",\\n  \\\"bizSource\\\" : 40,\\n  \\\"machineCode\\\" : \\\"TYSHFJ-JZ-GSBL-GDXY-UG\\\",\\n  \\\"operatorTypeCode\\\" : 2,\\n  \\\"operatorId\\\" : \\\"TYSHFJ-JZ-GSBL-GDXY-UG\\\",\\n  \\\"operatorData\\\" : {\\n    \\\"operatorTypeCode\\\" : 2,\\n    \\\"operatorId\\\" : \\\"TYSHFJ-JZ-GSBL-GDXY-UG\\\",\\n    \\\"machineCode\\\" : \\\"TYSHFJ-JZ-GSBL-GDXY-UG\\\",\\n    \\\"chuteCode\\\" : \\\"11\\\",\\n    \\\"workGridKey\\\" : \\\"CDWG00000195122\\\"\\n  }\\n} ]\"\n" +
+                    "}";
+            Task task = JsonHelper.fromJson(json, Task.class);
+            Method executeSingleTask = InspectionTask.class.getDeclaredMethod("executeSingleTask", Task.class, String.class);
+            executeSingleTask.setAccessible(true);
+            executeSingleTask.invoke(inspectionTask, task, "DMS");
+        }
+
     }
 }

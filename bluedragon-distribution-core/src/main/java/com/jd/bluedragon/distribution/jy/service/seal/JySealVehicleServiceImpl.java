@@ -18,6 +18,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
@@ -29,6 +30,7 @@ import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
+import com.jd.bluedragon.distribution.jy.dto.seal.JyAviationSealMq;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JdiBoardLoadWSManager;
@@ -39,6 +41,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.send.*;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskBindService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendAviationPlanService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.summary.BusinessKeyTypeEnum;
@@ -49,7 +52,6 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.sendCode.DMSSendCodeJSFService;
-import com.jd.bluedragon.distribution.sendCode.domain.HugeSendCodeEntity;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -171,6 +173,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     private JySeaCarlCacheService jySeaCarlCacheService;
     @Autowired
     private JyBizTaskBindService jyBizTaskBindService;
+    @Autowired
+    @Qualifier("aviationSealProducer")
+    private DefaultJMQProducer aviationSealProducer;
+    @Autowired
+    private JyBizTaskSendAviationPlanService jyBizTaskSendAviationPlanService;
+
 
 
     @Override
@@ -290,6 +298,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     }
                     if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(sealVehicleReq.getFuncType())) {
                         //空铁任务
+                        sendToTmsAviationSealMq(sealVehicleReq, sealCarDto);
                         updateTaskStatusSealAndSummary(sealVehicleReq, sendCodes, sealCarDto);
                     }else {
                         updateTaskStatus(sealVehicleReq, sealCarDto);
@@ -303,6 +312,44 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
         }
         return new InvokeResult(NO_SEND_CODE_DATA_UNDER_BIZTASK_CODE, NO_SEND_CODE_DATA_UNDER_BIZTASK_MESSAGE);
+    }
+
+    private void sendToTmsAviationSealMq(SealVehicleReq sealVehicleReq, SealCarDto sealCarDto){
+        //给运输发送封车消息
+        JyAviationSealMq jyAviationSealMq = new JyAviationSealMq();
+        try {
+            JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(sealVehicleReq.getSendVehicleBizId());
+
+            jyAviationSealMq.setStartSiteId(entity.getStartSiteId());
+            jyAviationSealMq.setStartSiteName(entity.getStartSiteName());
+            jyAviationSealMq.setNextSiteId(entity.getNextSiteId());
+            jyAviationSealMq.setNextSiteName(entity.getNextSiteName());
+            jyAviationSealMq.setOperatorErp(sealVehicleReq.getUser().getUserErp());
+            jyAviationSealMq.setOperateTime(TimeUtils.strToDate(sealCarDto.getSealCarTime(), yyyy_MM_dd_HH_mm_ss).getTime());
+            jyAviationSealMq.setFlightNumber(entity.getFlightNumber());
+            jyAviationSealMq.setBatchCodeList(sealCarDto.getBatchCodes());
+            jyAviationSealMq.setItemNum(sealVehicleReq.getItemNum());
+            jyAviationSealMq.setWeight(sealVehicleReq.getWeight());
+            jyAviationSealMq.setAirType(entity.getAirType());
+            jyAviationSealMq.setCargoType(entity.getCargoType());
+            jyAviationSealMq.setTaskType(entity.getManualCreatedFlag());
+            if(!Constants.NUMBER_ONE.equals(entity.getManualCreatedFlag())) {
+                //航空任务属性
+                jyAviationSealMq.setBeginNodeCode(entity.getBeginNodeCode());
+                jyAviationSealMq.setBeginNodeName(entity.getBeginNodeName());
+                jyAviationSealMq.setEndNodeCode(entity.getEndNodeCode());
+                jyAviationSealMq.setEndNodeName(entity.getEndNodeName());
+                jyAviationSealMq.setBookingCode(entity.getBookingCode());
+            }
+
+            aviationSealProducer.send(jyAviationSealMq.getFlightNumber(), JsonHelper.toJson(jyAviationSealMq));
+        } catch (Exception e) {
+            log.info("航空任务封车给运输发消息异常，{}", JsonHelper.toJson(jyAviationSealMq));
+        }finally {
+            if(log.isInfoEnabled()) {
+                log.info("sendToTmsAviationSealMq：航空【{}】封车数据={}", jyAviationSealMq.getFlightNumber(), JsonHelper.toJson(jyAviationSealMq));
+            }
+        }
     }
 
     private List<String> getSealCodes(SealVehicleReq sealVehicleReq) {
@@ -587,7 +634,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                             //中转场地流向不一致时，弹窗确认是否继续封车
                             invokeResult.setCode(NewSealVehicleResponse.CODE_DESTINATION_DIFF_ERROR);
                             invokeResult.setMessage(MessageFormat.format(NewSealVehicleResponse.TIPS_TRANSPORT_BATCHCODE_DESTINATION_DIFF_ERROR,endNodeSite.getSiteName()));
-                            return invokeResult;
+                            // 因为中转场地可以选择继续封车，也可以不继续，所以此处不能直接return，需要继续往下执行等重量体积都查完再return
                         } else {
                             invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                             invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);

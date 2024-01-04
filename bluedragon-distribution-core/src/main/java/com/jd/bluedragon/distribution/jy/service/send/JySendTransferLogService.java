@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,6 +17,8 @@ import java.util.Map;
 public interface JySendTransferLogService {
 
   int saveTransferLog(VehicleSendRelationDto vehicleSendRelationDto);
+
+  List<JySendTransferLogEntity> findByToBizIdAndType(String toSendVehicleBizId);
 
 }
 
