@@ -593,12 +593,9 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     private boolean checkWaybillType(BigWaybillDto bigWaybill, InvokeResult<Boolean> result) {
         String waybillSign = bigWaybill.getWaybill().getWaybillSign();
         // 快递：waybillSign40=0
-        if (!BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_0)) {
-            result.setData(false);
-            return true;
-        }
         // 快运：waybillSign40=1/2/3，且80位不等于6/7/8（剔除冷链），且89位不等于1/2（剔除tc），且99位不等于1（剔除京小仓）
-        if (!BusinessUtil.isBInternet(waybillSign)) {
+        if (!BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_0)
+                && !BusinessUtil.isBInternet(waybillSign)) {
             result.setData(false);
             return true;
         }
