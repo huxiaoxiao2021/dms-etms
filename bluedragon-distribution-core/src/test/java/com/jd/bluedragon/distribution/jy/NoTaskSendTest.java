@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.CancelSendTaskReq;
 import com.jd.bluedragon.common.dto.send.request.CreateVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.DeleteVehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
@@ -39,7 +40,7 @@ public class NoTaskSendTest {
     @Test
     public void listVehicleTypeTest() {
 
-        InvokeResult<List<VehicleSpecResp>> invokeResult =jyNoTaskSendService.listVehicleType();
+        InvokeResult<List<VehicleSpecResp>> invokeResult =jyNoTaskSendService.listVehicleType(new VehicleTaskReq());
         log.info("code",invokeResult.getCode());
         log.info("date",invokeResult.getData().size());
     }
