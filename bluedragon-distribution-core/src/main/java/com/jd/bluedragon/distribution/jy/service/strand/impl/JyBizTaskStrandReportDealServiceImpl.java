@@ -471,6 +471,7 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         }
         entity.setSiteCode(scanRequest.getSiteCode());
         entity.setSiteName(scanRequest.getSiteName());
+        entity.setCreateUserId(scanRequest.getUser().getUserCode());
         entity.setCreateUserErp(scanRequest.getOperateUserErp());
         entity.setUpdateUserErp(scanRequest.getOperateUserErp());
         jyBizStrandReportDetailService.insert(entity);
