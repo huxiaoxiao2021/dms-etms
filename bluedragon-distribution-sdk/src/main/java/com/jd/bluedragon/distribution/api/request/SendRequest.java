@@ -9,7 +9,20 @@ package com.jd.bluedragon.distribution.api.request;
  */
 public class SendRequest extends PackageSendRequest {
 
+    /**
+     * 执行发货原子条码
+     */
     private String barCode;
+
+    /**
+     * 循环集包袋编码
+     */
+    private String cycleBoxCode;
+
+    /**
+     * 操作人ERP
+     */
+    private String opeUserErp;
 
     public String getBarCode() {
         return barCode;
@@ -17,5 +30,21 @@ public class SendRequest extends PackageSendRequest {
 
     public void setBarCode(String barCode) {
         this.barCode = barCode;
+    }
+
+    public String getCycleBoxCode() {
+        return cycleBoxCode;
+    }
+
+    public void setCycleBoxCode(String cycleBoxCode) {
+        this.cycleBoxCode = cycleBoxCode;
+    }
+
+    public String getOpeUserErp() {
+        return opeUserErp;
+    }
+
+    public void setOpeUserErp(String opeUserErp) {
+        this.opeUserErp = opeUserErp;
     }
 }

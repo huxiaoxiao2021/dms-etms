@@ -3,7 +3,10 @@ package com.jd.bluedragon.distribution.capability.send.domain;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
+import com.jd.bluedragon.distribution.api.request.SendRequest;
+import com.jd.bluedragon.distribution.board.domain.Board;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.capability.send.handler.SendDimensionStrategyHandler;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import lombok.Data;
@@ -46,7 +49,7 @@ public class SendOfCAContext implements Serializable {
     /**
      * 入参
      */
-    private PackageSendRequest request;
+    private SendRequest request;
 
     /**
      * 出参
@@ -63,5 +66,19 @@ public class SendOfCAContext implements Serializable {
      */
     private Box box;
 
+    /**
+     * 板对象
+     */
+    private Board board;
 
+    /**
+     * 执行回调（对外方式）
+     */
+    private String callBackDealHandlerAlias;
+
+
+    /**
+     * 校验回调（对外方式）
+     */
+    private String callBackVerifyHandlerAlias;
 }
