@@ -108,7 +108,10 @@ public class ReassignWaybillApprovalRecordMQ implements Serializable {
      */
     private String createUserErp;
 
-
+    /**
+     * 退货组标识
+     */
+    private Boolean returnGroupFlag;
 
 
     public String getProvinceAgencyCode() {
@@ -271,5 +274,13 @@ public class ReassignWaybillApprovalRecordMQ implements Serializable {
 
     public void setSubmitTime(String submitTime) {
         this.submitTime = submitTime;
+    }
+
+    public Boolean getReturnGroupFlag() {
+        return returnGroupFlag;
+    }
+
+    public void setReturnGroupFlag(Boolean returnGroupFlag) {
+        this.returnGroupFlag = returnGroupFlag;
     }
 }

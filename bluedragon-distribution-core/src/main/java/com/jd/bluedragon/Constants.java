@@ -2319,4 +2319,9 @@ public class Constants {
      * 计提时间-日期 最大修改时间 修改时请参考签到推送人资时间，不要晚于这个时间
      */
     public static final String USER_SIGN_RECORD_FLOW_LAST_MODIFY_ACCRUAL_DAY = "userSignRecordFlow.lastModifyAccrualDay";
+
+    /**
+     * 运单返调度审批配置 新
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG_NEW = "reassignWaybill.province.area.approval.config.new";
 }
