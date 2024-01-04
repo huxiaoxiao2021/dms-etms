@@ -673,7 +673,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         List<String> bizList = taskDetail.stream().map(JyBizTaskPickingGoodEntity::getBizId).distinct().collect(Collectors.toList());
         List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.waitPickingInitTotalNum(bizList, currentSiteId, null);
         // 计算统计总和
-        calculateResponse(res, countDtoList, taskDetail, aggsDtoList);
+        calculateSummaryResponse(res, countDtoList, taskDetail, aggsDtoList);
 
         return ret;
     }
@@ -694,7 +694,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setPickingSiteId(req.getCurrentOperate().getSiteCode());
         queryDto.setTaskType(req.getTaskType());
 
-        Date startTime = DateUtils.addDays(new Date(), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
+        Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
         queryDto.setCreateTime(startTime);
 
         return queryDto;
@@ -706,7 +706,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setStatus(req.getStatus());
         queryDto.setTaskType(req.getTaskType());
 
-        Date startTime = DateUtils.addDays(new Date(), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
+        Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
         queryDto.setCreateTime(startTime);
 
         queryDto.setOffset((req.getPageNum() - 1) * req.getPageSize());
@@ -720,7 +720,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setStatus(req.getStatus());
         queryDto.setTaskType(req.getTaskType());
 
-        Date startTime = DateUtils.addDays(new Date(), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
+        Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
         queryDto.setCreateTime(startTime);
 
         List<String> pickingNodeCodes = groupByTask.stream().map(JyBizTaskPickingGoodEntity::getEndNodeCode).distinct().collect(Collectors.toList());
@@ -728,12 +728,12 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         return queryDto;
     }
 
-    private void calculateResponse(AirRailTaskRes res, List<AirRailTaskCountDto> countDtoList, List<JyBizTaskPickingGoodEntity> taskDetail, List<PickingSendGoodAggsDto> aggsDtoList) {
+    private void calculateSummaryResponse(AirRailTaskRes res, List<AirRailTaskCountDto> countDtoList, List<JyBizTaskPickingGoodEntity> taskDetail, List<PickingSendGoodAggsDto> aggsDtoList) {
         res.setCountDtoList(countDtoList);
         for (AirRailTaskCountDto dto : countDtoList) {
             dto.setStatusName(PickingGoodStatusEnum.getNameByCode(dto.getStatus()));
         }
-        Map<String, PickingSendGoodAggsDto> aggGroupedByPickingNodeCode = aggsDtoList.stream().collect(Collectors.toMap(PickingSendGoodAggsDto::getBizId, item -> item, (first, second) -> first));
+        Map<String, PickingSendGoodAggsDto> aggMappedByBizId = aggsDtoList.stream().collect(Collectors.toMap(PickingSendGoodAggsDto::getBizId, item -> item, (first, second) -> first));
         Map<String, List<JyBizTaskPickingGoodEntity>> groupedTaskDetail = taskDetail.stream().collect(Collectors.groupingBy(JyBizTaskPickingGoodEntity::getEndNodeCode));
         List<AirRailDto> airRailDtoList = new ArrayList<>();
         for (List<JyBizTaskPickingGoodEntity> taskList : groupedTaskDetail.values()) {
@@ -752,7 +752,12 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             // 多提总件数
             int multipleScanTotal = 0;
             for (JyBizTaskPickingGoodEntity task : taskList) {
-                PickingSendGoodAggsDto aggsDto = aggGroupedByPickingNodeCode.get(task.getBizId());
+                // 实际到达时间为空 待提取cargoNum
+                if (task.getNodeRealArriveTime() == null && PickingGoodStatusEnum.TO_PICKING.getCode().equals(task.getStatus())) {
+                    waitScanTaskNum += task.getCargoNumber();
+                    continue;
+                }
+                PickingSendGoodAggsDto aggsDto = aggMappedByBizId.get(task.getBizId());
                 if (aggsDto == null) {
                     logInfo("JyAviationRailwayPickingGoodsServiceImpl.calculateResponse根据bizId{}找不到统计数据", task.getBizId());
                     continue;
@@ -783,16 +788,18 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             return ret;
         }
 
+        long currentSiteId = req.getCurrentOperate().getSiteCode();
         JyPickingTaskBatchQueryDto batchQueryDto = buildBatchQueryDto(req);
         List<JyBizTaskPickingGoodEntity> taskDetail = jyBizTaskPickingGoodService.listTaskByPickingNodeCode(batchQueryDto);
         if (CollectionUtils.isEmpty(taskDetail)) {
             return ret;
         }
-        for (JyBizTaskPickingGoodEntity entity : taskDetail) {
-            AirRailTaskAggDto aggDto = new AirRailTaskAggDto();
-            aggDto.setBizId(entity.getBizId());
-        }
-        return null;
+
+        List<String> bizList = taskDetail.stream().map(JyBizTaskPickingGoodEntity::getBizId).distinct().collect(Collectors.toList());
+        List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.waitPickingInitTotalNum(bizList, currentSiteId, null);
+        // 计算统计总和
+        calculateAggResponse(res, taskDetail, aggsDtoList);
+        return ret;
     }
 
     private void listAirRailTaskAggCheck(AirRailTaskAggReq req, InvokeResult<AirRailTaskAggRes> invokeResult) {
@@ -816,12 +823,40 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setStatus(req.getStatus());
         queryDto.setTaskType(req.getTaskType());
 
-        Date startTime = DateUtils.addDays(new Date(), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
+        Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
         queryDto.setCreateTime(startTime);
 
         List<String> pickingNodeCodes = Collections.singletonList(req.getPickingNodeCode());
         queryDto.setPickingNodeCodeList(pickingNodeCodes);
         return queryDto;
+    }
+
+    private void calculateAggResponse(AirRailTaskAggRes res, List<JyBizTaskPickingGoodEntity> taskDetail, List<PickingSendGoodAggsDto> aggsDtoList) {
+        List<AirRailTaskAggDto> taskAggDtoList = res.getTaskAggDtoList();
+        Map<String, PickingSendGoodAggsDto> aggMappedByBizId = aggsDtoList.stream().collect(Collectors.toMap(PickingSendGoodAggsDto::getBizId, item -> item, (first, second) -> first));
+
+        for (JyBizTaskPickingGoodEntity task : taskDetail) {
+            AirRailTaskAggDto dto = new AirRailTaskAggDto();
+            dto.setBizId(task.getBizId());
+            dto.setPickingTime(task.getPickingStartTime());
+            dto.setNoTaskFlag(Constants.NUMBER_ONE.equals(task.getManualCreatedFlag()));
+            dto.setStartSiteId(task.getStartSiteId().intValue());
+            dto.setNodePlanArriveTime(task.getNodePlanArriveTime());
+            dto.setNodeRealArriveTime(task.getNodeRealArriveTime());
+            dto.setServiceNumber(task.getServiceNumber());
+
+            PickingSendGoodAggsDto aggsDto = aggMappedByBizId.get(task.getBizId());
+            if (aggsDto != null) {
+                dto.setWaitScanTotal(aggsDto.getWaitSendTotalNum());
+                dto.setHaveScannedTotal(aggsDto.getRealSendTotalNum());
+                dto.setMultipleScanTotal(aggsDto.getMoreSendTotalNum());
+            }
+
+            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(task.getStartSiteId().intValue());
+            dto.setStartSiteName(siteOrgDto == null ? Constants.EMPTY_FILL : siteOrgDto.getSiteName());
+
+            taskAggDtoList.add(dto);
+        }
     }
 
     @Override
