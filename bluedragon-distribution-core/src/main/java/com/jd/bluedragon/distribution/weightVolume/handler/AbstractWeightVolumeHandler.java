@@ -422,7 +422,16 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             return result;
         }
 
-        // 只校验包裹和运单
+        // 打印入口校验
+        if (!DMS_CLIENT_BATCH_SORT_WEIGH_PRINT.equals(sourceCode) && !DMS_CLIENT_SITE_PLATE_PRINT.equals(sourceCode)
+                && !DMS_CLIENT_FAST_TRANSPORT_PRINT.equals(sourceCode) && !DMS_WEB_FAST_TRANSPORT.equals(sourceCode)
+                && !DMS_WEB_PACKAGE_FAST_TRANSPORT.equals(sourceCode) && !DMS_CLIENT_WEIGHT_VOLUME.equals(sourceCode) ) {
+            result.setData(false);
+            return result;
+        }
+
+
+            // 只校验包裹和运单
         if (!WaybillUtil.isWaybillCode(barCode) && !WaybillUtil.isPackageCode(barCode)) {
             result.setData(false);
             return result;
@@ -574,7 +583,8 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
 
     private boolean checkErpBindingSite(String operatorCode, InvokeResult<Boolean> result, FromSourceEnum sourceCode) {
         if (DMS_CLIENT_BATCH_SORT_WEIGH_PRINT.equals(sourceCode) || DMS_CLIENT_SITE_PLATE_PRINT.equals(sourceCode)
-                || DMS_CLIENT_FAST_TRANSPORT_PRINT.equals(sourceCode) || DMS_WEB_FAST_TRANSPORT.equals(sourceCode) || DMS_WEB_PACKAGE_FAST_TRANSPORT.equals(sourceCode)) {
+                || DMS_CLIENT_FAST_TRANSPORT_PRINT.equals(sourceCode) || DMS_CLIENT_WEIGHT_VOLUME.equals(sourceCode)
+                || DMS_WEB_FAST_TRANSPORT.equals(sourceCode) || DMS_WEB_PACKAGE_FAST_TRANSPORT.equals(sourceCode)) {
             BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(operatorCode);
             if (null == baseStaffByErp || null == baseStaffByErp.getSortType() || null == baseStaffByErp.getSortSubType()) {
                 logger.info("erp{}未获取到所属站点站点", operatorCode);
