@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
 import com.jd.bluedragon.distribution.abnormal.service.StrandService;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
@@ -1063,6 +1064,13 @@ public class JyBizTaskStrandReportDealServiceImpl implements JyBizTaskStrandRepo
         BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(detailEntity.getCreateUserErp());
         if(baseStaff == null){
             logger.warn("根据erp:{}未查询到人员信息!", detailEntity.getCreateUserErp());
+            if (detailEntity.getCreateUserId() == null) {
+                baseStaff = baseMajorManager.getBaseStaffIgnoreIsResignByStaffIdNoCache(detailEntity.getCreateUserId());
+                if (baseStaff == null) {
+                    logger.warn("根据用户ID:{}未查询到人员信息!", detailEntity.getCreateUserId());
+                    return;
+                }
+            }
             return;
         }
         request.setUserCode(baseStaff.getStaffNo());
