@@ -33,7 +33,7 @@
 		</property>
 		<property name="properties" ref="secApplicationProperties"/>
 	</bean>
-	<!--公司安全要求 importants文件未防止运行环境泄露 应用secsdk加密-->
+<!--	公司安全要求 importants文件未防止运行环境泄露 应用secsdk加密-->
 	<bean id ="secApplicationProperties" class="com.jd.security.configsec.spring.config.JDSecurityPropertyFactoryBean">
 		<property name="ignoreResourceNotFound" value="true" />
 		<property name="secLocation" value="classpath:configured/important.properties"/>

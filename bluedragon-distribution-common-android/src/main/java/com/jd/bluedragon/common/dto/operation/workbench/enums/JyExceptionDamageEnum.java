@@ -202,4 +202,51 @@ public class JyExceptionDamageEnum {
         }
         
     }
+
+    //耗材枚举
+    public enum ConsumableEnum {
+        TAPE(0, "胶带"),
+        PAPER_BOX(1, "纸箱"),
+        FILE_SEALING(2, "文件封"),
+        FOAM_BOX(3, "泡沫箱"),
+        WOVEN_BAG(4, "编织袋"),
+        CUSHIONING_PACKAGE(5, "缓冲包装"),
+        TEMPERATURE_PACKAGE(6,"温控包装"),
+        WATERPROOF_BAG(7,"防水袋");
+
+
+        private Integer code;
+        private String name;
+
+        ConsumableEnum(Integer code, String name) {
+            this.code = code;
+            this.name = name;
+        }
+
+        public Integer getCode() {
+            return code;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public static String getNameByCode(Integer code) {
+            for (ConsumableEnum type : ConsumableEnum.values()) {
+                if (type.getCode().equals(code)) {
+                    return type.getName();
+                }
+            }
+            return null;
+        }
+        public static ConsumableEnum getEnumByCode(Integer code) {
+            for (ConsumableEnum type : ConsumableEnum.values()) {
+                if (type.getCode().equals(code)) {
+                    return type;
+                }
+            }
+            return null;
+        }
+    }
+
 }

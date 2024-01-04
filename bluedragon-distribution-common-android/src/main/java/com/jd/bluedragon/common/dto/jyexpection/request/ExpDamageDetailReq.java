@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.jyexpection.request;
 
+import com.jd.bluedragon.common.dto.jyexpection.response.Consumable;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -49,6 +51,19 @@ public class ExpDamageDetailReq extends ExpBaseReq {
      * 修复后重量
      */
     private BigDecimal weightRepairAfter;
+
+    /**
+     * 破损耗材
+     */
+    private List<Consumable> consumables;
+
+    public List<Consumable> getConsumables() {
+        return consumables;
+    }
+
+    public void setConsumables(List<Consumable> consumables) {
+        this.consumables = consumables;
+    }
 
     public String getBizId() {
         return bizId;

@@ -14,6 +14,7 @@ import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedType
 import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionCountDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
@@ -205,4 +206,10 @@ public interface JyExceptionGatewayService {
     JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req);
 
     JdCResponse<List<JyExceptionCountDto>> getExceptionCountValue(String startTime, String endTime);
+
+    /**
+     * 破损耗材明细
+     */
+    JdCResponse<List<com.jd.bluedragon.distribution.jy.dto.Consumable>> getConsumables();
+
 }
