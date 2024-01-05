@@ -109,21 +109,6 @@ public class ReassignWaybillApprovalRecord implements Serializable {
     private Date secondCheckTime;
 
     /**
-     * 审核第三人erp
-     */
-    private String thirdChecker;
-
-    /**
-     * 第三人审核状态：1：待审批 2：审批通过 3：审批驳回
-     */
-    private Integer thirdCheckStatus;
-
-    /**
-     * 第三审批人审批时间
-     */
-    private Date thirdCheckTime;
-
-    /**
      * 审批完结标识 1：审批未完结 2： 审批完结
      */
     private Integer checkEndFlag;
@@ -393,29 +378,5 @@ public class ReassignWaybillApprovalRecord implements Serializable {
 
     public void setImageUrls(String imageUrls) {
         this.imageUrls = imageUrls;
-    }
-
-    public String getThirdChecker() {
-        return thirdChecker;
-    }
-
-    public void setThirdChecker(String thirdChecker) {
-        this.thirdChecker = thirdChecker;
-    }
-
-    public Integer getThirdCheckStatus() {
-        return thirdCheckStatus;
-    }
-
-    public void setThirdCheckStatus(Integer thirdCheckStatus) {
-        this.thirdCheckStatus = thirdCheckStatus;
-    }
-
-    public Date getThirdCheckTime() {
-        return thirdCheckTime;
-    }
-
-    public void setThirdCheckTime(Date thirdCheckTime) {
-        this.thirdCheckTime = thirdCheckTime;
     }
 }

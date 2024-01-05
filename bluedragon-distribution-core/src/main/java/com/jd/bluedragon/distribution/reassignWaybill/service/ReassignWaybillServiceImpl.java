@@ -684,6 +684,11 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		mainColList.add("提报人:" + mq.getApplicationUserErp());
 		mainColList.add("提报场地:" + mq.getSiteName());
 		mainColList.add("提报时间:" + mq.getSubmitTime());
+		if (!CollectionUtils.isEmpty(mq.getPhotoUrlList())) {
+			for (String url : mq.getPhotoUrlList()) {
+				mainColList.add("包裹照片:" + url);
+			}
+		}
 
 		oaMap.put(FlowConstants.FLOW_OA_JMEMAINCOLLIST, mainColList);
 		if(log.isInfoEnabled()){
@@ -751,6 +756,9 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		record.setProvinceAgencyName(req.getProvinceAgencyName());
 		record.setAreaHubCode(req.getAreaHubCode());
 		record.setAreaHubName(req.getAreaHubName());
+		if (!CollectionUtils.isEmpty(req.getPhotoUrlList())) {
+			record.setImageUrls(String.join(";",req.getPhotoUrlList()));
+		}
 		if(log.isInfoEnabled()){
 			log.info("initReassignWaybillApprovalRecord- {}",JSON.toJSONString(record));
 		}
