@@ -18,6 +18,8 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service("spotCheckAppealJsfService")
@@ -196,7 +199,39 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
         }
     }
 
-
+    @Override
+    @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.dataSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<Void> dataSend(String waybillCodes) {
+        if (logger.isInfoEnabled()) {
+            logger.info("dataSend|指定运单数据再发送(为终端修数专用)开始执行");
+        }
+        Response<Void> response = new Response<>();
+        response.toSucceed();
+        try {
+            if (StringUtils.isBlank(waybillCodes)) {
+                return response;
+            }
+            // 查询参数
+            SpotCheckAppealEntity params = new SpotCheckAppealEntity();
+            // 按分隔符拆分
+            String[] waybillArray = waybillCodes.split(Constants.SEPARATOR_COMMA);
+            // 转换成list
+            List<String> waybillList = new ArrayList<>(Arrays.asList(waybillArray));
+            // 按每200个再切分成小集合
+            List<List<String>> listList = ListUtils.partition(waybillList, 200);
+            for (List<String> list : listList) {
+                params.setWaybillCodeList(list);
+                // 批量查询记录
+                List<SpotCheckAppealEntity> entityList = spotCheckAppealService.batchFindByWaybillCodes(params);
+                // 发送mq
+                spotCheckAppealService.batchNotifyRemakeSystemWithNoSplit(entityList);
+            }
+        } catch (Exception e) {
+            logger.error("dataSend|指定运单数据再发送出现异常,e=", e);
+            response.toError("服务端异常");
+        }
+        return response;
+    }
 
 
 }

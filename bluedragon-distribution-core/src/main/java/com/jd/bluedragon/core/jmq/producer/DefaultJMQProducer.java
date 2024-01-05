@@ -28,6 +28,10 @@ public class DefaultJMQProducer {
     private com.jd.jmq.client.producer.MessageProducer jmqProducer;
 
     @Autowired
+    @Qualifier("dmsWebProducer")
+    private com.jd.jmq.client.producer.MessageProducer jmqNoSplitProducer;
+
+    @Autowired
     private TaskService taskService;
 
     /**
@@ -119,6 +123,35 @@ public class DefaultJMQProducer {
     }
 
     /**
+     * 批量JMQ消息发送
+     *
+     * @param messages
+     * @throws JMQException
+     */
+    public void batchSendWithNoSplit(List<Message> messages) throws JMQException {
+        if (messages != null && !messages.isEmpty()) {
+            int size = messages.size();
+            if (size <= this.batchSize) {
+                jmqNoSplitProducer.send(messages, this.timeout);
+            } else {
+                int mod = size % this.batchSize;
+                int times = size / this.batchSize;
+                if (mod > 0) {
+                    times++;
+                }
+                for (int i = 0; i < times; i++) {
+                    int start = i * this.batchSize;
+                    int end = start + this.batchSize;
+                    if (end > size) {
+                        end = size;
+                    }
+                    jmqNoSplitProducer.send(messages.subList(start, end), this.timeout);
+                }
+            }
+        }
+    }
+
+    /**
      * 批量JMQ消息发送，发送时出现异常直接落库
      *
      * @param messages
@@ -126,6 +159,20 @@ public class DefaultJMQProducer {
     public void batchSendOnFailPersistent(List<Message> messages) {
         try {
             this.batchSend(messages);
+        } catch (Throwable ex) {
+            log.error("批量MQ发送失败，将进行消息队列持久化", ex);
+            this.batchPersistent(messages);
+        }
+    }
+
+    /**
+     * 批量JMQ消息发送，发送时出现异常直接落库
+     *
+     * @param messages
+     */
+    public void batchSendOnFailPersistentWithNoSplit(List<Message> messages) {
+        try {
+            this.batchSendWithNoSplit(messages);
         } catch (Throwable ex) {
             log.error("批量MQ发送失败，将进行消息队列持久化", ex);
             this.batchPersistent(messages);
@@ -196,4 +243,5 @@ public class DefaultJMQProducer {
             com.jd.jmq.client.producer.MessageProducer jmqProducer) {
         this.jmqProducer = jmqProducer;
     }
+
 }

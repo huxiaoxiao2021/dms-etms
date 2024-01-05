@@ -396,6 +396,16 @@
 		</foreach>
 	</select>
 
+	<select id="batchFindByWaybillCodes" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from spot_check_appeal
+		where waybill_code in
+		<foreach collection="waybillCodeList" item="item" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</select>
+
 	<select id="findListByNotConfirm" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity" resultType="java.lang.Long">
 		select
 		  id
