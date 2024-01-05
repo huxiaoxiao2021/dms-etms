@@ -1188,6 +1188,20 @@ public class Constants {
     public static final String WAYBILL_TRACE_STATE_SEND_BY_SITE = "200";
 
     /**
+     * 全程跟踪状态 发货
+     * */
+    public static final String WAYBILL_TRACE_STATE_SEND = "16";
+
+    /**
+     * 全程跟踪状态 封车
+     * */
+    public static final String WAYBILL_TRACE_STATE_SEAL_CAR = "-450";
+
+    /**
+     * 全程跟踪状态 分拣
+     * */
+    public static final String WAYBILL_TRACE_STATE_SORTING = "13";
+    /**
      * 全程跟踪状态 分拣验货
      * */
     public static final String WAYBILL_TRACE_STATE_INSPECTION_BY_CENTER = "10";
@@ -1225,6 +1239,11 @@ public class Constants {
      * 运单状态  异常退回
      */
     public static final String WAYBILLTRACE_EX_RETURN = "-3040";
+
+    /**
+     * 运单状态  解封车
+     */
+    public static final String WAYBILLTRACE_UN_SEAL_CAR = "-460";
     /**
      * 运单状态  清关失败
      */

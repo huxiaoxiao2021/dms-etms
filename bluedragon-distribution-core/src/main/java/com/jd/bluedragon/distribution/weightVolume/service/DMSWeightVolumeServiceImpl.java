@@ -56,6 +56,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.jd.bluedragon.Constants.*;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.WAYBILL_ZERO_WEIGHT_NOT_IN_MESSAGE;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillStatus.*;
@@ -690,7 +691,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
         // 判断该包裹的揽收站点是否为城配车队，若为城配车队，则不进行以下校验。
         if (checkWaybillPickup(bigWaybill,result)) {
-            logger.info("运单{}揽收站点不为城配车队", waybillCode);
+            logger.info("运单{}揽收站点为城配车队", waybillCode);
             return result;
         }
 
@@ -774,11 +775,11 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
     private Set<Integer> getStateSet() {
         HashSet<Integer> stateSet = new HashSet<>();
-        stateSet.add(WAYBILL_TRACK_UNSEAL_VEHICLE);
-        stateSet.add(WAYBILL_STATUS_CODE_FORWARD_INSPECTION);
-        stateSet.add(WAYBILL_STATUS_CODE_FORWARD_SORTING);
-        stateSet.add(WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
-        stateSet.add(WAYBILL_TRACK_SEAL_VEHICLE);
+        stateSet.add(Integer.valueOf(WAYBILLTRACE_UN_SEAL_CAR));
+        stateSet.add(Integer.valueOf(WAYBILL_TRACE_STATE_INSPECTION_BY_CENTER));
+        stateSet.add(Integer.valueOf(WAYBILL_TRACE_STATE_SORTING));
+        stateSet.add(Integer.valueOf(WAYBILL_TRACE_STATE_SEND));
+        stateSet.add(Integer.valueOf(WAYBILL_TRACE_STATE_SEAL_CAR));
         stateSet.add(WAYBILL_STATUS_CODE_SITE_SORTING);
         return stateSet;
     }
@@ -804,14 +805,14 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         WaybillPickup waybillPickup = bigWaybill.getWaybillPickup();
         if (waybillPickup == null || waybillPickup.getPickupSiteId() == null) {
             result.setData(false);
-            return false;
+            return true;
         }
         BaseStaffSiteOrgDto pickupSite = baseMajorManager.getBaseSiteBySiteId(waybillPickup.getPickupSiteId());
         if (isConvey(pickupSite.getSiteType())) {
             result.setData(false);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     private boolean checkErpBindingSite(String operatorCode, InvokeResult<Boolean> result, FromSourceEnum sourceCode) {
