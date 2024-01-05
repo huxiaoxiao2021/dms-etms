@@ -124,6 +124,9 @@ public class SendOfCapabilityAreaServiceImpl implements ISendOfCapabilityAreaSer
         sendChainMap.put(SendBizSourceEnum.NEW_PACKAGE_SEND, SendChainEnum.DEFAULT);
         sendChainMap.put(SendBizSourceEnum.BOARD_SEND, SendChainEnum.DEFAULT);
         sendChainMap.put(SendBizSourceEnum.ANDROID_PDA_SEND, SendChainEnum.DEFAULT);
+        sendChainMap.put(SendBizSourceEnum.JY_APP_SEND, SendChainEnum.WITH_CYCLE_BOX_MODE);
+        sendChainMap.put(SendBizSourceEnum.JY_APP_TRANSFER_AND_FERRY_SEND, SendChainEnum.WITH_CYCLE_BOX_MODE);
+
 
         SendChainEnum sendChain = sendChainMap.get(sendBizSourceEnum);
         if (sendChain != null) {
