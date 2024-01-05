@@ -47,7 +47,7 @@ public class SimpleComplexSwitchExecutor {
             in.close();
             return copiedObject;
         }catch (Exception e){
-            logger.error("通过序列化方式复制对象异常!对象:{}", source.getClass().getName(), e);
+            logger.warn("简繁切换-通过序列化方式复制对象失败!对象:{}未实现序列化", source.getClass().getName());
             return null;
         }finally {
             if(out != null){
