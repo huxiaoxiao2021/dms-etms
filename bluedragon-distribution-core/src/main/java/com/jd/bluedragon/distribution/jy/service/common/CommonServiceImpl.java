@@ -11,6 +11,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +21,7 @@ import java.util.Objects;
  * @Date 2023/12/11 17:53
  * @Description
  */
+@Service
 public class CommonServiceImpl implements CommonService{
     private static final Logger log = LoggerFactory.getLogger(CommonServiceImpl.class);
 

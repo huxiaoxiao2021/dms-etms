@@ -32,6 +32,7 @@
 		<typeAlias type="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" alias="JyBizTaskPickingGoodEntity" />
 		<typeAlias type="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity" alias="JyBizTaskPickingGoodSubsidiaryEntity" />
 		<typeAlias type="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity" alias="JyPickingSendDestinationDetailEntity" />
+		<typeAlias type="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" alias="JyPickingSendRecordEntity" />
 
 	</typeAliases>
 
@@ -92,7 +93,7 @@
 		<mapper resource="mappers/mysql/jy/collectpackage/JyBizTaskCollectPackageFlowMapper.xml" />
 
 		<mapper resource="mappers/mysql/jy/pickinggood/JyBizTaskPickingGoodMapper.xml" />
-		<mapper resource="mappers/mysql/jy/pickinggood/JyBizTaskPickingGoodSubsidiaryEntity.xml" />
+		<mapper resource="mappers/mysql/jy/pickinggood/JyBizTaskPickingGoodSubsidiaryMapper.xml" />
 		<mapper resource="mappers/mysql/jy/pickinggood/JyPickingSendDestinationDetailMapper.xml" />
 	</mappers>
 </configuration>
