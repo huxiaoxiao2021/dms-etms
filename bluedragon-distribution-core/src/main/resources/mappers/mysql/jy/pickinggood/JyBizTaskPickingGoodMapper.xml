@@ -248,14 +248,11 @@
   </select>
 
   <update id="updateStatusByBizId" parameterType="JyPickingSendRecordEntity">
-    update
-        jy_biz_task_picking_good
-    set
-        status = #{status}
-    where
-        yn = 1
-    and
-        biz_id = #{bizId}
+    update  jy_biz_task_picking_good
+    set     complete_node = #{completeNode},
+            status = #{status}
+    where   yn = 1
+    and     biz_id = #{bizId}
   </update>
 
 
@@ -351,6 +348,28 @@
     and     task_type = #{taskType}
     and     create_time >= {createTime}
     group by status
+  </select>
+
+  <update id="batchUpdateStatusByBizId">
+    update  jy_biz_task_picking_good
+    set     complete_node = #{completeNode},
+            status = #{status}
+    where   yn = 1
+    and     biz_id in
+    <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
+  </update>
+
+  <select id="pageRecentCreatedManualBizId">
+    select biz_id
+    from jy_biz_task_picking_good
+    where yn = 1
+    and create_time <![CDATA[ >= ]]> #{startTime}
+    and create_time <![CDATA[ <= ]]> #{endTime}
+    and task_type = #{taskType}
+    and manual_created_flag = 1
+    limit #{offset}, #{limit}
   </select>
 
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->

@@ -2,9 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.pickinggood;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.AirRailTaskCountQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskBatchQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskGroupQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 
@@ -52,6 +50,14 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
 
     public List<AirRailTaskCountDto> countAllStatusByPickingSiteId(AirRailTaskCountQueryDto countQueryDto) {
         return this.getSqlSession().selectList(NAMESPACE + ".countAllStatusByPickingSiteId", countQueryDto);
+    }
+
+    public int batchUpdateStatusByBizId(JyPickingTaskBatchUpdateDto updateDto) {
+        return this.getSqlSession().update(NAMESPACE + ".batchUpdateStatusByBizId", updateDto);
+    }
+
+    public List<String> pageRecentCreatedManualBizId(JyBizTaskPickingGoodQueryDto queryDto) {
+        return this.getSqlSession().selectList(NAMESPACE + ".pageRecentCreatedManualBizId", queryDto);
     }
 
 //    int deleteByPrimaryKey(Long id);

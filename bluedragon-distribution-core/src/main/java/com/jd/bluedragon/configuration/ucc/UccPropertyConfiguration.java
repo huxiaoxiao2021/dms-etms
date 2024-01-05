@@ -1824,6 +1824,31 @@ public class UccPropertyConfiguration{
      */
     private Integer jyBizTaskPickingGoodTimeRange;
 
+    /**
+     * 提货任务待提件数为0的查询时间范围
+     */
+    private Integer pickingGoodTaskWaitScanEq0TimeRange;
+    /**
+     * 自建提货任务自动完成时间
+     */
+    private Integer pickingGoodTaskManualTimeRange;
+
+    public Integer getPickingGoodTaskWaitScanEq0TimeRange() {
+        return pickingGoodTaskWaitScanEq0TimeRange;
+    }
+
+    public void setPickingGoodTaskWaitScanEq0TimeRange(Integer pickingGoodTaskWaitScanEq0TimeRange) {
+        this.pickingGoodTaskWaitScanEq0TimeRange = pickingGoodTaskWaitScanEq0TimeRange;
+    }
+
+    public Integer getPickingGoodTaskManualTimeRange() {
+        return pickingGoodTaskManualTimeRange;
+    }
+
+    public void setPickingGoodTaskManualTimeRange(Integer pickingGoodTaskManualTimeRange) {
+        this.pickingGoodTaskManualTimeRange = pickingGoodTaskManualTimeRange;
+    }
+
     public Integer getJyBizTaskPickingGoodTimeRange() {
         return jyBizTaskPickingGoodTimeRange;
     }

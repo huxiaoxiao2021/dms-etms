@@ -321,6 +321,8 @@
 		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
 		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
 		<property name="jyBizTaskPickingGoodTimeRange" value="${jyBizTaskPickingGoodTimeRange:7}"/>
+		<property name="pickingGoodTaskWaitScanEq0TimeRange" value="${pickingGoodTaskWaitScanEq0TimeRange:24}"/>
+		<property name="pickingGoodTaskManualTimeRange" value="${pickingGoodTaskManualTimeRange:24}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -630,6 +632,8 @@
 				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
 				<value>uccPropertyConfiguration.sealSyncOpenCloseSendTaskSwitch</value>
 				<value>uccPropertyConfiguration.jyBizTaskPickingGoodTimeRange</value>
+				<value>uccPropertyConfiguration.pickingGoodTaskWaitScanEq0TimeRange</value>
+				<value>uccPropertyConfiguration.pickingGoodTaskManualTimeRange</value>
 			</list>
 		</property>
 	</bean>

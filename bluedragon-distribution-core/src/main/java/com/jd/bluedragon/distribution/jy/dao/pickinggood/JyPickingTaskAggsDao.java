@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dao.pickinggood;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskAggQueryDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsCondition;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity;
 
@@ -16,6 +17,10 @@ public class JyPickingTaskAggsDao extends BaseDao<JyPickingTaskAggsEntity> {
         condition.setBizIdList(bizIdList);
         condition.setPickingSiteId(siteId);
         return this.getSqlSession().selectList(NAMESPACE + ".findByBizIdsAndCondition", condition);
+    }
+
+    public List<String> pageRecentWaitScanEqZero(JyPickingTaskAggQueryDto queryDto) {
+        return this.getSqlSession().selectList(NAMESPACE + ".pageRecentWaitScanEqZero", queryDto);
     }
 //
 //

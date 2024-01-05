@@ -7,9 +7,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.Pi
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodSubsidiaryDao;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.AirRailTaskCountQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskBatchQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskGroupQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 import com.jd.bluedragon.utils.DateHelper;
@@ -101,10 +99,11 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     }
 
     @Override
-    public boolean updateStatusByBizId(String bizId, Integer status) {
+    public boolean updateStatusByBizId(String bizId, Integer completeNode) {
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
         entity.setBizId(bizId);
-        entity.setStatus(status);
+        entity.setCompleteNode(completeNode);
+        entity.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
         jyBizTaskPickingGoodDao.updateStatusByBizId(entity);
         return true;
     }
@@ -142,5 +141,15 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     @Override
     public List<AirRailTaskCountDto> countAllStatusByPickingSiteId(AirRailTaskCountQueryDto countQueryDto) {
         return jyBizTaskPickingGoodDao.countAllStatusByPickingSiteId(countQueryDto);
+    }
+
+    @Override
+    public int batchUpdateStatusByBizId(JyPickingTaskBatchUpdateDto updateDto) {
+        return jyBizTaskPickingGoodDao.batchUpdateStatusByBizId(updateDto);
+    }
+
+    @Override
+    public List<String> pageRecentCreatedManualBizId(JyBizTaskPickingGoodQueryDto queryDto) {
+        return jyBizTaskPickingGoodDao.pageRecentCreatedManualBizId(queryDto);
     }
 }

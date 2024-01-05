@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.distribution.jy.service.picking.JyAviationRailwayPickingGoodsService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -31,6 +32,9 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
 
     @Autowired
     private JyDamageExceptionService jyDamageExceptionService;
+
+    @Autowired
+    private JyAviationRailwayPickingGoodsService jyAviationRailwayPickingGoodsService;
 
     @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.timingHandlerOverTimeException",
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -66,5 +70,19 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public void dealDamageExpTaskOverTwoDags() {
         jyDamageExceptionService.dealDamageExpTaskOverTwoDags();
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.timingHandlerFinishAirRailTask",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public void timingHandlerFinishAirRailTask() {
+        jyAviationRailwayPickingGoodsService.finishTaskWhenWaitScanEqZero();
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.timingHandlerFinishAirRailManualTask",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public void timingHandlerFinishAirRailManualTask() {
+        jyAviationRailwayPickingGoodsService.finishTaskWhenExceed24Hours();
     }
 }

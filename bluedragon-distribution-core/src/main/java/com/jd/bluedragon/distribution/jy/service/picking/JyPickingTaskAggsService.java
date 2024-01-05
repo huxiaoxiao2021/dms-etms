@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingGoodsRes;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskAggQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingSendGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
@@ -52,4 +53,6 @@ public interface JyPickingTaskAggsService {
      * @return
      */
     List<PickingSendGoodAggsDto> waitPickingInitTotalNum(List<String> bizIdList, Long siteId, Long sendNextSiteId);
+
+    List<String> pageRecentWaitScanEqZero(JyPickingTaskAggQueryDto queryDto);
 }

@@ -3,9 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.AirRailTaskCountQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskBatchQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskGroupQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 
@@ -91,4 +89,13 @@ public interface JyBizTaskPickingGoodService {
      * @return
      */
     List<AirRailTaskCountDto> countAllStatusByPickingSiteId(AirRailTaskCountQueryDto queryDto);
+
+    /**
+     * 批量完成任务
+     * @param updateDto
+     * @return
+     */
+    int batchUpdateStatusByBizId(JyPickingTaskBatchUpdateDto updateDto);
+
+    List<String> pageRecentCreatedManualBizId(JyBizTaskPickingGoodQueryDto queryDto);
 }

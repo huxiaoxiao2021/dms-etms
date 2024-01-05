@@ -28,5 +28,15 @@ public interface DmsTimingHandlerService {
      *处理超48小时客服未反馈破损任务状态
      */
     void dealDamageExpTaskOverTwoDags();
-    
+
+    /**
+     * 定时完成待提件数为0的任务
+     */
+    void timingHandlerFinishAirRailTask();
+
+    /**
+     * 定时完成24小时前创建的自建任务
+     */
+    void timingHandlerFinishAirRailManualTask();
+
 }
