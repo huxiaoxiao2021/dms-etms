@@ -80,5 +80,4 @@ public class JyUserManagerImpl implements JyUserManager {
 		return result;
 	}
 
-
-	}
+}

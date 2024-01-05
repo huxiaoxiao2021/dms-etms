@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.capability.send.handler.verify;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.capability.send.domain.SendOfCAContext;
 import com.jd.bluedragon.distribution.capability.send.handler.SendDimensionStrategyHandler;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
@@ -98,13 +100,36 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
     }
 
     /**
+     * 按板处理逻辑
+     * @param context
+     * @return
+     */
+    @Override
+    public boolean doBoardHandler(SendOfCAContext context) {
+        SortingCheck sortingCheck = deliveryService.getSortingCheck(context.getRequestTurnToSendM());
+        sortingCheck.setBoard(context.getBoard());
+        //加载按板处理校验链
+        SortingJsfResponse response = sortingCheckService.doSingleSendCheckWithChain(sortingCheck,Boolean.TRUE,
+                sortingCheckService.matchJyDeliveryFilterChain(SendKeyTypeEnum.BY_BOARD));
+        if (!response.getCode().equals(JdResponse.CODE_OK)) {
+            if (response.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
+                context.getResponse().getData().init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), Constants.NUMBER_ZERO);
+            } else {
+                context.getResponse().getData().init(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), Constants.NUMBER_ZERO);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 运单和包裹通用校验链
      * @param context
      * @return
      */
     private boolean packOrWaybillHandler(SendOfCAContext context){
         SortingCheck sortingCheck = deliveryService.getSortingCheck(context.getRequestTurnToSendM());
-        // 按包裹发货分拣校验
+        // 按包裹或者运单发货分拣校验
         SortingJsfResponse response = sortingCheckService.singleSendCheckAndReportIntercept(sortingCheck);
 
         if (!response.getCode().equals(JdResponse.CODE_OK)) {

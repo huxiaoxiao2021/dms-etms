@@ -200,25 +200,70 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         return invokeResult;
     }
 
+    List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity condition,
+                                                       List<String> sendVehicleBizList) {
+        Date currentDate = (condition.getCurrentDate() == null ? new Date() : condition.getCurrentDate());
+        // 待发货状态任务 计划发货时间 开始与结束
+        condition.setToSendLastPlanDepartTimeBegin(DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeBeginHours()));
+        condition.setToSendLastPlanDepartTimeEnd(DateHelper.addHours(currentDate, dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeEndHours()));
+        // 发货中状态任务 计划发货时间 开始与结束
+        condition.setSendingLastPlanDepartTimeBegin(DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeBeginHours()));
+        condition.setSendingLastPlanDepartTimeEnd(DateHelper.addHours(currentDate, dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeEndHours()));
+        // 待封车状态任务 计划发货时间 开始与结束
+        condition.setToSealLastPlanDepartTimeBegin(DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeBeginHours()));
+        condition.setToSealLastPlanDepartTimeEnd(DateHelper.addHours(currentDate, dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeEndHours()));
+        // 已封车状态任务 计划发货时间 开始与结束
+        condition.setSealedLastPlanDepartTimeBegin(DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseSealedPlanTimeBeginHours()));
+        condition.setSealedLastPlanDepartTimeEnd(DateHelper.addHours(currentDate, dmsConfigManager.getPropertyConfig().getJyWarehouseSealedPlanTimeEndHours()));
+        // 创建时间 开始与结束
+        condition.setCreateTimeBegin(DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseTaskCreateTimeBeginHours()));
+        return taskSendVehicleService.sumSpecifyTaskByVehicleStatus(condition, sendVehicleBizList);
+    }
+
     private void beforeQueryParamHandler(SendVehicleTaskRequest request) {
         if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeBegin())) {
             request.setLastPlanDepartTimeBegin(request.getLastPlanDepartTimeBegin());
         } else {
-            request.setLastPlanDepartTimeBegin(this.defaultTaskPlanTimeBegin());
+            request.setLastPlanDepartTimeBegin(this.defaultTaskPlanTimeBegin(request.getVehicleStatus(), request.getCurrentDate()));
         }
         if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeEnd())) {
             request.setLastPlanDepartTimeEnd(request.getLastPlanDepartTimeEnd());
         } else {
-            request.setLastPlanDepartTimeEnd(this.defaultTaskPlanTimeEnd());
+            request.setLastPlanDepartTimeEnd(this.defaultTaskPlanTimeEnd(request.getVehicleStatus(), request.getCurrentDate()));
+        }
+        if (ObjectHelper.isNotNull(request.getCreateTimeBegin())) {
+            request.setCreateTimeBegin(request.getCreateTimeBegin());
+        } else {
+            request.setCreateTimeBegin(DateHelper.addHours(request.getCurrentDate(), - dmsConfigManager.getPropertyConfig().getJyWarehouseTaskCreateTimeBeginHours()));
         }
     }
 
-    private Date defaultTaskPlanTimeBegin() {
-        return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -jyWarehouseSendTaskPlanTimeBeginDay);
+    private Date defaultTaskPlanTimeBegin(Integer vehicleStatus, Date currentDate) {
+        if (JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(vehicleStatus)) {
+            return DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeBeginHours());
+        } else if (JyBizTaskSendStatusEnum.SENDING.getCode().equals(vehicleStatus)) {
+            return DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeBeginHours());
+        } else if (JyBizTaskSendStatusEnum.TO_SEAL.getCode().equals(vehicleStatus)) {
+            return DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeBeginHours());
+        } if (JyBizTaskSendStatusEnum.SEALED.getCode().equals(vehicleStatus)) {
+            return DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseSealedPlanTimeBeginHours());
+        } else {
+            return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -jyWarehouseSendTaskPlanTimeBeginDay);
+        }
     }
 
-    private Date defaultTaskPlanTimeEnd() {
-        return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), jyWarehouseSendTaskPlanTimeEndDay);
+    private Date defaultTaskPlanTimeEnd(Integer vehicleStatus, Date currentDate) {
+        if (JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(vehicleStatus)) {
+            return DateHelper.addHours(currentDate, dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeEndHours());
+        } else if (JyBizTaskSendStatusEnum.SENDING.getCode().equals(vehicleStatus)) {
+            return DateHelper.addHours(currentDate, dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeEndHours());
+        } else if (JyBizTaskSendStatusEnum.TO_SEAL.getCode().equals(vehicleStatus)) {
+            return DateHelper.addHours(currentDate, dmsConfigManager.getPropertyConfig().getJyWarehouseToSealPlanTimeEndHours());
+        } if (JyBizTaskSendStatusEnum.SEALED.getCode().equals(vehicleStatus)) {
+            return DateHelper.addHours(currentDate, dmsConfigManager.getPropertyConfig().getJyWarehouseSealedPlanTimeEndHours());
+        } else {
+            return DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), jyWarehouseSendTaskPlanTimeEndDay);
+        }
     }
 
     private void fillMustField(SendVehicleTaskResponse response) {
@@ -759,24 +804,34 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
         //设置默认预计发货时间查询范围
         try {
+            Date currentDate = new Date();
             if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeBegin())) {
                 queryEntity.setLastPlanDepartTimeBegin(request.getLastPlanDepartTimeBegin());
             } else {
-                queryEntity.setLastPlanDepartTimeBegin(this.defaultTaskPlanTimeBegin());
+                // 待发货状态任务 计划发货时间 开始
+                queryEntity.setToSendLastPlanDepartTimeBegin(DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeBeginHours()));
+                // 发货中状态任务 计划发货时间 开始
+                queryEntity.setSendingLastPlanDepartTimeBegin(DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeBeginHours()));
             }
             if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeEnd())) {
                 queryEntity.setLastPlanDepartTimeEnd(request.getLastPlanDepartTimeEnd());
             } else {
-                queryEntity.setLastPlanDepartTimeEnd(this.defaultTaskPlanTimeEnd());
+                // 待发货状态任务 计划发货时间 结束
+                queryEntity.setToSendLastPlanDepartTimeEnd(DateHelper.addHours(currentDate, dmsConfigManager.getPropertyConfig().getJyWarehouseToSendPlanTimeEndHours()));
+                // 发货中状态任务 计划发货时间 结束
+                queryEntity.setSendingLastPlanDepartTimeEnd(DateHelper.addHours(currentDate, dmsConfigManager.getPropertyConfig().getJyWarehouseSendingPlanTimeEndHours()));
             }
-            queryEntity.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJySendTaskCreateTimeBeginDay()));
-
+            if (ObjectHelper.isNotNull(request.getCreateTimeBegin())) {
+                queryEntity.setCreateTimeBegin(request.getCreateTimeBegin());
+            } else {
+                queryEntity.setCreateTimeBegin(DateHelper.addHours(currentDate, - dmsConfigManager.getPropertyConfig().getJyWarehouseTaskCreateTimeBeginHours()));
+            }
         } catch (Exception e) {
             log.error("查询发货任务设置默认查询条件异常，入参{}", JsonHelper.toJson(request), e.getMessage(), e);
         }
 
 
-         return taskSendVehicleService.querySendTaskOfPage(
+         return taskSendVehicleService.querySpecifySendTaskOfPage(
                 queryEntity, sendVehicleBizList, null, request.getPageNo(), request.getPageSize(), vehicleStatuses);
     }
 
