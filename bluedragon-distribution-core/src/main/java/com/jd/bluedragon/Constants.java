@@ -1198,6 +1198,11 @@ public class Constants {
     public static final String WAYBILL_TRACE_STATE_SEAL_CAR = "-450";
 
     /**
+     * 分拣中心收货
+     */
+    public static final String WAYBILL_TRACE_STATE_RECEIVE_WAYBILL = "-170";
+
+    /**
      * 全程跟踪状态 分拣
      * */
     public static final String WAYBILL_TRACE_STATE_SORTING = "13";

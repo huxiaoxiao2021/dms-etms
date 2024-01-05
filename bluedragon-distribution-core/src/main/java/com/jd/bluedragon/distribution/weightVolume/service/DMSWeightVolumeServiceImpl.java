@@ -780,7 +780,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         stateSet.add(Integer.valueOf(WAYBILL_TRACE_STATE_SORTING));
         stateSet.add(Integer.valueOf(WAYBILL_TRACE_STATE_SEND));
         stateSet.add(Integer.valueOf(WAYBILL_TRACE_STATE_SEAL_CAR));
-        stateSet.add(WAYBILL_STATUS_CODE_SITE_SORTING);
+        stateSet.add(Integer.valueOf(WAYBILL_TRACE_STATE_RECEIVE_WAYBILL));
         return stateSet;
     }
 
