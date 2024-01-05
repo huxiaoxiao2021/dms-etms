@@ -27,9 +27,12 @@ public class DefaultJMQProducer {
     @Qualifier("jmqProducerSpilt")
     private com.jd.jmq.client.producer.MessageProducer jmqProducer;
 
+    /**
+     * 不带uat标识的发送者
+     */
     @Autowired
     @Qualifier("dmsWebProducer")
-    private com.jd.jmq.client.producer.MessageProducer jmqNoSplitProducer;
+    private com.jd.jmq.client.producer.MessageProducer jmqWithoutUatFlagProducer;
 
     @Autowired
     private TaskService taskService;
@@ -128,11 +131,11 @@ public class DefaultJMQProducer {
      * @param messages
      * @throws JMQException
      */
-    public void batchSendWithNoSplit(List<Message> messages) throws JMQException {
+    public void batchSendWithoutUatFlag(List<Message> messages) throws JMQException {
         if (messages != null && !messages.isEmpty()) {
             int size = messages.size();
             if (size <= this.batchSize) {
-                jmqNoSplitProducer.send(messages, this.timeout);
+                jmqWithoutUatFlagProducer.send(messages, this.timeout);
             } else {
                 int mod = size % this.batchSize;
                 int times = size / this.batchSize;
@@ -145,7 +148,7 @@ public class DefaultJMQProducer {
                     if (end > size) {
                         end = size;
                     }
-                    jmqNoSplitProducer.send(messages.subList(start, end), this.timeout);
+                    jmqWithoutUatFlagProducer.send(messages.subList(start, end), this.timeout);
                 }
             }
         }
@@ -170,9 +173,9 @@ public class DefaultJMQProducer {
      *
      * @param messages
      */
-    public void batchSendOnFailPersistentWithNoSplit(List<Message> messages) {
+    public void batchSendOnFailPersistentWithoutUatFlag(List<Message> messages) {
         try {
-            this.batchSendWithNoSplit(messages);
+            this.batchSendWithoutUatFlag(messages);
         } catch (Throwable ex) {
             log.error("批量MQ发送失败，将进行消息队列持久化", ex);
             this.batchPersistent(messages);

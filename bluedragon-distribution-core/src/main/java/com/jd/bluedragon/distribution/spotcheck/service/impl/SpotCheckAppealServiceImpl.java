@@ -199,7 +199,7 @@ public class SpotCheckAppealServiceImpl implements SpotCheckAppealService {
             message.setText(JsonHelper.toJson(spotCheckIssueMQ));
             messageList.add(message);
         }
-        spotCheckIssueProducer.batchSendOnFailPersistentWithNoSplit(messageList);
+        spotCheckIssueProducer.batchSendOnFailPersistentWithoutUatFlag(messageList);
     }
 
     /**
