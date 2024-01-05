@@ -774,6 +774,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		BeanUtils.copyProperties(record,recordMQ);
 		recordMQ.setSubmitTime(DateHelper.formatDateTime(record.getSubmitTime()));
 		recordMQ.setReturnGroupFlag(req.getReturnGroupFlag());
+		recordMQ.setPhotoUrlList(req.getPhotoUrlList());
 		if(log.isInfoEnabled()){
 			log.info("返调度审批异步消息发送!-{}",JSON.toJSONString(recordMQ) );
 		}
