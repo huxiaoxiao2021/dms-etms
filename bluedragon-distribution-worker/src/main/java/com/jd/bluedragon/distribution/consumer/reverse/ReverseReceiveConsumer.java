@@ -114,7 +114,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	public void consume(Message message) {
 
 		String messageContent = message.getText();
-		this.log.debug("逆向收货消息messageContent：{}" , messageContent);
+		this.log.info("逆向收货消息messageContent：{}" , messageContent);
 
 		ReverseReceiveRequest jrequest = null;
 		ReceiveRequest xrequest = null;
