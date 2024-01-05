@@ -82,6 +82,11 @@ public class SpotCheckAppealServiceImpl implements SpotCheckAppealService {
     }
 
     @Override
+    public List<SpotCheckAppealEntity> batchFindByWaybillCodes(SpotCheckAppealEntity spotCheckAppealEntity) {
+        return spotCheckAppealDao.batchFindByWaybillCodes(spotCheckAppealEntity);
+    }
+
+    @Override
     public SpotCheckAppealEntity findByBizId(SpotCheckAppealEntity spotCheckAppealEntity) {
         return spotCheckAppealDao.findByBizId(spotCheckAppealEntity);
     }
@@ -173,6 +178,28 @@ public class SpotCheckAppealServiceImpl implements SpotCheckAppealService {
             messageList.add(message);
         }
         spotCheckIssueProducer.batchSendOnFailPersistent(messageList);
+    }
+
+    /**
+     * 批量通知称重再造系统
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.SpotCheckAppealServiceImpl.batchNotifyRemakeSystem", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void batchNotifyRemakeSystemWithNoSplit(List<SpotCheckAppealEntity> entityList) {
+        List<Message> messageList = new ArrayList<>();
+        for (SpotCheckAppealEntity entity : entityList) {
+            // 组装消息text
+            SpotCheckIssueMQ spotCheckIssueMQ = createSpotCheckIssueMQ(entity);
+            // 组装消息实体
+            Message message = new Message();
+            // 业务主键：升级状态-运单号
+            String businessId = SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_UPGRADE.getCode() + spotCheckIssueMQ.getWaybillCode();
+            message.setBusinessId(businessId);
+            message.setTopic(spotCheckIssueProducer.getTopic());
+            message.setText(JsonHelper.toJson(spotCheckIssueMQ));
+            messageList.add(message);
+        }
+        spotCheckIssueProducer.batchSendOnFailPersistentWithoutUatFlag(messageList);
     }
 
     /**

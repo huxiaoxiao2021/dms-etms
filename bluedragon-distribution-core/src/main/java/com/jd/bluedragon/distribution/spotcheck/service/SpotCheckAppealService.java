@@ -45,6 +45,11 @@ public interface SpotCheckAppealService {
     List<SpotCheckAppealEntity> batchFindByIds(SpotCheckAppealEntity spotCheckAppealEntity);
 
     /**
+     * 根据waybillCode列表批量查找
+     */
+    List<SpotCheckAppealEntity> batchFindByWaybillCodes(SpotCheckAppealEntity spotCheckAppealEntity);
+
+    /**
      * 根据bizId查找
      */
     SpotCheckAppealEntity findByBizId(SpotCheckAppealEntity spotCheckAppealEntity);
@@ -63,5 +68,10 @@ public interface SpotCheckAppealService {
      * 批量通知称重再造系统
      */
     void batchNotifyRemakeSystem(List<SpotCheckAppealEntity> entityList);
+
+    /**
+     * 批量通知称重再造系统
+     */
+    void batchNotifyRemakeSystemWithNoSplit(List<SpotCheckAppealEntity> entityList);
 
 }
