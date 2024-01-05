@@ -40,7 +40,7 @@ public class NoTaskSendTest {
     @Test
     public void listVehicleTypeTest() {
 
-        InvokeResult<List<VehicleSpecResp>> invokeResult =jyNoTaskSendService.listVehicleType(new VehicleTaskReq());
+        InvokeResult<List<VehicleSpecResp>> invokeResult =jyNoTaskSendService.listVehicleType();
         log.info("code",invokeResult.getCode());
         log.info("date",invokeResult.getData().size());
     }

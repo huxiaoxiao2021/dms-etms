@@ -15,7 +15,7 @@ public interface JyNoTaskSendService {
      * 获取车辆类型列表信息
      * @return
      */
-    InvokeResult<List<VehicleSpecResp>> listVehicleType(VehicleTaskReq vehicleTaskReq);
+    InvokeResult<List<VehicleSpecResp>> listVehicleType();
 
     /**
      * 创建自建类型的运输车辆任务（主任务）

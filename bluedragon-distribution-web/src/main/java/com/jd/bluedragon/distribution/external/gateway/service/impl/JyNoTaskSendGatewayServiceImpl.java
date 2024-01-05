@@ -34,8 +34,8 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
 
 
     @Override
-    public JdCResponse<List<VehicleSpecResp>> listVehicleType(VehicleTaskReq vehicleTaskReq) {
-        return retJdCResponse(jyNoTaskSendService.listVehicleType(vehicleTaskReq));
+    public JdCResponse<List<VehicleSpecResp>> listVehicleType() {
+        return retJdCResponse(jyNoTaskSendService.listVehicleType());
     }
 
     @Override

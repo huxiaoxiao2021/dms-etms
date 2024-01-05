@@ -191,7 +191,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<List<VehicleSpecResp>> listVehicleType(VehicleTaskReq vehicleTaskReq) {
+    public InvokeResult<List<VehicleSpecResp>> listVehicleType() {
         CommonDto<List<BasicVehicleTypeDto>> rs = jyTransportManager.getVehicleTypeList();
         if (null != rs && rs.getCode() == Constants.RESULT_SUCCESS) {
             //按照车长做groupBy
@@ -214,15 +214,15 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             //封装树形结构响应体
             List<VehicleSpecResp> vehicleSpecRespList = new ArrayList<>();
             // 如果是从接货仓发货岗中进入的自建任务，则车型顺序特殊调整
-            if (JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
-                // 接货仓常用车型
-                String keyVehicleTypes = uccPropertyConfiguration.getJyWarehouseManualTaskKeyVehicleTypes();
-                if (StringUtils.isNotBlank(keyVehicleTypes)) {
-                    // 转换数据
-                    transformDataForWareHouse(vehicleSpecRespList, groupByVehicleLength, keyVehicleTypes);
-                    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
-                }
-            }
+//            if (JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
+//                // 接货仓常用车型
+//                String keyVehicleTypes = uccPropertyConfiguration.getJyWarehouseManualTaskKeyVehicleTypes();
+//                if (StringUtils.isNotBlank(keyVehicleTypes)) {
+//                    // 转换数据
+//                    transformDataForWareHouse(vehicleSpecRespList, groupByVehicleLength, keyVehicleTypes);
+//                    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
+//                }
+//            }
             for (Map.Entry<String, List<VehicleTypeDto>> entry : groupByVehicleLength.entrySet()) {
                 String key = entry.getKey();
                 List<VehicleTypeDto> value = entry.getValue();
