@@ -8,10 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -46,8 +43,11 @@ public class SimpleComplexSwitchExecutor {
             T copiedObject = (T) in.readObject();
             in.close();
             return copiedObject;
-        }catch (Exception e){
+        }catch (NotSerializableException e) {
             logger.warn("简繁切换-通过序列化方式复制对象失败!对象:{}未实现序列化", source.getClass().getName());
+            return null;
+        }catch (Exception e){
+            logger.error("简繁切换-复制对象异常!对象:{}", source.getClass().getName(), e);
             return null;
         }finally {
             if(out != null){
