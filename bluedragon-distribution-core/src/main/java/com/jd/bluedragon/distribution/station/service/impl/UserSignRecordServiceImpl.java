@@ -52,6 +52,7 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.domain.BaseSite;
+import com.jd.ql.basic.domain.BaseStaff;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
@@ -1095,6 +1096,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			if(userInfo != null
 					&& Constants.FLAG_USER_Is_Resign.equals(userInfo.getIsResign())) {
 				isEffectErp = true;
+				if (userInfo.getStaffNo() != null) {
+					signInData.setUserId(userInfo.getStaffNo().longValue());
+				}
 			}
 			if(!isEffectErp) {
 				if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
@@ -1112,6 +1116,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}else if(!JobTypeEnum.JOBTYPE6.getCode().equals(jobCode) && !isCarId){
 			result.toFail("签到失败，无效的身份证号！");
 			return result;
+		}
+		if(isCarId){
+			final BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(userCode);
+			if (baseStaff != null) {
+				signInData.setUserId(baseStaff.getStaffNo().longValue());
+			}
 		}
 		return result;
 	}
