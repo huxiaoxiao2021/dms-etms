@@ -731,6 +731,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         choice.setQueryWaybillM(false);
         choice.setQueryGoodList(true);
         choice.setQueryWaybillP(true);
+        choice.setQueryPackList(true);
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, choice);
         if (baseEntity != null) {
             return baseEntity.getData();
