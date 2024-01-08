@@ -213,16 +213,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             }
             //封装树形结构响应体
             List<VehicleSpecResp> vehicleSpecRespList = new ArrayList<>();
-            // 如果是从接货仓发货岗中进入的自建任务，则车型顺序特殊调整
-//            if (JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
-//                // 接货仓常用车型
-//                String keyVehicleTypes = uccPropertyConfiguration.getJyWarehouseManualTaskKeyVehicleTypes();
-//                if (StringUtils.isNotBlank(keyVehicleTypes)) {
-//                    // 转换数据
-//                    transformDataForWareHouse(vehicleSpecRespList, groupByVehicleLength, keyVehicleTypes);
-//                    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
-//                }
-//            }
+            DecimalFormat df = new DecimalFormat("###.0");
             for (Map.Entry<String, List<VehicleTypeDto>> entry : groupByVehicleLength.entrySet()) {
                 String key = entry.getKey();
                 List<VehicleTypeDto> value = entry.getValue();
@@ -236,6 +227,55 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
         }
         return new InvokeResult(RESULT_NODATA_GETCARTYPE_CODE, RESULT_NODATA_GETCARTYPE_MESSAGE);
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleTypeNew", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<List<VehicleSpecResp>> listVehicleTypeNew(VehicleTaskReq vehicleTaskReq) {
+        CommonDto<List<BasicVehicleTypeDto>> rs = jyTransportManager.getVehicleTypeList();
+        if (null != rs && rs.getCode() == Constants.RESULT_SUCCESS) {
+            //按照车长做groupBy
+            Map<String, List<VehicleTypeDto>> groupByVehicleLength = new HashMap<>();
+            for (BasicVehicleTypeDto basicVehicleTypeDto : rs.getData()) {
+                String vehicleLength = basicVehicleTypeDto.getVehicleLength();
+                if (ObjectHelper.isNotNull(vehicleLength)) {
+                    VehicleTypeDto vehicleTypeDto = BeanUtils.copy(basicVehicleTypeDto, VehicleTypeDto.class);
+                    final BigDecimal vehicleLengthVal = new BigDecimal(vehicleLength);
+                    final BigDecimal vehicleLengthGroupVal = vehicleLengthVal.divide(new BigDecimal(100), 1, RoundingMode.DOWN);
+                    if (groupByVehicleLength.containsKey(vehicleLengthGroupVal.toString())) {
+                        groupByVehicleLength.get(vehicleLengthGroupVal.toString()).add(vehicleTypeDto);
+                    } else {
+                        List<VehicleTypeDto> vehicleTypeDtoList = new ArrayList<>();
+                        vehicleTypeDtoList.add(vehicleTypeDto);
+                        groupByVehicleLength.put(vehicleLengthGroupVal.toString(), vehicleTypeDtoList);
+                    }
+                }
+            }
+            //封装树形结构响应体
+            List<VehicleSpecResp> vehicleSpecRespList = new ArrayList<>();
+            // 如果是从接货仓发货岗中进入的自建任务，则车型顺序特殊调整
+            if (JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
+                // 接货仓常用车型
+                String keyVehicleTypes = uccPropertyConfiguration.getJyWarehouseManualTaskKeyVehicleTypes();
+                if (StringUtils.isNotBlank(keyVehicleTypes)) {
+                    // 转换数据
+                    transformDataForWareHouse(vehicleSpecRespList, groupByVehicleLength, keyVehicleTypes);
+                    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
+                }
+            }
+            for (Map.Entry<String, List<VehicleTypeDto>> entry : groupByVehicleLength.entrySet()) {
+                String key = entry.getKey();
+                List<VehicleTypeDto> value = entry.getValue();
+                VehicleSpecResp vehicleSpecResp = new VehicleSpecResp();
+                vehicleSpecResp.setVehicleLength(new BigDecimal(key).multiply(new BigDecimal(10)).intValue());
+                vehicleSpecResp.setName(new BigDecimal(key) + "米");
+                vehicleSpecResp.setVehicleTypeDtoList(value);
+                vehicleSpecRespList.add(vehicleSpecResp);
+            }
+            vehicleSpecRespList.sort(new VehicleTypeComparator());
+            return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
+        }
+        return new InvokeResult<>(RESULT_NODATA_GETCARTYPE_CODE, RESULT_NODATA_GETCARTYPE_MESSAGE);
     }
 
     private void transformDataForWareHouse(List<VehicleSpecResp> vehicleSpecRespList,
