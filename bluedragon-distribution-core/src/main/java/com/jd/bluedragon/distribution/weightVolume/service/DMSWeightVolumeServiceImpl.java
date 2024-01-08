@@ -39,6 +39,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.alibaba.fastjson.JSON;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -676,7 +677,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
         // 获取运单信息
         String waybillCode = WaybillUtil.getWaybillCode(barCode);
-        BigWaybillDto bigWaybill = waybillService.getWaybill(waybillCode);
+        BigWaybillDto bigWaybill = getWaybillBaseEntity(waybillCode);
         if (bigWaybill == null || bigWaybill.getWaybill() == null || bigWaybill.getWaybill().getWaybillSign() == null) {
             logger.info("未获取运单信息{}", waybillCode);
             result.setData(false);
@@ -715,6 +716,26 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         result.setMessage(WAYBILL_ZERO_WEIGHT_INTERCEPT_MESSAGE);
         result.setData(true);
         return result;
+    }
+
+    /**
+     * 调用运单JSF接口获取运单基础数据信息
+     *
+     * @param waybillCode
+     * @return
+     */
+    private BigWaybillDto getWaybillBaseEntity(String waybillCode) {
+        WChoice choice = new WChoice();
+        choice.setQueryWaybillC(true);
+        choice.setQueryWaybillExtend(true);
+        choice.setQueryWaybillM(false);
+        choice.setQueryGoodList(true);
+        choice.setQueryWaybillP(true);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, choice);
+        if (baseEntity != null) {
+            return baseEntity.getData();
+        }
+        return null;
     }
 
     private void checkRecycleBasket(String barCode, Integer operateSiteCode, InvokeResult<Boolean> result, FromSourceEnum sourceCode) {
