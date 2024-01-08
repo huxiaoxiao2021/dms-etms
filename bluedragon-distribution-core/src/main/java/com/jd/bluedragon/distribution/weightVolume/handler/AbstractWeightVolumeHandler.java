@@ -312,8 +312,8 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
      */
     protected void weightVolumeRuleCheckHandlerNew(WeightVolumeContext weightVolumeContext,InvokeResult<Boolean> result) {
         // 非0复重量体积拦截
-        InvokeResult<Boolean> interceptResult= weightVolumeService.waybillNotZeroWeightIntercept(getWeightVolumeEntity(weightVolumeContext));
-        if (interceptResult.getData()) {
+        InvokeResult<Void> interceptResult= weightVolumeService.waybillNotZeroWeightIntercept(getWeightVolumeEntity(weightVolumeContext));
+        if (!interceptResult.codeSuccess()) {
             result.setCode(interceptResult.getCode());
             result.setMessage(interceptResult.getMessage());
             return;

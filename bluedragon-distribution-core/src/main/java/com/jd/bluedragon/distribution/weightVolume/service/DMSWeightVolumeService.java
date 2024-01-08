@@ -67,5 +67,5 @@ public interface DMSWeightVolumeService {
      * @param entity
      * @return
      */
-    InvokeResult<Boolean> waybillNotZeroWeightIntercept(WeightVolumeEntity entity);
+    InvokeResult<Void> waybillNotZeroWeightIntercept(WeightVolumeEntity entity);
 }
