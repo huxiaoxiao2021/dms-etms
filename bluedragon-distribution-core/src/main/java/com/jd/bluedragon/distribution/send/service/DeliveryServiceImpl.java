@@ -3805,8 +3805,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         boxMaterialRelationMQ.setBoxCode(tSendM.getBoxCode());
         boxMaterialRelationMQ.setBusinessType(BoxMaterialRelationEnum.SEND_CANCEL.getType());
         boxMaterialRelationMQ.setMaterialCode(materialCode);
-        boxMaterialRelationMQ.setOperatorCode(tSendM.getCreateUserCode() == null ? 0: tSendM.getCreateUserCode());
-        boxMaterialRelationMQ.setOperatorName(tSendM.getCreateUser());
+        boxMaterialRelationMQ.setOperatorCode(tSendM.getUpdateUserCode() == null ? 0 : tSendM.getUpdateUserCode());
+        boxMaterialRelationMQ.setOperatorName(tSendM.getUpdaterUser());
         boxMaterialRelationMQ.setSiteCode(tSendM.getCreateSiteCode() + "");
         boxMaterialRelationMQ.setOperatorTime(tSendM.getUpdateTime());
         if(log.isInfoEnabled()){
