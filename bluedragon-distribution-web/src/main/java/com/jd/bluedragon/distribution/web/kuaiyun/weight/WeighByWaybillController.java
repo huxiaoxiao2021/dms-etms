@@ -156,8 +156,8 @@ public class WeighByWaybillController extends DmsBaseController {
         Integer siteCode = getLoginUser() == null ? null : getLoginUser().getSiteCode();
         InvokeResult<Void> notZeroResult = weightVolumeService.waybillNotZeroWeightIntercept(getWeightVolumeEntity(vo.getCodeStr(), siteCode));
         if (!notZeroResult.codeSuccess()) {
-            result.setCode(RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI);
-            result.setMessage(notZeroResult.getMessage());
+            checkData.setVerifyCode(RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI);
+            checkData.setVerifyMessage(notZeroResult.getMessage());
         }
 
     	InvokeResult<Boolean> verifyResult = this.verifyWaybillReality(vo.getCodeStr());
@@ -620,6 +620,7 @@ public class WeighByWaybillController extends DmsBaseController {
         InvokeResult<Void> notZeroResult = weightVolumeService.waybillNotZeroWeightIntercept(getWeightVolumeEntity(waybillWeightVO.getCodeStr(), siteCode));
         if (!notZeroResult.codeSuccess()) {
             waybillWeightVO.setErrorMessage(notZeroResult.getMessage());
+            return false;
         }
 
         //存在性校验
