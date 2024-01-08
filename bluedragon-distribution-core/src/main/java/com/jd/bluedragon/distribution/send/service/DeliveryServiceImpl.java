@@ -3649,7 +3649,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 }
             }
             this.sendColdChainSendMQ(coldChainSendDetails);
-            this.sendDmsCycleMaterialMq4CancelSendBox(tSendM);
+            this.sendDmsCycleMaterialMq4CancelSendBox(tSendM, sendDetails);
         } catch (Exception ex) {
             log.error("取消发货 发全程跟踪sendMessage： " + ex);
         }
@@ -3795,7 +3795,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         taskService.add(tTask);
     }
 
-    private void sendDmsCycleMaterialMq4CancelSendBox(SendM tSendM) {
+    private void sendDmsCycleMaterialMq4CancelSendBox(SendM tSendM, List<SendDetail> sendDetails) {
         final String materialCode = cycleBoxService.getBoxMaterialRelation(tSendM.getBoxCode());
         if (StringUtils.isBlank(materialCode)){
             log.info("sendDmsCycleMaterialMq4CancelSendBox not found materialCode {}", JsonHelper.toJson(tSendM));
@@ -3803,6 +3803,16 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
         BoxMaterialRelationMQ boxMaterialRelationMQ = new BoxMaterialRelationMQ();
         boxMaterialRelationMQ.setBoxCode(tSendM.getBoxCode());
+
+        Set<String> waybillCodeSet = new HashSet<>();
+        List<String> packageCodeList = new ArrayList<>();
+        for (SendDetail sendDetail : sendDetails) {
+            waybillCodeSet.add(sendDetail.getWaybillCode());
+            packageCodeList.add(sendDetail.getPackageBarcode());
+        }
+        boxMaterialRelationMQ.setWaybillCode(new ArrayList<>(waybillCodeSet));
+        boxMaterialRelationMQ.setPackageCode(packageCodeList);
+
         boxMaterialRelationMQ.setBusinessType(BoxMaterialRelationEnum.SEND_CANCEL.getType());
         boxMaterialRelationMQ.setMaterialCode(materialCode);
         boxMaterialRelationMQ.setOperatorCode(tSendM.getUpdateUserCode() == null ? 0 : tSendM.getUpdateUserCode());
