@@ -842,7 +842,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JySanwuExceptionServiceImpl.processTaskOfDamage", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfDamage(ExpDamageDetailReq req) {
-        logger.info("JySanwuExceptionServiceImpl.processTaskOfDamage req:{}", JSON.toJSONString(req));
+        logger.error("JySanwuExceptionServiceImpl.processTaskOfDamage req:{}", JSON.toJSONString(req));
         //仅当外包装破损且选择修复或更换外包装时 走终端校验耗材条码
         if (JyExceptionDamageEnum.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode().equals(req.getDamageType())
         && (JyExceptionDamageEnum.OutPackingDamagedRepairTypeEnum.REPAIR.getCode().equals(req.getRepairType())
@@ -853,8 +853,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 ||e.getCode().equals(JyExceptionDamageEnum.ConsumableEnum.FILE_SEALING.getCode())
                 ||e.getCode().equals(JyExceptionDamageEnum.ConsumableEnum.WATERPROOF_BAG.getCode())
             ).map(e -> e.getBarcode()).collect(Collectors.toList());
-            if (Boolean.FALSE.equals(consumableManager.checkConsumable(barcodes, req.getUserErp()))) {
-                return JdCResponse.fail("耗材条码有误");
+            if (Objects.nonNull(barcodes) && barcodes.size() > 0) {
+                if (Boolean.FALSE.equals(consumableManager.checkConsumable(barcodes, req.getUserErp()))) {
+                    return JdCResponse.fail("耗材条码有误");
+                }
             }
         }
         JyExceptionDamageEntity entity = new JyExceptionDamageEntity();
