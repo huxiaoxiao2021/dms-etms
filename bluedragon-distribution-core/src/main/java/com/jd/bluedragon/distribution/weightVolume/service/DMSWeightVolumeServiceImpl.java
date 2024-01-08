@@ -704,9 +704,6 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 //        if (!result.getData()) {
 //            return result;
 //        }
-
-        result.setCode(WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE);
-        result.setMessage(WAYBILL_ZERO_WEIGHT_INTERCEPT_MESSAGE);
         return result;
     }
 
@@ -747,7 +744,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 //        }
     }
 
-    // todo 名称 全程跟踪逻辑是否不要 提示语组件
+    // todo 提示语组件
     // 校验运单重量体积是否为非0重包裹
     private boolean checkWeightAndVolumeNotZero(BigWaybillDto bigWaybill, String waybillCode, Integer operateSiteCode, InvokeResult<Void> result) {
         // 对0存在重量的运单，校验当前分拣中心在全程跟踪是否存在前置操作节点（解封车、验货、装箱、发货、分拣、封车等任意一条记录即可）
@@ -769,12 +766,14 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
         Double weight = bigWaybill.getWaybill().getAgainWeight();
         String volume = bigWaybill.getWaybill().getSpareColumn2();
-        if (weight == null || weight <= 0 || StringUtils.isEmpty(volume) || Double.parseDouble(volume) <= 0) {
+        if (weight != null && weight > 0 && !StringUtils.isEmpty(volume) && Double.parseDouble(volume) > 0) {
             logger.info("运单号不存在复重复量方{}", waybillCode);
+            result.setCode(WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE);
+            result.setMessage(WAYBILL_ZERO_WEIGHT_INTERCEPT_MESSAGE);
             return true;
         }
 
-        logger.info("运单号{}存在复重复量方，继续校验包裹数据！", waybillCode);
+        logger.info("运单号{}不存在复重复量方，继续校验包裹数据！", waybillCode);
         // 如果当前运单不存在，则对包裹的重量体积进行校验
         List<DeliveryPackageD> packageList = bigWaybill.getPackageList();
         for (DeliveryPackageD deliveryPackageD : packageList) {
@@ -785,6 +784,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                 return true;
             }
         }
+        result.setCode(WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE);
+        result.setMessage(WAYBILL_ZERO_WEIGHT_INTERCEPT_MESSAGE);
         return false;
     }
 
