@@ -617,6 +617,7 @@ public class WeighByWaybillController extends DmsBaseController {
             waybillWeightVO.setCodeStr(convertCodeToWaybillCodeResult.getData());
         }
 
+        // 非0重包裹拦截
         Integer siteCode = getLoginUser() == null ? null : getLoginUser().getSiteCode();
         InvokeResult<Void> notZeroResult = weightVolumeService.waybillNotZeroWeightIntercept(getWeightVolumeEntity(waybillWeightVO.getCodeStr(), siteCode));
         if (!notZeroResult.codeSuccess()) {
