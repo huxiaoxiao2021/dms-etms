@@ -750,13 +750,6 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     // todo 名称 全程跟踪逻辑是否不要 提示语组件
     // 校验运单重量体积是否为非0重包裹
     private boolean checkWeightAndVolumeNotZero(BigWaybillDto bigWaybill, String waybillCode, Integer operateSiteCode, InvokeResult<Void> result) {
-        Double weight = bigWaybill.getWaybill().getAgainWeight();
-        String volume = bigWaybill.getWaybill().getSpareColumn2();
-        if (weight == null || weight <= 0 || StringUtils.isEmpty(volume) || Double.parseDouble(volume) <= 0) {
-            logger.info("运单号不存在复重复量方{}", waybillCode);
-            return true;
-        }
-
         // 对0存在重量的运单，校验当前分拣中心在全程跟踪是否存在前置操作节点（解封车、验货、装箱、发货、分拣、封车等任意一条记录即可）
         Set<Integer> stateSet = getStateSet();
         boolean isExistWaybillTrace = false;
@@ -766,6 +759,13 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             if (Objects.equals(packageState.getOperatorSiteId(), operateSiteCode)) {
                 isExistWaybillTrace = true;
             }
+        }
+
+        Double weight = bigWaybill.getWaybill().getAgainWeight();
+        String volume = bigWaybill.getWaybill().getSpareColumn2();
+        if (weight == null || weight <= 0 || StringUtils.isEmpty(volume) || Double.parseDouble(volume) <= 0) {
+            logger.info("运单号不存在复重复量方{}", waybillCode);
+            return true;
         }
 
         if (!isExistWaybillTrace) {
