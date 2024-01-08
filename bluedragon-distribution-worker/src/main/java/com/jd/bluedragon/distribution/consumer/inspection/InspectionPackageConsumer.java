@@ -159,6 +159,9 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         inspection.setOperateTime(packageMQ.getInspectionTime());
         inspection.setUpdateTime(packageMQ.getInspectionTime());
         inspection.setCreateTime(packageMQ.getRecordCreateTime());
+        inspection.setOperatorData(packageMQ.getOperatorData());
+        inspection.setOperatorId(packageMQ.getOperatorId());
+        inspection.setOperatorTypeCode(packageMQ.getOperatorTypeCode());
         return inspection;
     }
 
