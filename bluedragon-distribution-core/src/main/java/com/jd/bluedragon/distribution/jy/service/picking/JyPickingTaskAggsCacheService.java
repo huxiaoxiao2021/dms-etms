@@ -165,24 +165,24 @@ public class JyPickingTaskAggsCacheService {
 //        return String.format(CACHE_TASK_PICKING_SEND_AGG, siteId, nextSiteId, bizId);
 //    }
 
-
-    /**
-     * 提货任务维度锁 bizId
-     * 使用场景说明
-     * 1、按任务维度回刷统计数据
-     * 2、
-     */
-    public boolean saveLockPickingGoodTask(String bizId) {
-        String cacheKey = this.getLockKeyPickingGoodTask(bizId);
-        return jimDbLock.lock(cacheKey, DEFAULT_VALUE_1, LOCK_PICKING_GOOD_TASK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-    }
-    public void unlockLockPickingGoodTask(String bizId) {
-        String cacheKey = this.getLockKeyPickingGoodTask(bizId);
-        jimDbLock.releaseLock(cacheKey, DEFAULT_VALUE_1);
-    }
-    private String getLockKeyPickingGoodTask(String bizId) {
-        return String.format(LOCK_PICKING_GOOD_TASK, bizId);
-    }
+//
+//    /**
+//     * 提货任务维度锁 bizId
+//     * 使用场景说明
+//     * 1、按任务维度回刷统计数据
+//     * 2、
+//     */
+//    public boolean saveLockPickingGoodTask(String bizId) {
+//        String cacheKey = this.getLockKeyPickingGoodTask(bizId);
+//        return jimDbLock.lock(cacheKey, DEFAULT_VALUE_1, LOCK_PICKING_GOOD_TASK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+//    }
+//    public void unlockLockPickingGoodTask(String bizId) {
+//        String cacheKey = this.getLockKeyPickingGoodTask(bizId);
+//        jimDbLock.releaseLock(cacheKey, DEFAULT_VALUE_1);
+//    }
+//    private String getLockKeyPickingGoodTask(String bizId) {
+//        return String.format(LOCK_PICKING_GOOD_TASK, bizId);
+//    }
 
 
     /**
@@ -335,21 +335,21 @@ public class JyPickingTaskAggsCacheService {
      * @param nextSiteId
      * @return
      */
-    public Integer incrRealScaFlowWaitSendBoxNum(String bizId, Long siteId, Long nextSiteId){
-        String key = this.getCacheKeyRealScaFlowWaitSendBoxNum(bizId, siteId, nextSiteId);
+    public Integer incrRealScanFlowWaitSendBoxNum(String bizId, Long siteId, Long nextSiteId){
+        String key = this.getCacheKeyRealScanFlowWaitSendBoxNum(bizId, siteId, nextSiteId);
         Long num = redisClientOfJy.incr(key);
         redisClientOfJy.expire(key, CACHE_REAL_SCAN_FLOW_WAIT_SEND_BOX_TIMEOUT_DAYS, TimeUnit.DAYS);
         return num.intValue();
     }
-    public Integer getValueRealScaFlowWaitSendBoxNum(String bizId, Long siteId, Long nextSiteId){
-        String key = this.getCacheKeyRealScaFlowWaitSendBoxNum(bizId, siteId, nextSiteId);
+    public Integer getValueRealScanFlowWaitSendBoxNum(String bizId, Long siteId, Long nextSiteId){
+        String key = this.getCacheKeyRealScanFlowWaitSendBoxNum(bizId, siteId, nextSiteId);
         String numStr = redisClientOfJy.get(key);
         if(StringUtils.isBlank(numStr)) {
             return 0;
         }
         return Integer.valueOf(numStr);
     }
-    private String getCacheKeyRealScaFlowWaitSendBoxNum(String bizId, Long siteId, Long nextSiteId){
+    private String getCacheKeyRealScanFlowWaitSendBoxNum(String bizId, Long siteId, Long nextSiteId){
         return String.format(CACHE_REAL_SCAN_FLOW_WAIT_SEND_BOX, bizId, siteId);
     }
     /**
@@ -406,7 +406,7 @@ public class JyPickingTaskAggsCacheService {
      */
     public void saveCacheInitWaitPickingTotalItemNum(String bizId, Long siteId, Integer value) {
         String cacheKey = this.getCacheKeyInitWaitPickingTotalItemNum(bizId, siteId);
-        redisClientOfJy.setEx(cacheKey, value.toString(), CACHE_INIT_WAIT_PICKING_TOTAL_NUM_TIMEOUT_HOURS, TimeUnit.DAYS);
+        redisClientOfJy.setEx(cacheKey, value.toString(), CACHE_INIT_WAIT_PICKING_TOTAL_NUM_TIMEOUT_HOURS, TimeUnit.HOURS);
     }
     public Integer getCacheInitWaitPickingTotalItemNum(String bizId, Long siteId) {
         String key = this.getCacheKeyInitWaitPickingTotalItemNum(bizId, siteId);
@@ -427,7 +427,7 @@ public class JyPickingTaskAggsCacheService {
      */
     public void saveCacheInitWaitSendTotalItemNum(String bizId, Long siteId, Long nextSiteId, Integer value) {
         String cacheKey = this.getCacheKeyInitWaitSendTotalItemNum(bizId, siteId, nextSiteId);
-        redisClientOfJy.setEx(cacheKey, value.toString(), CACHE_INIT_WAIT_SEND_TOTAL_NUM_TIMEOUT_HOURS, TimeUnit.DAYS);
+        redisClientOfJy.setEx(cacheKey, value.toString(), CACHE_INIT_WAIT_SEND_TOTAL_NUM_TIMEOUT_HOURS, TimeUnit.HOURS);
     }
     public Integer getCacheInitWaitSendTotalItemNum(String bizId, Long siteId, Long nextSiteId) {
         String key = this.getCacheKeyInitWaitSendTotalItemNum(bizId, siteId, nextSiteId);

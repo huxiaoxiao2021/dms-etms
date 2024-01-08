@@ -784,5 +784,10 @@
     <jmq:consumer id="jmq.jyPickingGoodDetailInitSplitConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.picking.good.detail.init.split}" listener="jyPickingGoodDetailInitSplitConsumer"/>
     </jmq:consumer>
+
+    <!--  空铁提货待提统计字段修改消费  -->
+    <jmq:consumer id="jmq.jyPickingGoodWaitScanItemNumUpdateConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.picking.good.wait.scan.num}" listener="jyPickingGoodWaitScanItemNumUpdateConsumer"/>
+    </jmq:consumer>
 </beans>
 

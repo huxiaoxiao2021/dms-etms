@@ -73,51 +73,51 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
         return jyPickingSendRecordDao.latestPickingRecord(recordEntity);
     }
 
-    @Override
-    public PickingGoodTaskStatisticsDto statisticsByBizId(Long siteId, String bizId, Long nextSiteId) {
-        //待提
-        Integer waitPickingTotalNum = this.countTaskWaitScanItemNum(bizId, siteId);
-
-        //已提
-        Integer realPickingTotalNum = this.countTaskRealScanItemNum(bizId, siteId);
-
-        //多提
-        JyPickingSendRecordEntity morePicking = new JyPickingSendRecordEntity(siteId);
-        morePicking.setScanCode(bizId);
-        morePicking.setMoreScanFlag(Constants.NUMBER_ONE);
-        Integer morePickingTotalNum = jyPickingSendRecordDao.countTaskRealScanItemNum(morePicking);
-
-        PickingGoodTaskStatisticsDto res = new PickingGoodTaskStatisticsDto();
-        res.setWaitPickingTotalNum(waitPickingTotalNum);
-        res.setRealPickingTotalNum(realPickingTotalNum);
-        res.setMorePickingTotalNum(morePickingTotalNum);
-
-        if(!Objects.isNull(nextSiteId)) {
-            //待发
-            JyPickingSendRecordEntity waitSendEntity = new JyPickingSendRecordEntity(siteId);
-            waitSendEntity.setScanCode(bizId);
-            waitSendEntity.setInitNextSiteId(nextSiteId);
-            Integer waitSendTotalNum = jyPickingSendRecordDao.countTaskWaitScanItemNum(waitSendEntity);
-
-            //已发
-            JyPickingSendRecordEntity realSendEntity = new JyPickingSendRecordEntity(siteId);
-            realSendEntity.setScanCode(bizId);
-            realSendEntity.setInitNextSiteId(nextSiteId);
-            Integer realSendTotalNum = jyPickingSendRecordDao.countTaskRealScanItemNum(realSendEntity);
-
-            //多发
-            JyPickingSendRecordEntity moreSendEntity = new JyPickingSendRecordEntity(siteId);
-            moreSendEntity.setScanCode(bizId);
-            moreSendEntity.setMoreScanFlag(Constants.NUMBER_ONE);
-            moreSendEntity.setInitNextSiteId(nextSiteId);
-            Integer moreSendTotalNum = jyPickingSendRecordDao.countTaskRealScanItemNum(moreSendEntity);
-
-            res.setWaitSendTotalNum(waitSendTotalNum);
-            res.setRealSendTotalNum(realSendTotalNum);
-            res.setMoreSendTotalNum(moreSendTotalNum);
-        }
-        return res;
-    }
+//    @Override
+//    public PickingGoodTaskStatisticsDto statisticsByBizId(Long siteId, String bizId, Long nextSiteId) {
+//        //待提
+//        Integer waitPickingTotalNum = this.countTaskWaitScanItemNum(bizId, siteId);
+//
+//        //已提
+//        Integer realPickingTotalNum = this.countTaskRealScanItemNum(bizId, siteId);
+//
+//        //多提
+//        JyPickingSendRecordEntity morePicking = new JyPickingSendRecordEntity(siteId);
+//        morePicking.setScanCode(bizId);
+//        morePicking.setMoreScanFlag(Constants.NUMBER_ONE);
+//        Integer morePickingTotalNum = jyPickingSendRecordDao.countTaskRealScanItemNum(morePicking);
+//
+//        PickingGoodTaskStatisticsDto res = new PickingGoodTaskStatisticsDto();
+//        res.setWaitPickingTotalNum(waitPickingTotalNum);
+//        res.setRealPickingTotalNum(realPickingTotalNum);
+//        res.setMorePickingTotalNum(morePickingTotalNum);
+//
+//        if(!Objects.isNull(nextSiteId)) {
+//            //待发
+//            JyPickingSendRecordEntity waitSendEntity = new JyPickingSendRecordEntity(siteId);
+//            waitSendEntity.setScanCode(bizId);
+//            waitSendEntity.setInitNextSiteId(nextSiteId);
+//            Integer waitSendTotalNum = jyPickingSendRecordDao.countTaskWaitScanItemNum(waitSendEntity);
+//
+//            //已发
+//            JyPickingSendRecordEntity realSendEntity = new JyPickingSendRecordEntity(siteId);
+//            realSendEntity.setScanCode(bizId);
+//            realSendEntity.setInitNextSiteId(nextSiteId);
+//            Integer realSendTotalNum = jyPickingSendRecordDao.countTaskRealScanItemNum(realSendEntity);
+//
+//            //多发
+//            JyPickingSendRecordEntity moreSendEntity = new JyPickingSendRecordEntity(siteId);
+//            moreSendEntity.setScanCode(bizId);
+//            moreSendEntity.setMoreScanFlag(Constants.NUMBER_ONE);
+//            moreSendEntity.setInitNextSiteId(nextSiteId);
+//            Integer moreSendTotalNum = jyPickingSendRecordDao.countTaskRealScanItemNum(moreSendEntity);
+//
+//            res.setWaitSendTotalNum(waitSendTotalNum);
+//            res.setRealSendTotalNum(realSendTotalNum);
+//            res.setMoreSendTotalNum(moreSendTotalNum);
+//        }
+//        return res;
+//    }
 
     @Override
     public Integer countTaskRealScanItemNum (String bizId, Long siteId) {

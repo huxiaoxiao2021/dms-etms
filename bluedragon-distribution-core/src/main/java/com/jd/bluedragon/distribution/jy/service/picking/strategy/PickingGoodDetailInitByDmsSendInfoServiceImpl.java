@@ -149,7 +149,7 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
                 }else {
                     logInfo("dmsToDms提货待提件数计算，【bizId={}|batchCode={}】根据箱号{}未查到路由下一跳，查询流向依赖单号【{}】，不做流向维度agg统计", initDto.getBizId(), initDto.getBatchCode(), barCode, JsonUtils.toJSONString(waybillSet));
                 }
-            }else {
+            }else if(WaybillUtil.isPackageCode(barCode)){
                 String waybillCode = WaybillUtil.getWaybillCode(barCode);
                 Integer nextSiteId = waybillRouteMap.get(waybillCode);
                 if(Objects.isNull(nextSiteId)) {
@@ -169,6 +169,8 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
                 }else {
                     logInfo("dmsToDms提货待提件数计算，【bizId={}|batchCode={}】根据包裹号{}未查到路由下一跳，不做流向维度agg统计", initDto.getBizId(), initDto.getBatchCode(), barCode);
                 }
+            }else {
+                logWarn("dmsToDms提货待提件数计算，barCode={}非箱号、非包裹号， 暂不处理， initDto={}", barCode, JsonUtils.toJSONString(initDto));
             }
         });
 

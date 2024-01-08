@@ -299,6 +299,13 @@
     limit 1
   </select>
 
+  <select id="findAllTaskByBusinessNumber" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select <include refid="Base_Column_List" />
+    from jy_biz_task_picking_good
+    where business_number= #{businessNumber} and yn = 1
+    order by create_time desc
+  </select>
+
   <update id="deleteByBusinessNumber" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition" >
     update jy_biz_task_picking_good
     set

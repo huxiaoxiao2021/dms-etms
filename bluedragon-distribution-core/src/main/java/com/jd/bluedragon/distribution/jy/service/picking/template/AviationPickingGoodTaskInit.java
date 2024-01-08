@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailIn
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskExtendInitDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskInitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity;
 import com.jd.bluedragon.distribution.jy.service.picking.JyBizTaskPickingGoodService;
@@ -54,7 +55,8 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
     @Autowired
     @Qualifier(value = "jyPickingGoodDetailInitProducer")
     private DefaultJMQProducer jyPickingGoodDetailInitProducer;
-
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
 
 
 
@@ -72,16 +74,14 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
     @Override
     protected boolean generatePickingGoodTask(PickingGoodTaskInitDto initDto) {
         JyBizTaskPickingGoodEntity pickingGoodEntity = jyBizTaskPickingGoodService.findLatestTaskByBusinessNumber(initDto.getBusinessNumber());
-        //重复校验
         if(!Objects.isNull(pickingGoodEntity)) {
             if(!Objects.isNull(pickingGoodEntity.getNodeRealArriveTime())) {
                 logWarn("空铁提货计划消费生成提货任务，根据流水号%s查找提货任务已经实际落地，落地时间为【%s|bizId=%s】，消息不在消费，msg={}",
                         initDto.getBusinessNumber(), pickingGoodEntity.getNodeRealArriveTime(), pickingGoodEntity.getBizId(), JsonHelper.toJson(initDto));
                 return true;
             }else {
-                //删除原来任务
-                jyBizTaskPickingGoodService.deleteByBusinessNumber(initDto.getBusinessNumber());
-                logInfo("空铁提货计划消费生成提货任务,删除批次【{}】已有任务成功，当前下发任务信息：{}", JsonHelper.toJson(initDto));
+                //历史数据删除
+                transactionManager.deleteByBusinessNumber(initDto);
             }
         }
         //
@@ -111,9 +111,6 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
         List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList = pickingTaskMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
         transactionManager.batchInsertPickingGoodTask(taskEntityList, subsidiaryEntityList);
         super.setTaskMap(pickingTaskMap);
-        //调度任务初始化
-        //todo zcf
-        createUnSealScheduleTask(null);
         return true;
     }
 
@@ -134,18 +131,8 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
         return sealCarDtoCommonDto.getData();
     }
 
-    //todo zcf 看一下调度任务失败的逻辑， 和提货任务生成不在一个事务，考虑是否继续异步拆分，或者保证幂等
-    private boolean createUnSealScheduleTask(Object dto){
-//        JyScheduleTaskReq req = new JyScheduleTaskReq();
-//        req.setBizId(dto.getBizId());
-//        req.setTaskType(JyScheduleTaskTypeEnum.UNSEAL.getCode());
-//        req.setOpeUser(dto.getOperateUserErp());
-//        req.setOpeUserName(dto.getOperateUserName());
-//        req.setOpeTime(dto.getOperateTime());
-//        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.createScheduleTask(req);
-//        return jyScheduleTaskResp != null;
-        return true;
-    }
+
+
 
     //构建任务
     private JyBizTaskPickingGoodEntity convertJyBizTaskPickingGoodEntity(PickingGoodTaskInitDto initDto, BaseStaffSiteOrgDto endSite) {

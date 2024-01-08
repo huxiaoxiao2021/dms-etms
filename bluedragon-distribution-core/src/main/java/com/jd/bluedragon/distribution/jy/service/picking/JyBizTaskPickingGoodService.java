@@ -62,6 +62,13 @@ public interface JyBizTaskPickingGoodService {
     JyBizTaskPickingGoodEntity findLatestTaskByBusinessNumber(String businessNumber);
 
     /**
+     * 根据空铁批货流水号查询所有提货任务
+     * @param businessNumber
+     * @return
+     */
+    List<JyBizTaskPickingGoodEntity> findAllTaskByBusinessNumber(String businessNumber);
+
+    /**
      * 根据空铁批货流水号删除一批任务
      * @param businessNumber
      * @return

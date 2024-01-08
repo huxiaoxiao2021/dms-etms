@@ -30,7 +30,7 @@ public interface JyPickingSendDestinationService {
      * 校验发货流向是否存在
      * @param curSiteId
      * @param nextSiteId
-     * @return
+     * @return  true: 存在
      */
     boolean existSendNextSite(Long curSiteId, Long nextSiteId);
 
