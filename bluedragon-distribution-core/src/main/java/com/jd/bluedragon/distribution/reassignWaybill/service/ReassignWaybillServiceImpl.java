@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyApproveStatusEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExScrapApproveStageEnum;
 import com.jd.bluedragon.common.dto.sysConfig.response.ReassignWaybillProvinceAreaApprovalConfigDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ExpressDispatchServiceManager;
@@ -25,6 +24,7 @@ import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdCommand;
@@ -53,7 +53,6 @@ import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.alibaba.fastjson.JSONObject;
-import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.jim.cli.Cluster;
 import com.jd.lsb.flow.domain.ApprovalResult;
 import com.jd.lsb.flow.domain.ApproveRequestOrder;
@@ -81,6 +80,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.Constants.REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG_FLOW_VERSION_NEW;
 import static com.jd.bluedragon.Constants.SITE_TYPE_SPWMS;
 import static com.jd.bluedragon.distribution.api.enums.ReassignWaybillReasonTypeEnum.JUDGMENT_REASSIGN;
 import static com.jd.bluedragon.distribution.api.enums.ReassignWaybillReasonTypeEnum.UNABLE_TO_DELIVER;
@@ -595,8 +595,14 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		Map<String, Object> businessMap = buildBusiness(mq); // 业务数据
 		Map<String, Object> flowMap = buildFlow(mq); // 流程数据
 
+		Integer flowVersion = null;
+		SysConfig conf = sysConfigService.findConfigContentByConfigName(REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG_FLOW_VERSION_NEW);
+		if (conf != null && conf.getConfigContent() != null) {
+			flowVersion = Integer.valueOf(conf.getConfigContent());
+		}
+
 		String approveOrderCode = flowServiceManager.startFlow(
-				oaMap, businessMap, flowMap, FlowConstants.FLOW_CODE_REASSIGN_WAYBILL_NEW, mq.getApplicationUserErp(), mq.getBarCode());
+				oaMap, businessMap, flowMap, FlowConstants.FLOW_CODE_REASSIGN_WAYBILL_NEW, mq.getApplicationUserErp(), mq.getBarCode(), flowVersion);
 		if (log.isInfoEnabled()) {
 			log.info("提交审批完成，审批工单号:{}", approveOrderCode);
 		}

@@ -2324,4 +2324,9 @@ public class Constants {
      * 运单返调度审批配置 新
      */
     public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG_NEW = "reassignWaybill.province.area.approval.config.new";
+
+    /**
+     * 运单返调度审批版本配置
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG_FLOW_VERSION_NEW = "reassignWaybill.province.area.approval.config.flow.version.new";
 }
