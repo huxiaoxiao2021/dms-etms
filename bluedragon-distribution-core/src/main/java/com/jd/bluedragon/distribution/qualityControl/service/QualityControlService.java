@@ -775,7 +775,7 @@ public class QualityControlService {
             if (StringUtils.isBlank(qcReportJmqDto.getReportSystem()) || !Objects.equals(qcReportJmqDto.getReportSystem(), reportSystem)){
                 return result;
             }
-            final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
+            final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffIgnoreIsResignByErp(qcReportJmqDto.getCreateUser());
             if(baseStaff == null){
                 log.error("handleQcReportConsume 未找到此erp:{}信息", qcReportJmqDto.getCreateUser());
                 return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
