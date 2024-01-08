@@ -760,18 +760,17 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                 isExistWaybillTrace = true;
             }
         }
+        if (!isExistWaybillTrace) {
+            logger.info("运单号{}不存在前置操作节点", waybillCode);
+            result.setCode(WAYBILL_ZERO_WEIGHT_NOT_IN_CODE);
+            result.setMessage(WAYBILL_ZERO_WEIGHT_NOT_IN_MESSAGE);
+            return true;
+        }
 
         Double weight = bigWaybill.getWaybill().getAgainWeight();
         String volume = bigWaybill.getWaybill().getSpareColumn2();
         if (weight == null || weight <= 0 || StringUtils.isEmpty(volume) || Double.parseDouble(volume) <= 0) {
             logger.info("运单号不存在复重复量方{}", waybillCode);
-            return true;
-        }
-
-        if (!isExistWaybillTrace) {
-            logger.info("运单号{}不存在前置操作节点", waybillCode);
-            result.setCode(WAYBILL_ZERO_WEIGHT_NOT_IN_CODE);
-            result.setMessage(WAYBILL_ZERO_WEIGHT_NOT_IN_MESSAGE);
             return true;
         }
 
