@@ -110,32 +110,33 @@
             var codeStr = $(this).textbox('getValue').trim();
 
             var successFunc = function(res){
-                var isExists = res.data;
+                var isExists = res.data.isExists;
                 console.log(res);
                 if(isExists)
                 {
                     $.messager.alert('运单验证结果','存在运单相关信息，可进行录入操作','info');
                 }else
                 {
-                    if(res.code == ERROR_PARAM_RESULT_CODE)
+                    if(res.data.verifyCode == ERROR_PARAM_RESULT_CODE)
                     {
                         $.messager.alert('单号格式有误','快运外单单号输入有误，请您检查单号！','error');
-                    }else if(res.code == SERVER_ERROR_CODE)
+                    }else if(res.data.verifyCode == SERVER_ERROR_CODE)
                     {
                         $.messager.alert('运单验证结果','运单查询服务暂不可用，请操作人员务必确认运单真实性再进行录入操作','warning');
-                    }else if(res.code == NO_NEED_WEIGHT)
+                    }else if(res.data.verifyCode == NO_NEED_WEIGHT)
                     {
-                        $.messager.alert('提示',res.message,'warning');
-                    }else if(res.code==WAYBILL_STATES_FINISHED){
-                        $.messager.alert('提示',res.message,'error');
-                    }else if(res.code==KAWAYBILL_NEEDPACKAGE_WEIGHT){
+                        $.messager.alert('提示',res.data.verifyMessage ,'warning');
+                    }else if(res.data.verifyCode == WAYBILL_STATES_FINISHED){
+                        $.messager.alert('提示',res.data.verifyMessage,'error');
+                    }else if(res.data.verifyCode == KAWAYBILL_NEEDPACKAGE_WEIGHT){
                         $('#waybill-weight-btn').linkbutton('disable');
                         $('#waybill-weight-import-btn').linkbutton('disable');
-                        $.messager.alert('提示',res.message,'error');
-                    }else if(res.code === JP_FORBID_WEIGHT){
-                        $.messager.alert('提示', res.message,'error');
-                    }else if (res.code === WAYBILL_ZERO_WEIGHT_NOT_IN_CODE || res.code === WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE) {
-                        $.messager.alert('提示', res.message,'error');
+                        $.messager.alert('提示',res.data.verifyMessage,'error');
+                    }else if(res.data.verifyCode === JP_FORBID_WEIGHT){
+                        $.messager.alert('提示', res.data.verifyMessage,'error');
+                    }else if (res.data.verifyCode == WAYBILL_ZERO_WEIGHT_NOT_IN_CODE
+                        || res.data.verifyCode == WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE) {
+                        $.messager.alert('提示', res.data.verifyMessage,'error');
                     }else {
                         $.messager.alert('运单验证结果','不存在运单相关信息，请确认运单真实性再录入操作','warning');
                     }
