@@ -54,6 +54,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.enums.WorkSiteTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.beetl.ext.fn.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,10 +148,12 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                     || DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode())) {
                 InvokeResult<Void> interceptResult= waybillNotZeroWeightIntercept(entity);
                 if (!interceptResult.codeSuccess()) {
-                    this.saveInterceptLog(entity, checkResult);
                     // 返回成功，防止重试
-                    result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                    result.setCode(interceptResult.getCode());
                     result.setMessage(interceptResult.getMessage());
+                    logger.info("运单号{}写自动化称重拦截记录{}",entity.getBarCode(), JsonHelper.toJson(result));
+                    this.saveInterceptLog(entity, result);
+                    result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
                     // 抽检
                     if (WaybillUtil.isPackageCode(entity.getBarCode())) {
                         spotCheckDeal(entity);
@@ -245,6 +248,10 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         if (FromSourceEnum.DMS_DWS_MEASURE.equals(sourceCode)){
             saveInterceptMsgDto.setOperateNode(businessInterceptConfigHelper.getOperateNodeByConstants(OperateNodeConstants.MEASURE_WEIGHT));
             saveInterceptMsgDto.setDeviceType(businessInterceptConfigHelper.getOperateDeviceTypeByConstants(OperateDeviceTypeConstants.MACHINE_DWS));
+        }
+        if (FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(sourceCode)){
+            saveInterceptMsgDto.setOperateNode(businessInterceptConfigHelper.getOperateNodeByConstants(OperateNodeConstants.MEASURE_WEIGHT));
+            saveInterceptMsgDto.setDeviceType(businessInterceptConfigHelper.getOperateDeviceTypeByConstants(OperateDeviceTypeConstants.AUTOMATIC));
         }
         saveInterceptMsgDto.setInterceptCode(checkResult.getCode());
         saveInterceptMsgDto.setInterceptMessage(checkResult.getMessage());
