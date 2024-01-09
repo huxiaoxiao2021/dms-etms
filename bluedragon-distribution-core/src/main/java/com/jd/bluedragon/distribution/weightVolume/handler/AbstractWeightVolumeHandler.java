@@ -57,7 +57,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.WAYBILL_ZERO_WEIGHT_NOT_IN_MESSAGE;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillStatus.*;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillStatus.WAYBILL_STATUS_CODE_SITE_SORTING;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.*;

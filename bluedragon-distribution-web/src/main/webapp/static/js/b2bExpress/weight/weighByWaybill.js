@@ -31,8 +31,8 @@
     var WAYBILL_STATES_FINISHED=202; //
     var KAWAYBILL_NEEDPACKAGE_WEIGHT = 203;
     const JP_FORBID_WEIGHT = 204; // 集配场地揽收后禁止称重
-    const WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE = 3073;
-    const WAYBILL_ZERO_WEIGHT_NOT_IN_CODE = 3074;
+    const WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE = 40032;
+    const WAYBILL_ZERO_WEIGHT_NOT_IN_CODE = 40031;
 
     var forcedToSubmitCount = 0 ; //强制提交
     var errorData = []; //导入失败记录

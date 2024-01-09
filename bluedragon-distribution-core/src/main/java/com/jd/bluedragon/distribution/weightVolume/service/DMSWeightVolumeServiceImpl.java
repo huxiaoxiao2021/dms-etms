@@ -8,7 +8,10 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
@@ -22,6 +25,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightVolume.check.WeightVolumeChecker;
 import com.jd.bluedragon.distribution.weightVolume.domain.*;
 import com.jd.bluedragon.distribution.weightVolume.enums.OverLengthAndWeightTypeEnum;
@@ -37,6 +41,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.alibaba.fastjson.JSON;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
@@ -47,17 +52,20 @@ import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.enums.WorkSiteTypeEnum;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 import static com.jd.bluedragon.Constants.*;
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE;
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.WAYBILL_ZERO_WEIGHT_NOT_IN_MESSAGE;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_PACKAGE_FAST_TRANSPORT;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isConvey;
@@ -112,6 +120,13 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     @Autowired
     private WaybillService waybillService;
 
+    @Autowired
+    private SiteService siteService;
+
+    @Autowired
+    @Qualifier("dwsSpotCheckProducer")
+    private DefaultJMQProducer dwsSpotCheckProducer;
+
     @Override
     @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.dealWeightAndVolume", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> dealWeightAndVolume(WeightVolumeEntity entity, boolean isSync) {
@@ -136,6 +151,10 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                     // 返回成功，防止重试
                     result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
                     result.setMessage(interceptResult.getMessage());
+                    // 抽检
+                    if (WaybillUtil.isPackageCode(entity.getBarCode())) {
+                        spotCheckDeal(entity);
+                    }
                     return result;
                 }
             }
@@ -161,6 +180,56 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         }
     }
 
+    /**
+     * 抽检数据处理
+     *  自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
+     * @param entity
+     */
+    public void spotCheckDeal(WeightVolumeEntity entity) {
+        if(!FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) || isFirstWeightVolume(entity)){
+            return;
+        }
+        try {
+            PackWeightVO packWeightVO = convertToPackWeightVO(entity);
+            dwsSpotCheckProducer.send(entity.getBarCode(), JsonHelper.toJson(packWeightVO));
+        }catch (Exception e){
+            logger.error("发送dws抽检MQ异常!", e);
+        }
+    }
+
+    public PackWeightVO convertToPackWeightVO(WeightVolumeEntity entity){
+        PackWeightVO packWeightVO = new PackWeightVO();
+        packWeightVO.setWeight(entity.getWeight());
+        packWeightVO.setLength(entity.getLength());
+        packWeightVO.setWidth(entity.getWidth());
+        packWeightVO.setHigh(entity.getHeight());
+        packWeightVO.setCodeStr(entity.getBarCode());
+        packWeightVO.setOperatorId(entity.getOperatorId());
+        packWeightVO.setOperatorName(entity.getOperatorName());
+        packWeightVO.setErpCode(entity.getOperatorCode());
+        BaseStaffSiteOrgDto site = siteService.getSite(entity.getOperateSiteCode());
+        packWeightVO.setOrganizationName(site.getOrgName());
+        packWeightVO.setOrganizationCode(site.getOrgId());
+        packWeightVO.setOperatorSiteName(entity.getOperateSiteName());
+        packWeightVO.setOperatorSiteCode(entity.getOperateSiteCode());
+        packWeightVO.setMachineCode(entity.getMachineCode());
+        if(entity.getOperateTime() != null){
+            packWeightVO.setOperateTimeMillis(entity.getOperateTime().getTime());
+        }
+        return packWeightVO;
+    }
+
+    //是否为首次称重量方，根据运单/包裹的全程跟踪状态值是否为“-160”
+    public boolean isFirstWeightVolume(WeightVolumeEntity entity){
+        String waybillCode = WaybillUtil.getWaybillCode(entity.getBarCode());
+        String state = "-160";
+        List<PackageStateDto> packageStateDtos = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode,state);
+        if(CollectionUtils.isEmpty(packageStateDtos)){
+            return true;
+        }else {
+            return false;
+        }
+    }
     /**
      * 发送拦截消息
      * @author fanggang7
@@ -744,7 +813,6 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 //        }
     }
 
-    // todo 提示语组件
     // 校验运单重量体积是否为非0重包裹
     private boolean checkWeightAndVolumeNotZero(BigWaybillDto bigWaybill, String waybillCode, Integer operateSiteCode, InvokeResult<Void> result) {
         // 对0存在重量的运单，校验当前分拣中心在全程跟踪是否存在前置操作节点（解封车、验货、装箱、发货、分拣、封车等任意一条记录即可）
@@ -759,8 +827,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         }
         if (!isExistWaybillTrace) {
             logger.info("运单号{}不存在前置操作节点", waybillCode);
-            result.setCode(WAYBILL_ZERO_WEIGHT_NOT_IN_CODE);
-            result.setMessage(WAYBILL_ZERO_WEIGHT_NOT_IN_MESSAGE);
+            result.setCode(Integer.valueOf(WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE));
+            result.setMessage(HintService.getHint(WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE));
             return true;
         }
 
@@ -768,8 +836,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         String volume = bigWaybill.getWaybill().getSpareColumn2();
         if (weight != null && weight > 0 && !StringUtils.isEmpty(volume) && Double.parseDouble(volume) > 0) {
             logger.info("运单号不存在复重复量方{}", waybillCode);
-            result.setCode(WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE);
-            result.setMessage(WAYBILL_ZERO_WEIGHT_INTERCEPT_MESSAGE);
+            result.setCode(Integer.valueOf(WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE));
+            result.setMessage(HintService.getHint(WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE));
             return true;
         }
 
@@ -784,8 +852,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                 return true;
             }
         }
-        result.setCode(WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE);
-        result.setMessage(WAYBILL_ZERO_WEIGHT_INTERCEPT_MESSAGE);
+        result.setCode(Integer.valueOf(WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE));
+        result.setMessage(HintService.getHint(WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE));
         return false;
     }
 
