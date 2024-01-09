@@ -1630,6 +1630,11 @@ public class UccPropertyConfiguration{
      */
     private Integer jyWarehouseTaskCreateTimeBeginHours;
 
+    /**
+     * 包裹非0重量体积拦截开关
+     */
+    private Boolean waybillZeroWeightInterceptSwitch;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4360,5 +4365,13 @@ public class UccPropertyConfiguration{
 
     public void setJyWarehouseTaskCreateTimeBeginHours(Integer jyWarehouseTaskCreateTimeBeginHours) {
         this.jyWarehouseTaskCreateTimeBeginHours = jyWarehouseTaskCreateTimeBeginHours;
+    }
+
+    public Boolean getWaybillZeroWeightInterceptSwitch() {
+        return waybillZeroWeightInterceptSwitch;
+    }
+
+    public void setWaybillZeroWeightInterceptSwitch(Boolean waybillZeroWeightInterceptSwitch) {
+        this.waybillZeroWeightInterceptSwitch = waybillZeroWeightInterceptSwitch;
     }
 }
