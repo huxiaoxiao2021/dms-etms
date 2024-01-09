@@ -325,7 +325,10 @@
   <update id="updateStatusByBizId" parameterType="JyPickingSendRecordEntity">
     update  jy_biz_task_picking_good
     set     complete_node = #{completeNode},
-            status = #{status}
+            status = #{status},
+            update_time = #{updateTime},
+            update_user_erp = #{updateUserErp},
+            update_user_name = #{updateUserName}
     where   yn = 1
     and     biz_id = #{bizId}
   </update>
@@ -399,11 +402,11 @@
     select  <include refid="Base_Column_List" />
     from    jy_biz_task_picking_good
     where   yn = 1
-    and     picking_site_id = #{pickingSiteId}
+    and     next_site_id = #{pickingSiteId}
     and     status = #{status}
     and     task_type = #{taskType}
-    and     create_time >= {createTime}
-    group by picking_node_code
+    and     create_time >= #{createTime}
+    group by end_node_code
     limit #{offset}, #{limit}
   </select>
 
@@ -411,11 +414,11 @@
     select  <include refid="Base_Column_List" />
     from    jy_biz_task_picking_good
     where   yn = 1
-    and     picking_site_id = #{pickingSiteId}
+    and     next_site_id = #{pickingSiteId}
     and     status = #{status}
     and     task_type = #{taskType}
-    and     create_time >= {createTime}
-    and     picking_node_code in
+    and     create_time >= #{createTime}
+    and     end_node_code in
     <foreach collection="pickingNodeCodeList" item="item" open="(" close=")" separator=",">
       #{item}
     </foreach>
@@ -426,9 +429,9 @@
             status
     from    jy_biz_task_picking_good
     where   yn = 1
-    and     picking_site_id = #{pickingSiteId}
+    and     next_site_id = #{pickingSiteId}
     and     task_type = #{taskType}
-    and     create_time >= {createTime}
+    and     create_time >= #{createTime}
     group by status
   </select>
 
@@ -452,6 +455,15 @@
     and task_type = #{taskType}
     and manual_created_flag = 1
     limit #{offset}, #{limit}
+  </select>
+
+  <select id="listTaskByPickingSiteId" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List" />
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     next_site_id = #{pickingSiteId}
+    and     task_type = #{taskType}
+    and     create_time <![CDATA[ >= ]]> #{createTime}
   </select>
 
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->

@@ -57,5 +57,5 @@ public interface JyPickingSendDestinationService {
      */
     boolean deleteSendFlow(SendFlowDeleteReq req);
 
-    List<JyPickingSendDestinationDetailEntity> listSendCodesByCreateSiteId(Long createSiteId, List<Long> destinationSiteId);
+    List<JyPickingSendDestinationDetailEntity> listSendCodesByCreateSiteId(Long createSiteId, List<Integer> destinationSiteId);
 }

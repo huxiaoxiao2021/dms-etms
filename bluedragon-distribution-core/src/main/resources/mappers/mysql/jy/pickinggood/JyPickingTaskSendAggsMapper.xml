@@ -45,7 +45,7 @@
   </sql>
 
 
-    <insert id="insertSelective" parameterType="com.jd.tys.manager.po.JyPickingTaskSendAggs" >
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskSendAggsEntity" >
       insert into jy_picking_task_send_aggs
       <trim prefix="(" suffix=")" suffixOverrides="," >
         <if test="id != null" >
@@ -216,7 +216,7 @@
   </select>
 
 
-  <select id="findByBizIdAndNextSite" resultMap="BaseResultMap" parameterType="JyPickingTaskSendAggsEntity" >
+  <select id="findByBizIdAndNextSite" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskSendAggsEntity" >
     select  <include refid="Base_Column_List" />
     from jy_picking_task_aggs
     where yn = 1

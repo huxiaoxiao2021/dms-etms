@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 空铁提货发货缓存服务
  */
-@Service
+@Service("cacheService")
 public class JyPickingTaskAggsCacheService {
     private static final Logger log = LoggerFactory.getLogger(JyPickingTaskAggsCacheService.class);
 
@@ -112,6 +112,7 @@ public class JyPickingTaskAggsCacheService {
 
 
     @Qualifier("redisClientOfJy")
+    @Autowired
     private Cluster redisClientOfJy;
     @Autowired
     private JimDbLock jimDbLock;

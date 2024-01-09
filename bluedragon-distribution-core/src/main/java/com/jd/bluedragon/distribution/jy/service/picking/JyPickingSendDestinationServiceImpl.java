@@ -109,7 +109,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
     @Override
     public Boolean finishSendTask(FinishSendTaskReq req) {
         JyPickingSendDestinationDetailEntity entity = new JyPickingSendDestinationDetailEntity();
-        entity.setStatus(JyPickingSendTaskEnum.TO_SEND.getCode());
+        entity.setStatus(JyPickingSendTaskEnum.TO_SEAL.getCode());
         entity.setSendCode(req.getSendCode());
         entity.setCreateSiteId((long) req.getCurrentOperate().getSiteCode());
         entity.setNextSiteId((long) req.getNextSiteId());
@@ -242,7 +242,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
     }
 
     @Override
-    public List<JyPickingSendDestinationDetailEntity> listSendCodesByCreateSiteId(Long createSiteId, List<Long> destinationSiteId) {
+    public List<JyPickingSendDestinationDetailEntity> listSendCodesByCreateSiteId(Long createSiteId, List<Integer> destinationSiteId) {
         return null;
     }
 }

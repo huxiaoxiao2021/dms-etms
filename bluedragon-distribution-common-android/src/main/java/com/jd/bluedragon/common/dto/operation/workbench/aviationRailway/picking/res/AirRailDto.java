@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class AirRailDto implements Serializable {
     private static final long serialVersionUID = -5631376523517894268L;
@@ -36,6 +37,16 @@ public class AirRailDto implements Serializable {
      * 多提总件数
      */
     private Integer multipleScanTotal;
+
+    /**
+     * 机场下有多少个任务
+     */
+    private Integer taskNum;
+
+    /**
+     * 机场下的自任务列表
+     */
+    private List<AirRailTaskAggDto> taskAggDtoList;
 
     public String getBeginNodeCode() {
         return beginNodeCode;
@@ -91,5 +102,21 @@ public class AirRailDto implements Serializable {
 
     public void setMultipleScanTotal(Integer multipleScanTotal) {
         this.multipleScanTotal = multipleScanTotal;
+    }
+
+    public Integer getTaskNum() {
+        return taskNum;
+    }
+
+    public void setTaskNum(Integer taskNum) {
+        this.taskNum = taskNum;
+    }
+
+    public List<AirRailTaskAggDto> getTaskAggDtoList() {
+        return taskAggDtoList;
+    }
+
+    public void setTaskAggDtoList(List<AirRailTaskAggDto> taskAggDtoList) {
+        this.taskAggDtoList = taskAggDtoList;
     }
 }

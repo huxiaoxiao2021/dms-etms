@@ -45,7 +45,7 @@ public interface JyBizTaskPickingGoodService {
      */
     int updateTaskByBizIdWithCondition(JyBizTaskPickingGoodEntityCondition entity);
 
-    boolean updateStatusByBizId(String bizId, Integer status);
+    boolean updateStatusByBizId(String bizId, Integer status, User operator);
 
     /**
      * 根据场地查找最新的可发货自建任务
@@ -105,6 +105,11 @@ public interface JyBizTaskPickingGoodService {
      */
     int batchUpdateStatusByBizId(JyPickingTaskBatchUpdateDto updateDto);
 
+    /**
+     * 分页查询最近几天的自建任务bizId
+     * @param queryDto
+     * @return
+     */
     List<String> pageRecentCreatedManualBizId(JyBizTaskPickingGoodQueryDto queryDto);
 
     /**
@@ -117,4 +122,11 @@ public interface JyBizTaskPickingGoodService {
      * @param subsidiaryEntityList
      */
     void batchInsertTaskSubsidiary(List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList);
+
+    /**
+     * 根据流向批量查询发货任务
+     * @param queryDto
+     * @return
+     */
+    List<JyBizTaskPickingGoodEntity> listTaskByPickingSiteId(JyPickingTaskBatchQueryDto queryDto);
 }

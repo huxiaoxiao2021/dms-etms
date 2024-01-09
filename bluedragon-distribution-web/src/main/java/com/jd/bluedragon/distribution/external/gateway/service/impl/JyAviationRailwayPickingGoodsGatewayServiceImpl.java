@@ -215,7 +215,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.listAirportTask:";
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.listAirRailTaskSummary:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -239,7 +239,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.listAirportTaskAgg:";
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.listAirRailTaskAgg:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(

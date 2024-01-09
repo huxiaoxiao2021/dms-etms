@@ -5,10 +5,15 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendFlowDisplayEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskAggReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskAggRes;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskRes;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowRes;
+import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwayPickingGoodsGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -51,14 +56,24 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
     @Autowired
     private JyAviationRailwayPickingGoodsGatewayService jyAviationRailwayPickingGoodsGatewayService;
 
+    @Autowired
+    private DmsTimingHandlerService dmsTimingHandlerService;
     @Test
-    public void finishPickGoodsTestTest() {
-        FinishPickGoodsReq req;
+    public void finishPickGoodsTest() {
+        FinishPickGoodsReq req = new FinishPickGoodsReq();
+        setBaseReq(req);
+        req.setBizId("test_biz_id");
+        JdCResponse<Void> response = jyAviationRailwayPickingGoodsGatewayService.finishPickGoods(req);
+        log.info("finishPickGoodsTest response {}", JsonHelper.toJson(response));
     }
 
     @Test
     public void submitExceptionTest() {
-        ExceptionSubmitReq req;
+        ExceptionSubmitReq req = new ExceptionSubmitReq();
+        setBaseReq(req);
+        req.setBizId("test_biz_id");
+        JdCResponse<Void> response = jyAviationRailwayPickingGoodsGatewayService.submitException(req);
+        log.info("submitExceptionTest response {}", JsonHelper.toJson(response));
     }
 
     @Test
@@ -66,8 +81,12 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
         SendFlowReq req = new SendFlowReq();
         setBaseReq(req);
         req.setDisplayType(SendFlowDisplayEnum.DEFAULT.getCode());
-        JdCResponse<SendFlowRes> response = jyAviationRailwayPickingGoodsGatewayService.listSendFlowInfo(req);
-        log.info("addSendFlowTest response {}", JsonHelper.toJson(response));
+        JdCResponse<SendFlowRes> response1 = jyAviationRailwayPickingGoodsGatewayService.listSendFlowInfo(req);
+        log.info("listSendFlowInfoTest response1 {}", JsonHelper.toJson(response1));
+
+        req.setDisplayType(SendFlowDisplayEnum.COUNT.getCode());
+        JdCResponse<SendFlowRes> response2 = jyAviationRailwayPickingGoodsGatewayService.listSendFlowInfo(req);
+        log.info("listSendFlowInfoTest response2 {}", JsonHelper.toJson(response2));
     }
 
     @Test
@@ -86,21 +105,51 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
 
     @Test
     public void deleteSendFlowTest() {
-        SendFlowDeleteReq req;
+        SendFlowDeleteReq req = new SendFlowDeleteReq();
+        setBaseReq(req);
+        req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+        req.setNextSiteId(40240);
+        JdCResponse<Void> response = jyAviationRailwayPickingGoodsGatewayService.deleteSendFlow(req);
+        log.info("deleteSendFlowTest response {}", JsonHelper.toJson(response));
     }
 
     @Test
     public void finishSendTaskTest() {
-        FinishSendTaskReq req;
+        FinishSendTaskReq req = new FinishSendTaskReq();
+        setBaseReq(req);
+        req.setSendCode("send_code_01");
+        req.setNextSiteId(40240);
+        req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+        jyAviationRailwayPickingGoodsGatewayService.finishSendTask(req);
     }
 
     @Test
     public void listAirRailTaskSummaryTest() {
-        AirRailTaskSummaryReq req;
+        AirRailTaskSummaryReq req = new AirRailTaskSummaryReq();
+        setBaseReq(req);
+        req.setStatus(PickingGoodStatusEnum.TO_PICKING.getCode());
+        req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+        req.setPageNum(1);
+        req.setPageSize(10);
+        JdCResponse<AirRailTaskRes> response = jyAviationRailwayPickingGoodsGatewayService.listAirRailTaskSummary(req);
+        log.info("listAirRailTaskSummaryTest response {}", JsonHelper.toJson(response));
     }
 
     @Test
     public void listAirRailTaskAggTest() {
-        AirRailTaskAggReq req;
+        AirRailTaskAggReq req = new AirRailTaskAggReq();
+        setBaseReq(req);
+        req.setStatus(PickingGoodStatusEnum.TO_PICKING.getCode());
+        req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+        req.setPickingNodeCode("bjtz");
+        req.setPageNum(1);
+        req.setPageSize(10);
+        JdCResponse<AirRailTaskAggRes> response = jyAviationRailwayPickingGoodsGatewayService.listAirRailTaskAgg(req);
+        log.info("listAirRailTaskSummaryTest response {}", JsonHelper.toJson(response));
+    }
+
+    @Test
+    public void timingHandlerFinishAirRailTask() {
+        dmsTimingHandlerService.timingHandlerFinishAirRailTask();
     }
 }
