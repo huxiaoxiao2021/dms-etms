@@ -20,6 +20,8 @@ import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessIntercept
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.funcSwitchConfig.TraderMoldTypeEnum;
+import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -127,6 +129,16 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     @Qualifier("dwsSpotCheckProducer")
     private DefaultJMQProducer dwsSpotCheckProducer;
 
+    @Autowired
+    private InspectionDao inspectionDao;
+
+    private static final List<FromSourceEnum> NOT_ZERO_WEIGHT_VOLUME_CHECK_FROM_SOURCE =
+            new ArrayList<>(Arrays.asList(DMS_DWS_MEASURE,DMS_CLIENT_BATCH_SORT_WEIGH_PRINT,DMS_CLIENT_SITE_PLATE_PRINT,DMS_AUTOMATIC_MEASURE,DMS_CLIENT_FAST_TRANSPORT_PRINT
+                    ,DMS_WEB_FAST_TRANSPORT,DMS_WEB_PACKAGE_FAST_TRANSPORT,DMS_CLIENT_WEIGHT_VOLUME));
+
+    private static final List<FromSourceEnum> NOT_ZERO_WEIGHT_VOLUME_CHECK_PRINT_FROM_SOURCE =
+            new ArrayList<>(Arrays.asList(DMS_CLIENT_BATCH_SORT_WEIGH_PRINT,DMS_CLIENT_SITE_PLATE_PRINT,DMS_CLIENT_FAST_TRANSPORT_PRINT
+                    ,DMS_WEB_FAST_TRANSPORT,DMS_WEB_PACKAGE_FAST_TRANSPORT,DMS_CLIENT_WEIGHT_VOLUME));
     @Override
     @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.dealWeightAndVolume", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> dealWeightAndVolume(WeightVolumeEntity entity, boolean isSync) {
@@ -724,10 +736,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         }
 
         // 打印入口校验
-        if (!DMS_DWS_MEASURE.equals(sourceCode) &&!DMS_CLIENT_BATCH_SORT_WEIGH_PRINT.equals(sourceCode)
-                && !DMS_CLIENT_SITE_PLATE_PRINT.equals(sourceCode) && !DMS_AUTOMATIC_MEASURE.equals(sourceCode)
-                && !DMS_CLIENT_FAST_TRANSPORT_PRINT.equals(sourceCode) && !DMS_WEB_FAST_TRANSPORT.equals(sourceCode)
-                && !DMS_WEB_PACKAGE_FAST_TRANSPORT.equals(sourceCode) && !DMS_CLIENT_WEIGHT_VOLUME.equals(sourceCode) ) {
+        if (!NOT_ZERO_WEIGHT_VOLUME_CHECK_FROM_SOURCE.contains(sourceCode)) {
             logger.info("{}非0重量包裹打印入口校验{}", barCode, sourceCode.name());
             return result;
         }
@@ -739,7 +748,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         }
 
         // 根据erp判断当前操作人员所属机构是否为分拣场地人员
-        if (checkErpBindingSite(operatorCode, result, sourceCode)) {
+        if (checkErpBindingSite(operatorCode, barCode, sourceCode)) {
             logger.info("{}操作人员非分拣场地人员", barCode);
             return result;
         }
@@ -831,6 +840,18 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                 isExistWaybillTrace = true;
             }
         }
+
+        // 如果没有全程跟踪 校验在当前分拣中心是否存在验货
+        if (!isExistWaybillTrace) {
+            Inspection inspectionQuery = new Inspection();
+            inspectionQuery.setWaybillCode(waybillCode);
+            inspectionQuery.setCreateSiteCode(operateSiteCode);
+            List<Inspection> inspectionList = inspectionDao.findPackageBoxCodesByWaybillCode(inspectionQuery);
+            if (CollectionUtils.isNotEmpty(inspectionList)) {
+                isExistWaybillTrace = true;
+            }
+        }
+
         if (!isExistWaybillTrace) {
             logger.info("运单号{}不存在前置操作节点", waybillCode);
             result.setCode(Integer.valueOf(WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE));
@@ -901,20 +922,15 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         return false;
     }
 
-    private boolean checkErpBindingSite(String operatorCode, InvokeResult<Void> result, FromSourceEnum sourceCode) {
-        // todo 改成List
-        if (DMS_CLIENT_BATCH_SORT_WEIGH_PRINT.equals(sourceCode) || DMS_CLIENT_SITE_PLATE_PRINT.equals(sourceCode)
-                || DMS_CLIENT_FAST_TRANSPORT_PRINT.equals(sourceCode) || DMS_CLIENT_WEIGHT_VOLUME.equals(sourceCode)
-                || DMS_WEB_FAST_TRANSPORT.equals(sourceCode) || DMS_WEB_PACKAGE_FAST_TRANSPORT.equals(sourceCode)) {
+    private boolean checkErpBindingSite(String operatorCode,String barCode, FromSourceEnum sourceCode) {
+        if (NOT_ZERO_WEIGHT_VOLUME_CHECK_PRINT_FROM_SOURCE.contains(sourceCode)) {
             BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(operatorCode);
             if (null == baseStaffByErp || null == baseStaffByErp.getSiteCode()) {
-                // todo
-                logger.info("erp{}未获取到所属站点站点", operatorCode);
+                logger.info("运单号{}操作人erp{}未获取到所属站点站点",barCode, operatorCode);
                 return true;
             }
 
             BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(baseStaffByErp.getSiteCode());
-            // todo 改方法
             if (!Objects.equals(WorkSiteTypeEnum.DMS_TYPE.getFirstTypesOfThird(), siteInfo.getSortType())
                     || !Objects.equals(WorkSiteTypeEnum.DMS_TYPE.getSecondTypesOfThird(), siteInfo.getSortSubType())) {
                 return true;
