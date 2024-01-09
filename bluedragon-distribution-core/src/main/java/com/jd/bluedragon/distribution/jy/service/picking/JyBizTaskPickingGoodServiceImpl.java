@@ -99,11 +99,14 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     }
 
     @Override
-    public boolean updateStatusByBizId(String bizId, Integer completeNode) {
+    public boolean updateStatusByBizId(String bizId, Integer completeNode, User operator) {
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
         entity.setBizId(bizId);
         entity.setCompleteNode(completeNode);
         entity.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
+        entity.setUpdateTime(new Date());
+        entity.setUpdateUserErp(operator.getUserErp());
+        entity.setUpdateUserName(operator.getUserName());
         jyBizTaskPickingGoodDao.updateStatusByBizId(entity);
         return true;
     }
@@ -151,5 +154,10 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     @Override
     public List<String> pageRecentCreatedManualBizId(JyBizTaskPickingGoodQueryDto queryDto) {
         return jyBizTaskPickingGoodDao.pageRecentCreatedManualBizId(queryDto);
+    }
+
+    @Override
+    public List<JyBizTaskPickingGoodEntity> listTaskByPickingSiteId(JyPickingTaskBatchQueryDto queryDto) {
+        return jyBizTaskPickingGoodDao.listTaskByPickingSiteId(queryDto);
     }
 }

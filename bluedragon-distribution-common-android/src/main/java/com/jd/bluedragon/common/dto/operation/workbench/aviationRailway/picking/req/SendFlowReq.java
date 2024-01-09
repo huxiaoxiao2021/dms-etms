@@ -14,11 +14,21 @@ public class SendFlowReq extends BaseReq implements Serializable {
      */
     private Integer displayType;
 
+    private Integer taskType;
+
     public Integer getDisplayType() {
         return displayType;
     }
 
     public void setDisplayType(Integer displayType) {
         this.displayType = displayType;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
     }
 }

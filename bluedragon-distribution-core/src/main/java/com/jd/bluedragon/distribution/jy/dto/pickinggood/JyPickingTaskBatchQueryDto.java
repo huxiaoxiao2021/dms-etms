@@ -27,6 +27,8 @@ public class JyPickingTaskBatchQueryDto implements Serializable {
 
     private Date createTime;
 
+    private List<Integer> statusList;
+
     public String getBizId() {
         return bizId;
     }
@@ -73,5 +75,13 @@ public class JyPickingTaskBatchQueryDto implements Serializable {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public List<Integer> getStatusList() {
+        return statusList;
+    }
+
+    public void setStatusList(List<Integer> statusList) {
+        this.statusList = statusList;
     }
 }

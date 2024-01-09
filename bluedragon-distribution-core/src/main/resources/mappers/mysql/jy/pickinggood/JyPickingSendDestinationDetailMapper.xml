@@ -241,19 +241,18 @@
     set
         status = #{status},
         update_user_erp = #{updateUserErp},
-        update_user_name = #{updateUserName}
+        update_user_name = #{updateUserName},
+        update_time = #{updateTime},
+        complete_time = #{updateTime}
     where
         yn = 1
     and
-        send_code = #{send_code}
+        send_code = #{sendCode}
     <if test="createSiteId != null">
     and create_site_id = #{createSiteId}
     </if>
     <if test="nextSiteId != null">
     and next_site_id = #{nextSiteId}
-    </if>
-    <if test="completeTime != null">
-    and complete_time = #{completeTime}
     </if>
   </update>
 </mapper>
