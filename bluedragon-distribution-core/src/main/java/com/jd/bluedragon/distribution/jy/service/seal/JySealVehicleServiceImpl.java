@@ -1432,7 +1432,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             jySendSealCodeEntity.setCreateUserName(sealCarReq.getUser().getUserName());
             entityList.add(jySendSealCodeEntity);
         }
-        //航空摆渡发车关注流向维度数据  todo zcf 批次号模型怎么兼容
+        //航空摆渡发车关注流向维度数据  todo  批次号模型怎么兼容
         if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(sealCarReq.getPost())) {
             for (String sealCode : sealCarReq.getScanSealCodes()) {
                 JySendSealCodeEntity jySendSealCodeEntity = new JySendSealCodeEntity();

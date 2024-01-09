@@ -5,6 +5,8 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.picking.JyAviationRailwayPickingGoodsService;
+import com.jd.bluedragon.distribution.jy.service.picking.JyBizTaskPickingGoodService;
+import com.jd.bluedragon.distribution.jy.service.picking.JyBizTaskPickingGoodTransactionManager;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
@@ -28,8 +30,9 @@ public class JyPickingGoodScanConsumer extends MessageBaseConsumer {
     private Logger log = LoggerFactory.getLogger(JyPickingGoodScanConsumer.class);
 
     @Autowired
-    private JyAviationRailwayPickingGoodsService pickingGoodsService;
-
+    private JyBizTaskPickingGoodTransactionManager jyBizTaskPickingGoodTransactionManager;
+    @Autowired
+    private JyBizTaskPickingGoodService jyBizTaskPickingGoodService;
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
             log.info(message, objects);
@@ -79,11 +82,13 @@ public class JyPickingGoodScanConsumer extends MessageBaseConsumer {
     }
 
     private void deal(JyPickingGoodScanDto mqBody) {
+        //首单扫描逻辑
+        jyBizTaskPickingGoodTransactionManager.startPickingGoodTask(mqBody);
 
-        if(pickingGoodsService.isFirstScanInTask(mqBody.getBizId(), mqBody.getSiteId())) {
-            logInfo("提货任务{}首次扫描.{}", JsonHelper.toJson(mqBody));
-            pickingGoodsService.startPickingGoodTask(mqBody.getSiteId(), mqBody.getBizId(), mqBody.getOperatorTime(), mqBody.getUser());
-        }
+        //按箱扫描拆包存储明细  todo zcf
+
+        //agg数据计算 todo zcf
+
 
     }
 

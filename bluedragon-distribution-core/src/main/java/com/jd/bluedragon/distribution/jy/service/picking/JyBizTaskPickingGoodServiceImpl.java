@@ -122,6 +122,11 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     }
 
     @Override
+    public List<JyBizTaskPickingGoodEntity> findAllTaskByBusinessNumber(String businessNumber) {
+        return jyBizTaskPickingGoodDao.findAllTaskByBusinessNumber(businessNumber);
+    }
+
+    @Override
     public int deleteByBusinessNumber(String businessNumber) {
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
         entity.setBusinessNumber(businessNumber);

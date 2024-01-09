@@ -1,11 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
-import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyBizTaskPickingGoodQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskAggQueryDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 
 /**
@@ -88,20 +85,12 @@ public interface JyAviationRailwayPickingGoodsService {
 
     /**
      * 是否首次扫描
-     * @param bizId
-     * @param siteId
+     * @param
+     * @param
      * @return
      */
-    boolean isFirstScanInTask(String bizId, Long siteId);
+//    boolean isFirstScanInTask(String bizId, Long siteId);
 
-    /**
-     * 首次提货
-     * @param siteId
-     * @param bizId
-     * @param time
-     * @param user
-     */
-    void startPickingGoodTask(Long siteId, String bizId, Long time, User user);
 
     void finishTaskWhenWaitScanEqZero();
 

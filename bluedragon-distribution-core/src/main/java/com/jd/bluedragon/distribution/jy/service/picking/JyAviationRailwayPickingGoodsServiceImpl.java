@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendFlowDisplayEnum;
@@ -17,7 +16,9 @@ import com.jd.bluedragon.distribution.jy.constants.PickingCompleteNodeEnum;
 import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.pickinggood.*;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.common.CommonService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -89,7 +90,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
     @Autowired
     private DmsConfigManager dmsConfigManager;
-
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -302,26 +304,10 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         scanDto.setBizId(taskPickingGoodEntity.getBizId());
         scanDto.setSiteId((long)request.getCurrentOperate().getSiteCode());
         scanDto.setOperatorTime(pickingGoodsRes.getOperateTime());
+        scanDto.setGroupCode(request.getGroupCode());
         pickingGoodScanProducer.sendOnFailPersistent(request.getBarCode(), com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(scanDto));
     }
 
-    public void startPickingGoodTask(Long siteId, String bizId, Long time, User user) {
-        JyBizTaskPickingGoodEntity entity = jyBizTaskPickingGoodService.findByBizIdWithYn(bizId, false);
-        if(Objects.isNull(entity) || PickingGoodStatusEnum.PICKING.getCode().equals(entity.getStatus())) {
-           return;
-        }
-        JyBizTaskPickingGoodEntityCondition updateEntity = new JyBizTaskPickingGoodEntityCondition();
-        updateEntity.setNextSiteId(siteId);
-        updateEntity.setBizId(bizId);
-        updateEntity.setStatus(PickingGoodStatusEnum.PICKING.getCode());
-        Long startTime = time - 3000l;//区分边界
-        updateEntity.setPickingStartTime(new Date());
-        updateEntity.setUpdateTime(new Date(startTime));
-        updateEntity.setUpdateUserErp(user.getUserErp());
-        updateEntity.setUpdateUserName(user.getUserName());
-        jyBizTaskPickingGoodService.updateTaskByBizIdWithCondition(updateEntity);
-        logInfo("提货任务{}状态改为开始提货中", bizId, startTime);
-    }
 
     /**
      * 获取待提任务：三种方式
@@ -462,9 +448,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
         //流向不一致
         if(!request.getNextSiteId().equals(routerNextSiteId)) {
-            List<Integer> nextSiteIdList = new ArrayList<>();//todo zcf 调用已维护发货流向接口
-            //
-            resData.setNextSiteSupportSwitch(nextSiteIdList.contains(routerNextSiteId));
+            resData.setNextSiteSupportSwitch(jyPickingSendDestinationService.existSendNextSite((long)request.getCurrentOperate().getSiteCode(), routerNextSiteId.longValue()));
             resData.setRouterNextSiteId(routerNextSiteId);
             resData.setRouterNextSiteName(routerNextSiteName);
             resData.setBoxConfirmNextSiteKey(boxConfirmNextSiteKey);
@@ -711,7 +695,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
         // 查询统计数据
         List<String> bizList = taskDetail.stream().map(JyBizTaskPickingGoodEntity::getBizId).distinct().collect(Collectors.toList());
-        List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.waitPickingInitTotalNum(bizList, currentSiteId, null);
+        List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.findPickingAgg(bizList, currentSiteId, null);
         // 计算统计总和
         calculateSummaryResponse(res, countDtoList, taskDetail, aggsDtoList);
 
@@ -924,17 +908,17 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
     }
 
-    @Override
-    public boolean isFirstScanInTask(String bizId, Long siteId) {
-        if (pickingGoodsCacheService.lockPickingGoodTaskFirstScan(bizId, siteId)) {
-            Integer count = jyPickingSendRecordService.countTaskRealScanItemNum(bizId, siteId);
-            if (!NumberHelper.gt0(count)) {
-                logInfo("提货任务{}首次扫描.{}", bizId);
-                return true;
-            }
-        }
-        return false;
-    }
+//    @Override
+//    public boolean isFirstScanInTask(String bizId, Long siteId) {
+//        if (pickingGoodsCacheService.lockPickingGoodTaskFirstScan(bizId, siteId)) {
+//            Integer count = jyPickingSendRecordService.countTaskRealScanItemNum(bizId, siteId);
+//            if (!NumberHelper.gt0(count)) {
+//                logInfo("提货任务{}首次扫描.{}", bizId);
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     @Override
     public void finishTaskWhenWaitScanEqZero() {

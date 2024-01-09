@@ -16,7 +16,7 @@ public class JyPickingGoodScanDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String businessId;
-
+    private String groupCode;
     private String barCode;
     private String bizId;
     /**
@@ -34,6 +34,14 @@ public class JyPickingGoodScanDto implements Serializable {
 
     public void setBusinessId(String businessId) {
         this.businessId = businessId;
+    }
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
     }
 
     public String getBarCode() {

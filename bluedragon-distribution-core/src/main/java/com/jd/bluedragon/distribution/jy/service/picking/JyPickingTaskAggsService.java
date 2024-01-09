@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingGoodsRes;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.CalculateWaitPickingItemNumDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskAggQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingSendGoodAggsDto;
@@ -41,7 +42,7 @@ public interface JyPickingTaskAggsService {
      * 统计数据count回刷
      * @param bizId
      */
-    void aggRefresh(String bizId, Long nextSiteId);
+//    void aggRefresh(String bizId, Long nextSiteId);
 
     /**
      * 根据bizId集合查询初始化之后的待提数量
@@ -55,4 +56,17 @@ public interface JyPickingTaskAggsService {
     List<PickingSendGoodAggsDto> waitPickingInitTotalNum(List<String> bizIdList, Long siteId, Long sendNextSiteId);
 
     List<String> pageRecentWaitScanEqZero(JyPickingTaskAggQueryDto queryDto);
+
+    /**
+     * 查询agg数据
+     * @param bizIdList  必填
+     * @param siteId  必填
+     * @param sendNextSiteId 选填【为空时，查询任务提货维度aggs， 非空时，查询任务+流向发货维度aggs】
+     * @return
+     */
+    List<PickingSendGoodAggsDto> findPickingAgg(List<String> bizIdList, Long siteId, Long sendNextSiteId);
+
+    void updatePickingAggWaitScanItemNum(CalculateWaitPickingItemNumDto mqBody);
+
+    void updatePickingSendAggWaitScanItemNum(CalculateWaitPickingItemNumDto mqBody);
 }

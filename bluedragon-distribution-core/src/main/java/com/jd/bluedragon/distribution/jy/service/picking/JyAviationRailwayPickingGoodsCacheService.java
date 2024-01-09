@@ -109,14 +109,14 @@ public class JyAviationRailwayPickingGoodsCacheService {
      * @param siteId
      * @return
      */
-    public boolean lockPickingGoodTaskFirstScan(String bizId, Long siteId) {
-        String lockKey = this.getLockKeyPickingGoodTaskFirstScan(bizId, siteId);
-        return jimDbLock.lock(lockKey, DEFAULT_VALUE_1, CACHE_PICKING_TASK_FIRST_SCAN_PRE_TIMEOUT_HOURS, TimeUnit.HOURS);
-    }
-    //提货扫描加锁
-    private String getLockKeyPickingGoodTaskFirstScan(String bizId, Long siteId) {
-        return String.format(CACHE_PICKING_TASK_FIRST_SCAN_PRE, bizId, siteId);
-    }
+//    public boolean lockPickingGoodTaskFirstScan(String bizId, Long siteId) {
+//        String lockKey = this.getLockKeyPickingGoodTaskFirstScan(bizId, siteId);
+//        return jimDbLock.lock(lockKey, DEFAULT_VALUE_1, CACHE_PICKING_TASK_FIRST_SCAN_PRE_TIMEOUT_HOURS, TimeUnit.HOURS);
+//    }
+//    //提货扫描加锁
+//    private String getLockKeyPickingGoodTaskFirstScan(String bizId, Long siteId) {
+//        return String.format(CACHE_PICKING_TASK_FIRST_SCAN_PRE, bizId, siteId);
+//    }
 
     /**
      * 提货明细初始化锁 场地+bizId+barCode

@@ -54,8 +54,6 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     @Autowired
     private JyPickingTaskAggsCacheService cacheService;
     @Autowired
-    private JyPickingTaskAggsTransactionManager aggTransactionManager;
-    @Autowired
     private JyBizTaskPickingGoodService jyBizTaskPickingGoodService;
     @Autowired
     private JyPickingSendRecordService jyPickingSendRecordService;
@@ -111,7 +109,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
                 //实际提货发货的待提箱件数
 //                cacheService.incrRealScanWaitSendBoxNum(bizId, siteId);
                 //实际提货发货的待提箱的件数【流向维度】
-                cacheService.incrRealScaFlowWaitSendBoxNum(bizId, siteId, request.getNextSiteId());
+                cacheService.incrRealScanFlowWaitSendBoxNum(bizId, siteId, request.getNextSiteId());
 
                 if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
                     //多提发的箱件数
@@ -174,43 +172,44 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
 
     }
 
-    @Override
-    public void aggRefresh(String bizId, Long nextSiteId) {
-        if(StringUtils.isBlank(bizId)) {
-            logWarn("提货任务统计回算:参数bizId为空,放弃回算");
-            return ;
-        }
-
-        JyBizTaskPickingGoodEntity entity = jyBizTaskPickingGoodService.findByBizIdWithYn(bizId, false);
-        if(Objects.isNull(entity)) {
-            logWarn("提货任务统计回算:根据bizId：{}查询提货任务为空,放弃回算", bizId);
-            return ;
-        }
-        if(PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(entity.getStatus())) {
-            if(Objects.isNull(entity.getPickingCompleteTime())) {
-                logWarn("提货任务统计回算:根据bizId：{}查询提货任务已经完成但是没有完成时间,放弃回算", bizId);
-                return ;
-            }
-            if(DateHelper.betweenHours(entity.getPickingCompleteTime(), new Date()) > 24) {
-                logWarn("提货任务统计回算:根据bizId：{}查询提货任务已经完成超过24小时,不支持回算", bizId);
-                return ;
-            }
-        }
-
-        if(!cacheService.saveLockPickingGoodTask(bizId)) {
-            logWarn("提货任务统计回算获取锁失败，bizId={}", bizId);
-            throw new JyBizException("未获取到锁:" + bizId);
-        }
-        try{
-            PickingGoodTaskStatisticsDto statisticsDto = jyPickingSendRecordService.statisticsByBizId(entity.getNextSiteId(), bizId, nextSiteId);
-            aggTransactionManager.updatePickingGoodAggs(statisticsDto);
-        }catch (Exception e) {
-            log.error("提货任务统计回算服务异常，bizId={}， errMsg={}", bizId, e.getMessage(), e);
-            throw new JyBizException("提货任务统计回算服务异常：" + bizId);
-        }finally {
-            cacheService.unlockLockPickingGoodTask(bizId);
-        }
-    }
+//    @Override
+//    public void aggRefresh(String bizId, Long nextSiteId) {
+//        //todo zcf 回算agg重新梳理下逻辑
+//        if(StringUtils.isBlank(bizId)) {
+//            logWarn("提货任务统计回算:参数bizId为空,放弃回算");
+//            return ;
+//        }
+//
+//        JyBizTaskPickingGoodEntity entity = jyBizTaskPickingGoodService.findByBizIdWithYn(bizId, false);
+//        if(Objects.isNull(entity)) {
+//            logWarn("提货任务统计回算:根据bizId：{}查询提货任务为空,放弃回算", bizId);
+//            return ;
+//        }
+//        if(PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(entity.getStatus())) {
+//            if(Objects.isNull(entity.getPickingCompleteTime())) {
+//                logWarn("提货任务统计回算:根据bizId：{}查询提货任务已经完成但是没有完成时间,放弃回算", bizId);
+//                return ;
+//            }
+//            if(DateHelper.betweenHours(entity.getPickingCompleteTime(), new Date()) > 24) {
+//                logWarn("提货任务统计回算:根据bizId：{}查询提货任务已经完成超过24小时,不支持回算", bizId);
+//                return ;
+//            }
+//        }
+//
+//        if(!cacheService.saveLockPickingGoodTask(bizId)) {
+//            logWarn("提货任务统计回算获取锁失败，bizId={}", bizId);
+//            throw new JyBizException("未获取到锁:" + bizId);
+//        }
+//        try{
+//            PickingGoodTaskStatisticsDto statisticsDto = jyPickingSendRecordService.statisticsByBizId(entity.getNextSiteId(), bizId, nextSiteId);
+//            aggTransactionManager.updatePickingGoodAggs(statisticsDto);
+//        }catch (Exception e) {
+//            log.error("提货任务统计回算服务异常，bizId={}， errMsg={}", bizId, e.getMessage(), e);
+//            throw new JyBizException("提货任务统计回算服务异常：" + bizId);
+//        }finally {
+//            cacheService.unlockLockPickingGoodTask(bizId);
+//        }
+//    }
 
     @Override
     public List<PickingSendGoodAggsDto> waitPickingInitTotalNum(List<String> bizIdList, Long siteId, Long sendNextSiteId) {
@@ -262,5 +261,84 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     @Override
     public List<String> pageRecentWaitScanEqZero(JyPickingTaskAggQueryDto queryDto) {
         return jyPickingTaskAggsDao.pageRecentWaitScanEqZero(queryDto);
+    }
+
+    @Override
+    public List<PickingSendGoodAggsDto> findPickingAgg(List<String> bizIdList, Long siteId, Long sendNextSiteId) {
+        List<PickingSendGoodAggsDto> res = this.waitPickingInitTotalNum(bizIdList, siteId, sendNextSiteId);
+        res.forEach(pickingSendDto -> {
+            pickingSendDto.setRealSendTotalNum(this.getRealPickingTotalNum(pickingSendDto.getBizId(), siteId, sendNextSiteId));
+            pickingSendDto.setMoreSendTotalNum(this.getRealPickingMoreScanTotalNum(pickingSendDto.getBizId(), siteId, sendNextSiteId));
+        });
+        return res;
+    }
+    //实际扫描总件数
+    private int getRealPickingTotalNum(String bizId, Long siteId, Long sendNextSiteId) {
+        return this.getRealPickingHandoverScanTotalNum(bizId, siteId, sendNextSiteId)
+                + this.getRealPickingMoreScanTotalNum(bizId, siteId, sendNextSiteId);
+    }
+    //实际扫描应交接总件数
+    private int getRealPickingHandoverScanTotalNum(String bizId, Long siteId, Long sendNextSiteId) {
+        Integer handoverPackageNum;
+        Integer handoverBoxNum;
+        if(!Objects.isNull(sendNextSiteId)) {
+            handoverPackageNum = cacheService.getValueRealScanFlowWaitSendPackageNum(bizId, siteId, sendNextSiteId);
+            handoverBoxNum = cacheService.getValueRealScanFlowWaitSendBoxNum(bizId, siteId, sendNextSiteId);
+        }else {
+            handoverPackageNum = cacheService.getValueRealScanWaitPickingPackageNum(bizId, siteId);
+            handoverBoxNum = cacheService.getValueRealScanWaitPickingBoxNum(bizId, siteId);
+        }
+        return handoverPackageNum + handoverBoxNum;
+    }
+    //实际扫描多扫总件数
+    private int getRealPickingMoreScanTotalNum(String bizId, Long siteId, Long sendNextSiteId) {
+        if(!Objects.isNull(sendNextSiteId)) {
+            Integer moreScanPackageNum = cacheService.getValueRealScanFlowMoreSendPackageNum(bizId, siteId, sendNextSiteId);
+            Integer moreScanBoxNum = cacheService.getValueRealScanFlowMoreSendBoxNum(bizId, siteId, sendNextSiteId);
+            return moreScanPackageNum + moreScanBoxNum;
+        }else {
+            Integer handoverPackageNum = cacheService.getValueRealScanMorePickingPackageNum(bizId, siteId);
+            Integer handoverBoxNum = cacheService.getValueRealScanMorePickingBoxNum(bizId, siteId);
+            return handoverPackageNum + handoverBoxNum;
+        }
+    }
+
+    @Override
+    public void updatePickingAggWaitScanItemNum(CalculateWaitPickingItemNumDto paramDto) {
+        //todo zcf 计数去重保证幂等
+        JyPickingTaskAggsEntity entity = jyPickingTaskAggsDao.findByBizId(paramDto.getBizId(), paramDto.getPickingSiteId());
+        Integer totalNum;
+        if(Objects.isNull(entity)) {
+            totalNum = paramDto.getWaitPickingItemNum();
+            JyPickingTaskAggsEntity insertEntity = new JyPickingTaskAggsEntity(paramDto.getPickingSiteId(), paramDto.getBizId());
+            insertEntity.setCreateTime(new Date());
+            insertEntity.setUpdateTime(insertEntity.getCreateTime());
+            insertEntity.setWaitScanTotalCount(totalNum);
+            jyPickingTaskAggsDao.insertSelective(insertEntity);
+        }else {
+            totalNum = entity.getWaitScanTotalCount() + paramDto.getWaitPickingItemNum();
+            jyPickingTaskAggsDao.updatePickingAggWaitScanItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(), totalNum);
+        }
+        cacheService.saveCacheInitWaitPickingTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(), totalNum);
+
+    }
+
+    @Override
+    public void updatePickingSendAggWaitScanItemNum(CalculateWaitPickingItemNumDto paramDto) {
+        //todo zcf 计数去重保证幂等
+        JyPickingTaskSendAggsEntity entity = jyPickingTaskSendAggsDao.findByBizIdAndNextSite(paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), paramDto.getBizId());
+        Integer totalNum;
+        if(Objects.isNull(entity)) {
+            totalNum = paramDto.getWaitPickingItemNum();
+            JyPickingTaskSendAggsEntity insertEntity = new JyPickingTaskSendAggsEntity(paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), paramDto.getBizId());
+            insertEntity.setCreateTime(new Date());
+            insertEntity.setUpdateTime(insertEntity.getCreateTime());
+            insertEntity.setWaitScanTotalCount(totalNum);
+            jyPickingTaskSendAggsDao.insertSelective(insertEntity);
+        }else {
+            totalNum = entity.getWaitScanTotalCount() + paramDto.getWaitPickingItemNum();
+            jyPickingTaskSendAggsDao.updatePickingAggWaitScanItemNum(paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), paramDto.getBizId(), totalNum);
+        }
+        cacheService.saveCacheInitWaitSendTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), totalNum);
     }
 }

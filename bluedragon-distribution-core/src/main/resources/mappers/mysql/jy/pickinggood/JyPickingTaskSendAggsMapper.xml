@@ -33,6 +33,7 @@
     <result column="yn" property="yn" jdbcType="BIT" />
     <result column="ts" property="ts" jdbcType="TIMESTAMP" />
   </resultMap>
+
   <sql id="Base_Column_List" >
     id, biz_id, picking_site_id, next_site_id, picking_node_code, wait_scan_package_count, 
     wait_scan_box_count, wait_scan_total_count, handover_scan_package_count, handover_scan_box_count,
@@ -44,7 +45,198 @@
   </sql>
 
 
+    <insert id="insertSelective" parameterType="com.jd.tys.manager.po.JyPickingTaskSendAggs" >
+      insert into jy_picking_task_send_aggs
+      <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          id,
+        </if>
+        <if test="bizId != null" >
+          biz_id,
+        </if>
+        <if test="pickingSiteId != null" >
+          picking_site_id,
+        </if>
+        <if test="nextSiteId != null" >
+          next_site_id,
+        </if>
+        <if test="pickingNodeCode != null" >
+          picking_node_code,
+        </if>
+        <if test="waitScanPackageCount != null" >
+          wait_scan_package_count,
+        </if>
+        <if test="waitScanBoxCount != null" >
+          wait_scan_box_count,
+        </if>
+        <if test="waitScanTotalCount != null" >
+          wait_scan_total_count,
+        </if>
+        <if test="scanPackageCount != null" >
+          scan_package_count,
+        </if>
+        <if test="scanBoxCount != null" >
+          scan_box_count,
+        </if>
+        <if test="scanTotalCount != null" >
+          scan_total_count,
+        </if>
+        <if test="moreScanPackageCount != null" >
+          more_scan_package_count,
+        </if>
+        <if test="moreScanBoxCount != null" >
+          more_scan_box_count,
+        </if>
+        <if test="moreScanTotalCount != null" >
+          more_scan_total_count,
+        </if>
+        <if test="sendPackageCount != null" >
+          send_package_count,
+        </if>
+        <if test="sendBoxCount != null" >
+          send_box_count,
+        </if>
+        <if test="sendTotalCount != null" >
+          send_total_count,
+        </if>
+        <if test="moreSendPackageCount != null" >
+          more_send_package_count,
+        </if>
+        <if test="moreSendBoxCount != null" >
+          more_send_box_count,
+        </if>
+        <if test="moreSendTotalCount != null" >
+          more_send_total_count,
+        </if>
+        <if test="forceSendPackageCount != null" >
+          force_send_package_count,
+        </if>
+        <if test="forceSendBoxCount != null" >
+          force_send_box_count,
+        </if>
+        <if test="forceSendTotalCount != null" >
+          force_send_total_count,
+        </if>
+        <if test="createTime != null" >
+          create_time,
+        </if>
+        <if test="updateTime != null" >
+          update_time,
+        </if>
+          yn
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          #{id,jdbcType=BIGINT},
+        </if>
+        <if test="bizId != null" >
+          #{bizId,jdbcType=VARCHAR},
+        </if>
+        <if test="pickingSiteId != null" >
+          #{pickingSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="nextSiteId != null" >
+          #{nextSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="pickingNodeCode != null" >
+          #{pickingNodeCode,jdbcType=VARCHAR},
+        </if>
+        <if test="waitScanPackageCount != null" >
+          #{waitScanPackageCount,jdbcType=INTEGER},
+        </if>
+        <if test="waitScanBoxCount != null" >
+          #{waitScanBoxCount,jdbcType=INTEGER},
+        </if>
+        <if test="waitScanTotalCount != null" >
+          #{waitScanTotalCount,jdbcType=INTEGER},
+        </if>
+        <if test="scanPackageCount != null" >
+          #{scanPackageCount,jdbcType=INTEGER},
+        </if>
+        <if test="scanBoxCount != null" >
+          #{scanBoxCount,jdbcType=INTEGER},
+        </if>
+        <if test="scanTotalCount != null" >
+          #{scanTotalCount,jdbcType=INTEGER},
+        </if>
+        <if test="moreScanPackageCount != null" >
+          #{moreScanPackageCount,jdbcType=INTEGER},
+        </if>
+        <if test="moreScanBoxCount != null" >
+          #{moreScanBoxCount,jdbcType=INTEGER},
+        </if>
+        <if test="moreScanTotalCount != null" >
+          #{moreScanTotalCount,jdbcType=INTEGER},
+        </if>
+        <if test="sendPackageCount != null" >
+          #{sendPackageCount,jdbcType=INTEGER},
+        </if>
+        <if test="sendBoxCount != null" >
+          #{sendBoxCount,jdbcType=INTEGER},
+        </if>
+        <if test="sendTotalCount != null" >
+          #{sendTotalCount,jdbcType=INTEGER},
+        </if>
+        <if test="moreSendPackageCount != null" >
+          #{moreSendPackageCount,jdbcType=INTEGER},
+        </if>
+        <if test="moreSendBoxCount != null" >
+          #{moreSendBoxCount,jdbcType=INTEGER},
+        </if>
+        <if test="moreSendTotalCount != null" >
+          #{moreSendTotalCount,jdbcType=INTEGER},
+        </if>
+        <if test="forceSendPackageCount != null" >
+          #{forceSendPackageCount,jdbcType=INTEGER},
+        </if>
+        <if test="forceSendBoxCount != null" >
+          #{forceSendBoxCount,jdbcType=INTEGER},
+        </if>
+        <if test="forceSendTotalCount != null" >
+          #{forceSendTotalCount,jdbcType=INTEGER},
+        </if>
+        <if test="createTime != null" >
+          #{createTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="updateTime != null" >
+          #{updateTime,jdbcType=TIMESTAMP},
+        </if>
+        1
+      </trim>
+    </insert>
 
+  <select id="findByBizIdList" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskSendAggsCondition" >
+    select  <include refid="Base_Column_List" />
+    from jy_picking_task_send_aggs
+    where yn = 1 and picking_site_id = #{pickingSiteId} and next_site_id = #{nextSiteId}
+    and biz_id in
+    <foreach collection="bizIdList" item="item" index="index" open="(" separator="," close=")">
+      #{item,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
+
+  <select id="findByBizIdAndNextSite" resultMap="BaseResultMap" parameterType="JyPickingTaskSendAggsEntity" >
+    select  <include refid="Base_Column_List" />
+    from jy_picking_task_aggs
+    where yn = 1
+    and picking_site_id = #{pickingSiteId}
+    and next_site_id = #{nextSiteId}
+    and biz_id =  #{bizId}
+    limit 1
+  </select>
+
+  <update id="updatePickingSendAggWaitScanItemNum" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskSendAggsEntity" >
+    update jy_picking_task_send_aggs
+    set
+    wait_scan_total_count = #{waitScanTotalCount},
+    update_time = #{updateTime}
+    where
+    yn = 1
+    and biz_id = #{bizId}
+    and picking_site_id = #{pickingSiteId}
+    and next_site_id = #{nextSiteId}
+  </update>
 <!--  -->
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select -->

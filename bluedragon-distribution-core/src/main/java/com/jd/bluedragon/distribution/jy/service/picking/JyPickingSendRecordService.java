@@ -44,7 +44,7 @@ public interface JyPickingSendRecordService {
      * @param bizId 提货任务bizId
      * @param nextSiteId  发货流向，非空是统计该流向发货数据
      */
-    PickingGoodTaskStatisticsDto statisticsByBizId(Long siteId, String bizId, Long nextSiteId);
+//    PickingGoodTaskStatisticsDto statisticsByBizId(Long siteId, String bizId, Long nextSiteId);
 
     /**
      * 已提件数
