@@ -202,12 +202,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     }
 
     @Override
-    JyBizTaskSendSortTypeEnum setTaskOrderType(JyBizTaskSendStatusEnum curQueryStatus) {
+    public JyBizTaskSendSortTypeEnum setTaskOrderType(JyBizTaskSendStatusEnum curQueryStatus) {
         switch (curQueryStatus) {
             case TO_SEND:
                 return JyBizTaskSendSortTypeEnum.PLAN_DEPART_TIME;
             case SENDING:
-                return JyBizTaskSendSortTypeEnum.UPDATE_TIME;
             case TO_SEAL:
                 return JyBizTaskSendSortTypeEnum.UPDATE_TIME;
             case SEALED:
