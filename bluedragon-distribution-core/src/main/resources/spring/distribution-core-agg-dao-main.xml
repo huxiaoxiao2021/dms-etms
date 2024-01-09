@@ -12,10 +12,4 @@
     <bean id="jySendProductAggsDaoMain" class="com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDaoMain">
         <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateMain"/>
     </bean>
-    <bean id="jyPickingTaskAggsDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskAggsDao">
-        <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateMain"/>
-    </bean>
-    <bean id="jyPickingTaskSendAggsDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskSendAggsDao">
-        <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateMain"/>
-    </bean>
 </beans>

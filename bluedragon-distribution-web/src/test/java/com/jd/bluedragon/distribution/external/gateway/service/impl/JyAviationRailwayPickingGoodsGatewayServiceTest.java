@@ -125,14 +125,21 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
 
     @Test
     public void listAirRailTaskSummaryTest() {
-        AirRailTaskSummaryReq req = new AirRailTaskSummaryReq();
-        setBaseReq(req);
-        req.setStatus(PickingGoodStatusEnum.TO_PICKING.getCode());
-        req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
-        req.setPageNum(1);
-        req.setPageSize(10);
-        JdCResponse<AirRailTaskRes> response = jyAviationRailwayPickingGoodsGatewayService.listAirRailTaskSummary(req);
-        log.info("listAirRailTaskSummaryTest response {}", JsonHelper.toJson(response));
+        while (true) {
+            try{
+
+                AirRailTaskSummaryReq req = new AirRailTaskSummaryReq();
+                setBaseReq(req);
+                req.setStatus(PickingGoodStatusEnum.TO_PICKING.getCode());
+                req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+                req.setPageNum(1);
+                req.setPageSize(10);
+                JdCResponse<AirRailTaskRes> response = jyAviationRailwayPickingGoodsGatewayService.listAirRailTaskSummary(req);
+                log.info("listAirRailTaskSummaryTest response {}", JsonHelper.toJson(response));
+            }catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     @Test
