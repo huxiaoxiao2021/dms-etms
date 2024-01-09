@@ -857,7 +857,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return null != scheduleTask ? scheduleTask.getTaskId() : StringUtils.EMPTY;
     }
 
-    private JyBizTaskSendSortTypeEnum setTaskOrderType(JyBizTaskSendStatusEnum curQueryStatus) {
+    public JyBizTaskSendSortTypeEnum setTaskOrderType(JyBizTaskSendStatusEnum curQueryStatus) {
         switch (curQueryStatus) {
             case TO_SEND:
             case SENDING:

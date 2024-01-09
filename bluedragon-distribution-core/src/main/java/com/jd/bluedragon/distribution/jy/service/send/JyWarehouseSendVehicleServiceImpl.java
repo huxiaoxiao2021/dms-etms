@@ -47,6 +47,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.dto.send.SendFindDestInfoDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -198,6 +199,22 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
 
         return invokeResult;
+    }
+
+    @Override
+    JyBizTaskSendSortTypeEnum setTaskOrderType(JyBizTaskSendStatusEnum curQueryStatus) {
+        switch (curQueryStatus) {
+            case TO_SEND:
+                return JyBizTaskSendSortTypeEnum.PLAN_DEPART_TIME;
+            case SENDING:
+                return JyBizTaskSendSortTypeEnum.UPDATE_TIME;
+            case TO_SEAL:
+                return JyBizTaskSendSortTypeEnum.UPDATE_TIME;
+            case SEALED:
+                return JyBizTaskSendSortTypeEnum.SEAL_CAR_TIME;
+            default:
+                return null;
+        }
     }
 
     List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity condition,

@@ -1051,6 +1051,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             toSvDetailTask.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
             jyBizTaskSendVehicleDetailService.updateBizTaskSendDetailStatus(toSvDetailTask);
 
+            // 再次更新主任务和明细任务的updateTime字段
+            updateTimeInfo(toSvTask.getBizId(), toSvDetailTask.getBizId());
+
             //删除自建主任务
             JyBizTaskSendVehicleEntity fromSvTask = new JyBizTaskSendVehicleEntity();
             fromSvTask.setBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
@@ -1109,6 +1112,18 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, bindVehicleResp);
         }
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
+    }
+
+    private void updateTimeInfo(String sendVehicleBizId, String sendVehicleDetailBizId) {
+        Date date = new Date();
+        JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
+        toSvTask.setBizId(sendVehicleBizId);
+        toSvTask.setUpdateTime(date);
+        jyBizTaskSendVehicleService.updateSendVehicleTask(toSvTask);
+        JyBizTaskSendVehicleDetailEntity toSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
+        toSvDetailTask.setBizId(sendVehicleDetailBizId);
+        toSvDetailTask.setUpdateTime(date);
+        jyBizTaskSendVehicleDetailService.updateByBiz(toSvDetailTask);
     }
 
     @Override
