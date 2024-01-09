@@ -20,11 +20,14 @@ import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
+import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
+import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpContrabandNoticCustomerMQ;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
+import com.jd.bluedragon.distribution.jy.service.collectpackage.JyBizTaskCollectPackageService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
@@ -122,6 +125,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private DmsConfigManager dmsConfigManager;
     @Autowired
     private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
+    @Autowired
+    private JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
@@ -214,6 +219,16 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     public void dealContrabandUploadData(JyExceptionContrabandDto dto)  {
 
         try{
+            // 新增自动取消集包
+            // 根据包裹号获取箱号 todo
+
+            // 根据箱号查询bzid 换成箱号
+            JyBizTaskCollectPackageEntity bizTaskCollectPackageEntity = jyBizTaskCollectPackageService.findByBoxCode(dto.getBarCode());
+            // 调用取消集包接口
+            CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto, bizTaskCollectPackageEntity);
+            jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
+
+
             JyExceptionContrabandEnum.ContrabandTypeEnum enumResult = JyExceptionContrabandEnum.ContrabandTypeEnum.getEnumByCode(dto.getContrabandType());
             if(enumResult == null){
                 return;
@@ -669,5 +684,25 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             }
         }
         return false;
+    }
+
+    /**
+     * 构建取消集包DTO对象
+     * @param dto 禁运异常DTO对象
+     * @return 取消集包DTO对象
+     */
+    private CancelCollectPackageDto buildCancelCollectPackageDto(JyExceptionContrabandDto dto, JyBizTaskCollectPackageEntity bizTaskCollectPackageEntity){
+        CancelCollectPackageDto cancelCollectPackageDto = new CancelCollectPackageDto();
+        if(Objects.nonNull(bizTaskCollectPackageEntity)){
+            cancelCollectPackageDto.setBizId(bizTaskCollectPackageEntity.getBizId());
+        }
+        // todo 设置箱号 cancelCollectPackageDto.setPackageCode(dto.getBarCode());
+        cancelCollectPackageDto.setSiteCode(dto.getSiteCode());
+        cancelCollectPackageDto.setSiteName(dto.getSiteName());
+        cancelCollectPackageDto.setUpdateUserCode(dto.getCreateUserId());
+        cancelCollectPackageDto.setUpdateUserErp(dto.getCreateErp());
+        cancelCollectPackageDto.setUpdateUserName(dto.getCreateStaffName());
+        cancelCollectPackageDto.setUpdateTime(new Date());
+        return cancelCollectPackageDto;
     }
 }
