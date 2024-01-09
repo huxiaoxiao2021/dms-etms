@@ -326,6 +326,10 @@ public class InvokeResult<T> implements Serializable {
     public static final int WAYBILL_EXCHANGE_NUM_CODE = 3072;
     public static final String WAYBILL_EXCHANGE_NUM_MESSAGE = "客服理赔及客户取消的运单，限制只能换单1次，无法再换单，请联系网格负责人处理！";
 
+
+    public static final int WAYBILL_ZERO_WEIGHT_RECYCLE_BASKET_CODE = 3075;
+    public static final String WAYBILL_ZERO_WEIGHT_RECYCLE_BASKET_MESSAGE = "包裹运单0重量且使用周转筐落自动化回流，由人工进行称重！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

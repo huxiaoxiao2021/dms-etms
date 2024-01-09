@@ -1083,4 +1083,10 @@ public class HintCodeConstants {
     // 暴力分拣触发安灯量灯通知
     public static String VIOLENT_ANDON_JD_ME_CODE = "55701";
 
+    // "该包裹未识别到在当前分拣中心有操作记录，请先在该场地进行操作后再进行称重量方！"
+    public static String WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE = "40031";
+
+    // 非0重体包裹，分拣无法进行复重，如需修改包裹重量体积请通过抽检功能！（人工抽检可通过PDA或PC端http://dms.etms.jd.com/?code=CK_U7EHDAmcJNI_pQP3gFz3A0D-7ahSXW2VBFEC9D1g&state=-4C3Ku4n-HWGM7cYpVsfFwcys9RVknqZNBjhFYLXe9I
+    public static String WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE = "40032";
+
 }
