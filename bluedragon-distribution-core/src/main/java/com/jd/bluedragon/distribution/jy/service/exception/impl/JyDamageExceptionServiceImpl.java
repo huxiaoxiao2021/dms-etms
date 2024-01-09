@@ -885,8 +885,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 ||e.getCode().equals(JyExceptionDamageEnum.ConsumableEnum.FILE_SEALING.getCode())
                 ||e.getCode().equals(JyExceptionDamageEnum.ConsumableEnum.WATERPROOF_BAG.getCode())
             ).map(e -> e.getBarcode()).collect(Collectors.toList());
-            if (Boolean.FALSE.equals(consumableManager.checkConsumable(barcodes, req.getUserErp()))) {
-                return JdCResponse.fail("耗材条码有误");
+            if (Objects.nonNull(barcodes) && barcodes.size() > 0) {
+                if (Boolean.FALSE.equals(consumableManager.checkConsumable(barcodes, req.getUserErp()))) {
+                    return JdCResponse.fail("耗材条码有误");
+                }
             }
         }
         JyExceptionDamageEntity entity = new JyExceptionDamageEntity();
