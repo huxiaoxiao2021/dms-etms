@@ -147,29 +147,13 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
 
 
     @Override
-    public PickingGoodAggsDto findTaskPickingAgg(Integer curSiteId, String bizId) {
-//        todo zcf
-//        PickingGoodAggsDto aggsDto = cacheService.getCacheTaskPickingAgg(curSiteId, bizId);
-//        if(Objects.isNull(aggsDto)) {
-//            //必须保证查询之前该cache做好初始化，存在批量任务查询聚合，该redis不允许有查询为空时查DB兜底的逻辑,查询null时只能返回0保证服务可用
-//            logWarn("提货任务统计查询redis没有初始化，此处存在有批量调用，不允许查DB补偿, 所有统计数据为0保证可用，site={},bizId={}", curSiteId, bizId);
-//            aggsDto = new PickingGoodAggsDto();
-//        }
-//        return aggsDto;
-        return null;
+    public JyPickingTaskAggsEntity findTaskPickingAgg(Long curSiteId, String bizId) {
+        return jyPickingTaskAggsDao.findByBizId(bizId, curSiteId);
     }
 
     @Override
-    public PickingSendGoodAggsDto findTaskPickingSendAgg(Integer curSiteId, Integer nextSiteId, String bizId) {
-        //        todo zcf
-
-//        PickingSendGoodAggsDto aggsDto = cacheService.getCacheTaskPickingSendAgg(curSiteId, nextSiteId, bizId);
-//        if(Objects.isNull(aggsDto)) {
-//            aggsDto = new PickingSendGoodAggsDto();
-//        }
-//        return aggsDto;
-        return null;
-
+    public JyPickingTaskSendAggsEntity findTaskPickingSendAgg(Long curSiteId, Long nextSiteId, String bizId) {
+        return jyPickingTaskSendAggsDao.findByBizIdAndNextSite(curSiteId, nextSiteId, bizId);
     }
 
 //    @Override
@@ -305,7 +289,6 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
 
     @Override
     public void updatePickingAggWaitScanItemNum(CalculateWaitPickingItemNumDto paramDto) {
-        //todo zcf 计数去重保证幂等
         JyPickingTaskAggsEntity entity = jyPickingTaskAggsDao.findByBizId(paramDto.getBizId(), paramDto.getPickingSiteId());
         Integer totalNum;
         if(Objects.isNull(entity)) {
@@ -325,7 +308,6 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
 
     @Override
     public void updatePickingSendAggWaitScanItemNum(CalculateWaitPickingItemNumDto paramDto) {
-        //todo zcf 计数去重保证幂等
         JyPickingTaskSendAggsEntity entity = jyPickingTaskSendAggsDao.findByBizIdAndNextSite(paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), paramDto.getBizId());
         Integer totalNum;
         if(Objects.isNull(entity)) {
@@ -340,5 +322,95 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             jyPickingTaskSendAggsDao.updatePickingAggWaitScanItemNum(paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), paramDto.getBizId(), totalNum);
         }
         cacheService.saveCacheInitWaitSendTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), totalNum);
+    }
+
+    @Override
+    public void updatePickingAggScanStatistics(JyPickingGoodScanDto param) {
+        boolean moreScanFlag = Boolean.TRUE.equals(param.getMoreScanFlag());
+        JyPickingTaskAggsEntity aggDtoRes = this.findTaskPickingAgg(param.getSiteId(), param.getBizId());
+        if(Objects.isNull(aggDtoRes)) {
+            log.error("理论上不会出现暂时不考虑补偿，扫描前初始化会前置插入，提货统计param={}", JsonHelper.toJson(param));
+            return;
+        }
+        JyPickingTaskAggsEntity updateEntity = new JyPickingTaskAggsEntity(param.getSiteId(), param.getBizId());
+        if(BusinessUtil.isBoxcode(param.getBarCode())) {
+            if(moreScanFlag) {
+                updateEntity.setMoreScanBoxCount(aggDtoRes.getMoreScanBoxCount() + 1);
+            }else {
+                updateEntity.setHandoverScanBoxCount(aggDtoRes.getHandoverScanBoxCount() + 1);
+            }
+            updateEntity.setScanBoxCount(updateEntity.getScanBoxCount() + 1);
+        }else {
+            if(moreScanFlag) {
+                updateEntity.setMoreScanPackageCount(aggDtoRes.getMoreScanPackageCount() + 1);
+            }else {
+                updateEntity.setHandoverScanPackageCount(aggDtoRes.getHandoverScanPackageCount() + 1);
+            }
+            updateEntity.setScanPackageCount(updateEntity.getScanPackageCount() + 1);
+        }
+        updateEntity.setScanTotalCount(updateEntity.getScanTotalCount() + 1);
+        updateEntity.setUpdateTime(new Date());
+
+        if(Boolean.TRUE.equals(param.getSendGoodFlag())) {
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                if(moreScanFlag) {
+                    updateEntity.setMoreSendBoxCount(aggDtoRes.getMoreSendBoxCount() + 1);
+                }
+                updateEntity.setSendBoxCount(updateEntity.getSendBoxCount() + 1);
+            }else {
+                if(moreScanFlag) {
+                    updateEntity.setMoreSendPackageCount(aggDtoRes.getMoreSendPackageCount() + 1);
+                }
+                updateEntity.setSendPackageCount(updateEntity.getSendPackageCount() + 1);
+            }
+        }
+        jyPickingTaskAggsDao.updateScanStatistics(updateEntity);
+        logInfo("提货任务维度agg实操统计修改bizId={}，修改前={}，修改后计数={}", param.getBizId(), JsonHelper.toJson(aggDtoRes), JsonHelper.toJson(updateEntity));
+
+    }
+
+    @Override
+    public void updatePickingSendAggScanStatistics(JyPickingGoodScanDto param) {
+        boolean moreScanFlag = Boolean.TRUE.equals(param.getMoreScanFlag());
+        JyPickingTaskSendAggsEntity aggDtoRes = this.findTaskPickingSendAgg(param.getSiteId(), param.getNextSiteId(), param.getBizId());
+        if(Objects.isNull(aggDtoRes)) {
+            log.error("理论上不会出现暂时不考虑补偿，扫描前初始化会前置插入，提货发货统计param={}", JsonHelper.toJson(param));
+            return;
+        }
+        JyPickingTaskSendAggsEntity updateEntity = new JyPickingTaskSendAggsEntity(param.getSiteId(), param.getNextSiteId(), param.getBizId());
+        if(BusinessUtil.isBoxcode(param.getBarCode())) {
+            if(moreScanFlag) {
+                updateEntity.setMoreScanBoxCount(aggDtoRes.getMoreScanBoxCount() + 1);
+            }else {
+                updateEntity.setHandoverScanBoxCount(aggDtoRes.getHandoverScanBoxCount() + 1);
+            }
+            updateEntity.setScanBoxCount(updateEntity.getScanBoxCount() + 1);
+        }else {
+            if(moreScanFlag) {
+                updateEntity.setMoreScanPackageCount(aggDtoRes.getMoreScanPackageCount() + 1);
+            }else {
+                updateEntity.setHandoverScanPackageCount(aggDtoRes.getHandoverScanPackageCount() + 1);
+            }
+            updateEntity.setScanPackageCount(updateEntity.getScanPackageCount() + 1);
+        }
+        updateEntity.setScanTotalCount(updateEntity.getScanTotalCount() + 1);
+        updateEntity.setUpdateTime(new Date());
+
+        if(Boolean.TRUE.equals(param.getSendGoodFlag())) {
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                if(moreScanFlag) {
+                    updateEntity.setMoreSendBoxCount(aggDtoRes.getMoreSendBoxCount() + 1);
+                }
+                updateEntity.setSendBoxCount(updateEntity.getSendBoxCount() + 1);
+            }else {
+                if(moreScanFlag) {
+                    updateEntity.setMoreSendPackageCount(aggDtoRes.getMoreSendPackageCount() + 1);
+                }
+                updateEntity.setSendPackageCount(updateEntity.getSendPackageCount() + 1);
+            }
+        }
+        jyPickingTaskSendAggsDao.updateScanStatistics(updateEntity);
+        logInfo("提货发货任务流向维度agg实操统计修改bizId={}，nextSiteId={}，修改前={}，修改后计数={}", param.getBizId(), param.getNextSiteId(), JsonHelper.toJson(aggDtoRes), JsonHelper.toJson(updateEntity));
+
     }
 }

@@ -220,7 +220,7 @@
   </select>
 
 
-  <select id="findByBizId" resultMap="BaseResultMap" parameterType="JyPickingTaskAggsEntity" >
+  <select id="findByBizId" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity" >
     select  <include refid="Base_Column_List" />
     from jy_picking_task_aggs
     where yn = 1 
@@ -229,19 +229,75 @@
     limit 1
   </select>
 
-    <update id="updatePickingAggWaitScanItemNum" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity" >
-      update jy_picking_task_aggs
-      set
-        wait_scan_total_count = #{waitScanTotalCount},
-        update_time = #{updateTime}
-      where
-        yn = 1
-        and biz_id = #{bizId}
-        and picking_site_id = #{pickingSiteId}
-    </update>
+  <update id="updatePickingAggWaitScanItemNum" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity" >
+    update jy_picking_task_aggs
+    set
+      wait_scan_total_count = #{waitScanTotalCount},
+      update_time = #{updateTime}
+    where
+      yn = 1
+      and biz_id = #{bizId}
+      and picking_site_id = #{pickingSiteId}
+  </update>
 
-  
-<!--  -->
+  <update id="updateScanStatistics" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity" >
+    update jy_picking_task_aggs
+    <set >
+      <if test="scanPackageCount != null" >
+        scan_package_count = #{scanPackageCount},
+      </if>
+      <if test="scanBoxCount != null" >
+        scan_box_count = #{scanBoxCount},
+      </if>
+      <if test="scanTotalCount != null" >
+        scan_total_count = #{scanTotalCount},
+      </if>
+      <if test="moreScanPackageCount != null" >
+        more_scan_package_count = #{moreScanPackageCount},
+      </if>
+      <if test="moreScanBoxCount != null" >
+        more_scan_box_count = #{moreScanBoxCount},
+      </if>
+      <if test="moreScanTotalCount != null" >
+        more_scan_total_count = #{moreScanTotalCount},
+      </if>
+      <if test="sendPackageCount != null" >
+        send_package_count = #{sendPackageCount},
+      </if>
+      <if test="sendBoxCount != null" >
+        send_box_count = #{sendBoxCount},
+      </if>
+      <if test="sendTotalCount != null" >
+        send_total_count = #{sendTotalCount},
+      </if>
+      <if test="moreSendPackageCount != null" >
+        more_send_package_count = #{moreSendPackageCount},
+      </if>
+      <if test="moreSendBoxCount != null" >
+        more_send_box_count = #{moreSendBoxCount},
+      </if>
+      <if test="moreSendTotalCount != null" >
+        more_send_total_count = #{moreSendTotalCount},
+      </if>
+      <if test="forceSendPackageCount != null" >
+        force_send_package_count = #{forceSendPackageCount},
+      </if>
+      <if test="forceSendBoxCount != null" >
+        force_send_box_count = #{forceSendBoxCount},
+      </if>
+      <if test="forceSendTotalCount != null" >
+        force_send_total_count = #{forceSendTotalCount},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime},
+      </if>
+    </set>
+    where  yn = 1
+      and biz_id = #{bizId}
+      and picking_site_id = #{pickingSiteId}
+  </update>
+
+  <!--  -->
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select -->
 <!--    <include refid="Base_Column_List" />-->

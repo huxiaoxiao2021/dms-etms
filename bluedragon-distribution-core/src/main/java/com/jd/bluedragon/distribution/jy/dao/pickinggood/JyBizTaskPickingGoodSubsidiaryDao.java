@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 public class JyBizTaskPickingGoodSubsidiaryDao extends BaseDao<JyBizTaskPickingGoodSubsidiaryEntity>{
@@ -24,5 +25,9 @@ public class JyBizTaskPickingGoodSubsidiaryDao extends BaseDao<JyBizTaskPickingG
             entity.setUpdateUserName(user.getUserName());
         }
         return this.getSqlSession().update(NAMESPACE + ".deleteByBizId", bizId);
+    }
+
+    public int batchInsert(List<JyBizTaskPickingGoodSubsidiaryEntity> entityList) {
+        return this.getSqlSession().insert(NAMESPACE + ".batchInsert", entityList);
     }
 }

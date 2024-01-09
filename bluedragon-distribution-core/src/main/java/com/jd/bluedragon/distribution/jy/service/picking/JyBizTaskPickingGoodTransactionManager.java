@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.CalculateWaitPickingItemNumDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskInitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -45,6 +46,9 @@ public class JyBizTaskPickingGoodTransactionManager {
     private JyPickingSendRecordService jyPickingSendRecordService;
     @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
+    @Autowired
+    private JyPickingTaskAggsService jyPickingTaskAggsService;
+
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -110,12 +114,13 @@ public class JyBizTaskPickingGoodTransactionManager {
 
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void batchInsertPickingGoodTask(List<JyBizTaskPickingGoodEntity> taskEntityList, List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList) {
-        //todo zcf  批量插入任务
 
+        jyBizTaskPickingGoodService.batchInsertTask(taskEntityList);
 
+        jyBizTaskPickingGoodService.batchInsertTaskSubsidiary(subsidiaryEntityList);
 
         //调度任务初始化
-        createUnSealScheduleTask(taskEntityList);
+        this.createUnSealScheduleTask(taskEntityList);
 
     }
     private boolean createUnSealScheduleTask(List<JyBizTaskPickingGoodEntity> entityList){
@@ -166,5 +171,32 @@ public class JyBizTaskPickingGoodTransactionManager {
             }
         });
         return true;
+    }
+
+    @Transactional(value = "tm_jy_core_main", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void updateAggScanStatistics(JyPickingGoodScanDto mqBody) {
+        //任务维度统计计数agg
+        jyPickingTaskAggsService.updatePickingAggScanStatistics(mqBody);
+
+        //任务维度统计计数agg
+        if(Boolean.TRUE.equals(mqBody.getSendGoodFlag())) {
+            jyPickingTaskAggsService.updatePickingSendAggScanStatistics(mqBody);
+        }
+    }
+
+    /**
+     * 待提件数【非幂等：计算增加】
+     * @param mqBody
+     */
+    @Transactional(value = "tm_jy_core_main", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void saveAggWaitScanItem(CalculateWaitPickingItemNumDto mqBody) {
+        if(!Boolean.TRUE.equals(mqBody.getCalculateNextSiteAggFlag())) {
+            //bizId维度待扫字段更新
+            jyPickingTaskAggsService.updatePickingAggWaitScanItemNum(mqBody);
+
+        }else {
+            //bizId+流向维度待扫更新
+            jyPickingTaskAggsService.updatePickingSendAggWaitScanItemNum(mqBody);
+        }
     }
 }

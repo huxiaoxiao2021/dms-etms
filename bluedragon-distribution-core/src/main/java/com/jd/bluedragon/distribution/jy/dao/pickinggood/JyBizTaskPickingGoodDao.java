@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -62,6 +64,10 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
 
     public List<String> pageRecentCreatedManualBizId(JyBizTaskPickingGoodQueryDto queryDto) {
         return this.getSqlSession().selectList(NAMESPACE + ".pageRecentCreatedManualBizId", queryDto);
+    }
+
+    public int batchInsert(List<JyBizTaskPickingGoodEntity> entityList) {
+        return this.getSqlSession().insert(NAMESPACE + ".batchInsert", entityList);
     }
 
 //    int deleteByPrimaryKey(Long id);

@@ -35,6 +35,11 @@ public class JyPickingTaskSendAggsDao extends BaseDao<JyPickingTaskSendAggsEntit
         updateEntity.setUpdateTime(new Date());
         return this.getSqlSession().update(NAMESPACE + ".updatePickingSendAggWaitScanItemNum", updateEntity);
     }
+
+    public int updateScanStatistics(JyPickingTaskSendAggsEntity updateEntity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateScanStatistics", updateEntity);
+    }
+
 //
 //    int deleteByPrimaryKey(Long id);
 //

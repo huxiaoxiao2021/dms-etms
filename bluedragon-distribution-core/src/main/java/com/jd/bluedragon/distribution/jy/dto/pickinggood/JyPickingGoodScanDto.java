@@ -23,6 +23,16 @@ public class JyPickingGoodScanDto implements Serializable {
      * 操作场地
      */
     private Long siteId;
+    /**
+     * true: 提货并发货
+     */
+    private Boolean sendGoodFlag;
+    /**
+     * 多扫标识
+     */
+    private Boolean moreScanFlag;
+
+    private Long nextSiteId;
 
     private Long operatorTime;
 
@@ -66,6 +76,30 @@ public class JyPickingGoodScanDto implements Serializable {
 
     public void setSiteId(Long siteId) {
         this.siteId = siteId;
+    }
+
+    public Boolean getSendGoodFlag() {
+        return sendGoodFlag;
+    }
+
+    public void setSendGoodFlag(Boolean sendGoodFlag) {
+        this.sendGoodFlag = sendGoodFlag;
+    }
+
+    public Boolean getMoreScanFlag() {
+        return moreScanFlag;
+    }
+
+    public void setMoreScanFlag(Boolean moreScanFlag) {
+        this.moreScanFlag = moreScanFlag;
+    }
+
+    public Long getNextSiteId() {
+        return nextSiteId;
+    }
+
+    public void setNextSiteId(Long nextSiteId) {
+        this.nextSiteId = nextSiteId;
     }
 
     public Long getOperatorTime() {

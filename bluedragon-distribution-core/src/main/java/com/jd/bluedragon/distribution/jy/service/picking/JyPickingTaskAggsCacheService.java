@@ -77,12 +77,12 @@ public class JyPickingTaskAggsCacheService {
 
 
     /**
-     * 按发货流向维度：该流向实际提发货的待提包裹数
+     * 按发货流向维度：该流向实际扫描的交接包裹数
      */
     private static final String CACHE_REAL_SCAN_FLOW_WAIT_SEND_PACKAGE = "cache:real:scan:flow:wait:send:package:%s:%s:%s";
     private static final Integer CACHE_REAL_SCAN_FLOW_WAIT_SEND_PACKAGE_TIMEOUT_DAYS = 15;
     /**
-     * 按发货流向维度：该流向实际提发货的待提箱数
+     * 按发货流向维度：该流向实际扫描的交接箱数
      */
     private static final String CACHE_REAL_SCAN_FLOW_WAIT_SEND_BOX = "cache:real:scan:flow:wait:send:box:%s:%s:%s";
     private static final Integer CACHE_REAL_SCAN_FLOW_WAIT_SEND_BOX_TIMEOUT_DAYS = 15;

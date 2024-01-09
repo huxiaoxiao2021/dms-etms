@@ -42,7 +42,7 @@ public abstract class PickingGoodTaskInit {
 
     /**
      * 生成提货任务
-     * @param obj
+     * @param pickingGoodTaskInitDto
      */
     protected abstract boolean generatePickingGoodTask(PickingGoodTaskInitDto pickingGoodTaskInitDto);
 

@@ -152,7 +152,7 @@
           #{updateTime},
         </if>
         <if test="yn != null" >
-          #{yn,jdbcType=BIT},
+          #{yn},
         </if>
         <if test="ts != null" >
           #{ts},
@@ -160,6 +160,52 @@
       </trim>
     </insert>
 
+  <insert id="batchInsert" parameterType="List">
+    insert into jy_biz_task_picking_good_subsidiary
+    (
+     biz_id,
+    business_number,
+    send_code,
+    seal_car_code,
+    start_site_id,
+    start_site_code,
+    start_site_name,
+    end_site_id,
+    end_site_code,
+    end_site_name,
+    transport_code,
+    create_user_erp,
+    create_user_name,
+    update_user_erp,
+    update_user_name,
+    create_time,
+    update_time,
+    yn
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      #{bizId},
+      #{businessNumber},
+      #{sendCode},
+      #{sealCarCode},
+      #{startSiteId},
+      #{startSiteCode},
+      #{startSiteName},
+      #{endSiteId},
+      #{endSiteCode},
+      #{endSiteName},
+      #{transportCode},
+      #{createUserErp},
+      #{createUserName},
+      #{updateUserErp},
+      #{updateUserName},
+      #{createTime},
+      #{updateTime},
+      1
+      )
+    </foreach>
+  </insert>
 
     <update id="deleteByBizId" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity" >
       update jy_biz_task_picking_good_subsidiary
@@ -198,7 +244,7 @@
 <!--    #{endSiteCode}, #{endSiteName}, #{transportCode},-->
 <!--    #{createUserErp}, #{createUserName}, #{updateUserErp},-->
 <!--    #{updateUserName}, #{createTime}, #{updateTime},-->
-<!--    #{yn,jdbcType=BIT}, #{ts})-->
+<!--    #{yn}, #{ts})-->
 <!--  </insert>-->
 <!--  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity" >-->
 <!--    update jy_biz_task_picking_good_subsidiary-->
@@ -246,7 +292,7 @@
 <!--        update_time = #{updateTime},-->
 <!--      </if>-->
 <!--      <if test="yn != null" >-->
-<!--        yn = #{yn,jdbcType=BIT},-->
+<!--        yn = #{yn},-->
 <!--      </if>-->
 <!--      <if test="ts != null" >-->
 <!--        ts = #{ts},-->
@@ -270,7 +316,7 @@
 <!--    update_user_name = #{updateUserName},-->
 <!--    create_time = #{createTime},-->
 <!--    update_time = #{updateTime},-->
-<!--    yn = #{yn,jdbcType=BIT},-->
+<!--    yn = #{yn},-->
 <!--    ts = #{ts}-->
 <!--    where id = #{id}-->
 <!--  </update>-->

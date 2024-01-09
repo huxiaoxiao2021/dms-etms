@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.jy.task.aviation;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskExtendInitDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskInitDto;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.picking.template.AviationPickingGoodTaskInit;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -16,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -23,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 消息文档： https://cf.jd.com/pages/viewpage.action?pageId=1421890482
@@ -44,9 +48,16 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
 
     private Logger log = LoggerFactory.getLogger(TmsAviationPickingGoodConsumer.class);
 
+    private static final String DEFAULT_VALUE_1 = "1";
 
     @Autowired
     private AviationPickingGoodTaskInit aviationPickingGoodTask;
+    @Autowired
+    private JimDbLock jimDbLock;
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+
+
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsAviationPickingGoodConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -69,19 +80,43 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
             return;
         }
         if(log.isInfoEnabled()){
-            log.info("航空提货计划消费开始，mqBody={}",message.getText());
+            log.info("航空提货计划消费开始，mqBody={}", message.getText());
+        }
+        if(!this.lockPickingGoodTplBillCode(mqBody.tplBillCode)) {
+            log.warn("没有获取到锁，重试处理, msg={}", message.getText());
+            throw new JyBizException(String.format("航空提货计划主运单号获取锁失败,businessId：%s|主运单号：%s", message.getBusinessId(), mqBody.getTplBillCode()));
         }
         try{
+            if(!filterHistoryConsume(mqBody)) {
+                return;
+            }
             PickingGoodTaskInitDto initDto = this.convertPickingGoodTaskInitDto(mqBody);
             aviationPickingGoodTask.initTaskTemplate(initDto);
         }catch (JyBizException ex) {
+            this.unlockPickingGoodTplBillCode(mqBody.tplBillCode);
             log.error("航空提货计划消费失败,businessId={},errMsg={}, mqBody={}", message.getBusinessId(), ex.getMessage(), message.getText());
             throw new JyBizException(String.format("航空提货计划消费失败,businessId：%s", message.getBusinessId()));
         }catch (Exception ex) {
+            this.unlockPickingGoodTplBillCode(mqBody.tplBillCode);
             log.error("航空提货计划消费异常,businessId={},errMsg={}, mqBody={}", message.getBusinessId(), ex.getMessage(), message.getText(), ex);
             throw new JyBizException(String.format("航空提货计划消费异常,businessId：%s", message.getBusinessId()));
         }
 
+    }
+
+    private boolean filterHistoryConsume(TmsAviationPickingGoodMqBody mqBody) {
+        Long lastTime = this.getCacheValuePickingGoodTplBillCode(mqBody.tplBillCode);
+        if(Objects.isNull(lastTime)) {
+            this.saveCachePickingGoodTplBillCode(mqBody.tplBillCode, mqBody.getOperateTime().getTime());
+        }else {
+            if(mqBody.getOperateTime().getTime() < lastTime) {
+                if(log.isInfoEnabled()) {
+                    log.info("航空提货计划生成提货任务消费，历史消息消费，不作处理，msg={}", JsonHelper.toJson(mqBody));
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     private PickingGoodTaskInitDto convertPickingGoodTaskInitDto(TmsAviationPickingGoodMqBody mqBody) {
@@ -156,6 +191,46 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
         }
         return true;
     }
+
+
+    /**
+     * 防重锁:航空主运单号
+     */
+    private boolean lockPickingGoodTplBillCode(String tplBillCode) {
+        String lockKey = this.getLockKeyPickingGoodTplBillCode(tplBillCode);
+        return jimDbLock.lock(lockKey, DEFAULT_VALUE_1, 5, TimeUnit.MINUTES);
+    }
+    private void unlockPickingGoodTplBillCode(String tplBillCode) {
+        String lockKey = this.getLockKeyPickingGoodTplBillCode(tplBillCode);
+        jimDbLock.releaseLock(lockKey, DEFAULT_VALUE_1);
+    }
+    private String getLockKeyPickingGoodTplBillCode(String tplBillCode) {
+        return String.format("lock:aviation:picking:good:plan:%s", tplBillCode);
+    }
+
+    /**
+     * 同一个tplBillCode，缓存保证mq消费顺序
+     * @param tplBillCode
+     * @return
+     */
+    private void saveCachePickingGoodTplBillCode(String tplBillCode, Long time) {
+        String cacheKey = this.getCacheKeyPickingGoodTplBillCode(tplBillCode);
+        redisClientOfJy.setEx(cacheKey, time.toString(), 30, TimeUnit.HOURS);
+    }
+    private Long getCacheValuePickingGoodTplBillCode(String tplBillCode) {
+        String cacheKey = this.getCacheKeyPickingGoodTplBillCode(tplBillCode);
+        String value = redisClientOfJy.get(cacheKey);
+        if(StringUtils.isNotBlank(value)) {
+            return Long.valueOf(value);
+        }
+        return null;
+    }
+    private String getCacheKeyPickingGoodTplBillCode(String tplBillCode) {
+        return String.format("cache:aviation:picking:good:plan:%s", tplBillCode);
+    }
+
+
+
 
 
 

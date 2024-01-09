@@ -29,8 +29,8 @@ public class JyAviationRailwayPickingGoodsCacheService {
     private static final String LOCK_PICKING_SCAN_PRE = "lock:picking:scan:%s:%s";
     private static final Integer LOCK_PICKING_SCAN_TIMEOUT_SECONDS = 120;
 
-    private static final String CACHE_PICKING_TASK_FIRST_SCAN_PRE = "cache:picking:first:scan:%s:%s";
-    private static final Integer CACHE_PICKING_TASK_FIRST_SCAN_PRE_TIMEOUT_HOURS = 12;
+    private static final String LOCK_PICKING_TASK_BIZ_SITE_PRE = "lock:picking:task:bizId:siteId:%s:%s";
+    private static final Integer LOCK_PICKING_TASK_BIZ_SITE_PRE_TIMEOUT_MINUTES = 5;
 
     private static final String LOCK_PICKING_DETAIL_RECORD_INIT_PRE = "lock:picking:detail:init:%s:%s:%s";
     private static final Integer LOCK_PICKING_DETAIL_RECORD_INIT_PRE_TIMEOUT_SECONDS = 120;
@@ -104,19 +104,22 @@ public class JyAviationRailwayPickingGoodsCacheService {
 
 
     /**
-     * 提货任务首次扫描
+     * 提货场地+任务锁
      * @param bizId
      * @param siteId
      * @return
      */
-//    public boolean lockPickingGoodTaskFirstScan(String bizId, Long siteId) {
-//        String lockKey = this.getLockKeyPickingGoodTaskFirstScan(bizId, siteId);
-//        return jimDbLock.lock(lockKey, DEFAULT_VALUE_1, CACHE_PICKING_TASK_FIRST_SCAN_PRE_TIMEOUT_HOURS, TimeUnit.HOURS);
-//    }
-//    //提货扫描加锁
-//    private String getLockKeyPickingGoodTaskFirstScan(String bizId, Long siteId) {
-//        return String.format(CACHE_PICKING_TASK_FIRST_SCAN_PRE, bizId, siteId);
-//    }
+    public boolean lockPickingGoodBizIdSiteId(String bizId, Long siteId) {
+        String lockKey = this.getLockKeyPickingGoodBizIdSiteId(bizId, siteId);
+        return jimDbLock.lock(lockKey, DEFAULT_VALUE_1, LOCK_PICKING_TASK_BIZ_SITE_PRE_TIMEOUT_MINUTES, TimeUnit.MINUTES);
+    }
+    public void unlockPickingGoodBizIdSiteId(String bizId, Long siteId) {
+        String lockKey = this.getLockKeyPickingGoodBizIdSiteId(bizId, siteId);
+        jimDbLock.releaseLock(lockKey, DEFAULT_VALUE_1);
+    }
+    private String getLockKeyPickingGoodBizIdSiteId(String bizId, Long siteId) {
+        return String.format(LOCK_PICKING_TASK_BIZ_SITE_PRE, bizId, siteId);
+    }
 
     /**
      * 提货明细初始化锁 场地+bizId+barCode

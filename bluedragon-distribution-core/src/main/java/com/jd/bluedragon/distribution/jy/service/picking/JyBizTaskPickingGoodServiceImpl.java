@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodSub
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -156,5 +157,15 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     @Override
     public List<String> pageRecentCreatedManualBizId(JyBizTaskPickingGoodQueryDto queryDto) {
         return jyBizTaskPickingGoodDao.pageRecentCreatedManualBizId(queryDto);
+    }
+
+    @Override
+    public void batchInsertTask(List<JyBizTaskPickingGoodEntity> taskEntityList) {
+        jyBizTaskPickingGoodDao.batchInsert(taskEntityList);
+    }
+
+    @Override
+    public void batchInsertTaskSubsidiary(List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList) {
+        jyBizTaskPickingGoodSubsidiaryDao.batchInsert(subsidiaryEntityList);
     }
 }

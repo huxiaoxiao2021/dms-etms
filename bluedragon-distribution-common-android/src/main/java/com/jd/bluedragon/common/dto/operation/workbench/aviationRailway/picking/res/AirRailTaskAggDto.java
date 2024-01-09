@@ -50,6 +50,14 @@ public class AirRailTaskAggDto implements Serializable {
      * 是否无任务
      */
     private Boolean noTaskFlag;
+    /**
+     * 待提件数
+     */
+    private Integer initWaitScanTotalNum;
+    /**
+     * 交接扫描已提总件数
+     */
+    private Integer handoverScanTotalNum;
 
     public String getBizId() {
         return bizId;
@@ -137,5 +145,21 @@ public class AirRailTaskAggDto implements Serializable {
 
     public void setNoTaskFlag(Boolean noTaskFlag) {
         this.noTaskFlag = noTaskFlag;
+    }
+
+    public Integer getInitWaitScanTotalNum() {
+        return initWaitScanTotalNum;
+    }
+
+    public void setInitWaitScanTotalNum(Integer initWaitScanTotalNum) {
+        this.initWaitScanTotalNum = initWaitScanTotalNum;
+    }
+
+    public Integer getHandoverScanTotalNum() {
+        return handoverScanTotalNum;
+    }
+
+    public void setHandoverScanTotalNum(Integer handoverScanTotalNum) {
+        this.handoverScanTotalNum = handoverScanTotalNum;
     }
 }

@@ -144,43 +144,43 @@
       </trim>
       <trim prefix="values (" suffix=")" suffixOverrides="," >
         <if test="id != null" >
-          #{id,jdbcType=BIGINT},
+          #{id},
         </if>
         <if test="bizId != null" >
-          #{bizId,jdbcType=VARCHAR},
+          #{bizId},
         </if>
         <if test="startSiteId != null" >
-          #{startSiteId,jdbcType=BIGINT},
+          #{startSiteId},
         </if>
         <if test="nextSiteId != null" >
-          #{nextSiteId,jdbcType=BIGINT},
+          #{nextSiteId},
         </if>
         <if test="businessNumber != null" >
-          #{businessNumber,jdbcType=VARCHAR},
+          #{businessNumber},
         </if>
         <if test="serviceNumber != null" >
-          #{serviceNumber,jdbcType=VARCHAR},
+          #{serviceNumber},
         </if>
         <if test="beginNodeCode != null" >
-          #{beginNodeCode,jdbcType=VARCHAR},
+          #{beginNodeCode},
         </if>
         <if test="beginNodeName != null" >
-          #{beginNodeName,jdbcType=VARCHAR},
+          #{beginNodeName},
         </if>
         <if test="endNodeCode != null" >
-          #{endNodeCode,jdbcType=VARCHAR},
+          #{endNodeCode},
         </if>
         <if test="endNodeName != null" >
-          #{endNodeName,jdbcType=VARCHAR},
+          #{endNodeName},
         </if>
         <if test="nodeStartTime != null" >
-          #{nodeStartTime,jdbcType=TIMESTAMP},
+          #{nodeStartTime},
         </if>
         <if test="nodePlanArriveTime != null" >
-          #{nodePlanArriveTime,jdbcType=TIMESTAMP},
+          #{nodePlanArriveTime},
         </if>
         <if test="nodeRealArriveTime != null" >
-          #{nodeRealArriveTime,jdbcType=TIMESTAMP},
+          #{nodeRealArriveTime},
         </if>
         <if test="operateNodeType != null" >
           #{operateNodeType},
@@ -192,55 +192,130 @@
           #{cargoWeight},
         </if>
         <if test="status != null" >
-          #{status,jdbcType=TINYINT},
+          #{status},
         </if>
         <if test="completeNode != null" >
-          #{completeNode,jdbcType=TINYINT},
+          #{completeNode},
         </if>
         <if test="pickingStartTime != null" >
-          #{pickingStartTime,jdbcType=TIMESTAMP},
+          #{pickingStartTime},
         </if>
         <if test="pickingCompleteTime != null" >
-          #{pickingCompleteTime,jdbcType=TIMESTAMP},
+          #{pickingCompleteTime},
         </if>
         <if test="intercept != null" >
-          #{intercept,jdbcType=TINYINT},
+          #{intercept},
         </if>
         <if test="interceptTime != null" >
-          #{interceptTime,jdbcType=TIMESTAMP},
+          #{interceptTime},
         </if>
         <if test="taskType != null" >
-          #{taskType,jdbcType=TINYINT},
+          #{taskType},
         </if>
         <if test="manualCreatedFlag != null" >
-          #{manualCreatedFlag,jdbcType=TINYINT},
+          #{manualCreatedFlag},
         </if>
         <if test="createUserErp != null" >
-          #{createUserErp,jdbcType=VARCHAR},
+          #{createUserErp},
         </if>
         <if test="createUserName != null" >
-          #{createUserName,jdbcType=VARCHAR},
+          #{createUserName},
         </if>
         <if test="updateUserErp != null" >
-          #{updateUserErp,jdbcType=VARCHAR},
+          #{updateUserErp},
         </if>
         <if test="updateUserName != null" >
-          #{updateUserName,jdbcType=VARCHAR},
+          #{updateUserName},
         </if>
         <if test="createTime != null" >
-          #{createTime,jdbcType=TIMESTAMP},
+          #{createTime},
         </if>
         <if test="updateTime != null" >
-          #{updateTime,jdbcType=TIMESTAMP},
+          #{updateTime},
         </if>
         1
       </trim>
     </insert>
 
+
+
+  <insert id="batchInsert" parameterType="List">
+    insert into jy_biz_task_picking_good_subsidiary
+    (
+    biz_id,
+    start_site_id,
+    next_site_id,
+    business_number,
+    service_number,
+    begin_node_code,
+    begin_node_name,
+    end_node_code,
+    end_node_name,
+    node_plan_start_time,
+    node_real_start_time,
+    node_plan_arrive_time,
+    node_real_arrive_time,
+    operate_node_type,
+    cargo_number,
+    cargo_weight,
+    status,
+    complete_node,
+    picking_start_time,
+    picking_complete_time,
+    intercept,
+    intercept_time,
+    task_type,
+    manual_created_flag,
+    create_user_erp,
+    create_user_name,
+    update_user_erp,
+    update_user_name,
+    create_time,
+    update_time,
+    yn
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      #{bizId},
+      #{startSiteId},
+      #{nextSiteId},
+      #{businessNumber},
+      #{serviceNumber},
+      #{beginNodeCode},
+      #{beginNodeName},
+      #{endNodeCode},
+      #{endNodeName},
+      #{nodePlanStartTime},
+      #{nodeRealStartTime},
+      #{nodePlanArriveTime},
+      #{nodeRealArriveTime},
+      #{operateNodeType},
+      #{cargoNumber},
+      #{cargoWeight},
+      #{status},
+      #{completeNode},
+      #{pickingStartTime},
+      #{pickingCompleteTime},
+      #{intercept},
+      #{interceptTime},
+      #{taskType},
+      #{manualCreatedFlag},
+      #{createUserErp},
+      #{createUserName},
+      #{updateUserErp},
+      #{updateUserName},
+      #{createTime},
+      #{updateTime}
+      1
+      )
+    </foreach>
+  </insert>
+  
   <select id="findByBizIdWithYn" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
     select <include refid="Base_Column_List" />
     from jy_biz_task_picking_good
-    where biz_id = #{bizId,jdbcType=VARCHAR}
+    where biz_id = #{bizId}
       <if test="yn != null" >
         and yn = #{yn}
       </if>
@@ -261,22 +336,22 @@
       update jy_biz_task_picking_good
       <set>
         <if test="status != null" >
-          status = #{status,jdbcType=TINYINT},
+          status = #{status},
         </if>
         <if test="completeNode != null" >
-          complete_node = #{completeNode,jdbcType=TINYINT},
+          complete_node = #{completeNode},
         </if>
         <if test="pickingStartTime != null" >
-          picking_start_time = #{pickingStartTime,jdbcType=TIMESTAMP},
+          picking_start_time = #{pickingStartTime},
         </if>
         <if test="pickingCompleteTime != null" >
-          picking_complete_time = #{pickingCompleteTime,jdbcType=TIMESTAMP},
+          picking_complete_time = #{pickingCompleteTime},
         </if>
         <if test="intercept != null" >
-          intercept = #{intercept,jdbcType=TINYINT},
+          intercept = #{intercept},
         </if>
         <if test="interceptTime != null" >
-          intercept_time = #{interceptTime,jdbcType=TIMESTAMP},
+          intercept_time = #{interceptTime},
         </if>
       </set>
       where yn = 1 and biz_id = #{bizId}
@@ -383,11 +458,11 @@
 <!--    select -->
 <!--    <include refid="Base_Column_List" />-->
 <!--    from jy_biz_task_picking_good-->
-<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--    where id = #{id}-->
 <!--  </select>-->
 <!--  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >-->
 <!--    delete from jy_biz_task_picking_good-->
-<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--    where id = #{id}-->
 <!--  </delete>-->
 <!--  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >-->
 <!--    insert into jy_biz_task_picking_good (id, biz_id, start_site_id, -->
@@ -400,142 +475,142 @@
 <!--      manual_created_flag, create_user_erp, create_user_name, -->
 <!--      update_user_erp, update_user_name, create_time, -->
 <!--      update_time, yn, ts)-->
-<!--    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{startSiteId,jdbcType=BIGINT}, -->
-<!--      #{nextSiteId,jdbcType=BIGINT}, #{businessNumber,jdbcType=VARCHAR}, #{serviceNumber,jdbcType=VARCHAR}, -->
-<!--      #{beginNodeCode,jdbcType=VARCHAR}, #{beginNodeName,jdbcType=VARCHAR}, #{endNodeCode,jdbcType=VARCHAR}, -->
-<!--      #{endNodeName,jdbcType=VARCHAR}, #{nodeStartTime,jdbcType=TIMESTAMP}, #{nodePlanArriveTime,jdbcType=TIMESTAMP}, -->
-<!--      #{nodeRealArriveTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, #{completeNode,jdbcType=TINYINT}, -->
-<!--      #{pickingStartTime,jdbcType=TIMESTAMP}, #{pickingCompleteTime,jdbcType=TIMESTAMP}, -->
-<!--      #{intercept,jdbcType=TINYINT}, #{interceptTime,jdbcType=TIMESTAMP}, #{taskType,jdbcType=TINYINT}, -->
-<!--      #{manualCreatedFlag,jdbcType=TINYINT}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, -->
-<!--      #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, -->
-<!--      #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})-->
+<!--    values (#{id}, #{bizId}, #{startSiteId}, -->
+<!--      #{nextSiteId}, #{businessNumber}, #{serviceNumber}, -->
+<!--      #{beginNodeCode}, #{beginNodeName}, #{endNodeCode}, -->
+<!--      #{endNodeName}, #{nodeStartTime}, #{nodePlanArriveTime}, -->
+<!--      #{nodeRealArriveTime}, #{status}, #{completeNode}, -->
+<!--      #{pickingStartTime}, #{pickingCompleteTime}, -->
+<!--      #{intercept}, #{interceptTime}, #{taskType}, -->
+<!--      #{manualCreatedFlag}, #{createUserErp}, #{createUserName}, -->
+<!--      #{updateUserErp}, #{updateUserName}, #{createTime}, -->
+<!--      #{updateTime}, #{yn}, #{ts})-->
 <!--  </insert>-->
 
 <!--  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >-->
 <!--    update jy_biz_task_picking_good-->
 <!--    <set >-->
 <!--      <if test="bizId != null" >-->
-<!--        biz_id = #{bizId,jdbcType=VARCHAR},-->
+<!--        biz_id = #{bizId},-->
 <!--      </if>-->
 <!--      <if test="startSiteId != null" >-->
-<!--        start_site_id = #{startSiteId,jdbcType=BIGINT},-->
+<!--        start_site_id = #{startSiteId},-->
 <!--      </if>-->
 <!--      <if test="nextSiteId != null" >-->
-<!--         next_site_id= #{nextSiteId,jdbcType=BIGINT},-->
+<!--         next_site_id= #{nextSiteId},-->
 <!--      </if>-->
 <!--      <if test="businessNumber != null" >-->
-<!--        business_number = #{businessNumber,jdbcType=VARCHAR},-->
+<!--        business_number = #{businessNumber},-->
 <!--      </if>-->
 <!--      <if test="serviceNumber != null" >-->
-<!--        service_number = #{serviceNumber,jdbcType=VARCHAR},-->
+<!--        service_number = #{serviceNumber},-->
 <!--      </if>-->
 <!--      <if test="beginNodeCode != null" >-->
-<!--        begin_node_code = #{beginNodeCode,jdbcType=VARCHAR},-->
+<!--        begin_node_code = #{beginNodeCode},-->
 <!--      </if>-->
 <!--      <if test="beginNodeName != null" >-->
-<!--        begin_node_name = #{beginNodeName,jdbcType=VARCHAR},-->
+<!--        begin_node_name = #{beginNodeName},-->
 <!--      </if>-->
 <!--      <if test="endNodeCode != null" >-->
-<!--        end_node_code = #{endNodeCode,jdbcType=VARCHAR},-->
+<!--        end_node_code = #{endNodeCode},-->
 <!--      </if>-->
 <!--      <if test="endNodeName != null" >-->
-<!--        end_node_name = #{endNodeName,jdbcType=VARCHAR},-->
+<!--        end_node_name = #{endNodeName},-->
 <!--      </if>-->
 <!--      <if test="nodePlanStartTime != null" >-->
-<!--        node_plan_start_time = #{nodePlanStartTime,jdbcType=TIMESTAMP},-->
+<!--        node_plan_start_time = #{nodePlanStartTime},-->
 <!--      </if>-->
 <!--      <if test="nodeRealStartTime != null" >-->
-<!--        node_real_start_time = #{nodeRealStartTime,jdbcType=TIMESTAMP},-->
+<!--        node_real_start_time = #{nodeRealStartTime},-->
 <!--      </if>-->
 <!--      <if test="nodePlanArriveTime != null" >-->
-<!--        node_plan_arrive_time = #{nodePlanArriveTime,jdbcType=TIMESTAMP},-->
+<!--        node_plan_arrive_time = #{nodePlanArriveTime},-->
 <!--      </if>-->
 <!--      <if test="nodeRealArriveTime != null" >-->
-<!--        node_real_arrive_time = #{nodeRealArriveTime,jdbcType=TIMESTAMP},-->
+<!--        node_real_arrive_time = #{nodeRealArriveTime},-->
 <!--      </if>-->
 <!--      <if test="status != null" >-->
-<!--        status = #{status,jdbcType=TINYINT},-->
+<!--        status = #{status},-->
 <!--      </if>-->
 <!--      <if test="completeNode != null" >-->
-<!--        complete_node = #{completeNode,jdbcType=TINYINT},-->
+<!--        complete_node = #{completeNode},-->
 <!--      </if>-->
 <!--      <if test="pickingStartTime != null" >-->
-<!--        picking_start_time = #{pickingStartTime,jdbcType=TIMESTAMP},-->
+<!--        picking_start_time = #{pickingStartTime},-->
 <!--      </if>-->
 <!--      <if test="pickingCompleteTime != null" >-->
-<!--        picking_complete_time = #{pickingCompleteTime,jdbcType=TIMESTAMP},-->
+<!--        picking_complete_time = #{pickingCompleteTime},-->
 <!--      </if>-->
 <!--      <if test="intercept != null" >-->
-<!--        intercept = #{intercept,jdbcType=TINYINT},-->
+<!--        intercept = #{intercept},-->
 <!--      </if>-->
 <!--      <if test="interceptTime != null" >-->
-<!--        intercept_time = #{interceptTime,jdbcType=TIMESTAMP},-->
+<!--        intercept_time = #{interceptTime},-->
 <!--      </if>-->
 <!--      <if test="taskType != null" >-->
-<!--        task_type = #{taskType,jdbcType=TINYINT},-->
+<!--        task_type = #{taskType},-->
 <!--      </if>-->
 <!--      <if test="manualCreatedFlag != null" >-->
-<!--        manual_created_flag = #{manualCreatedFlag,jdbcType=TINYINT},-->
+<!--        manual_created_flag = #{manualCreatedFlag},-->
 <!--      </if>-->
 <!--      <if test="createUserErp != null" >-->
-<!--        create_user_erp = #{createUserErp,jdbcType=VARCHAR},-->
+<!--        create_user_erp = #{createUserErp},-->
 <!--      </if>-->
 <!--      <if test="createUserName != null" >-->
-<!--        create_user_name = #{createUserName,jdbcType=VARCHAR},-->
+<!--        create_user_name = #{createUserName},-->
 <!--      </if>-->
 <!--      <if test="updateUserErp != null" >-->
-<!--        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},-->
+<!--        update_user_erp = #{updateUserErp},-->
 <!--      </if>-->
 <!--      <if test="updateUserName != null" >-->
-<!--        update_user_name = #{updateUserName,jdbcType=VARCHAR},-->
+<!--        update_user_name = #{updateUserName},-->
 <!--      </if>-->
 <!--      <if test="createTime != null" >-->
-<!--        create_time = #{createTime,jdbcType=TIMESTAMP},-->
+<!--        create_time = #{createTime},-->
 <!--      </if>-->
 <!--      <if test="updateTime != null" >-->
-<!--        update_time = #{updateTime,jdbcType=TIMESTAMP},-->
+<!--        update_time = #{updateTime},-->
 <!--      </if>-->
 <!--      <if test="yn != null" >-->
-<!--        yn = #{yn,jdbcType=BIT},-->
+<!--        yn = #{yn},-->
 <!--      </if>-->
 <!--      <if test="ts != null" >-->
-<!--        ts = #{ts,jdbcType=TIMESTAMP},-->
+<!--        ts = #{ts},-->
 <!--      </if>-->
 <!--    </set>-->
-<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--    where id = #{id}-->
 <!--  </update>-->
 <!--  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >-->
 <!--    update jy_biz_task_picking_good-->
-<!--    set biz_id = #{bizId,jdbcType=VARCHAR},-->
-<!--      start_site_id = #{startSiteId,jdbcType=BIGINT},-->
-<!--      next_site_id = #{nextSiteId,jdbcType=BIGINT},-->
-<!--      business_number = #{businessNumber,jdbcType=VARCHAR},-->
-<!--      service_number = #{serviceNumber,jdbcType=VARCHAR},-->
-<!--      begin_node_code = #{beginNodeCode,jdbcType=VARCHAR},-->
-<!--      begin_node_name = #{beginNodeName,jdbcType=VARCHAR},-->
-<!--      end_node_code = #{endNodeCode,jdbcType=VARCHAR},-->
-<!--      end_node_name = #{endNodeName,jdbcType=VARCHAR},-->
-<!--      node_plan_start_time = #{nodePlanStartTime,jdbcType=TIMESTAMP},-->
-<!--      node_real_start_time = #{nodeRealStartTime,jdbcType=TIMESTAMP},-->
-<!--      node_plan_arrive_time = #{nodePlanArriveTime,jdbcType=TIMESTAMP},-->
-<!--      node_real_arrive_time = #{nodeRealArriveTime,jdbcType=TIMESTAMP},-->
-<!--      status = #{status,jdbcType=TINYINT},-->
-<!--      complete_node = #{completeNode,jdbcType=TINYINT},-->
-<!--      picking_start_time = #{pickingStartTime,jdbcType=TIMESTAMP},-->
-<!--      picking_complete_time = #{pickingCompleteTime,jdbcType=TIMESTAMP},-->
-<!--      intercept = #{intercept,jdbcType=TINYINT},-->
-<!--      intercept_time = #{interceptTime,jdbcType=TIMESTAMP},-->
-<!--      task_type = #{taskType,jdbcType=TINYINT},-->
-<!--      manual_created_flag = #{manualCreatedFlag,jdbcType=TINYINT},-->
-<!--      create_user_erp = #{createUserErp,jdbcType=VARCHAR},-->
-<!--      create_user_name = #{createUserName,jdbcType=VARCHAR},-->
-<!--      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},-->
-<!--      update_user_name = #{updateUserName,jdbcType=VARCHAR},-->
-<!--      create_time = #{createTime,jdbcType=TIMESTAMP},-->
-<!--      update_time = #{updateTime,jdbcType=TIMESTAMP},-->
-<!--      yn = #{yn,jdbcType=BIT},-->
-<!--      ts = #{ts,jdbcType=TIMESTAMP}-->
-<!--    where id = #{id,jdbcType=BIGINT}-->
+<!--    set biz_id = #{bizId},-->
+<!--      start_site_id = #{startSiteId},-->
+<!--      next_site_id = #{nextSiteId},-->
+<!--      business_number = #{businessNumber},-->
+<!--      service_number = #{serviceNumber},-->
+<!--      begin_node_code = #{beginNodeCode},-->
+<!--      begin_node_name = #{beginNodeName},-->
+<!--      end_node_code = #{endNodeCode},-->
+<!--      end_node_name = #{endNodeName},-->
+<!--      node_plan_start_time = #{nodePlanStartTime},-->
+<!--      node_real_start_time = #{nodeRealStartTime},-->
+<!--      node_plan_arrive_time = #{nodePlanArriveTime},-->
+<!--      node_real_arrive_time = #{nodeRealArriveTime},-->
+<!--      status = #{status},-->
+<!--      complete_node = #{completeNode},-->
+<!--      picking_start_time = #{pickingStartTime},-->
+<!--      picking_complete_time = #{pickingCompleteTime},-->
+<!--      intercept = #{intercept},-->
+<!--      intercept_time = #{interceptTime},-->
+<!--      task_type = #{taskType},-->
+<!--      manual_created_flag = #{manualCreatedFlag},-->
+<!--      create_user_erp = #{createUserErp},-->
+<!--      create_user_name = #{createUserName},-->
+<!--      update_user_erp = #{updateUserErp},-->
+<!--      update_user_name = #{updateUserName},-->
+<!--      create_time = #{createTime},-->
+<!--      update_time = #{updateTime},-->
+<!--      yn = #{yn},-->
+<!--      ts = #{ts}-->
+<!--    where id = #{id}-->
 <!--  </update>-->
 </mapper>

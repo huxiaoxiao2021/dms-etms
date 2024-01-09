@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity;
 
 import java.util.List;
 
@@ -105,4 +106,15 @@ public interface JyBizTaskPickingGoodService {
     int batchUpdateStatusByBizId(JyPickingTaskBatchUpdateDto updateDto);
 
     List<String> pageRecentCreatedManualBizId(JyBizTaskPickingGoodQueryDto queryDto);
+
+    /**
+     * 批量插入任务主数据
+     * @param taskEntityList
+     */
+    void batchInsertTask(List<JyBizTaskPickingGoodEntity> taskEntityList);
+    /**
+     * 批量插入任务附属信息
+     * @param subsidiaryEntityList
+     */
+    void batchInsertTaskSubsidiary(List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList);
 }

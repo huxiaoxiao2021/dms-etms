@@ -33,6 +33,18 @@ public class JyPickingTaskAggsEntity implements Serializable {
      */
     private Integer waitScanTotalCount;
     /**
+     * 交接已提包裹总数
+     */
+    private Integer handoverScanPackageCount;
+    /**
+     * 交接已提箱总数
+     */
+    private Integer handoverScanBoxCount;
+    /**
+     * 交接已提总件数
+     */
+    private Integer handoverScanTotalCount;
+    /**
      * 已提包裹件数
      */
     private Integer scanPackageCount;
@@ -163,6 +175,30 @@ public class JyPickingTaskAggsEntity implements Serializable {
 
     public void setWaitScanTotalCount(Integer waitScanTotalCount) {
         this.waitScanTotalCount = waitScanTotalCount;
+    }
+
+    public Integer getHandoverScanPackageCount() {
+        return handoverScanPackageCount;
+    }
+
+    public void setHandoverScanPackageCount(Integer handoverScanPackageCount) {
+        this.handoverScanPackageCount = handoverScanPackageCount;
+    }
+
+    public Integer getHandoverScanBoxCount() {
+        return handoverScanBoxCount;
+    }
+
+    public void setHandoverScanBoxCount(Integer handoverScanBoxCount) {
+        this.handoverScanBoxCount = handoverScanBoxCount;
+    }
+
+    public Integer getHandoverScanTotalCount() {
+        return handoverScanTotalCount;
+    }
+
+    public void setHandoverScanTotalCount(Integer handoverScanTotalCount) {
+        this.handoverScanTotalCount = handoverScanTotalCount;
     }
 
     public Integer getScanPackageCount() {

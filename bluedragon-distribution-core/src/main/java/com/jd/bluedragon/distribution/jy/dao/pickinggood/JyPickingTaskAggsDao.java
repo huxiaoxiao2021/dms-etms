@@ -13,7 +13,6 @@ public class JyPickingTaskAggsDao extends BaseDao<JyPickingTaskAggsEntity> {
 
 
     public List<JyPickingTaskAggsEntity> findByBizIdList(List<String> bizIdList, Long siteId) {
-
         JyPickingTaskAggsCondition condition = new JyPickingTaskAggsCondition();
         condition.setBizIdList(bizIdList);
         condition.setPickingSiteId(siteId);
@@ -37,6 +36,10 @@ public class JyPickingTaskAggsDao extends BaseDao<JyPickingTaskAggsEntity> {
         updateEntity.setWaitScanTotalCount(waitScanTotalItemNum);
         updateEntity.setUpdateTime(new Date());
         return this.getSqlSession().update(NAMESPACE + ".updatePickingAggWaitScanItemNum", updateEntity);
+    }
+
+    public int updateScanStatistics(JyPickingTaskAggsEntity updateEntity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateScanStatistics", updateEntity);
     }
 //
 //

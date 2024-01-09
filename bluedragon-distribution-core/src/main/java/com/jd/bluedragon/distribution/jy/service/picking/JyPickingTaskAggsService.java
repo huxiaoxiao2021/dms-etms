@@ -2,11 +2,10 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingGoodsRes;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.CalculateWaitPickingItemNumDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskAggQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodAggsDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingSendGoodAggsDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskSendAggsEntity;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public interface JyPickingTaskAggsService {
      * @param bizId
      * @return
      */
-    PickingGoodAggsDto findTaskPickingAgg(Integer curSiteId, String bizId);
+    JyPickingTaskAggsEntity findTaskPickingAgg(Long curSiteId, String bizId);
 
     /**
      * 发货流向提货任务统计
@@ -36,7 +35,7 @@ public interface JyPickingTaskAggsService {
      * @param bizId
      * @return
      */
-    PickingSendGoodAggsDto findTaskPickingSendAgg(Integer curSiteId, Integer nextSiteId, String bizId);
+    JyPickingTaskSendAggsEntity findTaskPickingSendAgg(Long curSiteId, Long nextSiteId, String bizId);
 
     /**
      * 统计数据count回刷
@@ -66,7 +65,24 @@ public interface JyPickingTaskAggsService {
      */
     List<PickingSendGoodAggsDto> findPickingAgg(List<String> bizIdList, Long siteId, Long sendNextSiteId);
 
-    void updatePickingAggWaitScanItemNum(CalculateWaitPickingItemNumDto mqBody);
-
-    void updatePickingSendAggWaitScanItemNum(CalculateWaitPickingItemNumDto mqBody);
+    /**
+     * 修改待提件数-任务维度
+     * @param param
+     */
+    void updatePickingAggWaitScanItemNum(CalculateWaitPickingItemNumDto param);
+    /**
+     * 修改待提件数-任务流向维度
+     * @param param
+     */
+    void updatePickingSendAggWaitScanItemNum(CalculateWaitPickingItemNumDto param);
+    /**
+     * 修改实扫统计计数-任务维度
+     * @param param
+     */
+    void updatePickingAggScanStatistics(JyPickingGoodScanDto param);
+    /**
+     * 修改实扫统计计数-任务流向维度维度
+     * @param param
+     */
+    void updatePickingSendAggScanStatistics(JyPickingGoodScanDto param);
 }

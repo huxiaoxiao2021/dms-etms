@@ -148,7 +148,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             //提货成功save缓存
             this.pickingGoodScanCache(request, resData,taskPickingGoodEntity);
 
-            //返回结果处理  todo zcf 这里只有待提任务的，没有考虑提发的时候统计数据
+            //返回结果处理
             this.convertPickingTask(request, resData, taskPickingGoodEntity);
 
             return res;
@@ -254,23 +254,60 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
 
     private void convertPickingTask(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity taskPickingGoodEntity) {
         AirRailTaskAggDto airRailTaskAggDto = resData.getAirRailTaskAggDto();
-        BeanUtils.copyProperties(airRailTaskAggDto, taskPickingGoodEntity);
-        Integer waitPickingTotalNum = this.getInitWaitPickingTotalItemNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
-        Integer realPickingTotalNum = 1;
-        Integer morePickingTotalNum = (BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode()).equals(resData.getTaskSource()) ? 1 : 0;
-        //待提
-        int realScanWaitPackageNum = aggsCacheService.getValueRealScanWaitPickingPackageNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
-        int realScanWaitBoxNum = aggsCacheService.getValueRealScanWaitPickingBoxNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
-        int waitPickingTotalNumTemp = waitPickingTotalNum - (realScanWaitPackageNum + realScanWaitBoxNum);
-        airRailTaskAggDto.setWaitScanTotal(NumberHelper.gt(waitPickingTotalNumTemp, waitPickingTotalNum) ? waitPickingTotalNumTemp : waitPickingTotalNum);
-        //已提
-        int morePickingPackageNum = aggsCacheService.getValueRealScanMorePickingPackageNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
-        int morePickingBoxNum = aggsCacheService.getValueRealScanMorePickingBoxNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
-        Integer realPickingTotalNumTemp = realScanWaitPackageNum + realScanWaitBoxNum + morePickingPackageNum + morePickingBoxNum;
-        airRailTaskAggDto.setHaveScannedTotal(NumberHelper.gt(realPickingTotalNumTemp, realPickingTotalNum) ? realPickingTotalNumTemp : realPickingTotalNum);
-        //多提
-        int morePickingTotalNumTemp = morePickingPackageNum + morePickingBoxNum;
-        airRailTaskAggDto.setMultipleScanTotal(NumberHelper.gt(morePickingTotalNumTemp, morePickingTotalNum) ? morePickingTotalNumTemp : morePickingTotalNum);
+        BeanUtils.copyProperties(taskPickingGoodEntity, airRailTaskAggDto);
+        if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
+            //流向待发总数
+            Integer waitSendTotalNum = getInitWaitSendTotalItemNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId());
+            airRailTaskAggDto.setInitWaitScanTotalNum(waitSendTotalNum);
+
+            //交接已扫总件数
+            int realScanHandoverPackageNum = aggsCacheService.getValueRealScanFlowWaitSendPackageNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId());
+            int realScanHandoverBoxNum = aggsCacheService.getValueRealScanFlowWaitSendBoxNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId());
+            int handoverScanNum = realScanHandoverPackageNum + realScanHandoverBoxNum;
+            airRailTaskAggDto.setHandoverScanTotalNum(handoverScanNum);
+
+            //该流向当前待发【流向待发总数-交接已扫总件数】
+            int waitSendTotalNumTemp = waitSendTotalNum - handoverScanNum;
+            airRailTaskAggDto.setWaitScanTotal(NumberHelper.gt0(waitSendTotalNumTemp) ? waitSendTotalNumTemp : 0);
+
+            //多发
+            int moreSendPackageNum = aggsCacheService.getValueRealScanFlowMoreSendPackageNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId());
+            int moreSendBoxNum = aggsCacheService.getValueRealScanFlowMoreSendBoxNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId());
+            int moreSendTotalNumTemp = moreSendPackageNum + moreSendBoxNum;
+            Integer moreSendTotalNum = (BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode()).equals(resData.getTaskSource()) ? 1 : 0;
+            airRailTaskAggDto.setMultipleScanTotal(NumberHelper.gt(moreSendTotalNumTemp, moreSendTotalNum) ? moreSendTotalNumTemp : moreSendTotalNum);
+
+            //已发【交接已扫包裹+交接已扫箱+多扫包裹+多扫箱】
+            int realPickingTotalNumTemp = handoverScanNum + moreSendTotalNumTemp;
+            int realPickingTotalNum = 1;
+            airRailTaskAggDto.setHaveScannedTotal(NumberHelper.gt(realPickingTotalNumTemp, realPickingTotalNum) ? realPickingTotalNumTemp : realPickingTotalNum);
+        }else {
+            //待提总数
+            Integer waitPickingTotalNum = this.getInitWaitPickingTotalItemNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
+            airRailTaskAggDto.setInitWaitScanTotalNum(waitPickingTotalNum);
+
+            //交接已提总数
+            int realScanWaitPackageNum = aggsCacheService.getValueRealScanWaitPickingPackageNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
+            int realScanWaitBoxNum = aggsCacheService.getValueRealScanWaitPickingBoxNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
+            int handoverScanNum = realScanWaitPackageNum + realScanWaitBoxNum;
+            airRailTaskAggDto.setHandoverScanTotalNum(handoverScanNum);
+
+            //当前待提【待提总数-交接已提总数】
+            int waitPickingTotalNumTemp = waitPickingTotalNum - handoverScanNum;
+            airRailTaskAggDto.setWaitScanTotal(NumberHelper.gt0(waitPickingTotalNumTemp) ? waitPickingTotalNumTemp : 0);
+
+            //多提总数
+            int morePickingPackageNum = aggsCacheService.getValueRealScanMorePickingPackageNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
+            int morePickingBoxNum = aggsCacheService.getValueRealScanMorePickingBoxNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
+            int morePickingTotalNumTemp = morePickingPackageNum + morePickingBoxNum;
+            Integer morePickingTotalNum = (BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode()).equals(resData.getTaskSource()) ? 1 : 0;
+            airRailTaskAggDto.setMultipleScanTotal(NumberHelper.gt(morePickingTotalNumTemp, morePickingTotalNum) ? morePickingTotalNumTemp : morePickingTotalNum);
+
+            //已提【交接已提总数+多提总数】
+            int realPickingTotalNumTemp = handoverScanNum + morePickingTotalNumTemp;
+            int realPickingTotalNum = 1;
+            airRailTaskAggDto.setHaveScannedTotal(NumberHelper.gt(realPickingTotalNumTemp, realPickingTotalNum) ? realPickingTotalNumTemp : realPickingTotalNum);
+        }
 
     }
     //初始化后的待提总件数
@@ -281,11 +318,28 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             List<PickingSendGoodAggsDto> list = jyPickingTaskAggsService.waitPickingInitTotalNum(bizIdList, siteId, null);
             if(CollectionUtils.isNotEmpty(list)) {
                 num = list.get(0).getWaitSendTotalNum();
+            }else {
+                num = 0;
             }
-
         }
         return num;
     }
+
+    //初始化后的待发总件数
+    private Integer getInitWaitSendTotalItemNum(String bizId, Long siteId, Long nextSiteId) {
+        Integer num = aggsCacheService.getCacheInitWaitSendTotalItemNum(bizId, siteId, nextSiteId);
+        if(!NumberHelper.gt0(num)) {
+            List<String> bizIdList = Arrays.asList(bizId);
+            List<PickingSendGoodAggsDto> list = jyPickingTaskAggsService.waitPickingInitTotalNum(bizIdList, siteId, nextSiteId);
+            if(CollectionUtils.isNotEmpty(list)) {
+                num = list.get(0).getWaitSendTotalNum();
+            }else {
+                num = 0;
+            }
+        }
+        return num;
+    }
+
 
     private void pickingGoodScanCache(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity taskPickingGoodEntity) {
         //统计字段维护
@@ -302,7 +356,14 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         scanDto.setSiteId((long)request.getCurrentOperate().getSiteCode());
         scanDto.setOperatorTime(pickingGoodsRes.getOperateTime());
         scanDto.setGroupCode(request.getGroupCode());
-        pickingGoodScanProducer.sendOnFailPersistent(request.getBarCode(), com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(scanDto));
+        scanDto.setSendGoodFlag(request.getSendGoodFlag());
+        if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
+            scanDto.setNextSiteId(request.getNextSiteId());
+        }
+        scanDto.setMoreScanFlag(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(pickingGoodsRes.getTaskSource()));
+        String msg = JsonHelper.toJson(scanDto);
+        logInfo("提货扫描异步消息生产，businessId={},msg={}", request.getBarCode(), msg);
+        pickingGoodScanProducer.sendOnFailPersistent(request.getBarCode(), msg);
     }
 
 
