@@ -1474,7 +1474,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         Result<PageDto<WorkStationGrid>> pageDtoResult = workStationGridService.queryPageList(query);
         if (ResultCodeConstant.SUCCESS == pageDtoResult.getCode()) {
             List<WorkStationGrid> result = pageDtoResult.getData().getResult();
-            return result.get(0).getOwnerUserErp();
+            if (Objects.nonNull(result) && result.size() > 0) {
+                return result.get(0).getOwnerUserErp();
+            }
         }
         return null;
     }
