@@ -220,7 +220,7 @@
   </select>
 
 
-  <select id="findByBizId" resultMap="BaseResultMap" parameterType="JyPickingTaskAggsEntity" >
+  <select id="findByBizId" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity" >
     select  <include refid="Base_Column_List" />
     from jy_picking_task_aggs
     where yn = 1 

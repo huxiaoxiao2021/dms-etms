@@ -1008,10 +1008,5 @@
     <bean id="jyPickingSendRecordDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingSendRecordDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
-    <bean id="jyPickingTaskAggsDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskAggsDao">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>
-    <bean id="jyPickingTaskSendAggsDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskSendAggsDao">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>
+
 </beans>

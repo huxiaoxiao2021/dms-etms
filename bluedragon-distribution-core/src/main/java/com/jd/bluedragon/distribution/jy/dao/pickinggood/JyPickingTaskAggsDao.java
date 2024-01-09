@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskAggQueryDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsCondition;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;

@@ -590,7 +590,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
                     // 流向多提数
                     int multipleScanNum = 0;
                     // 流向对应biz任务提货数据
-                    List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.waitPickingInitTotalNum(bizList, (long) req.getCurrentOperate().getSiteCode(), (long) dto.getNextSiteId());
+                    List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.findPickingAgg(bizList, (long) req.getCurrentOperate().getSiteCode(), (long) dto.getNextSiteId());
                     for (PickingSendGoodAggsDto aggsDto : aggsDtoList) {
                         waitScanNum += aggsDto.getWaitSendTotalNum();
                         haveScannedNum += aggsDto.getRealSendTotalNum();
@@ -836,16 +836,16 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
 
         List<String> bizList = taskDetail.stream().map(JyBizTaskPickingGoodEntity::getBizId).distinct().collect(Collectors.toList());
-//        List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.waitPickingInitTotalNum(bizList, currentSiteId, null);
-        List<PickingSendGoodAggsDto> aggsDtoList = bizList.stream().map(item -> {
-            PickingSendGoodAggsDto dto = new PickingSendGoodAggsDto();
-            dto.setBizId(item);
-            dto.setWaitSendTotalNum(1);
-            dto.setForceSendTotalNum(2);
-            dto.setMoreSendTotalNum(3);
-            dto.setRealSendTotalNum(4);
-            return dto;
-        }).collect(Collectors.toList());
+        List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.waitPickingInitTotalNum(bizList, currentSiteId, null);
+//        List<PickingSendGoodAggsDto> aggsDtoList = bizList.stream().map(item -> {
+//            PickingSendGoodAggsDto dto = new PickingSendGoodAggsDto();
+//            dto.setBizId(item);
+//            dto.setWaitSendTotalNum(1);
+//            dto.setForceSendTotalNum(2);
+//            dto.setMoreSendTotalNum(3);
+//            dto.setRealSendTotalNum(4);
+//            return dto;
+//        }).collect(Collectors.toList());
         // 计算统计总和
         calculateAggResponse(res, taskDetail, aggsDtoList);
         return ret;

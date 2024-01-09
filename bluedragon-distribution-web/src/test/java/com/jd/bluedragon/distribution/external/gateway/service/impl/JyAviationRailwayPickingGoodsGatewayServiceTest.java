@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskAggRes;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskRes;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowRes;
+import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwayPickingGoodsGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -55,6 +56,8 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
     @Autowired
     private JyAviationRailwayPickingGoodsGatewayService jyAviationRailwayPickingGoodsGatewayService;
 
+    @Autowired
+    private DmsTimingHandlerService dmsTimingHandlerService;
     @Test
     public void finishPickGoodsTest() {
         FinishPickGoodsReq req = new FinishPickGoodsReq();
@@ -143,5 +146,10 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
         req.setPageSize(10);
         JdCResponse<AirRailTaskAggRes> response = jyAviationRailwayPickingGoodsGatewayService.listAirRailTaskAgg(req);
         log.info("listAirRailTaskSummaryTest response {}", JsonHelper.toJson(response));
+    }
+
+    @Test
+    public void timingHandlerFinishAirRailTask() {
+        dmsTimingHandlerService.timingHandlerFinishAirRailTask();
     }
 }
