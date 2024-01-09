@@ -54,7 +54,6 @@ import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.enums.WorkSiteTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.beetl.ext.fn.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
