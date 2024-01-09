@@ -155,7 +155,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         if (isSync) {
             //同步处理
             // 自动化称重 非0复重量体积拦截
-            if (DMS_CLIENT_SITE_PLATE_PRINT.equals(entity.getSourceCode())
+            if (DMS_DWS_MEASURE.equals(entity.getSourceCode())
                     || DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode())) {
                 InvokeResult<Void> interceptResult= waybillNotZeroWeightIntercept(entity);
                 if (!interceptResult.codeSuccess()) {
