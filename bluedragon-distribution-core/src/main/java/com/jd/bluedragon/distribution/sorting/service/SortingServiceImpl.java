@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.KvIndexConstants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
@@ -19,6 +20,8 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
+import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -202,7 +205,10 @@ public class SortingServiceImpl implements SortingService {
 	private Cluster redisClient;
 	
     @Autowired
-    private JyOperateFlowService jyOperateFlowService;	
+    private JyOperateFlowService jyOperateFlowService;
+
+	@Autowired
+	private KvIndexDao kvIndexDao;
 
 	public Integer add(Sorting sorting) {
 		return this.sortingDao.add(SortingDao.namespace, sorting);
@@ -271,6 +277,7 @@ public class SortingServiceImpl implements SortingService {
 			log.info("SortingServiceImpl.canCancelSorting2取消发货处理取消建箱逻辑，sorting={},result={}", JsonHelper.toJson(sorting), result);
 		}
 		if (result) {
+			this.logicDelPackageCodeAssociateBoxCodeKvIndex(sorting.getPackageCode());
 			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelSorting2");
 			//发送取消建箱全程跟踪，MQ
 			this.sendSortingCancelWaybillTrace(sorting);
@@ -279,6 +286,21 @@ public class SortingServiceImpl implements SortingService {
 			jyOperateFlowService.sendMq(sortingCancelFlowMq);
 		}
 		return result;
+	}
+
+	private String getPackageCodeAssociateBoxCodeKvIndexKey(String  packageCode) {
+		return String.format(KvIndexConstants.KEY_PACKAGE_BOX_ASSOCIATION, packageCode);
+	}
+
+	/**
+	 * kv_index包裹和箱号关系删除
+	 */
+	private void logicDelPackageCodeAssociateBoxCodeKvIndex(String packageCode){
+		final String kvKey = getPackageCodeAssociateBoxCodeKvIndexKey(packageCode);
+		KvIndex kvIndexUpdate = new KvIndex();
+		kvIndexUpdate.setKeyword(kvKey);
+		kvIndexUpdate.setValue(Constants.EMPTY_FILL);
+		kvIndexDao.updateByKey(kvIndexUpdate);
 	}
 
 	@Override
