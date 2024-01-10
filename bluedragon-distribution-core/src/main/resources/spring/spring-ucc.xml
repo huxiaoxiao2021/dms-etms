@@ -326,6 +326,7 @@
 		<property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:10000}"/>
 		<property name="findGoodSendMessageDefaultErp" value="${findGoodSendMessageDefaultErp:''}"/>
 		<property name="waybillZeroWeightInterceptSwitch" value="${waybillZeroWeightInterceptSwitch:true}"/>
+		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -638,6 +639,7 @@
 				<value>uccPropertyConfiguration.jyAviationManualCreateSendTaskMaxBookingWeight</value>
 				<value>uccPropertyConfiguration.findGoodSendMessageDefaultErp</value>
 				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSwitch</value>
+				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
 			</list>
 		</property>
 	</bean>

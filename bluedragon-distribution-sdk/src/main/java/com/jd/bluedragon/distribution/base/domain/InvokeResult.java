@@ -324,6 +324,11 @@ public class InvokeResult<T> implements Serializable {
     public static final int WAYBILL_ZERO_WEIGHT_RECYCLE_BASKET_CODE = 3075;
     public static final String WAYBILL_ZERO_WEIGHT_RECYCLE_BASKET_MESSAGE = "包裹运单0重量且使用周转筐落自动化回流，由人工进行称重！";
 
+    public static final int WAYBILL_VOLUME_OUT_UPPER_LIMIT_CODE = 3076;
+    public static final String WAYBILL_VOLUME_OUT_UPPER_LIMIT_MESSAGE = "单件货物长宽高不能超过%scm!";
+
+    public static final int WAYBILL_WEIGHT_OUT_UPPER_LIMIT_CODE = 3077;
+    public static final String WAYBILL_WEIGHT_OUT_UPPER_LIMIT_MESSAGE = "单件货物重量不能超过%skg!";
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

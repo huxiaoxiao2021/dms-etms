@@ -1541,6 +1541,11 @@ public class UccPropertyConfiguration{
      */
     private Boolean waybillZeroWeightInterceptSwitch;
 
+    /**
+     * 自动化称重限制开关
+     */
+    private Boolean automaticWeightVolumeUpperCheckSwitch;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4109,5 +4114,13 @@ public class UccPropertyConfiguration{
 
     public void setWaybillZeroWeightInterceptSwitch(Boolean waybillZeroWeightInterceptSwitch) {
         this.waybillZeroWeightInterceptSwitch = waybillZeroWeightInterceptSwitch;
+    }
+
+    public Boolean getAutomaticWeightVolumeUpperCheckSwitch() {
+        return automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
+        this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
     }
 }

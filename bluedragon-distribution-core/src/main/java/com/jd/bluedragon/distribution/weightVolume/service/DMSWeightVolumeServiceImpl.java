@@ -72,6 +72,7 @@ import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_PACKAGE_FAST_TRANSPORT;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isConvey;
 import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
+import static com.jdl.basic.api.enums.WorkSiteTypeEnum.*;
 
 /**
  * <p>
@@ -139,6 +140,10 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     private static final List<FromSourceEnum> NOT_ZERO_WEIGHT_VOLUME_CHECK_PRINT_FROM_SOURCE =
             new ArrayList<>(Arrays.asList(DMS_CLIENT_BATCH_SORT_WEIGH_PRINT,DMS_CLIENT_SITE_PLATE_PRINT,DMS_CLIENT_FAST_TRANSPORT_PRINT
                     ,DMS_WEB_FAST_TRANSPORT,DMS_WEB_PACKAGE_FAST_TRANSPORT,DMS_CLIENT_WEIGHT_VOLUME));
+
+    private static final Double VOLUME_UPPER_LIMIT = 100d;
+    private static final Double WEIGHT_UPPER_LIMIT = 60d;
+
     @Override
     @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.dealWeightAndVolume", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> dealWeightAndVolume(WeightVolumeEntity entity, boolean isSync) {
@@ -176,6 +181,10 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             this.sendDisposeAfterInterceptMsg(entity);
             return result;
         } else {
+            // 自动化称重 重量体积上限校验
+            if(automaticUpperLimitCheck(entity, result)) {
+                return result;
+            }
             //异步处理
             Task weightVolumeTask = new Task();
             weightVolumeTask.setKeyword1(entity.getBarCode());
@@ -192,6 +201,47 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             taskService.add(weightVolumeTask);
             return result;
         }
+    }
+
+    private boolean automaticUpperLimitCheck(WeightVolumeEntity entity, InvokeResult<Boolean> result) {
+
+        if (!dmsConfigManager.getPropertyConfig().getAutomaticWeightVolumeUpperCheckSwitch()) {
+            return false;
+        }
+
+        // 只针对自动化称重进行校验
+        if (!DMS_DWS_MEASURE.equals(entity.getSourceCode()) && !DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode())) {
+            return false;
+        }
+
+        // 场地类型校验
+        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(entity.getOperateSiteCode());
+        if (siteInfo == null || siteInfo.getSubType() == null) {
+            return false;
+        }
+        WorkSiteTypeEnum workSiteTypeEnum = getWorkingSiteTypeBySubType(siteInfo.getSubType());
+        // 如果是分拣中心或者是接货仓的不拦截
+        if (Objects.equals(workSiteTypeEnum, DMS_TYPE) || Objects.equals(workSiteTypeEnum, RWMS_TYPE)) {
+            return false;
+        }
+
+        // 长宽高上限校验
+        if ((entity.getLength() != null && VOLUME_UPPER_LIMIT < entity.getLength())
+                || (entity.getHeight() != null && VOLUME_UPPER_LIMIT < entity.getHeight())
+                || (entity.getWidth() != null && VOLUME_UPPER_LIMIT < entity.getWidth())) {
+            result.setCode(WAYBILL_VOLUME_OUT_UPPER_LIMIT_CODE);
+            result.setMessage(String.format(WAYBILL_VOLUME_OUT_UPPER_LIMIT_MESSAGE,VOLUME_UPPER_LIMIT));
+            logger.info("包裹号{}单件货物长宽高不能超过{}cm request:{}",entity.getBarCode(),VOLUME_UPPER_LIMIT,JsonHelper.toJson(entity));
+            return true;
+        }
+
+        if (entity.getWeight() != null && WEIGHT_UPPER_LIMIT < entity.getWeight()) {
+            result.setCode(WAYBILL_WEIGHT_OUT_UPPER_LIMIT_CODE);
+            result.setMessage(String.format(WAYBILL_WEIGHT_OUT_UPPER_LIMIT_MESSAGE,WEIGHT_UPPER_LIMIT));
+            logger.info("包裹号{}单件货物重量不能超过{}kg request:{}",entity.getBarCode(),WEIGHT_UPPER_LIMIT,JsonHelper.toJson(entity));
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -931,8 +981,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             }
 
             BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(baseStaffByErp.getSiteCode());
-            if (!Objects.equals(WorkSiteTypeEnum.DMS_TYPE.getFirstTypesOfThird(), siteInfo.getSortType())
-                    || !Objects.equals(WorkSiteTypeEnum.DMS_TYPE.getSecondTypesOfThird(), siteInfo.getSortSubType())) {
+            if (!Objects.equals(DMS_TYPE.getFirstTypesOfThird(), siteInfo.getSortType())
+                    || !Objects.equals(DMS_TYPE.getSecondTypesOfThird(), siteInfo.getSortSubType())) {
                 return true;
             }
         }
