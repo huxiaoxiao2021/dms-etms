@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.reassignWaybill.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class ReassignWaybillApprovalRecordMQ implements Serializable {
 
@@ -108,8 +109,15 @@ public class ReassignWaybillApprovalRecordMQ implements Serializable {
      */
     private String createUserErp;
 
+    /**
+     * 退货组标识
+     */
+    private Boolean returnGroupFlag;
 
-
+    /**
+     * 照片
+     */
+    private List<String> photoUrlList;
 
     public String getProvinceAgencyCode() {
         return provinceAgencyCode;
@@ -271,5 +279,21 @@ public class ReassignWaybillApprovalRecordMQ implements Serializable {
 
     public void setSubmitTime(String submitTime) {
         this.submitTime = submitTime;
+    }
+
+    public Boolean getReturnGroupFlag() {
+        return returnGroupFlag;
+    }
+
+    public void setReturnGroupFlag(Boolean returnGroupFlag) {
+        this.returnGroupFlag = returnGroupFlag;
+    }
+
+    public List<String> getPhotoUrlList() {
+        return photoUrlList;
+    }
+
+    public void setPhotoUrlList(List<String> photoUrlList) {
+        this.photoUrlList = photoUrlList;
     }
 }
