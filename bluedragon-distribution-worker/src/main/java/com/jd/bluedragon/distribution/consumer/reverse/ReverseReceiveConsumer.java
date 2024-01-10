@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.request.Eclp2BdReceiveDetail;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
@@ -92,6 +93,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	@Autowired
 	WorkTaskServiceManager workTaskServiceManager;
 
+	@Autowired
+	SysConfigService sysConfigService;
+
 	/**
 	 * 移动仓内配单调终端接口参数
 	 */
@@ -110,7 +114,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	public void consume(Message message) {
 
 		String messageContent = message.getText();
-		this.log.debug("逆向收货消息messageContent：{}" , messageContent);
+		this.log.info("逆向收货消息messageContent：{}" , messageContent);
 
 		ReverseReceiveRequest jrequest = null;
 		ReceiveRequest xrequest = null;
@@ -288,6 +292,15 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 					tWaybillStatus.setReturnFlag(WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_HALF);
 					taskService.add(this.toTaskStatus(tWaybillStatus));
+				}else if( (reverseReceive.getReceiveType() == 2 || reverseReceive.getReceiveType() == 4)
+						&& reverseReceive.getCanReceive() == 1){
+					//备件库售后和维修 2 4 场景的收货场景 单独处理 不回传全程跟踪由备件库系统自己实现
+					if(sysConfigService.getConfigByName(SysConfigService.SYS_CONFIG_WRITER_SH_RECEIVE_WAYBILL_TRACE)){
+						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+						taskService.add(this.toTaskStatus(tWaybillStatus));
+					}else{
+						log.info("运单{}不回传收货完成全程跟踪,ReceiveType:{}",tWaybillStatus.getWaybillCode(),reverseReceive.getReceiveType());
+					}
 				}else{
 					if (reverseReceive.getCanReceive() == 0){
 						//记录驳回原因
