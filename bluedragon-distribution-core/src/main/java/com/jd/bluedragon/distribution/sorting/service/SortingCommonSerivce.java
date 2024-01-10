@@ -486,7 +486,7 @@ public abstract class SortingCommonSerivce {
     }
 
     /**
-     * 写包裹和箱号关系到kv_index表中
+     * kv_index包裹和箱号关系删除
      */
     private void logicDelPackageCodeAssociateBoxCodeKvIndex(SortingVO sorting){
         final String kvKey = getPackageCodeAssociateBoxCodeKvIndexKey(sorting.getPackageCode());
