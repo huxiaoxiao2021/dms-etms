@@ -315,7 +315,7 @@ public class InvokeResult<T> implements Serializable {
     public static final int COLLECT_PACKAGE_TASK_NO_EXIT_CODE = 3071;
     public static final String COLLECT_PACKAGE_TASK_NO_EXIT_MESSAGE = "集包任务不存在或已过期/作废！";
 
-    public static final int AIR_RAIL_SEND_FLOW_ADD_FAIL_CODE = 3072;
+    public static final int AIR_RAIL_SEND_FLOW_ADD_FAIL_CODE = 3076;
     public static final String AIR_RAIL_SEND_FLOW_ADD_FAIL_MESSAGE = "其他人正在添加流向，请稍后重试！";
 
     public InvokeResult(){
