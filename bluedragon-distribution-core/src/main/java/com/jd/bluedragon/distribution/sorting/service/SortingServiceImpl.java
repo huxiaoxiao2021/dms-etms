@@ -1792,6 +1792,7 @@ public class SortingServiceImpl implements SortingService {
             }
             final SortingDto sortingDto = new SortingDto();
             BeanUtils.copyProperties(sorting, sortingDto);
+            return sortingDto;
         }
         return null;
     }
