@@ -35,8 +35,8 @@ public class FlowServiceManagerImpl implements FlowServiceManager {
     private FlowService flowService;
 
     @Override
-    public String startFlow(Map<String,Object> oaMap,Map<String,Object> businessMap,Map<String,Object> flowControlMap,
-                            String name, String operateErp, String businessNoKey) throws FlowException {
+    public String startFlow(Map<String,Object> oaMap, Map<String,Object> businessMap, Map<String,Object> flowControlMap,
+                            String name, String operateErp, String businessNoKey, Integer flowVersion) throws FlowException {
         CallerInfo info
                 = Profiler.registerInfo("DMS.BASE.FlowServiceManagerImpl.startFlow", Constants.UMP_APP_NAME_DMSWEB,false, true);;
         try {
@@ -48,7 +48,8 @@ public class FlowServiceManagerImpl implements FlowServiceManager {
             // 设置流程分支数据
             dataMap.put(FlowConstants.FLOW_DATA_MAP_KEY_FLOW_CONTROL, flowControlMap);
 
-            return flowService.startFlow(Constants.SYSTEM_NAME, Constants.SYS_DMS, name, FlowConstants.FLOW_VERSION, operateErp, dataMap, businessNoKey);
+            return flowService.startFlow(Constants.SYSTEM_NAME, Constants.SYS_DMS, name,
+                    flowVersion == null ? FlowConstants.FLOW_VERSION : flowVersion, operateErp, dataMap, businessNoKey);
         }catch (Exception e){
             logger.error("提交审批单异常!",e);
             Profiler.functionError(info);

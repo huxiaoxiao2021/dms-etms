@@ -11,7 +11,6 @@ import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpTypeCheckReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.configuration.DmsConfigManager;
@@ -35,7 +34,6 @@ import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.lsb.flow.domain.ApprovalResult;
 import com.jd.lsb.flow.domain.ApproveRequestOrder;
@@ -56,8 +54,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -566,7 +562,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         Map<String, Object> businessMap = buildBusiness(entity); // 业务数据
         Map<String, Object> flowMap = buildFlow(entity); // 流程数据
         String approveOrderCode = flowServiceManager.startFlow(
-                oaMap, businessMap, flowMap, FlowConstants.FLOW_CODE_FRESH_SCRAP, entity.getHandlerErp(), entity.getBizId());
+                oaMap, businessMap, flowMap, FlowConstants.FLOW_CODE_FRESH_SCRAP, entity.getHandlerErp(), entity.getBizId(), null);
         if (logger.isInfoEnabled()) {
             logger.info("提交审批完成，审批工单号:{}", approveOrderCode);
         }
