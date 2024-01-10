@@ -62,7 +62,7 @@
 
     <update id="updateByKey" parameterType="java.lang.String">
         update kv_index
-        set vallue = #{value}
+        set value = #{value}
         where keyword = #{keyword}
     </update>
 </mapper>
