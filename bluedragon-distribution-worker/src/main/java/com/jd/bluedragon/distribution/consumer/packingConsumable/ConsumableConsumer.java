@@ -9,6 +9,8 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.jim.cli.Cluster;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,7 @@ public abstract class ConsumableConsumer extends MessageBaseConsumer {
     /**
      * 快递包装耗材锁前缀
      */
-    public static final String CPACK_CONSUMABLE_LOCK_PREFIX = "CPACK:CONSUMABLE:LOCK:";
+    public static final String WAYBILL_CONSUMABLE_LOCK_PREFIX = "waybill:consumable:lock:";
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -43,11 +45,12 @@ public abstract class ConsumableConsumer extends MessageBaseConsumer {
     /**
      * 处理耗材及耗材明细信息
      */
+    @JProfiler(jKey = "ConsumableConsumer.handleWaybillConsumableAndRelation", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     public void handleWaybillConsumableAndRelation(WaybillConsumableCommonDto waybillConsumableCommonDto) {
         // 运单号
         String waybillCode = waybillConsumableCommonDto.getWaybillCode();
         // 互斥锁
-        String mutexKey = CPACK_CONSUMABLE_LOCK_PREFIX + waybillCode;
+        String mutexKey = WAYBILL_CONSUMABLE_LOCK_PREFIX + waybillCode;
         try {
             // 运单维度加锁防止并发
             if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {
