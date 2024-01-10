@@ -870,7 +870,9 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             airRailDto.setWaitScanTotal(waitScanTotal);
             airRailDto.setHaveScannedTotal(haveScannedTotal);
             airRailDto.setMultipleScanTotal(multipleScanTotal);
-            airRailDto.setTaskNum(taskDetail.size());
+            airRailDto.setTaskNum(taskList.size());
+            airRailDto.setPickingNodeCode(taskList.get(0).getEndNodeCode());
+            airRailDto.setPickingNodeName(taskList.get(0).getEndNodeName());
 
             airRailDtoList.add(airRailDto);
         }

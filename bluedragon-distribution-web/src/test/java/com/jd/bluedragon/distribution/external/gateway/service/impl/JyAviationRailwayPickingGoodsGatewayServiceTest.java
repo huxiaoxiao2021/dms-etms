@@ -48,7 +48,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
 
     private void setBaseReq(BaseReq req) {
         req.setUser(USER_wuyoude);
-        req.setCurrentOperate(SITE_910);
+        req.setCurrentOperate(SITE_40240);
         req.setGroupCode(GROUP_CODE);
         req.setPost(POST);
     }

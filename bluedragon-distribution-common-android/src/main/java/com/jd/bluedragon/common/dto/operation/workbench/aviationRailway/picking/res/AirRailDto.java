@@ -7,13 +7,13 @@ public class AirRailDto implements Serializable {
     private static final long serialVersionUID = -5631376523517894268L;
 
     /**
-     * 始发机场/车站编码
+     * 提货机场/车站编码
      */
-    private String beginNodeCode;
+    private String pickingNodeCode;
     /**
-     * 始发机场/车站名称
+     * 提货机场/车站名称
      */
-    private String beginNodeName;
+    private String pickingNodeName;
     /**
      * 待提航班/车次任务数
      */
@@ -48,20 +48,20 @@ public class AirRailDto implements Serializable {
      */
     private List<AirRailTaskAggDto> taskAggDtoList;
 
-    public String getBeginNodeCode() {
-        return beginNodeCode;
+    public String getPickingNodeCode() {
+        return pickingNodeCode;
     }
 
-    public void setBeginNodeCode(String beginNodeCode) {
-        this.beginNodeCode = beginNodeCode;
+    public void setPickingNodeCode(String pickingNodeCode) {
+        this.pickingNodeCode = pickingNodeCode;
     }
 
-    public String getBeginNodeName() {
-        return beginNodeName;
+    public String getPickingNodeName() {
+        return pickingNodeName;
     }
 
-    public void setBeginNodeName(String beginNodeName) {
-        this.beginNodeName = beginNodeName;
+    public void setPickingNodeName(String pickingNodeName) {
+        this.pickingNodeName = pickingNodeName;
     }
 
     public Integer getWaitScanTaskNum() {
