@@ -4588,7 +4588,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     public boolean updateStatusByDetailBizIds(MixScanTaskCompleteReq request, List<String> detailBizIds) {
         List<JyBizTaskSendVehicleDetailEntity> sendDetailList = taskSendVehicleDetailService
                 .findSendVehicleDetailByBizIds(request.getCurrentOperate().getSiteCode(), detailBizIds);
-
+        if (CollectionUtils.isEmpty(sendDetailList)) {
+            log.warn("updateStatusByDetailBizIds|根据明细bizId列表查询发货任务明细为空:request={},detailBizIds={}", JsonHelper.toJson(request), detailBizIds);
+            return true;
+        }
         HashMap<String, JyBizTaskSendVehicleDetailEntity> sendDetailMap = new HashMap<>();
         List<String> sendVehicleBizIds = new ArrayList<>();
         for (JyBizTaskSendVehicleDetailEntity detailEntity : sendDetailList) {

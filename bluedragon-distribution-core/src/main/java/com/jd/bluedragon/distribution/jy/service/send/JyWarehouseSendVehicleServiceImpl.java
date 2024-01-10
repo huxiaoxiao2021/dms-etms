@@ -1696,7 +1696,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
         List<String> detailBizList = entityList.stream().map(JyGroupSortCrossDetailEntity::getSendVehicleDetailBizId).collect(Collectors.toList());
         List<JyBizTaskSendVehicleDetailEntity> jyBizTaskSendVehicleDetailEntityList = jyBizTaskSendVehicleDetailService.findByDetailVehicleBiz(detailBizList, request.getCurrentOperate().getSiteCode());
-        if(CollectionUtils.isEmpty(detailBizList)) {
+        if(CollectionUtils.isEmpty(jyBizTaskSendVehicleDetailEntityList)) {
             res.setMessage("查询发货明细任务为空");
             return res;
         }
