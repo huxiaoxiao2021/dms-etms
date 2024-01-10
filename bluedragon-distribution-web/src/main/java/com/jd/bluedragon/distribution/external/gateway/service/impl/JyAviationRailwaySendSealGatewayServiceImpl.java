@@ -694,7 +694,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             return retJdCResponse(jyAviationRailwaySendSealService.aviationSendComplete(req));
         }catch (Exception ex) {
             log.error("空铁发货岗，发货任务完成={},errMsg={}", JsonHelper.toJson(req), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, JsonHelper.toJson(ex), null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁发货岗，发货任务完成异常！", null);//500+非自定义异常
         }
     }
 
