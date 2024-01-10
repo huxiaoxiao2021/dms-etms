@@ -15,10 +15,10 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ConsumableManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
 import com.jd.bluedragon.distribution.abnormal.service.StrandService;
-import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.response.base.ResultCodeConstant;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
@@ -34,10 +34,6 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionServ
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
-import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
-import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
-import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
-import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
@@ -52,15 +48,17 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.tp.common.utils.Objects;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.api.domain.workStation.WorkStationGrid;
+import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
+import com.jdl.basic.common.utils.PageDto;
+import com.jdl.basic.common.utils.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +66,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -151,7 +148,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private JyDamageConsumableDao jyDamageConsumableDao;
 
     @Autowired
-    private WorkStationGridService workStationGridService;
+    private WorkStationGridManager workStationGridManager;
 
     private static final Integer EXPRESS_DELIVERY = 1;
 
@@ -1471,8 +1468,8 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private String getOwnerUserErpByGridCode(String gridCode) {
         WorkStationGridQuery query = new WorkStationGridQuery();
         query.setGridCode(gridCode);
-        Result<PageDto<WorkStationGrid>> pageDtoResult = workStationGridService.queryPageList(query);
-        if (ResultCodeConstant.SUCCESS == pageDtoResult.getCode()) {
+        Result<PageDto<WorkStationGrid>> pageDtoResult = workStationGridManager.queryPageList(query);
+        if (pageDtoResult.isSuccess() && Objects.nonNull(pageDtoResult.getData())) {
             List<WorkStationGrid> result = pageDtoResult.getData().getResult();
             if (Objects.nonNull(result) && result.size() > 0) {
                 return result.get(0).getOwnerUserErp();
