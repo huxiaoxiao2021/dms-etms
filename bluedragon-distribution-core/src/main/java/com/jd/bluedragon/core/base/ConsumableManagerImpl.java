@@ -38,11 +38,10 @@ public class ConsumableManagerImpl implements ConsumableManager{
                         return false;
                     }
                 }
-                return true;
             }
+            return true;
         } catch (Exception e) {
             log.error("获取终端耗材条码出错:{}", e);
-        } finally {
             return false;
         }
     }
