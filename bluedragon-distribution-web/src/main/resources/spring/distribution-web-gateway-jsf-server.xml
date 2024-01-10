@@ -696,4 +696,12 @@
                   ref="questionnaireGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
+
+    <bean id="jyAviationRailwayPickingGoodsGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyAviationRailwayPickingGoodsGatewayServiceImpl" />
+    <jsf:provider id="jsfJyAviationRailwayPickingGoodsGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyAviationRailwayPickingGoodsGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyAviationRailwayPickingGoodsGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
