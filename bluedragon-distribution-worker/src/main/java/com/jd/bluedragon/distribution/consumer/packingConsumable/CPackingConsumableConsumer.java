@@ -2,28 +2,26 @@ package com.jd.bluedragon.distribution.consumer.packingConsumable;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
-import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -38,25 +36,10 @@ import java.util.concurrent.TimeUnit;
  */
 @Component("cPackingConsumableConsumer")
 @Slf4j
-public class CPackingConsumableConsumer extends MessageBaseConsumer {
-
-    /**
-     * 快递包装耗材锁前缀
-     */
-    public static final String CPACK_CONSUMABLE_LOCK_PREFIX = "CPACK:CONSUMABLE:LOCK:";
-
-    @Autowired
-    private WaybillConsumableRecordService waybillConsumableRecordService;
-
-    @Autowired
-    private WaybillConsumableRelationService waybillConsumableRelationService;
+public class CPackingConsumableConsumer extends ConsumableConsumer {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
-
-    @Autowired
-    @Qualifier("redisClientOfJy")
-    private Cluster redisClientOfJy;
 
 
     @Override
@@ -66,7 +49,7 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
         if (log.isDebugEnabled()) {
             log.debug("消费快递侧揽收后的包装耗材消息：{}", message.getText());
         }
-        ReceivePackingConsumableDto packingConsumableDto = JsonHelper.fromJson(message.getText(), ReceivePackingConsumableDto.class);
+        WaybillConsumableCommonDto packingConsumableDto = JsonHelper.fromJson(message.getText(), WaybillConsumableCommonDto.class);
         if (packingConsumableDto == null) {
             log.error("消费快递侧揽收后消息，反序列化为空，{}", message.getText());
             return;
@@ -109,65 +92,24 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
             }
         }
 
-        // 运单号
-        String waybillCode = packingConsumableDto.getWaybillCode();
-        // 互斥锁
-        String mutexKey = CPACK_CONSUMABLE_LOCK_PREFIX + waybillCode;
         try {
-            // 运单维度加锁防止并发
-            if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {
-                String warnMsg = String.format("运单号:%s-快递包装耗材消费正在处理中!", waybillCode);
-                log.warn(warnMsg);
-                throw new JyBizException(warnMsg);
-            }
-
-            /* 保存主表 */
-            WaybillConsumableRecord waybillConsumableRecord = waybillConsumableRecordService.convert2WaybillConsumableRecord(packingConsumableDto);
-            if (isNeedConfirmConsumable(packingConsumableDto)) {
-                waybillConsumableRecord.setConfirmStatus(WaybillConsumableRecordService.TREATED_STATE);
-                waybillConsumableRecord.setConfirmUserErp(waybillConsumableRecord.getReceiveUserErp());//此处是操作人id，来源于终端的entryId
-                waybillConsumableRecord.setConfirmUserName(waybillConsumableRecord.getReceiveUserName());
-            }
-            WaybillConsumableRecord oldRecord = waybillConsumableRecordService.queryOneByWaybillCode(packingConsumableDto.getWaybillCode());
-            if (oldRecord == null) {
-                waybillConsumableRecordService.saveOrUpdate(waybillConsumableRecord);
-            } else {
-                waybillConsumableRecordService.updateByCondition(waybillConsumableRecord);
-            }
-
-            /* 保存明细表 */
-            List<WaybillConsumableRelation> waybillConsumableRelationLst = waybillConsumableRelationService.convert2WaybillConsumableRelation(packingConsumableDto);
-            if (CollectionUtils.isNotEmpty(waybillConsumableRelationLst)) {
-                for (WaybillConsumableRelation relation : waybillConsumableRelationLst) {
-                    WaybillConsumableRelation oldRelation = waybillConsumableRelationService.findByWaybillCodeAndConsumableCode(relation);
-                    if (oldRelation == null) {
-                        waybillConsumableRelationService.saveOrUpdate(relation);
-                    } else {
-                        if (relation.getReceiveQuantity() != null && relation.getReceiveQuantity() > 0) {
-                            waybillConsumableRelationService.updateByWaybillCodeAndConsumableCode(relation);
-                        }
-                    }
-                }
-            }
+            handleWaybillConsumableAndRelation(packingConsumableDto);
+        } catch (JyBizException e) {
+            log.warn("快递包装耗材消费,{}", e.getMessage());
+            throw new JyBizException(e.getMessage());
         } catch (Exception e) {
-            log.error("快递包装耗材消费出现异常:waybillCode={}", waybillCode, e);
-        } finally {
-            redisClientOfJy.del(mutexKey);
+            log.error("快递包装耗材消费出现异常:waybillCode={}", packingConsumableDto.getWaybillCode(), e);
         }
     }
 
 
-    /*
-        判断是否需要直接确认包装耗材，包含木质包装耗材（木架、木箱、木托盘）
-        终端包装耗材融合项目：对于木质包装耗材的判断标准有变，以终端的木质耗材编码为准，分拣侧写死在枚举中ConsumableCodeEnums，通过isWoodenConsumable进行判断是否是木质
-     */
-    private boolean isNeedConfirmConsumable(ReceivePackingConsumableDto packingConsumableDto) {
-        if (CollectionUtils.isNotEmpty(packingConsumableDto.getBoxChargeDetails())) {
-            for(BoxChargeDetail waybillConsumableDetailDto : packingConsumableDto.getBoxChargeDetails()) {
-                if(PackingTypeEnum.isWoodenConsumable(waybillConsumableDetailDto.getMaterialTypeCode())
-                        || ConsumableCodeEnums.isWoodenConsumable(waybillConsumableDetailDto.getBarCode())
 
-                ) {
+    @Override
+    public boolean isNeedConfirmConsumable(WaybillConsumableCommonDto consumableDto) {
+        if (CollectionUtils.isNotEmpty(consumableDto.getBoxChargeDetails())) {
+            for (BoxChargeDetail waybillConsumableDetailDto : consumableDto.getBoxChargeDetails()) {
+                if (PackingTypeEnum.isWoodenConsumable(waybillConsumableDetailDto.getMaterialTypeCode())
+                        || ConsumableCodeEnums.isWoodenConsumable(waybillConsumableDetailDto.getBarCode())) {
                     return false;
                 }
             }
@@ -175,5 +117,61 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
         return true;
     }
 
+    @Override
+    public WaybillConsumableRecord convert2WaybillConsumableRecord(WaybillConsumableCommonDto consumableDto) {
+        if (consumableDto == null) {
+            return null;
+        }
+        WaybillConsumableRecord waybillConsumableRecord = new WaybillConsumableRecord();
+        waybillConsumableRecord.setWaybillCode(consumableDto.getWaybillCode());
+        // 根据 packingConsumable.getDmsCode() 查询分拣中心信息
+        Integer siteCode = consumableDto.getDmsCode();
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
+        waybillConsumableRecord.setDmsId(dto.getSiteCode());
+        waybillConsumableRecord.setDmsName(dto.getSiteName());
+        waybillConsumableRecord.setReceiveUserErp(consumableDto.getEntryErp());
+        waybillConsumableRecord.setReceiveUserCode(String.valueOf(consumableDto.getEntryId()));
+        waybillConsumableRecord.setReceiveUserName(consumableDto.getEntryName());
+        waybillConsumableRecord.setReceiveTime(DateHelper.toDate(consumableDto.getPdaTime()));
+        waybillConsumableRecord.setConfirmStatus(WaybillConsumableRecordService.UNTREATED_STATE);
+        waybillConsumableRecord.setModifyStatus(WaybillConsumableRecordService.UNTREATED_STATE);
+        return waybillConsumableRecord;
+    }
+
+    @Override
+    public List<WaybillConsumableRelation> convert2WaybillConsumableRelation(WaybillConsumableCommonDto packingConsumableDto) {
+        List<BoxChargeDetail> boxChargeDetails = packingConsumableDto.getBoxChargeDetails();
+        if (CollectionUtils.isEmpty(boxChargeDetails)) {
+            return null;
+        }
+        Date operateTime = DateHelper.toDate(packingConsumableDto.getPdaTime());
+        String erp = StringUtils.isEmpty(packingConsumableDto.getEntryErp())? String.valueOf(packingConsumableDto.getEntryId()) : packingConsumableDto.getEntryErp();
+        List<WaybillConsumableRelation> waybillConsumableRelationLst = new ArrayList<>(boxChargeDetails.size());
+        for (BoxChargeDetail boxChargeDetail : boxChargeDetails) {
+            WaybillConsumableRelation relation = new WaybillConsumableRelation();
+            relation.setWaybillCode(packingConsumableDto.getWaybillCode());
+            relation.setConsumableCode(boxChargeDetail.getBarCode());
+            relation.setConsumableName(boxChargeDetail.getBoxName());
+            relation.setConsumableType(boxChargeDetail.getMaterialTypeCode());
+            relation.setConsumableTypeName(boxChargeDetail.getMaterialTypeName());
+            relation.setSpecification(boxChargeDetail.getMaterialSpecification());
+            relation.setUnit(boxChargeDetail.getMaterialUnit());
+            if (boxChargeDetail.getMaterialVolume() != null) {
+                relation.setVolume(BigDecimal.valueOf(boxChargeDetail.getMaterialVolume() * 100 * 100 * 100));
+            }
+            if (boxChargeDetail.getVolumeCoefficient() != null) {
+                relation.setVolumeCoefficient(BigDecimal.valueOf(boxChargeDetail.getVolumeCoefficient()));
+            }
+            relation.setPackingCharge(boxChargeDetail.getMaterialAmount());
+            if (boxChargeDetail.getMaterialNumber() != null) {
+                relation.setReceiveQuantity(boxChargeDetail.getMaterialNumber().doubleValue());
+                relation.setConfirmQuantity(boxChargeDetail.getMaterialNumber().doubleValue());
+            }
+            relation.setOperateUserErp(erp);
+            relation.setOperateTime(operateTime);
+            waybillConsumableRelationLst.add(relation);
+        }
+        return waybillConsumableRelationLst;
+    }
 
 }

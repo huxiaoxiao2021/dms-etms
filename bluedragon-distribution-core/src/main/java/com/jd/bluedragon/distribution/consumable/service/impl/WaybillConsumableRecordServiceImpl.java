@@ -451,37 +451,13 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         return res;
     }
 
-    @Override
-    public WaybillConsumableRecord convert2WaybillConsumableRecord(ReceivePackingConsumableDto consumableDto) {
-        if (consumableDto == null) {
-            return null;
-        }
 
-        WaybillConsumableRecord waybillConsumableRecord = new WaybillConsumableRecord();
-        waybillConsumableRecord.setWaybillCode(consumableDto.getWaybillCode());
-
-        //根据 packingConsumable.getDmsCode() 查询分拣中心信息
-        Integer siteCode = consumableDto.getDmsCode();
-        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
-        waybillConsumableRecord.setDmsId(dto.getSiteCode());
-        waybillConsumableRecord.setDmsName(dto.getSiteName());
-
-        waybillConsumableRecord.setReceiveUserErp(consumableDto.getEntryErp());
-        waybillConsumableRecord.setReceiveUserCode(String.valueOf(consumableDto.getEntryId()));
-        waybillConsumableRecord.setReceiveUserName(consumableDto.getEntryName());
-        waybillConsumableRecord.setReceiveTime(DateHelper.toDate(consumableDto.getPdaTime()));
-
-        waybillConsumableRecord.setConfirmStatus(WaybillConsumableRecordService.UNTREATED_STATE);
-        waybillConsumableRecord.setModifyStatus(WaybillConsumableRecordService.UNTREATED_STATE);
-
-        return waybillConsumableRecord;
-    }
 
     /**
      * PDA实操绑定打包人，确认打包
      */
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    private void consumablePackAndConfirm(List<WaybillConsumableRelationPDADto> dbBatchUpdateList, List<WaybillConsumableRecord> confirmRecords ) {
+    public void consumablePackAndConfirm(List<WaybillConsumableRelationPDADto> dbBatchUpdateList, List<WaybillConsumableRecord> confirmRecords ) {
         for(WaybillConsumableRelationPDADto dto : dbBatchUpdateList) {
             waybillConsumableRelationService.updateByWaybillCode(dto);
         }

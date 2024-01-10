@@ -131,43 +131,4 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
 		waybillConsumableRelationDao.updateByWaybillCodeAndConsumableCode(waybillConsumableRelation);
 	}
 
-	@Override
-	public List<WaybillConsumableRelation> convert2WaybillConsumableRelation(ReceivePackingConsumableDto packingConsumableDto) {
-		List<BoxChargeDetail> boxChargeDetails = packingConsumableDto.getBoxChargeDetails();
-		if(CollectionUtils.isEmpty(boxChargeDetails)){
-			return null;
-		}
-		Date operateTime = DateHelper.toDate(packingConsumableDto.getPdaTime());
-		String erp = StringUtils.isEmpty(packingConsumableDto.getEntryErp())? String.valueOf(packingConsumableDto.getEntryId()) : packingConsumableDto.getEntryErp();
-		List<WaybillConsumableRelation> waybillConsumableRelationLst = new ArrayList<WaybillConsumableRelation>(boxChargeDetails.size());
-		for(BoxChargeDetail boxChargeDetail : boxChargeDetails){
-			WaybillConsumableRelation relation = new WaybillConsumableRelation();
-			relation.setWaybillCode(packingConsumableDto.getWaybillCode());
-			relation.setConsumableCode(boxChargeDetail.getBarCode());
-
-			relation.setConsumableName(boxChargeDetail.getBoxName());
-			relation.setConsumableType(boxChargeDetail.getMaterialTypeCode());
-			relation.setConsumableTypeName(boxChargeDetail.getMaterialTypeName());
-			relation.setSpecification(boxChargeDetail.getMaterialSpecification());
-			relation.setUnit(boxChargeDetail.getMaterialUnit());
-			if (boxChargeDetail.getMaterialVolume() != null) {
-				relation.setVolume(BigDecimal.valueOf(boxChargeDetail.getMaterialVolume() * 100*100*100));
-			}
-			if (boxChargeDetail.getVolumeCoefficient() != null) {
-				relation.setVolumeCoefficient(BigDecimal.valueOf(boxChargeDetail.getVolumeCoefficient()));
-			}
-			relation.setPackingCharge(boxChargeDetail.getMaterialAmount());
-
-			if (boxChargeDetail.getMaterialNumber() != null) {
-				relation.setReceiveQuantity(boxChargeDetail.getMaterialNumber().doubleValue());
-				relation.setConfirmQuantity(boxChargeDetail.getMaterialNumber().doubleValue());
-			}
-
-			relation.setOperateUserErp(erp);
-			relation.setOperateTime(operateTime);
-			waybillConsumableRelationLst.add(relation);
-		}
-
-		return waybillConsumableRelationLst;
-	}
 }

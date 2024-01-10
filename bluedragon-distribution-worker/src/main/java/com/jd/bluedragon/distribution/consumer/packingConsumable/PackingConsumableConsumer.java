@@ -1,11 +1,10 @@
 package com.jd.bluedragon.distribution.consumer.packingConsumable;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.consumable.domain.*;
-import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
-import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -13,7 +12,6 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
-import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -26,7 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author shipeilin
@@ -34,15 +35,9 @@ import java.util.*;
  * @date 2018年08月15日 16时:10分
  */
 @Service("packingConsumableConsumer")
-public class PackingConsumableConsumer extends MessageBaseConsumer {
+public class PackingConsumableConsumer extends ConsumableConsumer {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    WaybillConsumableRecordService waybillConsumableRecordService;
-
-    @Autowired
-    WaybillConsumableRelationService waybillConsumableRelationService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -55,20 +50,20 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
     public void consume(Message message) throws Exception {
         long startTime = System.currentTimeMillis();
         log.debug("PackingConsumableConsumer consume --> 消息Body为【{}】",message.getText());
-        if (message == null || "".equals(message.getText()) || null == message.getText()) {
+        if (Constants.EMPTY_FILL.equals(message.getText()) || null == message.getText()) {
             this.log.warn("PackingConsumableConsumer consume -->消息为空");
-            addLog(new WaybillConsumableDto(),startTime);
+            addLog(new WaybillConsumableCommonDto(),startTime);
             return;
         }
         if (!JsonHelper.isJsonString(message.getText())) {
             log.warn("PackingConsumableConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
-            addLog(new WaybillConsumableDto(),startTime);
+            addLog(new WaybillConsumableCommonDto(),startTime);
             return;
         }
-        WaybillConsumableDto packingConsumable = JsonHelper.fromJson(message.getText(), WaybillConsumableDto.class);
+        WaybillConsumableCommonDto packingConsumable = JsonHelper.fromJson(message.getText(), WaybillConsumableCommonDto.class);
         if (packingConsumable == null) {
             this.log.warn("PackingConsumableConsumer consume -->消息转换对象失败：{}" , message.getText());
-            addLog(new WaybillConsumableDto(),startTime);
+            addLog(new WaybillConsumableCommonDto(),startTime);
             return;
         }
         if(StringHelper.isEmpty(packingConsumable.getWaybillCode())){
@@ -86,53 +81,38 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             addLog(packingConsumable,startTime);
             return;
         }
-        WaybillConsumableRecord oldRecord = waybillConsumableRecordService.queryOneByWaybillCode(packingConsumable.getWaybillCode());
-        if(oldRecord != null && oldRecord.getId() != null){
-            log.warn("B网包装耗材，重复的运单号：{}" , message.getText());
-        }else{
-            WaybillConsumableRecord waybillConsumableRecord = convert2WaybillConsumableRecord(packingConsumable);
-            if (isNeedConfirmConsumable(packingConsumable)) {
-                waybillConsumableRecord.setConfirmStatus(WaybillConsumableRecordService.TREATED_STATE);
-                waybillConsumableRecord.setConfirmUserErp(waybillConsumableRecord.getReceiveUserErp());
-                waybillConsumableRecord.setConfirmUserName(waybillConsumableRecord.getReceiveUserName());
-            }
-            //新增主表
-            waybillConsumableRecordService.saveOrUpdate(waybillConsumableRecord);
-            //新增明细
-            List<WaybillConsumableRelation> waybillConsumableRelationLst = convert2WaybillConsumableRelation(packingConsumable);
-            waybillConsumableRelationService.batchAdd(waybillConsumableRelationLst);
+        try {
+            handleWaybillConsumableAndRelation(packingConsumable);
+        } catch (JyBizException e) {
+            log.warn("B网包装耗材消费,{}", e.getMessage());
+            throw new JyBizException(e.getMessage());
+        } catch (Exception e) {
+            log.error("B网包装耗材消费出现异常:waybillCode={}", packingConsumable.getWaybillCode(), e);
         }
         log.debug("PackingConsumableConsumer consume --> 消息消费完成，Body为【{}】",message.getText());
     }
 
     /**
      * 检查冷链产品
-     * @param packingConsumable
-     * @return
      */
-    private boolean checkColdWaybill(WaybillConsumableDto packingConsumable){
+    private boolean checkColdWaybill(WaybillConsumableCommonDto packingConsumable){
         String productTypeStr = packingConsumable.getProductType();
-        if(StringUtils.isNotBlank(productTypeStr)){
+        if (StringUtils.isNotBlank(productTypeStr)) {
             List<String> productTypeList = Arrays.asList(productTypeStr.split(Constants.SEPARATOR_COMMA));
-            if(productTypeList.contains(Constants.PRODUCT_TYPE_MEDICAL_PART_BILL)
+            if (productTypeList.contains(Constants.PRODUCT_TYPE_MEDICAL_PART_BILL)
                 || productTypeList.contains(Constants.PRODUCT_TYPE_MEDICINE_DP)
-                || productTypeList.contains(Constants.PRODUCT_TYPE_MEDICAL_COLD_BILL)){
+                || productTypeList.contains(Constants.PRODUCT_TYPE_MEDICAL_COLD_BILL)) {
                 return true;
             }
         }
         return false;
     }
 
-    /**
-     * 运单耗材装换:将MQ消息体转换为分拣实体VO
-     *
-     * @param packingConsumable
-     * @return
-     */
-    private WaybillConsumableRecord convert2WaybillConsumableRecord(WaybillConsumableDto packingConsumable){
+
+    public WaybillConsumableRecord convert2WaybillConsumableRecord(WaybillConsumableCommonDto packingConsumable){
         WaybillConsumableRecord waybillConsumableRecord = new WaybillConsumableRecord();
         waybillConsumableRecord.setWaybillCode(packingConsumable.getWaybillCode());
-        //根据 packingConsumable.getDmsCode() 查询分拣中心信息
+        // 根据packingConsumable.getDmsCode()查询分拣中心信息
         Integer siteCode = packingConsumable.getDmsCode();
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
         waybillConsumableRecord.setDmsId(dto.getSiteCode());
@@ -143,25 +123,21 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
         waybillConsumableRecord.setReceiveUserName(packingConsumable.getOperateUserName());
         waybillConsumableRecord.setReceiveTime(DateHelper.parseDateTime(packingConsumable.getOperateTime()));
 
-        waybillConsumableRecord.setConfirmStatus(WaybillConsumableRecordService.UNTREATED_STATE);
-        waybillConsumableRecord.setModifyStatus(WaybillConsumableRecordService.UNTREATED_STATE);
+        waybillConsumableRecord.setConfirmStatus(Constants.NUMBER_ZERO);
+        waybillConsumableRecord.setModifyStatus(Constants.NUMBER_ZERO);
 
         return waybillConsumableRecord;
     }
 
-    /**
-     * 运单耗材明细转换:将MQ消息体转换为分拣实体VO
-     * @param packingConsumable
-     * @return
-     */
-    private List<WaybillConsumableRelation> convert2WaybillConsumableRelation(WaybillConsumableDto packingConsumable){
+
+    public List<WaybillConsumableRelation> convert2WaybillConsumableRelation(WaybillConsumableCommonDto packingConsumable){
         List<WaybillConsumableDetailDto> packingChargeList = packingConsumable.getPackingChargeList();
-        if(packingChargeList == null || packingChargeList.isEmpty()){
+        if (packingChargeList == null || packingChargeList.isEmpty()) {
             return null;
         }
         Date operateTime = DateHelper.parseDateTime(packingConsumable.getOperateTime());
-        List<WaybillConsumableRelation> waybillConsumableRelationLst = new ArrayList<WaybillConsumableRelation>(packingChargeList.size());
-        for(WaybillConsumableDetailDto dto : packingChargeList){
+        List<WaybillConsumableRelation> waybillConsumableRelationLst = new ArrayList<>(packingChargeList.size());
+        for (WaybillConsumableDetailDto dto : packingChargeList) {
             WaybillConsumableRelation relation = new WaybillConsumableRelation();
             relation.setWaybillCode(packingConsumable.getWaybillCode());
             relation.setConsumableCode(dto.getPackingCode());
@@ -172,7 +148,7 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             relation.setSpecification(dto.getPackingSpecification());
             relation.setUnit(dto.getPackingUnit());
             if (dto.getPackingVolume() != null){
-                relation.setVolume(BigDecimal.valueOf(dto.getPackingVolume() * 100*100*100));
+                relation.setVolume(BigDecimal.valueOf(dto.getPackingVolume() * 100 * 100 * 100));
             }
             if (dto.getVolumeCoefficient() != null) {
                 relation.setVolumeCoefficient(BigDecimal.valueOf(dto.getVolumeCoefficient()));
@@ -195,8 +171,10 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
         return waybillConsumableRelationLst;
     }
 
-    /* 添加日志 */
-    private void addLog(WaybillConsumableDto packingConsumable,long startTime){
+    /**
+     * 添加日志
+     */
+    private void addLog(WaybillConsumableCommonDto packingConsumable, long startTime){
         long endTime = System.currentTimeMillis();
         JSONObject request = new JSONObject();
         request.put("waybillCode", packingConsumable.getWaybillCode());
@@ -216,14 +194,11 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
         logEngine.addLog(businessLogProfiler);
     }
 
-    /*
-        判断是否需要直接确认包装耗材，包含木质包装耗材（木架、木箱、木托盘）
-        终端包装耗材融合项目：对于木质包装耗材的判断标准有变，以终端的木质耗材编码为准，分拣侧写死在枚举中ConsumableCodeEnums，通过isWoodenConsumable进行判断是否是木质
-     */
-    private boolean isNeedConfirmConsumable(WaybillConsumableDto packingConsumable) {
+
+    public boolean isNeedConfirmConsumable(WaybillConsumableCommonDto packingConsumable) {
         if (CollectionUtils.isNotEmpty(packingConsumable.getPackingChargeList())) {
-            for(WaybillConsumableDetailDto waybillConsumableDetailDto : packingConsumable.getPackingChargeList()) {
-                if(ConsumableCodeEnums.isWoodenConsumable(waybillConsumableDetailDto.getPackingCode())
+            for (WaybillConsumableDetailDto waybillConsumableDetailDto : packingConsumable.getPackingChargeList()) {
+                if (ConsumableCodeEnums.isWoodenConsumable(waybillConsumableDetailDto.getPackingCode())
                         || PackingTypeEnum.isWoodenConsumable(waybillConsumableDetailDto.getPackingType())) {
                     return false;
                 }
