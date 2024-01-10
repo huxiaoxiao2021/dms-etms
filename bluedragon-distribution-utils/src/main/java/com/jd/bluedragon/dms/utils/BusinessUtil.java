@@ -3069,8 +3069,8 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isSelfFresh(String sendPay) {
-        return isSignInChars(sendPay, SendPayConstants.POSITION_2, 
-                SendPayConstants.CHAR_2_5, SendPayConstants.CHAR_2_6, SendPayConstants.CHAR_2_7, SendPayConstants.CHAR_2_8, SendPayConstants.CHAR_2_9);
+        return isSignInChars(sendPay, SendPayConstants.POSITION_2,
+                SendPayConstants.CHAR_2_4, SendPayConstants.CHAR_2_5, SendPayConstants.CHAR_2_6, SendPayConstants.CHAR_2_7, SendPayConstants.CHAR_2_8, SendPayConstants.CHAR_2_9);
     }
 
     /**
