@@ -220,8 +220,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             return false;
         }
         WorkSiteTypeEnum workSiteTypeEnum = getWorkingSiteTypeBySubType(siteInfo.getSubType());
-        // 如果是分拣中心或者是接货仓的不拦截
-        if (Objects.equals(workSiteTypeEnum, DMS_TYPE) || Objects.equals(workSiteTypeEnum, RWMS_TYPE)) {
+        // 如果不是分拣中心，接货仓的不拦截
+        if (!Objects.equals(workSiteTypeEnum, DMS_TYPE) && !Objects.equals(workSiteTypeEnum, RWMS_TYPE)) {
             return false;
         }
 
