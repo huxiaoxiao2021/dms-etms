@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelati
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -42,9 +43,7 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
     /**
      * 快递包装耗材锁前缀
      */
-    public static final String CPACK_CONSUMABLE_LOCK_PREFIX = "CPACK_CONSUMABLE_LOCK_";
-
-    private final static int LOCK_TIME = 60;
+    public static final String CPACK_CONSUMABLE_LOCK_PREFIX = "CPACK:CONSUMABLE:LOCK:";
 
     @Autowired
     private WaybillConsumableRecordService waybillConsumableRecordService;
@@ -56,8 +55,9 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    @Qualifier("jimdbCacheService")
-    private CacheService jimdbCacheService;
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+
 
     @Override
     @JProfiler(jKey = "CPackingConsumableConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -109,10 +109,16 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
             }
         }
 
+        // 运单号
+        String waybillCode = packingConsumableDto.getWaybillCode();
+        // 互斥锁
+        String mutexKey = CPACK_CONSUMABLE_LOCK_PREFIX + waybillCode;
         try {
-            // 运单维度加锁
-            if (!lock(packingConsumableDto.getWaybillCode())) {
-                throw new JyBizException("快递包装耗材消费获取锁失败");
+            // 运单维度加锁防止并发
+            if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {
+                String warnMsg = String.format("运单号:%s-快递包装耗材消费正在处理中!", waybillCode);
+                log.warn(warnMsg);
+                throw new JyBizException(warnMsg);
             }
 
             /* 保存主表 */
@@ -143,8 +149,10 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
                     }
                 }
             }
+        } catch (Exception e) {
+            log.error("快递包装耗材消费出现异常:waybillCode={}", waybillCode, e);
         } finally {
-            unLock(packingConsumableDto.getWaybillCode());
+            redisClientOfJy.del(mutexKey);
         }
     }
 
@@ -167,28 +175,5 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
         return true;
     }
 
-    private boolean lock(String waybillCode) {
-        String lockKey = CPACK_CONSUMABLE_LOCK_PREFIX + waybillCode;
-        log.info("快递包装耗材消费开始获取锁lockKey={}", lockKey);
-        try {
-            if (!jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, LOCK_TIME, TimeUnit.SECONDS)) {
-                Thread.sleep(100);
-                return jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, LOCK_TIME, TimeUnit.SECONDS);
-            }
-        } catch (Exception e) {
-            log.error("快递包装耗材消费lock异常:sourceBizId={},e=", waybillCode, e);
-            jimdbCacheService.del(lockKey);
-        }
-        return true;
-    }
-
-    private void unLock(String waybillCode) {
-        try {
-            String lockKey = CPACK_CONSUMABLE_LOCK_PREFIX + waybillCode;
-            jimdbCacheService.del(lockKey);
-        } catch (Exception e) {
-            log.error("快递包装耗材消费unLock异常:waybillCode={},e=", waybillCode, e);
-        }
-    }
 
 }
