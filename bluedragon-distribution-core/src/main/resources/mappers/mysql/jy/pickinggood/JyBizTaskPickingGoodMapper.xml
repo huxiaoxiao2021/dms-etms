@@ -446,7 +446,7 @@
     </foreach>
   </update>
 
-  <select id="pageRecentCreatedManualBizId">
+  <select id="pageRecentCreatedManualBizId" resultType="java.lang.String">
     select biz_id
     from jy_biz_task_picking_good
     where yn = 1

@@ -159,4 +159,9 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
     public void timingHandlerFinishAirRailTask() {
         dmsTimingHandlerService.timingHandlerFinishAirRailTask();
     }
+
+    @Test
+    public void timingHandlerFinishAirRailManualTask() {
+        dmsTimingHandlerService.timingHandlerFinishAirRailManualTask();
+    }
 }

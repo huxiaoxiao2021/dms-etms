@@ -49,7 +49,6 @@
     where yn = 1
     and create_time <![CDATA[ >= ]]> #{startTime}
     and create_time <![CDATA[ <= ]]> #{endTime}
-    and task_type = #{taskType}
     and wait_scan_total_count = 0
     limit #{offset}, #{limit}
   </select>
