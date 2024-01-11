@@ -178,5 +178,10 @@ public class DynamicSortingQueryDao implements ISortingDao{
     public List<Sorting> getPagePackageNoByBoxCode(SortingPageRequest request) {
         return selectDao(request.getCreateSiteCode()).getPagePackageNoByBoxCode(request);
     }
+
+    @Override
+    public Sorting findLastSortingByPackageCode(Sorting sorting) {
+        return selectDao(sorting.getCreateSiteCode()).findLastSortingByPackageCode(sorting);
+    }
 }
 

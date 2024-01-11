@@ -103,4 +103,9 @@ public interface ISortingDao {
      * @return
      */
     List<Sorting> getPagePackageNoByBoxCode(SortingPageRequest request);
+
+    /**
+     * 查询场地最后一次分拣记录
+     */
+    Sorting findLastSortingByPackageCode(Sorting sorting);
 }
