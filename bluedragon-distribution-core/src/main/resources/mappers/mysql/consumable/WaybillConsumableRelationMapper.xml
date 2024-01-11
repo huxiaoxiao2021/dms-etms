@@ -478,6 +478,30 @@
 			<if test="confirmVolume != null">
 				confirm_volume = #{confirmVolume,jdbcType=DOUBLE},
 			</if>
+			<if test="consumableName != null">
+				consumable_name = #{consumableName,jdbcType=VARCHAR},
+			</if>
+			<if test="consumableType != null">
+				consumable_type = #{consumableType,jdbcType=VARCHAR},
+			</if>
+			<if test="consumableTypeName != null">
+				consumable_type_name = #{consumableTypeName,jdbcType=VARCHAR},
+			</if>
+			<if test="volume != null">
+				volume = #{volume,jdbcType=DECIMAL},
+			</if>
+			<if test="volumeCoefficient != null">
+				volume_coefficient = #{volumeCoefficient,jdbcType=DECIMAL},
+			</if>
+			<if test="specification != null">
+				specification = #{specification,jdbcType=VARCHAR},
+			</if>
+			<if test="unit != null">
+				unit = #{unit,jdbcType=VARCHAR},
+			</if>
+			<if test="packingCharge != null">
+				packing_charge = #{packingCharge,jdbcType=DECIMAL},
+			</if>
 			<if test="operateUserCode != null">
 				operate_user_code = #{operateUserCode,jdbcType=VARCHAR},
 			</if>
