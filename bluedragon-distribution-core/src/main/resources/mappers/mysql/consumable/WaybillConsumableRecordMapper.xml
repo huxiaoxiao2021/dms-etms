@@ -218,6 +218,9 @@
 	<update id="update" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord">
 		update waybill_consumable_record
 			<set>
+				<if test="dmsId != null">
+					dms_id = #{dmsId,jdbcType=INTEGER},
+				</if>
 				<if test="dmsName != null">
 					dms_name = #{dmsName,jdbcType=VARCHAR},
 				</if>
