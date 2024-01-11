@@ -699,6 +699,9 @@
                 <when test="sortType == 2">
                     last_seal_car_time DESC
                 </when>
+                <when test="sortType == 3">
+                    update_time DESC
+                </when>
                 <otherwise>
                     id
                 </otherwise>
