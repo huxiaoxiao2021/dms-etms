@@ -1786,7 +1786,10 @@ public class SortingServiceImpl implements SortingService {
         final String lastSiteCodeStr = kvIndexDao.queryRecentOneByKeyword(kvKey);
         if (StringUtils.isNotBlank(lastSiteCodeStr)) {
             Integer lastSiteCode = Integer.parseInt(lastSiteCodeStr);
-            final Sorting sorting = this.getOneSortingByPackageCode(packageCode, lastSiteCode);
+            Sorting sorting = new Sorting();
+            sorting.setCreateSiteCode(lastSiteCode);
+            sorting.setPackageCode(packageCode);
+            final List<Sorting> sortingList = dynamicSortingQueryDao.findByWaybillCodeOrPackageCode(sorting);
             if (sorting == null) {
                 return null;
             }
