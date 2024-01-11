@@ -611,6 +611,52 @@
         GROUP BY vehicle_status
     </select>
 
+    <select id="sumSpecifyTaskByVehicleStatus" resultMap="statusSumResultMap">
+        SELECT
+        vehicle_status, COUNT(*) total
+        FROM
+        jy_biz_task_send_vehicle
+        WHERE
+        yn = 1
+        <include refid="default_task_type_vehicle"/>
+        AND start_site_id = #{entity.startSiteId}
+        <if test="lineTypeList != null and lineTypeList.size() > 0">
+            AND line_type IN
+            <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
+            AND biz_id IN
+            <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <trim prefix="AND (" suffix=")" prefixOverrides="AND|OR">
+            <if test="entity.toSendLastPlanDepartTimeBegin !=null and entity.toSendLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+                (vehicle_status = 0 and ((last_plan_depart_time &gt;= #{entity.toSendLastPlanDepartTimeBegin} and
+                last_plan_depart_time &lt;= #{entity.toSendLastPlanDepartTimeEnd}) OR (last_plan_depart_time is null
+                and create_time &gt;= #{entity.createTimeBegin})))
+            </if>
+            <if test="entity.sendingLastPlanDepartTimeBegin !=null and entity.sendingLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+                OR (vehicle_status = 1 and ((last_plan_depart_time &gt;= #{entity.sendingLastPlanDepartTimeBegin} and
+                last_plan_depart_time &lt;= #{entity.sendingLastPlanDepartTimeEnd}) OR (last_plan_depart_time is
+                null and create_time &gt;= #{entity.createTimeBegin})))
+            </if>
+            <if test="entity.toSealLastPlanDepartTimeBegin !=null and entity.toSealLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+                OR (vehicle_status = 2 and ((last_plan_depart_time &gt;= #{entity.toSealLastPlanDepartTimeBegin} and
+                last_plan_depart_time &lt;= #{entity.toSealLastPlanDepartTimeEnd}) OR (last_plan_depart_time is null
+                and create_time &gt;= #{entity.createTimeBegin})))
+            </if>
+            <if test="entity.sealedLastPlanDepartTimeBegin !=null and entity.sealedLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+                OR (vehicle_status = 3 and ((last_plan_depart_time &gt;= #{entity.sealedLastPlanDepartTimeBegin} and
+                last_plan_depart_time &lt;= #{entity.sealedLastPlanDepartTimeEnd}) OR (last_plan_depart_time is null
+                and create_time &gt;= #{entity.createTimeBegin})))
+            </if>
+        </trim>
+        GROUP BY vehicle_status
+    </select>
+
     <select id="sumTaskByLineType" resultMap="lineTypeSumResultMap">
         SELECT
         line_type, COUNT(*) total
@@ -653,12 +699,73 @@
                 <when test="sortType == 2">
                     last_seal_car_time DESC
                 </when>
+                <when test="sortType == 3">
+                    update_time DESC
+                </when>
                 <otherwise>
                     id
                 </otherwise>
             </choose>
         </if>
 
+        LIMIT #{offset},#{limit}
+    </select>
+
+    <select id="querySpecifySendTaskOfPage" resultMap="jyBizTaskSendVehicleMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        jy_biz_task_send_vehicle
+        WHERE
+        yn = 1
+        AND start_site_id = #{entity.startSiteId}
+        <if test="lineTypeList != null and lineTypeList.length > 0">
+            AND line_type IN
+            <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="sendVehicleBizList != null and sendVehicleBizList.length > 0">
+            AND biz_id IN
+            <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.manualCreatedFlag != null">
+            AND manual_created_flag = #{entity.manualCreatedFlag}
+        </if>
+        <trim prefix="AND (" suffix=")" prefixOverrides="AND|OR">
+            <if test="entity.toSendLastPlanDepartTimeBegin !=null and entity.toSendLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+                (vehicle_status = 0 and ((last_plan_depart_time &gt;= #{entity.toSendLastPlanDepartTimeBegin} and
+                last_plan_depart_time &lt;= #{entity.toSendLastPlanDepartTimeEnd}) OR (last_plan_depart_time is null
+                and create_time &gt;= #{entity.createTimeBegin})))
+            </if>
+            <if test="entity.sendingLastPlanDepartTimeBegin !=null and entity.sendingLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+                OR (vehicle_status = 1 and ((last_plan_depart_time &gt;= #{entity.sendingLastPlanDepartTimeBegin} and
+                last_plan_depart_time &lt;= #{entity.sendingLastPlanDepartTimeEnd}) OR (last_plan_depart_time is
+                null and create_time &gt;= #{entity.createTimeBegin})))
+            </if>
+            <if test="entity.toSealLastPlanDepartTimeBegin !=null and entity.toSealLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+                OR (vehicle_status = 2 and ((last_plan_depart_time &gt;= #{entity.toSealLastPlanDepartTimeBegin} and
+                last_plan_depart_time &lt;= #{entity.toSealLastPlanDepartTimeEnd}) OR (last_plan_depart_time is null
+                and create_time &gt;= #{entity.createTimeBegin})))
+            </if>
+        </trim>
+        <include refid="default_task_type_vehicle"/>
+        <if test="sortType != null">
+            ORDER BY
+            <choose>
+                <when test="sortType == 1">
+                    last_plan_depart_time DESC
+                </when>
+                <when test="sortType == 2">
+                    last_seal_car_time DESC
+                </when>
+                <otherwise>
+                    id
+                </otherwise>
+            </choose>
+        </if>
         LIMIT #{offset},#{limit}
     </select>
 
@@ -814,6 +921,67 @@
         LIMIT #{offset}, #{limit}
     </select>
 
+    <select id="findSpecifySendTaskByDestOfPage" resultMap="jyBizTaskSendVehicleMap">
+        SELECT
+        m.id,
+        m.biz_id,m.trans_work_code,m.start_site_id,m.vehicle_number,m.vehicle_status,m.manual_created_flag,m.abnormal_flag,
+        m.bind_flag,m.trans_way,m.trans_way_name,m.vehicle_type,m.vehicle_type_name,m.line_type,m.line_type_name,m.last_plan_depart_time,m.last_seal_car_time
+        FROM
+        jy_biz_task_send_vehicle m
+        INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
+        WHERE
+        m.yn = 1
+        AND m.task_type = 1 <!-- 仅过滤发车任务 -->
+        AND m.manual_created_flag = 0
+        <!--AND m.line_type in (1,2)-->
+        <if test="entity.lineTypeList != null and entity.lineTypeList.size() > 0">
+            AND m.line_type in
+            <foreach collection="entity.lineTypeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        AND d.yn = 1
+        AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
+        <if test="entity.transferFlag!=null and entity.transferFlag ==2">
+            AND d.excep_label =0
+        </if>
+        <if test="entity.endSiteId != null">
+            AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
+        </if>
+        <if test="entity.transWorkItemCode != null and entity.transWorkItemCode !='' ">
+            AND d.trans_work_item_code = #{entity.transWorkItemCode}
+        </if>
+        <if test="entity.transWorkCodeList != null">
+            AND m.trans_work_code IN
+            <foreach collection="entity.transWorkCodeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.sendVehicleBizId != null">
+            AND d.send_vehicle_biz_id = #{entity.sendVehicleBizId}
+        </if>
+        <trim prefix="AND (" suffix=")" prefixOverrides="AND|OR">
+            <if test="entity.toSendLastPlanDepartTimeBegin !=null and entity.toSendLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+                (d.vehicle_status = 0 and ((m.last_plan_depart_time &gt;= #{entity.toSendLastPlanDepartTimeBegin} and
+                m.last_plan_depart_time &lt;= #{entity.toSendLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is null
+                and m.create_time &gt;= #{entity.createTimeBegin})))
+            </if>
+            <if test="entity.sendingLastPlanDepartTimeBegin !=null and entity.sendingLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+                OR (d.vehicle_status = 1 and ((m.last_plan_depart_time &gt;= #{entity.sendingLastPlanDepartTimeBegin} and
+                m.last_plan_depart_time &lt;= #{entity.sendingLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is
+                null and m.create_time &gt;= #{entity.createTimeBegin})))
+            </if>
+            <if test="entity.toSealLastPlanDepartTimeBegin !=null and entity.toSealLastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+                OR (d.vehicle_status = 2 and ((m.last_plan_depart_time &gt;= #{entity.toSealLastPlanDepartTimeBegin} and
+                m.last_plan_depart_time &lt;= #{entity.toSealLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is null
+                and m.create_time &gt;= #{entity.createTimeBegin})))
+            </if>
+        </trim>
+        GROUP BY m.biz_id
+        ORDER BY m.last_plan_depart_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
     <select id="countSendTaskByDest" resultType="java.lang.Integer">
         SELECT COUNT(*)
         FROM (
@@ -841,6 +1009,49 @@
                  GROUP BY m.biz_id
              ) t
     </select>
+
+    <select id="countSpecifySendTaskByDest" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM (
+        SELECT m.id,
+        m.biz_id
+        FROM jy_biz_task_send_vehicle m
+        INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
+        WHERE m.yn = 1
+        AND m.task_type = 1 <!-- 仅过滤发车任务 -->
+        AND m.manual_created_flag = 0
+        <!--AND m.line_type in (1,2)-->
+        <if test="lineTypeList != null and lineTypeList.size() > 0">
+            AND m.line_type in
+            <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        AND d.yn = 1
+        AND d.start_site_id = #{startSiteId, jdbcType=BIGINT}
+        AND d.end_site_id = #{endSiteId, jdbcType=BIGINT}
+        AND d.excep_label =0
+        <trim prefix="AND (" suffix=")" prefixOverrides="AND|OR">
+            <if test="toSendLastPlanDepartTimeBegin !=null and toSendLastPlanDepartTimeEnd !=null and createTimeBegin !=null">
+                (d.vehicle_status = 0 and ((m.last_plan_depart_time &gt;= #{toSendLastPlanDepartTimeBegin} and
+                m.last_plan_depart_time &lt;= #{toSendLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is null
+                and m.create_time &gt;= #{createTimeBegin})))
+            </if>
+            <if test="sendingLastPlanDepartTimeBegin !=null and sendingLastPlanDepartTimeEnd !=null and createTimeBegin !=null">
+                OR (d.vehicle_status = 1 and ((m.last_plan_depart_time &gt;= #{sendingLastPlanDepartTimeBegin} and
+                m.last_plan_depart_time &lt;= #{sendingLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is
+                null and m.create_time &gt;= #{createTimeBegin})))
+            </if>
+            <if test="toSealLastPlanDepartTimeBegin !=null and toSealLastPlanDepartTimeEnd !=null and createTimeBegin !=null">
+                OR (d.vehicle_status = 2 and ((m.last_plan_depart_time &gt;= #{toSealLastPlanDepartTimeBegin} and
+                m.last_plan_depart_time &lt;= #{toSealLastPlanDepartTimeEnd}) OR (m.last_plan_depart_time is null
+                and m.create_time &gt;= #{createTimeBegin})))
+            </if>
+        </trim>
+        GROUP BY m.biz_id
+        ) t
+    </select>
+
     <select id="findSendTaskByTransWorkCode" resultMap="jyBizTaskSendVehicleMap">
         select
         <include refid="Base_Column_List"/>
@@ -1028,5 +1239,38 @@
         ) t
     </select>
 
+    <select id="findSpecifyStatusManualTaskByStayOverTime" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity" resultType="java.lang.String">
+        select
+            biz_id
+        from jy_biz_task_send_vehicle
+        where manual_created_flag = #{manualCreatedFlag}
+          and vehicle_status = #{vehicleStatus}
+          and bind_flag = #{bindFlag}
+          and yn = 1
+          and  <![CDATA[ create_time < #{createTime,jdbcType=TIMESTAMP} ]]>
+        limit #{pageSize,jdbcType=INTEGER}
+    </select>
+
+    <update id="batchUpdateByBizIds" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity">
+        update jy_biz_task_send_vehicle
+        <trim prefix="set" suffixOverrides=",">
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="yn != null">
+                yn = #{yn},
+            </if>
+        </trim>
+        where yn = 1 and biz_id in
+        <foreach collection="bizIdList" item="item" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </update>
 
 </mapper>

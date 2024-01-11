@@ -385,6 +385,11 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
 
         // 1、强制提示信息
         StringBuilder forceMessage;
+
+        if (!checkMinWeightAndVolume(weight, volume, weightVolumeContext, result)) {
+            return;
+        }
+
         // 重量校验：是否大于5000kg
         int weightMaxLimitB = weightVolumeRuleConstant.getWeightMaxLimitB();
         if(weight > weightMaxLimitB){
@@ -510,8 +515,28 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             }
         }
 
+        if (!checkMinWeightAndVolume(weight, volume, weightVolumeContext, result)) {
+            return;
+        }
         // 设置提示结尾提示语
         setEndConfirmMessage(confirmMessage,result);
+    }
+
+    private boolean checkMinWeightAndVolume(double weight, Double volume, WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
+        // 强卡控 重量校验：是否小于0.01kg
+        Double waybillWeightMinLimit = weightVolumeContext.getWeightVolumeRuleConstant().getWeightMinLimit();
+        if (Objects.equals(weightVolumeContext.getCheckWeight(),true) && weight < waybillWeightMinLimit) {
+            result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_5, waybillWeightMinLimit));
+            return false;
+        }
+
+        // 强卡控 体积校验：是否小于0.01cm3
+        Double waybillVolumeMinLimit = weightVolumeContext.getWeightVolumeRuleConstant().getVolumeMinLimit();
+        if(Objects.equals(weightVolumeContext.getCheckVolume(),true) && volume < waybillVolumeMinLimit){
+            result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_6, waybillVolumeMinLimit));
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -531,6 +556,9 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         }
         double weight = NumberHelper.gt0(weightVolumeContext.getWeight())? weightVolumeContext.getWeight() : 0;
 
+        if (!checkMinWeightAndVolume(weight, volume, weightVolumeContext, result)) {
+            return;
+        }
 
         // 确认提示信息
         StringBuilder confirmMessage = new StringBuilder();
@@ -571,7 +599,6 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
                 return;
             }
         }
-
         // 设置提示结尾提示语
         setEndConfirmMessage(confirmMessage,result);
     }

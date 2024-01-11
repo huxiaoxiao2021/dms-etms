@@ -20,7 +20,7 @@ import com.jd.bluedragon.distribution.jy.service.task.enums.JySendTaskTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -181,7 +181,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
                     updateAviationPlan.setBookingWeight(mqBody.getBookingWeight());
                     if(!NumberHelper.gt0(mqBody.getBookingWeight())) {
                         interceptCancel = true;
-                        updateAviationPlan.setIntercept(1);
+                        updateAviationPlan.setIntercept(Constants.CONSTANT_NUMBER_ONE);
                         updateAviationPlan.setInterceptTime(curTime);
                     }
                     jyBizTaskSendAviationPlanService.updateByBizId(updateAviationPlan);
@@ -195,7 +195,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
                 }
             }
         }catch (JyBizIgnoreException ignoreEx){
-            log.warn("消费运输航空计划生成航空发货任务，查询路由系统任务下一流向为空或者服务不可用，丢弃该消息，订舱号={},mqBody={}", mqBody.getBookingCode(), JsonHelper.toJson(mqBody), ignoreEx);
+            log.warn("消费运输航空计划生成航空发货任务，查询路由系统任务下一流向为空，丢弃该消息，订舱号={},mqBody={}", mqBody.getBookingCode(), JsonHelper.toJson(mqBody), ignoreEx);
             return;
         }catch (Exception e) {
             Profiler.functionError(info);
@@ -296,7 +296,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
                     log.error("根据场地分拣编码【{}】获取场地异常, errMsg={}", siteCode, e.getMessage(), e);
                     continue;
                 }
-                if(Objects.isNull(nextSite)) {
+                if(Objects.isNull(nextSite) || !BusinessUtil.isSorting(nextSite.getSiteType())) {
                     continue;
                 }
                 nextSiteCode = siteCode;

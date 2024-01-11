@@ -37,6 +37,11 @@ public class PicAutoDistinguishRequest implements Serializable {
      */
     private String picUrl;
 
+    /**
+     * 版本：值为1时代表从新版人工抽检(支持视频)进来
+     */
+    private Integer version;
+
     public String getBarCode() {
         return barCode;
     }
@@ -75,5 +80,13 @@ public class PicAutoDistinguishRequest implements Serializable {
 
     public void setPicUrl(String picUrl) {
         this.picUrl = picUrl;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

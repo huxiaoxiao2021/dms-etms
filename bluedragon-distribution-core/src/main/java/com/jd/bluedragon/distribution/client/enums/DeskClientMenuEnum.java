@@ -26,6 +26,7 @@ public enum DeskClientMenuEnum {
     PACK_REPRINT("0601010", "包裹补打"),
     SPARE_PRINT("0601011", "备件条码打印"),
     SCENE_PRE_SORT("0601012", "现场预分拣"),
+    SCENE_PRE_SORT_KF("060101201", "现场预分拣(客服)"),
     LINE_UP_PRINT("0601013", "排队号打印"),
     TRANSPORT_PRINT("0601014", "运力编码打印"),
     F_PRINT("0601015", "返单条码打印"),

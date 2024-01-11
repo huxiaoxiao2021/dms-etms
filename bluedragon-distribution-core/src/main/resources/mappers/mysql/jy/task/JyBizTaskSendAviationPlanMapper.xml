@@ -35,6 +35,7 @@
         <result column="task_status" property="taskStatus" jdbcType="INTEGER" />
         <result column="intercept" property="intercept" jdbcType="INTEGER" />
         <result column="intercept_time" property="interceptTime" jdbcType="TIMESTAMP" />
+        <result column="manual_created_flag" property="manualCreatedFlag" jdbcType="INTEGER" />
     </resultMap>
 
 
@@ -62,7 +63,7 @@
         begin_node_name, end_node_code, end_node_name, carrier_code, carrier_name, booking_weight,
         cargo_type, air_type, create_user_erp, create_user_name, update_user_erp,
         update_user_name, create_time, update_time, yn, next_site_id, next_site_code,
-        next_site_name,task_status,intercept,intercept_time
+        next_site_name,task_status,intercept,intercept_time,manual_created_flag
     </sql>
 
     <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity" >
@@ -155,6 +156,9 @@
             <if test="taskStatus != null" >
                 task_status,
             </if>
+            <if test="manualCreatedFlag != null" >
+                manual_created_flag,
+            </if>
             yn
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -245,6 +249,9 @@
             <if test="taskStatus != null" >
                 #{taskStatus},
             </if>
+            <if test="manualCreatedFlag != null" >
+                #{manualCreatedFlag},
+            </if>
             1
         </trim>
     </insert>
@@ -319,6 +326,9 @@
         <if test="bizId != null" >
             and biz_id = #{bizId}
         </if>
+        <if test="manualCreatedFlag != null" >
+            and manual_created_flag = #{manualCreatedFlag}
+        </if>
     </sql>
 
     <select id="statusStatistics" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="statusStatisticsRes">
@@ -364,7 +374,10 @@
             and next_site_id = #{nextSiteId}
             and task_status = #{taskStatus}
             <include refid="list_query_condition" />
-        order by take_off_time
+        order by take_off_time is null desc, take_off_time
+        <if test="takeOffTimeOrderDesc == 1" >
+            desc
+        </if>
         limit #{offset},#{pageSize}
     </select>
 
@@ -410,7 +423,7 @@
             and task_status = #{taskStatus}
             <include refid="list_query_condition" />
         order by
-            take_off_time
+                take_off_time is null desc, take_off_time
         limit #{offset},#{pageSize}
     </select>
 
@@ -436,11 +449,10 @@
         where
         yn = 1
         and start_site_id = #{startSiteId}
-        and next_site_id = #{startSiteId}
-        and (task_status = 0 and take_off_time &gt;= #{takeOffTimeStart}) or (task_status = 1)
+        and next_site_id = #{nextSiteId}
+        and ((task_status = 0 and take_off_time &gt;= #{takeOffTimeStart}) or (task_status = 1))
         and create_time &gt;= #{createTimeStart}
-        order by
-        take_off_time
+        order by take_off_time is null desc, take_off_time
         limit #{offset},#{pageSize}
     </select>
 </mapper>

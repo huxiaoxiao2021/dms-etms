@@ -148,6 +148,11 @@ public class SealVehicleReq extends BaseReq implements Serializable {
      */
     private String departureTimeStr;
 
+    /**
+     * 校验板数量和流向: 未更新的PDA版本不进行校验
+     */
+    private Boolean checkBoardSumAndFlow;
+
     public String getSendVehicleBizId() {
         return sendVehicleBizId;
     }
@@ -354,5 +359,13 @@ public class SealVehicleReq extends BaseReq implements Serializable {
 
     public void setDepartureTimeStr(String departureTimeStr) {
         this.departureTimeStr = departureTimeStr;
+    }
+
+    public Boolean getCheckBoardSumAndFlow() {
+        return checkBoardSumAndFlow;
+    }
+
+    public void setCheckBoardSumAndFlow(Boolean checkBoardSumAndFlow) {
+        this.checkBoardSumAndFlow = checkBoardSumAndFlow;
     }
 }

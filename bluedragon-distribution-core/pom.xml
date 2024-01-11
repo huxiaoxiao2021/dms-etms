@@ -112,7 +112,7 @@
 			<artifactId>erp.ql.station-api</artifactId>
 			<version>1.0.1-printcheck-20210426.063930-1</version>
 		</dependency>
-
+ 
 		<dependency>
 			<groupId>com.jd.rd.unpack</groupId>
 			<artifactId>unpack-jsf</artifactId>
@@ -243,12 +243,12 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>2.0.20-SNAPSHOT</version>
+			<version>2.0.26-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.5.4-SNAPSHOT</version>
+			<version>1.5.5-SNAPSHOT</version>
 		</dependency>
 <!--		积分-->
 		<dependency>
@@ -277,7 +277,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.7.4-SNAPSHOT</version>
+            <version>1.7.8-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1443,7 +1443,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>1.9-SNAPSHOT</version>
+			<version>2.4-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>hibernate-validator</artifactId>
@@ -2288,7 +2288,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>automatic-platform-sdk</artifactId>
-			<version>1.3-SNAPSHOT</version>
+			<version>1.4-SNAPSHOT</version>
 		</dependency>
 
         <dependency>
@@ -2472,6 +2472,10 @@
 			<artifactId>jy-basic-api</artifactId>
 			<exclusions>
 				<exclusion>
+					<groupId>org.junit.jupiter</groupId>
+					<artifactId>junit-jupiter</artifactId>
+				</exclusion>
+				<exclusion>
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
 				</exclusion>
@@ -2505,7 +2509,16 @@
             <groupId>com.jdl.basic</groupId>
             <artifactId>jy-basic-common</artifactId>
         </dependency>
-
+		<dependency>
+			<groupId>cn.jdl.express</groupId>
+			<artifactId>jdl-eca-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
         <dependency>
             <artifactId>dms-java-utils-sdk</artifactId>
             <groupId>com.jd.dms.utis</groupId>
@@ -2713,6 +2726,16 @@
 			<artifactId>print-api</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>udata</groupId>
+			<artifactId>udata-jsf-interface</artifactId>
+			<version>1.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>vd-service-sdk</groupId>
+			<artifactId>vd-service-sdk</artifactId>
+		</dependency>
     </dependencies>
 
 	<profiles>

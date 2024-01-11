@@ -14,12 +14,12 @@
 
 
 	<!-- 非核心业务 -->
-	<!--<import resource="classpath:spring/worker/db/distribution-worker-task-normal.xml" />
-    <import resource="classpath:spring/worker/redis/distribution-worker-task-redis-normal.xml" />
+	<import resource="classpath:spring/worker/db/distribution-worker-task-normal.xml" />
+	<!-- <import resource="classpath:spring/worker/redis/distribution-worker-task-redis-normal.xml" />
 
-	&lt;!&ndash; 核心业务 &ndash;&gt;
-	<import resource="classpath:spring/worker/db/distribution-worker-task-important.xml" />
-	<import resource="classpath:spring/worker/redis/distribution-worker-task-redis-important.xml" />-->
+     &lt;!&ndash; 核心业务 &ndash;&gt;
+     <import resource="classpath:spring/worker/db/distribution-worker-task-important.xml" />
+     <import resource="classpath:spring/worker/redis/distribution-worker-task-redis-important.xml" />-->
 
 	<!-- JMQ 任务-->
 

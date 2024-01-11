@@ -10,6 +10,7 @@ public enum JyBizTaskSendSortTypeEnum {
 
     PLAN_DEPART_TIME(1, "预计发车时间"),
     SEAL_CAR_TIME(2, "封车时间"),
+    UPDATE_TIME(3, "更新时间"),
     ;
 
     private Integer code;

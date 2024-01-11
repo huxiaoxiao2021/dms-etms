@@ -3,10 +3,12 @@ package com.jd.bluedragon.core.simpleComplex;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.utils.JsonHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -20,10 +22,42 @@ import java.util.Objects;
  * @author hujiping
  * @date 2023/7/27 8:01 PM
  */
+@Slf4j
 @Component("simpleComplexSwitchExecutor")
 public class SimpleComplexSwitchExecutor {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleComplexSwitchExecutor.class);
+
+    public <T> T copyAndReturnNewInstance(T source) throws Exception {
+        ObjectOutputStream out = null;
+        ObjectInputStream in = null;
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            out = new ObjectOutputStream(bos);
+            out.writeObject(source);
+            out.flush();
+            out.close();
+
+            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+            in = new ObjectInputStream(bis);
+            T copiedObject = (T) in.readObject();
+            in.close();
+            return copiedObject;
+        }catch (NotSerializableException e) {
+            logger.warn("简繁切换-通过序列化方式复制对象失败!对象:{}未实现序列化", source.getClass().getName());
+            return null;
+        }catch (Exception e){
+            logger.error("简繁切换-复制对象异常!对象:{}", source.getClass().getName(), e);
+            return null;
+        }finally {
+            if(out != null){
+                out.close();
+            }
+            if(in != null){
+                in.close();
+            }
+        }
+    }
 
     public void recursiveDeal(Object result, Integer switchType) {
         try {

@@ -1078,4 +1078,8 @@ public class HintCodeConstants {
     
     // 扫描的笼车/围板箱集包袋号不正确，请扫描笼车/围板箱上面的固定物资条码
     public static String LL_BOX_BINDING_MATERIAL_TYPE_ERROR = "20104";
+
+    // 暴力分拣触发安灯量灯通知
+    public static String VIOLENT_ANDON_JD_ME_CODE = "55701";
+
 }

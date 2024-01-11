@@ -18,7 +18,7 @@ public interface FlowServiceManager {
 
     /**
      * 提交申请单
-     * @see 'http://lcp.jdl.cn/#/docSoftwareSystem/19/670'
+     * @see 'http://lcp.jdl.com/#/docSoftwareSystem/19/670'
      * @param oaMap OA数据
      * @param businessMap 业务数据
      * @param flowControlMap 流程分支数据

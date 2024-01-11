@@ -184,4 +184,19 @@ public interface JyAviationRailwaySendSealGatewayService {
      */
     JdCResponse<ShuttleTaskSealCarQueryRes> fetchToSealShuttleTaskDetail(ShuttleTaskSealCarQueryReq request);
 
+
+    /**
+     * （新）摆渡封车前数据准备
+     * @param request
+     * @return
+     */
+    JdCResponse<PrepareShuttleSealCarRes> prepareShuttleSealCarData(PrepareShuttleSealCarReq request);
+
+    /**
+     * 查询发货明细
+     * @param request
+     * @return
+     */
+    JdCResponse<SendTaskInfoRes> sendTaskDetail(SendTaskInfoReq request);
+
 } 

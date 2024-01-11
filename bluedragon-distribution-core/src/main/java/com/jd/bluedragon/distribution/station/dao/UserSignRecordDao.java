@@ -199,6 +199,11 @@ public interface UserSignRecordDao {
 	 */
 	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
 
+	UserSignRecord queryLastUnSignOutRecordIgnoreCase(List<String> list);
+
+	UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query);
+
+
 	/**
 	 * 查询用户第一次签到记录，返回UserSignRecordData
 	 * @param query

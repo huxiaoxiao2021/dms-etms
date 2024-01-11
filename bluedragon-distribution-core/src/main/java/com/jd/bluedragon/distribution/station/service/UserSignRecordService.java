@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.station.service;
 
-import java.util.Date;
-import java.util.List;
-
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
@@ -16,8 +13,9 @@ import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
-import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+
+import java.util.List;
 
 /**
  * 人员签到表--Service接口
@@ -202,6 +200,25 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query);
+
+	/**
+	 * 签到前校验
+	 * 
+	 * @param userSignRequest
+	 * @return
+	 */
+	JdCResponse<UserSignRecordData> checkBeforeSignIn(UserSignRequest userSignRequest);
+
+	/**
+	 * 校验用户签到状态
+	 * 
+	 * @param positionCode
+	 * @param jobCode
+	 * @param userCode
+	 * @return
+	 */
+	JdCResponse<UserSignRecordData> checkUserSignStatus(String positionCode, Integer jobCode, String userCode);
+	
 	/**
 	 * 校验并生成新的签到数据
 	 * @param signInRequest

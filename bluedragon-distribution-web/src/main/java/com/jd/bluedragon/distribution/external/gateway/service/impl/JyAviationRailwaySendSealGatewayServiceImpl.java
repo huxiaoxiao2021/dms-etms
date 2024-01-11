@@ -48,6 +48,10 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
 
     private static final Logger log = LoggerFactory.getLogger(JyAviationRailwaySendSealGatewayServiceImpl.class);
 
+
+    public static final Integer oneSealBatchCodesMaxSize = 100;
+
+
     @Autowired
     private JyAviationRailwaySendSealServiceImpl jyAviationRailwaySendSealService;
     @Autowired
@@ -756,6 +760,67 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "摆渡任务待封车明细查询服务异常", null);//500+非自定义异常
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwaySendSealGatewayServiceImpl.prepareShuttleSealCarData",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<PrepareShuttleSealCarRes> prepareShuttleSealCarData(PrepareShuttleSealCarReq request) {
+        if(Objects.isNull(request)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.prepareShuttleSealCarData:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
+            //业务参数校验
+            if(CollectionUtils.isEmpty(request.getSendTaskBindDtoList())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "待封任务为空", null);
+            }
+            if(request.getSendTaskBindDtoList().size() > JyAviationRailwaySendSealGatewayServiceImpl.oneSealBatchCodesMaxSize) {
+                String msg = String.format("封车任务最大支持%s个", JyAviationRailwaySendSealGatewayServiceImpl.oneSealBatchCodesMaxSize);
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, msg, null);
+            }
+            //服务调用
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            }
+            return retJdCResponse(jyAviationRailwaySendSealService.prepareShuttleSealCarData(request));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "摆渡封车前置数据查询失败", null);//500+非自定义异常
+        }
+    }
+
+    @Override
+    public JdCResponse<SendTaskInfoRes> sendTaskDetail(SendTaskInfoReq request) {
+        if(Objects.isNull(request)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwaySendSealGatewayServiceImpl.sendTaskDetail:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    request.getUser(), request.getCurrentOperate(), request.getGroupCode(), request.getPost());
+            //业务参数校验
+            if(StringUtils.isEmpty(request.getSendVehicleBizId())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "bizId为空", null);
+            }
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
+            }
+            return retJdCResponse(jyAviationRailwaySendSealService.sendTaskDetail(request));
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "发货任务详情查询失败", null);//500+非自定义异常
         }
     }
 }

@@ -7,14 +7,8 @@ import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
-import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.ql.basic.domain.BaseOrg;
-import com.jd.ql.basic.domain.BaseSite;
-import com.jd.ql.basic.domain.PsStoreInfo;
-import com.jd.ql.basic.dto.BaseSiteInfoDto;
-import com.jd.ql.basic.dto.BaseStaffSiteDTO;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.dto.SimpleBaseSite;
+import com.jd.ql.basic.domain.*;
+import com.jd.ql.basic.dto.*;
 import com.jd.ql.dms.report.domain.*;
 
 import java.util.List;
@@ -260,4 +254,33 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	List<BaseStaffSiteDTO> queryBaseStaffByRole(String provinceAgencyCode, Integer role);
+
+	/**
+	 * 根据身份证号查询是否已经存在员工信息
+	 */
+	BaseStaff checkIDCardNoExists(String idCardNo);
+
+
+    /**
+     * 根据用户编码获取第三方员工信息
+     *
+     * @param userCode 用户编码
+     * @return 第三方员工信息
+     */
+	BaseStaffSiteOrgDto getThirdStaffByUserCode(String userCode);
+
+	/**
+	 *  根据员工ID查询员工信息（新版 只返回在职）
+	 * @param staffId
+	 * @return
+	 */
+	BaseStaffSiteDTO queryBaseStaffByStaffId(Integer staffId);
+
+    /**
+     * 根据dmsSiteId获取库房信息
+     *
+     * @param siteId DMS站点ID
+     * @return 响应的基础门店信息
+     */
+	PsStoreInfo selectBaseStoreByDmsSiteId(Integer siteId);
 }

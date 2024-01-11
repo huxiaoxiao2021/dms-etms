@@ -202,6 +202,7 @@
         <mapper resource="mappers/mysql/departure/DepartureTmpMapper.xml"/>
 
         <mapper resource="mappers/mysql/reassignWaybill/ReassignWaybillMapper.xml"/>
+        <mapper resource="mappers/mysql/reassignWaybill/ReassignWaybillApprovalRecordMapper.xml"/>
 
         <mapper resource="mappers/mysql/popPickup/PopPickupMapper.xml"/>
         <mapper resource="mappers/mysql/sysconfig/SysConfigMapper.xml"/>
@@ -404,6 +405,8 @@
 
         <!--移动微仓 -->
         <mapper resource="mappers/mysql/ministore/MiniStoreBindRelationMapper.xml" />
+        <!--设备抽检申诉 -->
+        <mapper resource="mappers/mysql/spot/SpotCheckAppealMapper.xml" />
 
     </mappers>
 </configuration>
