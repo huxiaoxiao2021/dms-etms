@@ -1581,6 +1581,11 @@ public class UccPropertyConfiguration{
      */
     private Integer jyWarehouseTaskCreateTimeBeginHours;
 
+    /**
+     * 接货仓发货岗自建任务常用车型置顶
+     */
+    private String jyWarehouseManualTaskKeyVehicleTypes;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4260,4 +4265,13 @@ public class UccPropertyConfiguration{
     public void setJyWarehouseTaskCreateTimeBeginHours(Integer jyWarehouseTaskCreateTimeBeginHours) {
         this.jyWarehouseTaskCreateTimeBeginHours = jyWarehouseTaskCreateTimeBeginHours;
     }
+
+    public String getJyWarehouseManualTaskKeyVehicleTypes() {
+        return jyWarehouseManualTaskKeyVehicleTypes;
+    }
+
+    public void setJyWarehouseManualTaskKeyVehicleTypes(String jyWarehouseManualTaskKeyVehicleTypes) {
+        this.jyWarehouseManualTaskKeyVehicleTypes = jyWarehouseManualTaskKeyVehicleTypes;
+    }
+
 }

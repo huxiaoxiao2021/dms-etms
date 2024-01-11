@@ -18,6 +18,13 @@ public interface JyNoTaskSendService {
     InvokeResult<List<VehicleSpecResp>> listVehicleType();
 
     /**
+     * 获取车辆类型列表信息-带请求参数
+     * 可以自定义调整车型顺序，目前接货仓有这种需求
+     * @return
+     */
+    InvokeResult<List<VehicleSpecResp>> listVehicleTypeNew(VehicleTaskReq vehicleTaskReq);
+
+    /**
      * 创建自建类型的运输车辆任务（主任务）
      * @param createVehicleTaskReq
      * @return
