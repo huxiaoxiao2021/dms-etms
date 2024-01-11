@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.KvIndexConstants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -34,9 +35,7 @@ import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
-import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
-import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
@@ -46,7 +45,6 @@ import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryD
 import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
-import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -54,12 +52,12 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
 import com.jd.bluedragon.distribution.sorting.domain.SortingQuery;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
-import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -95,8 +93,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -202,7 +198,10 @@ public class SortingServiceImpl implements SortingService {
 	private Cluster redisClient;
 	
     @Autowired
-    private JyOperateFlowService jyOperateFlowService;	
+    private JyOperateFlowService jyOperateFlowService;
+
+	@Autowired
+	private KvIndexDao kvIndexDao;
 
 	public Integer add(Sorting sorting) {
 		return this.sortingDao.add(SortingDao.namespace, sorting);
@@ -1769,4 +1768,33 @@ public class SortingServiceImpl implements SortingService {
 		boxQuery.setOffset(query.getPageSize() * (query.getPageNo() - 1));
 		return dynamicSortingQueryDao.getPagePackageNoByBoxCode(boxQuery);
 	}
+
+    /**
+     * 根据包裹号查询上次分拣信息
+     *
+     * @param packageCode 包裹号
+     * @return 箱号数据
+     * @author fanggang7
+     * @time 2023-12-09 15:30:44 周六
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCommonSerivce.java.getLastSortingInfoByPackageCode", mState = {JProEnum.TP})
+    public SortingDto getLastSortingInfoByPackageCode(String packageCode) {
+        final String kvKey = String.format(KvIndexConstants.KEY_PACKAGE_BOX_ASSOCIATION, packageCode);
+        final String lastSiteCodeStr = kvIndexDao.queryRecentOneByKeyword(kvKey);
+        if (StringUtils.isNotBlank(lastSiteCodeStr)) {
+            Integer lastSiteCode = Integer.parseInt(lastSiteCodeStr);
+            Sorting sortingParam = new Sorting();
+            sortingParam.setCreateSiteCode(lastSiteCode);
+            sortingParam.setPackageCode(packageCode);
+            final Sorting sortingExist = dynamicSortingQueryDao.findLastSortingByPackageCode(sortingParam);
+            if (sortingExist == null) {
+                return null;
+            }
+            final SortingDto sortingDto = new SortingDto();
+            BeanUtils.copyProperties(sortingExist, sortingDto);
+            return sortingDto;
+        }
+        return null;
+    }
 }
