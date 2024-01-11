@@ -20,9 +20,12 @@ import com.jd.bluedragon.distribution.send.domain.SendDSimple;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.wss.dto.*;
 import com.jd.bluedragon.distribution.wss.service.DistributionWssService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -68,6 +71,9 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 
     @Value("${jsf.dmsExternal.pageLimit}")
 	private int pageLimit;
+
+    @Autowired
+    private SortingService sortingService;
 
 	/* (non-Javadoc)
 	 * @see com.jd.bluedragon.distribution.external.service.DmsExternalService#findWaybillByBoxCode(java.lang.String)
@@ -278,4 +284,26 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 //		return getWaybillSafService.getPackageCodesBySendCode(sendCode);
 //	}
 
+    /**
+     * 根据包裹号查询上次分拣信息
+     *
+     * @param packageCode 包裹号
+     * @return 箱号数据
+     * @author fanggang7
+     * @time 2023-12-09 15:30:44 周六
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsExternalReadServiceImpl.getLastSortingInfoByPackageCode", mState = {JProEnum.TP})
+    public Result<SortingDto> getLastSortingInfoByPackageCode(String packageCode) {
+        log.info("DmsExternalReadServiceImpl.getLastSortingInfoByPackageCode param {}", packageCode);
+        Result<SortingDto> result = Result.success();
+        try {
+            final SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(packageCode);
+            return result.setData(sortingDto);
+        } catch (Exception e) {
+            log.error("DmsExternalReadServiceImpl.getLastSortingInfoByPackageCode exception param {} ", packageCode, e);
+            result.toFail("查询异常");
+        }
+        return result;
+    }
 }

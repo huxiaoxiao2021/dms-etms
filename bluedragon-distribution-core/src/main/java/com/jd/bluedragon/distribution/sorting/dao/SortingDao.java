@@ -185,4 +185,14 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
 	public List<Sorting> querySortingForUpdate(Sorting sorting) {
 		return this.getSqlSession().selectList(namespace + ".querySortingForUpdate", sorting);
 	}
+
+    /**
+     * 查询场地最后一次分拣记录
+     *
+     * @param sorting
+     */
+    @Override
+    public Sorting findLastSortingByPackageCode(Sorting sorting) {
+        return this.getSqlSession().selectOne(namespace + ".findLastSortingByPackageCode", sorting);
+    }
 }
