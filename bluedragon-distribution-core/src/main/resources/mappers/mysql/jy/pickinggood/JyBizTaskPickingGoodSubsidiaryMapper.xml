@@ -183,25 +183,25 @@
     yn
     )
     values
-    <foreach collection="list" item="item" separator=",">
+    <foreach collection="list" item="item" index="index" separator=",">
       (
-      #{bizId},
-      #{businessNumber},
-      #{sendCode},
-      #{sealCarCode},
-      #{startSiteId},
-      #{startSiteCode},
-      #{startSiteName},
-      #{endSiteId},
-      #{endSiteCode},
-      #{endSiteName},
-      #{transportCode},
-      #{createUserErp},
-      #{createUserName},
-      #{updateUserErp},
-      #{updateUserName},
-      #{createTime},
-      #{updateTime},
+      #{item.bizId},
+      #{item.businessNumber},
+      #{item.sendCode},
+      #{item.sealCarCode},
+      #{item.startSiteId},
+      #{item.startSiteCode},
+      #{item.startSiteName},
+      #{item.endSiteId},
+      #{item.endSiteCode},
+      #{item.endSiteName},
+      #{item.transportCode},
+      #{item.createUserErp},
+      #{item.createUserName},
+      #{item.updateUserErp},
+      #{item.updateUserName},
+      #{item.createTime},
+      #{item.updateTime},
       1
       )
     </foreach>

@@ -36,6 +36,7 @@ public class JyPickingGoodWaitScanItemNumUpdateConsumer extends MessageBaseConsu
 
     @Autowired
     private JimDbLock jimDbLock;
+    @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
     @Autowired

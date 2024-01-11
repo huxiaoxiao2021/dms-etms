@@ -110,9 +110,8 @@ public class JyPickingTaskAggsCacheService {
     private static final String CACHE_INIT_WAIT_SEND_TOTAL_NUM = "cache:init:wait:send:total:num:%s:%s:%s";
     private static final Integer CACHE_INIT_WAIT_SEND_TOTAL_NUM_TIMEOUT_HOURS = 24;
 
-
-    @Qualifier("redisClientOfJy")
     @Autowired
+    @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
     @Autowired
     private JimDbLock jimDbLock;

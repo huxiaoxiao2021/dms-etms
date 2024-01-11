@@ -159,7 +159,7 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
         entity.setCreateUserErp(initDto.getCreateUserErp());
         entity.setCreateUserName(initDto.getCreateUserName());
         entity.setCreateTime(new Date());
-        entity.setUpdateTime(entity.getUpdateTime());
+        entity.setUpdateTime(entity.getCreateTime());
         entity.setYn(Constants.NUMBER_ONE);
 
         return entity;
