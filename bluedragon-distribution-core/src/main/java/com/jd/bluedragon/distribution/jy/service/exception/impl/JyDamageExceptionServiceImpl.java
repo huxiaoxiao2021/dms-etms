@@ -1397,6 +1397,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         List<JyDamageConsumableEntity> consumableEntities = new ArrayList<>();
         List<com.jd.bluedragon.common.dto.jyexpection.response.Consumable> consumables = req.getConsumables();
         PositionDetailRecord positionDetail = jyExceptionService.getPosition(req.getPositionCode());
+        String ownerUserErp = getOwnerUserErpByGridCode(positionDetail.getGridCode());
         consumables.forEach(consumable -> {
             JyDamageConsumableEntity consumableEntity = new JyDamageConsumableEntity();
             consumableEntity.setDamageBizId(req.getBizId());
@@ -1411,7 +1412,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             consumableEntity.setGridNo(positionDetail.getGridNo());
             consumableEntity.setGridCode(positionDetail.getGridCode());
             consumableEntity.setGridName(positionDetail.getGridName());
-            consumableEntity.setOwnerUserErp(getOwnerUserErpByGridCode(positionDetail.getGridCode()));
+            consumableEntity.setOwnerUserErp(ownerUserErp);
             consumableEntity.setConsumableCode(consumable.getCode());
             consumableEntity.setConsumableName(JyExceptionDamageEnum.ConsumableEnum.getNameByCode(consumable.getCode()));
             consumableEntity.setConsumableBarcode(consumable.getBarcode());
