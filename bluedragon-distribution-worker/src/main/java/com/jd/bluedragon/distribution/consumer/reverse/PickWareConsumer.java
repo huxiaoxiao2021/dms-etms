@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.reverse;
 
 import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.reverse.domain.PickWare;
 import com.jd.bluedragon.distribution.reverse.service.PickWareService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -33,6 +34,9 @@ public class PickWareConsumer extends MessageBaseConsumer {
 	
 	@Autowired
 	private BasicSafInterfaceManager basicSafInterfaceManager;
+
+	@Autowired
+	SysConfigService sysConfigService;
 	
 	public void consume(Message message) throws Exception {
 		if (message == null || message.getText() == null) {
@@ -88,8 +92,13 @@ public class PickWareConsumer extends MessageBaseConsumer {
 			taskService.add(this.toTask(tWaybillStatus));
 		}
 		else{
-			tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
-			taskService.add(this.toTaskStatus(tWaybillStatus));
+			if(sysConfigService.getConfigByName(SysConfigService.SYS_CONFIG_WRITER_SH_RECEIVE_WAYBILL_TRACE)) {
+				//备件库售后和维修 2 4 场景的收货场景 单独处理 不回传全程跟踪由备件库系统自己实现
+				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+				taskService.add(this.toTaskStatus(tWaybillStatus));
+			}else{
+				log.info("运单{}不回传备件库售后交接拆包收货完成全程跟踪,ReceiveType:{}",tWaybillStatus.getWaybillCode());
+			}
 		}
 		
 	}
