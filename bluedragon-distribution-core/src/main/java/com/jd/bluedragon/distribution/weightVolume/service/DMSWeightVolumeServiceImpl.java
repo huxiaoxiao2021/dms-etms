@@ -157,6 +157,12 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             this.saveInterceptLog(entity, checkResult);
             return checkResult;
         }
+
+        // 自动化称重 重量体积上限校验
+        if(automaticUpperLimitCheck(entity, result)) {
+            return result;
+        }
+
         if (isSync) {
             //同步处理
             // 自动化称重 非0复重量体积拦截
@@ -181,10 +187,6 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             this.sendDisposeAfterInterceptMsg(entity);
             return result;
         } else {
-            // 自动化称重 重量体积上限校验
-            if(automaticUpperLimitCheck(entity, result)) {
-                return result;
-            }
             //异步处理
             Task weightVolumeTask = new Task();
             weightVolumeTask.setKeyword1(entity.getBarCode());
