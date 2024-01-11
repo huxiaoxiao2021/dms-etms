@@ -990,7 +990,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return null != scheduleTask ? scheduleTask.getTaskId() : StringUtils.EMPTY;
     }
 
-    private JyBizTaskSendSortTypeEnum setTaskOrderType(JyBizTaskSendStatusEnum curQueryStatus) {
+    public JyBizTaskSendSortTypeEnum setTaskOrderType(JyBizTaskSendStatusEnum curQueryStatus) {
         switch (curQueryStatus) {
             case TO_SEND:
             case SENDING:
@@ -4265,7 +4265,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             log.info("获取特殊保障产品类型待扫数据入参--{}",JSON.toJSONString(aggsEntityQuery));
             final List<JySendVehicleProductType> sendVehicleProductTypeList = jySendProductAggsService.getSendVehicleProductTypeList(aggsEntityQuery);
             log.info("获取特殊保障产品类型待扫数据--{}", JsonHelper.toJson(sendVehicleProductTypeList));
-            List<String> needShowProductTypeList = new ArrayList<>(Arrays.asList(JySendVehicleProductTypeEnum.TEAN.getCode(), JySendVehicleProductTypeEnum.HANGKONGJIAN.getCode(), JySendVehicleProductTypeEnum.SHENGXIANTEBAO.getCode()));
+            List<String> needShowProductTypeList = new ArrayList<>(Arrays.asList(JySendVehicleProductTypeEnum.TEAN.getCode(),
+                JySendVehicleProductTypeEnum.HANGKONGJIAN.getCode(), JySendVehicleProductTypeEnum.SHENGXIANTEBAO.getCode(),
+                JySendVehicleProductTypeEnum.HKANDMACAO.getCode()));
             if(CollectionUtils.isNotEmpty(sendVehicleProductTypeList)){
                 List<SendVehicleProductTypeAgg> dataNoOrderList = new ArrayList<>();
                 for (JySendVehicleProductType jySendVehicleProductType : sendVehicleProductTypeList) {
@@ -4843,7 +4845,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     public boolean updateStatusByDetailBizIds(MixScanTaskCompleteReq request, List<String> detailBizIds) {
         List<JyBizTaskSendVehicleDetailEntity> sendDetailList = taskSendVehicleDetailService
                 .findSendVehicleDetailByBizIds(request.getCurrentOperate().getSiteCode(), detailBizIds);
-
+        if (CollectionUtils.isEmpty(sendDetailList)) {
+            log.warn("updateStatusByDetailBizIds|根据明细bizId列表查询发货任务明细为空:request={},detailBizIds={}", JsonHelper.toJson(request), detailBizIds);
+            return true;
+        }
         HashMap<String, JyBizTaskSendVehicleDetailEntity> sendDetailMap = new HashMap<>();
         List<String> sendVehicleBizIds = new ArrayList<>();
         for (JyBizTaskSendVehicleDetailEntity detailEntity : sendDetailList) {

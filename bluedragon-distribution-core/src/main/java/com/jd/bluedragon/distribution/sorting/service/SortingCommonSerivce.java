@@ -244,27 +244,20 @@ public abstract class SortingCommonSerivce {
     private void after(SortingVO sorting) {
         if(sorting.getSortingType() != SortingVO.SORTING_TYPE_WAYBILL_SPLIT
                 && sorting.getIsCancel().equals(SortingService.SORTING_CANCEL_NORMAL)){
-            if (sorting.getIsCancel().equals(SortingService.SORTING_CANCEL_NORMAL)) {
-                //非 运单转换成的分批包裹任务才执行
-                sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING,"SortingCommonSerivce#after");
-                //快退
-                notifyBlocker(sorting);
-                backwardSendMQ(sorting);
-                //更新运单状态
-                sortingService.addSortingAdditionalTask(sorting);
+            //非 运单转换成的分批包裹任务才执行
+            sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING,"SortingCommonSerivce#after");
+            //快退
+            notifyBlocker(sorting);
+            backwardSendMQ(sorting);
+            //更新运单状态
+            sortingService.addSortingAdditionalTask(sorting);
 
-                // 写包裹和箱号关系
-                this.writePackageCodeAssociateBoxCodeKvIndex(sorting);
-
-                // 分拣发送循环集包袋MQ
-                pushCycleMaterialMessage(sorting);
-                //发送操作流水mq
-                sendSortingFlowMq(sorting);
-            }
-            if (sorting.getIsCancel().equals(SortingService.SORTING_CANCEL)) {
-                // 取消分拣，删除包谷与箱的绑定关系
-                this.logicDelPackageCodeAssociateBoxCodeKvIndex(sorting);
-            }
+            // 分拣发送循环集包袋MQ
+            pushCycleMaterialMessage(sorting);
+            // 写包裹和箱号关系
+            this.writePackageCodeAssociateBoxCodeKvIndex(sorting);
+            //发送操作流水mq
+            sendSortingFlowMq(sorting);
         }
 
     }
@@ -478,21 +471,14 @@ public abstract class SortingCommonSerivce {
      * 写包裹和箱号关系到kv_index表中
      */
     private void writePackageCodeAssociateBoxCodeKvIndex(SortingVO sorting){
+        if(sorting.getCreateSiteCode() == null){
+            return;
+        }
         final String kvKey = getPackageCodeAssociateBoxCodeKvIndexKey(sorting.getPackageCode());
         KvIndex kvIndex = new KvIndex();
         kvIndex.setKeyword(kvKey);
-        kvIndex.setValue(sorting.getBoxCode());
+        kvIndex.setValue(sorting.getCreateSiteCode().toString());
         kvIndexDao.add(kvIndex);
     }
 
-    /**
-     * kv_index包裹和箱号关系删除
-     */
-    private void logicDelPackageCodeAssociateBoxCodeKvIndex(SortingVO sorting){
-        final String kvKey = getPackageCodeAssociateBoxCodeKvIndexKey(sorting.getPackageCode());
-        KvIndex kvIndexUpdate = new KvIndex();
-        kvIndexUpdate.setKeyword(kvKey);
-        kvIndexUpdate.setValue(Constants.EMPTY_FILL);
-        kvIndexDao.updateByKey(kvIndexUpdate);
-    }
 }
