@@ -1270,7 +1270,7 @@
 		limit 1
 	</select>
 
-	
+
 	<select id="queryFirstExistGridRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
 		select
 		<include refid="Main_Column_List"/>
