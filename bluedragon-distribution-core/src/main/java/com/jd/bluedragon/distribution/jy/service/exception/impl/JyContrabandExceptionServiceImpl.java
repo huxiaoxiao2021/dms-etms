@@ -18,6 +18,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.external.service.DmsExternalReadService;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
@@ -31,6 +32,7 @@ import com.jd.bluedragon.distribution.jy.service.collectpackage.JyBizTaskCollect
 import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillStatusService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -41,6 +43,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
 import com.jd.cp.wbms.client.enums.RejectionEnum;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.blocker.dto.BlockerApplyDto;
 import com.jd.etms.blocker.dto.CommonDto;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -127,6 +130,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
     @Autowired
     private JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
+    @Autowired
+    private DmsExternalReadService dmsExternalReadService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
@@ -219,14 +224,19 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     public void dealContrabandUploadData(JyExceptionContrabandDto dto)  {
 
         try{
-            // 新增自动取消集包
-            // 根据包裹号获取箱号 todo
-
-            // 根据箱号查询bzid 换成箱号
-            JyBizTaskCollectPackageEntity bizTaskCollectPackageEntity = jyBizTaskCollectPackageService.findByBoxCode(dto.getBarCode());
-            // 调用取消集包接口
-            CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto, bizTaskCollectPackageEntity);
-            jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
+            // 新增自动取消集包:根据包裹号获取箱号
+            Result<SortingDto> result =
+                dmsExternalReadService.getLastSortingInfoByPackageCode(dto.getBarCode());
+            Optional.ofNullable(result)
+                .filter(r -> Result.CODE_SUCCESS.equals(r.getCode()))
+                .map(Result::getData)
+                .ifPresent(sortingDto -> {
+                    CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto, sortingDto.getBoxCode());
+                    boolean b = jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
+                    if(!b){
+                        logger.warn("该包裹关联集包已经被取消或不存在！包裹号：",dto.getBarCode());
+                    }
+                });
 
 
             JyExceptionContrabandEnum.ContrabandTypeEnum enumResult = JyExceptionContrabandEnum.ContrabandTypeEnum.getEnumByCode(dto.getContrabandType());
@@ -691,12 +701,11 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
      * @param dto 禁运异常DTO对象
      * @return 取消集包DTO对象
      */
-    private CancelCollectPackageDto buildCancelCollectPackageDto(JyExceptionContrabandDto dto, JyBizTaskCollectPackageEntity bizTaskCollectPackageEntity){
+    private CancelCollectPackageDto buildCancelCollectPackageDto(JyExceptionContrabandDto dto, String boxCode){
         CancelCollectPackageDto cancelCollectPackageDto = new CancelCollectPackageDto();
-        if(Objects.nonNull(bizTaskCollectPackageEntity)){
-            cancelCollectPackageDto.setBizId(bizTaskCollectPackageEntity.getBizId());
-        }
-        // todo 设置箱号 cancelCollectPackageDto.setPackageCode(dto.getBarCode());
+        cancelCollectPackageDto.setBizId(dto.getBizId());
+        cancelCollectPackageDto.setBoxCode(boxCode);
+        cancelCollectPackageDto.setPackageCode(dto.getBarCode());
         cancelCollectPackageDto.setSiteCode(dto.getSiteCode());
         cancelCollectPackageDto.setSiteName(dto.getSiteName());
         cancelCollectPackageDto.setUpdateUserCode(dto.getCreateUserId());
