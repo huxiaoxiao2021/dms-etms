@@ -45,6 +45,7 @@ public interface JyAviationRailwaySendSealGatewayService {
     /**
      * 航空已封列表查询
      * （仅列表查询，不含统计、条件查询， 使用场景：：用于摆渡绑定航空任务继续添加时查询待添加的已封航空任务列表）
+     * todo 功能临时下线
      * @param request
      * @return
      */
@@ -58,6 +59,7 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 摆渡发车任务列表查询
+     * todo 功能临时下线
      * @param request
      * @return
      */
@@ -70,7 +72,6 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 获取航空任务运力编码列表
-     * 入参业务字段待确认
      * @param request
      * @return
      */
@@ -87,6 +88,7 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 摆渡发货任务上绑定航空发货任务
+     * todo 功能临时下线
      * @param request
      * @return
      */
@@ -94,6 +96,7 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 已经绑定的任务进行删除
+     * todo 功能临时下线
      * @param request
      * @return
      */
@@ -101,6 +104,7 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 查询摆渡发货任务上绑定的航空发货任务
+     * todo 功能临时下线
      * @param request
      * @return
      */
@@ -108,6 +112,7 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 查询摆渡发货任务封车详情
+     * todo 功能临时下线
      * @param request
      * @return
      */
@@ -115,6 +120,7 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 摆渡任务封车
+     * todo 功能临时下线
      * @param request
      * @return
      */
@@ -179,6 +185,7 @@ public interface JyAviationRailwaySendSealGatewayService {
 
     /**
      * 待封车摆渡明细查询
+     * todo 功能临时下线
      * @param request
      * @return
      */
