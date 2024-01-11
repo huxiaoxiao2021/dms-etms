@@ -104,18 +104,12 @@
 				<if test="operateTime != null">
 					operate_time,
 				</if>
-				<if test="createTime != null">
 					create_time,
-				</if>
 				<if test="updateTime != null">
 					update_time,
 				</if>
-				<if test="isDelete != null">
 					is_delete,
-				</if>
-				<if test="ts != null">
 					ts,
-				</if>
 				<if test="consumableName != null">
 					consumable_name,
 				</if>
