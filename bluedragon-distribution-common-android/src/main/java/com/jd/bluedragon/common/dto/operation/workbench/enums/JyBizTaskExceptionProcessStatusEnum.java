@@ -17,7 +17,8 @@ public enum JyBizTaskExceptionProcessStatusEnum {
     APPROVING(5, "审批中"),
     APPROVE_PASS(6, "审批通过"),
     APPROVE_REJECT(7, "审批驳回"),
-    WAITER_INTERVENTION(8, "客服介入中")
+    WAITER_INTERVENTION(8, "客服介入中"),
+    WAITER_EXECUTION(9,"待执行"),
     ;
 
     private Integer code;

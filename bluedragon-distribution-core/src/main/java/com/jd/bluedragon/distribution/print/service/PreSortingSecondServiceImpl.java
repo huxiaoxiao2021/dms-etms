@@ -235,8 +235,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 		long startTime=new Date().getTime();
 
 		SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
-        siteChangeMqDto.setWaybillCode(context.getWaybill().getWaybillCode());
-        siteChangeMqDto.setPackageCode(context.getWaybill().getPackList().get(0).getPackCode());
+        siteChangeMqDto.setWaybillCode(context.getWaybill().getWaybillCode().trim());
         siteChangeMqDto.setNewSiteId(newPreSiteInfo.getMediumStationId());
         siteChangeMqDto.setNewSiteName(newPreSiteInfo.getMediumStationName());
         siteChangeMqDto.setNewSiteRoadCode(newPreSiteInfo.getMediumStationRoad());
@@ -246,7 +245,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         siteChangeMqDto.setOperatorSiteName(context.getRequest().getSiteName());
         siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
         try {
-            waybillSiteChangeProducer.sendOnFailPersistent(context.getWaybill().getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+            waybillSiteChangeProducer.sendOnFailPersistent(context.getWaybill().getWaybillCode().trim(), JsonHelper.toJsonUseGson(siteChangeMqDto));
             log.warn("发送预分拣站点变更mq消息成功：{}", JsonHelper.toJsonUseGson(siteChangeMqDto));
         } catch (Exception e) {
             log.error("发送预分拣站点变更mq消息失败：{}", JsonHelper.toJsonUseGson(siteChangeMqDto), e);

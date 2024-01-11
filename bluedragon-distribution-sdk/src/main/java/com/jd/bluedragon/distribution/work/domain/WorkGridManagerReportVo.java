@@ -2,11 +2,12 @@ package com.jd.bluedragon.distribution.work.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class WorkGridManagerReportVo  implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * 主键ID
 	 */
@@ -144,7 +145,31 @@ public class WorkGridManagerReportVo  implements Serializable {
 	/**
 	 * 状态:0：待分配 1：待处理 2：处理中 3：已完成  4:超时删除
 	 */
-	private String statusName;	
+	private String statusName;
+	/**
+	 * 是否转派
+	 */
+	private Integer transfered;
+	/**
+	 * 原处理人岗位编号
+	 */
+	private String orignHandlerUserPositionCode;
+	/**
+	 * 原处理人岗位名称
+	 */
+	private String orignHandlerUserPositionName;
+	/**
+	 * 转派时间
+	 */
+	private Date transferTime;
+	/**
+	 * 源处理人erp
+	 */
+	private String orignHandlerErp;
+	/**
+	 * 原处理人姓名
+	 */
+	private String orignHandlerUserName;
 
 	/**
 	 * 开始处理时间
@@ -189,6 +214,33 @@ public class WorkGridManagerReportVo  implements Serializable {
 	 * 数据库时间
 	 */
 	private Date ts;
+
+	/**
+	 * @See com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum
+	 * 是否符合,0-未选择,1-符合 2-不符合
+	 */
+	private Integer isMatch;
+
+	/**
+	 * 任务名称
+	 */
+	private String isMatchName;
+
+	private String taskBizTypeName;
+
+	private List<JyWorkGridManagerCaseDataVO> caseList;
+	/**
+	 *  指标改善任务的指标信息
+	 *  只有指标改善任务才会有
+	 */
+	private BusinessQuotaInfoData businessQuotaInfoData;
+
+	/**
+	 *  暴力分拣任务-视频监控相关信息
+	 *  只有暴力分拣任务才会有
+	 */
+	private ViolenceSortInfoData violenceSortInfoData;
+	
 	public Long getId() {
 		return id;
 	}
@@ -412,4 +464,99 @@ public class WorkGridManagerReportVo  implements Serializable {
 		this.ts = ts;
 	}
 
+	public Integer getIsMatch() {
+		return isMatch;
+	}
+
+	public void setIsMatch(Integer isMatch) {
+		this.isMatch = isMatch;
+	}
+
+	public List<JyWorkGridManagerCaseDataVO> getCaseList() {
+		return caseList;
+	}
+
+	public void setCaseList(List<JyWorkGridManagerCaseDataVO> caseList) {
+		this.caseList = caseList;
+	}
+
+	public String getIsMatchName() {
+		return isMatchName;
+	}
+
+	public void setIsMatchName(String isMatchName) {
+		this.isMatchName = isMatchName;
+	}
+
+	public String getTaskBizTypeName() {
+		return taskBizTypeName;
+	}
+
+	public void setTaskBizTypeName(String taskBizTypeName) {
+		this.taskBizTypeName = taskBizTypeName;
+	}
+
+	public Integer getTransfered() {
+		return transfered;
+	}
+
+	public void setTransfered(Integer transfered) {
+		this.transfered = transfered;
+	}
+
+	public String getOrignHandlerUserPositionCode() {
+		return orignHandlerUserPositionCode;
+	}
+
+	public void setOrignHandlerUserPositionCode(String orignHandlerUserPositionCode) {
+		this.orignHandlerUserPositionCode = orignHandlerUserPositionCode;
+	}
+
+	public String getOrignHandlerUserPositionName() {
+		return orignHandlerUserPositionName;
+	}
+
+	public void setOrignHandlerUserPositionName(String orignHandlerUserPositionName) {
+		this.orignHandlerUserPositionName = orignHandlerUserPositionName;
+	}
+
+	public Date getTransferTime() {
+		return transferTime;
+	}
+
+	public void setTransferTime(Date transferTime) {
+		this.transferTime = transferTime;
+	}
+
+	public String getOrignHandlerErp() {
+		return orignHandlerErp;
+	}
+
+	public void setOrignHandlerErp(String orignHandlerErp) {
+		this.orignHandlerErp = orignHandlerErp;
+	}
+
+	public String getOrignHandlerUserName() {
+		return orignHandlerUserName;
+	}
+
+	public void setOrignHandlerUserName(String orignHandlerUserName) {
+		this.orignHandlerUserName = orignHandlerUserName;
+	}
+
+	public BusinessQuotaInfoData getBusinessQuotaInfoData() {
+		return businessQuotaInfoData;
+	}
+
+	public void setBusinessQuotaInfoData(BusinessQuotaInfoData businessQuotaInfoData) {
+		this.businessQuotaInfoData = businessQuotaInfoData;
+	}
+
+	public ViolenceSortInfoData getViolenceSortInfoData() {
+		return violenceSortInfoData;
+	}
+
+	public void setViolenceSortInfoData(ViolenceSortInfoData violenceSortInfoData) {
+		this.violenceSortInfoData = violenceSortInfoData;
+	}
 }

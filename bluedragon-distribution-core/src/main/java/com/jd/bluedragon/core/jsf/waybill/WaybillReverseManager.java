@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
+import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
 import com.jd.ql.dms.common.domain.JdResponse;
 
 /**
@@ -68,4 +69,11 @@ public interface WaybillReverseManager {
      * @return
      */
     JdResult<String> queryWaybillCodeByOldWaybillCode(String oldWaybillCode);
+
+    /**
+     * 逆向运单提交请求
+     * @param dmsWaybillReverseDTO
+     * @return
+     */
+    JdResult<SubmitWaybillResponse> submitWaybill(DmsWaybillReverseDTO dmsWaybillReverseDTO);
 }

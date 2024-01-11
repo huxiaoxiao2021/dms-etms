@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.task.UnloadVehicleMqDto;
@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -52,7 +51,7 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -219,11 +218,11 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
                 configFraction = vehicleIntegralConfig.getPriorityFraction();
             } else {
                 // ucc默认分数
-                configFraction = uccConfig.getVehicleIntegralPriorityFraction();
+                configFraction = dmsConfigManager.getPropertyConfig().getVehicleIntegralPriorityFraction();
             }
         } else {
             // ucc默认分数
-            configFraction = uccConfig.getVehicleIntegralPriorityFraction();
+            configFraction = dmsConfigManager.getPropertyConfig().getVehicleIntegralPriorityFraction();
         }
         // 实际的积分
         Double realFraction = mqDto.getPriorityFraction();
@@ -296,7 +295,14 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         if (null != damageCntObj && null != lostCntObj) {
             Long damageCnt = Long.valueOf(damageCntObj + "");
             Long lostCnt = Long.valueOf(lostCntObj + "");
-            if (uccConfig.getJyUnloadSingleWaybillThreshold() < (damageCnt + lostCnt)) {
+            if (dmsConfigManager.getPropertyConfig().getJyUnloadSingleWaybillThreshold() < (damageCnt + lostCnt)) {
+                unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_2, JyUnloadTaskSignConstants.CHAR_2_1));
+            }
+        }
+        if (!BusinessUtil.isSignY(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_2)) {
+            // 是合流车也标记逐单卸标识
+            Object isMergeCar = extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_IS_MERGE_CAR);
+            if (null != isMergeCar && Boolean.TRUE.equals(Boolean.parseBoolean(isMergeCar.toString()))) {
                 unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_2, JyUnloadTaskSignConstants.CHAR_2_1));
             }
         }

@@ -34,19 +34,7 @@ public class DmsWorkSendDetailConsumerTest {
     @Test
     public void consume() {
         try {
-            String body = "{\n" +
-                    "    \"bizSource\":16,\n" +
-                    "    \"boxCode\":\"BC010F002010Y10000210001\",\n" +
-                    "    \"createSiteCode\":910,\n" +
-                    "    \"createTime\":1619345055133,\n" +
-                    "    \"createUser\":\"邢松\",\n" +
-                    "    \"createUserCode\":10053,\n" +
-                    "    \"operateTime\":1619345055133,\n" +
-                    "    \"packageBarcode\":\"JDV000516800799-1-1-\",\n" +
-                    "    \"receiveSiteCode\":39,\n" +
-                    "    \"sendCode\":\"910-39-20210426182120496\",\n" +
-                    "    \"source\":\"DMS\"\n" +
-                    "}";
+            String body = "{\"bizSource\":24,\"boxCode\":\"JDAZ00001591060-1-2-\",\"createSiteCode\":40240,\"createSiteType\":64,\"createSortSubType\":123511,\"createSortThirdType\":1235111,\"createSortType\":12351,\"createSubType\":64,\"createTime\":1699843972180,\"createUser\":\"王飞\",\"createUserCode\":18157,\"operateTime\":1699843972000,\"packageBarcode\":\"JDAZ00001591060-1-2-\",\"receiveSiteCode\":25162,\"receiveSiteType\":16,\"receiveSubType\":16,\"receiveThirdType\":16001,\"sendCode\":\"40240-25162-20231113101333654\",\"source\":\"DMS\"}";
             Message message = new Message();
             message.setText(body);
             dmsWorkSendDetailConsumer.consume(message);

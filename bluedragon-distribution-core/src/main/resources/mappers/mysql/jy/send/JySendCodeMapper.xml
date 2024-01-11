@@ -209,4 +209,26 @@
              #{item.createTime},#{item.updateTime})
         </foreach>
     </insert>
+
+    <select id="findSendCodesByDetailBizIds" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT send_code
+        FROM jy_send_code
+        WHERE yn = 1
+        AND send_detail_biz_id in
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findSendCodesByBizIds" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT send_code
+        FROM jy_send_code
+        WHERE yn = 1
+        AND send_vehicle_biz_id in
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

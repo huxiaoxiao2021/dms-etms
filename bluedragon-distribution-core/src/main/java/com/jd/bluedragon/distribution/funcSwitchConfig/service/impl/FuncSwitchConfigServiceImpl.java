@@ -2,10 +2,9 @@ package com.jd.bluedragon.distribution.funcSwitchConfig.service.impl;
 
 import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
-import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.DeviceConfigInfoJsfServiceManager;
@@ -47,7 +46,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -74,9 +72,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     private static final String PRE_SELL_RULE_OPEN = "1";
     private static final String PRE_SELL_RULE_CONTENT = "预售暂存分拣规则，1表示开启";
 
-    @Value("${checkAuthoritySwitch:true}")
-    private boolean checkAuthoritySwitch;
-
     @Autowired
     private FuncSwitchConfigDao funcSwitchConfigDao;
 
@@ -97,7 +92,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     PackageWeightingService packageWeightingService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private BaseMinorManager baseMinorManager;
@@ -134,6 +129,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             Date date = new Date();
             funcSwitchConfigDto.setCreateTime(date);
             funcSwitchConfigDto.setUpdateTime(date);
+            // 初始化大区、省区信息
+            initOrgAndProvinceInfo(funcSwitchConfigDto);
             int count = funcSwitchConfigDao.add(funcSwitchConfigDto);
 
             //调用分拣机拦截开关
@@ -158,6 +155,17 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         return jdResponse;
     }
 
+    private void initOrgAndProvinceInfo(FuncSwitchConfigDto funcSwitchConfigDto) {
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(funcSwitchConfigDto.getSiteCode());
+        funcSwitchConfigDto.setSiteName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getSiteName());
+        funcSwitchConfigDto.setOrgId(baseSite == null ? Constants.NUMBER_ZERO : baseSite.getOrgId());
+        funcSwitchConfigDto.setOrgName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getOrgName());
+        funcSwitchConfigDto.setProvinceAgencyCode(baseSite == null ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode());
+        funcSwitchConfigDto.setProvinceAgencyName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
+        funcSwitchConfigDto.setAreaHubCode(baseSite == null ? Constants.EMPTY_FILL : baseSite.getAreaCode());
+        funcSwitchConfigDto.setAreaHubName(baseSite == null ? Constants.EMPTY_FILL : baseSite.getAreaName());
+    }
+
     /**
      * 批量新增
      * @param list
@@ -170,7 +178,10 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             jdResponse.toFail("参数为空!");
             return jdResponse;
         }
-
+        for (FuncSwitchConfigDto item : list) {
+            // 初始化大区、省区信息
+            initOrgAndProvinceInfo(item);
+        }
         int count = funcSwitchConfigDao.batchAdd(list);
         if(count != list.size()){
             jdResponse.toFail("批量新增部分成功!");
@@ -372,15 +383,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                     jdResponse.toFail(String.format("第%s行站点ID不存在,请重新录入!",rowIndex));
                     return;
                 }
-                if(!dto.getSiteName().equals(baseDto.getSiteName())){
-                    jdResponse.toFail(String.format("第%s行站点名称不正确,请重新录入!",rowIndex));
-                    return;
-                }
-                if(!dto.getOrgId().equals(baseDto.getOrgId())
-                        || !dto.getOrgName().equals(baseDto.getOrgName())){
-                    jdResponse.toFail(String.format("第%s行区域不正确,请重新录入!",rowIndex));
-                    return;
-                }
                 if(CollectionUtils.isNotEmpty(funcSwitchConfigDao.selectByFuncSwitchConfig(dto))){
                     jdResponse.toFail(String.format("第%s行已存在相同配置,请勿重复添加!",rowIndex));
                     return;
@@ -414,6 +416,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 Date date = new Date();
                 dto.setCreateTime(date);
                 dto.setUpdateTime(date);
+                // 初始化大区、省区信息
+                initOrgAndProvinceInfo(dto);
             }
             funcSwitchConfigDao.batchAdd(dataList);
             //调用分拣机开关接口
@@ -860,7 +864,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         //4.如果是全国有效,直接返回不拦截
         if(!getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_COMPLETE_DELIVERY.getCode())){
             //ucc 配置为1 全国不拦截  配置站点编码:
-            if(isNeedCheckBlack(uccPropertyConfiguration.getAllPureValidateWeightWebSite(),request.getCreateSiteCode())){
+            if(isNeedCheckBlack(dmsConfigManager.getPropertyConfig().getAllPureValidateWeightWebSite(),request.getCreateSiteCode())){
                 return  true;
             }
             return false;
@@ -926,7 +930,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     public boolean getBcBoxFilterStatus(Integer menuCode,Integer siteCode){
         if(!getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode())){
             //ucc 配置为1 全国不拦截  配置站点编码:
-            if(isNeedCheckBlack(uccPropertyConfiguration.getAllBCBoxFilterWebSite(),siteCode)){
+            if(isNeedCheckBlack(dmsConfigManager.getPropertyConfig().getAllBCBoxFilterWebSite(),siteCode)){
                 return  true;
             }
             return false;

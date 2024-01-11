@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.storage.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 import java.text.ParseException;
@@ -13,6 +14,7 @@ import java.util.Date;
  * @date 2018年08月15日 18:27:23
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StoragePackageMCondition extends BasePagerCondition {
 
 	private static final long serialVersionUID = 1L;

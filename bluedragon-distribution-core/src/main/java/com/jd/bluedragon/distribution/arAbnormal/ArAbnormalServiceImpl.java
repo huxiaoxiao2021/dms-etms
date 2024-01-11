@@ -90,7 +90,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
     @Autowired
     private BaseMajorManager baseMajorManager;
     
-    @Autowired
+    @Autowired(required = false)
     @Qualifier("checkCanAirToRoadJobHandler")
     private JobHandler<List<String>,List<String>> checkCanAirToRoadJobHandler;
     
@@ -684,9 +684,11 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         // 商家名称
         dto.setBusiName(waybill.getBusiName());
         dto.setConsignmentName(waybillQueryManager.getConsignmentNameByWaybillDto(bigWaybillDto));
-        //省区
-        dto.setProvinceAgencyCode(StringUtils.isBlank(siteOrgDto.getProvinceAgencyCode())?StringUtils.EMPTY:siteOrgDto.getProvinceAgencyCode());
-        dto.setProvinceAgencyName(StringUtils.isBlank(siteOrgDto.getProvinceAgencyName())?StringUtils.EMPTY:siteOrgDto.getProvinceAgencyName());
+        //省区及枢纽
+        dto.setProvinceAgencyCode(siteOrgDto == null ? null : siteOrgDto.getProvinceAgencyCode());
+        dto.setProvinceAgencyName(siteOrgDto == null ? null : siteOrgDto.getProvinceAgencyName());
+        dto.setAreaHubCode(siteOrgDto == null ? null : siteOrgDto.getAreaCode());
+        dto.setAreaHubName(siteOrgDto == null ? null : siteOrgDto.getAreaName());
         List<Message> messageList = new ArrayList<>(packageCodeList.size());
         for (String packageCode : packageCodeList) {
             dto.setPackageCode(packageCode);

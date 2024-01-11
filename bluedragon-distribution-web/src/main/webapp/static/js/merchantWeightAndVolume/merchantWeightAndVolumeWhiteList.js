@@ -9,6 +9,12 @@ $(function () {
         $('#fileField').click();
     });
 
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        'createSiteCodeName': 'siteCode',
+        bootstrapMode:true
+    });
+
     var tableInit;
     tableInit = function () {
         var oTableInit = new Object();
@@ -98,6 +104,14 @@ $(function () {
         }, {
             field: 'operateOrgName',
             title: '操作区域名称',
+            align: 'center'
+        }, {
+            field: 'operateProvinceAgencyCode',
+            title: '操作省区编码',
+            align: 'center'
+        }, {
+            field: 'operateProvinceAgencyName',
+            title: '操作省区名称',
             align: 'center'
         }, {
             field: 'operateSiteCode',

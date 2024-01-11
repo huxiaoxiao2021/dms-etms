@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.notice.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.notice.cache.LastNewNoticeForUserDto;
@@ -63,7 +63,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -151,7 +151,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         Response<NoticeLastNewDto> result = new Response<>();
         result.toSucceed();
         NoticeLastNewDto noticeLastNewDto = new NoticeLastNewDto();
-        noticeLastNewDto.setPullIntervalTime(uccPropertyConfiguration.getPdaNoticePullIntervalTime() != null ? uccPropertyConfiguration.getPdaNoticePullIntervalTime() : pdaNoticePullIntervalTime);
+        noticeLastNewDto.setPullIntervalTime(dmsConfigManager.getPropertyConfig().getPdaNoticePullIntervalTime() != null ? dmsConfigManager.getPropertyConfig().getPdaNoticePullIntervalTime() : pdaNoticePullIntervalTime);
         noticeLastNewDto.setUnreadCount(0);
         result.setData(noticeLastNewDto);
         try {

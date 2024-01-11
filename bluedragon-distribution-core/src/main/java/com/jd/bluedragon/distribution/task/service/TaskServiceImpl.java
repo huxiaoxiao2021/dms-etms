@@ -2,10 +2,11 @@ package com.jd.bluedragon.distribution.task.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.redis.TaskModeAgent;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -31,6 +32,7 @@ import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -87,7 +89,7 @@ public class TaskServiceImpl implements TaskService {
     private DmsDynamicProducer dynamicProducer;
 
 	@Resource
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
     private TBTaskQueueService tbTaskQueueService;
@@ -240,7 +242,7 @@ public class TaskServiceImpl implements TaskService {
 		String newOperateTime = operateTime;
 		if(operateTimeDate.before(systemTimeDate)){
 			// 操作时间在系统时间之前
-			int offlineBeforeNowLimit = uccPropertyConfiguration.getOfflineTaskOperateTimeBeforeNowLimitHours();
+			int offlineBeforeNowLimit = dmsConfigManager.getPropertyConfig().getOfflineTaskOperateTimeBeforeNowLimitHours();
 			Date limitDate = DateHelper.newTimeRangeHoursAgo(systemTimeDate, offlineBeforeNowLimit);
 			if(operateTimeDate.before(limitDate)){
 				log.error("离线任务的操作时间【{}】超过了系统时间【{}】设定上传时间范围【{}h】,此任务为超时无效数据，过滤不接收!",
@@ -250,7 +252,7 @@ public class TaskServiceImpl implements TaskService {
 			}
 		} else {
 			// 操作时间在系统时间之后
-			int offlineAfterNowLimit = uccPropertyConfiguration.getOfflineTaskOperateTimeCorrectHours();
+			int offlineAfterNowLimit = dmsConfigManager.getPropertyConfig().getOfflineTaskOperateTimeCorrectHours();
 			newOperateTime = DateHelper.formatDate(
 					DateHelper.adjustTimeToNow(DateHelper.parseDate(operateTime, dateFormat),offlineAfterNowLimit),
 					dateFormat
@@ -545,7 +547,7 @@ public class TaskServiceImpl implements TaskService {
         return 0;
     }
 	public boolean isRedisSwitchON(){
-		return Constants.STRING_FLG_TRUE.equals(this.uccPropertyConfiguration.getRedisSwitchOn());
+		return Constants.STRING_FLG_TRUE.equals(this.dmsConfigManager.getPropertyConfig().getRedisSwitchOn());
 	}
 	public Integer add(Task task) {
 		return add(task, false);
@@ -590,7 +592,7 @@ public class TaskServiceImpl implements TaskService {
 
     public String getFetchWithoutFailedTableName() {
 	    try {
-            return uccPropertyConfiguration.getWorkerFetchWithoutFailedTable();
+            return dmsConfigManager.getPropertyConfig().getWorkerFetchWithoutFailedTable();
         } catch (Throwable e) {
 	        return null;
         }
@@ -765,9 +767,8 @@ public class TaskServiceImpl implements TaskService {
 		task.setKeyword1(request.getKeyword1());
 		task.setKeyword2(request.getKeyword2());
 		// insert keyword1 keyword2 businessType operateTime
-		this.initOthers(jsonVal, task);
-
 		task.setBody(jsonVal);
+		this.initOthers(jsonVal, task);
 		if (StringUtils.isNotBlank(request.getBoxCode())) {
 			task.setBoxCode(request.getBoxCode());
 		}
@@ -785,7 +786,7 @@ public class TaskServiceImpl implements TaskService {
 		return task;
 	}
 
-	private void initOthers(String jsonVal, Task task) {
+	public void initOthers(String jsonVal, Task task) {
 		String arrayToObject = jsonVal.substring(1, jsonVal.length() - 1);
 		Map<String, Object> map = JsonHelper.json2MapNormal(arrayToObject);
 		Object packageBarcode = map.get("packageBarcode");
@@ -812,6 +813,15 @@ public class TaskServiceImpl implements TaskService {
 		if(null != operateTime){
 			task.setOperateTime(StringUtils.isNotBlank(operateTime.toString()) ? DateHelper
 					.getSeverTime(operateTime.toString()) : new Date());
+		} else {
+			Date requestTime = new Date();
+			task.setOperateTime(requestTime);
+			// 将操作时间再放回body里，因为worker是从body取时间，并没有用到task对象里的operateTime
+			map.put("operateTime", DateHelper.formatDateTime(requestTime));
+			String bodyStr = Constants.PUNCTUATION_OPEN_BRACKET
+					+ JsonHelper.toJson(map)
+					+ Constants.PUNCTUATION_CLOSE_BRACKET;
+			task.setBody(bodyStr);
 		}
 
 		if (Task.TASK_TYPE_INSPECTION.equals(task.getType())
@@ -998,8 +1008,10 @@ public class TaskServiceImpl implements TaskService {
         request.setUserCode(dto.getOperatorID());
         request.setUserName(dto.getOperatorName());
         request.setBizSource(AUTOMATIC_SORTING_MACHINE_SORTING.getCode());
-        request.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        request.setOperatorId(dto.getMachineCode());
+        OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(dto);
+        request.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        request.setOperatorId(operatorData.getOperatorId());
+        request.setOperatorData(operatorData);
         list.add(request);
         taskSorting.setBody(JsonHelper.toJson(list));
         return taskSorting;
@@ -1045,8 +1057,10 @@ public class TaskServiceImpl implements TaskService {
         inspectionAS.setBusinessType(50);
 		inspectionAS.setMachineCode(uPackage.getMachineCode());
         inspectionAS.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
-        inspectionAS.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        inspectionAS.setOperatorId(uPackage.getMachineCode());
+        OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(uPackage);
+        inspectionAS.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        inspectionAS.setOperatorId(operatorData.getOperatorId());
+        inspectionAS.setOperatorData(operatorData);   	        
         inspectionASes.add(inspectionAS);
         return inspectionASes;
     }

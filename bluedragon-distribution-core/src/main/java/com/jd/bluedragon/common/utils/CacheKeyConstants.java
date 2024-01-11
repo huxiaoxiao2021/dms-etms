@@ -79,6 +79,10 @@ public class CacheKeyConstants {
     /***************************************** 抽检缓存start *******************************************/
 
     /**
+     * 抽检校验缓存前缀
+     */
+    public static final String CACHE_SPOT_CHECK_CHECK = "dmsWeb:spotCheck:%S-%S";
+    /**
      * 包裹抽检记录的缓存
      */
     public static final String CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG = "dmsWeb:packageOrWaybillCheckFlag:";
@@ -396,4 +400,20 @@ public class CacheKeyConstants {
      * 拣运-滞留扫描
      */
     public static final String CACHE_KEY_JY_STRAND_SCAN = JY_CACHE_PREFIX + "strandScan:%s";
+
+    /**
+     * 亚运会安检运单缓存
+     */
+    public static final String CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL = "AsiaSportSecurityCheckWaybill:%s";
+    public static final int CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL_TIMEOUT = 5;
+
+    /**
+     * 拣运-违禁品运单全程跟踪Key
+     */
+    public static final String CACHE_KEY_JY_CONTRABAND_BDTRANCE = JY_CACHE_PREFIX + "contrabandBDTrance:%s";
+
+    /**
+     * 违禁品上报并发key
+     */
+    public static final String CONTRABAND_LOCK_KEY = "DMS.EXCEPTION.CONTRABAND.UPLOAD:%s";
 }

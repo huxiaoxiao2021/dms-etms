@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.utils.BusiWaringUtil;
@@ -62,7 +62,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     @Qualifier("executorparallelGetPackageExecutor")
@@ -184,7 +184,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
     @Override
     public BaseEntity<List<DeliveryPackageD>> getPackageByWaybillCode(String waybillCode){
-        if(uccPropertyConfiguration.isParalleGetPackageSwitch()){
+        if(dmsConfigManager.getPropertyConfig().isParalleGetPackageSwitch()){
             return getPackageByWaybillCodeParallel(waybillCode);
         }
         return getPackageByWaybillCodeDefault(waybillCode);

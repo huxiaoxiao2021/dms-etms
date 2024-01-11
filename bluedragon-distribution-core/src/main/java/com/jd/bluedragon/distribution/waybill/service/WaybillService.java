@@ -161,6 +161,13 @@ public interface WaybillService {
      */
     InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest);
 
+
+    /**
+     * 现场预分拣拦截校验 增加审批使用
+     * @param waybillForPreSortOnSiteRequest
+     * @return
+     */
+    InvokeResult<String> checkWaybillForPreSortOnSiteForApprove(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest);
     /**
      * 判断满足文件类型的拦截条件
      * @param subType
@@ -207,6 +214,14 @@ public interface WaybillService {
      * @return
      */
     CancelWaybill checkClaimDamagedCancelWaybill(String waybillCode);
+
+    /**
+     * 仅获取港澳审单拦截
+     * 
+     * @param waybillCode
+     * @return
+     */
+    CancelWaybill queryGAExamineCancelWaybill(String waybillCode);
 
     /**
      * 判断是否运单是否包含易冻品增值服务
@@ -268,4 +283,5 @@ public interface WaybillService {
      */
     InvokeResult<String> checkWaybillForPreSortOnSiteToDebon(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest,Waybill waybill);
 
+    boolean isHKorMOWaybill(String waybillCode);
 }

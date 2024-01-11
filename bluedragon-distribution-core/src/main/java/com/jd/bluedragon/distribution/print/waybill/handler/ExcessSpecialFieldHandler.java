@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
@@ -44,7 +44,7 @@ public class ExcessSpecialFieldHandler implements Handler<WaybillPrintContext, J
     private MixedPackageConfigService mixedPackageConfigService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ExcessSpecialFieldHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
@@ -102,7 +102,7 @@ public class ExcessSpecialFieldHandler implements Handler<WaybillPrintContext, J
             if(siteCode == null){
                 return false;
             }
-            String collectionAddressSiteCodes = uccPropertyConfiguration.getCollectionAddressSiteCodes();
+            String collectionAddressSiteCodes = dmsConfigManager.getPropertyConfig().getCollectionAddressSiteCodes();
             if(StringUtils.isEmpty(collectionAddressSiteCodes)){
                 return false;
             }

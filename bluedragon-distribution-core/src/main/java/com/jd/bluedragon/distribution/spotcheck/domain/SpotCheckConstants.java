@@ -23,6 +23,10 @@ public class SpotCheckConstants {
      */
     public static final String EQUIPMENT_SPOT_CHECK = "DMS-DWS";
     public static final String ARTIFICIAL_SPOT_CHECK = "DMS-MSI";
+    /**
+     * 数据来源系统:SYS_DMS_DWS("分拣设备抽检", "1"),
+     */
+    public static final Integer SYS_DMS_DWS = 1;
 
     public static final String PICTURE_LOOK_URL = "%s/weightAndVolumeCheck/toSearchPicture4MultiplePackage/?waybillCode=%s&siteCode=%s&fromSource=%s&pageNo=1&pageSize=20";
 
@@ -116,8 +120,8 @@ public class SpotCheckConstants {
     public static final String SPOT_CHECK_VOLUME_LIMIT_B = "当前运单平均单个包裹体积超过%sm³，请核实后重新录入!";
     public static final String SPOT_CHECK_VOLUME_LIMIT_B_PACK = "当前包裹体积超过%sm³，请核实后重新录入!";
 
-    public static final String SPOT_CHECK_PACK_SEND_REFORM = "运单下包裹%s已发货,不支持人工抽检!";
-    public static final String SPOT_CHECK_PACK_SPOT_CHECK_REFORM = "运单下包裹%s已抽检,不支持人工抽检!";
+    public static final String SPOT_CHECK_PACK_SEND_REFORM = "运单下包裹%s已发货,不允许抽检!";
+    public static final String SPOT_CHECK_PACK_SPOT_CHECK_REFORM = "运单下存在包裹已抽检,不允许再抽检!";
     public static final String SPOT_CHECK_PACK_SPOT_SEND_NOT_CHECK = "运单下有包裹已发货未抽检,禁止操作!!";
 
     public static final String SPOT_CHECK_EXCESS_LIMITATION = "货物超大超重，请注意重量体积是否有误！";
@@ -143,4 +147,8 @@ public class SpotCheckConstants {
      */
     public static final Integer SPOT_CHECK_AI_EXC_CODE = 40001;
 
+    /**
+     * AI图片识别原因：软包
+     */
+    public static final String PIC_AI_REASON_RB = "软包";
 }

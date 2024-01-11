@@ -3,12 +3,18 @@ package com.jd.bluedragon.distribution.consumer.send;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageException;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery;
+import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.dto.SiteCodeAssociationDto;
@@ -19,6 +25,7 @@ import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
 import com.jd.bluedragon.distribution.newseal.service.DmsSendRelationService;
@@ -34,7 +41,7 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -51,11 +58,13 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillPickup;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
@@ -85,6 +94,13 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService cacheService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -144,6 +160,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Qualifier("dmsSendToEmsWaybillInfoProducer")
     private DefaultJMQProducer dmsSendToEmsWaybillInfoProducer;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     /**
      * 缓存redis的key
      */
@@ -183,6 +202,12 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     private TaskService taskService;
 
+    @Autowired
+    private AbnormalWayBillService abnormalWayBillService;
+
+    @Autowired
+    private JyDamageExceptionService jyDamageExceptionService;
+
     @Override
     public void consume(Message message) {
         if (!JsonHelper.isJsonString(message.getText())) {
@@ -194,6 +219,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         try {
             Long operateTime = context.getOperateTime();
             if (StringUtils.isNotEmpty(context.getPackageBarcode()) && operateTime != null && operateTime > 0) {
+                jyDamageExceptionService.dealDamageExpTaskStatus(context.getPackageBarcode(),context.getCreateSiteCode());
                 // 设置redis缓存锁
                 String lastOperateTime = this.setCacheLock(context);
                 if (lastOperateTime == null) {
@@ -284,8 +310,11 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 }
                 // 杭州亚运会特殊全程跟踪处理
                 this.handleSecurityCheckWaybillTrace(sendDetail);
-                // 非城配运单，发车队通知调度系统发送MQ消息
-                this.dmsToVendorMQ(sendDetail, waybill);
+                if(uccPropertyConfiguration.isDmsToVendorSendMQSwitch()){
+                    log.warn("发车队通知调度系统发送MQ消息开启---");
+                    // 非城配运单，发车队通知调度系统发送MQ消息
+                    this.dmsToVendorMQ(sendDetail, waybill);
+                }
                 // 构建并发送冷链发货MQ消息 - 运输计划相关
                 this.sendColdChainSendMQ(sendDetail, waybillCode);
                 // 龙门架、分拣机发货更新发货异常状态
@@ -694,6 +723,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         CCInAndOutBoundMessage body = new CCInAndOutBoundMessage();
         body.setOrgId(String.valueOf(siteOrgDto.getOrgId()));
         body.setOrgName(siteOrgDto.getOrgName());
+        body.setProvinceAgencyCode(siteOrgDto.getProvinceAgencyCode());
+        body.setProvinceAgencyName(siteOrgDto.getProvinceAgencyName());
+        body.setAreaHubCode(siteOrgDto.getAreaCode());
+        body.setAreaHubName(siteOrgDto.getAreaName());
         body.setSiteId(String.valueOf(siteOrgDto.getSiteCode()));
         body.setSiteName(siteOrgDto.getSiteName());
         body.setOperateType(ColdChainOperateTypeEnum.DELIVERY.getType());
@@ -911,11 +944,73 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 return;
             }
             log.info("handleSecurityCheckWaybillTrace match {}", JsonHelper.toJson(sendDetail));
+            boolean waybillIsProhibitedAbnormal = checkWaybillIsProhibitedAbnormal(sendDetail);
+            // 有异常上报记录，不发送全程跟踪
+            if(waybillIsProhibitedAbnormal){
+                return;
+            }
+            // 如果已经发过全程跟踪，则不再发送
+            if(this.checkSendSecurityCheckWaybillTraceAlready(sendDetail)){
+                return;
+            }
             // 发送全程跟踪消息
             this.sendWaybillTrace(sendDetail, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK);
         } catch (Exception e) {
             log.error("handleSecurityCheckWaybillTrace exception {}", JsonHelper.toJson(sendDetail), e);
         }
+    }
+
+    private boolean checkWaybillIsProhibitedAbnormal(SendDetailMessage sendDetail) {
+        // 区分是否有异常举报，1. 老版本异常上报 三级原因：违禁品无法发货 - 27000 2. 新版H5 外呼-违禁品（20009-20010）二级
+        try {
+            final AbnormalWayBillQuery abnormalWayBillQueryParam = new AbnormalWayBillQuery();
+            abnormalWayBillQueryParam.setPageNumber(1);
+            abnormalWayBillQueryParam.setLimit(100);
+            final String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
+            abnormalWayBillQueryParam.setWaybillCode(waybillCode);
+
+            final Long total = abnormalWayBillService.queryCountByQueryParam(abnormalWayBillQueryParam);
+            if(total == null || total <= 0){
+                return false;
+            }
+            int totalPage = Double.valueOf(Math.ceil((double) total / abnormalWayBillQueryParam.getPageNumber())).intValue();
+            for (int i = 0; i < totalPage; i++) {
+                abnormalWayBillQueryParam.setPageNumber(i + 1);
+                List<AbnormalWayBill> abnormalWayBillExsitList = abnormalWayBillService.queryPageListByQueryParam(abnormalWayBillQueryParam);
+                if (CollectionUtils.isEmpty(abnormalWayBillExsitList)) {
+                    return false;
+                }
+
+                for (AbnormalWayBill abnormalWayBill : abnormalWayBillExsitList) {
+                    if(Objects.equals(Constants.SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID, abnormalWayBill.getAbnormalReasonThirdId())){
+                        return true;
+                    }
+                    final List<Long> secondIds = Constants.SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP.get(abnormalWayBill.getAbnormalReasonFirstId());
+                    if(CollectionUtils.isNotEmpty(secondIds)
+                            && secondIds.contains(abnormalWayBill.getAbnormalReasonFirstId())){
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("checkWaybillIsProhibitedAbnormal exception {}", JsonHelper.toJson(sendDetail), e);
+        }
+        return false;
+    }
+
+    private boolean checkSendSecurityCheckWaybillTraceAlready(SendDetailMessage sendDetail){
+        String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
+        final String exist = cacheService.get(String.format(CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL, waybillCode));
+        if (exist != null) {
+            log.info("SendDetailConsumer.checkSendSecurityCheckWaybillTraceAlready exist cache {} ", JsonHelper.toJson(sendDetail));
+            return true;
+        }
+        final List<PackageStateDto> waybillTrackExistList = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_STATE.toString());
+        if(CollectionUtils.isNotEmpty(waybillTrackExistList)){
+            log.info("SendDetailConsumer.checkSendSecurityCheckWaybillTraceAlready exist {} ", JsonHelper.toJson(sendDetail));
+            return true;
+        }
+        return false;
     }
 
     private Long securityCheckAheadTimeMillseconds = 10000L;
@@ -941,14 +1036,17 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             waybillStatus.setOperateTime(new Date(operateTime));
 
             waybillStatus.setOperateType(operateType);
-            waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检通过", waybillStatus.getCreateSiteName()));
-
             Map<String, Object> extendParamMap = new HashMap<>();
             extendParamMap.put("traceDisplay", 0);
+            extendParamMap.put("auditResult", 1);
             waybillStatus.setExtendParamMap(extendParamMap);
+
+            waybillStatus.setRemark(String.format("您的快件在【%s】已二次安检通过", waybillStatus.getCreateSiteName()));
 
             // 添加到task表
             taskService.add(toTask(waybillStatus));
+
+            cacheService.setEx(String.format(CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL, WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode())), Constants.STRING_FLG_TRUE, CacheKeyConstants.CACHE_KEY_ASIA_SPORT_SECURITY_CHECK_WAYBILL_TIMEOUT, TimeUnit.MINUTES);
 
         } catch (Exception e) {
             log.error("发货发送安检全称跟踪失败 {}", JsonHelper.toJson(sendDetail), e);

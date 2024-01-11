@@ -11,7 +11,8 @@ import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiSelectWSManager;
 import com.jd.bluedragon.core.base.ReportExternalManager;
@@ -132,7 +133,7 @@ public class NewSealVehicleResource {
     private BasicPrimaryWS basicPrimaryWS;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private SendCodeService sendCodeService;
@@ -155,6 +156,9 @@ public class NewSealVehicleResource {
     @Autowired
     @Qualifier("sendVehicleTransactionManager")
     private SendVehicleTransactionManager sendVehicleTransactionManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
 
     @Autowired
@@ -224,6 +228,8 @@ public class NewSealVehicleResource {
 
         //设置运力基本信息
         response.setSiteCode(data.getEndNodeId());
+        response.setSiteName(data.getEndNodeName());
+
         response.setSendUserType(data.getTransType());
         response.setRouteType(data.getTransType());
         response.setDriver(data.getCarrierName());
@@ -704,7 +710,7 @@ public class NewSealVehicleResource {
      * @return
      */
     private boolean isNeedCheck(Integer siteCode) {
-        String sealVolumeCheckSites = uccPropertyConfiguration.getSealVolumeCheckSites();
+        String sealVolumeCheckSites = dmsConfigManager.getPropertyConfig().getSealVolumeCheckSites();
         if(StringUtils.isEmpty(sealVolumeCheckSites)){
             return true;
         }

@@ -34,9 +34,11 @@ import com.jd.bluedragon.common.dto.seal.response.JyCancelSealInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
+import com.jd.bluedragon.distribution.jy.service.seal.impl.JyComboardSealVehicleServiceImpl;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.external.gateway.service.JyComboardSealGatewayService;
@@ -57,10 +59,13 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   @Qualifier("jyComboardSendVehicleService")
   private IJySendVehicleService jyComboardSendVehicleService;
   @Autowired
+  @Qualifier("JyComboardSealVehicleService")
   JySealVehicleService jySealVehicleService;
   @Autowired
   JyComBoardSendService jyComBoardSendService;
 
+  @Autowired
+  DmsConfigManager dmsConfigManager;
 
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
     return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(),

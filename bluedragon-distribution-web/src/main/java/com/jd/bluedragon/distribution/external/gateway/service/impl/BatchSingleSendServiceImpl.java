@@ -7,7 +7,7 @@ import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
 import com.jd.bluedragon.common.dto.send.request.ThirdWaybillNoWyRequest;
 import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckDto;
 import com.jd.bluedragon.common.dto.send.response.ThirdWaybillNoWyDto;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -81,7 +81,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     private DeliveryResource deliveryResource;
 
     @Autowired
-    private UccPropertyConfiguration uccConfiguration;
+    private DmsConfigManager dmsConfigManager;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
@@ -282,11 +282,11 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     private String getSendCodeByDpWaybillCode(String packageCode, Map<Integer, String> batchCodeMap){
         String dpSendCode = null;
         try {
-            if(!uccConfiguration.isDpWaybillMatchSendCodeSwitch()){
+            if(!dmsConfigManager.getPropertyConfig().isDpWaybillMatchSendCodeSwitch()){
                 logger.info("批量一单一件发货德邦运单匹配德邦批次号开关未开启，packageCode:{}", packageCode);
                 return null;
             }
-            List<Integer> dpSiteCodeList = uccConfiguration.getDpSiteCodeList();
+            List<Integer> dpSiteCodeList = dmsConfigManager.getPropertyConfig().getDpSiteCodeList();
             for(Integer siteCode : batchCodeMap.keySet()){
                 if(BusinessHelper.isDPSiteCode(dpSiteCodeList, siteCode)){
                     dpSendCode = batchCodeMap.get(siteCode);

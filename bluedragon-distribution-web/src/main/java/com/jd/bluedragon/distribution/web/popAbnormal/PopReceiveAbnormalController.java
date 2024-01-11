@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LossProductResponse;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalDetail;
@@ -55,7 +56,7 @@ import java.util.*;
  */
 @Controller
 @RequestMapping("/popReceiveAbnormal")
-public class PopReceiveAbnormalController {
+public class PopReceiveAbnormalController extends DmsBaseController {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
@@ -364,11 +365,12 @@ public class PopReceiveAbnormalController {
 		this.log.info("savePopReceiveAbnormal --> 保存差异订单保存差异订单 开始");
 		// 验证传入参数
 		if (popReceiveAbnormal == null
-				|| popReceiveAbnormal.getOrgCode() == null
 				|| popReceiveAbnormal.getCreateSiteCode() == null) {
 			this.log.info("savePopReceiveAbnormal --> 传入参数有误！");
 			return new JsonResult(false, "传入参数有误！");
 		}
+		// 设置机构、省区数据
+		fillBaseInfo(popReceiveAbnormal);
 		if (popAbnormalDetail != null
 				&& StringUtils.isNotBlank(popAbnormalDetail.getRemark())
 				&& popAbnormalDetail.getRemark().length() > 256) {
@@ -476,6 +478,23 @@ public class PopReceiveAbnormalController {
 		} catch (Exception e) {
 			this.log.error("savePopReceiveAbnormal --> 运单号[{}] 异常：",popReceiveAbnormal.getWaybillCode(), e);
 			return new JsonResult(false, "服务器异常，请稍后重试！");
+		}
+	}
+
+	private void fillBaseInfo(PopReceiveAbnormal popReceiveAbnormal) {
+		if(popReceiveAbnormal.getCreateSiteCode() != null){
+			BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(popReceiveAbnormal.getCreateSiteCode());
+			popReceiveAbnormal.setOrgCode((baseSite == null || baseSite.getOrgId() == null) ? -1 : baseSite.getOrgId());
+			popReceiveAbnormal.setOrgName((baseSite == null || StringUtils.isEmpty(baseSite.getOrgName())) 
+					? Constants.EMPTY_FILL : baseSite.getOrgName());
+			popReceiveAbnormal.setProvinceAgencyCode((baseSite == null || StringUtils.isEmpty(baseSite.getProvinceAgencyCode()))
+					? Constants.EMPTY_FILL : baseSite.getProvinceAgencyCode());
+			popReceiveAbnormal.setProvinceAgencyName((baseSite == null || StringUtils.isEmpty(baseSite.getProvinceAgencyName()))
+					? Constants.EMPTY_FILL : baseSite.getProvinceAgencyName());
+			popReceiveAbnormal.setAreaHubCode((baseSite == null || StringUtils.isEmpty(baseSite.getAreaCode()))
+					? Constants.EMPTY_FILL : baseSite.getAreaCode());
+			popReceiveAbnormal.setAreaHubName((baseSite == null || StringUtils.isEmpty(baseSite.getAreaName()))
+					? Constants.EMPTY_FILL : baseSite.getAreaName());
 		}
 	}
 
@@ -629,7 +648,7 @@ public class PopReceiveAbnormalController {
 		try {
 			this.log.info("初始化查询条件-->调用基础资料获取某个员工信息开始");
 			BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService
-					.getBaseStaffByStaffId(erpUser.getUserId());
+					.getBaseStaffByStaffId(erpUser.getStaffNo());
 
 			Integer defaultSiteCode = null;
 			Integer defaultOrgId = null;

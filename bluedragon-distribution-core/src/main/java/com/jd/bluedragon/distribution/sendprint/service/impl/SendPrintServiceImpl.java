@@ -3,12 +3,16 @@ package com.jd.bluedragon.distribution.sendprint.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.context.InvokerClientInfoContext;
+import com.jd.bluedragon.core.jsf.adapter.AdapterOutOfPlatformDecryRouter;
+import com.jd.bluedragon.core.jsf.adapter.AdapterRequestOfPlatformDecryRouter;
 import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -34,6 +38,7 @@ import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
+import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -51,6 +56,7 @@ import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jsf.gd.error.RpcException;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -121,7 +127,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private PrintHandoverListManager printHandoverListManager;
@@ -137,6 +143,12 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     @Autowired
     private LogEngine logEngine;
+
+    @Autowired
+    private AdapterApiManager adapterApiManager;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     private static int PARAM_CM3_M3 = 1000000;//立方厘米和立方米的换算基数
 
@@ -223,8 +235,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             Map<String,Map<String,Set<String>>> batchBoxWaybillMap = new HashMap<>();
 
             // 单次scroll查询数量、scroll查询最大限制次数
-            int batchSize = uccPropertyConfiguration.getScrollQuerySize();
-            int printScrollQueryCountLimit = uccPropertyConfiguration.getPrintScrollQueryCountLimit();
+            int batchSize = dmsConfigManager.getPropertyConfig().getScrollQuerySize();
+            int printScrollQueryCountLimit = dmsConfigManager.getPropertyConfig().getPrintScrollQueryCountLimit();
 
             Pager<PrintHandoverLitQueryCondition> query = new Pager<PrintHandoverLitQueryCondition>();
             query.setPageNo(Constants.CONSTANT_NUMBER_ONE);
@@ -356,6 +368,8 @@ public class SendPrintServiceImpl implements SendPrintService {
                         + (summaryPrintResult.getTotalOutVolumeStatic() == null ? Constants.DOUBLE_ZERO : summaryPrintResult.getTotalOutVolumeStatic()));
                 computeSummaryPrintResult.setTotalInVolume((computeSummaryPrintResult.getTotalInVolume() == null ? Constants.DOUBLE_ZERO : computeSummaryPrintResult.getTotalInVolume())
                         + (summaryPrintResult.getTotalInVolume() == null ? Constants.DOUBLE_ZERO : summaryPrintResult.getTotalInVolume()));
+                computeSummaryPrintResult.setTotalPackWeight((computeSummaryPrintResult.getTotalPackWeight() == null ? Constants.DOUBLE_ZERO : computeSummaryPrintResult.getTotalPackWeight())
+                        + (summaryPrintResult.getTotalPackWeight() == null ? Constants.DOUBLE_ZERO : summaryPrintResult.getTotalPackWeight()));
             }else {
                 batchBasicMap.put(summaryPrintResult.getSendCode(), summaryPrintResult);
             }
@@ -455,6 +469,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         Double totalOutVolumeDy = Constants.DOUBLE_ZERO;  //总的应付自动测量体积
         Double totalOutVolumeSt = Constants.DOUBLE_ZERO;  //总的应付人工测量体积
         Double totalInVolume = Constants.DOUBLE_ZERO;     //总的应收体积
+        Double totalPackWeight = Constants.DOUBLE_ZERO;     //总的包裹重量（先取AgainWeight，如果AgainWeight不存在再取GoodWeight）
 
         String roadCode  = null; //路区号
         String sendTime = Constants.EMPTY_FILL;//发货时间
@@ -536,9 +551,6 @@ public class SendPrintServiceImpl implements SendPrintService {
                 }
             }else if(StringUtils.isNotBlank(printHandoverListDto.getBoxCode()) && BusinessHelper.isBoxcode(printHandoverListDto.getBoxCode())){
                 //没有板号，或者板的体积为空，但是有箱号（box_code字段为箱号）
-                if(boxVolumeSet.contains(printHandoverListDto.getBoxCode())){
-                    continue;
-                }
                 boxVolumeSet.add(printHandoverListDto.getBoxCode());
 
                 totalOutVolumeDy += printHandoverListDto.getDmsOutVolumeStatic() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getDmsOutVolumeStatic();
@@ -552,6 +564,11 @@ public class SendPrintServiceImpl implements SendPrintService {
 
             //应收体积
             totalInVolume += printHandoverListDto.getGoodVolume() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getGoodVolume();
+
+            // 包裹总重量
+            totalPackWeight += (printHandoverListDto.getPackageAgainWeight() == null 
+                    ? (printHandoverListDto.getPackageWeight() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getPackageWeight()) 
+                    : printHandoverListDto.getPackageAgainWeight());
         }
 
         //map转换成list
@@ -568,6 +585,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         summaryPrintResult.setTotalOutVolumeDynamic(totalOutVolumeDy);
         summaryPrintResult.setTotalOutVolumeStatic(totalOutVolumeSt);
         summaryPrintResult.setTotalInVolume(totalInVolume);
+        summaryPrintResult.setTotalPackWeight(totalPackWeight);
 
         summaryPrintResult.setDetails(details);
 
@@ -1409,7 +1427,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         // 记录businessLog
         addBusinessLog(startTime, printExportCriteria, false, null);
         com.jd.dms.wb.report.api.dto.base.BaseEntity<Boolean>
-                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, uccPropertyConfiguration.isQuerySensitiveFlag() && isShowAddress(printExportCriteria.getList())));
+                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, dmsConfigManager.getPropertyConfig().isQuerySensitiveFlag() && isShowAddress(printExportCriteria.getList())));
         if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
             log.info("操作人【{}】始发地【{}】的交接清单导出成功!", printExportCriteria.getUserCode(), printExportCriteria.getCreateSiteCode());
         }else {
@@ -1426,7 +1444,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      */
     private boolean checkIsApproval(PrintExportCriteria printExportCriteria) {
         // 未开启审批
-        if(!uccPropertyConfiguration.getApprovalSwitch()){
+        if(!dmsConfigManager.getPropertyConfig().getApprovalSwitch()){
             return false;
         }
         return isShowAddress(printExportCriteria.getList());
@@ -1455,7 +1473,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private boolean switchSiteSubTypeCheck(Integer receiveSiteCode) {
-        return uccPropertyConfiguration.getCheckSiteSubType()
+        return dmsConfigManager.getPropertyConfig().getCheckSiteSubType()
                 || Objects.equals(toSiteSubType(receiveSiteCode), Constants.RETURN_PARTNER_SITE_TYPE);
     }
 
@@ -1503,6 +1521,9 @@ public class SendPrintServiceImpl implements SendPrintService {
             log.warn("根据始发{}目的{}箱号{}获取发货sendM为空!",sendDetail.getCreateSiteCode(),sendDetail.getReceiveSiteCode(),sendDetail.getBoxCode());
             return null;
         }
+
+        //检查是否需要对开启收件人信息加密的服务进行触发解密
+        bigWaybillDto = decodeReceiverInfo(bigWaybillDto,sendDetail.getReceiveSiteCode());
 
         // 构建打印接交接对象的基础属性
         PrintHandoverListDto printHandoverListDto = buildBasicData(sendDetail,sendM,waybillCode);
@@ -1581,6 +1602,134 @@ public class SendPrintServiceImpl implements SendPrintService {
         queryParams.setSendCode(sendDetail.getSendCode());
         List<SendM> sendMList = sendMService.findByParams(queryParams);
         return CollectionUtils.isEmpty(sendMList) ? null : sendMList.get(0);
+    }
+
+
+    /**
+     * 分拣中心转三方邮政派送时，推送邮政运单相关信息,对收件人信息进行解密
+     *
+     *
+     * 判断标位：脱敏运单标识  且  加密或虚拟号
+     *                 (1）脱敏运单标识：waybillsign 142 = 1   标识非正常的收件人信息，解密之后142还是1，不会变成0
+     *
+     *            且  （2）加密或虚拟号：  自定义增值服务
+     *                              如果encMode字段=1，表示加密信息，此类需要分拣触发解密
+     *                              如果encMode字段=2，表示是虚拟号，需要再判断virtualNumberExpire字段，虚拟号失效时间减去当前时间小于等于10天的（可配置），此类需要分拣触发解密
+     * @param waybillDto
+     * @return
+     */
+    private BigWaybillDto decodeReceiverInfo(BigWaybillDto waybillDto,Integer receiveSiteCode){
+        //必要入参检查
+        if(waybillDto == null
+                || waybillDto.getWaybill() == null
+                || StringUtils.isBlank(waybillDto.getWaybill().getWaybillSign())){
+            return waybillDto;
+        }
+
+        try{
+
+            String waybillCode = waybillDto.getWaybill().getWaybillCode();
+            String waybillSign = waybillDto.getWaybill().getWaybillSign();
+            SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_ZJ_DECODE_MOBILE_VIRTUAL_AFTER_DAYS);
+            Integer afterDays = sysConfig != null ? Integer.valueOf(sysConfig.getConfigContent()) : Constants.CONSTANT_NUMBER_TEN;
+
+            //脱敏标识 ，未脱敏的，就不需要进行解密 直接返回
+            if(!BusinessHelper.isNeedDecode(waybillSign)){
+                log.info("运单{},未脱敏，不需要进行解密！",waybillCode);
+                return waybillDto;
+            }
+
+            //目的地不是邮政不需要进行解密
+            BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+            if(!(receiveSiteDto != null
+                    && Constants.THIRD_SITE_TYPE.equals(receiveSiteDto.getSiteType())
+                    && Constants.THIRD_SITE_SUB_TYPE.equals(receiveSiteDto.getSubType())
+                    && Constants.THIRD_SITE_THIRD_TYPE_SMS.equals(receiveSiteDto.getThirdType()))) {
+                log.info("运单{},发货目的地{}非邮政，不需要进行解密！",waybillCode,receiveSiteCode);
+                return waybillDto;
+            }
+
+            //获取增值服务
+            BaseEntity<WaybillVasDto> waybillVasDtoBaseEntity = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybillCode,
+                    WaybillVasEnum.WAYBILL_VAS_SPECIAL_PERSONAL_INFO_SEC.getCode());
+            if(waybillVasDtoBaseEntity == null || waybillVasDtoBaseEntity.getData() == null
+                    || waybillVasDtoBaseEntity.getData().getExtendMap() == null){
+                log.info("运单{},未获取到增值服！",waybillCode);
+                return waybillDto;
+            }
+
+            String receiveMobileMapStr = waybillVasDtoBaseEntity.getData().getExtendMap().get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_RECEIVE_MOBILE.getCode());
+            String receiveNameMapStr = waybillVasDtoBaseEntity.getData().getExtendMap().get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_RECEIVE_NAME.getCode());
+            String encPlatform = waybillVasDtoBaseEntity.getData().getExtendMap().get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_ESC_ENC_PLATFORM.getCode());
+
+            if(receiveMobileMapStr == null && receiveNameMapStr == null){
+                log.info("运单{},未获取到增值服中关键信息项！receiveMobile和receiveName 均为空",waybillCode);
+                return waybillDto;
+            }
+
+            Map<String,Object> receiveMobileMap = JsonHelper.json2MapByJSON(receiveMobileMapStr);
+            Map<String,Object> receiveNameMap = JsonHelper.json2MapByJSON(receiveNameMapStr);
+            //非空初始化
+            if(receiveMobileMap == null){
+                receiveMobileMap = new HashMap<>();
+            }
+            if(receiveNameMap == null){
+                receiveNameMap = new HashMap<>();
+            }
+            //电话加密模式
+            String receiveMobileEncMode = String.valueOf(receiveMobileMap.get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getCode()));
+            //名字加密模式
+            String receiveNameEncMode = String.valueOf(receiveNameMap.get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getCode()));
+            //虚拟号过期时间 不存在就已当前时间为准
+            Object receiveMobileVirtualNumberExpireObj = receiveMobileMap.get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_ESC_VIRTUAL_NUMBER_EXPIRE.getCode());
+            Date receiveMobileVirtualNumberExpire = receiveMobileVirtualNumberExpireObj == null || StringUtils.isBlank(String.valueOf(receiveMobileVirtualNumberExpireObj)) ?
+                    new Date() : DateHelper.parseAllFormatDateTime(String.valueOf(receiveMobileVirtualNumberExpireObj));
+
+            // 检查加密或虚拟号
+            // 如果encMode字段=1，表示加密信息，此类需要分拣触发解密 如果encMode字段=2，表示是虚拟号，需要再判断virtualNumberExpire字段，虚拟号失效时间减去当前时间小于等于10天的（可配置)
+            if(!(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getValue().equals(receiveMobileEncMode)
+                    //||  不考虑 客户名字是否加密
+                    //WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_1.getValue().equals(receiveNameEncMode)
+                    ||
+                    (WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_ENC_MODE_2.getValue().equals(receiveMobileEncMode)
+                            && receiveMobileVirtualNumberExpire.before(DateHelper.addDate(new Date(),afterDays)))
+            )
+            ){
+                //不满足条件不需要解密
+                log.info("运单{},不满足解密条件！不需要进行解密",waybillCode);
+                return waybillDto;
+            }
+
+            AdapterRequestOfPlatformDecryRouter req = new AdapterRequestOfPlatformDecryRouter();
+            //满足触发解密
+            req.setWaybillCode(waybillCode);
+            //原因
+            req.setQueryReason(AdapterApiManagerImpl.QUERY_REASON_EMS);
+            //平台条线
+            req.setPlatform(encPlatform);
+            AdapterOutOfPlatformDecryRouter resp = adapterApiManager.commonAdapterExecuteOfPlatformDecryRouter(req);
+            if(resp == null || resp.getData() == null
+                    || resp.getData().getReceiver() == null
+                    || resp.getData().getReceiver().getContact() == null){
+                log.info("运单{},未获取到解密信息！",waybillCode);
+                return waybillDto;
+            }
+
+            //覆盖解密数据
+            if(StringUtils.isNotBlank(resp.getData().getReceiver().getContact().getMobile())){
+                waybillDto.getWaybill().setReceiverMobile(resp.getData().getReceiver().getContact().getMobile());
+            }
+            if(StringUtils.isNotBlank(resp.getData().getReceiver().getContact().getPhone())){
+                waybillDto.getWaybill().setReceiverTel(resp.getData().getReceiver().getContact().getPhone());
+            }
+            if(StringUtils.isNotBlank(resp.getData().getReceiver().getContact().getName())){
+                waybillDto.getWaybill().setReceiverName(resp.getData().getReceiver().getContact().getName());
+            }
+
+        }catch (Exception e){
+            log.error("decodeReceiverInfo error,{}",waybillDto.getWaybill().getWaybillCode(),e);
+        }
+        return waybillDto;
     }
 
     /**
@@ -1888,7 +2037,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     private boolean checkGoESQuery(Integer siteCode) {
         String printHandoverListSites;
         try {
-            printHandoverListSites = uccPropertyConfiguration.getPrintHandoverListSites();
+            printHandoverListSites = dmsConfigManager.getPropertyConfig().getPrintHandoverListSites();
             if(Boolean.TRUE.toString().equals(printHandoverListSites)){
                 return true;
             }else if(Boolean.FALSE.toString().equals(printHandoverListSites)){
@@ -1956,7 +2105,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     private Pager<PrintHandoverLitQueryCondition> createESQueryCondition(PrintExportCriteria printExportCriteria, boolean isApproval) {
         Pager<PrintHandoverLitQueryCondition> pager = new Pager<PrintHandoverLitQueryCondition>();
         pager.setPageNo(Constants.CONSTANT_NUMBER_ONE);
-        pager.setPageSize(uccPropertyConfiguration.getScrollQuerySize());
+        pager.setPageSize(dmsConfigManager.getPropertyConfig().getScrollQuerySize());
         Set<Integer> receiveSiteSet = new HashSet<>();
         for (PrintQueryCriteria item : printExportCriteria.getList()) {
             receiveSiteSet.add(item.getReceiveSiteCode());
@@ -1975,7 +2124,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     private Pager<PrintHandoverLitQueryCondition> createESQueryCondition(TripartiteEntity tripartiteEntity) {
         Pager<PrintHandoverLitQueryCondition> pager = new Pager<PrintHandoverLitQueryCondition>();
         pager.setPageNo(Constants.CONSTANT_NUMBER_ONE);
-        pager.setPageSize(uccPropertyConfiguration.getScrollQuerySize());
+        pager.setPageSize(dmsConfigManager.getPropertyConfig().getScrollQuerySize());
         Set<Integer> receiveSiteSet = new HashSet<>();
         for (PrintQueryCriteria item : tripartiteEntity.getList()) {
             receiveSiteSet.add(item.getReceiveSiteCode());

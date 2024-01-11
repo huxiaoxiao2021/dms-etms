@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
@@ -14,29 +14,34 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
+import com.jd.bluedragon.distribution.api.request.base.OperateUser;
+import com.jd.bluedragon.distribution.api.request.base.RequestProfile;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
+import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.ver.domain.Site;
-import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
+import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.SortCrossDetail;
@@ -58,11 +63,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.RECYCLE_BASKET;
+import java.util.stream.Collectors;
 
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
@@ -119,7 +122,7 @@ public class BoxServiceImpl implements BoxService {
 	private DefaultJMQProducer changeBoxStatusLogProducer;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	DmsConfigManager dmsConfigManager;
     @Autowired
     private CrossBoxService crossBoxService;
 
@@ -137,9 +140,21 @@ public class BoxServiceImpl implements BoxService {
 	@Value("${box.addBatch.size:20}")
 	private Integer boxAddBatchSize;
 
+	@Autowired
+	@Qualifier(value = "boxFirstPrintProducer")
+	private DefaultJMQProducer boxFirstPrintProducer;
+
+    @Resource(name="sortingBoxSubTypeMap")
+    private Map<String,String> sortingBoxSubTypeMap;
+    @Resource(name="siteBoxSubTypeMap")
+    private Map<String,String> siteBoxSubTypeMap;
+
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
         //持久化
+        if(box.getBoxSubType() == null){
+            box.setBoxSubType(Constants.EMPTY_FILL);
+        }
 		Integer result = this.boxDao.add(BoxDao.namespace, box);
         //缓存
 		Boolean isCatched = jimdbCacheService.setEx(getCacheKey(box.getCode()),JsonHelper.toJson(box), timeout);
@@ -165,6 +180,9 @@ public class BoxServiceImpl implements BoxService {
 		// 生成主键ID
 		for (Box box : boxes) {
 			box.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
+			if(box.getBoxSubType() == null){
+				box.setBoxSubType(Constants.EMPTY_FILL);
+			}
 		}
 
 		List<List<Box>> list = Lists.partition(boxes, boxAddBatchSize);
@@ -195,6 +213,9 @@ public class BoxServiceImpl implements BoxService {
             BeanHelper.copyProperties(box, param);
 			if (param.getPredictSendTime()!=null){
 				box.setPredictSendTime(param.getPredictSendTime());
+			}
+			if(box.getBoxSubType() == null){
+				box.setBoxSubType(Constants.EMPTY_FILL);
 			}
             box.setCode(boxCodePrefix + boxCodeSuffix);
             boxes.add(box);
@@ -232,7 +253,7 @@ public class BoxServiceImpl implements BoxService {
      */
 	private List<Box> batchAddNewFromDMS(Box param, String systemType) {
         List<Box> boxes = Lists.newArrayList();
-		List<String> codes = generateCode(param, systemType);
+		List<String> codes = generateCode(param, systemType, null);
 		for(String code :codes){
 			Box box = new Box();
 			BeanHelper.copyProperties(box, param);
@@ -244,18 +265,26 @@ public class BoxServiceImpl implements BoxService {
 		return boxes;
 	}
 
-	private List<String> generateCode(Box param, String systemType){
+	private List<String> generateCode(Box param, String systemType, RecycleBasketTypeEnum typeEnum){
 		String boxCodePrefix = null;
 		long[] seqNos = new long[0];
 		boolean dbOpen = isOpenDB();
 		try{
-			boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,dbOpen);
+			if (Objects.equals(BoxTypeEnum.RECYCLE_BASKET.getCode(),param.getType())) {
+				boxCodePrefix= this.generateRecycleMaterialPrefixNew(systemType, typeEnum);
+			}else {
+				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,dbOpen);
+			}
 			seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),dbOpen);
 		}catch (Exception e){
 			log.error("箱号生成序列号异常",e);
 			if(!dbOpen){
 				//redis 异常
-				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,true);
+				if (Objects.equals(BoxTypeEnum.RECYCLE_BASKET.getCode(),param.getType())) {
+					boxCodePrefix= this.generateRecycleMaterialPrefixNew(systemType, typeEnum);
+				}else {
+					boxCodePrefix = this.generateBoxCodePrefixNew(param, systemType, true);
+				}
 				seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),true);
 			}
 		}
@@ -273,11 +302,11 @@ public class BoxServiceImpl implements BoxService {
 	}
 
 	@Override
-	public List<String> generateRecycleBasketCode(int quantity){
+	public List<String> generateRecycleBasketCode(int quantity, RecycleBasketTypeEnum typeEnum){
 		Box param = new Box();
 		param.setType(BoxTypeEnum.RECYCLE_BASKET.getCode());
 		param.setQuantity(quantity);
-		return generateCode(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode());
+		return generateCode(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode(), typeEnum);
 	}
 
 
@@ -297,8 +326,8 @@ public class BoxServiceImpl implements BoxService {
 	private String generateBoxCodePrefixNew(Box box, String systemType,boolean isDB) {
 		StringBuilder preFix = new StringBuilder();
 		if (!this.genStableBoxPrefix(box, systemType)) {
-            preFix.append(box.getType());
-        }
+			preFix.append(box.getType());
+		}
 		else {
 		    // 箱号固定BC开头，不再根据类型区域不同的前缀
             preFix.append(BoxTypeEnum.TYPE_BC.getCode());
@@ -306,6 +335,14 @@ public class BoxServiceImpl implements BoxService {
 		return preFix.append("10").append(systemType)
 				.append(DateHelper.formatDate(new Date(),"yyMMdd"))
 				.append(isDB?"2":"1").toString();
+	}
+
+	private String generateRecycleMaterialPrefixNew(String systemType, RecycleBasketTypeEnum typeEnum) {
+		StringBuilder preFix = new StringBuilder();
+		return preFix.append(BoxTypeEnum.RECYCLE_BASKET.getCode())
+				.append("10").append(systemType)
+				.append(DateHelper.formatDate(new Date(),"yyMMdd"))
+				.append(typeEnum.getCode()).toString();
 	}
 
     /**
@@ -550,7 +587,7 @@ public class BoxServiceImpl implements BoxService {
 		Boolean result = false;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoxServiceImpl.checkBoxIsSent",Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
-			if (uccPropertyConfiguration.getCheckBoxSendedSwitchOn()){
+			if (dmsConfigManager.getPropertyConfig().getCheckBoxSendedSwitchOn()){
 				result = oldCheckBoxIsSent(boxCode,operateSiteCode);
 			}else{
 				result = newCheckBoxIsSent(boxCode);
@@ -800,11 +837,30 @@ public class BoxServiceImpl implements BoxService {
         }
         response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
 
+		// 打印客户端创建 并且是首次打印 推送箱号打印消息
+		if (checkIfReleasedForSite(request.getCreateSiteCode()) && BoxSystemTypeEnum.PRINT_CLIENT.getCode().equals(systemType)) {
+			pushBoxPrintMq(availableBoxes);
+		}
+
         this.buildBoxPrintInfo(request.getCreateSiteCode(), request.getReceiveSiteCode(), response);
         return response;
     }
 
-    /**
+	private void pushBoxPrintMq(List<Box> availableBoxes) {
+		if (CollectionUtils.isEmpty(availableBoxes)) {
+			return;
+		}
+		try{
+			for (Box box : availableBoxes) {
+				log.info("推送箱号mq:{}",JsonHelper.toJson(box));
+				boxFirstPrintProducer.sendOnFailPersistent(box.getCode(), JsonHelper.toJson(box));
+			}
+		}catch (Exception e) {
+			log.info("推送箱号打印消息失败，消息体{}",JsonHelper.toJson(availableBoxes));
+		}
+	}
+
+	/**
      * 构建目的地打印属性
      *
      * @param createSiteCode
@@ -818,7 +874,9 @@ public class BoxServiceImpl implements BoxService {
             response.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
         }
         if (null != response) {
+            UUID.randomUUID();
 			response.setBoxTypes(BoxTypeEnum.getMap());
+            response.setBoxSubTypes(BoxSubTypeEnum.ENUM_MAP);
 		}
 
     }
@@ -845,6 +903,7 @@ public class BoxServiceImpl implements BoxService {
     private Box toBox(BoxRequest request) {
         Box box = new Box();
         box.setType(request.getType());
+        box.setBoxSubType(request.getSubType());
         box.setQuantity(request.getQuantity());
         box.setCreateSiteCode(request.getCreateSiteCode());
         box.setCreateSiteName(request.getCreateSiteName());
@@ -913,4 +972,131 @@ public class BoxServiceImpl implements BoxService {
 		}
 	}
 
+	@Override
+	public boolean checkCollectPackageIfReleasedForSite(Integer orgId, Integer siteCode) {
+		if ((checkIfReleasedForOrg(orgId)) || checkIfReleasedForSite(siteCode)){
+			return true;
+		}
+		return false;
+	}
+
+	private boolean checkIfReleasedForOrg(Integer orgId) {
+		if (ObjectHelper.isNotNull(dmsConfigManager.getPropertyConfig().getCollectPackageOrgForbiddenList()) && ObjectHelper.isNotNull(orgId)){
+			if ("*".equals(dmsConfigManager.getPropertyConfig().getCollectPackageOrgForbiddenList())){
+				return true;
+			}
+			List<Integer> orgForbiddenList = buildOrgForbiddenList(dmsConfigManager.getPropertyConfig().getCollectPackageOrgForbiddenList());
+			if (CollectionUtils.isNotEmpty(orgForbiddenList) && orgForbiddenList.contains(orgId)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean checkIfReleasedForSite(Integer siteCode) {
+		if (ObjectHelper.isNotNull(dmsConfigManager.getPropertyConfig().getCollectPackageSiteForbiddenList()) && ObjectHelper.isNotNull(siteCode)){
+			List<Integer> siteForbiddenList = buildSiteForbiddenList(dmsConfigManager.getPropertyConfig().getCollectPackageSiteForbiddenList());
+			if (CollectionUtils.isNotEmpty(siteForbiddenList) && siteForbiddenList.contains(siteCode)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private List<Integer> buildOrgForbiddenList(String collectPackageOrgForbiddenList) {
+		List<Integer> list =new ArrayList<>();
+		if (collectPackageOrgForbiddenList.contains(",")){
+			list = Arrays.asList(collectPackageOrgForbiddenList.split(",")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
+		}
+		else {
+			list.add(Integer.valueOf(collectPackageOrgForbiddenList));
+		}
+		return list;
+	}
+
+	private List<Integer> buildSiteForbiddenList(String collectPackageSiteForbiddenList) {
+		List<Integer> list =new ArrayList<>();
+		if (collectPackageSiteForbiddenList.contains(",")){
+			list = Arrays.asList(collectPackageSiteForbiddenList.split(",")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
+		}
+		else {
+			list.add(Integer.valueOf(collectPackageSiteForbiddenList));
+		}
+		return list;
+	}
+    /**
+     * 查询箱类型
+     *
+     * @param boxTypeReq 查询箱类型入参
+     * @return 箱号类型列表
+     * @author fanggang7
+     * @time 2023-10-24 14:14:24 周二
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.BoxService.getBoxTypeList",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public Result<List<BoxTypeDto>> getBoxTypeList(BoxTypeReq boxTypeReq) {
+        if(log.isInfoEnabled()){
+            log.info("BoxServiceImpl.getBoxTypeList param {}", JsonHelper.toJson(boxTypeReq));
+        }
+        Result<List<BoxTypeDto>> result = Result.success();
+        List<BoxTypeDto> typeDtoList = new ArrayList<>();
+        result.setData(typeDtoList);
+        try {
+            final Result<Void> checkResult = this.checkParam4GetBoxTypeList(boxTypeReq);
+            if (checkResult.isFail()) {
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
+
+            final BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxTypeReq.getOperateUser().getSiteCode());
+            //营业部,自营京东派 人员使用部分箱型
+            if (dmsConfigManager.getPropertyConfig().getTerminalSiteTypeListForBoxType().contains(createSiteInfo.getSubType())){
+                typeDtoList.addAll(this.genBoxTypeDtoListByMap(siteBoxSubTypeMap));
+                return result;
+            }
+
+            // 分拣类型场地看到全量箱号类型
+            typeDtoList.addAll(this.genBoxTypeDtoListByMap(sortingBoxSubTypeMap));
+        } catch (Exception e) {
+            log.error("BoxServiceImpl.getBoxTypeList exception {}", JsonHelper.toJson(boxTypeReq), e);
+            result.toFail("系统异常");
+        }
+        return result;
+    }
+
+    private Result<Void> checkParam4GetBoxTypeList(BoxTypeReq boxTypeReq) {
+        Result<Void> checkResult = Result.success();
+        final OperateUser operateUser = boxTypeReq.getOperateUser();
+        if (operateUser == null) {
+            return checkResult.toFail("参数错误，operateUser不能为空");
+        }
+        if (operateUser.getSiteCode() == null) {
+            return checkResult.toFail("参数错误，operateUser.siteCode不能为空");
+        }
+        if (StringUtils.isBlank(operateUser.getUserCode())) {
+            return checkResult.toFail("参数错误，operateUser.userCode不能为空");
+        }
+
+        final RequestProfile requestProfile = boxTypeReq.getRequestProfile();
+        if (requestProfile == null) {
+            return checkResult.toFail("参数错误，requestProfile不能为空");
+        }
+
+        return checkResult;
+    }
+
+    private List<BoxTypeDto> genBoxTypeDtoListByMap(Map<String,String> boxTypeMap){
+        List<BoxTypeDto> typeDtoList = new ArrayList<>();
+        for (String code : boxTypeMap.keySet()) {
+            final BoxSubTypeEnum boxSubTypeEnum = BoxSubTypeEnum.getFromCode(code);
+            if (boxSubTypeEnum == null) {
+                continue;
+            }
+            final BoxTypeDto boxTypeDto = new BoxTypeDto();
+            boxTypeDto.setTypeCode(boxSubTypeEnum.getParentTypeCode());
+            boxTypeDto.setSubTypeCode(code);
+            boxTypeDto.setName(String.format("%s-%s", boxSubTypeEnum.getName(), boxSubTypeEnum.getParentTypeCode()));
+            typeDtoList.add(boxTypeDto);
+        }
+        return typeDtoList;
+    }
 }

@@ -30,6 +30,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.fastjson.JSON;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -190,6 +191,11 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
                 // 目的区域
                 domain.setRorgid(String.valueOf(dto.getEndOrgCode()));
                 domain.setRorgName(dto.getEndOrgName());
+                // todo org_switch_province 运输需增加字段
+                // 目的省区
+                domain.setDestProvinceAgencyCode(null);
+                domain.setDestProvinceAgencyName(null);
+                
                 // 线路类型
                 domain.setRouteType(String.valueOf(dto.getTransType()));
                 // 始发站
@@ -201,6 +207,10 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
                 // 始发区域
                 domain.setSorgid(String.valueOf(dto.getStartOrgCode()));
                 domain.setSorgName(dto.getStartOrgName());
+                // todo org_switch_province 运输需增加字段
+                // 始发省区
+                domain.setStartProvinceAgencyCode(null);
+                domain.setStartProvinceAgencyName(null);
                 // 运力编码
                 domain.setTranCode(String.valueOf(dto.getTransCode()));
                 // 运输方式
@@ -499,6 +509,7 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
         }
         String url = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteFuzzyByName/" + siteName;
         List<SiteEntity> siteEntities = RestHelper.jsonGetForEntity(url,new TypeToken<List<SiteEntity>>(){}.getType());
+        log.info("fuzzyGetSiteBySiteName 出参-{}", JSON.toJSONString(siteEntities));
         if (null == siteEntities || siteEntities.isEmpty()) {
         	return Collections.emptyList();
         }
@@ -596,6 +607,28 @@ public class SiteServiceImpl implements SiteService , SiteJsfService {
         }
         //截取分拣中心、分拨中心、中转场
         return siteName.replace(Constants.SUFFIX_DMS_ONE,"").replace(Constants.SUFFIX_DMS_TWO,"").replace(Constants.SUFFIX_TRANSIT,"");
+    }
+
+    @Override
+    public Site getOwnSite(Integer siteCode) {
+        BaseStaffSiteOrgDto basicSite = getSite(siteCode);
+        if(basicSite == null){
+            return null;
+        }
+        Site ownSite = new Site();
+        ownSite.setOrgId(basicSite.getOrgId());
+        ownSite.setCode(basicSite.getSiteCode());
+        ownSite.setDmsCode(basicSite.getDmsSiteCode());
+        ownSite.setName(basicSite.getSiteName());
+        ownSite.setType(basicSite.getSiteType());
+        ownSite.setSubType(basicSite.getSubType());
+        ownSite.setThirdType(basicSite.getThirdType());
+        ownSite.setProvinceId(basicSite.getProvinceId());
+        ownSite.setCityId(basicSite.getCityId());
+        ownSite.setSortType(basicSite.getSortType());
+        ownSite.setSortSubType(basicSite.getSortSubType());
+        ownSite.setSortThirdType(basicSite.getSortThirdType());
+        return ownSite;
     }
 
     private Site dealSiteType(Site site) {

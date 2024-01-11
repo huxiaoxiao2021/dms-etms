@@ -1,11 +1,6 @@
 package com.jd.bluedragon;
 
-import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
@@ -142,6 +137,26 @@ public class Constants {
      * 三级分拣中心
       */
     public static final Integer SITE_SUBTYPE_THIRD = 6410;
+
+    /**
+     * 退货组
+     */
+    public static final Integer SITE_RETURN_GROUP = 12354;
+
+    /**
+     * 请求应用程序类型
+     */
+    public static final Integer PROGRAM_TYPE = 60;
+
+    /**
+     * 业务类型
+     */
+    public static final Integer BUSINESS_TYPE = 1005;
+
+    /**
+     * 业务操作类型
+     */
+    public static final Integer OPERATE_TYPE = 100503;
 
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
@@ -287,6 +302,12 @@ public class Constants {
     public static final Integer BASE_SITE_OPERATESTATE = 2;
 
     /**
+     * 运营状态 operate_state 0关闭 1线上运营 2线下运营
+     */
+    public static final Integer BASE_SITE_OPERATESTATE_1 = 1;
+
+
+    /**
      * 承运商类型 1:司机 0:承运商（三方快递，即站点表中类型为16的数据）
      */
     public static final Integer SENDUSERTYEP_DRIVER = 1;
@@ -423,6 +444,16 @@ public class Constants {
      * 时间：一小时的秒数
      */
     public static final int TIME_SECONDS_ONE_HOUR = 3600;
+
+    /**
+     * 时间：48小时
+     */
+    public static final int FORTY_EIGHT_HOURS = 48;
+
+    /**
+     * 时间：72小时
+     */
+    public static final int SEVENTY_TWO_HOURS = 72;
 
     /**
      * 时间：一天的秒数
@@ -824,10 +855,37 @@ public class Constants {
      */
     public static final String SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST = "sys.config.client.smsSiteMenuBlacklist";
     /**
+     * 配置信息-自动签退处理的站点配置
+     */
+    public static final String SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES = "sys.config.autoHandleSignOutSiteCodes";
+    /**
      *  配置信息-青龙打印配置  qinglong.print.type.use
      *
      */
     public static final String SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF = "waybill.print.addiOwnNumberConf";
+
+
+    /**
+     *  配置信息-切换百川流量场地列表
+     *
+     */
+    public static final String BAICHUAN_REVERSE_SITE_CONF = "baichuan.reverse.site.conf";
+
+
+    /**
+     *发货统一服务切换
+     */
+    public static final String SEND_CAPABILITY_SITE_CONF = "send.capability.site.conf";
+
+    /**
+     *  配置信息-切换百川流量,强制走老逻辑运单列表
+     */
+    public static final String BAICHUAN_REVERSE_WAYBILL_OLD_L_CONF = "baichuan.reverse.waybill.old.logic.conf";
+
+    /**
+     *  配置信息-切换百川流量,强制走老逻辑退货类型列表
+     */
+    public static final String BAICHUAN_REVERSE_TYPE_CONF = "baichuan.reverse.type.old.logic.conf";
 
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
@@ -845,6 +903,11 @@ public class Constants {
     public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
+
+    /**
+     * 解密虚拟手机号最长等待 时间天
+     */
+    public static final String SYS_CONFIG_ZJ_DECODE_MOBILE_VIRTUAL_AFTER_DAYS= "decode.mobile.virtual.after.days";
     /**
      * print titles
      */
@@ -867,14 +930,36 @@ public class Constants {
     public static final String SYS_CONFIG_GLOBAL_FUNC_USAGE_CONTROL= "global_func_usage_control_";
 
     /**
-     * 功能可用性配置
+     * 功能可用性配置黑名单
      */
     public static final String SYS_CONFIG_FUNC_USAGE= "func_usage_";
 
     /**
-     * 安卓菜单可用性配置，按场地id配置
+     * 隐藏面单手机号信息
+     */
+    public static final String SYS_CONFIG_HIDE_PHONE_6Char= "hide_phone_6char";
+
+    /**
+     * 功能可用性配置黑名单，按人员ERP配置
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_BY_ERP = "func_usage_by_erp_";
+
+    /**
+     * 功能可用性配置黑名单，按场地id配置
      */
     public static final String SYS_CONFIG_FUNC_USAGE_BY_SITE_CODE = "func_usage_by_site_code_";
+    /**
+     * 功能可用性配置白名单，按场地类型
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_TYPE = "func_usage_white_by_site_type_";
+    /**
+     * 功能可用性配置白名单，按场地名单
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_CODE = "func_usage_white_by_site_code_";
+    /**
+     * 功能可用性配置白名单，按人员erp列表
+     */
+    public static final String SYS_CONFIG_FUNC_USAGE_WHITE_BY_ERP = "func_usage_white_by_erp_";
     /**
      * 是否启用中台创建箱号开关key
      */
@@ -975,11 +1060,11 @@ public class Constants {
     /**
      * UMP监控应用名-dms.etms
      */
-    public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
+    public static final String UMP_APP_NAME_DMSWEB= "dms-etms";
     /**
      * UMP监控应用名-bluedragon-distribution-worker
      */
-    public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
+    public static final String UMP_APP_NAME_DMSWORKER= "dms-etms-worker";
 
     /**
      *  重泡比超过正常范围168:1到330:1
@@ -1136,6 +1221,19 @@ public class Constants {
      * 运单状态  弃件
      */
     public static final String WAYBILLTRACE_WASTE = "620";
+    /**
+     * 运单状态  弃件（港澳单节点）
+     */
+    public static final String WAYBILLTRACE_WASTE_GA = "750";
+
+    /**
+     * 运单状态  异常退回
+     */
+    public static final String WAYBILLTRACE_EX_RETURN = "-3040";
+    /**
+     * 运单状态  清关失败
+     */
+    public static final String WAYBILLTRACE_FAIL_QG = "700";
 
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
@@ -1519,6 +1617,10 @@ public class Constants {
     public static final int  ALL_MAIL_CACHE_SECONDS = 5;
 
     /**
+     * 常量值：0
+     * */
+    public static final int  CONSTANT_NUMBER_ZERO = 0;
+    /**
      * 常量值：1
      * */
     public static final int  CONSTANT_NUMBER_ONE = 1;
@@ -1526,6 +1628,25 @@ public class Constants {
      * 常量值：2
      * */
     public static final int  CONSTANT_NUMBER_TWO = 2;
+    /**
+     * 常量值：3
+     * */
+    public static final int  CONSTANT_NUMBER_THREE = 3;
+
+    /**
+     * 常量值：10
+     * */
+    public static final int  CONSTANT_NUMBER_TEN = 10;
+
+    /**
+     * 常量值：200
+     * */
+    public static final int CONSTANT_TWO_HUNDRED = 200;
+
+    /**
+     * 常量值：1000
+     * */
+    public static final int CONSTANT_ONE_THOUSAND = 1000;
 
     /**
      * 组板转移标识
@@ -2010,7 +2131,236 @@ public class Constants {
 
 
     /**
+     * 异常运单任务缓存key
+     */
+    public static final String EXP_WAYBILL_CACHE_KEY_PREFIX ="exp.waybill.cache:";
+
+    /**
      * 安检场地关系配置
      */
     public static final String SYS_CONFIG_SECURITY_CHECK_SITE_ASSOCIATION = "security_check_site_association_";
+
+    public static final Integer SEND_FLOW_COUNT_LIMIT_DEFAULT=6;
+
+    /**
+     * 异常上报原因与二次安检关系-新版异常上报
+     */
+    public static final Map<Long, List<Long>> SECURITY_CHECK_NEW_VERSION_ABNORMAL_REASON_MAP = new HashMap<Long, List<Long>>(){{
+        put(20009L, new ArrayList<>(Collections.singletonList(20010L)));
+        put(20006L, new ArrayList<>(Collections.singletonList(20088L)));
+    }};
+
+    /**
+     * 异常上报原因与二次安检关系-老版异常上报
+     */
+    public static final Long SECURITY_CHECK_OLD_VERSION_ABNORMAL_REASON_THIRD_ID = 27000L;
+
+    // 新版分拣中心规范-分拣中心类型
+    public static final Integer SORTING_SORT_TYPE = 12351;
+    // 新版分拣中心规范-分拣中心子类型
+    public static final Integer SORTING_SORT_SUBTYPE = 123511;
+    // 新版分拣中心规范-分拣中心下中转站
+    public static final Integer SORTING_SORT_THIRD_TYPE = 1235116;
+    // 新版分拣中心规范-接货仓类型
+    public static final Integer JHC_SORT_TYPE = 12352;
+
+    /**
+     *  逆向原因编码
+     * 1-拦截逆向
+     * 3-清关逆向
+     */
+    public static final Integer INTERCEPT_REVERSE_CODE_1 = 1;
+    public static final Integer INTERCEPT_REVERSE_CODE_3 = 3;
+
+    /**
+     * 运单全程跟踪记录类型（强校验）
+     * 枚举类型：1:运单维度不记录各包裹全程跟踪,2:运单维度记录各包裹全程跟踪,3:包裹维度记录包裹全程跟踪
+     */
+    public static final Integer WAYBILL_TRACE_TYPE =1;
+
+    /**
+     * 逆向退货类型:拒收退回
+     */
+    public static final Integer REVERSE_TYPE_REJECT_BACK =7;
+
+    /**
+     * 换单来源 2: 分拣/SORT_CENTER
+     */
+    public static final Integer CHANGE_WAYBILL_OPERATE_SOURCE_SORT_CENTER =2;
+
+    /**
+     * 运单全程跟踪记录类型-包裹维度记录包裹全程跟踪 （packageBarCode为包裹号)
+     */
+    public static final Integer  WAYBILL_TRACE_TYPE_PACKAGE =3;
+
+    /**
+     * 对外展示话术标识  1 - 对外不展示话术
+     */
+    public static final Integer  WAYBILL_TRACE_DISPLAY =1;
+
+    /**
+     * 异常类型 1-快速退款，2-外单拦截，3-仓储病单拦截 , 4-理赔拦截,5-生产单,6-客服 7-eclp，8,运营拦截，9-仓预售单拦截
+     */
+    public static final int WAYBILL_EXCEPTION_ID_8 = 8;
+
+    /**
+     * 拦截类型 1:取消订单拦截,2:拒收订单拦截,3:恶意订单拦截,4:分拣中心拦截,5-仓储异常拦截,6-白条强制拦截，7-仓储病单拦截，
+     * 8.伽利略拒收订单拦截，9.京沃取消订单拦截 ，10-理赔拦截，11-取消订单拦截仓已拦截成功，12-理赔破损拦截，13-运营退货拦截，14-派送地址不详下单失败拦截15审单失败拦截
+     */
+    public static final int WAYBILL_INTERCEPT_TYPE_4 = 4;
+
+    public static final String WAYBILL_INTERCEPT_REASON = "违禁品退回";
+
+
+
+    /**
+     * 本场地多扫标识
+     */
+    public static final Integer MORE_LOCAL_SCAN = 1;
+
+    /**
+     * 非本场地多扫标识
+     */
+    public static final Integer MORE_OUT_SCAN = 2;
+
+    /**
+     * 本场地部分多扫标识
+     */
+    public static final Integer MORE_LOCAL_PART_SCAN = 3;
+
+    /**
+     *  配置信息-非本场地多扫弱提醒开关
+     *
+     */
+    public static final String MORE_OUT_SCAN_NOTIFY_SWITCH = "more.out.scan.notify.switch";
+
+    /**
+     *  配置信息-查询es卸车扫描是否多扫开关
+     *
+     */
+    public static final String MORE_SCAN_QUERY_ES_SWITCH = "more.scan.query.es.switch";
+
+    /**
+     *  配置信息-设备抽检申诉核对超时未确认时长
+     *
+     */
+    public static final String SPOT_CHECK_APPEAL_TIME_OUT = "spot.check.appeal.time.out";
+
+    /**
+     *  配置信息-处于待发货状态的自建任务停留时长
+     *
+     */
+    public static final String TO_SEND_MANUAL_TASK_TIME_OUT = "to.send.manual.task.time.out";
+
+    /**
+     *  配置信息-处于发货中状态的自建任务停留时长
+     *
+     */
+    public static final String SENDING_MANUAL_TASK_TIME_OUT = "sending.manual.task.time.out";
+
+    /**
+     * 运输内网账号类型
+     */
+    public static final int TMS_INTERNAL_ERP_ACCOUNT_TYPE = 1;
+
+    /**
+     * oss链接内外网key
+     */
+    public static final String OSS_OUTER_NET_KEY = "oss.outerNet";
+    public static final String OSS_INNER_NET_KEY = "oss.innerNet";
+    public static final String OSS_INNER_OFFICE_NET_KEY = "oss.innerNet.office";
+    /**
+     * 配置信息-自动签退超过多少小时未签退的数据
+     */
+    public static final String SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS="sys.config.autoHandleSignInRecord.notSignedOutRecordMoreThanHours";
+
+    /**
+     * 集包岗-任务锁前缀
+     */
+    public static final String JY_COLLECT_BOX_LOCK_PREFIX  = "jy_collect_package_box_lock_%s";
+
+    /**
+     * 找货通知redis key:  find_goods_notice_场地id_签到日期_波次开始时间_波次结束时间
+     * eg:find_goods_notice_8663_2023-11-28_09:00:00_12:00:00
+     */
+    public static final String FIND_GOODS_NOTICE_CACHE_KEY = "find_goods_notice_%s_%s_%s_%s";
+
+    public static final String FIND_GOODS_NOTICE_TITLE = "波次清场找货通知";
+
+    public static final String FIND_GOODS_NOTICE_CONTENT = "%s分拣中心，%s%s（波次开始时间）-%s（波次结束时间）班次清场，需找货%s件，已找到%s件，仍有%s件未找到，其中包含%s件高值、%s件特快、%s件生鲜，请安排继续找货。";
+
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_ID = "pda.questionnaire.id";
+
+    /**
+     * PDA调查问卷ID配置
+     */
+    public static final String PDA_QUESTIONNAIRE_FUNC_CODE = "pda.questionnaire.func.code";
+
+    /**
+     * 运单返调度审批配置
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG = "reassignWaybill.province.area.approval.config";
+
+
+    /**
+     * 返调度运单任务锁key
+     */
+    public static final String REASSIGN_WAYBILL_LOCK_KEY_PREFIX ="reassign.waybill.lock:";
+
+    /**
+     * 调查问卷场地白名单
+     */
+    public static final String PDA_QUESTIONNAIRE_SITE_WHITE_LIST = "pda.questionnaire.white.list";
+
+    /**
+     * 备件库
+     */
+    public static final String SITE_TYPE_SPWMS = "spwms";
+
+    /**
+     * 计提时间-小时
+     */
+    public static final String USER_SIGN_RECORD_FLOW_ACCRUAL_HOUR = "userSignRecordFlow.accrualHour";
+
+    /**
+     * 计提时间-日期
+     */
+    public static final String USER_SIGN_RECORD_FLOW_ACCRUAL_DAY = "userSignRecordFlow.accrualDay";
+
+    /**
+     * 计提时间-小时 最大修改时间 修改时请参考签到推送人资时间，不要晚于这个时间
+     */
+    public static final String USER_SIGN_RECORD_FLOW_LAST_MODIFY_ACCRUAL_HOUR = "userSignRecordFlow.lastModifyAccrualHour";
+
+    /**
+     * 计提时间-日期 最大修改时间 修改时请参考签到推送人资时间，不要晚于这个时间
+     */
+    public static final String USER_SIGN_RECORD_FLOW_LAST_MODIFY_ACCRUAL_DAY = "userSignRecordFlow.lastModifyAccrualDay";
+
+    /**
+     * 装车评价包裹凌乱倾倒
+     */
+    public static final Integer DIMENSION_600 = 600;
+
+    /**
+     * 装车评价大压小/重压轻/木压纸
+     */
+    public static final Integer DIMENSION_800 = 800;
+
+
+    /**
+     * 包裹补打站点类型限制配置
+     */
+    public static final String PACKAGE_PRINT_LIMIT_SITE_TYPE_CONFIG  = "package.print.limit.siteType.config";
+
+    /**
+     * 标准岗位编码限制配置
+     */
+    public static final String PACKAGE_PRINT_LIMIT_POSITION_CODE_TYPE_CONFIG  = "package.print.limit.positionCode.config";
+
+
 }

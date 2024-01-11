@@ -1008,6 +1008,12 @@
                   protocol="jsf" alias="${jsf.dataAmOrder.alias}" timeout="${jsf.dataAmOrder.timeout}" retries="0" check="false" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!--  转运工作台外包计提配置  -->
+    <jsf:consumer id="adapterApiJsfService" interface="cn.jdl.jecap.adapter.AdapterApi"  serialization="hessian"
+                  protocol="jsf" alias="${jsf.adapterApi.alias}" timeout="${jsf.adapterApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.adapterApi.token}" hide="true"/>
+    </jsf:consumer>
+
     <!-- dms校验接口 -->
     <jsf:consumer id="dmsCheckJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService"
                   protocol="jsf" alias="${jsf.dmsCheck.alias}" timeout="${jsf.dmsCheck.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -1103,6 +1109,15 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!--线上化-备选责任人-jsf服务-->
+    <jsf:consumer id="workGridCandidateJsfService"
+                  interface="com.jdl.basic.api.service.work.WorkGridCandidateJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
     <!--  用户管理-jsf服务  -->
@@ -1273,16 +1288,6 @@
                   retries="${jsf.retries}"
                   serialization="hessian"/>
 
-    <!--  运单工具接口，异常运单修复使用  -->
-    <jsf:consumer id="waybillRepaireApi"
-                  interface="com.jd.etms.waybill.api.WaybillRepaireApi"
-                  protocol="jsf"
-                  alias="${jsf.waybill.repaire.group}"
-                  timeout="${jsf.waybill.timeout}"
-                  retries="${jsf.retries}"
-                  serialization="hessian"/>
-
-
 
     <!-- 滑道笼车配置 -->
     <jsf:consumer id="sortCrossJsfService"
@@ -1406,6 +1411,154 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!--  拣运基础站点服务  -->
+    <jsf:consumer id="siteQueryJsfService"
+                  interface="com.jdl.basic.api.service.site.SiteQueryService"
+                  protocol="jsf"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 基础资料人员jsf服务 -->
+    <jsf:consumer id="basicStaffQueryWS"
+                  interface="com.jd.ql.basic.ws.BasicStaffQueryWS"
+                  protocol="jsf"
+                  alias="${basic.jsf.alias}"
+                  timeout="${basic.jsf.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
+    </jsf:consumer>
+
+    <jsf:consumer id="jdiTransQueueWS" interface="com.jd.tms.jdi.ws.JdiTransQueueWS"
+                  protocol="jsf" alias="${jdi.jsf.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--  推送运输月台号和联系人  -->
+    <jsf:consumer id="workGridBusinessJsfService" interface="com.jdl.basic.api.service.workStation.WorkGridBusinessJsfService"
+                  protocol="jsf" alias="${jsf.alias.jy_basic}" timeout="${jsf.jy_basic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <jsf:consumer id="pdaSorterApi" interface="com.jd.tms.workbench.api.PdaSorterApi"
+                  protocol="jsf" alias="${tms.jsf.pdaSorterApi.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 云打印接口 -->
+    <jsf:consumer id="cloudPrintRenderService" interface="com.jdl.print.service.RenderService"
+                  protocol="jsf" alias="${cloudPrint.jsf.alias}" timeout="${cloudPrint.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--  集箱包裹数量限制服务  -->
+    <jsf:consumer id="akboxConfigJsf"
+                  interface="com.jdl.basic.api.service.akbox.AkboxConfigJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!--  出勤黑名单  -->
+    <jsf:consumer id="basicAttendanceBlackListJsfService"
+                  interface="com.jdl.basic.api.service.attBlackList.AttendanceBlackListJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+    <!-- erp 路由查询线路 杨金宇 -->
+    <jsf:consumer id="vrsQueryAPI" interface="com.jd.etms.api.resource.VrsQueryAPI"
+                  protocol="jsf" alias="${jsf.router.waybillRouteLinkCustAPI.alias}" timeout="${jsf.router.waybillRouteLinkCustAPI.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 查询整板装车数据 -->
+    <jsf:consumer id="jdiBoardLoadWS"
+                  interface="com.jd.tms.jdi.ws.JdiBoardLoadWS"
+                  protocol="jsf"
+                  alias="${jsf.alias.jdiBoardLoadWS}"
+                  timeout="${jsf.jdiBoardLoadWS.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--运单拦截信息接口-->
+    <jsf:consumer id="blockerApplyWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerApplyWS"
+                  protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <jsf:consumer id="collectBoxFlowDirectionConfJsfService"
+                  interface="com.jdl.basic.api.service.boxFlow.CollectBoxFlowDirectionConfJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+
+    <!--运单拦截信息接口-->
+    <jsf:consumer id="apiQueryService" interface="com.jd.udata.query.api.service.ApiQueryService"
+                  protocol="jsf" alias="${jsf.udata.query.alias}" timeout="${jsf.udata.query.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 任务分配配置接口 -->
+    <jsf:consumer id="quotaTargetConfigJsfService" interface="com.jd.dms.wb.sdk.api.loss.IQuotaTargetConfigJsfService" protocol="jsf"
+                  alias="${jsf.alias.workbench.service}" retries="${jsf.retries}"
+                  serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <jsf:consumer id="scheduleJSFService"
+                  interface="com.jdl.jy.flat.api.schedule.ScheduleJSFService"
+                  alias="${jsf.alias.flat}"
+                  timeout="${jsf.timeout.flat}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--四级地址匹配预分拣站点接口-->
+    <jsf:consumer id="stationMatchServiceApi"
+                  interface="com.jd.bluedragon.preseparate.jsf.StationMatchServiceApi"
+                  protocol="jsf"
+                  alias="${jsf.presort.expressTransfer.alias}"
+                  timeout="${jsf.presort.expressTransfer.timeout}"
+    >
+        <jsf:parameter key="token" value="${jsf.presort.expressTransfer.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!--视频信息接口-->
+    <jsf:consumer id="vodService"
+                  interface="com.jd.vd.api.service.VODService"
+                  alias="${jsf.vodService.alias}"
+                  protocol="jsf"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}"
+                  timeout="${jsf.vodService.timeout}">
+        <jsf:parameter key="appId" value="${jsf.vodService.appId}" />
+        <jsf:parameter key="secretKey" value="${jsf.vodService.secretKey}" />
+    </jsf:consumer>
+
+
+    <!--网格流向信息-->
+    <jsf:consumer id="workGridFlowDirectionJsfService"
+                  interface="com.jdl.basic.api.service.workStation.WorkGridFlowDirectionJsfService"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}"
+                  alias="${jsf.alias.jy_basic}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 </beans>

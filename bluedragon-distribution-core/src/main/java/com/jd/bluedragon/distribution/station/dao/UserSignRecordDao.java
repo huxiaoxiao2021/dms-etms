@@ -3,11 +3,13 @@ package com.jd.bluedragon.distribution.station.dao;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.common.domain.JobCodeHoursDto;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 人员签到表--Dao接口
@@ -109,7 +111,7 @@ public interface UserSignRecordDao {
 	 */
 	List<UserSignNoticeJobItemVo> queryUserSignNoticeJobItems(UserSignRecordQuery query);
 	
-    List<Long> querySignInMoreThanSpecifiedTime(Date signInTimeStart,Date signInTime, Integer limit);
+    List<Long> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList, Date signInTimeStart, Date signInTime, Integer limit);
     
     int signOutById(UserSignRecord signOutRequest, List<Long> list);
     /**
@@ -190,4 +192,15 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	List<BaseUserSignRecordVo> querySignInUserByCondition(UserSignRecordQuery query);
+
+	/**
+	 * 用business_key查询
+	 * @return
+	 */
+	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
+
+	UserSignRecord queryLastUnSignOutRecordIgnoreCase(List<String> list);
+
+	UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query);
+	
 }

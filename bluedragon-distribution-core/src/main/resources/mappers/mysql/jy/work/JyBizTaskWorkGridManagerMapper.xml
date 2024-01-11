@@ -31,6 +31,12 @@
         <result column="handler_user_position_name" property="handlerUserPositionName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="handler_position_code" property="handlerPositionCode" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="transfered" property="transfered" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="orign_handler_erp" property="orignHandlerErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="orign_handler_user_name" property="orignHandlerUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="orign_handler_user_position_code" property="orignHandlerUserPositionCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="orign_handler_user_position_name" property="orignHandlerUserPositionName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="transfer_time" property="transferTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="process_begin_time" property="processBeginTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="process_end_time" property="processEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -40,12 +46,16 @@
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="is_match" property="isMatch" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="task_biz_type" property="taskBizType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="floor" property="floor" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="extend_info" property="extendInfo" javaType="java.lang.String" jdbcType="VARCHAR" />
     </resultMap>
     <resultMap id="JyBizTaskWorkGridManagerCount" type="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerCount" >
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="data_num" property="dataNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
-    </resultMap>    
+    </resultMap>
     <sql id="Base_Column_List" >
         id,biz_id,task_type,need_scan_grid,task_config_code,task_code,
         task_name,task_description,task_batch_code,task_ref_grid_key,order_num,
@@ -54,7 +64,8 @@
         pre_finish_time,handler_erp,handler_user_name,handler_user_position_code,handler_user_position_name,
         handler_position_code,status,process_begin_time,process_end_time,create_user,
         create_user_name,update_user,update_user_name,create_time,update_time,
-        yn,ts
+        yn,is_match,ts,task_biz_type,transfered,orign_handler_erp,orign_handler_user_name,orign_handler_user_position_code,
+        orign_handler_user_position_name,transfer_time,floor,extend_info
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager" useGeneratedKeys="true" keyProperty="id">
@@ -175,6 +186,24 @@
                 <if test="ts != null" >
                     ts,
                 </if>
+                <if test="transfered != null" >
+                    transfered,
+                </if>
+                <if test="orignHandlerErp != null" >
+                    orign_handler_erp,
+                </if>
+                <if test="orignHandlerUserName != null" >
+                    orign_handler_user_name,
+                </if>
+                <if test="orignHandlerUserPositionCode != null" >
+                    orign_handler_user_position_code,
+                </if>
+                <if test="orignHandlerUserPositionName != null" >
+                    orign_handler_user_position_name,
+                </if>
+                <if test="transferTime != null" >
+                    transfer_time,
+                </if>
             </trim>
             )
             values
@@ -294,7 +323,25 @@
                 <if test="ts != null" >
                     #{ts,jdbcType=TIMESTAMP},
                 </if>
-            </trim>
+                <if test="transfered != null" >
+                    #{transfered,jdbcType=TINYINT},
+                </if>
+                <if test="orignHandlerErp != null" >
+                    #{orignHandlerErp,jdbcType=VARCHAR},
+                </if>
+                <if test="orignHandlerUserName != null" >
+                    #{orignHandlerUserName,jdbcType=VARCHAR},
+                </if>
+                <if test="orignHandlerUserPositionCode != null" >
+                    #{orignHandlerUserPositionCode,jdbcType=VARCHAR},
+                </if>
+                <if test="orignHandlerUserPositionName != null" >
+                    #{orignHandlerUserPositionName,jdbcType=VARCHAR},
+                </if>
+                <if test="transferTime != null" >
+                    #{transferTime,jdbcType=VARCHAR},
+                </if>
+             </trim>
             )
     </insert>
     <insert id="batchInsert" parameterType="java.util.List">
@@ -317,10 +364,13 @@
              site_name,
              area_code,
              area_name,
-             grid_name,                                                                                                                       
+             grid_name,
              create_user,
-             create_user_name,             
-             create_time
+             create_user_name,
+             create_time,
+             floor,
+             extend_info,
+             task_biz_type                          
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
@@ -330,7 +380,7 @@
             #{item.taskConfigCode},
             #{item.taskCode},
             #{item.taskName},
-            #{item.taskDescription}, 
+            #{item.taskDescription},
             #{item.taskBatchCode},
             #{item.taskRefGridKey},
             #{item.orderNum},
@@ -342,10 +392,13 @@
             #{item.siteName},
             #{item.areaCode},
             #{item.areaName},
-            #{item.gridName},                                        
+            #{item.gridName},
             #{item.createUser},
-            #{item.createUserName},            
-            #{item.createTime}
+            #{item.createUserName},
+            #{item.createTime},
+            #{item.floor},
+            #{item.extendInfo},
+            #{item.taskBizType}
             )
         </foreach>
     </insert>
@@ -466,18 +519,37 @@
                 <if test="ts != null" >
                     ts = #{ts,jdbcType=TIMESTAMP},
                 </if>
+                <if test="transfered != null" >
+                    transfered = #{transfered,jdbcType=TINYINT},
+                </if>
+                <if test="orignHandlerErp != null" >
+                    orign_handler_erp = #{orignHandlerErp,jdbcType=VARCHAR},
+                </if>
+                <if test="orignHandlerUserName != null" >
+                    orign_handler_user_name = #{orignHandlerUserName,jdbcType=VARCHAR},
+                </if>
+                <if test="orignHandlerUserPositionCode != null" >
+                    orign_handler_user_position_code = #{orignHandlerUserPositionCode,jdbcType=VARCHAR},
+                </if>
+                <if test="orignHandlerUserPositionName != null" >
+                    orign_handler_user_position_name = #{orignHandlerUserPositionName,jdbcType=VARCHAR},
+                </if>
+                <if test="transferTime != null" >
+                    transfer_time = #{transferTime,jdbcType=VARCHAR},
+                </if>
             </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
     <update id="finishTask" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager">
         update jy_biz_task_work_grid_manager
             set  handler_position_code = #{handlerPositionCode,jdbcType=VARCHAR},
-                 handler_user_name = #{handlerUserName,jdbcType=VARCHAR},            
+                 handler_user_name = #{handlerUserName,jdbcType=VARCHAR},
                  status = #{status,jdbcType=TINYINT},
                  process_end_time = #{processEndTime,jdbcType=TIMESTAMP},
                  update_user = #{updateUser,jdbcType=VARCHAR},
                  update_user_name = #{updateUserName,jdbcType=VARCHAR},
-                 update_time = #{updateTime,jdbcType=TIMESTAMP}
+                 update_time = #{updateTime,jdbcType=TIMESTAMP},
+                 is_match = #{isMatch,jdbcType=TINYINT}
         where id = #{id,jdbcType=BIGINT}
     </update>
 	<update id="deleteById" parameterType="java.lang.Long">
@@ -499,35 +571,57 @@
         from
             jy_biz_task_work_grid_manager t
         where yn = 1 and biz_id = #{bizId,jdbcType=VARCHAR}
-    </select>	
+    </select>
     <select id="queryDataCountListForPda" parameterType="com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest" resultMap="JyBizTaskWorkGridManagerCount">
         select
             status,count(id) as data_num
         from
             jy_biz_task_work_grid_manager t
-        where yn = 1 
+        where yn = 1
           and handler_erp = #{operateUserCode,jdbcType=VARCHAR}
           and process_begin_time &lt;= #{processBeginTime,jdbcType=TIMESTAMP}
           <if test="taskRefGridKey != null and taskRefGridKey != ''">
               and task_ref_grid_key = #{taskRefGridKey,jdbcType=VARCHAR}
-          </if>           
+          </if>
         group by status
+    </select>
+
+    <select id="queryTransferCountListForPda" parameterType="com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest" resultType="java.lang.Integer">
+        select
+            count(id)
+        from
+            jy_biz_task_work_grid_manager t
+        where yn = 1
+          and transfered = 1
+          and orign_handler_erp = #{operateUserCode,jdbcType=VARCHAR}
+          and process_begin_time &lt;= #{processBeginTime,jdbcType=TIMESTAMP}
+          <if test="taskRefGridKey != null and taskRefGridKey != ''">
+              and task_ref_grid_key = #{taskRefGridKey,jdbcType=VARCHAR}
+          </if>
     </select>
     <select id="queryDataListForPda" parameterType="com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest" resultMap="JyBizTaskWorkGridManager">
         select
             <include refid="Base_Column_List"/>
         from
             jy_biz_task_work_grid_manager t
-        where yn = 1 
-          and handler_erp = #{operateUserCode,jdbcType=VARCHAR}
+        where yn = 1
           and process_begin_time &lt;= #{processBeginTime,jdbcType=TIMESTAMP}
-          and status = #{status,jdbcType=TINYINT}
+          <choose>
+            <when test="status != null and status == 99">
+                and orign_handler_erp = #{operateUserCode,jdbcType=VARCHAR}
+                and transfered = 1
+            </when>
+            <otherwise>
+                and handler_erp = #{operateUserCode,jdbcType=VARCHAR}
+                and status = #{status,jdbcType=TINYINT}
+            </otherwise>
+          </choose>
           <if test="taskRefGridKey != null and taskRefGridKey != ''">
               and task_ref_grid_key = #{taskRefGridKey,jdbcType=VARCHAR}
-          </if>          
+          </if>
         order by id desc
         limit #{offset}, #{limit}
-    </select>    
+    </select>
    <select id="queryCountForReport" parameterType="com.jd.bluedragon.distribution.work.domain.WorkGridManagerReportQuery" resultType="java.lang.Integer">
         select
             count(id) as data_num
@@ -544,20 +638,35 @@
         order by id desc
         limit #{offset}, #{limit}
     </select>
-    
+
     <sql id="queryConditionForReport">
         <where>
             yn = 1 and t.status in (1,3,4)
             <if test="siteCode != null" >
                 and t.site_code = #{siteCode,jdbcType=INTEGER}
-            </if>          
+            </if>
+            <if test="status != null" >
+                and t.status = #{status,jdbcType=INTEGER}
+            </if>
+            <if test="isMatch != null" >
+                and t.is_match = #{isMatch,jdbcType=INTEGER}
+            </if>
+            <if test="transfer != null" >
+                and t.transfered = #{transfer,jdbcType=INTEGER}
+            </if>
             <if test="provinceAgencyCode != null and provinceAgencyCode != ''">
-                and province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+                and t.province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''">
+                and t.area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
             </if>
 		        and t.task_date >= #{taskDateStart,jdbcType=TIMESTAMP}
-		        and t.task_date &lt;= #{taskDateEnd,jdbcType=TIMESTAMP}            
+		        and t.task_date &lt;= #{taskDateEnd,jdbcType=TIMESTAMP}
+		    <if test="taskBizType != null">
+                and t.task_biz_type = #{taskBizType,jdbcType=TINYINT}
+            </if>
         </where>
-    </sql>  
+    </sql>
    <select id="queryDataCountForDistribution" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery" resultType="java.lang.Integer">
         select
             count(id) as data_num
@@ -579,7 +688,7 @@
             #{item,jdbcType=VARCHAR}
         </foreach>
         order by order_num
-    </select> 
+    </select>
     <update id="distributionTask" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate">
         update jy_biz_task_work_grid_manager
             set  status = #{data.status,jdbcType=TINYINT},
@@ -593,24 +702,24 @@
                  status = #{data.status,jdbcType=TINYINT},
                  process_begin_time = #{data.processBeginTime,jdbcType=TIMESTAMP},
                  update_user = #{data.updateUser,jdbcType=VARCHAR},
-                 update_user_name = #{data.updateUserName,jdbcType=VARCHAR},                 
+                 update_user_name = #{data.updateUserName,jdbcType=VARCHAR},
                  update_time = #{data.updateTime,jdbcType=TIMESTAMP}
         where yn = 1
           and status = 0
-          and biz_id in 
+          and biz_id in
         <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
             #{item,jdbcType=VARCHAR}
-        </foreach>          
+        </foreach>
     </update>
     <update id="autoCloseTask" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate">
         update jy_biz_task_work_grid_manager
             set  status = #{data.status,jdbcType=TINYINT},
                  update_user = #{data.updateUser,jdbcType=VARCHAR},
-                 update_user_name = #{data.updateUserName,jdbcType=VARCHAR},                 
+                 update_user_name = #{data.updateUserName,jdbcType=VARCHAR},
                  update_time = #{data.updateTime,jdbcType=TIMESTAMP}
         where yn = 1
           and status = 1
-          and biz_id in 
+          and biz_id in
         <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
             #{item,jdbcType=VARCHAR}
         </foreach>
@@ -619,7 +728,7 @@
         update jy_biz_task_work_grid_manager
             set  status = #{data.status,jdbcType=TINYINT},
                  update_user = #{data.updateUser,jdbcType=VARCHAR},
-                 update_user_name = #{data.updateUserName,jdbcType=VARCHAR},                 
+                 update_user_name = #{data.updateUserName,jdbcType=VARCHAR},
                  update_time = #{data.updateTime,jdbcType=TIMESTAMP}
         where yn = 1
           and status = 0
@@ -630,13 +739,141 @@
         update jy_biz_task_work_grid_manager
             set  status = #{data.status,jdbcType=TINYINT},
                  update_user = #{data.updateUser,jdbcType=VARCHAR},
-                 update_user_name = #{data.updateUserName,jdbcType=VARCHAR},                 
+                 update_user_name = #{data.updateUserName,jdbcType=VARCHAR},
                  update_time = #{data.updateTime,jdbcType=TIMESTAMP}
         where yn = 1
           and status in
 	      <foreach collection="statusList" item="item" open="(" close=")" separator=",">
 	          #{item,jdbcType=TINYINT}
-	      </foreach>          
+	      </foreach>
           and task_ref_grid_key = #{data.taskRefGridKey,jdbcType=VARCHAR}
     </update>
+
+    <update id="transfer" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager">
+        update jy_biz_task_work_grid_manager
+        set
+        handler_erp = #{handlerErp,jdbcType=VARCHAR},
+        handler_user_name = #{handlerUserName,jdbcType=VARCHAR},
+        handler_user_position_code = #{handlerUserPositionCode,jdbcType=VARCHAR},
+        handler_user_position_name = #{handlerUserPositionName,jdbcType=VARCHAR},
+        orign_handler_user_position_code = #{orignHandlerUserPositionCode,jdbcType=VARCHAR},
+        orign_handler_user_position_name = #{orignHandlerUserPositionName,jdbcType=VARCHAR},
+        transfered = #{transfered,jdbcType=VARCHAR},
+        orign_handler_erp = #{orignHandlerErp,jdbcType=VARCHAR},
+        orign_handler_user_name = #{orignHandlerUserName,jdbcType=VARCHAR},
+        update_user = #{updateUser,jdbcType=VARCHAR},
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+        transfer_time = #{transferTime,jdbcType=TIMESTAMP},
+        update_time = #{updateTime,jdbcType=TIMESTAMP}
+        where id = #{id}
+    </update>
+
+    <!-- 根据erp生成和任务配置表task_biz_type查询今天是否已生成任务-->
+    <select id="selectHandlerTodayTaskCountByTaskBizType" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+        count(*)
+        from
+        jy_biz_task_work_grid_manager t
+        where t.yn = 1
+        and t.site_code = #{siteCode,jdbcType=INTEGER}
+        and t.create_time &gt; #{startTime,jdbcType=TIMESTAMP}
+        <if test="handlerErp != null">
+            and t.handler_erp = #{handlerErp,jdbcType=VARCHAR}
+        </if>
+        <if test="taskRefGridKey != null">
+            and t.task_ref_grid_key = #{taskRefGridKey,jdbcType=VARCHAR}
+        </if>
+        and t.task_code in
+        <foreach collection="taskCodeList" item="item" open="(" close=")" separator=",">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+    <insert id="batchInsertDistributionTask" parameterType="java.util.List">
+        insert into jy_biz_task_work_grid_manager (
+        biz_id,
+        task_type,
+        need_scan_grid,
+        task_config_code,
+        task_code,
+        task_name,
+        task_description,
+        task_batch_code,
+        task_ref_grid_key,
+        task_date,
+        order_num,
+        province_agency_code,
+        province_agency_name,
+        area_hub_code,
+        area_hub_name,
+        site_code,
+        site_name,
+        area_code,
+        area_name,
+        grid_name,
+        create_user,
+        create_user_name,
+        create_time,
+        status,
+        pre_finish_time,
+        handler_erp,
+        handler_user_name,
+        handler_user_position_code,
+        handler_user_position_name,
+        handler_position_code,
+        process_begin_time,
+        task_biz_type,
+        floor,
+        extend_info
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.bizId},
+            #{item.taskType},
+            #{item.needScanGrid},
+            #{item.taskConfigCode},
+            #{item.taskCode},
+            #{item.taskName},
+            #{item.taskDescription},
+            #{item.taskBatchCode},
+            #{item.taskRefGridKey},
+            #{item.taskDate},
+            #{item.orderNum},
+            #{item.provinceAgencyCode},
+            #{item.provinceAgencyName},
+            #{item.areaHubCode},
+            #{item.areaHubName},
+            #{item.siteCode},
+            #{item.siteName},
+            #{item.areaCode},
+            #{item.areaName},
+            #{item.gridName},
+            #{item.createUser},
+            #{item.createUserName},
+            #{item.createTime},
+            #{item.status},
+            #{item.preFinishTime},
+            #{item.handlerErp},
+            #{item.handlerUserName},
+            #{item.handlerUserPositionCode},
+            #{item.handlerUserPositionName},
+            #{item.handlerPositionCode},
+            #{item.processBeginTime},
+            #{item.taskBizType},
+            #{item.floor},
+            #{item.extendInfo}
+            )
+        </foreach>
+    </insert>
+    <select id="selectLastHandlerErp" parameterType="java.util.Map" resultType="java.lang.String">
+        select handler_erp 
+        from
+            jy_biz_task_work_grid_manager
+        where
+            yn = 1
+            and task_code = #{taskCode,jdbcType=VARCHAR}
+            and handler_erp is not null and handler_erp != ''
+            and site_code =  #{siteCode,jdbcType=INTEGER}
+            order by id desc 
+        limit 1
+    </select>
 </mapper>

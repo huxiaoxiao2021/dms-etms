@@ -63,7 +63,7 @@
 		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode:''}"/>
         <property name="sealVolumeCheckSites" value="${sealVolumeCheckSites:-1}"/>
         <property name="disablePdaOldLogin" value="${pda.disableOldLogin:false}"/>
-		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
+		<property name="switchVerToWebSites" value="${switchVerToWebSites:1}"/>
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
 		<property name="clientPrintQueryGapTime" value="${client.print.query.gap.time:10}"/>
@@ -72,9 +72,9 @@
         <property name="offlineLogGlobalSwitch" value="${offlineLogGlobalSwitch}" />
         <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
-		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites}" />
-        <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
-		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
+		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites:1}" />
+        <property name="clickIntervalSecond" value="${clickIntervalSecond:5}" />
+		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites:1}" />
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
 		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
 		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
@@ -119,7 +119,7 @@
 		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
         <property name="siteEnableSendCodeEffectiveValidation" value="${siteEnableSendCodeEffectiveValidation:''}" />
         <property name="spotCheckIssueControl" value="${spotCheckIssueControl:true}"/>
-        <property name="itmsBizEnableSwitch" value="${itmsBizEnableSwitch:''}" />
+        <property name="itmsBizEnableSwitch" value="${itmsBizEnableSwitch:0}" />
         <property name="hideSpecialStartSitePrintSwitch" value="${hideSpecialStartSitePrintSwitch:0}"/> <!-- 隐藏特殊始发场地名称开关 0-关，1-开 -->
         <property name="hideSpecialStartSitPrintDestinationSiteList" value="${hideSpecialStartSitPrintDestinationSiteList:''}"/> <!-- 隐藏特殊始发场地目的场地名单 -->
 		<property name="hideSpecialStartSitePrintReplaceSymbol" value="${hideSpecialStartSitePrintReplaceSymbol:''}"/> <!-- 隐藏特殊始发场地字符串 0-关，1-开 -->
@@ -204,6 +204,8 @@
 		<property name="jyComboardSiteCTTPageSize" value="${jyComboardSiteCTTPageSize:5000}"/>
 		<property name="jyComboardTaskSealTimeBeginDay" value="${jyComboardTaskSealTimeBeginDay:2}"/>
 		<property name="jyComboardListBoardSqlSwitch" value="${jyComboardListBoardSqlSwitch:true}"/>
+		<property name="sendJyOperateFlowMqSwitch" value="${sendJyOperateFlowMqSwitch:true}"/>
+
 
 
 
@@ -262,13 +264,15 @@
 		<property name="operateProgressRegions" value="${operateProgressRegions:10}"/>
 		<property name="productOperateProgressSwitch" value="${productOperateProgressSwitch:false}"/>
 		<property name="onlineGetTaskSimpleCodeThreshold" value="${onlineGetTaskSimpleCodeThreshold:50}"/>
-		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:false}"/>
+		<property name="jobTypeLimitSwitch" value="${jobTypeLimitSwitch:true}"/>
 		<property name="jySysStrandTaskCloseTime" value="${jySysStrandTaskCloseTime:14400000}"/>
 		<property name="jyArtificialStrandTaskCloseTime" value="${jyArtificialStrandTaskCloseTime:28800000}"/>
 		<property name="jyStrandScanNumLimit" value="${jyStrandScanNumLimit:200}"/>
 		<property name="exScrapApproveLevelCountLimit" value="${exScrapApproveLevelCountLimit:50,100}"/>
 		<property name="completeExpDayNumLimit" value="${completeExpDayNumLimit:15}"/>
 		<property name="assignExpTaskQuantityLimit" value="${assignExpTaskQuantityLimit:50}"/>
+		<property name="jyExceptionDamageTaskCustomerNotReturnHours" value="${jyExceptionDamageTaskCustomerNotReturnHours:48}"/>
+		<property name="jyExceptionCreateBizIdSwitch" value="${jyExceptionCreateBizIdSwitch:true}"/>
 
 		<property name="jyComboardRefreshTimerInterval" value="${jyComboardRefreshTimerInterval:30}"/>
 		<property name="createBoardBySendFlowSwitch" value="${createBoardBySendFlowSwitch:true}"/>
@@ -294,9 +298,45 @@
 		<property name="JyWarehouseSendVehicleDetailQueryDefaultLimitSize" value="${JyWarehouseSendVehicleDetailQueryDefaultLimitSize:30}"/>
 		<property name="JyWarehouseSendVehicleMixScanTaskFlowNumConfig" value="${JyWarehouseSendVehicleMixScanTaskFlowNumConfig:}"/>
 		<property name="JyBuQiWaybillCodeMaxSum" value="${JyBuQiWaybillCodeMaxSum:50000}"/>
-
-
 		<property name="interceptBlackList" value="${interceptBlackList:'*'}"/>
+		<property name="cttGroupDataLimit" value="${cttGroupDataLimit:200}"/>
+		<property name="qingChangDataOpenSwitch" value="${qingChangDataOpenSwitch:''}"/>
+		<property name="jySendSpecialProductTypeToScanShowRemainMinutes" value="${jySendSpecialProductTypeToScanShowRemainMinutes:30}"/>
+		<property name="fetchCarDistributionTimeRange" value="${fetchCarDistributionTimeRange:48}"/>
+		<property name="checkAkboxConfig" value="${checkAkboxConfig:true}"/>
+		<property name="printCacheTime" value="${printCacheTime:604800000}"/>
+		<property name="contrabandWaybillCacheTime" value="${contrabandWaybillCacheTime:2880}"/>
+		<property name="reverseExchangeCount" value="${reverseExchangeCount:-1}"/>
+		<property name="terminalSitePackagePrintLimitSwitch" value="${terminalSitePackagePrintLimitSwitch:false}"/>
+		<property name="teAnSendTaskTipsOptimizationSwitch" value="${teAnSendTaskTipsOptimizationSwitch:false}"/>
+		<property name="teAnSendTaskNumberLimit" value="${teAnSendTaskNumberLimit:100}"/>
+		<property name="dmsToVendorSendMQSwitch" value="${dmsToVendorSendMQSwitch:true}"/>
+		<property name="jyCollectPackageTaskQueryTimeLimit" value="${jyCollectPackageTaskQueryTimeLimit:3.0}"/>
+		<property name="mixedConfigUseBasicNew" value="${mixedConfigUseBasicNew:true}"/>
+		<property name="collectPackageTaskRefreshSwitch" value="${collectPackageTaskRefreshSwitch:false}"/>
+		<property name="forceCollectPackageSiteListStr" value="${forceCollectPackageSiteListStr:''}"/>
+		<property name="jyCollectPackageInterceptBitCode" value="${jyCollectPackageInterceptBitCode:2199023255033}"/>
+		<property name="collectPackageSiteForbiddenList" value="${collectPackageSiteForbiddenList:''}"/>
+
+		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
+		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
+
+		<property name="czSealCarBoardCountMinLimit" value="${czSealCarBoardCountMinLimit:4}"/>
+		<property name="czSealCarPackageCountMinLimit" value="${czSealCarPackageCountMinLimit:60}"/>
+		<property name="jyAviationManualCreateSendTaskMaxBookingWeight" value="${jyAviationManualCreateSendTaskMaxBookingWeight:10000}"/>
+		<property name="findGoodSendMessageDefaultErp" value="${findGoodSendMessageDefaultErp:''}"/>
+		<property name="terminalSiteTypeForBoxType" value="${terminalSiteTypeForBoxType:4,10}"/>
+		<property name="boxTypeNewVersionSwitch" value="${boxTypeNewVersionSwitch:false}"/>
+		<property name="jyWarehouseToSendPlanTimeBeginHours" value="${jyWarehouseToSendPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseToSendPlanTimeEndHours" value="${jyWarehouseToSendPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseSendingPlanTimeBeginHours" value="${jyWarehouseSendingPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseSendingPlanTimeEndHours" value="${jyWarehouseSendingPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseToSealPlanTimeBeginHours" value="${jyWarehouseToSealPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseToSealPlanTimeEndHours" value="${jyWarehouseToSealPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseSealedPlanTimeBeginHours" value="${jyWarehouseSealedPlanTimeBeginHours:24}"/>
+		<property name="jyWarehouseSealedPlanTimeEndHours" value="${jyWarehouseSealedPlanTimeEndHours:48}"/>
+		<property name="jyWarehouseTaskCreateTimeBeginHours" value="${jyWarehouseTaskCreateTimeBeginHours:168}"/>
+		<property name="jyWarehouseManualTaskKeyVehicleTypes" value="${jyWarehouseManualTaskKeyVehicleTypes:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -519,6 +559,7 @@
 				<value>uccPropertyConfiguration.pdaLoginSkipSwitch</value>
 				<value>uccPropertyConfiguration.jyComboardTaskSealTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jyComboardListBoardSqlSwitch</value>
+				<value>uccPropertyConfiguration.sendJyOperateFlowMqSwitch</value>
 				<value>uccPropertyConfiguration.czQuerySwitch</value>
 				<value>uccPropertyConfiguration.jyComboardSealQueryBoardListTime</value>
 				<value>uccPropertyConfiguration.jyComboardSealBoardListSelectLimit</value>
@@ -580,9 +621,45 @@
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleDetailQueryDefaultLimitSize</value>
 				<value>uccPropertyConfiguration.JyWarehouseSendVehicleMixScanTaskFlowNumConfig</value>
 				<value>uccPropertyConfiguration.JyBuQiWaybillCodeMaxSum</value>
-
-
 				<value>uccPropertyConfiguration.interceptBlackList</value>
+				<value>uccPropertyConfiguration.cttGroupDataLimit</value>
+				<value>uccPropertyConfiguration.qingChangDataOpenSwitch</value>
+				<value>uccPropertyConfiguration.jySendSpecialProductTypeToScanShowRemainMinutes</value>
+				<value>uccPropertyConfiguration.fetchCarDistributionTimeRange</value>
+				<value>uccPropertyConfiguration.checkAkboxConfig</value>
+				<value>uccPropertyConfiguration.printCacheTime</value>
+				<value>uccPropertyConfiguration.jyExceptionDamageTaskCustomerNotReturnHours</value>
+				<value>uccPropertyConfiguration.jyExceptionCreateBizIdSwitch</value>
+				<value>uccPropertyConfiguration.contrabandWaybillCacheTime</value>
+				<value>uccPropertyConfiguration.reverseExchangeCount</value>
+				<value>uccPropertyConfiguration.terminalSitePackagePrintLimitSwitch</value>
+				<value>uccPropertyConfiguration.teAnSendTaskTipsOptimizationSwitch</value>
+				<value>uccPropertyConfiguration.teAnSendTaskNumberLimit</value>
+				<value>uccPropertyConfiguration.dmsToVendorSendMQSwitch</value>
+				<value>uccPropertyConfiguration.jyCollectPackageTaskQueryTimeLimit</value>
+				<value>uccPropertyConfiguration.mixedConfigUseBasicNew</value>
+				<value>uccPropertyConfiguration.collectPackageTaskRefreshSwitch</value>
+				<value>uccPropertyConfiguration.forceCollectPackageSiteListStr</value>
+				<value>uccPropertyConfiguration.jyCollectPackageInterceptBitCode</value>
+				<value>uccPropertyConfiguration.collectPackageSiteForbiddenList</value>
+				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
+				<value>uccPropertyConfiguration.sealSyncOpenCloseSendTaskSwitch</value>
+				<value>uccPropertyConfiguration.czSealCarBoardCountMinLimit</value>
+				<value>uccPropertyConfiguration.czSealCarPackageCountMinLimit</value>
+				<value>uccPropertyConfiguration.jyAviationManualCreateSendTaskMaxBookingWeight</value>
+				<value>uccPropertyConfiguration.findGoodSendMessageDefaultErp</value>
+				<value>uccPropertyConfiguration.terminalSiteTypeForBoxType</value>
+				<value>uccPropertyConfiguration.boxTypeNewVersionSwitch</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSendPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSendingPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseToSealPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeEndHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseTaskCreateTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseManualTaskKeyVehicleTypes</value>
 			</list>
 		</property>
 	</bean>

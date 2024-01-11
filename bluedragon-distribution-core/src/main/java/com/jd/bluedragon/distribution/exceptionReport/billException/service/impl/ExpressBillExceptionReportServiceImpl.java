@@ -10,7 +10,7 @@ import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FaceSeco
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
@@ -88,7 +88,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     private IWmsPackRecordJsfService wmsPackRecordJsfService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     /**
      * oss内网域名正则表达式
@@ -532,7 +532,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     public List<FaceFirstAbnormalType> getFirstAbnormalType() {
         List<FaceFirstAbnormalType> firstList = new ArrayList<>();
         try {
-            FaceFirstAbnormalType[] faceFirstAbnormalTypes = JsonHelper.jsonToArray(uccPropertyConfiguration.getFaceAbnormalReportConfig(), FaceFirstAbnormalType[].class);
+            FaceFirstAbnormalType[] faceFirstAbnormalTypes = JsonHelper.jsonToArray(dmsConfigManager.getPropertyConfig().getFaceAbnormalReportConfig(), FaceFirstAbnormalType[].class);
             if(faceFirstAbnormalTypes != null){
                 firstList = Arrays.asList(faceFirstAbnormalTypes);
             }
@@ -553,7 +553,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     public List<FaceSecondAbnormalType> getSecondAbnormalType(Integer firstAbnormalType) {
         List<FaceSecondAbnormalType> secondList = new ArrayList<>();
         try {
-            FaceFirstAbnormalType[] faceFirstAbnormalTypes = JsonHelper.jsonToArray(uccPropertyConfiguration.getFaceAbnormalReportConfig(), FaceFirstAbnormalType[].class);
+            FaceFirstAbnormalType[] faceFirstAbnormalTypes = JsonHelper.jsonToArray(dmsConfigManager.getPropertyConfig().getFaceAbnormalReportConfig(), FaceFirstAbnormalType[].class);
             if(faceFirstAbnormalTypes != null){
                 for (FaceFirstAbnormalType item : faceFirstAbnormalTypes) {
                     if(Objects.equals(item.getAbnormalCode(), firstAbnormalType)){
@@ -606,6 +606,13 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         report.setOrgName(reportRequest.getCurrentOperate().getOrgName());
         report.setSiteCode(reportRequest.getCurrentOperate().getSiteCode());
         report.setSiteName(reportRequest.getCurrentOperate().getSiteName());
+        if(reportRequest.getCurrentOperate() != null && reportRequest.getCurrentOperate().getSiteCode() > Constants.NUMBER_ZERO){
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(reportRequest.getCurrentOperate().getSiteCode());
+            report.setProvinceAgencyCode(baseSite.getProvinceAgencyCode());
+            report.setProvinceAgencyName(baseSite.getProvinceAgencyName());
+            report.setAreaHubCode(baseSite.getAreaCode());
+            report.setAreaHubName(baseSite.getAreaName());
+        }
         report.setFirstSiteCode(reportRequest.getFirstSiteCode());
         report.setFirstSiteName(reportRequest.getFirstSiteName());
         report.setReportImgUrls(reportRequest.getReportPictureUrls());

@@ -1,5 +1,14 @@
 var tableInit;
 $(function () {
+
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        'createSiteCodeName': 'dmsSiteCode',
+        'provinceAgencyCodeName': 'provinceAgencyCode',
+        'onlySiteAndProvinceSelect': true,
+        bootstrapMode: true
+    });
+    
     var saveUrl = '/abnormal/abnormalUnknownWaybill/save';
     var deleteUrl = '/abnormal/abnormalUnknownWaybill/deleteByIds';
     var detailUrl = '/abnormal/abnormalUnknownWaybill/detail/';
@@ -78,7 +87,7 @@ $(function () {
                 _selector = ".search-param";
             }
             $(_selector).each(function () {
-                var _k = this.id;
+                var _k = $(this).attr('name');
                 var _v = $(this).val();
                 if (_k && (_v != null && _v != '')) {
                     if (_k == 'startTime' || _k == 'endTime') {
@@ -110,6 +119,12 @@ $(function () {
         }, {
             field: 'areaName',
             title: '区域名称'
+        },{
+            field: 'provinceAgencyName',
+            title: '省区名称'
+        },{
+            field: 'areaHubName',
+            title: '枢纽名称'
         }, {
             field: 'isReceipt',
             title: '是否回复',
@@ -194,7 +209,7 @@ $(function () {
                 });
             });
             $('#btn_add').click(function () {
-                $('.edit-param').each(function () {
+                $('#dataEditDiv .edit-param').each(function () {
                     var _k = this.id;
                     if (_k) {
                         $(this).val('');
@@ -218,7 +233,7 @@ $(function () {
                 }
                 $.ajaxHelper.doPostSync(detailUrl + rows[0].id, null, function (res) {
                     if (res && res.succeed && res.data) {
-                        $('.edit-param').each(function () {
+                        $('#dataEditDiv .edit-param').each(function () {
                             var _k = this.id;
                             var _v = res.data[_k];
                             if (_k) {
@@ -341,8 +356,8 @@ $(function () {
             var startTime = params["startTime"];
             var endTime = params["endTime"];
 
-            if(areaId ==null|| dmsSiteCode==null){
-                alert('导出功能 "机构"和"分拣中心"必选');
+            if(dmsSiteCode==null){
+                alert('导出功能"场地"必选');
                 return ;
             }
 
@@ -386,7 +401,7 @@ $(function () {
     }
 
     // initDateQuery();
-    initOrg("#areaId","#dmsSiteCode");
+    initOrg("#areaId","#dmsSiteCode4Org");
     pageInit().init();
     initExport(tableInit());
     initSelect();
@@ -491,7 +506,7 @@ function initSelect() {
         placeholder:'请选择机构',
         allowClear:true
     });
-    $("#dmsSiteCode").select2({
+    $("#dmsSiteCode4Org").select2({
         width: '100%',
         placeholder:'请选择分拣中心',
         allowClear:true

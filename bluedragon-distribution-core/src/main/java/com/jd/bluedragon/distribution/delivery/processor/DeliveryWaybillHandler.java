@@ -48,7 +48,7 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
             }
 
             int totalNum = waybill.getGoodNumber();
-            int onePageSize = uccConfig.getWaybillSplitPageSize() == 0 ? SEND_SPLIT_NUM : uccConfig.getWaybillSplitPageSize();
+            int onePageSize = dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize() == 0 ? SEND_SPLIT_NUM : dmsConfigManager.getPropertyConfig().getWaybillSplitPageSize();
             int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
 
             // 生成本次发货的唯一标识

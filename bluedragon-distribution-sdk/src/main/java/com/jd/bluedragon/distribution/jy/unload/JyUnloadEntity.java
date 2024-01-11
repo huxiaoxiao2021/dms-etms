@@ -106,6 +106,16 @@ public class JyUnloadEntity implements Serializable {
      */
     private String stageBizId;
 
+    /**
+     * 多扫标识：0-非多扫，1-本场地多扫，2-非本场地多扫
+     */
+    private Integer moreFlag;
+
+    /**
+     * 本场地运单部分多扫数量
+     */
+    private Integer moreLocalPartCount;
+
     public String getStageBizId() {
         return stageBizId;
     }
@@ -258,4 +268,19 @@ public class JyUnloadEntity implements Serializable {
         return this.ts;
     }
 
+    public Integer getMoreFlag() {
+        return moreFlag;
+    }
+
+    public void setMoreFlag(Integer moreFlag) {
+        this.moreFlag = moreFlag;
+    }
+
+    public Integer getMoreLocalPartCount() {
+        return moreLocalPartCount;
+    }
+
+    public void setMoreLocalPartCount(Integer moreLocalPartCount) {
+        this.moreLocalPartCount = moreLocalPartCount;
+    }
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.ver.domain.Site;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang3.StringUtils;
@@ -210,6 +211,16 @@ public class SiteHelper {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
+    }
+
+    /**
+     * 判断是否是自营营业部
+     * 4-4-1
+     */
+    public static Boolean isSelfSalesDeptSite(Site site) {
+        return Objects.equals(site.getType(), 4) 
+                && Objects.equals(site.getSubType(), 4)
+                && Objects.equals(site.getThirdType(), 1);
     }
 
     /**
@@ -467,4 +478,59 @@ public class SiteHelper {
                 && Objects.equals(SORT_SUBTYPE_SORTING_CENTER, site.getSortSubType())
                 && SORT_THIRD_TYPE_SORTING_CENTER.contains(site.getSortThirdType());
     }
+
+    /**
+     * 是否为分拣中转站
+     */
+    public static boolean isSortTransferSite(Site site) {
+        return site != null && Objects.equals(site.getSortType(), Constants.SORTING_SORT_TYPE) 
+                && Objects.equals(site.getSortSubType(), Constants.SORTING_SORT_SUBTYPE) 
+                && Objects.equals(site.getSortThirdType(), Constants.SORTING_SORT_THIRD_TYPE);
+    }    
+
+    /**
+     * 新版判断是分拣中心
+     *  
+     * @param site
+     * @return
+     */
+    public static Boolean isSortingCenter(Site site){
+        if (null == site || null == site.getSortType()) {
+            return Boolean.FALSE;
+        }
+
+        return Objects.equals(site.getSortType(), Constants.SORTING_SORT_TYPE);
+    }
+
+    /**
+     * 新版判断是接货仓
+     * 
+     * @param site
+     * @return
+     */
+    public static Boolean isReceiveWms(Site site){
+        if (null == site || null == site.getSortType()) {
+            return Boolean.FALSE;
+        }
+
+        return Objects.equals(site.getSortType(), Constants.JHC_SORT_TYPE);
+    }
+
+    /**
+     * 判断是否是邮政站点
+     * @param baseSite
+     * @return
+     */
+    public static Boolean isPostalSite(BaseStaffSiteOrgDto baseSite){
+        if(baseSite == null){
+            return Boolean.FALSE;
+        }
+        if(Objects.equals(Constants.THIRD_SITE_TYPE,baseSite.getSiteType())
+            && Objects.equals(Constants.THIRD_SITE_SUB_TYPE,baseSite.getSubType())
+            && Objects.equals(Constants.THIRD_SITE_THIRD_TYPE_SMS,baseSite.getThirdType())){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+    
 }

@@ -115,6 +115,12 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	private String lineTypeName;
 
 	/**
+	 * 司机动作标签
+	 * @see com.jd.bluedragon.distribution.jy.enums.JyBizDriverTagEnum
+	 */
+	private Integer driverTag;
+
+	/**
 	 * 创建人ERP
 	 */
 	private String createUserErp;
@@ -157,6 +163,62 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	private transient Date createTimeBegin;
 
 	private Long operateSiteCode;
+
+	/**
+	 * 任务分类
+	 * JySendTaskTypeEnum
+	 */
+	private Integer taskType;
+	/**
+	 * 订舱号
+	 */
+	private String bookingCode;
+
+
+	/**
+	 * 待发货状态-最晚计划发车时间 范围查找-开始时间
+	 */
+	private transient Date toSendLastPlanDepartTimeBegin;
+
+	/**
+	 * 待发货状态-最晚计划发车时间 范围查找-结束时间
+	 */
+	private transient Date toSendLastPlanDepartTimeEnd;
+
+	/**
+	 * 发货中状态-最晚计划发车时间 范围查找-开始时间
+	 */
+	private transient Date sendingLastPlanDepartTimeBegin;
+
+	/**
+	 * 发货中状态-最晚计划发车时间 范围查找-结束时间
+	 */
+	private transient Date sendingLastPlanDepartTimeEnd;
+
+	/**
+	 * 待封车状态-最晚计划发车时间 范围查找-开始时间
+	 */
+	private transient Date toSealLastPlanDepartTimeBegin;
+
+	/**
+	 * 待封车状态-最晚计划发车时间 范围查找-结束时间
+	 */
+	private transient Date toSealLastPlanDepartTimeEnd;
+
+	/**
+	 * 已封车状态-最晚计划发车时间 范围查找-开始时间
+	 */
+	private transient Date sealedLastPlanDepartTimeBegin;
+
+	/**
+	 * 已封车状态-最晚计划发车时间 范围查找-结束时间
+	 */
+	private transient Date sealedLastPlanDepartTimeEnd;
+
+	/**
+	 * 当前日期
+	 */
+	private transient Date currentDate;
 
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
@@ -294,7 +356,15 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 		this.lineTypeName = lineTypeName;
 	}
 
-    public Date getLastPlanDepartTime() {
+	public Integer getDriverTag() {
+		return driverTag;
+	}
+
+	public void setDriverTag(Integer driverTag) {
+		this.driverTag = driverTag;
+	}
+
+	public Date getLastPlanDepartTime() {
         return lastPlanDepartTime;
     }
 
@@ -447,5 +517,94 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 
 	public void setOperateSiteCode(Long operateSiteCode) {
 		this.operateSiteCode = operateSiteCode;
+	}
+
+
+	public Integer getTaskType() {
+		return taskType;
+	}
+
+	public void setTaskType(Integer taskType) {
+		this.taskType = taskType;
+	}
+
+	public String getBookingCode() {
+		return bookingCode;
+	}
+
+	public void setBookingCode(String bookingCode) {
+		this.bookingCode = bookingCode;
+	}
+
+	public Date getToSendLastPlanDepartTimeBegin() {
+		return toSendLastPlanDepartTimeBegin;
+	}
+
+	public void setToSendLastPlanDepartTimeBegin(Date toSendLastPlanDepartTimeBegin) {
+		this.toSendLastPlanDepartTimeBegin = toSendLastPlanDepartTimeBegin;
+	}
+
+	public Date getToSendLastPlanDepartTimeEnd() {
+		return toSendLastPlanDepartTimeEnd;
+	}
+
+	public void setToSendLastPlanDepartTimeEnd(Date toSendLastPlanDepartTimeEnd) {
+		this.toSendLastPlanDepartTimeEnd = toSendLastPlanDepartTimeEnd;
+	}
+
+	public Date getSendingLastPlanDepartTimeBegin() {
+		return sendingLastPlanDepartTimeBegin;
+	}
+
+	public void setSendingLastPlanDepartTimeBegin(Date sendingLastPlanDepartTimeBegin) {
+		this.sendingLastPlanDepartTimeBegin = sendingLastPlanDepartTimeBegin;
+	}
+
+	public Date getSendingLastPlanDepartTimeEnd() {
+		return sendingLastPlanDepartTimeEnd;
+	}
+
+	public void setSendingLastPlanDepartTimeEnd(Date sendingLastPlanDepartTimeEnd) {
+		this.sendingLastPlanDepartTimeEnd = sendingLastPlanDepartTimeEnd;
+	}
+
+	public Date getToSealLastPlanDepartTimeBegin() {
+		return toSealLastPlanDepartTimeBegin;
+	}
+
+	public void setToSealLastPlanDepartTimeBegin(Date toSealLastPlanDepartTimeBegin) {
+		this.toSealLastPlanDepartTimeBegin = toSealLastPlanDepartTimeBegin;
+	}
+
+	public Date getToSealLastPlanDepartTimeEnd() {
+		return toSealLastPlanDepartTimeEnd;
+	}
+
+	public void setToSealLastPlanDepartTimeEnd(Date toSealLastPlanDepartTimeEnd) {
+		this.toSealLastPlanDepartTimeEnd = toSealLastPlanDepartTimeEnd;
+	}
+
+	public Date getSealedLastPlanDepartTimeBegin() {
+		return sealedLastPlanDepartTimeBegin;
+	}
+
+	public void setSealedLastPlanDepartTimeBegin(Date sealedLastPlanDepartTimeBegin) {
+		this.sealedLastPlanDepartTimeBegin = sealedLastPlanDepartTimeBegin;
+	}
+
+	public Date getSealedLastPlanDepartTimeEnd() {
+		return sealedLastPlanDepartTimeEnd;
+	}
+
+	public void setSealedLastPlanDepartTimeEnd(Date sealedLastPlanDepartTimeEnd) {
+		this.sealedLastPlanDepartTimeEnd = sealedLastPlanDepartTimeEnd;
+	}
+
+	public Date getCurrentDate() {
+		return currentDate;
+	}
+
+	public void setCurrentDate(Date currentDate) {
+		this.currentDate = currentDate;
 	}
 }

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -10,10 +11,12 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicle
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.send.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.external.gateway.service.DeviceGatewayService;
+import com.jd.bluedragon.external.gateway.service.JyNoTaskSendGatewayService;
 import com.jd.bluedragon.external.gateway.service.JyWarehouseSendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -43,7 +46,9 @@ public class JyWarehouseSendGatewayServiceTest {
     @Autowired
     private DeviceGatewayService deviceGatewayService;
 
-    
+    @Autowired
+    private JyNoTaskSendGatewayService jyNoTaskSendGatewayService;
+
     private static final CurrentOperate CURRENT_OPERATE = new CurrentOperate(910,"马驹桥分拣中心",new Date());
     public static final CurrentOperate SITE_40240 = new CurrentOperate(40240, "北京通州分拣中心", new Date());
 
@@ -58,7 +63,41 @@ public class JyWarehouseSendGatewayServiceTest {
         USER.setUserErp("liwenji3");
         USER_wuyoude.setUserErp("wuyoude");
     }
-    
+
+
+    @Test
+    public void listVehicleTaskTest(){
+        String json = "{\n" +
+                "        \"bizId\": \"NSST23101100000001\",\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"dmsCode\": \"010K001\",\n" +
+                "            \"operateTime\": 1697008637986,\n" +
+                "            \"operatorId\": \"60614\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 0,\n" +
+                "            \"orgName\": \"华北\",\n" +
+                "            \"siteCode\": 40240,\n" +
+                "            \"siteName\": \"北京通州分拣中心\"\n" +
+                "        },\n" +
+                "        \"pageNumber\": 1,\n" +
+                "        \"pageSize\": 15,\n" +
+                "        \"requestId\": \"1debe885af6b476d9771ea2f52e930a2\",\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 18225,\n" +
+                "            \"userErp\": \"xumigen\",\n" +
+                "            \"userName\": \"徐迷根\"\n" +
+                "        }\n" +
+                "    }";
+
+        VehicleTaskReq param = JSONObject.parseObject(json, VehicleTaskReq.class);
+
+        while (true) {
+
+            JdCResponse response = jyNoTaskSendGatewayService.listVehicleTask(param);
+
+            System.out.println(response.getCode());
+        }
+    }
     @Test
     public void getMixScanTaskDefaultNameTest() {
         MixScanTaskDefaultNameQueryReq req = new MixScanTaskDefaultNameQueryReq();
@@ -91,7 +130,44 @@ public class JyWarehouseSendGatewayServiceTest {
         list.add(mixScanTaskDetailDto);
         list.add(mixScanTaskDetailDto2);
         createMixScanTaskReq.setSendFlowList(list);
-        jyWarehouseSendGatewayService.createMixScanTask(createMixScanTaskReq);
+
+
+        String json = "    {\n" +
+                "        \"currentOperate\": {\n" +
+                "            \"operateTime\": 1693192779127,\n" +
+                "            \"operatorId\": \"104120845\",\n" +
+                "            \"operatorTypeCode\": 1,\n" +
+                "            \"orgId\": 4,\n" +
+                "            \"orgName\": \"西南\",\n" +
+                "            \"siteCode\": 910,\n" +
+                "            \"siteName\": \"910ces\"\n" +
+                "        },\n" +
+                "        \"groupCode\": \"G00003810008\",\n" +
+                "        \"requestId\": \"8665cd3366cf4742b81f45d3d988dffc\",\n" +
+                "        \"sendFlowList\": [\n" +
+                "            {\n" +
+                "                \"crossCode\": \"\",\n" +
+                "                \"endSiteId\": 821602,\n" +
+                "                \"endSiteName\": \"成都新都分拣中心\",\n" +
+                "                \"sendVehicleDetailBizId\": \"TW23082876701210-001\",\n" +
+                "                \"tabletrolleyCode\": \"\",\n" +
+                "                \"templateName\": \"1\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"templateName\": \"1\",\n" +
+                "        \"user\": {\n" +
+                "            \"userCode\": 70643,\n" +
+                "            \"userErp\": \"xumigen\",\n" +
+                "            \"userName\": \"曾云建\"\n" +
+                "        }\n" +
+                "    }";
+        CreateMixScanTaskReq param = JSONObject.parseObject(json, CreateMixScanTaskReq.class);
+        int i = 0;
+        while (i++ < 100) {
+
+            Object obj = jyWarehouseSendGatewayService.createMixScanTask(param);
+            System.out.println("success");
+        }
     }
     
     @Test

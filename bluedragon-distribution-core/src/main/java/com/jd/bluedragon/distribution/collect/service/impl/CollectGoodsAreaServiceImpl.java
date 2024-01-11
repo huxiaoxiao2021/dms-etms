@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.collect.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.collect.dao.CollectGoodsAreaDao;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsArea;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsAreaService;
@@ -46,7 +46,7 @@ public class CollectGoodsAreaServiceImpl extends BaseService<CollectGoodsArea> i
 	private CollectGoodsPlaceService collectGoodsPlaceService;
 
     @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     private LogEngine logEngine;
@@ -79,7 +79,7 @@ public class CollectGoodsAreaServiceImpl extends BaseService<CollectGoodsArea> i
      */
     @Override
     public boolean checkAuthority(Integer createSiteCode) {
-        String collectGoodsDeleteSites = uccPropertyConfiguration.getCollectGoodsDeleteSites();
+        String collectGoodsDeleteSites = dmsConfigManager.getPropertyConfig().getCollectGoodsDeleteSites();
         if(StringUtils.isEmpty(collectGoodsDeleteSites)){
             return true;
         }

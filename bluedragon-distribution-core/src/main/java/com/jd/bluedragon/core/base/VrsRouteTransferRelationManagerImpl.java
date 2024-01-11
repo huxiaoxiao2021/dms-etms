@@ -2,10 +2,12 @@ package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.degrade.route.CommandQueryRecommendRoute;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.api.bnet.VrsBNetQueryAPI;
@@ -16,6 +18,9 @@ import com.jd.etms.api.common.dto.PageDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.api.common.enums.WaybillRouteEnum;
 import com.jd.etms.api.recommendroute.resp.RecommendRouteResp;
+import com.jd.etms.api.resource.VrsQueryAPI;
+import com.jd.etms.api.resource.req.AirlineReq;
+import com.jd.etms.api.resource.resp.AirLineResp;
 import com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI;
 import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorDetailResp;
@@ -40,10 +45,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 路由系统的jsf接口，查询路由信息
@@ -83,13 +85,16 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     private String vrsRouteTransferRelationApiToken;
 
     @Resource
-    private HystrixRouteUccPropertyConfiguration hystrixRouteUccPropertyConfiguration;
+    private DmsConfigManager dmsConfigManager;
+
+    @Resource
+    private VrsQueryAPI vrsQueryAPI;
 
     @Override
     public String queryRecommendRoute(String startNode, String endNodeCode, Date predictSendTime, RouteProductEnum routeProduct) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRecommendRoute", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
-            CommonDto<RecommendRouteResp> commonDto = new CommandQueryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct,routeComputeUtil,hystrixRouteUccPropertyConfiguration).execute();
+            CommonDto<RecommendRouteResp> commonDto = new CommandQueryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct,routeComputeUtil,dmsConfigManager.getHystrixRoutePropertyConfiguration()).execute();
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null || StringHelper.isEmpty(commonDto.getData().getRecommendRouting())) {
                 log.warn("查询远程路由中转信息失败,参数列表：startNode:{},endNodeCode:{},predictSendTime:{},routeProduct:{}"
                         ,startNode,endNodeCode,predictSendTime.getTime(),routeProduct);
@@ -456,4 +461,46 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             return null;
         }
     }
+
+    /**
+     * 入参：
+     * airTransportType:  1全货机  2 散航（默认）    该类型运输和路由系统定义相反
+     * validDate 当前时间
+     * @param request
+     * @return
+     *
+     * 文档：https://joyspace.jd.com/pages/njkLJHaYUHRnIsrq4x8x
+     * 路由侧新增接口，对接研发：yanghongqiang
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.vrsQueryAPI.queryAirLineByAirLineReq", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<List<AirLineResp>> queryAirLineByAirLineReq(AirlineReq request) {
+        InvokeResult<List<AirLineResp>> res = new InvokeResult<>();
+        try{
+            CommonDto<List<AirLineResp>> jsfRes = vrsQueryAPI.queryAirLineByAirLineReq(request);
+            if(Objects.isNull(jsfRes)) {
+                log.error("vrsQueryAPI.queryAirLineByAirLineReq服务返回null.入参={}", JsonHelper.toJson(request));
+                res.error("查询路由航空线路返回null");
+                return res;
+            }
+            if(CommonDto.CODE_SUCCESS != jsfRes.getCode()) {
+                log.error("vrsQueryAPI.queryAirLineByAirLineReq服务失败.入参={}，出参={},", JsonHelper.toJson(request), JsonHelper.toJson(jsfRes));
+                res.error(jsfRes.getMessage());
+                return res;
+            }
+            if(Objects.isNull(jsfRes.getData())) {
+                if(log.isInfoEnabled()) {
+                    log.info("vrsQueryAPI.queryAirLineByAirLineReq服务查询成功，返回为空，request={}", JsonHelper.toJson(request));
+                }
+            }
+            res.setData(jsfRes.getData());
+            return res;
+        }catch (Exception ex) {
+            log.error("vrsQueryAPI.queryAirLineByAirLineReq服务异常.出参={},errMsg={}", JsonHelper.toJson(request), ex.getMessage(), ex);
+            res.error(String.format("查路由系统航空线路服务异常:%s", ex.getMessage()));
+            return res;
+        }
+    }
+
 }

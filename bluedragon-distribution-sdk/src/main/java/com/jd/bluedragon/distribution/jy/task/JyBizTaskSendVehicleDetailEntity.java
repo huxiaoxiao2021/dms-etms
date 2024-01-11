@@ -129,12 +129,45 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	 */
 	private Date ts;
 
+	/**
+	 * 最晚计划发车时间 范围查找-开始时间
+	 */
 	private transient Date lastPlanDepartTimeBegin;
 
 	/**
 	 * 最晚计划发车时间 范围查找-结束时间
 	 */
 	private transient Date lastPlanDepartTimeEnd;
+
+	/**
+	 * 待发货状态-最晚计划发车时间 范围查找-开始时间
+	 */
+	private transient Date toSendLastPlanDepartTimeBegin;
+
+	/**
+	 * 待发货状态-最晚计划发车时间 范围查找-结束时间
+	 */
+	private transient Date toSendLastPlanDepartTimeEnd;
+
+	/**
+	 * 发货中状态-最晚计划发车时间 范围查找-开始时间
+	 */
+	private transient Date sendingLastPlanDepartTimeBegin;
+
+	/**
+	 * 发货中状态-最晚计划发车时间 范围查找-结束时间
+	 */
+	private transient Date sendingLastPlanDepartTimeEnd;
+
+	/**
+	 * 待封车状态-最晚计划发车时间 范围查找-开始时间
+	 */
+	private transient Date toSealLastPlanDepartTimeBegin;
+
+	/**
+	 * 待封车状态-最晚计划发车时间 范围查找-结束时间
+	 */
+	private transient Date toSealLastPlanDepartTimeEnd;
 
 	private Integer excepLabel;
 	private transient Date createTimeBegin;
@@ -157,11 +190,26 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	private String lineTypeName;
 	private String taskSimpleCode;
 
+    /**
+     * 是否只卸不装，需要操作无任务解封签
+     */
+	private Integer onlyLoadNoUnload;
+
 
 	/**
 	 * 线路类型集合
 	 */
 	private List<Integer> lineTypeList;
+
+	private List<String> bizIdList;
+
+	private List<Integer> statusList;
+
+	/**
+	 * 任务分类
+	 * JySendTaskTypeEnum
+	 */
+	private Integer taskType;
 
 	public String getTaskSimpleCode() {
 		return taskSimpleCode;
@@ -414,11 +462,91 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 		}
 	}
 
-	public List<Integer> getLineTypeList() {
+    public Integer getOnlyLoadNoUnload() {
+        return onlyLoadNoUnload;
+    }
+
+    public void setOnlyLoadNoUnload(Integer onlyLoadNoUnload) {
+        this.onlyLoadNoUnload = onlyLoadNoUnload;
+    }
+
+    public List<Integer> getLineTypeList() {
 		return lineTypeList;
 	}
 
 	public void setLineTypeList(List<Integer> lineTypeList) {
 		this.lineTypeList = lineTypeList;
+	}
+
+	public List<String> getBizIdList() {
+		return bizIdList;
+	}
+
+	public void setBizIdList(List<String> bizIdList) {
+		this.bizIdList = bizIdList;
+	}
+
+	public List<Integer> getStatusList() {
+		return statusList;
+	}
+
+	public void setStatusList(List<Integer> statusList) {
+		this.statusList = statusList;
+	}
+
+	public Integer getTaskType() {
+		return taskType;
+	}
+
+	public void setTaskType(Integer taskType) {
+		this.taskType = taskType;
+	}
+
+	public Date getToSendLastPlanDepartTimeBegin() {
+		return toSendLastPlanDepartTimeBegin;
+	}
+
+	public void setToSendLastPlanDepartTimeBegin(Date toSendLastPlanDepartTimeBegin) {
+		this.toSendLastPlanDepartTimeBegin = toSendLastPlanDepartTimeBegin;
+	}
+
+	public Date getToSendLastPlanDepartTimeEnd() {
+		return toSendLastPlanDepartTimeEnd;
+	}
+
+	public void setToSendLastPlanDepartTimeEnd(Date toSendLastPlanDepartTimeEnd) {
+		this.toSendLastPlanDepartTimeEnd = toSendLastPlanDepartTimeEnd;
+	}
+
+	public Date getSendingLastPlanDepartTimeBegin() {
+		return sendingLastPlanDepartTimeBegin;
+	}
+
+	public void setSendingLastPlanDepartTimeBegin(Date sendingLastPlanDepartTimeBegin) {
+		this.sendingLastPlanDepartTimeBegin = sendingLastPlanDepartTimeBegin;
+	}
+
+	public Date getSendingLastPlanDepartTimeEnd() {
+		return sendingLastPlanDepartTimeEnd;
+	}
+
+	public void setSendingLastPlanDepartTimeEnd(Date sendingLastPlanDepartTimeEnd) {
+		this.sendingLastPlanDepartTimeEnd = sendingLastPlanDepartTimeEnd;
+	}
+
+	public Date getToSealLastPlanDepartTimeBegin() {
+		return toSealLastPlanDepartTimeBegin;
+	}
+
+	public void setToSealLastPlanDepartTimeBegin(Date toSealLastPlanDepartTimeBegin) {
+		this.toSealLastPlanDepartTimeBegin = toSealLastPlanDepartTimeBegin;
+	}
+
+	public Date getToSealLastPlanDepartTimeEnd() {
+		return toSealLastPlanDepartTimeEnd;
+	}
+
+	public void setToSealLastPlanDepartTimeEnd(Date toSealLastPlanDepartTimeEnd) {
+		this.toSealLastPlanDepartTimeEnd = toSealLastPlanDepartTimeEnd;
 	}
 }

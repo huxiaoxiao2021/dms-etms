@@ -138,6 +138,20 @@ public class SealVehicleReq extends BaseReq implements Serializable {
      * JyFuncCodeEnum
      */
     private String funcType;
+    /**
+     * 件数
+     */
+    private Integer itemNum;
+
+    /**
+     * 标准出发时间
+     */
+    private String departureTimeStr;
+
+    /**
+     * 校验板数量和流向: 未更新的PDA版本不进行校验
+     */
+    private Boolean checkBoardSumAndFlow;
 
     public String getSendVehicleBizId() {
         return sendVehicleBizId;
@@ -329,5 +343,29 @@ public class SealVehicleReq extends BaseReq implements Serializable {
 
     public void setFuncType(String funcType) {
         this.funcType = funcType;
+    }
+
+    public Integer getItemNum() {
+        return itemNum;
+    }
+
+    public void setItemNum(Integer itemNum) {
+        this.itemNum = itemNum;
+    }
+
+    public String getDepartureTimeStr() {
+        return departureTimeStr;
+    }
+
+    public void setDepartureTimeStr(String departureTimeStr) {
+        this.departureTimeStr = departureTimeStr;
+    }
+
+    public Boolean getCheckBoardSumAndFlow() {
+        return checkBoardSumAndFlow;
+    }
+
+    public void setCheckBoardSumAndFlow(Boolean checkBoardSumAndFlow) {
+        this.checkBoardSumAndFlow = checkBoardSumAndFlow;
     }
 }

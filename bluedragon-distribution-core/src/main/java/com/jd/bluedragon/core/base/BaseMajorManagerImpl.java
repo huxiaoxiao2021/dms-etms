@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.UmpConstants;
@@ -31,12 +32,14 @@ import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSiteQueryWS;
+import com.jd.ql.basic.ws.BasicStaffQueryWS;
 import com.jd.ql.dms.report.SiteQueryService;
 import com.jd.ql.dms.report.domain.*;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
@@ -92,6 +95,9 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     @Autowired
     private SecurityCheckerExecutor securityCheckerExecutor;
+    
+    @Autowired
+    private BasicStaffQueryWS basicStaffQueryWS;
 
     /**
      * 站点ID
@@ -987,5 +993,82 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             return securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_PRINT, userErp, WaybillUtil.getWaybillCode(request.getBarCode()));
         }
         return new InvokeResult<>();
+    }
+
+    @Cache(key = "BaseMajorManager.queryBaseStaffByRole@args0@args1", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @Override
+    public List<BaseStaffSiteDTO> queryBaseStaffByRole(String provinceAgencyCode, Integer role) {
+        CallerInfo callerInfo = Profiler.registerInfo("com.jd.bluedragon.core.base.BaseMajorManager.queryBaseStaffByRole",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        List<BaseStaffSiteDTO> list = Lists.newArrayList();
+        try{
+            if(StringUtils.isEmpty(provinceAgencyCode) || role == null){
+                return list;
+            }
+            BaseStaffSiteDTO baseStaffSiteDTO = new BaseStaffSiteDTO();
+            baseStaffSiteDTO.setProvinceAgencyCode(provinceAgencyCode);
+            baseStaffSiteDTO.setRole(role);
+            // 当前页
+            int pageIndex = 0;
+            while (pageIndex ++ < 100){
+                PageDto<List<BaseStaffSiteDTO>> singlePage = basicStaffQueryWS.queryBaseStaff(baseStaffSiteDTO, pageIndex);
+                if(singlePage == null || CollectionUtils.isEmpty(singlePage.getData())){
+                    break;
+                }
+                list.addAll(singlePage.getData());
+            }
+        }catch (Exception e){
+            log.error("查询省区:{}下角色:{}的员工信息异常！",provinceAgencyCode, role, e);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return list;
+    }
+
+    @Override
+    @Cache(key = "BaseMajorManager.checkIDCardNoExists@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public BaseStaff checkIDCardNoExists(String idCardNo) {
+        if(StringUtils.isNotBlank(idCardNo)){
+            BaseResult<BaseStaff> result = basicStaffQueryWS.checkIDCardNoExists(idCardNo);
+            if(result != null && BaseResult.RESULT_SUCCESS== result.getResultCode()){
+                return result.getData();
+            }
+        }
+        return null;
+    }
+
+
+
+    @Override
+    @Cache(key = "BaseMajorManager.getThirdStaffByUserCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public BaseStaffSiteOrgDto getThirdStaffByUserCode(String userCode) {
+        if(StringUtils.isNotBlank(userCode)){
+            return basicStaffQueryWS.getThirdStaffByUserCode(userCode);
+        }
+        return null;
+    }
+
+    @Override
+    @Cache(key = "BaseMajorManager.queryBaseStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public BaseStaffSiteDTO queryBaseStaffByStaffId(Integer staffId) {
+        if(staffId != null){
+            ResultData<BaseStaffSiteDTO> resultData = basicStaffQueryWS.queryBaseStaffByStaffId(staffId);
+            if(resultData != null && resultData.getData() != null){
+                return resultData.getData();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @Cache(key = "BaseMajorManager.selectBaseStoreByDmsSiteId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public PsStoreInfo selectBaseStoreByDmsSiteId(Integer siteId) {
+        return basicPrimaryWS.selectBaseStoreByDmsSiteId(siteId);
     }
 }

@@ -4,8 +4,10 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
@@ -115,6 +117,12 @@ public interface JyWarehouseSendGatewayService {
      */
     JdCResponse<Void> mixScanTaskComplete(MixScanTaskCompleteReq mixScanTaskCompleteReq);
     /**
+     * 混扫任务单个流向完成
+     * @param mixScanTaskCompleteReq
+     * @return
+     */
+    JdCResponse<Void> mixScanTaskFlowComplete(MixScanTaskCompleteReq mixScanTaskCompleteReq);
+    /**
      * 混扫任务关注/取消关注
      * @param mixScanTaskFocusReq
      * @return
@@ -132,7 +140,7 @@ public interface JyWarehouseSendGatewayService {
      */
     JdCResponse<MixScanTaskFlowDetailRes> getMixScanTaskFlowDetailList(MixScanTaskFlowDetailReq mixScanTaskFlowReq);
     /**
-     * 获取混扫任务下流向信息(根据业务场景，无需支持分页)
+     * 获取混扫任务下流向信息(根据业务场景，无需支持分页) 此方法目前没有使用
      * getMixScanTaskFlowDetailList接口 查询混扫下流向，附带每个流向的统计数据
      * 本接口仅查询混扫任务流向信息
      * @param mixScanTaskQueryReq
@@ -191,5 +199,16 @@ public interface JyWarehouseSendGatewayService {
      * @return
      */
     JdCResponse<Void> checkBeforeSealCar(SealCarCheckDtoReq req);
+
+
+    /**
+     * 任务详情
+     * @param request
+     * @return
+     */
+    JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
+
+
+
 
 }

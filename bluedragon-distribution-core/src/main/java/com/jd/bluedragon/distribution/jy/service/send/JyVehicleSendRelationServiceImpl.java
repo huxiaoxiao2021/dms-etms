@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.BeanUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -110,4 +111,22 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
     public List<JySendCodeEntity> queryByVehicleDetailBizId(String vehicleDetailBizId) {
         return jySendCodeDao.queryByVehicleDetailBizId(vehicleDetailBizId);
     }
+
+    @Override
+    public List<String> findSendCodesByDetailBizIds(List<String> detailBizIdList) {
+        if(CollectionUtils.isEmpty(detailBizIdList)) {
+            return null;
+        }
+        return jySendCodeDao.findSendCodesByDetailBizIds(detailBizIdList);
+    }
+
+
+    @Override
+    public List<String> findSendCodesByBizIds(List<String> bizIdList) {
+        if(CollectionUtils.isEmpty(bizIdList)) {
+            return null;
+        }
+        return jySendCodeDao.findSendCodesByBizIds(bizIdList);
+    }
+
 }

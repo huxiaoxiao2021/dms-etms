@@ -143,9 +143,18 @@ public interface JyGroupSortCrossDetailService {
      */
     boolean mixScanTaskComplete(JyGroupSortCrossDetailEntity condition);
 
+    /**
+     * 完成混扫流向任务
+     * @param condition
+     * @return
+     */
+    boolean mixScanTaskFlowComplete(JyGroupSortCrossDetailEntity condition);
+
     int countByCondition(JyGroupSortCrossDetailEntityQueryDto queryDto);
 
     boolean mixScanTaskStatusComplete(JyGroupSortCrossDetailEntityQueryDto queryDto);
 
     void deleteBySiteAndBizId(JyGroupSortCrossDetailEntity condition);
+
+    void deleteMixScanTaskOutLimit();
 }

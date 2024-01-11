@@ -8,24 +8,31 @@ import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
 import com.jd.bluedragon.common.dto.sorting.request.SortingCancelRequest;
 import com.jd.bluedragon.common.dto.sorting.request.SortingCheckRequest;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.base.controller.DmsUccController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.rest.sorting.SortingResource;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.SortingGatewayService;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author : xumigen
@@ -36,6 +43,8 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
     @Autowired
     @Qualifier("sortingResource")
     private SortingResource sortingResource;
+    @Autowired
+    DmsConfigManager dmsConfigManager;
 
     @Override
     @BusinessLog(sourceSys = 1,bizType = 2002,operateType = 2003)
@@ -128,6 +137,57 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
             jdVerifyResponse.toError(e.getMessage());
         }
         return jdVerifyResponse;
+    }
+
+    private boolean checkOfflined(SortingCheckRequest checkRequest) {
+        Integer orgId =checkRequest.getCurrentOperate().getOrgId();
+        Integer siteCode =checkRequest.getCurrentOperate().getSiteCode();
+        if ((checkIfOrgForbiddened(orgId)) || checkIfSiteForbiddened(siteCode)){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkIfOrgForbiddened(Integer orgId) {
+        if (ObjectHelper.isNotNull(dmsConfigManager.getPropertyConfig().getCollectPackageOrgForbiddenList())){
+            List<Integer> orgForbiddenList = buildOrgForbiddenList(dmsConfigManager.getPropertyConfig().getCollectPackageOrgForbiddenList());
+            if (CollectionUtils.isNotEmpty(orgForbiddenList) && orgForbiddenList.contains(orgId)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkIfSiteForbiddened(Integer siteCode) {
+        if (ObjectHelper.isNotNull(dmsConfigManager.getPropertyConfig().getCollectPackageSiteForbiddenList())){
+            List<Integer> siteForbiddenList = buildSiteForbiddenList(dmsConfigManager.getPropertyConfig().getCollectPackageSiteForbiddenList());
+            if (CollectionUtils.isNotEmpty(siteForbiddenList) && siteForbiddenList.contains(siteCode)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<Integer> buildOrgForbiddenList(String collectPackageOrgForbiddenList) {
+        List<Integer> list =new ArrayList<>();
+        if (collectPackageOrgForbiddenList.contains(",")){
+            list = Arrays.asList(collectPackageOrgForbiddenList.split(",")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
+        }
+        else {
+            list.add(Integer.valueOf(collectPackageOrgForbiddenList));
+        }
+        return list;
+    }
+
+    private List<Integer> buildSiteForbiddenList(String collectPackageSiteForbiddenList) {
+        List<Integer> list =new ArrayList<>();
+        if (collectPackageSiteForbiddenList.contains(",")){
+            list = Arrays.asList(collectPackageSiteForbiddenList.split(",")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
+        }
+        else {
+            list.add(Integer.valueOf(collectPackageSiteForbiddenList));
+        }
+        return list;
     }
 
     @Override

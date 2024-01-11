@@ -78,7 +78,7 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
     /**
      * 获取运单信息
      */
-    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R)
     @RequestMapping(value = "/getWaybillInfo")
     @ResponseBody
     public InvokeResult<Boolean> getWaybillInfo(@QueryParam("waybillCode") String waybillCode) {
@@ -167,4 +167,17 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
                                                                                        HttpServletRequest request) {
         return weightAndVolumeCheckOfB2bService.uploadExcessPicture(image,request);
     }
+
+    /**
+     * 上传超标视频
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R)
+    @RequestMapping(value = "/uploadExcessVideo", method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult<String> uploadExcessVideo(@RequestParam("video") MultipartFile image,
+                                                  HttpServletRequest request) {
+        return weightAndVolumeCheckOfB2bService.uploadExcessVideo(image,request);
+    }
+
 }

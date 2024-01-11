@@ -59,4 +59,7 @@ public interface SpotCheckCurrencyService {
      * @return
      */
     InvokeResult<Boolean> spotCheckDeal(SpotCheckDto spotCheckDto);
+
+    boolean isWaybillSignValid(Waybill waybill);
+
 }

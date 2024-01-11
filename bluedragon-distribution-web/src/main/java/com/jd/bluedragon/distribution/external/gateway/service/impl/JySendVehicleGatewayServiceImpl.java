@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendModeEnum;
@@ -18,6 +19,7 @@ import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.external.gateway.service.JySendVehicleGatewayService;
+import com.jd.bluedragon.utils.converter.ResultConverter;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +111,13 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request) {
         return retJdCResponse(jySendVehicleService.fetchSendVehicleTask(request));
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.fetchWaitingVehicleDistributionList",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<Pager<WaitingVehicleDistribution>> fetchWaitingVehicleDistributionList(WaitingVehicleDistributionRequest request) {
+        return retJdCResponse(jySendVehicleService.fetchWaitingVehicleDistributionList(request));
     }
 
     @Override
@@ -226,5 +235,26 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
         return retJdCResponse(jySendVehicleService.getProductToScanInfo(request));
     }
 
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendVehicleGatewayServiceImpl.callByWorkItem", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<String> callByWorkItem(CallNumberRequest request) {
+        return retJdCResponse(jySendVehicleService.callByWorkItem(request));
+    }
 
+    /**
+     * 根据发货任务获取特殊产品类型数量
+     * @param request 请求参数
+     * @return 待扫列表统计
+     * @author fanggang7
+     * @time 2023-07-26 10:00:32 周三
+     */
+    @Override
+    public JdCResponse<SendVehicleToScanTipsDto> getSpecialProductTypeToScanList(SendVehicleToScanTipsRequest request) {
+        return ResultConverter.convertResultToJdcResponse(jySendVehicleService.getSpecialProductTypeToScanList(request));
+    }
+
+    @Override
+    public JdCResponse<String> remindTransJob(RemindTransJobRequest request) {
+        return retJdCResponse(jySendVehicleService.remindTransJob(request));
+    }
 }

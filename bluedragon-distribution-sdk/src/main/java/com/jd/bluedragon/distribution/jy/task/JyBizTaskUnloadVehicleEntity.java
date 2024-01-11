@@ -215,6 +215,11 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private Integer priorityFlag;
 
+    /**
+     * 是否只装不卸，需要操作无货上封签
+     */
+    private Integer onlyUnloadNoLoad;
+
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -601,4 +606,11 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
         this.priorityFlag = priorityFlag;
     }
 
+    public Integer getOnlyUnloadNoLoad() {
+        return onlyUnloadNoLoad;
+    }
+
+    public void setOnlyUnloadNoLoad(Integer onlyUnloadNoLoad) {
+        this.onlyUnloadNoLoad = onlyUnloadNoLoad;
+    }
 }

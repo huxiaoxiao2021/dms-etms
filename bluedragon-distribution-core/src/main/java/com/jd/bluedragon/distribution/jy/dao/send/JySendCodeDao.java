@@ -90,4 +90,14 @@ public class JySendCodeDao extends BaseDao<JySendCodeEntity> {
     public List<JySendCodeEntity> queryByVehicleDetailBizId(String vehicleDetailBizId) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryByVehicleDetailBizId", vehicleDetailBizId);
     }
+
+    public List<String> findSendCodesByDetailBizIds(List<String> detailBizIdList) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findSendCodesByDetailBizIds", detailBizIdList);
+    }
+
+    public List<String> findSendCodesByBizIds(List<String> bizIdList) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findSendCodesByBizIds", bizIdList);
+    }
+
+
 }

@@ -67,14 +67,12 @@ public class MiniStoreSyncBindRelationTask implements Runnable {
                 packageCodes.add(s.getPackageCode());
             }
 
-            List<String> iceBoardCodes =new ArrayList<>();
-            iceBoardCodes.add(miniStoreBindRelation.getIceBoardCode1());
-            iceBoardCodes.add(miniStoreBindRelation.getIceBoardCode2());
+
 
             //封装消息体
             MiniStoreBindRelationEvent miniStoreEvent = new MiniStoreBindRelationEvent();
             miniStoreEvent.setPackageCodes(packageCodes);
-            miniStoreEvent.setIceBoardCodes(iceBoardCodes);
+
             miniStoreEvent.setEventType(type.getCode());
             miniStoreEvent.setStoreCode(miniStoreBindRelation.getStoreCode());
             miniStoreEvent.setBoxCode(miniStoreBindRelation.getBoxCode());

@@ -19,6 +19,11 @@ public class JyBizTaskSendVehicleDetailQueryEntity extends JyBizTaskSendVehicleD
 
 	private Integer pageSize;
 
+    private Integer manualCreatedFlag;
+	private List<String> bizIdList;
+
+	private Integer bindFlag;
+
 
 	public List<Long> getEndSiteIdList() {
 		return endSiteIdList;
@@ -34,5 +39,29 @@ public class JyBizTaskSendVehicleDetailQueryEntity extends JyBizTaskSendVehicleD
 
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+
+    public Integer getManualCreatedFlag() {
+        return manualCreatedFlag;
+    }
+
+    public void setManualCreatedFlag(Integer manualCreatedFlag) {
+        this.manualCreatedFlag = manualCreatedFlag;
+    }
+
+	public List<String> getBizIdList() {
+		return bizIdList;
+	}
+
+	public void setBizIdList(List<String> bizIdList) {
+		this.bizIdList = bizIdList;
+	}
+
+	public Integer getBindFlag() {
+		return bindFlag;
+	}
+
+	public void setBindFlag(Integer bindFlag) {
+		this.bindFlag = bindFlag;
 	}
 }

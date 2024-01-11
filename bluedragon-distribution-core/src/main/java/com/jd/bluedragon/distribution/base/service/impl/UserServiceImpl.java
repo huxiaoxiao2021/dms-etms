@@ -10,13 +10,15 @@ import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ErpLoginServiceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AppUpgradeRequest;
+import com.jd.bluedragon.distribution.api.request.LoginInfoDto;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
@@ -46,6 +48,7 @@ import com.jd.bluedragon.sdk.modules.client.ProgramTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.dto.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.sdk.util.DateUtil;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.mrd.srv.dto.RpcResultDto;
 import com.jd.mrd.srv.service.erp.dto.LoginContextDto;
 import com.jd.mrd.srv.service.erp.dto.LoginDto;
@@ -99,7 +102,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
     private ErpLoginServiceManager erpLoginServiceManager;
 
 	@Autowired
-	private UccPropertyConfiguration uccPropertyConfiguration;
+	private DmsConfigManager dmsConfigManager;
 
 	@Autowired
 	private JyDemotionService jyDemotionService;
@@ -109,6 +112,10 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 
 	@Autowired
 	private FuncSwitchConfigService funcSwitchConfigService;
+
+	@Autowired
+	@Qualifier("loginInfoProducer")
+	private DefaultJMQProducer loginInfoProducer;
 
 	/**
 	 * 分拣客户端登录服务
@@ -165,12 +172,29 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             request.setBaseVersionCode(JSF_LOGIN_DEFAULT_BASE_VERSION_CODE);
         }
         LoginUserResponse loginUserResponse = clientLoginIn(request);
-		if(!uccPropertyConfiguration.getPdaLoginSkipSwitch()){
+		if(!dmsConfigManager.getPropertyConfig().getPdaLoginSkipSwitch()){
 			this.getAndSaveToken(request, loginUserResponse);
 			this.handleDeviceLocation(request, loginUserResponse);
 		}
+		sendLoginInfoMq(request, loginUserResponse);
         return loginUserResponse;
     }
+
+	/**
+	 * 登录成功发送jmq4: login_info
+	 * @param request
+	 * @param response
+	 */
+	private void sendLoginInfoMq(LoginRequest request, LoginUserResponse response){
+		LoginInfoDto loginInfoDto = new LoginInfoDto();
+		loginInfoDto.setLoginRequest(request);
+		loginInfoDto.setLoginUserResponse(response);
+		try {
+			loginInfoProducer.send(request.getErpAccount(), JsonHelper.toJson(loginInfoDto));
+		} catch (JMQException e) {
+			log.error("登录成功后发送登录信息jmq失败", e);
+		}
+	}
 
     private boolean getAndSaveToken(LoginRequest request, LoginUserResponse loginUserResponse) {
         try {
@@ -427,6 +451,27 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 					result.getData().setBusinessConfigInfo(businessConfigInfo);
 				}
 				result.getData().getBusinessConfigInfo().setUseSimulatorFlag(canUseSimulatorFlag);
+
+				// pda运输任务是否显示叫号按钮
+				// 心跳会传网格码所在场地编码  叫号取网格码所在场地
+				// 心跳没传场地网格码做一个兜底  取登录时人所在场地编码
+				boolean showCallButtonFlag;
+				if (dmsClientHeartbeatRequest.getSiteCode() != null) {
+					showCallButtonFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_CALL_BUTTON.getCode(), dmsClientHeartbeatRequest.getSiteCode(), userErp);
+				} else {
+					log.warn("sendHeartbeat 客户端缺少网格码所在场地编码 {}", JsonHelper.toJson(dmsClientHeartbeatRequest));
+					showCallButtonFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_CALL_BUTTON.getCode(), siteId, userErp);
+				}
+				result.getData().getBusinessConfigInfo().setShowCallButtonFlag(showCallButtonFlag);
+				// pda运输任务是否显示催派按钮
+				boolean showRemindTransJobFlag;
+				if (dmsClientHeartbeatRequest.getSiteCode() != null) {
+					showRemindTransJobFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_REMIND_BUTTON.getCode(), dmsClientHeartbeatRequest.getSiteCode(), userErp);
+				} else {
+					log.warn("sendHeartbeat 客户端缺少网格码所在场地编码 {}", JsonHelper.toJson(dmsClientHeartbeatRequest));
+					showRemindTransJobFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_REMIND_BUTTON.getCode(), siteId, userErp);
+				}
+				result.getData().getBusinessConfigInfo().setShowRemindTransJobFlag(showRemindTransJobFlag);
 			}
 		}
 		return result;
@@ -574,6 +619,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 		funcUsageConfigRequestDto.setFuncCode(checkMenuAuthRequest.getMenuCode());
 		com.jd.bluedragon.common.dto.base.request.OperateUser operateUser = new com.jd.bluedragon.common.dto.base.request.OperateUser();
         operateUser.setSiteCode(checkMenuAuthRequest.getSiteCode());
+		operateUser.setUserCode(checkMenuAuthRequest.getUserCode());
         funcUsageConfigRequestDto.setOperateUser(operateUser);
         FuncUsageProcessDto menuUsageConfig = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
         if(menuUsageConfig != null) {
@@ -587,7 +633,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	}
 
 	private boolean checkMenuIsOffline(String menuCode, JdResult<CheckMenuAuthResponse> result) {
-		Map<String, Map<String, Object>> stringMapMap = com.jd.bluedragon.utils.JsonHelper.json2Map(uccPropertyConfiguration.getClientOfflineMenuConfig());
+		Map<String, Map<String, Object>> stringMapMap = com.jd.bluedragon.utils.JsonHelper.json2Map(dmsConfigManager.getPropertyConfig().getClientOfflineMenuConfig());
 		if(stringMapMap == null){
 			return false;
 		}

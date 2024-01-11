@@ -1,9 +1,6 @@
 package com.jd.bluedragon.dms.utils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -243,11 +240,15 @@ public class DmsConstants {
     /**
      * 快运产品-特快重货（fr-m-0004)\fr-m-0002)
      */
-    public static final String PRODUCT_TYPE_KY_0004 = "fr-m-0004";     
+    public static final String PRODUCT_TYPE_KY_0004 = "fr-m-0004";
+    /**
+     * 快运产品-特惠专配（fr-m-0004)\fr-m-0002)
+     */
+    public static final String PRODUCT_TYPE_KY_0017 = "fr-m-0017";
     /**
      * 工种类型
      */
-    public static final String JOB_TYPE_REGEX = "^[1-7]$";
+    public static final String JOB_TYPE_REGEX = "^[1-8]$";
     /**
      * 身份证正则
      */
@@ -336,6 +337,9 @@ public class DmsConstants {
     public static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
     public static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
     public static final int PHONE_LEAST_NUMBER = PHONE_FIRST_NUMBER + PHONE_HIGHLIGHT_NUMBER;//隐藏处理的最小长度
+
+    public static final int LANDLINE_FIRST_NUMBER = 6;//收件人和寄件人联系方式为10位(包括10)以下座机号要隐藏的位数
+    public static final int LANDLINE_NUMBER = 10;//收件人和寄件人联系方式为3位区号+7位座机号
     public static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
     public static final int ADDRESS_HIDE_LENGTH = 6; //地址信息需要隐藏的后几位，用微笑符号替代
     public static final int NAME_SHOW_LENGTH = 1; //姓名信息需要隐藏的位数
@@ -371,6 +375,8 @@ public class DmsConstants {
      * 消息类型
      */
     public static final String MESSAGE_TYPE_BAOFEI = "TYPE_BAOFEI";
+    public static final String MESSAGE_TYPE_DMS = "BLOCKER_QUEUE_DMS";
+    public static final String MESSAGE_TYPE_REVERSE_PRINT = "TYPE_HUANDANDAYIN";
     public static final String ORDER_TYPE_REVERSE = "20";
 
     /**
@@ -441,6 +447,18 @@ public class DmsConstants {
      */
     public static final String SYS_AUTO_USER_CODE = "system";    
     /**
+     * 用户编码-超时自动签退
+     */
+    public static final String USER_CODE_AUTO_SIGN_OUT_TIME_OUT = "sys.dms";
+    /**
+     * 用户编码-接收attend_detail_change_topic消息，自动签退标识
+     */
+    public static final String USER_CODE_AUTO_SIGN_OUT_FORM_RZ = "sys_attend_topic";
+    /**
+     * 用户名称-人脸识别
+     */
+    public static final String USER_NAME_AUTO_SIGN_OUT_FORM_RZ = "人脸识别";
+    /**
      * 暂存类型枚举值
      */
     public enum PreSellTypeEnum {
@@ -472,5 +490,53 @@ public class DmsConstants {
             this.name = name;
         }
     }
+    
+    public static final List<Integer> SMALL_RECYCLE_BASKET_TYPE = new ArrayList<Integer>(){{
+        add(1);
+        add(2);
+        add(3);
+    }};
 
+    /**
+     * 笼车前缀
+     */
+    public static final String COLLECTION_AL_PREFIX = "AL";
+
+    /**
+     * 围板箱前缀
+     */
+    public static final String COLLECTION_AD02_PREFIX= "AD02";
+    //authCode
+    public static final String AUTH_CODE = "authCode";
+    // verificationCode
+    public static final String VERIFICATION_CODE = "verificationCode";
+
+    public static final Integer NUMBER_ZERO = 0; //数字0
+    public static final Integer NUMBER_HUNDRED = 100; //数字100
+
+    /**
+     * 国标：中国
+     */
+    public static final String CN = "CN";
+    /**
+     * 国标：澳门
+     */
+    public static final String MO = "MO";
+    /**
+     * 国标：香港
+     */
+    public static final String HK = "HK";
+    
+    /**
+     * 香港澳门区域国标
+     */
+    public static final List<String> HK_MO_REGION = new ArrayList<String>(){{
+        add(HK);
+        add(MO);
+    }};
+
+    /**
+     * 航班号正则
+     */
+    public static final String FLIGHT_NUMBER_REGEX = "[0-9A-Z]{6}";
 }

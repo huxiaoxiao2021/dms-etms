@@ -1,20 +1,24 @@
 package com.jd.bluedragon.configuration.ucc;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.dms.print.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by xumei3 on 2017/12/15.
+ *  Note :
+ *      - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
  */
-public class UccPropertyConfiguration {
+public class UccPropertyConfiguration{
 
     /** 开启的多级异步缓冲组件的任务类型列表 **/
     private String asynbufferEnabledTaskType;
@@ -487,6 +491,10 @@ public class UccPropertyConfiguration {
      * 获取异常完结数据范围限制天数
      */
     private int completeExpDayNumLimit;
+    /**
+     * 找货通知默认消息发送人
+     */
+    private String findGoodSendMessageDefaultErp;
 
     public boolean isPrintCompeteAllPackageUpdateCancel() {
         return printCompeteAllPackageUpdateCancel;
@@ -851,8 +859,41 @@ public class UccPropertyConfiguration {
 
     private int batchQueryEndSiteLimit;
 
+    private String qingChangDataOpenSwitch;
+
+    public Boolean getCheckAkboxConfig() {
+        return checkAkboxConfig;
+    }
+
+    public void setCheckAkboxConfig(Boolean checkAkboxConfig) {
+        this.checkAkboxConfig = checkAkboxConfig;
+    }
+
+    public Long getPrintCacheTime() {
+        return printCacheTime;
+    }
+
+    public void setPrintCacheTime(Long printCacheTime) {
+        this.printCacheTime = printCacheTime;
+    }
+
+    /**
+     * 检查是否需要检查周转筐数量和实施数量对比
+     */
+    private Boolean checkAkboxConfig;
+
+    private Long printCacheTime;
+
+    public String getQingChangDataOpenSwitch(){
+        return qingChangDataOpenSwitch;
+    }
+
     public int getBatchQueryEndSiteLimit() {
         return batchQueryEndSiteLimit;
+    }
+
+    public void setQingChangDataOpenSwitch(String qingChangDataOpenSwitch) {
+        this.qingChangDataOpenSwitch = qingChangDataOpenSwitch;
     }
 
     public void setBatchQueryEndSiteLimit(int batchQueryEndSiteLimit) {
@@ -915,6 +956,37 @@ public class UccPropertyConfiguration {
      * 组板岗板列表sql开关
      */
     private Boolean jyComboardListBoardSqlSwitch;
+
+    /**
+     * 操作流水-发送开关
+     */
+    private Boolean sendJyOperateFlowMqSwitch;
+
+    /**
+     * 特安发货任务提示优化开关
+     */
+    private boolean teAnSendTaskTipsOptimizationSwitch;
+
+    public boolean isTeAnSendTaskTipsOptimizationSwitch() {
+        return teAnSendTaskTipsOptimizationSwitch;
+    }
+
+    public void setTeAnSendTaskTipsOptimizationSwitch(boolean teAnSendTaskTipsOptimizationSwitch) {
+        this.teAnSendTaskTipsOptimizationSwitch = teAnSendTaskTipsOptimizationSwitch;
+    }
+
+    /**
+     * 一秒内特安任务执行限制数
+     */
+    private int teAnSendTaskNumberLimit;
+
+    public int getTeAnSendTaskNumberLimit() {
+        return teAnSendTaskNumberLimit;
+    }
+
+    public void setTeAnSendTaskNumberLimit(int teAnSendTaskNumberLimit) {
+        this.teAnSendTaskNumberLimit = teAnSendTaskNumberLimit;
+    }
 
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
@@ -980,7 +1052,7 @@ public class UccPropertyConfiguration {
     }
 
     public List<String> getNeedInterceptUrlList() {
-        return needInterceptUrlList;
+    	return Lists.newArrayList(needInterceptUrlList);
     }
 
     public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -1153,6 +1225,8 @@ public class UccPropertyConfiguration {
      * 身份证识别切量开关，全量上线之后，可以删除
      */
     private String identityRecogniseSiteSwitch;
+
+    private List<String> identityRecogniseSiteSwitchList = new ArrayList<>();
     /**
      * 传摆发货-干支限制业务列表
      */
@@ -1308,6 +1382,33 @@ public class UccPropertyConfiguration {
      */
     private String czOrgForbiddenList;
 
+
+    /**
+     * 旧版集包功能下线- 场地黑名单
+     */
+    private String collectPackageSiteForbiddenList;
+
+    /**
+     * 旧版集包功能下线-- 大区黑名单
+     */
+    private String collectPackageOrgForbiddenList;
+
+    public String getCollectPackageSiteForbiddenList() {
+        return collectPackageSiteForbiddenList;
+    }
+
+    public void setCollectPackageSiteForbiddenList(String collectPackageSiteForbiddenList) {
+        this.collectPackageSiteForbiddenList = collectPackageSiteForbiddenList;
+    }
+
+    public String getCollectPackageOrgForbiddenList(){
+        return collectPackageOrgForbiddenList;
+    }
+
+    public void setCollectPackageOrgForbiddenList(String collectPackageOrgForbiddenList) {
+        this.collectPackageOrgForbiddenList = collectPackageOrgForbiddenList;
+    }
+
     /**
      * 传站拦截-场地类型黑名单
      */
@@ -1392,6 +1493,107 @@ public class UccPropertyConfiguration {
      * 车型优先分数默认值
      */
     private double vehicleIntegralPriorityFraction;
+
+    public Integer getFetchCarDistributionTimeRange() {
+        return fetchCarDistributionTimeRange;
+    }
+
+    public void setFetchCarDistributionTimeRange(Integer fetchCarDistributionTimeRange) {
+        this.fetchCarDistributionTimeRange = fetchCarDistributionTimeRange;
+    }
+
+    /**
+     * 待派车查询时间范围  单位小时
+     */
+    private Integer fetchCarDistributionTimeRange;
+
+    /**
+     * 外单逆向换单次数
+     */
+    private Integer reverseExchangeCount;
+
+
+    /**
+     * dmsToVendor 通知调度系统发送MQ消息 开关
+     */
+    private boolean dmsToVendorSendMQSwitch;
+
+    /**
+     * 封车或取消封车时同步新版app发货任务状态开关: 默认 ： 1, 开启
+     */
+    private String sealSyncOpenCloseSendTaskSwitch;
+
+
+
+
+    /**
+     * 传站封车板最小数量限制
+     */
+    private Integer czSealCarBoardCountMinLimit;
+
+    /**
+     * 传站封车件数最小数量限制
+     */
+    private Integer czSealCarPackageCountMinLimit;
+
+    /**
+     * 接货仓发货岗待发货任务列表计划发车时间查询条件前X小时
+     */
+    private Integer jyWarehouseToSendPlanTimeBeginHours;
+
+    /**
+     * 接货仓发货岗待发货任务列表计划发车时间查询条件后X小时
+     */
+    private Integer jyWarehouseToSendPlanTimeEndHours;
+
+    /**
+     * 接货仓发货岗发货中任务列表计划发车时间查询条件前X小时
+     */
+    private Integer jyWarehouseSendingPlanTimeBeginHours;
+
+    /**
+     * 接货仓发货岗发货中任务列表计划发车时间查询条件后X小时
+     */
+    private Integer jyWarehouseSendingPlanTimeEndHours;
+
+    /**
+     * 接货仓发货岗待封车任务列表计划发车时间查询条件前X小时
+     */
+    private Integer jyWarehouseToSealPlanTimeBeginHours;
+
+    /**
+     * 接货仓发货岗待封车任务列表计划发车时间查询条件后X小时
+     */
+    private Integer jyWarehouseToSealPlanTimeEndHours;
+
+    /**
+     * 接货仓发货岗已封车任务列表计划发车时间查询条件前X小时
+     */
+    private Integer jyWarehouseSealedPlanTimeBeginHours;
+
+    /**
+     * 接货仓发货岗已封车任务列表计划发车时间查询条件后X小时
+     */
+    private Integer jyWarehouseSealedPlanTimeEndHours;
+
+    /**
+     * 接货仓发货岗任务列表创建时间查询条件前X小时
+     */
+    private Integer jyWarehouseTaskCreateTimeBeginHours;
+
+    /**
+     * 接货仓发货岗自建任务常用车型置顶
+     */
+    private String jyWarehouseManualTaskKeyVehicleTypes;
+
+    public boolean isDmsToVendorSendMQSwitch() {
+        return dmsToVendorSendMQSwitch;
+    }
+
+    public void setDmsToVendorSendMQSwitch(boolean dmsToVendorSendMQSwitch) {
+        this.dmsToVendorSendMQSwitch = dmsToVendorSendMQSwitch;
+    }
+
 
     public Integer getBatchGenerateSendCodeMaxNum() {
         return batchGenerateSendCodeMaxNum;
@@ -1488,9 +1690,49 @@ public class UccPropertyConfiguration {
         this.batchSendForbiddenSwitch = batchSendForbiddenSwitch;
     }
 
+    /**
+     * 终端站点-包裹补打限制开关
+     */
+    private boolean terminalSitePackagePrintLimitSwitch;
+
+    public boolean isTerminalSitePackagePrintLimitSwitch() {
+        return terminalSitePackagePrintLimitSwitch;
+    }
+
+    public void setTerminalSitePackagePrintLimitSwitch(boolean terminalSitePackagePrintLimitSwitch) {
+        this.terminalSitePackagePrintLimitSwitch = terminalSitePackagePrintLimitSwitch;
+    }
+
     private boolean needValidateBatchCodeHasSealed;
 
     private String forceSendSiteList;
+
+
+    private String forceCollectPackageSiteListStr;
+
+    private List<String> forceCollectPackageSiteList;
+
+    public List<String> getForceCollectPackageSiteList(){
+        return forceCollectPackageSiteList;
+    }
+
+    public void setForceCollectPackageSiteList() {
+        if (ObjectHelper.isNotNull(forceCollectPackageSiteListStr)){
+            forceCollectPackageSiteList =new ArrayList<>();
+            if (forceCollectPackageSiteListStr.contains(",")){
+                forceCollectPackageSiteList =Arrays.asList(forceCollectPackageSiteListStr.split(","));
+            }else {
+                forceCollectPackageSiteList.add(forceCollectPackageSiteListStr);
+            }
+        }
+    }
+
+    public String getForceCollectPackageSiteListStr(){
+        return forceCollectPackageSiteListStr;
+    }
+    public void setForceCollectPackageSiteListStr(String forceCollectPackageSiteListStr) {
+        this.forceCollectPackageSiteListStr = forceCollectPackageSiteListStr;
+    }
 
     public String getForceSendSiteList() {
         return forceSendSiteList;
@@ -1510,6 +1752,8 @@ public class UccPropertyConfiguration {
 
     /**
      * 自动关闭任务配置，转换为对象
+     *  Note :
+     *       - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
      */
     private String autoCloseJyBizTaskConfig;
     private AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj;
@@ -1579,7 +1823,27 @@ public class UccPropertyConfiguration {
      */
     private Integer jyTransportSendVehicleValidateDockAllowRefreshTimes;
 
+    /**
+     * 异常破损任务客服未反馈时间（小时）
+     */
+    private int jyExceptionDamageTaskCustomerNotReturnHours;
+
+    /**
+     * 异常任务生成id开关
+     */
+    private boolean jyExceptionCreateBizIdSwitch;
+
     private String aggsDataSource;
+
+    private Boolean userSignIgnoreCaseSwitch;
+
+    public Boolean getUserSignIgnoreCaseSwitch() {
+        return userSignIgnoreCaseSwitch;
+    }
+
+    public void setUserSignIgnoreCaseSwitch(Boolean userSignIgnoreCaseSwitch) {
+        this.userSignIgnoreCaseSwitch = userSignIgnoreCaseSwitch;
+    }
 
     public String getAggsDataSource() {
         return aggsDataSource;
@@ -1590,9 +1854,57 @@ public class UccPropertyConfiguration {
     }
     /**
      * 拣运APP自动刷新时间配置
+     *  Note :
+     *      - Attention: ucc的属性如果是自定义对象，并且自定义对象内属性包含汉字，则需要再get方法中返回新对象，防止ucc属性值被修改
      */
     private String jyWorkAppAutoRefreshConfig;
     private List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList = new ArrayList<>();
+
+    /**
+     * 组板岗混扫任务查询限制
+     */
+    private Integer cttGroupDataLimit;
+
+    /**
+     * 作业APP发货特殊产品类型提示，到指定剩余分钟数才提示
+     */
+    private Integer jySendSpecialProductTypeToScanShowRemainMinutes;
+
+    /**
+     * 集包岗查询时间限制
+     */
+    private String jyCollectPackageTaskQueryTimeLimit;
+
+    /**
+     * 混包校验使用分拣工作台新版配置
+     */
+    private boolean mixedConfigUseBasicNew;
+
+    private boolean collectPackageTaskRefreshSwitch;
+
+    private long jyCollectPackageInterceptBitCode;
+
+    public long getJyCollectPackageInterceptBitCode(){
+        return jyCollectPackageInterceptBitCode;
+    }
+
+    public void setJyCollectPackageInterceptBitCode(long jyCollectPackageInterceptBitCode) {
+        this.jyCollectPackageInterceptBitCode = jyCollectPackageInterceptBitCode;
+    }
+
+
+    private Double jyAviationManualCreateSendTaskMaxBookingWeight;
+
+    /**
+     * 箱号类型判断终端站点类型
+     */
+    private String terminalSiteTypeForBoxType;
+    private List<Integer> terminalSiteTypeListForBoxType = new ArrayList<>();
+
+    /**
+     * 箱号类型新版切换开关
+     */
+    private boolean boxTypeNewVersionSwitch;
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -2768,6 +3080,7 @@ public class UccPropertyConfiguration {
     }
 
     public void setDpSiteCodes(String dpSiteCodes) {
+    	this.dpSiteCodes = dpSiteCodes;
         if(StringUtils.isBlank(dpSiteCodes)){
             return;
         }
@@ -2808,14 +3121,16 @@ public class UccPropertyConfiguration {
         this.faceAbnormalReportConfig = faceAbnormalReportConfig;
     }
 
-    public List<String> getIdentityRecogniseSiteSwitch() {
-        return StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
-                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
-                : Collections.singletonList("0");
+    public String getIdentityRecogniseSiteSwitch() {
+        return identityRecogniseSiteSwitch;
     }
 
     public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
+
+        identityRecogniseSiteSwitchList = (StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
+                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
+                : Collections.singletonList("0"));
     }
 
     public Integer getJySendTaskPlanTimeBeginDay() {
@@ -3272,6 +3587,7 @@ public class UccPropertyConfiguration {
             final String[] split = dpSpringSiteCode.split(Constants.SEPARATOR_COMMA);
             dpSpringSiteCodeList = Arrays.asList(split);
         }
+        this.dpSpringSiteCodeList.clear();
         for (String siteCodeStr : dpSpringSiteCodeList) {
             this.dpSpringSiteCodeList.add(Integer.valueOf(siteCodeStr));
         }
@@ -3293,8 +3609,8 @@ public class UccPropertyConfiguration {
         this.volumeExcessIssueSites = volumeExcessIssueSites;
     }
 
-    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfig() {
-        return autoCloseJyBizTaskConfigObj;
+    public String getAutoCloseJyBizTaskConfig() {
+        return this.autoCloseJyBizTaskConfig;
     }
 
     public void setAutoCloseJyBizTaskConfig(String autoCloseJyBizTaskConfig) {
@@ -3422,14 +3738,6 @@ public class UccPropertyConfiguration {
 
     public void setJyWorkAppAutoRefreshConfig(String jyWorkAppAutoRefreshConfig) {
         this.jyWorkAppAutoRefreshConfig = jyWorkAppAutoRefreshConfig;
-        this.setJyWorkAppAutoRefreshConfigList(jyWorkAppAutoRefreshConfig);
-    }
-
-    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
-        return jyWorkAppAutoRefreshConfigList;
-    }
-
-    public void setJyWorkAppAutoRefreshConfigList(String jyWorkAppAutoRefreshConfig) {
         if(StringUtils.isNotEmpty(jyWorkAppAutoRefreshConfig)){
             final List<ClientAutoRefreshConfig> clientAutoRefreshConfigList = JsonHelper.jsonToList(jyWorkAppAutoRefreshConfig, ClientAutoRefreshConfig.class);
             if (CollectionUtils.isNotEmpty(clientAutoRefreshConfigList)) {
@@ -3438,11 +3746,20 @@ public class UccPropertyConfiguration {
         }
     }
 
+    public List<ClientAutoRefreshConfig> getJyWorkAppAutoRefreshConfigList() {
+        return Lists.newArrayList(jyWorkAppAutoRefreshConfigList);
+    }
+
+    public void setJyWorkAppAutoRefreshConfigList(List<ClientAutoRefreshConfig> jyWorkAppAutoRefreshConfigList) {
+        this.jyWorkAppAutoRefreshConfigList = jyWorkAppAutoRefreshConfigList;
+    }
     public ClientAutoRefreshConfig getJyWorkAppAutoRefreshConfigByBusinessType(String businessType) {
         if(CollectionUtils.isNotEmpty(jyWorkAppAutoRefreshConfigList)){
             final Optional<ClientAutoRefreshConfig> first = jyWorkAppAutoRefreshConfigList.stream().filter(item -> Objects.equals(businessType, item.getBusinessType())).findFirst();
             if(first.isPresent()){
-                return first.get();
+                ClientAutoRefreshConfig config = new ClientAutoRefreshConfig();
+                BeanUtils.copyProperties(first.get(), config);
+                return config;
             }
         }
         return null;
@@ -3509,18 +3826,14 @@ public class UccPropertyConfiguration {
 
     public void setExceptionSubmitCheckSites(String exceptionSubmitCheckSites) {
         this.exceptionSubmitCheckSites = exceptionSubmitCheckSites;
-        this.setExceptionSubmitCheckSiteList(exceptionSubmitCheckSites);
-    }
-
-    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
-
-    public void setExceptionSubmitCheckSiteList(String exceptionSubmitCheckSites) {
         if(exceptionSubmitCheckSites == null){
             exceptionSubmitCheckSiteList = new ArrayList<>();
             return;
         }
         exceptionSubmitCheckSiteList = Arrays.asList(exceptionSubmitCheckSites.split(Constants.SEPARATOR_COMMA));
     }
+
+    private List<String> exceptionSubmitCheckSiteList = new ArrayList<>();
 
     public boolean matchExceptionSubmitCheckSite(int siteId) {
         if(StringUtils.isBlank(exceptionSubmitCheckSites)){
@@ -3541,18 +3854,14 @@ public class UccPropertyConfiguration {
 
     public void setExceptionSubmitCheckWaybillInterceptTypes(String exceptionSubmitCheckWaybillInterceptTypes) {
         this.exceptionSubmitCheckWaybillInterceptTypes = exceptionSubmitCheckWaybillInterceptTypes;
-        this.setExceptionSubmitCheckWaybillInterceptTypeList(exceptionSubmitCheckWaybillInterceptTypes);
-    }
-
-    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
-
-    public void setExceptionSubmitCheckWaybillInterceptTypeList(String exceptionSubmitCheckWaybillInterceptTypes) {
         if(exceptionSubmitCheckWaybillInterceptTypes == null){
             exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
             return;
         }
         exceptionSubmitCheckWaybillInterceptTypeList = Arrays.asList(exceptionSubmitCheckWaybillInterceptTypes.split(Constants.SEPARATOR_COMMA));
     }
+
+    private List<String> exceptionSubmitCheckWaybillInterceptTypeList = new ArrayList<>();
 
     public boolean matchExceptionSubmitCheckWaybillInterceptType(Integer interceptType) {
         if(StringUtils.isBlank(exceptionSubmitCheckWaybillInterceptTypes)){
@@ -3626,4 +3935,343 @@ public class UccPropertyConfiguration {
     public void setAssignExpTaskQuantityLimit(int assignExpTaskQuantityLimit) {
         this.assignExpTaskQuantityLimit = assignExpTaskQuantityLimit;
     }
+
+    public Integer getCttGroupDataLimit() {
+        return cttGroupDataLimit;
+    }
+
+    public void setCttGroupDataLimit(Integer cttGroupDataLimit) {
+        this.cttGroupDataLimit = cttGroupDataLimit;
+    }
+
+    public Integer getJySendSpecialProductTypeToScanShowRemainMinutes() {
+        return jySendSpecialProductTypeToScanShowRemainMinutes;
+    }
+
+    public void setJySendSpecialProductTypeToScanShowRemainMinutes(Integer jySendSpecialProductTypeToScanShowRemainMinutes) {
+        this.jySendSpecialProductTypeToScanShowRemainMinutes = jySendSpecialProductTypeToScanShowRemainMinutes;
+    }
+
+    public int getJyExceptionDamageTaskCustomerNotReturnHours() {
+        return jyExceptionDamageTaskCustomerNotReturnHours;
+    }
+
+    public void setJyExceptionDamageTaskCustomerNotReturnHours(int jyExceptionDamageTaskCustomerNotReturnHours) {
+        this.jyExceptionDamageTaskCustomerNotReturnHours = jyExceptionDamageTaskCustomerNotReturnHours;
+    }
+
+    public boolean isJyExceptionCreateBizIdSwitch() {
+        return jyExceptionCreateBizIdSwitch;
+    }
+
+    public void setJyExceptionCreateBizIdSwitch(boolean jyExceptionCreateBizIdSwitch) {
+        this.jyExceptionCreateBizIdSwitch = jyExceptionCreateBizIdSwitch;
+    }
+
+    /**
+     * 违禁品运单缓存时长
+     */
+    private int contrabandWaybillCacheTime;
+
+    public int getContrabandWaybillCacheTime() {
+        return contrabandWaybillCacheTime;
+    }
+
+    public void setContrabandWaybillCacheTime(int contrabandWaybillCacheTime) {
+        this.contrabandWaybillCacheTime = contrabandWaybillCacheTime;
+    }
+
+    public Integer getReverseExchangeCount() {
+        return reverseExchangeCount;
+    }
+
+    public void setReverseExchangeCount(Integer reverseExchangeCount) {
+        this.reverseExchangeCount = reverseExchangeCount;
+    }
+
+	public Boolean getSendJyOperateFlowMqSwitch() {
+		return sendJyOperateFlowMqSwitch;
+	}
+
+	public void setSendJyOperateFlowMqSwitch(Boolean sendJyOperateFlowMqSwitch) {
+		this.sendJyOperateFlowMqSwitch = sendJyOperateFlowMqSwitch;
+	}
+
+	public boolean iseNetSyncWaybillCodeAndBoxCode() {
+		return eNetSyncWaybillCodeAndBoxCode;
+	}
+
+	public void seteNetSyncWaybillCodeAndBoxCode(boolean eNetSyncWaybillCodeAndBoxCode) {
+		this.eNetSyncWaybillCodeAndBoxCode = eNetSyncWaybillCodeAndBoxCode;
+	}
+
+	public List<Integer> getNeedValidateMainLineBizSourceCodes() {
+		return needValidateMainLineBizSourceCodes;
+	}
+
+	public void setNeedValidateMainLineBizSourceCodes(List<Integer> needValidateMainLineBizSourceCodes) {
+		this.needValidateMainLineBizSourceCodes = needValidateMainLineBizSourceCodes;
+	}
+
+	public List<Integer> getNotValidateTransTypeCodes() {
+		return notValidateTransTypeCodes;
+	}
+
+	public void setNotValidateTransTypeCodes(List<Integer> notValidateTransTypeCodes) {
+		this.notValidateTransTypeCodes = notValidateTransTypeCodes;
+	}
+
+	public List<String> get_multiplePackageSpotCheckSitesList() {
+		return _multiplePackageSpotCheckSitesList;
+	}
+
+	public void set_multiplePackageSpotCheckSitesList(List<String> _multiplePackageSpotCheckSitesList) {
+		this._multiplePackageSpotCheckSitesList = _multiplePackageSpotCheckSitesList;
+	}
+
+	public int getHideSpecialStartSitePrintReplaceSymbolMaxLength() {
+		return hideSpecialStartSitePrintReplaceSymbolMaxLength;
+	}
+
+	public void setJySendTaskLoadRateUpperLimit(Integer jySendTaskLoadRateUpperLimit) {
+		this.jySendTaskLoadRateUpperLimit = jySendTaskLoadRateUpperLimit;
+	}
+
+	public void setJySendTaskLoadRateLowerLimit(Integer jySendTaskLoadRateLowerLimit) {
+		this.jySendTaskLoadRateLowerLimit = jySendTaskLoadRateLowerLimit;
+	}
+
+	public void setHideSpecialStartSitPrintDestinationSiteStrList(
+			List<String> hideSpecialStartSitPrintDestinationSiteStrList) {
+		this.hideSpecialStartSitPrintDestinationSiteStrList = hideSpecialStartSitPrintDestinationSiteStrList;
+	}
+
+	public void setVirtualBoardCanUseSiteList(List<String> virtualBoardCanUseSiteList) {
+		this.virtualBoardCanUseSiteList = virtualBoardCanUseSiteList;
+	}
+
+	public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
+        AutoCloseJyBizTaskConfig config = new AutoCloseJyBizTaskConfig();
+        BeanUtils.copyProperties(autoCloseJyBizTaskConfigObj, config);
+        return config;
+	}
+
+	public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {
+		this.autoCloseJyBizTaskConfigObj = autoCloseJyBizTaskConfigObj;
+	}
+
+	public List<String> getExceptionSubmitCheckSiteList() {
+		return exceptionSubmitCheckSiteList;
+	}
+
+	public void setExceptionSubmitCheckSiteList(List<String> exceptionSubmitCheckSiteList) {
+		this.exceptionSubmitCheckSiteList = exceptionSubmitCheckSiteList;
+	}
+
+	public List<String> getExceptionSubmitCheckWaybillInterceptTypeList() {
+		return exceptionSubmitCheckWaybillInterceptTypeList;
+	}
+
+	public void setExceptionSubmitCheckWaybillInterceptTypeList(List<String> exceptionSubmitCheckWaybillInterceptTypeList) {
+		this.exceptionSubmitCheckWaybillInterceptTypeList = exceptionSubmitCheckWaybillInterceptTypeList;
+	}
+
+	public void setDpSpringSiteCodeList(List<Integer> dpSpringSiteCodeList) {
+		this.dpSpringSiteCodeList = dpSpringSiteCodeList;
+	}
+
+	public void setDewuCustomerCodeList(List<String> dewuCustomerCodeList) {
+		this.dewuCustomerCodeList = dewuCustomerCodeList;
+	}
+
+	public void setTeAnSiteWhitelistStrList(List<String> teAnSiteWhitelistStrList) {
+		this.teAnSiteWhitelistStrList = teAnSiteWhitelistStrList;
+	}
+
+	public List<String> getIdentityRecogniseSiteSwitchList() {
+		return identityRecogniseSiteSwitchList;
+	}
+
+	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
+		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
+	}
+
+    public String getJyCollectPackageTaskQueryTimeLimit() {
+        return jyCollectPackageTaskQueryTimeLimit;
+    }
+
+    public void setJyCollectPackageTaskQueryTimeLimit(String jyCollectPackageTaskQueryTimeLimit) {
+        this.jyCollectPackageTaskQueryTimeLimit = jyCollectPackageTaskQueryTimeLimit;
+    }
+
+    public boolean getMixedConfigUseBasicNew() {
+        return mixedConfigUseBasicNew;
+    }
+
+    public void setMixedConfigUseBasicNew(boolean mixedConfigUseBasicNew) {
+        this.mixedConfigUseBasicNew = mixedConfigUseBasicNew;
+    }
+
+    public boolean getCollectPackageTaskRefreshSwitch() {
+        return collectPackageTaskRefreshSwitch;
+    }
+
+    public void setCollectPackageTaskRefreshSwitch(boolean collectPackageTaskRefreshSwitch) {
+        this.collectPackageTaskRefreshSwitch = collectPackageTaskRefreshSwitch;
+    }
+
+    public String getSealSyncOpenCloseSendTaskSwitch() {
+        return sealSyncOpenCloseSendTaskSwitch;
+    }
+
+    public void setSealSyncOpenCloseSendTaskSwitch(String sealSyncOpenCloseSendTaskSwitch) {
+        this.sealSyncOpenCloseSendTaskSwitch = sealSyncOpenCloseSendTaskSwitch;
+    }
+
+    public Integer getCzSealCarBoardCountMinLimit() {
+        return czSealCarBoardCountMinLimit;
+    }
+
+    public void setCzSealCarBoardCountMinLimit(Integer czSealCarBoardCountMinLimit) {
+        this.czSealCarBoardCountMinLimit = czSealCarBoardCountMinLimit;
+    }
+
+    public Integer getCzSealCarPackageCountMinLimit() {
+        return czSealCarPackageCountMinLimit;
+    }
+
+    public void setCzSealCarPackageCountMinLimit(Integer czSealCarPackageCountMinLimit) {
+        this.czSealCarPackageCountMinLimit = czSealCarPackageCountMinLimit;
+    }
+
+    public Double getJyAviationManualCreateSendTaskMaxBookingWeight() {
+        return jyAviationManualCreateSendTaskMaxBookingWeight;
+    }
+
+    public void setJyAviationManualCreateSendTaskMaxBookingWeight(Double jyAviationManualCreateSendTaskMaxBookingWeight) {
+        this.jyAviationManualCreateSendTaskMaxBookingWeight = jyAviationManualCreateSendTaskMaxBookingWeight;
+    }
+
+    public String getFindGoodSendMessageDefaultErp() {
+        return findGoodSendMessageDefaultErp;
+    }
+
+    public void setFindGoodSendMessageDefaultErp(String findGoodSendMessageDefaultErp) {
+        this.findGoodSendMessageDefaultErp = findGoodSendMessageDefaultErp;
+    }
+
+    public String getTerminalSiteTypeForBoxType() {
+        return terminalSiteTypeForBoxType;
+    }
+
+    public void setTerminalSiteTypeForBoxType(String terminalSiteTypeForBoxType) {
+        this.terminalSiteTypeForBoxType = terminalSiteTypeForBoxType;
+        this.setTerminalSiteTypeListForBoxType();
+    }
+
+    public List<Integer> getTerminalSiteTypeListForBoxType() {
+        return terminalSiteTypeListForBoxType;
+    }
+
+    public void setTerminalSiteTypeListForBoxType() {
+        List<String> terminalSiteTypeList = new ArrayList<>();
+        if(StringUtils.isNotBlank(terminalSiteTypeForBoxType)){
+            final String[] split = terminalSiteTypeForBoxType.split(Constants.SEPARATOR_COMMA);
+            terminalSiteTypeList = Arrays.asList(split);
+        }
+        this.terminalSiteTypeListForBoxType.clear();
+        for (String siteCodeStr : terminalSiteTypeList) {
+            this.terminalSiteTypeListForBoxType.add(Integer.valueOf(siteCodeStr));
+        }
+    }
+
+    public boolean getBoxTypeNewVersionSwitch() {
+        return boxTypeNewVersionSwitch;
+    }
+
+    public UccPropertyConfiguration setBoxTypeNewVersionSwitch(boolean boxTypeNewVersionSwitch) {
+        this.boxTypeNewVersionSwitch = boxTypeNewVersionSwitch;
+        return this;
+    }
+
+    public Integer getJyWarehouseToSendPlanTimeBeginHours() {
+        return jyWarehouseToSendPlanTimeBeginHours;
+    }
+
+    public void setJyWarehouseToSendPlanTimeBeginHours(Integer jyWarehouseToSendPlanTimeBeginHours) {
+        this.jyWarehouseToSendPlanTimeBeginHours = jyWarehouseToSendPlanTimeBeginHours;
+    }
+
+    public Integer getJyWarehouseToSendPlanTimeEndHours() {
+        return jyWarehouseToSendPlanTimeEndHours;
+    }
+
+    public void setJyWarehouseToSendPlanTimeEndHours(Integer jyWarehouseToSendPlanTimeEndHours) {
+        this.jyWarehouseToSendPlanTimeEndHours = jyWarehouseToSendPlanTimeEndHours;
+    }
+
+    public Integer getJyWarehouseSendingPlanTimeBeginHours() {
+        return jyWarehouseSendingPlanTimeBeginHours;
+    }
+
+    public void setJyWarehouseSendingPlanTimeBeginHours(Integer jyWarehouseSendingPlanTimeBeginHours) {
+        this.jyWarehouseSendingPlanTimeBeginHours = jyWarehouseSendingPlanTimeBeginHours;
+    }
+
+    public Integer getJyWarehouseSendingPlanTimeEndHours() {
+        return jyWarehouseSendingPlanTimeEndHours;
+    }
+
+    public void setJyWarehouseSendingPlanTimeEndHours(Integer jyWarehouseSendingPlanTimeEndHours) {
+        this.jyWarehouseSendingPlanTimeEndHours = jyWarehouseSendingPlanTimeEndHours;
+    }
+
+    public Integer getJyWarehouseToSealPlanTimeBeginHours() {
+        return jyWarehouseToSealPlanTimeBeginHours;
+    }
+
+    public void setJyWarehouseToSealPlanTimeBeginHours(Integer jyWarehouseToSealPlanTimeBeginHours) {
+        this.jyWarehouseToSealPlanTimeBeginHours = jyWarehouseToSealPlanTimeBeginHours;
+    }
+
+    public Integer getJyWarehouseToSealPlanTimeEndHours() {
+        return jyWarehouseToSealPlanTimeEndHours;
+    }
+
+    public void setJyWarehouseToSealPlanTimeEndHours(Integer jyWarehouseToSealPlanTimeEndHours) {
+        this.jyWarehouseToSealPlanTimeEndHours = jyWarehouseToSealPlanTimeEndHours;
+    }
+
+    public Integer getJyWarehouseSealedPlanTimeBeginHours() {
+        return jyWarehouseSealedPlanTimeBeginHours;
+    }
+
+    public void setJyWarehouseSealedPlanTimeBeginHours(Integer jyWarehouseSealedPlanTimeBeginHours) {
+        this.jyWarehouseSealedPlanTimeBeginHours = jyWarehouseSealedPlanTimeBeginHours;
+    }
+
+    public Integer getJyWarehouseSealedPlanTimeEndHours() {
+        return jyWarehouseSealedPlanTimeEndHours;
+    }
+
+    public void setJyWarehouseSealedPlanTimeEndHours(Integer jyWarehouseSealedPlanTimeEndHours) {
+        this.jyWarehouseSealedPlanTimeEndHours = jyWarehouseSealedPlanTimeEndHours;
+    }
+
+    public Integer getJyWarehouseTaskCreateTimeBeginHours() {
+        return jyWarehouseTaskCreateTimeBeginHours;
+    }
+
+    public void setJyWarehouseTaskCreateTimeBeginHours(Integer jyWarehouseTaskCreateTimeBeginHours) {
+        this.jyWarehouseTaskCreateTimeBeginHours = jyWarehouseTaskCreateTimeBeginHours;
+    }
+
+    public String getJyWarehouseManualTaskKeyVehicleTypes() {
+        return jyWarehouseManualTaskKeyVehicleTypes;
+    }
+
+    public void setJyWarehouseManualTaskKeyVehicleTypes(String jyWarehouseManualTaskKeyVehicleTypes) {
+        this.jyWarehouseManualTaskKeyVehicleTypes = jyWarehouseManualTaskKeyVehicleTypes;
+    }
+
 }

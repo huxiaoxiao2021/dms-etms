@@ -16,6 +16,7 @@ public class UnloadVehicleMqDto implements Serializable {
 
     public static final String EXTEND_KEY_LOST_CNT = "lostCnt";
     public static final String EXTEND_KEY_DAMAGE_CNT = "damageCnt";
+    public static final String EXTEND_KEY_IS_MERGE_CAR = "isMergeCar";
     public static final String EXTEND_KEY_SCAN_PROGRESS = "totalScannedPackageProgress";
     public static final String EXTEND_KEY_TOTAL_COUNT = "totalSealPackageCount";
 

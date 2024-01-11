@@ -7,6 +7,8 @@ public interface DataResolver {
 
 	public <T> List<T> resolver(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory) throws Exception;
 
+	public <T> List<T> resolverWithNum(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory, Integer maxNum) throws Exception;
+
     /**
      *
      * @param in
@@ -18,5 +20,5 @@ public interface DataResolver {
      * @return
      * @throws Exception
      */
-	public <T> List<T> resolver(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory,boolean validateIsContinue,List<String> resultMessages) throws Exception;
+	public <T> List<T> resolver(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory,boolean validateIsContinue,List<String> resultMessages, Integer maxNum) throws Exception;
 }

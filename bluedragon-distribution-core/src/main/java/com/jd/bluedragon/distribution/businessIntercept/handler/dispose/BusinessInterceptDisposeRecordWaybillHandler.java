@@ -39,6 +39,7 @@ public class BusinessInterceptDisposeRecordWaybillHandler extends BusinessInterc
             Waybill waybillAndPack = waybillCommonService.findWaybillAndPack(waybillCode, true, false, true, true);
             if(waybillAndPack != null && CollectionUtils.isNotEmpty(waybillAndPack.getPackList())){
                 List<Pack> packList = waybillAndPack.getPackList();
+                log.info("BusinessInterceptDisposeRecordWaybillHandler doHandle waybillCode:{},siteCode:{},site:{}",msgDto.getBarCode(),msgDto.getSiteCode(),packList.size());
                 for (Pack pack : packList) {
                     SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
                     BeanUtils.copyProperties(msgDto, saveDisposeAfterInterceptMsgDto);

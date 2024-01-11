@@ -29,6 +29,11 @@ public class FuncUsageConditionConfigDto implements Serializable {
      */
     private List<Integer> orgCodes;
 
+    /**
+     * 人员erp列表
+     */
+    private List<String> userErps;
+
     public List<Integer> getSiteType() {
         return siteType;
     }
@@ -85,4 +90,12 @@ public class FuncUsageConditionConfigDto implements Serializable {
         this.orgCodes = orgCodes;
     }
 
+    public List<String> getUserErps() {
+        return userErps;
+    }
+
+    public FuncUsageConditionConfigDto setUserErps(List<String> userErps) {
+        this.userErps = userErps;
+        return this;
+    }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import com.jd.bluedragon.distribution.half.domain.PackageHalf;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.etms.waybill.handler.WaybillSyncParameter;
 
 public interface WaybillStatusService {
 
@@ -27,4 +28,11 @@ public interface WaybillStatusService {
 	 */
 	boolean batchUpdateWaybillPartByOperateType(PackageHalf packageHalf,List<PackageHalfDetail> packageHalfDetails, Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime,Integer orgId);
 
+
+	/**
+	 * 根据操作号批量同步运单数据（异步更新）
+	 * @param waybillSyncParameters
+	 * @param operatorType  batchUpdateWaybillByOperatorCode
+	 */
+	void sendWaybillTrackByOperatorCode(List<WaybillSyncParameter> waybillSyncParameters, Integer operatorType);
 }

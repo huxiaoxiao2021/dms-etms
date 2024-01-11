@@ -272,6 +272,14 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 箱号对外打印数据服务 -->
+    <jsf:provider id="dmsBoxPrintJsfService"
+                  interface="com.jd.bluedragon.distribution.box.service.BoxPrintService"
+                  alias="${dms.jsf.alias}"
+                  ref="boxPrintService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!-- 包裹回流扫描 提供给分拣工作台 -->
     <jsf:provider id="dmsReflowPackageJsfService"
                   interface="com.jd.bluedragon.distribution.reflowPackage.service.ReflowPackageJsfService"
@@ -549,7 +557,14 @@
                   ref="reverseIntensiveService"
                   server="dmsjsf">
     </jsf:provider>
-
+    <!--  提供给逆向集约接口-循环物资接口   -->
+    <jsf:provider id="materialBatchSendJsfServiceJsf"
+                  interface="com.jd.bluedragon.distribution.external.intensive.service.MaterialBatchSendJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="materialBatchSendJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+    
     <!-- 对外提供给德邦的包装确认服务jsf -->
     <jsf:provider id="jsfWaybillConsumableService"
                   interface="com.jd.bluedragon.distribution.consumable.service.WaybillConsumableService"
@@ -589,4 +604,42 @@
       server="dmsjsf">
     </jsf:provider>
 
+    <!--  推送运输月台号和联系人  -->
+    <jsf:provider id="jsfDockCodeAndPhoneJsfService"
+                  interface="com.jd.bluedragon.distribution.workStation.api.DockCodeAndPhoneJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="dockCodeAndPhoneJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 箱包裹绑定关系业务操作相关JSF接口 -->
+    <jsf:provider id="jsfDmsSortingService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsSortingService"
+                  alias="${dms.jsf.alias}"
+                  ref="iDmsSortingService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 返调度JSF接口 -->
+    <jsf:provider id="jsfReassignWaybillJsfService"
+                  interface="com.jd.bluedragon.distribution.jsf.service.ReassignWaybillJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="reassignWaybillJsfService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 设备抽检申诉相关JSF接口 -->
+    <jsf:provider id="jsfSpotCheckAppealService"
+                  interface="com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="spotCheckAppealJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+
+    <!-- 对外签到接口服务 -->
+    <jsf:provider id="jsfForeignUserSignService"
+                  interface="com.jd.bluedragon.distribution.external.intensive.service.ForeignUserSignService"
+                  alias="${dms.jsf.alias}"
+                  ref="foreignUserSignService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

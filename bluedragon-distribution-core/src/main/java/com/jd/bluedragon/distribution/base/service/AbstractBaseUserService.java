@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.base.service;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -16,10 +17,12 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.domain.BaseStaff;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
@@ -269,6 +272,9 @@ public abstract class AbstractBaseUserService implements LoginService {
             response.setNeedUpdate(needUpdate);
             response.setForceUpdate(forceUpdate);
             response.setDmsClientConfigInfo(dmsClientConfigInfo);
+            // 省区
+            response.setProvinceAgencyCode(loginResult.getProvinceAgencyCode());
+            response.setProvinceAgencyName(loginResult.getProvinceAgencyName());
             // 返回结果
             return response;
         }

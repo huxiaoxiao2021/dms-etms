@@ -67,6 +67,9 @@ public class PackageInspectionHook extends AbstractTaskHook {
             mq.setOperateType(inspection.getOperateType());
             mq.setExceptionType(inspection.getExceptionType());
             mq.setRecordCreateTime(inspection.getCreateTime());
+            mq.setOperatorTypeCode(inspection.getOperatorTypeCode());
+            mq.setOperatorId(inspection.getOperatorId());
+            mq.setOperatorData(inspection.getOperatorData());
             if (null != inspectionRequest){
                 mq.setMachineCode(inspectionRequest.getMachineCode());
                 mq.setBizSource(inspectionRequest.getBizSource());

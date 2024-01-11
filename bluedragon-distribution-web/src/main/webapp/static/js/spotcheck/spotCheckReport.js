@@ -1,4 +1,13 @@
 $(function () {
+
+    //加载站点组件
+    $('#switchSiteDom').sitePluginSelect({
+        'createSiteCodeName': 'reviewSiteCode',
+        'provinceAgencyCodeName': 'reviewProvinceAgencyCode',
+        'areaHubCodeName': 'reviewAreaHubCode',
+        bootstrapMode: true
+    });
+    
     var queryUrl = '/spotCheckReport/listData';
     var packageDetailQueryUrl = '/spotCheckReport/packageDetailListData';
     var exportUrl = '/spotCheckReport/toExport';
@@ -110,6 +119,10 @@ $(function () {
             field: 'reviewOrgName',
             title: '复核区域',
             align: 'center'
+        },{
+            field: 'reviewProvinceAgencyName',
+            title: '复核省区',
+            align: 'center'
         }, {
             field: 'reviewSiteCode',
             title: '复核分拣',
@@ -144,6 +157,10 @@ $(function () {
         },{
             field: 'contrastOrgName',
             title: '核对操作区域',
+            align: 'center'
+        },{
+            field: 'contrastProvinceAgencyName',
+            title: '核对操作省区',
             align: 'center'
         },{
             field: 'contrastWarZoneName',
@@ -319,10 +336,10 @@ $(function () {
             }
         }, {
             field: 'isHasPicture',
-            title: '有无图片',
+            title: '有无图片/视频',
             align: 'center',
             formatter: function (value, row, index) {
-                return value === 1 ? '有' : '无';
+                return (value === 1 || row.isHasVideo === 1) ? '有' : '无';
             }
         }, {
                 field: 'pictureAIDistinguishReason',
@@ -446,6 +463,12 @@ $(function () {
                     if(params.reviewOrgCode != undefined && params.reviewOrgCode != "undefined"){
                         param = "&reviewOrgCode=" + params.reviewOrgCode;
                     }
+                    if(params.reviewProvinceAgencyCode != undefined && params.reviewProvinceAgencyCode != "undefined"){
+                        param = "&reviewProvinceAgencyCode=" + params.reviewProvinceAgencyCode;
+                    }
+                    if(params.reviewAreaHubCode != undefined && params.reviewOrgCode != "reviewAreaHubCode"){
+                        param = "&reviewAreaHubCode=" + params.reviewAreaHubCode;
+                    }
                     if(params.reviewSiteCode != undefined && params.reviewSiteCode != "undefined"){
                         param += "&reviewSiteCode=" +  params.reviewSiteCode;
                     }
@@ -552,6 +575,10 @@ $(function () {
                 title: '复核区域',
                 align: 'center'
             }, {
+                field: 'reviewProvinceAgencyName',
+                title: '复核省区',
+                align: 'center'
+            },{
                 field: 'reviewSiteCode',
                 title: '复核分拣',
                 align: 'center',
@@ -585,6 +612,10 @@ $(function () {
             },{
                 field: 'contrastOrgName',
                 title: '核对操作区域',
+                align: 'center'
+            },{
+                field: 'contrastProvinceAgencyName',
+                title: '核对操作省区',
                 align: 'center'
             },{
                 field: 'contrastWarZoneName',
@@ -649,10 +680,10 @@ $(function () {
                 align: 'center'
             },{
                 field: 'isHasPicture',
-                title: '有无图片',
+                title: '有无图片/视频',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    return value === 1 ? '有' : '无';
+                    return (value === 1 || row.isHasVideo === 1) ? '有' : '无';
                 }
             }],
         refresh: function () {

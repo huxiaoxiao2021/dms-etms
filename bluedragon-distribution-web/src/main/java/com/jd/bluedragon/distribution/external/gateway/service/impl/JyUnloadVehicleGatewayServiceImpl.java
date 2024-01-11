@@ -175,25 +175,30 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             return response;
         }
 
-        InvokeResult<Integer> invokeResult = unloadVehicleService.unloadScan(request);
-        if (invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
-            response.setData(invokeResult.getData());
+        final JdVerifyResponse<Integer> scanResponse = unloadVehicleService.unloadScan(request);
+        if (CollectionUtils.isNotEmpty(scanResponse.getMsgBoxes())) {
+            if(response.getMsgBoxes() == null){
+                response.setMsgBoxes(new ArrayList<>());
+            }
+            response.getMsgBoxes().addAll(scanResponse.getMsgBoxes());
+        }
+        if (scanResponse.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
+            response.setData(scanResponse.getData());
             response.toSuccess();
-            response.setData(invokeResult.getData());
             return response;
-        } else if (invokeResult.getCode() == InvokeResult.CODE_HINT) {
+        } else if (scanResponse.getCode() == InvokeResult.CODE_HINT) {
             response.setCode(InvokeResult.CODE_HINT);
-            response.addPromptBox(0, invokeResult.getMessage());
+            response.addPromptBox(0, scanResponse.getMessage());
             return response;
-        } else if (invokeResult.getCode() == InvokeResult.CODE_CONFIRM) {
+        } else if (scanResponse.getCode() == InvokeResult.CODE_CONFIRM) {
             response.setCode(InvokeResult.CODE_CONFIRM);
-            response.addWarningBox(0, invokeResult.getMessage());
+            response.addWarningBox(0, scanResponse.getMessage());
             return response;
-        }else if (invokeResult.getCode() == InvokeResult.DP_SPECIAL_CODE) {
-            response.addPromptBox(101, invokeResult.getMessage());
+        }else if (scanResponse.getCode() == InvokeResult.DP_SPECIAL_CODE) {
+            response.addPromptBox(101, scanResponse.getMessage());
             return response;
         } else {
-            response.toFail(invokeResult.getMessage());
+            response.toFail(scanResponse.getMessage());
             return response;
         }
     }
@@ -247,6 +252,13 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
                 (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))){
             response.toFail("请扫描包裹号或箱号！");
             return false;
+        }
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType()) && Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())){
+            if(!WaybillUtil.isPackageCodeExcludeDJ(request.getBarCode())) {
+                logger.info("卸车岗大件包裹剔除校验，barCode={}", request.getBarCode());
+                response.toFail("请扫描正确包裹号！");
+                return false;
+            }
         }
         if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType()) &&
                 (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode()))){

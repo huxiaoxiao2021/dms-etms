@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -9,13 +8,14 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
-import com.jd.bluedragon.distribution.spotcheck.enums.*;
+import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 /**
@@ -44,9 +45,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Autowired
     private SendDetailService sendDetailService;
-
-    @Autowired
-    private SpotCheckQueryManager spotCheckQueryManager;
 
     @Autowired
     private SpotCheckServiceProxy spotCheckServiceProxy;
@@ -102,35 +100,60 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             super.afterCheckDealReform(spotCheckDto, spotCheckContext, result);
             return;
         }
-        if(StringUtils.isEmpty(spotCheckDealService.spotCheckPackSetStr(spotCheckContext.getWaybillCode(), spotCheckContext.getReviewSiteCode()))){
-            spotCheckServiceProxy.insertOrUpdateProxyReform(initSummaryDto(spotCheckContext));
+        // first pack pre deal
+        if(CollectionUtils.isEmpty(spotCheckContext.getSpotCheckRecords())){
+            firstPackPreDeal(spotCheckContext);
         }
-        // 集齐后
-        if(spotCheckDealService.gatherTogether(spotCheckContext)){
-            spotCheckContext.setIsGatherTogether(true);
-            // 1、汇总复核数据
-            summaryReviewWeightVolume(spotCheckContext);
-            // 获取核对数据
-            spotCheckDealService.assembleContrastData(spotCheckContext);
-            // 设置已抽检缓存
-            setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
-            // 2、更新总记录
-            WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
-            spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
-            // 3、下发超标数据
-            if(Objects.equals(spotCheckContext.getExcessStatus(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
-                // 异步处理dws一单多件图片下发AI逻辑
-                dwsIssueDealProducer.sendOnFailPersistent(spotCheckContext.getWaybillCode(), JsonHelper.toJson(summaryDto));
-            }
+        // last pack pre deal
+        if(checkIsGather(spotCheckContext)){
+            lastPackPreDeal(spotCheckContext);
         }
+        // common deal
+        packCommonDeal(spotCheckContext);
+    }
+
+    private void firstPackPreDeal(SpotCheckContext spotCheckContext) {
+        // 初始化总记录
+        spotCheckServiceProxy.insertOrUpdateProxyReform(initSummaryDto(spotCheckContext));
+    }
+
+    private void packCommonDeal(SpotCheckContext spotCheckContext) {
         // 包裹明细数据落库
         spotCheckServiceProxy.insertOrUpdateProxyReform(assembleDetailReform(spotCheckContext));
         // 设置包裹维度缓存
         setSpotCheckPackCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode());
         // 抽检全程跟踪
-        spotCheckDealService.sendWaybillTrace(spotCheckContext);
+        // spotCheckDealService.sendWaybillTrace(spotCheckContext);
     }
 
+    private void lastPackPreDeal(SpotCheckContext spotCheckContext) {
+        spotCheckContext.setIsGatherTogether(true);
+        // 1、汇总复核数据
+        summaryReviewWeightVolume(spotCheckContext);
+        // 获取核对数据
+        spotCheckDealService.assembleContrastData(spotCheckContext);
+        // 2、设置已抽检缓存
+        setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
+        // 3、更新总记录
+        WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
+        spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
+        // 4、下发超标数据
+        if(Objects.equals(spotCheckContext.getExcessStatus(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
+            // 异步处理dws一单多件图片下发AI逻辑
+            dwsIssueDealProducer.sendOnFailPersistent(spotCheckContext.getWaybillCode(), JsonHelper.toJson(summaryDto));
+        }
+    }
+
+    private boolean checkIsGather(SpotCheckContext spotCheckContext) {
+        List<String> packRecord = spotCheckContext.getSpotCheckRecords()
+                .stream()
+                .filter(item -> Objects.equals(item.getRecordType(), SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode())
+                        && Objects.equals(item.getReviewSiteCode(), spotCheckContext.getReviewSiteCode()))
+                .map(WeightVolumeSpotCheckDto::getPackageCode)
+                .collect(Collectors.toList());
+        return CollectionUtils.isNotEmpty(packRecord) && packRecord.size() + 1 == spotCheckContext.getPackNum();
+    }
+    
     private WeightVolumeSpotCheckDto initSummaryDto(SpotCheckContext spotCheckContext) {
         // 初始化总记录
         WeightVolumeSpotCheckDto initSummaryDto = new WeightVolumeSpotCheckDto();
@@ -208,15 +231,18 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
     }
 
     private void reformSendSpotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        if(spotCheckDealService.checkIsHasSpotCheck(spotCheckContext.getWaybillCode())){
+        if(spotCheckDealService.checkIsHasSpotCheck(spotCheckContext)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
             return;
         }
-        SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
-        condition.setWaybillCode(spotCheckContext.getWaybillCode());
-        condition.setReviewSiteCode(spotCheckContext.getReviewSiteCode());
-        List<String> spotCheckList = spotCheckQueryManager.getSpotCheckPackByCondition(condition);
-        if(CollectionUtils.isNotEmpty(spotCheckList) && spotCheckList.contains(spotCheckContext.getPackageCode())){
+        // 当前场地已抽检包裹
+        List<String> spotCheckPackList = spotCheckContext.getSpotCheckRecords()
+                .stream()
+                .filter(item -> Objects.equals(item.getReviewSiteCode(), spotCheckContext.getReviewSiteCode())
+                        && Objects.equals(item.getRecordType(), SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode()))
+                .map(WeightVolumeSpotCheckDto::getPackageCode)
+                .collect(Collectors.toList());
+        if(CollectionUtils.isNotEmpty(spotCheckPackList) && spotCheckPackList.contains(spotCheckContext.getPackageCode())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
             return;
         }
@@ -230,7 +256,7 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             return;
         }
         // 存在已发未抽检的包裹，则禁止抽检
-        if(CollectionUtils.isNotEmpty(CollectionUtils.subtract(sendList, spotCheckList))){
+        if(CollectionUtils.isNotEmpty(CollectionUtils.subtract(sendList, spotCheckPackList))){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_PACK_SPOT_SEND_NOT_CHECK);
         }
     }

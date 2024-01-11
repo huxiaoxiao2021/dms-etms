@@ -107,6 +107,8 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
         spotCheckQueryCondition.setReviewStartTime(DateHelper.parseDate(condition.getReviewStartTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         spotCheckQueryCondition.setReviewEndTime(DateHelper.parseDate(condition.getReviewEndTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         spotCheckQueryCondition.setReviewOrgCode(condition.getReviewOrgCode() == null ? null : Integer.parseInt(String.valueOf(condition.getReviewOrgCode())));
+        spotCheckQueryCondition.setReviewProvinceAgencyCode(condition.getReviewProvinceAgencyCode());
+        spotCheckQueryCondition.setReviewAreaHubCode(condition.getReviewAreaHubCode());
         spotCheckQueryCondition.setReviewSiteCode(condition.getReviewSiteCode() == null ? null : Integer.parseInt(String.valueOf(condition.getReviewSiteCode())));
         spotCheckQueryCondition.setWaybillCode(condition.getWaybillCode());
         spotCheckQueryCondition.setPackageCode(condition.getPackageCode());
@@ -193,6 +195,7 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
             exportSpotCheckDto.setMerchantName(spotCheckDto.getMerchantName());
             exportSpotCheckDto.setIsTrustMerchant(Objects.equals(spotCheckDto.getIsTrustMerchant(), 1) ? "是" : "否");
             exportSpotCheckDto.setReviewOrgName(spotCheckDto.getReviewOrgName());
+            exportSpotCheckDto.setReviewProvinceAgencyName(spotCheckDto.getReviewProvinceAgencyName());
             exportSpotCheckDto.setReviewSiteName(spotCheckDto.getReviewSiteName());
             exportSpotCheckDto.setSiteTypeName(Objects.equals(spotCheckDto.getSiteTypeName(), 1) ? "分拣中心" : "转运中心");
             exportSpotCheckDto.setReviewErp(spotCheckDto.getReviewUserErp());
@@ -200,6 +203,7 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
             exportSpotCheckDto.setReviewVolume(spotCheckDto.getReviewVolume() == null ? null : String.valueOf(spotCheckDto.getReviewVolume()));
             exportSpotCheckDto.setReviewLWH(spotCheckDto.getReviewLWH());
             exportSpotCheckDto.setContrastOrgName(spotCheckDto.getContrastOrgName());
+            exportSpotCheckDto.setContrastProvinceAgencyName(spotCheckDto.getContrastProvinceAgencyName());
             exportSpotCheckDto.setContrastWarZoneName(spotCheckDto.getContrastWarZoneName());
             exportSpotCheckDto.setContrastAreaName(spotCheckDto.getContrastAreaName());
             exportSpotCheckDto.setContrastSiteName(spotCheckDto.getContrastSiteName());
@@ -250,6 +254,7 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
         headerMap.put("merchantName", "商家名称");
         headerMap.put("isTrustMerchant", "信任商家");
         headerMap.put("reviewOrgName", "复核区域");
+        headerMap.put("reviewProvinceAgencyName", "复核省区");
         headerMap.put("reviewSiteName", "复核分拣");
         headerMap.put("siteTypeName", "机构类型");
         headerMap.put("reviewErp", "复核人ERP");
@@ -257,6 +262,7 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
         headerMap.put("reviewVolume", "复核体积");
         headerMap.put("reviewLWH", "复核长宽高");
         headerMap.put("contrastOrgName", "核对操作区域");
+        headerMap.put("contrastProvinceAgencyName", "核对操作省区");
         headerMap.put("contrastWarZoneName", "核对操作战区");
         headerMap.put("contrastAreaName", "核对操作片区");
         headerMap.put("contrastSiteName", "核对操作站点");
@@ -300,6 +306,7 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
                 weightVolumePictureDto.setWaybillCode(spotCheckDto.getWaybillCode());
                 weightVolumePictureDto.setPackageCode(spotCheckDto.getPackageCode());
                 weightVolumePictureDto.setUrl(spotCheckDto.getPictureAddress());
+                weightVolumePictureDto.setVideoUrl(spotCheckDto.getVideoPicture());
 
                 if(Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_ARTIFICIAL.getCode(), condition.getReviewSource())
                         || Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getCode(), condition.getReviewSource())

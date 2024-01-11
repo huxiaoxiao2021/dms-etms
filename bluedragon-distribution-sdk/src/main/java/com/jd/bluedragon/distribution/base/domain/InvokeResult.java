@@ -257,6 +257,10 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int COMBOARD_SCAN_FORCE_SEND_WARNING = 3062;
 
+    public static final int FORCE_COLLECT_PACKAGE_WARNING = 3068;
+
+    public static final int CONFIRM_COLLECT_PACKAGE_WARNING = 3069;
+
     public static final int BOARD_HAS_BEEN_FULL_REPLENISH_SCAN_CODE = 3063;
     public static final String BOARD_HAS_BEEN_FULL_REPLENISH_SCAN_MESSAGE = "已达上限，不允许补扫！";
 
@@ -294,7 +298,28 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int NO_FINDGOODS_TASK_DATA_CODE = 3069;
     public static final String NO_FINDGOODS_TASK_DATA_MESSAGE = "未查询到对应的找货任务数据!";
+    // 航空件
+    public static final int CODE_AIR_TRANSPORT = 347;
+    public static final String CODE_AIR_TRANSPORT_MESSAGE = "航空件";
+    // 生鲜特保
+    public static final int CODE_FRESH_SPECIAL = 348;
+    public static final String CODE_FRESH_SPECIAL_MESSAGE = "生鲜特保件";
 
+    // 非本场地运单
+    public static final int CODE_MORE_OUT_SCAN = 349;
+    public static final String CODE_MORE_OUT_SCAN_MESSAGE = "根据路由此单为非本场地运单，请核查";
+    public static final int AVIATION_TASK_OUT_WEIGHT_CODE = 3067;
+    public static final String AVIATION_TASK_OUT_WEIGHT_MESSAGE = "该任务已超载！!";
+
+
+    public static final int COLLECT_PACKAGE_TASK_NO_EXIT_CODE = 3071;
+    public static final String COLLECT_PACKAGE_TASK_NO_EXIT_MESSAGE = "集包任务不存在或已过期/作废！";
+
+
+    public static final int CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_CODE = 3070;
+    public static final String CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_MESSAGE = "车辆封车的板数量小于【%s】 件数小于【%s】 请拍照！";
+    public static final int CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_CODE = 3072;
+    public static final String CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_MESSAGE = "发货目的地【%s】不在本网格的传站流向中，请使用正确的网格码登录封车";
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

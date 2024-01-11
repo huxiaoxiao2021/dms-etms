@@ -17,5 +17,30 @@ public interface DmsTimingHandlerService {
      * 定时处理生鲜报废已领取任务并咚咚通知
      */
     void timingHandlerFreshScrapNotice();
+
+    /**
+     * 定时清理混扫任务信息
+     */
+    void timingHandlerDeleteCTTGroupData();
+
+    /**
+     *处理超48小时客服未反馈破损任务状态
+     */
+    void dealDamageExpTaskOverTwoDags();
+
+    /**
+     * 定时处理超48小时未确认的设备抽检申诉核对记录
+     */
+    void timingHandlerSpotCheckAppealConfirm();
+
+    /**
+     * 定时清理超3小时处于待发货状态的自建任务
+     */
+    void timingHandlerCleanToSendStatusManualTask();
+
+    /**
+     * 定时清理超72小时处于发货中状态并且没有绑定或删除的自建任务
+     */
+    void timingHandlerCleanSendingStatusManualTask();
     
 }

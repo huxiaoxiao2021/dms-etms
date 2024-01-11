@@ -7,6 +7,11 @@
 
     <!-- 发布jsf 到物流网关 安卓调用start -->
     <!-- 分拣 -->
+
+    <!--指定网关jsf的filter-->
+    <bean id="simpleComplexSwitchGatewayFilter" class="com.jd.bluedragon.external.gateway.filter.SimpleComplexSwitchGatewayFilter" scope="prototype"/>
+    <jsf:filter id="gatewayFilter" ref="simpleComplexSwitchGatewayFilter" providers="*" consumers=""/>
+
     <bean id="sortingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SortingGatewayServiceImpl"/>
     <jsf:provider id="jsfSortingService"
                   interface="com.jd.bluedragon.external.gateway.service.SortingGatewayService"
@@ -667,4 +672,28 @@
                   server="dmsjsf">
     </jsf:provider>
 
+
+    <bean id="jyAviationRailwaySendSealGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyAviationRailwaySendSealGatewayServiceImpl" />
+    <jsf:provider id="jsfJyAviationRailwaySendSealGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyAviationRailwaySendSealGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <bean id="jyCollectPackageGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyCollectPackageGatewayServiceImpl" />
+    <jsf:provider id="jsfJyCollectPackageGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyCollectPackageGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+    <!-- 作业APP调查问卷 -->
+    <bean id="questionnaireGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.QuestionnaireGatewayServiceImpl" />
+    <jsf:provider id="questionnaireGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.QuestionnaireGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="questionnaireGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

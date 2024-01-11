@@ -1046,6 +1046,11 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_0)){
             //5-特惠送
             res = TextConstants.PRODUCT_NAME_THS;
+            //特惠次晨达逻辑
+            if(BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_7,WaybillSignConstants.CHAR_116_8)){
+                //追加次晨
+                res += TextConstants.PRODUCT_NAME_APPEND_CC;
+            }
         }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_6)){
             //13\14-京准达
             res = TextConstants.PRODUCT_NAME_JZD;
@@ -1072,6 +1077,11 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_5)){
                 //1-特惠送
                 res = TextConstants.PRODUCT_NAME_THS;
+                //特惠次晨达逻辑
+                if(BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_7,WaybillSignConstants.CHAR_116_8)){
+                    //追加次晨
+                    res += TextConstants.PRODUCT_NAME_APPEND_CC;
+                }
             }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B)){
                 //2-函速达
                 res = TextConstants.PRODUCT_NAME_HSD;
@@ -1081,17 +1091,22 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_A)){
                 //7-生鲜特惠
                 res = TextConstants.PRODUCT_NAME_SXTH;
+                //特惠次晨达逻辑
+                if(BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_7,WaybillSignConstants.CHAR_116_8)){
+                    //追加次晨
+                    res += TextConstants.PRODUCT_NAME_APPEND_CC;
+                }
             }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9)){
                 //8-生鲜特快
                 res = TextConstants.PRODUCT_NAME_SXTK;
                 // 8.1 - 生鲜特快下运营类型
                 if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2)) {
-                    res += TextConstants.PRODUCT_NAME_SXTK_JR;
+                    res += TextConstants.PRODUCT_NAME_APPEND_JR;
                 }
-                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)
+                if (BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3, WaybillSignConstants.CHAR_116_5)
                     && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)) {
                     // 生鲜特快次晨
-                    res += TextConstants.PRODUCT_NAME_SXTK_CC;
+                    res += TextConstants.PRODUCT_NAME_APPEND_CC;
                 }
             }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_C)){
                 //16-特惠包裹
@@ -1111,7 +1126,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                         && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)
                         ) ||
                         (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
-                            && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)
+                            && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3,WaybillSignConstants.CHAR_116_5)
                             && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)
                         )
                     ){

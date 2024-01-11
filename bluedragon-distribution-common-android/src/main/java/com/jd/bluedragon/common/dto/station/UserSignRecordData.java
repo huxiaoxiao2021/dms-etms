@@ -202,7 +202,34 @@ public class UserSignRecordData implements Serializable {
 	 * 岗位码
 	 */
 	private String positionCode;
+
+	/**
+	 * 省区编码
+	 */
+	private String provinceAgencyCode;
+	/**
+	 * 省区名称
+	 */
+	private String provinceAgencyName;
+	/**
+	 * 枢纽编码
+	 */
+	private String areaHubCode;
+	/**
+	 * 枢纽名称
+	 */
+	private String areaHubName;
 	
+	private String idCard;
+
+	public String getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(String idCard) {
+		this.idCard = idCard;
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -447,5 +474,37 @@ public class UserSignRecordData implements Serializable {
 	}
 	public void setPositionCode(String positionCode) {
 		this.positionCode = positionCode;
+	}
+
+	public String getProvinceAgencyCode() {
+		return provinceAgencyCode;
+	}
+
+	public void setProvinceAgencyCode(String provinceAgencyCode) {
+		this.provinceAgencyCode = provinceAgencyCode;
+	}
+
+	public String getProvinceAgencyName() {
+		return provinceAgencyName;
+	}
+
+	public void setProvinceAgencyName(String provinceAgencyName) {
+		this.provinceAgencyName = provinceAgencyName;
+	}
+
+	public String getAreaHubCode() {
+		return areaHubCode;
+	}
+
+	public void setAreaHubCode(String areaHubCode) {
+		this.areaHubCode = areaHubCode;
+	}
+
+	public String getAreaHubName() {
+		return areaHubName;
+	}
+
+	public void setAreaHubName(String areaHubName) {
+		this.areaHubName = areaHubName;
 	}
 }

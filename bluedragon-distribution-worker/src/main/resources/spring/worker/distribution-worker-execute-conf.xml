@@ -13,8 +13,8 @@
 
 
 	<!-- 非核心业务 -->
-	<!--<import resource="classpath:spring/worker/db/distribution-worker-task-normal.xml" />
-    <import resource="classpath:spring/worker/redis/distribution-worker-task-redis-normal.xml" />
+<import resource="classpath:spring/worker/db/distribution-worker-task-normal.xml" />
+	<!--  <import resource="classpath:spring/worker/redis/distribution-worker-task-redis-normal.xml" />
 -->
 	<!-- 核心业务 -->
 	<!--<import resource="classpath:spring/worker/db/distribution-worker-task-important.xml" />-->

@@ -10,6 +10,8 @@ public enum WorkTaskTypeEnum {
 	MEETING(1,"巡检例会"),
 	MEETING_RECORD(2,"巡检例会记录"),
 	WORKING (3,"巡检任务"),
+	IMPROVE (4,"改善反馈任务"),
+	VIOLENCE_SORT(5, "暴力分拣任务")
     ;
 	
 	private WorkTaskTypeEnum(Integer code, String name) {
