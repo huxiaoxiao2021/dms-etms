@@ -1883,6 +1883,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 班次时分形式 HH:mm
 		String startTime = scheduleDetailDto.getStartTime();
 		String endTime = scheduleDetailDto.getEndTime();
+		if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+			log.warn("assembleRegularEmployeesWaveCode|比较当前erp签到时间是否处于该排班计划对应班次时间的前后1小时内,startTime和endTime为空:scheduleDetailDto={}", JsonHelper.toJson(scheduleDetailDto));
+			return false;
+		}
 		// 班次日期形式 yyyy-MM-dd HH:mm:ss
 		Date startDate = getSpecialDateByStr(startTime, scheduleDateType);
 		Date endDate;
@@ -2457,7 +2461,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("用户编码不能为空！");
 			return result;
 		}
-		
+
 		String userCode=userSignRequest.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 		if(isCarId){
