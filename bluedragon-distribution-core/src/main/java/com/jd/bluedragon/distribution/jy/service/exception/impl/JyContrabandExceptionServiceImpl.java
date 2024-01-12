@@ -227,17 +227,20 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             // 新增自动取消集包:根据包裹号获取箱号
             Result<SortingDto> result =
                 dmsExternalReadService.getLastSortingInfoByPackageCode(dto.getBarCode());
+            if (logger.isInfoEnabled()){
+                logger.info("安检岗自动取消集包-根据包裹号查询集包箱号数据：包裹号：{},集包数据：{}", dto.getBarCode(), JsonHelper.toJson(result));
+            }
             Optional.ofNullable(result)
                 .filter(r -> Result.CODE_SUCCESS.equals(r.getCode()))
                 .map(Result::getData)
                 .ifPresent(sortingDto -> {
                     CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto, sortingDto.getBoxCode());
+                    // 调用取消集包接口（新版，可删除扫描记录）
                     boolean b = jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
                     if(!b){
-                        logger.warn("该包裹关联集包已经被取消或不存在！包裹号：",dto.getBarCode());
+                        logger.warn("该包裹关联集包已经被取消或不存在！包裹号：{}", dto.getBarCode());
                     }
                 });
-
 
             JyExceptionContrabandEnum.ContrabandTypeEnum enumResult = JyExceptionContrabandEnum.ContrabandTypeEnum.getEnumByCode(dto.getContrabandType());
             if(enumResult == null){
