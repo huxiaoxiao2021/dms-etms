@@ -724,7 +724,7 @@
         <property name="timeout" value="3000"/>
     </bean>
     <!--  拣运提货扫描  -->
-    <bean id="jyPickingGoodScanProducer" parent="jmq4DmsWebDefaultJMQProducer">
+    <bean id="jyPickingGoodScanProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.jy.picking.good.scan}" />
         <property name="timeout" value="1000" />
     </bean>
