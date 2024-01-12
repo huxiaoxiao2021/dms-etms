@@ -218,7 +218,13 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
                 nullCacheBizId.add(bizId);
             }
         });
-
+        if(!CollectionUtils.isEmpty(nullCacheBizId)) {
+            //剔除自建任务ID,自建任务没有待扫
+            List<String> manualCreateTaskBizIds = jyBizTaskPickingGoodService.findManualCreateTaskBizIds(nullCacheBizId);
+            if(!CollectionUtils.isEmpty(manualCreateTaskBizIds)) {
+                nullCacheBizId.removeAll(manualCreateTaskBizIds);
+            }
+        }
         if(!CollectionUtils.isEmpty(nullCacheBizId)) {
             if(Objects.isNull(sendNextSiteId)) {
                 List<JyPickingTaskAggsEntity> pickingAggsEntityList = jyPickingTaskAggsDao.findByBizIdList(nullCacheBizId, siteId);

@@ -177,7 +177,8 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
             //首次提货
             PickingGoodsReq request = new PickingGoodsReq();
             this.setBaseReq(request);
-            request.setBarCode("JD0003423499306-1-50-");
+//            request.setBarCode("JD0003423499306-5-50-");
+            request.setBarCode("BC1001210816140000000505");
             request.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
             request.setLastScanTaskBizId(null);
             request.setSendGoodFlag(false);

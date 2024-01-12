@@ -72,6 +72,10 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
         return this.getSqlSession().insert(NAMESPACE + ".batchInsert", entityList);
     }
 
+    public List<String> findManualCreateTaskBizIds(List<String> bizIdList) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findManualCreateTaskBizIds", bizIdList);
+    }
+
 //    int deleteByPrimaryKey(Long id);
 //
 //    int insert(JyBizTaskPickingGood record);

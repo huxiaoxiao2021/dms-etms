@@ -260,7 +260,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         BeanUtils.copyProperties(taskPickingGoodEntity, airRailTaskAggDto);
         if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
             //流向待发总数
-            Integer waitSendTotalNum = getInitWaitSendTotalItemNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId());
+            Integer waitSendTotalNum = this.getInitWaitSendTotalItemNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId());
             airRailTaskAggDto.setInitWaitScanTotalNum(waitSendTotalNum);
 
             //交接已扫总件数
@@ -388,9 +388,13 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }else if(StringUtils.isNotBlank(request.getLastScanTaskBizId())) {
             //不存在待提任务取上次扫描任务
             JyBizTaskPickingGoodEntity taskPickingGoodEntity = jyBizTaskPickingGoodService.findByBizIdWithYn(request.getLastScanTaskBizId(), false);
-            logInfo("扫描单据{}查提货任务为空-待提任务取上次扫描任务{}", request.getBarCode(), JsonHelper.toJson(taskPickingGoodEntity));
-            resData.setTaskSource(BarCodeFetchPickingTaskRuleEnum.LAST_PICKING_TASK.getCode());
-            return taskPickingGoodEntity;
+            if(!Objects.isNull(taskPickingGoodEntity) && !PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(taskPickingGoodEntity) && !JyBizTaskPickingGoodEntity.INTERCEPT_FLAG.equals(taskPickingGoodEntity.getIntercept())) {
+                logInfo("扫描单据{}查提货任务为空-待提任务取上次扫描任务{}", request.getBarCode(), JsonHelper.toJson(taskPickingGoodEntity));
+                resData.setTaskSource(BarCodeFetchPickingTaskRuleEnum.LAST_PICKING_TASK.getCode());
+                return taskPickingGoodEntity;
+            }else {
+                logInfo("提货扫描查询上一次扫描提货任务无效，走无任务模式，request={}", JsonHelper.toJson(request));
+            }
         }
         //待提货任务为空时生成自建待提任务
         JyBizTaskPickingGoodEntity manualCreateTask = jyBizTaskPickingGoodService.findLatestEffectiveManualCreateTask((long)request.getCurrentOperate().getSiteCode());

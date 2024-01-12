@@ -469,6 +469,18 @@
     and     create_time <![CDATA[ >= ]]> #{createTime}
   </select>
 
+  <select id="findManualCreateTaskBizIds" resultType="String"  parameterType="List">
+    select biz_id
+    from jy_biz_task_picking_good
+    where manual_created_flag = 1
+      and biz_id in
+      <foreach collection="list" item="items" index="index" open="("
+               close=")" separator=",">
+        #{items}
+      </foreach>
+  </select>
+
+
 <!--  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
 <!--    select -->
 <!--    <include refid="Base_Column_List" />-->

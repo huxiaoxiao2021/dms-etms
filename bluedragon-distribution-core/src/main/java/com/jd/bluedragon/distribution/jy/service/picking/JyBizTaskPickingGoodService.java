@@ -48,7 +48,7 @@ public interface JyBizTaskPickingGoodService {
     boolean updateStatusByBizId(String bizId, Integer status, User operator);
 
     /**
-     * 根据场地查找最新的可发货自建任务
+     * 根据场地查找最新的可发货自建任务[未完成]
      * @param siteId
      * @return
      */
@@ -129,4 +129,11 @@ public interface JyBizTaskPickingGoodService {
      * @return
      */
     List<JyBizTaskPickingGoodEntity> listTaskByPickingSiteId(JyPickingTaskBatchQueryDto queryDto);
+
+    /**
+     * 查找bizIdList 中自建任务的bizId集合
+     * @param bizIdList
+     * @return
+     */
+    List<String> findManualCreateTaskBizIds(List<String> bizIdList);
 }
