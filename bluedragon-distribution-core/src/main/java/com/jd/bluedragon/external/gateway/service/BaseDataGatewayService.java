@@ -14,6 +14,7 @@ import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.dto.voice.request.HintVoiceReq;
 import com.jd.bluedragon.common.dto.voice.response.HintVoiceResp;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
+import com.jd.bluedragon.distribution.base.dto.BaseStaffData;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
 
 import java.util.List;
@@ -96,4 +97,13 @@ public interface BaseDataGatewayService {
      * @return 返回结果
      */
     JdCResponse<Pager<StreamlinedBasicSite>> getFlowDirection(Pager<GetFlowDirectionQuery> request);
+
+    /**
+     * 获取用户信息
+     * @param userErpOrIdCard erp或者身份证号
+     * @return 用户数据
+     * @author fanggang7
+     * @time 2023-12-26 18:41:33 周四
+     */
+    JdCResponse<BaseStaffData> getBaseStaffDataByErpOrIdCard(String userErpOrIdCard);
 }
