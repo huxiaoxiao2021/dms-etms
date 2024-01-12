@@ -26,7 +26,7 @@
   </sql>
 
 
-    <select id="fetchLatestNoCompleteBatchCode" resultMap="BaseResultMap" parameterType="JyPickingSendDestinationDetailEntity" >
+    <select id="fetchLatestNoCompleteBatchCode" resultType="String" parameterType="JyPickingSendDestinationDetailEntity" >
       select send_code
       from jy_picking_send_destination_detail
       where yn = 1

@@ -250,7 +250,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
                 insertEntity.setSendUserErp(insertEntity.getPickingUserErp());
                 insertEntity.setSendUserName(insertEntity.getPickingUserName());
             }
-            jyPickingSendRecordService.savePickingRecord(insertEntity);
+            jyPickingSendRecordService.savePickingScanRecord(insertEntity);
         }
 
     }
@@ -277,7 +277,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             int moreSendPackageNum = aggsCacheService.getValueRealScanFlowMoreSendPackageNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId());
             int moreSendBoxNum = aggsCacheService.getValueRealScanFlowMoreSendBoxNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId());
             int moreSendTotalNumTemp = moreSendPackageNum + moreSendBoxNum;
-            Integer moreSendTotalNum = (BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode()).equals(resData.getTaskSource()) ? 1 : 0;
+            Integer moreSendTotalNum = (BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode()).equals(resData.getTaskSource()) ? 0 : 1;
             airRailTaskAggDto.setMultipleScanTotal(NumberHelper.gt(moreSendTotalNumTemp, moreSendTotalNum) ? moreSendTotalNumTemp : moreSendTotalNum);
 
             //已发【交接已扫包裹+交接已扫箱+多扫包裹+多扫箱】
@@ -303,7 +303,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             int morePickingPackageNum = aggsCacheService.getValueRealScanMorePickingPackageNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
             int morePickingBoxNum = aggsCacheService.getValueRealScanMorePickingBoxNum(taskPickingGoodEntity.getBizId(), (long)request.getCurrentOperate().getSiteCode());
             int morePickingTotalNumTemp = morePickingPackageNum + morePickingBoxNum;
-            Integer morePickingTotalNum = (BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode()).equals(resData.getTaskSource()) ? 1 : 0;
+            Integer morePickingTotalNum = (BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode()).equals(resData.getTaskSource()) ? 0 : 1;
             airRailTaskAggDto.setMultipleScanTotal(NumberHelper.gt(morePickingTotalNumTemp, morePickingTotalNum) ? morePickingTotalNumTemp : morePickingTotalNum);
 
             //已提【交接已提总数+多提总数】
@@ -457,8 +457,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         Date date = new Date();
         bodyDto.setOperateTime(DateHelper.formatDateTime(date));
         bodyDto.setBizId(taskPickingGoodEntity.getBizId());
-        String bodyJson = JsonHelper.toJson(bodyDto);
-
+        List<PickingGoodScanTaskBodyDto> mqBodyList = Arrays.asList(bodyDto);
+        String bodyJson = JsonHelper.toJson(mqBodyList);
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setBody(bodyJson);
         taskRequest.setBoxCode(request.getBarCode());
@@ -512,7 +512,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             return false;
         }
         //流向不一致
-        if(!request.getNextSiteId().equals(routerNextSiteId)) {
+        if(!request.getNextSiteId().equals(routerNextSiteId.longValue())) {
             resData.setNextSiteSupportSwitch(jyPickingSendDestinationService.existSendNextSite((long)request.getCurrentOperate().getSiteCode(), routerNextSiteId.longValue()));
             resData.setRouterNextSiteId(routerNextSiteId);
             resData.setRouterNextSiteName(routerNextSiteName);
@@ -521,7 +521,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             res.customMessage(PickingGoodsRes.CODE_30001, msg);
             return false;
         }
-
+        resData.setBoxConfirmNextSiteKey(boxConfirmNextSiteKey);
         return true;
     }
 

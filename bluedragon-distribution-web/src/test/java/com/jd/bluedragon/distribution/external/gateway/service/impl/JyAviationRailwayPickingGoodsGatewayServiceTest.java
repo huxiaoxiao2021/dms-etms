@@ -167,8 +167,8 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
     @Test
     public void pickingGoodsScanTest(){
 
-        pickingGoodTest();
-//        pickingAndSendGoodTest();
+//        pickingGoodTest();
+        pickingAndSendGoodTest();
     }
 
     private void pickingGoodTest() {
@@ -233,14 +233,14 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
 
     private void pickingAndSendGoodTest() {
         while (true) {
+            String barCode = "BC1001210816140000000505";
 
-
-            Long nextSiteId = 40240l;
-            String nextSiteName = "通州分拣中心";
+            Long nextSiteId = 910l;
+            String nextSiteName = "马驹桥分拣中心";
             //首次提发货
             PickingGoodsReq request = new PickingGoodsReq();
             this.setBaseReq(request);
-            request.setBarCode("");
+            request.setBarCode(barCode);
             request.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
             request.setLastScanTaskBizId(null);
             request.setSendGoodFlag(true);

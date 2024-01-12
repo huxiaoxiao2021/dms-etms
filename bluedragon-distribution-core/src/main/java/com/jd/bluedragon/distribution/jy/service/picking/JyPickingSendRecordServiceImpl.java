@@ -134,8 +134,13 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
     }
 
     @Override
-    public void savePickingRecord(JyPickingSendRecordEntity recordEntity) {
-        jyPickingSendRecordDao.insertSelective(recordEntity);
+    public void savePickingScanRecord(JyPickingSendRecordEntity recordEntity) {
+        JyPickingSendRecordEntity entity = this.fetchRealPickingRecordByBarCodeAndBizId(recordEntity.getPickingSiteId(), recordEntity.getScanCode(), recordEntity.getBizId());
+        if(Objects.isNull(entity)) {
+            jyPickingSendRecordDao.insertSelective(recordEntity);
+        }else {
+            logWarn("提货扫描重复插入，record={}", JsonHelper.toJson(recordEntity));
+        }
     }
 
     @Override

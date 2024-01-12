@@ -304,7 +304,7 @@ public class JyPickingTaskAggsCacheService {
 
 
     /**
-     * 按发货流向维度：该流向实际提发货的需要待提的包裹数
+     * 按发货流向维度：该流向实际提发货的需要待发的包裹数
      * @param bizId
      * @param siteId
      * @param nextSiteId
@@ -325,7 +325,7 @@ public class JyPickingTaskAggsCacheService {
         return Integer.valueOf(numStr);
     }
     private String getCacheKeyRealScanFlowWaitSendPackageNum(String bizId, Long siteId, Long nextSiteId){
-        return String.format(CACHE_REAL_SCAN_FLOW_WAIT_SEND_PACKAGE, bizId, siteId);
+        return String.format(CACHE_REAL_SCAN_FLOW_WAIT_SEND_PACKAGE, bizId, siteId, nextSiteId);
     }
 
     /**
@@ -350,7 +350,7 @@ public class JyPickingTaskAggsCacheService {
         return Integer.valueOf(numStr);
     }
     private String getCacheKeyRealScanFlowWaitSendBoxNum(String bizId, Long siteId, Long nextSiteId){
-        return String.format(CACHE_REAL_SCAN_FLOW_WAIT_SEND_BOX, bizId, siteId);
+        return String.format(CACHE_REAL_SCAN_FLOW_WAIT_SEND_BOX, bizId, siteId, nextSiteId);
     }
     /**
      * 按发货流向维度：该流向实际提发货的多发包裹数
@@ -374,7 +374,7 @@ public class JyPickingTaskAggsCacheService {
         return Integer.valueOf(numStr);
     }
     private String getCacheKeyRealScanFlowMoreSendPackageNum(String bizId, Long siteId, Long nextSiteId){
-        return String.format(CACHE_REAL_SCAN_FLOW_MORE_SEND_PACKAGE, bizId, siteId);
+        return String.format(CACHE_REAL_SCAN_FLOW_MORE_SEND_PACKAGE, bizId, siteId, nextSiteId);
     }
     /**
      * 按发货流向维度：该流向实际提发货的多发箱数
@@ -398,7 +398,7 @@ public class JyPickingTaskAggsCacheService {
         return Integer.valueOf(numStr);
     }
     private String getCacheKeyRealScanFlowMoreSendBoxNum(String bizId, Long siteId, Long nextSiteId){
-        return String.format(CACHE_REAL_SCAN_FLOW_MORE_SEND_BOX, bizId, siteId);
+        return String.format(CACHE_REAL_SCAN_FLOW_MORE_SEND_BOX, bizId, siteId, nextSiteId);
     }
 
     /**

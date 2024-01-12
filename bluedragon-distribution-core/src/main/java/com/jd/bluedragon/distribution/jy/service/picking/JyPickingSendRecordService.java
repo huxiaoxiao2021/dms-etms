@@ -64,7 +64,7 @@ public interface JyPickingSendRecordService {
      * 提货记录保存
      * @param recordEntity
      */
-    void savePickingRecord(JyPickingSendRecordEntity recordEntity);
+    void savePickingScanRecord(JyPickingSendRecordEntity recordEntity);
 
     /**
      * 根据指定任务的baoCode修改扫描记录
