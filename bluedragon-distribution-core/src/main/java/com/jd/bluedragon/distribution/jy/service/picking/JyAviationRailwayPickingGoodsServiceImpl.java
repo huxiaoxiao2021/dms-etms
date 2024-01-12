@@ -966,7 +966,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             dto.setBizId(task.getBizId());
             dto.setPickingTime(task.getPickingStartTime());
             dto.setNoTaskFlag(Constants.NUMBER_ONE.equals(task.getManualCreatedFlag()));
-            dto.setStartSiteId(task.getStartSiteId().intValue());
+//            dto.setStartSiteId(task.getStartSiteId().intValue());
             dto.setNodePlanArriveTime(task.getNodePlanArriveTime());
             dto.setNodeRealArriveTime(task.getNodeRealArriveTime());
             dto.setServiceNumber(task.getServiceNumber());
