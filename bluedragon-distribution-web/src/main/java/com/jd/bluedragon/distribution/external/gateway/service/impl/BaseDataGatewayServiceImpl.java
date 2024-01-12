@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.Pager;
@@ -21,6 +20,7 @@ import com.jd.bluedragon.core.base.JyBasicSiteQueryManager;
 import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.dto.BaseStaffData;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -306,5 +306,19 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
         }
         response.setData(streamlinedBasicSitePager);
         return response;
+    }
+
+
+    /**
+     * 获取用户信息
+     *
+     * @param userErpOrIdCard erp或者身份证号
+     * @return 用户数据
+     * @author fanggang7
+     * @time 2023-12-26 18:41:33 周四
+     */
+    @Override
+    public JdCResponse<BaseStaffData> getBaseStaffDataByErpOrIdCard(String userErpOrIdCard) {
+        return ResultConverter.convertResultToJdcResponse(baseService.getBaseStaffDataByErpOrIdCard(userErpOrIdCard));
     }
 }

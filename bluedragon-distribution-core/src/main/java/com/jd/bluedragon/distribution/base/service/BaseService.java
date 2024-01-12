@@ -10,10 +10,11 @@ import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.dto.BaseStaffData;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
-import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -326,5 +327,14 @@ public interface BaseService{
      * @author fanggang7
      * @time 2023-05-04 18:41:33 周四
      */
-    com.jd.dms.java.utils.sdk.base.Result <ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo);
+    Result<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo);
+
+    /**
+     * 获取用户信息
+     * @param userErpOrIdCard erp或者身份证号
+     * @return 用户数据
+     * @author fanggang7
+     * @time 2023-12-26 18:41:33 周四
+     */
+    Result<BaseStaffData> getBaseStaffDataByErpOrIdCard(String userErpOrIdCard);
 }

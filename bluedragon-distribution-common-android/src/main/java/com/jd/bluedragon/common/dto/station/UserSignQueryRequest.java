@@ -55,6 +55,10 @@ public class UserSignQueryRequest implements Serializable {
      * 用户编码
      */
     private String userCode;
+    /**
+     * 用户ID
+     */
+    private Integer userId;
 	/**
 	 * 分页参数-开始值
 	 */
@@ -137,7 +141,16 @@ public class UserSignQueryRequest implements Serializable {
 	public void setUserCode(String userCode) {
 		this.userCode = userCode;
 	}
-	public int getOffset() {
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public int getOffset() {
 		return offset;
 	}
 	public void setOffset(int offset) {

@@ -17,6 +17,11 @@ public class ScanUserData implements Serializable {
      */
     private Long id;
 
+    /**
+     * 用户ID
+     */
+    private Long userId;
+
 	/**
 	 * 员工ERP|拼音|身份证号
 	 */
@@ -37,7 +42,15 @@ public class ScanUserData implements Serializable {
 		this.id = id;
 	}
 
-	public String getUserCode() {
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getUserCode() {
 		return userCode;
 	}
 
