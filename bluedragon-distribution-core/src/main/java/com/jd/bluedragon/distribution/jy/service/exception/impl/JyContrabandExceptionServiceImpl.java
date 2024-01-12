@@ -237,8 +237,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                     CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto, sortingDto.getBoxCode());
                     // 调用取消集包接口（新版，可删除扫描记录）
                     boolean b = jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
-                    if(!b){
-                        logger.warn("该包裹关联集包已经被取消或不存在！包裹号：{}", dto.getBarCode());
+                    if(b){
+                        logger.info("该包裹关联集包取消成功！包裹号：{}", dto.getBarCode());
+                    }else{
+                        logger.info("该包裹关联集包已经被取消或不存在！包裹号：{}", dto.getBarCode());
                     }
                 });
 
