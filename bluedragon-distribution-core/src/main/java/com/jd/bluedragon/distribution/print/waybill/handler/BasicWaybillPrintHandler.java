@@ -219,8 +219,10 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             if (ObjectHelper.isNotEmpty(waybillVasList)) {
                 waybillVasList.forEach(waybillVas -> {
                     if (StringUtils.isNotEmpty(waybillVas.getVasNo()) && waybillVas.getVasNo().equals(DmsConstants.AUTH_CODE)) {
-                        String verificationCode = waybillVas.getExtendMap().get(DmsConstants.VERIFICATION_CODE);
-                        waybill.setVerificationCodeWithTitle("核销码:" + verificationCode);
+                        if (waybillVas.getExtendMap() != null && !waybillVas.getExtendMap().isEmpty()) {
+                            String verificationCode = waybillVas.getExtendMap().get(DmsConstants.VERIFICATION_CODE);
+                            waybill.setVerificationCodeWithTitle("核销码:" + (verificationCode != null ? verificationCode : Constants.EMPTY_FILL));
+                        }
                     }
                 });
             }
