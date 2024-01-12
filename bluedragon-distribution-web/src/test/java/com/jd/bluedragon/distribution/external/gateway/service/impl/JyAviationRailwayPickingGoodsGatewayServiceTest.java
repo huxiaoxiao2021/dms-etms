@@ -145,7 +145,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
         setBaseReq(req);
         req.setStatus(PickingGoodStatusEnum.TO_PICKING.getCode());
         req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
-        req.setPickingNodeCode("bjtz");
+//        req.setPickingNodeCode("bjtz");
         req.setPageNum(1);
         req.setPageSize(10);
         JdCResponse<AirRailTaskAggRes> response = jyAviationRailwayPickingGoodsGatewayService.listAirRailTaskAgg(req);
