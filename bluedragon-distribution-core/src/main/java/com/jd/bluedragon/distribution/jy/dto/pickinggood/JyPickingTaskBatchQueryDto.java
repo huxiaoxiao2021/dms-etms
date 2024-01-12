@@ -29,6 +29,10 @@ public class JyPickingTaskBatchQueryDto implements Serializable {
 
     private List<Integer> statusList;
 
+    private Integer offset;
+
+    private Integer limit;
+
     public String getBizId() {
         return bizId;
     }
@@ -83,5 +87,21 @@ public class JyPickingTaskBatchQueryDto implements Serializable {
 
     public void setStatusList(List<Integer> statusList) {
         this.statusList = statusList;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
     }
 }
