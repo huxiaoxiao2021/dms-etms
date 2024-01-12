@@ -161,7 +161,7 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
         entity.setCreateTime(new Date());
         entity.setUpdateTime(entity.getCreateTime());
         entity.setYn(Constants.NUMBER_ONE);
-
+        entity.setIntercept(Constants.NUMBER_ZERO);
         return entity;
     }
     //构建任务附属信息

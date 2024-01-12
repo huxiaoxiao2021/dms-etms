@@ -173,8 +173,11 @@
         <if test="endNodeName != null" >
           #{endNodeName},
         </if>
-        <if test="nodeStartTime != null" >
-          #{nodeStartTime},
+        <if test="nodePlanStartTime != null" >
+          node_plan_start_time,
+        </if>
+        <if test="nodeRealStartTime != null" >
+          node_real_start_time,
         </if>
         <if test="nodePlanArriveTime != null" >
           #{nodePlanArriveTime},

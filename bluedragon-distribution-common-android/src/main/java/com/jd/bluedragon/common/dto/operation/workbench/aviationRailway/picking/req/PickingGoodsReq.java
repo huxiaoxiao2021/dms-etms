@@ -48,7 +48,7 @@ public class PickingGoodsReq extends BaseReq implements Serializable {
     /**
      * 切换流向之前的发货流向信息
      */
-    private Integer beforeSwitchNextSiteId;
+    private Long beforeSwitchNextSiteId;
     private String beforeSwitchNextSiteName;
 
     public String getBarCode() {
@@ -115,11 +115,11 @@ public class PickingGoodsReq extends BaseReq implements Serializable {
         this.sendNextSiteSwitch = sendNextSiteSwitch;
     }
 
-    public Integer getBeforeSwitchNextSiteId() {
+    public Long getBeforeSwitchNextSiteId() {
         return beforeSwitchNextSiteId;
     }
 
-    public void setBeforeSwitchNextSiteId(Integer beforeSwitchNextSiteId) {
+    public void setBeforeSwitchNextSiteId(Long beforeSwitchNextSiteId) {
         this.beforeSwitchNextSiteId = beforeSwitchNextSiteId;
     }
 

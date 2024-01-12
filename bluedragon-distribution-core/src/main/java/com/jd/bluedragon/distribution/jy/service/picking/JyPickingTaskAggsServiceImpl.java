@@ -99,11 +99,12 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         Long siteId = (long)request.getCurrentOperate().getSiteCode();
 
         if(BusinessUtil.isBoxcode(request.getBarCode())) {
-            //实际提货的待提箱件数
-            cacheService.incrRealScanWaitPickingBoxNum(bizId, siteId);
             if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
                 //多提箱件数
                 cacheService.incrRealScanMorePickingBoxNum(bizId, siteId);
+            }else {
+                //实际提货的待提箱件数
+                cacheService.incrRealScanWaitPickingBoxNum(bizId, siteId);
             }
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
                 //实际提货发货的待提箱件数
@@ -121,11 +122,12 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
 
             }
         }else if(WaybillUtil.isPackageCode(request.getBarCode())) {
-            //实际提货的待提包裹件数
-            cacheService.incrRealScanWaitPickingPackageNum(bizId, siteId);
             if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
                 //多提包裹件数
                 cacheService.incrRealScanMorePickingPackageNum(bizId, siteId);
+            }else {
+                //实际提货的待提包裹件数
+                cacheService.incrRealScanWaitPickingPackageNum(bizId, siteId);
             }
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
                 //实际提货发货的待提包裹件数

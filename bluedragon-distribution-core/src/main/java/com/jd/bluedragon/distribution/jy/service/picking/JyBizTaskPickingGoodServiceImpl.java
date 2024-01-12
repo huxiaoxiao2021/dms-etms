@@ -90,8 +90,8 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
         entity.setManualCreatedFlag(Constants.NUMBER_ONE);
         entity.setCreateUserErp(user.getUserErp());
         entity.setCreateUserName(user.getUserName());
-        entity.setUpdateUserErp(entity.getCreateUserErp());
-        entity.setUpdateUserName(entity.getCreateUserName());
+//        entity.setUpdateUserErp(entity.getCreateUserErp());
+//        entity.setUpdateUserName(entity.getCreateUserName());
         entity.setCreateTime(new Date());
         entity.setUpdateTime(entity.getCreateTime());
         logInfo("生成自建任务【{}】,entity={}", entity.getBizId(), JsonHelper.toJson(entity));
