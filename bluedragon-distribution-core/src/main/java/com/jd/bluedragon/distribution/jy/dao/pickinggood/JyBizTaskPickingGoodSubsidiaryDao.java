@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public class JyBizTaskPickingGoodSubsidiaryDao extends BaseDao<JyBizTaskPickingGoodSubsidiaryEntity>{
 
-    private final static String NAMESPACE = JyBizTaskPickingGoodDao.class.getName();
+    private final static String NAMESPACE = JyBizTaskPickingGoodSubsidiaryDao.class.getName();
 
     public int insertSelective(JyBizTaskPickingGoodSubsidiaryEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);

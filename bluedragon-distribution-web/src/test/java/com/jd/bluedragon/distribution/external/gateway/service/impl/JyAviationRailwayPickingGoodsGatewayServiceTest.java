@@ -9,10 +9,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.Pi
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendFlowDisplayEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskAggReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskAggRes;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskRes;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowRes;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.*;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwayPickingGoodsGatewayService;
@@ -163,5 +160,155 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
     @Test
     public void timingHandlerFinishAirRailManualTask() {
         dmsTimingHandlerService.timingHandlerFinishAirRailManualTask();
+    }
+
+
+
+    @Test
+    public void pickingGoodsScanTest(){
+
+        pickingGoodTest();
+//        pickingAndSendGoodTest();
+    }
+
+    private void pickingGoodTest() {
+        while (true) {
+
+            //首次提货
+            PickingGoodsReq request = new PickingGoodsReq();
+            this.setBaseReq(request);
+            request.setBarCode("JD0003423499306-1-50-");
+            request.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+            request.setLastScanTaskBizId(null);
+            request.setSendGoodFlag(false);
+            request.setForceSendFlag(false);
+            request.setNextSiteId(null);
+            request.setNextSiteName(null);
+            request.setBoxConfirmNextSiteKey(null);
+            request.setSendNextSiteSwitch(false);
+            request.setBeforeSwitchNextSiteId(null);
+            request.setBeforeSwitchNextSiteName(null);
+            JdCResponse<PickingGoodsRes> res = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request);
+            System.out.println("end");
+
+            if (res.isSucceed()) {
+                //非第一次提货、走上一次bizId
+                PickingGoodsReq request2 = new PickingGoodsReq();
+                this.setBaseReq(request2);
+                request2.setBarCode("JD0003423499306-2-50-");
+                request2.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+                request2.setLastScanTaskBizId(res.getData().getAirRailTaskAggDto().getBizId());
+                request2.setSendGoodFlag(false);
+                request2.setForceSendFlag(false);
+                request2.setNextSiteId(null);
+                request2.setNextSiteName(null);
+                request2.setBoxConfirmNextSiteKey(null);
+                request2.setSendNextSiteSwitch(false);
+                request2.setBeforeSwitchNextSiteId(null);
+                request2.setBeforeSwitchNextSiteName(null);
+                JdCResponse<PickingGoodsRes> res2 = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request2);
+                System.out.println("end");
+
+                //非第一次提货、走已存在自建任务
+                PickingGoodsReq request3 = new PickingGoodsReq();
+                this.setBaseReq(request3);
+                request3.setBarCode("JD0003423499306-3-50-");
+                request3.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+                request3.setLastScanTaskBizId(res.getData().getAirRailTaskAggDto().getBizId());
+                request3.setSendGoodFlag(false);
+                request3.setForceSendFlag(false);
+                request3.setNextSiteId(null);
+                request3.setNextSiteName(null);
+                request3.setBoxConfirmNextSiteKey(null);
+                request3.setSendNextSiteSwitch(false);
+                request3.setBeforeSwitchNextSiteId(null);
+                request3.setBeforeSwitchNextSiteName(null);
+                JdCResponse<PickingGoodsRes> res3 = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request3);
+                System.out.println("end");
+
+            }
+        }
+    }
+
+    private void pickingAndSendGoodTest() {
+        while (true) {
+
+
+            Long nextSiteId = 40240l;
+            String nextSiteName = "通州分拣中心";
+            //首次提发货
+            PickingGoodsReq request = new PickingGoodsReq();
+            this.setBaseReq(request);
+            request.setBarCode("");
+            request.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+            request.setLastScanTaskBizId(null);
+            request.setSendGoodFlag(true);
+            request.setForceSendFlag(false);
+            request.setNextSiteId(nextSiteId);
+            request.setNextSiteName(nextSiteName);
+            request.setBoxConfirmNextSiteKey(null);
+            request.setSendNextSiteSwitch(false);
+            request.setBeforeSwitchNextSiteId(null);
+            request.setBeforeSwitchNextSiteName(null);
+            JdCResponse<PickingGoodsRes> res = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request);
+            System.out.println("end");
+
+            if (PickingGoodsRes.CODE_30001.equals(res.getCode())) {
+                //强发同流向场景
+                PickingGoodsReq request2 = new PickingGoodsReq();
+                this.setBaseReq(request2);
+                request2.setBarCode("");
+                request2.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+                request2.setLastScanTaskBizId(null);
+                request2.setSendGoodFlag(true);
+                request2.setForceSendFlag(true);
+                request2.setNextSiteId(nextSiteId);
+                request2.setNextSiteName(nextSiteName);
+                request2.setBoxConfirmNextSiteKey(null);
+                request2.setSendNextSiteSwitch(false);
+                request2.setBeforeSwitchNextSiteId(null);
+                request2.setBeforeSwitchNextSiteName(null);
+                JdCResponse<PickingGoodsRes> res2 = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request2);
+                System.out.println("end");
+
+
+                //强发切换流向场景
+                PickingGoodsReq request3 = new PickingGoodsReq();
+                this.setBaseReq(request3);
+                request3.setBarCode("");
+                request3.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+                request3.setLastScanTaskBizId(null);
+                request3.setSendGoodFlag(true);
+                request3.setForceSendFlag(true);
+                request3.setNextSiteId(10186l);
+                request3.setNextSiteName("凉水河测试");
+                request3.setBoxConfirmNextSiteKey(null);
+                request3.setSendNextSiteSwitch(true);
+                request3.setBeforeSwitchNextSiteId(nextSiteId);
+                request3.setBeforeSwitchNextSiteName(nextSiteName);
+                JdCResponse<PickingGoodsRes> res3 = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request3);
+                System.out.println("end");
+            }
+
+
+            if (res.isSucceed()) {
+                //非第一次提发货
+                PickingGoodsReq request4 = new PickingGoodsReq();
+                this.setBaseReq(request4);
+                request4.setBarCode("");
+                request4.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+                request4.setLastScanTaskBizId(res.getData().getAirRailTaskAggDto().getBizId());
+                request4.setSendGoodFlag(true);
+                request4.setForceSendFlag(false);
+                request4.setNextSiteId(nextSiteId);
+                request4.setNextSiteName(nextSiteName);
+                request4.setBoxConfirmNextSiteKey(null);
+                request4.setSendNextSiteSwitch(false);
+                request4.setBeforeSwitchNextSiteId(null);
+                request4.setBeforeSwitchNextSiteName(null);
+                JdCResponse<PickingGoodsRes> res4 = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request4);
+                System.out.println("end");
+            }
+        }
     }
 }

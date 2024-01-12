@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * @Date 2023/12/6 20:36
  * @Description
  */
-@Service("JyPickingGoodWaitScanItemNumUpdateConsumer")
+@Service("jyPickingGoodWaitScanItemNumUpdateConsumer")
 public class JyPickingGoodWaitScanItemNumUpdateConsumer extends MessageBaseConsumer {
 
     private Logger log = LoggerFactory.getLogger(JyPickingGoodWaitScanItemNumUpdateConsumer.class);
@@ -36,6 +36,7 @@ public class JyPickingGoodWaitScanItemNumUpdateConsumer extends MessageBaseConsu
 
     @Autowired
     private JimDbLock jimDbLock;
+    @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
     @Autowired

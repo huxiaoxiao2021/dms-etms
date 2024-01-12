@@ -119,7 +119,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             return res;
         }
         //场地barCode锁
-        if(pickingGoodsCacheService.lockPickingGoodScan(request.getBarCode(), request.getCurrentOperate().getSiteCode())) {
+        if(!pickingGoodsCacheService.lockPickingGoodScan(request.getBarCode(), request.getCurrentOperate().getSiteCode())) {
             res.error("该单据【包裹】被多人提货操作中，请稍后操作");
             return res;
         }
@@ -230,7 +230,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             insertEntity.setPickingUserName(request.getUser().getUserName());
             insertEntity.setPickingTime(new Date(resData.getOperateTime()));
             insertEntity.setCreateTime(new Date());
-            insertEntity.setUpdateTime(insertEntity.getUpdateTime());
+            insertEntity.setUpdateTime(insertEntity.getCreateTime());
             if(BusinessUtil.isBoxcode(request.getBarCode())) {
                 //多提箱号时同步存储一条已扫箱号数据，保证定时agg统计准确，箱内明细如果有需要保存，触发异步去存储， agg去重后统计不影响
                 insertEntity.setScanCodeType(JyPickingSendRecordEntity.SCAN_BOX);
@@ -557,7 +557,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         bodyDto.setOperateTime(DateHelper.formatDateTime(date));
 
         bodyDto.setBizId(taskPickingGoodEntity.getBizId());
-        String bodyJson = JsonHelper.toJson(bodyDto);
+        List<PickingGoodScanTaskBodyDto> bodyList = Arrays.asList(bodyDto);
+        String bodyJson = JsonHelper.toJson(bodyList);
 
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setBody(bodyJson);

@@ -173,8 +173,11 @@
         <if test="endNodeName != null" >
           #{endNodeName},
         </if>
-        <if test="nodeStartTime != null" >
-          #{nodeStartTime},
+        <if test="nodePlanStartTime != null" >
+          node_plan_start_time,
+        </if>
+        <if test="nodeRealStartTime != null" >
+          node_real_start_time,
         </if>
         <if test="nodePlanArriveTime != null" >
           #{nodePlanArriveTime},
@@ -240,7 +243,7 @@
 
 
   <insert id="batchInsert" parameterType="List">
-    insert into jy_biz_task_picking_good_subsidiary
+    insert into jy_biz_task_picking_good
     (
     biz_id,
     start_site_id,
@@ -275,38 +278,38 @@
     yn
     )
     values
-    <foreach collection="list" item="item" separator=",">
+    <foreach collection="list" item="item" index="index" separator=",">
       (
-      #{bizId},
-      #{startSiteId},
-      #{nextSiteId},
-      #{businessNumber},
-      #{serviceNumber},
-      #{beginNodeCode},
-      #{beginNodeName},
-      #{endNodeCode},
-      #{endNodeName},
-      #{nodePlanStartTime},
-      #{nodeRealStartTime},
-      #{nodePlanArriveTime},
-      #{nodeRealArriveTime},
-      #{operateNodeType},
-      #{cargoNumber},
-      #{cargoWeight},
-      #{status},
-      #{completeNode},
-      #{pickingStartTime},
-      #{pickingCompleteTime},
-      #{intercept},
-      #{interceptTime},
-      #{taskType},
-      #{manualCreatedFlag},
-      #{createUserErp},
-      #{createUserName},
-      #{updateUserErp},
-      #{updateUserName},
-      #{createTime},
-      #{updateTime}
+      #{item.bizId},
+      #{item.startSiteId},
+      #{item.nextSiteId},
+      #{item.businessNumber},
+      #{item.serviceNumber},
+      #{item.beginNodeCode},
+      #{item.beginNodeName},
+      #{item.endNodeCode},
+      #{item.endNodeName},
+      #{item.nodePlanStartTime},
+      #{item.nodeRealStartTime},
+      #{item.nodePlanArriveTime},
+      #{item.nodeRealArriveTime},
+      #{item.operateNodeType},
+      #{item.cargoNumber},
+      #{item.cargoWeight},
+      #{item.status},
+      #{item.completeNode},
+      #{item.pickingStartTime},
+      #{item.pickingCompleteTime},
+      #{item.intercept},
+      #{item.interceptTime},
+      #{item.taskType},
+      #{item.manualCreatedFlag},
+      #{item.createUserErp},
+      #{item.createUserName},
+      #{item.updateUserErp},
+      #{item.updateUserName},
+      #{item.createTime},
+      #{item.updateTime},
       1
       )
     </foreach>

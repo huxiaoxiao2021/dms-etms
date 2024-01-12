@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.task.dto.AirTransportBillDto;
+import com.jd.bluedragon.distribution.consumer.jy.task.dto.TmsAviationPickingGoodMqBody;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskExtendInitDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskInitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -23,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -54,6 +55,7 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
     private AviationPickingGoodTaskInit aviationPickingGoodTask;
     @Autowired
     private JimDbLock jimDbLock;
+    @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
 
@@ -82,7 +84,7 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
         if(log.isInfoEnabled()){
             log.info("航空提货计划消费开始，mqBody={}", message.getText());
         }
-        if(!this.lockPickingGoodTplBillCode(mqBody.tplBillCode)) {
+        if(!this.lockPickingGoodTplBillCode(mqBody.getTplBillCode())) {
             log.warn("没有获取到锁，重试处理, msg={}", message.getText());
             throw new JyBizException(String.format("航空提货计划主运单号获取锁失败,businessId：%s|主运单号：%s", message.getBusinessId(), mqBody.getTplBillCode()));
         }
@@ -93,11 +95,11 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
             PickingGoodTaskInitDto initDto = this.convertPickingGoodTaskInitDto(mqBody);
             aviationPickingGoodTask.initTaskTemplate(initDto);
         }catch (JyBizException ex) {
-            this.unlockPickingGoodTplBillCode(mqBody.tplBillCode);
+            this.unlockPickingGoodTplBillCode(mqBody.getTplBillCode());
             log.error("航空提货计划消费失败,businessId={},errMsg={}, mqBody={}", message.getBusinessId(), ex.getMessage(), message.getText());
             throw new JyBizException(String.format("航空提货计划消费失败,businessId：%s", message.getBusinessId()));
         }catch (Exception ex) {
-            this.unlockPickingGoodTplBillCode(mqBody.tplBillCode);
+            this.unlockPickingGoodTplBillCode(mqBody.getTplBillCode());
             log.error("航空提货计划消费异常,businessId={},errMsg={}, mqBody={}", message.getBusinessId(), ex.getMessage(), message.getText(), ex);
             throw new JyBizException(String.format("航空提货计划消费异常,businessId：%s", message.getBusinessId()));
         }
@@ -105,9 +107,9 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
     }
 
     private boolean filterHistoryConsume(TmsAviationPickingGoodMqBody mqBody) {
-        Long lastTime = this.getCacheValuePickingGoodTplBillCode(mqBody.tplBillCode);
+        Long lastTime = this.getCacheValuePickingGoodTplBillCode(mqBody.getTplBillCode());
         if(Objects.isNull(lastTime)) {
-            this.saveCachePickingGoodTplBillCode(mqBody.tplBillCode, mqBody.getOperateTime().getTime());
+            this.saveCachePickingGoodTplBillCode(mqBody.getTplBillCode(), mqBody.getOperateTime().getTime());
         }else {
             if(mqBody.getOperateTime().getTime() < lastTime) {
                 if(log.isInfoEnabled()) {
@@ -151,6 +153,7 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
             dto.setTransportCode(o.getTransportCode());
             extendInitDtoList.add(dto);
         });
+        initDto.setExtendInitDtoList(extendInitDtoList);
         return initDto;
     }
 
@@ -228,235 +231,5 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
     private String getCacheKeyPickingGoodTplBillCode(String tplBillCode) {
         return String.format("cache:aviation:picking:good:plan:%s", tplBillCode);
     }
-
-
-
-
-
-
-    class TmsAviationPickingGoodMqBody {
-
-        //主运单号
-        private String tplBillCode;
-        //航班号
-        private String flightNumber;
-        //始发机场
-        private String beginNodeCode;
-        //始发机场名称
-        private String beginNodeName;
-        //目的机场
-        private String endNodeCode;
-        //目的机场名称
-        private String endNodeName;
-        //计划起飞日期时间
-        private Date planTakeOffTime;
-        //计划降落日期时间
-        private Date planTouchDownTime;
-        //实际起飞日期时间
-        private Date realTakeOffTime;
-        //实际降落日期时间
-        private Date realTouchDownTime;
-        //操作类型   10 发货  20 部分改配 30 全部改配 40 起飞 50 降落 60提货
-        private Integer operateType;
-        //发货登记件数
-        private Integer departCargoAmount;
-        //发货实际重量
-        private Double departCargoRealWeight;
-        //批次信息
-        private List<AirTransportBillDto> transbillList;
-        //
-        private Date operateTime;
-
-        public String getTplBillCode() {
-            return tplBillCode;
-        }
-
-        public void setTplBillCode(String tplBillCode) {
-            this.tplBillCode = tplBillCode;
-        }
-
-        public String getFlightNumber() {
-            return flightNumber;
-        }
-
-        public void setFlightNumber(String flightNumber) {
-            this.flightNumber = flightNumber;
-        }
-
-        public String getBeginNodeCode() {
-            return beginNodeCode;
-        }
-
-        public void setBeginNodeCode(String beginNodeCode) {
-            this.beginNodeCode = beginNodeCode;
-        }
-
-        public String getBeginNodeName() {
-            return beginNodeName;
-        }
-
-        public void setBeginNodeName(String beginNodeName) {
-            this.beginNodeName = beginNodeName;
-        }
-
-        public String getEndNodeCode() {
-            return endNodeCode;
-        }
-
-        public void setEndNodeCode(String endNodeCode) {
-            this.endNodeCode = endNodeCode;
-        }
-
-        public String getEndNodeName() {
-            return endNodeName;
-        }
-
-        public void setEndNodeName(String endNodeName) {
-            this.endNodeName = endNodeName;
-        }
-
-        public Date getPlanTakeOffTime() {
-            return planTakeOffTime;
-        }
-
-        public void setPlanTakeOffTime(Date planTakeOffTime) {
-            this.planTakeOffTime = planTakeOffTime;
-        }
-
-        public Date getPlanTouchDownTime() {
-            return planTouchDownTime;
-        }
-
-        public void setPlanTouchDownTime(Date planTouchDownTime) {
-            this.planTouchDownTime = planTouchDownTime;
-        }
-
-        public Date getRealTakeOffTime() {
-            return realTakeOffTime;
-        }
-
-        public void setRealTakeOffTime(Date realTakeOffTime) {
-            this.realTakeOffTime = realTakeOffTime;
-        }
-
-        public Date getRealTouchDownTime() {
-            return realTouchDownTime;
-        }
-
-        public void setRealTouchDownTime(Date realTouchDownTime) {
-            this.realTouchDownTime = realTouchDownTime;
-        }
-
-        public Integer getOperateType() {
-            return operateType;
-        }
-
-        public void setOperateType(Integer operateType) {
-            this.operateType = operateType;
-        }
-
-        public Integer getDepartCargoAmount() {
-            return departCargoAmount;
-        }
-
-        public void setDepartCargoAmount(Integer departCargoAmount) {
-            this.departCargoAmount = departCargoAmount;
-        }
-
-        public Double getDepartCargoRealWeight() {
-            return departCargoRealWeight;
-        }
-
-        public void setDepartCargoRealWeight(Double departCargoRealWeight) {
-            this.departCargoRealWeight = departCargoRealWeight;
-        }
-
-        public List<AirTransportBillDto> getTransbillList() {
-            return transbillList;
-        }
-
-        public void setTransbillList(List<AirTransportBillDto> transbillList) {
-            this.transbillList = transbillList;
-        }
-
-        public Date getOperateTime() {
-            return operateTime;
-        }
-
-        public void setOperateTime(Date operateTime) {
-            this.operateTime = operateTime;
-        }
-    }
-
-
-    class AirTransportBillDto {
-        private String batchCode;
-        private String sealCarCode;
-        private String beginNodeCode;
-        private String beginNodeName;
-        private String endNodeCode;
-        private String endNodeName;
-        private String transportCode;
-
-
-        public String getBatchCode() {
-            return batchCode;
-        }
-
-        public void setBatchCode(String batchCode) {
-            this.batchCode = batchCode;
-        }
-
-        public String getSealCarCode() {
-            return sealCarCode;
-        }
-
-        public void setSealCarCode(String sealCarCode) {
-            this.sealCarCode = sealCarCode;
-        }
-
-        public String getBeginNodeCode() {
-            return beginNodeCode;
-        }
-
-        public void setBeginNodeCode(String beginNodeCode) {
-            this.beginNodeCode = beginNodeCode;
-        }
-
-        public String getBeginNodeName() {
-            return beginNodeName;
-        }
-
-        public void setBeginNodeName(String beginNodeName) {
-            this.beginNodeName = beginNodeName;
-        }
-
-        public String getEndNodeCode() {
-            return endNodeCode;
-        }
-
-        public void setEndNodeCode(String endNodeCode) {
-            this.endNodeCode = endNodeCode;
-        }
-
-        public String getEndNodeName() {
-            return endNodeName;
-        }
-
-        public void setEndNodeName(String endNodeName) {
-            this.endNodeName = endNodeName;
-        }
-
-        public String getTransportCode() {
-            return transportCode;
-        }
-
-        public void setTransportCode(String transportCode) {
-            this.transportCode = transportCode;
-        }
-    }
-
-
-
 
 }

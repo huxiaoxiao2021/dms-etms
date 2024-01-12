@@ -36,7 +36,7 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
         return this.getSqlSession().selectOne(NAMESPACE + ".findLatestTaskByBusinessNumber", businessNumber);
     }
     public List<JyBizTaskPickingGoodEntity> findAllTaskByBusinessNumber(String businessNumber) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".findAllTaskByBusinessNumber", businessNumber);
+        return this.getSqlSession().selectList(NAMESPACE + ".findAllTaskByBusinessNumber", businessNumber);
     }
 
 

@@ -38,6 +38,7 @@ public class JyAviationRailwayPickingGoodsCacheService {
 
     @Autowired
     private JimDbLock jimDbLock;
+    @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
 
