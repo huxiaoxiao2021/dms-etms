@@ -1757,6 +1757,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.toSucceed();
 		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 		lastSignRecordQuery.setUserCode(query.getUserCode());
+        if(query.getUserId() != null){
+            lastSignRecordQuery.setUserId(query.getUserId());
+            lastSignRecordQuery.setUserCode(null);
+        }
 		UserSignRecord lastUnSignOutData = userSignRecordDao.queryLastUnSignOutRecord(lastSignRecordQuery);
 		//加载网格相关数据
 		loadGridData(lastUnSignOutData);

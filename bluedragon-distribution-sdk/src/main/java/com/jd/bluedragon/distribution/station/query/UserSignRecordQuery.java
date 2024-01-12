@@ -84,6 +84,11 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	 */
 	private String userCode;
 
+    /**
+     * 员工ID
+     */
+    private Integer userId;
+
 	/**
 	 * 工种:1-正式工 2-派遣工 3-外包工 4-临时工5-小时工
 	 */
@@ -259,7 +264,16 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	public void setUserCode(String userCode) {
 		this.userCode = userCode;
 	}
-	public Integer getJobCode() {
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Integer getJobCode() {
 		return jobCode;
 	}
 	public void setJobCode(Integer jobCode) {

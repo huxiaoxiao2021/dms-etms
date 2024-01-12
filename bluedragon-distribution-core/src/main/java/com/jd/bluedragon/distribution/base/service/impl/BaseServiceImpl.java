@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.dto.BaseStaffData;
 import com.jd.bluedragon.distribution.base.service.*;
 import com.jd.bluedragon.distribution.client.constants.ConfigConstants;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
@@ -26,7 +27,7 @@ import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.utils.*;
-import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -34,10 +35,7 @@ import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-import com.jd.ql.basic.domain.Assort;
-import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.ql.basic.domain.BaseOrg;
-import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
@@ -53,6 +51,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -1453,9 +1452,9 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BaseServiceImpl.getAndroidInitData", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public com.jd.dms.java.utils.sdk.base.Result<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo){
+    public Result<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo){
         log.info("BaseServiceImpl.selectSiteList param {}", JsonHelper.toJson(deviceInfo));
-        com.jd.dms.java.utils.sdk.base.Result<ClientInitDataDto> result = com.jd.dms.java.utils.sdk.base.Result.success();
+        Result<ClientInitDataDto> result = Result.success();
         final ClientInitDataDto clientInitDataDto = new ClientInitDataDto();
         result.setData(clientInitDataDto);
 
@@ -1471,6 +1470,38 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             }
         } catch (Exception e) {
             log.error("BaseServiceImpl.getAndroidInitData error ", e);
+            return result.toFail("接口异常");
+        }
+        return result;
+    }
+
+    /**
+     * 获取用户信息
+     *
+     * @param userErpOrIdCard erp或者身份证号
+     * @return 用户数据
+     * @author fanggang7
+     * @time 2023-12-26 18:41:33 周四
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.BaseServiceImpl.getAndroidInitData", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public Result<BaseStaffData> getBaseStaffDataByErpOrIdCard(String userErpOrIdCard) {
+        log.info("BaseServiceImpl.getBaseStaffDataByErpOrIdCard param {}", userErpOrIdCard);
+        Result<BaseStaffData> result = Result.success();
+        try {
+            final BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(userErpOrIdCard);
+            if (baseStaffSiteOrgDto != null) {
+                final BaseStaffData baseStaffData = new BaseStaffData();
+                BeanUtils.copyProperties(baseStaffData, baseStaffSiteOrgDto);
+                result.setData(baseStaffData);
+            } else {
+                final BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(userErpOrIdCard);
+                final BaseStaffData baseStaffData = new BaseStaffData();
+                BeanUtils.copyProperties(baseStaffData, baseStaffSiteOrgDto);
+                result.setData(baseStaffData);
+            }
+        } catch (Exception e) {
+            log.error("BaseServiceImpl.getBaseStaffDataByErpOrIdCard error ", e);
             return result.toFail("接口异常");
         }
         return result;
