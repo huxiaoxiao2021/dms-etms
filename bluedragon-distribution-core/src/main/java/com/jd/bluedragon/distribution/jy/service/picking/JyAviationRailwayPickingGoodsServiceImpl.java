@@ -813,6 +813,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setPickingSiteId((long) req.getCurrentOperate().getSiteCode());
         queryDto.setStatus(req.getStatus());
         queryDto.setTaskType(req.getTaskType());
+        queryDto.setOffset(0);
+        queryDto.setLimit(1024);
 
         Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
         queryDto.setCreateTime(startTime);
@@ -928,10 +930,6 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             invokeResult.parameterError("提货任务状态不能为空！");
             return;
         }
-        if (StringUtils.isEmpty(req.getPickingNodeCode())) {
-            invokeResult.parameterError("提货机场或车站编码不能为空！");
-            return;
-        }
     }
 
     private JyPickingTaskBatchQueryDto buildBatchQueryDto(AirRailTaskAggReq req) {
@@ -940,11 +938,22 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setStatus(req.getStatus());
         queryDto.setTaskType(req.getTaskType());
 
+        if (req.getPageNum() == null) {
+            req.setPageNum(Constants.DEFAULT_PAGE_NO);
+        }
+        if (req.getPageSize() == null) {
+            req.setPageSize(Constants.DEFAULT_PAGE_SIZE);
+        }
+        queryDto.setOffset((req.getPageNum() - 1) * req.getPageSize());
+        queryDto.setLimit(req.getPageSize());
+
         Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
         queryDto.setCreateTime(startTime);
 
-        List<String> pickingNodeCodes = Collections.singletonList(req.getPickingNodeCode());
-        queryDto.setPickingNodeCodeList(pickingNodeCodes);
+        if (StringUtils.isNotEmpty(req.getPickingNodeCode())) {
+            List<String> pickingNodeCodes = Collections.singletonList(req.getPickingNodeCode());
+            queryDto.setPickingNodeCodeList(pickingNodeCodes);
+        }
         return queryDto;
     }
 

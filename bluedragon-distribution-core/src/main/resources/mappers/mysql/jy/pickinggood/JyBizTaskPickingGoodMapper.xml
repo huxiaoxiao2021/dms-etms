@@ -421,10 +421,13 @@
     and     status = #{status}
     and     task_type = #{taskType}
     and     create_time >= #{createTime}
+    <if test="pickingNodeCodeList != null and pickingNodeCodeList.size() > 0">
     and     end_node_code in
-    <foreach collection="pickingNodeCodeList" item="item" open="(" close=")" separator=",">
-      #{item}
-    </foreach>
+      <foreach collection="pickingNodeCodeList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+    limit #{offset}, #{limit}
   </select>
 
   <select id="countAllStatusByPickingSiteId" resultType="com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto">
