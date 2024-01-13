@@ -308,7 +308,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				response.setCode(JdResponse.CODE_INTERNAL_ERROR);
 				return null;
 			}
-			scanUserData.setUserId(baseStaff.getStaffNo().longValue());
+			scanUserData.setUserId(baseStaff.getStaffNo());
 			scanUserData.setUserCode(Constants.PDA_THIRDPL_TYPE+staffInfo.getPin());
 			return scanUserData;
 		}catch (Exception e){
