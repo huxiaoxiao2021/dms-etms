@@ -48,7 +48,8 @@ public class JyBizTaskPickingGoodTransactionManager {
     private JyScheduleTaskManager jyScheduleTaskManager;
     @Autowired
     private JyPickingTaskAggsService jyPickingTaskAggsService;
-
+    @Autowired
+    private JyPickingTaskAggsCacheService jyPickingTaskAggsCacheService;
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -63,7 +64,7 @@ public class JyBizTaskPickingGoodTransactionManager {
 
 
     /**
-     * 首单提货逻辑
+     * 首单提货逻辑   【 * 方法幂等 】
      * 1、更新提货任务状态
      * 2、分配提货调度任务数据
      * @param scanDto
@@ -90,8 +91,8 @@ public class JyBizTaskPickingGoodTransactionManager {
         Long startTime = scanDto.getOperatorTime() - 2000l;//开始时间设置在第一单前几秒，区分边界
         updateEntity.setPickingStartTime(new Date());
         updateEntity.setUpdateTime(new Date(startTime));
-        updateEntity.setUpdateUserErp(scanDto.getUser().getUserErp());
-        updateEntity.setUpdateUserName(scanDto.getUser().getUserName());
+        updateEntity.setUpdateUserErp(Objects.isNull(scanDto.getUser()) ? Constants.SYS_CODE_DMS : scanDto.getUser().getUserErp());
+        updateEntity.setUpdateUserName(Objects.isNull(scanDto.getUser()) ? Constants.SYS_CODE_DMS : scanDto.getUser().getUserName());
         jyBizTaskPickingGoodService.updateTaskByBizIdWithCondition(updateEntity);
         logInfo("提货任务{}状态改为开始提货中", scanDto.getBizId(), startTime);
         //分配调度任务
@@ -101,8 +102,8 @@ public class JyBizTaskPickingGoodTransactionManager {
         req.setDistributionType(JyScheduleTaskDistributionTypeEnum.GROUP.getCode());
         req.setDistributionTarget(scanDto.getGroupCode());
         req.setDistributionTime(new Date(startTime));
-        req.setOpeUser(scanDto.getUser().getUserErp());
-        req.setOpeUserName(scanDto.getUser().getUserName());
+        req.setOpeUser(Objects.isNull(scanDto.getUser()) ? Constants.SYS_CODE_DMS : scanDto.getUser().getUserErp());
+        req.setOpeUserName(Objects.isNull(scanDto.getUser()) ? Constants.SYS_CODE_DMS : scanDto.getUser().getUserName());
         req.setOpeTime(req.getDistributionTime());
         JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.distributeAndStartScheduleTask(req);
         if(Objects.isNull(jyScheduleTaskResp)){
@@ -175,14 +176,28 @@ public class JyBizTaskPickingGoodTransactionManager {
         return true;
     }
 
+    /**
+     * 实操扫描统计
+     * @param mqBody
+     */
     @Transactional(value = "tm_jy_core_main", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateAggScanStatistics(JyPickingGoodScanDto mqBody) {
         //任务维度统计计数agg
-        jyPickingTaskAggsService.updatePickingAggScanStatistics(mqBody);
+        if(!jyPickingTaskAggsCacheService.existCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getSiteId(), null)) {
+            jyPickingTaskAggsService.updatePickingAggScanStatistics(mqBody);
+        }
 
         //任务维度统计计数agg
         if(Boolean.TRUE.equals(mqBody.getSendGoodFlag())) {
-            jyPickingTaskAggsService.updatePickingSendAggScanStatistics(mqBody);
+            if(!jyPickingTaskAggsCacheService.existCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getSiteId(), mqBody.getNextSiteId())) {
+                jyPickingTaskAggsService.updatePickingSendAggScanStatistics(mqBody);
+            }
+        }
+
+        //save cache
+        jyPickingTaskAggsCacheService.saveCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getSiteId(), null);
+        if(Boolean.TRUE.equals(mqBody.getSendGoodFlag())) {
+            jyPickingTaskAggsCacheService.saveCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getSiteId(), mqBody.getNextSiteId());
         }
     }
 

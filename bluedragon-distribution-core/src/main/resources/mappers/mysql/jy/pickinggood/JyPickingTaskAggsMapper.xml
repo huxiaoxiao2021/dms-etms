@@ -13,8 +13,8 @@
     <result column="handover_scan_package_count" property="handoverScanPackageCount" jdbcType="INTEGER" />
     <result column="handover_scan_box_count" property="handoverScanBoxCount" jdbcType="INTEGER" />
     <result column="handover_scan_total_count" property="handoverScanTotalCount" jdbcType="INTEGER" />
-    <result column="scan_package_count" property="scanPackageCount" jdbcType="INTEGER" />
-    <result column="scan_box_count" property="scanBoxCount" jdbcType="INTEGER" />
+    <result column="scan_package_total_count" property="scanPackageTotalCount" jdbcType="INTEGER" />
+    <result column="scan_box_total_count" property="scanBoxTotalCount" jdbcType="INTEGER" />
     <result column="scan_total_count" property="scanTotalCount" jdbcType="INTEGER" />
     <result column="more_scan_package_count" property="moreScanPackageCount" jdbcType="INTEGER" />
     <result column="more_scan_box_count" property="moreScanBoxCount" jdbcType="INTEGER" />
@@ -37,7 +37,7 @@
   <sql id="Base_Column_List" >
     id, biz_id, picking_site_id, picking_node_code, receive_item_count, wait_scan_package_count, wait_scan_box_count,
     wait_scan_total_count, handover_scan_package_count, handover_scan_box_count, handover_scan_total_count,
-    scan_package_count, scan_box_count, scan_total_count, more_scan_package_count,
+    scan_package_total_count, scan_box_total_count, scan_total_count, more_scan_package_count,
     more_scan_box_count, more_scan_total_count, send_package_count, send_box_count, send_total_count, 
     more_send_package_count, more_send_box_count, more_send_total_count, force_send_package_count, 
     force_send_box_count, force_send_total_count, create_time, update_time, yn, ts
@@ -78,11 +78,20 @@
         <if test="waitScanTotalCount != null" >
           wait_scan_total_count,
         </if>
-        <if test="scanPackageCount != null" >
-          scan_package_count,
+        <if test="handoverScanPackageCount != null" >
+          handover_scan_package_count,
         </if>
-        <if test="scanBoxCount != null" >
-          scan_box_count,
+        <if test="handoverScanBoxCount != null" >
+          handover_scan_box_count,
+        </if>
+        <if test="handoverScanTotalCount != null" >
+          handover_scan_total_count,
+        </if>
+        <if test="scanPackageTotalCount != null" >
+          scan_package_total_count,
+        </if>
+        <if test="scanBoxTotalCount != null" >
+          scan_box_total_count,
         </if>
         <if test="scanTotalCount != null" >
           scan_total_count,
@@ -153,11 +162,20 @@
         <if test="waitScanTotalCount != null" >
           #{waitScanTotalCount},
         </if>
-        <if test="scanPackageCount != null" >
-          #{scanPackageCount},
+        <if test="handoverScanPackageCount != null" >
+          #{handoverScanPackageCount},
         </if>
-        <if test="scanBoxCount != null" >
-          #{scanBoxCount},
+        <if test="handoverScanBoxCount != null" >
+          #{handoverScanBoxCount},
+        </if>
+        <if test="handoverScanTotalCount != null" >
+          #{handoverScanTotalCount},
+        </if>
+        <if test="scanPackageTotalCount != null" >
+          #{scanPackageTotalCount},
+        </if>
+        <if test="scanBoxTotalCount != null" >
+          #{scanBoxTotalCount},
         </if>
         <if test="scanTotalCount != null" >
           #{scanTotalCount},
@@ -242,11 +260,20 @@
   <update id="updateScanStatistics" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity" >
     update jy_picking_task_aggs
     <set >
-      <if test="scanPackageCount != null" >
-        scan_package_count = #{scanPackageCount},
+      <if test="handoverScanPackageCount != null" >
+        handover_scan_package_count = #{handoverScanPackageCount},
       </if>
-      <if test="scanBoxCount != null" >
-        scan_box_count = #{scanBoxCount},
+      <if test="handoverScanBoxCount != null" >
+        handover_scan_box_count = #{handoverScanBoxCount},
+      </if>
+      <if test="handoverScanTotalCount != null" >
+        handover_scan_total_count = #{handoverScanTotalCount},
+      </if>
+      <if test="scanPackageTotalCount != null" >
+        scan_package_total_count = #{scanPackageTotalCount},
+      </if>
+      <if test="scanBoxTotalCount != null" >
+        scan_box_total_count = #{scanBoxTotalCount},
       </if>
       <if test="scanTotalCount != null" >
         scan_total_count = #{scanTotalCount},

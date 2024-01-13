@@ -110,6 +110,13 @@ public class JyPickingTaskAggsCacheService {
     private static final String CACHE_INIT_WAIT_SEND_TOTAL_NUM = "cache:init:wait:send:total:num:%s:%s:%s";
     private static final Integer CACHE_INIT_WAIT_SEND_TOTAL_NUM_TIMEOUT_HOURS = 24;
 
+    /**
+     * 实际扫描统计数据加工，防重cache
+     */
+    private static final String CACHE_REAL_PICKING_SCAN_STATISTICS = "cache:real:picking:scan:statistics:%s:%s:%s:%s";
+    private static final Integer CACHE_REAL_PICKING_SCAN_STATISTICS_TIMEOUT_DAYS = 10;
+
+
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
@@ -439,5 +446,30 @@ public class JyPickingTaskAggsCacheService {
     }
     private String getCacheKeyInitWaitSendTotalItemNum(String bizId, Long siteId, Long nextSiteId){
         return String.format(CACHE_INIT_WAIT_SEND_TOTAL_NUM, bizId, siteId, nextSiteId);
+    }
+
+
+    /**
+     * 统计提货任务数据防重缓存
+     * @param barCode 必填
+     * @param bizId 必填
+     * @param siteId 必填
+     * @param nextSiteId 选填： 非空是为提发统计缓存，为空时是仅提货缓存
+     */
+    public void saveCacheRealPickingScanStatistics(String barCode, String bizId, Long siteId, Long nextSiteId) {
+        String cacheKey = this.getCacheKeyRealPickingScanStatistics(barCode, bizId, siteId, nextSiteId);
+        redisClientOfJy.setEx(cacheKey, DEFAULT_VALUE_1, CACHE_REAL_PICKING_SCAN_STATISTICS_TIMEOUT_DAYS, TimeUnit.DAYS);
+    }
+    public boolean existCacheRealPickingScanStatistics(String barCode, String bizId, Long siteId, Long nextSiteId) {
+        String key = this.getCacheKeyRealPickingScanStatistics(barCode, bizId, siteId, nextSiteId);
+        if(Objects.isNull(redisClientOfJy.get(key))) {
+            return false;
+        }
+        return true;
+
+    }
+    private String getCacheKeyRealPickingScanStatistics(String barCode, String bizId, Long siteId, Long nextSiteId){
+        nextSiteId = Objects.isNull(nextSiteId) ? -1 : nextSiteId;
+        return String.format(CACHE_REAL_PICKING_SCAN_STATISTICS, barCode, bizId, siteId, nextSiteId);
     }
 }

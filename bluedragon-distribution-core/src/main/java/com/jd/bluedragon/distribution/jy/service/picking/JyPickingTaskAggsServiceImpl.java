@@ -1,25 +1,24 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingGoodsRes;
 import com.jd.bluedragon.distribution.jy.constants.BarCodeFetchPickingTaskRuleEnum;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskSendAggsDao;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
-import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.CalculateWaitPickingItemNumDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskAggQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingSendGoodAggsDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskSendAggsEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -339,37 +338,59 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             return;
         }
         JyPickingTaskAggsEntity updateEntity = new JyPickingTaskAggsEntity(param.getSiteId(), param.getBizId());
-        if(BusinessUtil.isBoxcode(param.getBarCode())) {
-            if(moreScanFlag) {
-                updateEntity.setMoreScanBoxCount(aggDtoRes.getMoreScanBoxCount() + 1);
-            }else {
+        BeanUtils.copyProperties(aggDtoRes, updateEntity);
+
+        updateEntity.setUpdateTime(new Date());
+
+        //交接扫描提货统计
+        if(!moreScanFlag) {
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
                 updateEntity.setHandoverScanBoxCount(aggDtoRes.getHandoverScanBoxCount() + 1);
-            }
-            updateEntity.setScanBoxCount(updateEntity.getScanBoxCount() + 1);
-        }else {
-            if(moreScanFlag) {
-                updateEntity.setMoreScanPackageCount(aggDtoRes.getMoreScanPackageCount() + 1);
             }else {
                 updateEntity.setHandoverScanPackageCount(aggDtoRes.getHandoverScanPackageCount() + 1);
             }
-            updateEntity.setScanPackageCount(updateEntity.getScanPackageCount() + 1);
+            updateEntity.setHandoverScanTotalCount(updateEntity.getHandoverScanBoxCount() + updateEntity.getHandoverScanPackageCount());
         }
-        updateEntity.setScanTotalCount(updateEntity.getScanTotalCount() + 1);
-        updateEntity.setUpdateTime(new Date());
 
-        if(Boolean.TRUE.equals(param.getSendGoodFlag())) {
+        //多扫提货统计
+        if(moreScanFlag) {
             if(BusinessUtil.isBoxcode(param.getBarCode())) {
-                if(moreScanFlag) {
-                    updateEntity.setMoreSendBoxCount(aggDtoRes.getMoreSendBoxCount() + 1);
-                }
-                updateEntity.setSendBoxCount(updateEntity.getSendBoxCount() + 1);
+                updateEntity.setMoreScanBoxCount(aggDtoRes.getMoreScanBoxCount() + 1);
             }else {
-                if(moreScanFlag) {
+                updateEntity.setMoreScanPackageCount(aggDtoRes.getMoreScanPackageCount() + 1);
+            }
+            updateEntity.setMoreScanTotalCount(updateEntity.getMoreScanBoxCount() + updateEntity.getMoreScanPackageCount());
+        }
+
+        //实扫提货统计【总提货=交际提+已提】
+        updateEntity.setScanBoxTotalCount(updateEntity.getHandoverScanBoxCount() + updateEntity.getMoreScanBoxCount());
+        updateEntity.setScanPackageTotalCount(updateEntity.getHandoverScanPackageCount() + updateEntity.getMoreScanPackageCount());
+        updateEntity.setScanTotalCount(updateEntity.getScanBoxTotalCount() + updateEntity.getScanPackageTotalCount());
+
+        //提货并发货统计发货
+        if(Boolean.TRUE.equals(param.getSendGoodFlag())) {
+
+            //扫描发货统计
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                updateEntity.setSendBoxCount(aggDtoRes.getSendBoxCount() + 1);
+            }else {
+                updateEntity.setSendPackageCount(aggDtoRes.getSendPackageCount() + 1);
+            }
+            updateEntity.setSendTotalCount(updateEntity.getSendBoxCount() + updateEntity.getSendPackageCount());
+
+            //多扫发货统计
+            if(moreScanFlag) {
+                if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                    updateEntity.setMoreSendBoxCount(aggDtoRes.getMoreSendBoxCount() + 1);
+                }else {
                     updateEntity.setMoreSendPackageCount(aggDtoRes.getMoreSendPackageCount() + 1);
                 }
-                updateEntity.setSendPackageCount(updateEntity.getSendPackageCount() + 1);
+                updateEntity.setMoreSendTotalCount(updateEntity.getMoreSendBoxCount() + updateEntity.getMoreSendPackageCount());
             }
+
+            //强发统计
         }
+
         jyPickingTaskAggsDao.updateScanStatistics(updateEntity);
         logInfo("提货任务维度agg实操统计修改bizId={}，修改前={}，修改后计数={}", param.getBizId(), JsonHelper.toJson(aggDtoRes), JsonHelper.toJson(updateEntity));
 
@@ -384,36 +405,57 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             return;
         }
         JyPickingTaskSendAggsEntity updateEntity = new JyPickingTaskSendAggsEntity(param.getSiteId(), param.getNextSiteId(), param.getBizId());
-        if(BusinessUtil.isBoxcode(param.getBarCode())) {
-            if(moreScanFlag) {
-                updateEntity.setMoreScanBoxCount(aggDtoRes.getMoreScanBoxCount() + 1);
-            }else {
+        BeanUtils.copyProperties(aggDtoRes, updateEntity);
+
+        updateEntity.setUpdateTime(new Date());
+
+        //交接扫描提货统计
+        if(!moreScanFlag) {
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
                 updateEntity.setHandoverScanBoxCount(aggDtoRes.getHandoverScanBoxCount() + 1);
-            }
-            updateEntity.setScanBoxCount(updateEntity.getScanBoxCount() + 1);
-        }else {
-            if(moreScanFlag) {
-                updateEntity.setMoreScanPackageCount(aggDtoRes.getMoreScanPackageCount() + 1);
             }else {
                 updateEntity.setHandoverScanPackageCount(aggDtoRes.getHandoverScanPackageCount() + 1);
             }
-            updateEntity.setScanPackageCount(updateEntity.getScanPackageCount() + 1);
+            updateEntity.setHandoverScanTotalCount(updateEntity.getHandoverScanBoxCount() + updateEntity.getHandoverScanPackageCount());
         }
-        updateEntity.setScanTotalCount(updateEntity.getScanTotalCount() + 1);
-        updateEntity.setUpdateTime(new Date());
 
-        if(Boolean.TRUE.equals(param.getSendGoodFlag())) {
+        //多扫提货统计
+        if(moreScanFlag) {
             if(BusinessUtil.isBoxcode(param.getBarCode())) {
-                if(moreScanFlag) {
-                    updateEntity.setMoreSendBoxCount(aggDtoRes.getMoreSendBoxCount() + 1);
-                }
-                updateEntity.setSendBoxCount(updateEntity.getSendBoxCount() + 1);
+                updateEntity.setMoreScanBoxCount(aggDtoRes.getMoreScanBoxCount() + 1);
             }else {
-                if(moreScanFlag) {
+                updateEntity.setMoreScanPackageCount(aggDtoRes.getMoreScanPackageCount() + 1);
+            }
+            updateEntity.setMoreScanTotalCount(updateEntity.getMoreScanBoxCount() + updateEntity.getMoreScanPackageCount());
+        }
+
+        //实扫提货统计【总提货=交际提+已提】
+        updateEntity.setScanBoxTotalCount(updateEntity.getHandoverScanBoxCount() + updateEntity.getMoreScanBoxCount());
+        updateEntity.setScanPackageTotalCount(updateEntity.getHandoverScanPackageCount() + updateEntity.getMoreScanPackageCount());
+        updateEntity.setScanTotalCount(updateEntity.getScanBoxTotalCount() + updateEntity.getScanPackageTotalCount());
+
+        //提货并发货统计发货
+        if(Boolean.TRUE.equals(param.getSendGoodFlag())) {
+
+            //扫描发货统计
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                updateEntity.setSendBoxCount(aggDtoRes.getSendBoxCount() + 1);
+            }else {
+                updateEntity.setSendPackageCount(aggDtoRes.getSendPackageCount() + 1);
+            }
+            updateEntity.setSendTotalCount(updateEntity.getSendBoxCount() + updateEntity.getSendPackageCount());
+
+            //多扫发货统计
+            if(moreScanFlag) {
+                if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                    updateEntity.setMoreSendBoxCount(aggDtoRes.getMoreSendBoxCount() + 1);
+                }else {
                     updateEntity.setMoreSendPackageCount(aggDtoRes.getMoreSendPackageCount() + 1);
                 }
-                updateEntity.setSendPackageCount(updateEntity.getSendPackageCount() + 1);
+                updateEntity.setMoreSendTotalCount(updateEntity.getMoreSendBoxCount() + updateEntity.getMoreSendPackageCount());
             }
+
+            //强发统计
         }
         jyPickingTaskSendAggsDao.updateScanStatistics(updateEntity);
         logInfo("提货发货任务流向维度agg实操统计修改bizId={}，nextSiteId={}，修改前={}，修改后计数={}", param.getBizId(), param.getNextSiteId(), JsonHelper.toJson(aggDtoRes), JsonHelper.toJson(updateEntity));

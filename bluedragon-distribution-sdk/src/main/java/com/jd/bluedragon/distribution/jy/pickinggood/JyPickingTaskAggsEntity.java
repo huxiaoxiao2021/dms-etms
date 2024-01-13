@@ -5,6 +5,9 @@ import java.util.Date;
 
 /**
  * 空提航班任务维度统计表
+ * 上游发ABC, 提货CD：  待提2-A、B，交接提1-C，多提1-D
+ *
+ * 多提+发货=多发
  */
 public class JyPickingTaskAggsEntity implements Serializable {
 
@@ -20,6 +23,8 @@ public class JyPickingTaskAggsEntity implements Serializable {
      * 提货机场编码/提货车站编码
      */
     private String pickingNodeCode;
+
+    private Integer receiveItemCount;
     /**
      * 待提包裹件数
      */
@@ -45,15 +50,15 @@ public class JyPickingTaskAggsEntity implements Serializable {
      */
     private Integer handoverScanTotalCount;
     /**
-     * 已提包裹件数
+     * 已提包裹总件数[已提=交接提+多提]
      */
-    private Integer scanPackageCount;
+    private Integer scanPackageTotalCount;
     /**
-     * 已提箱件数
+     * 已提箱总件数[已提=交接提+多提]
      */
-    private Integer scanBoxCount;
+    private Integer scanBoxTotalCount;
     /**
-     * 已提总件数
+     * 已提总件数[已提=交接提+多提]
      */
     private Integer scanTotalCount;
     /**
@@ -69,15 +74,15 @@ public class JyPickingTaskAggsEntity implements Serializable {
      */
     private Integer moreScanTotalCount;
     /**
-     * 已发包裹件数
+     * 已发包裹件数【含多发】
      */
     private Integer sendPackageCount;
     /**
-     * 已发箱件数
+     * 已发箱件数【含多发】
      */
     private Integer sendBoxCount;
     /**
-     * 已发总件数
+     * 已发总件数【含多发】
      */
     private Integer sendTotalCount;
     /**
@@ -153,6 +158,14 @@ public class JyPickingTaskAggsEntity implements Serializable {
         this.pickingNodeCode = pickingNodeCode;
     }
 
+    public Integer getReceiveItemCount() {
+        return receiveItemCount;
+    }
+
+    public void setReceiveItemCount(Integer receiveItemCount) {
+        this.receiveItemCount = receiveItemCount;
+    }
+
     public Integer getWaitScanPackageCount() {
         return waitScanPackageCount;
     }
@@ -201,20 +214,20 @@ public class JyPickingTaskAggsEntity implements Serializable {
         this.handoverScanTotalCount = handoverScanTotalCount;
     }
 
-    public Integer getScanPackageCount() {
-        return scanPackageCount;
+    public Integer getScanPackageTotalCount() {
+        return scanPackageTotalCount;
     }
 
-    public void setScanPackageCount(Integer scanPackageCount) {
-        this.scanPackageCount = scanPackageCount;
+    public void setScanPackageTotalCount(Integer scanPackageTotalCount) {
+        this.scanPackageTotalCount = scanPackageTotalCount;
     }
 
-    public Integer getScanBoxCount() {
-        return scanBoxCount;
+    public Integer getScanBoxTotalCount() {
+        return scanBoxTotalCount;
     }
 
-    public void setScanBoxCount(Integer scanBoxCount) {
-        this.scanBoxCount = scanBoxCount;
+    public void setScanBoxTotalCount(Integer scanBoxTotalCount) {
+        this.scanBoxTotalCount = scanBoxTotalCount;
     }
 
     public Integer getScanTotalCount() {

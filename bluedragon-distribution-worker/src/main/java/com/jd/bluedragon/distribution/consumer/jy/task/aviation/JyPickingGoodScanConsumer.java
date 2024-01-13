@@ -81,16 +81,18 @@ public class JyPickingGoodScanConsumer extends MessageBaseConsumer {
             throw new JyBizException("提货岗扫描异步货物任务场地锁失败:businessId=" + mqBody.getBusinessId());
         }
         try{
-            //首单扫描逻辑【方法幂等】
+            //首单扫描逻辑
             jyBizTaskPickingGoodTransactionManager.startPickingGoodTask(mqBody);
 
             //按箱扫描拆包存储明细  todo zcf
 
-            //agg计数统计自增【非幂等】
+            //agg计数统计自增
             jyBizTaskPickingGoodTransactionManager.updateAggScanStatistics(mqBody);
         }catch (Exception ex) {
-            cacheService.unlockPickingGoodBizIdSiteId(mqBody.getBizId(), mqBody.getSiteId());
+            log.error("提货扫描异步处理消费异常，errMsg={}, mqBody={}", ex.getMessage(), JsonHelper.toJson(mqBody));
             throw new JyBizException(String.format("航空提货扫描异步消费异常,businessId：%s", mqBody.getBusinessId()));
+        } finally {
+            cacheService.unlockPickingGoodBizIdSiteId(mqBody.getBizId(), mqBody.getSiteId());
         }
     }
 

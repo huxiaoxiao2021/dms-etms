@@ -364,6 +364,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             scanDto.setNextSiteId(request.getNextSiteId());
         }
         scanDto.setMoreScanFlag(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(pickingGoodsRes.getTaskSource()));
+        scanDto.setUser(request.getUser());
         String msg = JsonHelper.toJson(scanDto);
         logInfo("提货扫描异步消息生产，businessId={},msg={}", request.getBarCode(), msg);
         pickingGoodScanProducer.sendOnFailPersistent(request.getBarCode(), msg);

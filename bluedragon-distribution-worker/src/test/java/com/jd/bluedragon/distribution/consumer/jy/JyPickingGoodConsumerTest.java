@@ -1,8 +1,13 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.distribution.consumer.jy.task.aviation.JyPickingGoodScanConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.task.aviation.TmsAviationPickingGoodConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.task.dto.AirTransportBillDto;
 import com.jd.bluedragon.distribution.consumer.jy.task.dto.TmsAviationPickingGoodMqBody;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -26,10 +31,23 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:spring/distribution-worker-context-test.xml")
 public class JyPickingGoodConsumerTest  {
+    private static final CurrentOperate SITE_910 = new CurrentOperate(910,"马驹桥分拣中心",new Date());
+    public static final CurrentOperate SITE_40240 = new CurrentOperate(40240, "北京通州分拣中心", new Date());
+
+    public static final User USER_wuyoude = new User(65396,"吴有德");
+
+    public static final String GROUP_CODE = "G00000130001";
+    public static final String POST = JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode();
+
+    static {
+        USER_wuyoude.setUserErp("wuyoude");
+    }
+
 
     @Autowired
     private TmsAviationPickingGoodConsumer tmsAviationPickingGoodConsumer;
-
+    @Autowired
+    private JyPickingGoodScanConsumer jyPickingGoodScanConsumer;
 
 
 
@@ -115,6 +133,60 @@ public class JyPickingGoodConsumerTest  {
 
 
 
+
+
+    @Test
+    public void jyPickingGoodScanConsumerTest() {
+        String barCodeBox = "BC1001210816140000000505";
+        String barCodePackage = "JD0003423499306-13-50-";
+
+
+        JyPickingGoodScanDto scanDto = new JyPickingGoodScanDto();
+        scanDto.setBizId("NPGT24011300000001");
+        scanDto.setSiteId(40240l);
+        scanDto.setOperatorTime(System.currentTimeMillis());
+        scanDto.setGroupCode("G00000130001");
+//        scanDto.setMoreScanFlag(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(4));
+        scanDto.setMoreScanFlag(false);
+        scanDto.setUser(USER_wuyoude);
+
+        while (true) {
+            try {
+                Message pickingPackage = new Message();
+                scanDto.setBarCode("JD0003423499306-27-50-");
+                scanDto.setSendGoodFlag(false);
+                pickingPackage.setBusinessId(scanDto.getBarCode());
+                pickingPackage.setText(JsonHelper.toJson(scanDto));
+                jyPickingGoodScanConsumer.consume(pickingPackage);
+
+                Message pickingBox = new Message();
+                scanDto.setBarCode("BC1001210816140000000517");
+                scanDto.setSendGoodFlag(false);
+                pickingBox.setBusinessId(scanDto.getBarCode());
+                pickingBox.setText(JsonHelper.toJson(scanDto));
+                jyPickingGoodScanConsumer.consume(pickingBox);
+
+                Message sendPackage = new Message();
+                scanDto.setBarCode("JD0003423499306-28-50-");
+                scanDto.setSendGoodFlag(true);
+                scanDto.setNextSiteId(910l);
+                sendPackage.setBusinessId(scanDto.getBarCode());
+                sendPackage.setText(JsonHelper.toJson(scanDto));
+                jyPickingGoodScanConsumer.consume(sendPackage);
+
+                Message sendBox = new Message();
+                scanDto.setBarCode("BC1001210816140000000518");
+                scanDto.setSendGoodFlag(true);
+                scanDto.setNextSiteId(910l);
+                sendBox.setBusinessId(scanDto.getBarCode());
+                sendBox.setText(JsonHelper.toJson(scanDto));
+                jyPickingGoodScanConsumer.consume(sendBox);
+            } catch (Exception e) {
+                System.out.println("纳尼，发现error");
+                e.printStackTrace();
+            }
+        }
+    }
 }
 
 

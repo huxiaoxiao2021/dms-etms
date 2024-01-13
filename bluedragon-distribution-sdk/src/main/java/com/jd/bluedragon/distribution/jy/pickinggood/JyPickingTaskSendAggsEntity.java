@@ -49,15 +49,15 @@ public class JyPickingTaskSendAggsEntity implements Serializable {
      */
     private Integer handoverScanTotalCount;
     /**
-     * 已提包裹件数
+     * 已提包裹件数【已提=交接提+多提】
      */
-    private Integer scanPackageCount;
+    private Integer scanPackageTotalCount;
     /**
-     * 已提箱件数
+     * 已提箱件数【已提=交接提+多提】
      */
-    private Integer scanBoxCount;
+    private Integer scanBoxTotalCount;
     /**
-     * 已提总件数
+     * 已提总件数【已提=交接提+多提】
      */
     private Integer scanTotalCount;
     /**
@@ -73,15 +73,15 @@ public class JyPickingTaskSendAggsEntity implements Serializable {
      */
     private Integer moreScanTotalCount;
     /**
-     * 已发包裹件数
+     * 已发包裹件数【含多发】
      */
     private Integer sendPackageCount;
     /**
-     * 已发箱件数
+     * 已发箱件数【含多发】
      */
     private Integer sendBoxCount;
     /**
-     * 已发总件数
+     * 已发总件数【含多发】
      */
     private Integer sendTotalCount;
     /**
@@ -214,20 +214,20 @@ public class JyPickingTaskSendAggsEntity implements Serializable {
         this.handoverScanTotalCount = handoverScanTotalCount;
     }
 
-    public Integer getScanPackageCount() {
-        return scanPackageCount;
+    public Integer getScanPackageTotalCount() {
+        return scanPackageTotalCount;
     }
 
-    public void setScanPackageCount(Integer scanPackageCount) {
-        this.scanPackageCount = scanPackageCount;
+    public void setScanPackageTotalCount(Integer scanPackageTotalCount) {
+        this.scanPackageTotalCount = scanPackageTotalCount;
     }
 
-    public Integer getScanBoxCount() {
-        return scanBoxCount;
+    public Integer getScanBoxTotalCount() {
+        return scanBoxTotalCount;
     }
 
-    public void setScanBoxCount(Integer scanBoxCount) {
-        this.scanBoxCount = scanBoxCount;
+    public void setScanBoxTotalCount(Integer scanBoxTotalCount) {
+        this.scanBoxTotalCount = scanBoxTotalCount;
     }
 
     public Integer getScanTotalCount() {
