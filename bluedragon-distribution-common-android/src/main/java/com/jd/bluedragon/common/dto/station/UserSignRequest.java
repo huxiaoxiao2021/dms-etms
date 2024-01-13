@@ -28,7 +28,7 @@ public class UserSignRequest implements Serializable {
     /**
      * 签到人ID
      */
-    private Long userId;
+    private Integer userId;
 	/**
 	 * 员工ERP|拼音|身份证号
 	 */
@@ -92,11 +92,11 @@ public class UserSignRequest implements Serializable {
 		this.userName = userName;
 	}
 
-    public Long getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
