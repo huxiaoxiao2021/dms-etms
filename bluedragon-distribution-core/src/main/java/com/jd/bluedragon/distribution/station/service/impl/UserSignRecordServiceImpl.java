@@ -1114,7 +1114,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 					&& Constants.FLAG_USER_Is_Resign.equals(userInfo.getIsResign())) {
 				isEffectErp = true;
 				if (userInfo.getStaffNo() != null) {
-					signInData.setUserId(userInfo.getStaffNo().longValue());
+					signInData.setUserId(userInfo.getStaffNo());
 				}
 			}
 			if(!isEffectErp) {
@@ -1137,7 +1137,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(isCarId){
 			final BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(userCode);
 			if (baseStaff != null) {
-				signInData.setUserId(baseStaff.getStaffNo().longValue());
+				signInData.setUserId(baseStaff.getStaffNo());
 			}
 		}
 		return result;
