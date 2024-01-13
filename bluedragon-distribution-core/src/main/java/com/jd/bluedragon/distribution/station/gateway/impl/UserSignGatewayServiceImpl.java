@@ -310,13 +310,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			}
 			scanUserData.setUserId(baseStaff.getStaffNo().longValue());
 			scanUserData.setUserCode(Constants.PDA_THIRDPL_TYPE+staffInfo.getPin());
+			return scanUserData;
 		}catch (Exception e){
 			log.error("获取人员数据信息异常！{}",erpAccount,e);
 			response.setMessage("获取人员数据信息异常！{"+erpAccount+"}");
 			response.setCode(JdResponse.CODE_INTERNAL_ERROR);
 			return null;
 		}
-		return null;
 	}
 
 
