@@ -1498,7 +1498,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             } else {
                 final BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(userErpOrIdCard);
                 final BaseStaffData baseStaffData = new BaseStaffData();
-                BeanUtils.copyProperties(baseStaffData, baseStaffSiteOrgDto);
+                BeanUtils.copyProperties(baseStaffData, baseStaff);
                 result.setData(baseStaffData);
             }
         } catch (Exception e) {
