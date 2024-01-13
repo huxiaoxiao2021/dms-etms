@@ -59,17 +59,4 @@ public class JyPickingSendRecordDao extends BaseDao<JyPickingSendRecordEntity> {
         return this.getSqlSession().update(NAMESPACE + ".initUpdateIfExist", updateEntity);
     }
 
-
-//
-//    int deleteByPrimaryKey(Long id);
-//
-//    int insert(JyPickingSendRecord record);
-//
-//    int insertSelective(JyPickingSendRecord record);
-//
-//    JyPickingSendRecord selectByPrimaryKey(Long id);
-//
-//    int updateByPrimaryKeySelective(JyPickingSendRecord record);
-//
-//    int updateByPrimaryKey(JyPickingSendRecord record);
 }

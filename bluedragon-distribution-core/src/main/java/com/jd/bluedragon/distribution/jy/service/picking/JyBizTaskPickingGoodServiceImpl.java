@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -39,7 +40,8 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     private JyBizTaskPickingGoodDao jyBizTaskPickingGoodDao;
     @Autowired
     private JyBizTaskPickingGoodSubsidiaryDao jyBizTaskPickingGoodSubsidiaryDao;
-
+    @Autowired
+    private JyBizTaskPickingGoodTransactionManager taskPickingGoodTransactionManager;
     @Autowired
     @Qualifier("redisJySendBizIdSequenceGen")
     private JimdbSequenceGen redisJyBizIdSequenceGen;
@@ -90,12 +92,11 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
         entity.setManualCreatedFlag(Constants.NUMBER_ONE);
         entity.setCreateUserErp(user.getUserErp());
         entity.setCreateUserName(user.getUserName());
-//        entity.setUpdateUserErp(entity.getCreateUserErp());
-//        entity.setUpdateUserName(entity.getCreateUserName());
         entity.setCreateTime(new Date());
         entity.setUpdateTime(entity.getCreateTime());
+        List<JyBizTaskPickingGoodEntity> list = Arrays.asList(entity);
+        taskPickingGoodTransactionManager.batchInsertPickingGoodTask(list, null);
         logInfo("生成自建任务【{}】,entity={}", entity.getBizId(), JsonHelper.toJson(entity));
-        jyBizTaskPickingGoodDao.insertSelective(entity);
         return entity;
     }
 

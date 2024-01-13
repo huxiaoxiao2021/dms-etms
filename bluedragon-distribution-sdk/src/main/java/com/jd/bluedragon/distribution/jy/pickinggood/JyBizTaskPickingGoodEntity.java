@@ -11,8 +11,8 @@ public class JyBizTaskPickingGoodEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //PinkingGoodTask -- PGT
-    public static final String BIZ_PREFIX = "PGT";
-    public static final String BIZ_PREFIX_NOTASK = "NPGT";
+    public static final String BIZ_PREFIX = "PGT%s";
+    public static final String BIZ_PREFIX_NOTASK = "NPGT%s";
 
     public static final Integer INTERCEPT_FLAG = 1;
 

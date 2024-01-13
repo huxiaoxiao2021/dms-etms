@@ -42,16 +42,4 @@ public class JyPickingTaskAggsDao extends BaseDao<JyPickingTaskAggsEntity> {
     public int updateScanStatistics(JyPickingTaskAggsEntity updateEntity) {
         return this.getSqlSession().update(NAMESPACE + ".updateScanStatistics", updateEntity);
     }
-//
-//
-//    int deleteByPrimaryKey(Long id);
-//
-//    int insert(JyPickingTaskAggs record);
-//
-//
-//    JyPickingTaskAggs selectByPrimaryKey(Long id);
-//
-//    int updateByPrimaryKeySelective(JyPickingTaskAggs record);
-//
-//    int updateByPrimaryKey(JyPickingTaskAggs record);
 }

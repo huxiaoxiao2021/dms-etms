@@ -234,6 +234,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
     private void pickingAndSendGoodTest() {
         while (true) {
             String barCode = "BC1001210816140000000505";
+            barCode = "JD0003423499306-12-50-";
 
             Long nextSiteId = 910l;
             String nextSiteName = "马驹桥分拣中心";

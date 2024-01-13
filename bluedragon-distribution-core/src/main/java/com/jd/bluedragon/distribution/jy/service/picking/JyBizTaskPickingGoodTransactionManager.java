@@ -117,7 +117,9 @@ public class JyBizTaskPickingGoodTransactionManager {
 
         jyBizTaskPickingGoodService.batchInsertTask(taskEntityList);
 
-        jyBizTaskPickingGoodService.batchInsertTaskSubsidiary(subsidiaryEntityList);
+        if(!CollectionUtils.isEmpty(subsidiaryEntityList)) {
+            jyBizTaskPickingGoodService.batchInsertTaskSubsidiary(subsidiaryEntityList);
+        }
 
         //调度任务初始化
         this.createUnSealScheduleTask(taskEntityList);
