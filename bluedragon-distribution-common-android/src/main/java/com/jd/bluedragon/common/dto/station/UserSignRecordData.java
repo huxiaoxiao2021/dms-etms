@@ -40,7 +40,7 @@ public class UserSignRecordData implements Serializable {
     /**
      * 用户ID
      */
-    private Long userId;
+    private Integer userId;
 
 	/**
 	 * 员工ERP|拼音|身份证号
@@ -271,11 +271,11 @@ public class UserSignRecordData implements Serializable {
 		this.siteCode = siteCode;
 	}
 
-    public Long getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
