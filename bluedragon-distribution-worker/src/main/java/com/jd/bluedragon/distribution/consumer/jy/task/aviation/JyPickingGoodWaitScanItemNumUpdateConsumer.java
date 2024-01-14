@@ -78,28 +78,23 @@ public class JyPickingGoodWaitScanItemNumUpdateConsumer extends MessageBaseConsu
             throw new JyBizException(String.format("提货初始化待提件数没有获取到锁,businessId：%s", message.getBusinessId()));
         }
         try{
-            if(!filterRepeatConsume(mqBody)) {
-                return;
+            if(this.existCache(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId())) {
+                return ;
             }
             jyBizTaskPickingGoodTransactionManager.saveAggWaitScanItem(mqBody);
             logInfo("航空提货待提明细件数消费结束，businessId={}", message.getBusinessId());
+
+            //avoid repeat consume， must save cache before return
+            this.saveCache(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId());
         }catch (Exception ex) {
-            unlock(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId());
             log.error("航空提货待提明细件数消费异常,businessId={},mqBody={}", message.getBusinessId(), message.getText());
             throw new JyBizException(String.format("航空提货待提明细件数消费异常,businessId：%s", message.getBusinessId()));
+        }finally {
+            unlock(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId());
         }
 
     }
 
-
-    private boolean filterRepeatConsume(CalculateWaitPickingItemNumDto mqBody) {
-        if(!this.existCache(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId())) {
-            this.saveCache(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId());
-        }else {
-            return false;
-        }
-        return true;
-    }
 
     /**
      * 防重锁:航空主运单号
@@ -129,6 +124,7 @@ public class JyPickingGoodWaitScanItemNumUpdateConsumer extends MessageBaseConsu
         return redisClientOfJy.exists(cacheKey);
     }
     private String getCacheKey(String bizId, String batchCode, Long nextSiteId) {
+        nextSiteId = Objects.isNull(nextSiteId) ? -1 : nextSiteId;
         return String.format("cache:picking:good:waitScanAggAlter:%s:%s:%s", bizId, batchCode, nextSiteId);
     }
 

@@ -307,7 +307,6 @@
           picking_user_erp = #{pickingUserErp,jdbcType=VARCHAR},
           picking_user_name = #{pickingUserName,jdbcType=VARCHAR},
           picking_time = #{pickingTime,jdbcType=TIMESTAMP},
-          update_time = #{updateTime},
         <if test="moreScanFlag != null" >
           more_scan_flag = #{moreScanFlag},
         </if>
@@ -335,6 +334,7 @@
         <if test="sendUserName != null" >
           send_user_name = #{sendUserName,jdbcType=VARCHAR},
         </if>
+        update_time = #{updateTime}
       where yn = 1
         and picking_site_id = #{pickingSiteId}
         and biz_id = #{bizId}
@@ -349,13 +349,13 @@
       wait_scan_code_type = #{waitScanCodeType},
       wait_scan_flag = #{waitScanFlag},
       init_time = #{initTime},
-      update_time = #{updateTime},
       <if test="initNextSiteId != null" >
         init_next_site_id = #{initNextSiteId,jdbcType=BIGINT},
       </if>
       <if test="boxInitFlowKey != null" >
         box_init_flow_key = #{boxInitFlowKey,jdbcType=VARCHAR},
       </if>
+      update_time = #{updateTime}
     where
       yn = 1
       and picking_site_id = #{pickingSiteId}

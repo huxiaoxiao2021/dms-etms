@@ -396,7 +396,7 @@
       <if test="updateUserName != null" >
         update_user_name = #{updateUserName},
       </if>
-      update_time = #{updateTime},
+      update_time = #{updateTime}
       yn = 0
     where yn = 1 and business_number = #{businessNumber}
   </update>

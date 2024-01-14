@@ -94,6 +94,9 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
             }
             PickingGoodTaskInitDto initDto = this.convertPickingGoodTaskInitDto(mqBody);
             aviationPickingGoodTask.initTaskTemplate(initDto);
+
+            //avoid repeat consume， must save cache before return
+            this.saveCachePickingGoodTplBillCode(mqBody.getTplBillCode(), mqBody.getOperateTime().getTime());
         }catch (JyBizException ex) {
             this.unlockPickingGoodTplBillCode(mqBody.getTplBillCode());
             log.error("航空提货计划消费失败,businessId={},errMsg={}, mqBody={}", message.getBusinessId(), ex.getMessage(), message.getText());
@@ -108,9 +111,7 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
 
     private boolean filterHistoryConsume(TmsAviationPickingGoodMqBody mqBody) {
         Long lastTime = this.getCacheValuePickingGoodTplBillCode(mqBody.getTplBillCode());
-        if(Objects.isNull(lastTime)) {
-            this.saveCachePickingGoodTplBillCode(mqBody.getTplBillCode(), mqBody.getOperateTime().getTime());
-        }else {
+        if(!Objects.isNull(lastTime)) {
             if(mqBody.getOperateTime().getTime() < lastTime) {
                 if(log.isInfoEnabled()) {
                     log.info("航空提货计划生成提货任务消费，历史消息消费，不作处理，msg={}", JsonHelper.toJson(mqBody));

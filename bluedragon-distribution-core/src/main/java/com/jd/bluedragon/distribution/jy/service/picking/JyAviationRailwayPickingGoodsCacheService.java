@@ -131,7 +131,7 @@ public class JyAviationRailwayPickingGoodsCacheService {
      */
     public boolean lockPickingGoodDetailRecordInit(Long siteId, String bizId, String barCode) {
         String lockKey = this.getLockKeyPickingGoodDetailRecordInit(siteId, bizId, barCode);
-        return jimDbLock.lock(lockKey, DEFAULT_VALUE_1, LOCK_PICKING_DETAIL_RECORD_INIT_PRE_TIMEOUT_SECONDS, TimeUnit.HOURS);
+        return jimDbLock.lock(lockKey, DEFAULT_VALUE_1, LOCK_PICKING_DETAIL_RECORD_INIT_PRE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
     public void unlockPickingGoodDetailRecordInit(Long siteId, String bizId, String barCode) {
         String lockKey = this.getLockKeyPickingGoodDetailRecordInit(siteId, bizId, barCode);

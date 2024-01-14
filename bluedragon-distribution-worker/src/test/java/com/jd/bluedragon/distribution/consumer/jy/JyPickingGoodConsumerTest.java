@@ -3,9 +3,7 @@ package com.jd.bluedragon.distribution.consumer.jy;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
-import com.jd.bluedragon.distribution.consumer.jy.task.aviation.JyPickingGoodDetailInitConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.task.aviation.JyPickingGoodScanConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.task.aviation.TmsAviationPickingGoodConsumer;
+import com.jd.bluedragon.distribution.consumer.jy.task.aviation.*;
 import com.jd.bluedragon.distribution.consumer.jy.task.dto.AirTransportBillDto;
 import com.jd.bluedragon.distribution.consumer.jy.task.dto.TmsAviationPickingGoodMqBody;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
@@ -57,8 +55,10 @@ public class JyPickingGoodConsumerTest  {
     private JyPickingGoodDetailInitConsumer jyPickingGoodDetailInitConsumer;
     @Autowired
     private CommonService commonService;
-
-
+    @Autowired
+    private JyPickingGoodWaitScanItemNumUpdateConsumer jyPickingGoodWaitScanItemNumUpdateConsumer;
+    @Autowired
+    private JyPickingGoodDetailInitSplitConsumer jyPickingGoodDetailInitSplitConsumer;
     @Test
     public void test() {
         String boxCode = "BC1001210816140000000505";
@@ -319,6 +319,148 @@ public class JyPickingGoodConsumerTest  {
         }
     }
 
+
+
+    @Test
+    public void jyPickingGoodWaitScanItemNumUpdateConsumerTest() {
+
+        String json1 = "{\n" +
+                "    \"batchCode\": \"910-40240-20220801098213455\",\n" +
+                "    \"bizId\": \"PGT24011400000041\",\n" +
+                "    \"calculateNextSiteAggFlag\": false,\n" +
+                "    \"pickingSiteId\": 40240,\n" +
+                "    \"waitPickingItemNum\": 4\n" +
+                "}";
+        String json2 = "{\n" +
+                "    \"batchCode\": \"910-40240-20220801098213455\",\n" +
+                "    \"bizId\": \"PGT24011400000041\",\n" +
+                "    \"calculateNextSiteAggFlag\": true,\n" +
+                "    \"nextSiteId\": 10186,\n" +
+                "    \"pickingSiteId\": 40240,\n" +
+                "    \"waitPickingItemNum\": 3\n" +
+                "}";
+        String json3 = "{\n" +
+                "    \"batchCode\": \"910-40240-20220801098213455\",\n" +
+                "    \"bizId\": \"PGT24011400000041\",\n" +
+                "    \"calculateNextSiteAggFlag\": true,\n" +
+                "    \"nextSiteId\": 910,\n" +
+                "    \"pickingSiteId\": 40240,\n" +
+                "    \"waitPickingItemNum\": 1\n" +
+                "}";
+
+
+
+
+        while (true) {
+            List<String> list = Arrays.asList(json1, json2, json3);
+            for (String json : list) {
+                try {
+                    Message message = new Message();
+                    message.setText(json);
+
+                    jyPickingGoodWaitScanItemNumUpdateConsumer.consume(message);
+                } catch (Exception e) {
+                    System.out.println("纳尼，发现error");
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("end");
+        }
+    }
+
+
+    @Test
+    public void jyPickingGoodDetailInitSplitConsumerTest(){
+        String json1 = "{\n" +
+                "    \"batchCode\": \"910-10186-20211214182344566\",\n" +
+                "    \"bizId\": \"PGT24011400000042\",\n" +
+                "    \"businessNumber\": \"2024011400013\",\n" +
+                "    \"packageCode\": \"JDV000883197313-1-1-\",\n" +
+                "    \"pickingNodeCode\": \"END\",\n" +
+                "    \"pickingSiteId\": 10186,\n" +
+                "    \"sealCarCode\": \"SC21121400011833\",\n" +
+                "    \"serviceNumber\": \"FN004\",\n" +
+                "    \"startSiteId\": 910,\n" +
+                "    \"startSiteType\": 64,\n" +
+                "    \"taskType\": 1\n" +
+                "}";
+        String json2 = "{\n" +
+                "    \"batchCode\": \"910-40240-20220801098213455\",\n" +
+                "    \"bizId\": \"PGT24011400000041\",\n" +
+                "    \"businessNumber\": \"2024011400013\",\n" +
+                "    \"packageCode\": \"JD0003363152191-1-9-\",\n" +
+                "    \"pickingNodeCode\": \"END\",\n" +
+                "    \"pickingSiteId\": 40240,\n" +
+                "    \"sealCarCode\": \"SC22062100017955\",\n" +
+                "    \"serviceNumber\": \"FN004\",\n" +
+                "    \"startSiteId\": 910,\n" +
+                "    \"startSiteType\": 64,\n" +
+                "    \"taskType\": 1\n" +
+                "}";
+        String json3 = "{\n" +
+                "    \"batchCode\": \"910-40240-20220801098213455\",\n" +
+                "    \"bizId\": \"PGT24011400000041\",\n" +
+                "    \"boxCode\": \"BC1001220803270000200117\",\n" +
+                "    \"businessNumber\": \"2024011400013\",\n" +
+                "    \"packageCode\": \"JDVF00002061400-1-1-\",\n" +
+                "    \"pickingNodeCode\": \"END\",\n" +
+                "    \"pickingSiteId\": 40240,\n" +
+                "    \"scanIsBoxType\": true,\n" +
+                "    \"sealCarCode\": \"SC22062100017955\",\n" +
+                "    \"serviceNumber\": \"FN004\",\n" +
+                "    \"startSiteId\": 910,\n" +
+                "    \"startSiteType\": 64,\n" +
+                "    \"taskType\": 1\n" +
+                "}";
+        String json4 = "{\n" +
+                "    \"batchCode\": \"910-40240-20220801098213455\",\n" +
+                "    \"bizId\": \"PGT24011400000041\",\n" +
+                "    \"boxCode\": \"BC1001220803230000200218\",\n" +
+                "    \"businessNumber\": \"2024011400013\",\n" +
+                "    \"packageCode\": \"JDVF00002064702-1-1-\",\n" +
+                "    \"pickingNodeCode\": \"END\",\n" +
+                "    \"pickingSiteId\": 40240,\n" +
+                "    \"scanIsBoxType\": true,\n" +
+                "    \"sealCarCode\": \"SC22062100017955\",\n" +
+                "    \"serviceNumber\": \"FN004\",\n" +
+                "    \"startSiteId\": 910,\n" +
+                "    \"startSiteType\": 64,\n" +
+                "    \"taskType\": 1\n" +
+                "}";
+
+        String json5 = "{\n" +
+                "    \"batchCode\": \"910-40240-20220801098213455\",\n" +
+                "    \"bizId\": \"PGT24011400000041\",\n" +
+                "    \"boxCode\": \"BC1001220803230000200521\",\n" +
+                "    \"businessNumber\": \"2024011400013\",\n" +
+                "    \"packageCode\": \"JDVF00002066125-1-1-\",\n" +
+                "    \"pickingNodeCode\": \"END\",\n" +
+                "    \"pickingSiteId\": 40240,\n" +
+                "    \"scanIsBoxType\": true,\n" +
+                "    \"sealCarCode\": \"SC22062100017955\",\n" +
+                "    \"serviceNumber\": \"FN004\",\n" +
+                "    \"startSiteId\": 910,\n" +
+                "    \"startSiteType\": 64,\n" +
+                "    \"taskType\": 1\n" +
+                "}";
+
+        List<String> list = Arrays.asList(json1, json2, json3, json4, json5);
+        while (true) {
+            for (String json : list) {
+                Message message = new Message();
+                message.setText(json);
+                try {
+                    jyPickingGoodDetailInitSplitConsumer.consume(message);
+                    System.out.println("end");
+
+                } catch (Exception e) {
+                    System.out.println("纳尼，发现error");
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("end");
+        }
+    }
 }
 
 
