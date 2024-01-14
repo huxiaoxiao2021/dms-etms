@@ -213,7 +213,7 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
         Map<String, BaseStaffSiteOrgDto> scLastSiteType = new HashMap<>();
         taskMap.forEach((taskEntity, subsidiaryEntityList) -> {
             subsidiaryEntityList.forEach(subsidiaryEntity -> {
-                if(!Objects.isNull(scLastSiteType.get(subsidiaryEntity.getSealCarCode()))) {
+                if(Objects.isNull(scLastSiteType.get(subsidiaryEntity.getSealCarCode()))) {
                     SealCarDto sealCarDto = this.findSealCarInfoBySealCarCodeOfTms(subsidiaryEntity.getSealCarCode());
                     if(!Objects.isNull(sealCarDto) && !Objects.isNull(sealCarDto.getStartSiteId())) {
                         BaseStaffSiteOrgDto siteDto = baseMajorManager.getBaseSiteBySiteId(sealCarDto.getStartSiteId());
@@ -234,6 +234,7 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
         Map<String, PickingGoodTaskDetailInitDto> otherToDmsInitMap = new HashMap<>();
         Map<String, PickingGoodTaskDetailInitDto> dmsToDmsInitMap = new HashMap<>();
 
+        Long time = System.currentTimeMillis();
         taskMap.forEach((taskEntity, subsidiaryEntityList) -> {
             subsidiaryEntityList.forEach(subsidiaryEntity -> {
                 Integer siteType = scLastSiteType.get(subsidiaryEntity.getSealCarCode()).getSiteType();
@@ -251,6 +252,8 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
                         //上游分拣中心发货按批次走send_d做明细初始化
                         detailInitDto.setBatchCode(subsidiaryEntity.getSendCode());
                         detailInitDto.setSealCarCode(subsidiaryEntity.getSealCarCode());
+                        detailInitDto.setOperateTime(time);
+                        detailInitDto.setSysTime(System.currentTimeMillis());
                         dmsToDmsInitMap.put(subsidiaryEntity.getSendCode(), detailInitDto);
                     }
                 }else {
@@ -265,7 +268,8 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
                         //上游非分拣中心发货按sealCarCode走运输封车数据做明细初始化
                         detailInitDto.setSealCarCode(subsidiaryEntity.getSealCarCode());
                         detailInitDto.setBatchCode(subsidiaryEntity.getSendCode());
-
+                        detailInitDto.setOperateTime(time);
+                        detailInitDto.setSysTime(System.currentTimeMillis());
                         otherToDmsInitMap.put(subsidiaryEntity.getSealCarCode(), detailInitDto);
                     }
                 }

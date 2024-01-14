@@ -1,13 +1,17 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.distribution.consumer.jy.task.aviation.JyPickingGoodDetailInitConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.task.aviation.JyPickingGoodScanConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.task.aviation.TmsAviationPickingGoodConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.task.dto.AirTransportBillDto;
 import com.jd.bluedragon.distribution.consumer.jy.task.dto.TmsAviationPickingGoodMqBody;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.CommonService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -18,6 +22,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -48,13 +53,43 @@ public class JyPickingGoodConsumerTest  {
     private TmsAviationPickingGoodConsumer tmsAviationPickingGoodConsumer;
     @Autowired
     private JyPickingGoodScanConsumer jyPickingGoodScanConsumer;
+    @Autowired
+    private JyPickingGoodDetailInitConsumer jyPickingGoodDetailInitConsumer;
+    @Autowired
+    private CommonService commonService;
 
+
+    @Test
+    public void test() {
+        String boxCode = "BC1001210816140000000505";
+        //2000个箱号103s, 5000个耗时251s
+        int boxNumMax = 5000;
+        String waybillCode = "JD0003423499306";
+        // 5000个运单  125s,   1W个耗时271s
+        int waybillNumMax = 10000;
+        while (true) {
+
+            long startTime1 = System.currentTimeMillis();
+            for (int i = 0; i < waybillNumMax; i++) {
+                commonService.getRouteNextSiteByWaybillCode(40240, waybillCode);
+            }
+            Long temp1 = (System.currentTimeMillis() - startTime1) / 1000;
+
+            long startTime2 = System.currentTimeMillis();
+            for (int i = 0; i < boxNumMax; i++) {
+                commonService.getRouteNextSiteByBox(40240, boxCode);
+            }
+            Long temp2 = (System.currentTimeMillis() - startTime2) / 1000;
+
+            System.out.println("end");
+        }
+    }
 
 
     @Test
     public void tmsAviationPickingGoodConsumer() {
         List<TmsAviationPickingGoodMqBody> list = new ArrayList<>();
-        for (int i = 1; i < 10; i ++) {
+        for (int i = 10; i < 30; i ++) {
 
             TmsAviationPickingGoodMqBody mqBody = new TmsAviationPickingGoodMqBody();
             mqBody.setTplBillCode(String.format("%s000%s", DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyyyMMdd), i));
@@ -72,6 +107,9 @@ public class JyPickingGoodConsumerTest  {
             mqBody.setDepartCargoRealWeight(50d * 1000d);
             mqBody.setOperateTime(new Date());
             mqBody.setTransbillList(this.getAirTransportBillDto());
+            if(i%2 == 1) {
+                mqBody.setRealTouchDownTime(new Date());
+            }
 
 
             list.add(mqBody);
@@ -187,6 +225,100 @@ public class JyPickingGoodConsumerTest  {
             }
         }
     }
+
+
+
+
+    @Test
+    public void jyPickingGoodDetailInitConsumerTest(){
+
+        String json1 = "{\n" +
+                "    \"batchCode\": \"910-10186-20211214182344566\",\n" +
+                "    \"bizId\": \"PGT24011400000042\",\n" +
+                "    \"businessNumber\": \"2024011400013\",\n" +
+                "    \"pickingNodeCode\": \"END\",\n" +
+                "    \"pickingSiteId\": 10186,\n" +
+                "    \"sealCarCode\": \"SC21121400011833\",\n" +
+                "    \"serviceNumber\": \"FN004\",\n" +
+                "    \"startSiteId\": 910,\n" +
+                "    \"startSiteType\": 64,\n" +
+                "    \"taskType\": 1\n" +
+                "}";
+        String json2 = "{\n" +
+                "    \"batchCode\": \"910-40240-20220801098213455\",\n" +
+                "    \"bizId\": \"PGT24011400000041\",\n" +
+                "    \"businessNumber\": \"2024011400013\",\n" +
+                "    \"pickingNodeCode\": \"END\",\n" +
+                "    \"pickingSiteId\": 40240,\n" +
+                "    \"sealCarCode\": \"SC22062100017955\",\n" +
+                "    \"serviceNumber\": \"FN004\",\n" +
+                "    \"startSiteId\": 910,\n" +
+                "    \"startSiteType\": 64,\n" +
+                "    \"taskType\": 1\n" +
+                "}";
+        String json3 = "{\n" +
+                "    \"batchCode\": \"910-40240-20220621176414243\",\n" +
+                "    \"bizId\": \"PGT24011400000041\",\n" +
+                "    \"businessNumber\": \"2024011400013\",\n" +
+                "    \"pickingNodeCode\": \"END\",\n" +
+                "    \"pickingSiteId\": 40240,\n" +
+                "    \"sealCarCode\": \"SC22062100017955\",\n" +
+                "    \"serviceNumber\": \"FN004\",\n" +
+                "    \"startSiteId\": 910,\n" +
+                "    \"startSiteType\": 64,\n" +
+                "    \"taskType\": 1\n" +
+                "}";
+        //非分拣中心
+        String json4 = "{\n" +
+                "    \"batchCode\": \"910-40240-20230830198504864\",\n" +
+                "    \"bizId\": \"PGT24011400000041\",\n" +
+                "    \"businessNumber\": \"2024011400013\",\n" +
+                "    \"pickingNodeCode\": \"END\",\n" +
+                "    \"pickingSiteId\": 40240,\n" +
+                "    \"sealCarCode\": \"SC22062100017955\",\n" +
+                "    \"serviceNumber\": \"FN004\",\n" +
+                "    \"startSiteId\": 39,\n" +
+                "    \"startSiteType\": 64,\n" +
+                "    \"taskType\": 1\n" +
+                "}";
+        PickingGoodTaskDetailInitDto dto1 = JSONObject.parseObject(json1, PickingGoodTaskDetailInitDto.class);
+        PickingGoodTaskDetailInitDto dto2 = JSONObject.parseObject(json2, PickingGoodTaskDetailInitDto.class);
+        PickingGoodTaskDetailInitDto dto3 = JSONObject.parseObject(json3, PickingGoodTaskDetailInitDto.class);
+        PickingGoodTaskDetailInitDto dto4 = JSONObject.parseObject(json4, PickingGoodTaskDetailInitDto.class);
+
+        while (true) {
+
+            Message msg1 = new Message();
+            msg1.setBusinessId(dto1.getBatchCode());
+            msg1.setText(json1);
+
+            Message msg2 = new Message();
+            msg2.setBusinessId(dto2.getBatchCode());
+            msg2.setText(json2);
+
+            Message msg3 = new Message();
+            msg3.setBusinessId(dto3.getBatchCode());
+            msg3.setText(json3);
+
+
+            Message msg4 = new Message();
+            msg4.setBusinessId(dto4.getBatchCode());
+            msg4.setText(json4);
+
+            List<Message> list = Arrays.asList(msg1, msg2, msg3);
+            for (Message message : list) {
+                try {
+                    jyPickingGoodDetailInitConsumer.consume(message);
+                } catch (Exception e) {
+                    System.out.println("纳尼，发现error");
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("end");
+
+        }
+    }
+
 }
 
 

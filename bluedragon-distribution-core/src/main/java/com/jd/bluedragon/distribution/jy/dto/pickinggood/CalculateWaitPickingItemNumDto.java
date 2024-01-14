@@ -22,6 +22,9 @@ public class CalculateWaitPickingItemNumDto implements Serializable {
      */
     private Boolean calculateNextSiteAggFlag;
 
+    private Long operateTime;
+    private Long sysTime;
+
 
     public String getBizId() {
         return bizId;
@@ -69,5 +72,21 @@ public class CalculateWaitPickingItemNumDto implements Serializable {
 
     public void setCalculateNextSiteAggFlag(Boolean calculateNextSiteAggFlag) {
         this.calculateNextSiteAggFlag = calculateNextSiteAggFlag;
+    }
+
+    public Long getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Long operateTime) {
+        this.operateTime = operateTime;
+    }
+
+    public Long getSysTime() {
+        return sysTime;
+    }
+
+    public void setSysTime(Long sysTime) {
+        this.sysTime = sysTime;
     }
 }

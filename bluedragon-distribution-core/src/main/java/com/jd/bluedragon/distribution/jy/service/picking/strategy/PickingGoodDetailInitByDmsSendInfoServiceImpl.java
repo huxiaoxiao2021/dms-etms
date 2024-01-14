@@ -92,10 +92,14 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
             PickingGoodTaskDetailInitDto detailSplitInitDto = new PickingGoodTaskDetailInitDto();
             BeanUtils.copyProperties(initDto, detailSplitInitDto);
             detailSplitInitDto.setPackageCode(sendDetail.getPackageBarcode());
+            detailSplitInitDto.setSysTime(System.currentTimeMillis());
             if(BusinessHelper.isBoxcode(sendDetail.getBoxCode())) {
                 detailSplitInitDto.setBoxCode(sendDetail.getBoxCode());
                 detailSplitInitDto.setScanIsBoxType(true);
+            }else {
+                detailSplitInitDto.setScanIsBoxType(false);
             }
+
             String msgText = JsonUtils.toJSONString(detailSplitInitDto);
             logInfo("dmsToDms待提明细初始化拆分最小包裹维度，businessId={},msg={}", sendDetail.getPackageBarcode(), msgText);
             messageList.add(new Message(jyPickingGoodDetailInitSplitProducer.getTopic(), msgText, sendDetail.getPackageBarcode()));
@@ -181,6 +185,8 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
         bizIdItemNumDto.setPickingSiteId(initDto.getPickingSiteId());
         bizIdItemNumDto.setWaitPickingItemNum(map.size());
         bizIdItemNumDto.setCalculateNextSiteAggFlag(false);
+        bizIdItemNumDto.setOperateTime(initDto.getOperateTime());
+        bizIdItemNumDto.setSysTime(System.currentTimeMillis());
         String msgText1 = JsonUtils.toJSONString(bizIdItemNumDto);
         logInfo("dmsToDms计算bizId维度待提总件数发送消息，businessId={},msg={}", initDto.getBizId(), msgText1);
         messageList.add(new Message(jyPickingGoodSaveWaitScanItemNumProducer.getTopic(), msgText1, initDto.getBizId()));
@@ -193,6 +199,8 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
             nextItemNumDto.setNextSiteId(nextSiteId.longValue());
             nextItemNumDto.setWaitPickingItemNum(waitPickingItemNum);
             nextItemNumDto.setCalculateNextSiteAggFlag(true);
+            nextItemNumDto.setOperateTime(initDto.getOperateTime());
+            nextItemNumDto.setSysTime(System.currentTimeMillis());
             String msgText = JsonUtils.toJSONString(nextItemNumDto);
             String businessId = String.format("%s|%s", initDto.getBizId(), nextSiteId);
             logInfo("dmsToDms计算bizId流向维度待提总件数发送消息，businessId={},msg={}", businessId, msgText);

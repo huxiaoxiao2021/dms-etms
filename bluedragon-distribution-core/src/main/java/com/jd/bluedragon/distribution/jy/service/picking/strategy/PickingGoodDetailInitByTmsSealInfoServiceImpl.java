@@ -130,6 +130,9 @@ public class PickingGoodDetailInitByTmsSealInfoServiceImpl implements PickingGoo
             PickingGoodTaskDetailInitDto detailSplitInitDto = new PickingGoodTaskDetailInitDto();
             BeanUtils.copyProperties(initDto, detailSplitInitDto);
             detailSplitInitDto.setPackageCode(packageCode);
+            detailSplitInitDto.setSysTime(System.currentTimeMillis());
+            detailSplitInitDto.setScanIsBoxType(false);
+
             String msgText = JsonUtils.toJSONString(detailSplitInitDto);
             logInfo("otherToDms待提明细初始化拆分最小包裹维度，businessId={},msg={}", packageCode, msgText);
             messageList.add(new Message(jyPickingGoodDetailInitSplitProducer.getTopic(), msgText, packageCode));
@@ -176,6 +179,8 @@ public class PickingGoodDetailInitByTmsSealInfoServiceImpl implements PickingGoo
         bizIdItemNumDto.setPickingSiteId(initDto.getPickingSiteId());
         bizIdItemNumDto.setWaitPickingItemNum(packageCodeList.size());
         bizIdItemNumDto.setCalculateNextSiteAggFlag(false);
+        bizIdItemNumDto.setOperateTime(initDto.getOperateTime());
+        bizIdItemNumDto.setSysTime(System.currentTimeMillis());
         String msgText1 = JsonUtils.toJSONString(bizIdItemNumDto);
         logInfo("otherToDms计算bizId维度待提总件数发送消息，businessId={},msg={}", initDto.getBizId(), msgText1);
         messageList.add(new Message(jyPickingGoodSaveWaitScanItemNumProducer.getTopic(), msgText1, initDto.getBizId()));
@@ -188,6 +193,8 @@ public class PickingGoodDetailInitByTmsSealInfoServiceImpl implements PickingGoo
             nextItemNumDto.setNextSiteId(nextSiteId.longValue());
             nextItemNumDto.setWaitPickingItemNum(waitPickingItemNum);
             nextItemNumDto.setCalculateNextSiteAggFlag(true);
+            nextItemNumDto.setOperateTime(initDto.getOperateTime());
+            nextItemNumDto.setSysTime(System.currentTimeMillis());
             String msgText = JsonUtils.toJSONString(nextItemNumDto);
             String businessId = String.format("%s|%s", initDto.getBizId(), nextSiteId);
             logInfo("otherToDms计算bizId流向维度待提总件数发送消息，businessId={},msg={}", businessId, msgText);

@@ -7,7 +7,7 @@ package com.jd.bluedragon.distribution.jy.dto.pickinggood;
  */
 public class PickingGoodTaskDetailInitDto {
     private static final long serialVersionUID = 1L;
-
+    private String businessId;
     /**
      * 空铁班次流水号
      */
@@ -49,7 +49,17 @@ public class PickingGoodTaskDetailInitDto {
      */
     private Boolean scanIsBoxType;
 
+    private Long operateTime;
 
+    private Long sysTime;
+
+    public String getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(String businessId) {
+        this.businessId = businessId;
+    }
 
     public String getBusinessNumber() {
         return businessNumber;
@@ -153,5 +163,21 @@ public class PickingGoodTaskDetailInitDto {
 
     public void setScanIsBoxType(Boolean scanIsBoxType) {
         this.scanIsBoxType = scanIsBoxType;
+    }
+
+    public Long getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Long operateTime) {
+        this.operateTime = operateTime;
+    }
+
+    public Long getSysTime() {
+        return sysTime;
+    }
+
+    public void setSysTime(Long sysTime) {
+        this.sysTime = sysTime;
     }
 }
