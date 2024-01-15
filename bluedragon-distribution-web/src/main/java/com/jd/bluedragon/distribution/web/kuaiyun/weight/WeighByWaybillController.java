@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillServi
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeUploadResult;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
@@ -57,6 +58,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI;
+import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_FAST_TRANSPORT;
 
 /**
  * 运单称重
@@ -110,6 +114,9 @@ public class WeighByWaybillController extends DmsBaseController {
     @Autowired
     private DMSWeightVolumeService dmsWeightVolumeService;
 
+    @Autowired
+    private DMSWeightVolumeService weightVolumeService;
+
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/index")
     public String getIndexPage() {
@@ -145,7 +152,15 @@ public class WeighByWaybillController extends DmsBaseController {
     	result.toSuccess();
     	WaybillWeightCheckResult checkData = new WaybillWeightCheckResult();
     	result.setData(checkData);
-    	
+
+        Integer siteCode = getLoginUser() == null ? null : getLoginUser().getSiteCode();
+        InvokeResult<Void> notZeroResult = weightVolumeService.waybillNotZeroWeightIntercept(getWeightVolumeEntity(vo.getCodeStr(), siteCode));
+        if (!notZeroResult.codeSuccess()) {
+            checkData.setVerifyCode(notZeroResult.getCode());
+            checkData.setVerifyMessage(notZeroResult.getMessage());
+            return result;
+        }
+
     	InvokeResult<Boolean> verifyResult = this.verifyWaybillReality(vo.getCodeStr());
     	if(verifyResult != null) {
     		checkData.setIsExists(verifyResult.getData());
@@ -173,7 +188,7 @@ public class WeighByWaybillController extends DmsBaseController {
         		}
         		if(!weightVolumeCheckResult.isSucceed()) {
         			checkData.setIsExists(Boolean.FALSE);
-            		checkData.setVerifyCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI);
+            		checkData.setVerifyCode(RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI);
             		checkData.setVerifyMessage(weightVolumeCheckResult.getMessage());
         		}
         	}
@@ -389,6 +404,19 @@ public class WeighByWaybillController extends DmsBaseController {
         return result;
     }
 
+    private WeightVolumeEntity getWeightVolumeEntity(String waybillCode, Integer siteCode) {
+        WeightVolumeEntity entity = new WeightVolumeEntity();
+        entity.setSourceCode(DMS_WEB_FAST_TRANSPORT);
+        entity.setOperateSiteCode(siteCode);
+        entity.setBarCode(waybillCode);
+        LoginContext loginContext = LoginContext.getLoginContext();
+        if (loginContext == null) {
+            return null;
+        }
+        entity.setOperatorCode(loginContext.getPin());
+        return entity;
+    }
+
     /**
      * 将包裹号或运单号统一转为运单号
      *
@@ -587,6 +615,14 @@ public class WeighByWaybillController extends DmsBaseController {
         }else{
             //转换成功 将运单号存入对象中
             waybillWeightVO.setCodeStr(convertCodeToWaybillCodeResult.getData());
+        }
+
+        // 非0重包裹拦截
+        Integer siteCode = getLoginUser() == null ? null : getLoginUser().getSiteCode();
+        InvokeResult<Void> notZeroResult = weightVolumeService.waybillNotZeroWeightIntercept(getWeightVolumeEntity(waybillWeightVO.getCodeStr(), siteCode));
+        if (!notZeroResult.codeSuccess()) {
+            waybillWeightVO.setErrorMessage(notZeroResult.getMessage());
+            return false;
         }
 
         //存在性校验

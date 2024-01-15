@@ -1193,6 +1193,25 @@ public class Constants {
     public static final String WAYBILL_TRACE_STATE_SEND_BY_SITE = "200";
 
     /**
+     * 全程跟踪状态 发货
+     * */
+    public static final String WAYBILL_TRACE_STATE_SEND = "16";
+
+    /**
+     * 全程跟踪状态 封车
+     * */
+    public static final String WAYBILL_TRACE_STATE_SEAL_CAR = "-450";
+
+    /**
+     * 分拣中心收货
+     */
+    public static final String WAYBILL_TRACE_STATE_RECEIVE_WAYBILL = "-170";
+
+    /**
+     * 全程跟踪状态 分拣
+     * */
+    public static final String WAYBILL_TRACE_STATE_SORTING = "13";
+    /**
      * 全程跟踪状态 分拣验货
      * */
     public static final String WAYBILL_TRACE_STATE_INSPECTION_BY_CENTER = "10";
@@ -1230,6 +1249,11 @@ public class Constants {
      * 运单状态  异常退回
      */
     public static final String WAYBILLTRACE_EX_RETURN = "-3040";
+
+    /**
+     * 运单状态  解封车
+     */
+    public static final String WAYBILLTRACE_UN_SEAL_CAR = "-460";
     /**
      * 运单状态  清关失败
      */
@@ -2363,4 +2387,14 @@ public class Constants {
     public static final String PACKAGE_PRINT_LIMIT_POSITION_CODE_TYPE_CONFIG  = "package.print.limit.positionCode.config";
 
 
+
+    /**
+     * 运单返调度审批配置 新
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG_NEW = "reassignWaybill.province.area.approval.config.new";
+
+    /**
+     * 运单返调度审批版本配置
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG_FLOW_VERSION_NEW = "reassignWaybill.province.area.approval.config.flow.version.new";
 }

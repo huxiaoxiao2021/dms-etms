@@ -178,7 +178,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
      *  自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
      * @param entity
      */
-    private void spotCheckDeal(WeightVolumeEntity entity) {
+    public void spotCheckDeal(WeightVolumeEntity entity) {
         if(!FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) || isFirstWeightVolume(entity)){
             return;
         }

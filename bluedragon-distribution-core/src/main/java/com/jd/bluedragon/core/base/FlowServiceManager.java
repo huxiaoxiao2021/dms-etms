@@ -18,18 +18,20 @@ public interface FlowServiceManager {
 
     /**
      * 提交申请单
-     * @see 'http://lcp.jdl.com/#/docSoftwareSystem/19/670'
-     * @param oaMap OA数据
-     * @param businessMap 业务数据
+     *
+     * @param oaMap          OA数据
+     * @param businessMap    业务数据
      * @param flowControlMap 流程分支数据
-     * @param name 流程编码
-     * @param operateErp 提交人ERP
-     * @param businessNoKey 申请单key
+     * @param name           流程编码
+     * @param operateErp     提交人ERP
+     * @param businessNoKey  申请单key
+     * @param flowVersion
      * @return 申请单工单号
      * @throws FlowException 审批异常
+     * @see 'http://lcp.jdl.com/#/docSoftwareSystem/19/670'
      */
     public String startFlow(Map<String,Object> oaMap,Map<String,Object> businessMap,Map<String,Object> flowControlMap,
-            String name, String operateErp, String businessNoKey) throws FlowException;
+            String name, String operateErp, String businessNoKey, Integer flowVersion) throws FlowException;
 
     /**
      * 申请单查询
