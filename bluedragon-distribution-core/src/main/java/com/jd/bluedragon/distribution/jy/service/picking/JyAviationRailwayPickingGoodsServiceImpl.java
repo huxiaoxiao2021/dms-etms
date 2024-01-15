@@ -1034,6 +1034,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setLimit(1000);
         queryDto.setStartTime(startTime);
         queryDto.setEndTime(endTime);
+        queryDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
         List<String> bizIdList;
         do {
             queryDto.setOffset((pageNumber - 1) * queryDto.getLimit());

@@ -459,6 +459,7 @@
     and create_time <![CDATA[ >= ]]> #{startTime}
     and create_time <![CDATA[ <= ]]> #{endTime}
     and task_type = #{taskType}
+    and status <![CDATA[ < ]]> #{status}
     and manual_created_flag = 1
     limit #{offset}, #{limit}
   </select>
