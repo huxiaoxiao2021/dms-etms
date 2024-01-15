@@ -7,21 +7,30 @@ package com.jd.bluedragon.distribution.api.enums;
  */
 public enum ReassignWaybillReasonTypeEnum {
 
-    UNABLE_TO_DELIVER(1,"预分拣站点无法派送"),
-    CONTROL_CONTRABAND(2,"特殊时期管制违禁品"),
-    POSTAL_REJECTION(3,"邮政拒收"),
-    NO_PRE_SORTING_STATION(4,"无预分拣站点");
-
-
+    UNABLE_TO_DELIVER(1,0,"预分拣站点无法派送"),
+    CONTROL_CONTRABAND(2,0,"特殊时期管制违禁品"),
+    POSTAL_REJECTION(3,0,"邮政拒收"),
+    NO_PRE_SORTING_STATION(4,0,"无预分拣站点"),
+    RECOMMENDS_WAREHOUSE_NOT_ACC(5,1,"系统推荐仓不收"),
+    JUDGMENT_REASSIGN(6,1,"根据判责结果反调"),
+    NO_ROUTING(7,1,"退仓无线上路由");
 
 
     private Integer code;
+
+    /**
+     * 0 非退货组
+     * 1 退货组
+     */
+    private Integer type;
+
     private String name;
 
 
-    private ReassignWaybillReasonTypeEnum(Integer code, String name) {
+    private ReassignWaybillReasonTypeEnum(Integer code, Integer type,String name) {
         this.code = code;
         this.name = name;
+        this.type = type;
     }
 
     public Integer getCode() {
@@ -60,5 +69,13 @@ public enum ReassignWaybillReasonTypeEnum {
      */
     public static boolean exist(Integer code) {
         return null != getEnum(code);
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

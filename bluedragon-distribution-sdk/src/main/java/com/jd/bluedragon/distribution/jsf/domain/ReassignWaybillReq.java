@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jsf.domain;
 import com.jd.bluedragon.distribution.open.entity.OperatorInfo;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -89,8 +90,15 @@ public class ReassignWaybillReq implements Serializable {
      */
     private String siteOfSchedulingOnSiteName;
 
+    /**
+     * 照片
+     */
+    private List<String> photoUrlList;
 
-
+    /**
+     * 操作员工是否为退货组标识
+     */
+    private Boolean returnGroupFlag;
 
     public String getOperateUserErp() {
         return operateUserErp;
@@ -214,5 +222,21 @@ public class ReassignWaybillReq implements Serializable {
 
     public void setAreaHubName(String areaHubName) {
         this.areaHubName = areaHubName;
+    }
+
+    public List<String> getPhotoUrlList() {
+        return photoUrlList;
+    }
+
+    public void setPhotoUrlList(List<String> photoUrlList) {
+        this.photoUrlList = photoUrlList;
+    }
+
+    public Boolean getReturnGroupFlag() {
+        return returnGroupFlag;
+    }
+
+    public void setReturnGroupFlag(Boolean returnGroupFlag) {
+        this.returnGroupFlag = returnGroupFlag;
     }
 }
