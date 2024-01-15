@@ -24,7 +24,7 @@ public interface JyPickingSendDestinationService {
      * @param nextSiteId
      * @return
      */
-    String findOrGenerateBatchCode(Long curSiteId, Long nextSiteId, User user);
+    String findOrGenerateBatchCode(Long curSiteId, Long nextSiteId, User user, Integer taskType);
 
     /**
      * 校验发货流向是否存在

@@ -67,8 +67,8 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
 
 
     @Override
-    public String findOrGenerateBatchCode(Long curSiteId, Long nextSiteId, User user) {
-        String batchCode = jyPickingSendDestinationDetailDao.fetchLatestNoCompleteBatchCode(curSiteId, nextSiteId);
+    public String findOrGenerateBatchCode(Long curSiteId, Long nextSiteId, User user, Integer taskType) {
+        String batchCode = jyPickingSendDestinationDetailDao.fetchLatestNoCompleteBatchCode(curSiteId, nextSiteId, taskType);
         if(StringUtils.isBlank(batchCode)) {
             batchCode = jySendVehicleService.generateSendCode(curSiteId, nextSiteId, user.getUserErp());
             if(StringUtils.isBlank(batchCode)) {
@@ -85,6 +85,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
             insertEntity.setUpdateTime(insertEntity.getCreateTime());
             insertEntity.setCreateUserErp(user.getUserErp());
             insertEntity.setCreateUserName(user.getUserName());
+            insertEntity.setTaskType(taskType);
             jyPickingSendDestinationDetailDao.insertSelective(insertEntity);
         }
         return batchCode;
@@ -117,6 +118,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
         entity.setUpdateTime(new Date());
         entity.setUpdateUserErp(req.getUser().getUserErp());
         entity.setUpdateUserName(req.getUser().getUserName());
+        entity.setTaskType(req.getTaskType());
         jyPickingSendDestinationDetailDao.updateSendTaskStatus(entity);
         return true;
     }

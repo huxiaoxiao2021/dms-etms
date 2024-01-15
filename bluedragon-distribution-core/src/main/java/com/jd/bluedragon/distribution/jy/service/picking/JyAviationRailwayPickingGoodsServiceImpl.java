@@ -445,7 +445,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         bodyDto.setBoxCode(request.getBarCode());
         bodyDto.setBusinessType(10);
         bodyDto.setTaskType(Task.TASK_TYPE_AR_RECEIVE_AND_SEND);
-        bodyDto.setBatchCode(jyPickingSendDestinationService.findOrGenerateBatchCode((long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId(), request.getUser()));
+        bodyDto.setBatchCode(jyPickingSendDestinationService.findOrGenerateBatchCode(
+                (long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId(), request.getUser(), request.getTaskType()));
         bodyDto.setReceiveSiteCode(request.getNextSiteId().intValue());
         //
         bodyDto.setUserErp(request.getUser().getUserErp());

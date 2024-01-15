@@ -10,6 +10,7 @@
     <result column="seal_flag" property="sealFlag" jdbcType="TINYINT" />
     <result column="first_scan_time" property="firstScanTime" jdbcType="TIMESTAMP" />
     <result column="complete_time" property="completeTime" jdbcType="TIMESTAMP" />
+    <result column="task_type" property="taskType" jdbcType="TINYINT" />
     <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
     <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
     <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
@@ -21,7 +22,7 @@
   </resultMap>
   <sql id="Base_Column_List" >
     id, create_site_id, next_site_id, send_code, status, seal_flag, first_scan_time, 
-    complete_time, create_user_erp, create_user_name, update_user_erp, update_user_name, 
+    complete_time, task_type, create_user_erp, create_user_name, update_user_erp, update_user_name,
     create_time, update_time, yn, ts
   </sql>
 
@@ -33,6 +34,7 @@
         and create_site_id = #{createSiteId}
         and next_site_id = #{nextSiteId}
         and status = 1
+        and task_type = #{taskType}
       order by create_time desc limit 1
     </select>
 
@@ -64,6 +66,9 @@
         <if test="completeTime != null" >
           complete_time,
         </if>
+        <if test="taskType != null" >
+          task_type,
+        </if>
         <if test="createUserErp != null" >
           create_user_erp,
         </if>
@@ -82,62 +87,55 @@
         <if test="updateTime != null" >
           update_time,
         </if>
-        <if test="yn != null" >
-          yn,
-        </if>
-        <if test="ts != null" >
-          ts,
-        </if>
+        yn
       </trim>
       <trim prefix="values (" suffix=")" suffixOverrides="," >
         <if test="id != null" >
-          #{id,jdbcType=BIGINT},
+          #{id},
         </if>
         <if test="createSiteId != null" >
-          #{createSiteId,jdbcType=BIGINT},
+          #{createSiteId},
         </if>
         <if test="nextSiteId != null" >
-          #{nextSiteId,jdbcType=BIGINT},
+          #{nextSiteId},
         </if>
         <if test="sendCode != null" >
-          #{sendCode,jdbcType=VARCHAR},
+          #{sendCode},
         </if>
         <if test="status != null" >
-          #{status,jdbcType=TINYINT},
+          #{status},
         </if>
         <if test="sealFlag != null" >
-          #{sealFlag,jdbcType=TINYINT},
+          #{sealFlag},
         </if>
         <if test="firstScanTime != null" >
-          #{firstScanTime,jdbcType=TIMESTAMP},
+          #{firstScanTime},
         </if>
         <if test="completeTime != null" >
-          #{completeTime,jdbcType=TIMESTAMP},
+          #{completeTime},
+        </if>
+        <if test="taskType != null" >
+          #{taskType},
         </if>
         <if test="createUserErp != null" >
-          #{createUserErp,jdbcType=VARCHAR},
+          #{createUserErp},
         </if>
         <if test="createUserName != null" >
-          #{createUserName,jdbcType=VARCHAR},
+          #{createUserName},
         </if>
         <if test="updateUserErp != null" >
-          #{updateUserErp,jdbcType=VARCHAR},
+          #{updateUserErp},
         </if>
         <if test="updateUserName != null" >
-          #{updateUserName,jdbcType=VARCHAR},
+          #{updateUserName},
         </if>
         <if test="createTime != null" >
-          #{createTime,jdbcType=TIMESTAMP},
+          #{createTime},
         </if>
         <if test="updateTime != null" >
-          #{updateTime,jdbcType=TIMESTAMP},
+          #{updateTime},
         </if>
-        <if test="yn != null" >
-          #{yn,jdbcType=BIT},
-        </if>
-        <if test="ts != null" >
-          #{ts,jdbcType=TIMESTAMP},
-        </if>
+        1
       </trim>
     </insert>
   <!-- todo laoqingchang 方法名通用型 -->
@@ -159,6 +157,8 @@
     </if>
     <if test="nextSiteId != null">
     and next_site_id = #{nextSiteId}
+      and task_type = #{taskType}
+
     </if>
   </update>
 </mapper>

@@ -53,6 +53,11 @@ public class JyPickingSendDestinationDetailEntity implements Serializable {
      */
     private Date completeTime;
 
+    /**
+     * 提货任务类型（1-航空提货，2-铁路提货）
+     */
+    private Integer taskType;
+
     private String createUserErp;
 
     private String createUserName;
@@ -132,6 +137,14 @@ public class JyPickingSendDestinationDetailEntity implements Serializable {
 
     public void setCompleteTime(Date completeTime) {
         this.completeTime = completeTime;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
     }
 
     public String getCreateUserErp() {

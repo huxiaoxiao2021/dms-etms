@@ -7,10 +7,11 @@ public class JyPickingSendDestinationDetailDao extends BaseDao<JyPickingSendDest
     private final static String NAMESPACE = JyPickingSendDestinationDetailDao.class.getName();
 
 
-    public String fetchLatestNoCompleteBatchCode(Long curSiteId, Long nextSiteId) {
+    public String fetchLatestNoCompleteBatchCode(Long curSiteId, Long nextSiteId, Integer taskType) {
         JyPickingSendDestinationDetailEntity entity = new JyPickingSendDestinationDetailEntity();
         entity.setCreateSiteId(curSiteId);
         entity.setNextSiteId(nextSiteId);
+        entity.setTaskType(taskType);
         return this.getSqlSession().selectOne(NAMESPACE + ".fetchLatestNoCompleteBatchCode", entity);
     }
 
