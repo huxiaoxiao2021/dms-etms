@@ -320,6 +320,15 @@ public class InvokeResult<T> implements Serializable {
     public static final String CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_MESSAGE = "车辆封车的板数量小于【%s】 件数小于【%s】 请拍照！";
     public static final int CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_CODE = 3072;
     public static final String CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_MESSAGE = "发货目的地【%s】不在本网格的传站流向中，请使用正确的网格码登录封车";
+
+    public static final int WAYBILL_ZERO_WEIGHT_RECYCLE_BASKET_CODE = 3075;
+    public static final String WAYBILL_ZERO_WEIGHT_RECYCLE_BASKET_MESSAGE = "包裹运单0重量且使用周转筐落自动化回流，由人工进行称重！";
+
+    public static final int WAYBILL_VOLUME_OUT_UPPER_LIMIT_CODE = 3076;
+    public static final String WAYBILL_VOLUME_OUT_UPPER_LIMIT_MESSAGE = "单件货物长宽高不能超过%scm!";
+
+    public static final int WAYBILL_WEIGHT_OUT_UPPER_LIMIT_CODE = 3077;
+    public static final String WAYBILL_WEIGHT_OUT_UPPER_LIMIT_MESSAGE = "单件货物重量不能超过%skg!";
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
