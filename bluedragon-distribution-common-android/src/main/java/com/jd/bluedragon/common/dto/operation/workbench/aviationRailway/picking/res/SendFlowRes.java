@@ -1,7 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res;
 
 import java.util.List;
-
+//todo laoqingchang
 public class SendFlowRes {
     /**
      * 展示类型

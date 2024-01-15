@@ -66,6 +66,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
         }
     }
 
+    //todo laoqingchang   1、 ump  2、异常返回话术
     @Override
     public JdCResponse<Void> finishPickGoods(FinishPickGoodsReq req) {
         if(Objects.isNull(req)){

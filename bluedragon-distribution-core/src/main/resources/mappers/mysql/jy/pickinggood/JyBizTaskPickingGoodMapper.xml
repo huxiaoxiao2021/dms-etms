@@ -324,7 +324,7 @@
       </if>
     limit 1
   </select>
-
+  <!-- todo laoqingchang  命名：完成，非改状态, 可： updateTaskByBizIdWithCondition 替换 -->
   <update id="updateStatusByBizId" parameterType="JyPickingSendRecordEntity">
     update  jy_biz_task_picking_good
     set     complete_node = #{completeNode},
@@ -359,6 +359,13 @@
         <if test="interceptTime != null" >
           intercept_time = #{interceptTime},
         </if>
+        <if test="updateUserErp != null" >
+          update_user_erp = #{updateUserErp},
+        </if>
+        <if test="updateUserName != null" >
+          update_user_name = #{updateUserName},
+        </if>
+        update_time = #{updateTime}
       </set>
       where yn = 1 and biz_id = #{bizId}
     </update>
@@ -401,6 +408,7 @@
     where yn = 1 and business_number = #{businessNumber}
   </update>
 
+  <!--todo laoqingchang  -->
   <select id="listTaskGroupByPickingNodeCode" resultMap="BaseResultMap">
     select  <include refid="Base_Column_List" />
     from    jy_biz_task_picking_good
@@ -440,6 +448,7 @@
     and     create_time >= #{createTime}
     group by status
   </select>
+  <!-- todo laoqingchang 1、 命名：完成，非改状态，  或者sql 改成通用  2、 修改都更新updateTime-->
 
   <update id="batchUpdateStatusByBizId">
     update  jy_biz_task_picking_good
@@ -451,6 +460,7 @@
       #{item}
     </foreach>
   </update>
+  <!-- todo laoqingchang  卡create_time范围的场景 ？？？-->
 
   <select id="pageRecentCreatedManualBizId" resultType="java.lang.String">
     select biz_id

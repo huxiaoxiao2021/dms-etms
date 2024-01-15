@@ -748,6 +748,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         if (CollectionUtils.isEmpty(countDtoList)) {
             return ret;
         }
+        //todo laoqingchang
         // 按机场/车站分组逻辑分页查询
         JyPickingTaskGroupQueryDto groupQueryDto = buildGroupQueryDto(req);
         List<JyBizTaskPickingGoodEntity> groupedTask = jyBizTaskPickingGoodService.listTaskGroupByPickingNodeCode(groupQueryDto);
@@ -826,6 +827,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     private JyPickingTaskBatchQueryDto buildBatchQueryDto(SendFlowReq req) {
+        //todo laoqingchang
         JyPickingTaskBatchQueryDto queryDto = new JyPickingTaskBatchQueryDto();
         queryDto.setPickingSiteId((long) req.getCurrentOperate().getSiteCode());
         Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
@@ -905,7 +907,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         if (CollectionUtils.isEmpty(taskDetail)) {
             return ret;
         }
-
+        //todo laoqingchang  待发货统计agg确认
         List<String> bizList = taskDetail.stream().map(JyBizTaskPickingGoodEntity::getBizId).distinct().collect(Collectors.toList());
         List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.waitPickingInitTotalNum(bizList, currentSiteId, null);
 //        List<PickingSendGoodAggsDto> aggsDtoList = bizList.stream().map(item -> {
@@ -1024,6 +1026,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         } while (CollectionUtils.isNotEmpty(bizIdList));
     }
 
+    //todo laoqingchang 方法名通用性
     @Override
     public void finishTaskWhenExceed24Hours() {
         Date now = new Date();

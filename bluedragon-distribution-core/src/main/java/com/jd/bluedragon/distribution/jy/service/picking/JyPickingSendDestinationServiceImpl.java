@@ -152,8 +152,9 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
             return false;
         }
         try {
+//            setNx  加锁，考虑并发  todo laoqingchang
             cacheService.setEx(cacheKey, req.getCurrentOperate().getSiteCode(), 5, TimeUnit.SECONDS);
-            String templateCode = Constants.AVIATION_RAIL_TEMPLATE_PREFIX + req.getCurrentOperate().getSiteCode();
+            String templateCode = Constants.AVIATION_RAIL_TEMPLATE_PREFIX + req.getCurrentOperate().getSiteCode();   //todo laoqingchang   getPickingSendTemplateCode
             List<JyGroupSortCrossDetailEntity> entities = new ArrayList<>();
             List<StreamlinedBasicSite> siteList = filterExistedSendFlow(req);
             for (StreamlinedBasicSite basicSite : siteList) {
@@ -210,6 +211,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
     }
 
     /**
+     * todo laoqingchang groupCode
      * 获取发送流程查询DTO
      * @param req 基础请求对象
      * @return 返回JyGroupSortCrossDetailEntityQueryDto对象
@@ -229,6 +231,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
 
     @Override
     public boolean deleteSendFlow(SendFlowDeleteReq req) {
+        //todo laoqingchang 查询删除的流向是否存在未封车的批次，如果存在则不能删除
         String templateCode = Constants.AVIATION_RAIL_TEMPLATE_PREFIX + req.getCurrentOperate().getSiteCode();
         JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
         entity.setTemplateCode(templateCode);

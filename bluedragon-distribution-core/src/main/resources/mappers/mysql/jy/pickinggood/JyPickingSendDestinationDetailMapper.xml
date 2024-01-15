@@ -140,6 +140,7 @@
         </if>
       </trim>
     </insert>
+  <!-- todo laoqingchang 方法名通用型 -->
   <update id="updateSendTaskStatus" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity">
     update
         jy_picking_send_destination_detail

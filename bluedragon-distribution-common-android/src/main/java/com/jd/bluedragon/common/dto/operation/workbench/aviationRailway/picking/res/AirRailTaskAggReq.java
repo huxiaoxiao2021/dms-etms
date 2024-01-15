@@ -3,7 +3,7 @@ package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
-
+//todo laoqingchang
 public class AirRailTaskAggReq extends BaseReq implements Serializable {
 
     private static final long serialVersionUID = -2083002886333203311L;
