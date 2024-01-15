@@ -37,6 +37,10 @@ public class SendResult implements Serializable {
 
     public static final Integer RESPONSE_CODE_MAPPING_CONFIRM = 39000;
 
+    /**
+     * 集包袋绑定专用，用于请求方识别做特殊界面效果展示处理
+     */
+    public static final Integer CODE_CYCLE_BOX_BIND = 7;
     public SendResult() {
 
     }
