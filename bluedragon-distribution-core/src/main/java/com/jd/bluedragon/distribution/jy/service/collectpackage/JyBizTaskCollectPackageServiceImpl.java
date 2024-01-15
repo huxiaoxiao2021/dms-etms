@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackStatusCount;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -25,6 +26,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
 import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -132,6 +135,8 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
      * @return 返回取消集包操作的结果，true表示成功取消集包，false表示集包已经被取消或不存在
      */
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskCollectPackageServiceImpl.cancelJyCollectPackage",
+        jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public boolean cancelJyCollectPackage(CancelCollectPackageDto dto) {
         //先判断一下是否已经被取消-幂等
         if (!checkPackageNoExitOrCanceled(dto)) {
