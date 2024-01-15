@@ -398,7 +398,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             }
         }
         //待提货任务为空时生成自建待提任务
-        JyBizTaskPickingGoodEntity manualCreateTask = jyBizTaskPickingGoodService.findLatestEffectiveManualCreateTask((long)request.getCurrentOperate().getSiteCode());
+        JyBizTaskPickingGoodEntity manualCreateTask = jyBizTaskPickingGoodService.findLatestEffectiveManualCreateTask((long)request.getCurrentOperate().getSiteCode(), request.getTaskType());
         if(!Objects.isNull(manualCreateTask)) {
             logInfo("扫描单据{}查提货任务为空-待提任务取自已存在的自建任务{}", request.getBarCode(), JsonHelper.toJson(manualCreateTask));
             resData.setTaskSource(BarCodeFetchPickingTaskRuleEnum.MANUAL_CREATE_TASK_EXIST.getCode());

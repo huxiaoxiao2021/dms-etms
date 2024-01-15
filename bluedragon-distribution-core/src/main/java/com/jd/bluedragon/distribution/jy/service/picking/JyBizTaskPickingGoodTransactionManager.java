@@ -145,11 +145,11 @@ public class JyBizTaskPickingGoodTransactionManager {
 
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteByBusinessNumber(PickingGoodTaskInitDto initDto) {
-        List<JyBizTaskPickingGoodEntity> allTask = jyBizTaskPickingGoodService.findAllTaskByBusinessNumber(initDto.getBusinessNumber());
+        List<JyBizTaskPickingGoodEntity> allTask = jyBizTaskPickingGoodService.findAllTaskByBusinessNumber(initDto.getBusinessNumber(), initDto.getTaskType());
         if(CollectionUtils.isEmpty(allTask)) {
             return;
         }
-        jyBizTaskPickingGoodService.deleteByBusinessNumber(initDto.getBusinessNumber());
+        jyBizTaskPickingGoodService.deleteByBusinessNumber(initDto.getBusinessNumber(), initDto.getTaskType());
         logInfo("空铁提货计划消费生成提货任务,删除批次【{}】已有任务成功，当前下发任务信息：{}", JsonHelper.toJson(initDto));
         // 关闭调度任务
         this.closeScheduleTask(allTask);

@@ -73,7 +73,7 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
 
     @Override
     protected boolean generatePickingGoodTask(PickingGoodTaskInitDto initDto) {
-        JyBizTaskPickingGoodEntity pickingGoodEntity = jyBizTaskPickingGoodService.findLatestTaskByBusinessNumber(initDto.getBusinessNumber());
+        JyBizTaskPickingGoodEntity pickingGoodEntity = jyBizTaskPickingGoodService.findLatestTaskByBusinessNumber(initDto.getBusinessNumber(), initDto.getTaskType());
         if(!Objects.isNull(pickingGoodEntity)) {
             if(!Objects.isNull(pickingGoodEntity.getNodeRealArriveTime())) {
                 logWarn("空铁提货计划消费生成提货任务，根据流水号%s查找提货任务已经实际落地，落地时间为【%s|bizId=%s】，消息不在消费，msg={}",

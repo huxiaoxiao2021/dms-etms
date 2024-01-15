@@ -114,27 +114,28 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     }
 
     @Override
-    public JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId) {
-        return jyBizTaskPickingGoodDao.findLatestEffectiveManualCreateTask(siteId);
+    public JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId, Integer taskType) {
+        return jyBizTaskPickingGoodDao.findLatestEffectiveManualCreateTask(siteId, taskType);
     }
 
     @Override
-    public JyBizTaskPickingGoodEntity findLatestTaskByBusinessNumber(String businessNumber) {
-        return jyBizTaskPickingGoodDao.findLatestTaskByBusinessNumber(businessNumber);
+    public JyBizTaskPickingGoodEntity findLatestTaskByBusinessNumber(String businessNumber, Integer taskType) {
+        return jyBizTaskPickingGoodDao.findLatestTaskByBusinessNumber(businessNumber, taskType);
     }
 
     @Override
-    public List<JyBizTaskPickingGoodEntity> findAllTaskByBusinessNumber(String businessNumber) {
-        return jyBizTaskPickingGoodDao.findAllTaskByBusinessNumber(businessNumber);
+    public List<JyBizTaskPickingGoodEntity> findAllTaskByBusinessNumber(String businessNumber, Integer taskType) {
+        return jyBizTaskPickingGoodDao.findAllTaskByBusinessNumber(businessNumber, taskType);
     }
 
     @Override
-    public int deleteByBusinessNumber(String businessNumber) {
+    public int deleteByBusinessNumber(String businessNumber, Integer taskType) {
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
         entity.setBusinessNumber(businessNumber);
         entity.setUpdateTime(new Date());
         entity.setUpdateUserErp(Constants.SYS_NAME);
         entity.setUpdateUserName(Constants.SYS_NAME);
+        entity.setTaskType(taskType);
         return jyBizTaskPickingGoodDao.deleteByBusinessNumber(entity);
     }
 

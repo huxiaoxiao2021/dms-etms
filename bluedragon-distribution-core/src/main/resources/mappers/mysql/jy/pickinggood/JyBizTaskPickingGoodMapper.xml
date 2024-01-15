@@ -371,26 +371,34 @@
     </update>
 
 
-  <select id="findLatestEffectiveManualCreateTask" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+  <select id="findLatestEffectiveManualCreateTask" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >
     select <include refid="Base_Column_List" />
     from jy_biz_task_picking_good
-    where next_site_id= #{siteId} and manual_created_flag = 1 and status != 2 and yn = 1
+    where yn = 1
+      and task_type = #{taskType}
+      and manual_created_flag = 1
+      and status != 2
+      and next_site_id= #{siteId}
     order by create_time desc
     limit 1
   </select>
 
-  <select id="findLatestTaskByBusinessNumber" resultMap="BaseResultMap" parameterType="java.lang.String" >
+  <select id="findLatestTaskByBusinessNumber" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >
     select <include refid="Base_Column_List" />
     from jy_biz_task_picking_good
-    where business_number= #{businessNumber} and yn = 1
+    where yn = 1
+    and business_number= #{businessNumber}
+    and task_type = #{taskType}
     order by create_time desc
     limit 1
   </select>
 
-  <select id="findAllTaskByBusinessNumber" resultMap="BaseResultMap" parameterType="java.lang.String" >
+  <select id="findAllTaskByBusinessNumber" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >
     select <include refid="Base_Column_List" />
     from jy_biz_task_picking_good
-    where business_number= #{businessNumber} and yn = 1
+    where yn = 1
+    and business_number= #{businessNumber}
+    and task_type = #{taskType}
     order by create_time desc
   </select>
 
@@ -405,7 +413,9 @@
       </if>
       update_time = #{updateTime}
       yn = 0
-    where yn = 1 and business_number = #{businessNumber}
+    where yn = 1
+      and business_number = #{businessNumber}
+      and task_type = #{taskType}
   </update>
 
   <!--todo laoqingchang  -->

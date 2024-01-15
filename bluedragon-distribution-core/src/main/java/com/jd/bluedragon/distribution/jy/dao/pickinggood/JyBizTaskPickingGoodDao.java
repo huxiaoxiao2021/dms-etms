@@ -28,15 +28,24 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
     }
 
 
-    public JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".findLatestEffectiveManualCreateTask", siteId);
+    public JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId, Integer taskType) {
+        JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
+        entity.setNextSiteId(siteId);
+        entity.setTaskType(taskType);
+        return this.getSqlSession().selectOne(NAMESPACE + ".findLatestEffectiveManualCreateTask", entity);
     }
 
-    public JyBizTaskPickingGoodEntity findLatestTaskByBusinessNumber(String businessNumber) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".findLatestTaskByBusinessNumber", businessNumber);
+    public JyBizTaskPickingGoodEntity findLatestTaskByBusinessNumber(String businessNumber, Integer taskType) {
+        JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
+        entity.setBusinessNumber(businessNumber);
+        entity.setTaskType(taskType);
+        return this.getSqlSession().selectOne(NAMESPACE + ".findLatestTaskByBusinessNumber", entity);
     }
-    public List<JyBizTaskPickingGoodEntity> findAllTaskByBusinessNumber(String businessNumber) {
-        return this.getSqlSession().selectList(NAMESPACE + ".findAllTaskByBusinessNumber", businessNumber);
+    public List<JyBizTaskPickingGoodEntity> findAllTaskByBusinessNumber(String businessNumber, Integer taskType) {
+        JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
+        entity.setBusinessNumber(businessNumber);
+        entity.setTaskType(taskType);
+        return this.getSqlSession().selectList(NAMESPACE + ".findAllTaskByBusinessNumber", entity);
     }
 
 

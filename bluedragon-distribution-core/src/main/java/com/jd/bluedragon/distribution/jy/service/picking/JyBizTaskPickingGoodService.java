@@ -52,7 +52,7 @@ public interface JyBizTaskPickingGoodService {
      * @param siteId
      * @return
      */
-    JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId);
+    JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId, Integer taskType);
 
     /**
      * 根据空铁批货流水号查询最近提货任务
@@ -60,21 +60,21 @@ public interface JyBizTaskPickingGoodService {
      * @param businessNumber
      * @return
      */
-    JyBizTaskPickingGoodEntity findLatestTaskByBusinessNumber(String businessNumber);
+    JyBizTaskPickingGoodEntity findLatestTaskByBusinessNumber(String businessNumber, Integer taskType);
 
     /**
      * 根据空铁批货流水号查询所有提货任务
      * @param businessNumber
      * @return
      */
-    List<JyBizTaskPickingGoodEntity> findAllTaskByBusinessNumber(String businessNumber);
+    List<JyBizTaskPickingGoodEntity> findAllTaskByBusinessNumber(String businessNumber, Integer taskType);
 
     /**
      * 根据空铁批货流水号删除一批任务
      * @param businessNumber
      * @return
      */
-    int deleteByBusinessNumber(String businessNumber);
+    int deleteByBusinessNumber(String businessNumber, Integer taskType);
 
 
     /**
