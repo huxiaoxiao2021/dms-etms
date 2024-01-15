@@ -51,13 +51,13 @@ public abstract class ConsumableConsumer extends MessageBaseConsumer {
         String waybillCode = waybillConsumableCommonDto.getWaybillCode();
         // 互斥锁
         String mutexKey = WAYBILL_CONSUMABLE_LOCK_PREFIX + waybillCode;
-        try {
-            // 运单维度加锁防止并发
-            if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {
-                String warnMsg = String.format("运单号:%s-包装耗材消费正在处理中!", waybillCode);
-                throw new JyBizException(warnMsg);
-            }
 
+        // 运单维度加锁防止并发
+        if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {
+            String warnMsg = String.format("运单号:%s-包装耗材消费正在处理中!", waybillCode);
+            throw new JyBizException(warnMsg);
+        }
+        try {
             // 保存主表
             WaybillConsumableRecord waybillConsumableRecord = convert2WaybillConsumableRecord(waybillConsumableCommonDto);
             if (isNeedConfirmConsumable(waybillConsumableCommonDto)) {
