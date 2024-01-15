@@ -18,10 +18,8 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.external.service.DmsExternalReadService;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
-import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
@@ -33,6 +31,7 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandException
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
 import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillStatusService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -43,7 +42,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
 import com.jd.cp.wbms.client.enums.RejectionEnum;
-import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.blocker.dto.BlockerApplyDto;
 import com.jd.etms.blocker.dto.CommonDto;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -131,7 +129,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     @Autowired
     private JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
     @Autowired
-    private DmsExternalReadService dmsExternalReadService;
+    private SortingService sortingService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
@@ -225,24 +223,20 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
         try{
             // 新增自动取消集包:根据包裹号获取箱号
-            Result<SortingDto> result =
-                dmsExternalReadService.getLastSortingInfoByPackageCode(dto.getBarCode());
+            SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(dto.getBarCode());
             if (logger.isInfoEnabled()){
-                logger.info("安检岗自动取消集包-根据包裹号查询集包箱号数据：包裹号：{},集包数据：{}", dto.getBarCode(), JsonHelper.toJson(result));
+                logger.info("安检岗自动取消集包-根据包裹号查询集包箱号数据：包裹号：{},集包数据：{}", dto.getBarCode(), JsonHelper.toJson(sortingDto));
             }
-            Optional.ofNullable(result)
-                .filter(r -> Result.CODE_SUCCESS.equals(r.getCode()))
-                .map(Result::getData)
-                .ifPresent(sortingDto -> {
-                    CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto, sortingDto.getBoxCode());
-                    // 调用取消集包接口（新版，可删除扫描记录）
-                    boolean b = jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
-                    if(b){
-                        logger.info("该包裹关联集包取消成功！包裹号：{}", dto.getBarCode());
-                    }else{
-                        logger.info("该包裹关联集包已经被取消或不存在！包裹号：{}", dto.getBarCode());
-                    }
-                });
+            if (Objects.nonNull(sortingDto)){
+                CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto, sortingDto.getBoxCode());
+                // 调用取消集包接口（新版，可删除扫描记录）
+                boolean b = jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
+                if(b){
+                    logger.info("该包裹关联集包取消成功！包裹号：{}", dto.getBarCode());
+                }else{
+                    logger.info("该包裹关联集包已经被取消或不存在！包裹号：{}", dto.getBarCode());
+                }
+            }
 
             JyExceptionContrabandEnum.ContrabandTypeEnum enumResult = JyExceptionContrabandEnum.ContrabandTypeEnum.getEnumByCode(dto.getContrabandType());
             if(enumResult == null){
