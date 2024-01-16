@@ -268,6 +268,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if(WaybillUtil.isPackageCode(req.getBarCode())){
             req.setBarCode(WaybillUtil.getWaybillCode(req.getBarCode()));
         }
+        //处理运单号
+        if(WaybillUtil.isWaybillCode(req.getBarCode())){
+            Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(req.getBarCode());
+            if (waybill == null) {
+                logger.warn("JyExceptionServiceImpl-uploadScan运单不存在：{}" , JSON.toJSONString(req));
+                return JdCResponse.fail("运单不存在!");
+            }
+            if (BusinessHelper.isBwxWaybill(waybill.getWaybillSign())){
+                return JdCResponse.fail("该单为保温箱运单,正常发货流转");
+            }
+        }
 
         String bizId = getBizId(req.getBarCode(),position.getSiteCode());
         String existKey = "DMS.EXCEPTION.UPLOAD_SCAN:" + bizId;
