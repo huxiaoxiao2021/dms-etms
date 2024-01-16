@@ -228,7 +228,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                 logger.info("安检岗自动取消集包-根据包裹号查询集包箱号数据：包裹号：{},集包数据：{}", dto.getBarCode(), JsonHelper.toJson(sortingDto));
             }
             if (Objects.nonNull(sortingDto)){
-                CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto, sortingDto.getBoxCode() , sortingDto);
+                CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto , sortingDto);
                 // 调用取消集包接口（新版，可删除扫描记录）
                 boolean b = jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
                 if(b){
