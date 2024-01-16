@@ -689,5 +689,9 @@
     <jmq:consumer id="jmq.jyPickingGoodWaitScanItemNumUpdateConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.picking.good.wait.scan.num}" listener="jyPickingGoodWaitScanItemNumUpdateConsumer"/>
     </jmq:consumer>
+    <!--  提货扫描数据拆分为包裹维度  -->
+    <jmq:consumer id="jmq.jyPickingGoodScanSplitPackageConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.picking.good.scan.split.package}" listener="jyPickingGoodScanSplitPackageConsumer"/>
+    </jmq:consumer>
 </beans>
 

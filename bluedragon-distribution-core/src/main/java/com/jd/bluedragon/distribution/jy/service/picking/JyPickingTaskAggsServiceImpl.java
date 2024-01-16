@@ -332,12 +332,12 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     @Override
     public void updatePickingAggScanStatistics(JyPickingGoodScanDto param) {
         boolean moreScanFlag = Boolean.TRUE.equals(param.getMoreScanFlag());
-        JyPickingTaskAggsEntity aggDtoRes = this.findTaskPickingAgg(param.getSiteId(), param.getBizId());
+        JyPickingTaskAggsEntity aggDtoRes = this.findTaskPickingAgg(param.getPickingSiteId(), param.getBizId());
         if(Objects.isNull(aggDtoRes)) {
             log.error("理论上不会出现暂时不考虑补偿，扫描前初始化会前置插入，提货统计param={}", JsonHelper.toJson(param));
             return;
         }
-        JyPickingTaskAggsEntity updateEntity = new JyPickingTaskAggsEntity(param.getSiteId(), param.getBizId());
+        JyPickingTaskAggsEntity updateEntity = new JyPickingTaskAggsEntity(param.getPickingSiteId(), param.getBizId());
         BeanUtils.copyProperties(aggDtoRes, updateEntity);
 
         updateEntity.setUpdateTime(new Date());
@@ -399,12 +399,12 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     @Override
     public void updatePickingSendAggScanStatistics(JyPickingGoodScanDto param) {
         boolean moreScanFlag = Boolean.TRUE.equals(param.getMoreScanFlag());
-        JyPickingTaskSendAggsEntity aggDtoRes = this.findTaskPickingSendAgg(param.getSiteId(), param.getNextSiteId(), param.getBizId());
+        JyPickingTaskSendAggsEntity aggDtoRes = this.findTaskPickingSendAgg(param.getPickingSiteId(), param.getNextSiteId(), param.getBizId());
         if(Objects.isNull(aggDtoRes)) {
             log.error("理论上不会出现暂时不考虑补偿，扫描前初始化会前置插入，提货发货统计param={}", JsonHelper.toJson(param));
             return;
         }
-        JyPickingTaskSendAggsEntity updateEntity = new JyPickingTaskSendAggsEntity(param.getSiteId(), param.getNextSiteId(), param.getBizId());
+        JyPickingTaskSendAggsEntity updateEntity = new JyPickingTaskSendAggsEntity(param.getPickingSiteId(), param.getNextSiteId(), param.getBizId());
         BeanUtils.copyProperties(aggDtoRes, updateEntity);
 
         updateEntity.setUpdateTime(new Date());

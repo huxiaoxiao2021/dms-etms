@@ -134,9 +134,6 @@
         <if test="updateTime != null" >
           update_time,
         </if>
-        <if test="ts != null" >
-          ts,
-        </if>
         yn
       </trim>
       <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -227,41 +224,41 @@
         <if test="updateTime != null" >
           #{updateTime,jdbcType=TIMESTAMP},
         </if>
-        <if test="ts != null" >
-          #{ts,jdbcType=TIMESTAMP},
-        </if>
         1
       </trim>
     </insert>
-
+  <!-- 根据待扫code查询 -->
   <select id="fetchWaitPickingBizIdByBarCode" resultType="java.lang.String" parameterType="JyPickingSendRecordEntity" >
     select biz_id
     from jy_picking_send_record
-    where yn = 1 and picking_site_id = #{pickingSiteId} and wait_scan_code = #{waitScanCode}
+    where yn = 1
+          and picking_site_id = #{pickingSiteId}
+          and wait_scan_code = #{waitScanCode}
     limit 1
   </select>
-
-  <select id="fetchRealPickingRecordByBarCodeAndBizId" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
+  <!-- 根据packageCode查询 -->
+  <select id="fetchByPackageCodeAndCondition" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
     select <include refid="Base_Column_List" />
     from jy_picking_send_record
-    where yn = 1 and picking_site_id = #{pickingSiteId} and scan_code = #{scanCode} and biz_id = #{bizId}
+    where yn = 1
+    and picking_site_id = #{pickingSiteId}
+    and package_code = #{packageCode}
+    <if test="bizId != null" >
+      and biz_id = #{bizId}
+    </if>
+    <if test="scanFlag != null" >
+      and scan_flag = #{scanFlag}
+    </if>
     limit 1
   </select>
-
-  <select id="fetchByPackageCodeAndBizId" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
-    select <include refid="Base_Column_List" />
-    from jy_picking_send_record
-    where yn = 1 and picking_site_id = #{pickingSiteId} and package_code = #{packageCode} and biz_id = #{bizId}
-    limit 1
-  </select>
-
+  <!-- 根据实扫code查询 -->
   <select id="latestPickingRecord" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
     select <include refid="Base_Column_List" />
     from jy_picking_send_record
-    where yn = 1 and picking_site_id = #{pickingSiteId} and scan_code = #{waitScanCode}
-      <if test="bizId != null" >
-        and biz_id = #{bizId}
-      </if>
+    where yn = 1
+          and picking_site_id = #{pickingSiteId}
+          and scan_code = #{waitScanCode}
+          and biz_id = #{bizId}
     order by picking_time desc
     limit 1
   </select>
@@ -295,10 +292,8 @@
     group by wait_scan_code
     ) t
   </select>
-
-
-
-    <update id="updatePickingGoodRecordByWaitScanCode" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >
+    <!-- 实操填充实描字段 -->
+  <update id="fillRealScanField" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >
       update jy_picking_send_record
       set
           scan_code = #{scanCode,jdbcType=VARCHAR},
@@ -338,11 +333,10 @@
       where yn = 1
         and picking_site_id = #{pickingSiteId}
         and biz_id = #{bizId}
-        and wait_scan_code = #{waitScanCode}
+        and package_code = #{packageCode}
     </update>
-
-
-  <update id="initUpdateIfExist" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >
+  <!-- 初始化填充待扫字段 -->
+  <update id="fillInitWaitScanField" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >
     update jy_picking_send_record
     set
       wait_scan_code = #{waitScanCode},

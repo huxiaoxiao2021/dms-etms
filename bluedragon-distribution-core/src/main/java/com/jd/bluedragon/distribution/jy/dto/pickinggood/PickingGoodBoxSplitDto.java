@@ -5,26 +5,19 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import java.io.Serializable;
 
 /**
- *
- * 提货扫描异步处理
- *
  * @Author zhengchengfa
- * @Date 2023/12/15 10:37
+ * @Date 2024/1/15 21:56
  * @Description
  */
-public class JyPickingGoodScanDto implements Serializable {
+public class PickingGoodBoxSplitDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String businessId;
-    private String groupCode;
-    private String barCode;
-    private String packageCode;
-    private String bizId;
 
-    /**
-     * 目的机场/车站编码
-     */
-    private String endNodeCode;
+    private String groupCode;
+    private String packageCode;
+    private String barCode;
+    private String bizId;
     /**
      * 操作场地
      */
@@ -33,21 +26,12 @@ public class JyPickingGoodScanDto implements Serializable {
      * true: 提货并发货
      */
     private Boolean sendGoodFlag;
-
-    /**
-     * 强发标识
-     */
-    private Boolean forceSendFlag;
     /**
      * 多扫标识
      */
     private Boolean moreScanFlag;
 
     private Long nextSiteId;
-    /**
-     * 箱号确认流向场地的key[包裹号]
-     */
-    private String boxConfirmNextSiteKey;
 
     private Long operateTime;
 
@@ -72,14 +56,6 @@ public class JyPickingGoodScanDto implements Serializable {
         this.groupCode = groupCode;
     }
 
-    public String getBarCode() {
-        return barCode;
-    }
-
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
-    }
-
     public String getPackageCode() {
         return packageCode;
     }
@@ -88,20 +64,20 @@ public class JyPickingGoodScanDto implements Serializable {
         this.packageCode = packageCode;
     }
 
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
+    }
+
     public String getBizId() {
         return bizId;
     }
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
-    }
-
-    public String getEndNodeCode() {
-        return endNodeCode;
-    }
-
-    public void setEndNodeCode(String endNodeCode) {
-        this.endNodeCode = endNodeCode;
     }
 
     public Long getPickingSiteId() {
@@ -120,14 +96,6 @@ public class JyPickingGoodScanDto implements Serializable {
         this.sendGoodFlag = sendGoodFlag;
     }
 
-    public Boolean getForceSendFlag() {
-        return forceSendFlag;
-    }
-
-    public void setForceSendFlag(Boolean forceSendFlag) {
-        this.forceSendFlag = forceSendFlag;
-    }
-
     public Boolean getMoreScanFlag() {
         return moreScanFlag;
     }
@@ -142,14 +110,6 @@ public class JyPickingGoodScanDto implements Serializable {
 
     public void setNextSiteId(Long nextSiteId) {
         this.nextSiteId = nextSiteId;
-    }
-
-    public String getBoxConfirmNextSiteKey() {
-        return boxConfirmNextSiteKey;
-    }
-
-    public void setBoxConfirmNextSiteKey(String boxConfirmNextSiteKey) {
-        this.boxConfirmNextSiteKey = boxConfirmNextSiteKey;
     }
 
     public Long getOperateTime() {
