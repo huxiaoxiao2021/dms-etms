@@ -46,9 +46,8 @@ public class CPackingConsumableConsumer extends ConsumableBaseConsumer {
     @JProfiler(jKey = "CPackingConsumableConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
 
-        if (log.isInfoEnabled()) {
-            log.info("CPackingConsumableConsumer|消息Body为:{}", message.getText());
-        }
+        log.debug("CPackingConsumableConsumer|消息Body为:{}", message.getText());
+
         WaybillConsumableCommonDto packingConsumableDto = JsonHelper.fromJson(message.getText(), WaybillConsumableCommonDto.class);
         if (packingConsumableDto == null) {
             log.error("消费快递侧揽收后消息，反序列化为空，{}", message.getText());

@@ -49,9 +49,7 @@ public class PackingConsumableConsumer extends ConsumableBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         long startTime = System.currentTimeMillis();
-        if (log.isInfoEnabled()) {
-            log.info("BPackingConsumableConsumer|消息Body为:{}", message.getText());
-        }
+        log.debug("BPackingConsumableConsumer|消息Body为:{}", message.getText());
         if (Constants.EMPTY_FILL.equals(message.getText()) || null == message.getText()) {
             this.log.warn("PackingConsumableConsumer consume -->消息为空");
             addLog(new WaybillConsumableCommonDto(),startTime);
