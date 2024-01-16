@@ -88,6 +88,7 @@ public class PackingConsumableConsumer extends ConsumableBaseConsumer {
             throw new JyBizException(e.getMessage());
         } catch (Exception e) {
             log.error("B网包装耗材消费出现异常:waybillCode={}", packingConsumable.getWaybillCode(), e);
+            throw new JyBizException();
         }
         log.debug("PackingConsumableConsumer consume --> 消息消费完成，Body为【{}】",message.getText());
     }

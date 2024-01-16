@@ -99,6 +99,7 @@ public class CPackingConsumableConsumer extends ConsumableBaseConsumer {
             throw new JyBizException(e.getMessage());
         } catch (Exception e) {
             log.error("快递包装耗材消费出现异常:waybillCode={}", packingConsumableDto.getWaybillCode(), e);
+            throw new JyBizException();
         }
     }
 
