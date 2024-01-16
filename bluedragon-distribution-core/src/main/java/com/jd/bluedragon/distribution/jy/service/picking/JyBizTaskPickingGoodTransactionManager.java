@@ -85,10 +85,10 @@ public class JyBizTaskPickingGoodTransactionManager {
         logInfo("提货任务{}首次扫描逻辑开始.{}", JsonHelper.toJson(scanDto));
 
         JyBizTaskPickingGoodEntityCondition updateEntity = new JyBizTaskPickingGoodEntityCondition();
-        updateEntity.setNextSiteId(scanDto.getSiteId());
+        updateEntity.setNextSiteId(scanDto.getPickingSiteId());
         updateEntity.setBizId(scanDto.getBizId());
         updateEntity.setStatus(PickingGoodStatusEnum.PICKING.getCode());
-        Long startTime = scanDto.getOperatorTime() - 2000l;//开始时间设置在第一单前几秒，区分边界
+        Long startTime = scanDto.getOperateTime() - 2000l;//开始时间设置在第一单前几秒，区分边界
         updateEntity.setPickingStartTime(new Date());
         updateEntity.setUpdateTime(new Date(startTime));
         updateEntity.setUpdateUserErp(Objects.isNull(scanDto.getUser()) ? Constants.SYS_CODE_DMS : scanDto.getUser().getUserErp());
@@ -183,21 +183,21 @@ public class JyBizTaskPickingGoodTransactionManager {
     @Transactional(value = "tm_jy_core_main", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateAggScanStatistics(JyPickingGoodScanDto mqBody) {
         //任务维度统计计数agg
-        if(!jyPickingTaskAggsCacheService.existCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getSiteId(), null)) {
+        if(!jyPickingTaskAggsCacheService.existCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getPickingSiteId(), null)) {
             jyPickingTaskAggsService.updatePickingAggScanStatistics(mqBody);
         }
 
         //任务维度统计计数agg
         if(Boolean.TRUE.equals(mqBody.getSendGoodFlag())) {
-            if(!jyPickingTaskAggsCacheService.existCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getSiteId(), mqBody.getNextSiteId())) {
+            if(!jyPickingTaskAggsCacheService.existCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getPickingSiteId(), mqBody.getNextSiteId())) {
                 jyPickingTaskAggsService.updatePickingSendAggScanStatistics(mqBody);
             }
         }
 
         //save cache
-        jyPickingTaskAggsCacheService.saveCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getSiteId(), null);
+        jyPickingTaskAggsCacheService.saveCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getPickingSiteId(), null);
         if(Boolean.TRUE.equals(mqBody.getSendGoodFlag())) {
-            jyPickingTaskAggsCacheService.saveCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getSiteId(), mqBody.getNextSiteId());
+            jyPickingTaskAggsCacheService.saveCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getPickingSiteId(), mqBody.getNextSiteId());
         }
     }
 

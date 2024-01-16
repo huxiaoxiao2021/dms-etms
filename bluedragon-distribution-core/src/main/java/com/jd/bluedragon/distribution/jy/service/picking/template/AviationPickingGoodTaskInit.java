@@ -194,6 +194,7 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
             entity.setEndSiteCode(subsidiaryEntity.getEndSiteCode());
             entity.setEndSiteName(subsidiaryEntity.getEndSiteName());
             entity.setTransportCode(subsidiaryEntity.getTransportCode());
+            entity.setTaskType(taskEntity.getTaskType());
             entity.setCreateUserErp(taskEntity.getCreateUserErp());
             entity.setCreateUserName(taskEntity.getCreateUserName());
             entity.setCreateTime(new Date());

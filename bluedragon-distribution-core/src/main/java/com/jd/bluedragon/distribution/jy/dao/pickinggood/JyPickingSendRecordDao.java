@@ -17,10 +17,6 @@ public class JyPickingSendRecordDao extends BaseDao<JyPickingSendRecordEntity> {
         return this.getSqlSession().selectOne(NAMESPACE + ".fetchWaitPickingBizIdByBarCode", recordEntity);
     }
 
-    public JyPickingSendRecordEntity fetchRealPickingRecordByBarCodeAndBizId(JyPickingSendRecordEntity recordEntity) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".fetchRealPickingRecordByBarCodeAndBizId", recordEntity);
-    }
-
     public JyPickingSendRecordEntity latestPickingRecord(JyPickingSendRecordEntity recordEntity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".latestPickingRecord", recordEntity);
     }
@@ -47,16 +43,16 @@ public class JyPickingSendRecordDao extends BaseDao<JyPickingSendRecordEntity> {
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", recordEntity);
     }
 
-    public int updatePickingGoodRecordByWaitScanCode(JyPickingSendRecordEntity updateEntity) {
-        return this.getSqlSession().update(NAMESPACE + ".updatePickingGoodRecordByWaitScanCode", updateEntity);
+    public int fillRealScanField(JyPickingSendRecordEntity updateEntity) {
+        return this.getSqlSession().update(NAMESPACE + ".fillRealScanField", updateEntity);
     }
 
-    public JyPickingSendRecordEntity fetchByPackageCodeAndBizId(JyPickingSendRecordEntity recordEntity) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".fetchByPackageCodeAndBizId", recordEntity);
+    public JyPickingSendRecordEntity fetchByPackageCodeAndCondition(JyPickingSendRecordEntity recordEntity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".fetchByPackageCodeAndCondition", recordEntity);
     }
     //初始化时如果已经存在做更新
-    public int initUpdateIfExist(JyPickingSendRecordEntity updateEntity) {
-        return this.getSqlSession().update(NAMESPACE + ".initUpdateIfExist", updateEntity);
+    public int fillInitWaitScanField(JyPickingSendRecordEntity updateEntity) {
+        return this.getSqlSession().update(NAMESPACE + ".fillInitWaitScanField", updateEntity);
     }
 
 }

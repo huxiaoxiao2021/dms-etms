@@ -148,8 +148,6 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             else {
                 this.doPickingGoods(request, res, taskPickingGoodEntity);
             }
-            //提货记录 todo 考虑异步处理，避免和任务初始化并发时互相补偿， 和扫描不是一把锁
-            this.savePickingRecord(request, resData, taskPickingGoodEntity);
 
             //异步相关处理
             this.sendJyPickingGoodScanMq(request, resData, taskPickingGoodEntity);
@@ -186,80 +184,6 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         return true;
     }
 
-    private void savePickingRecord(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity taskEntity) {
-        //待提
-        if(BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
-            JyPickingSendRecordEntity updateEntity = new JyPickingSendRecordEntity((long)request.getCurrentOperate().getSiteCode());
-            updateEntity.setBizId(taskEntity.getBizId());
-            updateEntity.setWaitScanCode(request.getBarCode());
-            updateEntity.setScanCode(request.getBarCode());
-            updateEntity.setUpdateTime(new Date());
-            updateEntity.setScanFlag(Constants.NUMBER_ONE);
-            updateEntity.setMoreScanFlag(Constants.NUMBER_ZERO);
-            updateEntity.setPickingUserErp(request.getUser().getUserErp());
-            updateEntity.setPickingUserName(request.getUser().getUserName());
-            updateEntity.setPickingTime(new Date(resData.getOperateTime()));
-            if(BusinessUtil.isBoxcode(request.getBarCode())) {
-                updateEntity.setScanCodeType(JyPickingSendRecordEntity.SCAN_BOX);
-            }
-            else if(WaybillUtil.isPackageCode(request.getBarCode())) {
-                updateEntity.setScanCodeType(JyPickingSendRecordEntity.SCAN_PACKAGE);
-            }
-            if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
-                updateEntity.setSendFlag(Constants.NUMBER_ONE);
-                updateEntity.setRealNextSiteId(request.getNextSiteId());
-                updateEntity.setBoxRealFlowKey(resData.getBoxConfirmNextSiteKey());
-                updateEntity.setMoreSendFlag(Constants.NUMBER_ZERO);
-                updateEntity.setForceSendFlag(Boolean.TRUE.equals(request.getForceSendFlag()) ? Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                updateEntity.setSendTime(new Date(resData.getOperateTime()));
-                updateEntity.setSendUserErp(updateEntity.getPickingUserErp());
-                updateEntity.setSendUserName(updateEntity.getPickingUserName());
-            }
-
-            jyPickingSendRecordService.updatePickingGoodRecordByWaitScanCode(updateEntity);
-        }
-        //多提
-        else {
-            JyPickingSendRecordEntity insertEntity = new JyPickingSendRecordEntity();
-            insertEntity.setBizId(taskEntity.getBizId());
-            insertEntity.setPickingSiteId((long)request.getCurrentOperate().getSiteCode());
-            insertEntity.setPickingNodeCode(taskEntity.getEndNodeCode());
-            insertEntity.setWaitScanCode(null);
-            insertEntity.setWaitScanCodeType(null);
-            insertEntity.setInitNextSiteId(null);
-            insertEntity.setBoxInitFlowKey(null);
-            insertEntity.setWaitScanFlag(Constants.NUMBER_ZERO);
-            insertEntity.setScanCode(request.getBarCode());
-            insertEntity.setScanFlag(Constants.NUMBER_ONE);
-            insertEntity.setMoreScanFlag(Constants.NUMBER_ONE);
-            insertEntity.setPickingUserErp(request.getUser().getUserErp());
-            insertEntity.setPickingUserName(request.getUser().getUserName());
-            insertEntity.setPickingTime(new Date(resData.getOperateTime()));
-            insertEntity.setCreateTime(new Date());
-            insertEntity.setUpdateTime(insertEntity.getCreateTime());
-            if(BusinessUtil.isBoxcode(request.getBarCode())) {
-                //多提箱号时同步存储一条已扫箱号数据，保证定时agg统计准确，箱内明细如果有需要保存，触发异步去存储， agg去重后统计不影响
-                insertEntity.setScanCodeType(JyPickingSendRecordEntity.SCAN_BOX);
-            }
-            else if(WaybillUtil.isPackageCode(request.getBarCode())) {
-                insertEntity.setScanCodeType(JyPickingSendRecordEntity.SCAN_PACKAGE);
-                insertEntity.setPackageCode(request.getBarCode());
-                insertEntity.setWaybillCode(WaybillUtil.getWaybillCode(request.getBarCode()));
-            }
-            if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
-                insertEntity.setSendFlag(Constants.NUMBER_ONE);
-                insertEntity.setRealNextSiteId(request.getNextSiteId());
-                insertEntity.setBoxRealFlowKey(resData.getBoxConfirmNextSiteKey());
-                insertEntity.setMoreSendFlag(Constants.NUMBER_ONE);
-                insertEntity.setForceSendFlag(Boolean.TRUE.equals(request.getForceSendFlag()) ? Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
-                insertEntity.setSendTime(new Date(resData.getOperateTime()));
-                insertEntity.setSendUserErp(insertEntity.getPickingUserErp());
-                insertEntity.setSendUserName(insertEntity.getPickingUserName());
-            }
-            jyPickingSendRecordService.savePickingScanRecord(insertEntity);
-        }
-
-    }
 
     private void convertPickingTask(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity taskPickingGoodEntity) {
         AirRailTaskAggDto airRailTaskAggDto = resData.getAirRailTaskAggDto();
@@ -362,8 +286,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         JyPickingGoodScanDto scanDto = new JyPickingGoodScanDto();
         scanDto.setBarCode(request.getBarCode());
         scanDto.setBizId(taskPickingGoodEntity.getBizId());
-        scanDto.setSiteId((long)request.getCurrentOperate().getSiteCode());
-        scanDto.setOperatorTime(pickingGoodsRes.getOperateTime());
+
+        scanDto.setPickingSiteId((long)request.getCurrentOperate().getSiteCode());
         scanDto.setGroupCode(request.getGroupCode());
         scanDto.setSendGoodFlag(request.getSendGoodFlag());
         if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
@@ -371,6 +295,11 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
         scanDto.setMoreScanFlag(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(pickingGoodsRes.getTaskSource()));
         scanDto.setUser(request.getUser());
+        scanDto.setBoxConfirmNextSiteKey(request.getBoxConfirmNextSiteKey());
+        scanDto.setForceSendFlag(request.getForceSendFlag());
+        scanDto.setOperateTime(pickingGoodsRes.getOperateTime());
+
+        scanDto.setSysTime(System.currentTimeMillis());
         String msg = JsonHelper.toJson(scanDto);
         logInfo("提货扫描异步消息生产，businessId={},msg={}", request.getBarCode(), msg);
         pickingGoodScanProducer.sendOnFailPersistent(request.getBarCode(), msg);

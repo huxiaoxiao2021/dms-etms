@@ -59,6 +59,9 @@ public class JyPickingGoodConsumerTest  {
     private JyPickingGoodWaitScanItemNumUpdateConsumer jyPickingGoodWaitScanItemNumUpdateConsumer;
     @Autowired
     private JyPickingGoodDetailInitSplitConsumer jyPickingGoodDetailInitSplitConsumer;
+    @Autowired
+    private JyPickingGoodScanSplitPackageConsumer jyPickingGoodScanSplitPackageConsumer;
+
     @Test
     public void test() {
         String boxCode = "BC1001210816140000000505";
@@ -181,8 +184,8 @@ public class JyPickingGoodConsumerTest  {
 
         JyPickingGoodScanDto scanDto = new JyPickingGoodScanDto();
         scanDto.setBizId("NPGT24011300000001");
-        scanDto.setSiteId(40240l);
-        scanDto.setOperatorTime(System.currentTimeMillis());
+        scanDto.setPickingSiteId(40240l);
+        scanDto.setOperateTime(System.currentTimeMillis());
         scanDto.setGroupCode("G00000130001");
 //        scanDto.setMoreScanFlag(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(4));
         scanDto.setMoreScanFlag(false);
@@ -459,6 +462,43 @@ public class JyPickingGoodConsumerTest  {
                 }
             }
             System.out.println("end");
+        }
+    }
+
+
+
+    @Test
+    public void jyPickingGoodScanSplitPackageConsumerTest(){
+        String json = "{\n" +
+                "  \"businessId\" : \"BC1001210816140000000518\",\n" +
+                "  \"groupCode\" : \"G00000130001\",\n" +
+                "  \"packageCode\" : \"JDVA00003525694-1-1-\",\n" +
+                "  \"barCode\" : \"BC1001210816140000000518\",\n" +
+                "  \"bizId\" : \"NPGT24011300000001\",\n" +
+                "  \"sendGoodFlag\" : true,\n" +
+                "  \"moreScanFlag\" : false,\n" +
+                "  \"nextSiteId\" : 910,\n" +
+                "  \"user\" : {\n" +
+                "    \"userCode\" : 65396,\n" +
+                "    \"userName\" : \"吴有德\",\n" +
+                "    \"userErp\" : \"wuyoude\"\n" +
+                "  },\n" +
+                "  \"sysTime\" : 1705398311738,\n" +
+                "  \"operateTime\" : 1705398311738,\n" +
+                "  \"pickingSiteId\" : 40240\n" +
+                "}";
+
+        while (true) {
+            try {
+                Message message = new Message();
+                message.setText(json);
+                jyPickingGoodScanSplitPackageConsumer.consume(message);
+                System.out.println("end");
+            } catch (Exception e) {
+                System.out.println("纳尼，发现error");
+                e.printStackTrace();
+            }
+
         }
     }
 }

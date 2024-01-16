@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskStatisticsDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 
 /**
@@ -19,15 +19,6 @@ public interface JyPickingSendRecordService {
      * @return
      */
     String fetchWaitPickingBizIdByBarCode(Long curSiteId, String barCode);
-
-    /**
-     * 根据指定任务bizId和单据查询提货记录
-     * @param curSiteId
-     * @param barCode
-     * @param bizId
-     * @return
-     */
-    JyPickingSendRecordEntity fetchRealPickingRecordByBarCodeAndBizId(Long curSiteId, String barCode, String bizId);
 
     /**
      * 查询最近的已提任务
@@ -60,21 +51,17 @@ public interface JyPickingSendRecordService {
      * @return
      */
     Integer countTaskWaitScanItemNum(String bizId, Long siteId);
-    /**
-     * 提货记录保存
-     * @param recordEntity
-     */
-    void savePickingScanRecord(JyPickingSendRecordEntity recordEntity);
 
-    /**
-     * 根据指定任务的baoCode修改扫描记录
-     * @param updateEntity
-     */
-    void updatePickingGoodRecordByWaitScanCode(JyPickingSendRecordEntity updateEntity);
-
+    public JyPickingSendRecordEntity fetchByPackageCodeAndCondition(Long curSiteId, String packageCode, String bizId);
     /**
      * 待提明细初始化或修改
      * @param detailInitDto
      */
     void initOrUpdateNeedScanDetail(PickingGoodTaskDetailInitDto detailInitDto);
+
+    /**
+     * 提货扫描保存
+     * @param scanDto
+     */
+    void pickingRecordSave(JyPickingGoodScanDto scanDto);
 }

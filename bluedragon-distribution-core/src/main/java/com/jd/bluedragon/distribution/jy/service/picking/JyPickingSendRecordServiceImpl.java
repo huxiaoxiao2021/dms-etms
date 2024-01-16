@@ -3,11 +3,12 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingSendRecordDao;
 import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
-import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskStatisticsDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 import com.jd.bluedragon.distribution.jy.service.common.CommonService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -57,13 +58,6 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
         return jyPickingSendRecordDao.fetchWaitPickingBizIdByBarCode(recordEntity);
     }
 
-    @Override
-    public JyPickingSendRecordEntity fetchRealPickingRecordByBarCodeAndBizId(Long curSiteId, String barCode, String bizId) {
-        JyPickingSendRecordEntity recordEntity = new JyPickingSendRecordEntity(curSiteId);
-        recordEntity.setScanCode(barCode);
-        recordEntity.setBizId(bizId);
-        return jyPickingSendRecordDao.fetchRealPickingRecordByBarCodeAndBizId(recordEntity);
-    }
 
     @Override
     public JyPickingSendRecordEntity latestPickingRecord(Long curSiteId, String bizId, String barCode) {
@@ -133,19 +127,13 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
         return jyPickingSendRecordDao.countTaskWaitScanItemNum(waitPickingEntity);
     }
 
-    @Override
-    public void savePickingScanRecord(JyPickingSendRecordEntity recordEntity) {
-        JyPickingSendRecordEntity entity = this.fetchRealPickingRecordByBarCodeAndBizId(recordEntity.getPickingSiteId(), recordEntity.getScanCode(), recordEntity.getBizId());
-        if(Objects.isNull(entity)) {
-            jyPickingSendRecordDao.insertSelective(recordEntity);
-        }else {
-            logWarn("提货扫描重复插入，record={}", JsonHelper.toJson(recordEntity));
-        }
-    }
 
     @Override
-    public void updatePickingGoodRecordByWaitScanCode(JyPickingSendRecordEntity updateEntity) {
-        jyPickingSendRecordDao.updatePickingGoodRecordByWaitScanCode(updateEntity);
+    public JyPickingSendRecordEntity fetchByPackageCodeAndCondition(Long curSiteId, String packageCode, String bizId) {
+        JyPickingSendRecordEntity queryEntity = new JyPickingSendRecordEntity(curSiteId);
+        queryEntity.setPackageCode(packageCode);
+        queryEntity.setBizId(bizId);
+        return jyPickingSendRecordDao.fetchByPackageCodeAndCondition(queryEntity);
     }
 
     @Override
@@ -159,7 +147,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
             JyPickingSendRecordEntity queryEntity = new JyPickingSendRecordEntity(paramDto.getPickingSiteId());
             queryEntity.setBizId(paramDto.getBizId());
             queryEntity.setPackageCode(paramDto.getPackageCode());
-            JyPickingSendRecordEntity entityQueryRes = jyPickingSendRecordDao.fetchByPackageCodeAndBizId(queryEntity);
+            JyPickingSendRecordEntity entityQueryRes = jyPickingSendRecordDao.fetchByPackageCodeAndCondition(queryEntity);
 
             if (Objects.isNull(entityQueryRes)) {
                 JyPickingSendRecordEntity insertEntity = new JyPickingSendRecordEntity(paramDto.getPickingSiteId());
@@ -216,7 +204,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
                     Date time = new Date();
                     updateEntity.setInitTime(time);
                     updateEntity.setUpdateTime(time);
-                    jyPickingSendRecordDao.initUpdateIfExist(updateEntity);
+                    jyPickingSendRecordDao.fillInitWaitScanField(updateEntity);
                 } else {
                     logInfo("提货扫描明细初始化，重复数据，不做初始化，data={}", JsonHelper.toJson(paramDto));
                 }
@@ -227,6 +215,61 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
         }finally {
             pickingGoodsCacheService.unlockPickingGoodDetailRecordInit(paramDto.getPickingSiteId(), paramDto.getBizId(), paramDto.getPackageCode());
         }
+    }
+
+    @Override
+    public void pickingRecordSave(JyPickingGoodScanDto scanDto) {
+
+        JyPickingSendRecordEntity entityRes = this.fetchByPackageCodeAndCondition(scanDto.getPickingSiteId(), scanDto.getPackageCode(), scanDto.getBizId());
+        if(Objects.isNull(entityRes)) {
+            JyPickingSendRecordEntity insertEntity = generatePickingScanEntity(scanDto);
+            insertEntity.setCreateTime(new Date());
+            insertEntity.setUpdateTime(new Date());
+            jyPickingSendRecordDao.insertSelective(insertEntity);
+
+        }else if(!Constants.NUMBER_ONE.equals(entityRes.getScanFlag())) {
+            JyPickingSendRecordEntity updateEntity = generatePickingScanEntity(scanDto);
+            updateEntity.setUpdateTime(new Date());
+            jyPickingSendRecordDao.fillRealScanField(updateEntity);
+
+
+        }else {
+            logInfo("提货扫描存储重复数据，不做处理，scanDto={}", JsonHelper.toJson(scanDto));
+        }
+    }
+    public JyPickingSendRecordEntity generatePickingScanEntity(JyPickingGoodScanDto scanDto) {
+        Date time = new Date();
+        JyPickingSendRecordEntity entity = new JyPickingSendRecordEntity(scanDto.getPickingSiteId());
+        entity.setBizId(scanDto.getBizId());
+        entity.setPickingNodeCode(scanDto.getEndNodeCode());
+        entity.setPackageCode(scanDto.getPackageCode());
+        entity.setWaybillCode(WaybillUtil.getWaybillCode(scanDto.getPackageCode()));
+        entity.setScanFlag(Constants.NUMBER_ONE);
+        entity.setScanCode(scanDto.getBarCode());
+        entity.setUpdateTime(time);
+        entity.setWaitScanFlag(Constants.NUMBER_ZERO);
+        if(BusinessUtil.isBoxcode(scanDto.getBarCode())) {
+            entity.setScanCodeType(JyPickingSendRecordEntity.SCAN_BOX);
+        }
+        else if(WaybillUtil.isPackageCode(scanDto.getBarCode())) {
+            entity.setScanCodeType(JyPickingSendRecordEntity.SCAN_PACKAGE);
+        }
+        entity.setMoreScanFlag(Boolean.TRUE.equals(scanDto.getMoreScanFlag()) ? Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+        entity.setPickingUserErp(scanDto.getUser().getUserErp());
+        entity.setPickingUserName(scanDto.getUser().getUserName());
+        entity.setPickingTime(new Date(scanDto.getOperateTime()));
+
+        if(Boolean.TRUE.equals(scanDto.getSendGoodFlag())) {
+            entity.setSendFlag(Constants.NUMBER_ONE);
+            entity.setRealNextSiteId(scanDto.getNextSiteId());
+            entity.setBoxRealFlowKey(scanDto.getBoxConfirmNextSiteKey());
+            entity.setMoreSendFlag(entity.getMoreScanFlag());
+            entity.setForceSendFlag(Boolean.TRUE.equals(scanDto.getForceSendFlag()) ? Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+            entity.setSendTime(new Date(scanDto.getOperateTime()));
+            entity.setSendUserErp(entity.getPickingUserErp());
+            entity.setSendUserName(entity.getPickingUserName());
+        }
+        return entity;
     }
 
 
