@@ -35,7 +35,7 @@ import java.util.List;
  * @date 2018年08月15日 16时:10分
  */
 @Service("packingConsumableConsumer")
-public class PackingConsumableConsumer extends ConsumableConsumer {
+public class PackingConsumableConsumer extends ConsumableBaseConsumer {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 

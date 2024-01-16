@@ -36,7 +36,7 @@ import java.util.List;
  */
 @Component("cPackingConsumableConsumer")
 @Slf4j
-public class CPackingConsumableConsumer extends ConsumableConsumer {
+public class CPackingConsumableConsumer extends ConsumableBaseConsumer {
 
     @Autowired
     private BaseMajorManager baseMajorManager;

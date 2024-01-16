@@ -23,9 +23,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * 包装耗材消费者通用逻辑抽象类
  */
-public abstract class ConsumableConsumer extends MessageBaseConsumer {
+public abstract class ConsumableBaseConsumer extends MessageBaseConsumer {
 
-    private final Logger logger = LoggerFactory.getLogger(ConsumableConsumer.class);
+    private final Logger logger = LoggerFactory.getLogger(ConsumableBaseConsumer.class);
 
     /**
      * 快递包装耗材锁前缀
