@@ -544,4 +544,9 @@ public class DmsConstants {
      * 航班号正则
      */
     public static final String FLIGHT_NUMBER_REGEX = "[0-9A-Z]{6}";
+    /**
+     * 定温送增值服务扩展字段编码
+     */
+    public static final String FIX_TEMPERATURE_RANGE_EXTEND = "temperatureRange";
+
 }
