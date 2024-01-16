@@ -129,7 +129,7 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     }
 
     @Override
-    public int deleteByBusinessNumber(String businessNumber, Integer taskType) {
+    public int deleteTaskByBusinessNumber(String businessNumber, Integer taskType) {
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
         entity.setBusinessNumber(businessNumber);
         entity.setUpdateTime(new Date());
@@ -137,6 +137,17 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
         entity.setUpdateUserName(Constants.SYS_NAME);
         entity.setTaskType(taskType);
         return jyBizTaskPickingGoodDao.deleteByBusinessNumber(entity);
+    }
+
+    @Override
+    public int deleteTaskSubsidiaryByBusinessNumber(String businessNumber, Integer taskType) {
+        JyBizTaskPickingGoodSubsidiaryEntity entity = new JyBizTaskPickingGoodSubsidiaryEntity();
+        entity.setBusinessNumber(businessNumber);
+        entity.setUpdateTime(new Date());
+        entity.setUpdateUserErp(Constants.SYS_NAME);
+        entity.setUpdateUserName(Constants.SYS_NAME);
+        entity.setTaskType(taskType);
+        return jyBizTaskPickingGoodSubsidiaryDao.deleteByBusinessNumber(entity);
     }
 
     @Override
