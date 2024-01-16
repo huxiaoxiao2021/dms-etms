@@ -328,7 +328,7 @@
 
 	<select id="findByWaybillCodeAndConsumableCode" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation" resultMap="WaybillConsumableRelation">
 		select
-		<include refid="Base_Column_List"/>
+		<include refid="Base_Column_Detail_List"/>
 		from
 		waybill_consumable_relation
 		where waybill_code = #{waybillCode,jdbcType=VARCHAR} and consumable_code = #{consumableCode, jdbcType=VARCHAR} and is_delete = 0 limit 1
