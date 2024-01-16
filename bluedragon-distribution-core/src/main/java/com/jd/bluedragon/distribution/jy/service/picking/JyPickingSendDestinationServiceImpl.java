@@ -106,14 +106,13 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
 
     private String getPickingSendTemplateCode(Integer siteId, Integer taskType) {
         return PickingGoodTaskTypeEnum.AVIATION.getCode().equals(taskType)
-                ? Constants.AVIATION_TEMPLATE_PREFIX + siteId : Constants.RAIL_TEMPLATE_PREFIX;
+                ? Constants.AVIATION_TEMPLATE_PREFIX + siteId : Constants.RAIL_TEMPLATE_PREFIX + siteId;
     }
 
     @Override
     public Boolean finishSendTask(FinishSendTaskReq req) {
         JyPickingSendDestinationDetailEntity entity = new JyPickingSendDestinationDetailEntity();
         entity.setStatus(JyPickingSendTaskEnum.TO_SEAL.getCode());
-        entity.setSendCode(req.getSendCode());
         entity.setCreateSiteId((long) req.getCurrentOperate().getSiteCode());
         entity.setNextSiteId((long) req.getNextSiteId());
         entity.setCompleteTime(new Date());
@@ -226,6 +225,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
         String templateCode = getPickingSendTemplateCode(startSiteId, req.getTaskType());
         queryDto.setStartSiteId((long) startSiteId);
         queryDto.setTemplateCode(templateCode);
+        queryDto.setGroupCode(Constants.EMPTY_FILL);
 
         return queryDto;
     }
