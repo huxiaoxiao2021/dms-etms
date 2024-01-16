@@ -365,7 +365,7 @@
       and task_type = #{taskType}
       and manual_created_flag = 1
       and status != 2
-      and next_site_id= #{siteId}
+      and next_site_id= #{nextSiteId}
     order by create_time desc
     limit 1
   </select>
