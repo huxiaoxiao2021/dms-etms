@@ -28,7 +28,7 @@
 
   <sql id="Base_Column_List" >
     id, biz_id, business_number, send_code, seal_car_code, start_site_id, start_site_code, start_site_name,
-    end_site_id, end_site_code, end_site_name, transport_code, create_user_erp, create_user_name, update_user_erp,
+    end_site_id, end_site_code, end_site_name, transport_code, task_type, create_user_erp, create_user_name, update_user_erp,
     update_user_name, create_time, update_time, yn, ts
   </sql>
 
@@ -71,6 +71,9 @@
         </if>
         <if test="transportCode != null" >
           transport_code,
+        </if>
+        <if test="taskType != null" >
+          task_type,
         </if>
         <if test="createUserErp != null" >
           create_user_erp,
@@ -134,6 +137,9 @@
         <if test="transportCode != null" >
           #{transportCode},
         </if>
+        <if test="taskType != null" >
+          #{taskType},
+        </if>
         <if test="createUserErp != null" >
           #{createUserErp},
         </if>
@@ -175,6 +181,7 @@
     end_site_code,
     end_site_name,
     transport_code,
+    task_type,
     create_user_erp,
     create_user_name,
     update_user_erp,
@@ -197,6 +204,7 @@
       #{item.endSiteCode},
       #{item.endSiteName},
       #{item.transportCode},
+      #{item.taskType},
       #{item.createUserErp},
       #{item.createUserName},
       #{item.updateUserErp},
