@@ -94,5 +94,5 @@ public interface JyAviationRailwayPickingGoodsService {
 
     void finishTaskWhenWaitScanEqZero();
 
-    void finishTaskWhenExceed24Hours();
+    void finishTaskWhenTimeExceed();
 }

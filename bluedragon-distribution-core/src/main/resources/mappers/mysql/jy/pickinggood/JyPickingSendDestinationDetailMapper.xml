@@ -138,8 +138,8 @@
         1
       </trim>
     </insert>
-  <!-- todo laoqingchang 方法名通用型 -->
-  <update id="updateSendTaskStatus" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity">
+
+  <update id="finishSendTask" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity">
     update
         jy_picking_send_destination_detail
     set
@@ -161,4 +161,13 @@
 
     </if>
   </update>
+
+  <select id="getSendDetailBySiteId">
+    select  <include refid="Base_Column_List"/>
+    from    jy_picking_send_destination_detail
+    where   yn = 1
+    and     create_site_id = #{createSiteId}
+    and     next_site_id = #{nextSiteId}
+    and     task_type = #{taskType}
+  </select>
 </mapper>

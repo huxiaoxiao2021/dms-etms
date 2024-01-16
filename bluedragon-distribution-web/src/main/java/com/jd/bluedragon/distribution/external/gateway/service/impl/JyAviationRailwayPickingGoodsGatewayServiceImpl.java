@@ -66,8 +66,9 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
         }
     }
 
-    //todo laoqingchang   1、 ump  2、异常返回话术
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.finishPickGoods",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> finishPickGoods(FinishPickGoodsReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
@@ -87,11 +88,13 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁提货完成异常", null);//500+非自定义异常
         }
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.submitException",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> submitException(ExceptionSubmitReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
@@ -111,11 +114,13 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁异常上报异常", null);//500+非自定义异常
         }
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.listSendFlowInfo",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SendFlowRes> listSendFlowInfo(SendFlowReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
@@ -135,11 +140,13 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁流向信息查询异常", null);//500+非自定义异常
         }
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.addSendFlow",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> addSendFlow(SendFlowAddReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
@@ -159,11 +166,13 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁流向添加异常", null);//500+非自定义异常
         }
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.deleteSendFlow",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> deleteSendFlow(SendFlowDeleteReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
@@ -183,11 +192,13 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁提货流向删除异常！", null);//500+非自定义异常
         }
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.finishSendTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Void> finishSendTask(FinishSendTaskReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
@@ -207,11 +218,13 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁发货完成接口异常", null);//500+非自定义异常
         }
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.listAirRailTaskSummary",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<AirRailTaskRes> listAirRailTaskSummary(AirRailTaskSummaryReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
@@ -231,11 +244,13 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁提货机场/车站列表查询异常", null);//500+非自定义异常
         }
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.listAirRailTaskAgg",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<AirRailTaskAggRes> listAirRailTaskAgg(AirRailTaskAggReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
@@ -255,7 +270,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "航空提货服务异常", null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁提货机场/车站列表明细查询异常", null);//500+非自定义异常
         }
     }
 }

@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -131,6 +130,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
                 req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
                 req.setPageNum(1);
                 req.setPageSize(10);
+                req.setKeyword("910");
                 JdCResponse<AirRailTaskRes> response = jyAviationRailwayPickingGoodsGatewayService.listAirRailTaskSummary(req);
                 log.info("listAirRailTaskSummaryTest response {}", JsonHelper.toJson(response));
             }catch (Exception ex) {
@@ -148,6 +148,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
 //        req.setPickingNodeCode("bjtz");
         req.setPageNum(1);
         req.setPageSize(10);
+        req.setKeyword("910");
         JdCResponse<AirRailTaskAggRes> response = jyAviationRailwayPickingGoodsGatewayService.listAirRailTaskAgg(req);
         log.info("listAirRailTaskSummaryTest response {}", JsonHelper.toJson(response));
     }

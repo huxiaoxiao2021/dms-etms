@@ -1,7 +1,10 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res;
-//todo laoqingchang
-public class SendFlowDto {
 
+import java.io.Serializable;
+
+public class SendFlowDto implements Serializable {
+
+    private static final long serialVersionUID = -3059926138936452706L;
     /**
      * 提货场地id
      */

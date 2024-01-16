@@ -25,6 +25,8 @@ public class JyPickingTaskBatchQueryDto implements Serializable {
 
     private List<String> pickingNodeCodeList;
 
+    private List<String> bizIdList;
+
     private Date createTime;
 
     private List<Integer> statusList;
@@ -71,6 +73,14 @@ public class JyPickingTaskBatchQueryDto implements Serializable {
 
     public void setPickingNodeCodeList(List<String> pickingNodeCodeList) {
         this.pickingNodeCodeList = pickingNodeCodeList;
+    }
+
+    public List<String> getBizIdList() {
+        return bizIdList;
+    }
+
+    public void setBizIdList(List<String> bizIdList) {
+        this.bizIdList = bizIdList;
     }
 
     public Date getCreateTime() {

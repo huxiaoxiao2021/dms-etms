@@ -324,19 +324,6 @@
       </if>
     limit 1
   </select>
-  <!-- todo laoqingchang  命名：完成，非改状态, 可： updateTaskByBizIdWithCondition 替换 -->
-  <update id="updateStatusByBizId" parameterType="JyPickingSendRecordEntity">
-    update  jy_biz_task_picking_good
-    set     complete_node = #{completeNode},
-            status = #{status},
-            update_time = #{updateTime},
-            update_user_erp = #{updateUserErp},
-            update_user_name = #{updateUserName}
-    where   yn = 1
-    and     biz_id = #{bizId}
-  </update>
-
-
 
     <update id="updateTaskByBizIdWithCondition" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition" >
       update jy_biz_task_picking_good
@@ -418,7 +405,6 @@
       and task_type = #{taskType}
   </update>
 
-  <!--todo laoqingchang  -->
   <select id="listTaskGroupByPickingNodeCode" resultMap="BaseResultMap">
     select  <include refid="Base_Column_List" />
     from    jy_biz_task_picking_good
@@ -428,6 +414,12 @@
     and     task_type = #{taskType}
     and     create_time >= #{createTime}
     group by end_node_code
+    <if test="bizIdList != null and bizIdList.size() > 0">
+      and   biz_id in
+      <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
     limit #{offset}, #{limit}
   </select>
 
@@ -445,6 +437,12 @@
         #{item}
       </foreach>
     </if>
+    <if test="bizIdList != null and bizIdList.size() > 0">
+    and     biz_id in
+      <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
     limit #{offset}, #{limit}
   </select>
 
@@ -458,29 +456,30 @@
     and     create_time >= #{createTime}
     group by status
   </select>
-  <!-- todo laoqingchang 1、 命名：完成，非改状态，  或者sql 改成通用  2、 修改都更新updateTime-->
 
-  <update id="batchUpdateStatusByBizId">
+  <update id="batchFinishPickingTaskByBizId">
     update  jy_biz_task_picking_good
     set     complete_node = #{completeNode},
             status = #{status}
+            update_time = #{updateTime}
     where   yn = 1
+    and     task_type = #{taskType}
     and     biz_id in
     <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
       #{item}
     </foreach>
   </update>
-  <!-- todo laoqingchang  卡create_time范围的场景 ？？？-->
 
   <select id="pageRecentCreatedManualBizId" resultType="java.lang.String">
     select biz_id
     from jy_biz_task_picking_good
     where yn = 1
-    and create_time <![CDATA[ >= ]]> #{startTime}
     and create_time <![CDATA[ <= ]]> #{endTime}
     and task_type = #{taskType}
-    and status <![CDATA[ < ]]> #{status}
     and manual_created_flag = 1
+    <if test="status != null">
+      and status <![CDATA[ < ]]> #{status}
+    </if>
     limit #{offset}, #{limit}
   </select>
 

@@ -33,6 +33,8 @@ public class JyBizTaskPickingGoodSubsidiaryEntity implements Serializable {
 
     private String transportCode;
 
+    private Integer taskType;
+
     private String createUserErp;
 
     private String createUserName;
@@ -134,6 +136,14 @@ public class JyBizTaskPickingGoodSubsidiaryEntity implements Serializable {
 
     public void setTransportCode(String transportCode) {
         this.transportCode = transportCode;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
     }
 
     public String getCreateUserErp() {

@@ -14,6 +14,7 @@
     <result column="end_site_code" property="endSiteCode" jdbcType="VARCHAR" />
     <result column="end_site_name" property="endSiteName" jdbcType="VARCHAR" />
     <result column="transport_code" property="transportCode" jdbcType="VARCHAR" />
+    <result column="task_type" property="taskType" jdbcType="TINYINT" />
     <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
     <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
     <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
@@ -220,5 +221,25 @@
         update_time = #{updateTime},
       where yn = 1 and biz_id = #{bizId}
     </update>
+
+  <select id="listBizIdByLastSiteId" resultType="java.lang.String">
+    select  biz_id
+    from    jy_biz_task_picking_good_subsidiary
+    where   yn = 1
+    and     end_site_id = #{endSiteId}
+    and     start_site_id = #{startSiteId}
+    and     create_time >= #{createTime}
+    and     task_type = #{taskType}
+  </select>
+
+  <select id="listBatchInfoByBizId" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List"/>
+    from    jy_biz_task_picking_good_subsidiary
+    where   yn = 1
+    and     biz_id in
+    <foreach collection="list" item="item" open="(" close=")" separator=",">
+        #{item}
+    </foreach>
+  </select>
 
 </mapper>

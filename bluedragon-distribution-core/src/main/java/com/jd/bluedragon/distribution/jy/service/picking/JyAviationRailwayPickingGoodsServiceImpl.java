@@ -18,9 +18,13 @@ import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.common.CommonService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -92,6 +96,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     private DmsConfigManager dmsConfigManager;
     @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
+    @Autowired
+    private RouterService routerService;
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -169,7 +175,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
      * 提货发货校验
      */
     private boolean sendGoodBusinessCheck(PickingGoodsReq request, InvokeResult<PickingGoodsRes> res) {
-        if(!jyPickingSendDestinationService.existSendNextSite((long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId())){
+        if(!jyPickingSendDestinationService.existSendNextSite((long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId(), request.getTaskType())){
             String siteName = this.getSiteNameBySiteId(request.getNextSiteId().intValue());
             res.parameterError(String.format("发货场地[%s|%s]未维护，请先添加发货流向", request.getNextSiteId(), siteName));
             return false;
@@ -515,7 +521,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
         //流向不一致
         if(!request.getNextSiteId().equals(routerNextSiteId.longValue())) {
-            resData.setNextSiteSupportSwitch(jyPickingSendDestinationService.existSendNextSite((long)request.getCurrentOperate().getSiteCode(), routerNextSiteId.longValue()));
+            resData.setNextSiteSupportSwitch(jyPickingSendDestinationService.existSendNextSite((long)request.getCurrentOperate().getSiteCode(), routerNextSiteId.longValue(), request.getTaskType()));
             resData.setRouterNextSiteId(routerNextSiteId);
             resData.setRouterNextSiteName(routerNextSiteName);
             resData.setBoxConfirmNextSiteKey(boxConfirmNextSiteKey);
@@ -603,7 +609,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             ret.parameterError("参数错误：提货任务BizId不能为空！");
             return ret;
         }
-        boolean success = jyBizTaskPickingGoodService.updateStatusByBizId(req.getBizId(), PickingCompleteNodeEnum.COMPLETE_BTN.getCode(), req.getUser());
+        boolean success = jyBizTaskPickingGoodService.finishPickingTaskByBizId(req.getBizId(), PickingCompleteNodeEnum.COMPLETE_BTN.getCode(), req.getUser());
         if (!success) {
             log.warn("jyBizTaskPickingGoodService 根据bizId={} 完成提货任务状态失败！", req.getBizId());
         }
@@ -618,7 +624,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             return ret;
         }
         // 当前异常上报只将任务状态修改为完成
-        boolean success = jyBizTaskPickingGoodService.updateStatusByBizId(req.getBizId(), PickingCompleteNodeEnum.EXCEPTION_BTN.getCode(), req.getUser());
+        boolean success = jyBizTaskPickingGoodService.finishPickingTaskByBizId(req.getBizId(), PickingCompleteNodeEnum.EXCEPTION_BTN.getCode(), req.getUser());
         if (!success) {
             log.warn("jyBizTaskPickingGoodService 根据bizId={} 完成提货任务状态失败！", req.getBizId());
         }
@@ -706,6 +712,11 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             ret.parameterError("提货任务类型不能为空！");
             return ret;
         }
+        JyPickingSendDestinationDetailEntity entity = jyPickingSendDestinationService.getSendDetailBySiteId((long) req.getCurrentOperate().getSiteCode(), (long) req.getNextSiteId(), req.getTaskType());
+        if (entity != null && StringUtils.isNotEmpty(entity.getSendCode())) {
+            ret.customMessage(InvokeResult.AIR_RAIL_SEND_FLOW_DELETE_FAIL_CODE, InvokeResult.AIR_RAIL_SEND_FLOW_DELETE_FAIL_MESSAGE);
+            return ret;
+        }
         jyPickingSendDestinationService.deleteSendFlow(req);
         return ret;
     }
@@ -749,15 +760,18 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         if (CollectionUtils.isEmpty(countDtoList)) {
             return ret;
         }
-        //todo laoqingchang
         // 按机场/车站分组逻辑分页查询
         JyPickingTaskGroupQueryDto groupQueryDto = buildGroupQueryDto(req);
+        // 根据搜索关键字查询bizId没有查到则返回
+        if (StringUtils.isNotEmpty(req.getKeyword()) && CollectionUtils.isEmpty(groupQueryDto.getBizIdList())) {
+            return ret;
+        }
         List<JyBizTaskPickingGoodEntity> groupedTask = jyBizTaskPickingGoodService.listTaskGroupByPickingNodeCode(groupQueryDto);
         if (CollectionUtils.isEmpty(groupedTask)) {
             return ret;
         }
         // 查询明细数据
-        JyPickingTaskBatchQueryDto batchQueryDto = buildBatchQueryDto(req, groupedTask);
+        JyPickingTaskBatchQueryDto batchQueryDto = buildBatchQueryDto(groupQueryDto, groupedTask);
         List<JyBizTaskPickingGoodEntity> taskDetail = jyBizTaskPickingGoodService.listTaskByPickingNodeCode(batchQueryDto);
         if (CollectionUtils.isEmpty(taskDetail)) {
             return ret;
@@ -769,6 +783,49 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         calculateSummaryResponse(res, countDtoList, taskDetail, aggsDtoList);
 
         return ret;
+    }
+
+    /**
+     * 将搜索关键字转化成提货任务bizId
+     * @param keyword
+     * @param currentSiteId
+     * @param taskType
+     * @return
+     */
+    private List<String> resolveKeyword(String keyword, Integer currentSiteId, Integer taskType) {
+        List<String> bizList = new ArrayList<>();
+        if (StringUtils.isEmpty(keyword)) {
+            return bizList;
+        }
+        Integer lastSiteId = null;
+        if (WaybillUtil.isPackageCode(keyword)) {
+            String waybillCode = WaybillUtil.getWaybillCode(keyword);
+            RouteNextDto routeNextDto = routerService.matchNextNodeAndLastNodeByRouter(currentSiteId, waybillCode, null);
+            if (routeNextDto == null) {
+                return bizList;
+            }
+            lastSiteId = routeNextDto.getFirstLastSiteId();
+        } else {
+            try {
+                lastSiteId = Integer.valueOf(keyword);
+            } catch (Exception e) {
+                logWarn("搜索关键字非场地编码异常 {}", keyword, e);
+            }
+        }
+        if (lastSiteId == null) {
+            return bizList;
+        }
+        JyBizTaskPickingGoodSubsidiaryEntity entity = new JyBizTaskPickingGoodSubsidiaryEntity();
+        entity.setStartSiteId((long) lastSiteId);
+        entity.setEndSiteId((long) currentSiteId);
+        entity.setTaskType(taskType);
+        entity.setCreateTime(getStartTime());
+        bizList = jyBizTaskPickingGoodService.listBizIdByLastSiteId(entity);
+        return bizList.stream().distinct().collect(Collectors.toList());
+    }
+
+    private Date getStartTime() {
+        return DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
     }
 
     private void listAirRailTaskSummaryCheck(AirRailTaskSummaryReq req, InvokeResult<AirRailTaskRes> invokeResult) {
@@ -791,8 +848,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setPickingSiteId(req.getCurrentOperate().getSiteCode());
         queryDto.setTaskType(req.getTaskType());
 
-        Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
-        queryDto.setCreateTime(startTime);
+        queryDto.setCreateTime(getStartTime());
 
         return queryDto;
     }
@@ -802,25 +858,23 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setPickingSiteId((long) req.getCurrentOperate().getSiteCode());
         queryDto.setStatus(req.getStatus());
         queryDto.setTaskType(req.getTaskType());
-
-        Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
-        queryDto.setCreateTime(startTime);
+        queryDto.setCreateTime(getStartTime());
+        queryDto.setBizIdList(resolveKeyword(req.getKeyword(), req.getCurrentOperate().getSiteCode(), req.getTaskType()));
 
         queryDto.setOffset((req.getPageNum() - 1) * req.getPageSize());
         queryDto.setLimit(req.getPageSize());
         return queryDto;
     }
 
-    private JyPickingTaskBatchQueryDto buildBatchQueryDto(AirRailTaskSummaryReq req, List<JyBizTaskPickingGoodEntity> groupByTask) {
+    private JyPickingTaskBatchQueryDto buildBatchQueryDto(JyPickingTaskGroupQueryDto dto, List<JyBizTaskPickingGoodEntity> groupByTask) {
         JyPickingTaskBatchQueryDto queryDto = new JyPickingTaskBatchQueryDto();
-        queryDto.setPickingSiteId((long) req.getCurrentOperate().getSiteCode());
-        queryDto.setStatus(req.getStatus());
-        queryDto.setTaskType(req.getTaskType());
+        queryDto.setPickingSiteId(dto.getPickingSiteId());
+        queryDto.setStatus(dto.getStatus());
+        queryDto.setTaskType(dto.getTaskType());
         queryDto.setOffset(0);
         queryDto.setLimit(1024);
-
-        Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
-        queryDto.setCreateTime(startTime);
+        queryDto.setCreateTime(getStartTime());
+        queryDto.setBizIdList(dto.getBizIdList());
 
         List<String> pickingNodeCodes = groupByTask.stream().map(JyBizTaskPickingGoodEntity::getEndNodeCode).distinct().collect(Collectors.toList());
         queryDto.setPickingNodeCodeList(pickingNodeCodes);
@@ -828,10 +882,9 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     private JyPickingTaskBatchQueryDto buildBatchQueryDto(SendFlowReq req) {
-        //todo laoqingchang
         JyPickingTaskBatchQueryDto queryDto = new JyPickingTaskBatchQueryDto();
         queryDto.setPickingSiteId((long) req.getCurrentOperate().getSiteCode());
-        Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
+        Date startTime = DateUtils.addDays(new Date(), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
         queryDto.setCreateTime(startTime);
         queryDto.setTaskType(req.getTaskType() == null ? PickingGoodTaskTypeEnum.AVIATION.getCode() : req.getTaskType());
 
@@ -904,24 +957,20 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
 
         long currentSiteId = req.getCurrentOperate().getSiteCode();
         JyPickingTaskBatchQueryDto batchQueryDto = buildBatchQueryDto(req);
+        // 根据搜索关键字查询bizId没有查到则返回
+        if (StringUtils.isNotEmpty(req.getKeyword()) && CollectionUtils.isEmpty(batchQueryDto.getBizIdList())) {
+            return ret;
+        }
         List<JyBizTaskPickingGoodEntity> taskDetail = jyBizTaskPickingGoodService.listTaskByPickingNodeCode(batchQueryDto);
         if (CollectionUtils.isEmpty(taskDetail)) {
             return ret;
         }
-        //todo laoqingchang  待发货统计agg确认
+
         List<String> bizList = taskDetail.stream().map(JyBizTaskPickingGoodEntity::getBizId).distinct().collect(Collectors.toList());
         List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.waitPickingInitTotalNum(bizList, currentSiteId, null);
-//        List<PickingSendGoodAggsDto> aggsDtoList = bizList.stream().map(item -> {
-//            PickingSendGoodAggsDto dto = new PickingSendGoodAggsDto();
-//            dto.setBizId(item);
-//            dto.setWaitSendTotalNum(1);
-//            dto.setForceSendTotalNum(2);
-//            dto.setMoreSendTotalNum(3);
-//            dto.setRealSendTotalNum(4);
-//            return dto;
-//        }).collect(Collectors.toList());
+        List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList = jyBizTaskPickingGoodService.listBatchInfoByBizId(bizList);
         // 计算统计总和
-        calculateAggResponse(res, taskDetail, aggsDtoList);
+        calculateAggResponse(res, taskDetail, aggsDtoList, subsidiaryEntityList);
         return ret;
     }
 
@@ -950,9 +999,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
         queryDto.setOffset((req.getPageNum() - 1) * req.getPageSize());
         queryDto.setLimit(req.getPageSize());
-
-        Date startTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
-        queryDto.setCreateTime(startTime);
+        queryDto.setBizIdList(resolveKeyword(req.getKeyword(), req.getCurrentOperate().getSiteCode(), req.getTaskType()));
+        queryDto.setCreateTime(getStartTime());
 
         if (StringUtils.isNotEmpty(req.getPickingNodeCode())) {
             List<String> pickingNodeCodes = Collections.singletonList(req.getPickingNodeCode());
@@ -961,29 +1009,48 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         return queryDto;
     }
 
-    private void calculateAggResponse(AirRailTaskAggRes res, List<JyBizTaskPickingGoodEntity> taskDetail, List<PickingSendGoodAggsDto> aggsDtoList) {
+    private void calculateAggResponse(AirRailTaskAggRes res, List<JyBizTaskPickingGoodEntity> taskDetail, List<PickingSendGoodAggsDto> aggsDtoList, List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList) {
         List<AirRailTaskAggDto> taskAggDtoList = res.getTaskAggDtoList();
         Map<String, PickingSendGoodAggsDto> aggMappedByBizId = aggsDtoList.stream().collect(Collectors.toMap(PickingSendGoodAggsDto::getBizId, item -> item, (first, second) -> first));
+        Map<String, List<JyBizTaskPickingGoodSubsidiaryEntity>> batchInfoGroupedByBizId = subsidiaryEntityList.stream().collect(Collectors.groupingBy(JyBizTaskPickingGoodSubsidiaryEntity::getBizId));
 
         for (JyBizTaskPickingGoodEntity task : taskDetail) {
             AirRailTaskAggDto dto = new AirRailTaskAggDto();
             dto.setBizId(task.getBizId());
             dto.setPickingTime(task.getPickingStartTime());
             dto.setNoTaskFlag(Constants.NUMBER_ONE.equals(task.getManualCreatedFlag()));
-//            dto.setStartSiteId(task.getStartSiteId().intValue());
             dto.setNodePlanArriveTime(task.getNodePlanArriveTime());
             dto.setNodeRealArriveTime(task.getNodeRealArriveTime());
             dto.setServiceNumber(task.getServiceNumber());
 
+            List<JyBizTaskPickingGoodSubsidiaryEntity> batchInfoList = batchInfoGroupedByBizId.get(task.getBizId());
+            if (CollectionUtils.isNotEmpty(batchInfoList)) {
+                List<Integer> startSiteIdList = batchInfoList.stream().map(item -> item.getStartSiteId().intValue()).distinct().collect(Collectors.toList());
+                List<String> startSiteNameList = new ArrayList<>();
+                for (Integer siteId : startSiteIdList) {
+                    BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(siteId);
+                    if (siteOrgDto != null) {
+                        startSiteNameList.add(siteOrgDto.getSiteName());
+                    }
+                }
+                dto.setStartSiteIdList(startSiteIdList);
+                dto.setStartSiteNameList(startSiteNameList);
+            }
+
+            if (task.getNodeRealArriveTime() == null && PickingGoodStatusEnum.TO_PICKING.getCode().equals(task.getStatus())) {
+                dto.setWaitScanTotal(task.getCargoNumber());
+                dto.setHaveScannedTotal(0);
+                dto.setMultipleScanTotal(0);
+
+                taskAggDtoList.add(dto);
+                continue;
+            }
             PickingSendGoodAggsDto aggsDto = aggMappedByBizId.get(task.getBizId());
             if (aggsDto != null) {
                 dto.setWaitScanTotal(aggsDto.getWaitSendTotalNum());
                 dto.setHaveScannedTotal(aggsDto.getRealSendTotalNum());
                 dto.setMultipleScanTotal(aggsDto.getMoreSendTotalNum());
             }
-
-            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(task.getStartSiteId().intValue());
-            dto.setStartSiteName(siteOrgDto == null ? Constants.EMPTY_FILL : siteOrgDto.getSiteName());
 
             taskAggDtoList.add(dto);
         }
@@ -1003,14 +1070,11 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
 
     @Override
     public void finishTaskWhenWaitScanEqZero() {
-        Date now = new Date();
-        Date startTime = DateUtils.addDays(DateUtils.truncate(now, Calendar.DATE), -dmsConfigManager.getPropertyConfig().getPickingGoodTaskWaitScanEq0TimeRange());
-        Date endTime = DateUtils.truncate(now, Calendar.DATE);
+        Date endTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getPropertyConfig().getPickingGoodTaskWaitScanEq0TimeRange());
         JyPickingTaskAggQueryDto queryDto = new JyPickingTaskAggQueryDto();
         int pageNumber = 1;
         queryDto.setLimit(1000);
-        queryDto.setStartTime(startTime);
-        queryDto.setEndTime(endTime);
+        queryDto.setStartTime(endTime);
         List<String> bizIdList;
         do {
             queryDto.setOffset((pageNumber - 1) * queryDto.getLimit());
@@ -1021,22 +1085,20 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             JyPickingTaskBatchUpdateDto updateDto = new JyPickingTaskBatchUpdateDto();
             updateDto.setBizIdList(bizIdList);
             updateDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
+            updateDto.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
             updateDto.setCompleteNode(PickingCompleteNodeEnum.WAIT_SCAN_0.getCode());
-            jyBizTaskPickingGoodService.batchUpdateStatusByBizId(updateDto);
+            updateDto.setUpdateTime(new Date());
+            jyBizTaskPickingGoodService.batchFinishPickingTaskByBizId(updateDto);
             pageNumber++;
         } while (CollectionUtils.isNotEmpty(bizIdList));
     }
 
-    //todo laoqingchang 方法名通用性
     @Override
-    public void finishTaskWhenExceed24Hours() {
-        Date now = new Date();
-        Date startTime = DateUtils.addDays(DateUtils.truncate(now, Calendar.DATE), -dmsConfigManager.getPropertyConfig().getPickingGoodTaskManualTimeRange());
-        Date endTime = DateUtils.truncate(now, Calendar.DATE);
+    public void finishTaskWhenTimeExceed() {
+        Date endTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getPropertyConfig().getPickingGoodTaskManualTimeRange());
         JyBizTaskPickingGoodQueryDto queryDto = new JyBizTaskPickingGoodQueryDto();
         int pageNumber = 1;
         queryDto.setLimit(1000);
-        queryDto.setStartTime(startTime);
         queryDto.setEndTime(endTime);
         queryDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
         List<String> bizIdList;
@@ -1049,8 +1111,10 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             JyPickingTaskBatchUpdateDto updateDto = new JyPickingTaskBatchUpdateDto();
             updateDto.setBizIdList(bizIdList);
             updateDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
+            updateDto.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
             updateDto.setCompleteNode(PickingCompleteNodeEnum.TIME_EXECUTE.getCode());
-            jyBizTaskPickingGoodService.batchUpdateStatusByBizId(updateDto);
+            updateDto.setUpdateTime(new Date());
+            jyBizTaskPickingGoodService.batchFinishPickingTaskByBizId(updateDto);
             pageNumber++;
         } while (CollectionUtils.isNotEmpty(bizIdList));
     }

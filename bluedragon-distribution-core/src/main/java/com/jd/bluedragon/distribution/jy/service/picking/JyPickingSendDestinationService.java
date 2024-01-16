@@ -32,7 +32,7 @@ public interface JyPickingSendDestinationService {
      * @param nextSiteId
      * @return  true: 存在
      */
-    boolean existSendNextSite(Long curSiteId, Long nextSiteId);
+    boolean existSendNextSite(Long curSiteId, Long nextSiteId, Integer taskType);
 
     Boolean finishSendTask(FinishSendTaskReq req);
 
@@ -57,5 +57,8 @@ public interface JyPickingSendDestinationService {
      */
     boolean deleteSendFlow(SendFlowDeleteReq req);
 
-    List<JyPickingSendDestinationDetailEntity> listSendCodesByCreateSiteId(Long createSiteId, List<Integer> destinationSiteId);
+    /**
+     * 查询流向信息
+     */
+    JyPickingSendDestinationDetailEntity getSendDetailBySiteId(Long createSiteId, Long nextSiteId, Integer taskType);
 }

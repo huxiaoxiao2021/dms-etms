@@ -23,10 +23,6 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
     public int updateTaskByBizIdWithCondition(JyBizTaskPickingGoodEntityCondition entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateTaskByBizIdWithCondition", entity);
     }
-    public int updateStatusByBizId(JyBizTaskPickingGoodEntity entity) {
-        return this.getSqlSession().update(NAMESPACE + ".updateStatusByBizId", entity);
-    }
-
 
     public JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId, Integer taskType) {
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
@@ -65,8 +61,8 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".countAllStatusByPickingSiteId", countQueryDto);
     }
 
-    public int batchUpdateStatusByBizId(JyPickingTaskBatchUpdateDto updateDto) {
-        return this.getSqlSession().update(NAMESPACE + ".batchUpdateStatusByBizId", updateDto);
+    public int batchFinishPickingTaskByBizId(JyPickingTaskBatchUpdateDto updateDto) {
+        return this.getSqlSession().update(NAMESPACE + ".batchFinishPickingTaskByBizId", updateDto);
     }
 
     public List<String> pageRecentCreatedManualBizId(JyBizTaskPickingGoodQueryDto queryDto) {

@@ -495,7 +495,6 @@
       limit #{limit}, 1
   </select>
 
-  <!-- todo laoqingchang   group_code-->
   <update id="deleteSendFlow">
     update jy_group_sort_cross_detail
     set yn = 0,
@@ -503,7 +502,6 @@
         update_user_erp = #{updateUserErp},
         update_user_name = #{updateUserName}
     where yn = 1
-    and group_code = #{groupCode}
     and template_code = #{templateCode}
     and start_site_id = #{startSiteId}
     and end_site_id = #{endSiteId}

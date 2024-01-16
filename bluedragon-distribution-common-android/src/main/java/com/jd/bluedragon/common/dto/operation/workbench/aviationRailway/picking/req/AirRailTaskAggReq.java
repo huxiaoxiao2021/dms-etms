@@ -1,9 +1,8 @@
-package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res;
+package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
-//todo laoqingchang
 public class AirRailTaskAggReq extends BaseReq implements Serializable {
 
     private static final long serialVersionUID = -2083002886333203311L;
@@ -25,6 +24,8 @@ public class AirRailTaskAggReq extends BaseReq implements Serializable {
      * @see com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum
      */
     private Integer taskType;
+
+    private String keyword;
 
     private Integer pageNum;
 
@@ -60,6 +61,14 @@ public class AirRailTaskAggReq extends BaseReq implements Serializable {
 
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 
     public Integer getPageNum() {

@@ -19,7 +19,11 @@ public class JyPickingSendDestinationDetailDao extends BaseDao<JyPickingSendDest
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
     }
 
-    public int updateSendTaskStatus(JyPickingSendDestinationDetailEntity entity) {
-        return this.getSqlSession().update(NAMESPACE + ".updateSendTaskStatus", entity);
+    public int finishSendTask(JyPickingSendDestinationDetailEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".finishSendTask", entity);
+    }
+
+    public JyPickingSendDestinationDetailEntity getSendDetailBySiteId(JyPickingSendDestinationDetailEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".getSendDetailBySiteId", entity);
     }
 }

@@ -101,15 +101,15 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     }
 
     @Override
-    public boolean updateStatusByBizId(String bizId, Integer completeNode, User operator) {
-        JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
-        entity.setBizId(bizId);
-        entity.setCompleteNode(completeNode);
-        entity.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
-        entity.setUpdateTime(new Date());
-        entity.setUpdateUserErp(operator.getUserErp());
-        entity.setUpdateUserName(operator.getUserName());
-        jyBizTaskPickingGoodDao.updateStatusByBizId(entity);
+    public boolean finishPickingTaskByBizId(String bizId, Integer completeNode, User operator) {
+        JyBizTaskPickingGoodEntityCondition condition = new JyBizTaskPickingGoodEntityCondition();
+        condition.setBizId(bizId);
+        condition.setCompleteNode(completeNode);
+        condition.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
+        condition.setUpdateTime(new Date());
+        condition.setUpdateUserErp(operator.getUserErp());
+        condition.setUpdateUserName(operator.getUserName());
+        jyBizTaskPickingGoodDao.updateTaskByBizIdWithCondition(condition);
         return true;
     }
 
@@ -155,8 +155,8 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     }
 
     @Override
-    public int batchUpdateStatusByBizId(JyPickingTaskBatchUpdateDto updateDto) {
-        return jyBizTaskPickingGoodDao.batchUpdateStatusByBizId(updateDto);
+    public int batchFinishPickingTaskByBizId(JyPickingTaskBatchUpdateDto updateDto) {
+        return jyBizTaskPickingGoodDao.batchFinishPickingTaskByBizId(updateDto);
     }
 
     @Override
@@ -182,5 +182,15 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     @Override
     public List<String> findManualCreateTaskBizIds(List<String> bizIdList) {
         return jyBizTaskPickingGoodDao.findManualCreateTaskBizIds(bizIdList);
+    }
+
+    @Override
+    public List<String> listBizIdByLastSiteId(JyBizTaskPickingGoodSubsidiaryEntity entity) {
+        return jyBizTaskPickingGoodSubsidiaryDao.listBizIdByLastSiteId(entity);
+    }
+
+    @Override
+    public List<JyBizTaskPickingGoodSubsidiaryEntity> listBatchInfoByBizId(List<String> bizIdList) {
+        return jyBizTaskPickingGoodSubsidiaryDao.listBatchInfoByBizId(bizIdList);
     }
 }

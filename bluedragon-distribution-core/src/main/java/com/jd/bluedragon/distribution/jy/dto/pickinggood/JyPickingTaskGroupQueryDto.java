@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dto.pickinggood;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class JyPickingTaskGroupQueryDto implements Serializable {
     private static final long serialVersionUID = 1092594866188253310L;
@@ -24,6 +25,8 @@ public class JyPickingTaskGroupQueryDto implements Serializable {
      * @see com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum
      */
     private Integer taskType;
+
+    private List<String> bizIdList;
 
     private Date createTime;
 
@@ -69,6 +72,14 @@ public class JyPickingTaskGroupQueryDto implements Serializable {
 
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
+    }
+
+    public List<String> getBizIdList() {
+        return bizIdList;
+    }
+
+    public void setBizIdList(List<String> bizIdList) {
+        this.bizIdList = bizIdList;
     }
 
     public Date getCreateTime() {

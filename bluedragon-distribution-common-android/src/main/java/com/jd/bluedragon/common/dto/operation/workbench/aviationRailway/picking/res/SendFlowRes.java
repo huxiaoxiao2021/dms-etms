@@ -1,8 +1,9 @@
 package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res;
 
+import java.io.Serializable;
 import java.util.List;
-//todo laoqingchang
-public class SendFlowRes {
+public class SendFlowRes implements Serializable {
+    private static final long serialVersionUID = 4997976038143915037L;
     /**
      * 展示类型
      */

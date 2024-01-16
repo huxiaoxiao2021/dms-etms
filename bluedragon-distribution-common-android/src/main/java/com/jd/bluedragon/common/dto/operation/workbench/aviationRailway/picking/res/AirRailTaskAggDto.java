@@ -2,6 +2,7 @@ package com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class AirRailTaskAggDto implements Serializable {
     private static final long serialVersionUID = 3858833954200859405L;
@@ -17,11 +18,11 @@ public class AirRailTaskAggDto implements Serializable {
     /**
      * 上游场地Id
      */
-    private Integer startSiteId;
+    private List<Integer> startSiteIdList;
     /**
      * 上游场地名称
      */
-    private String startSiteName;
+    private List<String> startSiteNameList;
     /**
      * 预计到达时间
      */
@@ -75,20 +76,20 @@ public class AirRailTaskAggDto implements Serializable {
         this.serviceNumber = serviceNumber;
     }
 
-    public Integer getStartSiteId() {
-        return startSiteId;
+    public List<Integer> getStartSiteIdList() {
+        return startSiteIdList;
     }
 
-    public void setStartSiteId(Integer startSiteId) {
-        this.startSiteId = startSiteId;
+    public void setStartSiteIdList(List<Integer> startSiteIdList) {
+        this.startSiteIdList = startSiteIdList;
     }
 
-    public String getStartSiteName() {
-        return startSiteName;
+    public List<String> getStartSiteNameList() {
+        return startSiteNameList;
     }
 
-    public void setStartSiteName(String startSiteName) {
-        this.startSiteName = startSiteName;
+    public void setStartSiteNameList(List<String> startSiteNameList) {
+        this.startSiteNameList = startSiteNameList;
     }
 
     public Date getNodePlanArriveTime() {

@@ -2262,5 +2262,7 @@ public class Constants {
     /**
      * 空铁提货岗流向模板号前缀 AVIATION_RAIL各取前两字母
      */
-    public static final String AVIATION_RAIL_TEMPLATE_PREFIX = "AVRA";
+    public static final String AVIATION_TEMPLATE_PREFIX = "AVIATION";
+
+    public static final String RAIL_TEMPLATE_PREFIX = "RAIL";
 }

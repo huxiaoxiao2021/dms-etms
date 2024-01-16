@@ -83,6 +83,6 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
     @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.timingHandlerFinishAirRailManualTask",
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public void timingHandlerFinishAirRailManualTask() {
-        jyAviationRailwayPickingGoodsService.finishTaskWhenExceed24Hours();
+        jyAviationRailwayPickingGoodsService.finishTaskWhenTimeExceed();
     }
 }

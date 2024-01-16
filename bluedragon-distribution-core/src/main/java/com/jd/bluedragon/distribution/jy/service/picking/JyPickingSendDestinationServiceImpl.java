@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.picking;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.FinishSendTaskReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowAddReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowDeleteReq;
@@ -91,9 +92,9 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
         return batchCode;
     }
     @Override
-    public boolean existSendNextSite(Long curSiteId, Long nextSiteId) {
+    public boolean existSendNextSite(Long curSiteId, Long nextSiteId, Integer taskType) {
         JyGroupSortCrossDetailEntity queryEntity = new JyGroupSortCrossDetailEntity();
-        queryEntity.setTemplateCode(this.getPickingSendTemplateCode(curSiteId.intValue()));
+        queryEntity.setTemplateCode(this.getPickingSendTemplateCode(curSiteId.intValue(), taskType));
         queryEntity.setStartSiteId(curSiteId);
         queryEntity.setEndSiteId(nextSiteId);
         JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailService.selectOneByFlowAndTemplateCode(queryEntity);
@@ -103,8 +104,9 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
         return false;
     }
 
-    private String getPickingSendTemplateCode(Integer siteId) {
-        return Constants.AVIATION_RAIL_TEMPLATE_PREFIX + siteId;
+    private String getPickingSendTemplateCode(Integer siteId, Integer taskType) {
+        return PickingGoodTaskTypeEnum.AVIATION.getCode().equals(taskType)
+                ? Constants.AVIATION_TEMPLATE_PREFIX + siteId : Constants.RAIL_TEMPLATE_PREFIX;
     }
 
     @Override
@@ -119,7 +121,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
         entity.setUpdateUserErp(req.getUser().getUserErp());
         entity.setUpdateUserName(req.getUser().getUserName());
         entity.setTaskType(req.getTaskType());
-        jyPickingSendDestinationDetailDao.updateSendTaskStatus(entity);
+        jyPickingSendDestinationDetailDao.finishSendTask(entity);
         return true;
     }
 
@@ -149,14 +151,14 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
      */
     @Override
     public boolean addSendFlow(SendFlowAddReq req) {
+        Integer currentSiteId = req.getCurrentOperate().getSiteCode();
         String cacheKey = String.format(CacheKeyConstants.CACHE_KEY_AIR_RAIL_ADD_SEND_FLOW, req.getCurrentOperate().getSiteCode());
         if (cacheService.exists(cacheKey)) {
             return false;
         }
         try {
-//            setNx  加锁，考虑并发  todo laoqingchang
-            cacheService.setEx(cacheKey, req.getCurrentOperate().getSiteCode(), 5, TimeUnit.SECONDS);
-            String templateCode = Constants.AVIATION_RAIL_TEMPLATE_PREFIX + req.getCurrentOperate().getSiteCode();   //todo laoqingchang   getPickingSendTemplateCode
+            cacheService.setNx(cacheKey, currentSiteId, 5, TimeUnit.SECONDS);
+            String templateCode = getPickingSendTemplateCode(currentSiteId, req.getTaskType());
             List<JyGroupSortCrossDetailEntity> entities = new ArrayList<>();
             List<StreamlinedBasicSite> siteList = filterExistedSendFlow(req);
             for (StreamlinedBasicSite basicSite : siteList) {
@@ -213,32 +215,45 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
     }
 
     /**
-     * todo laoqingchang groupCode
      * 获取发送流程查询DTO
      * @param req 基础请求对象
      * @return 返回JyGroupSortCrossDetailEntityQueryDto对象
      */
-    private JyGroupSortCrossDetailEntityQueryDto getSendFlowQueryDto(BaseReq req) {
+    private JyGroupSortCrossDetailEntityQueryDto getSendFlowQueryDto(SendFlowReq req) {
         JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
 
         int startSiteId = req.getCurrentOperate().getSiteCode();
-        String templateCode = Constants.AVIATION_RAIL_TEMPLATE_PREFIX + startSiteId;
-        String groupCode = req.getGroupCode();
+        String templateCode = getPickingSendTemplateCode(startSiteId, req.getTaskType());
         queryDto.setStartSiteId((long) startSiteId);
         queryDto.setTemplateCode(templateCode);
-        queryDto.setGroupCode(groupCode);
+
+        return queryDto;
+    }
+
+    /**
+     * 获取发送流程查询DTO
+     * @param req 基础请求对象
+     * @return 返回JyGroupSortCrossDetailEntityQueryDto对象
+     */
+    private JyGroupSortCrossDetailEntityQueryDto getSendFlowQueryDto(SendFlowAddReq req) {
+        JyGroupSortCrossDetailEntityQueryDto queryDto = new JyGroupSortCrossDetailEntityQueryDto();
+
+        int startSiteId = req.getCurrentOperate().getSiteCode();
+        String templateCode = getPickingSendTemplateCode(startSiteId, req.getTaskType());
+        queryDto.setStartSiteId((long) startSiteId);
+        queryDto.setTemplateCode(templateCode);
 
         return queryDto;
     }
 
     @Override
     public boolean deleteSendFlow(SendFlowDeleteReq req) {
-        //todo laoqingchang 查询删除的流向是否存在未封车的批次，如果存在则不能删除
-        String templateCode = Constants.AVIATION_RAIL_TEMPLATE_PREFIX + req.getCurrentOperate().getSiteCode();
+        Integer currentSiteId = req.getCurrentOperate().getSiteCode();
+        String templateCode = getPickingSendTemplateCode(currentSiteId, req.getTaskType());
         JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
         entity.setTemplateCode(templateCode);
         entity.setGroupCode(req.getGroupCode());
-        entity.setStartSiteId((long) req.getCurrentOperate().getSiteCode());
+        entity.setStartSiteId((long) currentSiteId);
         entity.setEndSiteId((long) req.getNextSiteId());
         entity.setUpdateTime(new Date());
         entity.setUpdateUserErp(req.getUser().getUserErp());
@@ -246,8 +261,14 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
         return jyGroupSortCrossDetailService.deleteSendFlow(entity);
     }
 
+
     @Override
-    public List<JyPickingSendDestinationDetailEntity> listSendCodesByCreateSiteId(Long createSiteId, List<Integer> destinationSiteId) {
-        return null;
+    public JyPickingSendDestinationDetailEntity getSendDetailBySiteId(Long createSiteId, Long nextSiteId, Integer taskType) {
+        JyPickingSendDestinationDetailEntity entity = new JyPickingSendDestinationDetailEntity();
+        entity.setCreateSiteId(createSiteId);
+        entity.setNextSiteId(nextSiteId);
+        entity.setTaskType(taskType);
+        return jyPickingSendDestinationDetailDao.getSendDetailBySiteId(entity);
+
     }
 }
