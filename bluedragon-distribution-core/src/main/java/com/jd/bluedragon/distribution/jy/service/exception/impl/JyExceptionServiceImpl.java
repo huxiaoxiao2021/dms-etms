@@ -276,7 +276,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 return JdCResponse.fail("运单不存在!");
             }
             if (BusinessHelper.isBwxWaybill(waybill.getWaybillSign())){
-                return JdCResponse.fail("该单为保温箱运单,正常发货流转");
+                return JdCResponse.fail("该单为保温箱运单，请正常发货流转!");
             }
         }
 

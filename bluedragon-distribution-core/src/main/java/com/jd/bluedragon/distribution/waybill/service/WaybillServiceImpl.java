@@ -1606,7 +1606,7 @@ public class WaybillServiceImpl implements WaybillService {
             }
             //规则7
             if (BusinessHelper.isBwxWaybill(waybill.getWaybillSign())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"该单为保温箱运单,正常发货流转");
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"该单为保温箱运单，请正常发货流转!");
                 return result;
             }
 
