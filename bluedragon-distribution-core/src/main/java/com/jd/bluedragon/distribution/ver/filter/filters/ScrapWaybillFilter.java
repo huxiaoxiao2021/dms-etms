@@ -9,8 +9,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import org.apache.commons.lang.StringUtils;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
@@ -21,7 +20,7 @@ import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
  */
 public class ScrapWaybillFilter implements Filter {
 
-    @Resource
+    @Autowired
     private WaybillService waybillService;
 
     @Override
