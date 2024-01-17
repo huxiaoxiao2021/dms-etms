@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.
 import java.util.List;
 
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
 
 /**
@@ -48,7 +49,7 @@ public interface JyPickingSendDestinationService {
      * @param req
      * @return
      */
-    boolean addSendFlow(SendFlowAddReq req);
+     InvokeResult<Boolean> addSendFlow(SendFlowAddReq req);
 
     /**
      * 删除流向

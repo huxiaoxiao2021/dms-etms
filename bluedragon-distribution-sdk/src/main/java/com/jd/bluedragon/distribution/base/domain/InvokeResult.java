@@ -321,6 +321,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int AIR_RAIL_SEND_FLOW_DELETE_FAIL_CODE = 3077;
     public static final String AIR_RAIL_SEND_FLOW_DELETE_FAIL_MESSAGE = "流程存在未封车批次，请先封车再删除！";
 
+    public static final int AIR_RAIL_SEND_FLOW_EXCEED_LIMIT_CODE = 3078;
+    public static final String AIR_RAIL_SEND_FLOW_EXCEED_LIMIT_MESSAGE = "超出最大允许添加流向数据量！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

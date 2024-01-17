@@ -1833,6 +1833,16 @@ public class UccPropertyConfiguration{
      */
     private Integer pickingGoodTaskManualTimeRange;
 
+    private Integer sendFlowLimit;
+
+    public Integer getSendFlowLimit() {
+        return sendFlowLimit;
+    }
+
+    public void setSendFlowLimit(Integer sendFlowLimit) {
+        this.sendFlowLimit = sendFlowLimit;
+    }
+
     public Integer getPickingGoodTaskWaitScanEq0TimeRange() {
         return pickingGoodTaskWaitScanEq0TimeRange;
     }

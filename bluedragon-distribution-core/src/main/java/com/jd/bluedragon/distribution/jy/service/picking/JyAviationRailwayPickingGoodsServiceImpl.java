@@ -623,9 +623,9 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             ret.parameterError("所选流向场地不能为空！");
             return ret;
         }
-        boolean success = jyPickingSendDestinationService.addSendFlow(req);
-        if (!success) {
-            ret.customMessage(InvokeResult.AIR_RAIL_SEND_FLOW_ADD_FAIL_CODE, InvokeResult.AIR_RAIL_SEND_FLOW_ADD_FAIL_MESSAGE);
+        InvokeResult<Boolean> success = jyPickingSendDestinationService.addSendFlow(req);
+        if (!success.codeSuccess()) {
+            ret.customMessage(success.getCode(), success.getMessage());
         }
         return ret;
     }

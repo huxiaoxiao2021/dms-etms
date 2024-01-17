@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.FinishSendTaskReq;
@@ -10,6 +9,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyPickingSendTaskEnum;
@@ -54,6 +55,9 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
     private IJySendVehicleService jySendVehicleService;
     @Autowired
     private CacheService cacheService;
+
+    @Autowired
+    private DmsConfigManager dmsConfigManager;
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -145,21 +149,27 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
 
     /**
      * 添加流向
+     *
      * @param req
      * @return 添加成功返回true，否则返回false
      */
     @Override
-    public boolean addSendFlow(SendFlowAddReq req) {
+    public InvokeResult<Boolean> addSendFlow(SendFlowAddReq req) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
         Integer currentSiteId = req.getCurrentOperate().getSiteCode();
         String cacheKey = String.format(CacheKeyConstants.CACHE_KEY_AIR_RAIL_ADD_SEND_FLOW, req.getCurrentOperate().getSiteCode());
         if (cacheService.exists(cacheKey)) {
-            return false;
+            result.customMessage(InvokeResult.AIR_RAIL_SEND_FLOW_ADD_FAIL_CODE, InvokeResult.AIR_RAIL_SEND_FLOW_ADD_FAIL_MESSAGE);
+            return result;
         }
         try {
             cacheService.setNx(cacheKey, currentSiteId, 5, TimeUnit.SECONDS);
             String templateCode = getPickingSendTemplateCode(currentSiteId, req.getTaskType());
             List<JyGroupSortCrossDetailEntity> entities = new ArrayList<>();
-            List<StreamlinedBasicSite> siteList = filterExistedSendFlow(req);
+            List<StreamlinedBasicSite> siteList = filterExistedSendFlow(req, result);
+            if (!result.codeSuccess()) {
+                return result;
+            }
             for (StreamlinedBasicSite basicSite : siteList) {
                 JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
                 entity.setGroupCode(req.getGroupCode());
@@ -181,16 +191,19 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
             if (CollectionUtils.isNotEmpty(entities)) {
                 boolean success = jyGroupSortCrossDetailService.batchAddGroup(entities);
                 if (!success) {
-                    return false;
+                    logWarn("JyPickingSendDestinationServiceImpl.addSendFlow 添加流向失败 {}", JsonHelper.toJson(req));
+                    result.error("流向添加失败！请重试！");
+                    return result;
                 }
             }
         } catch (Exception e) {
-            logWarn("JyPickingSendDestinationServiceImpl.addSendFlow 添加流向异常 {}", JsonHelper.toJson(req));
-            return false;
+            logWarn("JyPickingSendDestinationServiceImpl.addSendFlow 添加流向异常 {}", JsonHelper.toJson(req), e);
+            result.error("流向添加异常！请联系分拣小秘处理！");
+            return result;
         } finally {
             cacheService.del(cacheKey);
         }
-        return true;
+        return result;
     }
 
     /**
@@ -198,10 +211,14 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
      * @param req
      * @return nextSiteList 过滤后的站点列表
      */
-    private List<StreamlinedBasicSite> filterExistedSendFlow(SendFlowAddReq req) {
+    private List<StreamlinedBasicSite> filterExistedSendFlow(SendFlowAddReq req, InvokeResult<Boolean> invokeResult) {
 
         JyGroupSortCrossDetailEntityQueryDto queryDto = getSendFlowQueryDto(req);
         List<JyGroupSortCrossDetailEntity> flowList = jyGroupSortCrossDetailService.selectByCondition(queryDto);
+        if (flowList.size() >= dmsConfigManager.getUccPropertyConfiguration().getSendFlowLimit()) {
+            invokeResult.customMessage(InvokeResult.AIR_RAIL_SEND_FLOW_EXCEED_LIMIT_CODE, InvokeResult.AIR_RAIL_SEND_FLOW_EXCEED_LIMIT_MESSAGE);
+            return new ArrayList<>();
+        }
         Set<Integer> siteIdSet = flowList.stream().map(site -> site.getEndSiteId().intValue()).collect(Collectors.toSet());
         List<StreamlinedBasicSite> nextSiteList = new ArrayList<>();
         for (StreamlinedBasicSite nextSite : req.getSiteList()) {

@@ -413,13 +413,13 @@
     and     status = #{status}
     and     task_type = #{taskType}
     and     create_time >= #{createTime}
-    group by end_node_code
     <if test="bizIdList != null and bizIdList.size() > 0">
       and   biz_id in
       <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
         #{item}
       </foreach>
     </if>
+    group by end_node_code
     limit #{offset}, #{limit}
   </select>
 
