@@ -40,6 +40,7 @@ import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DeliveryWSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
@@ -70,6 +71,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -129,6 +131,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
 
 @Service
 public class JyExceptionServiceImpl implements JyExceptionService {
@@ -249,6 +254,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isBlank(req.getBarCode())) {
             return JdCResponse.fail("扫描条码不能为空!");
         }
+        if (checkScrapWaybill(req.getBarCode())) {
+            return JdCResponse.fail(HintService.getHint(SCRAP_WAYBILL_INTERCEPT_HINT_CODE));
+        }
 
         //三无异常处理逻辑
         if (!(BusinessUtil.isSanWuCode(req.getBarCode())  || WaybillUtil.isPackageCode(req.getBarCode()) || WaybillUtil.isWaybillCode(req.getBarCode()))) {
@@ -348,6 +356,19 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         return JdCResponse.ok();
+    }
+
+    private boolean checkScrapWaybill(String barCode) {
+        // 报废运单拦截
+        if (WaybillUtil.isWaybillCode(barCode) || WaybillUtil.isPackageCode(barCode)) {
+            Waybill waybill = waybillService.getWaybillByWayCode(WaybillUtil.getWaybillCode(barCode));
+            if (waybill != null && StringUtils.isNotEmpty(waybill.getWaybillSign())) {
+                // waybillSign的19位等于2是报废运单 拦截
+                String waybillSign = waybill.getWaybillSign();
+                return isScrapWaybill(waybillSign);
+            }
+        }
+        return false;
     }
 
     /**

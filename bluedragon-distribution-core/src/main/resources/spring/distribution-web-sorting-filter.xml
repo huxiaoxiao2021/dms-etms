@@ -58,6 +58,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CrossDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
     </util:list>
 
     <util:list id="jyCollectPackageForwardFilterList">
@@ -99,6 +100,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DmsToVendorFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ColdPackConsumableConfirmFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
     </util:list>
 
     <bean id="forwardFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.ForwardFilterChain" scope="prototype" destroy-method="destory">
@@ -165,6 +167,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RouterFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
     </util:list>
 
     <util:list id="deliveryByWaybillFilterList">
@@ -198,6 +201,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RouterFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
     </util:list>
 
     <util:list id="deliveryByBoardFilterList">
@@ -232,6 +236,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BoardCombinationRouterFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
     </util:list>
 
     <bean id="boardCombinationChain" class="com.jd.bluedragon.distribution.ver.filter.chains.BoardCombinationChain" scope="prototype" destroy-method="destory">
@@ -293,6 +298,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DmsToVendorFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
     </util:list>
 
 
@@ -332,5 +338,6 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RouterFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
     </util:list>
 </beans>
