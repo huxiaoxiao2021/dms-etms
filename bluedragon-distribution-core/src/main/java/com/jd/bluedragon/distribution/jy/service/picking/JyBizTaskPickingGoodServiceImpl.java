@@ -35,6 +35,8 @@ import java.util.List;
 public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodService{
 
     private static final Logger log = LoggerFactory.getLogger(JyBizTaskPickingGoodServiceImpl.class);
+    private static final String MANUAL_CREATE_GROUP_CODE = "XUNI_ZJ";
+    private static final String MANUAL_CREATE_GROUP_NAME = "自建任务分组";
 
     @Autowired
     private JyBizTaskPickingGoodDao jyBizTaskPickingGoodDao;
@@ -84,6 +86,8 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     public JyBizTaskPickingGoodEntity generateManualCreateTask(CurrentOperate site, User user, Integer taskType) {
         JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
         entity.setBizId(this.genPickingGoodTaskBizId(true));
+        entity.setEndNodeCode(MANUAL_CREATE_GROUP_CODE);
+        entity.setEndNodeName(MANUAL_CREATE_GROUP_NAME);
 //        entity.setStartSiteId((long)site.getSiteCode());
         entity.setNextSiteId((long)site.getSiteCode());
         entity.setServiceNumber(entity.getBizId());
