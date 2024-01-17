@@ -13,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.*;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.CHAR_19_2;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.POSITION_19;
 
 /**
  * @author tangchunqing
@@ -3083,5 +3085,12 @@ public class BusinessUtil {
             return false;
         }
         return flightNumber.matches(FLIGHT_NUMBER_REGEX);
+    }
+
+    public static boolean isScrapWaybill(String waybillSign) {
+        if (StringUtils.isEmpty(waybillSign)) {
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,POSITION_19,CHAR_19_2);
     }
 }

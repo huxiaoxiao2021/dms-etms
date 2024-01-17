@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
+
 /**
  * 分拣弃件废弃处理
  *
@@ -136,7 +138,9 @@ public class DiscardedStorageSortingScrapHandler extends DiscardedStorageAbstrac
             taskService.add(genScrapTraceTask(context.getScanDiscardedPackagePo(), waybillCode));
             // 发送bd_blocker_complete的MQ
             String sendPay = context.getBigWaybillDto().getWaybill().getSendPay();
-            if (BusinessUtil.isSx(sendPay)) {
+            String waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
+            // 报废运单不发送消息
+            if (BusinessUtil.isSx(sendPay) && !isScrapWaybill(waybillSign)) {
                 String mqData = BusinessUtil.bdBlockerCompleteMQ(waybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_BAOFEI, DateHelper.formatDateTimeMs(new Date()));
                 this.bdBlockerCompleteMQ.send(waybillCode, mqData);
             }
