@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
+import static com.jd.bluedragon.distribution.api.response.SortingResponse.SCRAP_WAYBILL_INTERCEPT_CODE;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
 
 /**
@@ -32,7 +33,7 @@ public class ScrapWaybillFilter implements Filter {
                 // waybillSign的19位等于2是报废运单 拦截
                 String waybillSign = waybill.getWaybill().getWaybillSign();
                 if (isScrapWaybill(waybillSign)) {
-                    throw new SortingCheckException(Integer.valueOf(SCRAP_WAYBILL_INTERCEPT_HINT_CODE),
+                    throw new SortingCheckException(SCRAP_WAYBILL_INTERCEPT_CODE,
                             HintService.getHint(SCRAP_WAYBILL_INTERCEPT_HINT_CODE));
                 }
             }
