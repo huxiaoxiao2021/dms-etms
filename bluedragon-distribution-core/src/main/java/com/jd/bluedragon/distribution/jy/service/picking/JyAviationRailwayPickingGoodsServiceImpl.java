@@ -662,9 +662,6 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     private void finishSendTaskCheck(FinishSendTaskReq req, InvokeResult<Void> invokeResult) {
-        if (StringUtils.isEmpty(req.getSendCode())) {
-            invokeResult.parameterError("批次号不能为空！");
-        }
         if (req.getNextSiteId() == null) {
             invokeResult.parameterError("目的场地编码不能为空！");
         }
