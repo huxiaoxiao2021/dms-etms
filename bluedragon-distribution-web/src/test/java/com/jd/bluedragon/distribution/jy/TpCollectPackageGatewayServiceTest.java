@@ -49,7 +49,7 @@ public class TpCollectPackageGatewayServiceTest {
     public void testUpdateBo() throws Exception {
 
         UpdateBoxReq req =new UpdateBoxReq();
-        req.setBoxCode("");
+        req.setBoxCode("BW1004240117250000100109");
 
         StoreInfo storeInfo =new StoreInfo();
         storeInfo.setStoreType("wms");
