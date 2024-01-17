@@ -52,6 +52,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -272,7 +273,19 @@ public class QualityControlService {
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
             String waybillCode=WaybillUtil.getWaybillCode(request.getQcValue());
             final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(waybillCode);
-            if(isExistOldWaybillCode(waybillCode) || CollectionUtils.isNotEmpty(waybillCancelList)){
+            //获取运信息
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillE(true);
+            wChoice.setQueryWaybillM(true);
+            wChoice.setQueryWaybillExtend(true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null
+                    && BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(), WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)
+                    && BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(), WaybillSignConstants.POSITION_5, WaybillSignConstants.CHAR_5_5)){
+                return result.toFail("订单异常即报废，不允许执行异常提报");
+            }
+            if(isExistOldWaybillCode(baseEntity) || CollectionUtils.isNotEmpty(waybillCancelList)){
                 return result;
             }
             String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG, HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT);
@@ -1079,15 +1092,9 @@ public class QualityControlService {
         task.setOwnSign(BusinessHelper.getOwnSign());
         return task;
     }
-    private  boolean isExistOldWaybillCode(String waybillCode){
+    private  boolean isExistOldWaybillCode(BaseEntity<BigWaybillDto> baseEntity){
         //根据运单号校验是否存在原单号(是否是逆向单)，如果是 则可以正常提交异常处理，否则进行拦截校验
         boolean flag=false;
-        WChoice wChoice = new WChoice();
-        wChoice.setQueryWaybillC(true);
-        wChoice.setQueryWaybillE(true);
-        wChoice.setQueryWaybillM(true);
-        wChoice.setQueryWaybillExtend(true);
-        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
         if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null && baseEntity.getData().getWaybill().getWaybillExt() !=null) {
             WaybillExt waybillExt=baseEntity.getData().getWaybill().getWaybillExt();
             if(StringUtils.isNotBlank(waybillExt.getOldWaybillCode())){

@@ -29,6 +29,7 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.Discarde
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
@@ -436,14 +437,6 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
 
             String barCode = paramObj.getBarCode();
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
-            
-            // 弃件判断
-            if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
-                if (!waybillTraceManager.isOpCodeWaste(barCode)) {
-                    log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
-                    return result.toFail("不是弃件，请勿操作弃件暂存");
-                }
-            }
 
             WChoice choice = new WChoice();
             choice.setQueryWaybillC(true);
@@ -460,6 +453,17 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             }
             if (CollectionUtils.isEmpty(bigWaybillDto.getPackageList())) {
                 return result.toFail("没有查询到运单包裹信息");
+            }
+            //冷链专送 且 异常单处理方式 = 异常即报废  不需要查询全程跟踪，即可直接执行报废（废弃）
+            boolean isColdChainExpressReject = BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(), WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)
+                    && BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(), WaybillSignConstants.POSITION_5, WaybillSignConstants.CHAR_5_5);
+            // 弃件判断
+            if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())
+                    && !isColdChainExpressReject) {
+                if (!waybillTraceManager.isOpCodeWaste(barCode)) {
+                    log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
+                    return result.toFail("不是弃件，请勿操作弃件暂存");
+                }
             }
 
             if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType())) {
