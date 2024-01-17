@@ -37,4 +37,8 @@ public class BoxDao extends BaseDao<Box> {
     public Integer addBatch(List<Box> boxes) {
         return this.getSqlSession().insert(BoxDao.namespace + ".addBatch", boxes);
     }
+
+    public int updateById(Box box) {
+        return this.getSqlSession().update(BoxDao.namespace + ".updateById", box);
+    }
 }

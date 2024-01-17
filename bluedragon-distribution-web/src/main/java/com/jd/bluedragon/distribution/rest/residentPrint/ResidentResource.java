@@ -25,6 +25,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
 
 @Component
 @Path(Constants.REST_URL)
