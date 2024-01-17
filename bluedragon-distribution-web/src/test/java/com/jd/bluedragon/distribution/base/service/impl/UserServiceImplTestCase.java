@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.base.service.impl;
 
 import static org.mockito.Mockito.when;
 
+import com.jd.bluedragon.distribution.base.service.FuncUsageConfigService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -60,6 +61,8 @@ public class UserServiceImplTestCase {
 	@Mock
     private DeviceLocationService deviceLocationService;
 
+	@Mock
+	private FuncUsageConfigService funcUsageConfigService;
 	
 	public static void main(String[] args) throws Exception{
 
@@ -73,7 +76,7 @@ public class UserServiceImplTestCase {
     	FuncUsageProcessDto menuData = new FuncUsageProcessDto();
     	menuData.setUrl("test.url");
     	menuData.setMsg("此功能已下线，请移步站长工作台-任务中心-操作任务进行返调度，如有疑问可入群反馈10202603829");
-    	when(baseService.getFuncUsageConfig(Mockito.any(FuncUsageConfigRequestDto.class))).thenReturn(menuData);
+    	when(funcUsageConfigService.getFuncUsageConfig(Mockito.any(FuncUsageConfigRequestDto.class))).thenReturn(menuData);
     	CheckMenuAuthRequest checkMenuAuthRequest = new CheckMenuAuthRequest();
     	checkMenuAuthRequest.setMenuCode("0601012");
     	checkMenuAuthRequest.setSiteCode(910);
