@@ -175,7 +175,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     private boolean sendGoodBusinessCheck(PickingGoodsReq request, InvokeResult<PickingGoodsRes> res) {
         if(!jyPickingSendDestinationService.existSendNextSite((long)request.getCurrentOperate().getSiteCode(), request.getNextSiteId(), request.getTaskType())){
             String siteName = this.getSiteNameBySiteId(request.getNextSiteId().intValue());
-            res.parameterError(String.format("发货场地[%s|%s]未维护，请先添加发货流向", request.getNextSiteId(), siteName));
+            res.parameterError(String.format("发货场地[%s|%s]未维护或已被删除，请先添加发货流向", request.getNextSiteId(), siteName));
             return false;
         }
         if(!misSendingCheck(request, res)) {
@@ -419,7 +419,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
      * @return
      */
     private boolean misSendingCheck(PickingGoodsReq request, InvokeResult<PickingGoodsRes> res) {
-        if(Boolean.TRUE.equals(request.getForceSendFlag())) {
+        if(Boolean.TRUE.equals(request.getForceSendFlag()) || Boolean.TRUE.equals(request.getSendNextSiteSwitch())) {
             return true;
         }
         PickingGoodsRes resData = res.getData();
