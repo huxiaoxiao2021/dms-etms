@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.consumable.service;
 
-import com.jd.bluedragon.distribution.consumable.domain.ReceivePackingConsumableDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
@@ -91,11 +90,5 @@ public interface WaybillConsumableRecordService extends Service<WaybillConsumabl
      */
     public Boolean needConfirmed(String waybillCode);
 
-    /**
-     * 对象转换
-     * @param consumableDto
-     * @return
-     */
-    WaybillConsumableRecord convert2WaybillConsumableRecord(ReceivePackingConsumableDto consumableDto);
 
 }
