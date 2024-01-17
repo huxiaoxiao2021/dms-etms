@@ -216,7 +216,7 @@
     </foreach>
   </insert>
 
-    <update id="deleteByBizId" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity" >
+    <update id="deleteByBusinessNumber" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity" >
       update jy_biz_task_picking_good_subsidiary
       set
         <if test="updateUserErp != null" >
@@ -226,8 +226,10 @@
           update_user_name = #{updateUserName},
         </if>
         yn = 0,
-        update_time = #{updateTime},
-      where yn = 1 and biz_id = #{bizId}
+        update_time = #{updateTime}
+      where yn = 1
+        and business_number = #{businessNumber}
+        and task_type = #{taskType}
     </update>
 
   <select id="listBizIdByLastSiteId" resultType="java.lang.String">

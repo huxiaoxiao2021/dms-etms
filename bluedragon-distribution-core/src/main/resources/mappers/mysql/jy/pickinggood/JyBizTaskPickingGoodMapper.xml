@@ -44,7 +44,7 @@
     update_user_erp, update_user_name, create_time, update_time, yn, ts
   </sql>
 
-    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >
       insert into jy_biz_task_picking_good
       <trim prefix="(" suffix=")" suffixOverrides="," >
         <if test="id != null" >
@@ -240,8 +240,6 @@
       </trim>
     </insert>
 
-
-
   <insert id="batchInsert" parameterType="List">
     insert into jy_biz_task_picking_good
     (
@@ -325,7 +323,7 @@
     limit 1
   </select>
 
-    <update id="updateTaskByBizIdWithCondition" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition" >
+  <update id="updateTaskByBizIdWithCondition" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition" >
       update jy_biz_task_picking_good
       <set>
         <if test="status != null" >

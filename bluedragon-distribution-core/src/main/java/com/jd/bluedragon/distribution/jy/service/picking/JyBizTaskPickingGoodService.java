@@ -74,7 +74,9 @@ public interface JyBizTaskPickingGoodService {
      * @param businessNumber
      * @return
      */
-    int deleteByBusinessNumber(String businessNumber, Integer taskType);
+    int deleteTaskByBusinessNumber(String businessNumber, Integer taskType);
+
+    int deleteTaskSubsidiaryByBusinessNumber(String businessNumber, Integer taskType);
 
 
     /**
