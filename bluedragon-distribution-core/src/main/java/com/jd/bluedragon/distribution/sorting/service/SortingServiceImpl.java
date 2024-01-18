@@ -1462,6 +1462,9 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	public SortingResponse doCancelSorting(Sorting sorting){
+		if(log.isInfoEnabled()){
+			log.info("SortingServiceImpl.doCancelSorting 取消集包：{}", JsonHelper.toJson(sorting));
+		}
 		List<Sorting> sortingRecords = new ArrayList<Sorting>();
 
 		SortingResponse response = getSortingRecords(sorting,sortingRecords);
