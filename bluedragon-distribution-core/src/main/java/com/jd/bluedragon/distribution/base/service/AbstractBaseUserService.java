@@ -111,7 +111,7 @@ public abstract class AbstractBaseUserService implements LoginService {
         request.setLoginVersion((byte)1);
         response = this.login(request, LOGIN_TYPE_DMS_CLIENT);
         if (response.getCode().equals(JdResponse.CODE_OK)) {
-            this.bindSite2LoginUser(response);
+            this.bindSite2LoginUser(response,request);
         }
         String sysconfRunningMode = response.getDmsClientConfigInfo()!= null?response.getDmsClientConfigInfo().getRunningMode():"";
         if(runningMode.contains(RUNNING_MODE_UAT) && !Objects.equals(runningMode,sysconfRunningMode)){
@@ -127,7 +127,7 @@ public abstract class AbstractBaseUserService implements LoginService {
      *
      * @param response
      */
-    private void bindSite2LoginUser(LoginUserResponse response) {
+    private void bindSite2LoginUser(LoginUserResponse response,LoginRequest request) {
         response.setDmsId(response.getSiteCode());
         response.setDmsName(response.getSiteName());
         // 非分拣中心类型的站点查询分拣中心ID和名称，兼容打印客户端登录后再查询站点的逻辑
@@ -151,6 +151,13 @@ public abstract class AbstractBaseUserService implements LoginService {
             response.setSiteSortSubType(dtoStaff.getSortSubType());
             response.setSiteSortThirdType(dtoStaff.getSortThirdType());
         }
+        //租户编码 todo 怎么区分新版旧版，这里按场地码是否为空
+        if(StringUtils.isNotBlank(request.getPositionCode())){
+
+        }else{
+
+        }
+        response.setT
     }
 
 
