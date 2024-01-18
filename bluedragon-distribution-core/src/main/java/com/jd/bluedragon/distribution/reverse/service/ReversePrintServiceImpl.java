@@ -107,6 +107,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE;
+
 /**
  * 逆向换单打印
  * Created by wangtingwei on 14-8-7.
@@ -939,10 +941,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             return result;
         }
         //3.3 冷链专送 waybillSign 第5位等于5：异常即报废，不可以操作逆向换单
-        if (BusinessUtil.isSignChar(waybillDto.getWaybill().getWaybillSign(), WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)
-                && BusinessUtil.isSignChar(waybillDto.getWaybill().getWaybillSign(), WaybillSignConstants.POSITION_5, WaybillSignConstants.CHAR_5_5)){
+        if (BusinessUtil.isColdChainExpressScrap(waybillDto.getWaybill().getWaybillSign())){
             result.setData(false);
-            result.setMessage("冷链专送订单异常即报废，不可以操作逆向换单");
+            result.setMessage(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE));
             return result;
         }
         //4.查询运单是否操作异常处理

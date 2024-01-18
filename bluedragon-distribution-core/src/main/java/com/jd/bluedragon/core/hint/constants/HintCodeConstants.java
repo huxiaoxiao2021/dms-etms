@@ -1087,5 +1087,12 @@ public class HintCodeConstants {
 
     // 非0重体包裹，分拣无法进行复重，如需修改包裹重量体积请通过抽检功能！（人工抽检可通过PDA或PC端http://dms.etms.jd.com/?code=CK_U7EHDAmcJNI_pQP3gFz3A0D-7ahSXW2VBFEC9D1g&state=-4C3Ku4n-HWGM7cYpVsfFwcys9RVknqZNBjhFYLXe9I
     public static String WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE = "40032";
-
+    /**
+     * 该运单为冷链专送订单异常即报废单，不可以操作逆向换单
+     */
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE = "40036";
+    /**
+     * 订单为异常即报废单，不允许执行异常提报
+     */
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION = "40035";
 }

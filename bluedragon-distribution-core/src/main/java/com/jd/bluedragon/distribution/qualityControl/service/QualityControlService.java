@@ -281,9 +281,8 @@ public class QualityControlService {
             wChoice.setQueryWaybillExtend(true);
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
             if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null
-                    && BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(), WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)
-                    && BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(), WaybillSignConstants.POSITION_5, WaybillSignConstants.CHAR_5_5)){
-                return result.toFail("订单异常即报废，不允许执行异常提报");
+                    && BusinessUtil.isColdChainExpressScrap(baseEntity.getData().getWaybill().getWaybillSign())){
+                return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION));
             }
             if(isExistOldWaybillCode(baseEntity) || CollectionUtils.isNotEmpty(waybillCancelList)){
                 return result;
