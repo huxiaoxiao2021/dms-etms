@@ -1640,6 +1640,11 @@ public class UccPropertyConfiguration{
      */
     private String jyWarehouseManualTaskKeyVehicleTypes;
 
+    /**
+     * 自动化称重限制开关
+     */
+    private Boolean automaticWeightVolumeUpperCheckSwitch;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4388,4 +4393,12 @@ public class UccPropertyConfiguration{
         this.jyWarehouseManualTaskKeyVehicleTypes = jyWarehouseManualTaskKeyVehicleTypes;
     }
 
+
+    public Boolean getAutomaticWeightVolumeUpperCheckSwitch() {
+        return automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
+        this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
+    }
 }
