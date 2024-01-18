@@ -685,13 +685,13 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         List<String> bizIdList = resolveKeyword(req.getKeyword(), req.getCurrentOperate().getSiteCode(), req.getTaskType());
         // count当前场地各个status的任务数
         calculateCountStatus(req, bizIdList, res);
+        // 根据搜索关键字查询bizId没有查到则返回
+        if (StringUtils.isNotEmpty(req.getKeyword()) && CollectionUtils.isEmpty(bizIdList)) {
+            return ret;
+        }
 
         // 按机场/车站分组逻辑分页查询
         JyPickingTaskGroupQueryDto groupQueryDto = buildGroupQueryDto(req, bizIdList);
-        // 根据搜索关键字查询bizId没有查到则返回
-        if (StringUtils.isNotEmpty(req.getKeyword()) && CollectionUtils.isEmpty(groupQueryDto.getBizIdList())) {
-            return ret;
-        }
         List<JyBizTaskPickingGoodEntity> groupedTask = jyBizTaskPickingGoodService.listTaskGroupByPickingNodeCode(groupQueryDto);
         if (CollectionUtils.isEmpty(groupedTask)) {
             return ret;
@@ -747,8 +747,13 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     private void calculateCountStatus(AirRailTaskSummaryReq req, List<String> bizIdList, AirRailTaskRes res) {
-        AirRailTaskCountQueryDto countQueryDto = buildCountQueryDto(req, bizIdList);
-        List<AirRailTaskCountDto> countDtoList = jyBizTaskPickingGoodService.countAllStatusByPickingSiteId(countQueryDto);
+        List<AirRailTaskCountDto> countDtoList;
+        if (StringUtils.isNotEmpty(req.getKeyword()) && CollectionUtils.isEmpty(bizIdList)) {
+            countDtoList = new ArrayList<>();
+        } else {
+            AirRailTaskCountQueryDto countQueryDto = buildCountQueryDto(req, bizIdList);
+            countDtoList = jyBizTaskPickingGoodService.countAllStatusByPickingSiteId(countQueryDto);
+        }
         Map<Integer, AirRailTaskCountDto> statusMap = countDtoList.stream().collect(Collectors.toMap(AirRailTaskCountDto::getStatus, item -> item, (first, second) -> first));
         for (PickingGoodStatusEnum statusEnum : PickingGoodStatusEnum.values()) {
 
