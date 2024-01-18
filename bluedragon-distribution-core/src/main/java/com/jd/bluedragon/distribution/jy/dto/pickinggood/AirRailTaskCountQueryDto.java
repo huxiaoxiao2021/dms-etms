@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dto.pickinggood;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class AirRailTaskCountQueryDto implements Serializable {
     private static final long serialVersionUID = 4869220727220937779L;
@@ -11,6 +12,8 @@ public class AirRailTaskCountQueryDto implements Serializable {
     private Integer taskType;
 
     private Date createTime;
+
+    private List<String> bizIdList;
 
     public long getPickingSiteId() {
         return pickingSiteId;
@@ -34,5 +37,13 @@ public class AirRailTaskCountQueryDto implements Serializable {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public List<String> getBizIdList() {
+        return bizIdList;
+    }
+
+    public void setBizIdList(List<String> bizIdList) {
+        this.bizIdList = bizIdList;
     }
 }

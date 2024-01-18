@@ -324,6 +324,10 @@
 		<property name="pickingGoodTaskWaitScanEq0TimeRange" value="${pickingGoodTaskWaitScanEq0TimeRange:24}"/>
 		<property name="pickingGoodTaskManualTimeRange" value="${pickingGoodTaskManualTimeRange:24}"/>
 		<property name="sendFlowLimit" value="${sendFlowLimit:15}"/>
+		<property name="pickingPlanArriveTimeRange" value="${pickingPlanArriveTimeRange:2}"/>
+		<property name="pickingRealArriveTimeRange" value="${pickingRealArriveTimeRange:2}"/>
+		<property name="pickingFinishTimeRange" value="${pickingFinishTimeRange:2}"/>
+
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -636,6 +640,9 @@
 				<value>uccPropertyConfiguration.pickingGoodTaskWaitScanEq0TimeRange</value>
 				<value>uccPropertyConfiguration.pickingGoodTaskManualTimeRange</value>
 				<value>uccPropertyConfiguration.sendFlowLimit</value>
+				<value>uccPropertyConfiguration.pickingPlanArriveTimeRange</value>
+				<value>uccPropertyConfiguration.pickingRealArriveTimeRange</value>
+				<value>uccPropertyConfiguration.pickingFinishTimeRange</value>
 			</list>
 		</property>
 	</bean>

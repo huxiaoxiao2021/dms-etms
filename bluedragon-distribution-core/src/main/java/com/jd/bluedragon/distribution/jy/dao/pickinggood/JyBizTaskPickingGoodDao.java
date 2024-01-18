@@ -80,4 +80,8 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
     public List<String> findManualCreateTaskBizIds(List<String> bizIdList) {
         return this.getSqlSession().selectList(NAMESPACE + ".findManualCreateTaskBizIds", bizIdList);
     }
+
+    public List<String> listAllBizByPickingSiteId(JyPickingTaskBatchQueryDto queryDto) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listAllBizByPickingSiteId", queryDto);
+    }
 }

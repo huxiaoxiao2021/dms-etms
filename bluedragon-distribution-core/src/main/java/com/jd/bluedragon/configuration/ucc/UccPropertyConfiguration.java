@@ -1832,8 +1832,46 @@ public class UccPropertyConfiguration{
      * 自建提货任务自动完成时间
      */
     private Integer pickingGoodTaskManualTimeRange;
-
+    /**
+     * 空铁提货岗流向最大数限制
+     */
     private Integer sendFlowLimit;
+    /**
+     * 空铁提货岗计划到达时间查询范围
+     */
+    private Integer pickingPlanArriveTimeRange;
+    /**
+     * 空铁提货岗实际到达时间查询范围
+     */
+    private Integer pickingRealArriveTimeRange;
+    /**
+     * 空铁提货岗提货完成时间查询范围
+     */
+    private Integer pickingFinishTimeRange;
+
+    public Integer getPickingPlanArriveTimeRange() {
+        return pickingPlanArriveTimeRange;
+    }
+
+    public void setPickingPlanArriveTimeRange(Integer pickingPlanArriveTimeRange) {
+        this.pickingPlanArriveTimeRange = pickingPlanArriveTimeRange;
+    }
+
+    public Integer getPickingRealArriveTimeRange() {
+        return pickingRealArriveTimeRange;
+    }
+
+    public void setPickingRealArriveTimeRange(Integer pickingRealArriveTimeRange) {
+        this.pickingRealArriveTimeRange = pickingRealArriveTimeRange;
+    }
+
+    public Integer getPickingFinishTimeRange() {
+        return pickingFinishTimeRange;
+    }
+
+    public void setPickingFinishTimeRange(Integer pickingFinishTimeRange) {
+        this.pickingFinishTimeRange = pickingFinishTimeRange;
+    }
 
     public Integer getSendFlowLimit() {
         return sendFlowLimit;
