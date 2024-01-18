@@ -47,6 +47,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.dto.send.SendFindDestInfoDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -198,6 +199,21 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
 
         return invokeResult;
+    }
+
+    @Override
+    public JyBizTaskSendSortTypeEnum setTaskOrderType(JyBizTaskSendStatusEnum curQueryStatus) {
+        switch (curQueryStatus) {
+            case TO_SEND:
+                return JyBizTaskSendSortTypeEnum.PLAN_DEPART_TIME;
+            case SENDING:
+            case TO_SEAL:
+                return JyBizTaskSendSortTypeEnum.UPDATE_TIME;
+            case SEALED:
+                return JyBizTaskSendSortTypeEnum.SEAL_CAR_TIME;
+            default:
+                return null;
+        }
     }
 
     List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity condition,
@@ -1681,7 +1697,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
         List<String> detailBizList = entityList.stream().map(JyGroupSortCrossDetailEntity::getSendVehicleDetailBizId).collect(Collectors.toList());
         List<JyBizTaskSendVehicleDetailEntity> jyBizTaskSendVehicleDetailEntityList = jyBizTaskSendVehicleDetailService.findByDetailVehicleBiz(detailBizList, request.getCurrentOperate().getSiteCode());
-        if(CollectionUtils.isEmpty(detailBizList)) {
+        if(CollectionUtils.isEmpty(jyBizTaskSendVehicleDetailEntityList)) {
             res.setMessage("查询发货明细任务为空");
             return res;
         }

@@ -692,7 +692,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		mainColList.add("提报时间:" + mq.getSubmitTime());
 		if (!CollectionUtils.isEmpty(mq.getPhotoUrlList())) {
 			for (String url : mq.getPhotoUrlList()) {
-				mainColList.add("包裹照片:" + url);
+				mainColList.add("证明图片:" + url);
 			}
 		}
 

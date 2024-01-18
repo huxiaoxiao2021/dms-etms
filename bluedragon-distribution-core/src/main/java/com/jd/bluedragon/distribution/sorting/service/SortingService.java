@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
 import com.jd.bluedragon.distribution.sorting.domain.SortingQuery;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -240,4 +241,13 @@ public interface SortingService {
      * @return
      */
     List<Sorting> pageQueryByBoxCode(SortingQuery query);
+
+    /**
+     * 根据场地、包裹号查询箱号数据
+     * @param packageCode 包裹号
+     * @return 箱号数据
+     * @author fanggang7
+     * @time 2023-12-09 15:30:44 周六
+     */
+    SortingDto getLastSortingInfoByPackageCode(String packageCode);
 }

@@ -106,6 +106,8 @@ public interface BaseMajorManager {
 
     public BaseStaffSiteOrgDto getBaseStaffByStaffIdNoCache(Integer paramInteger);
 
+    BaseStaffSiteOrgDto getBaseStaffIgnoreIsResignByStaffIdNoCache(Integer userId);
+
     public BaseStaffSiteOrgDto getBaseStaffByErpNoCache(String erp);
 
 	public BaseStaffSiteOrgDto getBaseStaffIgnoreIsResignByErp(String erpCode);

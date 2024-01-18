@@ -1635,6 +1635,11 @@ public class UccPropertyConfiguration{
      */
     private Boolean waybillZeroWeightInterceptSwitch;
 
+    /**
+     * 接货仓发货岗自建任务常用车型置顶
+     */
+    private String jyWarehouseManualTaskKeyVehicleTypes;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4374,4 +4379,13 @@ public class UccPropertyConfiguration{
     public void setWaybillZeroWeightInterceptSwitch(Boolean waybillZeroWeightInterceptSwitch) {
         this.waybillZeroWeightInterceptSwitch = waybillZeroWeightInterceptSwitch;
     }
+
+    public String getJyWarehouseManualTaskKeyVehicleTypes() {
+        return jyWarehouseManualTaskKeyVehicleTypes;
+    }
+
+    public void setJyWarehouseManualTaskKeyVehicleTypes(String jyWarehouseManualTaskKeyVehicleTypes) {
+        this.jyWarehouseManualTaskKeyVehicleTypes = jyWarehouseManualTaskKeyVehicleTypes;
+    }
+
 }

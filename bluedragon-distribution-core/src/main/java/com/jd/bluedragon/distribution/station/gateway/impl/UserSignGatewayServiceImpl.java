@@ -229,10 +229,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toFail("请扫描正确的人员码！");
 			return result;
 		}
+		ScanUserData scanUserData = new ScanUserData();
+
 		String scanUserCode = scanRequest.getScanUserCode();
 		String positionCode = scanRequest.getPositionCode();
 		Integer jobCode =  BusinessUtil.getJobCodeFromScanUserCode(scanUserCode);
 		String userCode = BusinessUtil.getUserCodeFromScanUserCode(scanUserCode);
+		scanUserData.setUserCode(userCode);
 		if(!JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
 				&& !JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
 				&& !JobTypeEnum.JOBTYPE4.getCode().equals(jobCode)
@@ -251,18 +254,21 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				return result;
 			}
 
-			String loginUserPin = getLoginUserPin(result, userCode);
+			result.setData(scanUserData);
+			ScanUserData scanUserDataNotJdSelf = getLoginUserInfo(result, userCode);
 			if(!result.getCode().equals(JdResponse.CODE_OK)){
 				return result;
 			}
-			userCode = loginUserPin;
+			if(scanUserDataNotJdSelf == null){
+				return result;
+			}
+			scanUserData.setUserId(scanUserDataNotJdSelf.getUserId());
+			scanUserData.setUserCode(scanUserDataNotJdSelf.getUserCode());
 		}
 		
 		//设置返回值对象
-		ScanUserData data = new ScanUserData();
-		data.setJobCode(jobCode);
-		data.setUserCode(userCode);
-		result.setData(data);
+		scanUserData.setJobCode(jobCode);
+		result.setData(scanUserData);
 
 		//已扫描岗位码，校验在岗状态
 		if(StringUtils.isNotBlank(positionCode)) {
@@ -283,30 +289,33 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	 * @param erpAccount ERP账户
 	 * @return 登录用户的PIN码
 	 */
-	private String getLoginUserPin(JdCResponse<ScanUserData> response, String erpAccount){
+	private ScanUserData getLoginUserInfo(JdCResponse<ScanUserData> response, String erpAccount){
+		ScanUserData scanUserData = new ScanUserData();
 		try{
 			log.info("获取登录用户的PIN码 checkIDCardNoExists 入参-{}",erpAccount);
 			BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(erpAccount);
 			log.info("获取登录用户的PIN码 checkIDCardNoExists 出参-{}", JSON.toJSONString(baseStaff));
 			if(baseStaff == null || baseStaff.getStaffNo() == null){
-				response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
+				response.setMessage("未获取到人员数据，请检查青龙基础资料中是否存在员工信息!");
 				response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-				return "";
+				return null;
 			}
 			log.info("获取登录用户的PIN码 queryBaseStaffByStaffId 入参-{}",baseStaff.getStaffNo());
 			BaseStaffSiteDTO staffInfo = baseMajorManager.queryBaseStaffByStaffId(baseStaff.getStaffNo());
 			log.info("获取登录用户的PIN码 queryBaseStaffByStaffId 出参-{}",JSON.toJSONString(staffInfo));
 			if(staffInfo== null ||org.apache.commons.lang.StringUtils.isBlank(staffInfo.getPin())){
-				response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
+				response.setMessage("未获取到人员数据，请检查青龙基础资料中是否存在员工信息!");
 				response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-				return "";
+				return null;
 			}
-			return Constants.PDA_THIRDPL_TYPE+staffInfo.getPin();
+			scanUserData.setUserId(baseStaff.getStaffNo());
+			scanUserData.setUserCode(Constants.PDA_THIRDPL_TYPE+staffInfo.getPin());
+			return scanUserData;
 		}catch (Exception e){
-			log.error("获取达达人员数据信息异常！{}",erpAccount,e);
-			response.setMessage("获取达达人员数据信息异常！{"+erpAccount+"}");
+			log.error("获取人员数据信息异常！{}",erpAccount,e);
+			response.setMessage("获取人员数据信息异常！{"+erpAccount+"}");
 			response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-			return "";
+			return null;
 		}
 	}
 

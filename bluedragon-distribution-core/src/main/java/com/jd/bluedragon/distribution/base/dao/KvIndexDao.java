@@ -229,8 +229,4 @@ public class KvIndexDao extends BaseDao<KvIndex> {
             return restList;
         }
 	}
-
-    public Integer updateByKey(KvIndex kvIndex) {
-        return this.getSqlSession().update(namespace + ".updateByKey", kvIndex);
-    }
 }
