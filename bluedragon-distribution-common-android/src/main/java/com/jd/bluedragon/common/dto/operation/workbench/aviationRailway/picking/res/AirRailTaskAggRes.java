@@ -8,11 +8,48 @@ public class AirRailTaskAggRes implements Serializable {
 
     private List<AirRailTaskAggDto> taskAggDtoList;
 
+    /**
+     * 当前场地总数待提数量
+     */
+    private Integer currentSiteWaitScan;
+    /**
+     * 当前场地已提总数
+     */
+    private Integer currentSiteHaveScanned;
+    /**
+     * 当前场地多提总数
+     */
+    private Integer currentSiteMultipleScan;
+
     public List<AirRailTaskAggDto> getTaskAggDtoList() {
         return taskAggDtoList;
     }
 
     public void setTaskAggDtoList(List<AirRailTaskAggDto> taskAggDtoList) {
         this.taskAggDtoList = taskAggDtoList;
+    }
+
+    public Integer getCurrentSiteWaitScan() {
+        return currentSiteWaitScan;
+    }
+
+    public void setCurrentSiteWaitScan(Integer currentSiteWaitScan) {
+        this.currentSiteWaitScan = currentSiteWaitScan;
+    }
+
+    public Integer getCurrentSiteHaveScanned() {
+        return currentSiteHaveScanned;
+    }
+
+    public void setCurrentSiteHaveScanned(Integer currentSiteHaveScanned) {
+        this.currentSiteHaveScanned = currentSiteHaveScanned;
+    }
+
+    public Integer getCurrentSiteMultipleScan() {
+        return currentSiteMultipleScan;
+    }
+
+    public void setCurrentSiteMultipleScan(Integer currentSiteMultipleScan) {
+        this.currentSiteMultipleScan = currentSiteMultipleScan;
     }
 }

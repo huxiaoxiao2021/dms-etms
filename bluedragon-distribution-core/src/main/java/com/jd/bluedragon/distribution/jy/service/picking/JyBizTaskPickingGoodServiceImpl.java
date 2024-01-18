@@ -208,4 +208,9 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     public List<JyBizTaskPickingGoodSubsidiaryEntity> listBatchInfoByBizId(List<String> bizIdList) {
         return jyBizTaskPickingGoodSubsidiaryDao.listBatchInfoByBizId(bizIdList);
     }
+
+    @Override
+    public List<String> listAllBizByPickingSiteId(JyPickingTaskBatchQueryDto queryDto) {
+        return jyBizTaskPickingGoodDao.listAllBizByPickingSiteId(queryDto);
+    }
 }

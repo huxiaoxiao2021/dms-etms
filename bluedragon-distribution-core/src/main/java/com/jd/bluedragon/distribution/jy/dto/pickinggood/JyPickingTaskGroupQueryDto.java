@@ -26,6 +26,19 @@ public class JyPickingTaskGroupQueryDto implements Serializable {
      */
     private Integer taskType;
 
+    /**
+     * 预计降落时间/预计到达时间
+     */
+    private Date nodePlanArriveTime;
+    /**
+     * 实际降落时间/实际到达时间
+     */
+    private Date nodeRealArriveTime;
+    /**
+     * 提货完成时间
+     */
+    private Date pickingCompleteTime;
+
     private List<String> bizIdList;
 
     private Date createTime;
@@ -72,6 +85,30 @@ public class JyPickingTaskGroupQueryDto implements Serializable {
 
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
+    }
+
+    public Date getNodePlanArriveTime() {
+        return nodePlanArriveTime;
+    }
+
+    public void setNodePlanArriveTime(Date nodePlanArriveTime) {
+        this.nodePlanArriveTime = nodePlanArriveTime;
+    }
+
+    public Date getNodeRealArriveTime() {
+        return nodeRealArriveTime;
+    }
+
+    public void setNodeRealArriveTime(Date nodeRealArriveTime) {
+        this.nodeRealArriveTime = nodeRealArriveTime;
+    }
+
+    public Date getPickingCompleteTime() {
+        return pickingCompleteTime;
+    }
+
+    public void setPickingCompleteTime(Date pickingCompleteTime) {
+        this.pickingCompleteTime = pickingCompleteTime;
     }
 
     public List<String> getBizIdList() {

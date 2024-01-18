@@ -30,6 +30,19 @@ public class JyPickingTaskBatchQueryDto implements Serializable {
     private Date createTime;
 
     private List<Integer> statusList;
+    /**
+     * 预计降落时间/预计到达时间
+     */
+    private Date nodePlanArriveTime;
+    /**
+     * 实际降落时间/实际到达时间
+     */
+    private Date nodeRealArriveTime;
+
+    /**
+     * 提货完成时间
+     */
+    private Date pickingCompleteTime;
 
     private Integer offset;
 
@@ -97,6 +110,30 @@ public class JyPickingTaskBatchQueryDto implements Serializable {
 
     public void setStatusList(List<Integer> statusList) {
         this.statusList = statusList;
+    }
+
+    public Date getNodePlanArriveTime() {
+        return nodePlanArriveTime;
+    }
+
+    public void setNodePlanArriveTime(Date nodePlanArriveTime) {
+        this.nodePlanArriveTime = nodePlanArriveTime;
+    }
+
+    public Date getNodeRealArriveTime() {
+        return nodeRealArriveTime;
+    }
+
+    public void setNodeRealArriveTime(Date nodeRealArriveTime) {
+        this.nodeRealArriveTime = nodeRealArriveTime;
+    }
+
+    public Date getPickingCompleteTime() {
+        return pickingCompleteTime;
+    }
+
+    public void setPickingCompleteTime(Date pickingCompleteTime) {
+        this.pickingCompleteTime = pickingCompleteTime;
     }
 
     public Integer getOffset() {
