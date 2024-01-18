@@ -58,7 +58,15 @@ public class SortingRequest extends JdRequest {
     /**
      * 操作信息对象
      */
-	private OperatorData operatorData;	
+	private OperatorData operatorData;
+    /**
+     * 当前正在操作的场地code
+     */
+    private Integer currentSiteCode;
+    /**
+     * 是否跳过取消集包之前的检查条件 false-不跳过  true-跳过
+     */
+    private Boolean conditionCheck;
 
     public String getBoxCode() {
         return this.boxCode;
@@ -217,4 +225,19 @@ public class SortingRequest extends JdRequest {
 		this.operatorData = operatorData;
 	}
 
+    public Integer getCurrentSiteCode() {
+        return currentSiteCode;
+    }
+
+    public void setCurrentSiteCode(Integer currentSiteCode) {
+        this.currentSiteCode = currentSiteCode;
+    }
+
+    public Boolean getConditionCheck() {
+        return conditionCheck;
+    }
+
+    public void setConditionCheck(Boolean conditionCheck) {
+        this.conditionCheck = conditionCheck;
+    }
 }

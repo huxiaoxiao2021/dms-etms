@@ -17,9 +17,13 @@ public class CancelCollectPackageDto implements Serializable {
     private String siteName;
     private Date updateTime;
     /**
-     * 安检岗当前操作的场地code
+     * 当前正在操作的场地code
      */
-    private Integer securityCheckSiteCode;
+    private Integer currentSiteCode;
+    /**
+     * 是否跳过取消集包之前的检查条件，默认为：false    false-不跳过  true-跳过
+     */
+    private Boolean conditionCheck;
 
     public String getBizId() {
         return bizId;
@@ -93,11 +97,19 @@ public class CancelCollectPackageDto implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public Integer getSecurityCheckSiteCode() {
-        return securityCheckSiteCode;
+    public Integer getCurrentSiteCode() {
+        return currentSiteCode;
     }
 
-    public void setSecurityCheckSiteCode(Integer securityCheckSiteCode) {
-        this.securityCheckSiteCode = securityCheckSiteCode;
+    public void setCurrentSiteCode(Integer currentSiteCode) {
+        this.currentSiteCode = currentSiteCode;
+    }
+
+    public Boolean getConditionCheck() {
+        return conditionCheck;
+    }
+
+    public void setConditionCheck(Boolean conditionCheck) {
+        this.conditionCheck = conditionCheck;
     }
 }

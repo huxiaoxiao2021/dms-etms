@@ -277,7 +277,7 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
                 throw new JyBizException(SortingResponse.CODE_SORTING_CANCEL_PROCESS, HintService.getHint(HintCodeConstants.CANCEL_SORTING_PROCESSING));
             }
 
-            Sorting sorting = Sorting.toSorting2(sortingRequest, dto);
+            Sorting sorting = Sorting.toSorting2(sortingRequest);
             SortingResponse sortingResponse = sortingServiceFactory.getSortingService(sorting.getCreateSiteCode()).cancelSorting(sorting);
             if (!Objects.equals(sortingResponse.getCode(), SortingResponse.CODE_OK)) {
                 throw new JyBizException(sortingResponse.getMessage());
@@ -310,6 +310,8 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         sortingRequest.setOperateTime(DateUtil.format(dto.getUpdateTime(), DateUtil.FORMAT_DATE_TIME));
         sortingRequest.setSiteCode(dto.getSiteCode());
         sortingRequest.setSiteName(dto.getSiteName());
+        sortingRequest.setCurrentSiteCode(dto.getCurrentSiteCode());
+        sortingRequest.setConditionCheck(dto.getConditionCheck());
         return sortingRequest;
     }
 

@@ -707,7 +707,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private CancelCollectPackageDto buildCancelCollectPackageDto(JyExceptionContrabandDto dto, SortingDto sortingDto){
         CancelCollectPackageDto cancelCollectPackageDto = new CancelCollectPackageDto();
         cancelCollectPackageDto.setBizId(dto.getBizId());
-        cancelCollectPackageDto.setBoxCode(sortingDto.getBoxCode());
+        //不能设置箱号，设置箱号，按照箱号取消集包
         cancelCollectPackageDto.setPackageCode(dto.getBarCode());
         cancelCollectPackageDto.setSiteCode(sortingDto.getCreateSiteCode());
         cancelCollectPackageDto.setSiteName(sortingDto.getCreateSiteName());
@@ -715,7 +715,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         cancelCollectPackageDto.setUpdateUserErp(dto.getCreateErp());
         cancelCollectPackageDto.setUpdateUserName(dto.getCreateStaffName());
         cancelCollectPackageDto.setUpdateTime(new Date());
-        cancelCollectPackageDto.setSecurityCheckSiteCode(dto.getSiteCode());
+        cancelCollectPackageDto.setCurrentSiteCode(dto.getSiteCode());
+        cancelCollectPackageDto.setConditionCheck(true);
         return cancelCollectPackageDto;
     }
 }

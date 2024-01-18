@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.sorting.domain;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -131,9 +130,14 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
      */
 	private OperatorData operatorData;
     /**
-     * 安检岗当前操作的场地code
+     * 当前正在操作的场地code
      */
-    private Integer securityCheckSiteCode;
+    private Integer currentSiteCode;
+    /**
+     * 是否跳过取消集包之前的检查条件，默认为：false    false-不跳过  true-跳过
+     */
+    private Boolean conditionCheck = false;
+
     public Sorting() {
         super();
     }
@@ -461,7 +465,7 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         return sorting;
     }
     
-    public static Sorting toSorting2(SortingRequest request, CancelCollectPackageDto dto) {
+    public static Sorting toSorting2(SortingRequest request) {
         Sorting sorting = new Sorting();
         String aPackageCode = request.getPackageCode();
         
@@ -487,9 +491,8 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         sorting.setOperatorId(operatorData.getOperatorId());
         sorting.setOperatorData(operatorData);
         // 安检岗异常上报，取消集包，组装参数
-        if(Objects.nonNull(dto)){
-            sorting.setSecurityCheckSiteCode(dto.getSecurityCheckSiteCode());
-        }
+        sorting.setConditionCheck(request.getConditionCheck());
+        sorting.setCurrentSiteCode(request.getCurrentSiteCode());
         return sorting;
     }
     
@@ -758,11 +761,19 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
 		this.operatorData = operatorData;
 	}
 
-    public Integer getSecurityCheckSiteCode() {
-        return securityCheckSiteCode;
+    public Integer getCurrentSiteCode() {
+        return currentSiteCode;
     }
 
-    public void setSecurityCheckSiteCode(Integer securityCheckSiteCode) {
-        this.securityCheckSiteCode = securityCheckSiteCode;
+    public void setCurrentSiteCode(Integer currentSiteCode) {
+        this.currentSiteCode = currentSiteCode;
+    }
+
+    public Boolean getConditionCheck() {
+        return conditionCheck;
+    }
+
+    public void setConditionCheck(Boolean conditionCheck) {
+        this.conditionCheck = conditionCheck;
     }
 }
