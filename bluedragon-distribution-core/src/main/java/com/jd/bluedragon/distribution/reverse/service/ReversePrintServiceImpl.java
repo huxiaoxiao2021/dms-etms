@@ -943,7 +943,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         //3.3 冷链专送 waybillSign 第5位等于5：异常即报废，不可以操作逆向换单
         if (BusinessUtil.isColdChainExpressScrap(waybillDto.getWaybill().getWaybillSign())){
             result.setData(false);
-            result.setMessage(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE));
+            result.setMessage(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE_MSG));
             return result;
         }
         //4.查询运单是否操作异常处理
