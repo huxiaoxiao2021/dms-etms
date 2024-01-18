@@ -50,6 +50,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.*;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.domain.BaseSite;
+import com.jd.ql.basic.domain.BaseStaff;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -1082,7 +1083,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setWaveName(WaveTypeEnum.getNameByCode(waveCode));
 		signInData.setRefWorkGridKey(gridInfo.getRefWorkGridKey());
 		// 计算班次 新逻辑
-//		calculateWaveNew(signInRequest, signInData);
+		calculateWaveNew(signInRequest, signInData);
 		signInData.setRefPlanKey(queryPlanKey(signInData));
 		setWarZoneInfo(signInData);
 
@@ -1112,6 +1113,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			if(userInfo != null
 					&& Constants.FLAG_USER_Is_Resign.equals(userInfo.getIsResign())) {
 				isEffectErp = true;
+				if (userInfo.getStaffNo() != null) {
+					signInData.setUserId(userInfo.getStaffNo());
+				}
 			}
 			if(!isEffectErp) {
 				if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
@@ -1129,6 +1133,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}else if(!JobTypeEnum.JOBTYPE6.getCode().equals(jobCode) && !isCarId){
 			result.toFail("签到失败，无效的身份证号！");
 			return result;
+		}
+		if(isCarId){
+			final BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(userCode);
+			if (baseStaff != null) {
+				signInData.setUserId(baseStaff.getStaffNo());
+			}
 		}
 		return result;
 	}
@@ -1883,6 +1893,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 班次时分形式 HH:mm
 		String startTime = scheduleDetailDto.getStartTime();
 		String endTime = scheduleDetailDto.getEndTime();
+		if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+			log.warn("assembleRegularEmployeesWaveCode|比较当前erp签到时间是否处于该排班计划对应班次时间的前后1小时内,startTime和endTime为空:scheduleDetailDto={}", JsonHelper.toJson(scheduleDetailDto));
+			return false;
+		}
 		// 班次日期形式 yyyy-MM-dd HH:mm:ss
 		Date startDate = getSpecialDateByStr(startTime, scheduleDateType);
 		Date endDate;
@@ -2414,6 +2428,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.toSucceed();
 		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 		lastSignRecordQuery.setUserCode(query.getUserCode());
+        if(query.getUserId() != null){
+            lastSignRecordQuery.setUserId(query.getUserId());
+            lastSignRecordQuery.setUserCode(null);
+        }
 		UserSignRecord lastUnSignOutData = userSignRecordDao.queryLastUnSignOutRecord(lastSignRecordQuery);
 		//加载网格相关数据
 		loadGridData(lastUnSignOutData);
@@ -2457,7 +2475,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("用户编码不能为空！");
 			return result;
 		}
-		
+
 		String userCode=userSignRequest.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 		if(isCarId){

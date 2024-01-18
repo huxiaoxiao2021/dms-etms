@@ -417,4 +417,19 @@
 		limit #{offset}, #{limit}
 	</select>
 
+	<!--查询场地最后一次分拣记录-->
+	<select id="findLastSortingByPackageCode" resultMap="sorting" parameterType="sorting">
+		SELECT box_code, package_code, waybill_code, pickup_code,
+			   create_site_code, receive_site_code,
+			   create_user_code, create_user,
+			   create_time, update_time, operate_time, is_cancel,
+			   sorting_status, yn, is_loss
+		FROM sorting
+		WHERE yn= 1
+		  AND is_cancel = 0
+		  AND package_code = #{packageCode}
+		  AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		order by operate_time desc limit 1
+	</select>
+
 </mapper>

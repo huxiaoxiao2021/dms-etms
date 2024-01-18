@@ -38,6 +38,11 @@ public class UserSignRecord implements Serializable {
 	 */
 	private Integer siteCode;
 
+    /**
+     * 员工ID
+     */
+    private Integer userId;
+
 	/**
 	 * 员工ERP|拼音|身份证号
 	 */
@@ -321,7 +326,15 @@ public class UserSignRecord implements Serializable {
 		return this.siteCode;
 	}
 
-	/**
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    /**
 	 *
 	 * @param userCode
 	 */

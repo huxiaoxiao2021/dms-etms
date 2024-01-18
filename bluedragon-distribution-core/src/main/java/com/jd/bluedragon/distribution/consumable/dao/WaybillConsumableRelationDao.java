@@ -80,4 +80,9 @@ public interface WaybillConsumableRelationDao extends Dao<WaybillConsumableRelat
     List<WaybillConsumableDetailInfo> getNoConfirmVolumeRecordCount(String waybillCode);
 
     int updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto);
+
+    WaybillConsumableRelation findByWaybillCodeAndConsumableCode(WaybillConsumableRelation waybillConsumableRelation);
+
+    int updateByWaybillCodeAndConsumableCode(WaybillConsumableRelation waybillConsumableRelation);
+
 }

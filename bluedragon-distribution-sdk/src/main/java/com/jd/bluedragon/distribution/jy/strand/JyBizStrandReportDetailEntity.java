@@ -64,6 +64,11 @@ public class JyBizStrandReportDetailEntity implements Serializable {
     private String siteName;
 
     /**
+     * 创建人用户ID
+     */
+    private Integer createUserId;
+
+    /**
      * 创建人ERP
      */
     private String createUserErp;
@@ -171,6 +176,14 @@ public class JyBizStrandReportDetailEntity implements Serializable {
 
     public void setSiteName(String siteName) {
         this.siteName = siteName;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
     }
 
     public String getCreateUserErp() {
