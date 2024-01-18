@@ -60,6 +60,8 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
+
 /**
  * 快递弃件暂存
  *
@@ -468,10 +470,8 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType())) {
                 String waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
                 //冷链专送 且 异常单处理方式 = 异常即报废也可以执行弃件
-                if (!BusinessUtil.isColdChainExpressScrap(baseEntity.getData().getWaybill().getWaybillSign())){
+                if (!BusinessUtil.isColdChainExpressScrap(waybillSign) && !BusinessUtil.isScrapSortingSite(waybillSign)) {
                     return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP_MSG));
-                } else if(!BusinessUtil.isScrapSortingSite(waybillSign)) {
-                    return result.toFail("提交失败，非返分拣报废运单！");
                 }
             }
 
