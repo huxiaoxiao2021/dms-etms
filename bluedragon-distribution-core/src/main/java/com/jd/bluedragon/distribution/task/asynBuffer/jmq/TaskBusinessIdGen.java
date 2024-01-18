@@ -81,7 +81,7 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
                 && (keyword1.equals("10")|| keyword1.equals("11"))){
             if(StringHelper.isNotEmpty(task.getBoxCode())) {
 
-                return "10"+task.getBoxCode();
+                return keyword1+task.getBoxCode();
             }
         }
 
