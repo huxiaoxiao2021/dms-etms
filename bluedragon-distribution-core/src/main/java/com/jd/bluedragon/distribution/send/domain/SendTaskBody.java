@@ -14,8 +14,22 @@ public class SendTaskBody extends SendM{
      */
     private Integer handleCategory;
 
+    /**
+     * 是否是通过按运单模式触发执行的
+     */
+    private boolean byWaybillFlag;
+
+
     public Integer getHandleCategory() {
         return handleCategory;
+    }
+
+    public boolean getByWaybillFlag() {
+        return byWaybillFlag;
+    }
+
+    public void setByWaybillFlag(boolean byWaybillFlag) {
+        this.byWaybillFlag = byWaybillFlag;
     }
 
     public void setHandleCategory(Integer handleCategory) {
