@@ -98,13 +98,13 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
             //avoid repeat consume， must save cache before return
             this.saveCachePickingGoodTplBillCode(mqBody.getTplBillCode(), mqBody.getOperateTime().getTime());
         }catch (JyBizException ex) {
-            this.unlockPickingGoodTplBillCode(mqBody.getTplBillCode());
             log.error("航空提货计划消费失败,businessId={},errMsg={}, mqBody={}", message.getBusinessId(), ex.getMessage(), message.getText());
             throw new JyBizException(String.format("航空提货计划消费失败,businessId：%s", message.getBusinessId()));
         }catch (Exception ex) {
-            this.unlockPickingGoodTplBillCode(mqBody.getTplBillCode());
             log.error("航空提货计划消费异常,businessId={},errMsg={}, mqBody={}", message.getBusinessId(), ex.getMessage(), message.getText(), ex);
             throw new JyBizException(String.format("航空提货计划消费异常,businessId：%s", message.getBusinessId()));
+        }finally {
+            this.unlockPickingGoodTplBillCode(mqBody.getTplBillCode());
         }
 
     }
