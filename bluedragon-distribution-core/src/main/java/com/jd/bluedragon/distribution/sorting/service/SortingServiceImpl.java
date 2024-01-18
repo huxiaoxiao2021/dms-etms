@@ -1422,6 +1422,10 @@ public class SortingServiceImpl implements SortingService {
 			String boxCode = sorting.getBoxCode();
 			String packageCode = sorting.getPackageCode();
 			Integer createSiteCode = sorting.getCreateSiteCode();
+			// 新增：安检岗触发取消集包，全程跟踪的站点为安检岗当前操作的站点
+			if (Objects.nonNull(sorting.getSecurityCheckSiteCode())){
+				createSiteCode = sorting.getSecurityCheckSiteCode();
+			}
 
 			WaybillStatus waybillStatus = new WaybillStatus();
 			//设置站点相关属性
@@ -1484,6 +1488,16 @@ public class SortingServiceImpl implements SortingService {
 
 	public SortingResponse getSortingRecords(Sorting sorting,List<Sorting> sortingRecords){
 		if (StringUtils.isNotBlank(sorting.getBoxCode())) {
+			// 新增：安检岗触发的取消集包，不用检验是否发货。
+			if (Objects.nonNull(sorting.getSecurityCheckSiteCode())){
+				sortingRecords.addAll(sortingDao.findByBoxCode(sorting));
+				if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
+					log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",sorting.getPackageCode(),sortingRecords.size());
+					return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
+						HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
+				}
+				return SortingResponse.ok();
+			}
 			// 校验是否发货，如果已经发货，则提示不能取消分拣
 			SendM sendM = new SendM();
 			sendM.setBoxCode(sorting.getBoxCode());

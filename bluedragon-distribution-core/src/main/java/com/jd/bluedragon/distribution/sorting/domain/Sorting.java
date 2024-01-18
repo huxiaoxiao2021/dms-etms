@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.sorting.domain;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
+import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -13,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sorting> {
     
@@ -127,7 +129,11 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
     /**
      * 操作信息对象
      */
-	private OperatorData operatorData;    
+	private OperatorData operatorData;
+    /**
+     * 安检岗当前操作的场地code
+     */
+    private Integer securityCheckSiteCode;
     public Sorting() {
         super();
     }
@@ -455,7 +461,7 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         return sorting;
     }
     
-    public static Sorting toSorting2(SortingRequest request) {
+    public static Sorting toSorting2(SortingRequest request, CancelCollectPackageDto dto) {
         Sorting sorting = new Sorting();
         String aPackageCode = request.getPackageCode();
         
@@ -480,6 +486,10 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         sorting.setOperatorTypeCode(operatorData.getOperatorTypeCode());
         sorting.setOperatorId(operatorData.getOperatorId());
         sorting.setOperatorData(operatorData);
+        // 安检岗异常上报，取消集包，组装参数
+        if(Objects.nonNull(dto)){
+            sorting.setSecurityCheckSiteCode(dto.getSecurityCheckSiteCode());
+        }
         return sorting;
     }
     
@@ -748,4 +758,11 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
 		this.operatorData = operatorData;
 	}
 
+    public Integer getSecurityCheckSiteCode() {
+        return securityCheckSiteCode;
+    }
+
+    public void setSecurityCheckSiteCode(Integer securityCheckSiteCode) {
+        this.securityCheckSiteCode = securityCheckSiteCode;
+    }
 }

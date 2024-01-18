@@ -16,6 +16,10 @@ public class CancelCollectPackageDto implements Serializable {
     private Integer siteCode;
     private String siteName;
     private Date updateTime;
+    /**
+     * 安检岗当前操作的场地code
+     */
+    private Integer securityCheckSiteCode;
 
     public String getBizId() {
         return bizId;
@@ -87,5 +91,13 @@ public class CancelCollectPackageDto implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getSecurityCheckSiteCode() {
+        return securityCheckSiteCode;
+    }
+
+    public void setSecurityCheckSiteCode(Integer securityCheckSiteCode) {
+        this.securityCheckSiteCode = securityCheckSiteCode;
     }
 }

@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpContrabandNoticCustomerMQ;
@@ -164,6 +165,25 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             BeanUtils.copyProperties(entity,dto);
             jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
             logger.info("违禁品上报发送MQ-{}",JSON.toJSONString(dto));
+
+            // 新增自动取消集包:根据包裹号获取箱号
+            SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(dto.getBarCode());
+            if (logger.isInfoEnabled()){
+                logger.info("安检岗自动取消集包-根据包裹号查询集包箱号数据：包裹号：{},集包数据：{}", dto.getBarCode(), JsonHelper.toJson(sortingDto));
+            }
+            if (Objects.nonNull(sortingDto)){
+                CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto, sortingDto);
+                // 调用取消集包接口（新版，可删除扫描记录）
+                boolean b = jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
+                if(b){
+                    logger.info("该包裹关联集包取消成功！包裹号：{}", dto.getBarCode());
+                }else{
+                    logger.info("该包裹关联集包已经被取消或不存在！包裹号：{}", dto.getBarCode());
+                }
+            }
+        } catch (JyBizException e) {
+            logger.error("jy取消集包服务异常{}", req.getBarCode(), e);
+            return JdCResponse.fail(e.getMessage());
         } catch (Exception e) {
             logger.error("提交违禁品上报报错:", e);
             return JdCResponse.fail(e.getMessage());
@@ -222,22 +242,6 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     public void dealContrabandUploadData(JyExceptionContrabandDto dto)  {
 
         try{
-            // 新增自动取消集包:根据包裹号获取箱号
-            SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(dto.getBarCode());
-            if (logger.isInfoEnabled()){
-                logger.info("安检岗自动取消集包-根据包裹号查询集包箱号数据：包裹号：{},集包数据：{}", dto.getBarCode(), JsonHelper.toJson(sortingDto));
-            }
-            if (Objects.nonNull(sortingDto)){
-                CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto , sortingDto);
-                // 调用取消集包接口（新版，可删除扫描记录）
-                boolean b = jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
-                if(b){
-                    logger.info("该包裹关联集包取消成功！包裹号：{}", dto.getBarCode());
-                }else{
-                    logger.info("该包裹关联集包已经被取消或不存在！包裹号：{}", dto.getBarCode());
-                }
-            }
-
             JyExceptionContrabandEnum.ContrabandTypeEnum enumResult = JyExceptionContrabandEnum.ContrabandTypeEnum.getEnumByCode(dto.getContrabandType());
             if(enumResult == null){
                 return;
@@ -711,6 +715,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         cancelCollectPackageDto.setUpdateUserErp(dto.getCreateErp());
         cancelCollectPackageDto.setUpdateUserName(dto.getCreateStaffName());
         cancelCollectPackageDto.setUpdateTime(new Date());
+        cancelCollectPackageDto.setSecurityCheckSiteCode(dto.getSiteCode());
         return cancelCollectPackageDto;
     }
 }

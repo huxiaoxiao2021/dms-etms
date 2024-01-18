@@ -122,7 +122,7 @@ public class SortingResource {
             this.log.error("{}获取取消发货任务缓存失败！", request.getPackageCode(), e);
         }
 
-		Sorting sorting = Sorting.toSorting2(request);
+		Sorting sorting = Sorting.toSorting2(request, null);
 
 		try {
 			return sortingServiceFactory.getSortingService(sorting.getCreateSiteCode()).cancelSorting(sorting);
@@ -175,7 +175,7 @@ public class SortingResource {
 					continue;
 				}
 
-				Sorting sorting = Sorting.toSorting2(request);
+				Sorting sorting = Sorting.toSorting2(request, null);
 
 				if (StringUtils.isNotBlank(sorting.getBoxCode())) {
 					// 校验是否发货，如果已经发货，则提示不能取消分拣
