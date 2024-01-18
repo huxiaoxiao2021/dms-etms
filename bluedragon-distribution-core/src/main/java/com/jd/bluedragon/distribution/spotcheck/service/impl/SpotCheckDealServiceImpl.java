@@ -682,35 +682,44 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
 
     private boolean checkExcessStatus(WeightVolumeSpotCheckDto spotCheckDto) {
-        SpotCheckContext context = new SpotCheckContext();
+        ReportInfoQuery reportInfoQuery = new ReportInfoQuery();
         // 运单号
-        context.setWaybillCode(spotCheckDto.getWaybillCode());
+        reportInfoQuery.setWaybillCode(spotCheckDto.getWaybillCode());
         // 抽检来源
-        context.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.analysisNameFromCode(spotCheckDto.getReviewSource()));
-        SpotCheckReviewDetail reviewDetail = new SpotCheckReviewDetail();
+        reportInfoQuery.setChannel(SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
         // 复核重量
-        reviewDetail.setReviewTotalWeight(spotCheckDto.getReviewWeight());
+        reportInfoQuery.setMeasureWeight(NumberHelper.formatMoney(spotCheckDto.getReviewWeight()));
         // 核对体积
-        reviewDetail.setReviewTotalVolume(spotCheckDto.getContrastVolume());
-        context.setSpotCheckReviewDetail(reviewDetail);
+        reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(spotCheckDto.getContrastVolume()));
         // 再次调用称重再造系统接口判断是否超标
-        InvokeResult<SpotCheckResult> result = checkIsExcessReform(context);
-        if (result.codeSuccess()) {
-            SpotCheckResult spotCheckResult = result.getData();
-            // 如果超标则下传至称重再造系统，并且更新抽检统计报表
-            if (ExcessStatusEnum.EXCESS_ENUM_YES.getCode().equals(spotCheckResult.getExcessStatus())) {
-                // 超标状态
-                spotCheckDto.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                // 超标类型
-                spotCheckDto.setExcessType(spotCheckResult.getExcessType());
-                // 复核体积
-                spotCheckDto.setReviewVolume(spotCheckDto.getContrastVolume());
-                return true;
-            }
-            logger.info("设备抽检的单号:{}软包使用核对体积再次调用超标接口判断返回不超标,不执行下发!", spotCheckDto.getWaybillCode());
+        CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
+        if (commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS) || commonDTO.getData() == null) {
+            logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口判断返回失败:result={},不执行下发!", spotCheckDto.getWaybillCode(), JsonHelper.toJson(commonDTO));
             return false;
         }
-        logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口判断返回失败:result={},不执行下发!", spotCheckDto.getWaybillCode(), JsonHelper.toJson(result));
+        ReportInfoDTO reportInfo = commonDTO.getData();
+        // 是否超标标识
+        boolean excessFlag = !SpotCheckConstants.EXCESS_TYPE_BELOW.equals(reportInfo.getExceedType());
+        // 超标状态
+        spotCheckDto.setIsExcess(excessFlag ? ExcessStatusEnum.EXCESS_ENUM_YES.getCode() : ExcessStatusEnum.EXCESS_ENUM_NO.getCode());
+        // 超标类型
+        spotCheckDto.setExcessType(reportInfo.getExceedType());
+        // 复核体积取第一次的核对体积
+        spotCheckDto.setReviewVolume(spotCheckDto.getContrastVolume());
+        // 核对重量取第二次返回的核对重量
+        spotCheckDto.setContrastWeight(reportInfo.getRecheckWeight() == null ? null : MathUtils.keepScale(Double.parseDouble(reportInfo.getRecheckWeight()), 2));
+        // 复核长宽高清空
+        spotCheckDto.setReviewLWH(Constants.EMPTY_FILL);
+        // 未超标或体积超标，不下发，只更新抽检统计报表
+        if (SpotCheckConstants.EXCESS_TYPE_BELOW.equals(reportInfo.getExceedType()) || SpotCheckConstants.EXCESS_TYPE_VOLUME.equals(reportInfo.getExceedType())) {
+            logger.info("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回超标类型为:{},不执行下发!", spotCheckDto.getWaybillCode(), reportInfo.getExceedType());
+            spotCheckServiceProxy.insertOrUpdateProxyReform(spotCheckDto);
+            return false;
+        }
+        // 重量超标则下传至称重再造系统，并且更新抽检统计报表
+        if (SpotCheckConstants.EXCESS_TYPE_WEIGHT.equals(reportInfo.getExceedType())) {
+            return true;
+        }
         return false;
     }
 
