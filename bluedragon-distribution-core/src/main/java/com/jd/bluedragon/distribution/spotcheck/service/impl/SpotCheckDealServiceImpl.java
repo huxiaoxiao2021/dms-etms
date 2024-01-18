@@ -664,8 +664,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             return true;
         }
         // 如果图片不合格并且不是软包类型
-        if (StringUtils.isNotEmpty(spotCheckDto.getPictureAIDistinguishReason())
-                && !spotCheckDto.getPictureAIDistinguishReason().contains(SpotCheckConstants.PIC_AI_REASON_RB)) {
+        if (StringUtils.isBlank(spotCheckDto.getPictureAIDistinguishReason())
+                || !spotCheckDto.getPictureAIDistinguishReason().contains(SpotCheckConstants.PIC_AI_REASON_RB)) {
             return false;
         }
         // 如果是重量超标
