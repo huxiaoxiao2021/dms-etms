@@ -832,7 +832,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         }
 
         // 判断当前运单是否存在重量体积, 若存在则拦截
-        if (checkWeightAndVolumeNotZero(bigWaybill, waybillCode,operateSiteCode, result)) {
+        if (checkWeightAndVolumeNotZero(bigWaybill, waybillCode,operateSiteCode, result, sourceCode)) {
             return result;
         }
         // 自动化称重 校验包裹在当前场地是否使用周转筐
@@ -881,34 +881,36 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     }
 
     // 校验运单重量体积是否为非0重包裹
-    private boolean checkWeightAndVolumeNotZero(BigWaybillDto bigWaybill, String waybillCode, Integer operateSiteCode, InvokeResult<Void> result) {
-        // 对0存在重量的运单，校验当前分拣中心在全程跟踪是否存在前置操作节点（解封车、验货、装箱、发货、分拣、封车等任意一条记录即可）
-        Set<Integer> stateSet = getStateSet();
-        boolean isExistWaybillTrace = false;
-        // 不支持按场地查询，只能自己过滤
-        List<PackageState> waybillTrace = waybillTraceManager.getAllOperationsByOpeCodeAndState(waybillCode, stateSet);
-        for (PackageState packageState : waybillTrace) {
-            if (Objects.equals(packageState.getOperatorSiteId(), operateSiteCode)) {
-                isExistWaybillTrace = true;
+    private boolean checkWeightAndVolumeNotZero(BigWaybillDto bigWaybill, String waybillCode, Integer operateSiteCode, InvokeResult<Void> result, FromSourceEnum sourceCode) {
+        // 人工称重 对0存在重量的运单，校验当前分拣中心在全程跟踪是否存在前置操作节点（解封车、验货、装箱、发货、分拣、封车等任意一条记录即可
+        if (NOT_ZERO_WEIGHT_VOLUME_CHECK_PRINT_FROM_SOURCE.contains(sourceCode)) {
+            Set<Integer> stateSet = getStateSet();
+            boolean isExistWaybillTrace = false;
+            // 不支持按场地查询，只能自己过滤
+            List<PackageState> waybillTrace = waybillTraceManager.getAllOperationsByOpeCodeAndState(waybillCode, stateSet);
+            for (PackageState packageState : waybillTrace) {
+                if (Objects.equals(packageState.getOperatorSiteId(), operateSiteCode)) {
+                    isExistWaybillTrace = true;
+                }
             }
-        }
 
-        // 如果没有全程跟踪 校验在当前分拣中心是否存在验货
-        if (!isExistWaybillTrace) {
-            Inspection inspectionQuery = new Inspection();
-            inspectionQuery.setWaybillCode(waybillCode);
-            inspectionQuery.setCreateSiteCode(operateSiteCode);
-            List<Inspection> inspectionList = inspectionDao.findPackageBoxCodesByWaybillCode(inspectionQuery);
-            if (CollectionUtils.isNotEmpty(inspectionList)) {
-                isExistWaybillTrace = true;
+            // 如果没有全程跟踪 校验在当前分拣中心是否存在验货
+            if (!isExistWaybillTrace) {
+                Inspection inspectionQuery = new Inspection();
+                inspectionQuery.setWaybillCode(waybillCode);
+                inspectionQuery.setCreateSiteCode(operateSiteCode);
+                List<Inspection> inspectionList = inspectionDao.findPackageBoxCodesByWaybillCode(inspectionQuery);
+                if (CollectionUtils.isNotEmpty(inspectionList)) {
+                    isExistWaybillTrace = true;
+                }
             }
-        }
 
-        if (!isExistWaybillTrace) {
-            logger.info("运单号{}不存在前置操作节点", waybillCode);
-            result.setCode(Integer.valueOf(WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE));
-            result.setMessage(HintService.getHint(WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE));
-            return true;
+            if (!isExistWaybillTrace) {
+                logger.info("运单号{}不存在前置操作节点", waybillCode);
+                result.setCode(Integer.valueOf(WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE));
+                result.setMessage(HintService.getHint(WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE));
+                return true;
+            }
         }
 
         Double weight = bigWaybill.getWaybill().getAgainWeight();
