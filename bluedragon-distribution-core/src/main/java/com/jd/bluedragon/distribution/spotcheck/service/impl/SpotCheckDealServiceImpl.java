@@ -665,7 +665,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         }
         // 如果图片不合格并且不是软包类型
         if (StringUtils.isNotEmpty(spotCheckDto.getPictureAIDistinguishReason())
-                && spotCheckDto.getPictureAIDistinguishReason().contains(SpotCheckConstants.PIC_AI_REASON_RB)) {
+                && !spotCheckDto.getPictureAIDistinguishReason().contains(SpotCheckConstants.PIC_AI_REASON_RB)) {
             return false;
         }
         // 如果是重量超标
@@ -693,6 +693,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(spotCheckDto.getContrastVolume()));
         // 再次调用称重再造系统接口判断是否超标
         CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
+        if (logger.isInfoEnabled()) {
+            logger.info("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回:result={},reportInfoQuery={}", spotCheckDto.getWaybillCode(),
+                    JsonHelper.toJson(commonDTO), JsonHelper.toJson(reportInfoQuery));
+        }
         if (commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS) || commonDTO.getData() == null) {
             logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口判断返回失败:result={},不执行下发!", spotCheckDto.getWaybillCode(), JsonHelper.toJson(commonDTO));
             return false;
@@ -712,7 +716,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckDto.setReviewLWH(Constants.EMPTY_FILL);
         // 未超标或体积超标，不下发，只更新抽检统计报表
         if (SpotCheckConstants.EXCESS_TYPE_BELOW.equals(reportInfo.getExceedType()) || SpotCheckConstants.EXCESS_TYPE_VOLUME.equals(reportInfo.getExceedType())) {
-            logger.info("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回超标类型为:{},不执行下发!", spotCheckDto.getWaybillCode(), reportInfo.getExceedType());
+            logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回超标类型为:{},不执行下发!", spotCheckDto.getWaybillCode(), reportInfo.getExceedType());
             spotCheckServiceProxy.insertOrUpdateProxyReform(spotCheckDto);
             return false;
         }
