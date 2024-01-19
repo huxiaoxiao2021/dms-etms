@@ -29,7 +29,15 @@ public interface IJyUnloadVehicleService {
      * @param request
      * @return
      */
+    @Deprecated
     JdVerifyResponse<Integer> unloadScan(UnloadScanRequest request);
+
+    /**
+     * 卸车扫描
+     * @param request
+     * @return
+     */
+    JdVerifyResponse<UnLoadScanResponse> doUnloadScan(UnloadScanRequest request);
 
     /**
      * 查询卸车进度
