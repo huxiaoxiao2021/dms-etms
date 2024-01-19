@@ -929,7 +929,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList = jyBizTaskPickingGoodService.listBatchInfoByBizId(bizList);
         // 查询统计数据
         List<String> allBizList = jyBizTaskPickingGoodService.listAllBizByPickingSiteId(batchQueryDto);
-        List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.waitPickingInitTotalNum(allBizList, currentSiteId, null);
+        List<PickingSendGoodAggsDto> aggsDtoList = jyPickingTaskAggsService.findPickingAgg(allBizList, currentSiteId, null);
         // 计算统计总和
         calculateAggResponse(res, pageDetail, aggsDtoList, subsidiaryEntityList);
         return ret;
