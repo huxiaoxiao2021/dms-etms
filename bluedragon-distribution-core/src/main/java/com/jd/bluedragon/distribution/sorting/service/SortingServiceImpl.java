@@ -1520,7 +1520,6 @@ public class SortingServiceImpl implements SortingService {
 			sortingRecords.addAll(queryByCode2(sorting));
 			// 新增：安检岗触发的取消集包，不用检验是否发货。
 			if (Objects.nonNull(sorting.getConditionCheck()) && sorting.getConditionCheck()){
-				sortingRecords.addAll(sortingDao.findByBoxCode(sorting));
 				return SortingResponse.ok();
 			}
 			if (sortingRecords == null || sortingRecords.isEmpty()) {
