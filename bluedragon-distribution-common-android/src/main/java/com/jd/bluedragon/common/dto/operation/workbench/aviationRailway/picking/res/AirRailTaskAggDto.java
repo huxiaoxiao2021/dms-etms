@@ -32,6 +32,10 @@ public class AirRailTaskAggDto implements Serializable {
      */
     private Date nodeRealArriveTime;
     /**
+     * 提货完成时间
+     */
+    private Date pickingCompleteTime;
+    /**
      * 提货时间
      */
     private Date pickingTime;
@@ -114,6 +118,14 @@ public class AirRailTaskAggDto implements Serializable {
 
     public void setPickingTime(Date pickingTime) {
         this.pickingTime = pickingTime;
+    }
+
+    public Date getPickingCompleteTime() {
+        return pickingCompleteTime;
+    }
+
+    public void setPickingCompleteTime(Date pickingCompleteTime) {
+        this.pickingCompleteTime = pickingCompleteTime;
     }
 
     public Integer getWaitScanTotal() {

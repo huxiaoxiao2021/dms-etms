@@ -153,7 +153,7 @@
     and     task_type = #{taskType}
   </update>
 
-  <select id="getSendDetailBySiteId">
+  <select id="getSendDetailBySiteId" resultMap="BaseResultMap">
     select  <include refid="Base_Column_List"/>
     from    jy_picking_send_destination_detail
     where   yn = 1

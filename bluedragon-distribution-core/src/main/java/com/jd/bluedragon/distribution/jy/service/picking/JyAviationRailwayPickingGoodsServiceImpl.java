@@ -750,24 +750,17 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         List<AirRailTaskCountDto> countDtoList;
         if (StringUtils.isNotEmpty(req.getKeyword()) && CollectionUtils.isEmpty(bizIdList)) {
             countDtoList = new ArrayList<>();
+            for (PickingGoodStatusEnum statusEnum : PickingGoodStatusEnum.values()) {
+                AirRailTaskCountDto countDto = new AirRailTaskCountDto();
+                countDto.setStatus(statusEnum.getCode());
+                countDto.setStatusName(statusEnum.getName());
+                countDto.setCount(Constants.NUMBER_ZERO);
+
+                countDtoList.add(countDto);
+            }
         } else {
             AirRailTaskCountQueryDto countQueryDto = buildCountQueryDto(req, bizIdList);
             countDtoList = jyBizTaskPickingGoodService.countAllStatusByPickingSiteId(countQueryDto);
-        }
-        Map<Integer, AirRailTaskCountDto> statusMap = countDtoList.stream().collect(Collectors.toMap(AirRailTaskCountDto::getStatus, item -> item, (first, second) -> first));
-        for (PickingGoodStatusEnum statusEnum : PickingGoodStatusEnum.values()) {
-
-            AirRailTaskCountDto countDto = statusMap.get(statusEnum.getCode());
-            if (countDto != null) {
-                countDto.setStatusName(statusEnum.getName());
-                continue;
-            }
-            countDto = new AirRailTaskCountDto();
-            countDto.setStatus(statusEnum.getCode());
-            countDto.setStatusName(statusEnum.getName());
-            countDto.setCount(Constants.NUMBER_ZERO);
-
-            countDtoList.add(countDto);
         }
 
         res.setCountDtoList(countDtoList);
@@ -810,6 +803,9 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setTaskType(req.getTaskType());
         queryDto.setBizIdList(bizIdList);
         queryDto.setCreateTime(getStartTime());
+        queryDto.setNodePlanArriveTime(getPlanArriveTime());
+        queryDto.setNodeRealArriveTime(getRealArriveTime());
+        queryDto.setPickingCompleteTime(getPickingFinishTime());
 
         return queryDto;
     }
@@ -927,9 +923,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
         // 查询分页数据
         List<JyBizTaskPickingGoodEntity> pageDetail = jyBizTaskPickingGoodService.listTaskByPickingNodeCode(batchQueryDto);
-        if (CollectionUtils.isEmpty(pageDetail)) {
-            return ret;
-        }
+
         // 查询上游信息
         List<String> bizList = pageDetail.stream().map(JyBizTaskPickingGoodEntity::getBizId).distinct().collect(Collectors.toList());
         List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList = jyBizTaskPickingGoodService.listBatchInfoByBizId(bizList);
@@ -1007,6 +1001,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             dto.setNoTaskFlag(Constants.NUMBER_ONE.equals(task.getManualCreatedFlag()));
             dto.setNodePlanArriveTime(task.getNodePlanArriveTime());
             dto.setNodeRealArriveTime(task.getNodeRealArriveTime());
+            dto.setPickingCompleteTime(task.getPickingCompleteTime());
             dto.setServiceNumber(task.getServiceNumber());
 
             List<JyBizTaskPickingGoodSubsidiaryEntity> batchInfoList = batchInfoGroupedByBizId.get(task.getBizId());

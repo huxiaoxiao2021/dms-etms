@@ -11,15 +11,15 @@ public class AirRailTaskAggRes implements Serializable {
     /**
      * 当前场地总数待提数量
      */
-    private Integer currentSiteWaitScan;
+    private Integer currentSiteWaitScan = 0;
     /**
      * 当前场地已提总数
      */
-    private Integer currentSiteHaveScanned;
+    private Integer currentSiteHaveScanned = 0;
     /**
      * 当前场地多提总数
      */
-    private Integer currentSiteMultipleScan;
+    private Integer currentSiteMultipleScan = 0;
 
     public List<AirRailTaskAggDto> getTaskAggDtoList() {
         return taskAggDtoList;

@@ -149,6 +149,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
         req.setPageNum(1);
         req.setPageSize(10);
         req.setKeyword("910");
+
         JdCResponse<AirRailTaskAggRes> response = jyAviationRailwayPickingGoodsGatewayService.listAirRailTaskAgg(req);
         log.info("listAirRailTaskSummaryTest response {}", JsonHelper.toJson(response));
     }

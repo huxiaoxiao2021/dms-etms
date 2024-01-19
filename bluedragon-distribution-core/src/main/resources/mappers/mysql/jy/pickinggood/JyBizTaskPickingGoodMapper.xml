@@ -534,4 +534,30 @@
     and     create_time <![CDATA[ >= ]]> #{createTime}
   </select>
 
+  <select id="countStatusByCondition" resultType="com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto">
+    select  count(*) as count,
+            status
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     next_site_id = #{pickingSiteId}
+    and     task_type = #{taskType}
+    and     status = #{status}
+    and     create_time >= #{createTime}
+    <if test="status == 0">
+      and   (node_plan_arrive_time is null
+      or    node_real_arrive_time is null
+      or    node_plan_arrive_time >= #{nodePlanArriveTime}
+      or    node_real_arrive_time >= #{nodeRealArriveTime})
+    </if>
+    <if test="status == 2">
+      and   picking_complete_time >= #{pickingCompleteTime}
+    </if>
+    <if test="bizIdList != null and bizIdList.size() > 0">
+      and     biz_id in
+      <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+  </select>
+
 </mapper>
