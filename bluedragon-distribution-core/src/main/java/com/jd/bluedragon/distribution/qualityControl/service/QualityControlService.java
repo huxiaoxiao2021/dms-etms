@@ -53,6 +53,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -281,7 +282,17 @@ public class QualityControlService {
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
             String waybillCode=WaybillUtil.getWaybillCode(request.getQcValue());
             // 获取原单数据
-            String oldWaybillCode = getOldWaybillCode(waybillCode);
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillE(true);
+            wChoice.setQueryWaybillM(true);
+            wChoice.setQueryWaybillExtend(true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null
+                    && BusinessUtil.isColdChainExpressScrap(baseEntity.getData().getWaybill().getWaybillSign())){
+                return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION_MSG));
+            }
+            String oldWaybillCode = getOldWaybillCode(baseEntity);
             // 只针对分拣系统， 理赔拦截和取消订单拦截只能换单一次
             if (Objects.equals(QualityControlInletEnum.DMS_SORTING.getCode(), request.getInletFlag())
                     && StringUtils.isEmpty(oldWaybillCode)
@@ -1129,14 +1140,8 @@ public class QualityControlService {
         task.setOwnSign(BusinessHelper.getOwnSign());
         return task;
     }
-    private  String getOldWaybillCode(String waybillCode){
+    private String getOldWaybillCode(BaseEntity<BigWaybillDto> baseEntity){
         //根据运单号校验是否存在原单号(是否是逆向单)，如果是 则可以正常提交异常处理，否则进行拦截校验
-        WChoice wChoice = new WChoice();
-        wChoice.setQueryWaybillC(true);
-        wChoice.setQueryWaybillE(true);
-        wChoice.setQueryWaybillM(true);
-        wChoice.setQueryWaybillExtend(true);
-        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
         if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null && baseEntity.getData().getWaybill().getWaybillExt() !=null) {
             WaybillExt waybillExt=baseEntity.getData().getWaybill().getWaybillExt();
             if(StringUtils.isNotBlank(waybillExt.getOldWaybillCode())){
