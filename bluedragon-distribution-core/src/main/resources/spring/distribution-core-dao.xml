@@ -972,6 +972,12 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
+    <bean id="jyExceptionInterceptDetailDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionInterceptDetailDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+    <bean id="jyExceptionInterceptDetailKvDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionInterceptDetailKvDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
     <!--################################## jy_core 相关DAO END ############################################ -->
 
 

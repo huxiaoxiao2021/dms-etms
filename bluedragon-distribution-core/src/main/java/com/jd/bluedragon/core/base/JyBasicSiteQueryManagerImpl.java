@@ -47,9 +47,6 @@ public class JyBasicSiteQueryManagerImpl implements JyBasicSiteQueryManager {
     private SiteQueryService siteQueryService;
 
     @Autowired
-    private JyExceptionService jyExceptionService;
-
-    @Autowired
     private RouterService routerService;
 
     @Override

@@ -2,46 +2,20 @@ package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpBaseReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpReceiveReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskByIdReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTypeCheckReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailCacheDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.TagDto;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyApproveStatusEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionCycleTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionProcessStatusEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTagEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTimeOutEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSaveTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSourceEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
+import com.jd.bluedragon.common.dto.jyexpection.request.*;
+import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DeliveryWSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
+import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptDisposeNodeEnum;
+import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptTypeEnum;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
@@ -49,21 +23,11 @@ import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.enums.CustomerNotifyStatusEnum;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
-import com.jd.bluedragon.distribution.jy.exception.JyExScrapNoticeMQ;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionAgg;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
+import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
-import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
-import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
-import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
-import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategyFactory;
-import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionService;
+import com.jd.bluedragon.distribution.jy.service.exception.*;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -79,10 +43,9 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.converter.BeanConverter;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -98,7 +61,6 @@ import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
-import com.jdl.basic.common.utils.Result;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskChangeStatusReq;
@@ -115,18 +77,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -838,7 +791,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         return new HashMap<>();
     }
-    
+
     /**
      * 根据bizId 批量查询破损数据
      * @param taskList
@@ -848,7 +801,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private Map<String, JyExceptionDamageDto> getDamageDetailMapByBizTaskList(List<JyBizTaskExceptionEntity> taskList, Integer status) {
         List<String> bizIdList = taskList.stream()
                 .filter(t-> Objects.equals(JyBizTaskExceptionTypeEnum.DAMAGE.getCode(),t.getType())
-                        && (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), t.getStatus()) 
+                        && (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), t.getStatus())
                         || Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), t.getStatus())))
                 .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
         logger.info("setDataForDamageList bizIdList:{}, status:{}", JSON.toJSONString(bizIdList), status);
@@ -1536,7 +1489,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
         workStationGridQuery.setBusinessKey(refGridKey);
-        Result<WorkStationGrid> result = workStationGridManager.queryByGridKey(workStationGridQuery);
+        com.jdl.basic.common.utils.Result<WorkStationGrid> result = workStationGridManager.queryByGridKey(workStationGridQuery);
         if(result == null || result.getData() == null || StringUtils.isBlank(result.getData().getOwnerUserErp())){
             return response.fail("获取网格场地信息失败!");
         }
@@ -1793,7 +1746,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isBlank(positionCode)) {
             return null;
         }
-        Result<PositionDetailRecord> positionResult = positionQueryJsfManager.queryOneByPositionCode(positionCode);
+        com.jdl.basic.common.utils.Result <PositionDetailRecord> positionResult = positionQueryJsfManager.queryOneByPositionCode(positionCode);
         if (positionResult == null || positionResult.isFail() || positionResult.getData() == null) {
             return null;
         }
@@ -1805,6 +1758,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if(BusinessUtil.isSanWuCode(barCode)){
             return JyBizTaskExceptionTypeEnum.SANWU.name() + "_" + barCode;
         }else {
+            if(Objects.equals(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode(), "")){
+                return "";
+            }
             boolean bizIdSwith = dmsConfigManager.getPropertyConfig().isJyExceptionCreateBizIdSwitch();
             if(bizIdSwith){
                 String bizid = JyBizTaskExceptionTypeEnum.SCRAPPED.name() + "_" + barCode;
@@ -1941,5 +1897,172 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             }
         }
         deliveryWSManager.delivered(reqDTO);
+    }
+
+    /**
+     * 获取拦截任务明细
+     *
+     * @param req
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    @Override
+    public Result<JyExceptionInterceptDetailDto> getTaskDetailOfIntercept(ExpTaskCommonReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("JyExceptionServiceImpl.getTaskDetailOfIntercept param: {}", JsonHelper.toJson(req));
+        }
+        Result<JyExceptionInterceptDetailDto> result = Result.success();
+
+        try {
+            // 1. 参数校验
+            final Result<Void> checkResult = this.checkParam4GetTaskDetailOfIntercept(req);
+            if (!checkResult.isSuccess()) {
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
+            // 2. 业务条件校验
+
+            // 3. 执行逻辑
+            final JyExceptionInterceptDetailDto jyExceptionInterceptDetailDto = new JyExceptionInterceptDetailDto();
+            this.mockJyExceptionInterceptDetailDto(jyExceptionInterceptDetailDto);
+            result.setData(jyExceptionInterceptDetailDto);
+        } catch (Exception e) {
+            result.toFail("接口异常");
+            logger.error("JyExceptionServiceImpl.getTaskDetailOfIntercept exception param {} exception {}", JsonHelper.toJson(req), e.getMessage(), e);
+        }
+        return result;
+    }
+
+    private void mockJyExceptionInterceptDetailDto(JyExceptionInterceptDetailDto jyExceptionInterceptDetailDto) {
+        jyExceptionInterceptDetailDto.setBizId("intercept_JDVC00095910458-1-1-_910_10004");
+        jyExceptionInterceptDetailDto.setCreateUserId(12423);
+        jyExceptionInterceptDetailDto.setCreateUserErp("wuyoude");
+        jyExceptionInterceptDetailDto.setCreateUserName("吴有德");
+        jyExceptionInterceptDetailDto.setTaskType(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode());
+        jyExceptionInterceptDetailDto.setTaskTypeName(JyBizTaskExceptionTypeEnum.INTERCEPT.getName());
+        jyExceptionInterceptDetailDto.setInterceptType(BusinessInterceptTypeEnum.CANCEL.getCode());
+        jyExceptionInterceptDetailDto.setInterceptTypeName(BusinessInterceptTypeEnum.CANCEL.getName());
+        jyExceptionInterceptDetailDto.setDisposeNodeName(new ArrayList<>(Arrays.asList(BusinessInterceptDisposeNodeEnum.EXCHANGE_WAYBILL.getName(), BusinessInterceptDisposeNodeEnum.REJECT_RECEIVE.getName())));
+        jyExceptionInterceptDetailDto.setInputLength(new BigDecimal("234.10"));
+        jyExceptionInterceptDetailDto.setInputWidth(new BigDecimal("334.10"));
+        jyExceptionInterceptDetailDto.setInputHeight(new BigDecimal("434.10"));
+        jyExceptionInterceptDetailDto.setInputWeight(new BigDecimal("2.20"));
+    }
+
+    private Result<Void> checkParam4ExpTaskCommonReq(ExpTaskCommonReq req){
+        Result<Void> result = Result.success();
+        if(req == null){
+            return result.toFail("参数错误，参数不能为空");
+        }
+        if(req.getCurrentOperate() == null){
+            return result.toFail("参数错误，currentOperate不能为空");
+        }
+        if(req.getUser() == null){
+            return result.toFail("参数错误，user不能为空");
+        }
+        if (StringUtils.isBlank(req.getBizId())) {
+            return result.toFail("参数错误，bizId不能为空");
+        }
+        return result;
+    }
+
+    private Result<Void> checkParam4GetTaskDetailOfIntercept(ExpTaskCommonReq req){
+        Result<Void> result = Result.success();
+        final Result<Void> checkCommonResult = this.checkParam4ExpTaskCommonReq(req);
+        if (!checkCommonResult.isSuccess()) {
+            return result.toFail(checkCommonResult.getMessage(), checkCommonResult.getCode());
+        }
+        return result;
+    }
+
+    /**
+     * 拦截任务处理
+     *
+     * @param req
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    @Override
+    public Result<Boolean> processTaskOfIntercept(ExpInterceptTaskProcessReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("JyExceptionServiceImpl.processTaskOfIntercept param: {}", JsonHelper.toJson(req));
+        }
+        Result<Boolean> result = Result.success();
+
+        try {
+            // 1. 参数校验
+            final Result<Void> checkResult = this.checkParam4ProcessTaskOfIntercept(req);
+            if (!checkResult.isSuccess()) {
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
+            // 2. 业务条件校验
+
+            // 3. 执行逻辑
+            result.toSuccess(true, "处理成功");
+        } catch (Exception e) {
+            result.toFail("接口异常");
+            logger.error("JyExceptionServiceImpl.processTaskOfIntercept exception param {} exception {}", JsonHelper.toJson(req), e.getMessage(), e);
+        }
+        return result;
+    }
+
+    private Result<Void> checkParam4ProcessTaskOfIntercept(ExpInterceptTaskProcessReq req){
+        Result<Void> result = Result.success();
+        final Result<Void> checkCommonResult = this.checkParam4ExpTaskCommonReq(req);
+        if (!checkCommonResult.isSuccess()) {
+            return result.toFail(checkCommonResult.getMessage(), checkCommonResult.getCode());
+        }
+        return result;
+    }
+
+    /**
+     * 拦截任务-上传重量体积
+     *
+     * @param req
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    @Override
+    public Result<Boolean> processTaskOfInterceptSubmitWeightVolume(ExpInterceptTaskProcessSubmitWeightVolumeReq req) {
+        if(logger.isInfoEnabled()){
+            logger.info("JyExceptionServiceImpl.processTaskOfInterceptSubmitWeightVolume param: {}", JsonHelper.toJson(req));
+        }
+        Result<Boolean> result = Result.success();
+
+        try {
+            // 1. 参数校验
+            final Result<Void> checkResult = this.checkParam4ProcessTaskOfInterceptSubmitWeightVolume(req);
+            if (!checkResult.isSuccess()) {
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
+            // 2. 业务条件校验
+
+            // 3. 执行逻辑
+            result.toSuccess(true, "提交成功");
+        } catch (Exception e) {
+            result.toFail("接口异常");
+            logger.error("JyExceptionServiceImpl.processTaskOfInterceptSubmitWeightVolume exception param {} exception {}", JsonHelper.toJson(req), e.getMessage(), e);
+        }
+        return result;
+    }
+
+    private Result<Void> checkParam4ProcessTaskOfInterceptSubmitWeightVolume(ExpInterceptTaskProcessSubmitWeightVolumeReq req){
+        Result<Void> result = Result.success();
+        final Result<Void> checkCommonResult = this.checkParam4ExpTaskCommonReq(req);
+        if (!checkCommonResult.isSuccess()) {
+            return result.toFail(checkCommonResult.getMessage(), checkCommonResult.getCode());
+        }
+        if (req.getLength() == null) {
+            return result.toFail("参数错误，length不能为空");
+        }
+        if (req.getWidth() == null) {
+            return result.toFail("参数错误，width不能为空");
+        }
+        if (req.getHeight() == null) {
+            return result.toFail("参数错误，height不能为空");
+        }
+        if (req.getWeight() == null) {
+            return result.toFail("参数错误，weight不能为空");
+        }
+        return result;
     }
 }

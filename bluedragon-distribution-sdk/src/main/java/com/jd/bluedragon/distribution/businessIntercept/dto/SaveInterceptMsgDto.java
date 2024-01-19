@@ -102,6 +102,11 @@ public class SaveInterceptMsgDto implements Serializable {
      */
     private Integer onlineStatus;
 
+    /**
+     * 操作网格码
+     */
+    private String operatePositionCode;
+
     public String getBarCode() {
         return barCode;
     }
@@ -247,6 +252,14 @@ public class SaveInterceptMsgDto implements Serializable {
         this.onlineStatus = onlineStatus;
     }
 
+    public String getOperatePositionCode() {
+        return operatePositionCode;
+    }
+
+    public void setOperatePositionCode(String operatePositionCode) {
+        this.operatePositionCode = operatePositionCode;
+    }
+
     @Override
     public String toString() {
         return "SaveInterceptMsgDto{" +
@@ -268,6 +281,7 @@ public class SaveInterceptMsgDto implements Serializable {
                 ", interceptMessage='" + interceptMessage + '\'' +
                 ", interceptEffectTime=" + interceptEffectTime +
                 ", onlineStatus=" + onlineStatus +
+                ", positionCode='" + operatePositionCode + '\'' +
                 '}';
     }
 }

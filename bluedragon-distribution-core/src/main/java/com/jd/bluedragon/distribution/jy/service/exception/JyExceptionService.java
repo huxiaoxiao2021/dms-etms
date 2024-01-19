@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskException
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ps.data.epf.dto.ExpefNotify;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 
@@ -144,4 +145,25 @@ public interface JyExceptionService {
     String getGridRid(PositionDetailRecord data);
 
     void pushScrapTrace(JyBizTaskExceptionEntity exTaskEntity);
+
+    /**
+     * 获取拦截任务明细
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    Result<JyExceptionInterceptDetailDto> getTaskDetailOfIntercept(ExpTaskCommonReq req);
+
+    /**
+     * 拦截任务处理
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    Result<Boolean> processTaskOfIntercept(ExpInterceptTaskProcessReq req);
+
+    /**
+     * 拦截任务-上传重量体积
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    Result<Boolean> processTaskOfInterceptSubmitWeightVolume(ExpInterceptTaskProcessSubmitWeightVolumeReq req);
 }

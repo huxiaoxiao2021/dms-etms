@@ -774,5 +774,13 @@
     <jmq:consumer id="jmq.reassignWaybillApprovalConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.reassign.waybill.approval}" listener="reassignWaybillApprovalConsumer"/>
     </jmq:consumer>
+    <!-- 拦截数据消费 -->
+    <jmq:consumer id="jmq.dmsBusinessInterceptReportConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsBusinessInterceptReport}" listener="dmsBusinessInterceptReportConsumer"/>
+    </jmq:consumer>
+    <!-- 拦截后处理数据消费 -->
+    <jmq:consumer id="jmq.dmsBusinessInterceptDisposeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsBusinessInterceptDispose}" listener="dmsBusinessInterceptDisposeConsumer"/>
+    </jmq:consumer>
 </beans>
 
