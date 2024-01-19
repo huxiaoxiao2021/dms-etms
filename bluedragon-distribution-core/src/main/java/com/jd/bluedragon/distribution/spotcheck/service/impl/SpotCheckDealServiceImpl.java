@@ -697,7 +697,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     }
 
 
-    private boolean checkExcessStatus(WeightVolumeSpotCheckDto spotCheckDto) {
+    private boolean checkExcessStatus(SpotCheckIssueDetail spotCheckDto) {
         ReportInfoQuery reportInfoQuery = new ReportInfoQuery();
         // 运单号
         reportInfoQuery.setWaybillCode(spotCheckDto.getWaybillCode());
@@ -733,7 +733,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         // 未超标或体积超标，不下发，只更新抽检统计报表
         if (SpotCheckConstants.EXCESS_TYPE_BELOW.equals(reportInfo.getExceedType()) || SpotCheckConstants.EXCESS_TYPE_VOLUME.equals(reportInfo.getExceedType())) {
             logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回超标类型为:{},不执行下发!", spotCheckDto.getWaybillCode(), reportInfo.getExceedType());
-            spotCheckServiceProxy.insertOrUpdateProxyReform(spotCheckDto);
+            WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = new WeightVolumeSpotCheckDto();
+            BeanUtils.copyProperties(spotCheckDto, weightVolumeSpotCheckDto);
+            spotCheckServiceProxy.insertOrUpdateProxyReform(weightVolumeSpotCheckDto);
             return false;
         }
         // 重量超标则下传至称重再造系统，并且更新抽检统计报表
