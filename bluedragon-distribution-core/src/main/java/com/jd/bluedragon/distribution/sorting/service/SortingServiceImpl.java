@@ -1141,6 +1141,17 @@ public class SortingServiceImpl implements SortingService {
 		return this.dynamicSortingQueryDao.queryByCode2(sorting);
 	}
 
+    /**
+     * 根据包裹号或者运单号查询箱子、create_site_code、receive_site_code
+	 * 无发货校验
+     * @param sorting
+     * @return
+     */
+	public List<Sorting> queryByCode3(Sorting sorting) {
+		this.log.debug("获取包裹信息 --> 根据订单号或包裹号查询箱号、创建站点、接收站点");
+		return this.dynamicSortingQueryDao.queryByCode3(sorting);
+	}
+
 	/**
 	 * @param sorting
 	 * @return
@@ -1517,11 +1528,13 @@ public class SortingServiceImpl implements SortingService {
                         HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
 			}
 		} else {
-			sortingRecords.addAll(queryByCode2(sorting));
-			// 新增：安检岗触发的取消集包，不用检验是否发货。
+			// 新增：安检岗触发的取消集包，查询待取消集包记录,不用检验是否发货。
 			if (Objects.nonNull(sorting.getConditionCheck()) && sorting.getConditionCheck()){
+				sortingRecords.addAll(queryByCode3(sorting));
 				return SortingResponse.ok();
 			}
+			// 老版按包裹取消集包时，查询待取消集包记录带发货校验
+			sortingRecords.addAll(queryByCode2(sorting));
 			if (sortingRecords == null || sortingRecords.isEmpty()) {
 				log.warn("取消分拣--->包裹已经发货");
 				addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "包裹已经发货","SortingServiceImpl#getSortingRecords");

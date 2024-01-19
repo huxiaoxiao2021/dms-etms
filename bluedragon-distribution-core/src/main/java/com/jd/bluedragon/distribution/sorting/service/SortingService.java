@@ -84,6 +84,15 @@ public interface SortingService {
      */
     List<Sorting> queryByCode2(Sorting sorting);
 
+
+    /**
+     * 据包裹号或者运单号查询箱子、create_site_code、receive_site_code
+     * 此方法查询集包记录，不校验是否发货，send_m是否存在记录
+     * @param sorting
+     * @return
+     */
+    List<Sorting> queryByCode3(Sorting sorting);
+
     /** 执行取消文件操作  这里不再判断业务类型是正向还是逆向等  added by zhanglei */
     Boolean canCancel2(Sorting sorting);
     

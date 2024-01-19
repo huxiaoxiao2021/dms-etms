@@ -115,6 +115,16 @@ public class DynamicSortingQueryDao implements ISortingDao{
     }
 
     /**
+     * 根据运单号或者包裹号查询分拣明细
+     * 无发货校验，不关联send_m
+     * @param sorting
+     * @return
+     */
+    public List<Sorting> queryByCode3(Sorting sorting){
+        return selectDao(sorting.getCreateSiteCode()).queryByCode3(sorting);
+    }
+
+    /**
      * 根据批次号查询分拣明细
      *
      * @param sorting

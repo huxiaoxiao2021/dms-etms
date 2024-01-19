@@ -103,6 +103,10 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
     public List<Sorting> queryByCode2(Sorting sorting){
         return this.getSqlSession().selectList(namespace + ".queryByCode2", sorting);
     }
+
+    public List<Sorting> queryByCode3(Sorting sorting){
+        return this.getSqlSession().selectList(namespace + ".queryByCode3", sorting);
+    }
     
     @SuppressWarnings("unchecked")
 	public List<Sorting> findByBsendCode(Sorting sorting) {

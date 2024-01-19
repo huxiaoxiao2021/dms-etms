@@ -62,6 +62,14 @@ public interface ISortingDao {
     List<Sorting> queryByCode2(Sorting sorting);
 
     /**
+     * 根据运单号或者包裹号查询分拣明细
+     * 无发货校验，不关联send_m
+     * @param sorting
+     * @return
+     */
+    List<Sorting> queryByCode3(Sorting sorting);
+
+    /**
      * 根据批次号查询分拣明细
      * @param sorting
      * @return
