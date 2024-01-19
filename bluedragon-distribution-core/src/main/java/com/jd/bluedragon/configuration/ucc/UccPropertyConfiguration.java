@@ -1884,6 +1884,19 @@ public class UccPropertyConfiguration{
 
     private long jyCollectPackageInterceptBitCode;
 
+    /**
+     * 存储仓打包明细
+     */
+    private boolean storageBoxDetailIdempotentlySwitch;
+
+    public boolean getStorageBoxDetailIdempotentlySwitch(){
+        return storageBoxDetailIdempotentlySwitch;
+    }
+
+    public void setStorageBoxDetailIdempotentlySwitch(boolean storageBoxDetailIdempotentlySwitch) {
+        this.storageBoxDetailIdempotentlySwitch = storageBoxDetailIdempotentlySwitch;
+    }
+
     public long getJyCollectPackageInterceptBitCode(){
         return jyCollectPackageInterceptBitCode;
     }

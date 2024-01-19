@@ -46,7 +46,7 @@ public class TpCollectPackageGatewayServiceTest {
 
 
     @Test
-    public void testUpdateBo() throws Exception {
+    public void testUpdateBox() throws Exception {
 
         UpdateBoxReq req =new UpdateBoxReq();
         req.setBoxCode("BW1004240117250000100109");

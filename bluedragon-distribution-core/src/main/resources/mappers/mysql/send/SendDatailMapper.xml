@@ -66,6 +66,29 @@
 			#{operateTime,jdbcType=TIMESTAMP}, NOW(),
 			 0, #{isCancel,jdbcType=INTEGER}, 0, NOW(),-1, 1, #{spareReason,jdbcType=VARCHAR}, #{isLoss,jdbcType=INTEGER}, #{featureType,jdbcType=INTEGER})
     </insert>
+
+	<insert id="batchAdd" parameterType="SendDetail" >
+		<!--<selectKey resultType="long"  keyProperty="sendDId" order="BEFORE" statementType="PREPARED">
+          <![CDATA[select dms_core_send_d.nextval]]>
+      </selectKey>-->
+
+		INSERT INTO Send_d (
+		send_d_id, send_code, box_code, package_barcode, package_num, waybill_code,pickup_code, send_type,
+		create_site_code, receive_site_code, create_user, create_user_code,create_time, operate_time, update_time,
+		sendd_status, is_cancel,excute_count, excute_time,  weight, yn, spare_reason, is_loss, feature_type)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+		(
+		#{item.sendDId,jdbcType=BIGINT}, #{item.sendCode,jdbcType=VARCHAR}, #{item.boxCode,jdbcType=VARCHAR},
+		#{item.packageBarcode,jdbcType=VARCHAR}, #{item.packageNum,jdbcType=INTEGER}, #{item.waybillCode,jdbcType=VARCHAR},
+		#{item.pickupCode,jdbcType=VARCHAR}, #{item.sendType,jdbcType=INTEGER},
+		#{item.createSiteCode,jdbcType=INTEGER}, #{item.receiveSiteCode,jdbcType=INTEGER},
+		#{item.createUser,jdbcType=VARCHAR}, #{item.createUserCode,jdbcType=INTEGER},
+		NOW(),
+		#{item.operateTime,jdbcType=TIMESTAMP}, NOW(),
+		0, #{item.isCancel,jdbcType=INTEGER}, 0, NOW(),-1, 1, #{item.spareReason,jdbcType=VARCHAR}, #{item.isLoss,jdbcType=INTEGER}, #{item.featureType,jdbcType=INTEGER})
+		</foreach>
+	</insert>
 	<select id="querySendDatailForUpdate" parameterType="SendDetail"
 		resultMap="SendDetail">
 		SELECT 
@@ -1226,4 +1249,16 @@
 		group by waybill_code
 	</select>
 
+
+	<update id="batchDelete">
+		update send_d
+		set yn= 0,update_time =now()
+		WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		and box_code =#{boxCode}
+		AND package_barcode IN
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item.packageBarcode,jdbcType=VARCHAR}
+		</foreach>
+		AND yn=1
+	</update>
 </mapper>

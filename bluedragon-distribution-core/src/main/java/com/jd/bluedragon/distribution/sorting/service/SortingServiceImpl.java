@@ -1797,4 +1797,10 @@ public class SortingServiceImpl implements SortingService {
         }
         return null;
     }
+
+	@Override
+	public int deleteOldAndInsertNewSorting(List<Sorting> sortingList) {
+		sortingDao.batchDelete(sortingList);
+		return sortingDao.batchAdd(sortingList);
+	}
 }

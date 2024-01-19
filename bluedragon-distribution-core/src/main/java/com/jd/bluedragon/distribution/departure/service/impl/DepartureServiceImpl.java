@@ -15,6 +15,8 @@ import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.departure.dao.DepartureCarDao;
 import com.jd.bluedragon.distribution.departure.dao.DepartureSendDao;
 import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
@@ -110,6 +112,8 @@ public class DepartureServiceImpl implements DepartureService {
 
     @Autowired
     private SequenceGenAdaptor sequenceGenAdaptor;
+	@Autowired
+	private BoxService boxService;
 
 	public static final String CARCODE_MARK = "0";  // 按车次号查询
 
@@ -691,6 +695,7 @@ public class DepartureServiceImpl implements DepartureService {
 		try {
 			SendDetail queryDetail = new SendDetail();
 			queryDetail.setBoxCode(boxCode);
+			findCreateSiteAndSet(queryDetail);
 			List<SendDetail> sendDatails = new ArrayList<SendDetail>();
 			if (BusinessHelper.isBoxcode(boxCode)) {
 				sendDatails = sendDatailDao
@@ -737,6 +742,17 @@ public class DepartureServiceImpl implements DepartureService {
 			log.error(errMsg,e);
 		}
 		return result;
+	}
+
+	private void findCreateSiteAndSet(SendDetail queryDetail) {
+		try {
+			Box box =boxService.findBoxByCode(queryDetail.getBoxCode());
+			if (ObjectHelper.isNotNull(box) && ObjectHelper.isNotNull(box.getCreateSiteCode())){
+				queryDetail.setCreateSiteCode(box.getCreateSiteCode());
+			}
+		} catch (Exception e) {
+			log.error("查询箱号信息异常:{}",queryDetail.getBoxCode(),e);
+		}
 	}
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
