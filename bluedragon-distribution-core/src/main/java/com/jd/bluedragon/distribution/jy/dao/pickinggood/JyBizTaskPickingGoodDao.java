@@ -84,4 +84,8 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
     public List<String> listAllBizByPickingSiteId(JyPickingTaskBatchQueryDto queryDto) {
         return this.getSqlSession().selectList(NAMESPACE + ".listAllBizByPickingSiteId", queryDto);
     }
+
+    public AirRailTaskCountDto countStatusByCondition(AirRailTaskCountQueryDto countQueryDto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countStatusByCondition", countQueryDto);
+    }
 }

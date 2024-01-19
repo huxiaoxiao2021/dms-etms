@@ -15,12 +15,14 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -166,7 +168,16 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
 
     @Override
     public List<AirRailTaskCountDto> countAllStatusByPickingSiteId(AirRailTaskCountQueryDto countQueryDto) {
-        return jyBizTaskPickingGoodDao.countAllStatusByPickingSiteId(countQueryDto);
+        List<AirRailTaskCountDto> countList = new ArrayList<>();
+        for (PickingGoodStatusEnum statusEnum : PickingGoodStatusEnum.values()) {
+            countQueryDto.setStatus(statusEnum.getCode());
+            AirRailTaskCountDto dto = jyBizTaskPickingGoodDao.countStatusByCondition(countQueryDto);
+
+            dto.setStatus(statusEnum.getCode());
+            dto.setStatusName(statusEnum.getName());
+            countList.add(dto);
+        }
+        return countList;
     }
 
     @Override
@@ -206,6 +217,9 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
 
     @Override
     public List<JyBizTaskPickingGoodSubsidiaryEntity> listBatchInfoByBizId(List<String> bizIdList) {
+        if (CollectionUtils.isEmpty(bizIdList)) {
+            return new ArrayList<>();
+        }
         return jyBizTaskPickingGoodSubsidiaryDao.listBatchInfoByBizId(bizIdList);
     }
 

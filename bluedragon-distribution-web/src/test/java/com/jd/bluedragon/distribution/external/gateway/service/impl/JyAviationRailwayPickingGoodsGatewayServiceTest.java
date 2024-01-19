@@ -141,16 +141,20 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
 
     @Test
     public void listAirRailTaskAggTest() {
-        AirRailTaskAggReq req = new AirRailTaskAggReq();
-        setBaseReq(req);
-        req.setStatus(PickingGoodStatusEnum.TO_PICKING.getCode());
-        req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
-//        req.setPickingNodeCode("bjtz");
-        req.setPageNum(1);
-        req.setPageSize(10);
-        req.setKeyword("910");
-        JdCResponse<AirRailTaskAggRes> response = jyAviationRailwayPickingGoodsGatewayService.listAirRailTaskAgg(req);
-        log.info("listAirRailTaskSummaryTest response {}", JsonHelper.toJson(response));
+        while (true) {
+            AirRailTaskAggReq req = new AirRailTaskAggReq();
+//        setBaseReq(req);
+//        req.setStatus(PickingGoodStatusEnum.TO_PICKING.getCode());
+//        req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+////        req.setPickingNodeCode("bjtz");
+//        req.setPageNum(1);
+//        req.setPageSize(10);
+//        req.setKeyword("910");
+            String json = "{\"currentOperate\":{\"dmsCode\":\"010F002\",\"operateTime\":1705646583995,\"operatorData\":{\"operatorId\":\"66258\",\"operatorTypeCode\":1,\"workGridKey\":\"CDWG00000114002\",\"workStationGridKey\":\"CDGX00000210002\"},\"operatorId\":\"66258\",\"operatorTypeCode\":1,\"orgId\":6,\"orgName\":\"华北\",\"siteCode\":66316,\"siteName\":\"广州富力分拣中心\"},\"groupCode\":\"G00000172001\",\"pageNum\":1,\"pageSize\":30,\"post\":\"AVIATION_RAILWAY_PICKING_GOOD_POSITION\",\"requestId\":\"ff9539782e5b4c72825238aa9863441f\",\"status\":1,\"taskType\":1,\"user\":{\"userCode\":17331,\"userErp\":\"wuyoude\",\"userName\":\"吴有德\"}}";
+            req = JsonHelper.fromJson(json, AirRailTaskAggReq.class);
+            JdCResponse<AirRailTaskAggRes> response = jyAviationRailwayPickingGoodsGatewayService.listAirRailTaskAgg(req);
+            log.info("listAirRailTaskSummaryTest response {}", JsonHelper.toJson(response));
+        }
     }
 
     @Test
