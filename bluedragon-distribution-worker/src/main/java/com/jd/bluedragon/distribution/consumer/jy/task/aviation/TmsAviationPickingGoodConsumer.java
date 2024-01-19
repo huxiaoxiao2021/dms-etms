@@ -191,6 +191,10 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
                     log.error("批次信息中批次提货场地编码为空，航空提货计划无效，不做消费{}", JsonHelper.toJson(mqBody));
                     return false;
                 }
+                if(StringUtils.isBlank(dto.getBeginNodeCode())) {
+                    log.error("批次信息中批次上游发货场地编码为空，航空提货计划无效，不做消费{}", JsonHelper.toJson(mqBody));
+                    return false;
+                }
             }
         }
         return true;
