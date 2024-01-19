@@ -679,12 +679,71 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         if(Objects.equals(spotCheckDto.getPicIsQualify(), Constants.CONSTANT_NUMBER_ONE)){
             return true;
         }
-        // 目前图片不合格的场景：只有图片类型是软包&&超标类型是重量超标会下发，其他场景都不下发
-        return StringUtils.isNotEmpty(spotCheckDto.getPictureAIDistinguishReason())
-                && spotCheckDto.getPictureAIDistinguishReason().contains(SpotCheckConstants.PIC_AI_REASON_RB)
-                && Objects.equals(spotCheckDto.getExcessType(), SpotCheckConstants.EXCESS_TYPE_WEIGHT);
+        // 如果图片不合格并且不是软包类型
+        if (StringUtils.isBlank(spotCheckDto.getPictureAIDistinguishReason())
+                || !spotCheckDto.getPictureAIDistinguishReason().contains(SpotCheckConstants.PIC_AI_REASON_RB)) {
+            return false;
+        }
+        // 如果是重量超标
+        if (SpotCheckConstants.EXCESS_TYPE_WEIGHT.equals(spotCheckDto.getExcessType())) {
+            return true;
+        }
+        // 如果是体积超标
+        if (SpotCheckConstants.EXCESS_TYPE_VOLUME.equals(spotCheckDto.getExcessType())) {
+            // 再次调用称重再造系统接口判断是否超标
+            return checkExcessStatus(spotCheckDto);
+        }
+        return false;
     }
 
+
+    private boolean checkExcessStatus(SpotCheckIssueDetail spotCheckDto) {
+        ReportInfoQuery reportInfoQuery = new ReportInfoQuery();
+        // 运单号
+        reportInfoQuery.setWaybillCode(spotCheckDto.getWaybillCode());
+        // 抽检来源
+        reportInfoQuery.setChannel(SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
+        // 复核重量
+        reportInfoQuery.setMeasureWeight(NumberHelper.formatMoney(spotCheckDto.getReviewWeight()));
+        // 核对体积
+        reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(spotCheckDto.getContrastVolume()));
+        // 再次调用称重再造系统接口判断是否超标
+        CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
+        if (logger.isInfoEnabled()) {
+            logger.info("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回:result={},reportInfoQuery={}", spotCheckDto.getWaybillCode(),
+                    JsonHelper.toJson(commonDTO), JsonHelper.toJson(reportInfoQuery));
+        }
+        if (commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS) || commonDTO.getData() == null) {
+            logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口判断返回失败:result={},不执行下发!", spotCheckDto.getWaybillCode(), JsonHelper.toJson(commonDTO));
+            return false;
+        }
+        ReportInfoDTO reportInfo = commonDTO.getData();
+        // 是否超标标识
+        boolean excessFlag = !SpotCheckConstants.EXCESS_TYPE_BELOW.equals(reportInfo.getExceedType());
+        // 超标状态
+        spotCheckDto.setIsExcess(excessFlag ? ExcessStatusEnum.EXCESS_ENUM_YES.getCode() : ExcessStatusEnum.EXCESS_ENUM_NO.getCode());
+        // 超标类型
+        spotCheckDto.setExcessType(reportInfo.getExceedType());
+        // 复核体积取第一次的核对体积
+        spotCheckDto.setReviewVolume(spotCheckDto.getContrastVolume());
+        // 核对重量取第二次返回的核对重量
+        spotCheckDto.setContrastWeight(reportInfo.getRecheckWeight() == null ? null : MathUtils.keepScale(Double.parseDouble(reportInfo.getRecheckWeight()), 2));
+        // 复核长宽高清空
+        spotCheckDto.setReviewLWH(Constants.EMPTY_FILL);
+        // 未超标或体积超标，不下发，只更新抽检统计报表
+        if (SpotCheckConstants.EXCESS_TYPE_BELOW.equals(reportInfo.getExceedType()) || SpotCheckConstants.EXCESS_TYPE_VOLUME.equals(reportInfo.getExceedType())) {
+            logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回超标类型为:{},不执行下发!", spotCheckDto.getWaybillCode(), reportInfo.getExceedType());
+            WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = new WeightVolumeSpotCheckDto();
+            BeanUtils.copyProperties(spotCheckDto, weightVolumeSpotCheckDto);
+            spotCheckServiceProxy.insertOrUpdateProxyReform(weightVolumeSpotCheckDto);
+            return false;
+        }
+        // 重量超标则下传至称重再造系统，并且更新抽检统计报表
+        if (SpotCheckConstants.EXCESS_TYPE_WEIGHT.equals(reportInfo.getExceedType())) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 构建并下发数据
