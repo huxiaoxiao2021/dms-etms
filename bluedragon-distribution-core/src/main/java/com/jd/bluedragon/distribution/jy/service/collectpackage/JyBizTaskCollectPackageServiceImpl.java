@@ -32,6 +32,7 @@ import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
 import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -331,8 +332,15 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         List<Sorting> sortings = sortingService.findByPackageCode(cancelCollectPackageDto.getSiteCode(), cancelCollectPackageDto.getPackageCode());
         if (!CollectionUtils.isEmpty(sortings)) {
             for (Sorting sorting : sortings) {
-                if (sorting.getBoxCode().equals(cancelCollectPackageDto.getBoxCode()) && Constants.NUMBER_ZERO.equals(sorting.getIsCancel())) {
-                    return false;
+                // 新增，按包裹号取消集包（cancelCollectPackageDto的box箱号为空）
+                if (StringUtils.isEmpty(cancelCollectPackageDto.getBoxCode())){
+                    if (sorting.getPackageCode().equals(cancelCollectPackageDto.getPackageCode()) && Constants.NUMBER_ZERO.equals(sorting.getIsCancel())) {
+                        return false;
+                    }
+                }else {
+                    if (sorting.getBoxCode().equals(cancelCollectPackageDto.getBoxCode()) && Constants.NUMBER_ZERO.equals(sorting.getIsCancel())) {
+                        return false;
+                    }
                 }
             }
         }
