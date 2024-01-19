@@ -1787,7 +1787,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             sendScanResponse.setFirstScan(firstScanFlag);
             sendScanResponse.setSendDetailBizId(curSendDetail.getBizId());
             sendScanResponse.setCreateTime(curSendDetail.getCreateTime());
-            sendScanResponse.setScanPackCount(this.calculateScanPackageCount(request, sendType));
+            //填充包裹计数字段
+            this.fillCalculateScanPackageCountFiled(request, sendType,sendScanResponse);
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(curSendDetail.getEndSiteId().intValue());
             sendScanResponse.setCurScanDestId(curSendDetail.getEndSiteId());
             sendScanResponse.setCurScanDestName(baseSite.getSiteName());
@@ -2360,21 +2361,32 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 统计本次扫描的包裹数量
+     * 本次扫描的运单下包裹总数
      *
      * @param request
      * @param sendType
      */
-    private Integer calculateScanPackageCount(SendScanRequest request, SendKeyTypeEnum sendType) {
+    private void fillCalculateScanPackageCountFiled(SendScanRequest request, SendKeyTypeEnum sendType,SendScanResponse sendScanResponse) {
         String barCode = request.getBarCode();
         Integer scanCount = 0;
         switch (sendType) {
             case BY_PACKAGE:
                 scanCount = 1;
+                int packNum = WaybillUtil.getPackNumByPackCode(barCode);
+                if(packNum <= 0){
+                    Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(barCode));
+                    if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
+                        sendScanResponse.setScanWaybillPackSum(waybill.getGoodNumber());
+                    }
+                }else {
+                    sendScanResponse.setScanWaybillPackSum(packNum);
+                }
                 break;
             case BY_WAYBILL:
                 Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(barCode);
                 if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
                     scanCount = waybill.getGoodNumber();
+                    sendScanResponse.setScanWaybillPackSum(waybill.getGoodNumber());
                 }
                 break;
             case BY_BOX:
@@ -2391,7 +2403,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 break;
         }
 
-        return scanCount;
+        sendScanResponse.setScanPackCount(scanCount);
     }
 
     private int getPackageNumFromPackOrBoxCodes(List<String> packOrBoxCodes, Integer siteCode) {

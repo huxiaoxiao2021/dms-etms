@@ -1066,6 +1066,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @return 响应的参数描述
      */
     private void fillResponseFileld(UnloadScanRequest request , JdVerifyResponse<UnLoadScanResponse> result, UnloadScanContextDto unloadScanContextDto) {
+        UnLoadScanResponse response = new UnLoadScanResponse();
+
         String barCode = request.getBarCode();
         if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
             barCode = WaybillUtil.getWaybillCode(request.getBarCode());
@@ -1076,10 +1078,16 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (WaybillUtil.isPackageCode(barCode)) {
             waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(barCode));
             scanCount = 1;
+            //运单包裹数
+            if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
+                response.setScanWaybillPackSum(waybill.getGoodNumber());
+            }
         } else if (WaybillUtil.isWaybillCode(barCode)) {
             waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(barCode);
             if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
                 scanCount = waybill.getGoodNumber();
+                //运单包裹数
+                response.setScanWaybillPackSum(waybill.getGoodNumber());
             }
         } else if (BusinessHelper.isBoxcode(barCode)) {
             CallerInfo inlineUmp = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleService.unloadScan.getCancelSendByBox");
@@ -1090,7 +1098,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             }
         }
         unloadScanContextDto.setWaybill(waybill);
-        UnLoadScanResponse response = new UnLoadScanResponse();
         response.setScanPackCount(scanCount);
         result.setData(response);
     }
