@@ -60,8 +60,6 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
-
 /**
  * 快递弃件暂存
  *
