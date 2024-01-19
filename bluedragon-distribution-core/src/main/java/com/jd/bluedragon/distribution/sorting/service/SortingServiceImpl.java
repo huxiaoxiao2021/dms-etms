@@ -1530,7 +1530,11 @@ public class SortingServiceImpl implements SortingService {
 		} else {
 			// 新增：安检岗触发的取消集包，查询待取消集包记录,不用检验是否发货。
 			if (Objects.nonNull(sorting.getConditionCheck()) && sorting.getConditionCheck()){
-				sortingRecords.addAll(queryByCode3(sorting));
+				List<Sorting> sortingList = queryByCode3(sorting);
+				sortingList.forEach(dbSorting -> {
+					dbSorting.setCurrentSiteCode(sorting.getCurrentSiteCode());
+				});
+				sortingRecords.addAll(sortingList);
 				return SortingResponse.ok();
 			}
 			// 老版按包裹取消集包时，查询待取消集包记录带发货校验
