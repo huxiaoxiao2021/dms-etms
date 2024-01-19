@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.base.service;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.core.jsf.tenant.TenantManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
@@ -28,6 +30,9 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.position.PositionData;
+import com.jdl.basic.api.domain.tenant.JyConfigDictTenant;
+import com.jdl.basic.common.utils.Result;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -36,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 
@@ -98,6 +104,10 @@ public abstract class AbstractBaseUserService implements LoginService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+    @Autowired
+    private PositionManager positionManager;
+    @Resource
+    private TenantManager tenantManager;
 
     @Override
     @JProfiler(jKey = "DMS.BASE.AbstractBaseUserService.clientLoginIn", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -151,13 +161,6 @@ public abstract class AbstractBaseUserService implements LoginService {
             response.setSiteSortSubType(dtoStaff.getSortSubType());
             response.setSiteSortThirdType(dtoStaff.getSortThirdType());
         }
-        //租户编码 todo 怎么区分新版旧版，这里按场地码是否为空
-        if(StringUtils.isNotBlank(request.getPositionCode())){
-
-        }else{
-
-        }
-        response.setT
     }
 
 
@@ -282,9 +285,30 @@ public abstract class AbstractBaseUserService implements LoginService {
             // 省区
             response.setProvinceAgencyCode(loginResult.getProvinceAgencyCode());
             response.setProvinceAgencyName(loginResult.getProvinceAgencyName());
+            //租户编码
+            JyConfigDictTenant tenant = tenantManager.getTenantBySiteCode(getQuerySiteCode(request.getPositionCode(),response.getSiteCode()));
+            if(tenant != null){
+                response.setTenantCode(tenant.getBelongTenantCode());
+            }
             // 返回结果
             return response;
         }
+    }
+    /**
+     * 获取查询站点代码
+     *  todo 怎么区分新版旧版，这里按场地码是否为空
+     * @param positionCode 职位代码
+     * @param erpSiteCode ERP站点代码
+     * @return Integer 返回站点代码
+     */
+    private Integer getQuerySiteCode(String positionCode,Integer erpSiteCode){
+        if(StringUtils.isNotBlank(positionCode)){
+            Result<PositionData> apiResult = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
+            if(apiResult != null && apiResult.isSuccess() && apiResult.getData() != null && apiResult.getData().getSiteCode() != null){
+                return apiResult.getData().getSiteCode();
+            }
+        }
+        return erpSiteCode;
     }
 
     /**

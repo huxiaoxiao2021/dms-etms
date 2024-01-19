@@ -1,5 +1,7 @@
 package com.jd.bluedragon.core.jsf.tenant;
 
+import com.jdl.basic.api.domain.tenant.JyConfigDictTenant;
+
 /**
  * @author : caozhixing3
  * @version V1.0
@@ -10,4 +12,10 @@ package com.jd.bluedragon.core.jsf.tenant;
  */
 public interface TenantManager {
 
+    /**
+     * 根据站点代码获取租户信息
+     * @param siteCode 站点代码
+     * @return JyConfigDictTenant 返回对应的租户信息
+     */
+    JyConfigDictTenant getTenantBySiteCode(Integer siteCode);
 }
