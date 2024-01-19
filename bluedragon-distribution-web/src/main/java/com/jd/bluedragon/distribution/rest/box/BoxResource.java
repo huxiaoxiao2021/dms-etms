@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.box;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -27,6 +28,12 @@ import com.jd.bluedragon.distribution.external.constants.BoxStatusEnum;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.dms.utils.BoxCodeUtil;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -106,6 +113,9 @@ public class BoxResource {
 
     @Autowired
     private DmsConfigManager dmsConfigManager;
+
+    @Autowired
+    private SortingService sortingService;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -802,5 +812,28 @@ public class BoxResource {
     }
 
 
+    /**
+     * 获取箱号信息
+     * 支持按箱号 包裹号查询
+     * @param barCode
+     * @return
+     */
+    @GET
+    @Path("/boxes/getByBarcode/{barCode}")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.getByBarCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BoxResponse getByBarCode(@PathParam("barCode") String barCode) {
+        if (StringUtils.isEmpty(barCode) && !WaybillUtil.isPackageCode(barCode) && !BusinessUtil.isBoxcode(barCode)) {
+            return this.paramError();
+        }
+        if (WaybillUtil.isPackageCode(barCode)) {
+            // 根据包裹号获取箱号
+            SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(barCode);
+            if (sortingDto == null || StringUtils.isEmpty(sortingDto.getBoxCode())) {
+                return this.boxNoFound();
+            }
+            barCode = sortingDto.getBoxCode();
+        }
+        return this.get(barCode);
+    }
 
 }
