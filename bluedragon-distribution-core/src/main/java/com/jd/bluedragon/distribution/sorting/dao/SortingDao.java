@@ -195,4 +195,12 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
     public Sorting findLastSortingByPackageCode(Sorting sorting) {
         return this.getSqlSession().selectOne(namespace + ".findLastSortingByPackageCode", sorting);
     }
+
+    public int batchDelete(List<Sorting> sortingList) {
+        return this.getSqlSession().update(namespace +".batchDelete",sortingList);
+    }
+
+    public int batchAdd(List<Sorting> sortingList) {
+        return this.getSqlSession().insert(namespace +".batchAdd",sortingList);
+    }
 }

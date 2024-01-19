@@ -104,6 +104,14 @@ public class BusinessUtil {
         }
         return isMatchBoxCode(s);
     }
+
+
+    public static Boolean isWMSBoxcode(String s) {
+        if (isBoxcode(s) && s.startsWith("BW")){
+            return true;
+        }
+        return false;
+    }
     public static Boolean isStoreCode(String s) {
         if (StringUtils.isEmpty(s)) {
             return Boolean.FALSE;
@@ -2693,12 +2701,7 @@ public class BusinessUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(BusinessUtil.isCollectionBag("AD12345678901234"));
-        System.out.println(BusinessUtil.isCollectionBag("ADAD123456789012"));
-        System.out.println(BusinessUtil.isCollectionBag("ADAC123456789012"));
-        System.out.println(BusinessUtil.isCollectionBag("ADAD1234567890123"));
-        System.out.println(BusinessUtil.isCollectionBag("ADAD12345678901C"));
-        System.out.println(BusinessUtil.isCollectionBag("AD1234567890123C"));
+        System.out.println(BusinessUtil.isWMSBoxcode("BW1004240117250000100109"));
     }
 
     public static boolean isTaskSimpleCode(String simpleCode) {

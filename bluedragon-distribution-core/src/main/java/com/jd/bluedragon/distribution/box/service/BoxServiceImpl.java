@@ -1176,10 +1176,7 @@ public class BoxServiceImpl implements BoxService {
 	 * @return
 	 */
 	private boolean checkBoxIfCanUpdate(UpdateBoxReq request, BoxResponse response) {
-		Box query =new Box();
-		query.setCode(request.getBoxCode());
-		query.setCreateSiteCode(request.getCreateSiteCode());
-		Box box =boxDao.findBoxByBoxCode(query);
+		Box box =boxDao.findBoxByCode(request.getBoxCode());
 		if (ObjectHelper.isEmpty(box)){
 			response.toError("未找到对应的箱号！");
 			return false;
@@ -1202,12 +1199,14 @@ public class BoxServiceImpl implements BoxService {
 		}
 
 
-		BaseStaffSiteOrgDto baseStaffSiteOrgDto =basicPrimaryWS.getBaseSiteBySiteId(request.getReceiveSiteCode());
-		if (ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsName())){
-			response.toError("未获取到目的场地信息！");
-			return false;
+		if (ObjectHelper.isEmpty(request.getReceiveSiteName())){
+			BaseStaffSiteOrgDto baseStaffSiteOrgDto =basicPrimaryWS.getBaseSiteBySiteId(request.getReceiveSiteCode());
+			if (ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsName())){
+				response.toError("未获取到目的场地信息！");
+				return false;
+			}
+			request.setReceiveSiteName(baseStaffSiteOrgDto.getSiteName());
 		}
-		request.setReceiveSiteName(baseStaffSiteOrgDto.getSiteName());
 
 		return true;
 	}
