@@ -136,7 +136,7 @@ public class DiscardedStorageSortingScrapHandler extends DiscardedStorageAbstrac
             taskService.add(genScrapTraceTask(context.getScanDiscardedPackagePo(), waybillCode));
             // 发送bd_blocker_complete的MQ
             String sendPay = context.getBigWaybillDto().getWaybill().getSendPay();
-            if (BusinessUtil.isSx(sendPay)) {
+            if (BusinessUtil.isSx(sendPay) || BusinessUtil.isColdChainExpressScrap(context.getBigWaybillDto().getWaybill().getWaybillSign())) {
                 String mqData = BusinessUtil.bdBlockerCompleteMQ(waybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_BAOFEI, DateHelper.formatDateTimeMs(new Date()));
                 this.bdBlockerCompleteMQ.send(waybillCode, mqData);
             }
