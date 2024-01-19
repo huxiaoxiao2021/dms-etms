@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.dto.BaseStaffData;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.FuncUsageConfigService;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
@@ -60,6 +61,9 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
     @Autowired
     @Qualifier("baseService")
     private BaseService baseService;
+
+    @Autowired
+    private FuncUsageConfigService funcUsageConfigService;
 
     @Autowired
     private IHintApiUnwrapManager hintApiUnwrapManager;
@@ -171,7 +175,7 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
         JdCResponse<GlobalFuncUsageControlDto> response = new JdCResponse<>();
         response.toSucceed();
         try {
-            final GlobalFuncUsageControlDto globalFuncUsageControlConfig = baseService.getGlobalFuncUsageControlConfig(funcUsageConfigRequestDto);
+            final GlobalFuncUsageControlDto globalFuncUsageControlConfig = funcUsageConfigService.getGlobalFuncUsageControlConfig(funcUsageConfigRequestDto);
             response.setData(globalFuncUsageControlConfig);
         } catch (Exception e) {
             log.error("BaseDataGatewayServiceImpl.getGlobalFuncUsageControlConfig exception ", e);
@@ -193,7 +197,7 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
         JdCResponse<FuncUsageProcessDto> response = new JdCResponse<>();
         response.toSucceed();
         try {
-            final FuncUsageProcessDto funcUsageConfigDto = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
+            final FuncUsageProcessDto funcUsageConfigDto = funcUsageConfigService.getFuncUsageConfig(funcUsageConfigRequestDto);
             response.setData(funcUsageConfigDto);
         } catch (Exception e) {
             log.error("BaseDataGatewayServiceImpl.getFuncUsageConfig exception ", e);
