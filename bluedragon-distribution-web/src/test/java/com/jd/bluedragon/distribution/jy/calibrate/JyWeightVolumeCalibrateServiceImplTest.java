@@ -7,18 +7,25 @@ import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolum
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateTaskResult;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateTypeEnum;
+import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.service.calibrate.JyWeightVolumeCalibrateService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckIssueDetail;
+import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
+import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
+import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
@@ -26,6 +33,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类的描述
@@ -43,7 +51,10 @@ public class JyWeightVolumeCalibrateServiceImplTest {
 
     @Autowired
     private SpotCheckDealService spotCheckDealService;
-    
+
+    @Autowired
+    private SpotCheckQueryManager spotCheckQueryManager;
+
     @Test
     public void executeIssueOfCompensate() {
         try {
@@ -150,7 +161,7 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             Assert.fail();
         }
     }
-    
+
     @Autowired
     private JyBizTaskComboardService jyBizTaskComboardService;
 
@@ -183,11 +194,11 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             start = System.currentTimeMillis();
             jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
             System.out.println("有缓存耗时：" + (System.currentTimeMillis() - start));
-            
+
             String s = redisClientCache.get("JyBizTaskComboardServiceImpl.boardCountTaskBySendFlowListWithCache-templateCode1");
 
             jyBizTaskComboardService.removeBoardCountCache("templateCode1");
-            
+
             start = System.currentTimeMillis();
             jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
             System.out.println("无缓存耗时：" + (System.currentTimeMillis() - start));
@@ -200,12 +211,33 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
             System.out.println("无缓存耗时：" + (System.currentTimeMillis() - start));
 
-            
+
 
             jyBizTaskComboardService.boardCountTaskBySendFlowListWithCache(boardCountReq);
 
             s = redisClientCache.get("JyBizTaskComboardServiceImpl.boardCountTaskBySendFlowListWithCache-templateCode1");
 
+            Assert.assertTrue(true);
+        }catch (Exception e){
+            log.error("服务异常!", e);
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testExecuteIssue() {
+        try {
+            SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
+            condition.setWaybillCode("JDVA00302268274");
+            condition.setReviewSiteCode(910);
+            condition.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
+            condition.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
+            List<WeightVolumeSpotCheckDto> spotCheckDtoList = spotCheckQueryManager.querySpotCheckByCondition(condition);
+            // 下发数据处理
+            WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = spotCheckDtoList.get(0);
+            SpotCheckIssueDetail issueDetail = new SpotCheckIssueDetail();
+            BeanUtils.copyProperties(weightVolumeSpotCheckDto, issueDetail);
+            spotCheckDealService.executeIssue(issueDetail);
             Assert.assertTrue(true);
         }catch (Exception e){
             log.error("服务异常!", e);
