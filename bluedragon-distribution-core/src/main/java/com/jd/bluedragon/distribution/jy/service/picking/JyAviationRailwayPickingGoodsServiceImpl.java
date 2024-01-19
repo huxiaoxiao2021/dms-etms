@@ -1001,6 +1001,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             dto.setNoTaskFlag(Constants.NUMBER_ONE.equals(task.getManualCreatedFlag()));
             dto.setNodePlanArriveTime(task.getNodePlanArriveTime());
             dto.setNodeRealArriveTime(task.getNodeRealArriveTime());
+            dto.setPickingCompleteTime(task.getPickingCompleteTime());
             dto.setServiceNumber(task.getServiceNumber());
 
             List<JyBizTaskPickingGoodSubsidiaryEntity> batchInfoList = batchInfoGroupedByBizId.get(task.getBizId());
