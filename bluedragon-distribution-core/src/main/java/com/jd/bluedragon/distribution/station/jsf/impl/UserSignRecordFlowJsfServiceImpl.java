@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.jd.fastjson.JSON;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,14 +20,11 @@ import org.springframework.util.CollectionUtils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
-import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.core.base.FlowServiceManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
-import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
-import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.station.api.UserSignRecordFlowJsfService;
@@ -161,7 +157,7 @@ public class UserSignRecordFlowJsfServiceImpl implements UserSignRecordFlowJsfSe
 
 		// 提交申请单
 		String flowWorkNo = flowServiceManager.startFlow(oaMap, businessMap, null,
-		        FlowConstants.FLOW_CODE_SIGN_MODIFY, addRequest.getOperateUserCode(), flowKey);
+		        FlowConstants.FLOW_CODE_SIGN_MODIFY, addRequest.getOperateUserCode(), flowKey, null);
 		signData.setRefFlowBizCode(flowWorkNo);
 		if(flowWorkNo != null) {
 			log.info("签到流程发起成功！工单号={},业务单号={}",flowWorkNo,flowKey);

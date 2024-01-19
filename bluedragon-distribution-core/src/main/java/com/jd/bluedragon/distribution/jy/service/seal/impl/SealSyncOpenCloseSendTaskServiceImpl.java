@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleServic
 import com.jd.bluedragon.distribution.jy.service.task.enums.JySendTaskTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -57,11 +58,14 @@ public class SealSyncOpenCloseSendTaskServiceImpl implements SealSyncOpenCloseSe
             }
             return true;
         }
-        if(!Constants.NUMBER_ONE.equals(sendCodeEntityList.size())) {
-            logger.error("正常场景一个批次号反查只会查到一个任务，查到多个不确定处理哪个直接丢弃，param={},res={}", JsonHelper.toJson(param), JsonHelper.toJson(sendCodeEntityList));
-            return true;
-        }
-        JySendCodeEntity jySendCodeEntity = sendCodeEntityList.get(0);
+        sendCodeEntityList.forEach(entity -> {
+            this.sealSyncTaskExecute(entity, param);
+        });
+        Profiler.registerInfoEnd(info);
+        return true;
+    }
+
+    private boolean sealSyncTaskExecute(JySendCodeEntity jySendCodeEntity, SealSyncOpenCloseSendTaskDto param) {
         JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(jySendCodeEntity.getSendVehicleBizId());
         if(Objects.isNull(taskSend) || Constants.NUMBER_ZERO.equals(taskSend.getYn())) {
             if(logger.isInfoEnabled()) {
@@ -79,8 +83,6 @@ public class SealSyncOpenCloseSendTaskServiceImpl implements SealSyncOpenCloseSe
                 return false;
             }
         }
-
-        Profiler.registerInfoEnd(info);
         return true;
     }
 
