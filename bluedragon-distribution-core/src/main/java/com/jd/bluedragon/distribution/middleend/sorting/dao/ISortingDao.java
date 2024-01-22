@@ -67,7 +67,7 @@ public interface ISortingDao {
      * @param sorting
      * @return
      */
-    List<Sorting> queryByCode3(Sorting sorting);
+    List<Sorting> querySortingByCode(Sorting sorting);
 
     /**
      * 根据批次号查询分拣明细

@@ -55,6 +55,7 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
 import com.jd.bluedragon.distribution.sorting.domain.SortingQuery;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
+import com.jd.bluedragon.distribution.sorting.dto.CancelSortingOffsiteDto;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
@@ -1147,9 +1148,9 @@ public class SortingServiceImpl implements SortingService {
      * @param sorting
      * @return
      */
-	public List<Sorting> queryByCode3(Sorting sorting) {
+	public List<Sorting> querySortingByCode(Sorting sorting) {
 		this.log.debug("获取包裹信息 --> 根据订单号或包裹号查询箱号、创建站点、接收站点");
-		return this.dynamicSortingQueryDao.queryByCode3(sorting);
+		return this.dynamicSortingQueryDao.querySortingByCode(sorting);
 	}
 
 	/**
@@ -1160,6 +1161,35 @@ public class SortingServiceImpl implements SortingService {
 		// sorting & send_d ---> cancel=1
 		boolean result = this.canCancelSorting2(sorting);
 
+		if (Constants.BUSSINESS_TYPE_THIRD_PARTY == sorting.getType()) {
+			// 更新三方验货异常比对表，由少验修改为正常
+			this.canCancelInspectionEC(sorting);
+		}
+		return result;
+	}
+
+    /**
+     * 判断是否可以取消外站发货
+     * @param sorting 分拣对象
+     * @param currentSiteCode 当前站点代码
+     * @return 是否可以取消外站发货的布尔值
+     */
+	public Boolean canCancelOffsite(Sorting sorting, Integer currentSiteCode) {
+		// sorting & send_d ---> cancel=1
+		boolean result = this.sortingDao.canCancel2(sorting)
+			&& this.deliveryService.canCancel2(this.parseSendDetail(sorting));
+		if(log.isInfoEnabled()) {
+			log.info("SortingServiceImpl.canCancelOffsite 取消发货处理取消建箱逻辑，sorting={},result={}", JsonHelper.toJson(sorting), result);
+		}
+		if (result) {
+			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelOffsite");
+			//发送取消建箱全程跟踪，MQ
+			sorting.setCreateSiteCode(currentSiteCode);
+			this.sendSortingCancelWaybillTrace(sorting);
+			JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
+			sortingCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING_CANCEL.getCode());
+			jyOperateFlowService.sendMq(sortingCancelFlowMq);
+		}
 		if (Constants.BUSSINESS_TYPE_THIRD_PARTY == sorting.getType()) {
 			// 更新三方验货异常比对表，由少验修改为正常
 			this.canCancelInspectionEC(sorting);
@@ -1433,10 +1463,6 @@ public class SortingServiceImpl implements SortingService {
 			String boxCode = sorting.getBoxCode();
 			String packageCode = sorting.getPackageCode();
 			Integer createSiteCode = sorting.getCreateSiteCode();
-			// 新增：安检岗触发取消集包，全程跟踪的站点为安检岗当前操作的站点
-			if (Objects.nonNull(sorting.getCurrentSiteCode())){
-				createSiteCode = sorting.getCurrentSiteCode();
-			}
 
 			WaybillStatus waybillStatus = new WaybillStatus();
 			//设置站点相关属性
@@ -1500,6 +1526,96 @@ public class SortingServiceImpl implements SortingService {
                 HintService.getHint(HintCodeConstants.NO_SORTING_RECORD));
 	}
 
+    /**
+     * 取消集包-当前操作场地和实际集包场地不同时取消集包
+     * @param cancelSortingOffsiteDto 异场地取消集包
+     * @return sortingResponse
+     */
+	@Override
+	public SortingResponse doCancelSortingOffsite(CancelSortingOffsiteDto cancelSortingOffsiteDto){
+		if(log.isInfoEnabled()){
+			log.info("SortingServiceImpl.doCancelSortingOffsite 异场地取消集包：{}", JsonHelper.toJson(cancelSortingOffsiteDto));
+		}
+		List<Sorting> sortingRecords = new ArrayList<Sorting>();
+
+		SortingResponse response = getSortingRecordsOffsite(cancelSortingOffsiteDto, sortingRecords);
+		if(!response.getCode().equals(SortingResponse.CODE_OK)){
+			return response;
+		}
+
+		Boolean canCancel = false;
+        for (Sorting eachSorting : sortingRecords) {
+            eachSorting.setOperateTime(cancelSortingOffsiteDto.getOperateTime());
+            eachSorting.setUpdateUserCode(cancelSortingOffsiteDto.getUpdateUserCode());
+            eachSorting.setUpdateUser(cancelSortingOffsiteDto.getUpdateUser());
+            canCancel |= canCancelOffsite(eachSorting, cancelSortingOffsiteDto.getCurrentSiteCode());
+        }
+
+        if(canCancel){
+			return SortingResponse.ok();
+		}
+		return new SortingResponse(SortingResponse.CODE_SORTING_RECORD_NOT_FOUND,
+			HintService.getHint(HintCodeConstants.NO_SORTING_RECORD));
+	}
+
+    /**
+     * 获取集包记录-在操作场地和集包场地不一致时获取集包记录，不进行发货校验
+     *
+     * @param cancelSortingOffsiteDto 取消外场分拣DTO
+     * @param sortingRecords 分拣记录列表
+     * @return 分拣响应对象
+     */
+	private SortingResponse getSortingRecordsOffsite(CancelSortingOffsiteDto cancelSortingOffsiteDto, List<Sorting> sortingRecords) {
+		if (StringUtils.isNotBlank(cancelSortingOffsiteDto.getBoxCode())) {
+			// 若三方分拣，校验是否验货，若已经验货，则提示不能取消
+			if (cancelSortingOffsiteDto.getType() == Constants.BUSSINESS_TYPE_THIRD_PARTY) {
+				Inspection inspection = new Inspection.Builder(null, cancelSortingOffsiteDto.getCreateSiteCode())
+					.boxCode(cancelSortingOffsiteDto.getBoxCode()).inspectionType(cancelSortingOffsiteDto.getType()).build();
+				int inspectionCount = inspectionService.inspectionCount(inspection);
+				if (inspectionCount > 0) {
+					return new SortingResponse(SortingResponse.CODE_SORTING_INSPECTED,
+						HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_INSPECTING));
+				}
+			}
+			sortingRecords.addAll(sortingDao.findByBoxCode(cancelSortingOffsiteDto));
+			if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
+				log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",cancelSortingOffsiteDto.getPackageCode(),sortingRecords.size());
+				return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
+					HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
+			}
+		} else {
+			// 安检岗触发的取消集包，查询待取消集包记录,不用检验是否发货。
+			sortingRecords.addAll(querySortingByCode(cancelSortingOffsiteDto));
+			if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
+				log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",cancelSortingOffsiteDto.getPackageCode(),sortingRecords.size());
+				return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
+					HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
+			}
+			if (Constants.BUSSINESS_TYPE_THIRD_PARTY == cancelSortingOffsiteDto.getType()) {
+				int unfilledOrdersCount = 0;
+				for (Sorting eachSorting : sortingRecords) {
+					// 如果已经验货，则exception_status为0，则不能取消分拣，需要在异常处理里进行少验取消的操作
+					InspectionEC inspectionEC = new InspectionEC.Builder(eachSorting.getPackageCode(),
+						eachSorting.getCreateSiteCode()).waybillCode(eachSorting.getWaybillCode())
+						.boxCode(eachSorting.getBoxCode()).receiveSiteCode(eachSorting.getReceiveSiteCode())
+						.inspectionType(eachSorting.getType()).inspectionECType(InspectionEC.INSPECTIONEC_TYPE_MORE)
+						.yn(1).build();
+					Integer inspectionCount = inspectionExcpetionService.inspectionCount(inspectionEC);
+
+					if (inspectionCount > 0) {
+						unfilledOrdersCount++;
+						addOpetationLog(cancelSortingOffsiteDto, OperationLog.LOG_TYPE_SORTING_CANCEL, "已经三方验货或者差异处理","SortingServiceImpl#getSortingRecords");
+					}
+				}
+				if (unfilledOrdersCount == sortingRecords.size()) {
+					return new SortingResponse(SortingResponse.CODE_SORTING_INSPECTED,
+						HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_INSPECTING));
+				}
+			}
+		}
+		return SortingResponse.ok();
+	}
+
 	public SortingResponse getSortingRecords(Sorting sorting,List<Sorting> sortingRecords){
 		if (StringUtils.isNotBlank(sorting.getBoxCode())) {
 			// 校验是否发货，如果已经发货，则提示不能取消分拣
@@ -1528,16 +1644,6 @@ public class SortingServiceImpl implements SortingService {
                         HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
 			}
 		} else {
-			// 新增：安检岗触发的取消集包，查询待取消集包记录,不用检验是否发货。
-			if (Objects.nonNull(sorting.getConditionCheck()) && sorting.getConditionCheck()){
-				List<Sorting> sortingList = queryByCode3(sorting);
-				sortingList.forEach(dbSorting -> {
-					dbSorting.setCurrentSiteCode(sorting.getCurrentSiteCode());
-				});
-				sortingRecords.addAll(sortingList);
-				return SortingResponse.ok();
-			}
-			// 老版按包裹取消集包时，查询待取消集包记录带发货校验
 			sortingRecords.addAll(queryByCode2(sorting));
 			if (sortingRecords == null || sortingRecords.isEmpty()) {
 				log.warn("取消分拣--->包裹已经发货");

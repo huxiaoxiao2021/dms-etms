@@ -120,8 +120,8 @@ public class DynamicSortingQueryDao implements ISortingDao{
      * @param sorting
      * @return
      */
-    public List<Sorting> queryByCode3(Sorting sorting){
-        return selectDao(sorting.getCreateSiteCode()).queryByCode3(sorting);
+    public List<Sorting> querySortingByCode(Sorting sorting){
+        return selectDao(sorting.getCreateSiteCode()).querySortingByCode(sorting);
     }
 
     /**

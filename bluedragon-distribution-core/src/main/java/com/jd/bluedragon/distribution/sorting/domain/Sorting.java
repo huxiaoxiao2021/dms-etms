@@ -129,14 +129,7 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
      * 操作信息对象
      */
 	private OperatorData operatorData;
-    /**
-     * 当前正在操作的场地code
-     */
-    private Integer currentSiteCode;
-    /**
-     * 是否跳过取消集包之前的检查条件，默认为：false    false-不跳过  true-跳过
-     */
-    private Boolean conditionCheck = false;
+
 
     public Sorting() {
         super();
@@ -490,9 +483,6 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         sorting.setOperatorTypeCode(operatorData.getOperatorTypeCode());
         sorting.setOperatorId(operatorData.getOperatorId());
         sorting.setOperatorData(operatorData);
-        // 安检岗异常上报，取消集包，组装参数
-        sorting.setConditionCheck(request.getConditionCheck());
-        sorting.setCurrentSiteCode(request.getCurrentSiteCode());
         return sorting;
     }
     
@@ -761,19 +751,4 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
 		this.operatorData = operatorData;
 	}
 
-    public Integer getCurrentSiteCode() {
-        return currentSiteCode;
-    }
-
-    public void setCurrentSiteCode(Integer currentSiteCode) {
-        this.currentSiteCode = currentSiteCode;
-    }
-
-    public Boolean getConditionCheck() {
-        return conditionCheck;
-    }
-
-    public void setConditionCheck(Boolean conditionCheck) {
-        this.conditionCheck = conditionCheck;
-    }
 }

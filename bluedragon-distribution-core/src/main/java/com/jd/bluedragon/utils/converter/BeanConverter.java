@@ -324,10 +324,6 @@ public class BeanConverter {
 		mqData.setOperateKey(StringHelper.getStringValue(sorting.getId()));
 		mqData.setOperateTime(sorting.getOperateTime());
 		mqData.setOperateSiteCode(sorting.getCreateSiteCode());
-		// 新增：安检岗触发取消集包，操作流水的站点为安检岗当前操作的站点
-		if(Objects.nonNull(sorting.getCurrentSiteCode())){
-			mqData.setOperateSiteCode(sorting.getCurrentSiteCode());
-		}
 		JyOperateFlowData data = new JyOperateFlowData();
 		data.setOperatorData(sorting.getOperatorData());
 		mqData.setJyOperateFlowData(data);

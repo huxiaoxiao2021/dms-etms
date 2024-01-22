@@ -23,7 +23,7 @@ public class CancelCollectPackageDto implements Serializable {
     /**
      * 是否跳过取消集包之前的检查条件，默认为：false    false-不跳过  true-跳过
      */
-    private Boolean conditionCheck;
+    private Boolean skipSendCheck;
 
     public String getBizId() {
         return bizId;
@@ -105,11 +105,11 @@ public class CancelCollectPackageDto implements Serializable {
         this.currentSiteCode = currentSiteCode;
     }
 
-    public Boolean getConditionCheck() {
-        return conditionCheck;
+    public Boolean getSkipSendCheck() {
+        return skipSendCheck;
     }
 
-    public void setConditionCheck(Boolean conditionCheck) {
-        this.conditionCheck = conditionCheck;
+    public void setSkipSendCheck(Boolean skipSendCheck) {
+        this.skipSendCheck = skipSendCheck;
     }
 }

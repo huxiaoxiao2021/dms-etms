@@ -301,7 +301,7 @@
 	</select>
 
 	<!--按包裹取消分拣正向模块取数,此版本，不进行发货校验 -->
-	<select id="queryByCode3" resultMap="sorting" parameterType="sorting">
+	<select id="querySortingByCode" resultMap="sorting" parameterType="sorting">
 		SELECT
 		box_code, create_site_code, receive_site_code, package_code,
 		waybill_code, sorting_type, update_user_code, update_user, spare_reason

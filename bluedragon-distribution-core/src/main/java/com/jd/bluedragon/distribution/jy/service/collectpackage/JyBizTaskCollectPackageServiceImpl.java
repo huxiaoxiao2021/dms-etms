@@ -19,9 +19,11 @@ import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.dto.CancelSortingOffsiteDto;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.basic.util.DateUtil;
@@ -32,7 +34,6 @@ import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
 import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -279,7 +280,16 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
             }
 
             Sorting sorting = Sorting.toSorting2(sortingRequest);
-            SortingResponse sortingResponse = sortingServiceFactory.getSortingService(sorting.getCreateSiteCode()).cancelSorting(sorting);
+            SortingResponse sortingResponse;
+            // 异场地取消分拣
+            if (Objects.nonNull(dto.getCurrentSiteCode()) && !Objects.equals(dto.getSiteCode(), dto.getCurrentSiteCode())){
+                CancelSortingOffsiteDto cancelSortingOffsiteDto = buildCancelSortingOffsiteDto(dto, sorting);
+                sortingResponse = sortingServiceFactory.getSortingService(sorting.getCreateSiteCode())
+                    .cancelSortingOffsite(cancelSortingOffsiteDto);
+            }else {
+                // 同场地取消分拣（默认取消分拣的场景）
+                sortingResponse = sortingServiceFactory.getSortingService(sorting.getCreateSiteCode()).cancelSorting(sorting);
+            }
             if (!Objects.equals(sortingResponse.getCode(), SortingResponse.CODE_OK)) {
                 throw new JyBizException(sortingResponse.getMessage());
             }
@@ -291,6 +301,20 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
                 cacheService.del(fingerPrintKey);
             }
         }
+    }
+
+    /**
+     * 构建取消分拣外站DTO
+     * @param dto 取消收集包裹DTO
+     * @param sorting 分拣对象
+     * @return cancelSortingOffsiteDto 取消分拣外站DTO
+     */
+    private static CancelSortingOffsiteDto buildCancelSortingOffsiteDto(CancelCollectPackageDto dto, Sorting sorting) {
+        CancelSortingOffsiteDto cancelSortingOffsiteDto = new CancelSortingOffsiteDto();
+        BeanCopyUtil.copy(sorting, cancelSortingOffsiteDto);
+        cancelSortingOffsiteDto.setCurrentSiteCode(dto.getCurrentSiteCode());
+        cancelSortingOffsiteDto.setSkipSendCheck(dto.getSkipSendCheck());
+        return cancelSortingOffsiteDto;
     }
 
     private SortingRequest checkIfExitsProcessingSortingTask(CancelCollectPackageDto dto) {
@@ -311,8 +335,6 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         sortingRequest.setOperateTime(DateUtil.format(dto.getUpdateTime(), DateUtil.FORMAT_DATE_TIME));
         sortingRequest.setSiteCode(dto.getSiteCode());
         sortingRequest.setSiteName(dto.getSiteName());
-        sortingRequest.setCurrentSiteCode(dto.getCurrentSiteCode());
-        sortingRequest.setConditionCheck(dto.getConditionCheck());
         return sortingRequest;
     }
 
@@ -332,15 +354,8 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         List<Sorting> sortings = sortingService.findByPackageCode(cancelCollectPackageDto.getSiteCode(), cancelCollectPackageDto.getPackageCode());
         if (!CollectionUtils.isEmpty(sortings)) {
             for (Sorting sorting : sortings) {
-                // 新增，按包裹号取消集包（cancelCollectPackageDto的box箱号为空）
-                if (StringUtils.isEmpty(cancelCollectPackageDto.getBoxCode())){
-                    if (sorting.getPackageCode().equals(cancelCollectPackageDto.getPackageCode()) && Constants.NUMBER_ZERO.equals(sorting.getIsCancel())) {
-                        return false;
-                    }
-                }else {
-                    if (sorting.getBoxCode().equals(cancelCollectPackageDto.getBoxCode()) && Constants.NUMBER_ZERO.equals(sorting.getIsCancel())) {
-                        return false;
-                    }
+                if (sorting.getBoxCode().equals(cancelCollectPackageDto.getBoxCode()) && Constants.NUMBER_ZERO.equals(sorting.getIsCancel())) {
+                    return false;
                 }
             }
         }
