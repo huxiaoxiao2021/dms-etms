@@ -90,6 +90,9 @@ import static com.jd.bluedragon.Constants.EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.CANCEL;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.COMPENSATE;
 
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
+
 /**
  * Created by dudong on 2014/12/1.
  */
@@ -303,6 +306,17 @@ public class QualityControlService {
             // ucc开关
             if(!dmsConfigManager.getPropertyConfig().matchExceptionSubmitCheckSite(request.getDistCenterID())){
                 return result;
+            }
+            // 报废运单拦截
+            if (StringUtils.isNotEmpty(waybillCode)) {
+                Waybill waybill = waybillService.getWaybillByWayCode(waybillCode);
+                if (waybill != null && StringUtils.isNotEmpty(waybill.getWaybillSign())) {
+                    // waybillSign的19位等于2是报废运单 拦截
+                    String waybillSign = waybill.getWaybillSign();
+                    if (isScrapWaybill(waybillSign)) {
+                        return result.toFail(HintService.getHint(SCRAP_WAYBILL_INTERCEPT_HINT_CODE));
+                    }
+                }
             }
             final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(waybillCode);
             if(!StringUtils.isEmpty(oldWaybillCode) || CollectionUtils.isNotEmpty(waybillCancelList)){

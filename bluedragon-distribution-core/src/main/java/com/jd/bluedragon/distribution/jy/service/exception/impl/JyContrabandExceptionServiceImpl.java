@@ -14,6 +14,7 @@ import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
@@ -63,6 +64,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.HK_OR_MO;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.INTERNATION;
 import static com.jd.bluedragon.utils.BusinessHelper.getWaybillFlowType;
@@ -606,6 +609,11 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if (entity != null) {
             String msg = entity.getBarCode() + " 已经提报，请勿重复提交！";
             throw new RuntimeException(msg);
+        }
+
+        // 报废运单拦截
+        if (isScrapWaybill(waybill.getWaybillSign())) {
+            throw new RuntimeException(HintService.getHint(SCRAP_WAYBILL_INTERCEPT_HINT_CODE));
         }
     }
 

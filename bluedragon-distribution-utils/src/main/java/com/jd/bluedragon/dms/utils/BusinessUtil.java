@@ -13,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.*;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.CHAR_19_2;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.POSITION_19;
 
 /**
  * @author tangchunqing
@@ -3131,5 +3133,12 @@ public class BusinessUtil {
     public static boolean isColdChainExpressScrap(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)
                 && isSignChar(waybillSign, WaybillSignConstants.POSITION_5, WaybillSignConstants.CHAR_5_5);
+    }
+
+    public static boolean isScrapWaybill(String waybillSign) {
+        if (StringUtils.isEmpty(waybillSign)) {
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,POSITION_19,CHAR_19_2);
     }
 }
