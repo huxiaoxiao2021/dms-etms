@@ -1029,7 +1029,7 @@ public class HintCodeConstants {
 
     // 此单禁止操作返调度，需由本营业部完成派送，如有疑问可进咚咚群咨询（10201566979）
     public static String TERMIANL_RE_SORT_DEWU_FORBID = "40022";
-    
+
 
     public static String JY_UNSEAL_WRONG_ORDER_MESSAGE = "70012";
 
@@ -1037,7 +1037,7 @@ public class HintCodeConstants {
      *  40023-此人在【网格名称，工序名称】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？
      */
     public static String CONFIRM_CHANGE_GW_FOR_SIGN = "40023";
-    public static String CONFIRM_CHANGE_GW_FOR_SIGN_MSG = "此人在【%s】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";     
+    public static String CONFIRM_CHANGE_GW_FOR_SIGN_MSG = "此人在【%s】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";
     public static String CONFIRM_AUTO_SIGN_OUT_FOR_SIGN_MSG = "该人员已经完成人脸打卡离场，请确认是否再次签到！";
     
     
@@ -1103,4 +1103,7 @@ public class HintCodeConstants {
      */
     public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE = "40036";
     public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE_MSG = "该运单为冷链专送订单异常即报废单，不可以操作逆向换单";
+
+    // 无残值货物，请操作报废！
+    public static String SCRAP_WAYBILL_INTERCEPT_HINT_CODE = "40033";
 }

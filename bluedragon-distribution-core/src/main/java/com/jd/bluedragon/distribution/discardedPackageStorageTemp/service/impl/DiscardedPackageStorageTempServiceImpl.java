@@ -60,6 +60,10 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.CHAR_19_2;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.POSITION_19;
+
 /**
  * 快递弃件暂存
  *
@@ -473,6 +477,16 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 }
             }
 
+            String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+            // 报废运单标识
+            boolean scrapWaybillFlag = isScrapWaybill(waybillSign);
+
+            // 如果是报废运单，不需要该校验
+            if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType()) && !scrapWaybillFlag) {
+                if(!BusinessUtil.isScrapSortingSite(waybillSign)) {
+                    return result.toFail("提交失败，非返分拣报废运单！");
+                }
+            }
             // 3. 执行业务操作逻辑
             final DiscardedStorageContext context = new DiscardedStorageContext();
             context.setScanDiscardedPackagePo(paramObj);
