@@ -520,11 +520,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		List<Map<String,Object>> list=content.getJobCodeHours();
 		List<JobCodeHoursDto> jobCodeHoursRecordList=new ArrayList<>();
 		List<Integer> allSpecialJobCodeList=new ArrayList();
-		HashMap<Integer, Integer> jobCodeHourMap = new HashMap<>();
+		ArrayList<Map<Integer, Integer>> maps = new ArrayList<>();
 		if(CollectionUtils.isNotEmpty(list)){
 			for (Map<String, Object> map : list) {
 				int jobCode=(int)map.get("jobCode");
 				int hour=(int)map.get("hour");
+				HashMap<Integer, Integer> jobCodeHourMap = new HashMap<>();
+				maps.add(jobCodeHourMap);
 				jobCodeHourMap.put(jobCode, hour);
 				JobCodeHoursDto jobCodeHoursRecord=new JobCodeHoursDto();
 				jobCodeHoursRecord.setJobCode(jobCode);
@@ -567,7 +569,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 					userSignOutDto.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
 					userSignOutDto.setUpdateUserName(userSignOutDto.getUpdateUser());
 					userSignOutDto.setHour(defaultHours);
-					updateRows += userSignRecordDao.signOutTimeById(userSignOutDto, toSignOutPks, jobCodeHourMap);
+					updateRows += userSignRecordDao.signOutTimeById(userSignOutDto, toSignOutPks, maps);
 
 					GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
 
