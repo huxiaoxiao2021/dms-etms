@@ -823,13 +823,15 @@ public class BoxResource {
     @JProfiler(jKey = "DMS.WEB.BoxResource.getByBarCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse getByBarCode(@PathParam("barCode") String barCode) {
         if (StringUtils.isEmpty(barCode) && !WaybillUtil.isPackageCode(barCode) && !BusinessUtil.isBoxcode(barCode)) {
-            return this.paramError();
+            log.info("只支持按包裹号和箱号操作补打{}",barCode);
+            return new BoxResponse(JdResponse.CODE_PARAM_ERROR, "只支持按包裹号和箱号操作补打!");
         }
         if (WaybillUtil.isPackageCode(barCode)) {
             // 根据包裹号获取箱号
             SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(barCode);
             if (sortingDto == null || StringUtils.isEmpty(sortingDto.getBoxCode())) {
-                return this.boxNoFound();
+                log.info("未获取到包裹号绑定的箱号信息{}",barCode);
+                return new BoxResponse(JdResponse.CODE_PARAM_ERROR, "未获取到包裹号绑定的箱号信息！");
             }
             barCode = sortingDto.getBoxCode();
         }
