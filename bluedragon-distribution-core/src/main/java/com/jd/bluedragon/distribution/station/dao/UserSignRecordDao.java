@@ -111,7 +111,7 @@ public interface UserSignRecordDao {
 	 */
 	List<UserSignNoticeJobItemVo> queryUserSignNoticeJobItems(UserSignRecordQuery query);
 	
-    List<Long> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList, Date signInTimeStart, Date signInTime, Integer limit);
+    List<UserSignRecord> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList, Date signInTimeStart, Date signInTime, Integer limit);
     
     int signOutById(UserSignRecord signOutRequest, List<Long> list);
     /**
@@ -202,5 +202,7 @@ public interface UserSignRecordDao {
 	UserSignRecord queryLastUnSignOutRecordIgnoreCase(List<String> list);
 
 	UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query);
-	
-}
+
+	public int signOutTimeById(UserSignOutDto userSignOutDto, List<Long> list) ;
+
+	}

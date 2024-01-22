@@ -862,9 +862,9 @@
 		<include refid="joinSql"/>
 		limit 1
 	</select>
-    <select id="querySignInMoreThanSpecifiedTime" resultType="java.lang.Long">
+    <select id="querySignInMoreThanSpecifiedTime" resultMap="UserSignRecord">
         SELECT
-            id
+            id,job_code
         FROM
             user_sign_record usr
         WHERE
@@ -908,6 +908,22 @@
             #{item, jdbcType=BIGINT}
         </foreach>
     </update>
+
+	<update id="signOutTimeById">
+		UPDATE user_sign_record
+		SET
+		update_time = #{param.updateTime, jdbcType=TIMESTAMP},
+		update_user = #{param.updateUser, jdbcType=VARCHAR},
+		update_user_name = #{param.updateUserName, jdbcType=VARCHAR},
+		sign_out_time = DATE_ADD (sign_in_time, INTERVAL  #{param.hour,jdbcType=TIMESTAMP} HOUR)
+		WHERE
+		yn = 1
+		AND id IN
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item, jdbcType=BIGINT}
+		</foreach>
+	</update>
+
 	<select id="queryLastUnSignOutRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
 		select
 			<include refid="Base_Column_List"/>
