@@ -73,6 +73,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
             log.error("receive store box detail size too large：boxCode：{},data：{}", boxDetail.getBoxCode(),message.getText());
             return;
         }
+        log.info("boxDetailFromStoreConsumer data:{}",message.getText());
 
         //校验箱号的合法性
         if (!checkBoxDetailLegality(boxDetail)){
@@ -143,6 +144,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
             return;
         }
 
+        boxDetail.setCreateSiteCode(box.getCreateSiteCode());
         boxDetail.setCreateSiteName(box.getCreateSiteName());
         boxDetail.setReceiveSiteName(boxDetail.getReceiveSiteName());
     }
@@ -221,7 +223,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         sendDetail.setCreateSiteCode(boxDetail.getCreateSiteCode());
         sendDetail.setReceiveSiteCode(boxDetail.getReceiveSiteCode());
 
-        sendDetail.setBoxCode(packageDto.getPackageCode());
+        sendDetail.setBoxCode(boxDetail.getBoxCode());
         sendDetail.setPackageBarcode(packageDto.getPackageCode());
         sendDetail.setWaybillCode(packageDto.getWaybillCode());
 
@@ -261,7 +263,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         sorting.setReceiveSiteCode(boxDetail.getReceiveSiteCode());
         sorting.setReceiveSiteName(boxDetail.getReceiveSiteName());
 
-        sorting.setBoxCode(packageDto.getPackageCode());
+        sorting.setBoxCode(boxDetail.getBoxCode());
         sorting.setPackageCode(packageDto.getPackageCode());
         sorting.setWaybillCode(packageDto.getWaybillCode());
 

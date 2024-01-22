@@ -531,7 +531,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     }
 
     public int batchAdd(List<SendDetail> sendDetailList){
-        return this.getSqlSession().insert(namespace + ".batchAdd", sendDetailList);
+        for (SendDetail sendDetail:sendDetailList){
+            this.getSqlSession().insert(namespace + ".add", sendDetail);
+        }
+        return sendDetailList.size();
     }
 
     public int batchDelete(List<SendDetail> sendDetailList) {
