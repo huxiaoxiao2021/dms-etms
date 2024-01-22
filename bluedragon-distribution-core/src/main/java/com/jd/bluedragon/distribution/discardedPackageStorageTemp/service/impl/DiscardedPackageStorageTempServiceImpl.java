@@ -472,25 +472,18 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
 
             if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType())) {
                 String waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
-                //冷链专送 且 异常单处理方式 = 异常即报废也可以执行弃件
-                if (!BusinessUtil.isColdChainExpressScrap(waybillSign) && !BusinessUtil.isScrapSortingSite(waybillSign)) {
+                if(BusinessHelper.isBwxWaybill(waybillSign)){
+                    return result.toFail("该单为保温箱运单，请正常发货流转!");
+                }
+
+                boolean scrapWaybillFlag = isScrapWaybill(waybillSign);
+                boolean isColdChainExpressScrapFlag = BusinessUtil.isColdChainExpressScrap(waybillSign);
+                boolean isScrapSortingSiteFlag = BusinessUtil.isScrapSortingSite(waybillSign);
+                if (!isColdChainExpressScrapFlag && !scrapWaybillFlag && !isScrapSortingSiteFlag) {
                     return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP_MSG));
                 }
             }
 
-            String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
-            // 报废运单标识
-            boolean scrapWaybillFlag = isScrapWaybill(waybillSign);
-
-            // 如果是报废运单，不需要该校验
-            if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType()) && !scrapWaybillFlag) {
-                if(!BusinessUtil.isScrapSortingSite(waybillSign)) {
-                    return result.toFail("提交失败，非返分拣报废运单！");
-                }
-                if(BusinessHelper.isBwxWaybill(waybillSign)){
-                    return result.toFail("该单为保温箱运单，请正常发货流转!");
-                }
-            }
             // 3. 执行业务操作逻辑
             final DiscardedStorageContext context = new DiscardedStorageContext();
             context.setScanDiscardedPackagePo(paramObj);
