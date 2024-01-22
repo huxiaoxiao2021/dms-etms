@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
+import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -1801,6 +1802,31 @@ public class SortingServiceImpl implements SortingService {
 	@Override
 	public int deleteOldAndInsertNewSorting(List<Sorting> sortingList) {
 		sortingDao.batchDelete(sortingList);
-		return sortingDao.batchAdd(sortingList);
+		int rs = sortingDao.batchAdd(sortingList);
+		List<KvIndex> kvIndexList = assemblekvIndexList(sortingList);
+		kvIndexDao.batchAdd(kvIndexList);
+		return rs;
 	}
+
+	private List<KvIndex> assemblekvIndexList(List<Sorting> sortingList) {
+		List<KvIndex> list =new ArrayList<>();
+		for (Sorting sorting:sortingList){
+			KvIndex kvIndex =assemblekvIndex(sorting);
+			list.add(kvIndex);
+		}
+		return list;
+	}
+
+	private KvIndex assemblekvIndex(Sorting sorting) {
+		KvIndex kvIndex = new KvIndex();
+		String kvKey = getPackageCodeAssociateBoxCodeKvIndexKey(sorting.getPackageCode());
+		kvIndex.setKeyword(kvKey);
+		kvIndex.setValue(String.valueOf(sorting.getCreateSiteCode()));
+		return kvIndex;
+	}
+
+	private String getPackageCodeAssociateBoxCodeKvIndexKey(String packageCode) {
+		return String.format(KvIndexConstants.KEY_PACKAGE_BOX_ASSOCIATION, packageCode);
+	}
+
 }
