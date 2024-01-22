@@ -26,16 +26,15 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
+import com.jd.bluedragon.distribution.jy.api.callback.JyUnloadVehicleCallbackJsfService;
 import com.jd.bluedragon.distribution.jy.constants.RedisHashKeyConstants;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadDetailCache;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanContextDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadTaskCompleteDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
@@ -87,6 +86,7 @@ import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
+import com.jdl.sorting.tech.tenant.core.context.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -195,6 +195,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    @Qualifier("jyUnloadVehicleCallbackJsfService")
+    private JyUnloadVehicleCallbackJsfService callbackJsfService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.fetchUnloadTask",
@@ -595,6 +599,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             // 处理特殊产品类型提示音
             this.handleSpecialProductType(request, result, unloadScanContextDto);
+
+            // 执行回调
+            this.unloadScanOfCallback(result,request);
         }
         catch (EconomicNetException e) {
             log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
@@ -991,10 +998,65 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             result.toCustomError(InvokeResult.CODE_HINT, "单号已扫描！");
             return false;
         }
+        JdVerifyResponse<Integer> callbackResult = unloadScanCheckOfCallback(result,request);
+        if(!callbackResult.codeSuccess()){
+            //ss
+            return false;
+        }
 
         return true;
     }
 
+    /**
+     * 卸车校验回调
+     * @param result
+     * @param request
+     * @return
+     */
+    private JdVerifyResponse<Integer> unloadScanCheckOfCallback(JdVerifyResponse<Integer> result,UnloadScanRequest request){
+
+        //需要判断当非拣运租户时在触发回调
+        TenantEnum
+            TenantContext.getTenantCode();
+        {
+            UnloadScanCallbackReqDto callbackReqDto = new UnloadScanCallbackReqDto();
+
+            InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult =
+                    callbackJsfService.unloadScanCheckOfCallback(callbackReqDto);
+            //返回 code 非成功时需要阻断服务，不运行继续执行
+            if(!callbackResult.isSuccess()){
+                //返回个性服务标识
+                result.setSelfDomFlag(Boolean.TRUE);
+                result.setCode(callbackResult.getCode());
+                result.setMessage(callbackResult.getMessage());
+                result.setMsgBoxes(callbackResult.getMsgBoxes());
+                result.setData(callbackResult.getData());
+                return result;
+            }
+            //返回 code成功时，不阻断，如果有msgbox则拼装
+            if(!CollectionUtils.isEmpty(callbackResult.getMsgBoxes())){
+                //返回个性服务标识
+                result.setSelfDomFlag(Boolean.TRUE);
+                result.setMsgBoxes(callbackResult.getMsgBoxes());
+                result.setData(callbackResult.getData());
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 卸车扫描回调
+     * @param result
+     * @param request
+     * @return
+     */
+    private JdVerifyResponse<Integer> unloadScanOfCallback(JdVerifyResponse<Integer> result,UnloadScanRequest request){
+
+
+
+        return result;
+    }
     /**
      * 统计本次扫描的包裹数量
      * @param request
