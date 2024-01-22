@@ -13,7 +13,6 @@ import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.service.calibrate.JyWeightVolumeCalibrateService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
-import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckIssueDetail;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
@@ -235,9 +234,7 @@ public class JyWeightVolumeCalibrateServiceImplTest {
             List<WeightVolumeSpotCheckDto> spotCheckDtoList = spotCheckQueryManager.querySpotCheckByCondition(condition);
             // 下发数据处理
             WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = spotCheckDtoList.get(0);
-            SpotCheckIssueDetail issueDetail = new SpotCheckIssueDetail();
-            BeanUtils.copyProperties(weightVolumeSpotCheckDto, issueDetail);
-            spotCheckDealService.executeIssue(issueDetail);
+            spotCheckDealService.executeIssue(weightVolumeSpotCheckDto);
             Assert.assertTrue(true);
         }catch (Exception e){
             log.error("服务异常!", e);
