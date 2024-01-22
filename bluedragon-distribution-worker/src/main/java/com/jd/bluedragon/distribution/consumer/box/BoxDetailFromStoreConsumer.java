@@ -186,22 +186,11 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
     }
 
     private void storageBoxDetailIdempotently(StoreBoxDetail boxDetail) {
-        if (ucc.getStorageBoxDetailIdempotentlySwitch()){
-            //去重后插入
-            insertAfterDeduplicate(boxDetail);
-        }else {
-            //先删后插-每次都要最新的
-            deleteOldAndInsertNew(boxDetail);
-        }
+        storageSorting(boxDetail);
+        storageSendD(boxDetail);
     }
 
-    private void deleteOldAndInsertNew(StoreBoxDetail boxDetail) {
-        deleteOldAndInsertNewSorting(boxDetail);
-        deleteOldAndInsertNewSendD(boxDetail);
-    }
-
-
-    private void deleteOldAndInsertNewSendD(StoreBoxDetail boxDetail) {
+    private void storageSendD(StoreBoxDetail boxDetail) {
         List<SendDetail> sendDetailList =assembleSendDetailList(boxDetail);
         sendDetailService.deleteOldAndInsertNewSendD(sendDetailList);
     }
@@ -239,7 +228,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         return sendDetail;
     }
 
-    private void deleteOldAndInsertNewSorting(StoreBoxDetail boxDetail) {
+    private void storageSorting(StoreBoxDetail boxDetail) {
         List<Sorting> sortingList =assembleSortingList(boxDetail);
         sortingService.deleteOldAndInsertNewSorting(sortingList);
     }
@@ -280,15 +269,4 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         return sorting;
     }
 
-    private void insertAfterDeduplicate(StoreBoxDetail boxDetail) {
-        insertAfterDeduplicateSorting(boxDetail);
-        insertAfterDeduplicateSendD(boxDetail);
-    }
-
-
-    private void insertAfterDeduplicateSendD(StoreBoxDetail boxDetail) {
-    }
-
-    private void insertAfterDeduplicateSorting(StoreBoxDetail boxDetail) {
-    }
 }

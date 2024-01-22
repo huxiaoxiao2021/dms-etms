@@ -845,6 +845,7 @@ public class BoxServiceImpl implements BoxService {
 			pushBoxPrintMq(availableBoxes);
 		}
 
+        this.buildBoxPrintInfo(request.getCreateSiteCode(), request.getReceiveSiteCode(), response);
         return response;
     }
 
@@ -958,30 +959,6 @@ public class BoxServiceImpl implements BoxService {
         box.setLastNodeType(OpBoxNodeEnum.PRINTBOXCODE.getNodeCode());
         return box;
     }
-
-
-	private Box toBoxWithoutSiteInfo(BoxRequest request) {
-		Box box = new Box();
-		box.setType(request.getType());
-		box.setBoxSubType(request.getSubType());
-		box.setQuantity(request.getQuantity());
-		/*box.setCreateSiteCode(request.getCreateSiteCode());
-		box.setCreateSiteName(request.getCreateSiteName());
-		box.setReceiveSiteCode(request.getReceiveSiteCode());
-		box.setReceiveSiteName(request.getReceiveSiteName());*/
-		box.setCreateUser(request.getUserName());
-		box.setCreateUserCode(request.getUserCode());
-		box.setTransportType(request.getTransportType());
-		box.setMixBoxType(request.getMixBoxType());
-		box.setPredictSendTime(request.getPredictSendTime());
-		//临时占用字段处理站点商家重复
-		box.setStatuses(request.getCreateSiteType());
-		box.setUpdateUser(request.getReceiveSiteType());
-		//设置状态和当前节点
-		box.setStatus(com.jd.bluedragon.distribution.external.constants.BoxStatusEnum.OPEN.getStatus());
-		box.setLastNodeType(OpBoxNodeEnum.PRINTBOXCODE.getNodeCode());
-		return box;
-	}
 
 	/**
 	 * 计算滑道号和笼车号
@@ -1183,10 +1160,6 @@ public class BoxServiceImpl implements BoxService {
 		}
 		request.setBoxId(box.getId());
 
-		if (checkBoxIsSent(request.getBoxCode(),request.getCreateSiteCode())){
-			response.toError("该箱号已经发货，禁止变更！");
-			return false;
-		}
 		if (ObjectHelper.isEmpty(request.getCreateSiteCode())){
 			BaseResult<PsStoreInfo>  result =basicPrimaryWS.getStoreByCky2Id(request.getStoreInfo().getStoreType(),request.getStoreInfo().getCky2(),request.getStoreInfo().getStoreId(),"dms");
 			if (ObjectHelper.isEmpty(result) || ObjectHelper.isEmpty(result.getData())
@@ -1196,6 +1169,11 @@ public class BoxServiceImpl implements BoxService {
 			}
 			request.setCreateSiteCode(result.getData().getDmsSiteId());
 			request.setCreateSiteName(result.getData().getDmsStoreName());
+		}
+
+		if (checkBoxIsSent(request.getBoxCode(),request.getCreateSiteCode())){
+			response.toError("该箱号已经发货，禁止变更！");
+			return false;
 		}
 
 

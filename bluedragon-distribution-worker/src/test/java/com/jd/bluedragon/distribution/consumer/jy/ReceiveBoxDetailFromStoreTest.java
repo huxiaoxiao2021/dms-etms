@@ -1,21 +1,13 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
-import com.jd.bluedragon.distribution.box.domain.GenerateBoxReq;
-import com.jd.bluedragon.distribution.box.domain.GenerateBoxResp;
-import com.jd.bluedragon.distribution.box.domain.StoreInfo;
-import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
 import com.jd.bluedragon.distribution.consumer.box.BoxDetailFromStoreConsumer;
-import com.jd.bluedragon.external.gateway.store.TpCollectPackageGatewayService;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
-import com.jd.ql.dms.common.domain.JdResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Date;
 
 
 /**

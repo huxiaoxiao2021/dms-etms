@@ -1885,16 +1885,16 @@ public class UccPropertyConfiguration{
     private long jyCollectPackageInterceptBitCode;
 
     /**
-     * 存储仓打包明细
+     * 存储仓打包明细 单个箱子的上限
      */
-    private boolean storageBoxDetailIdempotentlySwitch;
+    private Integer storageBoxDetailMaxSizeLimit;
 
-    public boolean getStorageBoxDetailIdempotentlySwitch(){
-        return storageBoxDetailIdempotentlySwitch;
+    public Integer getStorageBoxDetailMaxSizeLimit(){
+        return storageBoxDetailMaxSizeLimit;
     }
 
-    public void setStorageBoxDetailIdempotentlySwitch(boolean storageBoxDetailIdempotentlySwitch) {
-        this.storageBoxDetailIdempotentlySwitch = storageBoxDetailIdempotentlySwitch;
+    public void setStorageBoxDetailMaxSizeLimit(Integer storageBoxDetailMaxSizeLimit) {
+        this.storageBoxDetailMaxSizeLimit = storageBoxDetailMaxSizeLimit;
     }
 
     public long getJyCollectPackageInterceptBitCode(){
