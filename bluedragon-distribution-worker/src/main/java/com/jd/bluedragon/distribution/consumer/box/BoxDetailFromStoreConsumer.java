@@ -38,7 +38,6 @@ import static com.jd.bluedragon.distribution.box.domain.Box.BOX_STATUS_SEALED;
 @Slf4j
 public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
 
-    private int maxSize =2 * 10000;//换成ucc 一期先配置 400
     private int batchSize =512;
 
     @Autowired
@@ -68,7 +67,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
             log.warn("receive store box detail exception：{}", message.getText());
             return;
         }
-        if (boxDetail.getPackageList().size() > maxSize){
+        if (boxDetail.getPackageList().size() > ucc.getStorageBoxDetailMaxSizeLimit()){
             //关键字告警
             log.error("receive store box detail size too large：boxCode：{},data：{}", boxDetail.getBoxCode(),message.getText());
             return;
@@ -223,6 +222,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         sendDetail.setUpdateTime(time);
 
         sendDetail.setOperateTime(packageDto.getOpeateTime());
+        sendDetail.setIsCancel(Constants.YN_NO);
         sendDetail.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         sendDetail.setBizSource(SendBizSourceEnum.ANDROID_PDA_SEND.getCode());
         return sendDetail;
@@ -264,6 +264,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         sorting.setUpdateTime(time);
 
         sorting.setOperateTime(packageDto.getOpeateTime());
+        sorting.setIsCancel(Constants.YN_NO);
         sorting.setType(Constants.BUSSINESS_TYPE_POSITIVE);
         sorting.setBizSource(SortingBizSourceEnum.ANDROID_SORTING.getCode());
         return sorting;
