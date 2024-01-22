@@ -31,7 +31,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -259,19 +258,16 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         // 设置已抽检缓存
         setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         // 数据落库
-        SpotCheckIssueDetail summaryDto = assembleSummaryReform(spotCheckContext);
-        // 转换report对象
-        WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = new WeightVolumeSpotCheckDto();
-        BeanUtils.copyProperties(summaryDto, weightVolumeSpotCheckDto);
-        spotCheckServiceProxy.insertOrUpdateProxyReform(weightVolumeSpotCheckDto);
+        WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
+        spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
         // 下发超标数据
         spotCheckDealService.spotCheckIssue(summaryDto);
         // 抽检全程跟踪
         // spotCheckDealService.sendWaybillTrace(spotCheckContext);
     }
 
-    protected SpotCheckIssueDetail assembleSummaryReform(SpotCheckContext spotCheckContext) {
-        SpotCheckIssueDetail dto = new SpotCheckIssueDetail();
+    protected WeightVolumeSpotCheckDto assembleSummaryReform(SpotCheckContext spotCheckContext) {
+        WeightVolumeSpotCheckDto dto = new WeightVolumeSpotCheckDto();
         // 复核数据
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
         dto.setReviewSource(SpotCheckSourceFromEnum.analysisCodeFromName(spotCheckContext.getSpotCheckSourceFrom()));
