@@ -39,6 +39,7 @@ import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ql.basic.domain.BaseDmsStore;
@@ -230,8 +231,14 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             if (!Objects.equals(context.getWaybill().getPackageNum(),INTEGER_ONE) || !WaybillUtil.isPackageCode(packageBarCode)) {
                 return;
             }
-            int count = reprintRecordService.selectCountByBarCode(packageBarCode);
-            response.setRePrintNum(count);
+            ReprintRecordQuery query = new ReprintRecordQuery();
+            query.setBarCode(packageBarCode);
+            Response<Long> countResponse = reprintRecordService.queryCount(query);
+            if (countResponse == null || countResponse.getData() == null) {
+                return;
+            }
+            Long count = countResponse.getData();
+            response.setRePrintNum(Math.toIntExact(count));
         }catch (Exception ex){
             log.error("加载补打包裹次数异常，运单号:{}", packageBarCode,ex);
         }
