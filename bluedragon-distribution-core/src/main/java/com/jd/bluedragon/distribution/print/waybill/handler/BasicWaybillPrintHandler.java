@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -19,6 +20,8 @@ import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.print.service.PreSortingSecondService;
+import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
+import com.jd.bluedragon.distribution.reprintRecord.dto.ReprintRecordQuery;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -59,6 +62,8 @@ import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT;
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ZERO;
 
 @Service
 public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintContext,String>{
@@ -86,6 +91,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private GoodsPrintService goodsPrintService;
+
+    @Autowired
+    private ReprintRecordService reprintRecordService;
 
     /**
      * 奢侈品订单打标位起始值
@@ -199,12 +207,35 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             loadGoodsInfo(context,context.getResponse());
             //加载验证码
             loadVerificationCode(context,context.getResponse());
+            //加载补打包x裹次数
+            loadReprintNum(context,context.getResponse());
         }catch (Exception ex){
             log.error("标签打印接口异常，运单号:{}", waybillCode,ex);
             interceptResult.toError();
         }
         return interceptResult;
 	}
+
+    /**
+     * 加载补打包裹次数
+     * @param context
+     * @param response
+     */
+    private void loadReprintNum(WaybillPrintContext context, WaybillPrintResponse response) {
+        String packageBarCode = context.getRequest().getPackageBarCode();
+        try{
+            /**
+             * 只针对 按包裹打印和一单一件按运单号打印的场景
+             */
+            if (!Objects.equals(context.getWaybill().getPackageNum(),INTEGER_ONE) || !WaybillUtil.isPackageCode(packageBarCode)) {
+                return;
+            }
+            int count = reprintRecordService.selectCountByBarCode(packageBarCode);
+            response.setRePrintNum(count);
+        }catch (Exception ex){
+            log.error("加载补打包裹次数异常，运单号:{}", packageBarCode,ex);
+        }
+    }
 
     /**
      * 加载增值服务

@@ -212,6 +212,11 @@ public class PrintWaybill extends BasePrintWaybill {
      * */
     private Boolean longPack = Boolean.FALSE;
 
+    /**
+     * 包裹补打次数
+     */
+    private Integer rePrintNum;
+
     public PrintWaybill(){
         this.isAir=false;
         this.isSelfService=false;
@@ -505,5 +510,13 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setLongPack(Boolean longPack) {
         this.longPack = longPack;
+    }
+
+    public Integer getRePrintNum() {
+        return rePrintNum;
+    }
+
+    public void setRePrintNum(Integer rePrintNum) {
+        this.rePrintNum = rePrintNum;
     }
 }
