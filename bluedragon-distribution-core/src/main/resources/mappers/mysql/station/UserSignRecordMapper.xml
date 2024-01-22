@@ -862,9 +862,9 @@
 		<include refid="joinSql"/>
 		limit 1
 	</select>
-    <select id="querySignInMoreThanSpecifiedTime" resultMap="UserSignRecord">
+    <select id="querySignInMoreThanSpecifiedTime" resultType="java.lang.Long">
         SELECT
-            id,job_code
+            id
         FROM
             user_sign_record usr
         WHERE
@@ -879,7 +879,7 @@
 		<foreach item="item1" collection="jobCodeHoursList">
 		UNION
 			SELECT
-			id,job_code
+			    id
 			FROM
 			    user_sign_record usr
 			WHERE
@@ -915,8 +915,16 @@
 		update_time = #{param.updateTime, jdbcType=TIMESTAMP},
 		update_user = #{param.updateUser, jdbcType=VARCHAR},
 		update_user_name = #{param.updateUserName, jdbcType=VARCHAR},
-		sign_out_time = DATE_ADD (sign_in_time, INTERVAL  #{param.hour,jdbcType=TIMESTAMP} HOUR)
-		WHERE
+		sign_out_time =
+		COALESCE(
+		<foreach collection="jobCodeToHoursMap" item="entry" separator=" ">
+			<foreach collection="entry.value" item="hour" separator=" ">
+				WHEN job_code = #{entry.key} THEN DATE_ADD(sign_in_time, INTERVAL #{hour} HOUR)
+			</foreach>
+		</foreach>,
+		DATE_ADD(sign_in_time, INTERVAL #{param.hour} HOUR)
+		)
+		where
 		yn = 1
 		AND id IN
 		<foreach collection="list" item="item" open="(" close=")" separator=",">

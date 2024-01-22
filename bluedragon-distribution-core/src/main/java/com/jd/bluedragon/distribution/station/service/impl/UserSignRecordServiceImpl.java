@@ -549,54 +549,40 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			jobCodeHoursList.add(jobCodeHoursRecord);
 		}
 
-        List<UserSignRecord> toSignOutList;
+        List<Long> toSignOutPks;
         Date now = new Date();
         int updateRows = 0;
         log.info("自动签退数据扫描：{} - {}", DateHelper.formatDateTimeMs(signInTimeStart),DateHelper.formatDateTimeMs(signInTimeEnd));
-        try {
-            do {
-                toSignOutList = userSignRecordDao.querySignInMoreThanSpecifiedTime(allSpecialJobCodeList,jobCodeHoursList,signInTimeStart,signInTimeEnd, 100);
+		try {
+			do {
+				toSignOutPks =
+					userSignRecordDao.querySignInMoreThanSpecifiedTime(allSpecialJobCodeList, jobCodeHoursList,
+						signInTimeStart, signInTimeEnd, 100);
 
-                if (CollectionUtils.isNotEmpty(toSignOutList)) {
+				if (CollectionUtils.isNotEmpty(toSignOutPks)) {
 					// 根据工种，更新签退时间=签到时间+工种设置的定时时间，工种没有时间，为默认时间
-					Map<Integer, List<UserSignRecord>> map =
-						toSignOutList.stream().collect(Collectors.groupingBy(UserSignRecord::getJobCode));
 
-					for (Map.Entry<Integer, List<UserSignRecord>> entry : map.entrySet()) {
-						Integer jobCode = entry.getKey();
-						List<UserSignRecord> signRecordList = entry.getValue();
+					UserSignOutDto userSignOutDto = new UserSignOutDto();
+					userSignOutDto.setUpdateTime(now);
+					userSignOutDto.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
+					userSignOutDto.setUpdateUserName(userSignOutDto.getUpdateUser());
+					userSignOutDto.setHour(defaultHours);
+					updateRows += userSignRecordDao.signOutTimeById(userSignOutDto, toSignOutPks, jobCodeHourMap);
 
-						List<Long> ids = signRecordList.stream().map(UserSignRecord::getId).collect(
-							Collectors.toList());
+					GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
 
-						Integer hour = jobCodeHourMap.get(jobCode);
-						if(Objects.isNull(hour)){
-							hour= defaultHours;
-						}
+					removeMemberRequest.setSignRecordIdList(toSignOutPks);
+					removeMemberRequest.setOperateUserCode(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
+					removeMemberRequest.setOperateUserName(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
+					this.jyGroupMemberService.removeMembers(removeMemberRequest);
+				}
 
-						UserSignOutDto userSignOutDto = new UserSignOutDto();
-						userSignOutDto.setUpdateTime(now);
-						userSignOutDto.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
-						userSignOutDto.setUpdateUserName(userSignOutDto.getUpdateUser());
-						userSignOutDto.setHour(hour);
-						updateRows += userSignRecordDao.signOutTimeById(userSignOutDto, ids);
-					}
+				Thread.sleep(200);
 
-        			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
-					List<Long> ids = toSignOutList.stream().map(UserSignRecord::getId).collect(
-						Collectors.toList());
-        			removeMemberRequest.setSignRecordIdList(ids);
-        			removeMemberRequest.setOperateUserCode(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
-        			removeMemberRequest.setOperateUserName(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
-                    this.jyGroupMemberService.removeMembers(removeMemberRequest);
-                }
+			} while (CollectionUtils.isNotEmpty(toSignOutPks));
 
-                Thread.sleep(200);
-
-            } while (CollectionUtils.isNotEmpty(toSignOutList));
-
-            result.setData(updateRows);
-        }
+			result.setData(updateRows);
+		}
         catch (Exception e) {
             log.error("自动关闭未签退数据异常.", e);
             result.toFail(e.getMessage());
