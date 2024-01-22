@@ -879,7 +879,7 @@
 		<foreach item="item1" collection="jobCodeHoursList">
 		UNION
 			SELECT
-			    id
+			id,job_code
 			FROM
 			    user_sign_record usr
 			WHERE
