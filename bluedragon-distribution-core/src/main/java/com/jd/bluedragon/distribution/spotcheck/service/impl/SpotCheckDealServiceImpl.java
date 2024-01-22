@@ -47,7 +47,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -563,7 +562,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     }
 
     @Override
-    public void spotCheckIssue(SpotCheckIssueDetail spotCheckDto) {
+    public void spotCheckIssue(WeightVolumeSpotCheckDto spotCheckDto) {
         // 下发前置条件：超标&&集齐
         if(!Objects.equals(spotCheckDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             return;
@@ -613,7 +612,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      * @param spotCheckDto
      */
     @Override
-    public void executeIssue(SpotCheckIssueDetail spotCheckDto) {
+    public void executeIssue(WeightVolumeSpotCheckDto spotCheckDto) {
         if(!Objects.equals(spotCheckDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             // 抽检不超标不下发
             logger.warn("单号:{}的抽检数据不执行下发!", spotCheckDto.getPackageCode());
@@ -675,7 +674,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         buildAndIssue(spotCheckDto);
     }
 
-    private boolean checkIsDownByPicAI(SpotCheckIssueDetail spotCheckDto) {
+    private boolean checkIsDownByPicAI(WeightVolumeSpotCheckDto spotCheckDto) {
         if(Objects.equals(spotCheckDto.getPicIsQualify(), Constants.CONSTANT_NUMBER_ONE)){
             return true;
         }
@@ -750,7 +749,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      *
      * @param spotCheckDto
      */
-    private void buildAndIssue(SpotCheckIssueDetail spotCheckDto) {
+    private void buildAndIssue(WeightVolumeSpotCheckDto spotCheckDto) {
         SpotCheckIssueMQ spotCheckIssueMQ = new SpotCheckIssueMQ();
         spotCheckIssueMQ.setFlowSystem(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(spotCheckDto.getReviewSource())
                 ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
@@ -807,13 +806,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueProducer.sendOnFailPersistent(spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
         // 更新抽检主记录数据
         spotCheckDto.setIsIssueDownstream(Constants.CONSTANT_NUMBER_ONE);
-        // 转换report对象
-        WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = new WeightVolumeSpotCheckDto();
-        BeanUtils.copyProperties(spotCheckDto, weightVolumeSpotCheckDto);
-        spotCheckServiceProxy.insertOrUpdateProxyReform(weightVolumeSpotCheckDto);
+        spotCheckServiceProxy.insertOrUpdateProxyReform(spotCheckDto);
     }
 
-    private List<SpotCheckAppendixDto> transformAppendixData(SpotCheckIssueDetail spotCheckDto) {
+    private List<SpotCheckAppendixDto> transformAppendixData(WeightVolumeSpotCheckDto spotCheckDto) {
         List<String> picList = picUrlDeal(spotCheckDto);
         List<SpotCheckAppendixDto> appendixDtoList = new ArrayList<>(6);
         // 图片
@@ -835,7 +831,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         return appendixDtoList;
     }
 
-    private List<String> picUrlDeal(SpotCheckIssueDetail spotCheckDto) {
+    private List<String> picUrlDeal(WeightVolumeSpotCheckDto spotCheckDto) {
         List<String> picList = new ArrayList<>();
         if (StringUtils.isBlank(spotCheckDto.getPictureAddress())) {
             return picList;
