@@ -230,11 +230,11 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	}
 
 	@Override
-	public int signOutTimeById(UserSignOutDto userSignOutDto, List<Long> list, Map<Integer, Integer> jobCodeToHoursMap) {
+	public int signOutTimeById(UserSignOutDto userSignOutDto, List<Long> list, List<JobCodeHoursDto> jobCodeHoursDtoList) {
 		Map<String, Object> param = new HashMap<>();
 		param.put("param", userSignOutDto);
 		param.put("list", list);
-		param.put("jobCodeToHoursMap", jobCodeToHoursMap);
+		param.put("jobCodeHoursDtoList", jobCodeHoursDtoList);
 		return this.getSqlSession().update(NAMESPACE + ".signOutTimeById", param);
 	}
 }

@@ -520,12 +520,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		List<Map<String,Object>> list=content.getJobCodeHours();
 		List<JobCodeHoursDto> jobCodeHoursRecordList=new ArrayList<>();
 		List<Integer> allSpecialJobCodeList=new ArrayList();
-		HashMap<Integer, Integer> jobCodeHourMap = new HashMap<>();
 		if(CollectionUtils.isNotEmpty(list)){
 			for (Map<String, Object> map : list) {
 				int jobCode=(int)map.get("jobCode");
 				int hour=(int)map.get("hour");
-				jobCodeHourMap.put(jobCode, hour);
 				JobCodeHoursDto jobCodeHoursRecord=new JobCodeHoursDto();
 				jobCodeHoursRecord.setJobCode(jobCode);
 				jobCodeHoursRecord.setHour(hour);
@@ -568,7 +566,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 					userSignOutDto.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
 					userSignOutDto.setUpdateUserName(userSignOutDto.getUpdateUser());
 					userSignOutDto.setHour(defaultHours);
-					updateRows += userSignRecordDao.signOutTimeById(userSignOutDto, toSignOutPks, jobCodeHourMap);
+					updateRows += userSignRecordDao.signOutTimeById(userSignOutDto, toSignOutPks, jobCodeHoursRecordList);
 
 					GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
 
@@ -586,6 +584,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
         catch (Exception e) {
             log.error("自动关闭未签退数据异常.", e);
+			e.printStackTrace();
             result.toFail(e.getMessage());
         }
 

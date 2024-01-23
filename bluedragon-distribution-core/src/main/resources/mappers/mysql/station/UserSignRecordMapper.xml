@@ -917,10 +917,11 @@
 		update_user_name = #{param.updateUserName, jdbcType=VARCHAR},
 		sign_out_time =
 		CASE
-		<foreach collection="jobCodeToHoursMap.entrySet()" item="value" index="key" separator=" ">
-			WHEN job_code = #{key, jdbcType=INTEGER} THEN DATE_ADD(sign_in_time, INTERVAL #{value, jdbcType=INTEGER} HOUR)
+		<foreach collection="jobCodeHoursDtoList" item="item">
+			WHEN job_code = #{item.jobCode, jdbcType=INTEGER} THEN DATE_ADD(sign_in_time, INTERVAL
+			#{item.hour, jdbcType=INTEGER} HOUR)
 		</foreach>
-		ELSE #{param.setSignOutTime, jdbcType=TIMESTAMP}
+		ELSE #{param.signOutTime, jdbcType=TIMESTAMP}
 		END
 		where
 		yn = 1
