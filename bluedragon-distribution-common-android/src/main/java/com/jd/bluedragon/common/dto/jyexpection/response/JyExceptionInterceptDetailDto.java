@@ -13,6 +13,10 @@ public class JyExceptionInterceptDetailDto implements Serializable {
     private static final long serialVersionUID = -1094345976242701327L;
 
     private String bizId;
+    /**
+     * 异常条码
+     */
+    private String barCode;
 
     /**
      * 任务提报人ID
@@ -89,6 +93,14 @@ public class JyExceptionInterceptDetailDto implements Serializable {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
     }
 
     public Integer getCreateUserId() {

@@ -2249,6 +2249,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     private void assembleJyExceptionInterceptDetailDto(JyExceptionInterceptDetailDto jyExceptionInterceptDetailDto, JyBizTaskExceptionEntity jyBizTaskExceptionExist, JyExceptionInterceptDetail jyExceptionInterceptDetailExist) {
         jyExceptionInterceptDetailDto.setBizId(jyExceptionInterceptDetailExist.getBizId());
+        jyExceptionInterceptDetailDto.setBarCode(jyExceptionInterceptDetailExist.getBarCode());
         jyExceptionInterceptDetailDto.setCreateUserId(jyExceptionInterceptDetailExist.getCreateUserId().intValue());
         jyExceptionInterceptDetailDto.setCreateUserErp(jyExceptionInterceptDetailExist.getCreateUserCode());
         jyExceptionInterceptDetailDto.setCreateUserName(jyExceptionInterceptDetailExist.getCreateUserName());
