@@ -31,6 +31,11 @@ public class JyExceptionInterceptDetailQuery implements Serializable {
     /**
      * 包裹号
      */
+    private String barCode;
+
+    /**
+     * 包裹号
+     */
     private String packageCode;
     /**
      * 运单号
@@ -87,6 +92,14 @@ public class JyExceptionInterceptDetailQuery implements Serializable {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
     }
 
     public String getPackageCode() {

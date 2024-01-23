@@ -755,38 +755,14 @@
         <if test="bizId != null and bizId != ''">
             AND biz_id = #{bizId}
         </if>
-        <if test="interceptBizId != null and interceptBizId != ''">
-            AND intercept_biz_id = #{interceptBizId}
-        </if>
         <if test="barCode != null and barCode != ''">
             AND bar_code = #{barCode}
-        </if>
-        <if test="bizSource != null and bizSource != ''">
-            AND biz_source = #{bizSource}
         </if>
         <if test="siteId != null">
             AND site_id = #{siteId}
         </if>
-        <if test="siteName != null and siteName != ''">
-            AND site_name = #{siteName}
-        </if>
-        <if test="provinceAgencyCode != null and provinceAgencyCode != ''">
-            AND province_agency_code = #{provinceAgencyCode}
-        </if>
-        <if test="provinceAgencyName != null and provinceAgencyName != ''">
-            AND province_agency_name = #{provinceAgencyName}
-        </if>
-        <if test="areaHubCode != null and areaHubCode != ''">
-            AND area_hub_code = #{areaHubCode}
-        </if>
-        <if test="areaHubName != null and areaHubName != ''">
-            AND area_hub_name = #{areaHubName}
-        </if>
         <if test="packageCode != null and packageCode != ''">
             AND package_code = #{packageCode}
-        </if>
-        <if test="packageTotal != null">
-            AND package_total = #{packageTotal}
         </if>
         <if test="waybillCode != null and waybillCode != ''">
             AND waybill_code = #{waybillCode}
@@ -794,104 +770,14 @@
         <if test="boxCode != null and boxCode != ''">
             AND box_code = #{boxCode}
         </if>
-        <if test="operateNode != null">
-            AND operate_node = #{operateNode}
-        </if>
-        <if test="operateNodeName != null and operateNodeName != ''">
-            AND operate_node_name = #{operateNodeName}
-        </if>
-        <if test="interceptEffectTime != null">
-            AND intercept_effect_time = #{interceptEffectTime}
-        </if>
-        <if test="interceptTypeName != null and interceptTypeName != ''">
-            AND intercept_type_name = #{interceptTypeName}
-        </if>
         <if test="interceptType != null">
             AND intercept_type = #{interceptType}
         </if>
         <if test="deviceCode != null and deviceCode != ''">
             AND device_code = #{deviceCode}
         </if>
-        <if test="deviceType != null">
-            AND device_type = #{deviceType}
-        </if>
-        <if test="deviceTypeName != null and deviceTypeName != ''">
-            AND device_type_name = #{deviceTypeName}
-        </if>
-        <if test="deviceSubType != null">
-            AND device_sub_type = #{deviceSubType}
-        </if>
-        <if test="deviceSubTypeName != null and deviceSubTypeName != ''">
-            AND device_sub_type_name = #{deviceSubTypeName}
-        </if>
-        <if test="interceptCode != null">
-            AND intercept_code = #{interceptCode}
-        </if>
-        <if test="interceptMessage != null and interceptMessage != ''">
-            AND intercept_message = #{interceptMessage}
-        </if>
-        <if test="disposeNode != null">
-            AND dispose_node = #{disposeNode}
-        </if>
-        <if test="disposeNodeName != null and disposeNodeName != ''">
-            AND dispose_node_name = #{disposeNodeName}
-        </if>
-        <if test="disposeUserId != null">
-            AND dispose_user_id = #{disposeUserId}
-        </if>
-        <if test="disposeUserCode != null and disposeUserCode != ''">
-            AND dispose_user_code = #{disposeUserCode}
-        </if>
-        <if test="disposeUserName != null and disposeUserName != ''">
-            AND dispose_user_name = #{disposeUserName}
-        </if>
-        <if test="disposeTime != null">
-            AND dispose_time = #{disposeTime}
-        </if>
-        <if test="inputWeight != null">
-            AND input_weight = #{inputWeight}
-        </if>
-        <if test="inputVolume != null">
-            AND input_volume = #{inputVolume}
-        </if>
-        <if test="inputLength != null">
-            AND input_length = #{inputLength}
-        </if>
-        <if test="inputWidth != null">
-            AND input_width = #{inputWidth}
-        </if>
-        <if test="inputHeight != null">
-            AND input_height = #{inputHeight}
-        </if>
-        <if test="createUserId != null">
-            AND create_user_id = #{createUserId}
-        </if>
-        <if test="createUserCode != null and createUserCode != ''">
-            AND create_user_code = #{createUserCode}
-        </if>
-        <if test="createUserName != null and createUserName != ''">
-            AND create_user_name = #{createUserName}
-        </if>
-        <if test="updateUserId != null">
-            AND update_user_id = #{updateUserId}
-        </if>
-        <if test="updateUserCode != null and updateUserCode != ''">
-            AND update_user_code = #{updateUserCode}
-        </if>
-        <if test="updateUserName != null and updateUserName != ''">
-            AND update_user_name = #{updateUserName}
-        </if>
-        <if test="createTime != null">
-            AND create_time = #{createTime}
-        </if>
-        <if test="updateTime != null">
-            AND update_time = #{updateTime}
-        </if>
         <if test="yn != null">
             AND yn = #{yn}
-        </if>
-        <if test="ts != null">
-            AND ts = #{ts}
         </if>
     </sql>
     <!-- 查询行数 -->
