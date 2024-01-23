@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -835,7 +836,12 @@ public class BoxResource {
             }
             barCode = sortingDto.getBoxCode();
         }
-        return this.get(barCode);
+        BoxResponse boxResponse = this.get(barCode);
+        if (null != boxResponse) {
+            boxResponse.setBoxTypes(BoxTypeEnum.getMap());
+            boxResponse.setBoxSubTypes(BoxSubTypeEnum.ENUM_MAP);
+        }
+        return boxResponse;
     }
 
 }
