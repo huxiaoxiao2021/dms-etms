@@ -733,10 +733,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setTags(getTags(entity.getTags()));
         // 在这里处理是因为老逻辑setSaved 不受task状态影响
         if(Objects.nonNull(entity.getType())
-                && JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType())){
+                && (JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType()) || Objects.equals(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode(), entity.getType()))){
             ExpScrappedDetailDto scrappedDetailDto = scrappedDtoMap.get(entity.getBizId());
             if(scrappedDetailDto != null && scrappedDetailDto.getSaveType() != null){
-                dto.setSaved(Objects.equals(scrappedDetailDto.getSaveType(),JyExpSaveTypeEnum.TEMP_SAVE.getCode()));
+                dto.setSaved(Objects.equals(scrappedDetailDto.getSaveType(),JyExpSaveTypeEnum.TEMP_SAVE.getCode()) || Objects.equals(scrappedDetailDto.getSaveType(),JyExpSaveTypeEnum.PROCESSING.getCode()));
             }
         }else{
             String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
@@ -1892,6 +1892,14 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if(response.isSucceed() && response.getData()!= null && response.getData().getSaveType() != null){
                 dto.setSaved(Objects.equals(response.getData().getSaveType(),JyExpSaveTypeEnum.TEMP_SAVE.getCode()));
             }
+        } else if(Objects.equals(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode(), entity.getType())) {
+            JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery = new JyExceptionInterceptDetailQuery();
+            jyExceptionInterceptDetailQuery.setSiteId(entity.getSiteCode().intValue());
+            jyExceptionInterceptDetailQuery.setBizId(entity.getBizId());
+            final JyExceptionInterceptDetail jyExceptionInterceptDetailExist = jyExceptionInterceptDetailDao.selectOne(jyExceptionInterceptDetailQuery);
+            if (jyExceptionInterceptDetailExist != null) {
+                dto.setSaved(Objects.equals(jyExceptionInterceptDetailExist.getSaveType(), JyExpSaveTypeEnum.TEMP_SAVE.getCode()) || Objects.equals(jyExceptionInterceptDetailExist.getSaveType(), JyExpSaveTypeEnum.PROCESSING.getCode()));
+            }
         }else{
             String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
             boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
@@ -2284,7 +2292,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetailDto.setDisposeNodeName(disposeNodeNameList);
 
         // 体积、重量
-        if(JyExpSaveTypeEnum.ENUM_LIST.contains(jyExceptionInterceptDetailExist.getSaveType())){
+        if(JyExpSaveTypeEnum.ENUM_LIST.contains(jyExceptionInterceptDetailExist.getSaveType()) && !Objects.equals(JyExpSaveTypeEnum.PROCESSING.getCode(), jyExceptionInterceptDetailExist.getSaveType())){
             jyExceptionInterceptDetailDto.setInputLength(jyExceptionInterceptDetailExist.getInputLength());
             jyExceptionInterceptDetailDto.setInputWidth(jyExceptionInterceptDetailExist.getInputWidth());
             jyExceptionInterceptDetailDto.setInputHeight(jyExceptionInterceptDetailExist.getInputHeight());
@@ -2393,6 +2401,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyExceptionInterceptDetail.setBizId(req.getBizId());
             jyExceptionInterceptDetail.setSiteId(jyExceptionInterceptDetailExist.getSiteId());
             final User user = req.getUser();
+            jyExceptionInterceptDetail.setSaveType(JyExpSaveTypeEnum.PROCESSING.getCode());
             jyExceptionInterceptDetail.setUpdateUserId((long)user.getUserCode());
             jyExceptionInterceptDetail.setUpdateUserCode(user.getUserErp());
             jyExceptionInterceptDetail.setUpdateUserName(user.getUserName());
