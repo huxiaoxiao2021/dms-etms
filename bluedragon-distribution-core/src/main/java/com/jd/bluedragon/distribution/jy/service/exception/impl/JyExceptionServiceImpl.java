@@ -2283,10 +2283,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetailDto.setDisposeNodeName(disposeNodeNameList);
 
         // 体积、重量
-        jyExceptionInterceptDetailDto.setInputLength(jyExceptionInterceptDetailExist.getInputLength());
-        jyExceptionInterceptDetailDto.setInputWidth(jyExceptionInterceptDetailExist.getInputWidth());
-        jyExceptionInterceptDetailDto.setInputHeight(jyExceptionInterceptDetailExist.getInputHeight());
-        jyExceptionInterceptDetailDto.setInputWeight(jyExceptionInterceptDetailExist.getInputWeight());
+        if(JyExpSaveTypeEnum.ENUM_LIST.contains(jyExceptionInterceptDetailExist.getSaveType())){
+            jyExceptionInterceptDetailDto.setInputLength(jyExceptionInterceptDetailExist.getInputLength());
+            jyExceptionInterceptDetailDto.setInputWidth(jyExceptionInterceptDetailExist.getInputWidth());
+            jyExceptionInterceptDetailDto.setInputHeight(jyExceptionInterceptDetailExist.getInputHeight());
+            jyExceptionInterceptDetailDto.setInputWeight(jyExceptionInterceptDetailExist.getInputWeight());
+        }
     }
 
     private void mockJyExceptionInterceptDetailDto(JyExceptionInterceptDetailDto jyExceptionInterceptDetailDto) {
@@ -2475,7 +2477,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             JyExceptionInterceptDetail jyExceptionInterceptDetail = new JyExceptionInterceptDetail();
             jyExceptionInterceptDetail.setBizId(req.getBizId());
             jyExceptionInterceptDetail.setSiteId(jyExceptionInterceptDetailExist.getSiteId());
-            jyExceptionInterceptDetail.setSaveType(JyExpSaveTypeEnum.SAVE.getCode());
+            jyExceptionInterceptDetail.setSaveType(req.getSaveType());
             final User user = req.getUser();
             jyExceptionInterceptDetail.setUpdateUserId((long)user.getUserCode());
             jyExceptionInterceptDetail.setUpdateUserCode(user.getUserErp());
@@ -2493,7 +2495,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             // 3.2 状态置为完结
             JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
             bizTaskExceptionUpdate.setBizId(req.getBizId());
-            bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.COMPLETE.getCode());
+            bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.PROCESSING.getCode());
+            if (Objects.equals(req.getSaveType(), JyExpSaveTypeEnum.SAVE.getCode())) {
+                bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.COMPLETE.getCode());
+            }
             bizTaskExceptionUpdate.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
             bizTaskExceptionUpdate.setUpdateUserErp(user.getUserErp());
             bizTaskExceptionUpdate.setUpdateUserName(user.getUserName());
@@ -2513,6 +2518,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         final Result<Void> checkCommonResult = this.checkParam4ExpTaskCommonReq(req);
         if (!checkCommonResult.isSuccess()) {
             return result.toFail(checkCommonResult.getMessage(), checkCommonResult.getCode());
+        }
+        if (req.getSaveType() == null) {
+            return result.toFail("参数错误，saveType不能为空");
+        }
+        if (!JyExpSaveTypeEnum.ENUM_LIST.contains(req.getSaveType())) {
+            return result.toFail("参数错误，saveType值不合法");
         }
         if (req.getLength() == null) {
             return result.toFail("参数错误，length不能为空");
