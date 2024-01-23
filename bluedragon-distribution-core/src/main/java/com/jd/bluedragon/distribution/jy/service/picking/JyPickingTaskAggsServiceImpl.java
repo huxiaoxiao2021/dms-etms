@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 空铁提货统计层服务
@@ -254,6 +255,16 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             }
 
         }
+
+        List<String> bizListSource = new ArrayList<>(bizIdList);
+        List<String> existWaitScanBizIdList = res.stream().map(PickingSendGoodAggsDto::getBizId).collect(Collectors.toList());
+        bizListSource.removeAll(existWaitScanBizIdList);
+        bizListSource.forEach(bizId -> {
+            PickingSendGoodAggsDto aggs = new PickingSendGoodAggsDto();
+            aggs.setBizId(bizId);
+            aggs.setWaitSendTotalNum(0);
+            res.add(aggs);
+        });
         return res;
     }
 
