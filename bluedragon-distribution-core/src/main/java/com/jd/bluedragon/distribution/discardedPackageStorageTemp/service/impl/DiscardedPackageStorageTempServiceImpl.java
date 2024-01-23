@@ -471,7 +471,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 String waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
                 //冷链专送 且 异常单处理方式 = 异常即报废也可以执行弃件
                 if (!BusinessUtil.isColdChainExpressScrap(waybillSign) && !BusinessUtil.isScrapSortingSite(waybillSign)) {
-                    return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP_MSG));
+                    return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP_MSG, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP));
                 }
             }
 

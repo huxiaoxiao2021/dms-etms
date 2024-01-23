@@ -282,12 +282,12 @@ public class QualityControlService {
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
             if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null
                     && BusinessUtil.isColdChainExpressScrap(baseEntity.getData().getWaybill().getWaybillSign())){
-                return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION_MSG));
+                return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION_MSG, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION));
             }
             if(isExistOldWaybillCode(baseEntity) || CollectionUtils.isNotEmpty(waybillCancelList)){
                 return result;
             }
-            String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG, HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT);
+            String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT, HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG);
             return result.toFail(tipMsg);
             // 运单拦截中心下发的存在全部拦截。如果需要判断存在部分拦截则放开下面注释代码
            /*
