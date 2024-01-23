@@ -230,7 +230,7 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	}
 
 	@Override
-	public int signOutTimeById(UserSignOutDto userSignOutDto, List<Long> list, List<JobCodeHoursDto> jobCodeHoursDtoList) {
+	public int signOutTimeById(UserSignRecord userSignOutDto, List<Long> list, List<JobCodeHoursDto> jobCodeHoursDtoList) {
 		Map<String, Object> param = new HashMap<>();
 		param.put("param", userSignOutDto);
 		param.put("list", list);

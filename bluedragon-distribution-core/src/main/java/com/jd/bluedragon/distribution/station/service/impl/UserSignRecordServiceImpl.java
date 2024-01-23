@@ -559,14 +559,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 				if (CollectionUtils.isNotEmpty(toSignOutPks)) {
 					// 根据工种，更新签退时间=签到时间+工种设置的定时时间，工种没有时间，为默认时间
+					UserSignRecord updateData = new UserSignRecord();
+					updateData.setSignOutTime(now);
+					updateData.setUpdateTime(now);
+					updateData.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
+					updateData.setUpdateUserName(updateData.getUpdateUser());
 
-					UserSignOutDto userSignOutDto = new UserSignOutDto();
-					userSignOutDto.setSignOutTime(now);
-					userSignOutDto.setUpdateTime(now);
-					userSignOutDto.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
-					userSignOutDto.setUpdateUserName(userSignOutDto.getUpdateUser());
-					userSignOutDto.setHour(defaultHours);
-					updateRows += userSignRecordDao.signOutTimeById(userSignOutDto, toSignOutPks, jobCodeHoursRecordList);
+					updateRows += userSignRecordDao.signOutTimeById(updateData, toSignOutPks, jobCodeHoursRecordList);
 
 					GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
 
@@ -584,7 +583,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
         catch (Exception e) {
             log.error("自动关闭未签退数据异常.", e);
-			e.printStackTrace();
             result.toFail(e.getMessage());
         }
 
