@@ -33,6 +33,11 @@ public class ExpInterceptTaskProcessSubmitWeightVolumeReq extends ExpTaskCommonR
     private BigDecimal height;
 
     /**
+     * 体积，单位cm³
+     */
+    private BigDecimal volume;
+
+    /**
      * 重量，单位kg
      */
     private BigDecimal weight;
@@ -70,6 +75,14 @@ public class ExpInterceptTaskProcessSubmitWeightVolumeReq extends ExpTaskCommonR
 
     public void setHeight(BigDecimal height) {
         this.height = height;
+    }
+
+    public BigDecimal getVolume() {
+        return volume;
+    }
+
+    public void setVolume(BigDecimal volume) {
+        this.volume = volume;
     }
 
     public BigDecimal getWeight() {

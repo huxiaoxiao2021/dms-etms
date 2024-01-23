@@ -2288,6 +2288,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyExceptionInterceptDetailDto.setInputLength(jyExceptionInterceptDetailExist.getInputLength());
             jyExceptionInterceptDetailDto.setInputWidth(jyExceptionInterceptDetailExist.getInputWidth());
             jyExceptionInterceptDetailDto.setInputHeight(jyExceptionInterceptDetailExist.getInputHeight());
+            jyExceptionInterceptDetailDto.setInputVolume(jyExceptionInterceptDetailExist.getInputVolume());
             jyExceptionInterceptDetailDto.setInputWeight(jyExceptionInterceptDetailExist.getInputWeight());
         }
     }
@@ -2489,7 +2490,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyExceptionInterceptDetail.setInputLength(req.getLength());
             jyExceptionInterceptDetail.setInputWidth(req.getWidth());
             jyExceptionInterceptDetail.setInputHeight(req.getHeight());
-            jyExceptionInterceptDetail.setInputVolume(req.getLength().multiply(req.getWidth()).multiply(req.getHeight()).setScale(2, RoundingMode.HALF_UP));
+            if(req.getVolume() != null){
+                jyExceptionInterceptDetail.setInputVolume(req.getVolume());
+            } else {
+                jyExceptionInterceptDetail.setInputVolume(req.getLength().multiply(req.getWidth()).multiply(req.getHeight()).setScale(2, RoundingMode.HALF_UP));
+            }
             jyExceptionInterceptDetail.setInputWeight(req.getWeight());
             jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
 
@@ -2526,17 +2531,19 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (!JyExpSaveTypeEnum.ENUM_LIST.contains(req.getSaveType())) {
             return result.toFail("参数错误，saveType值不合法");
         }
-        if (req.getLength() == null) {
-            return result.toFail("参数错误，length不能为空");
-        }
-        if (req.getWidth() == null) {
-            return result.toFail("参数错误，width不能为空");
-        }
-        if (req.getHeight() == null) {
-            return result.toFail("参数错误，height不能为空");
-        }
-        if (req.getWeight() == null) {
-            return result.toFail("参数错误，weight不能为空");
+        if (Objects.equals(JyExpSaveTypeEnum.SAVE.getCode(), req.getSaveType())) {
+            if (req.getLength() == null) {
+                return result.toFail("参数错误，length不能为空");
+            }
+            if (req.getWidth() == null) {
+                return result.toFail("参数错误，width不能为空");
+            }
+            if (req.getHeight() == null) {
+                return result.toFail("参数错误，height不能为空");
+            }
+            if (req.getWeight() == null) {
+                return result.toFail("参数错误，weight不能为空");
+            }
         }
         return result;
     }
