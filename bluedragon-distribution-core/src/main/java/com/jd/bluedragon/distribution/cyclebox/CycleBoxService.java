@@ -67,6 +67,19 @@ public interface CycleBoxService {
      */
     InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequest request);
 
+
+  /**
+   * 绑定集包袋校验逻辑
+   *  1.集包袋规则校验
+   *  2.该箱号已发货，不能再绑定集包袋
+   *  3. 如果本地场地已经绑定了箱号 而且已在4小时内发货 ，不能再绑定
+   *  4. 若循环集包袋绑定的最近2个箱号在本场地发货过，，且发货的目的地相同时，弹窗提示「疑似虚假操作，当前AD码已锁定，请使用其它循环袋」，并禁止操作集包袋绑定
+   *  5.此集包袋号曾经存在绑定箱号时做此校验 此场景使用的箱号是集包袋曾经绑定的箱号 集包袋绑定的箱号，在当前场地操作收箱 集包袋绑定的箱号的目的地不是本场地
+   * @param request
+   * @return
+   */
+  InvokeResult boxMaterialRelationAlterOfCheck(BoxMaterialRelationRequest request);
+
   /**
    * 外单靑流箱绑定发MQ
    * @param request
