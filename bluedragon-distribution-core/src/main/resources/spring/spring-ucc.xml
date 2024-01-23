@@ -321,7 +321,7 @@
 		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
 		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
 		<property name="jyBizTaskPickingGoodTimeRange" value="${jyBizTaskPickingGoodTimeRange:7}"/>
-		<property name="pickingGoodTaskWaitScanEq0TimeRange" value="${pickingGoodTaskWaitScanEq0TimeRange:24}"/>
+		<property name="pickingGoodTaskWaitScanEq0TimeRange" value="${pickingGoodTaskWaitScanEq0TimeRange:1}"/>
 		<property name="pickingGoodTaskManualTimeRange" value="${pickingGoodTaskManualTimeRange:24}"/>
 		<property name="sendFlowLimit" value="${sendFlowLimit:15}"/>
 		<property name="pickingPlanArriveTimeRange" value="${pickingPlanArriveTimeRange:2}"/>
