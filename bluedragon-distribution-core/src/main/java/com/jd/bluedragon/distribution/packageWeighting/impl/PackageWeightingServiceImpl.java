@@ -143,7 +143,7 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
             if (ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(type)) {
                 //查询分拣称重 包裹维度
                 List<PackageWeighting> tempPackageWeightings = findWeightVolume(waybillCode, packageCode,
-                        Arrays.asList(BusinessTypeEnum.DMS.getCode()));
+                        Arrays.asList(BusinessTypeEnum.DMS.getCode(), BusinessTypeEnum.DMS_SORT.getCode()));
                 //查询运单称重流水表，过滤出拣运称重 运单维度
                 List<PackageWeighting> tempWaybillWeightings = createWaybillWeightings(waybillCode,waybillPackageManager.getWaybillWeightVolumeDetail(waybillCode));
                 //合并
