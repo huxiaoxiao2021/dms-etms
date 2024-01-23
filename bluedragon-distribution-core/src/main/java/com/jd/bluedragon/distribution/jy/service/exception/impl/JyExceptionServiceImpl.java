@@ -2501,11 +2501,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             // 3.2 状态置为完结
             JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
             bizTaskExceptionUpdate.setBizId(req.getBizId());
-            bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.PROCESSING.getCode());
             if (Objects.equals(req.getSaveType(), JyExpSaveTypeEnum.SAVE.getCode())) {
                 bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.COMPLETE.getCode());
+                bizTaskExceptionUpdate.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
             }
-            bizTaskExceptionUpdate.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
             bizTaskExceptionUpdate.setUpdateUserErp(user.getUserErp());
             bizTaskExceptionUpdate.setUpdateUserName(user.getUserName());
             bizTaskExceptionUpdate.setUpdateTime(currentDate);
