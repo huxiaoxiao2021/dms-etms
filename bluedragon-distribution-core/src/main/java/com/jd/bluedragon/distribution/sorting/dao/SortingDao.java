@@ -201,6 +201,9 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
     }
 
     public int batchAdd(List<Sorting> sortingList) {
-        return this.getSqlSession().insert(namespace +".batchAdd",sortingList);
+        for (Sorting sorting:sortingList){
+            this.getSqlSession().insert(namespace +".add",sorting);
+        }
+        return sortingList.size();
     }
 }

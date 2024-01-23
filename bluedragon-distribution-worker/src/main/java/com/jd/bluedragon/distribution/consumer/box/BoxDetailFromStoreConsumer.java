@@ -38,7 +38,6 @@ import static com.jd.bluedragon.distribution.box.domain.Box.BOX_STATUS_SEALED;
 @Slf4j
 public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
 
-    private int maxSize =2 * 10000;//换成ucc 一期先配置 400
     private int batchSize =512;
 
     @Autowired
@@ -68,11 +67,12 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
             log.warn("receive store box detail exception：{}", message.getText());
             return;
         }
-        if (boxDetail.getPackageList().size() > maxSize){
+        if (boxDetail.getPackageList().size() > ucc.getStorageBoxDetailMaxSizeLimit()){
             //关键字告警
             log.error("receive store box detail size too large：boxCode：{},data：{}", boxDetail.getBoxCode(),message.getText());
             return;
         }
+        log.info("boxDetailFromStoreConsumer data:{}",message.getText());
 
         //校验箱号的合法性
         if (!checkBoxDetailLegality(boxDetail)){
@@ -143,6 +143,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
             return;
         }
 
+        boxDetail.setCreateSiteCode(box.getCreateSiteCode());
         boxDetail.setCreateSiteName(box.getCreateSiteName());
         boxDetail.setReceiveSiteName(boxDetail.getReceiveSiteName());
     }
@@ -184,22 +185,11 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
     }
 
     private void storageBoxDetailIdempotently(StoreBoxDetail boxDetail) {
-        if (ucc.getStorageBoxDetailIdempotentlySwitch()){
-            //去重后插入
-            insertAfterDeduplicate(boxDetail);
-        }else {
-            //先删后插-每次都要最新的
-            deleteOldAndInsertNew(boxDetail);
-        }
+        storageSorting(boxDetail);
+        storageSendD(boxDetail);
     }
 
-    private void deleteOldAndInsertNew(StoreBoxDetail boxDetail) {
-        deleteOldAndInsertNewSorting(boxDetail);
-        deleteOldAndInsertNewSendD(boxDetail);
-    }
-
-
-    private void deleteOldAndInsertNewSendD(StoreBoxDetail boxDetail) {
+    private void storageSendD(StoreBoxDetail boxDetail) {
         List<SendDetail> sendDetailList =assembleSendDetailList(boxDetail);
         sendDetailService.deleteOldAndInsertNewSendD(sendDetailList);
     }
@@ -221,7 +211,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         sendDetail.setCreateSiteCode(boxDetail.getCreateSiteCode());
         sendDetail.setReceiveSiteCode(boxDetail.getReceiveSiteCode());
 
-        sendDetail.setBoxCode(packageDto.getPackageCode());
+        sendDetail.setBoxCode(boxDetail.getBoxCode());
         sendDetail.setPackageBarcode(packageDto.getPackageCode());
         sendDetail.setWaybillCode(packageDto.getWaybillCode());
 
@@ -232,12 +222,13 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         sendDetail.setUpdateTime(time);
 
         sendDetail.setOperateTime(packageDto.getOpeateTime());
+        sendDetail.setIsCancel(Constants.YN_NO);
         sendDetail.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         sendDetail.setBizSource(SendBizSourceEnum.ANDROID_PDA_SEND.getCode());
         return sendDetail;
     }
 
-    private void deleteOldAndInsertNewSorting(StoreBoxDetail boxDetail) {
+    private void storageSorting(StoreBoxDetail boxDetail) {
         List<Sorting> sortingList =assembleSortingList(boxDetail);
         sortingService.deleteOldAndInsertNewSorting(sortingList);
     }
@@ -261,7 +252,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         sorting.setReceiveSiteCode(boxDetail.getReceiveSiteCode());
         sorting.setReceiveSiteName(boxDetail.getReceiveSiteName());
 
-        sorting.setBoxCode(packageDto.getPackageCode());
+        sorting.setBoxCode(boxDetail.getBoxCode());
         sorting.setPackageCode(packageDto.getPackageCode());
         sorting.setWaybillCode(packageDto.getWaybillCode());
 
@@ -273,20 +264,10 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         sorting.setUpdateTime(time);
 
         sorting.setOperateTime(packageDto.getOpeateTime());
+        sorting.setIsCancel(Constants.YN_NO);
         sorting.setType(Constants.BUSSINESS_TYPE_POSITIVE);
         sorting.setBizSource(SortingBizSourceEnum.ANDROID_SORTING.getCode());
         return sorting;
     }
 
-    private void insertAfterDeduplicate(StoreBoxDetail boxDetail) {
-        insertAfterDeduplicateSorting(boxDetail);
-        insertAfterDeduplicateSendD(boxDetail);
-    }
-
-
-    private void insertAfterDeduplicateSendD(StoreBoxDetail boxDetail) {
-    }
-
-    private void insertAfterDeduplicateSorting(StoreBoxDetail boxDetail) {
-    }
 }

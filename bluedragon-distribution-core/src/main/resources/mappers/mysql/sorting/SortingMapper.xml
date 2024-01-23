@@ -56,8 +56,7 @@
             #{operatorTypeCode,jdbcType=INTEGER},#{operatorId,jdbcType=VARCHAR})
     </insert>
 
-
-	<insert id="batchAdd" parameterType="sorting">
+	<insert id="batchAdd">
 		INSERT INTO Sorting (
 		sorting_id, bsend_code , box_code, package_code, waybill_code, pickup_code,
 		sorting_type, create_site_code, receive_site_code,
@@ -457,8 +456,8 @@
 	<update id="batchDelete">
 		update sorting
 		set yn= 0,update_time =now()
-		WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		and box_code =#{boxCode}
+		WHERE create_site_code = #{list[0].createSiteCode,jdbcType=INTEGER}
+		and box_code =#{list[0].boxCode}
 		AND package_code IN
 		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
 			#{item.packageCode,jdbcType=VARCHAR}

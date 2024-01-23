@@ -149,7 +149,7 @@
 			transport_type=#{transportType},
 			mix_box_type=#{mixBoxType},
 			update_time = now()
-		WHERE  box_id =#{id}  AND box_code = #{code} AND create_site_code = #{createSiteCode}
+		WHERE  box_id =#{id}  AND box_code = #{code}
 	</update>
 
 </mapper>

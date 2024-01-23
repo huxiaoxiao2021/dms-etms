@@ -4,6 +4,8 @@ import com.jd.bluedragon.distribution.box.domain.GenerateBoxReq;
 import com.jd.bluedragon.distribution.box.domain.GenerateBoxResp;
 import com.jd.bluedragon.distribution.box.domain.StoreInfo;
 import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.external.gateway.store.TpCollectPackageGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -14,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -26,6 +29,8 @@ public class TpCollectPackageGatewayServiceTest {
 
     @Autowired
     private TpCollectPackageGatewayService tpCollectPackageGatewayService;
+    @Autowired
+    DeliveryService deliveryService;
 
 
 
@@ -49,18 +54,18 @@ public class TpCollectPackageGatewayServiceTest {
     public void testUpdateBox() throws Exception {
 
         UpdateBoxReq req =new UpdateBoxReq();
-        req.setBoxCode("BW1004240117250000100109");
+        req.setBoxCode("BW1004240123290000100109");
 
         StoreInfo storeInfo =new StoreInfo();
         storeInfo.setStoreType("wms");
-        storeInfo.setCky2(1);
-        storeInfo.setStoreId(2);
+        storeInfo.setCky2(633);
+        storeInfo.setStoreId(282);
         req.setStoreInfo(storeInfo);
 
 
         req.setReceiveSiteCode(39);
 
-        req.setMixBoxType(1);
+        req.setMixBoxType(0);
         req.setTransportType(2);
 
         req.setUserCode(1);
@@ -72,6 +77,15 @@ public class TpCollectPackageGatewayServiceTest {
         JdResponse resp = tpCollectPackageGatewayService.updateBox(req);
 
         System.out.println(JsonHelper.toJson(resp));
+    }
+
+
+    @Test
+    public void getCancelSendByBox() throws Exception {
+
+        List<SendDetail> sendDetailList = deliveryService.getCancelSendByBox("BW1004240123290000100109");
+
+        System.out.println(JsonHelper.toJson(sendDetailList));
     }
 
 
