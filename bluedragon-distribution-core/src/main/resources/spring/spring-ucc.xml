@@ -339,6 +339,7 @@
 		<property name="jyWarehouseManualTaskKeyVehicleTypes" value="${jyWarehouseManualTaskKeyVehicleTypes:''}"/>
 		<property name="waybillZeroWeightInterceptSwitch" value="${waybillZeroWeightInterceptSwitch:true}"/>
 		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
+		<property name="allowEntryHours" value="${allowEntryHours:1}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -664,6 +665,7 @@
 				<value>uccPropertyConfiguration.jyWarehouseManualTaskKeyVehicleTypes</value>
 				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSwitch</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
+				<value>uccPropertyConfiguration.allowEntryHours</value>
 			</list>
 		</property>
 	</bean>
