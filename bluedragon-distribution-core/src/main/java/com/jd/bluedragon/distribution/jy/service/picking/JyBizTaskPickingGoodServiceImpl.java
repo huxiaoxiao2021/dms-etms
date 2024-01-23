@@ -108,13 +108,15 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
 
     @Override
     public boolean finishPickingTaskByBizId(String bizId, Integer completeNode, User operator) {
+        Date now = new Date();
         JyBizTaskPickingGoodEntityCondition condition = new JyBizTaskPickingGoodEntityCondition();
         condition.setBizId(bizId);
         condition.setCompleteNode(completeNode);
         condition.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
-        condition.setUpdateTime(new Date());
+        condition.setUpdateTime(now);
         condition.setUpdateUserErp(operator.getUserErp());
         condition.setUpdateUserName(operator.getUserName());
+        condition.setPickingCompleteTime(now);
         jyBizTaskPickingGoodDao.updateTaskByBizIdWithCondition(condition);
         return true;
     }

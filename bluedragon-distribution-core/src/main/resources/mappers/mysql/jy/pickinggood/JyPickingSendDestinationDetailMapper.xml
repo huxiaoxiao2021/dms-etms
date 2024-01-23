@@ -145,7 +145,7 @@
             update_user_erp = #{updateUserErp},
             update_user_name = #{updateUserName},
             update_time = #{updateTime},
-            complete_time = #{updateTime}
+            complete_time = #{completeTime}
     where   yn = 1
     and     status = #{status}
     and     create_site_id = #{createSiteId}

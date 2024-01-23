@@ -795,6 +795,9 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             invokeResult.parameterError("分页参数不能为空！");
             return;
         }
+        if (req.getKeyword() != null) {
+            req.setKeyword(req.getKeyword().trim());
+        }
     }
 
     private AirRailTaskCountQueryDto buildCountQueryDto(AirRailTaskSummaryReq req, List<String> bizIdList) {
@@ -943,6 +946,9 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         if (req.getStatus() == null) {
             invokeResult.parameterError("提货任务状态不能为空！");
             return;
+        }
+        if (req.getKeyword() != null) {
+            req.setKeyword(req.getKeyword().trim());
         }
     }
 

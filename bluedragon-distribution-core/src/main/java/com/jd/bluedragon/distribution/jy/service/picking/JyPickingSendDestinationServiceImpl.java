@@ -115,12 +115,13 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
 
     @Override
     public Boolean finishSendTask(FinishSendTaskReq req) {
+        Date now = new Date();
         JyPickingSendDestinationDetailEntity entity = new JyPickingSendDestinationDetailEntity();
         entity.setStatus(JyPickingSendTaskEnum.TO_SEAL.getCode());
         entity.setCreateSiteId((long) req.getCurrentOperate().getSiteCode());
         entity.setNextSiteId((long) req.getNextSiteId());
-        entity.setCompleteTime(new Date());
-        entity.setUpdateTime(new Date());
+        entity.setCompleteTime(now);
+        entity.setUpdateTime(now);
         entity.setUpdateUserErp(req.getUser().getUserErp());
         entity.setUpdateUserName(req.getUser().getUserName());
         entity.setTaskType(req.getTaskType());
