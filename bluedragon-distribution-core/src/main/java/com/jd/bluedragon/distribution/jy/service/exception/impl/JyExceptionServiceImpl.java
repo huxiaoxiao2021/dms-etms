@@ -661,7 +661,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             Map<String, JyExceptionDamageDto> damageDtoMap = getDamageDetailMapByBizTaskList(taskList, req.getStatus());
 
             // 读取拦截数据明细
-            final Map<String, JyExceptionInterceptDetail> interceptDetailMapGbBizId = getInterceptDetailMapByBizTaskList(taskList, req.getStatus());
+            final Map<String, JyExceptionInterceptDetail> interceptDetailMapGbBizId = getInterceptDetailMapByBizTaskList(req, taskList, req.getStatus());
             for (JyBizTaskExceptionEntity entity : taskList) {
                 // 拼装dto
                 ExpTaskDto dto = this.copyEntityToExpTaskDto(entity, scrappedDtoMap);
@@ -850,19 +850,26 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param status
      * @return
      */
-    private Map<String, JyExceptionInterceptDetail> getInterceptDetailMapByBizTaskList(List<JyBizTaskExceptionEntity> taskList, Integer status) {
+    private Map<String, JyExceptionInterceptDetail> getInterceptDetailMapByBizTaskList(ExpTaskPageReq req, List<JyBizTaskExceptionEntity> taskList, Integer status) {
         List<String> bizIdList = taskList.stream()
                 .filter(t-> Objects.equals(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode(),t.getType())
-                        && (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), t.getStatus())
+                        && (Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(), t.getStatus())
+                        || Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), t.getStatus())
                         || Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), t.getStatus())))
                 .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
         logger.info("setDataForDamageList getInterceptDetailMapByBizTaskList:{}, status:{}", JSON.toJSONString(bizIdList), status);
         final JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery = new JyExceptionInterceptDetailQuery();
+        jyExceptionInterceptDetailQuery.setSiteId(req.getSiteId());
+        jyExceptionInterceptDetailQuery.setBizIdList(bizIdList);
+        Map<String, JyExceptionInterceptDetail> mapResult = new HashMap<>();
+        if (CollectionUtils.isEmpty(bizIdList)) {
+            return mapResult;
+        }
         final List<JyExceptionInterceptDetail> jyExceptionInterceptDetails = jyExceptionInterceptDetailDao.queryList(jyExceptionInterceptDetailQuery);
         if(CollectionUtils.isNotEmpty(jyExceptionInterceptDetails)){
-            return jyExceptionInterceptDetails.stream().collect(Collectors.toMap(JyExceptionInterceptDetail::getBizId, v -> v));
+            mapResult = jyExceptionInterceptDetails.stream().collect(Collectors.toMap(JyExceptionInterceptDetail::getBizId, v -> v));
         }
-        return new HashMap<>();
+        return mapResult;
     }
 
     /**

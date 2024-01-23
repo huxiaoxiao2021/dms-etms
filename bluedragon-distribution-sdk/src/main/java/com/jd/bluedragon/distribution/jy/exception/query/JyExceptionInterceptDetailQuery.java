@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.exception.query;
 
+import com.jd.dms.java.utils.sdk.base.BaseQuery;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -11,12 +13,14 @@ import java.util.List;
  * @author fanggang7
  * @time 2023-11-12 14:09:38 周日
  */
-public class JyExceptionInterceptDetailQuery implements Serializable {
+public class JyExceptionInterceptDetailQuery extends BaseQuery implements Serializable {
     private static final long serialVersionUID = 5454155825314635342L;
 
     private Long id;
 
     private List<Long> idList;
+
+    private List<String> bizIdList;
 
     /**
      * 场地ID
@@ -76,6 +80,14 @@ public class JyExceptionInterceptDetailQuery implements Serializable {
 
     public void setIdList(List<Long> idList) {
         this.idList = idList;
+    }
+
+    public List<String> getBizIdList() {
+        return bizIdList;
+    }
+
+    public void setBizIdList(List<String> bizIdList) {
+        this.bizIdList = bizIdList;
     }
 
     public Integer getSiteId() {
