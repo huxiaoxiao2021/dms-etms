@@ -2244,8 +2244,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetailDto.setCreateUserName(jyExceptionInterceptDetailExist.getCreateUserName());
         jyExceptionInterceptDetailDto.setTaskType(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode());
         jyExceptionInterceptDetailDto.setTaskTypeName(JyBizTaskExceptionTypeEnum.INTERCEPT.getName());
-        jyExceptionInterceptDetailDto.setInterceptType(jyExceptionInterceptDetailDto.getInterceptType());
-        jyExceptionInterceptDetailDto.setInterceptTypeName(jyExceptionInterceptDetailDto.getInterceptTypeName());
+        jyExceptionInterceptDetailDto.setInterceptType(jyExceptionInterceptDetailExist.getInterceptType());
+        jyExceptionInterceptDetailDto.setInterceptTypeName(jyExceptionInterceptDetailExist.getInterceptTypeName());
         if (StringUtils.isNotBlank(jyExceptionInterceptDetailExist.getInterceptTypeName())) {
             jyExceptionInterceptDetailDto.setInterceptTypeName(jyExceptionInterceptDetailExist.getInterceptTypeName());
         } else {
