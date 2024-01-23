@@ -5,6 +5,7 @@ import com.jdl.basic.api.domain.tenant.JyConfigDictTenant;
 import com.jdl.basic.api.service.tenant.JyConfigDictTenantJsfService;
 import com.jdl.basic.common.utils.ObjectHelper;
 import com.jdl.basic.common.utils.Result;
+import com.jdl.basic.common.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +44,29 @@ public class TenantManagerImpl implements TenantManager {
             }
         }catch (Exception e){
             log.error("根据场地:{}获取租户信息异常",siteCode,e);
+        }
+        return null;
+    }
+
+    /**
+     * 获取调用接口别名
+     * @param tenantCode 租户编码
+     * @param dictCode 字典编码
+     * @return 调用接口别名
+     * @throws Exception 异常
+     */
+    @Override
+    public String getCallInterfaceAlies(String tenantCode, String dictCode) {
+        if(StringUtils.isBlank(tenantCode) || StringUtils.isBlank(dictCode)){
+            return null;
+        }
+        try {
+            Result<String> rs = jyConfigDictTenantJsfService.getCallInterfaceAlies(tenantCode,dictCode);
+            if (ObjectHelper.isNotNull(rs) && rs.isSuccess() && StringUtils.isNotBlank(rs.getData())) {
+                return rs.getData();
+            }
+        }catch (Exception e){
+            log.error("租户{}获取接口回调别名异常",tenantCode,e);
         }
         return null;
     }

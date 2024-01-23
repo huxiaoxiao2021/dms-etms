@@ -18,4 +18,12 @@ public interface TenantManager {
      * @return JyConfigDictTenant 返回对应的租户信息
      */
     JyConfigDictTenant getTenantBySiteCode(Integer siteCode);
+
+    /**
+     * 获取调用接口别名
+     * @param tenantCode 租户代码
+     * @param dictCode 字典代码
+     * @return 调用接口别名
+     */
+    String getCallInterfaceAlies(String tenantCode,String dictCode);
 }

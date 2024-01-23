@@ -1578,10 +1578,10 @@
         <!--对应租户配置中的字典KEY，用于获取对应回调JSF别名使用-->
         <constructor-arg name="tenantJsfAliasConfigKey" value="xxx"></constructor-arg>
     </bean>
-    <jsf:consumerGroup id="jyUnloadVehicleCallbackJsfService"
+    <jsf:consumerGroup id="callbackJsfService"
                        interface="com.jd.bluedragon.distribution.jy.api.callback.JyUnloadVehicleCallbackJsfService"
                        protocol="jsf"
-                       alias="default"
+                       alias="CC-DISPATCH"
                        timeout="${jsf.timeout}"
                        retries="${jsf.retries}"
                        serialization="hessian"
