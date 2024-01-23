@@ -66,7 +66,7 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
             // 2. 业务条件判断
             final Result<Void> businessCheckResult = this.checkBusinessParam4ConsumeDmsBusinessInterceptReport(businessInterceptReport);
             if (!businessCheckResult.isSuccess()) {
-                if(checkResult.getCode() == businessParamCheck4ConsumeDmsBusinessInterceptReportCode){
+                if(businessCheckResult.getCode() == businessParamCheck4ConsumeDmsBusinessInterceptReportCode){
                     log.info("BusinessInterceptExceptionTaskServiceImpl.consumeDmsBusinessInterceptReport no operatePositionCode {}", JsonHelper.toJson(businessInterceptReport));
                     return result.toSuccess();
                 }
