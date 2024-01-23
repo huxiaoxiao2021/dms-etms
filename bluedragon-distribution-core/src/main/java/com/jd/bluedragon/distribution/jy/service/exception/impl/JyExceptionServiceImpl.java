@@ -2392,7 +2392,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             JyExceptionInterceptDetail jyExceptionInterceptDetail = new JyExceptionInterceptDetail();
             jyExceptionInterceptDetail.setBizId(req.getBizId());
             jyExceptionInterceptDetail.setSiteId(jyExceptionInterceptDetailExist.getSiteId());
-            jyExceptionInterceptDetail.setSaveType(JyExpSaveTypeEnum.TEMP_SAVE.getCode());
             final User user = req.getUser();
             jyExceptionInterceptDetail.setUpdateUserId((long)user.getUserCode());
             jyExceptionInterceptDetail.setUpdateUserCode(user.getUserErp());
