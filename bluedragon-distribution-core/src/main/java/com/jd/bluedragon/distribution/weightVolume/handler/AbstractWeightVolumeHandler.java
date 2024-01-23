@@ -5,26 +5,34 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.merchant.ExpressOrderServiceWsManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.enums.OverLengthAndWeightTypeEnum;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeCheckService;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillPickup;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.merchant.sdk.b2b.constant.enumImpl.SystemCallerEnum;
 import com.jd.merchant.sdk.order.dto.BaseInfo;
 import com.jd.merchant.sdk.order.dto.UpdateOrderRequest;
@@ -34,6 +42,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService;
 import com.jd.ql.dms.report.weightVolumeFlow.domain.WeightVolumeFlowEntity;
 
+import com.jdl.basic.api.enums.WorkSiteTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -42,7 +51,18 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import java.text.DecimalFormat;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
+import static com.jd.bluedragon.distribution.waybill.domain.WaybillStatus.*;
+import static com.jd.bluedragon.distribution.waybill.domain.WaybillStatus.WAYBILL_STATUS_CODE_SITE_SORTING;
+import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.*;
+import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_PACKAGE_FAST_TRANSPORT;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isConvey;
+import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 
 /**
  * <p>
@@ -76,7 +96,10 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     
     @Autowired
     @Qualifier("expressOrderServiceWsManager")
-    private ExpressOrderServiceWsManager expressOrderServiceWsManager;    
+    private ExpressOrderServiceWsManager expressOrderServiceWsManager;
+
+    @Autowired
+    private DMSWeightVolumeService weightVolumeService;
 
     @Override
     public InvokeResult<Boolean> handlerOperateWeightVolume(WeightVolumeEntity entity) {
@@ -287,6 +310,14 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
      * @param result
      */
     protected void weightVolumeRuleCheckHandlerNew(WeightVolumeContext weightVolumeContext,InvokeResult<Boolean> result) {
+        // 非0复重量体积拦截
+        InvokeResult<Void> interceptResult= weightVolumeService.waybillNotZeroWeightIntercept(getWeightVolumeEntity(weightVolumeContext));
+        if (!interceptResult.codeSuccess()) {
+            result.setCode(interceptResult.getCode());
+            result.setMessage(interceptResult.getMessage());
+            return;
+        }
+
         if(!WeightVolumeBusinessTypeEnum.BY_BOX.name().equals(weightVolumeContext.getBusinessType())
                 && commonCheckIntercept(weightVolumeContext, result)){
             return;
@@ -300,6 +331,15 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             return;
         }
         checkBInternetRule(weightVolumeContext, result);
+    }
+
+    private WeightVolumeEntity getWeightVolumeEntity(WeightVolumeContext weightVolumeContext) {
+        WeightVolumeEntity entity = new WeightVolumeEntity();
+        entity.setOperateSiteCode(weightVolumeContext.getOperateSiteCode());
+        entity.setBarCode(weightVolumeContext.getBarCode());
+        entity.setOperatorCode(weightVolumeContext.getOperatorCode());
+        entity.setSourceCode(FromSourceEnum.valueOf(weightVolumeContext.getSourceCode()));
+        return entity;
     }
 
     protected abstract void basicVerification(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result);

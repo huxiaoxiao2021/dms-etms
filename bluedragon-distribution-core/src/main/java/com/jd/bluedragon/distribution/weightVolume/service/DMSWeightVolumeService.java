@@ -62,4 +62,10 @@ public interface DMSWeightVolumeService {
      */
 	JdResult<WeightVolumeUploadResult> checkBeforeUpload(WeightVolumeCondition condition);
 
+    /**
+     * 非0重量拦截
+     * @param entity
+     * @return
+     */
+    InvokeResult<Void> waybillNotZeroWeightIntercept(WeightVolumeEntity entity);
 }

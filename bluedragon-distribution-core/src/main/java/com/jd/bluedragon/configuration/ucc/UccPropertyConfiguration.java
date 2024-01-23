@@ -1586,6 +1586,16 @@ public class UccPropertyConfiguration{
      */
     private String jyWarehouseManualTaskKeyVehicleTypes;
 
+    /**
+     * 包裹非0重量体积拦截开关
+     */
+    private Boolean waybillZeroWeightInterceptSwitch;
+
+    /**
+     * 自动化称重限制开关
+     */
+    private Boolean automaticWeightVolumeUpperCheckSwitch;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4274,4 +4284,20 @@ public class UccPropertyConfiguration{
         this.jyWarehouseManualTaskKeyVehicleTypes = jyWarehouseManualTaskKeyVehicleTypes;
     }
 
+
+    public Boolean getWaybillZeroWeightInterceptSwitch() {
+        return waybillZeroWeightInterceptSwitch;
+    }
+
+    public void setWaybillZeroWeightInterceptSwitch(Boolean waybillZeroWeightInterceptSwitch) {
+        this.waybillZeroWeightInterceptSwitch = waybillZeroWeightInterceptSwitch;
+    }
+
+    public Boolean getAutomaticWeightVolumeUpperCheckSwitch() {
+        return automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
+        this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
+    }
 }

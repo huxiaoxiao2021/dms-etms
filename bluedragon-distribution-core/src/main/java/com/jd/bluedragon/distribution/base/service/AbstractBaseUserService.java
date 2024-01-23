@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.base.service;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
@@ -18,6 +20,7 @@ import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.sdk.modules.client.ProgramTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
@@ -99,6 +102,9 @@ public abstract class AbstractBaseUserService implements LoginService {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private FuncUsageConfigService funcUsageConfigService;
+
     @Override
     @JProfiler(jKey = "DMS.BASE.AbstractBaseUserService.clientLoginIn", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public LoginUserResponse clientLoginIn(LoginRequest request) {
@@ -120,6 +126,49 @@ public abstract class AbstractBaseUserService implements LoginService {
             response.setMessage(msg);
             return response;
         }
+        return checkCanUse(request,response);
+    }
+
+    /**
+     * 检查是否可以登录使用
+     * @param request
+     * @param response
+     * @return
+     */
+    private LoginUserResponse checkCanUse(LoginRequest request,LoginUserResponse response){
+        if(JdResponse.CODE_OK.equals(response.getCode())){
+            if(StringUtils.isNotBlank(request.getClientInfo()) ){
+                ClientInfo clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
+                boolean needCheckFlag = Boolean.FALSE;
+                FuncUsageConfigRequestDto funcUsageConfigRequestDto = new FuncUsageConfigRequestDto();
+                //win pda
+                if(ProgramTypeEnum.PDA_WF_10.getCode().equals(clientInfo.getProgramType())
+                        || ProgramTypeEnum.PDA_WF_20.getCode().equals(clientInfo.getProgramType())
+                        || ProgramTypeEnum.PDA_WF_30.getCode().equals(clientInfo.getProgramType())
+                        || ProgramTypeEnum.PDA_PC.getCode().equals(clientInfo.getProgramType())) {
+                    funcUsageConfigRequestDto.setFuncCode(Constants.SYS_CONFIG_WIN_PDA_OFFLINE);
+                    needCheckFlag = Boolean.TRUE;
+                }
+                //android pda
+                if(ProgramTypeEnum.PDA_ANDROID.getCode().equals(clientInfo.getProgramType())) {
+                    funcUsageConfigRequestDto.setFuncCode(Constants.SYS_CONFIG_ANDROID_PDA_OFFLINE);
+                    needCheckFlag = Boolean.TRUE;
+                }
+                //需要进行检查
+                if(needCheckFlag){
+                    com.jd.bluedragon.common.dto.base.request.OperateUser operateUser = new com.jd.bluedragon.common.dto.base.request.OperateUser();
+                    operateUser.setSiteCode(response.getSiteCode());
+                    funcUsageConfigRequestDto.setOperateUser(operateUser);
+                    FuncUsageProcessDto processDto =  funcUsageConfigService.getFuncUsageConfig(funcUsageConfigRequestDto);
+                    if(processDto != null && Constants.YN_NO.equals(processDto.getCanUse())){
+                        response.setCode(JdResponse.CODE_WRONG_STATUS);
+                        response.setMessage(processDto.getMsg());
+                        return response;
+                    }
+                }
+            }
+        }
+
         return response;
     }
 

@@ -752,7 +752,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 throw new JyBizException(String.format("没有找到%s的流向场地", keyword));
             }
             // 入参有则取入参的，没有则取路由
-            entity.setNextSiteId(Integer.valueOf(keyword));
+            entity.setNextSiteId(routeNextDto.getFirstNextSiteId());
         }
         //航班号(拼音开头)
         else if(Character.isLetter(keyword.charAt(0))) {

@@ -281,23 +281,7 @@ public interface BaseService{
      */
     MenuUsageProcessDto getClientMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto);
 
-    /**
-     * 获取全局功能管控配置
-     * @param funcUsageConfigRequestDto 请求参数
-     * @return 功能可用性结果
-     * @author fanggang7
-     * @time 2023-03-22 19:59:20 周三
-     */
-    GlobalFuncUsageControlDto getGlobalFuncUsageControlConfig(FuncUsageConfigRequestDto funcUsageConfigRequestDto);
 
-    /**
-     * 根据功能编码获取功能可用性配置结果
-     * @param funcUsageConfigRequestDto 请求参数
-     * @return 菜单可用性结果
-     * @author fanggang7
-     * @time 2022-04-11 16:47:33 周一
-     */
-    FuncUsageProcessDto getFuncUsageConfig(FuncUsageConfigRequestDto funcUsageConfigRequestDto);
 
 	/**
 	 * 校验菜单是否可用

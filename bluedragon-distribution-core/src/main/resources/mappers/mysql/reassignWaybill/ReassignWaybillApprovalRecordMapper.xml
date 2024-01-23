@@ -30,13 +30,14 @@
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
     <result column="ts" property="ts" jdbcType="TIMESTAMP" />
     <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="image_urls" property="imageUrls" jdbcType="VARCHAR"/>
   </resultMap>
   <sql id="Base_Column_List" >
     id, province_agency_code, province_agency_name, area_hub_code, area_hub_name, site_code, 
     site_name, application_user_erp, bar_code, submit_time, receive_site_code, receive_site_name, 
     change_site_code, change_site_name, change_site_reason_type,  first_checker,
     first_check_status, first_check_time, second_checker, second_check_status, second_check_time, 
-    check_end_flag, create_user_erp, update_user_erp, create_time, update_time, ts, yn
+    check_end_flag, create_user_erp, update_user_erp, create_time, update_time, ts, yn, image_urls
   </sql>
   <select id="selectByBarCodeApprovalNoPass" resultMap="BaseResultMap" parameterType="String" >
     select 
@@ -135,6 +136,9 @@
       <if test="yn != null" >
         yn,
       </if>
+      <if test="imageUrls != null" >
+        image_urls,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -220,6 +224,9 @@
       </if>
       <if test="yn != null" >
         #{yn,jdbcType=BIT},
+      </if>
+      <if test="imageUrls != null" >
+        #{imageUrls,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
