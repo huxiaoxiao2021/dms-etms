@@ -2404,14 +2404,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 // todo 调换单接口
             }
             // 3.2 状态置为处理中
-            JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
-            bizTaskExceptionUpdate.setBizId(req.getBizId());
-            bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.PROCESSING.getCode());
-            bizTaskExceptionUpdate.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode());
-            bizTaskExceptionUpdate.setUpdateUserErp(user.getUserErp());
-            bizTaskExceptionUpdate.setUpdateUserName(user.getUserName());
-            bizTaskExceptionUpdate.setUpdateTime(currentDate);
-            jyBizTaskExceptionDao.updateByBizId(bizTaskExceptionUpdate);
+            if (!Objects.equals(BusinessInterceptTypeEnum.ZERO_WEIGHT.getCode(), jyExceptionInterceptDetailExist.getInterceptType())) {
+                JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
+                bizTaskExceptionUpdate.setBizId(req.getBizId());
+                // 0重量的不设置为处理中
+                bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.PROCESSING.getCode());
+                bizTaskExceptionUpdate.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode());
+                bizTaskExceptionUpdate.setUpdateUserErp(user.getUserErp());
+                bizTaskExceptionUpdate.setUpdateUserName(user.getUserName());
+                bizTaskExceptionUpdate.setUpdateTime(currentDate);
+                jyBizTaskExceptionDao.updateByBizId(bizTaskExceptionUpdate);
+            }
             result.toSuccess(true, "处理成功");
         } catch (Exception e) {
             result.toFail("接口异常");
@@ -2497,17 +2500,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyExceptionInterceptDetail.setInputWeight(req.getWeight());
             jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
 
-            // 3.2 状态置为完结
-            JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
-            bizTaskExceptionUpdate.setBizId(req.getBizId());
+            // 3.2 若是提交保存，状态置为完结
             if (Objects.equals(req.getSaveType(), JyExpSaveTypeEnum.SAVE.getCode())) {
+                JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
+                bizTaskExceptionUpdate.setBizId(req.getBizId());
                 bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.COMPLETE.getCode());
                 bizTaskExceptionUpdate.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
+                bizTaskExceptionUpdate.setUpdateUserErp(user.getUserErp());
+                bizTaskExceptionUpdate.setUpdateUserName(user.getUserName());
+                bizTaskExceptionUpdate.setUpdateTime(currentDate);
+                jyBizTaskExceptionDao.updateByBizId(bizTaskExceptionUpdate);
             }
-            bizTaskExceptionUpdate.setUpdateUserErp(user.getUserErp());
-            bizTaskExceptionUpdate.setUpdateUserName(user.getUserName());
-            bizTaskExceptionUpdate.setUpdateTime(currentDate);
-            jyBizTaskExceptionDao.updateByBizId(bizTaskExceptionUpdate);
 
             result.toSuccess(true, "提交成功");
         } catch (Exception e) {
