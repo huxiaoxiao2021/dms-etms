@@ -98,47 +98,54 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         Long siteId = (long)request.getCurrentOperate().getSiteCode();
 
         if(BusinessUtil.isBoxcode(request.getBarCode())) {
+            Integer morePickingBox = 0;
+            Integer handoverPickingBox = 0;
+            Integer moreSendBox = 0;
+            Integer handoverSendBox = 0;
             if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
                 //多提箱件数
-                cacheService.incrRealScanMorePickingBoxNum(bizId, siteId);
+                morePickingBox = cacheService.incrRealScanMorePickingBoxNum(bizId, siteId);
             }else {
-                //实际提货的待提箱件数
-                cacheService.incrRealScanWaitPickingBoxNum(bizId, siteId);
+                //交接提箱件数
+                handoverPickingBox = cacheService.incrRealScanWaitPickingBoxNum(bizId, siteId);
             }
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
-                //实际提货发货的待提箱件数
                 if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
-                    //多提发的箱件数
-//                    cacheService.incrRealScanMoreSendBoxNum(bizId, siteId);
                     //多提发的箱件数【流向维度】
-                    cacheService.incrRealScanFlowMoreSendBoxNum(bizId, siteId, request.getNextSiteId());
+                    moreSendBox = cacheService.incrRealScanFlowMoreSendBoxNum(bizId, siteId, request.getNextSiteId());
                 }else {
-                    //实际提货发货的待提箱的件数【流向维度】
-                    cacheService.incrRealScanFlowWaitSendBoxNum(bizId, siteId, request.getNextSiteId());
+                    //交接提发箱的件数【流向维度】
+                    handoverSendBox = cacheService.incrRealScanFlowWaitSendBoxNum(bizId, siteId, request.getNextSiteId());
                 }
                 //强发箱件数
-
+                logInfo("提货箱件数redis计数加工，bizId={},多提箱件数={}，交接提箱件数={}，发货流向为{}，多发箱件数={}，交接发箱件数={}",
+                        bizId, morePickingBox, handoverPickingBox, request.getNextSiteId(), moreSendBox, handoverSendBox);
             }
         }else if(WaybillUtil.isPackageCode(request.getBarCode())) {
+            Integer morePickingPackage = 0;
+            Integer handoverPickingPackage = 0;
+            Integer moreSendPackage = 0;
+            Integer handoverSendPackage = 0;
             if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
                 //多提包裹件数
-                cacheService.incrRealScanMorePickingPackageNum(bizId, siteId);
+                morePickingPackage = cacheService.incrRealScanMorePickingPackageNum(bizId, siteId);
             }else {
-                //实际提货的待提包裹件数
-                cacheService.incrRealScanWaitPickingPackageNum(bizId, siteId);
+                //交接提包裹件数
+                handoverPickingPackage = cacheService.incrRealScanWaitPickingPackageNum(bizId, siteId);
             }
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
                 if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
-                    //多提发的包裹件数
-//                    cacheService.incrRealScanMoreSendPackageNum(bizId, siteId);
                     //多提发的包裹件数【流向维度】
-                    cacheService.incrRealScanFlowMoreSendPackageNum(bizId, siteId, request.getNextSiteId());
+                    moreSendPackage = cacheService.incrRealScanFlowMoreSendPackageNum(bizId, siteId, request.getNextSiteId());
                 }else {
-                    //实际提货发货的待提包裹件数【流向维度】
-                    cacheService.incrRealScanFlowWaitSendPackageNum(bizId, siteId, request.getNextSiteId());
+                    //交接提发的包裹件数【流向维度】
+                    handoverSendPackage = cacheService.incrRealScanFlowWaitSendPackageNum(bizId, siteId, request.getNextSiteId());
                 }
                 //强发包裹件数
             }
+            logInfo("提货包裹件数redis计数加工，bizId={},多提包裹件数={}，交接提包裹件数={}，发货流向为{}，多发包裹件数={}，交接发包裹件数={}",
+                    bizId, morePickingPackage, handoverPickingPackage, request.getNextSiteId(), moreSendPackage, handoverSendPackage);
+
         }  else {
             logWarn("提货的类型非箱号、非包裹号。不做计算， request={},bizId={}", JsonHelper.toJson(request), entity.getBizId());
         }
@@ -231,6 +238,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
                     aggs.setWaitSendTotalNum(entity.getWaitScanTotalCount());
                     res.add(aggs);
                     cacheService.saveCacheInitWaitPickingTotalItemNum(entity.getBizId(), siteId, entity.getWaitScanTotalCount());
+                    logInfo("任务维度待提件数agg查询同步到redis计数加工：bizId={},num={}", entity.getBizId(), entity.getWaitScanTotalCount());
                 });
             }else {
                 List<JyPickingTaskSendAggsEntity> sendAggsEntityList = jyPickingTaskSendAggsDao.findByBizIdList(nullCacheBizId, siteId, sendNextSiteId);
@@ -240,6 +248,8 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
                     aggs.setWaitSendTotalNum(entity.getWaitScanTotalCount());
                     res.add(aggs);
                     cacheService.saveCacheInitWaitSendTotalItemNum(entity.getBizId(), siteId, sendNextSiteId, entity.getWaitScanTotalCount());
+                    logInfo("流向维度待提件数agg查询同步到redis计数加工：bizId={},nextSiteId={}, num={}", entity.getBizId(), sendNextSiteId, entity.getWaitScanTotalCount());
+
                 });
             }
 
@@ -308,6 +318,8 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             jyPickingTaskAggsDao.updatePickingAggWaitScanItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(), totalNum);
         }
         cacheService.saveCacheInitWaitPickingTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(), totalNum);
+        logInfo("任务维度待提件数初始化到redis计数加工：bizId={},num={}, 批次号={}", entity.getBizId(), totalNum, paramDto.getBatchCode());
+
 
     }
 
@@ -327,6 +339,8 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             jyPickingTaskSendAggsDao.updatePickingAggWaitScanItemNum(paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), paramDto.getBizId(), totalNum);
         }
         cacheService.saveCacheInitWaitSendTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), totalNum);
+        logInfo("流向维度待提件数初始化到redis计数加工：bizId={}, nextSiteId={}, num={}, 批次号={}", entity.getBizId(), paramDto.getNextSiteId(), totalNum, paramDto.getBatchCode());
+
     }
 
     @Override
