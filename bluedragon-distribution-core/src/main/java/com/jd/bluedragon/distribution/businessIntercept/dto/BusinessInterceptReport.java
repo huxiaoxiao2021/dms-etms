@@ -180,6 +180,11 @@ public class BusinessInterceptReport implements Serializable {
     private String operateUser;
 
     /**
+     * 操作人  db_column: operate_user
+     */
+    private Long operateUserId;
+
+    /**
      * 操作人名称  db_column: operate_user_name
      */
     private String operateUserName;
@@ -232,7 +237,7 @@ public class BusinessInterceptReport implements Serializable {
     /**
      * 修改人用户ID  db_column: update_user_id
      */
-    private String updateUserId;
+    private Long updateUserId;
 
     /**
      * 修改人名称  db_column: update_user_name
@@ -646,6 +651,14 @@ public class BusinessInterceptReport implements Serializable {
         this.operateUser = operateUser;
     }
 
+    public Long getOperateUserId() {
+        return operateUserId;
+    }
+
+    public void setOperateUserId(Long operateUserId) {
+        this.operateUserId = operateUserId;
+    }
+
     public String getOperateUserName() {
         return operateUserName;
     }
@@ -726,11 +739,11 @@ public class BusinessInterceptReport implements Serializable {
         this.updateUser = updateUser;
     }
 
-    public String getUpdateUserId() {
+    public Long getUpdateUserId() {
         return updateUserId;
     }
 
-    public void setUpdateUserId(String updateUserId) {
+    public void setUpdateUserId(Long updateUserId) {
         this.updateUserId = updateUserId;
     }
 

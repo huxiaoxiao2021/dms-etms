@@ -117,7 +117,7 @@ public class JyExceptionInterceptDetail implements Serializable{
      */
     private String deviceSubTypeName;
     /**
-     * 设备类型名称  db_column: intercept_code
+     * 拦截消息编码  db_column: intercept_code
      */
     private Integer interceptCode;
     /**
