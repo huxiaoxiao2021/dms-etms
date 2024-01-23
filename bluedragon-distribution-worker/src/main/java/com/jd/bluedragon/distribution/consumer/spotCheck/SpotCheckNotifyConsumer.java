@@ -124,6 +124,8 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
 
         // 更新抽检状态
         updateDto.setSpotCheckStatus(status);
+        // 二级超标类型
+        updateDto.setExcessSubType(spotCheckNotifyMQ.getExceedSubType());
 
         // 是否是分拣-设备抽检
         boolean isDwsSpotCheck = SpotCheckConstants.EQUIPMENT_SPOT_CHECK.equals(flowSystem);
@@ -133,12 +135,12 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         if (isDwsSpotCheck && isAppealStatus) {
             // 运单加锁防止并发问题
             String mutexKey = SPOT_CHECK_APPEAL_PREFIX + waybillCode;
+            if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {
+                String warnMsg = String.format("运单号:%s-设备抽检申诉核对记录保存正在处理中!", waybillCode);
+                logger.warn(warnMsg);
+                throw new JyBizException(warnMsg);
+            }
             try {
-                if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {
-                    String warnMsg = String.format("运单号:%s-设备抽检申诉核对记录保存正在处理中!", waybillCode);
-                    logger.warn(warnMsg);
-                    throw new JyBizException(warnMsg);
-                }
                 // 组装申诉记录数据
                 SpotCheckAppealEntity spotCheckAppealEntity = transformData(spotCheckNotifyMQ, updateDto);
                 // 查询是否已经保存过
