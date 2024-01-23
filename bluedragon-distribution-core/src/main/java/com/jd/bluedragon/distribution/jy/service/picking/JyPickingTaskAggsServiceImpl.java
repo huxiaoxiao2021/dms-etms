@@ -277,15 +277,16 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     public List<PickingSendGoodAggsDto> findPickingAgg(List<String> bizIdList, Long siteId, Long sendNextSiteId) {
         List<PickingSendGoodAggsDto> res = this.waitPickingInitTotalNum(bizIdList, siteId, sendNextSiteId);
         res.forEach(pickingSendDto -> {
-            pickingSendDto.setRealSendTotalNum(this.getRealPickingTotalNum(pickingSendDto.getBizId(), siteId, sendNextSiteId));
-            pickingSendDto.setMoreSendTotalNum(this.getRealPickingMoreScanTotalNum(pickingSendDto.getBizId(), siteId, sendNextSiteId));
+            Integer handoverScanTotalNum = this.getRealPickingHandoverScanTotalNum(pickingSendDto.getBizId(), siteId, sendNextSiteId);
+            Integer moreScanTotalNum = this.getRealPickingMoreScanTotalNum(pickingSendDto.getBizId(), siteId, sendNextSiteId);
+            Integer initShouldScanTotalNum = pickingSendDto.getWaitSendTotalNum();
+            Integer waitScanTotalNum = initShouldScanTotalNum - handoverScanTotalNum >= 0 ? initShouldScanTotalNum - handoverScanTotalNum : 0;
+
+            pickingSendDto.setWaitSendTotalNum(waitScanTotalNum);
+            pickingSendDto.setRealSendTotalNum(handoverScanTotalNum + moreScanTotalNum);
+            pickingSendDto.setMoreSendTotalNum(moreScanTotalNum);
         });
         return res;
-    }
-    //实际扫描总件数
-    private int getRealPickingTotalNum(String bizId, Long siteId, Long sendNextSiteId) {
-        return this.getRealPickingHandoverScanTotalNum(bizId, siteId, sendNextSiteId)
-                + this.getRealPickingMoreScanTotalNum(bizId, siteId, sendNextSiteId);
     }
     //实际扫描应交接总件数
     private int getRealPickingHandoverScanTotalNum(String bizId, Long siteId, Long sendNextSiteId) {
@@ -329,7 +330,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             jyPickingTaskAggsDao.updatePickingAggWaitScanItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(), totalNum);
         }
         cacheService.saveCacheInitWaitPickingTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(), totalNum);
-        logInfo("任务维度待提件数初始化到redis计数加工：bizId={},num={}, 批次号={}", entity.getBizId(), totalNum, paramDto.getBatchCode());
+        logInfo("任务维度待提件数初始化到redis计数加工：bizId={},num={}, 批次号={}", paramDto.getBizId(), totalNum, paramDto.getBatchCode());
 
 
     }
@@ -350,7 +351,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             jyPickingTaskSendAggsDao.updatePickingAggWaitScanItemNum(paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), paramDto.getBizId(), totalNum);
         }
         cacheService.saveCacheInitWaitSendTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), totalNum);
-        logInfo("流向维度待提件数初始化到redis计数加工：bizId={}, nextSiteId={}, num={}, 批次号={}", entity.getBizId(), paramDto.getNextSiteId(), totalNum, paramDto.getBatchCode());
+        logInfo("流向维度待提件数初始化到redis计数加工：bizId={}, nextSiteId={}, num={}, 批次号={}", paramDto.getBizId(), paramDto.getNextSiteId(), totalNum, paramDto.getBatchCode());
 
     }
 

@@ -525,7 +525,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             return null;
         }
         JyBizTaskPickingGoodEntity pickingGoodEntity = jyBizTaskPickingGoodService.findByBizIdWithYn(bizId, false);
-        if(!PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(pickingGoodEntity) && !JyBizTaskPickingGoodEntity.INTERCEPT_FLAG.equals(pickingGoodEntity.getIntercept())) {
+        if(!PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(pickingGoodEntity.getStatus()) && !JyBizTaskPickingGoodEntity.INTERCEPT_FLAG.equals(pickingGoodEntity.getIntercept())) {
             return pickingGoodEntity;
         }
         logInfo("{}|{}未查到待提货任务", barCode, siteCode);
