@@ -1984,15 +1984,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 return result.toFail("");
             }
 
-            PositionDetailRecord position = this.getPosition(businessInterceptReport.getOperatePositionCode());
-            if (position == null) {
-                return result.toFail("网格码有误!");
+            final WorkStationGrid workStationGrid = this.getWorkStationGrid(businessInterceptReport.getOperateWorkStationGridKey());
+            if (workStationGrid == null) {
+                return result.toFail("获取拦截数据操作工序信息失败");
             }
 
             // 3.1 插入任务
             JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
             taskEntity.setBizId(bizId);
-            this.assembleJyBizExceptionTask(taskEntity, businessInterceptReport, position);
+            this.assembleJyBizExceptionTask(taskEntity, businessInterceptReport, workStationGrid);
             jyBizTaskExceptionDao.insertSelective(taskEntity);
 
             // 3.2 插入明细
@@ -2019,7 +2019,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         return result;
     }
 
-    private void assembleJyBizExceptionTask(JyBizTaskExceptionEntity taskEntity, BusinessInterceptReport businessInterceptReport, PositionDetailRecord position){
+    private WorkStationGrid getWorkStationGrid(String workStationGridKey) {
+        final WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
+        workStationGridQuery.setBusinessKey(workStationGridKey);
+        final com.jdl.basic.common.utils.Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryByGridKey(workStationGridQuery);
+        if (!workStationGridResult.isSuccess()) {
+            return null;
+        }
+        return workStationGridResult.getData();
+    }
+
+    private void assembleJyBizExceptionTask(JyBizTaskExceptionEntity taskEntity, BusinessInterceptReport businessInterceptReport, WorkStationGrid workStationGrid){
         taskEntity.setType(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode());
         taskEntity.setSource(JyExpSourceEnum.OPERATE_INTERCEPT.getCode());
         taskEntity.setBarCode(businessInterceptReport.getBarCode());
@@ -2027,13 +2037,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         // taskEntity.setSiteCode(businessInterceptReport.getSiteCode().longValue());
         // taskEntity.setSiteName(businessInterceptReport.getSiteName());
 
-        taskEntity.setSiteCode(new Long(position.getSiteCode()));
-        taskEntity.setSiteName(position.getSiteName());
-        taskEntity.setFloor(position.getFloor());
-        taskEntity.setAreaCode(position.getAreaCode());
-        taskEntity.setAreaName(position.getAreaName());
-        taskEntity.setGridCode(position.getGridCode());
-        taskEntity.setGridNo(position.getGridNo());
+        taskEntity.setSiteCode(new Long(workStationGrid.getSiteCode()));
+        taskEntity.setSiteName(workStationGrid.getSiteName());
+        taskEntity.setFloor(workStationGrid.getFloor());
+        taskEntity.setAreaCode(workStationGrid.getAreaCode());
+        taskEntity.setAreaName(workStationGrid.getAreaName());
+        taskEntity.setGridCode(workStationGrid.getGridCode());
+        taskEntity.setGridNo(workStationGrid.getGridNo());
 
         taskEntity.setStatus(JyExpStatusEnum.TO_PICK.getCode());
         taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());

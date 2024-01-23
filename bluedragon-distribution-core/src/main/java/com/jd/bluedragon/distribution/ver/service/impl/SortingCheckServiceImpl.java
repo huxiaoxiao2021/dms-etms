@@ -12,6 +12,7 @@ import com.jd.bluedragon.core.hint.constants.HintModuleConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -220,6 +221,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             saveInterceptMsgDto.setOperateUserCode(pdaOperateRequest.getOperateUserCode());
             saveInterceptMsgDto.setOperateUserName(pdaOperateRequest.getOperateUserName());
             saveInterceptMsgDto.setOnlineStatus(filterContext.getOnlineStatus());
+            saveInterceptMsgDto.setOperatePositionCode(pdaOperateRequest.getPositionCode());
+            saveInterceptMsgDto.setOperateWorkGridKey(pdaOperateRequest.getWorkGridKey());
+            saveInterceptMsgDto.setOperateWorkStationGridKey(pdaOperateRequest.getWorkStationGridKey());
 
             try {
                 businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
@@ -414,6 +418,12 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             pdaOperateRequest.setIsLoss(0);
         }else{
             pdaOperateRequest.setIsLoss(sortingCheck.getIsLoss());
+        }
+        final OperatorData operatorData = sortingCheck.getOperatorData();
+        if (operatorData != null) {
+            pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
+            pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
+            pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
         }
         return pdaOperateRequest;
     }

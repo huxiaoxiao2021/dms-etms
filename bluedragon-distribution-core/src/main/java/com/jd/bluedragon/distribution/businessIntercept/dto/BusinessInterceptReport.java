@@ -379,6 +379,16 @@ public class BusinessInterceptReport implements Serializable {
      */
     private String operatePositionCode;
 
+    /**
+     * 操作网格key:关联场地网格业务主键
+     */
+    private String operateWorkGridKey;
+
+    /**
+     * 操作网格工序:关联场地网格工序业务主键
+     */
+    private String operateWorkStationGridKey;
+
     public String getId() {
         return id;
     }
@@ -969,5 +979,21 @@ public class BusinessInterceptReport implements Serializable {
 
     public void setOperatePositionCode(String operatePositionCode) {
         this.operatePositionCode = operatePositionCode;
+    }
+
+    public String getOperateWorkGridKey() {
+        return operateWorkGridKey;
+    }
+
+    public void setOperateWorkGridKey(String operateWorkGridKey) {
+        this.operateWorkGridKey = operateWorkGridKey;
+    }
+
+    public String getOperateWorkStationGridKey() {
+        return operateWorkStationGridKey;
+    }
+
+    public void setOperateWorkStationGridKey(String operateWorkStationGridKey) {
+        this.operateWorkStationGridKey = operateWorkStationGridKey;
     }
 }

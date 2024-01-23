@@ -5,7 +5,6 @@ import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptDis
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptReport;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionInterceptDetailKvDao;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
-import com.jd.bluedragon.distribution.jy.exception.model.JyExceptionInterceptDetail;
 import com.jd.bluedragon.distribution.jy.exception.model.JyExceptionInterceptDetailKv;
 import com.jd.bluedragon.distribution.jy.exception.query.JyExceptionInterceptDetailKvQuery;
 import com.jd.bluedragon.distribution.jy.exception.query.PackageWithInterceptTypeLastHandleSiteQuery;
@@ -40,7 +39,7 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
     private JyExceptionInterceptDetailKvDao jyExceptionInterceptDetailKvDao;
 
     // 拦截任务触发消息校验数据返回码-无网格码
-    private final int businessParamCheck4ConsumeDmsBusinessInterceptReportCode = 101;
+    private final int businessParamCheckNoWorkStationGrid4ConsumeDmsBusinessInterceptReportCode = 101;
 
     /**
      * 消费拦截报表数据
@@ -66,7 +65,7 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
             // 2. 业务条件判断
             final Result<Void> businessCheckResult = this.checkBusinessParam4ConsumeDmsBusinessInterceptReport(businessInterceptReport);
             if (!businessCheckResult.isSuccess()) {
-                if(businessCheckResult.getCode() == businessParamCheck4ConsumeDmsBusinessInterceptReportCode){
+                if(businessCheckResult.getCode() == businessParamCheckNoWorkStationGrid4ConsumeDmsBusinessInterceptReportCode){
                     log.info("BusinessInterceptExceptionTaskServiceImpl.consumeDmsBusinessInterceptReport no operatePositionCode {}", JsonHelper.toJson(businessInterceptReport));
                     return result.toSuccess();
                 }
@@ -102,8 +101,8 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
      */
     private Result<Void> checkBusinessParam4ConsumeDmsBusinessInterceptReport(BusinessInterceptReport businessInterceptReport){
         Result<Void> result = Result.success();
-        if (StringUtils.isBlank(businessInterceptReport.getOperatePositionCode())) {
-            return result.toFail("操作所在网格为空，不处理", businessParamCheck4ConsumeDmsBusinessInterceptReportCode);
+        if (StringUtils.isBlank(businessInterceptReport.getOperateWorkStationGridKey())) {
+            return result.toFail("操作所在网格为空，不处理", businessParamCheckNoWorkStationGrid4ConsumeDmsBusinessInterceptReportCode);
         }
         return result;
     }
