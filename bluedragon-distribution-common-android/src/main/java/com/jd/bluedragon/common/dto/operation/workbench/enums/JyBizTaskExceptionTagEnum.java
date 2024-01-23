@@ -17,6 +17,7 @@ public enum JyBizTaskExceptionTagEnum {
     HEAVY("heavy", "重货"),
     SCRAPPED("scrapped", "生鲜报废"),
     ASSIGN("assign","组长指派"),
+    INTERCEPT("intercept","拦截"),
     ;
 
     private String code;

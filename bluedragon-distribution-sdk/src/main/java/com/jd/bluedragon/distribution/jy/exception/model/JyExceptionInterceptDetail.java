@@ -39,7 +39,7 @@ public class JyExceptionInterceptDetail implements Serializable{
     /**
      * 场地id  db_column: site_id
      */
-    private Long siteId;
+    private Integer siteId;
     /**
      * 场地名称  db_column: site_name
      */
@@ -89,13 +89,13 @@ public class JyExceptionInterceptDetail implements Serializable{
      */
     private Long interceptEffectTime;
     /**
-     * 拦截类型名称  db_column: intercept_type_name
-     */
-    private String interceptTypeName;
-    /**
      * 拦截类型  db_column: intercept_type
      */
     private Integer interceptType;
+    /**
+     * 拦截类型名称  db_column: intercept_type_name
+     */
+    private String interceptTypeName;
     /**
      * 设备编码  db_column: device_code
      */
@@ -168,6 +168,10 @@ public class JyExceptionInterceptDetail implements Serializable{
      * 录入包裹高度  db_column: input_height
      */
     private BigDecimal inputHeight;
+    /**
+     * 保存状态 0：暂存 1 ：保存  db_column: save_type
+     */
+    private Integer saveType;
     /**
      * 创建人ID  db_column: create_user_id
      */
@@ -256,11 +260,11 @@ public class JyExceptionInterceptDetail implements Serializable{
         this.bizSource = bizSource;
     }
 
-    public Long getSiteId() {
+    public Integer getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(Long siteId) {
+    public void setSiteId(Integer siteId) {
         this.siteId = siteId;
     }
 
@@ -360,20 +364,20 @@ public class JyExceptionInterceptDetail implements Serializable{
         this.interceptEffectTime = interceptEffectTime;
     }
 
-    public String getInterceptTypeName() {
-        return interceptTypeName;
-    }
-
-    public void setInterceptTypeName(String interceptTypeName) {
-        this.interceptTypeName = interceptTypeName;
-    }
-
     public Integer getInterceptType() {
         return interceptType;
     }
 
     public void setInterceptType(Integer interceptType) {
         this.interceptType = interceptType;
+    }
+
+    public String getInterceptTypeName() {
+        return interceptTypeName;
+    }
+
+    public void setInterceptTypeName(String interceptTypeName) {
+        this.interceptTypeName = interceptTypeName;
     }
 
     public String getDeviceCode() {
@@ -518,6 +522,14 @@ public class JyExceptionInterceptDetail implements Serializable{
 
     public void setInputHeight(BigDecimal inputHeight) {
         this.inputHeight = inputHeight;
+    }
+
+    public Integer getSaveType() {
+        return saveType;
+    }
+
+    public void setSaveType(Integer saveType) {
+        this.saveType = saveType;
     }
 
     public Long getCreateUserId() {

@@ -20,7 +20,7 @@ public enum BusinessInterceptTypeEnum {
     /**
      * 0重量拦截
      */
-    ZERO_Weight(10002, "0重量拦截"),
+    ZERO_WEIGHT(10002, "0重量拦截"),
     /**
      * 白条强制拦截 I owe you
      */

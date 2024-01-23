@@ -22,12 +22,12 @@ public class BusinessInterceptReport implements Serializable {
     /**
      * 业务数据来源  db_column: biz_source
      */
-    private Long bizSource;
+    private String bizSource;
 
     /**
      * 区域ID  db_column: org_id
      */
-    private Long orgId;
+    private Integer orgId;
 
     /**
      * 区域名称  db_column: org_name
@@ -55,14 +55,9 @@ public class BusinessInterceptReport implements Serializable {
     private String areaHubName;
 
     /**
-     * 区域名称  db_column: site_id
+     * 场地ID  db_column: site_code
      */
-    private Long siteId;
-
-    /**
-     * 区域名称  db_column: site_code
-     */
-    private Long siteCode;
+    private Integer siteCode;
 
     /**
      * 站点名称  db_column: site_name
@@ -152,7 +147,7 @@ public class BusinessInterceptReport implements Serializable {
     /**
      * 设备子类型名称  db_column: device_sub_type_name
      */
-    private Integer deviceSubTypeName;
+    private String deviceSubTypeName;
 
     /**
      * 设备编码  db_column: device_code
@@ -220,6 +215,11 @@ public class BusinessInterceptReport implements Serializable {
     private String createUser;
 
     /**
+     * 创建人  db_column: create_user_id
+     */
+    private String createUserId;
+
+    /**
      * 创建人名称  db_column: create_user_name
      */
     private String createUserName;
@@ -228,6 +228,11 @@ public class BusinessInterceptReport implements Serializable {
      * 修改人  db_column: update_user
      */
     private String updateUser;
+
+    /**
+     * 修改人用户ID  db_column: update_user_id
+     */
+    private String updateUserId;
 
     /**
      * 修改人名称  db_column: update_user_name
@@ -385,19 +390,19 @@ public class BusinessInterceptReport implements Serializable {
         this.bizId = bizId;
     }
 
-    public Long getBizSource() {
+    public String getBizSource() {
         return bizSource;
     }
 
-    public void setBizSource(Long bizSource) {
+    public void setBizSource(String bizSource) {
         this.bizSource = bizSource;
     }
 
-    public Long getOrgId() {
+    public Integer getOrgId() {
         return orgId;
     }
 
-    public void setOrgId(Long orgId) {
+    public void setOrgId(Integer orgId) {
         this.orgId = orgId;
     }
 
@@ -441,19 +446,11 @@ public class BusinessInterceptReport implements Serializable {
         this.areaHubName = areaHubName;
     }
 
-    public Long getSiteId() {
-        return siteId;
-    }
-
-    public void setSiteId(Long siteId) {
-        this.siteId = siteId;
-    }
-
-    public Long getSiteCode() {
+    public Integer getSiteCode() {
         return siteCode;
     }
 
-    public void setSiteCode(Long siteCode) {
+    public void setSiteCode(Integer siteCode) {
         this.siteCode = siteCode;
     }
 
@@ -593,11 +590,11 @@ public class BusinessInterceptReport implements Serializable {
         this.deviceSubType = deviceSubType;
     }
 
-    public Integer getDeviceSubTypeName() {
+    public String getDeviceSubTypeName() {
         return deviceSubTypeName;
     }
 
-    public void setDeviceSubTypeName(Integer deviceSubTypeName) {
+    public void setDeviceSubTypeName(String deviceSubTypeName) {
         this.deviceSubTypeName = deviceSubTypeName;
     }
 
@@ -705,6 +702,14 @@ public class BusinessInterceptReport implements Serializable {
         this.createUser = createUser;
     }
 
+    public String getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(String createUserId) {
+        this.createUserId = createUserId;
+    }
+
     public String getCreateUserName() {
         return createUserName;
     }
@@ -719,6 +724,14 @@ public class BusinessInterceptReport implements Serializable {
 
     public void setUpdateUser(String updateUser) {
         this.updateUser = updateUser;
+    }
+
+    public String getUpdateUserId() {
+        return updateUserId;
+    }
+
+    public void setUpdateUserId(String updateUserId) {
+        this.updateUserId = updateUserId;
     }
 
     public String getUpdateUserName() {

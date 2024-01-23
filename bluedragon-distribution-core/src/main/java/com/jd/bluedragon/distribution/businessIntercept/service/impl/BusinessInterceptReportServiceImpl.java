@@ -41,6 +41,7 @@ public class BusinessInterceptReportServiceImpl implements IBusinessInterceptRep
 
     /**
      * 发送拦截消息
+     * todo 增加操作所在网格数据，根据此方法找到所有发送者
      *
      * @param msgDto 消息数据
      * @return 发送结果

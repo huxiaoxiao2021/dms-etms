@@ -21,4 +21,13 @@ public interface JyExceptionBusinessInterceptDetailService {
      * @time 2024-01-19 16:14:57 周五
      */
     Result<JyExceptionInterceptDetail> selectOne(JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery);
+
+    /**
+     * 插入明细
+     * @param jyExceptionInterceptDetail 待插入数据
+     * @return 明细结果
+     * @author fanggang7
+     * @time 2024-01-19 16:14:57 周五
+     */
+    Result<JyExceptionInterceptDetail> insertSelective(JyExceptionInterceptDetail jyExceptionInterceptDetail);
 }

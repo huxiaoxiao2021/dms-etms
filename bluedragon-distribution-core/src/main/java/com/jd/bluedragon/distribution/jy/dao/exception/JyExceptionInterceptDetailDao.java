@@ -31,4 +31,8 @@ public class JyExceptionInterceptDetailDao extends BaseDao<JyExceptionInterceptD
     public JyExceptionInterceptDetail selectOne(JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery) {
         return this.getSqlSession().selectOne(NAMESPACE + ".selectOne", jyExceptionInterceptDetailQuery);
     }
+
+    public JyExceptionInterceptDetail updateByBizId(JyExceptionInterceptDetail jyExceptionInterceptDetail) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".updateByBizId", jyExceptionInterceptDetail);
+    }
 }

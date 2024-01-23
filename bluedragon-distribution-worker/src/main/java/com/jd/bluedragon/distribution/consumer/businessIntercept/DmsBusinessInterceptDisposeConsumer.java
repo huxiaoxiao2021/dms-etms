@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.consumer.businessIntercept;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptDisposeRecord;
-import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptExceptionTaskService;
+import com.jd.bluedragon.distribution.jy.service.exception.JyBusinessInterceptExceptionService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.jmq.common.message.Message;
@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 
 /**
- * 业务操作拦截后原始动作消费
+ * 拦截报表加工后的拦截处理明细消息消费逻辑
  *
  * @author fanggang7
- * @time 2020-12-20 18:18:02 周日
+ * @time 2024-01-14 17:30:22 周日
  */
 @Service("dmsBusinessInterceptDisposeConsumer")
 public class DmsBusinessInterceptDisposeConsumer extends MessageBaseConsumer {
@@ -27,7 +27,7 @@ public class DmsBusinessInterceptDisposeConsumer extends MessageBaseConsumer {
     private static final Logger log = LoggerFactory.getLogger(DmsBusinessInterceptDisposeConsumer.class);
 
     @Autowired
-    private IBusinessInterceptExceptionTaskService businessInterceptExceptionTaskService;
+    private JyBusinessInterceptExceptionService businessInterceptExceptionService;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -38,7 +38,7 @@ public class DmsBusinessInterceptDisposeConsumer extends MessageBaseConsumer {
             return;
         }
         BusinessInterceptDisposeRecord msgDto = JsonHelper.fromJsonUseGson(message.getText(), BusinessInterceptDisposeRecord.class);
-        Result<Boolean> handleResult = businessInterceptExceptionTaskService.consumeDmsBusinessInterceptDispose(msgDto);
+        Result<Boolean> handleResult = businessInterceptExceptionService.consumeDmsBusinessInterceptDispose(msgDto);
         if(!handleResult.isSuccess()){
             log.error("DmsBusinessInterceptDisposeConsumer fail " + JSON.toJSONString(handleResult));
             throw new RuntimeException("DmsBusinessInterceptReportConsumer 处理失败 " + handleResult.getMessage());

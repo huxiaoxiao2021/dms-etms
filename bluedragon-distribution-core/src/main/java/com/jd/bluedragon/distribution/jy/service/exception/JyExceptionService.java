@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionCycleTypeEnum;
+import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptDisposeRecord;
+import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptReport;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExCustomerNotifyMQ;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
@@ -145,6 +147,41 @@ public interface JyExceptionService {
     String getGridRid(PositionDetailRecord data);
 
     void pushScrapTrace(JyBizTaskExceptionEntity exTaskEntity);
+
+    /**
+     * 获取bizId
+     * @param businessInterceptReport 拦截记录
+     * @return bizId结果包装
+     * @author fanggang7
+     * @time 2024-01-21 20:21:11 周日
+     *//*
+    String getBizId(BusinessInterceptReport businessInterceptReport);
+
+    *//**
+     * 获取bizId
+     * @param businessInterceptDisposeRecord 拦截处理记录
+     * @return bizId结果包装
+     * @author fanggang7
+     * @time 2024-01-21 20:21:11 周日
+     *//*
+    String getBizId(BusinessInterceptDisposeRecord businessInterceptDisposeRecord, Integer interceptType);*/
+
+    /**
+     * 消费拦截报表明细数据
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    Result<Boolean> handleDmsBusinessInterceptReportUpload(BusinessInterceptReport businessInterceptReport);
+
+    /**
+     * 消费拦截处理消息
+     * @param businessInterceptDisposeRecord 拦截处理数据
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    Result<Boolean> handleDmsBusinessInterceptDispose(BusinessInterceptDisposeRecord businessInterceptDisposeRecord);
 
     /**
      * 获取拦截任务明细

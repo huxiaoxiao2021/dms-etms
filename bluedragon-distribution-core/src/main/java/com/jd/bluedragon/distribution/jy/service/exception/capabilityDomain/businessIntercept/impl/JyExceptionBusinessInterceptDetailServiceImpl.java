@@ -47,4 +47,28 @@ public class JyExceptionBusinessInterceptDetailServiceImpl implements JyExceptio
         }
         return result;
     }
+
+    /**
+     * 插入明细
+     *
+     * @param jyExceptionInterceptDetail 待插入数据
+     * @return 明细结果
+     * @author fanggang7
+     * @time 2024-01-19 16:14:57 周五
+     */
+    @Override
+    public Result<JyExceptionInterceptDetail> insertSelective(JyExceptionInterceptDetail jyExceptionInterceptDetail) {
+        Result<JyExceptionInterceptDetail> result = Result.success();
+        try {
+            if (jyExceptionInterceptDetail.getSiteId() == null) {
+                return result.toFail("参数错误，siteId不能为空");
+            }
+            jyExceptionInterceptDetailDao.insertSelective(jyExceptionInterceptDetail);
+            result.setData(jyExceptionInterceptDetail);
+        } catch (Exception e) {
+            result.toFail("系统异常");
+            log.error("JyExceptionBusinessInterceptDetailServiceImpl.insertSelective exception {}", JsonHelper.toJson(jyExceptionInterceptDetail), e);
+        }
+        return result;
+    }
 }

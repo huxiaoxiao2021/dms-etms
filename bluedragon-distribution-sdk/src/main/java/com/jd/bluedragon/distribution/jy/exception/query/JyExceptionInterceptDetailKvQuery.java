@@ -13,5 +13,13 @@ import com.jd.dms.java.utils.sdk.base.BaseQuery;
 public class JyExceptionInterceptDetailKvQuery extends BaseQuery {
     private static final long serialVersionUID = 5454155825314635342L;
 
+    private String keyword;
 
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
 }

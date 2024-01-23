@@ -56,7 +56,7 @@ public class BusinessInterceptDisposeRecord implements Serializable {
     /**
      * 区域名称  db_column: site_code
      */
-    private Long siteCode;
+    private Integer siteCode;
 
     /**
      * 站点名称  db_column: site_name
@@ -99,44 +99,24 @@ public class BusinessInterceptDisposeRecord implements Serializable {
     private String disposeNodeName;
 
     /**
-     * 创建人  db_column: create_user
+     * 拦截后处理人  db_column: dispose_user
      */
-    private String createUser;
+    private String disposeUser;
 
     /**
-     * 创建人名称  db_column: create_user_name
+     * 拦截后处理人  db_column: dispose_user_id
      */
-    private String createUserName;
+    private Integer disposeUserId;
 
     /**
-     * 修改人  db_column: update_user
+     * 拦截后处理人名称  db_column: dispose_user_name
      */
-    private String updateUser;
+    private String disposeUserName;
 
     /**
-     * 修改人名称  db_column: update_user_name
+     * 拦截后处理时间
      */
-    private String updateUserName;
-
-    /**
-     * 创建时间  db_column: create_time
-     */
-    private Long createTime;
-
-    /**
-     * 修改时间  db_column: update_time
-     */
-    private Long updateTime;
-
-    /**
-     * 有效标志  db_column: update_time
-     */
-    private Integer yn;
-
-    /**
-     * 数据库时间  db_column: ts
-     */
-    private Long ts;
+    private Long disposeTime;
 
     public String getId() {
         return id;
@@ -210,11 +190,11 @@ public class BusinessInterceptDisposeRecord implements Serializable {
         this.areaHubName = areaHubName;
     }
 
-    public Long getSiteCode() {
+    public Integer getSiteCode() {
         return siteCode;
     }
 
-    public void setSiteCode(Long siteCode) {
+    public void setSiteCode(Integer siteCode) {
         this.siteCode = siteCode;
     }
 
@@ -282,67 +262,35 @@ public class BusinessInterceptDisposeRecord implements Serializable {
         this.disposeNodeName = disposeNodeName;
     }
 
-    public String getCreateUser() {
-        return createUser;
+    public String getDisposeUser() {
+        return disposeUser;
     }
 
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
+    public void setDisposeUser(String disposeUser) {
+        this.disposeUser = disposeUser;
     }
 
-    public String getCreateUserName() {
-        return createUserName;
+    public Integer getDisposeUserId() {
+        return disposeUserId;
     }
 
-    public void setCreateUserName(String createUserName) {
-        this.createUserName = createUserName;
+    public void setDisposeUserId(Integer disposeUserId) {
+        this.disposeUserId = disposeUserId;
     }
 
-    public String getUpdateUser() {
-        return updateUser;
+    public String getDisposeUserName() {
+        return disposeUserName;
     }
 
-    public void setUpdateUser(String updateUser) {
-        this.updateUser = updateUser;
+    public void setDisposeUserName(String disposeUserName) {
+        this.disposeUserName = disposeUserName;
     }
 
-    public String getUpdateUserName() {
-        return updateUserName;
+    public Long getDisposeTime() {
+        return disposeTime;
     }
 
-    public void setUpdateUserName(String updateUserName) {
-        this.updateUserName = updateUserName;
-    }
-
-    public Long getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Long createTime) {
-        this.createTime = createTime;
-    }
-
-    public Long getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Long updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Integer getYn() {
-        return yn;
-    }
-
-    public void setYn(Integer yn) {
-        this.yn = yn;
-    }
-
-    public Long getTs() {
-        return ts;
-    }
-
-    public void setTs(Long ts) {
-        this.ts = ts;
+    public void setDisposeTime(Long disposeTime) {
+        this.disposeTime = disposeTime;
     }
 }
