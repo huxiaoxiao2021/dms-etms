@@ -29,6 +29,8 @@ public class UserSignOutDto implements Serializable {
      */
     private Integer hour;
 
+    private Date signOutTime;
+
     public String getUpdateUserName() {
         return updateUserName;
     }
@@ -59,5 +61,13 @@ public class UserSignOutDto implements Serializable {
 
     public void setHour(Integer hour) {
         this.hour = hour;
+    }
+
+    public Date getSignOutTime() {
+        return signOutTime;
+    }
+
+    public void setSignOutTime(Date signOutTime) {
+        this.signOutTime = signOutTime;
     }
 }

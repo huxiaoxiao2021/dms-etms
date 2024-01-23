@@ -916,14 +916,12 @@
 		update_user = #{param.updateUser, jdbcType=VARCHAR},
 		update_user_name = #{param.updateUserName, jdbcType=VARCHAR},
 		sign_out_time =
-		COALESCE(
-		<foreach collection="jobCodeToHoursMap" item="entry" separator=" ">
-			<foreach collection="entry.value" item="hour" separator=" ">
-				WHEN job_code = #{entry.key} THEN DATE_ADD(sign_in_time, INTERVAL #{hour} HOUR)
-			</foreach>
-		</foreach>,
-		DATE_ADD(sign_in_time, INTERVAL #{param.hour} HOUR)
-		)
+		CASE
+		<foreach collection="jobCodeToHoursMap" item="value" index="key" separator=" ">
+			WHEN job_code = #{key} THEN DATE_ADD(sign_in_time, INTERVAL #{value} HOUR)
+		</foreach>
+		ELSE #{param.setSignOutTime}
+		END
 		where
 		yn = 1
 		AND id IN
