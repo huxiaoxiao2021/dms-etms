@@ -1209,14 +1209,26 @@ public class BoxServiceImpl implements BoxService {
 
 		int rs =boxDao.updateById(box);
 		if (rs >0){
-			Boolean isCatched = jimdbCacheService.setEx(getCacheKey(box.getCode()),JsonHelper.toJson(box), timeout);
-			if (!isCatched){
-				log.warn("box cache fail. the boxCode is " + box.getCode());
+			if (syncCacheDataFail(response, box)) {
+				return;
 			}
 			response.toSucceed("更新箱号信息成功！");
 			return;
 		}
 		response.toError("更新箱号信息失败！");
+	}
+
+	private boolean syncCacheDataFail(BoxResponse response, Box box) {
+		boolean success =jimdbCacheService.del(getCacheKey(box.getCode()));
+		if (!success){
+			boolean isCatched = jimdbCacheService.setEx(getCacheKey(box.getCode()),JsonHelper.toJson(box), timeout);
+			if (!isCatched){
+				log.warn("box cache fail. the boxCode is " + box.getCode());
+				response.toError("更新箱号失败！");
+				return true;
+			}
+		}
+		return false;
 	}
 
 
