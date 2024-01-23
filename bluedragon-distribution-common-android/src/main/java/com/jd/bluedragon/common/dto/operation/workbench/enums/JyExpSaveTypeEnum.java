@@ -14,7 +14,6 @@ public enum JyExpSaveTypeEnum {
 
     TEMP_SAVE(0,"暂存"),
     SAVE(1,"保存"),
-    PROCESSING(2,"处理中"),
     ;
 
 

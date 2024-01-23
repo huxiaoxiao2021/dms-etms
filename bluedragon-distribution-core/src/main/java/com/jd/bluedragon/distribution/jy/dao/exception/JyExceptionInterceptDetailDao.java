@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.jy.exception.query.JyExceptionInterceptDet
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 /**
  * 异常任务-拦截明细表
  * Copyright: Copyright (c) 2020<br>
@@ -30,6 +32,10 @@ public class JyExceptionInterceptDetailDao extends BaseDao<JyExceptionInterceptD
 
     public JyExceptionInterceptDetail selectOne(JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery) {
         return this.getSqlSession().selectOne(NAMESPACE + ".selectOne", jyExceptionInterceptDetailQuery);
+    }
+
+    public List<JyExceptionInterceptDetail> queryList(JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryList", jyExceptionInterceptDetailQuery);
     }
 
     public JyExceptionInterceptDetail updateByBizId(JyExceptionInterceptDetail jyExceptionInterceptDetail) {

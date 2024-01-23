@@ -49,10 +49,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
@@ -71,6 +68,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
+import com.jdl.jy.flat.dto.integral.JyIntegralMonthlySummaryDTO;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskChangeStatusReq;
@@ -661,6 +659,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
             // 读取破损数据
             Map<String, JyExceptionDamageDto> damageDtoMap = getDamageDetailMapByBizTaskList(taskList, req.getStatus());
+
+            // 读取拦截数据明细
+            final Map<String, JyExceptionInterceptDetail> interceptDetailMapGbBizId = getInterceptDetailMapByBizTaskList(taskList, req.getStatus());
             for (JyBizTaskExceptionEntity entity : taskList) {
                 // 拼装dto
                 ExpTaskDto dto = this.copyEntityToExpTaskDto(entity, scrappedDtoMap);
@@ -691,6 +692,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                             dto.setFeedBackType(damageDto.getFeedBackType());
                             dto.setFeedBackTypeName(JyExceptionDamageEnum.FeedBackTypeEnum.getNameByCode(damageDto.getFeedBackType()));
                         }
+                    }
+                }
+                // 读取拦截数据
+                if(Objects.equals(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode(), entity.getType())){
+                    final JyExceptionInterceptDetail jyExceptionInterceptDetail = interceptDetailMapGbBizId.get(entity.getBizId());
+                    if (jyExceptionInterceptDetail != null) {
+                        dto.setSaved(Objects.equals(JyExpSaveTypeEnum.TEMP_SAVE.getCode(), jyExceptionInterceptDetail.getSaveType()));
                     }
                 }
                 list.add(dto);
@@ -733,10 +741,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setTags(getTags(entity.getTags()));
         // 在这里处理是因为老逻辑setSaved 不受task状态影响
         if(Objects.nonNull(entity.getType())
-                && (JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType()) || Objects.equals(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode(), entity.getType()))){
+                && (JyBizTaskExceptionTypeEnum.SCRAPPED.getCode().equals(entity.getType()))){
             ExpScrappedDetailDto scrappedDetailDto = scrappedDtoMap.get(entity.getBizId());
             if(scrappedDetailDto != null && scrappedDetailDto.getSaveType() != null){
-                dto.setSaved(Objects.equals(scrappedDetailDto.getSaveType(),JyExpSaveTypeEnum.TEMP_SAVE.getCode()) || Objects.equals(scrappedDetailDto.getSaveType(),JyExpSaveTypeEnum.PROCESSING.getCode()));
+                dto.setSaved(Objects.equals(scrappedDetailDto.getSaveType(),JyExpSaveTypeEnum.TEMP_SAVE.getCode()));
             }
         }else{
             String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
@@ -834,6 +842,27 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
         logger.info("setDataForDamageList bizIdList:{}, status:{}", JSON.toJSONString(bizIdList), status);
         return jyDamageExceptionService.getDamageDetailMapByBizIds(bizIdList, status);
+    }
+
+    /**
+     * 根据bizId 批量查询破损数据
+     * @param taskList
+     * @param status
+     * @return
+     */
+    private Map<String, JyExceptionInterceptDetail> getInterceptDetailMapByBizTaskList(List<JyBizTaskExceptionEntity> taskList, Integer status) {
+        List<String> bizIdList = taskList.stream()
+                .filter(t-> Objects.equals(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode(),t.getType())
+                        && (Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), t.getStatus())
+                        || Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), t.getStatus())))
+                .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
+        logger.info("setDataForDamageList getInterceptDetailMapByBizTaskList:{}, status:{}", JSON.toJSONString(bizIdList), status);
+        final JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery = new JyExceptionInterceptDetailQuery();
+        final List<JyExceptionInterceptDetail> jyExceptionInterceptDetails = jyExceptionInterceptDetailDao.queryList(jyExceptionInterceptDetailQuery);
+        if(CollectionUtils.isNotEmpty(jyExceptionInterceptDetails)){
+            return jyExceptionInterceptDetails.stream().collect(Collectors.toMap(JyExceptionInterceptDetail::getBizId, v -> v));
+        }
+        return new HashMap<>();
     }
 
     /**
@@ -1898,7 +1927,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyExceptionInterceptDetailQuery.setBizId(entity.getBizId());
             final JyExceptionInterceptDetail jyExceptionInterceptDetailExist = jyExceptionInterceptDetailDao.selectOne(jyExceptionInterceptDetailQuery);
             if (jyExceptionInterceptDetailExist != null) {
-                dto.setSaved(Objects.equals(jyExceptionInterceptDetailExist.getSaveType(), JyExpSaveTypeEnum.TEMP_SAVE.getCode()) || Objects.equals(jyExceptionInterceptDetailExist.getSaveType(), JyExpSaveTypeEnum.PROCESSING.getCode()));
+                dto.setSaved(Objects.equals(jyExceptionInterceptDetailExist.getSaveType(), JyExpSaveTypeEnum.TEMP_SAVE.getCode()));
             }
         }else{
             String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
@@ -2292,13 +2321,27 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetailDto.setDisposeNodeName(disposeNodeNameList);
 
         // 体积、重量
-        if(JyExpSaveTypeEnum.ENUM_LIST.contains(jyExceptionInterceptDetailExist.getSaveType()) && !Objects.equals(JyExpSaveTypeEnum.PROCESSING.getCode(), jyExceptionInterceptDetailExist.getSaveType())){
-            jyExceptionInterceptDetailDto.setInputLength(jyExceptionInterceptDetailExist.getInputLength());
-            jyExceptionInterceptDetailDto.setInputWidth(jyExceptionInterceptDetailExist.getInputWidth());
-            jyExceptionInterceptDetailDto.setInputHeight(jyExceptionInterceptDetailExist.getInputHeight());
-            jyExceptionInterceptDetailDto.setInputVolume(jyExceptionInterceptDetailExist.getInputVolume());
-            jyExceptionInterceptDetailDto.setInputWeight(jyExceptionInterceptDetailExist.getInputWeight());
+        if(JyExpSaveTypeEnum.ENUM_LIST.contains(jyExceptionInterceptDetailExist.getSaveType())){
+            if(isBiggerThanZero(jyExceptionInterceptDetailExist.getInputLength())){
+                jyExceptionInterceptDetailDto.setInputLength(jyExceptionInterceptDetailExist.getInputLength());
+            }
+            if(isBiggerThanZero(jyExceptionInterceptDetailExist.getInputWidth())){
+                jyExceptionInterceptDetailDto.setInputWidth(jyExceptionInterceptDetailExist.getInputWidth());
+            }
+            if(isBiggerThanZero(jyExceptionInterceptDetailExist.getInputHeight())){
+                jyExceptionInterceptDetailDto.setInputHeight(jyExceptionInterceptDetailExist.getInputHeight());
+            }
+            if(isBiggerThanZero(jyExceptionInterceptDetailExist.getInputVolume())){
+                jyExceptionInterceptDetailDto.setInputVolume(jyExceptionInterceptDetailExist.getInputVolume());
+            }
+            if(isBiggerThanZero(jyExceptionInterceptDetailExist.getInputWeight())){
+                jyExceptionInterceptDetailDto.setInputWeight(jyExceptionInterceptDetailExist.getInputWeight());
+            }
         }
+    }
+
+    private boolean isBiggerThanZero(BigDecimal val){
+        return val != null && BigDecimal.ZERO.compareTo(val) < 0;
     }
 
     private void mockJyExceptionInterceptDetailDto(JyExceptionInterceptDetailDto jyExceptionInterceptDetailDto) {
@@ -2401,7 +2444,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyExceptionInterceptDetail.setBizId(req.getBizId());
             jyExceptionInterceptDetail.setSiteId(jyExceptionInterceptDetailExist.getSiteId());
             final User user = req.getUser();
-            jyExceptionInterceptDetail.setSaveType(JyExpSaveTypeEnum.PROCESSING.getCode());
+            jyExceptionInterceptDetail.setSaveType(JyExpSaveTypeEnum.TEMP_SAVE.getCode());
             jyExceptionInterceptDetail.setUpdateUserId((long)user.getUserCode());
             jyExceptionInterceptDetail.setUpdateUserCode(user.getUserErp());
             jyExceptionInterceptDetail.setUpdateUserName(user.getUserName());
@@ -2504,7 +2547,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if(req.getVolume() != null){
                 jyExceptionInterceptDetail.setInputVolume(req.getVolume());
             } else {
-                jyExceptionInterceptDetail.setInputVolume(req.getLength().multiply(req.getWidth()).multiply(req.getHeight()).setScale(2, RoundingMode.HALF_UP));
+                if(req.getLength() != null && req.getWidth() != null && req.getHeight() != null){
+                    jyExceptionInterceptDetail.setInputVolume(req.getLength().multiply(req.getWidth()).multiply(req.getHeight()).setScale(2, RoundingMode.HALF_UP));
+                }
             }
             jyExceptionInterceptDetail.setInputWeight(req.getWeight());
             jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
