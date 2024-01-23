@@ -480,7 +480,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 boolean isColdChainExpressScrapFlag = BusinessUtil.isColdChainExpressScrap(waybillSign);
                 boolean isScrapSortingSiteFlag = BusinessUtil.isScrapSortingSite(waybillSign);
                 if (!isColdChainExpressScrapFlag && !scrapWaybillFlag && !isScrapSortingSiteFlag) {
-                    return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP_MSG));
+                    return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP_MSG, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP));
                 }
             }
 
