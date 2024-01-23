@@ -545,6 +545,7 @@ public class BoxResource {
         if(!StringUtils.isEmpty(box.getMaterialCode())){
             response.setMaterialCode(box.getMaterialCode());
         }
+        response.setSubType(box.getBoxSubType());
         return response;
     }
 
