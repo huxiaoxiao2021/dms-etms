@@ -50,6 +50,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.enums.WorkSiteTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -63,6 +64,8 @@ import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT;
+import static com.jdl.basic.api.enums.WorkSiteTypeEnum.DMS_TYPE;
+import static com.jdl.basic.api.enums.WorkSiteTypeEnum.getWorkingSiteTypeBySubType;
 import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
 import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ZERO;
 
@@ -208,7 +211,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             loadGoodsInfo(context,context.getResponse());
             //加载验证码
             loadVerificationCode(context,context.getResponse());
-            //加载补打包x裹次数
+            //加载补打包裹次数
             loadReprintNum(context,context.getResponse());
         }catch (Exception ex){
             log.error("标签打印接口异常，运单号:{}", waybillCode,ex);
@@ -225,12 +228,23 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private void loadReprintNum(WaybillPrintContext context, WaybillPrintResponse response) {
         String packageBarCode = context.getRequest().getPackageBarCode();
         try{
-            /**
-             * 只针对 按包裹打印和一单一件按运单号打印的场景
-             */
+            response.setRePrintNum(INTEGER_ZERO);
+             // 只针对 按包裹打印和一单一件按运单号打印的场景
             if (!Objects.equals(context.getWaybill().getPackageNum(),INTEGER_ONE) || !WaybillUtil.isPackageCode(packageBarCode)) {
                 return;
             }
+
+            // 只加载分拣中心打印次数
+            BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(context.getRequest().getSiteCode());
+            if (siteInfo == null || siteInfo.getSubType() == null){
+                return;
+            }
+            WorkSiteTypeEnum workSiteTypeEnum = getWorkingSiteTypeBySubType(siteInfo.getSubType());
+            if (!workSiteTypeEnum.equals(DMS_TYPE)) {
+                return;
+            }
+
+            // 补打记录次数查询
             ReprintRecordQuery query = new ReprintRecordQuery();
             query.setBarCode(packageBarCode);
             Response<Long> countResponse = reprintRecordService.queryCount(query);
