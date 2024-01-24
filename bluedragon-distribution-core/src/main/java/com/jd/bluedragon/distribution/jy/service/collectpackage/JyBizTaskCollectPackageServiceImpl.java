@@ -281,7 +281,7 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
 
             Sorting sorting = Sorting.toSorting2(sortingRequest);
             SortingResponse sortingResponse;
-            // 异场地取消分拣
+            // 异场地取消分拣(操作场地和集包场地不相同)
             if (Objects.nonNull(dto.getCurrentSiteCode()) && !Objects.equals(dto.getSiteCode(), dto.getCurrentSiteCode())){
                 CancelSortingOffsiteDto cancelSortingOffsiteDto = buildCancelSortingOffsiteDto(dto, sorting);
                 sortingResponse = sortingServiceFactory.getSortingService(sorting.getCreateSiteCode())
