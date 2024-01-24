@@ -45,13 +45,17 @@ public class PickingGoodsRes implements Serializable {
     private Integer taskSource;
 
     /**
-     * 当前barCode提货任务
+     * 当前barCode提货任务维度统计数据
      */
     private AirRailTaskAggDto airRailTaskAggDto;
     /**
      * 实际发货的批次号
      */
     private String batchCode;
+    /**
+     * 发货流向维度的统计数据
+     */
+    private SendFlowDto sendFlowDto;
 
     public Integer getRouterNextSiteId() {
         return routerNextSiteId;
@@ -115,5 +119,13 @@ public class PickingGoodsRes implements Serializable {
 
     public void setBatchCode(String batchCode) {
         this.batchCode = batchCode;
+    }
+
+    public SendFlowDto getSendFlowDto() {
+        return sendFlowDto;
+    }
+
+    public void setSendFlowDto(SendFlowDto sendFlowDto) {
+        this.sendFlowDto = sendFlowDto;
     }
 }

@@ -357,12 +357,79 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
 
     @Override
     public void updatePickingAggScanStatistics(JyPickingGoodScanDto param) {
-        boolean moreScanFlag = Boolean.TRUE.equals(param.getMoreScanFlag());
         JyPickingTaskAggsEntity aggDtoRes = this.findTaskPickingAgg(param.getPickingSiteId(), param.getBizId());
         if(Objects.isNull(aggDtoRes)) {
-            log.error("理论上不会出现暂时不考虑补偿，扫描前初始化会前置插入，提货统计param={}", JsonHelper.toJson(param));
-            return;
+            this.scanInsertPickingStatistics(param);
+        }else {
+            this.scanUpdatePickingStatistics(param, aggDtoRes);
         }
+    }
+
+    private void scanInsertPickingStatistics(JyPickingGoodScanDto param){
+        boolean moreScanFlag = Boolean.TRUE.equals(param.getMoreScanFlag());
+        JyPickingTaskAggsEntity insertEntity = new JyPickingTaskAggsEntity(param.getPickingSiteId(), param.getBizId());
+        insertEntity.setPickingNodeCode(param.getEndNodeCode());
+        if(!moreScanFlag) {
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                insertEntity.setHandoverScanBoxCount(1);
+                insertEntity.setHandoverScanPackageCount(0);
+            }else {
+                insertEntity.setHandoverScanBoxCount(0);
+                insertEntity.setHandoverScanPackageCount(1);
+            }
+            insertEntity.setHandoverScanTotalCount(insertEntity.getHandoverScanBoxCount() + insertEntity.getHandoverScanPackageCount());
+        }
+        if(moreScanFlag) {
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                insertEntity.setMoreScanBoxCount(1);
+                insertEntity.setMoreScanPackageCount(0);
+            }else {
+                insertEntity.setMoreScanBoxCount(0);
+                insertEntity.setMoreScanPackageCount(1);
+            }
+            insertEntity.setMoreScanTotalCount(insertEntity.getMoreScanBoxCount() + insertEntity.getMoreScanPackageCount());
+        }
+        //实扫提货统计【总提货=交际提+已提】
+        insertEntity.setScanBoxTotalCount(insertEntity.getHandoverScanBoxCount() + insertEntity.getMoreScanBoxCount());
+        insertEntity.setScanPackageTotalCount(insertEntity.getHandoverScanPackageCount() + insertEntity.getMoreScanPackageCount());
+        insertEntity.setScanTotalCount(insertEntity.getScanBoxTotalCount() + insertEntity.getScanPackageTotalCount());
+
+        //提货并发货统计发货
+        if(Boolean.TRUE.equals(param.getSendGoodFlag())) {
+
+            //扫描发货统计
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                insertEntity.setSendBoxCount(1);
+                insertEntity.setSendPackageCount(0);
+            }else {
+                insertEntity.setSendBoxCount(0);
+                insertEntity.setSendPackageCount(1);
+            }
+            insertEntity.setSendTotalCount(insertEntity.getSendBoxCount() + insertEntity.getSendPackageCount());
+
+            //多扫发货统计
+            if(moreScanFlag) {
+                if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                    insertEntity.setMoreSendBoxCount(1);
+                    insertEntity.setMoreSendPackageCount(0);
+                }else {
+                    insertEntity.setMoreSendBoxCount(0);
+                    insertEntity.setMoreSendPackageCount(1);
+                }
+                insertEntity.setMoreSendTotalCount(insertEntity.getMoreSendBoxCount() + insertEntity.getMoreSendPackageCount());
+            }
+            //强发统计
+        }
+        insertEntity.setCreateTime(new Date());
+        insertEntity.setUpdateTime(insertEntity.getCreateTime());
+        jyPickingTaskAggsDao.insertSelective(insertEntity);
+        logInfo("提货任务维度agg实操统计插入barCode={}，insertEntity={}", param.getBarCode(), JsonHelper.toJson(insertEntity));
+
+    }
+
+   private void scanUpdatePickingStatistics(JyPickingGoodScanDto param, JyPickingTaskAggsEntity aggDtoRes){
+        boolean moreScanFlag = Boolean.TRUE.equals(param.getMoreScanFlag());
+
         JyPickingTaskAggsEntity updateEntity = new JyPickingTaskAggsEntity(param.getPickingSiteId(), param.getBizId());
         BeanUtils.copyProperties(aggDtoRes, updateEntity);
 
@@ -419,17 +486,85 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
 
         jyPickingTaskAggsDao.updateScanStatistics(updateEntity);
         logInfo("提货任务维度agg实操统计修改bizId={}，修改前={}，修改后计数={}", param.getBizId(), JsonHelper.toJson(aggDtoRes), JsonHelper.toJson(updateEntity));
-
     }
 
     @Override
     public void updatePickingSendAggScanStatistics(JyPickingGoodScanDto param) {
-        boolean moreScanFlag = Boolean.TRUE.equals(param.getMoreScanFlag());
         JyPickingTaskSendAggsEntity aggDtoRes = this.findTaskPickingSendAgg(param.getPickingSiteId(), param.getNextSiteId(), param.getBizId());
         if(Objects.isNull(aggDtoRes)) {
-            log.error("理论上不会出现暂时不考虑补偿，扫描前初始化会前置插入，提货发货统计param={}", JsonHelper.toJson(param));
-            return;
+            this.scanInsertPickingSendStatistics(param);
+        }else {
+            this.scanUpdatePickingSendStatistics(param, aggDtoRes);
         }
+    }
+
+    private void scanInsertPickingSendStatistics(JyPickingGoodScanDto param){
+        boolean moreScanFlag = Boolean.TRUE.equals(param.getMoreScanFlag());
+
+        JyPickingTaskSendAggsEntity insertEntity = new JyPickingTaskSendAggsEntity(param.getPickingSiteId(), param.getNextSiteId(), param.getBizId());
+        insertEntity.setPickingNodeCode(param.getEndNodeCode());
+        if(!moreScanFlag) {
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                insertEntity.setHandoverScanBoxCount(1);
+                insertEntity.setHandoverScanPackageCount(0);
+            }else {
+                insertEntity.setHandoverScanBoxCount(0);
+                insertEntity.setHandoverScanPackageCount(1);
+            }
+            insertEntity.setHandoverScanTotalCount(insertEntity.getHandoverScanBoxCount() + insertEntity.getHandoverScanPackageCount());
+        }
+        if(moreScanFlag) {
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                insertEntity.setMoreScanBoxCount(1);
+                insertEntity.setMoreScanPackageCount(0);
+            }else {
+                insertEntity.setMoreScanBoxCount(0);
+                insertEntity.setMoreScanPackageCount(1);
+            }
+            insertEntity.setMoreScanTotalCount(insertEntity.getMoreScanBoxCount() + insertEntity.getMoreScanPackageCount());
+        }
+        //实扫提货统计【总提货=交际提+已提】
+        insertEntity.setScanBoxTotalCount(insertEntity.getHandoverScanBoxCount() + insertEntity.getMoreScanBoxCount());
+        insertEntity.setScanPackageTotalCount(insertEntity.getHandoverScanPackageCount() + insertEntity.getMoreScanPackageCount());
+        insertEntity.setScanTotalCount(insertEntity.getScanBoxTotalCount() + insertEntity.getScanPackageTotalCount());
+
+        //提货并发货统计发货
+        if(Boolean.TRUE.equals(param.getSendGoodFlag())) {
+
+            //扫描发货统计
+            if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                insertEntity.setSendBoxCount(1);
+                insertEntity.setSendPackageCount(0);
+            }else {
+                insertEntity.setSendBoxCount(0);
+                insertEntity.setSendPackageCount(1);
+            }
+            insertEntity.setSendTotalCount(insertEntity.getSendBoxCount() + insertEntity.getSendPackageCount());
+
+            //多扫发货统计
+            if(moreScanFlag) {
+                if(BusinessUtil.isBoxcode(param.getBarCode())) {
+                    insertEntity.setMoreSendBoxCount(1);
+                    insertEntity.setMoreSendPackageCount(0);
+                }else {
+                    insertEntity.setMoreSendBoxCount(0);
+                    insertEntity.setMoreSendPackageCount(1);
+                }
+                insertEntity.setMoreSendTotalCount(insertEntity.getMoreSendBoxCount() + insertEntity.getMoreSendPackageCount());
+            }
+            //强发统计
+        }
+
+        insertEntity.setCreateTime(new Date());
+        insertEntity.setUpdateTime(insertEntity.getCreateTime());
+        jyPickingTaskSendAggsDao.insertSelective(insertEntity);
+        logInfo("提货并发货任务维度agg实操统计插入barCode={}，insertEntity={}", param.getBarCode(), JsonHelper.toJson(insertEntity));
+
+
+    }
+    private void scanUpdatePickingSendStatistics(JyPickingGoodScanDto param, JyPickingTaskSendAggsEntity aggDtoRes){
+        boolean moreScanFlag = Boolean.TRUE.equals(param.getMoreScanFlag());
+
         JyPickingTaskSendAggsEntity updateEntity = new JyPickingTaskSendAggsEntity(param.getPickingSiteId(), param.getNextSiteId(), param.getBizId());
         BeanUtils.copyProperties(aggDtoRes, updateEntity);
 
