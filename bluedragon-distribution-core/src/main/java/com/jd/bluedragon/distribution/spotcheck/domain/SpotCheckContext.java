@@ -162,6 +162,11 @@ public class SpotCheckContext implements Serializable {
      */
     private List<WeightVolumeSpotCheckDto> spotCheckRecords;
 
+    /**
+     * 扩展字段 <a href="https://joyspace.jd.com/pages/ILE90taNyoY9AYFQ8cWy">...</a>
+     */
+    private String extendMap;
+
     public String getSpotCheckSourceFrom() {
         return spotCheckSourceFrom;
     }
@@ -417,5 +422,13 @@ public class SpotCheckContext implements Serializable {
 
     public void setSpotCheckRecords(List<WeightVolumeSpotCheckDto> spotCheckRecords) {
         this.spotCheckRecords = spotCheckRecords;
+    }
+
+    public String getExtendMap() {
+        return extendMap;
+    }
+
+    public void setExtendMap(String extendMap) {
+        this.extendMap = extendMap;
     }
 }
