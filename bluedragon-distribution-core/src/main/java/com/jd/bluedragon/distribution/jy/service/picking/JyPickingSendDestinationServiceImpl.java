@@ -216,10 +216,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
 
         JyGroupSortCrossDetailEntityQueryDto queryDto = getSendFlowQueryDto(req);
         List<JyGroupSortCrossDetailEntity> flowList = jyGroupSortCrossDetailService.selectByCondition(queryDto);
-        if (flowList.size() >= dmsConfigManager.getUccPropertyConfiguration().getSendFlowLimit()) {
-            invokeResult.customMessage(InvokeResult.AIR_RAIL_SEND_FLOW_EXCEED_LIMIT_CODE, InvokeResult.AIR_RAIL_SEND_FLOW_EXCEED_LIMIT_MESSAGE);
-            return new ArrayList<>();
-        }
+
         Set<Integer> siteIdSet = flowList.stream().map(site -> site.getEndSiteId().intValue()).collect(Collectors.toSet());
         List<StreamlinedBasicSite> nextSiteList = new ArrayList<>();
         for (StreamlinedBasicSite nextSite : req.getSiteList()) {
@@ -227,6 +224,11 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
                 nextSiteList.add(nextSite);
                 siteIdSet.add(nextSite.getSiteCode());
             }
+        }
+        int total = flowList.size() + nextSiteList.size();
+        if (total > dmsConfigManager.getUccPropertyConfiguration().getSendFlowLimit()) {
+            invokeResult.customMessage(InvokeResult.AIR_RAIL_SEND_FLOW_EXCEED_LIMIT_CODE, InvokeResult.AIR_RAIL_SEND_FLOW_EXCEED_LIMIT_MESSAGE);
+            return new ArrayList<>();
         }
         return nextSiteList;
     }
