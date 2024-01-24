@@ -183,7 +183,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             }
         } catch (JyBizException e) {
             logger.error("jy取消集包服务异常{}", req.getBarCode(), e);
-            return JdCResponse.fail(e.getMessage());
+            return JdCResponse.fail("违禁品正常上报,取消集包失败:" + e.getMessage());
         } catch (Exception e) {
             logger.error("提交违禁品上报报错:", e);
             return JdCResponse.fail(e.getMessage());
