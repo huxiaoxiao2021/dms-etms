@@ -230,7 +230,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         try{
             response.setRePrintNum(INTEGER_ZERO);
              // 只针对 按包裹打印和一单一件按运单号打印的场景
-            if (!Objects.equals(context.getWaybill().getPackageNum(),INTEGER_ONE) || !WaybillUtil.isPackageCode(packageBarCode)) {
+            if (!Objects.equals(context.getWaybill().getPackageNum(),INTEGER_ONE) && !WaybillUtil.isPackageCode(packageBarCode)) {
                 return;
             }
 
@@ -259,6 +259,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         }
     }
 
+    public static void main(String[] args) {
+        System.out.println(getWorkingSiteTypeBySubType(64).getCode());
+    }
     /**
      * 加载增值服务
      *
