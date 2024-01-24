@@ -68,8 +68,8 @@ public class TpCollectPackageGatewayServiceTest {
         req.setMixBoxType(0);
         req.setTransportType(2);
 
-        req.setUserCode(1);
-        req.setUserName("wuyoude");
+        req.setUserErp("wuxx");
+        req.setUserName("吴有德");
 
         req.setOpeateTime(new Date());
 

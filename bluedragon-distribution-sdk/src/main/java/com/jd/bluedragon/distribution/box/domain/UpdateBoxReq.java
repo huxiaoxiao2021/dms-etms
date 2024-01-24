@@ -30,6 +30,8 @@ public class UpdateBoxReq implements Serializable {
      *  操作用户id
      */
     private Integer userCode;
+
+    private String userErp;
     /**
      * 操作用户名字
      */
@@ -143,5 +145,13 @@ public class UpdateBoxReq implements Serializable {
 
     public void setReceiveSiteName(String receiveSiteName) {
         this.receiveSiteName = receiveSiteName;
+    }
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
     }
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.box;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxPackageDto;
@@ -45,7 +46,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
     @Autowired
     BoxService boxService;
     @Autowired
-    private BasicPrimaryWS basicPrimaryWS;
+    BaseMajorManager baseMajorManager;
     @Autowired
     SortingService sortingService;
     @Autowired
@@ -100,6 +101,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
             return false;
         }
         checkBoxIfNeedUpdate(box,boxDetail);
+        checkIfNeedConvertUserInfo(boxDetail);
         //判断箱号状态-总体消息执行的状态-幂等防重
         if (BOX_STATUS_SEALED.equals(box.getStatus())){//TODO  用这个状态会不是对其他业务有影响，换成预留字段 或者 redis
             //消息重放场景-直接跳过
@@ -114,23 +116,36 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         return true;
     }
 
+    private void checkIfNeedConvertUserInfo(StoreBoxDetail boxDetail) {
+        for (BoxPackageDto packageDto :boxDetail.getPackageList()){
+            if (ObjectHelper.isEmpty(packageDto.getUserCode()) && ObjectHelper.isNotNull(packageDto.getUserErp())) {
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseStaffByErpCache(packageDto.getUserErp());
+                if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper.isNotNull(baseStaffSiteOrgDto.getStaffNo())){
+                    packageDto.setUserCode(baseStaffSiteOrgDto.getStaffNo());
+                }else {
+                    packageDto.setUserCode(-1);
+                }
+            }
+        }
+    }
+
     private void checkBoxIfNeedUpdate(Box box, StoreBoxDetail boxDetail) {
         if (ObjectHelper.isEmpty(box.getCreateSiteCode()) || ObjectHelper.isEmpty(box.getReceiveSiteCode())){
             if (ObjectHelper.isNotNull(boxDetail.getStoreInfo()) && ObjectHelper.isNotNull(boxDetail.getStoreInfo().getCky2()) && ObjectHelper.isNotNull(boxDetail.getStoreInfo().getStoreId())){
-                BaseResult<PsStoreInfo> result =basicPrimaryWS.getStoreByCky2Id("wms",boxDetail.getStoreInfo().getCky2(),boxDetail.getStoreInfo().getStoreId(),"dms");
-                if (ObjectHelper.isEmpty(result) || ObjectHelper.isEmpty(result.getData())
-                        || ObjectHelper.isEmpty(result.getData().getDmsSiteId()) || ObjectHelper.isEmpty(result.getData().getDmsStoreName())){
+                PsStoreInfo result =baseMajorManager.getStoreByCky2("wms",boxDetail.getStoreInfo().getCky2(),boxDetail.getStoreInfo().getStoreId());
+                if (ObjectHelper.isEmpty(result)
+                        || ObjectHelper.isEmpty(result.getDmsSiteId()) || ObjectHelper.isEmpty(result.getDmsStoreName())){
                     blockingWait(3000);
                     throw new RuntimeException("未获取到仓对应的基础资料场地信息！");
                 }
-                box.setCreateSiteCode(result.getData().getDmsSiteId());
-                box.setCreateSiteName(result.getData().getDmsStoreName());
-                boxDetail.setCreateSiteCode(result.getData().getDmsSiteId());
-                boxDetail.setCreateSiteName(result.getData().getDmsStoreName());
+                box.setCreateSiteCode(result.getDmsSiteId());
+                box.setCreateSiteName(result.getDmsStoreName());
+                boxDetail.setCreateSiteCode(result.getDmsSiteId());
+                boxDetail.setCreateSiteName(result.getDmsStoreName());
             }
 
 
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto =basicPrimaryWS.getBaseSiteBySiteId(boxDetail.getReceiveSiteCode());
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseSiteBySiteId(boxDetail.getReceiveSiteCode());
             if (ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsName())){
                 blockingWait(3000);
                 throw new RuntimeException("未获取到目的场地信息！");
@@ -157,7 +172,16 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         updateBoxReq.setOpeateTime(new Date());
         updateBoxReq.setMixBoxType(0);
         updateBoxReq.setTransportType(1);
-        updateBoxReq.setUserCode(boxDetail.getPackageList().get(0).getUserCode());
+
+        if (ObjectHelper.isNotNull(boxDetail.getPackageList().get(0).getUserCode())){
+            updateBoxReq.setUserCode(boxDetail.getPackageList().get(0).getUserCode());
+        }
+        else if (ObjectHelper.isNotNull(boxDetail.getPackageList().get(0).getUserErp())) {
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseStaffByErpCache(boxDetail.getPackageList().get(0).getUserErp());
+            if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper.isNotNull(baseStaffSiteOrgDto.getStaffNo())){
+                updateBoxReq.setUserCode(baseStaffSiteOrgDto.getStaffNo());
+            }
+        }
         updateBoxReq.setUserName(boxDetail.getPackageList().get(0).getUserName());
         return updateBoxReq;
     }

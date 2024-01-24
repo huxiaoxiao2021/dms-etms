@@ -35,8 +35,8 @@ public class ReceiveBoxDetailFromStoreTest {
                 "    {\n" +
                 "      \"waybillCode\": \"JD0003423608307\",\n" +
                 "      \"packageCode\": \"JD0003423608307-1-20-\",\n" +
-                "      \"userCode\": 1,\n" +
-                "      \"userName\": \"wuyoude\",\n" +
+                "      \"userErp\": \"wuxx\",\n" +
+                "      \"userName\": \"哈哈\",\n" +
                 "      \"opeateTime\": \"2024-01-19 16:39:28\",\n" +
                 "      \"opreateType\": 10\n" +
                 "    }\n" +
