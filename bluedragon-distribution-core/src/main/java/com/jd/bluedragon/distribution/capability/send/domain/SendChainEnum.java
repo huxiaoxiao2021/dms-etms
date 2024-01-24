@@ -16,6 +16,10 @@ public enum SendChainEnum {
     /**
      * 存在集包袋校验和绑定模式
      */
-    WITH_CYCLE_BOX_MODE
+    WITH_CYCLE_BOX_MODE,
+    /**
+     * 无任何校验的发货模式
+     */
+    NO_CHECK_MODE
 
 }

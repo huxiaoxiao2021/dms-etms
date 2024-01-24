@@ -1872,7 +1872,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 result.setMessage(response.getMessage());
                 result.setMsgBoxes(response.getMsgBoxes());
                 //返回错误信息
-                if(!response.codeSuccess()){
+                if(!result.codeSuccess()){
+                    //集包袋场景需要返回特殊自定义编码前端感知做特殊弹框处理逻辑使用
+                    if(SendResult.CODE_CYCLE_BOX_BIND.equals(result.getCode())){
+                        result.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
+                        return result;
+                    }
                     return result;
                 }
             }else{
@@ -2836,7 +2841,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 if (needBindMaterialBag) {
                     // 箱号未绑定集包袋
                     if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
-                        if (!BusinessUtil.isCollectionBag(request.getMaterialCode())) {
+                        if (!BusinessUtil.isCollectionBag(request.getMaterialCode()) ) {
                             response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
                             response.addInterceptBox(0, "请扫描或输入正确的集包袋！");
                             return false;
