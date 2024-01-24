@@ -1641,10 +1641,9 @@ public class SortingServiceImpl implements SortingService {
 		} else {
 			// 安检岗触发的取消集包，查询待取消集包记录,不用检验是否发货。
 			sortingRecords.addAll(querySortingByCode(cancelSortingOffsiteDto));
-			if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
-				log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",cancelSortingOffsiteDto.getPackageCode(),sortingRecords.size());
-				return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
-					HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
+			SortingResponse response = checkPackageNum(cancelSortingOffsiteDto, sortingRecords);
+			if (response != null){
+				return response;
 			}
 			SortingResponse sortingResponse = checkThirdInspectionWithNoBoxCode(cancelSortingOffsiteDto, sortingRecords);
 			if (sortingResponse != null){
