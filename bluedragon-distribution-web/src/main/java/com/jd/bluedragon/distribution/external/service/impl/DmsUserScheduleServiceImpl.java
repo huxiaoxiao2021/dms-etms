@@ -12,13 +12,16 @@ import com.jdl.basic.api.domain.user.JyUserDto;
 import com.jdl.basic.api.domain.user.JyUserQueryDto;
 import com.jdl.jy.flat.dto.schedule.UserGridScheduleDto;
 import com.jdl.jy.flat.dto.schedule.UserGridScheduleQueryDto;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 @Service("dmsUserScheduleService")
 public class DmsUserScheduleServiceImpl implements DmsUserScheduleService {
@@ -50,31 +53,40 @@ public class DmsUserScheduleServiceImpl implements DmsUserScheduleService {
         scheduleQueryDto.setScheduleDate(DateHelper.formatDate(new Date()));
         scheduleQueryDto.setNature(userDto.getNature());
         scheduleQueryDto.setUserUniqueCode(request.getUserCode());
-        UserGridScheduleDto scheduleDto = workGridScheduleManager.getUserScheduleByCondition(scheduleQueryDto);
-        if (scheduleDto == null) {
+        List<UserGridScheduleDto> dtoList = workGridScheduleManager.getUserScheduleByCondition(scheduleQueryDto);
+        if (CollectionUtils.isEmpty(dtoList)) {
             response.setData(false);
-            response.setMessage(String.format("%s该用户无排班记录！", request.getUserCode()));
+            response.toFail(String.format("%s该用户无排班记录！", request.getUserCode()));
             return response;
         }
 
-
-        // 判断当前时间是否是在合理进入闸机时间范围
-        boolean startTimeCheck = checkEntryTime(scheduleDto.getStartTime(), -dmsConfigManager.getPropertyConfig().getAllowEntryHours());
-        if (!startTimeCheck) {
+        List<String> scheduleTimes = new ArrayList<>();
+        boolean allowFlag = false;
+        for (UserGridScheduleDto scheduleDto : dtoList) {
+            // 判断当前时间是否是在合理进入闸机时间范围
+            boolean startTimeCheck = checkEntryTime(scheduleDto.getStartTime(), -dmsConfigManager.getPropertyConfig().getAllowEntryHours());
+            boolean endTimeCheck = checkEntryTime(scheduleDto.getEndTime(), dmsConfigManager.getPropertyConfig().getAllowEntryHours());
+            if (startTimeCheck && endTimeCheck) {
+                response.setData(true);
+                return response;
+            }
+            scheduleTimes.add(scheduleDto.getStartTime() + Constants.SEPARATOR_HYPHEN + scheduleDto.getEndTime());
+        }
+        if (!allowFlag) {
             response.setData(false);
-            response.setMessage(String.format("%s排班时间为[%s-%s],不在前后%s小时的有效进入闸机时间范围内！", request.getUserCode(), scheduleDto.getStartTime(), scheduleDto.getEndTime(), dmsConfigManager.getPropertyConfig().getAllowEntryHours()));
+            response.toFail(String.format("%s排班时间为[%s],不在前后%s小时的有效进入闸机时间范围内！", request.getUserCode(), scheduleTimes, dmsConfigManager.getPropertyConfig().getAllowEntryHours()));
             return response;
         }
-        boolean endTimeCheck = checkEntryTime(scheduleDto.getEndTime(), dmsConfigManager.getPropertyConfig().getAllowEntryHours());
-        if (!endTimeCheck) {
-            response.setData(false);
-            response.setMessage(String.format("%s排班时间为[%s-%s],不在前后%s小时的有效进入闸机时间范围内！", request.getUserCode(), scheduleDto.getStartTime(), scheduleDto.getEndTime(), dmsConfigManager.getPropertyConfig().getAllowEntryHours()));
-            return response;
-        }
-        response.setData(true);
+        response.setData(allowFlag);
         return response;
     }
 
+    /**
+     * 判断当前时间是否在排班时间前后一个小时的偏移范围内
+     * @param timeStr
+     * @param allowEntryHour
+     * @return
+     */
     private boolean checkEntryTime(String timeStr, Integer allowEntryHour) {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();

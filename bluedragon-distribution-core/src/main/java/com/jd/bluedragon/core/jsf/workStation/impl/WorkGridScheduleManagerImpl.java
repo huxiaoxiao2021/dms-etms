@@ -32,8 +32,8 @@ public class WorkGridScheduleManagerImpl implements WorkGridScheduleManager {
     private ScheduleJSFService scheduleJSFService;
 
     @Override
-    public UserGridScheduleDto getUserScheduleByCondition(UserGridScheduleQueryDto queryDto) {
-        ServiceResult<UserGridScheduleDto> result = scheduleJSFService.getScheduleByCondition(queryDto);
+    public List<UserGridScheduleDto> getUserScheduleByCondition(UserGridScheduleQueryDto queryDto) {
+        ServiceResult<List<UserGridScheduleDto>> result = scheduleJSFService.listScheduleByUserUniqueCodeAndDate(queryDto);
         if (result == null) {
             log.error("WorkGridScheduleManagerImpl.getUserScheduleByCondition 返回结果为空！");
             return null;
