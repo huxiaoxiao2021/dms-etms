@@ -191,10 +191,6 @@ public class ExpTaskDto implements Serializable {
         this.imageUrls = imageUrls;
     }
 
-    public boolean isSaved() {
-        return saved;
-    }
-
     public Integer getTimeOut() {
         return timeOut;
     }

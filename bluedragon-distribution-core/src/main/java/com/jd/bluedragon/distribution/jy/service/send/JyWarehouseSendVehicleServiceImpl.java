@@ -47,6 +47,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.dto.send.SendFindDestInfoDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -198,6 +199,21 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
 
         return invokeResult;
+    }
+
+    @Override
+    public JyBizTaskSendSortTypeEnum setTaskOrderType(JyBizTaskSendStatusEnum curQueryStatus) {
+        switch (curQueryStatus) {
+            case TO_SEND:
+                return JyBizTaskSendSortTypeEnum.PLAN_DEPART_TIME;
+            case SENDING:
+            case TO_SEAL:
+                return JyBizTaskSendSortTypeEnum.UPDATE_TIME;
+            case SEALED:
+                return JyBizTaskSendSortTypeEnum.SEAL_CAR_TIME;
+            default:
+                return null;
+        }
     }
 
     List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity condition,
@@ -649,18 +665,30 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             if (!result.codeSuccess()) {
                 return result;
             }
+            List<SendVehicleDto> sendVehicleDtoList = new ArrayList<>();
+            AppendSendVehicleTaskQueryRes resData = new AppendSendVehicleTaskQueryRes();
+            resData.setSendVehicleDtoList(sendVehicleDtoList);
+            result.setData(resData);
+
+            //最大流向配置
+            resData.setMixScanTaskSiteFlowMaxNum(this.getFlowMaxBySiteCode(request.getCurrentOperate().getSiteCode()));
+
+            //已添加流向配置
+            JyGroupSortCrossDetailEntity entityQuery = new JyGroupSortCrossDetailEntity();
+            entityQuery.setGroupCode(request.getGroupCode());
+            entityQuery.setTemplateCode(request.getMixScanTaskCode());
+            entityQuery.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+            List<JyGroupSortCrossDetailEntity> entityList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entityQuery);
+            resData.setMixScanTaskSiteFlowNum(CollectionUtils.isEmpty(entityList) ? 0 : entityList.size());
+
+            CallerInfo info0 = Profiler.registerInfo("DMSWEB.JyWarehouseSendVehicleServiceImpl.fetchToSendAndSendingTaskPage.0", false, true);
+
             List<JyBizTaskSendVehicleEntity> vehiclePageList = getToSendAndSendingSendVehiclePage(request, sendVehicleBizList);
 
             if (CollectionUtils.isEmpty(vehiclePageList)) {
                 result.setMessage("查询数据为空");
                 return result;
             }
-            List<SendVehicleDto> sendVehicleDtoList = new ArrayList<>();
-            AppendSendVehicleTaskQueryRes resData = new AppendSendVehicleTaskQueryRes();
-            resData.setSendVehicleDtoList(sendVehicleDtoList);
-            result.setData(resData);
-
-            CallerInfo info0 = Profiler.registerInfo("DMSWEB.JyWarehouseSendVehicleServiceImpl.fetchToSendAndSendingTaskPage.0", false, true);
 
            Set<Integer> allQueryNextSiteCodeSet = new HashSet<>();
 
@@ -683,17 +711,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             });
 
             this.fillFieldCrossTableTrolley(request, sendVehicleDtoList, allQueryNextSiteCodeSet);
-
-            //最大流向配置
-            resData.setMixScanTaskSiteFlowMaxNum(this.getFlowMaxBySiteCode(request.getCurrentOperate().getSiteCode()));
-
-            //已添加流向配置
-            JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
-            entity.setGroupCode(request.getGroupCode());
-            entity.setTemplateCode(request.getMixScanTaskCode());
-            entity.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
-            List<JyGroupSortCrossDetailEntity> entityList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
-            resData.setMixScanTaskSiteFlowNum(CollectionUtils.isEmpty(entityList) ? 0 : entityList.size());
 
             Profiler.registerInfoEnd(info0);
 
@@ -1680,7 +1697,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
         List<String> detailBizList = entityList.stream().map(JyGroupSortCrossDetailEntity::getSendVehicleDetailBizId).collect(Collectors.toList());
         List<JyBizTaskSendVehicleDetailEntity> jyBizTaskSendVehicleDetailEntityList = jyBizTaskSendVehicleDetailService.findByDetailVehicleBiz(detailBizList, request.getCurrentOperate().getSiteCode());
-        if(CollectionUtils.isEmpty(detailBizList)) {
+        if(CollectionUtils.isEmpty(jyBizTaskSendVehicleDetailEntityList)) {
             res.setMessage("查询发货明细任务为空");
             return res;
         }

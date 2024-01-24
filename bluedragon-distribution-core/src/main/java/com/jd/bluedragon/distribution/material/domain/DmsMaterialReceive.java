@@ -45,6 +45,11 @@ public class DmsMaterialReceive extends DbEntity implements Serializable {
     private Integer createSiteType;
 
     /**
+     * 创建人用户ID
+     */
+    private Integer createUserId;
+
+    /**
     * 创建人ERP
     */
     private String createUserErp;
@@ -123,6 +128,14 @@ public class DmsMaterialReceive extends DbEntity implements Serializable {
 
     public void setCreateSiteType(Integer createSiteType) {
         this.createSiteType = createSiteType;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
     }
 
     public String getCreateUserErp() {
