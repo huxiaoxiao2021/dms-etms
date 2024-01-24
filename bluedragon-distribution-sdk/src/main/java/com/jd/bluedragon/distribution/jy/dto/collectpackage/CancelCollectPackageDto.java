@@ -16,6 +16,14 @@ public class CancelCollectPackageDto implements Serializable {
     private Integer siteCode;
     private String siteName;
     private Date updateTime;
+    /**
+     * 当前正在操作的场地code
+     */
+    private Integer currentSiteCode;
+    /**
+     * 是否跳过取消集包之前的检查条件，默认为：false    false-不跳过  true-跳过
+     */
+    private Boolean skipSendCheck;
 
     public String getBizId() {
         return bizId;
@@ -87,5 +95,21 @@ public class CancelCollectPackageDto implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getCurrentSiteCode() {
+        return currentSiteCode;
+    }
+
+    public void setCurrentSiteCode(Integer currentSiteCode) {
+        this.currentSiteCode = currentSiteCode;
+    }
+
+    public Boolean getSkipSendCheck() {
+        return skipSendCheck;
+    }
+
+    public void setSkipSendCheck(Boolean skipSendCheck) {
+        this.skipSendCheck = skipSendCheck;
     }
 }
