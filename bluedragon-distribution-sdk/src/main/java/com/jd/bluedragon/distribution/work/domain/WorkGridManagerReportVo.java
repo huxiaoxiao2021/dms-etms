@@ -240,6 +240,10 @@ public class WorkGridManagerReportVo  implements Serializable {
 	 *  只有暴力分拣任务才会有
 	 */
 	private ViolenceSortInfoData violenceSortInfoData;
+	//任务责任人 erp	
+	private String responsibleErp;
+	//任务责任人 姓名
+	private String responsibleName;
 	
 	public Long getId() {
 		return id;
@@ -558,5 +562,21 @@ public class WorkGridManagerReportVo  implements Serializable {
 
 	public void setViolenceSortInfoData(ViolenceSortInfoData violenceSortInfoData) {
 		this.violenceSortInfoData = violenceSortInfoData;
+	}
+
+	public String getResponsibleErp() {
+		return responsibleErp;
+	}
+
+	public void setResponsibleErp(String responsibleErp) {
+		this.responsibleErp = responsibleErp;
+	}
+
+	public String getResponsibleName() {
+		return responsibleName;
+	}
+
+	public void setResponsibleName(String responsibleName) {
+		this.responsibleName = responsibleName;
 	}
 }
