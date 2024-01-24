@@ -247,6 +247,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             // 补打记录次数查询
             ReprintRecordQuery query = new ReprintRecordQuery();
             query.setBarCode(packageBarCode);
+            query.setSiteCode(context.getRequest().getSiteCode());
             Response<Long> countResponse = reprintRecordService.queryCount(query);
             if (countResponse == null || countResponse.getData() == null) {
                 return;
