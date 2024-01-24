@@ -100,6 +100,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.distribution.api.response.SortingResponse.CODE_SORTING_INSPECTED;
+
 @Service("sortingService")
 public class SortingServiceImpl implements SortingService {
 
@@ -1153,10 +1155,11 @@ public class SortingServiceImpl implements SortingService {
 		return this.dynamicSortingQueryDao.querySortingByCode(sorting);
 	}
 
-	/**
-	 * @param sorting
-	 * @return
-	 */
+    /**
+     * 取消集包，当前操作场地和集包场地为同一场地
+     * @param sorting 排序对象
+     * @return 返回是否可以取消排序的布尔值
+     */
 	public Boolean canCancel2(Sorting sorting) {
 		// sorting & send_d ---> cancel=1
 		boolean result = this.canCancelSorting2(sorting);
@@ -1169,7 +1172,9 @@ public class SortingServiceImpl implements SortingService {
 	}
 
     /**
-     * 判断是否可以取消外站发货
+     * 异场地取消集包-即当前操作场地和集包场地不一致；
+	 * 同场地操作取消集包，请看canCancel2()，如果修改，评估对本方法的影响
+	 *
      * @param sorting 分拣对象
      * @param currentSiteCode 当前站点代码
      * @return 是否可以取消外站发货的布尔值
@@ -1498,6 +1503,11 @@ public class SortingServiceImpl implements SortingService {
 		}
 	}
 
+    /**
+     * 取消集包操作，操作场地和集包场地为同一场地
+     * @param sorting 集包对象
+     * @return 响应对象
+     */
 	public SortingResponse doCancelSorting(Sorting sorting){
 		if(log.isInfoEnabled()){
 			log.info("SortingServiceImpl.doCancelSorting 取消集包：{}", JsonHelper.toJson(sorting));
@@ -1527,7 +1537,8 @@ public class SortingServiceImpl implements SortingService {
 	}
 
     /**
-     * 取消集包-当前操作场地和实际集包场地不同时取消集包
+     * 异场地取消集包-当前操作场地和实际集包场地不同时取消集包；
+	 * 如果修改同场地取消集包，请看doCancelSorting()方法，并评估对本方法的影响
      * @param cancelSortingOffsiteDto 异场地取消集包
      * @return sortingResponse
      */
@@ -1559,63 +1570,11 @@ public class SortingServiceImpl implements SortingService {
 	}
 
     /**
-     * 获取集包记录-在操作场地和集包场地不一致时获取集包记录，不进行发货校验
-     *
-     * @param cancelSortingOffsiteDto 取消外场分拣DTO
+     * 获取集包记录-操作场地和集包场地为同一场地
+     * @param sorting 分拣对象
      * @param sortingRecords 分拣记录列表
-     * @return 分拣响应对象
+     * @return SortingResponse 响应的分拣记录
      */
-	private SortingResponse getSortingRecordsOffsite(CancelSortingOffsiteDto cancelSortingOffsiteDto, List<Sorting> sortingRecords) {
-		if (StringUtils.isNotBlank(cancelSortingOffsiteDto.getBoxCode())) {
-			// 若三方分拣，校验是否验货，若已经验货，则提示不能取消
-			if (cancelSortingOffsiteDto.getType() == Constants.BUSSINESS_TYPE_THIRD_PARTY) {
-				Inspection inspection = new Inspection.Builder(null, cancelSortingOffsiteDto.getCreateSiteCode())
-					.boxCode(cancelSortingOffsiteDto.getBoxCode()).inspectionType(cancelSortingOffsiteDto.getType()).build();
-				int inspectionCount = inspectionService.inspectionCount(inspection);
-				if (inspectionCount > 0) {
-					return new SortingResponse(SortingResponse.CODE_SORTING_INSPECTED,
-						HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_INSPECTING));
-				}
-			}
-			sortingRecords.addAll(sortingDao.findByBoxCode(cancelSortingOffsiteDto));
-			if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
-				log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",cancelSortingOffsiteDto.getPackageCode(),sortingRecords.size());
-				return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
-					HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
-			}
-		} else {
-			// 安检岗触发的取消集包，查询待取消集包记录,不用检验是否发货。
-			sortingRecords.addAll(querySortingByCode(cancelSortingOffsiteDto));
-			if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
-				log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",cancelSortingOffsiteDto.getPackageCode(),sortingRecords.size());
-				return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
-					HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
-			}
-			if (Constants.BUSSINESS_TYPE_THIRD_PARTY == cancelSortingOffsiteDto.getType()) {
-				int unfilledOrdersCount = 0;
-				for (Sorting eachSorting : sortingRecords) {
-					// 如果已经验货，则exception_status为0，则不能取消分拣，需要在异常处理里进行少验取消的操作
-					InspectionEC inspectionEC = new InspectionEC.Builder(eachSorting.getPackageCode(),
-						eachSorting.getCreateSiteCode()).waybillCode(eachSorting.getWaybillCode())
-						.boxCode(eachSorting.getBoxCode()).receiveSiteCode(eachSorting.getReceiveSiteCode())
-						.inspectionType(eachSorting.getType()).inspectionECType(InspectionEC.INSPECTIONEC_TYPE_MORE)
-						.yn(1).build();
-					Integer inspectionCount = inspectionExcpetionService.inspectionCount(inspectionEC);
-
-					if (inspectionCount > 0) {
-						unfilledOrdersCount++;
-						addOpetationLog(cancelSortingOffsiteDto, OperationLog.LOG_TYPE_SORTING_CANCEL, "已经三方验货或者差异处理","SortingServiceImpl#getSortingRecords");
-					}
-				}
-				if (unfilledOrdersCount == sortingRecords.size()) {
-					return new SortingResponse(SortingResponse.CODE_SORTING_INSPECTED,
-						HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_INSPECTING));
-				}
-			}
-		}
-		return SortingResponse.ok();
-	}
-
 	public SortingResponse getSortingRecords(Sorting sorting,List<Sorting> sortingRecords){
 		if (StringUtils.isNotBlank(sorting.getBoxCode())) {
 			// 校验是否发货，如果已经发货，则提示不能取消分拣
@@ -1628,20 +1587,14 @@ public class SortingServiceImpl implements SortingService {
                         HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_SENDING));
 			}
 			// 若三方分拣，校验是否验货，若已经验货，则提示不能取消
-			if (sorting.getType() == Constants.BUSSINESS_TYPE_THIRD_PARTY) {
-				Inspection inspection = new Inspection.Builder(null, sorting.getCreateSiteCode())
-						.boxCode(sorting.getBoxCode()).inspectionType(sorting.getType()).build();
-				int inspectionCount = inspectionService.inspectionCount(inspection);
-				if (inspectionCount > 0) {
-					return new SortingResponse(SortingResponse.CODE_SORTING_INSPECTED,
-                            HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_INSPECTING));
-				}
+			SortingResponse sortingResponse = checkThirdInspection(sorting);
+			if (sortingResponse != null){
+				return sortingResponse;
 			}
 			sortingRecords.addAll(sortingDao.findByBoxCode(sorting));
-			if (sortingRecords != null && sortingRecords.size() > DmsConstants.MAX_NUMBER) {
-				log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",sorting.getPackageCode(),sortingRecords.size());
-				return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
-                        HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
+			SortingResponse response = checkPackageNum(sorting, sortingRecords);
+			if (response != null){
+				return response;
 			}
 		} else {
 			sortingRecords.addAll(queryByCode2(sorting));
@@ -1650,35 +1603,120 @@ public class SortingServiceImpl implements SortingService {
 				addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "包裹已经发货","SortingServiceImpl#getSortingRecords");
 				return new SortingResponse(SortingResponse.CODE_SORTING_SENDED,
                         HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_SENDING));
-			} else if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
-				log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",sorting.getPackageCode(),sortingRecords.size());
-				return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
-                        HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
+			}
+			SortingResponse response = checkPackageNum(sorting, sortingRecords);
+			if (response != null){
+				return response;
 			}
 
-			if (Constants.BUSSINESS_TYPE_THIRD_PARTY == sorting.getType()) {
-				int unfilledOrdersCount = 0;
-				for (Sorting eachSorting : sortingRecords) {
-					// 如果已经验货，则exception_status为0，则不能取消分拣，需要在异常处理里进行少验取消的操作
-					InspectionEC inspectionEC = new InspectionEC.Builder(eachSorting.getPackageCode(),
-							eachSorting.getCreateSiteCode()).waybillCode(eachSorting.getWaybillCode())
-							.boxCode(eachSorting.getBoxCode()).receiveSiteCode(eachSorting.getReceiveSiteCode())
-							.inspectionType(eachSorting.getType()).inspectionECType(InspectionEC.INSPECTIONEC_TYPE_MORE)
-							.yn(1).build();
-					Integer inspectionCount = inspectionExcpetionService.inspectionCount(inspectionEC);
+			SortingResponse sortingResponse = checkThirdInspectionWithNoBoxCode(sorting, sortingRecords);
+			if (sortingResponse != null){
+				return sortingResponse;
+			}
 
-					if (inspectionCount > 0) {
-						unfilledOrdersCount++;
-						addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "已经三方验货或者差异处理","SortingServiceImpl#getSortingRecords");
-					}
-				}
-				if (unfilledOrdersCount == sortingRecords.size()) {
-					return new SortingResponse(SortingResponse.CODE_SORTING_INSPECTED,
-                            HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_INSPECTING));
-				}
+		}
+		return SortingResponse.ok();
+	}
+
+	/**
+	 * 获取异地集包记录-在操作场地和集包场地不一致时获取集包记录，不进行发货校验；
+	 * 如果修改 操作场地和集包场地为同一场地时获取集包记录，请看getSortingRecords()方法，
+	 * 并评估对本方法的影响
+	 * @param cancelSortingOffsiteDto 取消外场分拣DTO
+	 * @param sortingRecords 分拣记录列表
+	 * @return 分拣响应对象
+	 */
+	private SortingResponse getSortingRecordsOffsite(CancelSortingOffsiteDto cancelSortingOffsiteDto, List<Sorting> sortingRecords) {
+		if (StringUtils.isNotBlank(cancelSortingOffsiteDto.getBoxCode())) {
+			// 若三方分拣，校验是否验货，若已经验货，则提示不能取消
+			SortingResponse sortingResponse = checkThirdInspection(cancelSortingOffsiteDto);
+			if (sortingResponse != null){
+				return sortingResponse;
+			}
+			sortingRecords.addAll(sortingDao.findByBoxCode(cancelSortingOffsiteDto));
+			SortingResponse response = checkPackageNum(cancelSortingOffsiteDto, sortingRecords);
+			if (response != null){
+				return response;
+			}
+		} else {
+			// 安检岗触发的取消集包，查询待取消集包记录,不用检验是否发货。
+			sortingRecords.addAll(querySortingByCode(cancelSortingOffsiteDto));
+			if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
+				log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",cancelSortingOffsiteDto.getPackageCode(),sortingRecords.size());
+				return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
+					HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
+			}
+			SortingResponse sortingResponse = checkThirdInspectionWithNoBoxCode(cancelSortingOffsiteDto, sortingRecords);
+			if (sortingResponse != null){
+				return sortingResponse;
 			}
 		}
 		return SortingResponse.ok();
+	}
+
+    /**
+     * 检查包裹数量是否超过最大限制
+     * @param sorting 分拣对象
+     * @param sortingRecords 分拣记录列表
+     * @return SortingResponse 分拣响应对象，如果包裹数超过最大限制则返回相应提示，否则返回null
+     */
+	private SortingResponse checkPackageNum(Sorting sorting, List<Sorting> sortingRecords) {
+		if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
+			log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT", sorting.getPackageCode(),
+				sortingRecords.size());
+			return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
+				HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
+		}
+		return null;
+	}
+
+    /**
+     * 检查第三方是否验货
+     * @param sorting 排序对象
+     * @return sortingResponse 排序响应对象
+     */
+	private SortingResponse checkThirdInspection(Sorting sorting) {
+		if (sorting.getType() == Constants.BUSSINESS_TYPE_THIRD_PARTY) {
+			Inspection inspection = new Inspection.Builder(null, sorting.getCreateSiteCode())
+				.boxCode(sorting.getBoxCode()).inspectionType(sorting.getType()).build();
+			int inspectionCount = inspectionService.inspectionCount(inspection);
+			if (inspectionCount > 0) {
+				return new SortingResponse(CODE_SORTING_INSPECTED,
+					HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_INSPECTING));
+			}
+		}
+		return null;
+	}
+
+    /**
+     * 检检查第三方是否验货（无箱号，只存在包裹号）
+     * @param sorting 分拣对象
+     * @param sortingRecords 分拣记录列表
+     * @return SortingResponse 返回分拣响应
+     */
+	private SortingResponse checkThirdInspectionWithNoBoxCode(Sorting sorting, List<Sorting> sortingRecords) {
+		if (Constants.BUSSINESS_TYPE_THIRD_PARTY == sorting.getType()) {
+			int unfilledOrdersCount = 0;
+			for (Sorting eachSorting : sortingRecords) {
+				// 如果已经验货，则exception_status为0，则不能取消分拣，需要在异常处理里进行少验取消的操作
+				InspectionEC inspectionEC = new InspectionEC.Builder(eachSorting.getPackageCode(),
+					eachSorting.getCreateSiteCode()).waybillCode(eachSorting.getWaybillCode())
+					.boxCode(eachSorting.getBoxCode()).receiveSiteCode(eachSorting.getReceiveSiteCode())
+					.inspectionType(eachSorting.getType()).inspectionECType(InspectionEC.INSPECTIONEC_TYPE_MORE)
+					.yn(1).build();
+				Integer inspectionCount = inspectionExcpetionService.inspectionCount(inspectionEC);
+
+				if (inspectionCount > 0) {
+					unfilledOrdersCount++;
+					addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "已经三方验货或者差异处理","SortingServiceImpl#getSortingRecords");
+				}
+			}
+			if (unfilledOrdersCount == sortingRecords.size()) {
+				return new SortingResponse(CODE_SORTING_INSPECTED,
+					HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_INSPECTING));
+			}
+		}
+		return null;
 	}
 
 	/**
