@@ -6,7 +6,5 @@ import com.jdl.jy.flat.dto.schedule.UserGridScheduleDto;
 import com.jdl.jy.flat.dto.schedule.UserGridScheduleQueryDto;
 
 public interface WorkGridScheduleManager {
-    JyUserDto getUserByUserCode(JyUserQueryDto queryDto);
-
     UserGridScheduleDto getUserScheduleByCondition(UserGridScheduleQueryDto queryDto);
 }

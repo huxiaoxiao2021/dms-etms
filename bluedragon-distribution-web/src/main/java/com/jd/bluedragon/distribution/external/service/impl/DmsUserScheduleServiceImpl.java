@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.core.jsf.workStation.JyUserManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridScheduleManager;
 import com.jd.bluedragon.distribution.api.request.sendcode.DmsUserScheduleRequest;
 import com.jd.bluedragon.distribution.external.service.DmsUserScheduleService;
@@ -9,51 +10,50 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jdl.basic.api.domain.user.JyUserDto;
 import com.jdl.basic.api.domain.user.JyUserQueryDto;
-import com.jdl.basic.api.utils.JyUserUtils;
 import com.jdl.jy.flat.dto.schedule.UserGridScheduleDto;
 import com.jdl.jy.flat.dto.schedule.UserGridScheduleQueryDto;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.Date;
 
+@Service("dmsUserScheduleService")
 public class DmsUserScheduleServiceImpl implements DmsUserScheduleService {
     @Autowired
     private WorkGridScheduleManager workGridScheduleManager;
     @Autowired
     private DmsConfigManager dmsConfigManager;
+    @Autowired
+    private JyUserManager jyUserManager;
 
     @Override
     public JdResponse<Boolean> allowEntryTurnStile(DmsUserScheduleRequest request) {
         JdResponse<Boolean> response = new JdResponse<>();
-        JyUserQueryDto userQueryDto = new JyUserQueryDto();
         UserGridScheduleQueryDto scheduleQueryDto = new UserGridScheduleQueryDto();
         if (StringUtils.isEmpty(request.getUserCode())) {
             response.toFail(JdResponse.CODE_FAIL, "userCode不能为空！");
             return response;
         }
-        if (JyUserUtils.isIdCard(request.getUserCode())) {
-            userQueryDto.setUserCode(request.getUserCode());
-            scheduleQueryDto.setUserCode(request.getUserCode());
-        } else {
-            userQueryDto.setUserErp(request.getUserCode());
-            scheduleQueryDto.setUserErp(request.getUserCode());
-        }
 
-        JyUserDto userDto = workGridScheduleManager.getUserByUserCode(userQueryDto);
+        JyUserQueryDto userQueryDto = new JyUserQueryDto();
+        userQueryDto.setUserUniqueCode(request.getUserCode());
+        JyUserDto userDto = jyUserManager.getUserByErpOrIdNum(userQueryDto);
         if (userDto == null) {
             response.setData(false);
-            response.setMessage("找不到用户该用户！");
+            response.setMessage(String.format("找不到%s该用户！", request.getUserCode()));
             return response;
         }
 
         scheduleQueryDto.setScheduleDate(DateHelper.formatDate(new Date()));
+        scheduleQueryDto.setNature(userDto.getNature());
+        scheduleQueryDto.setUserUniqueCode(request.getUserCode());
         UserGridScheduleDto scheduleDto = workGridScheduleManager.getUserScheduleByCondition(scheduleQueryDto);
         if (scheduleDto == null) {
             response.setData(false);
-            response.setMessage("该用户无排班记录！");
+            response.setMessage(String.format("%s该用户无排班记录！", request.getUserCode()));
             return response;
         }
 
@@ -62,13 +62,13 @@ public class DmsUserScheduleServiceImpl implements DmsUserScheduleService {
         boolean startTimeCheck = checkEntryTime(scheduleDto.getStartTime(), -dmsConfigManager.getPropertyConfig().getAllowEntryHours());
         if (!startTimeCheck) {
             response.setData(false);
-            response.setMessage("不在有效进入闸机时间范围内！");
+            response.setMessage(String.format("%s排班时间为[%s-%s],不在前后%s小时的有效进入闸机时间范围内！", request.getUserCode(), scheduleDto.getStartTime(), scheduleDto.getEndTime(), dmsConfigManager.getPropertyConfig().getAllowEntryHours()));
             return response;
         }
         boolean endTimeCheck = checkEntryTime(scheduleDto.getEndTime(), dmsConfigManager.getPropertyConfig().getAllowEntryHours());
         if (!endTimeCheck) {
             response.setData(false);
-            response.setMessage("不在有效进入闸机时间范围内！");
+            response.setMessage(String.format("%s排班时间为[%s-%s],不在前后%s小时的有效进入闸机时间范围内！", request.getUserCode(), scheduleDto.getStartTime(), scheduleDto.getEndTime(), dmsConfigManager.getPropertyConfig().getAllowEntryHours()));
             return response;
         }
         response.setData(true);
