@@ -40,6 +40,15 @@ public class SendOfCapabilityAreaServiceImpl implements ISendOfCapabilityAreaSer
 
     /**
      * 发货
+     *
+     * 整体采用责任链模式+策略模式组合使用完成了对发货服务的封装
+     *
+     * 统一发货服务，封装了分拣条线所有发货服务，所有处理单元均在com.jd.bluedragon.distribution.capability.send.handler路径下
+     *
+     * 特别注意：针对返回值场景，中的JdVerifyResponse 的 msgBox 可自行根据使用场景在处理逻辑中直接处理，也可以等待SendRespMsgBoxHandler统一处理，但切记修改时需要考虑调入入口
+     *
+     * 具体设计文档参考: https://joyspace.jd.com/teams/DDWcQ85zjo0cDVQIMjFJ/vOOnoOJMJZ3yfs3QrhJi
+     *
      * @param request
      * @return
      */
@@ -58,8 +67,7 @@ public class SendOfCapabilityAreaServiceImpl implements ISendOfCapabilityAreaSer
             if(response.codeSuccess()){
                 //调用执行逻辑
                 sendOfCapabilityAreaFactory.getSendHandlerChain(
-                                makeSendChainForSendBizSource(
-                                        SendBizSourceEnum.getEnum(request.getBizSource())))
+                                        SendBizSourceEnum.getEnum(request.getBizSource()))
                         .handle(context);
             }
 
@@ -92,6 +100,10 @@ public class SendOfCapabilityAreaServiceImpl implements ISendOfCapabilityAreaSer
             response.toFail("BizSource is null!");
         }
 
+        if(SendBizSourceEnum.getEnum(request.getBizSource()) == null){
+            response.toFail(String.format("SendBizSourceEnum %s not be null!", request.getBizSource()));
+        }
+
         if(StringUtils.isBlank(request.getBarCode())){
             response.toFail("BarCode is null!");
         }
@@ -111,30 +123,5 @@ public class SendOfCapabilityAreaServiceImpl implements ISendOfCapabilityAreaSer
         return response;
 
     }
-
-    /**
-     * 根据业务SendBizSourceEnum 匹配 执行链的 SendChainEnum
-     * @param sendBizSourceEnum
-     * @return
-     */
-    private SendChainEnum makeSendChainForSendBizSource(SendBizSourceEnum sendBizSourceEnum) {
-
-        Map<SendBizSourceEnum, SendChainEnum> sendChainMap = new HashMap<>();
-        sendChainMap.put(SendBizSourceEnum.WAYBILL_SEND, SendChainEnum.DEFAULT);
-        sendChainMap.put(SendBizSourceEnum.NEW_PACKAGE_SEND, SendChainEnum.DEFAULT);
-        sendChainMap.put(SendBizSourceEnum.BOARD_SEND, SendChainEnum.DEFAULT);
-        sendChainMap.put(SendBizSourceEnum.ANDROID_PDA_SEND, SendChainEnum.DEFAULT);
-        sendChainMap.put(SendBizSourceEnum.JY_APP_SEND, SendChainEnum.WITH_CYCLE_BOX_MODE);
-        sendChainMap.put(SendBizSourceEnum.JY_APP_TRANSFER_AND_FERRY_SEND, SendChainEnum.WITH_CYCLE_BOX_MODE);
-
-
-        SendChainEnum sendChain = sendChainMap.get(sendBizSourceEnum);
-        if (sendChain != null) {
-            return sendChain;
-        }
-
-        throw new SendOfCapabilityAreaException(
-                String.format("sendBizSourceEnum %s not find SendChainEnum!", sendBizSourceEnum.getCode()));
-        }
 
 }

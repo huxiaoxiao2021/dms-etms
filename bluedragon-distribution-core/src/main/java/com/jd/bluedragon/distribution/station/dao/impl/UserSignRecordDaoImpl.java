@@ -233,4 +233,13 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	public UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryFirstExistGridRecord", query);
 	}
+
+	@Override
+	public int signOutTimeById(UserSignRecord userSignOutDto, List<Long> list, List<JobCodeHoursDto> jobCodeHoursDtoList) {
+		Map<String, Object> param = new HashMap<>();
+		param.put("param", userSignOutDto);
+		param.put("list", list);
+		param.put("jobCodeHoursDtoList", jobCodeHoursDtoList);
+		return this.getSqlSession().update(NAMESPACE + ".signOutTimeById", param);
+	}
 }

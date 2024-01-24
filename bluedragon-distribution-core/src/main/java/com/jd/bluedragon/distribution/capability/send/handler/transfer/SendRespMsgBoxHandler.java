@@ -30,6 +30,8 @@ public class SendRespMsgBoxHandler extends SendDimensionStrategyHandler {
 
     /**
      * 截止目前，任何处理维度执行逻辑都相同
+     * 此处理逻辑仅仅针对在以前返回值只处理的JdVerifyResponse中的SendResult属性后需要包装在msgBox里一份的场景
+     * 新增异常场景大家可以自己定义在返回异常时就直接把信息组装在msgBox里一份即可，没必要必须通过这个转换链处理
      * @param context
      * @return
      */
@@ -53,10 +55,6 @@ public class SendRespMsgBoxHandler extends SendDimensionStrategyHandler {
             response.addWarningBox(sendResult.getKey(), sendResult.getValue());
         }
 
-        //返回错误信息统一处理 如果当消息盒子中有值的时候，response的code要转换成失败code编码。如果需要自定义code编码的不会覆盖
-        if( response.codeSuccess() && !(CollectionUtils.isEmpty(response.getMsgBoxes()))){
-            response.toBizError();
-        }
         return true;
     }
 }

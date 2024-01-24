@@ -111,4 +111,10 @@ public interface UserSignRecordJsfService {
 	Result<List<UserSignRecord>> listSignRecordByTime(UserSignRecordQuery query);
 
 	Result noticeToTimeline(NoticeToTimelineDto dto);
+
+	/**
+	 * 自动处理签到数据签退
+	 * @return
+	 */
+	Result<Integer> autoHandleSignInRecord();
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.jd.bluedragon.common.domain.JobCodeHoursDto;
 import com.jd.bluedragon.distribution.station.domain.*;
@@ -210,5 +211,7 @@ public interface UserSignRecordDao {
 	UserSignRecord queryLastUnSignOutRecordIgnoreCase(List<String> list);
 
 	UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query);
-	
-}
+
+	public int signOutTimeById(UserSignRecord param, List<Long> list, List<JobCodeHoursDto> jobCodeHoursDtoList) ;
+
+	}
