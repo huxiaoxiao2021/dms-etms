@@ -83,15 +83,14 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
      * 待发总件数：初始化生成
      * 待发已发总件数： 实际提货发货的待发包裹件数 + 实际提货发货的待发箱件数
      * b: 实发总件数 = 待发已发总件数 + 多发总件数
-     * c: 多发总件数 = 多发包裹件数 + 多发箱件数
-     * d: 强发件数 = 强发包裹件数 + 强发箱件数 【目前场景不需要，DB定义了该字段，可暂时不做加工】
+     * c: 多发总件数 = 多发包裹件数 + 多发箱件数  (强发)
      *
      * 上面是提货任务维度统计
      * 下面提货发货流向统计
      * 1、流向内实发发货的需要提货的包裹件数
      * 2、流向内实发发货的需要提货的箱件数
-     * 3、流向内实发发货的多货的包裹件数
-     * 4、流向内实发发货的多货的箱件数
+     * 3、流向内实发发货的多发货的包裹件数
+     * 4、流向内实发发货的多发货的箱件数
      */
     @Override
     public void saveCacheAggStatistics(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity) {
@@ -111,8 +110,8 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
                 handoverPickingBox = cacheService.incrRealScanWaitPickingBoxNum(bizId, siteId);
             }
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
-                if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
-                    //多提发的箱件数【流向维度】
+                if(Boolean.TRUE.equals(request.getForceSendFlag())) {
+                    //多发的箱件数【流向维度】
                     moreSendBox = cacheService.incrRealScanFlowMoreSendBoxNum(bizId, siteId, request.getNextSiteId());
                 }else {
                     //交接提发箱的件数【流向维度】
@@ -135,8 +134,8 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
                 handoverPickingPackage = cacheService.incrRealScanWaitPickingPackageNum(bizId, siteId);
             }
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
-                if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
-                    //多提发的包裹件数【流向维度】
+                if(Boolean.TRUE.equals(request.getForceSendFlag())) {
+                    //多发的包裹件数【流向维度】
                     moreSendPackage = cacheService.incrRealScanFlowMoreSendPackageNum(bizId, siteId, request.getNextSiteId());
                 }else {
                     //交接提发的包裹件数【流向维度】
@@ -408,7 +407,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             insertEntity.setSendTotalCount(insertEntity.getSendBoxCount() + insertEntity.getSendPackageCount());
 
             //多扫发货统计
-            if(moreScanFlag) {
+            if(Boolean.TRUE.equals(param.getForceSendFlag())) {
                 if(BusinessUtil.isBoxcode(param.getBarCode())) {
                     insertEntity.setMoreSendBoxCount(1);
                     insertEntity.setMoreSendPackageCount(0);
@@ -472,7 +471,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             updateEntity.setSendTotalCount(updateEntity.getSendBoxCount() + updateEntity.getSendPackageCount());
 
             //多扫发货统计
-            if(moreScanFlag) {
+            if(Boolean.TRUE.equals(param.getForceSendFlag())) {
                 if(BusinessUtil.isBoxcode(param.getBarCode())) {
                     updateEntity.setMoreSendBoxCount(aggDtoRes.getMoreSendBoxCount() + 1);
                 }else {

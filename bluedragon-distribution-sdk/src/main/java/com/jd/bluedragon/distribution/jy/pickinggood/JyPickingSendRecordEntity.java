@@ -97,13 +97,9 @@ public class JyPickingSendRecordEntity implements Serializable {
      */
     private String boxRealFlowKey;
     /**
-     * 是否多发：1是[多发=多提+已发]
+     * 是否多发：1是 【错流向强发】
      */
     private Integer moreSendFlag;
-    /**
-     * 是否强发：1是
-     */
-    private Integer forceSendFlag;
     /**
      * 发货操作时间
      */
@@ -316,14 +312,6 @@ public class JyPickingSendRecordEntity implements Serializable {
 
     public void setMoreSendFlag(Integer moreSendFlag) {
         this.moreSendFlag = moreSendFlag;
-    }
-
-    public Integer getForceSendFlag() {
-        return forceSendFlag;
-    }
-
-    public void setForceSendFlag(Integer forceSendFlag) {
-        this.forceSendFlag = forceSendFlag;
     }
 
     public Date getSendTime() {

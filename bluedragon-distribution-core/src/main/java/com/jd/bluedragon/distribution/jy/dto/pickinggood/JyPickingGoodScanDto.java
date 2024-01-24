@@ -35,7 +35,7 @@ public class JyPickingGoodScanDto implements Serializable {
     private Boolean sendGoodFlag;
 
     /**
-     * 强发标识
+     * 错流向强发标识
      */
     private Boolean forceSendFlag;
     /**

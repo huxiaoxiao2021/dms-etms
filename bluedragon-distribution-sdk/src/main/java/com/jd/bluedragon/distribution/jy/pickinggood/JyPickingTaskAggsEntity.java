@@ -97,18 +97,6 @@ public class JyPickingTaskAggsEntity implements Serializable {
      * 多发总件数
      */
     private Integer moreSendTotalCount;
-    /**
-     * 强发包裹件数
-     */
-    private Integer forceSendPackageCount;
-    /**
-     * 强发箱件数
-     */
-    private Integer forceSendBoxCount;
-    /**
-     * 强发总件数
-     */
-    private Integer forceSendTotalCount;
 
     private Date createTime;
 
@@ -308,30 +296,6 @@ public class JyPickingTaskAggsEntity implements Serializable {
 
     public void setMoreSendTotalCount(Integer moreSendTotalCount) {
         this.moreSendTotalCount = moreSendTotalCount;
-    }
-
-    public Integer getForceSendPackageCount() {
-        return forceSendPackageCount;
-    }
-
-    public void setForceSendPackageCount(Integer forceSendPackageCount) {
-        this.forceSendPackageCount = forceSendPackageCount;
-    }
-
-    public Integer getForceSendBoxCount() {
-        return forceSendBoxCount;
-    }
-
-    public void setForceSendBoxCount(Integer forceSendBoxCount) {
-        this.forceSendBoxCount = forceSendBoxCount;
-    }
-
-    public Integer getForceSendTotalCount() {
-        return forceSendTotalCount;
-    }
-
-    public void setForceSendTotalCount(Integer forceSendTotalCount) {
-        this.forceSendTotalCount = forceSendTotalCount;
     }
 
     public Date getCreateTime() {

@@ -25,9 +25,6 @@
     <result column="more_send_package_count" property="moreSendPackageCount" jdbcType="INTEGER" />
     <result column="more_send_box_count" property="moreSendBoxCount" jdbcType="INTEGER" />
     <result column="more_send_total_count" property="moreSendTotalCount" jdbcType="INTEGER" />
-    <result column="force_send_package_count" property="forceSendPackageCount" jdbcType="INTEGER" />
-    <result column="force_send_box_count" property="forceSendBoxCount" jdbcType="INTEGER" />
-    <result column="force_send_total_count" property="forceSendTotalCount" jdbcType="INTEGER" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
     <result column="yn" property="yn" jdbcType="BIT" />
@@ -40,8 +37,7 @@
     handover_scan_total_count, scan_package_total_count, scan_box_total_count, scan_total_count,
     more_scan_package_count, more_scan_box_count, more_scan_total_count, send_package_count, 
     send_box_count, send_total_count, more_send_package_count, more_send_box_count, more_send_total_count, 
-    force_send_package_count, force_send_box_count, force_send_total_count, create_time, 
-    update_time, yn, ts
+    create_time, update_time, yn, ts
   </sql>
 
 
@@ -116,15 +112,6 @@
         </if>
         <if test="moreSendTotalCount != null" >
           more_send_total_count,
-        </if>
-        <if test="forceSendPackageCount != null" >
-          force_send_package_count,
-        </if>
-        <if test="forceSendBoxCount != null" >
-          force_send_box_count,
-        </if>
-        <if test="forceSendTotalCount != null" >
-          force_send_total_count,
         </if>
         <if test="createTime != null" >
           create_time,
@@ -203,15 +190,6 @@
         </if>
         <if test="moreSendTotalCount != null" >
           #{moreSendTotalCount},
-        </if>
-        <if test="forceSendPackageCount != null" >
-          #{forceSendPackageCount},
-        </if>
-        <if test="forceSendBoxCount != null" >
-          #{forceSendBoxCount},
-        </if>
-        <if test="forceSendTotalCount != null" >
-          #{forceSendTotalCount},
         </if>
         <if test="createTime != null" >
           #{createTime},
@@ -304,15 +282,6 @@
       </if>
       <if test="moreSendTotalCount != null" >
         more_send_total_count = #{moreSendTotalCount},
-      </if>
-      <if test="forceSendPackageCount != null" >
-        force_send_package_count = #{forceSendPackageCount},
-      </if>
-      <if test="forceSendBoxCount != null" >
-        force_send_box_count = #{forceSendBoxCount},
-      </if>
-      <if test="forceSendTotalCount != null" >
-        force_send_total_count = #{forceSendTotalCount},
       </if>
       <if test="updateTime != null" >
         update_time = #{updateTime},

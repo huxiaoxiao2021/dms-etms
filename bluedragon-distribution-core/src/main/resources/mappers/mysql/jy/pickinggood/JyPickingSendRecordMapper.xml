@@ -25,7 +25,6 @@
     <result column="real_next_site_id" property="realNextSiteId" jdbcType="BIGINT" />
     <result column="box_real_flow_key" property="boxRealFlowKey" jdbcType="VARCHAR" />
     <result column="more_send_flag" property="moreSendFlag" jdbcType="TINYINT" />
-    <result column="force_send_flag" property="forceSendFlag" jdbcType="TINYINT" />
     <result column="send_time" property="sendTime" jdbcType="TIMESTAMP" />
     <result column="send_user_erp" property="sendUserErp" jdbcType="VARCHAR" />
     <result column="send_user_name" property="sendUserName" jdbcType="VARCHAR" />
@@ -39,7 +38,7 @@
     id, biz_id, picking_site_id, picking_node_code, package_code, waybill_code, scan_code,
     wait_scan_code, wait_scan_code_type, init_next_site_id, box_init_flow_key, wait_scan_flag, init_time,
     scan_flag, scan_code_type, more_scan_flag, picking_user_erp, picking_user_name, picking_time,
-    send_flag, real_next_site_id, box_real_flow_key, more_send_flag, force_send_flag,
+    send_flag, real_next_site_id, box_real_flow_key, more_send_flag,
     send_time, send_user_erp, send_user_name, create_time, update_time, yn, ts
   </sql>
 
@@ -115,9 +114,6 @@
         </if>
         <if test="moreSendFlag != null" >
           more_send_flag,
-        </if>
-        <if test="forceSendFlag != null" >
-          force_send_flag,
         </if>
         <if test="sendTime != null" >
           send_time,
@@ -205,9 +201,6 @@
         </if>
         <if test="moreSendFlag != null" >
           #{moreSendFlag,jdbcType=TINYINT},
-        </if>
-        <if test="forceSendFlag != null" >
-          #{forceSendFlag,jdbcType=TINYINT},
         </if>
         <if test="sendTime != null" >
           #{sendTime,jdbcType=TIMESTAMP},
@@ -316,9 +309,6 @@
         </if>
         <if test="moreSendFlag != null" >
           more_send_flag = #{moreSendFlag,jdbcType=TINYINT},
-        </if>
-        <if test="forceSendFlag != null" >
-          force_send_flag = #{forceSendFlag,jdbcType=TINYINT},
         </if>
         <if test="sendTime != null" >
           send_time = #{sendTime,jdbcType=TIMESTAMP},

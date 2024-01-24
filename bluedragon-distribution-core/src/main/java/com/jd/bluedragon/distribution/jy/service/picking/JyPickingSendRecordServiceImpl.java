@@ -263,8 +263,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
             entity.setSendFlag(Constants.NUMBER_ONE);
             entity.setRealNextSiteId(scanDto.getNextSiteId());
             entity.setBoxRealFlowKey(scanDto.getBoxConfirmNextSiteKey());
-            entity.setMoreSendFlag(entity.getMoreScanFlag());
-            entity.setForceSendFlag(Boolean.TRUE.equals(scanDto.getForceSendFlag()) ? Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
+            entity.setMoreSendFlag(Boolean.TRUE.equals(scanDto.getForceSendFlag()) ? Constants.NUMBER_ONE : Constants.NUMBER_ZERO);
             entity.setSendTime(new Date(scanDto.getOperateTime()));
             entity.setSendUserErp(entity.getPickingUserErp());
             entity.setSendUserName(entity.getPickingUserName());
