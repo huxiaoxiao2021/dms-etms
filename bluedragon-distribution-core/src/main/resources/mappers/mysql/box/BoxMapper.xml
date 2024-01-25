@@ -134,4 +134,22 @@
 			box_code = #{code,jdbcType=VARCHAR}
 	</update>
 
+
+	<update id="updateById" parameterType="box" >
+		UPDATE Box
+		SET
+			create_site_code =#{createSiteCode},
+			create_site_name =#{createSiteName},
+			receive_site_code =#{receiveSiteCode},
+			receive_site_name =#{receiveSiteName},
+			create_user_code =#{createUserCode},
+			create_user =#{createUser},
+			update_user_code =#{createUserCode},
+			update_user =#{createUser},
+			transport_type=#{transportType},
+			mix_box_type=#{mixBoxType},
+			update_time = now()
+		WHERE  box_id =#{id}  AND box_code = #{code}
+	</update>
+
 </mapper>

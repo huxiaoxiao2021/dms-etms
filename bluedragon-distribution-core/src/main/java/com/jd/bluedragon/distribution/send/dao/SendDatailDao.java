@@ -570,4 +570,15 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public List<SendDetail> querySendDatailForUpdate(SendDetail param) {
     	return this.getSqlSession().selectList(namespace + ".querySendDatailForUpdate", param);
     }
+
+    public int batchAdd(List<SendDetail> sendDetailList){
+        for (SendDetail sendDetail:sendDetailList){
+            this.getSqlSession().insert(namespace + ".add", sendDetail);
+        }
+        return sendDetailList.size();
+    }
+
+    public int batchDelete(List<SendDetail> sendDetailList) {
+        return this.getSqlSession().update(namespace + ".batchDelete", sendDetailList);
+    }
 }

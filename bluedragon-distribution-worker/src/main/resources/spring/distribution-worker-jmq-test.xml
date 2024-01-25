@@ -803,5 +803,10 @@
     <jmq:consumer id="jmq.sealSyncOpenCloseSendTaskConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.sealSyncOpenCloseSendTask}" listener="sealSyncOpenCloseSendTaskConsumer"/>
     </jmq:consumer>
+
+    <!-- 接收仓打包明细  -->
+    <jmq:consumer id="jmq.boxDetailFromStoreConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.boxDetailFromStore}" listener="boxDetailFromStoreConsumer"/>
+    </jmq:consumer>
 </beans>
 
