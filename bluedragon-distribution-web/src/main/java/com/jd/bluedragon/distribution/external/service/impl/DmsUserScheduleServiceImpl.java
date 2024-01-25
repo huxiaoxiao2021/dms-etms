@@ -78,7 +78,13 @@ public class DmsUserScheduleServiceImpl implements DmsUserScheduleService {
                 scheduleTimes.add("昨天跨夜" + scheduleDto.getStartTime() + Constants.SEPARATOR_HYPHEN + scheduleDto.getEndTime());
                 continue;
             }
-            // 今天排班记录
+            // 今天排班记录  跨夜场景
+            // 开始时间大于结束时间  证明是当天跨夜  允许放行
+            if (scheduleDto.getStartTime().compareTo(scheduleDto.getEndTime()) > 0) {
+                response.setData(true);
+                return response;
+            }
+            // 不是跨夜场景
             // 判断当前时间是否是在合理进入闸机时间范围
             boolean startTimeCheck = checkEntryTime(scheduleDto.getStartTime(), -allowHours);
             boolean endTimeCheck = checkEntryTime(scheduleDto.getEndTime(), allowHours);
