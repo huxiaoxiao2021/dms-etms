@@ -16,6 +16,7 @@ import com.jd.bluedragon.core.base.DeliveryWSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.businessIntercept.config.BusinessInterceptConfig;
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptDisposeRecord;
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptReport;
@@ -39,7 +40,9 @@ import com.jd.bluedragon.distribution.jy.service.exception.capabilityDomain.busi
 import com.jd.bluedragon.distribution.jy.service.exception.capabilityDomain.businessIntercept.JyExceptionBusinessInterceptDetailService;
 import com.jd.bluedragon.distribution.jy.service.exception.capabilityDomain.businessIntercept.helper.JyExceptionBusinessInterceptTaskConstants;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.print.domain.ExchangeWaybillRequest;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.print.service.WaybillInterceptReverseService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -50,6 +53,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
@@ -205,6 +209,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Autowired
     private JyExceptionBusinessInterceptDetailKvService jyExceptionBusinessInterceptDetailKvService;
+
+    @Autowired
+    private WaybillInterceptReverseService waybillInterceptReverseService;
 
     @Autowired
     @Qualifier("businessInterceptConfig")
@@ -2456,11 +2463,22 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyExceptionInterceptDetail.setUpdateUserCode(user.getUserErp());
             jyExceptionInterceptDetail.setUpdateUserName(user.getUserName());
             jyExceptionInterceptDetail.setUpdateTime(currentDate);
-            // 如果是0重量拦截，则记录重量体积
             jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
             // 3.2. 如果是需要触发换单的拦截单
             if(businessInterceptConfig.getNeedExchangeNewWaybillInterceptTypeList().contains(jyExceptionInterceptDetailExist.getInterceptType())){
-                // todo 调换单接口
+                final ExchangeWaybillRequest exchangeWaybillRequest = new ExchangeWaybillRequest();
+                exchangeWaybillRequest.setUser(BeanConverter.convertToSdkUser(req.getUser()));
+                exchangeWaybillRequest.setCurrentOperate(BeanConverter.convertToSdkCurrentOperate(req.getCurrentOperate()));
+                exchangeWaybillRequest.setWaybillCode(jyExceptionInterceptDetailExist.getWaybillCode());
+                final InvokeResult<String> exchangeNewWaybillResult = waybillInterceptReverseService.exchangeNewWaybill(exchangeWaybillRequest);
+                if (exchangeNewWaybillResult == null) {
+                    logger.error("JyExceptionServiceImpl_processTaskOfIntercept_fail exchangeNewWaybill_return_null {}", JsonHelper.toJson(exchangeWaybillRequest));
+                    return result.toFail("任务处理失败，该异常拦截任务需要执行换单，但换单失败");
+                }
+                if (!exchangeNewWaybillResult.codeSuccess()) {
+                    logger.error("JyExceptionServiceImpl_processTaskOfIntercept_fail exchangeNewWaybill_return_fail {}", JsonHelper.toJson(exchangeWaybillRequest));
+                    return result.toFail("任务处理失败，该异常拦截任务需要执行换单，但换单失败，失败原因: " + exchangeNewWaybillResult.getMessage());
+                }
             }
             // 3.2 状态置为处理中
             if (!Objects.equals(BusinessInterceptTypeEnum.ZERO_WEIGHT.getCode(), jyExceptionInterceptDetailExist.getInterceptType())) {
@@ -2561,6 +2579,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyExceptionInterceptDetail.setInputWeight(req.getWeight());
             jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
 
+            // todo 提交到重量体积接口
+
             // 3.2 若是提交保存，状态置为完结
             if (Objects.equals(req.getSaveType(), JyExpSaveTypeEnum.SAVE.getCode())) {
                 JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
@@ -2573,7 +2593,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 jyBizTaskExceptionDao.updateByBizId(bizTaskExceptionUpdate);
             }
 
-            result.toSuccess(true, "提交成功");
+            String returnMessage = "提交成功";
+            if (Objects.equals(req.getSaveType(), JyExpSaveTypeEnum.TEMP_SAVE.getCode())) {
+                returnMessage = "已暂存";
+            }
+            result.toSuccess(true, returnMessage);
         } catch (Exception e) {
             result.toFail("接口异常");
             logger.error("JyExceptionServiceImpl.processTaskOfInterceptSubmitWeightVolume exception param {} exception {}", JsonHelper.toJson(req), e.getMessage(), e);
