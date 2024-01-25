@@ -556,75 +556,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.unloadScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public JdVerifyResponse<Integer> unloadScan(UnloadScanRequest request) {
+    public JdVerifyResponse<UnLoadScanResponse> unloadScan(UnloadScanRequest request) {
 
         logInfo("开始卸车扫描. {}", JsonHelper.toJson(request));
-
-        JdVerifyResponse<Integer> result = new JdVerifyResponse<>();
-        result.toSuccess();
-
-        JyBizTaskUnloadVehicleEntity taskUnloadVehicle = unloadVehicleService.findByBizId(request.getBizId());
-        if (taskUnloadVehicle == null) {
-            result.toCustomError(InvokeResult.CODE_HINT, "卸车任务不存在，请刷新卸车任务列表后再扫描！");
-            return result;
-        }
-
-        // 卸车扫描前置校验
-        // 一个单号只能扫描一次
-        if (checkBarScannedAlready(request)) {
-            result.toCustomError(InvokeResult.CODE_HINT, "单号已扫描！");
-            return result;
-        }
-
-        try {
-            // 上下文数据
-            final UnloadScanContextDto unloadScanContextDto = new UnloadScanContextDto();
-            unloadScanContextDto.setUnloadScanRequest(request);
-
-            // 保存扫描记录，发运单全程跟踪。首次扫描分配卸车任务
-            UnloadScanDto unloadScanDto = createUnloadDto(request, taskUnloadVehicle);
-
-            unloadScanProducer.sendOnFailPersistent(unloadScanDto.getBarCode(), JsonHelper.toJson(unloadScanDto));
-
-            // 判断是否本场地单子
-            this.handleMoreLocalOrOutScan(request, unloadScanDto, result);
-
-            // 统计本次扫描的包裹数
-            this.calculateScanPackageCount(request, result, unloadScanContextDto);
-
-            //春节项目的特殊逻辑
-            this.depponSpecialHandling(request,result,unloadScanContextDto);
-
-            // 德邦场地提示
-            this.handleDepponMergeCondition(request, result, unloadScanContextDto);
-
-            // 记录卸车任务扫描进度
-            this.recordUnloadProgress(result.getData(), unloadScanDto, request, taskUnloadVehicle);
-
-            // 处理特殊产品类型提示音
-            this.handleSpecialProductType(request, result, unloadScanContextDto);
-        }
-        catch (EconomicNetException e) {
-            log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
-            result.toFail(e.getMessage());
-            redisClientOfJy.del(getBizBarCodeCacheKey(request.getBarCode(), request.getCurrentOperate().getSiteCode(), request.getBizId()));
-        }
-        catch (Exception ex) {
-            log.error("卸车扫描失败. {}", JsonHelper.toJson(request), ex);
-            result.toFail("服务器异常，卸车扫描失败，请咚咚联系分拣小秘！");
-
-            redisClientOfJy.del(getBizBarCodeCacheKey(request.getBarCode(), request.getCurrentOperate().getSiteCode(), request.getBizId()));
-        }
-
-        return result;
-    }
-
-    @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.doUnloadScan",
-            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public JdVerifyResponse<UnLoadScanResponse> doUnloadScan(UnloadScanRequest request) {
-
-        logInfo("doUnloadScan开始卸车扫描. {}", JsonHelper.toJson(request));
 
         JdVerifyResponse<UnLoadScanResponse> result = new JdVerifyResponse<>();
         result.toSuccess();
@@ -653,17 +587,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             // 判断是否本场地单子
             this.handleMoreLocalOrOutScan(request, unloadScanDto, result);
 
-            // 填充本次扫描需要的返回值
-            this.fillResponseFileld(request, result, unloadScanContextDto);
-
-            //春节项目的特殊逻辑
-            this.depponSpecialHandling(request,result,unloadScanContextDto);
+            // 统计本次扫描的包裹数
+            this.calculateScanPackageCount(request, result, unloadScanContextDto);
 
             // 德邦场地提示
             this.handleDepponMergeCondition(request, result, unloadScanContextDto);
 
             // 记录卸车任务扫描进度
-            this.recordUnloadProgress(result.getData().getScanWaybillPackSum(), unloadScanDto, request, taskUnloadVehicle);
+            this.recordUnloadProgress(result.getData(), unloadScanDto, request, taskUnloadVehicle);
 
             // 处理特殊产品类型提示音
             this.handleSpecialProductType(request, result, unloadScanContextDto);
@@ -686,7 +617,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return result;
     }
 
-    private void handleMoreLocalOrOutScan(UnloadScanRequest request, UnloadScanDto unloadScanDto, JdVerifyResponse result) {
+    private void handleMoreLocalOrOutScan(UnloadScanRequest request, UnloadScanDto unloadScanDto, JdVerifyResponse<UnLoadScanResponse> result) {
         // 降级开关
         if (!sysConfigService.getConfigByName(Constants.MORE_OUT_SCAN_NOTIFY_SWITCH)) {
             log.info("handleMoreLocalOrOutScan|卸车扫描非本场地多扫弱提醒开关已关闭");
@@ -749,7 +680,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return pager;
     }
 
-    private void handleDepponMergeCondition(UnloadScanRequest request, JdVerifyResponse result, UnloadScanContextDto unloadScanContextDto) {
+    private void handleDepponMergeCondition(UnloadScanRequest request, JdVerifyResponse<UnLoadScanResponse> result, UnloadScanContextDto unloadScanContextDto) {
         // 只处理包裹号或运单号
         if(!WaybillUtil.isWaybillCode(request.getBarCode()) && WaybillUtil.isPackageCode(request.getBarCode())){
             return;
@@ -890,7 +821,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param request
      * @param taskUnloadVehicle
      */
-    private void recordUnloadProgress(Integer pdaUnloadCount, UnloadScanDto unloadScanDto, UnloadScanRequest request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
+    private void recordUnloadProgress(UnLoadScanResponse dataResult, UnloadScanDto unloadScanDto, UnloadScanRequest request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
+        Integer pdaUnloadCount = dataResult.getScanPackCount();
         String pdaOpeCacheKey = genPdaUnloadProgressCacheKey(request.getBizId());
         if (redisClientOfJy.exists(pdaOpeCacheKey)) {
 
@@ -1022,7 +954,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         String tenantCode = TenantContext.getTenantCode();
         if(StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.equals(tenantCode)) {
             String barCode = request.getBarCode();
-            //只处理包裹号、运单号
+            //只处理包裹号、运单号 todo
             if(WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)){
                 InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult = jyCallbackJsfManager.unloadScanCheckOfCallback(transferDto(request));
                 //返回 code 非成功时需要阻断服务，不运行继续执行
@@ -1031,6 +963,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     result.setSelfDomFlag(Boolean.TRUE);
                     result.setCode(callbackResult.getCode());
                     result.setMessage(callbackResult.getMessage());
+                    //todo message赋值
                 }
             }
         }
@@ -1116,47 +1049,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return scanCount;
     }
 
-    private void calculateScanPackageCount(UnloadScanRequest request , JdVerifyResponse<Integer> result, UnloadScanContextDto unloadScanContextDto) {
-        String barCode = request.getBarCode();
-        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
-            barCode = WaybillUtil.getWaybillCode(request.getBarCode());
-        }
-
-        Waybill waybill = null;
-        Integer scanCount = 0;
-        if (WaybillUtil.isPackageCode(barCode)) {
-            waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(barCode));
-            scanCount = 1;
-        }
-        else if (WaybillUtil.isWaybillCode(barCode)) {
-            waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(barCode);
-            if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
-                scanCount = waybill.getGoodNumber();
-            }
-        }
-        else if (BusinessHelper.isBoxcode(barCode)) {
-            CallerInfo inlineUmp = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleService.unloadScan.getCancelSendByBox");
-            List<SendDetail> list = deliveryService.getCancelSendByBox(barCode);
-            Profiler.registerInfoEnd(inlineUmp);
-            if (CollectionUtils.isNotEmpty(list)) {
-                scanCount = list.size();
-            }
-        }
-        unloadScanContextDto.setWaybill(waybill);
-
-        result.setData(scanCount);
-    }
-
-    /**
-     * 填充响应字段
-     * @param request 卸货扫描请求
-     * @param result 京东验证响应
-     * @param unloadScanContextDto 卸货扫描上下文数据传输对象
-     * @throws Exception 异常
-     * @return 响应的参数描述
-     */
-    private void fillResponseFileld(UnloadScanRequest request , JdVerifyResponse<UnLoadScanResponse> result, UnloadScanContextDto unloadScanContextDto) {
-        UnLoadScanResponse response = new UnLoadScanResponse();
+    private void calculateScanPackageCount(UnloadScanRequest request , JdVerifyResponse<UnLoadScanResponse> result, UnloadScanContextDto unloadScanContextDto) {
+        UnLoadScanResponse dataResult = result.getData() == null? new UnLoadScanResponse() : result.getData();
 
         String barCode = request.getBarCode();
         if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
@@ -1170,16 +1064,18 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             scanCount = 1;
             //运单包裹数
             if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
-                response.setScanWaybillPackSum(waybill.getGoodNumber());
+                dataResult.setScanWaybillPackSum(waybill.getGoodNumber());
             }
-        } else if (WaybillUtil.isWaybillCode(barCode)) {
+        }
+        else if (WaybillUtil.isWaybillCode(barCode)) {
             waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(barCode);
             if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
                 scanCount = waybill.getGoodNumber();
                 //运单包裹数
-                response.setScanWaybillPackSum(waybill.getGoodNumber());
+                dataResult.setScanWaybillPackSum(waybill.getGoodNumber());
             }
-        } else if (BusinessHelper.isBoxcode(barCode)) {
+        }
+        else if (BusinessHelper.isBoxcode(barCode)) {
             CallerInfo inlineUmp = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleService.unloadScan.getCancelSendByBox");
             List<SendDetail> list = deliveryService.getCancelSendByBox(barCode);
             Profiler.registerInfoEnd(inlineUmp);
@@ -1188,22 +1084,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             }
         }
         unloadScanContextDto.setWaybill(waybill);
-        response.setScanPackCount(scanCount);
-        result.setData(response);
-    }
-    /**
-     * 处理德邦特殊逻辑
-     * 春节项目的特殊逻辑
-     * @param request 卸车扫描请求
-     * @param result 京东验证响应
-     * @param unloadScanContextDto 卸车扫描上下文DTO
-     */
-    private void depponSpecialHandling(UnloadScanRequest request , JdVerifyResponse result, UnloadScanContextDto unloadScanContextDto) {
-        String barCode = request.getBarCode();
-        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
-            barCode = WaybillUtil.getWaybillCode(request.getBarCode());
-        }
-        Waybill waybill = unloadScanContextDto.getWaybill();
+        dataResult.setScanPackCount(scanCount);
+        result.setData(dataResult);
+
         //春节项目的特殊逻辑
         if (WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)) {
             if (waybill != null) {
@@ -1214,6 +1097,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 }
             }
         }
+
+
     }
 
     private UnloadScanDto createUnloadDto(UnloadScanRequest request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
@@ -1275,7 +1160,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return String.format(CacheKeyConstants.JY_UNLOAD_SCAN_KEY, barCode, siteCode, bizId);
     }
 
-    private void handleSpecialProductType(UnloadScanRequest request, JdVerifyResponse result, UnloadScanContextDto unloadScanContextDto){
+    private void handleSpecialProductType(UnloadScanRequest request, JdVerifyResponse<UnLoadScanResponse> result, UnloadScanContextDto unloadScanContextDto){
         try {
             final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
             if (!Objects.equals(barCodeType, BarCodeType.WAYBILL_CODE) && !Objects.equals(barCodeType, BarCodeType.PACKAGE_CODE)) {

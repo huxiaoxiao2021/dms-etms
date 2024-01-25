@@ -1581,7 +1581,7 @@
     <jsf:consumerGroup id="callbackJsfService"
                        interface="com.jd.bluedragon.distribution.jy.api.callback.JyUnloadVehicleCallbackJsfService"
                        protocol="jsf"
-                       alias="CC-DISPATCH"
+                       alias="default"
                        timeout="${jsf.timeout}"
                        retries="${jsf.retries}"
                        serialization="hessian"

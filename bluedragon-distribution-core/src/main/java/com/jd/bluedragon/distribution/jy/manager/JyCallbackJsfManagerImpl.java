@@ -52,6 +52,7 @@ public class JyCallbackJsfManagerImpl implements JyCallbackJsfManager{
             return callbackJsfService.unloadScanCheckOfCallback(request);
         }catch (Exception e) {
             log.error("JyCallbackJsfManagerImpl验货时校验异常，入参：{}", JsonHelper.toJson(request),e);
+            result.toBizError("后端接口异常，请重试");
             return result;
         }
     }

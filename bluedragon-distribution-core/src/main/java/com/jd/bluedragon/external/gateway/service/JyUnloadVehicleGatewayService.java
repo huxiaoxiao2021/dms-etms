@@ -55,10 +55,18 @@ public interface JyUnloadVehicleGatewayService {
 
     /**
      * 卸车扫描
+     * 返回Integer信息太少，不合适
      * @param request
      * @return
      */
+    @Deprecated
     JdVerifyResponse<Integer> unloadScan(UnloadScanRequest request);
+    /**
+     * 卸车扫描
+     * @param request
+     * @return
+     */
+    JdVerifyResponse<UnLoadScanResponse> doUnloadScan(UnloadScanRequest request);
 
     /**
      * 卸车明细

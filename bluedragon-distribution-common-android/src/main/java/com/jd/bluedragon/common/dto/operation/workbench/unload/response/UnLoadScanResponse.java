@@ -23,7 +23,7 @@ public class UnLoadScanResponse implements Serializable {
      */
     private Integer scanWaybillPackSum;
 
-    //======================================
+    //======================================字段分隔符
 
     public Integer getScanPackCount() {
         return scanPackCount;

@@ -4,13 +4,11 @@ import com.jd.bluedragon.core.jsf.tenant.TenantManager;
 import com.jd.jsf.gd.client.GroupRouter;
 import com.jd.jsf.gd.config.ConsumerGroupConfig;
 import com.jd.jsf.gd.msg.Invocation;
-import com.jdl.basic.common.utils.StringUtils;
 import com.jdl.sorting.tech.tenant.core.context.TenantContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 
 /**
@@ -48,16 +46,11 @@ public class GroupRouterTenantUtil implements GroupRouter {
      */
     @Override
     public String router(Invocation invocation, ConsumerGroupConfig config) {
-        // 当前已有分组列表
-        List<String> aliases = config.currentAliases();
-
+        // 不使用动态添加分组模式，直接返回所需别名，不依赖JSF路由配置
+        // 根据租户配置表动态获取的
         String tenantCode = TenantContext.getTenantCode();
         String alies = tenantManager.getCallInterfaceAlies(tenantCode,tenantJsfAliasConfigKey);
-        if(StringUtils.isNotBlank(alies)){
-            return alies;
-        }
-        //查询不到动态别名，使用默认的，目前只有冷链别名
-        return aliases.get(0);
+        return alies;
     }
 
     public String getTenantJsfAliasConfigKey() {

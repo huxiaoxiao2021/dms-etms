@@ -2431,7 +2431,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     /**
      * 统计本次扫描的包裹数量
-     * 本次扫描的运单下包裹总数
+     * &本次扫描的运单下包裹总数
      *
      * @param request
      * @param sendType

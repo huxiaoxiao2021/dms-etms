@@ -345,7 +345,7 @@ public abstract class AbstractBaseUserService implements LoginService {
     }
     /**
      * 获取查询站点代码
-     *  todo 怎么区分新版旧版，这里按场地码是否为空
+     * 场地码不为空，就按场地码所属场地；为空就按人员所属场地
      * @param positionCode 职位代码
      * @param erpSiteCode ERP站点代码
      * @return Integer 返回站点代码

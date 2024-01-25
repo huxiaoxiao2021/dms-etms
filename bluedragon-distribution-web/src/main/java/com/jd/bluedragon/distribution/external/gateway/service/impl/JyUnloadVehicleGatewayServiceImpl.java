@@ -174,8 +174,53 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             // 失败直接返回
             return response;
         }
+        final JdVerifyResponse<UnLoadScanResponse> scanResponse = unloadVehicleService.unloadScan(request);
 
-        final JdVerifyResponse<Integer> scanResponse = unloadVehicleService.unloadScan(request);
+        if (CollectionUtils.isNotEmpty(scanResponse.getMsgBoxes())) {
+            if(response.getMsgBoxes() == null){
+                response.setMsgBoxes(new ArrayList<>());
+            }
+            response.getMsgBoxes().addAll(scanResponse.getMsgBoxes());
+        }
+        if (scanResponse.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
+            response.setData(scanResponse.getData() != null && scanResponse.getData().getScanPackCount() != null ? scanResponse.getData().getScanPackCount() : 0);
+            response.toSuccess();
+            return response;
+        } else if (scanResponse.getCode() == InvokeResult.CODE_HINT) {
+            response.setCode(InvokeResult.CODE_HINT);
+            response.addPromptBox(0, scanResponse.getMessage());
+            return response;
+        } else if (scanResponse.getCode() == InvokeResult.CODE_CONFIRM) {
+            response.setCode(InvokeResult.CODE_CONFIRM);
+            response.addWarningBox(0, scanResponse.getMessage());
+            return response;
+        }else if (scanResponse.getCode() == InvokeResult.DP_SPECIAL_CODE) {
+            response.addPromptBox(101, scanResponse.getMessage());
+            return response;
+        } else {
+            response.toFail(scanResponse.getMessage());
+            return response;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.doUnloadScan",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdVerifyResponse<UnLoadScanResponse> doUnloadScan(UnloadScanRequest request) {
+        JdVerifyResponse<UnLoadScanResponse> response = new JdVerifyResponse<>();
+        response.toSuccess();
+
+        if (!checkBeforeScan(response, request)) {
+            return response;
+        }
+
+        // 扫描前校验拦截结果
+        if (!checkBarInterceptResult(response, request)) {
+            // 失败直接返回
+            return response;
+        }
+
+        final JdVerifyResponse<UnLoadScanResponse> scanResponse = unloadVehicleService.unloadScan(request);
         if (CollectionUtils.isNotEmpty(scanResponse.getMsgBoxes())) {
             if(response.getMsgBoxes() == null){
                 response.setMsgBoxes(new ArrayList<>());
@@ -209,7 +254,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
      * @param request
      * @return
      */
-    private boolean checkBeforeScan(JdVerifyResponse<Integer> response, UnloadScanRequest request) {
+    private boolean checkBeforeScan(JdVerifyResponse response, UnloadScanRequest request) {
         String barCode = request.getBarCode();
         if (StringUtils.isBlank(barCode)) {
             response.toFail("请扫描单号！");
@@ -275,7 +320,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
      * @param request
      * @return
      */
-    private boolean checkBarInterceptResult(JdVerifyResponse<Integer> response, UnloadScanRequest request) {
+    private boolean checkBarInterceptResult(JdVerifyResponse response, UnloadScanRequest request) {
         // 非强制提交，校验拦截
         if (!request.getForceSubmit()) {
             InspectionRequest inspectionRequest = new InspectionRequest();

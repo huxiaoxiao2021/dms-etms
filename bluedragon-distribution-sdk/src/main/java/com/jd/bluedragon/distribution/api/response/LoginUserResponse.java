@@ -123,7 +123,7 @@ public class LoginUserResponse extends JdResponse {
 	 */
 	private String tenantCode;
 
-	//====================================
+	//====================================属性分割线
 
 	/**
 	 * @return the dmsSiteCode
