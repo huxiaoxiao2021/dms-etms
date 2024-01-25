@@ -49,6 +49,10 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -216,6 +220,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     @Qualifier("businessInterceptConfig")
     private BusinessInterceptConfig businessInterceptConfig;
+
+    @Autowired
+    private DMSWeightVolumeService dmsWeightVolumeService;
 
     private String getExceptionTaskCacheKey(String bizId){
         return String.format(JyCacheKeyConstants.JY_EXCEPTION_TASK_CACHE_PRE_KEY, bizId);
@@ -1536,7 +1543,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         jyBizTaskExceptionDao.updateByBizId(conditon);
         recordLog(JyBizTaskExceptionCycleTypeEnum.CLOSE,conditon);
-        //发送修改状态消息
+        //发送修改状态消息 todo
         sendScheduleTaskStatusMsg(bizTaskException.getBizId(), operateErp, JyScheduleTaskStatusEnum.CLOSED, scheduleTaskChangeStatusWorkerProducer);
     }
 
@@ -2480,6 +2487,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     return result.toFail("任务处理失败，该异常拦截任务需要执行换单，但换单失败，失败原因: " + exchangeNewWaybillResult.getMessage());
                 }
             }
+            // todo 增加同运单其他任务都完结
             // 3.2 状态置为处理中
             if (!Objects.equals(BusinessInterceptTypeEnum.ZERO_WEIGHT.getCode(), jyExceptionInterceptDetailExist.getInterceptType())) {
                 JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
@@ -2536,7 +2544,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             }
 
             final JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery = new JyExceptionInterceptDetailQuery();
-            jyExceptionInterceptDetailQuery.setSiteId(req.getCurrentOperate().getSiteCode());
+            final CurrentOperate currentOperate = req.getCurrentOperate();
+            jyExceptionInterceptDetailQuery.setSiteId(currentOperate.getSiteCode());
             jyExceptionInterceptDetailQuery.setBizId(req.getBizId());
             final Result<JyExceptionInterceptDetail> detailResult = jyExceptionBusinessInterceptDetailService.selectOne(jyExceptionInterceptDetailQuery);
             if (!detailResult.isSuccess()) {
@@ -2579,10 +2588,29 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyExceptionInterceptDetail.setInputWeight(req.getWeight());
             jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
 
-            // todo 提交到重量体积接口
-
-            // 3.2 若是提交保存，状态置为完结
+            // 3.3 若是提交保存，状态置为完结
             if (Objects.equals(req.getSaveType(), JyExpSaveTypeEnum.SAVE.getCode())) {
+                // 3.2 提交到重量体积接口
+                final WeightVolumeCondition weightVolumeCondition = new WeightVolumeCondition();
+                weightVolumeCondition.setBarCode(jyExceptionInterceptDetailExist.getPackageCode());
+                weightVolumeCondition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name());
+                weightVolumeCondition.setSourceCode(FromSourceEnum.DMS_PDA.name());
+                weightVolumeCondition.setLength(req.getLength().doubleValue());
+                weightVolumeCondition.setWidth(req.getWidth().doubleValue());
+                weightVolumeCondition.setHeight(req.getHeight().doubleValue());
+                weightVolumeCondition.setVolume(req.getVolume().doubleValue());
+                weightVolumeCondition.setWeight(req.getWeight().doubleValue());
+                weightVolumeCondition.setOperatorCode(user.getUserErp());
+                weightVolumeCondition.setOperatorId(user.getUserCode());
+                weightVolumeCondition.setOperatorName(user.getUserName());
+                weightVolumeCondition.setOperateSiteCode(currentOperate.getSiteCode());
+                weightVolumeCondition.setOperateSiteName(currentOperate.getSiteName());
+                weightVolumeCondition.setOperateTime(currentDate.getTime());
+                final Result<Boolean> uploadWeightAndVolumeResult = dmsWeightVolumeService.checkAndUpload(weightVolumeCondition);
+                if (!uploadWeightAndVolumeResult.isSuccess()) {
+                    return result.toFail("提交失败。原因： " + uploadWeightAndVolumeResult.getMessage());
+                }
+
                 JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
                 bizTaskExceptionUpdate.setBizId(req.getBizId());
                 bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.COMPLETE.getCode());
