@@ -120,14 +120,16 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	@JProfiler(jKey = "dmsWeb.server.userSignRecordDao.querySignInMoreThanSpecifiedTime",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
-    public List<Long> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList, Date signInTimeStart, Date signInTime, Integer limit) {
+    public List<Long> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList,
+		Date signInTimeStart, Date signInTime, List<String> siteCodeList, Integer limit) {
         Map<String, Object> param = new HashMap<>();
         param.put("allSpecialJobCodeList",allSpecialJobCodeList);
         param.put("jobCodeHoursList",jobCodeHoursList);
         param.put("signInTimeStart", signInTimeStart);
         param.put("signInTime", signInTime);
         param.put("limit", limit);
-        return this.getSqlSession().selectList(NAMESPACE + ".querySignInMoreThanSpecifiedTime", param);
+		param.put("siteCodeList", siteCodeList);
+		return this.getSqlSession().selectList(NAMESPACE + ".querySignInMoreThanSpecifiedTime", param);
     }
 
     @Override

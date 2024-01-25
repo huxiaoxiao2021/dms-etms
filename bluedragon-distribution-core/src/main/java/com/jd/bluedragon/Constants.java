@@ -2409,4 +2409,13 @@ public class Constants {
      */
     public static final String SYS_CONFIG_ANDROID_PDA_OFFLINE = "android_pda_offline";
 
+    /**
+     * 自动签退任务-开关
+     */
+    public static final String SYS_CONFIG_AUTO_SIGN_OUT_SWITCH = "auto.sign.out.switch";
+
+    /**
+     * 自动签退任务-扫描场地范围
+     */
+    public static final String SYS_CONFIG_AUTO_SIGN_OUT_SITE_CODE = "auto.sign.out.site.code";
 }

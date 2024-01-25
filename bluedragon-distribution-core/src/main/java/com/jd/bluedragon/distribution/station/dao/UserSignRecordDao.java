@@ -111,7 +111,7 @@ public interface UserSignRecordDao {
 	 */
 	List<UserSignNoticeJobItemVo> queryUserSignNoticeJobItems(UserSignRecordQuery query);
 	
-    List<Long> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList, Date signInTimeStart, Date signInTime, Integer limit);
+    List<Long> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList, Date signInTimeStart, Date signInTime,List<String> siteCodeList, Integer limit);
     
     int signOutById(UserSignRecord signOutRequest, List<Long> list);
     /**
