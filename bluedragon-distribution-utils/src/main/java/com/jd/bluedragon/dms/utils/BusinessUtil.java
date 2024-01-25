@@ -106,6 +106,14 @@ public class BusinessUtil {
         }
         return isMatchBoxCode(s);
     }
+
+
+    public static Boolean isWMSBoxcode(String s) {
+        if (isBoxcode(s) && s.startsWith("BW")){
+            return true;
+        }
+        return false;
+    }
     public static Boolean isStoreCode(String s) {
         if (StringUtils.isEmpty(s)) {
             return Boolean.FALSE;

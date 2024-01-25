@@ -807,5 +807,10 @@
     <jmq:consumer id="jmq.reassignWaybillApprovalConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.reassign.waybill.approval}" listener="reassignWaybillApprovalConsumer"/>
     </jmq:consumer>
+
+    <!-- 接收仓打包明细  -->
+    <jmq:consumer id="jmq.boxDetailFromStoreConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.boxDetailFromStore}" listener="boxDetailFromStoreConsumer"/>
+    </jmq:consumer>
 </beans>
 

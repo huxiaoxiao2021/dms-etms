@@ -34,7 +34,7 @@ public enum BoxTypeEnum {
     TYPE_MS("MS", "医药直发"),
     TYPE_TA("TA","特安"),
     TYPE_LL("LL","笼车/围板箱"),
-    ;
+    TYPE_WMS("BW","仓储");
 
     private String code;
 

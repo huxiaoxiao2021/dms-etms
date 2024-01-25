@@ -318,7 +318,15 @@ public class JdResponse extends JdObject {
         this.code = code;
         this.message = message;
     }
-    
+
+    public void toSucceed(String message) {
+        this.code = CODE_OK;
+        this.message = message;
+    }
+    public void toError(String message) {
+        this.code = CODE_INTERNAL_ERROR;
+        this.message = message;
+    }
     public String getRequest() {
         return this.request;
     }

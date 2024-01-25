@@ -55,6 +55,28 @@
 			0, NOW(), 1, 1, #{spareReason,jdbcType=VARCHAR}, #{isLoss,jdbcType=INTEGER}, #{featureType,jdbcType=INTEGER}, #{bizSource,jdbcType=INTEGER},
             #{operatorTypeCode,jdbcType=INTEGER},#{operatorId,jdbcType=VARCHAR})
     </insert>
+
+	<insert id="batchAdd">
+		INSERT INTO Sorting (
+		sorting_id, bsend_code , box_code, package_code, waybill_code, pickup_code,
+		sorting_type, create_site_code, receive_site_code,
+		create_user_code, create_user, update_user_code, update_user,
+		create_time, update_time, operate_time, is_cancel, excute_count, excute_time,
+		sorting_status, yn, spare_reason, is_loss, feature_type, biz_source,
+		operator_type_code,operator_id)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+		    (
+		#{item.id,jdbcType=BIGINT}, #{item.bsendCode,jdbcType=VARCHAR}, #{item.boxCode,jdbcType=VARCHAR}, #{item.packageCode,jdbcType=VARCHAR},
+		#{item.waybillCode,jdbcType=VARCHAR}, #{item.pickupCode,jdbcType=VARCHAR}, #{item.type,jdbcType=INTEGER},
+		#{item.createSiteCode,jdbcType=INTEGER}, #{item.receiveSiteCode,jdbcType=INTEGER},
+		#{item.createUserCode,jdbcType=INTEGER}, #{item.createUser,jdbcType=VARCHAR},
+		#{item.createUserCode,jdbcType=INTEGER}, #{item.createUser,jdbcType=VARCHAR},
+		NOW(), NOW(),#{item.operateTime,jdbcType=TIMESTAMP}, #{item.isCancel,jdbcType=INTEGER},
+		0, NOW(), 1, 1, #{item.spareReason,jdbcType=VARCHAR}, #{item.isLoss,jdbcType=INTEGER}, #{item.featureType,jdbcType=INTEGER}, #{item.bizSource,jdbcType=INTEGER},
+		#{item.operatorTypeCode,jdbcType=INTEGER},#{item.operatorId,jdbcType=VARCHAR})
+		</foreach>
+	</insert>
 	<select id="querySortingForUpdate" resultMap="sorting" parameterType="sorting">
 		SELECT sorting_id, box_code, package_code, waybill_code, create_site_code, receive_site_code,create_time,
 		    create_user_code, create_user, update_user_code, update_user, excute_count, sorting_type, spare_reason
@@ -450,4 +472,16 @@
 		order by operate_time desc limit 1
 	</select>
 
+
+	<update id="batchDelete">
+		update sorting
+		set yn= 0,update_time =now()
+		WHERE create_site_code = #{list[0].createSiteCode,jdbcType=INTEGER}
+		and box_code =#{list[0].boxCode}
+		AND package_code IN
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item.packageCode,jdbcType=VARCHAR}
+		</foreach>
+		AND yn=1
+	</update>
 </mapper>
