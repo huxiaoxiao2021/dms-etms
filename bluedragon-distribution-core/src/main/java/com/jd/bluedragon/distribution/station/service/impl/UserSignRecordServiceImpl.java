@@ -2050,7 +2050,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private List<String> getSiteCodeByConfig() {
 		SysConfig sysConfig =
 			sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_AUTO_SIGN_OUT_SITE_CODE);
-		System.out.println("结果："+JsonHelper.toJson(sysConfig));
 		if (Objects.isNull(sysConfig) || Objects.isNull(sysConfig.getConfigContent())){
 			return null;
 		}
