@@ -297,8 +297,7 @@ public class DeliveryResource {
     }
 
     private boolean checkOperator(PackageSendRequest request) {
-        if (StringUtils.isEmpty(request.getOperatorId())
-                || Objects.equals(request.getOperatorId(), TEXT_ZERO)
+        if (StringUtils.isEmpty(request.getUserName())
                 || request.getUserCode() == null
                 || Objects.equals(request.getUserCode(), INTEGER_ZERO)) {
             log.info("包裹{}未获取到发货人信息：{}", request.getBoxCode(),JsonHelper.toJson(request));
