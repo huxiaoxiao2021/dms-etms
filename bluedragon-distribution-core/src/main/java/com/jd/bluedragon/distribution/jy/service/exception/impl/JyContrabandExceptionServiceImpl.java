@@ -635,9 +635,6 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         entity.setBizId(bizId);
         entity.setBarCode(req.getBarCode());
         entity.setDescription(req.getDescription());
-        entity.setFirstReasonLevel(req.getFirstReasonLevel());
-        entity.setSecondReasonLevel(req.getSecondReasonLevel());
-        entity.setThirdReasonLevel(req.getThirdReasonLevel());
         return entity;
     }
 
