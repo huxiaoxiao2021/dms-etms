@@ -39,7 +39,7 @@ public class ReassignWaybillApprovePostHandler implements ApprovePostHandler {
                 // 应用不一致
                 || !Objects.equals(historyApprove.getAppName(),Constants.SYS_DMS)
                 // 流程编码不一致
-                || !Objects.equals(historyApprove.getFlowName(), FlowConstants.FLOW_CODE_REASSIGN_WAYBILL)){
+                || !Objects.equals(historyApprove.getFlowName(), FlowConstants.FLOW_CODE_REASSIGN_WAYBILL_NEW)){
             logger.warn("返调度流程审批结果!审批结果:{}", JsonHelper.toJson(historyApprove));
             return;
         }

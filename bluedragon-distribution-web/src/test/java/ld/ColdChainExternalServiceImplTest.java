@@ -10,7 +10,7 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

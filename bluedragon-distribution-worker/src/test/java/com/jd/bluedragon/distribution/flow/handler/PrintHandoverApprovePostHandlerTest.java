@@ -80,7 +80,7 @@ public class PrintHandoverApprovePostHandlerTest {
 
         // 提交申请单
         flowWorkNo = flowServiceManager.startFlow(oaMap, businessMap, null,
-                FlowConstants.FLOW_CODE_PRINT_HANDOVER, condition.getUserCode(), String.valueOf(businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)));
+                FlowConstants.FLOW_CODE_PRINT_HANDOVER, condition.getUserCode(), String.valueOf(businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)), null);
 
         // 查询申请单
         ApproveRequestOrder result = flowServiceManager.getRequestOrder(flowWorkNo);

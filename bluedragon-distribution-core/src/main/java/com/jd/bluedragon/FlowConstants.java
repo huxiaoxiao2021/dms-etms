@@ -34,6 +34,11 @@ public class FlowConstants {
     public static final String FLOW_CODE_REASSIGN_WAYBILL = "reassign_waybill_approve";
 
     /**
+     * 流程编码-返调度流程编码 新
+     */
+    public static final String FLOW_CODE_REASSIGN_WAYBILL_NEW = "reassign_waybill_approve_new";
+
+    /**
      * 流程业务数据唯一key
      */
     public static final String FLOW_BUSINESS_NO_KEY = "businessNoKey";
@@ -118,4 +123,7 @@ public class FlowConstants {
     public static final String FLOW_DATA_MAP_FIRST_REASSIGN_WAYBILL_APPROVE_TRIGGER_ERP = "reassignWaybillApproveFirstTriggerErp";
     // 返调度流程控制key：审批二级触发人ERP
     public static final String FLOW_DATA_MAP_SECOND_REASSIGN_WAYBILL_APPROVE_TRIGGER_ERP = "reassignWaybillApproveSecondTriggerErp";
+
+    // 返调度流程控制key：审批一级触发人ERP前缀
+    public static final String FLOW_DATA_MAP_FIRST_REASSIGN_WAYBILL_APPROVE_ERP_PREFIX = "reassignWaybillApproveTriggerErp_%s";
 }
