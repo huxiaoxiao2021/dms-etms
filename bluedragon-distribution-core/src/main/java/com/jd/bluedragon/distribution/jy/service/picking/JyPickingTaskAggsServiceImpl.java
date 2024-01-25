@@ -368,12 +368,26 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         boolean moreScanFlag = Boolean.TRUE.equals(param.getMoreScanFlag());
         JyPickingTaskAggsEntity insertEntity = new JyPickingTaskAggsEntity(param.getPickingSiteId(), param.getBizId());
         insertEntity.setPickingNodeCode(param.getEndNodeCode());
+        insertEntity.setHandoverScanPackageCount(0);
+        insertEntity.setHandoverScanBoxCount(0);
+        insertEntity.setHandoverScanTotalCount(0);
+        insertEntity.setScanPackageTotalCount(0);
+        insertEntity.setScanBoxTotalCount(0);
+        insertEntity.setScanTotalCount(0);
+        insertEntity.setMoreScanPackageCount(0);
+        insertEntity.setMoreScanBoxCount(0);
+        insertEntity.setMoreScanTotalCount(0);
+        insertEntity.setSendPackageCount(0);
+        insertEntity.setSendBoxCount(0);
+        insertEntity.setSendTotalCount(0);
+        insertEntity.setMoreSendBoxCount(0);
+        insertEntity.setMoreSendPackageCount(0);
+        insertEntity.setMoreSendTotalCount(0);
+
         if(!moreScanFlag) {
             if(BusinessUtil.isBoxcode(param.getBarCode())) {
                 insertEntity.setHandoverScanBoxCount(1);
-                insertEntity.setHandoverScanPackageCount(0);
             }else {
-                insertEntity.setHandoverScanBoxCount(0);
                 insertEntity.setHandoverScanPackageCount(1);
             }
             insertEntity.setHandoverScanTotalCount(insertEntity.getHandoverScanBoxCount() + insertEntity.getHandoverScanPackageCount());
@@ -381,9 +395,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         if(moreScanFlag) {
             if(BusinessUtil.isBoxcode(param.getBarCode())) {
                 insertEntity.setMoreScanBoxCount(1);
-                insertEntity.setMoreScanPackageCount(0);
             }else {
-                insertEntity.setMoreScanBoxCount(0);
                 insertEntity.setMoreScanPackageCount(1);
             }
             insertEntity.setMoreScanTotalCount(insertEntity.getMoreScanBoxCount() + insertEntity.getMoreScanPackageCount());
@@ -399,9 +411,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             //扫描发货统计
             if(BusinessUtil.isBoxcode(param.getBarCode())) {
                 insertEntity.setSendBoxCount(1);
-                insertEntity.setSendPackageCount(0);
             }else {
-                insertEntity.setSendBoxCount(0);
                 insertEntity.setSendPackageCount(1);
             }
             insertEntity.setSendTotalCount(insertEntity.getSendBoxCount() + insertEntity.getSendPackageCount());
@@ -410,9 +420,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             if(Boolean.TRUE.equals(param.getForceSendFlag())) {
                 if(BusinessUtil.isBoxcode(param.getBarCode())) {
                     insertEntity.setMoreSendBoxCount(1);
-                    insertEntity.setMoreSendPackageCount(0);
                 }else {
-                    insertEntity.setMoreSendBoxCount(0);
                     insertEntity.setMoreSendPackageCount(1);
                 }
                 insertEntity.setMoreSendTotalCount(insertEntity.getMoreSendBoxCount() + insertEntity.getMoreSendPackageCount());
@@ -502,12 +510,27 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
 
         JyPickingTaskSendAggsEntity insertEntity = new JyPickingTaskSendAggsEntity(param.getPickingSiteId(), param.getNextSiteId(), param.getBizId());
         insertEntity.setPickingNodeCode(param.getEndNodeCode());
+        insertEntity.setHandoverScanPackageCount(0);
+        insertEntity.setHandoverScanBoxCount(0);
+        insertEntity.setHandoverScanTotalCount(0);
+        insertEntity.setScanPackageTotalCount(0);
+        insertEntity.setScanBoxTotalCount(0);
+        insertEntity.setScanTotalCount(0);
+        insertEntity.setMoreScanPackageCount(0);
+        insertEntity.setMoreScanBoxCount(0);
+        insertEntity.setMoreScanTotalCount(0);
+        insertEntity.setSendPackageCount(0);
+        insertEntity.setSendBoxCount(0);
+        insertEntity.setSendTotalCount(0);
+        insertEntity.setMoreSendBoxCount(0);
+        insertEntity.setMoreSendPackageCount(0);
+        insertEntity.setMoreSendTotalCount(0);
+
+
         if(!moreScanFlag) {
             if(BusinessUtil.isBoxcode(param.getBarCode())) {
                 insertEntity.setHandoverScanBoxCount(1);
-                insertEntity.setHandoverScanPackageCount(0);
             }else {
-                insertEntity.setHandoverScanBoxCount(0);
                 insertEntity.setHandoverScanPackageCount(1);
             }
             insertEntity.setHandoverScanTotalCount(insertEntity.getHandoverScanBoxCount() + insertEntity.getHandoverScanPackageCount());
@@ -515,9 +538,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         if(moreScanFlag) {
             if(BusinessUtil.isBoxcode(param.getBarCode())) {
                 insertEntity.setMoreScanBoxCount(1);
-                insertEntity.setMoreScanPackageCount(0);
             }else {
-                insertEntity.setMoreScanBoxCount(0);
                 insertEntity.setMoreScanPackageCount(1);
             }
             insertEntity.setMoreScanTotalCount(insertEntity.getMoreScanBoxCount() + insertEntity.getMoreScanPackageCount());
@@ -533,9 +554,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             //扫描发货统计
             if(BusinessUtil.isBoxcode(param.getBarCode())) {
                 insertEntity.setSendBoxCount(1);
-                insertEntity.setSendPackageCount(0);
             }else {
-                insertEntity.setSendBoxCount(0);
                 insertEntity.setSendPackageCount(1);
             }
             insertEntity.setSendTotalCount(insertEntity.getSendBoxCount() + insertEntity.getSendPackageCount());
@@ -544,9 +563,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             if(moreScanFlag) {
                 if(BusinessUtil.isBoxcode(param.getBarCode())) {
                     insertEntity.setMoreSendBoxCount(1);
-                    insertEntity.setMoreSendPackageCount(0);
                 }else {
-                    insertEntity.setMoreSendBoxCount(0);
                     insertEntity.setMoreSendPackageCount(1);
                 }
                 insertEntity.setMoreSendTotalCount(insertEntity.getMoreSendBoxCount() + insertEntity.getMoreSendPackageCount());
