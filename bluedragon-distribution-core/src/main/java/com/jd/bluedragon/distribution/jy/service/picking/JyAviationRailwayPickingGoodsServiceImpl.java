@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendFlowDisplayEnum;
@@ -568,11 +569,10 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
 
         if (SendFlowDisplayEnum.COUNT.getCode().equals(req.getDisplayType())) {
             JyPickingTaskBatchQueryDto queryDto = buildBatchQueryDto(req);
-            List<JyBizTaskPickingGoodEntity> taskList = jyBizTaskPickingGoodService.listTaskByPickingSiteId(queryDto);
-            if (CollectionUtils.isEmpty(taskList)) {
+            List<String> bizList = jyBizTaskPickingGoodService.listAllBizByPickingSiteId(queryDto);
+            if (CollectionUtils.isEmpty(bizList)) {
                 return invokeResult;
             }
-            List<String> bizList = taskList.stream().map(JyBizTaskPickingGoodEntity::getBizId).distinct().collect(Collectors.toList());
             CallerInfo info = Profiler.registerInfo("JyAviationRailwayPickingGoodsServiceImpl.countSendFlowInfo", Constants.UMP_APP_NAME_DMSWEB,false, true);
             try {
                 for (SendFlowDto dto : dtoList) {
@@ -668,6 +668,12 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         if (CollectionUtils.isEmpty(req.getSiteList())) {
             ret.parameterError("所选流向场地不能为空！");
             return ret;
+        }
+        for (StreamlinedBasicSite site : req.getSiteList()) {
+            if (site.getSiteCode() == req.getCurrentOperate().getSiteCode()) {
+                ret.parameterError("不能添加流向为本场地的流向！");
+                return ret;
+            }
         }
         InvokeResult<Boolean> success = jyPickingSendDestinationService.addSendFlow(req);
         if (!success.codeSuccess()) {
@@ -895,8 +901,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     private JyPickingTaskBatchQueryDto buildBatchQueryDto(SendFlowReq req) {
         JyPickingTaskBatchQueryDto queryDto = new JyPickingTaskBatchQueryDto();
         queryDto.setPickingSiteId((long) req.getCurrentOperate().getSiteCode());
-        Date startTime = DateUtils.addDays(new Date(), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
-        queryDto.setCreateTime(startTime);
+        queryDto.setCreateTime(getStartTime());
         queryDto.setTaskType(req.getTaskType() == null ? PickingGoodTaskTypeEnum.AVIATION.getCode() : req.getTaskType());
 
         return queryDto;
@@ -1133,6 +1138,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setLimit(1000);
         queryDto.setEndTime(endTime);
         queryDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
+        queryDto.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
         List<String> bizIdList;
         do {
             queryDto.setOffset((pageNumber - 1) * queryDto.getLimit());
@@ -1140,12 +1146,14 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             if (CollectionUtils.isEmpty(bizIdList)) {
                 return;
             }
+            Date now = new Date();
             JyPickingTaskBatchUpdateDto updateDto = new JyPickingTaskBatchUpdateDto();
             updateDto.setBizIdList(bizIdList);
             updateDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
             updateDto.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
             updateDto.setCompleteNode(PickingCompleteNodeEnum.TIME_EXECUTE.getCode());
-            updateDto.setUpdateTime(new Date());
+            updateDto.setPickingCompleteTime(now);
+            updateDto.setUpdateTime(now);
             jyBizTaskPickingGoodService.batchFinishPickingTaskByBizId(updateDto);
             pageNumber++;
         } while (CollectionUtils.isNotEmpty(bizIdList));

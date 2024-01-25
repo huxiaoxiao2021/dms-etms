@@ -203,11 +203,6 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     }
 
     @Override
-    public List<JyBizTaskPickingGoodEntity> listTaskByPickingSiteId(JyPickingTaskBatchQueryDto queryDto) {
-        return jyBizTaskPickingGoodDao.listTaskByPickingSiteId(queryDto);
-    }
-
-    @Override
     public List<String> findManualCreateTaskBizIds(List<String> bizIdList) {
         return jyBizTaskPickingGoodDao.findManualCreateTaskBizIds(bizIdList);
     }

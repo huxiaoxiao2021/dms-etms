@@ -69,10 +69,6 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".pageRecentCreatedManualBizId", queryDto);
     }
 
-    public List<JyBizTaskPickingGoodEntity> listTaskByPickingSiteId(JyPickingTaskBatchQueryDto queryDto) {
-        return this.getSqlSession().selectList(NAMESPACE + ".listTaskByPickingSiteId", queryDto);
-    }
-
     public int batchInsert(List<JyBizTaskPickingGoodEntity> entityList) {
         return this.getSqlSession().insert(NAMESPACE + ".batchInsert", entityList);
     }

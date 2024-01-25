@@ -126,13 +126,6 @@ public interface JyBizTaskPickingGoodService {
     void batchInsertTaskSubsidiary(List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList);
 
     /**
-     * 根据流向批量查询发货任务
-     * @param queryDto
-     * @return
-     */
-    List<JyBizTaskPickingGoodEntity> listTaskByPickingSiteId(JyPickingTaskBatchQueryDto queryDto);
-
-    /**
      * 查找bizIdList 中自建任务的bizId集合
      * @param bizIdList
      * @return

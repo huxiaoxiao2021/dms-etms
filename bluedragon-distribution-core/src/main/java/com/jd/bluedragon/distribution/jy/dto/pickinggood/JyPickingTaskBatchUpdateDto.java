@@ -10,12 +10,21 @@ public class JyPickingTaskBatchUpdateDto implements Serializable {
     private List<String> bizIdList;
 
     private Integer status;
-
+    /**
+     * @see com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum
+     */
     private Integer taskType;
 
+    /**
+     * 提货完成触发环节
+     */
     private Integer completeNode;
 
     private Date updateTime;
+    /**
+     * 提货完成时间
+     */
+    private Date pickingCompleteTime;
 
     public List<String> getBizIdList() {
         return bizIdList;
@@ -55,5 +64,13 @@ public class JyPickingTaskBatchUpdateDto implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Date getPickingCompleteTime() {
+        return pickingCompleteTime;
+    }
+
+    public void setPickingCompleteTime(Date pickingCompleteTime) {
+        this.pickingCompleteTime = pickingCompleteTime;
     }
 }
