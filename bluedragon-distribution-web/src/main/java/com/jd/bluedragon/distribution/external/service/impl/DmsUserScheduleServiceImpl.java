@@ -75,7 +75,10 @@ public class DmsUserScheduleServiceImpl implements DmsUserScheduleService {
                     response.setData(true);
                     return response;
                 }
+                scheduleTimes.add("昨天跨夜" + scheduleDto.getStartTime() + Constants.SEPARATOR_HYPHEN + scheduleDto.getEndTime());
+                continue;
             }
+            // 今天排班记录
             // 判断当前时间是否是在合理进入闸机时间范围
             boolean startTimeCheck = checkEntryTime(scheduleDto.getStartTime(), -allowHours);
             boolean endTimeCheck = checkEntryTime(scheduleDto.getEndTime(), allowHours);
@@ -83,7 +86,7 @@ public class DmsUserScheduleServiceImpl implements DmsUserScheduleService {
                 response.setData(true);
                 return response;
             }
-            scheduleTimes.add(scheduleDto.getStartTime() + Constants.SEPARATOR_HYPHEN + scheduleDto.getEndTime());
+            scheduleTimes.add("今天" + scheduleDto.getStartTime() + Constants.SEPARATOR_HYPHEN + scheduleDto.getEndTime());
         }
         if (!allowFlag) {
             response.setData(false);
