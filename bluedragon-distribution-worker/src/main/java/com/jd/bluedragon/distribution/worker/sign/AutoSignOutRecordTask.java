@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.worker.sign;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
 import com.jd.bluedragon.distribution.framework.NoneTaskHanlder;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
@@ -30,11 +32,17 @@ public class AutoSignOutRecordTask extends DBSingleScheduler {
 
     @Autowired
     private UserSignRecordService userSignRecordService;
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
+        // 老版任务开关
         Result<Integer> result = userSignRecordService.autoHandleSignInRecord();
-
+        boolean flag = sysConfigService.getConfigByName(Constants.SYS_CONFIG_AUTO_SIGN_OUT_SWITCH);
+        if(!flag){
+            return true;
+        }
         if (log.isInfoEnabled()) {
             log.info("处理未签退数据：{}条.", JsonHelper.toJson(result));
         }

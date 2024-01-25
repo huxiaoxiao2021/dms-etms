@@ -876,12 +876,24 @@
 		AND sign_in_time <![CDATA[ >= ]]> #{signInTimeStart,jdbcType=TIMESTAMP}
 		AND sign_in_time <![CDATA[ < ]]> #{signInTime,jdbcType=TIMESTAMP}
         AND sign_out_time IS NULL
-		<if test="siteCodeList != null and siteCodeList.size()>0" >
-			AND site_code not in
-			<foreach collection="siteCodeList" item="code" open="(" close=")" separator=",">
-				#{code}
-			</foreach>
-		</if>
+		<choose>
+			<when test="env == uat">
+				<if test="siteCodeList != null and siteCodeList.size()>0" >
+					AND site_code in
+					<foreach collection="siteCodeList" item="code" open="(" close=")" separator=",">
+						#{code}
+					</foreach>
+				</if>
+			</when>
+			<otherwise>
+				<if test="siteCodeList != null and siteCodeList.size()>0" >
+					AND site_code not in
+					<foreach collection="siteCodeList" item="code" open="(" close=")" separator=",">
+						#{code}
+					</foreach>
+				</if>
+			</otherwise>
+		</choose>
 		<foreach item="item1" collection="jobCodeHoursList">
 		UNION
 			SELECT
@@ -897,12 +909,24 @@
 			AND sign_in_time <![CDATA[ >= ]]> #{item1.startTime,jdbcType=TIMESTAMP}
 			AND sign_in_time <![CDATA[ < ]]> #{item1.endTime,jdbcType=TIMESTAMP}
 			AND sign_out_time IS NULL
-			<if test="siteCodeList != null and siteCodeList.size()>0" >
-				AND site_code not in
-				<foreach collection="siteCodeList" item="code" open="(" close=")" separator=",">
-					#{code}
-				</foreach>
-			</if>
+			<choose>
+				<when test="env == uat">
+					<if test="siteCodeList != null and siteCodeList.size()>0" >
+						AND site_code in
+						<foreach collection="siteCodeList" item="code" open="(" close=")" separator=",">
+							#{code}
+						</foreach>
+					</if>
+				</when>
+				<otherwise>
+					<if test="siteCodeList != null and siteCodeList.size()>0" >
+						AND site_code not in
+						<foreach collection="siteCodeList" item="code" open="(" close=")" separator=",">
+							#{code}
+						</foreach>
+					</if>
+				</otherwise>
+			</choose>
 		</foreach>
         LIMIT #{limit,jdbcType=INTEGER}
     </select>

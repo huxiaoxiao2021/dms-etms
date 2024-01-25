@@ -145,6 +145,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Value("${beans.userSignRecordService.autoSignOutByMqSenconds:30}")
 	private int autoSignOutByMqOffSenconds;
 
+	@Value("${app.config.runningMode:uat}")
+	protected String env;
+
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 	private static final String MSG_EMPTY_OPERATE = "操作人信息为空，请退出重新登录后操作！";
@@ -506,12 +509,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     @JProfiler(jKey = "DMS.WEB.UserSignRecordService.autoHandleSignInRecord", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
     public Result<Integer> autoHandleSignInRecord() {
         Result<Integer> result = Result.success();
-		// 新增老版任务开关，以及扫描数据范围
-		boolean flag = sysConfigService.getConfigByName(Constants.SYS_CONFIG_AUTO_SIGN_OUT_SWITCH);
-		if(!flag){
-			return result;
-		}
-		List<String> siteCodeList = getSiteCodeByConfig();
+		// 新增扫描数据范围
+		List<Integer> siteCodeList = getSiteCodeByConfig();
 
 		SysConfigJobCodeHoursContent content = sysConfigService.getSysConfigJobCodeHoursContent(Constants.SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS);
 		if(content == null){
@@ -561,7 +560,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         log.info("自动签退数据扫描：{} - {}", DateHelper.formatDateTimeMs(signInTimeStart),DateHelper.formatDateTimeMs(signInTimeEnd));
         try {
             do {
-                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(allSpecialJobCodeList,jobCodeHoursList,signInTimeStart,signInTimeEnd, siteCodeList, 100);
+                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(allSpecialJobCodeList,
+					jobCodeHoursList,signInTimeStart,signInTimeEnd, siteCodeList, env, 100);
 
                 if (CollectionUtils.isNotEmpty(toSignOutPks)) {
                     UserSignRecord updateData = new UserSignRecord();
@@ -2047,13 +2047,23 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return  "";
 	}
 
-	private List<String> getSiteCodeByConfig() {
+    /**
+     * 根据配置获取站点代码列表
+     * @return result 站点代码列表
+     * @throws Exception 异常情况
+     */
+	private List<Integer> getSiteCodeByConfig() {
+		ArrayList<Integer> result = new ArrayList<>();
 		SysConfig sysConfig =
 			sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_AUTO_SIGN_OUT_SITE_CODE);
-		if (Objects.isNull(sysConfig) || Objects.isNull(sysConfig.getConfigContent())){
-			return null;
+		if (Objects.isNull(sysConfig) || StringUtils.isBlank(sysConfig.getConfigContent())){
+			return result;
 		}
-		String[] split = sysConfig.getConfigContent().split(",");
-        return Arrays.<String>asList(split);
+		for (String siteCode : sysConfig.getConfigContent().split(",")) {
+			if(NumberHelper.isNumber(siteCode)){
+				result.add(Integer.valueOf(siteCode));
+			}
+		}
+        return result;
 	}
 }
