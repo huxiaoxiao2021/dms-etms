@@ -118,6 +118,13 @@ public class JdVerifyResponse<T> implements Serializable {
         msgBoxes.add(box);
     }
 
+    public void addBox(List<MsgBox> boxs) {
+        if (this.getMsgBoxes() == null) {
+            msgBoxes = new ArrayList<MsgBox>();
+        }
+        msgBoxes.addAll(boxs);
+    }
+
     public void addBox(MsgBoxTypeEnum type, Integer code, String msg) {
         if (this.getMsgBoxes() == null) {
             msgBoxes = new ArrayList<MsgBox>();
@@ -209,6 +216,7 @@ public class JdVerifyResponse<T> implements Serializable {
         private Boolean selfDomFlag;
 
         public MsgBox() {
+            this.selfDomFlag = false;
         }
 
         public MsgBox(MsgBoxTypeEnum type, Integer code, String msg) {

@@ -817,7 +817,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     /**
      * 更新PDA卸车扫描进度
-     * @param pdaUnloadCount
+     * @param dataResult
      * @param request
      * @param taskUnloadVehicle
      */
@@ -954,17 +954,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         String tenantCode = TenantContext.getTenantCode();
         if(StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.equals(tenantCode)) {
             String barCode = request.getBarCode();
-            //只处理包裹号、运单号 todo
-            if(WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)){
-                InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult = jyCallbackJsfManager.unloadScanCheckOfCallback(transferDto(request));
-                //返回 code 非成功时需要阻断服务，不运行继续执行
-                if (callbackResult != null && !callbackResult.isSuccess()) {
-                    //返回个性服务标识
-                    result.setSelfDomFlag(Boolean.TRUE);
-                    result.setCode(callbackResult.getCode());
-                    result.setMessage(callbackResult.getMessage());
-                    //todo message赋值
-                }
+            InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult = jyCallbackJsfManager.unloadScanCheckOfCallback(transferDto(request));
+            //返回 code 非成功时需要阻断服务，不运行继续执行
+            if (!callbackResult.isSuccess()) {
+                //返回个性服务标识
+                result.setSelfDomFlag(Boolean.TRUE);
+                result.setCode(callbackResult.getCode());
+                result.setMessage(callbackResult.getMessage());
+                result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(),Boolean.TRUE));
             }
         }
     }
@@ -980,19 +977,16 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         String tenantCode = TenantContext.getTenantCode();
         if(StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.equals(tenantCode)) {
             String barCode = request.getBarCode();
-            //只处理包裹号、运单号
-            if (WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)) {
-                InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult = jyCallbackJsfManager.unloadScanOfCallback(transferDto(request));
-                //返回 code 成功继续执行,不成功时不要阻断，不处理
-                if (callbackResult.isSuccess()) {
-                    //返回个性服务标识
-                    result.setSelfDomFlag(Boolean.TRUE);
-                    result.setCode(callbackResult.getCode());
-                    result.setMessage(callbackResult.getMessage());
-                    result.setMsgBoxes(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes()));
-                    //data暂时没有
-                    //result.setData(callbackResult.getData());
-                }
+            InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult = jyCallbackJsfManager.unloadScanOfCallback(transferDto(request));
+            //返回 code 成功继续执行,不成功时不要阻断，不处理
+            if (callbackResult.isSuccess()) {
+                //返回个性服务标识
+                result.setSelfDomFlag(Boolean.TRUE);
+                result.setCode(callbackResult.getCode());
+                result.setMessage(callbackResult.getMessage());
+                result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(),Boolean.TRUE));
+                //data暂时没有
+                //result.setData(callbackResult.getData());
             }
         }
     }
@@ -1007,7 +1001,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         callbackReqDto.setBarCode(request.getBarCode());
         callbackReqDto.setScanType(request.getScanType());
         callbackReqDto.setForceSubmit(request.getForceSubmit());
-        callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
         callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
         callbackReqDto.setSiteName(request.getCurrentOperate().getSiteName());
         if (request.getUser() != null) {

@@ -21,20 +21,19 @@ import java.util.List;
 public class SdkConvertAndroidUtil {
 
     /**
-     * 将InvokeWithMsgBoxResult.MsgBox列表转换为JdVerifyResponse.MsgBox列表
-     * @param msgBoxs 要转换的InvokeWithMsgBoxResult.MsgBox列表
-     * @return 转换后的JdVerifyResponse.MsgBox列表
+     * 将 InvokeWithMsgBoxResult.MsgBox 列表转换为 JdVerifyResponse.MsgBox 列表
+     * @param msgBoxs 待转换的 InvokeWithMsgBoxResult.MsgBox 列表
+     * @param selfDomFlag 是否为自有域标识
+     * @return 转换后的 JdVerifyResponse.MsgBox 列表
      */
-    public static List<JdVerifyResponse.MsgBox> convertMsg(List<InvokeWithMsgBoxResult.MsgBox> msgBoxs){
+    public static List<JdVerifyResponse.MsgBox> convertMsg(List<InvokeWithMsgBoxResult.MsgBox> msgBoxs,boolean selfDomFlag){
         if(CollectionUtils.isEmpty(msgBoxs)){
             return new ArrayList<>(0);
         }
         List<JdVerifyResponse.MsgBox> result = new ArrayList<>(msgBoxs.size());
         for(InvokeWithMsgBoxResult.MsgBox currMsgBox : msgBoxs){
-            JdVerifyResponse.MsgBox tempMsgBox = new  JdVerifyResponse.MsgBox();
-            tempMsgBox.setType(convertMsgType(currMsgBox.getType()));
-            tempMsgBox.setCode(currMsgBox.getCode());
-            tempMsgBox.setMsg(currMsgBox.getMsg());
+            JdVerifyResponse.MsgBox tempMsgBox = new JdVerifyResponse.MsgBox(convertMsgType(currMsgBox.getType()),currMsgBox.getCode(),currMsgBox.getMsg());
+            tempMsgBox.setSelfDomFlag(selfDomFlag);
             result.add(tempMsgBox);
         }
         return result;
