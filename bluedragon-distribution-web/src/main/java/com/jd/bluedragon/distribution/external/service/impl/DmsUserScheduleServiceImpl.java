@@ -90,7 +90,7 @@ public class DmsUserScheduleServiceImpl implements DmsUserScheduleService {
         }
         if (!allowFlag) {
             response.setData(false);
-            response.toFail(String.format("%s排班时间为%s,不在前后%s小时的有效进入闸机时间范围内！", request.getUserCode(), scheduleTimes, dmsConfigManager.getPropertyConfig().getAllowEntryHours()));
+            response.toFail(String.format("%s排班时间为%s,不在前后%s小时的有效进入闸机时间范围内！", request.getUserCode(), scheduleTimes, allowHours));
             return response;
         }
         response.setData(allowFlag);
