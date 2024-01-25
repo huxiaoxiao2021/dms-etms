@@ -882,7 +882,6 @@
 				#{code}
 			</foreach>
 		</if>
-		AND site_code not in
 		<foreach item="item1" collection="jobCodeHoursList">
 		UNION
 			SELECT
