@@ -388,6 +388,30 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     private void pushMq2Block(ReversePrintRequest request) {
         // 换单打印-满足以下情况则推送快速退款拦截消息
+        String oldWaybillCode = request.getOldCode();
+        com.jd.etms.waybill.domain.Waybill oldWaybill = waybillService.getWaybillByWayCode(oldWaybillCode);
+        if(oldWaybill == null){
+            log.warn("pushMq2Block老单号:{}操作换单打印pushMq2Block查询运单信息为空!", oldWaybillCode);
+            return;
+        }
+        if(isSpecifyKa(oldWaybill) || isSendInterceptMq(request,oldWaybill)){
+            if(log.isInfoEnabled()){
+                log.info("老单号:{}操作换单打印推送快速退款拦截消息!", oldWaybillCode);
+            }
+            bdBlockerCompleteMQ.sendOnFailPersistent(oldWaybillCode,
+                    BusinessUtil.bdBlockerCompleteMQ(oldWaybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_REVERSE_PRINT, DateHelper.formatDateTimeMs(new Date())));
+        }
+    }
+
+    /**
+     * 判断是否发送拦截消息
+     * @param request 反向打印请求
+     * @param oldWaybill 旧运单
+     * @return 是否发送拦截消息
+     * @throws NullPointerException 如果request为null
+     */
+    private boolean isSendInterceptMq(ReversePrintRequest request, com.jd.etms.waybill.domain.Waybill oldWaybill) {
+        // 换单打印-满足以下情况则推送快速退款拦截消息
         // 1、分拣、接货仓场地操作
         // 2、自营生鲜
         // 3、正向单预分拣站点是自营营业部
@@ -395,30 +419,38 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         int operateSiteCode = request.getSiteCode();
         Site operateSite = siteService.getOwnSite(operateSiteCode);
         if(!SiteHelper.isSortingCenter(operateSite) && !SiteHelper.isReceiveWms(operateSite)){
-            return;
+            return false;
         }
-        String oldWaybillCode = request.getOldCode();
-        com.jd.etms.waybill.domain.Waybill oldWaybill = waybillService.getWaybillByWayCode(oldWaybillCode);
         if(oldWaybill == null || !BusinessUtil.isSelfFresh(oldWaybill.getSendPay())){
-            return;
+            return false;
         }
         Site oldSite = siteService.getOwnSite(oldWaybill.getOldSiteId());
         if(!SiteHelper.isSelfSalesDeptSite(oldSite)){
-            return;
+            return false;
         }
         com.jd.etms.waybill.domain.Waybill newWaybill = waybillService.getWaybillByWayCode(request.getNewCode());
         if(newWaybill == null){
-            return;
+            return false;
         }
         Site newOldSite = siteService.getOwnSite(newWaybill.getOldSiteId());
         if(!SiteHelper.isSpsHouse(newOldSite) && !SiteHelper.isStoreHouse(newOldSite)){
-            return;
+            return false;
         }
-        if(log.isInfoEnabled()){
-            log.info("老单号:{}操作换单打印推送快速退款拦截消息!", oldWaybillCode);
+        return true;
+    }
+
+    /**
+     * 判断是否为指定的KA客户
+     * 运单对应的商家编码（青龙业主号）是以下三个之一：021K221922  或 021K104578 或021K193222 则发送MQ消息给拦截系统 bd_blocker_complete
+     * @param oldWaybill 旧运单对象
+     * @return 如果是指定的KA客户则返回true，否则返回false
+     * @throws NullPointerException 如果oldWaybill为空
+     */
+    private boolean isSpecifyKa(com.jd.etms.waybill.domain.Waybill oldWaybill) {
+        if(oldWaybill == null){
+            return false;
         }
-        bdBlockerCompleteMQ.sendOnFailPersistent(oldWaybillCode,
-                BusinessUtil.bdBlockerCompleteMQ(oldWaybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_REVERSE_PRINT, DateHelper.formatDateTimeMs(new Date())));
+        return StringUtils.isNotBlank(oldWaybill.getCustomerCode()) && DmsConstants.KA_CUNSTOMER.contains(oldWaybill.getCustomerCode());
     }
 
     /**
