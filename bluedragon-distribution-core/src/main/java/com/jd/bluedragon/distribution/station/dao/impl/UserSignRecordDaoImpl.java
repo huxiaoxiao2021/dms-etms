@@ -1,14 +1,11 @@
 package com.jd.bluedragon.distribution.station.dao.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.JobCodeHoursDto;
 import com.jd.bluedragon.distribution.station.domain.*;
+import com.jd.bluedragon.enums.EnvEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.stereotype.Repository;
@@ -129,7 +126,11 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
         param.put("signInTime", signInTime);
         param.put("limit", limit);
 		param.put("siteCodeList", siteCodeList);
-		param.put("env", env);
+		if (Objects.equals(EnvEnum.UAT.getCode(), (env))){
+			param.put("env", true);
+		}else{
+			param.put("env", false);
+		}
 		return this.getSqlSession().selectList(NAMESPACE + ".querySignInMoreThanSpecifiedTime", param);
     }
 

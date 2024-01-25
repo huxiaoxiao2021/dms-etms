@@ -38,13 +38,13 @@ public class AutoSignOutRecordTask extends DBSingleScheduler {
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         // 老版任务开关
-        Result<Integer> result = userSignRecordService.autoHandleSignInRecord();
         boolean flag = sysConfigService.getConfigByName(Constants.SYS_CONFIG_AUTO_SIGN_OUT_SWITCH);
-        if(!flag){
-            return true;
-        }
-        if (log.isInfoEnabled()) {
-            log.info("处理未签退数据：{}条.", JsonHelper.toJson(result));
+        log.info("淘宝定时调度自动签退任务开关：{}", flag);
+        if(flag){
+            Result<Integer> result = userSignRecordService.autoHandleSignInRecord();
+            if (log.isInfoEnabled()) {
+                log.info("处理未签退数据：{}条.", JsonHelper.toJson(result));
+            }
         }
         return true;
     }
