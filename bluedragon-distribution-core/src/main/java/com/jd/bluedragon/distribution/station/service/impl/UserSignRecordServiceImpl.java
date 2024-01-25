@@ -22,6 +22,7 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.domain.SysConfigJobCodeHoursContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -160,6 +161,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	@Value("${beans.userSignRecordService.autoSignOutByMqSenconds:30}")
 	private int autoSignOutByMqOffSenconds;
+
+	@Value("${app.config.runningMode:uat}")
+	protected String env;
 
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
@@ -522,6 +526,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     @JProfiler(jKey = "DMS.WEB.UserSignRecordService.autoHandleSignInRecord", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
     public Result<Integer> autoHandleSignInRecord() {
         Result<Integer> result = Result.success();
+		// 新增扫描数据范围
+		List<Integer> siteCodeList = getSiteCodeByConfig();
+
 		SysConfigJobCodeHoursContent content = sysConfigService.getSysConfigJobCodeHoursContent(Constants.SYS_CONFIG_NOT_SIGNED_OUT_RECORD_MORE_THAN_HOURS);
 		if(content == null){
 			return result;
@@ -568,11 +575,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         Date now = new Date();
         int updateRows = 0;
         log.info("自动签退数据扫描：{} - {}", DateHelper.formatDateTimeMs(signInTimeStart),DateHelper.formatDateTimeMs(signInTimeEnd));
-		try {
-			do {
-				toSignOutPks =
-					userSignRecordDao.querySignInMoreThanSpecifiedTime(allSpecialJobCodeList, jobCodeHoursList,
-						signInTimeStart, signInTimeEnd, 100);
+        try {
+            do {
+                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(allSpecialJobCodeList,
+					jobCodeHoursList,signInTimeStart,signInTimeEnd, siteCodeList, env, 100);
 
 				if (CollectionUtils.isNotEmpty(toSignOutPks)) {
 					// 根据工种，更新签退时间=签到时间+工种设置的定时时间，工种没有时间，为默认时间
@@ -2727,5 +2733,25 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 		}
 		return  "";
+	}
+
+    /**
+     * 根据配置获取站点代码列表
+     * @return result 站点代码列表
+     * @throws Exception 异常情况
+     */
+	private List<Integer> getSiteCodeByConfig() {
+		ArrayList<Integer> result = new ArrayList<>();
+		SysConfig sysConfig =
+			sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_AUTO_SIGN_OUT_SITE_CODE);
+		if (Objects.isNull(sysConfig) || StringUtils.isBlank(sysConfig.getConfigContent())){
+			return result;
+		}
+		for (String siteCode : sysConfig.getConfigContent().split(",")) {
+			if(NumberHelper.isNumber(siteCode)){
+				result.add(Integer.valueOf(siteCode));
+			}
+		}
+        return result;
 	}
 }
