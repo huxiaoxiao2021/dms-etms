@@ -206,6 +206,7 @@ public class DeliveryResource {
         if (log.isInfoEnabled()) {
             log.info(JsonHelper.toJson(request));
         }
+        //
         CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.newPackageSend", Constants.UMP_APP_NAME_DMSWEB,false, true);
         SendM domain = this.toSendMDomain(request);
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();

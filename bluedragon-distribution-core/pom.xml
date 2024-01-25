@@ -1812,7 +1812,8 @@
 		<dependency>
 			<groupId>com.jd.wl</groupId>
 			<artifactId>data.qc.abnormal.jsf.jar</artifactId>
-			<version>1.0.7-pda-SNAPSHOT</version>
+			<version>1.4.3-SNAPSHOT</version>
+			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>org.aspectj</groupId>

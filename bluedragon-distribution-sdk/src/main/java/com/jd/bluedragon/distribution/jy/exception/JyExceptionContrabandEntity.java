@@ -58,6 +58,21 @@ public class JyExceptionContrabandEntity implements Serializable {
 
     private Boolean yn;
 
+    /**
+     * 一级异常原因
+     */
+    private String firstReasonLevel;
+
+    /**
+     * 二级异常原因
+     */
+    private String secondReasonLevel;
+
+    /**
+     * 三级异常原因
+     */
+    private String thirdReasonLevel;
+
     public Long getId() {
         return id;
     }
@@ -192,5 +207,29 @@ public class JyExceptionContrabandEntity implements Serializable {
 
     public void setCreateUserId(Integer createUserId) {
         this.createUserId = createUserId;
+    }
+
+    public String getFirstReasonLevel() {
+        return firstReasonLevel;
+    }
+
+    public void setFirstReasonLevel(String firstReasonLevel) {
+        this.firstReasonLevel = firstReasonLevel;
+    }
+
+    public String getSecondReasonLevel() {
+        return secondReasonLevel;
+    }
+
+    public void setSecondReasonLevel(String secondReasonLevel) {
+        this.secondReasonLevel = secondReasonLevel;
+    }
+
+    public String getThirdReasonLevel() {
+        return thirdReasonLevel;
+    }
+
+    public void setThirdReasonLevel(String thirdReasonLevel) {
+        this.thirdReasonLevel = thirdReasonLevel;
     }
 }

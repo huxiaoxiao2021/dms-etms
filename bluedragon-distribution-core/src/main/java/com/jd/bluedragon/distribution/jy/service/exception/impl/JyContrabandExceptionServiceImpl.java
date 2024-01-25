@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpContrabandReq;
+import com.jd.bluedragon.common.dto.jyexpection.response.AbnormalReasonResp;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrabandEnum;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpNoticCustomer
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.IAbnPdaAPIManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -24,6 +26,7 @@ import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpContrabandNoticCustomerMQ;
+import com.jd.bluedragon.distribution.jy.manager.AbnormalReasonOfZKManager;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
@@ -36,6 +39,7 @@ import com.jd.bluedragon.enums.WaybillFlowTypeEnum;
 import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
 import com.jd.cp.wbms.client.enums.RejectionEnum;
 import com.jd.etms.blocker.dto.BlockerApplyDto;
@@ -49,6 +53,11 @@ import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.wl.cs.abnormal.portal.api.dto.reason.AbnormalReasonDto;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.AttachInfoParam;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.CodeTypeEnum;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ReportRecord;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.UserTypeEnum;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -63,9 +72,12 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.jd.bluedragon.common.dto.operation.workbench.enums.ContrabandImageUrlEnum.*;
+import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrabandEnum.ContrabandTypeEnum.AIR_TO_LAND;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.HK_OR_MO;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.INTERNATION;
 import static com.jd.bluedragon.utils.BusinessHelper.getWaybillFlowType;
+import static com.jd.bluedragon.utils.BusinessHelper.isNumeric;
 
 /**
  * @Author: ext.xuwenrui
@@ -123,6 +135,35 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     @Autowired
     private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
 
+    @Autowired
+    @Qualifier("abnormalReasonManagerOfZK")
+    private AbnormalReasonOfZKManager abnormalReasonManagerOfZK;
+
+    @Autowired
+    private IAbnPdaAPIManager iAbnPdaAPIManager;
+
+    private static final String SORTING_REPORT_SYSTEM = "20";
+    private static final String SORTING_REPORT_ATTACH_TYPE = "img";
+
+    private static final Integer ALL_SUCCESS = 5;
+
+
+    @Override
+    public JdCResponse<List<AbnormalReasonResp>> getAbnormalReason() {
+        JdCResponse<List<AbnormalReasonResp>> response = new JdCResponse<>();
+        List<AbnormalReasonDto> abnormalReasonDtoList = abnormalReasonManagerOfZK.queryAbnormalReasonListBySystemCode();
+        if (!CollectionUtils.isEmpty(abnormalReasonDtoList)) {
+            List<AbnormalReasonResp> abnormalReasonRespList =
+                    abnormalReasonDtoList.stream().map(item -> {
+                        AbnormalReasonResp abnormalReasonResp = new AbnormalReasonResp();
+                        BeanUtils.copyProperties(item, abnormalReasonResp);
+                        return abnormalReasonResp;
+                    }).collect(Collectors.toList());
+            response.setData(abnormalReasonRespList);
+        }
+        return response;
+    }
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
     public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {
@@ -156,6 +197,17 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             BeanUtils.copyProperties(entity,dto);
             jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
             logger.info("违禁品上报发送MQ-{}",JSON.toJSONString(dto));
+
+            // 调用质控接口，上报异常
+            List<ReportRecord> reportRecords =  convertReportRecord(req);
+            JdCResponse<List<String>> reportResponse = iAbnPdaAPIManager.report(reportRecords);
+            if (reportResponse == null || !ALL_SUCCESS.equals(reportResponse.getCode())) {
+                return JdCResponse.fail(req.getBarCode()+" 违禁品上报质控系统失败，请联系分拣小秘!");
+            }
+
+            // todo 如果是航空转路由，向路由发送消息
+
+
         } catch (Exception e) {
             logger.error("提交违禁品上报报错:", e);
             return JdCResponse.fail(e.getMessage());
@@ -163,6 +215,69 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             redisClientOfJy.del(existKey);
         }
         return JdCResponse.ok();
+    }
+
+    private List<ReportRecord> convertReportRecord(ExpContrabandReq req) {
+        ReportRecord reportRecord=new ReportRecord();
+        reportRecord.setCode(req.getBarCode());
+        if (WaybillUtil.isWaybillCode(req.getBarCode())) {
+            reportRecord.setCodeTypeEnum(CodeTypeEnum.WAYBILL);
+        } else if (WaybillUtil.isPackageCode(req.getBarCode())) {
+            reportRecord.setCodeTypeEnum(CodeTypeEnum.PACKAGE);
+        }
+
+        reportRecord.setFirstLevelExceptionId(Long.valueOf(req.getFirstReasonLevelCode()));
+        reportRecord.setFirstLevelExceptionName(req.getFirstReasonLevelName());
+        reportRecord.setSecondLevelExceptionId(Long.valueOf(req.getSecondReasonLevelCode()));
+        reportRecord.setSecondLevelExceptionName(req.getSecondReasonLevelName());
+        reportRecord.setThirdLevelExceptionId(Long.valueOf(req.getThirdReasonLevelCode()));
+        reportRecord.setThirdLevelExceptionName(req.getThirdReasonLevelName());
+
+        reportRecord.setRemark(req.getDescription());
+        reportRecord.setCreateUser(req.getUserErp());
+        reportRecord.setCreateDept(String.valueOf(req.getSiteId()));
+        reportRecord.setCreateDeptName(req.getSiteName());
+        reportRecord.setCreateTime(new Date());
+        reportRecord.setReportSystem(SORTING_REPORT_SYSTEM);
+        reportRecord.setUserType(UserTypeEnum.ERP);
+        BaseStaffSiteOrgDto baseSiteBySiteId = baseMajorManager.getBaseSiteBySiteId(req.getSiteId());
+        if (baseSiteBySiteId != null) {
+            reportRecord.setCreateProvinceAgencyCode(baseSiteBySiteId.getProvinceAgencyCode());
+            reportRecord.setCreateProvinceAgencyName(baseSiteBySiteId.getProvinceAgencyName());
+        }
+        List<AttachInfoParam> attachInfoParams = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(req.getWaybillImageUrlList())) {
+            for (String url : req.getWaybillImageUrlList()) {
+                AttachInfoParam attachInfoParam = new AttachInfoParam();
+                attachInfoParam.setFilePath(url);
+                attachInfoParam.setAttachType(SORTING_REPORT_ATTACH_TYPE);
+                attachInfoParam.setEvidenceCode(WAYBILL_IMAGE_TYPE.getCode());
+                attachInfoParam.setFileName(WAYBILL_IMAGE_TYPE.getDesc());
+                attachInfoParams.add(attachInfoParam);
+            }
+        }
+        if (!CollectionUtils.isEmpty(req.getContrabandImageUrlList())) {
+            for (String url : req.getContrabandImageUrlList()) {
+                AttachInfoParam attachInfoParam = new AttachInfoParam();
+                attachInfoParam.setFilePath(url);
+                attachInfoParam.setAttachType(SORTING_REPORT_ATTACH_TYPE);
+                attachInfoParam.setEvidenceCode(CONTRABAND_IMAGE_TYPE.getCode());
+                attachInfoParam.setFileName(CONTRABAND_IMAGE_TYPE.getDesc());
+                attachInfoParams.add(attachInfoParam);
+            }
+        }
+        if (!CollectionUtils.isEmpty(req.getPanoramaImageUrlList())) {
+            for (String url : req.getPanoramaImageUrlList()) {
+                AttachInfoParam attachInfoParam = new AttachInfoParam();
+                attachInfoParam.setFilePath(url);
+                attachInfoParam.setAttachType(SORTING_REPORT_ATTACH_TYPE);
+                attachInfoParam.setEvidenceCode(PANORAMA_IMAGE_TYPE.getCode());
+                attachInfoParam.setFileName(PANORAMA_IMAGE_TYPE.getDesc());
+                attachInfoParams.add(attachInfoParam);
+            }
+        }
+        reportRecord.setAttachInfoParams(attachInfoParams);
+        return Collections.singletonList(reportRecord);
     }
 
     /**
@@ -236,7 +351,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                    break;
                case AIR_TO_LAND:  //航空转陆运
                case RETURN://退回
-                   sendContrabandReturnPackageBDTrance(dto);
+                   sendContrabandReturnPackageBDTrance(dto, enumResult);
                    sendMQFlag = true;
                    break;
                 default:
@@ -460,9 +575,11 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     /**
      * 违禁品包裹维度退回全程跟踪
+     *
      * @param dto
+     * @param enumResult
      */
-    private void sendContrabandReturnPackageBDTrance(JyExceptionContrabandDto dto){
+    private void sendContrabandReturnPackageBDTrance(JyExceptionContrabandDto dto, JyExceptionContrabandEnum.ContrabandTypeEnum enumResult){
 
         if(StringUtils.isBlank(dto.getBarCode())){
             logger.warn("单号为空!");
@@ -476,7 +593,13 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         traceDto.setPackageBarCode(dto.getBarCode());
         traceDto.setWaybillCode(WaybillUtil.getWaybillCode(dto.getBarCode()));
         traceDto.setOperateType(WaybillStatus.WAYBILL_TRACK_RETURNED_PACKAGE);
-        traceDto.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC);
+        String operatorDesc = "";
+        if (enumResult.equals(AIR_TO_LAND)) {
+            operatorDesc = WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC_2;
+        }else {
+            operatorDesc = WaybillStatus.WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC_1;
+        }
+        traceDto.setOperatorDesp(operatorDesc);
         traceDto.setOperatorSiteId(dto.getSiteCode());
         traceDto.setOperatorSiteName(dto.getSiteName());
         traceDto.setOperatorUserName(dto.getCreateStaffName());
@@ -512,6 +635,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         entity.setBizId(bizId);
         entity.setBarCode(req.getBarCode());
         entity.setDescription(req.getDescription());
+        entity.setFirstReasonLevel(req.getFirstReasonLevel());
+        entity.setSecondReasonLevel(req.getSecondReasonLevel());
+        entity.setThirdReasonLevel(req.getThirdReasonLevel());
         return entity;
     }
 
@@ -521,25 +647,59 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
      * @param entity
      */
     private void saveImages(ExpContrabandReq req, JyExceptionContrabandEntity entity) {
+        List<JyAttachmentDetailEntity> annexList = Lists.newArrayList();
+        // 老版本照片
         if (!CollectionUtils.isEmpty(req.getImageUrlList())) {
-            List<JyAttachmentDetailEntity> annexList = Lists.newArrayList();
             for (String proveUrl : req.getImageUrlList()) {
                 JyAttachmentDetailEntity annexEntity = new JyAttachmentDetailEntity();
-                annexEntity.setBizId(entity.getBizId());
-                annexEntity.setSiteCode(entity.getSiteCode());
+                convertAttachmentDetail(annexEntity, proveUrl, entity);
                 annexEntity.setBizType(JyAttachmentBizTypeEnum.CONTRABAND_UPLOAD_EXCEPTION.getCode());
-                annexEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
-                annexEntity.setCreateUserErp(entity.getUpdateErp());
-                annexEntity.setUpdateUserErp(entity.getUpdateErp());
-                annexEntity.setAttachmentUrl(proveUrl);
-                Calendar calendar = Calendar.getInstance();
-                calendar.add(Calendar.SECOND, 1);
-                annexEntity.setCreateTime(calendar.getTime());
-                annexEntity.setUpdateTime(new Date());
                 annexList.add(annexEntity);
             }
-            jyAttachmentDetailService.batchInsert(annexList);
         }
+        // 包裹面单
+        if (!CollectionUtils.isEmpty(req.getWaybillImageUrlList())) {
+            for (String url : req.getWaybillImageUrlList()) {
+                JyAttachmentDetailEntity annexEntity = new JyAttachmentDetailEntity();
+                convertAttachmentDetail(annexEntity, url, entity);
+                annexEntity.setBizType(JyAttachmentBizTypeEnum.WAYBILL_CONTRABAND_UPLOAD_EXCEPTION.getCode());
+                annexList.add(annexEntity);
+            }
+        }
+
+        // 包裹全景
+        if (!CollectionUtils.isEmpty(req.getPanoramaImageUrlList())) {
+            for (String url : req.getPanoramaImageUrlList()) {
+                JyAttachmentDetailEntity annexEntity = new JyAttachmentDetailEntity();
+                convertAttachmentDetail(annexEntity, url, entity);
+                annexEntity.setBizType(JyAttachmentBizTypeEnum.PANORAMA_CONTRABAND_UPLOAD_EXCEPTION.getCode());
+                annexList.add(annexEntity);
+            }
+        }
+
+        // 违禁品照片
+        if (!CollectionUtils.isEmpty(req.getContrabandImageUrlList())) {
+            for (String url : req.getContrabandImageUrlList()) {
+                JyAttachmentDetailEntity annexEntity = new JyAttachmentDetailEntity();
+                convertAttachmentDetail(annexEntity, url, entity);
+                annexEntity.setBizType(JyAttachmentBizTypeEnum.CONTRABAND_UPLOAD_EXCEPTION.getCode());
+                annexList.add(annexEntity);
+            }
+        }
+        jyAttachmentDetailService.batchInsert(annexList);
+    }
+
+    private void convertAttachmentDetail(JyAttachmentDetailEntity annexEntity, String proveUrl, JyExceptionContrabandEntity entity) {
+        annexEntity.setBizId(entity.getBizId());
+        annexEntity.setSiteCode(entity.getSiteCode());
+        annexEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
+        annexEntity.setCreateUserErp(entity.getUpdateErp());
+        annexEntity.setUpdateUserErp(entity.getUpdateErp());
+        annexEntity.setAttachmentUrl(proveUrl);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.SECOND, 1);
+        annexEntity.setCreateTime(calendar.getTime());
+        annexEntity.setUpdateTime(new Date());
     }
 
     /**
