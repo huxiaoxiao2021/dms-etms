@@ -18,10 +18,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service("dmsUserScheduleService")
 public class DmsUserScheduleServiceImpl implements DmsUserScheduleService {
@@ -50,7 +47,9 @@ public class DmsUserScheduleServiceImpl implements DmsUserScheduleService {
             return response;
         }
 
-        scheduleQueryDto.setScheduleDate(DateHelper.formatDate(new Date()));
+        String yesterday = DateHelper.formatDate(DateUtils.addDays(new Date(), -1));
+        String today = DateHelper.formatDate(new Date());
+        scheduleQueryDto.setScheduleDateList(Arrays.asList(yesterday, today));
         scheduleQueryDto.setNature(userDto.getNature());
         scheduleQueryDto.setUserUniqueCode(request.getUserCode());
         List<UserGridScheduleDto> dtoList = workGridScheduleManager.getUserScheduleByCondition(scheduleQueryDto);
@@ -62,10 +61,24 @@ public class DmsUserScheduleServiceImpl implements DmsUserScheduleService {
 
         List<String> scheduleTimes = new ArrayList<>();
         boolean allowFlag = false;
+        Integer allowHours = dmsConfigManager.getPropertyConfig().getAllowEntryHours();
         for (UserGridScheduleDto scheduleDto : dtoList) {
+            // 昨天排班记录
+            if (scheduleDto.getScheduleDate().equals(yesterday)) {
+                // 结束时间大于开始时间  证明不是跨夜场景  不需要处理
+                if ( scheduleDto.getStartTime().compareTo(scheduleDto.getEndTime()) < 0) {
+                    continue;
+                }
+                // 在昨天排班计划结束之前  允许进入
+                boolean yesterdayCheck = checkEntryTime(scheduleDto.getEndTime(), allowHours);
+                if (yesterdayCheck) {
+                    response.setData(true);
+                    return response;
+                }
+            }
             // 判断当前时间是否是在合理进入闸机时间范围
-            boolean startTimeCheck = checkEntryTime(scheduleDto.getStartTime(), -dmsConfigManager.getPropertyConfig().getAllowEntryHours());
-            boolean endTimeCheck = checkEntryTime(scheduleDto.getEndTime(), dmsConfigManager.getPropertyConfig().getAllowEntryHours());
+            boolean startTimeCheck = checkEntryTime(scheduleDto.getStartTime(), -allowHours);
+            boolean endTimeCheck = checkEntryTime(scheduleDto.getEndTime(), allowHours);
             if (startTimeCheck && endTimeCheck) {
                 response.setData(true);
                 return response;
