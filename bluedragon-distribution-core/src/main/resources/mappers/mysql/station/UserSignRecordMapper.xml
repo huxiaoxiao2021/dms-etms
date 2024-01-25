@@ -910,7 +910,7 @@
 			AND sign_in_time <![CDATA[ < ]]> #{item1.endTime,jdbcType=TIMESTAMP}
 			AND sign_out_time IS NULL
 			<choose>
-				<when test="env == uat">
+				<when test="env == ture">
 					<if test="siteCodeList != null and siteCodeList.size()>0" >
 						AND site_code in
 						<foreach collection="siteCodeList" item="code" open="(" close=")" separator=",">
