@@ -87,7 +87,7 @@ public class JyPickingGoodWaitScanItemNumUpdateConsumer extends MessageBaseConsu
             //avoid repeat consume， must save cache before return
             this.saveCache(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId());
         }catch (Exception ex) {
-            log.error("航空提货待提明细件数消费异常,businessId={},mqBody={}", message.getBusinessId(), message.getText());
+            log.error("航空提货待提明细件数消费异常,businessId={},errMsg={},mqBody={}", message.getBusinessId(), ex.getMessage(), message.getText(), ex);
             throw new JyBizException(String.format("航空提货待提明细件数消费异常,businessId：%s", message.getBusinessId()));
         }finally {
             unlock(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId());

@@ -210,6 +210,14 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
     @Override
     protected boolean pickingGoodDetailInit(PickingGoodTaskInitDto initDto) {
         Map<JyBizTaskPickingGoodEntity, List<JyBizTaskPickingGoodSubsidiaryEntity>> taskMap = super.getTaskMap();
+        if(Objects.isNull(taskMap)) {
+            //补偿：上游任务初始化成功，且有实际落地时间，下面代码报错，消息重试，因为有落地时间，任务初始化幂等不再操作，super.getTaskMap()是初始化任务成功之后的任务数据因为为null
+            taskMap = this.compensateTaskMap(initDto);
+            if(Objects.isNull(taskMap)) {
+                logWarn("空铁提货任务初始化成功后初始化明细时，任务数据为空，initDto={}", JsonHelper.toJson(initDto));
+                return true;
+            }
+        }
         //K-sealCarCode, V-siteType
         Map<String, BaseStaffSiteOrgDto> scLastSiteType = new HashMap<>();
         taskMap.forEach((taskEntity, subsidiaryEntityList) -> {
@@ -287,6 +295,24 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
             this.sendPickingGoodDetailInitMq(dmsToDmsInitMap.values(), true);
         }
         return true;
+    }
+    //异常场景补偿任务数据
+    private Map<JyBizTaskPickingGoodEntity, List<JyBizTaskPickingGoodSubsidiaryEntity>> compensateTaskMap(PickingGoodTaskInitDto initDto) {
+        List<JyBizTaskPickingGoodEntity> taskList = jyBizTaskPickingGoodService.findAllTaskByBusinessNumber(initDto.getBusinessNumber(), initDto.getTaskType());
+        if(CollectionUtils.isEmpty(taskList)) {
+            return null;
+        }
+        List<String> bizIdList = taskList.stream().map(JyBizTaskPickingGoodEntity::getBizId).collect(Collectors.toList());
+        List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList = jyBizTaskPickingGoodService.listBatchInfoByBizId(bizIdList);
+        if(CollectionUtils.isEmpty(subsidiaryEntityList)) {
+            return null;
+        }
+        Map<JyBizTaskPickingGoodEntity, List<JyBizTaskPickingGoodSubsidiaryEntity>> res = new HashMap<>();
+        Map<String, List<JyBizTaskPickingGoodSubsidiaryEntity>> map =  subsidiaryEntityList.stream().collect(Collectors.groupingBy(JyBizTaskPickingGoodSubsidiaryEntity::getBizId));
+        taskList.forEach(task -> {
+            res.put(task, map.get(task.getBizId()));
+        });
+        return res;
     }
 
     public boolean sendPickingGoodDetailInitMq(Collection<PickingGoodTaskDetailInitDto> values, boolean dmsToDmsFlag) {

@@ -109,7 +109,7 @@ public class JyPickingGoodDetailInitConsumer extends MessageBaseConsumer {
             //avoid repeat consume， must save cache before return
             saveCache(mqBody.getBizId(), mqBody.getBatchCode());
         }catch (Exception ex) {
-            log.error("空铁提货待提明细初始化批次维度消费异常，mqBody={}", JsonHelper.toJson(mqBody));
+            log.error("空铁提货待提明细初始化批次维度消费异常，mqBody={}", JsonHelper.toJson(mqBody), ex);
             throw new JyBizException(String.format("提货明细初始化批次维度数据消费异常，businessId=%s", mqBody.getBusinessId()));
         }finally {
             this.unlock(mqBody.getBizId(), mqBody.getBatchCode());

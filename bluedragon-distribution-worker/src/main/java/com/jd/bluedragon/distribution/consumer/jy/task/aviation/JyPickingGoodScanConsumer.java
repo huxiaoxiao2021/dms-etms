@@ -111,7 +111,7 @@ public class JyPickingGoodScanConsumer extends MessageBaseConsumer {
             //agg计数统计自增
             jyBizTaskPickingGoodTransactionManager.updateAggScanStatistics(mqBody);
         }catch (Exception ex) {
-            log.error("提货扫描异步处理消费异常，errMsg={}, mqBody={}", ex.getMessage(), JsonHelper.toJson(mqBody));
+            log.error("提货扫描异步处理消费异常，errMsg={}, mqBody={}", ex.getMessage(), JsonHelper.toJson(mqBody), ex);
             throw new JyBizException(String.format("航空提货扫描异步消费异常,businessId：%s", mqBody.getBusinessId()));
         } finally {
             cacheService.unlockPickingGoodBizIdSiteId(mqBody.getBizId(), mqBody.getPickingSiteId());

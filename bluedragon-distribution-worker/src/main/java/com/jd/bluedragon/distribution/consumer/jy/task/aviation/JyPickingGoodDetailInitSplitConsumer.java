@@ -63,7 +63,7 @@ public class JyPickingGoodDetailInitSplitConsumer extends MessageBaseConsumer {
             jyPickingSendRecordService.initOrUpdateNeedScanDetail(mqBody);
             logInfo("航空提货待提明细初始化拆分后按包裹维度消费结束，businessId={}，任务BizId={}", message.getBusinessId(), mqBody.getBizId());
         }catch (Exception ex) {
-            log.error("航空提货待提明细初始化拆分后按包裹维度消费异常,businessId={},mqBody={}", message.getBusinessId(), message.getText());
+            log.error("航空提货待提明细初始化拆分后按包裹维度消费异常,businessId={},mqBody={}", message.getBusinessId(), message.getText(), ex);
             throw new JyBizException(String.format("航空提货待提明细初始化拆分后按包裹维度消费异常,businessId：%s", message.getBusinessId()));
         }
 

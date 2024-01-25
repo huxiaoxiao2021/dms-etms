@@ -74,7 +74,7 @@ public class JyPickingGoodScanSplitPackageConsumer extends MessageBaseConsumer {
         try{
             jyPickingSendRecordService.pickingRecordSave(mqBody);
         }catch (Exception ex) {
-            log.error("提货扫描拆分为包裹维度数据异步消费异常，errMsg={}, mqBody={}", ex.getMessage(), JsonHelper.toJson(mqBody));
+            log.error("提货扫描拆分为包裹维度数据异步消费异常，errMsg={}, mqBody={}", ex.getMessage(), JsonHelper.toJson(mqBody), ex);
             throw new JyBizException(String.format("提货扫描拆分为包裹维度数据异步消费异常,businessId：%s", mqBody.getBusinessId()));
         } finally {
             this.unlock(mqBody.getBizId(), mqBody.getPackageCode());
