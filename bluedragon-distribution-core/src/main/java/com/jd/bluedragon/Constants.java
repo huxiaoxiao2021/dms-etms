@@ -2397,4 +2397,16 @@ public class Constants {
      * 运单返调度审批版本配置
      */
     public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG_FLOW_VERSION_NEW = "reassignWaybill.province.area.approval.config.flow.version.new";
+
+    /**
+     * win_pda下线
+     */
+    public static final String SYS_CONFIG_WIN_PDA_OFFLINE = "win_pda_offline";
+
+
+    /**
+     * android_pda下线
+     */
+    public static final String SYS_CONFIG_ANDROID_PDA_OFFLINE = "android_pda_offline";
+
 }

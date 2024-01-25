@@ -34,6 +34,11 @@ public class FuncUsageConditionConfigDto implements Serializable {
      */
     private List<String> userErps;
 
+    /**
+     * 站点的三级分类 ，不是分拣中心的三级分类别搞错
+     */
+    private List<Integer> siteThirdType;
+
     public List<Integer> getSiteType() {
         return siteType;
     }
@@ -48,6 +53,14 @@ public class FuncUsageConditionConfigDto implements Serializable {
 
     public void setSiteSubType(List<Integer> siteSubType) {
         this.siteSubType = siteSubType;
+    }
+
+    public List<Integer> getSiteThirdType() {
+        return siteThirdType;
+    }
+
+    public void setSiteThirdType(List<Integer> siteThirdType) {
+        this.siteThirdType = siteThirdType;
     }
 
     public List<Integer> getSiteSortType() {

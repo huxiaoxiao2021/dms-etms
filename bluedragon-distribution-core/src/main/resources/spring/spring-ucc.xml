@@ -317,6 +317,7 @@
 		<property name="forceCollectPackageSiteListStr" value="${forceCollectPackageSiteListStr:''}"/>
 		<property name="jyCollectPackageInterceptBitCode" value="${jyCollectPackageInterceptBitCode:2199023255033}"/>
 		<property name="collectPackageSiteForbiddenList" value="${collectPackageSiteForbiddenList:''}"/>
+		<property name="collectPackageOrgForbiddenList" value="${collectPackageOrgForbiddenList:''}"/>
 
 		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
 		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
@@ -644,6 +645,7 @@
 				<value>uccPropertyConfiguration.forceCollectPackageSiteListStr</value>
 				<value>uccPropertyConfiguration.jyCollectPackageInterceptBitCode</value>
 				<value>uccPropertyConfiguration.collectPackageSiteForbiddenList</value>
+				<value>uccPropertyConfiguration.collectPackageOrgForbiddenList</value>
 				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
 				<value>uccPropertyConfiguration.sealSyncOpenCloseSendTaskSwitch</value>
 				<value>uccPropertyConfiguration.czSealCarBoardCountMinLimit</value>
