@@ -344,6 +344,7 @@
 		<property name="storageBoxDetailMaxSizeLimit" value="${storageBoxDetailMaxSizeLimit:400}"/>
 		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
 		<property name="thanosSwitch" value="${thanosSwitch:false}"/>
+		<property name="allowEntryHours" value="${allowEntryHours:1}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -693,6 +694,7 @@
 				<value>uccPropertyConfiguration.storageBoxDetailMaxSizeLimit</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
 				<value>uccPropertyConfiguration.thanosSwitch</value>
+				<value>uccPropertyConfiguration.allowEntryHours</value>
 			</list>
 		</property>
 	</bean>
