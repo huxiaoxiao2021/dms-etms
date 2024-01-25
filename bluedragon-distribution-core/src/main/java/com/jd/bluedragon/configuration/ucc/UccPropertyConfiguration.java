@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRef
 import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseJyBizTaskConfig;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.dms.print.utils.JsonHelper;
+import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -1898,6 +1899,16 @@ public class UccPropertyConfiguration{
      * 存储仓打包明细 单个箱子的上限
      */
     private Integer storageBoxDetailMaxSizeLimit;
+
+    private boolean thanosSwitch;
+
+    public boolean getThanosSwitch(){
+        return thanosSwitch;
+    }
+
+    public void setThanosSwitch(boolean thanosSwitch) {
+        this.thanosSwitch = thanosSwitch;
+    }
 
     public Integer getStorageBoxDetailMaxSizeLimit(){
         return storageBoxDetailMaxSizeLimit;
