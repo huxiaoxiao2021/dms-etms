@@ -466,14 +466,15 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 return result.toFail("没有查询到运单包裹信息");
             }
 
-            String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
-            // 报废运单标识
-            boolean scrapWaybillFlag = isScrapWaybill(waybillSign);
-
             // 如果是报废运单，不需要该校验
-            if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType()) && !scrapWaybillFlag) {
-                if(!BusinessUtil.isScrapSortingSite(waybillSign)) {
-                    return result.toFail("提交失败，非返分拣报废运单！");
+            if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType())) {
+                String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+                // 报废运单标识
+                boolean scrapWaybillFlag = isScrapWaybill(waybillSign);
+                if (!scrapWaybillFlag) {
+                    if (!BusinessUtil.isScrapSortingSite(waybillSign)) {
+                        return result.toFail("提交失败，非返分拣报废运单！");
+                    }
                 }
             }
 

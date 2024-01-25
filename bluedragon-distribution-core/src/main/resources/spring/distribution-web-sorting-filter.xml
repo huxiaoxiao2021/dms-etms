@@ -17,6 +17,8 @@
     </bean>
 
     <util:list id="forwardFilterList">
+        <!--  ScrapWaybillFilter报废运单拦截第一个执行，防止有强发场景跳过该校验  -->
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalSortFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ColdChainAroundPlateBoxFilter"/>
@@ -62,6 +64,8 @@
     </util:list>
 
     <util:list id="jyCollectPackageForwardFilterList">
+        <!--  ScrapWaybillFilter报废运单拦截第一个执行，防止有强发场景跳过该校验  -->
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalSortFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ColdChainAroundPlateBoxFilter"/>
@@ -133,6 +137,8 @@
     </bean>
 
     <util:list id="deliveryFilterList">
+        <!--  ScrapWaybillFilter报废运单拦截第一个执行，防止有强发场景跳过该校验  -->
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
@@ -171,6 +177,8 @@
     </util:list>
 
     <util:list id="deliveryByWaybillFilterList">
+        <!--  ScrapWaybillFilter报废运单拦截第一个执行，防止有强发场景跳过该校验  -->
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter"/>
@@ -223,6 +231,8 @@
 
 
     <util:list id="boardCombinationFilterList">
+        <!--  ScrapWaybillFilter报废运单拦截第一个执行，防止有强发场景跳过该校验  -->
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillParamFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
@@ -262,6 +272,8 @@
         </property>
     </bean>
     <util:list id="virtualBoardCombinationFilterList">
+        <!--  ScrapWaybillFilter报废运单拦截第一个执行，防止有强发场景跳过该校验  -->
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
@@ -309,6 +321,8 @@
     </bean>
 
     <util:list id="jyDeliveryFilterList">
+        <!--  ScrapWaybillFilter报废运单拦截第一个执行，防止有强发场景跳过该校验  -->
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.InternationalExamineFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>

@@ -585,10 +585,11 @@ public class SortingResponse extends JdResponse {
     public static final String PACKAGE_PRINT_BAN_MESSAGE_1 ="请使用站长工作台http://z-ql.jd.com/#/workbench，分拣打印-包裹打印功能!";
     public static final String PACKAGE_PRINT_BAN_MESSAGE_2 ="登录人ERP在人资系统中不是【异常岗】，无法操作包裹补打功能，请联系异常岗人员操作!";
 
-
     public static final Integer MESSAGE_SHOW_TYPE_TIP = 1;
     public static final Integer MESSAGE_SHOW_TYPE_CONFIRM = 2;
     public static final Integer MESSAGE_SHOW_TYPE_INTERCEPT = 3;
+
+    public static final Integer SCRAP_WAYBILL_INTERCEPT_CODE = 22009;
 
     /** 单纯提示语 **/
     List<String> tipMessages;
