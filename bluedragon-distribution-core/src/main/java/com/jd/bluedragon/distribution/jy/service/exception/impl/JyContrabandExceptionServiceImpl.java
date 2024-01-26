@@ -790,7 +790,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if (bigWaybillDto == null || bigWaybillDto.getWaybill() == null) {
             throw new RuntimeException("获取运单信息失败!");
         }
-        WaybillFlowTypeEnum waybillFlowType = getWaybillFlowType(bigWaybillDto.getWaybill());
+        Waybill waybill = bigWaybillDto.getWaybill();
+        WaybillFlowTypeEnum waybillFlowType = getWaybillFlowType(waybill);
         if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
             if(!waybillFlowType.equals(HK_OR_MO) && !waybillFlowType.equals(WaybillFlowTypeEnum.INTERNATION)){
                 throw new RuntimeException("仅港澳件和国际件出口支持违禁品退回!");
