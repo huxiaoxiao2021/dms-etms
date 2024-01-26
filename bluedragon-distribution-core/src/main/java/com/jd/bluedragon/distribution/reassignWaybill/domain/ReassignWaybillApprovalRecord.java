@@ -139,6 +139,11 @@ public class ReassignWaybillApprovalRecord implements Serializable {
     private Date ts;
 
     /**
+     * 照片链接
+     */
+    private String imageUrls;
+
+    /**
      * 删除标识
      */
     private Integer yn;
@@ -365,5 +370,13 @@ public class ReassignWaybillApprovalRecord implements Serializable {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public String getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(String imageUrls) {
+        this.imageUrls = imageUrls;
     }
 }

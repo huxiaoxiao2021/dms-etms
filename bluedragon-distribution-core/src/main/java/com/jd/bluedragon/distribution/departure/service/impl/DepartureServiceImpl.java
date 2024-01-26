@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.departure.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageException;
@@ -114,6 +115,9 @@ public class DepartureServiceImpl implements DepartureService {
     private SequenceGenAdaptor sequenceGenAdaptor;
 	@Autowired
 	private BoxService boxService;
+
+	@Autowired
+	private UccPropertyConfiguration ucc;
 
 	public static final String CARCODE_MARK = "0";  // 按车次号查询
 
@@ -745,6 +749,9 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
 	private void findCreateSiteAndSet(SendDetail queryDetail) {
+		if (ucc.getThanosSwitch()){
+			return;
+		}
 		try {
 			Box box =boxService.findBoxByCode(queryDetail.getBoxCode());
 			if (ObjectHelper.isNotNull(box) && ObjectHelper.isNotNull(box.getCreateSiteCode())){

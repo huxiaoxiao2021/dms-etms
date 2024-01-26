@@ -1415,7 +1415,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
             // 提交申请单
             String flowWorkNo = flowServiceManager.startFlow(oaMap, businessMap, null,
-                    FlowConstants.FLOW_CODE_PRINT_HANDOVER, printExportCriteria.getUserCode(), String.valueOf(businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)));
+                    FlowConstants.FLOW_CODE_PRINT_HANDOVER, printExportCriteria.getUserCode(), String.valueOf(businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)), null);
 
             if(log.isInfoEnabled() && StringUtils.isNotEmpty(flowWorkNo)){
                 log.info("打印交接清单导出已提交申请单【{}】业务唯一标识码【{}】", flowWorkNo, businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY));

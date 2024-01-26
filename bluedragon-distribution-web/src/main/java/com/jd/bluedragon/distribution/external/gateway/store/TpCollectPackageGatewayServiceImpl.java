@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.store;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -12,18 +13,23 @@ import com.jd.bluedragon.distribution.box.domain.UpdateBoxResp;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.external.gateway.store.TpCollectPackageGatewayService;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.jd.ql.dms.common.domain.JdResponse;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 public class TpCollectPackageGatewayServiceImpl implements TpCollectPackageGatewayService {
 
     @Autowired
     private BoxService boxService;
+
+    @Autowired
+    BaseMajorManager baseMajorManager;
+
+
     @Override
     public JdResponse<GenerateBoxResp> generateBoxCode(GenerateBoxReq request) {
         checkGenerateBoxReq(request);
@@ -70,9 +76,17 @@ public class TpCollectPackageGatewayServiceImpl implements TpCollectPackageGatew
         if (ObjectHelper.isEmpty(request.getReceiveSiteCode())){
             throw new IllegalArgumentException("参数错误：缺失目的场地信息！");
         }
-        if (ObjectHelper.isEmpty(request.getUserCode())){
-            throw new IllegalArgumentException("参数错误：缺失操作人编码信息！");
+        if (ObjectHelper.isEmpty(request.getUserCode()) && ObjectHelper.isEmpty(request.getUserErp())){
+            throw new IllegalArgumentException("参数错误：缺失操作人信息！");
         }
+
+        if (ObjectHelper.isEmpty(request.getUserCode())){
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseStaffByErpNoCache(request.getUserErp());
+            if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper.isNotNull(baseStaffSiteOrgDto.getStaffNo())){
+                request.setUserCode(baseStaffSiteOrgDto.getStaffNo());
+            }
+        }
+
         if (ObjectHelper.isEmpty(request.getUserName())){
             throw new IllegalArgumentException("参数错误：缺失操作人姓名信息！");
         }
@@ -129,8 +143,5 @@ public class TpCollectPackageGatewayServiceImpl implements TpCollectPackageGatew
     }
 
     public static void main(String[] args) {
-        String a ="";
-        List<String> aa =Arrays.asList(a.split(","));
-        System.out.println(aa);
     }
 }

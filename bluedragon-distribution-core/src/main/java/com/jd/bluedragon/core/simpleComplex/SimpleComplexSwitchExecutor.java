@@ -4,6 +4,7 @@ import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.utils.JsonHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -76,7 +77,7 @@ public class SimpleComplexSwitchExecutor {
             }
             else {
                 String str = JsonHelper.toJson(result);
-                if (str.startsWith("{") && str.endsWith("}")){
+                if (StringUtils.isNotEmpty(str) && str.startsWith("{") && str.endsWith("}")){
                     // 判断是对象
                     recursiveDealOfVO(result, switchType);
                 }

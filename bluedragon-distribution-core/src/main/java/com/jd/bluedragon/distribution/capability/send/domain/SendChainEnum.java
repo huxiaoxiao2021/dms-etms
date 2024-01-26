@@ -9,6 +9,17 @@ package com.jd.bluedragon.distribution.capability.send.domain;
  */
 public enum SendChainEnum {
 
-    DEFAULT
+    /**
+     * 默认
+     */
+    DEFAULT,
+    /**
+     * 存在集包袋校验和绑定模式
+     */
+    WITH_CYCLE_BOX_MODE,
+    /**
+     * 无任何校验的发货模式
+     */
+    NO_CHECK_MODE
 
 }

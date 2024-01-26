@@ -841,7 +841,7 @@ public class BoxServiceImpl implements BoxService {
         response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
 
 		// 打印客户端创建 并且是首次打印 推送箱号打印消息
-		if (checkIfReleasedForSite(request.getCreateSiteCode()) && BoxSystemTypeEnum.PRINT_CLIENT.getCode().equals(systemType)) {
+		if (BoxSystemTypeEnum.PRINT_CLIENT.getCode().equals(systemType)) {
 			pushBoxPrintMq(availableBoxes);
 		}
 
@@ -851,6 +851,7 @@ public class BoxServiceImpl implements BoxService {
 
 
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.BoxServiceImpl.genBoxWithoutSiteInfo", mState = {JProEnum.TP})
 	public BoxResponse genBoxWithoutSiteInfo(BoxRequest request) {
 		checkBoxRequerst(request);
 		BoxResponse response = new BoxResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -1138,6 +1139,7 @@ public class BoxServiceImpl implements BoxService {
     }
 
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.BoxServiceImpl.updateBox", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BoxResponse updateBox(UpdateBoxReq request) {
 		BoxResponse response = new BoxResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		if (checkBoxIfCanUpdate(request,response)){

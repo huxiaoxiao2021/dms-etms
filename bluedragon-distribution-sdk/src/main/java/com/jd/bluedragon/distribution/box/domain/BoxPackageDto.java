@@ -14,6 +14,9 @@ public class BoxPackageDto implements Serializable {
      *  包裹号
      */
     private String packageCode;
+
+    private String userErp;
+
     /**
      *  操作用户
      */
@@ -77,5 +80,13 @@ public class BoxPackageDto implements Serializable {
 
     public void setOpreateType(Integer opreateType) {
         this.opreateType = opreateType;
+    }
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
     }
 }
