@@ -127,9 +127,9 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
         param.put("limit", limit);
 		param.put("siteCodeList", siteCodeList);
 		if (Objects.equals(EnvEnum.UAT.getCode(), (env))){
-			param.put("env", true);
+			param.put("env", 1);
 		}else{
-			param.put("env", false);
+			param.put("env", 0);
 		}
 		return this.getSqlSession().selectList(NAMESPACE + ".querySignInMoreThanSpecifiedTime", param);
     }
