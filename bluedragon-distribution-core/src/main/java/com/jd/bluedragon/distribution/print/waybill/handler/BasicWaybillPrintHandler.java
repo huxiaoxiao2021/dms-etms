@@ -225,6 +225,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * @param context
      * @param response
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BasicWaybillPrintHandler.loadReprintNum",mState={JProEnum.TP,JProEnum.FunctionError})
     private void loadReprintNum(WaybillPrintContext context, WaybillPrintResponse response) {
         String packageBarCode = context.getRequest().getPackageBarCode();
         try{
