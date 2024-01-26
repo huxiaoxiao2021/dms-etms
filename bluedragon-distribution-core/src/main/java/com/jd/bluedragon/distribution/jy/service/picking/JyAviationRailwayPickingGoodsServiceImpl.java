@@ -1136,17 +1136,21 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             if (CollectionUtils.isEmpty(bizIdList)) {
                 return;
             }
-            Date now = new Date();
-            JyPickingTaskBatchUpdateDto updateDto = new JyPickingTaskBatchUpdateDto();
-            updateDto.setBizIdList(bizIdList);
-            updateDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
-            updateDto.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
-            updateDto.setCompleteNode(PickingCompleteNodeEnum.WAIT_SCAN_0.getCode());
-            updateDto.setPickingCompleteTime(now);
-            updateDto.setUpdateTime(now);
-            jyBizTaskPickingGoodService.batchFinishPickingTaskByBizId(updateDto);
+            batchFinishPickingTaskByBizId(bizIdList, PickingCompleteNodeEnum.WAIT_SCAN_0.getCode());
             pageNumber++;
         } while (CollectionUtils.isNotEmpty(bizIdList));
+    }
+
+    private void batchFinishPickingTaskByBizId(List<String> bizIdList, Integer completeNode) {
+        Date now = new Date();
+        JyPickingTaskBatchUpdateDto updateDto = new JyPickingTaskBatchUpdateDto();
+        updateDto.setBizIdList(bizIdList);
+        updateDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
+        updateDto.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+        updateDto.setCompleteNode(completeNode);
+        updateDto.setPickingCompleteTime(now);
+        updateDto.setUpdateTime(now);
+        jyBizTaskPickingGoodService.batchFinishPickingTaskByBizId(updateDto);
     }
 
     @Override
@@ -1161,20 +1165,13 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         List<String> bizIdList;
         do {
             queryDto.setOffset((pageNumber - 1) * queryDto.getLimit());
-            logInfo("finishTaskWhenTimeExceed {}", JsonHelper.toJson(queryDto));
+            logInfo("finishTaskWhenTimeExceed req={}", JsonHelper.toJson(queryDto));
             bizIdList = jyBizTaskPickingGoodService.pageRecentCreatedManualBizId(queryDto);
             if (CollectionUtils.isEmpty(bizIdList)) {
                 return;
             }
-            Date now = new Date();
-            JyPickingTaskBatchUpdateDto updateDto = new JyPickingTaskBatchUpdateDto();
-            updateDto.setBizIdList(bizIdList);
-            updateDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
-            updateDto.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
-            updateDto.setCompleteNode(PickingCompleteNodeEnum.TIME_EXECUTE.getCode());
-            updateDto.setPickingCompleteTime(now);
-            updateDto.setUpdateTime(now);
-            jyBizTaskPickingGoodService.batchFinishPickingTaskByBizId(updateDto);
+            logInfo("finishTaskWhenTimeExceed resp={}", JsonHelper.toJson(bizIdList));
+            batchFinishPickingTaskByBizId(bizIdList, PickingCompleteNodeEnum.TIME_EXECUTE.getCode());
             pageNumber++;
         } while (CollectionUtils.isNotEmpty(bizIdList));
     }
