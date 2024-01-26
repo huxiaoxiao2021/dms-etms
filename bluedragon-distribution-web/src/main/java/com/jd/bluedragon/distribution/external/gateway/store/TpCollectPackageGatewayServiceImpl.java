@@ -46,7 +46,7 @@ public class TpCollectPackageGatewayServiceImpl implements TpCollectPackageGatew
         } catch (Exception e) {
             log.error("TpCollectPackageGatewayService.generateBoxCode error",e);
         }
-        return new JdResponse<>(JdResponse.CODE_ERROR,"生成箱号异常！");
+        return new JdResponse(JdResponse.CODE_ERROR,"生成箱号异常！");
     }
 
 
@@ -71,7 +71,7 @@ public class TpCollectPackageGatewayServiceImpl implements TpCollectPackageGatew
         } catch (Exception e) {
             log.error("TpCollectPackageGatewayService.updateBox error",e);
         }
-        return new JdResponse<>(JdResponse.CODE_ERROR,"更新箱号异常！");
+        return new JdResponse(JdResponse.CODE_ERROR,"更新箱号异常！");
     }
 
     private void checkUpdateBoxReq(UpdateBoxReq request) {
