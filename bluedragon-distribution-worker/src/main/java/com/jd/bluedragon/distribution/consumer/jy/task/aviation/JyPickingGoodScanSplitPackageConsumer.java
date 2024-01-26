@@ -11,6 +11,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +74,9 @@ public class JyPickingGoodScanSplitPackageConsumer extends MessageBaseConsumer {
             throw new JyBizException(String.format("提货扫描record明细消费获取锁失败，businessId=%s", mqBody.getBusinessId()));
         }
         try{
+            CallerInfo info = Profiler.registerInfo("DMSWORKER.JyPickingGoodScanSplitPackageConsumer.deal", Constants.UMP_APP_NAME_DMSWEB,false, true);
             jyPickingSendRecordService.pickingRecordSave(mqBody);
+            Profiler.registerInfoEnd(info);
         }catch (Exception ex) {
             log.error("提货扫描拆分为包裹维度数据异步消费异常，errMsg={}, mqBody={}", ex.getMessage(), JsonHelper.toJson(mqBody), ex);
             throw new JyBizException(String.format("提货扫描拆分为包裹维度数据异步消费异常,businessId：%s", mqBody.getBusinessId()));

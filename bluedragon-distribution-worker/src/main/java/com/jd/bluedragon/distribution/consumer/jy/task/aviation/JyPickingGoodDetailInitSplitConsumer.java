@@ -10,6 +10,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,13 +61,16 @@ public class JyPickingGoodDetailInitSplitConsumer extends MessageBaseConsumer {
             return;
         }
         logInfo("航空提货待提明细初始化拆分后按包裹维度消费开始，businessId={}, 内容{}", message.getBusinessId(), message.getText());
+        CallerInfo info = Profiler.registerInfo("DMSWORKER.JyPickingGoodDetailInitSplitConsumer.consume", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try{
             jyPickingSendRecordService.initOrUpdateNeedScanDetail(mqBody);
             logInfo("航空提货待提明细初始化拆分后按包裹维度消费结束，businessId={}，任务BizId={}", message.getBusinessId(), mqBody.getBizId());
         }catch (Exception ex) {
+            Profiler.functionError(info);
             log.error("航空提货待提明细初始化拆分后按包裹维度消费异常,businessId={},mqBody={}", message.getBusinessId(), message.getText(), ex);
             throw new JyBizException(String.format("航空提货待提明细初始化拆分后按包裹维度消费异常,businessId：%s", message.getBusinessId()));
         }
+        Profiler.registerInfoEnd(info);
 
     }
 

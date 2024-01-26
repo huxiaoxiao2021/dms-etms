@@ -11,10 +11,19 @@ import java.io.Serializable;
 public class CalculateWaitPickingItemNumDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    public static final String CODE_TYPE_BATCH_CODE = "batch_code";
+    public static final String CODE_TYPE_PACKAGE_CODE = "package_code";
+    public static final String CODE_TYPE_BOX_CODE = "box_code";
+
     private String bizId;
     private Long pickingSiteId;
     private Long nextSiteId;
-    private String batchCode;
+    private String code;
+    /**
+     * code分两个类型，一种按批次处理【提货任务统计】，一种按包裹处理【发货统计】（发货统计涉及查流向，按批次处理是存在性能问题）
+     */
+    private String codeType;
+
     private Integer waitPickingItemNum;
     /**
      * false 计算bizId维度agg
@@ -50,12 +59,20 @@ public class CalculateWaitPickingItemNumDto implements Serializable {
         this.nextSiteId = nextSiteId;
     }
 
-    public String getBatchCode() {
-        return batchCode;
+    public String getCode() {
+        return code;
     }
 
-    public void setBatchCode(String batchCode) {
-        this.batchCode = batchCode;
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getCodeType() {
+        return codeType;
+    }
+
+    public void setCodeType(String codeType) {
+        this.codeType = codeType;
     }
 
     public Integer getWaitPickingItemNum() {

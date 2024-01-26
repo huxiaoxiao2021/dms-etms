@@ -114,6 +114,8 @@ public class JyBizTaskPickingGoodTransactionManager {
     }
 
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskPickingGoodTransactionManager.batchInsertPickingGoodTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public void batchInsertPickingGoodTask(List<JyBizTaskPickingGoodEntity> taskEntityList, List<JyBizTaskPickingGoodSubsidiaryEntity> subsidiaryEntityList) {
 
         jyBizTaskPickingGoodService.batchInsertTask(taskEntityList);
@@ -144,6 +146,8 @@ public class JyBizTaskPickingGoodTransactionManager {
     }
 
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskPickingGoodTransactionManager.deleteByBusinessNumber",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public void deleteByBusinessNumber(PickingGoodTaskInitDto initDto) {
         List<JyBizTaskPickingGoodEntity> allTask = jyBizTaskPickingGoodService.findAllTaskByBusinessNumber(initDto.getBusinessNumber(), initDto.getTaskType());
         if(CollectionUtils.isEmpty(allTask)) {
@@ -182,6 +186,8 @@ public class JyBizTaskPickingGoodTransactionManager {
      * @param mqBody
      */
     @Transactional(value = "tm_jy_core_main", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskPickingGoodTransactionManager.updateAggScanStatistics",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public void updateAggScanStatistics(JyPickingGoodScanDto mqBody) {
         //任务维度统计计数agg
         if(!jyPickingTaskAggsCacheService.existCacheRealPickingScanStatistics(mqBody.getBarCode(), mqBody.getBizId(), mqBody.getPickingSiteId(), null)) {
@@ -207,6 +213,8 @@ public class JyBizTaskPickingGoodTransactionManager {
      * @param mqBody
      */
     @Transactional(value = "tm_jy_core_main", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskPickingGoodTransactionManager.saveAggWaitScanItem",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public void saveAggWaitScanItem(CalculateWaitPickingItemNumDto mqBody) {
         if(!Boolean.TRUE.equals(mqBody.getCalculateNextSiteAggFlag())) {
             //bizId维度待扫字段更新

@@ -73,24 +73,24 @@ public class JyPickingGoodWaitScanItemNumUpdateConsumer extends MessageBaseConsu
             return;
         }
         logInfo("航空提货待提明细件数消费开始，businessId={}, 内容{}", message.getBusinessId(), message.getText());
-        if(!lock(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId())) {
+        if(!lock(mqBody.getBizId(), mqBody.getCode(), mqBody.getNextSiteId())) {
             logWarn("提货初始化待提件数没有获取到锁，重试，msg={}", message.getText());
             throw new JyBizException(String.format("提货初始化待提件数没有获取到锁,businessId：%s", message.getBusinessId()));
         }
         try{
-            if(this.existCache(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId())) {
+            if(this.existCache(mqBody.getBizId(), mqBody.getCode(), mqBody.getNextSiteId())) {
                 return ;
             }
             jyBizTaskPickingGoodTransactionManager.saveAggWaitScanItem(mqBody);
             logInfo("航空提货待提明细件数消费结束，businessId={}", message.getBusinessId());
 
             //avoid repeat consume， must save cache before return
-            this.saveCache(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId());
+            this.saveCache(mqBody.getBizId(), mqBody.getCode(), mqBody.getNextSiteId());
         }catch (Exception ex) {
             log.error("航空提货待提明细件数消费异常,businessId={},errMsg={},mqBody={}", message.getBusinessId(), ex.getMessage(), message.getText(), ex);
             throw new JyBizException(String.format("航空提货待提明细件数消费异常,businessId：%s", message.getBusinessId()));
         }finally {
-            unlock(mqBody.getBizId(), mqBody.getBatchCode(), mqBody.getNextSiteId());
+            unlock(mqBody.getBizId(), mqBody.getCode(), mqBody.getNextSiteId());
         }
 
     }

@@ -16,6 +16,8 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +95,9 @@ public class TmsAviationPickingGoodConsumer extends MessageBaseConsumer {
                 return;
             }
             PickingGoodTaskInitDto initDto = this.convertPickingGoodTaskInitDto(mqBody);
+            CallerInfo info = Profiler.registerInfo("DMSWORKER.JyPickingGoodScanSplitPackageConsumer.initTaskTemplate", Constants.UMP_APP_NAME_DMSWEB,false, true);
             aviationPickingGoodTask.initTaskTemplate(initDto);
+            Profiler.registerInfoEnd(info);
 
             //avoid repeat consume， must save cache before return
             this.saveCachePickingGoodTplBillCode(mqBody.getTplBillCode(), mqBody.getOperateTime().getTime());

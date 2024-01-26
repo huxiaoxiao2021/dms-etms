@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.PickingGoodsReq;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingGoodsRes;
 import com.jd.bluedragon.distribution.jy.constants.BarCodeFetchPickingTaskRuleEnum;
@@ -16,6 +18,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -93,6 +97,8 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
      * 4、流向内实发发货的多发货的箱件数
      */
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyPickingTaskAggsServiceImpl.saveCacheAggStatistics",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public void saveCacheAggStatistics(PickingGoodsReq request, PickingGoodsRes resData, JyBizTaskPickingGoodEntity entity) {
         String bizId = entity.getBizId();
         Long siteId = (long)request.getCurrentOperate().getSiteCode();
@@ -202,9 +208,11 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
 //    }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyPickingTaskAggsServiceImpl.waitPickingInitTotalNum",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public List<PickingSendGoodAggsDto> waitPickingInitTotalNum(List<String> bizIdList, Long siteId, Long sendNextSiteId) {
         List<PickingSendGoodAggsDto> res = new ArrayList<>();
-        List<String> nullCacheBizId = new ArrayList<>();
+        List<String> nullCacheBizIdList = new ArrayList<>();
 
         bizIdList.forEach(bizId -> {
             Integer num = null;
@@ -219,19 +227,19 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
                 aggs.setWaitSendTotalNum(num);
                 res.add(aggs);
             }else {
-                nullCacheBizId.add(bizId);
+                nullCacheBizIdList.add(bizId);
             }
         });
-        if(!CollectionUtils.isEmpty(nullCacheBizId)) {
+        if(!CollectionUtils.isEmpty(nullCacheBizIdList)) {
             //剔除自建任务ID,自建任务没有待扫
-            List<String> manualCreateTaskBizIds = jyBizTaskPickingGoodService.findManualCreateTaskBizIds(nullCacheBizId);
+            List<String> manualCreateTaskBizIds = jyBizTaskPickingGoodService.findManualCreateTaskBizIds(nullCacheBizIdList);
             if(!CollectionUtils.isEmpty(manualCreateTaskBizIds)) {
-                nullCacheBizId.removeAll(manualCreateTaskBizIds);
+                nullCacheBizIdList.removeAll(manualCreateTaskBizIds);
             }
         }
-        if(!CollectionUtils.isEmpty(nullCacheBizId)) {
+        if(!CollectionUtils.isEmpty(nullCacheBizIdList)) {
             if(Objects.isNull(sendNextSiteId)) {
-                List<JyPickingTaskAggsEntity> pickingAggsEntityList = jyPickingTaskAggsDao.findByBizIdList(nullCacheBizId, siteId);
+                List<JyPickingTaskAggsEntity> pickingAggsEntityList = jyPickingTaskAggsDao.findByBizIdList(nullCacheBizIdList, siteId);
                 pickingAggsEntityList.forEach(entity -> {
                     PickingSendGoodAggsDto aggs = new PickingSendGoodAggsDto();
                     aggs.setBizId(entity.getBizId());
@@ -241,7 +249,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
                     logInfo("任务维度待提件数agg查询同步到redis计数加工：bizId={},num={}", entity.getBizId(), entity.getWaitScanTotalCount());
                 });
             }else {
-                List<JyPickingTaskSendAggsEntity> sendAggsEntityList = jyPickingTaskSendAggsDao.findByBizIdList(nullCacheBizId, siteId, sendNextSiteId);
+                List<JyPickingTaskSendAggsEntity> sendAggsEntityList = jyPickingTaskSendAggsDao.findByBizIdList(nullCacheBizIdList, siteId, sendNextSiteId);
                 sendAggsEntityList.forEach(entity -> {
                     PickingSendGoodAggsDto aggs = new PickingSendGoodAggsDto();
                     aggs.setBizId(entity.getBizId());
@@ -273,6 +281,8 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyPickingTaskAggsServiceImpl.findPickingAgg",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public List<PickingSendGoodAggsDto> findPickingAgg(List<String> bizIdList, Long siteId, Long sendNextSiteId) {
         List<PickingSendGoodAggsDto> res = this.waitPickingInitTotalNum(bizIdList, siteId, sendNextSiteId);
         res.forEach(pickingSendDto -> {
@@ -329,7 +339,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             jyPickingTaskAggsDao.updatePickingAggWaitScanItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(), totalNum);
         }
         cacheService.saveCacheInitWaitPickingTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(), totalNum);
-        logInfo("任务维度待提件数初始化到redis计数加工：bizId={},num={}, 批次号={}", paramDto.getBizId(), totalNum, paramDto.getBatchCode());
+        logInfo("任务维度待提件数初始化到redis计数加工：bizId={},num={}, 批次号={}", paramDto.getBizId(), totalNum, paramDto.getCode());
 
 
     }
@@ -350,7 +360,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             jyPickingTaskSendAggsDao.updatePickingAggWaitScanItemNum(paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), paramDto.getBizId(), totalNum);
         }
         cacheService.saveCacheInitWaitSendTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), totalNum);
-        logInfo("流向维度待提件数初始化到redis计数加工：bizId={}, nextSiteId={}, num={}, 批次号={}", paramDto.getBizId(), paramDto.getNextSiteId(), totalNum, paramDto.getBatchCode());
+        logInfo("流向维度待提件数初始化到redis计数加工：bizId={}, nextSiteId={}, num={}, 批次号={}", paramDto.getBizId(), paramDto.getNextSiteId(), totalNum, paramDto.getCode());
 
     }
 

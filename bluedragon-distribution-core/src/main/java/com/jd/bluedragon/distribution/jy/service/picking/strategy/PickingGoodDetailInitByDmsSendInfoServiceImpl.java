@@ -79,8 +79,10 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
         List<SendDetail> sendDetailList = sendDatailReadDao.querySendDSimpleInfoBySendCode(initDto.getBatchCode(), initDto.getStartSiteId().intValue());
 
         this.sendInitDetailPackageMq(initDto, sendDetailList);
-
+        //计算待提agg中待提件数
         this.calculateWaitPickingItemNum(initDto, sendDetailList);
+        //计算待发agg中待发件数 todo 当批次内大量运单时，遍历查询路由下一跳有性能问题， 现在发货统计在下游包裹维度做计数处理
+//        this.calculateWaitSendItemNum(initDto, sendDetailList);
 
         return true;
     }
@@ -109,7 +111,27 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
     }
 
     private void calculateWaitPickingItemNum(PickingGoodTaskDetailInitDto initDto, List<SendDetail> sendDetailList) {
-        CallerInfo callerInfo = Profiler.registerInfo("DMS.PickingGoodDetailInitByDmsSendInfoServiceImpl.calculateWaitPickingItemNum", Constants.UMP_APP_NAME_DMSWEB,false,true);
+        Map<String, List<SendDetail>> map = sendDetailList.stream().collect(Collectors.groupingBy(SendDetail::getBoxCode));
+
+        List<Message> messageList = new ArrayList<>();
+        CalculateWaitPickingItemNumDto bizIdItemNumDto = new CalculateWaitPickingItemNumDto();
+        bizIdItemNumDto.setBizId(initDto.getBizId());
+        bizIdItemNumDto.setCode(initDto.getBatchCode());
+        bizIdItemNumDto.setCodeType(CalculateWaitPickingItemNumDto.CODE_TYPE_BATCH_CODE);
+        bizIdItemNumDto.setPickingSiteId(initDto.getPickingSiteId());
+        bizIdItemNumDto.setWaitPickingItemNum(map.size());
+        bizIdItemNumDto.setCalculateNextSiteAggFlag(false);
+        bizIdItemNumDto.setOperateTime(initDto.getOperateTime());
+        bizIdItemNumDto.setSysTime(System.currentTimeMillis());
+        String msgText1 = JsonUtils.toJSONString(bizIdItemNumDto);
+        logInfo("dmsToDms计算bizId维度待提总件数发送消息，businessId={},msg={}", initDto.getBizId(), msgText1);
+        messageList.add(new Message(jyPickingGoodSaveWaitScanItemNumProducer.getTopic(), msgText1, initDto.getBizId()));
+        jyPickingGoodSaveWaitScanItemNumProducer.batchSendOnFailPersistent(messageList);
+    }
+
+
+    private void calculateWaitSendItemNum(PickingGoodTaskDetailInitDto initDto, List<SendDetail> sendDetailList) {
+        CallerInfo callerInfo = Profiler.registerInfo("DMS.PickingGoodDetailInitByDmsSendInfoServiceImpl.calculateWaitSendItemNum", Constants.UMP_APP_NAME_DMSWEB,false,true);
 
         Map<String, List<SendDetail>> map = sendDetailList.stream().collect(Collectors.groupingBy(SendDetail::getBoxCode));
 
@@ -151,7 +173,7 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
                         routeNextCountMap.put(nextSiteId, count + 1);
                     }
                 }else {
-                    logInfo("dmsToDms提货待提件数计算，【bizId={}|batchCode={}】根据箱号{}未查到路由下一跳，查询流向依赖单号【{}】，不做流向维度agg统计", initDto.getBizId(), initDto.getBatchCode(), barCode, JsonUtils.toJSONString(waybillSet));
+                    logInfo("dmsToDms提货待发件数计算，【bizId={}|batchCode={}】根据箱号{}未查到路由下一跳，查询流向依赖单号【{}】，不做流向维度agg统计", initDto.getBizId(), initDto.getBatchCode(), barCode, JsonUtils.toJSONString(waybillSet));
                 }
             }else if(WaybillUtil.isPackageCode(barCode)){
                 String waybillCode = WaybillUtil.getWaybillCode(barCode);
@@ -171,30 +193,20 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
                         routeNextCountMap.put(nextSiteId, count + 1);
                     }
                 }else {
-                    logInfo("dmsToDms提货待提件数计算，【bizId={}|batchCode={}】根据包裹号{}未查到路由下一跳，不做流向维度agg统计", initDto.getBizId(), initDto.getBatchCode(), barCode);
+                    logInfo("dmsToDms提货待发件数计算，【bizId={}|batchCode={}】根据包裹号{}未查到路由下一跳，不做流向维度agg统计", initDto.getBizId(), initDto.getBatchCode(), barCode);
                 }
             }else {
-                logWarn("dmsToDms提货待提件数计算，barCode={}非箱号、非包裹号， 暂不处理， initDto={}", barCode, JsonUtils.toJSONString(initDto));
+                logWarn("dmsToDms提货待发件数计算，barCode={}非箱号、非包裹号， 暂不处理， initDto={}", barCode, JsonUtils.toJSONString(initDto));
             }
         });
 
         List<Message> messageList = new ArrayList<>();
-        CalculateWaitPickingItemNumDto bizIdItemNumDto = new CalculateWaitPickingItemNumDto();
-        bizIdItemNumDto.setBizId(initDto.getBizId());
-        bizIdItemNumDto.setBatchCode(initDto.getBatchCode());
-        bizIdItemNumDto.setPickingSiteId(initDto.getPickingSiteId());
-        bizIdItemNumDto.setWaitPickingItemNum(map.size());
-        bizIdItemNumDto.setCalculateNextSiteAggFlag(false);
-        bizIdItemNumDto.setOperateTime(initDto.getOperateTime());
-        bizIdItemNumDto.setSysTime(System.currentTimeMillis());
-        String msgText1 = JsonUtils.toJSONString(bizIdItemNumDto);
-        logInfo("dmsToDms计算bizId维度待提总件数发送消息，businessId={},msg={}", initDto.getBizId(), msgText1);
-        messageList.add(new Message(jyPickingGoodSaveWaitScanItemNumProducer.getTopic(), msgText1, initDto.getBizId()));
 
         routeNextCountMap.forEach((nextSiteId, waitPickingItemNum) -> {
             CalculateWaitPickingItemNumDto nextItemNumDto = new CalculateWaitPickingItemNumDto();
             nextItemNumDto.setBizId(initDto.getBizId());
-            nextItemNumDto.setBatchCode(initDto.getBatchCode());
+            nextItemNumDto.setCode(initDto.getBatchCode());
+            nextItemNumDto.setCodeType(CalculateWaitPickingItemNumDto.CODE_TYPE_BATCH_CODE);
             nextItemNumDto.setPickingSiteId(initDto.getPickingSiteId());
             nextItemNumDto.setNextSiteId(nextSiteId.longValue());
             nextItemNumDto.setWaitPickingItemNum(waitPickingItemNum);
@@ -203,7 +215,7 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
             nextItemNumDto.setSysTime(System.currentTimeMillis());
             String msgText = JsonUtils.toJSONString(nextItemNumDto);
             String businessId = String.format("%s|%s", initDto.getBizId(), nextSiteId);
-            logInfo("dmsToDms计算bizId流向维度待提总件数发送消息，businessId={},msg={}", businessId, msgText);
+            logInfo("dmsToDms计算bizId流向维度待发总件数发送消息，businessId={},msg={}", businessId, msgText);
             messageList.add(new Message(jyPickingGoodSaveWaitScanItemNumProducer.getTopic(), msgText, businessId));
         });
         jyPickingGoodSaveWaitScanItemNumProducer.batchSendOnFailPersistent(messageList);
