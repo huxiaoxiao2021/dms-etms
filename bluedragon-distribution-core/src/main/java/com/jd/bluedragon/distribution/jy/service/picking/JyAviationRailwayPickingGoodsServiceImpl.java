@@ -1115,6 +1115,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         List<String> bizIdList;
         do {
             queryDto.setOffset((pageNumber - 1) * queryDto.getLimit());
+            logInfo("finishTaskWhenWaitScanEqZero {}", JsonHelper.toJson(queryDto));
             bizIdList = jyPickingTaskAggsService.pageRecentWaitScanEqZero(queryDto);
             if (CollectionUtils.isEmpty(bizIdList)) {
                 return;
@@ -1144,6 +1145,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         List<String> bizIdList;
         do {
             queryDto.setOffset((pageNumber - 1) * queryDto.getLimit());
+            logInfo("finishTaskWhenTimeExceed {}", JsonHelper.toJson(queryDto));
             bizIdList = jyBizTaskPickingGoodService.pageRecentCreatedManualBizId(queryDto);
             if (CollectionUtils.isEmpty(bizIdList)) {
                 return;
