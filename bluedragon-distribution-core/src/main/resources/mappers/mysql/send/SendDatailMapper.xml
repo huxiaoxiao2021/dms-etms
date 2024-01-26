@@ -1127,9 +1127,7 @@
 		WHERE yn = 1
 		AND sendd_status = 1
 		AND is_cancel = 0
-		<if test="createSiteCode != null">
-			AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		</if>
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		<if test="packageBarcode != null">
 			AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
 		</if>
