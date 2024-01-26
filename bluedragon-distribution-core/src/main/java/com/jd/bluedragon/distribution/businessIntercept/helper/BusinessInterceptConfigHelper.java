@@ -29,7 +29,7 @@ public class BusinessInterceptConfigHelper {
     @Value("${businessIntercept.operate.node.measureWeight}")
     private Integer interceptOperateNodeMeasureWeight;
     // 拦截报表操作节点【组板】类型
-    @Value("businessIntercept.operate.node.combineBoard")
+    @Value("${businessIntercept.operate.node.combineBoard}")
     private Integer interceptOperateNodeCombineBoard;
 
     // 拦截报表设备【PDA】类型
