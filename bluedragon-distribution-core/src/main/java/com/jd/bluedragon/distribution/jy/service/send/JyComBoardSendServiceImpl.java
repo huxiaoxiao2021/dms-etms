@@ -88,6 +88,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.transboard.api.service.GroupBoardService;
@@ -1956,6 +1957,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
       pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
       pdaOperateRequest.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
+      pdaOperateRequest.setOperateNode(OperateNodeConstants.COMBINE_BOARD);
       final CurrentOperate currentOperate = request.getCurrentOperate();
       final com.jd.bluedragon.common.dto.base.request.OperatorData operatorData = currentOperate.getOperatorData();
       if (operatorData != null) {
