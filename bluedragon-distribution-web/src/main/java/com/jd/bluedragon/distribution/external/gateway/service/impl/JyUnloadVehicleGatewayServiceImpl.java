@@ -174,7 +174,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             // 失败直接返回
             return response;
         }
-        final JdVerifyResponse<UnLoadScanResponse> scanResponse = unloadVehicleService.unloadScan(request);
+        final JdVerifyResponse<UnLoadScanResponse> scanResponse = unloadVehicleService.unloadScan(request,Boolean.FALSE);
 
         if (CollectionUtils.isNotEmpty(scanResponse.getMsgBoxes())) {
             if(response.getMsgBoxes() == null){
@@ -220,7 +220,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             return response;
         }
 
-        final JdVerifyResponse<UnLoadScanResponse> scanResponse = unloadVehicleService.unloadScan(request);
+        final JdVerifyResponse<UnLoadScanResponse> scanResponse = unloadVehicleService.unloadScan(request,Boolean.TRUE);
         if (CollectionUtils.isNotEmpty(scanResponse.getMsgBoxes())) {
             if(response.getMsgBoxes() == null){
                 response.setMsgBoxes(new ArrayList<>());

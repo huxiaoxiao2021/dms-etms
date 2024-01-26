@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.jsf.tenant.impl;
 
 import com.jd.bluedragon.core.jsf.tenant.TenantManager;
 import com.jdl.basic.api.domain.tenant.JyConfigDictTenant;
+import com.jdl.basic.api.enums.TenantEnum;
 import com.jdl.basic.api.service.tenant.JyConfigDictTenantJsfService;
 import com.jdl.basic.common.utils.ObjectHelper;
 import com.jdl.basic.common.utils.Result;
@@ -45,7 +46,9 @@ public class TenantManagerImpl implements TenantManager {
         }catch (Exception e){
             log.error("根据场地:{}获取租户信息异常",siteCode,e);
         }
-        return null;
+        JyConfigDictTenant defaultResult = new JyConfigDictTenant();
+        defaultResult.setBelongTenantCode(TenantEnum.TENANT_JY.getCode());
+        return defaultResult;
     }
 
     /**

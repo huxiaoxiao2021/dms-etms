@@ -29,7 +29,7 @@ public interface IJyUnloadVehicleService {
      * @param request
      * @return
      */
-    JdVerifyResponse<UnLoadScanResponse> unloadScan(UnloadScanRequest request);
+    JdVerifyResponse<UnLoadScanResponse> unloadScan(UnloadScanRequest request,boolean isNewApp);
 
     /**
      * 查询卸车进度
