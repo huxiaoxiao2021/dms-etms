@@ -1119,12 +1119,14 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             if (CollectionUtils.isEmpty(bizIdList)) {
                 return;
             }
+            Date now = new Date();
             JyPickingTaskBatchUpdateDto updateDto = new JyPickingTaskBatchUpdateDto();
             updateDto.setBizIdList(bizIdList);
             updateDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
             updateDto.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
             updateDto.setCompleteNode(PickingCompleteNodeEnum.WAIT_SCAN_0.getCode());
-            updateDto.setUpdateTime(new Date());
+            updateDto.setPickingCompleteTime(now);
+            updateDto.setUpdateTime(now);
             jyBizTaskPickingGoodService.batchFinishPickingTaskByBizId(updateDto);
             pageNumber++;
         } while (CollectionUtils.isNotEmpty(bizIdList));
