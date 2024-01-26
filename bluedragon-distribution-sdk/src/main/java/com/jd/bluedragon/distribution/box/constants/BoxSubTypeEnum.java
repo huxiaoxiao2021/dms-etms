@@ -22,6 +22,9 @@ public enum BoxSubTypeEnum {
     TYPE_TA("TAPT", BoxTypeV2Enum.TYPE_TA.getCode(), "特安"),
     TYPE_LL("LLPT", BoxTypeV2Enum.TYPE_LL.getCode(), "笼车/围板箱"),
     TYPE_BX("BXPT", BoxTypeV2Enum.TYPE_BX.getCode(), "正向虚拟"),
+
+    TYPE_WM("BWPT", BoxTypeV2Enum.TYPE_WM.getCode(), "仓储"),
+
     ;
 
     private String code;

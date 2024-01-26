@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
 import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.dms.java.utils.sdk.base.Result;
 
@@ -85,6 +86,21 @@ public interface BoxService {
      * @return
      */
     BoxResponse commonGenBox(BoxRequest request, String systemType, boolean isNew);
+
+
+    /**
+     * 生成没有 始发目的场地信息的箱号
+     * @param request
+     * @return
+     */
+    BoxResponse genBoxWithoutSiteInfo(BoxRequest request);
+
+    /**
+     * 变更箱号信息
+     * @param request
+     * @return
+     */
+    BoxResponse updateBox(UpdateBoxReq request);
 
     void computeRouter(List<Map.Entry<Integer, String>> router);
 
