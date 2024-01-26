@@ -913,6 +913,14 @@
 			<include refid="Base_Column_List"/>
 		from
 			(select t.* from user_sign_record t
+			<choose>
+				<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+					force index(`idx_user_code`)
+				</when>
+				<otherwise>
+					force index(`idx_user_code_index`)
+				</otherwise>
+			</choose>
 			where t.yn = 1
 			<choose>
 				<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
@@ -941,6 +949,14 @@
 		<include refid="Base_Column_List"/>
 		from
 		(select t.* from user_sign_record t
+		<choose>
+			<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+				force index(`idx_user_code`)
+			</when>
+			<otherwise>
+				force index(`idx_user_code_index`)
+			</otherwise>
+		</choose>
 		where t.yn = 1
 		<choose>
 			<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
