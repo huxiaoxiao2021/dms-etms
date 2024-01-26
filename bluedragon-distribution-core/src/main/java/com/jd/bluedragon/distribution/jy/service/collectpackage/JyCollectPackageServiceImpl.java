@@ -65,6 +65,7 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
@@ -606,6 +607,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
         pdaOperateRequest.setInterceptChainBitCode(dmsConfigManager.getPropertyConfig().getJyCollectPackageInterceptBitCode());
+        pdaOperateRequest.setOperateNode(OperateNodeConstants.SORTING);
         pdaOperateRequest.setJyCollectPackageFlag(true);
         final OperatorData operatorData = currentOperate.getOperatorData();
         if (operatorData != null) {
