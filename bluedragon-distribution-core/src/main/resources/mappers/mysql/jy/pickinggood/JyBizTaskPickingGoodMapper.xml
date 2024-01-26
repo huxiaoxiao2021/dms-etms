@@ -487,6 +487,7 @@
             update_time = #{updateTime}
     where   yn = 1
     and     task_type = #{taskType}
+    and     status = 1
     and     biz_id in
     <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
       #{item}

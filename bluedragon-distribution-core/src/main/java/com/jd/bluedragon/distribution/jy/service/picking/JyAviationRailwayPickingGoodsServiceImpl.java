@@ -1111,7 +1111,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         JyPickingTaskAggQueryDto queryDto = new JyPickingTaskAggQueryDto();
         int pageNumber = 1;
         queryDto.setLimit(1000);
-        queryDto.setStartTime(endTime);
+        queryDto.setEndTime(endTime);
         List<String> bizIdList;
         do {
             queryDto.setOffset((pageNumber - 1) * queryDto.getLimit());
