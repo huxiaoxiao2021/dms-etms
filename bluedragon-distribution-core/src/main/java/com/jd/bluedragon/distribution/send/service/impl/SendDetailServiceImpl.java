@@ -144,4 +144,9 @@ public class SendDetailServiceImpl implements SendDetailService {
         }
         return sendDatailDao.queryOneSendDatailBySendM(querySendDatail);
     }
+
+    @Override
+    public SendDetail findOneByParams(SendDetail param) {
+        return sendDatailDao.findOneByParams(param);
+    }
 }

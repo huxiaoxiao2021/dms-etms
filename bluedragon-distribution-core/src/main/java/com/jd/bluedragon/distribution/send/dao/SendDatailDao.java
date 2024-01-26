@@ -529,4 +529,8 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public List<SendDetail> querySendDatailForUpdate(SendDetail param) {
     	return this.getSqlSession().selectList(namespace + ".querySendDatailForUpdate", param);
     }
+
+    public SendDetail findOneByParams(SendDetail param) {
+        return this.getSqlSession().selectOne(namespace + ".findOneByParams", param);
+    }
 }
