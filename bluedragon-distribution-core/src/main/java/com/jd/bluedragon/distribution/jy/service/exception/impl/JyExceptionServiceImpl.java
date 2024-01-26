@@ -2090,7 +2090,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private void assembleJyBizExceptionTask(JyBizTaskExceptionEntity taskEntity, BusinessInterceptReport businessInterceptReport, WorkStationGrid workStationGrid){
         taskEntity.setType(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode());
         taskEntity.setSource(JyExpSourceEnum.OPERATE_INTERCEPT.getCode());
-        taskEntity.setBarCode(businessInterceptReport.getBarCode());
+        taskEntity.setBarCode(businessInterceptReport.getPackageCode());
         taskEntity.setTags(JyBizTaskExceptionTagEnum.INTERCEPT.getCode());
         // taskEntity.setSiteCode(businessInterceptReport.getSiteCode().longValue());
         // taskEntity.setSiteName(businessInterceptReport.getSiteName());
