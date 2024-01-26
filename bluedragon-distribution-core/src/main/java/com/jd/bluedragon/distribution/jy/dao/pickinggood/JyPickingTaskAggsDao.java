@@ -4,7 +4,6 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingTaskAggQueryDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsCondition;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingTaskAggsEntity;
-import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
@@ -20,8 +19,8 @@ public class JyPickingTaskAggsDao extends BaseDao<JyPickingTaskAggsEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".findByBizIdsAndCondition", condition);
     }
 
-    public List<String> pageRecentWaitScanEqZero(JyPickingTaskAggQueryDto queryDto) {
-        return this.getSqlSession().selectList(NAMESPACE + ".pageRecentWaitScanEqZero", queryDto);
+    public List<String> filterRecentWaitScanEqZeroBiz(JyPickingTaskAggQueryDto queryDto) {
+        return this.getSqlSession().selectList(NAMESPACE + ".filterRecentWaitScanEqZeroBiz", queryDto);
     }
     public int insertSelective(JyPickingTaskAggsEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);

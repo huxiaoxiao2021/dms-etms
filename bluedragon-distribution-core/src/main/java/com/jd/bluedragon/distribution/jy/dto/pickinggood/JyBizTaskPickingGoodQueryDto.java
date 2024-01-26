@@ -14,6 +14,10 @@ public class JyBizTaskPickingGoodQueryDto implements Serializable {
      */
     private Date endTime;
     /**
+     * 提货任务开始时间
+     */
+    private Date pickingStartTime;
+    /**
      * 任务状态
      */
     private Integer status;
@@ -33,6 +37,14 @@ public class JyBizTaskPickingGoodQueryDto implements Serializable {
 
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
+    }
+
+    public Date getPickingStartTime() {
+        return pickingStartTime;
+    }
+
+    public void setPickingStartTime(Date pickingStartTime) {
+        this.pickingStartTime = pickingStartTime;
     }
 
     public Date getEndTime() {

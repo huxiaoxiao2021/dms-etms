@@ -54,7 +54,7 @@ public interface JyPickingTaskAggsService {
      */
     List<PickingSendGoodAggsDto> waitPickingInitTotalNum(List<String> bizIdList, Long siteId, Long sendNextSiteId);
 
-    List<String> pageRecentWaitScanEqZero(JyPickingTaskAggQueryDto queryDto);
+    List<String> filterRecentWaitScanEqZeroBiz(JyPickingTaskAggQueryDto queryDto);
 
     /**
      * 查询agg数据

@@ -84,4 +84,8 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
     public AirRailTaskCountDto countStatusByCondition(AirRailTaskCountQueryDto countQueryDto) {
         return this.getSqlSession().selectOne(NAMESPACE + ".countStatusByCondition", countQueryDto);
     }
+
+    public List<String> pageRecentCreatedNoManualPickingBiz(JyBizTaskPickingGoodQueryDto queryDto) {
+        return this.getSqlSession().selectList(NAMESPACE + ".pageRecentCreatedNoManualPickingBiz", queryDto);
+    }
 }

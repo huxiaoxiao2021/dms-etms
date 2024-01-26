@@ -559,4 +559,16 @@
     </if>
   </select>
 
+  <select id="pageRecentCreatedNoManualPickingBiz" resultType="java.lang.String">
+    select  biz_id
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     create_time <![CDATA[ >= ]]> #{startTime}
+    and     picking_start_time <![CDATA[ >= ]]> #{pickingStartTime}
+    and     task_type = #{taskType}
+    and     status = #{status}
+    and     manual_created_flag = 0
+    limit #{offset}, #{limit}
+  </select>
+
 </mapper>

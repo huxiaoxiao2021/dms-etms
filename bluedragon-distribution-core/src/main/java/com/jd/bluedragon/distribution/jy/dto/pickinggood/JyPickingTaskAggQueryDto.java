@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dto.pickinggood;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class JyPickingTaskAggQueryDto implements Serializable {
     private static final long serialVersionUID = -8416618108340414789L;
@@ -24,6 +25,8 @@ public class JyPickingTaskAggQueryDto implements Serializable {
      * 任务类型
      */
     private Integer taskType;
+
+    private List<String> bizIdList;
 
     private Integer limit = 200;
 
@@ -59,6 +62,14 @@ public class JyPickingTaskAggQueryDto implements Serializable {
 
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
+    }
+
+    public List<String> getBizIdList() {
+        return bizIdList;
+    }
+
+    public void setBizIdList(List<String> bizIdList) {
+        this.bizIdList = bizIdList;
     }
 
     public Integer getLimit() {

@@ -142,4 +142,6 @@ public interface JyBizTaskPickingGoodService {
     List<JyBizTaskPickingGoodSubsidiaryEntity> listBatchInfoByBizId(List<String> bizIdList);
 
     List<String> listAllBizByPickingSiteId(JyPickingTaskBatchQueryDto queryDto);
+
+    List<String> pageRecentCreatedNoManualPickingBiz(JyBizTaskPickingGoodQueryDto queryDto);
 }

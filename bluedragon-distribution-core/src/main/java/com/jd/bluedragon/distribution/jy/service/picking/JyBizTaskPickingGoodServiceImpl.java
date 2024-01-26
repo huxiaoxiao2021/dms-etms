@@ -224,4 +224,9 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     public List<String> listAllBizByPickingSiteId(JyPickingTaskBatchQueryDto queryDto) {
         return jyBizTaskPickingGoodDao.listAllBizByPickingSiteId(queryDto);
     }
+
+    @Override
+    public List<String> pageRecentCreatedNoManualPickingBiz(JyBizTaskPickingGoodQueryDto queryDto) {
+        return jyBizTaskPickingGoodDao.pageRecentCreatedNoManualPickingBiz(queryDto);
+    }
 }

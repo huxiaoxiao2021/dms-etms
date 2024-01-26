@@ -1107,16 +1107,32 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
 
     @Override
     public void finishTaskWhenWaitScanEqZero() {
-        Date endTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getPropertyConfig().getPickingGoodTaskWaitScanEq0TimeRange());
-        JyPickingTaskAggQueryDto queryDto = new JyPickingTaskAggQueryDto();
+        Date startTime = getStartTime();
+        Date pickingStartTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getPropertyConfig().getPickingGoodTaskWaitScanEq0TimeRange());
+        JyBizTaskPickingGoodQueryDto pickingGoodQueryDto = new JyBizTaskPickingGoodQueryDto();
+        pickingGoodQueryDto.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+        pickingGoodQueryDto.setStatus(PickingGoodStatusEnum.PICKING.getCode());
+        // 兜底时间
+        pickingGoodQueryDto.setStartTime(startTime);
+        // 业务卡控时间
+        pickingGoodQueryDto.setPickingStartTime(pickingStartTime);
+        pickingGoodQueryDto.setLimit(1000);
+
         int pageNumber = 1;
-        queryDto.setLimit(1000);
-        queryDto.setEndTime(endTime);
         List<String> bizIdList;
         do {
-            queryDto.setOffset((pageNumber - 1) * queryDto.getLimit());
-            logInfo("finishTaskWhenWaitScanEqZero {}", JsonHelper.toJson(queryDto));
-            bizIdList = jyPickingTaskAggsService.pageRecentWaitScanEqZero(queryDto);
+            pickingGoodQueryDto.setOffset((pageNumber - 1) * pickingGoodQueryDto.getLimit());
+            logInfo("pageRecentCreatedNoManualPickingBiz req = {}", JsonHelper.toJson(pickingGoodQueryDto));
+            bizIdList = jyBizTaskPickingGoodService.pageRecentCreatedNoManualPickingBiz(pickingGoodQueryDto);
+            logInfo("pageRecentCreatedNoManualPickingBiz resp = {}", JsonHelper.toJson(bizIdList));
+            if (CollectionUtils.isEmpty(bizIdList)) {
+                return;
+            }
+            JyPickingTaskAggQueryDto aggQueryDto = new JyPickingTaskAggQueryDto();
+            aggQueryDto.setBizIdList(bizIdList);
+            bizIdList = jyPickingTaskAggsService.filterRecentWaitScanEqZeroBiz(aggQueryDto);
+            logInfo("filterRecentWaitScanEqZeroBiz resp = {}", JsonHelper.toJson(bizIdList));
+
             if (CollectionUtils.isEmpty(bizIdList)) {
                 return;
             }

@@ -268,8 +268,8 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     }
 
     @Override
-    public List<String> pageRecentWaitScanEqZero(JyPickingTaskAggQueryDto queryDto) {
-        return jyPickingTaskAggsDao.pageRecentWaitScanEqZero(queryDto);
+    public List<String> filterRecentWaitScanEqZeroBiz(JyPickingTaskAggQueryDto queryDto) {
+        return jyPickingTaskAggsDao.filterRecentWaitScanEqZeroBiz(queryDto);
     }
 
     @Override
