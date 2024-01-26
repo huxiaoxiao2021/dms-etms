@@ -385,6 +385,14 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             log.warn("pushMq2Block老单号:{}操作换单打印pushMq2Block查询运单信息为空!", oldWaybillCode);
             return;
         }
+        int operateSiteCode = request.getSiteCode();
+        Site operateSite = siteService.getOwnSite(operateSiteCode);
+        // 1.之前的4个条件:https://joyspace.jd.com/pages/xsUzdLGRpkxchsJVRtzy
+        // 2.后来新增的青龙业主号:https://joyspace.jd.com/pages/bGNJbraEvRr4S1Emr64O
+        // 以上2个条件是或的关系，但都需要满足 分拣、接货仓场地操作
+        if(!SiteHelper.isSortingCenter(operateSite) && !SiteHelper.isReceiveWms(operateSite)){
+            return;
+        }
         if(isSpecifyKa(oldWaybill) || isSendInterceptMq(request,oldWaybill)){
             if(log.isInfoEnabled()){
                 log.info("老单号:{}操作换单打印推送快速退款拦截消息!", oldWaybillCode);
@@ -407,11 +415,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         // 2、自营生鲜
         // 3、正向单预分拣站点是自营营业部
         // 4、生成的JDT新单号的预分拣站点类型为仓或备件库
-        int operateSiteCode = request.getSiteCode();
-        Site operateSite = siteService.getOwnSite(operateSiteCode);
-        if(!SiteHelper.isSortingCenter(operateSite) && !SiteHelper.isReceiveWms(operateSite)){
-            return false;
-        }
+
         if(oldWaybill == null || !BusinessUtil.isSelfFresh(oldWaybill.getSendPay())){
             return false;
         }
