@@ -18,7 +18,9 @@ public enum BoxTypeV2Enum {
     TYPE_TA("TA", "特安"),
     TYPE_LL("LL", "笼车/围板箱"),
     TYPE_BX("BX", "正向虚拟"),
+    TYPE_WM("BW", "仓储"),
     ;
+
 
     private String code;
 
