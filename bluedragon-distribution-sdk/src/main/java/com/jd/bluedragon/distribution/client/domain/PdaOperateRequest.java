@@ -209,10 +209,6 @@ public class PdaOperateRequest {
         this.onlineStatus = onlineStatus;
     }
 
-    public boolean isJyCollectPackageFlag() {
-        return jyCollectPackageFlag;
-    }
-
     public String getPositionCode() {
         return positionCode;
     }

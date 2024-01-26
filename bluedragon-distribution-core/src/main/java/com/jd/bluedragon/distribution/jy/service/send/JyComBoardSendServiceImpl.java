@@ -1963,7 +1963,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
         pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
       }
-      BoardCombinationJsfResponse interceptResult = sortingCheckService.virtualBoardCombinationCheck(pdaOperateRequest);
+      BoardCombinationJsfResponse interceptResult = sortingCheckService.virtualBoardCombinationCheckAndReportIntercept(pdaOperateRequest);
       if (!interceptResult.getCode().equals(200)) {
         JyComboardEntity comboardEntity = createJyComboardRecord(request);
         comboardEntity.setInterceptFlag(true);
