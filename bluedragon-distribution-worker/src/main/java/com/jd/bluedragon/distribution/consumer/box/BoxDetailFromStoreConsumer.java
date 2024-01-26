@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.core.message.base.MessageBaseWithoutUATConsumer;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxPackageDto;
 import com.jd.bluedragon.distribution.box.domain.StoreBoxDetail;
@@ -37,7 +38,7 @@ import static com.jd.bluedragon.distribution.box.domain.Box.BOX_STATUS_SEALED;
 
 @Service("boxDetailFromStoreConsumer")
 @Slf4j
-public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
+public class BoxDetailFromStoreConsumer extends MessageBaseWithoutUATConsumer {
 
     private int batchSize =512;
 
