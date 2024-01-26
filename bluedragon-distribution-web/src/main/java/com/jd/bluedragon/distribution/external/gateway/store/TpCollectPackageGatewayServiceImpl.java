@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
 import com.jd.bluedragon.distribution.box.domain.UpdateBoxResp;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.external.gateway.store.TpCollectPackageGatewayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import lombok.extern.slf4j.Slf4j;
@@ -32,13 +33,22 @@ public class TpCollectPackageGatewayServiceImpl implements TpCollectPackageGatew
 
     @Override
     public JdResponse<GenerateBoxResp> generateBoxCode(GenerateBoxReq request) {
-        checkGenerateBoxReq(request);
-        BoxRequest boxRequest =assembleBoxRequest(request);
-        BoxResponse boxResponse = boxService.genBoxWithoutSiteInfo(boxRequest);
-        JdResponse jdResponse = converJdResponse(boxResponse);
-        assembleBoxData(boxResponse, jdResponse);
-        return jdResponse;
+        log.info("generateBoxCode req:{}", JsonHelper.toJson(request));
+        try {
+            checkGenerateBoxReq(request);
+            BoxRequest boxRequest =assembleBoxRequest(request);
+            BoxResponse boxResponse = boxService.genBoxWithoutSiteInfo(boxRequest);
+            JdResponse jdResponse = converJdResponse(boxResponse);
+            assembleBoxData(boxResponse, jdResponse);
+
+            log.info("generateBoxCode resp:{}", JsonHelper.toJson(jdResponse));
+            return jdResponse;
+        } catch (Exception e) {
+            log.error("TpCollectPackageGatewayService.generateBoxCode error",e);
+        }
+        return new JdResponse<>(JdResponse.CODE_ERROR,"生成箱号异常！");
     }
+
 
     private static void assembleBoxData(BoxResponse boxResponse, JdResponse jdResponse) {
         if (ObjectHelper.isNotNull(boxResponse.getBoxCodes())){
@@ -50,9 +60,18 @@ public class TpCollectPackageGatewayServiceImpl implements TpCollectPackageGatew
 
     @Override
     public JdResponse<UpdateBoxResp> updateBox(UpdateBoxReq request) {
-        checkUpdateBoxReq(request);
-        BoxResponse boxResponse = boxService.updateBox(request);
-        return converJdResponse(boxResponse);
+        log.info("updateBox req:{}", JsonHelper.toJson(request));
+        try {
+            checkUpdateBoxReq(request);
+            BoxResponse boxResponse = boxService.updateBox(request);
+            JdResponse response= converJdResponse(boxResponse);
+
+            log.info("updateBox resp:{}", JsonHelper.toJson(response));
+            return response;
+        } catch (Exception e) {
+            log.error("TpCollectPackageGatewayService.updateBox error",e);
+        }
+        return new JdResponse<>(JdResponse.CODE_ERROR,"更新箱号异常！");
     }
 
     private void checkUpdateBoxReq(UpdateBoxReq request) {
