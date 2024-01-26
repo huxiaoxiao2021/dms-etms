@@ -19,6 +19,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -103,13 +105,16 @@ public class JyPickingGoodScanConsumer extends MessageBaseConsumer {
         }
         try{
             //首单扫描逻辑
+            CallerInfo info0 = Profiler.registerInfo("DMSWORKER.JyPickingGoodScanConsumer.deal0", Constants.UMP_APP_NAME_DMSWEB,false, true);
             jyBizTaskPickingGoodTransactionManager.startPickingGoodTask(mqBody);
-
+            Profiler.registerInfoEnd(info0);
             //扫描记录存储
             this.sendScanSplitBoxDetailMq(mqBody);
 
             //agg计数统计自增
+            CallerInfo info1 = Profiler.registerInfo("DMSWORKER.JyPickingGoodScanConsumer.deal1", Constants.UMP_APP_NAME_DMSWEB,false, true);
             jyBizTaskPickingGoodTransactionManager.updateAggScanStatistics(mqBody);
+            Profiler.registerInfoEnd(info1);
         }catch (Exception ex) {
             log.error("提货扫描异步处理消费异常，errMsg={}, mqBody={}", ex.getMessage(), JsonHelper.toJson(mqBody), ex);
             throw new JyBizException(String.format("航空提货扫描异步消费异常,businessId：%s", mqBody.getBusinessId()));

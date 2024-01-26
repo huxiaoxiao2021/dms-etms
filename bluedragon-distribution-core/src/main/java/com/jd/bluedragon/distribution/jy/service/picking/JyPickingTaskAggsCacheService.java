@@ -80,12 +80,12 @@ public class JyPickingTaskAggsCacheService {
      * 提货任务初始化后的待提总数
      */
     private static final String CACHE_INIT_WAIT_PICKING_TOTAL_NUM = "cache:init:wait:picking:total:num:%s:%s";
-    private static final Integer CACHE_INIT_WAIT_PICKING_TOTAL_NUM_TIMEOUT_HOURS = 24;
+    private static final Integer CACHE_INIT_WAIT_PICKING_TOTAL_NUM_TIMEOUT_SECOND = 5;
     /**
      * 提货任务初始化后按流向的待发总数
      */
     private static final String CACHE_INIT_WAIT_SEND_TOTAL_NUM = "cache:init:wait:send:total:num:%s:%s:%s";
-    private static final Integer CACHE_INIT_WAIT_SEND_TOTAL_NUM_TIMEOUT_HOURS = 24;
+    private static final Integer CACHE_INIT_WAIT_SEND_TOTAL_NUM_TIMEOUT_SECOND = 5;
 
 
     @Autowired
@@ -289,7 +289,7 @@ public class JyPickingTaskAggsCacheService {
      */
     public void saveCacheInitWaitPickingTotalItemNum(String bizId, Long siteId, Integer value) {
         String cacheKey = this.getCacheKeyInitWaitPickingTotalItemNum(bizId, siteId);
-        redisClientOfJy.setEx(cacheKey, value.toString(), CACHE_INIT_WAIT_PICKING_TOTAL_NUM_TIMEOUT_HOURS, TimeUnit.HOURS);
+        redisClientOfJy.setEx(cacheKey, value.toString(), CACHE_INIT_WAIT_PICKING_TOTAL_NUM_TIMEOUT_SECOND, TimeUnit.SECONDS);
     }
     public Integer getCacheInitWaitPickingTotalItemNum(String bizId, Long siteId) {
         String key = this.getCacheKeyInitWaitPickingTotalItemNum(bizId, siteId);
@@ -310,7 +310,7 @@ public class JyPickingTaskAggsCacheService {
      */
     public void saveCacheInitWaitSendTotalItemNum(String bizId, Long siteId, Long nextSiteId, Integer value) {
         String cacheKey = this.getCacheKeyInitWaitSendTotalItemNum(bizId, siteId, nextSiteId);
-        redisClientOfJy.setEx(cacheKey, value.toString(), CACHE_INIT_WAIT_SEND_TOTAL_NUM_TIMEOUT_HOURS, TimeUnit.HOURS);
+        redisClientOfJy.setEx(cacheKey, value.toString(), CACHE_INIT_WAIT_SEND_TOTAL_NUM_TIMEOUT_SECOND, TimeUnit.SECONDS);
     }
     public Integer getCacheInitWaitSendTotalItemNum(String bizId, Long siteId, Long nextSiteId) {
         String key = this.getCacheKeyInitWaitSendTotalItemNum(bizId, siteId, nextSiteId);

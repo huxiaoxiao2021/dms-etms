@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.FinishSendTaskReq;
@@ -21,6 +22,8 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import org.apache.commons.lang3.StringUtils;
@@ -72,6 +75,8 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
 
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyPickingSendDestinationServiceImpl.findOrGenerateBatchCode",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public String findOrGenerateBatchCode(Long curSiteId, Long nextSiteId, User user, Integer taskType) {
         String batchCode = jyPickingSendDestinationDetailDao.fetchLatestNoCompleteBatchCode(curSiteId, nextSiteId, taskType);
         if(StringUtils.isBlank(batchCode)) {
@@ -155,6 +160,8 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
      * @return 添加成功返回true，否则返回false
      */
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyPickingSendDestinationServiceImpl.addSendFlow",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<Boolean> addSendFlow(SendFlowAddReq req) {
         InvokeResult<Boolean> result = new InvokeResult<>();
         Integer currentSiteId = req.getCurrentOperate().getSiteCode();

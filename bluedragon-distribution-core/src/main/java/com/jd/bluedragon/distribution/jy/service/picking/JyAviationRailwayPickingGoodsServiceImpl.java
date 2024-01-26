@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
@@ -34,6 +35,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
@@ -113,6 +116,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.pickingGoodsScan",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<PickingGoodsRes> pickingGoodsScan(PickingGoodsReq request) {
         InvokeResult<PickingGoodsRes> res = new InvokeResult<>();
         PickingGoodsRes resData = new PickingGoodsRes();
@@ -523,6 +528,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.finishPickGoods",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<Void> finishPickGoods(FinishPickGoodsReq req) {
         InvokeResult<Void> ret = new InvokeResult<>();
         if (StringUtils.isEmpty(req.getBizId())) {
@@ -537,6 +544,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.submitException",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<Void> submitException(ExceptionSubmitReq req) {
         InvokeResult<Void> ret = new InvokeResult<>();
         if (StringUtils.isEmpty(req.getBizId())) {
@@ -552,6 +561,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.listSendFlowInfo",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<SendFlowRes> listSendFlowInfo(SendFlowReq req) {
         InvokeResult<SendFlowRes> invokeResult = new InvokeResult<>();
         if (req.getDisplayType() == null) {
@@ -663,6 +674,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
 
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.addSendFlow",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<Void> addSendFlow(SendFlowAddReq req) {
         InvokeResult<Void> ret = new InvokeResult<>();
         if (CollectionUtils.isEmpty(req.getSiteList())) {
@@ -683,6 +696,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.deleteSendFlow",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<Void> deleteSendFlow(SendFlowDeleteReq req) {
         InvokeResult<Void> ret = new InvokeResult<>();
         if (req.getNextSiteId() == null) {
@@ -703,6 +718,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.finishSendTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<Void> finishSendTask(FinishSendTaskReq req) {
         InvokeResult<Void> ret = new InvokeResult<>();
         finishSendTaskCheck(req, ret);
@@ -723,6 +740,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.listAirRailTaskSummary",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<AirRailTaskRes> listAirRailTaskSummary(AirRailTaskSummaryReq req) {
         InvokeResult<AirRailTaskRes> ret = new InvokeResult<>();
         listAirRailTaskSummaryCheck(req, ret);
@@ -956,6 +975,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.listAirRailTaskAgg",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<AirRailTaskAggRes> listAirRailTaskAgg(AirRailTaskAggReq req) {
         InvokeResult<AirRailTaskAggRes> ret = new InvokeResult<>();
         AirRailTaskAggRes res = new AirRailTaskAggRes();
@@ -1106,6 +1127,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
 //    }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.finishTaskWhenWaitScanEqZero",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public void finishTaskWhenWaitScanEqZero() {
         Date startTime = getStartTime();
         Date pickingStartTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getPropertyConfig().getPickingGoodTaskWaitScanEq0TimeRange());
@@ -1150,6 +1173,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.finishTaskWhenTimeExceed",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public void finishTaskWhenTimeExceed() {
         Date endTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getPropertyConfig().getPickingGoodTaskManualTimeRange());
         JyBizTaskPickingGoodQueryDto queryDto = new JyBizTaskPickingGoodQueryDto();

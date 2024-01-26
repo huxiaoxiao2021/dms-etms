@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingSendRecordDao;
 import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
+import com.jd.bluedragon.distribution.jy.dto.pickinggood.CalculateWaitPickingItemNumDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -11,13 +14,20 @@ import com.jd.bluedragon.distribution.jy.service.common.CommonService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jmq.common.message.Message;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -37,6 +47,11 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
     private JyAviationRailwayPickingGoodsCacheService pickingGoodsCacheService;
     @Autowired
     private CommonService commonService;
+    @Autowired
+    @Qualifier(value = "jyPickingGoodSaveWaitScanItemNumProducer")
+    private DefaultJMQProducer jyPickingGoodSaveWaitScanItemNumProducer;
+
+
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -137,6 +152,8 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyPickingSendRecordServiceImpl.initOrUpdateNeedScanDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public void initOrUpdateNeedScanDetail(PickingGoodTaskDetailInitDto paramDto) {
         if(!pickingGoodsCacheService.lockPickingGoodDetailRecordInit(paramDto.getPickingSiteId(), paramDto.getBizId(), paramDto.getPackageCode())) {
             logWarn("提货明细初始化获取锁失败，异常重试，param={}", JsonHelper.toJson(paramDto));
@@ -179,6 +196,8 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
                 insertEntity.setUpdateTime(time);
 
                 jyPickingSendRecordDao.insertSelective(insertEntity);
+                this.sendAggWaitScanItemStatistics(insertEntity);
+
             } else {
                 if (!Constants.NUMBER_ONE.equals(entityQueryRes.getWaitScanFlag())) {
                     JyPickingSendRecordEntity updateEntity = new JyPickingSendRecordEntity(paramDto.getPickingSiteId());
@@ -205,6 +224,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
                     updateEntity.setInitTime(time);
                     updateEntity.setUpdateTime(time);
                     jyPickingSendRecordDao.fillInitWaitScanField(updateEntity);
+                    this.sendAggWaitScanItemStatistics(updateEntity);
                 } else {
                     logInfo("提货扫描明细初始化，重复数据，不做初始化，data={}", JsonHelper.toJson(paramDto));
                 }
@@ -217,7 +237,36 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
         }
     }
 
+
+    private void sendAggWaitScanItemStatistics(JyPickingSendRecordEntity entity){
+
+        List<Message> messageList = new ArrayList<>();
+        CalculateWaitPickingItemNumDto nextItemNumDto = new CalculateWaitPickingItemNumDto();
+        nextItemNumDto.setBizId(entity.getBizId());
+        nextItemNumDto.setCode(entity.getWaitScanCode());
+        if(JyPickingSendRecordEntity.SCAN_BOX.equals(entity.getWaitScanCodeType())) {
+            nextItemNumDto.setCodeType(CalculateWaitPickingItemNumDto.CODE_TYPE_BOX_CODE);
+        }else {
+            nextItemNumDto.setCodeType(CalculateWaitPickingItemNumDto.CODE_TYPE_PACKAGE_CODE);
+        }
+        nextItemNumDto.setNextSiteId(entity.getInitNextSiteId());
+        nextItemNumDto.setPickingSiteId(entity.getPickingSiteId());
+        nextItemNumDto.setWaitPickingItemNum(1);
+        nextItemNumDto.setCalculateNextSiteAggFlag(true);
+        Long time = System.currentTimeMillis();
+        nextItemNumDto.setOperateTime(time);
+        nextItemNumDto.setSysTime(time);
+        String businessId = String.format("%s|%s", nextItemNumDto.getBizId(), nextItemNumDto.getCode());
+
+        String msgText1 = JsonUtils.toJSONString(nextItemNumDto);
+        logInfo("dmsToDms计算bizId发货流向维度待提总件数发送消息，businessId={},msg={}", businessId, msgText1);
+        messageList.add(new Message(jyPickingGoodSaveWaitScanItemNumProducer.getTopic(), msgText1, businessId));
+        jyPickingGoodSaveWaitScanItemNumProducer.batchSendOnFailPersistent(messageList);
+    }
+
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyPickingSendRecordServiceImpl.pickingRecordSave",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public void pickingRecordSave(JyPickingGoodScanDto scanDto) {
 
         JyPickingSendRecordEntity entityRes = this.fetchByPackageCodeAndCondition(scanDto.getPickingSiteId(), scanDto.getPackageCode(), scanDto.getBizId());
@@ -231,7 +280,6 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
             JyPickingSendRecordEntity updateEntity = generatePickingScanEntity(scanDto);
             updateEntity.setUpdateTime(new Date());
             jyPickingSendRecordDao.fillRealScanField(updateEntity);
-
 
         }else {
             logInfo("提货扫描存储重复数据，不做处理，scanDto={}", JsonHelper.toJson(scanDto));
