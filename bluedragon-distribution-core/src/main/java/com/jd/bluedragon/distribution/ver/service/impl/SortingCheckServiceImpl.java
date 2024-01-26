@@ -807,6 +807,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         sortingCheck.setPackageCode(request.getPackageCode());
         sortingCheck.setReceiveSiteCode(request.getReceiveSiteCode());
         sortingCheck.setIsLoss(request.getIsLoss());
+        sortingCheck.setOperateNode(request.getOperateNode());
         return sortingCheck;
     }
 
