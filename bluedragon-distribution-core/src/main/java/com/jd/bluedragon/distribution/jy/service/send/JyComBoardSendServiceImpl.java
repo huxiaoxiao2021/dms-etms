@@ -1956,6 +1956,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
       pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
       pdaOperateRequest.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
+      final CurrentOperate currentOperate = request.getCurrentOperate();
+      final com.jd.bluedragon.common.dto.base.request.OperatorData operatorData = currentOperate.getOperatorData();
+      if (operatorData != null) {
+        pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
+        pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
+        pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
+      }
       BoardCombinationJsfResponse interceptResult = sortingCheckService.virtualBoardCombinationCheck(pdaOperateRequest);
       if (!interceptResult.getCode().equals(200)) {
         JyComboardEntity comboardEntity = createJyComboardRecord(request);
