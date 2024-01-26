@@ -19,6 +19,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
+import com.jd.bluedragon.distribution.api.request.ArTransportModeChangeDto;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
@@ -39,15 +40,18 @@ import com.jd.bluedragon.enums.WaybillFlowTypeEnum;
 import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
 import com.jd.cp.wbms.client.enums.RejectionEnum;
 import com.jd.etms.blocker.dto.BlockerApplyDto;
 import com.jd.etms.blocker.dto.CommonDto;
+import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -77,7 +81,7 @@ import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyException
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.HK_OR_MO;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.INTERNATION;
 import static com.jd.bluedragon.utils.BusinessHelper.getWaybillFlowType;
-import static com.jd.bluedragon.utils.BusinessHelper.isNumeric;
+
 
 /**
  * @Author: ext.xuwenrui
@@ -142,6 +146,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     @Autowired
     private IAbnPdaAPIManager iAbnPdaAPIManager;
 
+    @Autowired
+    @Qualifier("arTransportModeChangeProducer")
+    private DefaultJMQProducer arTransportModeChangeProducer;
+
     private static final String SORTING_REPORT_SYSTEM = "20";
     private static final String SORTING_REPORT_ATTACH_TYPE = "img";
 
@@ -174,7 +182,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                 return JdCResponse.fail("该违禁品上报正在提交,请稍后再试!");
             }
 
-            this.validateReq(req);
+            BigWaybillDto bigWaybillDto = this.getBigWaybillDtoByWaybillCode(WaybillUtil.getWaybillCode(req.getBarCode()));
+            this.validateReq(req,bigWaybillDto);
             JyExceptionContrabandEntity entity = buildEntity(req);
             this.saveImages(req, entity);
             jyExceptionContrabandDao.insertSelective(entity);
@@ -205,8 +214,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                 return JdCResponse.fail(req.getBarCode()+" 违禁品上报质控系统失败，请联系分拣小秘!");
             }
 
-            // todo 如果是航空转路由，向路由发送消息
-
+            // 如果是航空转路由，向路由发送消息
+            if (AIR_TO_LAND.getCode().equals(req.getContrabandType())) {
+                doSendArTransportModeChangeMq(req,bigWaybillDto);
+            }
 
         } catch (Exception e) {
             logger.error("提交违禁品上报报错:", e);
@@ -217,6 +228,65 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         return JdCResponse.ok();
     }
 
+    private BigWaybillDto getBigWaybillDtoByWaybillCode(String waybillCode) {
+        WChoice choice = new WChoice();
+        choice.setQueryWaybillC(true);
+        choice.setQueryGoodList(true);
+        choice.setQueryWaybillExtend(true);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, choice);
+        if (baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+            return baseEntity.getData();
+        }
+        return null;
+    }
+
+    private void doSendArTransportModeChangeMq(ExpContrabandReq req, BigWaybillDto bigWaybillDto) {
+        try{
+            arTransportModeChangeProducer.send(req.getBarCode(), JsonHelper.toJson(convertMessage(req,bigWaybillDto)));
+        }catch (Exception e) {
+            logger.error("包裹{}航空转陆运发送消息异常",req.getBarCode());
+        }
+    }
+
+    private ArTransportModeChangeDto convertMessage(ExpContrabandReq request, BigWaybillDto bigWaybillDto) {
+        ArTransportModeChangeDto dto = new ArTransportModeChangeDto();
+        dto.setWaybillCode(WaybillUtil.getWaybillCode(request.getBarCode()));
+        dto.setOperatorErp(request.getUserErp());
+        dto.setSiteCode(request.getSiteId());
+        Waybill waybill = bigWaybillDto.getWaybill();
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(request.getSiteId());
+        if (siteOrgDto != null) {
+            dto.setSiteName(siteOrgDto.getSiteName());
+            dto.setAreaId(siteOrgDto.getOrgId());
+        }
+        dto.setFirstLevelCode(request.getFirstReasonLevelCode());
+        dto.setFirstLevelName(request.getFirstReasonLevelName());
+        dto.setSecondLevelCode(request.getSecondReasonLevelCode());
+        dto.setSecondLevelName(request.getSecondReasonLevelName());
+        dto.setThirdLevel(request.getThirdReasonLevelName());
+        dto.setOperateTime(DateHelper.formatDateTime(new Date()));
+        // 青龙业主编码
+        dto.setCustomerCode(waybill.getCustomerCode());
+        // 青龙寄件人pin码
+        dto.setConsignerPin(waybill.getMemberId());
+        dto.setConsigner(waybill.getConsigner());
+        dto.setConsignerId(waybill.getConsignerId());
+        dto.setConsignerMobile(waybill.getConsignerMobile());
+        dto.setPickupSiteId(waybill.getPickupSiteId());
+        dto.setPickupSiteName(waybill.getPickupSiteName());
+        // 商家ID
+        dto.setBusiId(waybill.getBusiId());
+        // 商家名称
+        dto.setBusiName(waybill.getBusiName());
+        dto.setConsignmentName(waybillQueryManager.getConsignmentNameByWaybillDto(bigWaybillDto));
+        //省区及枢纽
+        dto.setProvinceAgencyCode(siteOrgDto == null ? null : siteOrgDto.getProvinceAgencyCode());
+        dto.setProvinceAgencyName(siteOrgDto == null ? null : siteOrgDto.getProvinceAgencyName());
+        dto.setAreaHubCode(siteOrgDto == null ? null : siteOrgDto.getAreaCode());
+        dto.setAreaHubName(siteOrgDto == null ? null : siteOrgDto.getAreaName());
+        dto.setPackageCode(request.getBarCode());
+        return dto;
+    }
     private List<ReportRecord> convertReportRecord(ExpContrabandReq req) {
         ReportRecord reportRecord=new ReportRecord();
         reportRecord.setCode(req.getBarCode());
@@ -703,8 +773,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
      * 校验参数
      *
      * @param req
+     * @param waybill
      */
-    private void validateReq(ExpContrabandReq req) {
+    private void validateReq(ExpContrabandReq req, BigWaybillDto bigWaybillDto) {
         if (req == null) {
             throw new RuntimeException("请求参数不能为空");
         }
@@ -716,11 +787,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if (noneMatchContrabandType) {
             throw new RuntimeException("违禁品类型错误");
         }
-        Waybill waybill = waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(req.getBarCode()));
-        if (waybill == null) {
+        if (bigWaybillDto == null || bigWaybillDto.getWaybill() == null) {
             throw new RuntimeException("获取运单信息失败!");
         }
-        WaybillFlowTypeEnum waybillFlowType = getWaybillFlowType(waybill);
+        WaybillFlowTypeEnum waybillFlowType = getWaybillFlowType(bigWaybillDto.getWaybill());
         if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
             if(!waybillFlowType.equals(HK_OR_MO) && !waybillFlowType.equals(WaybillFlowTypeEnum.INTERNATION)){
                 throw new RuntimeException("仅港澳件和国际件出口支持违禁品退回!");
