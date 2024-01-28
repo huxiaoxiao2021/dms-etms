@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.box.domain.StoreBoxDetail;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -250,4 +251,6 @@ public interface SortingService {
      * @time 2023-12-09 15:30:44 周六
      */
     SortingDto getLastSortingInfoByPackageCode(String packageCode);
+
+    int  deleteOldAndInsertNewSorting(List<Sorting> sortingList);
 }

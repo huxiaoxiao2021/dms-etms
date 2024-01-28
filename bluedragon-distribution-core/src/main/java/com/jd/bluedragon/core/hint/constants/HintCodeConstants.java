@@ -1088,4 +1088,6 @@ public class HintCodeConstants {
     // 非0重体包裹，分拣无法进行复重，如需修改包裹重量体积请通过抽检功能！（人工抽检可通过PDA或PC端http://dms.etms.jd.com/?code=CK_U7EHDAmcJNI_pQP3gFz3A0D-7ahSXW2VBFEC9D1g&state=-4C3Ku4n-HWGM7cYpVsfFwcys9RVknqZNBjhFYLXe9I
     public static String WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE = "40032";
 
+    // 无残值货物，请操作报废！
+    public static String SCRAP_WAYBILL_INTERCEPT_HINT_CODE = "40033";
 }
