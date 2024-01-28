@@ -248,11 +248,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     private int getOperateNode(PdaOperateRequest pdaOperateRequest){
         int operateNode = 0;
         if(pdaOperateRequest.getOperateNode() != null){
-            if(pdaOperateRequest.getOperateNode() == OperateNodeConstants.SEND){
-                operateNode = businessInterceptConfigHelper.getOperateNodeByConstants(OperateNodeConstants.SEND);
-            }
-            if(pdaOperateRequest.getOperateNode() == OperateNodeConstants.SORTING){
-                operateNode = businessInterceptConfigHelper.getOperateNodeByConstants(OperateNodeConstants.SORTING);
+            final Integer matchedOperateNode = businessInterceptConfigHelper.getOperateNodeByConstants(pdaOperateRequest.getOperateNode());
+            if (matchedOperateNode != null) {
+                operateNode = matchedOperateNode;
             }
         }
         return operateNode;
