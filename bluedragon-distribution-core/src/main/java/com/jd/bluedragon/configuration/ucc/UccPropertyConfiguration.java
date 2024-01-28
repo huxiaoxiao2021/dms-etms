@@ -1939,6 +1939,12 @@ public class UccPropertyConfiguration{
      */
     private boolean boxTypeNewVersionSwitch;
 
+    /**
+     * 特安作业区编码，逗号分隔
+     */
+    private String teanWorkAreaCodes;
+    private List<String> teanWorkAreaCodesList = new ArrayList<>();
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -4322,5 +4328,33 @@ public class UccPropertyConfiguration{
 
     public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
         this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public String getTeanWorkAreaCodes() {
+        return teanWorkAreaCodes;
+    }
+
+    public void setTeanWorkAreaCodes(String teanWorkAreaCodes) {
+        this.teanWorkAreaCodes = teanWorkAreaCodes;
+        this.setTerminalSiteTypeListForBoxType();
+    }
+
+    public List<String> getTeanWorkAreaCodesList() {
+        return teanWorkAreaCodesList;
+    }
+
+    public void setTeanWorkAreaCodesList() {
+        this.teanWorkAreaCodesList.clear();
+        if(StringUtils.isNotBlank(teanWorkAreaCodes)){
+            final String[] split = teanWorkAreaCodes.split(Constants.SEPARATOR_COMMA);
+            this.teanWorkAreaCodesList = Arrays.asList(split);
+        }
+    }
+
+    public boolean isTeanWorkAreaCode(String workAreaCode){
+        if(Objects.equals(this.teanWorkAreaCodes, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanWorkAreaCodesList.contains(workAreaCode);
     }
 }
