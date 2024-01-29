@@ -61,6 +61,16 @@ public class BoxRequest extends JdRequest {
 	/** 操作人ERP * */
 	private String operateUserErp;
 
+	private String systemType;
+
+	public String getSystemType() {
+		return systemType;
+	}
+
+	public void setSystemType(String systemType) {
+		this.systemType = systemType;
+	}
+
 	public String getGroupName() {
 		return groupName;
 	}
