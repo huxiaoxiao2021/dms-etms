@@ -87,6 +87,11 @@ public class SpotCheckAppealServiceImpl implements SpotCheckAppealService {
     }
 
     @Override
+    public int batchDeleteByWaybillCodes(SpotCheckAppealEntity spotCheckAppealEntity) {
+        return spotCheckAppealDao.batchDeleteByWaybillCodes(spotCheckAppealEntity);
+    }
+
+    @Override
     public SpotCheckAppealEntity findByBizId(SpotCheckAppealEntity spotCheckAppealEntity) {
         return spotCheckAppealDao.findByBizId(spotCheckAppealEntity);
     }

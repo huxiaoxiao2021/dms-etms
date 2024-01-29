@@ -498,4 +498,12 @@
         </where>
     </select>
 
+	<update id="batchDeleteByWaybillCodes" parameterType="com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckAppealEntity">
+		update spot_check_appeal set yn = 0
+		where confirm_status = 0 and yn = 1  and waybill_code in
+		<foreach collection="waybillCodeList" item="item" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</update>
+
 </mapper>
