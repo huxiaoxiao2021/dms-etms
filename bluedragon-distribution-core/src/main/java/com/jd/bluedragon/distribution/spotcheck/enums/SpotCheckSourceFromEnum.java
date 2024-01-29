@@ -100,6 +100,14 @@ public enum SpotCheckSourceFromEnum {
         return null;
     }
 
+    public static String analysisNameFromCode(int code) {
+        for (SpotCheckSourceFromEnum value : SpotCheckSourceFromEnum.values()) {
+            if(Objects.equals(value.getCode(), code)){
+                return value.getName();
+            }
+        }
+        return null;
+    }
     private int code;
     private String name;
     private String description;

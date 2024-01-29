@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.FuncUsageConfigService;
 import com.jd.bluedragon.distribution.client.enums.DeskClientMenuEnum;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
@@ -45,6 +46,9 @@ public class ReassignWaybillResource {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private FuncUsageConfigService funcUsageConfigService;
+
 	@POST
 	@Path("/tagPrint/returnPack")
     @JProfiler(jKey = "DMS.WEB.ReassignWaybillResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -60,7 +64,7 @@ public class ReassignWaybillResource {
                 operateUser.setUserCode(userInfo.getErp());
             }
             funcUsageConfigRequestDto.setOperateUser(operateUser);
-            FuncUsageProcessDto processDto =  baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
+            FuncUsageProcessDto processDto = funcUsageConfigService.getFuncUsageConfig(funcUsageConfigRequestDto);
             if(processDto != null && Constants.YN_NO.equals(processDto.getCanUse())){
                 log.info("ReassignWaybillResource.returnPack record {}", JsonHelper.toJson(request));
                 return new JdResponse(JdResponse.CODE_WRONG_STATUS, processDto.getMsg());

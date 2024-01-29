@@ -61,6 +61,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.CHAR_19_2;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.POSITION_19;
 
 /**
  * 快递弃件暂存
@@ -459,22 +461,27 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 return result.toFail("没有查询到运单包裹信息");
             }
 
-            // 弃件判断
+            if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType())) {
+                String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+                // 报废运单标识
+                boolean scrapWaybillFlag = isScrapWaybill(waybillSign);
+                //冷链专送 且 异常单处理方式 = 异常即报废也可以执行弃件
+                boolean coldChainExpressScrapFlag = BusinessUtil.isColdChainExpressScrap(waybillSign);
+
+                if (!BusinessUtil.isScrapSortingSite(waybillSign)
+                        && !scrapWaybillFlag
+                        && !coldChainExpressScrapFlag) {
+                    return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP_MSG, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP));
+                }
+            }
+
+            // 暂存判断
             if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
                 if (!waybillTraceManager.isOpCodeWaste(barCode)) {
                     log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
                     return result.toFail("不是弃件，请勿操作弃件暂存");
                 }
             }
-
-            if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType())) {
-                String waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
-                //冷链专送 且 异常单处理方式 = 异常即报废也可以执行弃件
-                if (!BusinessUtil.isColdChainExpressScrap(waybillSign) && !BusinessUtil.isScrapSortingSite(waybillSign)) {
-                    return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP_MSG, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP));
-                }
-            }
-
             // 3. 执行业务操作逻辑
             final DiscardedStorageContext context = new DiscardedStorageContext();
             context.setScanDiscardedPackagePo(paramObj);

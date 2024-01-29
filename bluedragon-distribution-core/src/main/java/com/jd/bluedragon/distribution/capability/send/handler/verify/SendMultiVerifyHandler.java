@@ -9,6 +9,8 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * 天官赐福 ◎ 百无禁忌
  *
@@ -71,13 +73,24 @@ public class SendMultiVerifyHandler extends SendDimensionStrategyHandler {
 
     private boolean multiSendVerification(SendOfCAContext context) {
         // 多次发货取消上次发货校验
-        // 如有使用者忽略了提示强制提交时需要跳过
-        if(!context.getRequest().getIsCancelLastSend()){
 
-            if (deliveryService.multiSendVerification(context.getRequestTurnToSendM(),
-                    context.getResponse().getData())) {
-                return true;
-            }else{
+        //此处不能使用上下文中的SendResult ，防止污染
+        SendResult multiSendVerificationResult = new SendResult();
+
+        boolean mFlag = deliveryService.multiSendVerification(context.getRequestTurnToSendM(),
+                multiSendVerificationResult);
+
+
+        if(!mFlag){
+            //mFlag false时  一定是拦截
+            //如果强制拦截就不运行忽略
+            if (Objects.equals(multiSendVerificationResult.getKey(), SendResult.CODE_SENDED)) {
+                context.getResponse().setData(multiSendVerificationResult);
+                return false;
+            }
+            //弱拦截当传入标识时可以跳过
+            if(!context.getRequest().getIsCancelLastSend()){
+                context.getResponse().setData(multiSendVerificationResult);
                 return false;
             }
         }
