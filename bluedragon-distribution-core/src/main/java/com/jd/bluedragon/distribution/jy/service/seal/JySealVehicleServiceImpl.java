@@ -681,11 +681,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.checkTransCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<TransportResp> checkTransCode(CheckTransportReq reqcuest) {
+    public InvokeResult<TransportResp> checkTransCode(CheckTransportReq request) {
         TransportResp transportResp = new TransportResp();
         InvokeResult<TransportResp> invokeResult = new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         try {
-            com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newSealVehicleService.getTransportResourceByTransCode(reqcuest.getTransportCode());
+            com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newSealVehicleService.getTransportResourceByTransCode(request.getTransportCode());
             if (commonDto == null) {
                 invokeResult.setCode(SERVER_ERROR_CODE);
                 invokeResult.setMessage("查询运力信息结果为空");
@@ -693,7 +693,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             if (commonDto.getData() != null && Constants.RESULT_SUCCESS == commonDto.getCode()) {
                 TransportResourceDto data = commonDto.getData();
-                if(Objects.isNull(data.getStartNodeId()) || reqcuest.getCurrentOperate().getSiteCode() != data.getStartNodeId()) {
+                if(Objects.isNull(data.getStartNodeId()) || request.getCurrentOperate().getSiteCode() != data.getStartNodeId()) {
                     invokeResult.error(String.format("运力编码始发地[%s]非当前场地", data.getStartNodeName()));
                     return invokeResult;
                 }
@@ -706,7 +706,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 transportResp.setTransWayName(data.getTransWayName());
                 transportResp.setTransType(data.getTransType());
                 transportResp.setTransTypeName(data.getTransTypeName());
-                if (reqcuest.getEndSiteId().equals(endNodeId)) {
+                if (request.getEndSiteId().equals(endNodeId)) {
                     invokeResult.setCode(RESULT_SUCCESS_CODE);
                     invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
                     invokeResult.setData(transportResp);
@@ -714,9 +714,14 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
                     BaseStaffSiteOrgDto endNodeSite = baseMajorManager.getBaseSiteBySiteId(endNodeId);
                     if (endNodeSite != null && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())) {
-                        invokeResult.setCode(RESULT_SUCCESS_CODE);
-                        invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
-                        invokeResult.setData(transportResp);
+                        if(this.confirmTemporaryTransfer(request)) {
+                            invokeResult.setCode(NewSealVehicleResponse.CODE_DESTINATION_DIFF_ERROR);
+                            invokeResult.setMessage(MessageFormat.format(NewSealVehicleResponse.TIPS_TRANSPORT_BATCHCODE_DESTINATION_DIFF_ERROR,endNodeSite.getSiteName()));
+                        }else {
+                            invokeResult.setCode(RESULT_SUCCESS_CODE);
+                            invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+                            invokeResult.setData(transportResp);
+                        }
                     } else {
                         invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                         invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVE_DIFF_ERROR);
@@ -730,13 +735,38 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             } else {
                 invokeResult.setCode(SERVER_ERROR_CODE);
                 invokeResult.setMessage("查询运力信息出错！");
-                log.warn("根据运力编码：【{}】查询运力信息出错,出错原因:{}", reqcuest.getTransportCode(), commonDto.getMessage());
+                log.warn("根据运力编码：【{}】查询运力信息出错,出错原因:{}", request.getTransportCode(), commonDto.getMessage());
                 return invokeResult;
             }
         } catch (Exception e) {
             log.error("JySealVehicleServiceImpl.checkTransCode e ", e);
         }
         return invokeResult;
+    }
+
+    /**
+     * 运力编码中转属性确认
+     * @param request
+     * @return true: 需要确认  false:不做确认，直接放行
+     *
+     * @Desc
+     * 1、老版本： 无任务化，第一步扫描运力编码，第二步扫描批次号，扫描批次号时校验运力编码下一跳中转属性逻辑
+     * 2、当前发货岗逻辑：任务化，扫描运力，没有校验中转属性，扫描批次号，作中转属性校验
+     * 【个人理解，该校验应该前置执行，发货岗任务化后流向已经确定，扫描运力可以直接校验，无需等到扫描批次号在做校验，，，会丢失场景：扫描运力后直接封车默认批次，不在扫描批次号，无法触发中转校验】
+     * 3、本期修改：
+     * 航空发货岗只有默认批次，没有扫描其他批次，导致没有触发中转校验，导致中转场地没有触发校验
+     *
+     */
+    private boolean confirmTemporaryTransfer(CheckTransportReq request) {
+        if(Objects.isNull(request) || StringUtils.isBlank(request.getPost())) {
+            return false;
+        }
+
+        if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(request)) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
