@@ -61,6 +61,11 @@ public class SpotCheckAppealDaoImpl extends BaseDao<SpotCheckAppealEntity> imple
 		return this.getSqlSession().selectList(NAMESPACE + ".findListByNotConfirm", spotCheckAppealEntity);
 	}
 
+	@Override
+	public int batchDeleteByWaybillCodes(SpotCheckAppealEntity spotCheckAppealEntity) {
+		return this.getSqlSession().update(NAMESPACE + ".batchDeleteByWaybillCodes", spotCheckAppealEntity);
+	}
+
 	/**
 	 * 根据条件统计总数
 	 */
