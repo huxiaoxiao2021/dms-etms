@@ -13,8 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.*;
-import static com.jd.bluedragon.dms.utils.WaybillSignConstants.CHAR_19_2;
-import static com.jd.bluedragon.dms.utils.WaybillSignConstants.POSITION_19;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.*;
 
 /**
  * @author tangchunqing
@@ -3095,5 +3094,16 @@ public class BusinessUtil {
             return false;
         }
         return BusinessUtil.isSignChar(waybillSign,POSITION_19,CHAR_19_2);
+    }
+
+    /**
+     * CTC逆向单判断 waybillsign40=0且29=8且61!=0
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isCTCReverseWaybill(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign,POSITION_40,CHAR_40_0)
+                && BusinessUtil.isSignChar(waybillSign,POSITION_29,CHAR_29_8)
+                && !BusinessUtil.isSignChar(waybillSign,POSITION_61, CHAR_61_0);
     }
 }

@@ -2409,4 +2409,10 @@ public class Constants {
      */
     public static final String SYS_CONFIG_ANDROID_PDA_OFFLINE = "android_pda_offline";
 
+    /**
+     * 返调度退仓站点协助配送关系配置
+     */
+    public static final String  REASSIGN_WAYBILL_STORE_SITE_CONFIG = "reassign.waybill.store.site.config";
+
+
 }

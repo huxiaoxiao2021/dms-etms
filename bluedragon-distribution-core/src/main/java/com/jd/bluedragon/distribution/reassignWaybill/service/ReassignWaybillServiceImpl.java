@@ -7,6 +7,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyApproveStatusEnum;
 import com.jd.bluedragon.common.dto.sysConfig.response.ReassignWaybillProvinceAreaApprovalConfigDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.StoreSiteConfigDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ExpressDispatchServiceManager;
 import com.jd.bluedragon.core.base.FlowServiceManager;
@@ -24,7 +25,6 @@ import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdCommand;
@@ -80,8 +80,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.jd.bluedragon.Constants.REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG_FLOW_VERSION_NEW;
-import static com.jd.bluedragon.Constants.SITE_TYPE_SPWMS;
+import static com.jd.bluedragon.Constants.*;
 import static com.jd.bluedragon.distribution.api.enums.ReassignWaybillReasonTypeEnum.JUDGMENT_REASSIGN;
 import static com.jd.bluedragon.distribution.api.enums.ReassignWaybillReasonTypeEnum.UNABLE_TO_DELIVER;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.getHideAddress;
@@ -469,6 +468,11 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 				return result;
 			}
 
+			// 退货组操作反调度 若为C2C逆向单，自动校验通过，不需要审批直接执行反调度
+			if (req.getReturnGroupFlag() && BusinessUtil.isCTCReverseWaybill(preSortOnSiteRequest.getWaybillSign())) {
+				return returnPack(req);
+			}
+
 			//判断返调度原因类型
 			ReassignWaybillReasonTypeEnum reasonTypeEnum = ReassignWaybillReasonTypeEnum.getEnum(req.getReasonType());
 			switch (reasonTypeEnum){
@@ -505,26 +509,53 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					dealNewReassignWaybillApprovalRecord(req, false);
 					return returnPack(req);
 				case RECOMMENDS_WAREHOUSE_NOT_ACC:
-				case JUDGMENT_REASSIGN:
-				case NO_ROUTING:
-					boolean needApproval = true;
 					// 若反调度目的为备件库，不需要审批 直接提交成功
 					PsStoreInfo psStoreInfo = baseMajorManager.selectBaseStoreByDmsSiteId(req.getSiteOfSchedulingOnSiteCode());
-					if (psStoreInfo != null && SITE_TYPE_SPWMS.equals(psStoreInfo.getDsmStoreType())) needApproval = false;
+					if (psStoreInfo != null && SITE_TYPE_SPWMS.equals(psStoreInfo.getDsmStoreType())) {
+						return returnPack(req);
+					}
 
 					// 若反调度目的为仓，不需要审批 直接提交成功
 					BaseStaffSiteOrgDto siteOfSchedulingOnSite = baseMajorManager.getBaseSiteBySiteId(req.getSiteOfSchedulingOnSiteCode());
-					if (BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())) needApproval = false;
-
+					if (BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())) {
+						return returnPack(req);
+					}
+					result.toFail("此原因反调度目的地必须为仓或备件库!");
+					return result;
+				case NO_ROUTING:
+					// 获取营业部和仓关系配置信息
+					String msg = "未获取到退仓站点协助配送关系配置, 请联系分拣小秘!";
+					SysConfig configContent = sysConfigService.findConfigContentByConfigName(REASSIGN_WAYBILL_STORE_SITE_CONFIG);
+					if(configContent == null){
+						result.toFail(msg);
+						return result;
+					}
+					StoreSiteConfigDto configDto = JSON.parseObject(configContent.getConfigContent(), StoreSiteConfigDto.class);
+					if (configDto == null || CollectionUtils.isEmpty(configDto.getConfigMap())) {
+						result.toFail(msg);
+						return result;
+					}
+					HashMap<Integer, List<Integer>> configMap = configDto.getConfigMap();
+					if (Objects.equals(preSortOnSiteRequest.getReceiveSiteCode(), null)) {
+						result.toFail("未获取到运单预分拣站点！");
+						return result;
+					}
+					List<Integer> siteIdList = configMap.get(preSortOnSiteRequest.getReceiveSiteCode());
+					// 根据运单的目的地站点获取所关联的站点id，如果反调度站点在关联的id当中，则执行返调度
+					if (!CollectionUtils.isEmpty(siteIdList) && siteIdList.contains(req.getSiteOfSchedulingOnSiteCode())) {
+						return returnPack(req);
+					}
+					log.info("运单号{}, 关联站点不匹配，预分拣站点{}, 返调度站点{}",req.getBarCode(), preSortOnSiteRequest.getReceiveSiteCode(), req.getSiteOfSchedulingOnSiteCode());
+					result.toFail("协助退仓站点id错误，请核实反调度目的地，如有疑问，请联系bjhaoye!");
+					return result;
+				case JUDGMENT_REASSIGN:
+				case OTHER:
 					//逻辑删除未审核通过的申请记录 / 取消OA申请单
 					dealOldReassignWaybillApprovalRecord(req);
 					//新增新的审核申请
-					dealNewReassignWaybillApprovalRecord(req, needApproval);
-
-					if (!needApproval) {
-						return returnPack(req);
-					}
-					break;
+					dealNewReassignWaybillApprovalRecord(req, true);
+					result.toSuccess("请求成功，已提交" + checker.get(0) + "进行审批!");
+					return result;
 				default:
 					log.warn("未知的返调度类型！");
 					result.setData(Boolean.FALSE);
@@ -827,8 +858,14 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			return null;
 		}
 		JSONObject dataObject = JSON.parseObject(data.toString());
-		String printAddress = dataObject.get("printAddress").toString();
-		String printTime = dataObject.get("printTime").toString();
+		String printAddress = "";
+		String printTime = "";
+		if (ObjectHelper.isNotEmpty(dataObject.get("printAddress"))) {
+			printAddress = dataObject.get("printAddress").toString();
+		}
+		if (ObjectHelper.isNotEmpty(dataObject.get("printTime"))) {
+			printTime = dataObject.get("printTime").toString();
+		}
 		JSONArray packList = dataObject.getJSONArray("packList");
 		if(StringUtils.isBlank(printAddress)
 			|| StringUtils.isBlank(printTime)
