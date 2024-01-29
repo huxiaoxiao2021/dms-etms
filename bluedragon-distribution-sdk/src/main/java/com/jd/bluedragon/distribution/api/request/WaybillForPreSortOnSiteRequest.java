@@ -53,7 +53,7 @@ public class WaybillForPreSortOnSiteRequest extends JdRequest {
     private String waybillSign;
 
     /**
-     * 运单目的地占带你
+     * 运单目的地
      */
     private Integer receiveSiteCode;
 
