@@ -2468,4 +2468,10 @@ public class Constants {
      * 自动签退任务-扫描场地范围
      */
     public static final String SYS_CONFIG_AUTO_SIGN_OUT_SITE_CODE = "auto.sign.out.site.code";
+    /**
+     * 返调度退仓站点协助配送关系配置
+     */
+    public static final String  REASSIGN_WAYBILL_STORE_SITE_CONFIG = "reassign.waybill.store.site.config";
+
+
 }

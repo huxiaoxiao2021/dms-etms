@@ -753,8 +753,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             return aggMap;
         }
 
-        log.info("查询集包统计数据{}", JsonHelper.toJson(listTaskStatisticDto));
-        listTaskStatisticDto.getStatisticsUnderTaskDtoList().stream().map(item -> aggMap.put(item.getBizId(), item.getExcepScanDtoList()));
+        listTaskStatisticDto.getStatisticsUnderTaskDtoList().forEach(item -> aggMap.put(item.getBizId(), item.getExcepScanDtoList()));
         return aggMap;
     }
 
