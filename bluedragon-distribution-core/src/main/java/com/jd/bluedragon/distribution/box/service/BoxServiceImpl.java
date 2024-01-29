@@ -31,6 +31,7 @@ import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
+import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
@@ -43,7 +44,9 @@ import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
@@ -846,6 +849,41 @@ public class BoxServiceImpl implements BoxService {
         return response;
     }
 
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.BoxServiceImpl.genBoxWithoutSiteInfo", mState = {JProEnum.TP})
+	public BoxResponse genBoxWithoutSiteInfo(BoxRequest request) {
+		checkBoxRequerst(request);
+		BoxResponse response = new BoxResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+		List<Box> boxes = batchAddNew(toBox(request), request.getSystemType());
+		assembleBoxCodes(boxes, response);
+		return response;
+	}
+
+	private static void assembleBoxCodes(List<Box> boxes, BoxResponse response) {
+		if (CollectionUtils.isNotEmpty(boxes)){
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i< boxes.size(); i++){
+				if (ObjectHelper.isNotNull(boxes.get(i)) && ObjectHelper.isNotNull(boxes.get(i).getCode())) {
+					sb.append(boxes.get(i).getCode());
+				}
+				if (i< boxes.size()-1) {
+					sb.append(Constants.SEPARATOR_COMMA);
+				}
+			}
+			response.setBoxCodes(sb.toString());
+		}
+	}
+
+	private static void checkBoxRequerst(BoxRequest request) {
+		Assert.notNull(request, "request must not be null");
+		Assert.notNull(request.getType(), "request type must not be null");
+		Assert.notNull(request.getQuantity(), "request quantity must not be null");
+		if (Box.BOX_TRANSPORT_TYPE_CITY.equals(request.getTransportType())) {
+			Assert.notNull(request.getPredictSendTime(), "request predictSendTime must not be null");
+		}
+	}
+
 	private void pushBoxPrintMq(List<Box> availableBoxes) {
 		if (CollectionUtils.isEmpty(availableBoxes)) {
 			return;
@@ -1099,4 +1137,101 @@ public class BoxServiceImpl implements BoxService {
         }
         return typeDtoList;
     }
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.BoxServiceImpl.updateBox", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public BoxResponse updateBox(UpdateBoxReq request) {
+		BoxResponse response = new BoxResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+		if (checkBoxIfCanUpdate(request,response)){
+			execUpdateBox(request,response);
+		}
+		return response;
+	}
+
+	/**
+	 * 校验箱号信息是否能更新
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	private boolean checkBoxIfCanUpdate(UpdateBoxReq request, BoxResponse response) {
+		Box box =boxDao.findBoxByCode(request.getBoxCode());
+		if (ObjectHelper.isEmpty(box)){
+			response.toError("未找到对应的箱号！");
+			return false;
+		}
+		request.setBoxId(box.getId());
+
+		if (ObjectHelper.isEmpty(request.getCreateSiteCode())){
+			BaseResult<PsStoreInfo>  result =basicPrimaryWS.getStoreByCky2Id(request.getStoreInfo().getStoreType(),request.getStoreInfo().getCky2(),request.getStoreInfo().getStoreId(),"dms");
+			if (ObjectHelper.isEmpty(result) || ObjectHelper.isEmpty(result.getData())
+					|| ObjectHelper.isEmpty(result.getData().getDmsSiteId()) || ObjectHelper.isEmpty(result.getData().getDmsStoreName())){
+				response.toError("未获取到仓对应的基础资料场地信息！");
+				return false;
+			}
+			request.setCreateSiteCode(result.getData().getDmsSiteId());
+			request.setCreateSiteName(result.getData().getDmsStoreName());
+		}
+
+		if (checkBoxIsSent(request.getBoxCode(),request.getCreateSiteCode())){
+			response.toError("该箱号已经发货，禁止变更！");
+			return false;
+		}
+
+
+		if (ObjectHelper.isEmpty(request.getReceiveSiteName())){
+			BaseStaffSiteOrgDto baseStaffSiteOrgDto =basicPrimaryWS.getBaseSiteBySiteId(request.getReceiveSiteCode());
+			if (ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsName())){
+				response.toError("未获取到目的场地信息！");
+				return false;
+			}
+			request.setReceiveSiteName(baseStaffSiteOrgDto.getSiteName());
+		}
+
+		return true;
+	}
+
+	/**
+	 * 执行箱号信息变更
+	 * @param request
+	 * @param response
+	 */
+	private void execUpdateBox(UpdateBoxReq request, BoxResponse response) {
+		Box box =new Box();
+		box.setId(request.getBoxId());
+		box.setCode(request.getBoxCode());
+		box.setCreateSiteCode(request.getCreateSiteCode());
+		box.setCreateSiteName(request.getCreateSiteName());
+		box.setReceiveSiteCode(request.getReceiveSiteCode());
+		box.setReceiveSiteName(request.getReceiveSiteName());
+		box.setCreateUser(request.getUserName());
+		box.setCreateUserCode(request.getUserCode());
+		box.setTransportType(request.getTransportType());
+		box.setMixBoxType(request.getMixBoxType());
+
+		int rs =boxDao.updateById(box);
+		if (rs >0){
+			if (syncCacheDataFail(response, box)) {
+				return;
+			}
+			response.toSucceed("更新箱号信息成功！");
+			return;
+		}
+		response.toError("更新箱号信息失败！");
+	}
+
+	private boolean syncCacheDataFail(BoxResponse response, Box box) {
+		boolean success =jimdbCacheService.del(getCacheKey(box.getCode()));
+		if (!success){
+			boolean isCatched = jimdbCacheService.setEx(getCacheKey(box.getCode()),JsonHelper.toJson(box), timeout);
+			if (!isCatched){
+				log.warn("box cache fail. the boxCode is " + box.getCode());
+				response.toError("更新箱号失败！");
+				return true;
+			}
+		}
+		return false;
+	}
+
+
 }

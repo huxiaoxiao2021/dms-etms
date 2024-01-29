@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.box.domain.StoreBoxDetail;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -267,4 +268,6 @@ public interface SortingService {
      * @return SortingResponse
      */
     SortingResponse doCancelSortingOffsite(CancelSortingOffsiteDto cancelSortingOffsiteDto);
+
+    int  deleteOldAndInsertNewSorting(List<Sorting> sortingList);
 }
